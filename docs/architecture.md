@@ -119,6 +119,17 @@
  Model                       Opus (most capable Claude model) for
                               general agent, evaluator, and future
                               sub-agents
+
+ License (code)              CC BY-NC-SA 4.0 — root LICENSE and
+                              safety-quotient/LICENSE. NonCommercial
+                              retained; no source dataset constraint
+                              applies to the code layer.
+
+ License (PSQ data +         CC BY-SA 4.0 — safety-quotient/LICENSE-DATA.
+ model weights)              Required by Dreaddit (CC BY-SA 4.0) source:
+                              ShareAlike clause prohibits adding NC
+                              restriction to derivative data.
+                              Decided: 2026-03-02
 ────────────────────────────────────────────────────────────────────────
 ```
 
@@ -166,17 +177,23 @@ dimensions.
 
 ```
 ────────────────────────────────────────────────────────────────────────
- Skill      When              What it does
+ Skill         When              What it does
 ────────────────────────────────────────────────────────────────────────
- /doc       Mid-work          Persist decisions, findings, reasoning
-                               to the correct file on disk
+ /doc          Mid-work          Persist decisions, findings, reasoning
+                                  to the correct file on disk
 
- /cycle     Post-work         Full documentation chain update,
-                               commit, clean up
+ /hunt         Discovery         Find highest-value next work; scans
+                                  all doc sources, extrapolates gaps
 
- /hunt      Discovery         Find highest-value next work
+ /cycle        Post-session      Full documentation chain propagation;
+                                  MEMORY-snapshot archive; git commit
+
+ /capacity     On demand         Cognitive capacity audit — line
+                                  budgets, trigger coverage, skills
+
+ /adjudicate   Decision point    Structured resolution — classify domain,
+                                  8-order cascade, consensus or parsimony
 ────────────────────────────────────────────────────────────────────────
 ```
 
-*Note:* `/cycle` and `/hunt` currently exist only in the safety-quotient
-sub-project. Versions for the general agent may be needed as the project grows.
+All skills live at `.claude/skills/` (general agent level).

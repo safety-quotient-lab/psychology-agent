@@ -1,14 +1,23 @@
 # General-Purpose Psychology Agent — TODO
 
-Task backlog. Items marked [COMPLETE] are retained for record.
+Forward-looking task list only. Completed and emergent work goes to
+`lab-notebook.md`, not here. See `lab-notebook.md` for session history.
 
 ---
 
-## Architecture (in progress)
+## Reconstruction Handoff (immediate)
+
+- [ ] **Package shipped** — awaiting relay-agent results and `.git/` return.
+- [ ] **Import .git/ on return** — `cp -r psychology-reconstructed/.git ~/projects/psychology/.git`,
+  then run /cycle for Session 5 catch-up commit (first live, non-reconstructed commit).
+
+---
+
+## Architecture (in progress — other machine context)
 
 - [ ] **Item 1: General agent design** — prompt/identity, routing logic, Socratic
-  protocol, audience adaptation question (clinician vs. researcher vs. public vs.
-  machine caller)
+  protocol (dynamic calibration for humans; structural detection + direct mode
+  for machine callers)
 - [ ] **Item 2: Sub-agent protocol** — how sub-agents plug in, communicate scope,
   and declare validated boundaries
 - [ ] **Item 3: Adversarial evaluator** — tiered activation logic, parsimony
@@ -18,32 +27,25 @@ Task backlog. Items marked [COMPLETE] are retained for record.
 
 ## Skills
 
-- [COMPLETE] `/doc` — mid-work documentation persistence (created 2026-03-01)
-- [ ] `/cycle` — adapt PSQ's cycle skill for the general agent project (currently
-  only exists in safety-quotient/)
-- [ ] `/hunt` — adapt PSQ's hunt skill for the general agent project
+- [ ] **`/knock` as standalone skill** — extract knock-on analysis from `/hunt` Phase 5
+  into a dedicated `/knock` skill (callable independently by user or agent). Add:
+  domain classification step (Code/Data/Pipeline/Infrastructure/UX/Operational/Product),
+  grounding step (verify actual dependencies before tracing orders), cross-domain
+  patterns checklist. Update `/hunt` Phase 5 to reference `/knock` rather than
+  embedding the protocol inline.
+
+- [ ] **Memory topic-file pattern** — split MEMORY.md into an index file (~60 lines)
+  + topic files read on demand. Candidate topics: `cogarch.md` (triggers quick-ref,
+  working principles), `decisions.md` (design decisions table), `psq-status.md`.
+  Add routing table to `/cycle` Step 7: what changed → which topic file to update.
+  Update BOOTSTRAP.md Step 4 to reflect new structure.
 
 ---
 
 ## PSQ Sub-Agent Integration
 
 Managed in safety-quotient/ context. Do not duplicate here.
-Blocking items (from that context): API surface, confidence calibration, scope
-boundaries.
+Blocking: API surface, confidence calibration, scope boundaries.
 
 ---
-
-## Documentation
-
-- [COMPLETE] `docs/architecture.md` — design decisions and diagram
-- [COMPLETE] `journal.md` — research narrative
-- [COMPLETE] `lab-notebook.md` — session log
-- [COMPLETE] `TODO.md` — this file
-- [COMPLETE] `ideas.md` — speculative ideas
-- [COMPLETE] `README.md` — project overview
-- [COMPLETE] `CLAUDE.md` — project root conventions
-- [ ] `BOOTSTRAP.md` — how to bring a fresh Claude Code install to full context
-
----
-
 

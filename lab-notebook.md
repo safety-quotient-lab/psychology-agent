@@ -10,7 +10,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 
 ## Current State *(overwrite each session)*
 
-### Agent: Design phase (2026-03-01)
+### Agent: Design phase (2026-03-02)
 
 | Item                          | Status                                           |
 |-------------------------------|--------------------------------------------------|
@@ -21,7 +21,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | /hunt skill                   | ✓ Created — needs restart to load               |
 | /cycle skill                  | ✓ Created — needs restart to load               |
 | /capacity skill               | ✓ Created — needs restart to load               |
-| Conventions migration         | ✓ CLAUDE.md holds stable conventions (128 lines) |
+| Conventions migration         | ✓ CLAUDE.md holds stable conventions (163 lines) |
 | CLAUDE.md (project root)      | ✓ Created + display convention added             |
 | Cognitive infrastructure      | ✓ T1–T12, lessons.md (13 entries), cogarch       |
 | T10/T11 ordering              | ✓ Fixed — T10 now precedes T11 in file           |
@@ -31,10 +31,21 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | SWEBOK/PMBOK vocabulary policy| ✓ Added to MEMORY.md + ideas.md                  |
 | Socratic protocol             | ✓ Resolved — dynamic calibration; machine detect |
 | Sub-agent implementation      | ✓ Resolved — staged hybrid (see architecture.md) |
-| General agent design          | ✗ Next — item 1 of 3                             |
+| Reconstruction package        | ✓ reconstruct.py + relay-agent-instructions.md + template |
+| Handoff package               | ✓ ~/psychology-handoff.tar.gz — relay-agent running on other machine |
+| Relay-agent auto-accept gate  | ✓ Only pauses for high-weight SUBSTITUTIVE divergences |
+| /cycle Step 12 git guard      | ✓ Graceful skip when .git absent                |
+| Drift metric (content_drift)  | ✓ SUBTRACTIVE excluded from circuit breaker — epistemically clean |
+| Semantic naming               | ✓ reconstruct.py + relay-agent-instructions.md + divergence-report-template.md |
+| Code Style convention         | ✓ CLAUDE.md + T4 cogarch check                  |
+| License (root project)        | ✓ CC BY-NC-SA 4.0 — LICENSE at project root      |
+| License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
+| PSQ commercial model          | ✗ Undefined — ideas documented in ideas.md       |
+| General agent design          | ✗ Next                                           |
 | Sub-agent protocol            | ✗ Pending — item 2 of 3                          |
 | Adversarial evaluator         | ✗ Pending — item 3 of 3                          |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
+| Reconstruction import         | ✗ Pending receipt of .git/ from other machine    |
 
 
 ### Open Questions
@@ -209,3 +220,135 @@ section added).
 
 ▶ .claude/skills/capacity/SKILL.md, memory/cognitive-triggers.md
 
+---
+
+## 2026-03-01T23:27 CST — Session 4 (Reconstruction package, git guard)
+
+**Scope:** Build git reconstruction infrastructure; close out this machine's work.
+
+**→ Reconstruction package created** at `reconstruction/`:
+- `reconstruct.py` — mechanical JSONL replay: parses Claude Code JSONL
+  (`msg["message"]["content"]` nesting), filters Write/Edit under project root,
+  session boundary constants from lab-notebook, weighted drift scoring (score_A
+  gates circuit breaker; score_B reported only; delta measures /cycle noise),
+  two-level threshold with Session 1 empirical calibration (adjudicated Option C),
+  divergence classification (ADDITIVE / SUBTRACTIVE / SUBSTITUTIVE), one
+  `[RECONSTRUCTED]` commit per session. Exit codes 0/1/2.
+- `relay-agent-instructions.md` — self-contained protocol for fresh Claude Code
+  agent on other machine: inputs, session boundaries, drift scoring reference,
+  8-step reconstruction sequence, hard constraints, decision point format (A–D),
+  git commit convention, output spec.
+- `divergence-report-template.md` — standardized termination decision point
+  template with all required fields and resolution log.
+
+Dry-run validated: 52 Write/Edit operations extracted and correctly assigned
+(S1: 9, S2: 16, S3: 27). Two bugs found and fixed during dry-run: JSONL content
+path (nested inside `message` not top-level) and datetime comparison (raw strings
+vs. `datetime` objects in session boundary loop.
+
+**→ /cycle Step 12 git guard added.** Wraps git commands in `rev-parse --git-dir`
+check; prints skip notice and falls through to Step 13 if no .git present. Live
+sessions continue unblocked while reconstruction runs on other machine.
+
+**→ Next-steps decision (pragmatic analysis + user approval):**
+1. Switch to other machine; prepare reconstruction environment
+2. Run reconstruction: relay-agent produces .git/ + divergence report
+3. Architecture item 1 starts on other machine in fresh context
+4. Adjudicate reconstruction completeness on other machine
+5. Import .git/ to this machine; run /cycle for Session 5 catch-up commit
+
+▶ reconstruction/reconstruct.py, reconstruction/relay-agent-instructions.md
+
+---
+
+## 2026-03-02T01:08 CST — Session 5 (Reconstruction QA, drift metric fix, semantic naming)
+
+**Scope:** Continued from Session 4 (context compressed). QA pass on reconstruction
+package; epistemic analysis of drift metric; cogarch and convention updates.
+
+**→ Silent git design analyzed and reverted.**
+Proposed: relay-agent commits session content at score_A, /cycle skips Step 12.
+Three-question challenge: necessary? (no — reference state includes /cycle output),
+feasible? (no — uncommitted /cycle state bleeds into next session's content_drift),
+epistemically defensible? (no — /cycle output is intended reconstruction content,
+not noise). Design failed all three. Reverted in /cycle SKILL.md and
+relay-agent-instructions.md.
+→ Lesson written: "Inherited Framing Runs Unexamined" — three-question challenge
+as pre-commit check for any design change that adds complexity.
+
+**→ content_drift (score_A) fix: SUBTRACTIVE excluded from intersection-only metric.**
+Root cause: reference state is cumulative final state; Session 1 reconstruction
+contains only Session 1 files. Session 2–4 files exist in reference but not yet
+in reconstruction → SUBTRACTIVE. Including them in content_drift would inflate
+Session 1 score with every file written in later sessions, making the threshold
+meaningless as content-fidelity signal.
+Fix: `intersection_only=True` now excludes both ADDITIVE and SUBTRACTIVE.
+content_drift measures only files present in both reconstruction and reference.
+full_tree_drift (score_B, diagnostic) still includes SUBTRACTIVE.
+Constraint: Order 8 (methodology publication potential) — fix required for
+drift metric to be epistemically defensible as documentation completeness measure.
+
+**→ Semantic naming refactor** across all reconstruction artifacts:
+- `reconstruct.py`: score_a/b → content_drift/full_tree_drift; content_only →
+  intersection_only; all abbreviated variable names expanded (w, frac, tc, inp,
+  blk, inner, rel, op, etc.); dead code removed (unused session_start/session_end
+  dicts); session_end_ts now passed correctly throughout.
+- `relay-agent-instructions.md`: score_A/score_B renamed in tables, headers,
+  prose, gate check conditions, decision point format, constraint list.
+- `divergence-report-template.md`: field labels updated.
+
+**→ Cogarch updated: T4 semantic naming check.**
+New row in T4 (Before Writing to Disk): variable names must be fully descriptive;
+table column headers must use semantic labels. Fires on any code or .md file write.
+
+**→ CLAUDE.md: Code Style section added.**
+Stable convention: semantic naming for all variables and .md table column headers.
+Examples of disallowed forms inlined. Advisory limit check: 163 lines (37 available).
+
+▶ reconstruction/reconstruct.py, reconstruction/relay-agent-instructions.md,
+  memory/cognitive-triggers.md, lessons.md
+
+---
+
+## 2026-03-02T14:48 CST — Session 7 (Handoff fixes, license settlement)
+
+**Scope:** Fix handoff package gaps; settle project licensing; document commercial ideas.
+
+**→ Handoff package fixed (two passes):**
+- First pass: synced 5 post-Session-6 files (lab-notebook.md, TODO.md, journal.md,
+  docs/MEMORY-snapshot.md, snapshots) that were newer than the tarball
+- Second pass: added missing `cognitive-triggers.md` (lives in auto-memory, not project
+  root — wasn't included in reference copy; relay-agent flagged it)
+- Auto-accept gate added to relay-agent-instructions.md: only pauses for high-weight
+  SUBSTITUTIVE divergences (weight ≥ 2); all other drift auto-accepted with [DRIFT-ACCEPTED]
+- README-handoff.md monitoring guidance updated to match
+- Rebuilt ~/psychology-handoff.tar.gz twice (01:52, 14:30)
+
+**→ License settled (knock-on analysis, 8 orders, 3 options):**
+- Root project: CC BY-NC-SA 4.0 — `LICENSE` created
+- PSQ code: CC BY-NC-SA 4.0 — existing `safety-quotient/LICENSE` correct, no change
+- PSQ data + model weights: CC BY-SA 4.0 — `safety-quotient/LICENSE-DATA` created
+- Rationale: Dreaddit source (CC BY-SA 4.0) imposes ShareAlike constraint on derivative
+  data; CC BY-SA → CC BY-NC-SA is not permitted by CC compatibility chart
+- DATA-PROVENANCE.md licensing note corrected (removed stale "dual license" reference)
+- Committed to safety-quotient git: `7871839`
+
+**→ Commercial model ideas documented** in ideas.md: hosted API, enterprise SaaS,
+clinical deployment, custom fine-tuning, model weight re-licensing (flagged ⚡)
+
+▶ journal.md §11, docs/architecture.md (license decision added)
+
+---
+
+## 2026-03-02T01:34 CST — Session 6 (Handoff packaging)
+
+**Scope:** Assemble and ship reconstruction package to other machine.
+
+**→ Handoff package assembled** at `~/psychology-handoff.tar.gz` (3.1M):
+- `psychology-reference/` — full project reference state (sub-projects excluded)
+- `10f3b81d-....jsonl` — primary JSONL, Sessions 1–3 (7.2M)
+- `e1d83eb5-....jsonl` + `2a24e585-....jsonl` — supplemental
+- `README-handoff.md` — path assignments, opening prompt, gate monitoring
+  guidance, return/import instructions
+
+**→ Waiting on other machine** for relay-agent reconstruction results and `.git/` return.

@@ -8,7 +8,10 @@ internalizing surfaces. The format below is the standard entry structure.
 
 ---
 
-## YYYY-MM-DD — [Lesson Title]
+## YYYY-MM-DDTHH:MM TZ — [Lesson Title]
+
+*(Run `date '+%Y-%m-%dT%H:%M %Z'` before writing. Full timestamp required —
+time-between-lessons is a meaningful metric. Existing entries may show date-only.)*
 
 **The lesson:** [One-sentence statement of the transferable principle.]
 

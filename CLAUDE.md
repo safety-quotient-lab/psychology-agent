@@ -15,6 +15,10 @@ MEMORY.md holds volatile state (active thread, design decisions, cogarch quick-r
   through the full doc chain: lab-notebook, journal, architecture, MEMORY, snapshot.
 - `/capacity` — Cognitive architecture capacity assessment. Reports line budgets,
   trigger coverage, design decisions space, and skills inventory.
+- `/adjudicate` — Structured decision resolution. For decisions with 2+ options:
+  classify domain → ground dependencies → 8-order knock-on per option → compare →
+  consensus or parsimony. Severity-tiered (XS through L). Structural checkpoint
+  mandatory at all scales.
 
 ## Sub-Projects
 
@@ -95,6 +99,26 @@ parenthetical — they exist for traceability, not readability.
 This applies to all internal references: trigger numbers, section labels,
 abbreviations coined by the project. The user sees the meaning first.
 
+### Epistemic Quality Standard
+
+**Highest epistemic standards in all analytical work.** Surface threats to validity
+proactively — don't wait for the user to ask.
+
+**Epistemic flags (`⚑`)** are mandatory in session summaries and substantive analytical
+outputs. Format:
+
+```
+⚑ EPISTEMIC FLAGS
+- [uncertainty, scope limitation, or validity threat]
+- [...]
+```
+
+If none: `⚑ EPISTEMIC FLAGS: none identified.`
+
+Epistemic flags cover: confidence miscalibration, scope overreach, implicit assumptions
+treated as facts, evidence-free claims, stale data used as current, conclusions that
+exceed available evidence, or any finding that a peer reviewer would challenge.
+
 ### README Policy
 
 Developers have priority at root README.md; also a platform for general audience
@@ -118,6 +142,17 @@ benefit everyone — they are not accommodations for edge cases.
 - **Modular structure** — each section should stand alone; don't require the user to
   hold prior sections in working memory to parse the current one
 - **Offer stopping points** — for long outputs, offer to pause rather than dumping
+
+---
+
+## Code Style
+
+**Semantic naming (all code and .md table headers):** Every variable, parameter,
+and table column header must be fully descriptive. No single-letter, abbreviated,
+or mnemonic names — not `w`, `frac`, `tc`, `inp`, `score_a`, `ref_root`, `tgt`,
+`sess_n`, or similar. If a name needs an inline comment to explain it, rename it
+instead. The same rule applies to `.md` table column headers: use descriptive
+labels, not abbreviations or internal shorthand.
 
 ---
 

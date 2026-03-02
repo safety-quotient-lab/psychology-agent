@@ -1,3 +1,16 @@
+# Personal notes (not version-controlled)
 lessons.md
+
+# Sub-projects have their own independent git repos
 safety-quotient/
 pje-framework/
+
+# Local Claude Code session config (auto-gitignored by Claude Code, explicit here)
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Generated reconstruction output (not source)
+reconstruction/divergence-report.md
+
+# Handoff packages
+psychology-handoff*

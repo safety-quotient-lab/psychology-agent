@@ -9,7 +9,7 @@ of a methods-and-findings journal to support reproducibility and future reflecti
 **Research assistant:** Claude Opus 4.6 (Anthropic) — collegial mentor, architectural
 partner, and Socratic interlocutor
 **Inception:** 2026-03-01
-**Current date:** 2026-03-01
+**Current date:** 2026-03-02
 
 ---
 
@@ -23,6 +23,9 @@ partner, and Socratic interlocutor
 6. [Cognitive Infrastructure: From Principles to Triggers](#6-cognitive-infrastructure)
 7. [Resolving the Pre-Architecture Questions](#7-pre-architecture-resolution)
 8. [Shared Cognitive State and the Cross-Context Integrity Problem](#8-cross-context-integrity)
+9. [Documentation as Specification: The Reconstruction Method](#9-documentation-as-specification)
+10. [Epistemic Defensibility of the Drift Metric](#10-epistemic-defensibility-of-drift)
+11. [Licensing as Architecture: The Dreaddit Constraint](#11-licensing-as-architecture)
 
 ---
 
@@ -280,6 +283,156 @@ an external agent might incorrectly "fix." A pending lesson on cross-context wri
 authority will formalize the principle. Structural mitigations — write provenance,
 read-verify checksums, or restricted file permissions for cogarch files — are
 architecture-level decisions deferred to a later phase.
+
+
+---
+
+## 9. Documentation as Specification: The Reconstruction Method
+
+Session 4 produced something structurally interesting: a project with no git
+history decided to reconstruct one retroactively — not merely for version control,
+but as a reproducibility test of the documentation itself. The constraint (no history)
+was inverted into a method (use documentation to reproduce the work, measure the gap).
+
+The system we built has two components that ask different questions:
+
+The mechanical baseline (`reconstruct.py`) replays raw tool calls from the JSONL
+chat history — every Write and Edit in timestamp order. It asks: *did we faithfully
+record the operations?* This is a low-level verification. If drift is high, it means
+the documentation does not recover the actual file state from first principles.
+
+The relay-agent is more demanding. It reads the documentation artifacts (final file
+contents, not raw tool calls) and reconstructs the project from *understanding*, then
+runs /cycle as if ending each session. It asks: *does the documentation, read by an
+informed agent, reproduce not just the files but the workflow?* This tests the
+documentation's semantic completeness, not just its mechanical fidelity.
+
+The drift score — weighted by document importance — operationalizes documentation
+completeness as a measurable quantity. CLAUDE.md, architecture.md, and
+cognitive-triggers.md carry triple weight; they are the specification backbone. A
+low `content_drift` (intersection-only, before /cycle) means the documentation is
+a reliable reconstruction source. A large delta (`full_tree_drift` minus
+`content_drift`) reveals how much the
+/cycle workflow itself adds to the file tree — how much the *process* contributes
+beyond the content decisions.
+
+This design pattern has general applicability. Any project that maintains rich
+process documentation can use replay against a fresh agent as a reproducibility
+check. The divergence report becomes a documentation coverage report: SUBTRACTIVE
+divergences identify what was not written down; SUBSTITUTIVE divergences identify
+where the documentation is ambiguous or underspecified (two agents would reconstruct
+it differently). The adversarial evaluator, once built, is the natural consumer of
+SUBSTITUTIVE divergences.
+
+We framed the absence of git history not as a deficiency to apologize for but as a
+methodological opportunity: the project now has an empirical test of documentation
+quality built into its first commit structure. Every future /cycle, by contrast,
+will have the benefit of an established reconstruction baseline.
+
+▶ reconstruction/reconstruct.py, reconstruction/relay-agent-instructions.md,
+  lab-notebook.md Session 4
+
+
+---
+
+## 10. Epistemic Defensibility of the Drift Metric
+
+Session 5 surfaced a structural flaw in the drift measurement design that would have
+undermined the reconstruction method's core epistemic claim.
+
+The reference state against which each reconstructed session is measured is the
+project's *final cumulative state* — all sessions, all /cycle runs. A Session 1
+reconstruction, by definition, contains only Session 1 files. Files written in
+Sessions 2–4 exist in the reference but not in the reconstruction. Under the
+original design, these missing files were classified as SUBTRACTIVE divergences
+and each contributed its full weight (`weight × 1.0`) to `content_drift` — the
+circuit-breaker metric used to decide whether reconstruction should halt.
+
+The consequence: Session 1's `content_drift` would have been structurally inflated
+by every file that didn't yet exist, regardless of how faithfully the Session 1
+content was reconstructed. The Session 1 empirical calibration step — designed to
+adjust the termination threshold if Session 1 drift is unexpectedly high — would
+have absorbed this structural noise, inflating the threshold for Sessions 2 and 3
+and potentially masking genuine content divergences that should have triggered the
+circuit breaker.
+
+The fix is conceptually clean: `content_drift` is now an intersection-only metric.
+Both ADDITIVE (files only in reconstruction) and SUBTRACTIVE (files only in
+reference) are excluded from the score. Only SUBSTITUTIVE divergences — files
+present in both states with differing content — contribute to `content_drift`.
+SUBTRACTIVE files are still classified and reported; they simply do not count toward
+the circuit breaker. The full-tree diagnostic, `full_tree_drift`, includes SUBTRACTIVE
+and serves as the post-/cycle completeness measure: by Session 3, all reference
+files should exist in the reconstruction, so any remaining SUBTRACTIVE entries
+represent genuine gaps rather than structural artifacts.
+
+The flaw was caught through a knock-on analysis that identified Order 8 as a
+binding constraint: the project's reconstruction methodology has publication
+potential as a reproducibility protocol for AI-assisted research. If `content_drift`
+is conflated with structural session-boundary noise, the claim that "drift score
+= documentation completeness" is not defensible under peer review. A skeptical
+reviewer would correctly observe that a high score in early sessions says nothing
+about content quality — it says only that the project had later sessions.
+
+The same analysis also surfaced the *silent git* design as a flawed response to
+a misframed problem. The proposed solution (commit before /cycle; skip Step 12)
+was diagnosed using a three-question pre-commit challenge: *necessary?* (no —
+/cycle output is intended reconstruction content), *feasible?* (no — uncommitted
+/cycle state bleeds into subsequent sessions' `content_drift`), *epistemically
+defensible?* (no — calling intended output "noise" is a classification error).
+The design was reverted. The three-question challenge is now a standing analytical
+tool: whenever a proposed change adds complexity, the problem framing must be
+interrogated before the solution is implemented.
+
+▶ reconstruction/reconstruct.py (`compute_drift`), lab-notebook.md Session 5,
+  lessons.md "Inherited Framing Runs Unexamined"
+
+
+---
+
+## 11. Licensing as Architecture: The Dreaddit Constraint
+
+Licensing decisions are usually deferred until publication — treated as administrative
+overhead rather than architectural choices. This session demonstrated why that deferral
+is a mistake: a licensing constraint embedded in the training data propagates forward
+into every distributable artifact the project produces.
+
+The PSQ student model is trained on eleven source datasets. Ten of those carry permissive
+licenses (CC BY 4.0, CC0 1.0, Apache 2.0, MIT) compatible with virtually any downstream
+license choice. The eleventh — Dreaddit, the primary source for the energy dissipation
+(ED) dimension — carries CC BY-SA 4.0. The ShareAlike clause requires that any derivative
+work be distributed under the same license. Adding a NonCommercial restriction (as CC
+BY-NC-SA does) is not permitted by the CC compatibility chart. The project's previously
+committed `safety-quotient/LICENSE` (CC BY-NC-SA 4.0) was therefore non-compliant for
+any distributable data artifact incorporating Dreaddit texts.
+
+The fix required separating the code and data licenses — a split that is standard
+practice in ML research but often left implicit. Code (the training scripts, the
+DistilBERT architecture, the evaluation pipeline) carries no source dataset constraint:
+CC BY-NC-SA 4.0 is legally sound for the code layer, and the NonCommercial restriction
+is a reasonable choice for a research lab that wants to retain control of its software
+products. Data and model weights, however, derive directly from the source datasets:
+CC BY-SA 4.0 is the only compliant choice when Dreaddit is in the training corpus.
+
+We ran an eight-order knock-on analysis across three options (CC BY-SA everywhere,
+CC BY-NC-SA everywhere, dual license) with scientific defensibility and Hacker News
+compatibility as explicit discriminators alongside legal compliance. The analysis
+converged on Option A (CC BY-SA for data, CC BY-NC-SA for code) without ambiguity:
+it is the only legally compliant option, the only one that satisfies all source dataset
+terms, the only one compatible with publication venues requiring open data, and the
+only one that positions PSQ as scientific infrastructure rather than a restricted
+product. The dual license option failed on legal clarity, enforcement capacity, and
+community perception at orders 1–5 without recovering at orders 7–8.
+
+The broader lesson is architectural: license constraints in source data are not
+administrative details — they are design constraints that flow through the system.
+They should be audited at the same time as data provenance, before training begins,
+so that the distributable artifact's license is settled before the model exists.
+In this case the compliance gap was caught before any public release, but the
+principle holds: data provenance and data licensing are the same audit.
+
+▶ safety-quotient/data/DATA-PROVENANCE.md, safety-quotient/LICENSE-DATA,
+  lab-notebook.md Session 7
 
 
 ---

@@ -190,9 +190,10 @@ Three-layer update to prevent silent loss of canonical state. Run in order.
 This preserves every prior session state and enables recovery to any point.
 
 ```bash
-ARCHIVE_DATE=$(date -Idate)
-cp /home/kashif/projects/psychology/docs/MEMORY-snapshot.md \
-   "/home/kashif/projects/psychology/docs/snapshots/MEMORY-snapshot-${ARCHIVE_DATE}.md"
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+ARCHIVE_TS=$(date '+%Y-%m-%dT%H%M%S')
+cp "${PROJECT_ROOT}/docs/MEMORY-snapshot.md" \
+   "${PROJECT_ROOT}/docs/snapshots/MEMORY-snapshot-${ARCHIVE_TS}.md"
 ```
 
 **Step B: Content guard** — verify the incoming MEMORY.md is substantive before
@@ -200,7 +201,10 @@ allowing it to overwrite the canonical. Protects against accidentally copying an
 empty, truncated, or corrupted file.
 
 ```bash
-LINE_COUNT=$(wc -l < ~/.claude/projects/-home-kashif-projects-psychology/memory/MEMORY.md)
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+_HASH="$(echo "$PROJECT_ROOT" | tr '/' '-')"
+MEMORY_LIVE="$HOME/.claude/projects/${_HASH}/memory/MEMORY.md"
+LINE_COUNT=$(wc -l < "${MEMORY_LIVE}" | tr -d '[:space:]')
 echo "MEMORY.md line count: ${LINE_COUNT}"
 # Proceed only if LINE_COUNT >= 50. If below threshold, STOP and investigate.
 ```
@@ -210,12 +214,15 @@ If `LINE_COUNT < 50`: do **not** overwrite. Report the anomaly in the cycle summ
 **Step C: Update canonical** — only after A and B complete successfully.
 
 ```bash
-cp ~/.claude/projects/-home-kashif-projects-psychology/memory/MEMORY.md \
-   /home/kashif/projects/psychology/docs/MEMORY-snapshot.md
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+_HASH="$(echo "$PROJECT_ROOT" | tr '/' '-')"
+MEMORY_LIVE="$HOME/.claude/projects/${_HASH}/memory/MEMORY.md"
+cp "${MEMORY_LIVE}" "${PROJECT_ROOT}/docs/MEMORY-snapshot.md"
 ```
 
 The canonical (`docs/MEMORY-snapshot.md`) always reflects end-of-session state.
-The archive (`docs/snapshots/`) accumulates one file per session date.
+The archive (`docs/snapshots/`) accumulates one file per /cycle run (timestamp-keyed,
+safe to run multiple times in the same day without collision).
 BOOTSTRAP.md references the canonical — do not change that reference.
 
 ### 11. Orphan Check
@@ -227,16 +234,51 @@ BOOTSTRAP.md references the canonical — do not change that reference.
 - Check BOOTSTRAP.md step sequence against what files actually exist
 
 ```bash
-# Quick reference check — files pointed to in BOOTSTRAP.md
-grep -o '`[^`]*\.md`' /home/kashif/projects/psychology/BOOTSTRAP.md | \
-  tr -d '`' | sort -u
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+grep -o '`[^`]*\.md`' "${PROJECT_ROOT}/BOOTSTRAP.md" | tr -d '`' | sort -u
 ```
 
-### 12. Summary
+### 12. Git Commit
+
+Commit all documentation changes made this session.
+
+```bash
+# Guard — skip gracefully if no .git directory exists yet
+# Resolve project root portably: git-based when available, pwd fallback otherwise
+# Works on Linux (/home/user/...) and macOS (/Users/user/...)
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+cd "$PROJECT_ROOT"
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+  echo "Step 12 SKIPPED: no .git directory yet — commit deferred to post-reconstruction"
+  # Proceed to Step 13
+else
+
+git add -A
+git status
+```
+
+Review staged files. Then commit:
+
+```bash
+git commit -m "Session N: [scope summary]"
+
+fi  # end guard
+```
+
+The scope summary should match the one-line description from the lab-notebook
+session entry header written in Step 2 (e.g., "Architecture design, skill
+creation"). Keep it under 72 characters.
+
+**Skip if:** `git status` shows nothing staged (read-only session, or all
+changes were to gitignored files such as `lessons.md`). Note the skip in
+Step 13.
+
+### 13. Summary
 
 Report:
 - **Documentation updated**: which files, what was added or changed
 - **Skipped**: which steps, with reason
+- **Git commit**: hash + one-line message, or reason skipped
 - **Skills created mid-session** that need restart to load (list them)
 - **Next session**: what's first, what's blocked
 - **MEMORY.md line count**: current / 200

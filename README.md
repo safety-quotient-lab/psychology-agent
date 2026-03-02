@@ -52,20 +52,28 @@ See `docs/architecture.md` for the full design record.
 - **Format:** APA-style with 1.618x whitespace; LaTeX for complex docs, markdown
   for standard docs
 
-See `CLAUDE.md` for full conventions and `MEMORY.md` for current project state.
+See `CLAUDE.md` for full conventions and `docs/MEMORY-snapshot.md` for current project state.
 
 ---
 
 ## Skills
 
-| Skill    | When          | What                                      |
-|----------|---------------|-------------------------------------------|
-| `/doc`   | Mid-work      | Persist decisions and findings to disk    |
-| `/cycle` | Post-work     | Full documentation chain update + commit  |
-| `/hunt`  | Discovery     | Find highest-value next work              |
+| Skill       | When          | What                                         |
+|-------------|---------------|----------------------------------------------|
+| `/doc`      | Mid-work      | Persist decisions and findings to disk       |
+| `/cycle`    | Post-work     | Full documentation chain update + commit     |
+| `/hunt`     | Discovery     | Find highest-value next work                 |
+| `/capacity` | Housekeeping  | Assess cognitive architecture capacity       |
+| `/adjudicate` | Decisions   | Structured knock-on analysis, 8-order depth  |
 
-*Note: `/cycle` and `/hunt` currently reside in `safety-quotient/` — general agent
-versions are on the TODO.*
+---
+
+## Audience-Specific Documentation
+
+| Audience              | Document                                    |
+|-----------------------|---------------------------------------------|
+| Developers / technical| This file                                   |
+| Psychology researchers| `docs/overview-for-psychologists.md`        |
 
 ---
 
