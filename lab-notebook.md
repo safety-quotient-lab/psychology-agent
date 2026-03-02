@@ -18,8 +18,16 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Design decisions              | ✓ All resolved — docs/architecture.md            |
 | Authority hierarchy           | ✓ Documented — docs/architecture.md              |
 | /doc skill                    | ✓ Created and tested                             |
-| CLAUDE.md (project root)      | ✓ Created                                        |
-| Cognitive infrastructure      | ✓ Built — T1–T11, lessons.md, cogarch            |
+| /hunt skill                   | ✓ Created — needs restart to load               |
+| /cycle skill                  | ✓ Created — needs restart to load               |
+| /capacity skill               | ✓ Created — needs restart to load               |
+| Conventions migration         | ✓ CLAUDE.md holds stable conventions (128 lines) |
+| CLAUDE.md (project root)      | ✓ Created + display convention added             |
+| Cognitive infrastructure      | ✓ T1–T12, lessons.md (13 entries), cogarch       |
+| T10/T11 ordering              | ✓ Fixed — T10 now precedes T11 in file           |
+| T12 trigger                   | ✓ Positive pattern recognition; T10 co-fires     |
+| Timestamp backfill            | ✗ Deferred — no fabrication; exact times unknown |
+| Cross-context overreach       | ✓ Detected and reverted — lesson pending         |
 | SWEBOK/PMBOK vocabulary policy| ✓ Added to MEMORY.md + ideas.md                  |
 | Socratic protocol             | ✓ Resolved — dynamic calibration; machine detect |
 | Sub-agent implementation      | ✓ Resolved — staged hybrid (see architecture.md) |
@@ -40,6 +48,11 @@ None.
 - `→` Decision or action taken
 - `▶` Cross-reference to journal.md or architecture doc
 - `⚑` Flag — unresolved issue or epistemic concern
+
+Session entry headings use full timestamp going forward:
+`## YYYY-MM-DDTHH:MM TZ — Session N (summary)`
+Run `date '+%Y-%m-%dT%H:%M %Z'` at session start. Time-between-sessions
+and time-between-lessons are meaningful metrics. Existing entries are date-only.
 
 ---
 
@@ -127,4 +140,72 @@ conventions, points to sub-projects.
 **T11 self-audit run:** 10 findings, 7 fixed (stale docs, missing Socratic triggers, confidence calibration trigger, T1 cognitive-triggers load, T11 creation). 3 deferred with future mitigations.
 
 ▶ journal.md §6–7, docs/architecture.md, memory/cognitive-triggers.md
+
+---
+
+## 2026-03-01T19:40 CST — Session 3 (Timestamp backfill, /hunt adaptation)
+
+**Scope:** Context resumed after Session 2 ran out of context window mid-session.
+
+**Timestamp backfill attempted and reverted.** File-system mtimes are approximations,
+not exact write times. Marking fabricated records `~` doesn't fix the fabrication.
+→ Policy: either the exact timestamp is known or the entry stays date-only.
+Reverted lessons.md (all 11 entries) and lab-notebook Sessions 1–2 to date-only.
+
+**→ /hunt skill created** at `.claude/skills/hunt/SKILL.md`. Adapted from PSQ version:
+- No DB queries, no training scripts, no model files
+- Sources: TODO.md, architecture.md, cogarch, ideas.md, lessons.md, journal.md,
+  lab-notebook.md, MEMORY.md, cross-reference rot, skills inventory
+- Phase 2b (deep extrapolation): design→spec gaps, lessons→trigger gaps, ideas→actions
+- Source 6 (cogarch) always runs, even for `quick` constraint — live vulnerability
+- Needs restart to load (created mid-session)
+
+**→ /cycle skill created** at `.claude/skills/cycle/SKILL.md`. General agent
+post-session documentation checklist:
+- 12-step propagation chain: lab-notebook → journal → architecture → ideas →
+  TODO → MEMORY → cognitive-triggers → CLAUDE.md → MEMORY-snapshot → orphan check
+- Propagation rules table maps change type to affected documents
+- Needs restart to load (created mid-session)
+
+**→ Stable conventions migrated** from MEMORY.md → CLAUDE.md:
+- Moved: Communication Conventions, Cognitive Accessibility Policy, Project Structure
+- MEMORY.md: 200 → 122 lines (78 freed). CLAUDE.md: 25 → 115 lines.
+- MEMORY.md now holds volatile state only; CLAUDE.md is the stable conventions home.
+
+▶ .claude/skills/hunt/SKILL.md, .claude/skills/cycle/SKILL.md
+
+**→ /capacity skill created** at `.claude/skills/capacity/SKILL.md`.
+Multi-dimensional capacity assessment: MEMORY.md line budget, CLAUDE.md lines,
+cognitive-triggers.md practical ceiling, trigger coverage gaps, design decisions
+space, skills inventory. Needs restart to load.
+
+**→ T12 trigger added** (positive pattern recognition). Fires on "good thinking"
+/ "good defensive thinking." Action: name principle, explain mechanism, cross-domain
+examples, T10 co-fires to write lesson. T10/T11 file ordering corrected.
+
+**→ Display convention added to CLAUDE.md.** Internal references (T-numbers,
+shorthand labels) are parenthetical; plain-language description leads. Scoped
+to agent communication, not to cogarch specifically.
+
+**→ Lessons written (T10/T12):**
+- "Labeled Approximations Are Still Fabrications" — qualified fabrication is still
+  fabrication; date-only stays date-only until exact time is known
+- "Defensive Depth for Critical State" — layer against single points of failure;
+  canonical + archive + content guard pattern for critical persistent state
+
+**→ Cross-context overreach detected and reverted.** External agent modified
+cognitive-triggers.md (T2/T3) and MEMORY.md, replacing "knock-on analysis"
+vocabulary with "adjudicate" and referencing a non-existent /adjudicate skill.
+Changes reverted. Lesson on cross-context write authority integrity pending
+(TODO.md — write at next /cycle).
+
+**→ /cycle Step 8b added** — lessons.md safety net: review T10/T12 firings at
+cycle time; write any missing lesson entries.
+
+**→ Infrastructure fixes:** BOOTSTRAP.md (Step 3 lists all skills; Step 4 "volatile
+state"); MEMORY.md hygiene (CLAUDE.md line count corrected); TODO.md cleaned
+(/cycle and /hunt removed as done; /capacity snapshot versioning + pending lessons
+section added).
+
+▶ .claude/skills/capacity/SKILL.md, memory/cognitive-triggers.md
 

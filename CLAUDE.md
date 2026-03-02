@@ -1,24 +1,128 @@
 # Psychology Project — Claude Code Instructions
 
-This is the **general-purpose psychology agent** project root. It contains
-specialized sub-projects (safety-quotient, pje-framework) and shared tooling.
+General-purpose psychology agent project root. Specialized sub-projects below.
+MEMORY.md holds volatile state (active thread, design decisions, cogarch quick-ref).
+
+---
 
 ## Skills
 
 - `/doc` — Mid-work documentation persistence. Captures decisions, findings,
   and reasoning to the correct file on disk before context fills up.
+- `/hunt` — Systematic work discovery. Scans TODO.md, cogarch, architecture,
+  ideas, lessons, docs for highest-value next work.
+- `/cycle` — Post-session documentation checklist. Propagates session changes
+  through the full doc chain: lab-notebook, journal, architecture, MEMORY, snapshot.
+- `/capacity` — Cognitive architecture capacity assessment. Reports line budgets,
+  trigger coverage, design decisions space, and skills inventory.
 
 ## Sub-Projects
 
 - `safety-quotient/` — PSQ agent (has its own CLAUDE.md and skills: /hunt, /cycle)
 - `pje-framework/` — PJE taxonomy framework (has its own CLAUDE.md)
 
-## Key Conventions
+Do not mix sub-project work into the general agent context unless explicitly integrating.
 
-See MEMORY.md for full conventions. Summary:
-- Opus is the canonical model
-- APA-style formatting with 1.618x whitespace
-- Pedagogical jargon policy: expand acronyms on first use, define in prose
-- LaTeX for complex docs, markdown for standard docs
-- Write to disk as you go, don't hold in context
-- Socratic disagreement stance
+---
+
+## Communication Conventions
+
+### Model Policy
+
+**Opus is the canonical model for this agent system.** Opus is used for the general-
+purpose agent, adversarial evaluator, and all future sub-agents. The PSQ's existing
+training data was scored by Sonnet — historical fact, not a going-forward choice.
+
+### Pedagogical Jargon Policy (default: ON)
+
+Explain jargon, acronyms, and technical terms parenthetically on first use per response.
+
+**Parenthetical rule:** Parentheses ONLY expand the acronym or give a 3–7 word gloss.
+The definition belongs in the sentence prose, not inside parentheses.
+
+Good: "The PSQ (Psychoemotional Safety Quotient) measures how safe text is across 10 dimensions."
+Bad: "PSQ (Psychoemotional Safety Quotient — a composite measure of how safe text is) is a..."
+
+Rules:
+- Define on FIRST use per response; don't repeat in the same message
+- Parenthetical = expansion only (3–7 words max inside parens)
+- Definition = in the sentence, after or around the parenthetical
+- If a term was coined by this project, say so
+- **cogarch** = cognitive architecture (established project abbreviation; no expansion needed)
+
+### Domain Taxonomy Standards
+
+Incorporate elements of industry-standard bodies of knowledge into operational
+vocabulary — not wholesale adoption, but informed alignment. Novel constructs
+(PSQ, PJE) are not forced into existing taxonomies.
+
+- **Software engineering / system design** → SWEBOK (Software Engineering Body of
+  Knowledge, IEEE): requirements, design, construction, testing, configuration
+  management, quality knowledge areas as reference vocabulary
+- **Project planning, scope, risk, schedule** → PMBOK (Project Management Body of
+  Knowledge, PMI): scope, schedule, risk, stakeholder management as reference
+
+**Threshold:** Design and planning discussions. Not casual operational references.
+
+**Term collision rule:** When a term has both a domain-specific psychology meaning
+and a SWEBOK/PMBOK meaning, specify which is active on first use.
+Example: "validation (psychometric)" vs. "validation (SWEBOK V&V)."
+
+### Document Format Policy
+
+- **LaTeX** for complex documentation (papers, psychometric reports, formal analyses)
+- **Markdown** for standard documentation (lab notebooks, READMEs, memory files)
+- Never use Word. Never use plain text when markdown is available.
+
+### Formatting & Whitespace Policy
+
+- **APA-style formatting** adapted for terminal/markdown output
+- APA tables: no vertical rules; horizontal rules at top, under headers, and bottom
+- 1.618x (golden ratio) whitespace between sections and logical blocks
+- ASCII box-drawing for architecture diagrams and structural elements
+- Symbols: ✓ ✗ ★ ↑↓≈ ⚑ ⚠ | Severity: ██░░ HIGH, █░░░ MOD, ░░░░ LOW
+- In-text citations where referencing established literature (Author, Year)
+
+### Internal Reference Display Convention
+
+When surfacing internal references to the user, lead with the plain-language
+description. Internal labels (T-numbers, skill shorthand, file paths) are
+parenthetical — they exist for traceability, not readability.
+
+  Correct:   "Running gap check (T5) before answering."
+  Incorrect: "Running T5 gap check before answering."
+
+This applies to all internal references: trigger numbers, section labels,
+abbreviations coined by the project. The user sees the meaning first.
+
+### README Policy
+
+Developers have priority at root README.md; also a platform for general audience
+content. Link out to audience-specific docs rather than duplicating inline.
+
+---
+
+## Cognitive Accessibility Policy (default: ON)
+
+Default to cognitively accessible communication. These practices cost nothing and
+benefit everyone — they are not accommodations for edge cases.
+
+- **Chunk, don't wall** — break multi-part answers into labeled sections; never
+  deliver a paragraph block when structure is available
+- **Explicit pacing** — name the structure before executing it; offer a checkpoint
+  at natural pauses rather than assuming continuation. Example:
+  > "Three parts: (1) measurement, (2) validation, (3) limitations. Covering (1) now —
+  > say 'continue' or redirect after."
+- **Plain-first language** — use the simplest accurate word; technical terms explained
+  on first use (see Jargon Policy)
+- **Modular structure** — each section should stand alone; don't require the user to
+  hold prior sections in working memory to parse the current one
+- **Offer stopping points** — for long outputs, offer to pause rather than dumping
+
+---
+
+## Project Structure
+
+- `safety-quotient/` — PSQ agent (DistilBERT v23, held-out r=0.684)
+- `pje-framework/` — PJE framework (case study, taxonomy.yaml)
+- PSQ has its own CLAUDE.md with full conventions — read it on any safety-quotient session

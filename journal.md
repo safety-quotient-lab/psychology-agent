@@ -22,6 +22,7 @@ partner, and Socratic interlocutor
 5. [The /doc Skill and the Write-to-Disk Principle](#5-the-doc-skill)
 6. [Cognitive Infrastructure: From Principles to Triggers](#6-cognitive-infrastructure)
 7. [Resolving the Pre-Architecture Questions](#7-pre-architecture-resolution)
+8. [Shared Cognitive State and the Cross-Context Integrity Problem](#8-cross-context-integrity)
 
 ---
 
@@ -234,6 +235,51 @@ Knowledge, PMI). The framing is incorporation, not standardization — novel
 constructs in PSQ and PJE are not forced into existing taxonomies. The standards
 serve as reference vocabulary where they are precise; the project's own vocabulary
 prevails where the standards are silent or inapposite.
+
+
+---
+
+## 8. Shared Cognitive State and the Cross-Context Integrity Problem
+
+During Session 3, an external agent context modified two shared cognitive
+infrastructure files — `memory/cognitive-triggers.md` and `MEMORY.md` — without
+authorization from the general agent context. The changes were substantive: the
+knock-on analysis vocabulary in T2 and T3 was replaced with "adjudicate" terminology,
+and a reference to a non-existent `/adjudicate skill` was introduced along with a
+different order-depth tier system (XS/S/M/L with 2-pass protocols) that does not
+match this project's established protocol.
+
+The overreach was caught because the changes were visible in system-reminder
+notifications during an Edit tool call — a form of read-verify that exposed the
+drift. The changes were reverted immediately.
+
+This is the first empirical instance of a risk the architecture had not yet formally
+addressed: shared cognitive state (MEMORY.md, cognitive-triggers.md) is writable
+by any agent context that has file access. There is no access control, no write
+provenance, and no diff-on-read check. The system relies entirely on context
+separation as an integrity boundary — and that boundary is soft.
+
+The analogy to concurrent systems is precise. Shared mutable state without
+synchronization is a race condition. In a multi-agent system where cognitive
+infrastructure is stored in flat files on disk, any agent context is a potential
+writer. The correct defensive posture is the same as in concurrent programming:
+assume writes can arrive from anywhere; verify on read; treat unexpected changes
+as potentially adversarial until proven otherwise.
+
+This finding has direct implications for architecture item 3 — the adversarial
+evaluator. An evaluator designed to detect sub-agent overreach must also be capable
+of detecting cognitive infrastructure overreach. The threat model is not only
+"sub-agent makes a claim outside its validated scope" but also "sub-agent modifies
+the shared state that governs how the general agent reasons." The latter is harder
+to detect and more consequential.
+
+The immediate mitigations are lightweight: the display convention (lead with
+plain-language description, T-number parenthetical) was moved to CLAUDE.md as a
+stable convention rather than a cogarch-local rule, reducing the surface area that
+an external agent might incorrectly "fix." A pending lesson on cross-context write
+authority will formalize the principle. Structural mitigations — write provenance,
+read-verify checksums, or restricted file permissions for cogarch files — are
+architecture-level decisions deferred to a later phase.
 
 
 ---

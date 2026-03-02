@@ -31,14 +31,18 @@ to restore context on a fresh install before the auto-memory file exists.
 Run `/doc` to confirm it loads. Expected response: skill invokes and
 reports "nothing to document" or scans context for undocumented items.
 
-If `/doc` is not found: the skill was likely created mid-session in a
-prior run. Restart Claude Code from the project root to reload.
+Also verify `/hunt` and `/cycle` are available — all three skills should
+load from `.claude/skills/` at session start.
+
+If any skill is not found: it was likely created mid-session in a prior
+run. Restart Claude Code from the project root to reload.
 
 ## Step 4: Orient to current state
 
 Read in order:
-1. `MEMORY.md` — current active thread and conventions
-2. `memory/cognitive-triggers.md` — full T1–T11 trigger system (loaded at T1)
+1. `MEMORY.md` — current active thread and volatile state
+2. `cognitive-triggers.md` — full T1–T12 trigger system (loaded at T1); lives
+   in the auto-memory directory alongside MEMORY.md, not in the project root
 3. `docs/architecture.md` — design decisions and system diagram
 4. `lab-notebook.md` — last session summary and open questions
 5. `TODO.md` — task backlog

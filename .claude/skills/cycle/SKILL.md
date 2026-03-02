@@ -1,0 +1,262 @@
+# Post-Session Cycle (General Agent)
+
+Ensures every session's decisions, findings, and reasoning propagate through the
+full documentation chain. Run at the end of any session with meaningful work.
+
+**Design principle:** The general agent maintains several overlapping documents at
+different levels of abstraction. Each serves a distinct audience and purpose:
+
+| Document | Audience | Purpose | Abstraction |
+|---|---|---|---|
+| `journal.md` | Peer reviewers, future self | Research narrative — why decisions were made, what was resolved, what the data or reasoning revealed | Highest — tells the story |
+| `docs/architecture.md` | Technical collaborators | Design decisions and system spec — all resolved choices, authority hierarchy, component specs | Medium — shows the decisions |
+| `lab-notebook.md` | Future self, collaborators | Session log — what happened, when, with what artifacts; Current State block | Chronological — records the timeline |
+| `ideas.md` | Authors | Speculative research directions — not committed, not retired; marked by precondition | Generative — captures the possible |
+| `TODO.md` | Authors | Forward-looking task backlog — open items only; completed items route to lab-notebook | Operational |
+| `MEMORY.md` | Claude across sessions | Volatile orientation state — active thread, design decisions, cogarch quick-ref | Cross-session context |
+| `memory/cognitive-triggers.md` | Claude | Full T1–T11 trigger system with failure analyses and future mitigations | Operational infrastructure |
+| `CLAUDE.md` | Claude Code (auto-read) | Stable conventions — communication policy, accessibility, project structure, skills | Foundational — how the project works |
+| `docs/MEMORY-snapshot.md` | Fresh Claude sessions | Committed copy of MEMORY.md — portable orientation for fresh installs | Bootstrap context |
+
+When something changes, update relevant documents *at the appropriate level of
+abstraction*. A resolved design decision needs an entry in architecture.md (facts),
+possibly a journal paragraph (if it reveals something significant), and an Active
+Thread update in MEMORY.md. A routine cogarch tweak might only need cognitive-triggers.md.
+
+---
+
+## Checklist
+
+Work through each step. Skip any that don't apply to the session's changes. When
+in doubt whether a step applies, check the document's current state — if accurate, skip.
+
+### 1. Identify What Changed
+
+- Summarize from context what was done this session
+- Categorize: design decisions, cogarch changes, new skills, architecture specs,
+  research findings, ideas, documentation-only, bugfix
+- Categorization determines which downstream documents need updates
+
+### 2. Update lab-notebook.md
+
+Always update. This is the most universal step — every session with meaningful work
+gets an entry.
+
+**Current State block** (top section, *overwrite in place* — not appended):
+
+- Update item statuses: ✓ (complete), ✗ (pending), ⚑ (blocked)
+- Add new tracked items if new deliverables emerged this session
+- Remove items that are now fully complete and stable (route to journal if significant)
+
+**New session entry** (append at bottom of session log):
+
+- Header: `## YYYY-MM-DDTHH:MM TZ — Session N (1-line summary)`
+  Run `date '+%Y-%m-%dT%H:%M %Z'` before writing. No approximate timestamps.
+- Bullet points: what was done, what decisions were made, what artifacts created
+- Cross-references: `▶ journal.md §N, docs/architecture.md` for detailed write-ups
+- Note skills created mid-session that need restart to load
+
+**Open Questions** (end of current state block):
+
+- Strike through answered questions with `~~Q: text~~` and add `**ANSWERED:** ...`
+- Add new open questions that emerged from the session
+
+### 3. Update journal.md
+
+Update when the session produced something worth narrating — a significant design
+decision, a conceptual reframe, a resolved research question, a notable failure.
+
+**When to update:**
+- A design decision was resolved and the reasoning matters for the record
+- A conceptual reframe changed a class of problems (not just one answer)
+- A framework or approach was rejected for documented reasons
+- The session revealed something about the project's direction
+
+**When to skip:**
+- Routine documentation passes (/cycle itself, doc migrations)
+- Minor cogarch tweaks with no conceptual significance
+- Task completions that are already fully captured in lab-notebook.md
+
+**How to write:**
+- First-person plural ("we resolved," "our analysis found")
+- Focus on *why* — the reasoning, not just the outcome
+- Add to Table of Contents if a new section is added
+- In-text citations where connecting to established literature
+
+### 4. Update docs/architecture.md
+
+Update when any design decision is resolved, modified, or its implementation
+approach changes.
+
+- **Decisions table**: add or update resolved decisions with date
+- **Component specs**: if a component was designed (general agent identity,
+  sub-agent comm standard, evaluator logic), add its spec section
+- **Status markers**: update ✗ → ✓ for items that are now complete
+- **Authority hierarchy**: update only if the hierarchy itself changed (rare)
+
+Skip if no design decisions were made or changed.
+
+### 5. Update ideas.md
+
+- **New ideas surfaced**: add entries in appropriate category with precondition
+- **Promoted to TODO**: mark idea as `[→ TODO]` with date
+- **Retired**: mark as `[retired — reason]` if superseded by architecture decisions
+- **Precondition met**: flag ideas whose stated precondition is now satisfied
+
+### 6. Update TODO.md
+
+Forward-looking only. Light-touch maintenance.
+
+- **Completed items**: remove (summary goes to lab-notebook.md session entry)
+- **New items**: add items that emerged from this session's work
+- **Stale items**: update status if an in-progress or blocked item has changed state
+- **Blocked items**: note what's blocking and what would unblock
+
+Skip if nothing changed that affects the task list.
+
+### 7. Update MEMORY.md
+
+Volatile orientation state only. MEMORY.md should contain the minimum needed to
+resume work cold without re-reading the full documentation.
+
+**Active Thread**: update "where we stopped" and "next" to reflect session end state.
+
+**Design Decisions table**: add or update any decisions made this session.
+
+**Working Principles / cogarch quick-ref**: if triggers were added or changed,
+update the T1–T11 quick-reference table.
+
+**PSQ Sub-Agent Status**: update only if PSQ work was done in this context
+(rare — PSQ work normally happens in its own context).
+
+**Memory hygiene (T9)**:
+- Remove or update stale entries
+- Check for duplicates (don't add what's already there)
+- Verify no speculation is persisted as fact
+- Check line count: hard limit 200 (system truncates 201+); pressure point 185.
+  If above 185, move stable content to CLAUDE.md. MEMORY.md = volatile state only.
+
+### 8. Update memory/cognitive-triggers.md
+
+Update when cogarch itself was modified — triggers added, changed, or retired;
+failure analyses added; future mitigations updated.
+
+- **New triggers**: add to the appropriate T-slot or after T11
+- **Modified triggers**: update the relevant section
+- **Future mitigations**: if T11 produced deferred items, ensure each has a
+  mitigation entry in the Future Mitigations table
+- **Failure analyses** (FA): if a cogarch failure was analyzed this session,
+  add an FA entry with the 6-order cascade
+
+Skip if no cogarch changes were made.
+
+### 8b. Update lessons.md
+
+Lessons are written in-moment by T10 and T12 — /cycle is the safety net that
+catches anything that should have been written but wasn't.
+
+- **T10 review:** Did any of these fire this session?
+  - A transferable pattern error was identified
+  - User said "grok" or "internalize"
+  - A conceptual reframe changed how a class of problems should be approached
+  If yes: verify a lessons.md entry exists. If not, write it now.
+
+- **T12 review:** Did the user signal "good thinking" or "good defensive thinking"?
+  If yes: verify the named principle has a lessons.md entry. If not, write it now.
+
+- **Format check:** Any entries written this session — do they have full timestamps?
+  Date-only entries need a timestamp if the exact time is known; otherwise leave as-is.
+
+- **Duplicate check:** No two entries for the same pattern. Update rather than append.
+
+Skip if no T10 or T12 firings occurred this session.
+
+### 9. Update CLAUDE.md
+
+Update when stable conventions change or new skills are created.
+
+- **Skills section**: add any new skills with a one-line description
+- **Communication conventions**: update if a communication policy changed (rare)
+- **Cognitive accessibility policy**: update if the policy itself changed (rare)
+- Check line count — advisory limit ~200 lines.
+
+Skip for volatile-state-only sessions.
+
+### 10. Update docs/MEMORY-snapshot.md
+
+Three-layer update to prevent silent loss of canonical state. Run in order.
+
+**Step A: Versioned archive** — archive the *current canonical* before overwriting it.
+This preserves every prior session state and enables recovery to any point.
+
+```bash
+ARCHIVE_DATE=$(date -Idate)
+cp /home/kashif/projects/psychology/docs/MEMORY-snapshot.md \
+   "/home/kashif/projects/psychology/docs/snapshots/MEMORY-snapshot-${ARCHIVE_DATE}.md"
+```
+
+**Step B: Content guard** — verify the incoming MEMORY.md is substantive before
+allowing it to overwrite the canonical. Protects against accidentally copying an
+empty, truncated, or corrupted file.
+
+```bash
+LINE_COUNT=$(wc -l < ~/.claude/projects/-home-kashif-projects-psychology/memory/MEMORY.md)
+echo "MEMORY.md line count: ${LINE_COUNT}"
+# Proceed only if LINE_COUNT >= 50. If below threshold, STOP and investigate.
+```
+
+If `LINE_COUNT < 50`: do **not** overwrite. Report the anomaly in the cycle summary.
+
+**Step C: Update canonical** — only after A and B complete successfully.
+
+```bash
+cp ~/.claude/projects/-home-kashif-projects-psychology/memory/MEMORY.md \
+   /home/kashif/projects/psychology/docs/MEMORY-snapshot.md
+```
+
+The canonical (`docs/MEMORY-snapshot.md`) always reflects end-of-session state.
+The archive (`docs/snapshots/`) accumulates one file per session date.
+BOOTSTRAP.md references the canonical — do not change that reference.
+
+### 11. Orphan Check
+
+- Check for references in docs to files that no longer exist or were renamed
+- Check for skills created mid-session that haven't been verified post-restart
+  (flag in lab-notebook.md if so — don't verify here, that requires a restart)
+- Check for open questions in lab-notebook.md that have been answered but not struck
+- Check BOOTSTRAP.md step sequence against what files actually exist
+
+```bash
+# Quick reference check — files pointed to in BOOTSTRAP.md
+grep -o '`[^`]*\.md`' /home/kashif/projects/psychology/BOOTSTRAP.md | \
+  tr -d '`' | sort -u
+```
+
+### 12. Summary
+
+Report:
+- **Documentation updated**: which files, what was added or changed
+- **Skipped**: which steps, with reason
+- **Skills created mid-session** that need restart to load (list them)
+- **Next session**: what's first, what's blocked
+- **MEMORY.md line count**: current / 200
+
+---
+
+## Propagation Rules
+
+**A resolved design decision touches:**
+architecture.md (facts) → journal.md if significant (narrative) →
+MEMORY.md Design Decisions table → lab-notebook.md Current State
+
+**A new cogarch trigger touches:**
+cognitive-triggers.md → MEMORY.md quick-ref table → lab-notebook.md session entry
+
+**A new skill touches:**
+.claude/skills/ → CLAUDE.md Skills section → lab-notebook.md session entry
+
+**An idea promoted to TODO touches:**
+ideas.md (mark [→ TODO]) → TODO.md (add item) → lab-notebook.md session entry
+
+**A stable convention change touches:**
+CLAUDE.md → MEMORY.md (remove from MEMORY if it was there) → lab-notebook.md
