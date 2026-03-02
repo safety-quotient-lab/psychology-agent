@@ -45,6 +45,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Sub-agent protocol            | ✗ Pending — item 2 of 3                          |
 | Adversarial evaluator         | ✗ Pending — item 3 of 3                          |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
+| GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
+| Initial git commit            | ✓ e12828b — 29 files; remote origin (SSH)        |
+| Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
 | Reconstruction import         | ✗ Pending receipt of .git/ from other machine    |
 
 
@@ -310,6 +313,21 @@ Examples of disallowed forms inlined. Advisory limit check: 163 lines (37 availa
 
 ---
 
+## 2026-03-02T01:34 CST — Session 6 (Handoff packaging)
+
+**Scope:** Assemble and ship reconstruction package to other machine.
+
+**→ Handoff package assembled** at `~/psychology-handoff.tar.gz` (3.1M):
+- `psychology-reference/` — full project reference state (sub-projects excluded)
+- `10f3b81d-....jsonl` — primary JSONL, Sessions 1–3 (7.2M)
+- `e1d83eb5-....jsonl` + `2a24e585-....jsonl` — supplemental
+- `README-handoff.md` — path assignments, opening prompt, gate monitoring
+  guidance, return/import instructions
+
+**→ Waiting on other machine** for relay-agent reconstruction results and `.git/` return.
+
+---
+
 ## 2026-03-02T14:48 CST — Session 7 (Handoff fixes, license settlement)
 
 **Scope:** Fix handoff package gaps; settle project licensing; document commercial ideas.
@@ -340,15 +358,25 @@ clinical deployment, custom fine-tuning, model weight re-licensing (flagged ⚡)
 
 ---
 
-## 2026-03-02T01:34 CST — Session 6 (Handoff packaging)
+## 2026-03-02T15:17 CST — Session 8 (Git push, public audit)
 
-**Scope:** Assemble and ship reconstruction package to other machine.
+**Scope:** Complete initial GitHub push; audit repository for public-facing quality.
 
-**→ Handoff package assembled** at `~/psychology-handoff.tar.gz` (3.1M):
-- `psychology-reference/` — full project reference state (sub-projects excluded)
-- `10f3b81d-....jsonl` — primary JSONL, Sessions 1–3 (7.2M)
-- `e1d83eb5-....jsonl` + `2a24e585-....jsonl` — supplemental
-- `README-handoff.md` — path assignments, opening prompt, gate monitoring
-  guidance, return/import instructions
+**→ Initial git commit completed** (`e12828b`): 29 files, all tracked content.
+Context resumed mid-session (commit staged, not yet made). Push required switching
+remote URL from HTTPS to SSH (`git remote set-url origin git@github.com:...`);
+`gh auth` confirmed SSH-configured on this machine.
 
-**→ Waiting on other machine** for relay-agent reconstruction results and `.git/` return.
+**→ Pushed to GitHub:** `safety-quotient-lab/psychology-agent`, main branch (tracking
+`origin/main`). Repository is public.
+
+**→ Public audit completed:** Systematic review of all 29 tracked files. Result:
+publication-safe. No HIGH or MEDIUM findings. Three LOW findings, none requiring action:
+- PI name in README/journal/overview — standard academic attribution
+- `/home/kashif/projects/psychology` path in reconstruct.py/BOOTSTRAP.md — example
+  syntax only; no credentials or machine names
+- "Waiting on other machine" references in TODO/lab-notebook/MEMORY-snapshot —
+  transparent documentation of active distributed workflow
+
+**→ Session ordering fix in lab-notebook.md:** Sessions 6 and 7 were swapped (Session 7
+written at 14:48 appeared before Session 6 at 01:34). Corrected to chronological order.

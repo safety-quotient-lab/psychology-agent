@@ -5,11 +5,15 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ---
 
-## Reconstruction Handoff (immediate)
+## Reconstruction Handoff (in progress)
 
 - [ ] **Package shipped** — awaiting relay-agent results and `.git/` return.
-- [ ] **Import .git/ on return** — `cp -r psychology-reconstructed/.git ~/projects/psychology/.git`,
-  then run /cycle for Session 5 catch-up commit (first live, non-reconstructed commit).
+- [ ] **Import .git/ on return** — original plan (cp -r) is now superseded: this machine
+  has `e12828b` on `main`. On receipt of reconstructed `.git/`:
+  1. Import reconstructed history to a temporary branch
+  2. `git rebase` — rebase `e12828b` onto tip of 3 `[RECONSTRUCTED]` commits
+  3. `git push --force-with-lease origin main` — update origin with reordered history
+  4. Verify: `git log --oneline` shows 3 [RECONSTRUCTED] + 1 [Session 8] + /cycle commits
 
 ---
 

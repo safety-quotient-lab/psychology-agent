@@ -6,11 +6,12 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 8 complete. Initial commit `e12828b` pushed to
-`safety-quotient-lab/psychology-agent` (main, public). Public audit: publication-safe,
-no HIGH/MEDIUM findings. Relay-agent still running on other machine.
-**Next:** Receive `.git/` from relay-agent → rebase `e12828b` onto 3 [RECONSTRUCTED]
-commits → `push --force-with-lease` → architecture item 1 (general agent design).
+**Where we stopped:** Session 7 complete. Handoff fixed (cognitive-triggers.md
+added to reference; auto-accept gate added to relay-agent). License settled:
+root + PSQ code = CC BY-NC-SA 4.0; PSQ data + weights = CC BY-SA 4.0 (Dreaddit
+constraint). Relay-agent still running on other machine.
+**Next:** Receive `.git/` → import → run /cycle (catch-up commit) →
+architecture item 1.
 
 ## Design Decisions
 
@@ -109,11 +110,11 @@ after pushback, state what new evidence justified the update — or hold the pos
 **Skill chaining:** Skills can't natively call other skills, but a skill's prompt
 can instruct the agent to invoke another. Target skill must allow model invocation.
 
-**lessons.md (T10):** Personal learning log at project root. Not git-tracked
-(gitignored); `lessons.md.example` is the tracked format stub. Write an entry
-when: (a) a transferable pattern error is identified, (b) the user says they
-want to grok or internalize something, or (c) a moment of genuine conceptual
-shift occurs. Format: see `lessons.md.example`.
+**lessons.md (T10):** Personal learning log at project root. Not git-tracked —
+add to `.gitignore` when git is initialized; `lessons.md.example` is the tracked
+stub. Write an entry when: (a) a transferable pattern error is identified,
+(b) the user says they want to grok or internalize something, or (c) a moment of
+genuine conceptual shift occurs. Format: see `lessons.md.example`.
 
 
 ## Stable Conventions
