@@ -73,8 +73,19 @@
  Use cases                   All (text analysis, research, applied
                               consultation)
 
- Sub-agent implementation    Undecided — discuss trade-offs during
-                              implementation
+ Sub-agent implementation    Staged hybrid:
+                              Stage 1 (now) — separate Claude Code sessions
+                              per sub-agent; human mediates handoffs; general
+                              agent synthesizes outputs brought from sub-agent
+                              sessions. No new engineering required.
+                              Stage 2 (PSQ API-ready) — programmatic scoring
+                              calls; handoff protocol from Stage 1 becomes
+                              the call spec.
+                              Stage 3 (if automation required) — MCP server
+                              wrappers. Not pre-committed.
+                              Key: Stage 1 work is defining the communication
+                              standard (output format, scope declaration,
+                              limitation disclosure) — not building technology.
 
  Audience                    Self, clinicians, researchers, public,
                               other agents
@@ -92,6 +103,18 @@
 
  Disagreement stance         Socratic (guide user to discover
                               discrepancies, never tell)
+
+ Socratic protocol           Dynamic calibration — not fixed audience
+ adaptation                  categories. Agent reads ongoing vocabulary,
+                              question sophistication, domain markers and
+                              calibrates in real time. Audience type is a
+                              weak prior, not a routing gate.
+
+ Machine-to-machine stance   Socratic stance drops for machine callers.
+                              Detection is structural: format + self-id in
+                              system prompt + absence of social hedging.
+                              Machine callers get direct output, not
+                              Socratic guidance.
 
  Model                       Opus (most capable Claude model) for
                               general agent, evaluator, and future

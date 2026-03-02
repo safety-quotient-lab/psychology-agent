@@ -46,7 +46,4 @@ boundaries.
 
 ---
 
-## Open Questions (unresolved)
 
-- Does the Socratic protocol adapt by audience type?
-- Does the general agent drop Socratic stance for machine-to-machine calls?

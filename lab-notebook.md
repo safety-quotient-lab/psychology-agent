@@ -12,25 +12,26 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 
 ### Agent: Design phase (2026-03-01)
 
-| Item                     | Status                                      |
-|--------------------------|---------------------------------------------|
-| Architecture diagram     | ✓ Documented — docs/architecture.md         |
-| Design decisions         | ✓ Resolved — docs/architecture.md           |
-| Authority hierarchy      | ✓ Documented — docs/architecture.md         |
-| /doc skill               | ✓ Created and tested                        |
-| CLAUDE.md (project root) | ✓ Created                                   |
-| General agent design     | ✗ In progress — item 1 of 3                 |
-| Sub-agent protocol       | ✗ Pending — item 2 of 3                     |
-| Adversarial evaluator    | ✗ Pending — item 3 of 3                     |
-| PSQ integration          | ✗ Pending PSQ readiness (separate context)  |
+| Item                          | Status                                           |
+|-------------------------------|--------------------------------------------------|
+| Architecture diagram          | ✓ Documented — docs/architecture.md              |
+| Design decisions              | ✓ All resolved — docs/architecture.md            |
+| Authority hierarchy           | ✓ Documented — docs/architecture.md              |
+| /doc skill                    | ✓ Created and tested                             |
+| CLAUDE.md (project root)      | ✓ Created                                        |
+| Cognitive infrastructure      | ✓ Built — T1–T11, lessons.md, cogarch            |
+| SWEBOK/PMBOK vocabulary policy| ✓ Added to MEMORY.md + ideas.md                  |
+| Socratic protocol             | ✓ Resolved — dynamic calibration; machine detect |
+| Sub-agent implementation      | ✓ Resolved — staged hybrid (see architecture.md) |
+| General agent design          | ✗ Next — item 1 of 3                             |
+| Sub-agent protocol            | ✗ Pending — item 2 of 3                          |
+| Adversarial evaluator         | ✗ Pending — item 3 of 3                          |
+| PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 
 
 ### Open Questions
 
-1. Should the Socratic protocol adapt by audience (clinician vs. researcher vs.
-   public)? Raised but not resolved.
-2. Should the general agent drop Socratic stance for machine-to-machine calls?
-   Raised but not resolved.
+None.
 
 ---
 
@@ -98,3 +99,32 @@ conventions, points to sub-projects.
 - Architecture items 1–3 (general agent design, sub-agent protocol, evaluator)
 
 ▶ journal.md §1–5, docs/architecture.md
+
+---
+
+## 2026-03-01 — Session 2 (Cognitive infrastructure, pre-architecture resolution)
+
+**Scope:** Build cognitive infrastructure; resolve all pre-architecture open questions.
+
+**Cognitive infrastructure built:**
+- `memory/cognitive-triggers.md` — T1–T11 trigger system (session start through self-audit)
+- `lessons.md` — personal learning log, 10 entries backfilled (not git-tracked)
+- `lessons.md.example` — tracked format stub
+- T10: lessons trigger. T11: cogarch self-audit with future mitigations
+- Recommend-against check added to T3; process vs. substance distinction added
+- Explicit pacing + cognitive accessibility policy added
+- cogarch abbreviation established
+
+**Design decisions resolved:**
+- Socratic protocol → dynamic calibration (not fixed audience categories). Machine callers detected structurally; Socratic stance drops for machines.
+- Sub-agent implementation → staged hybrid: Stage 1 (separate Claude Code sessions, human-mediated, define comm standard), Stage 2 (programmatic when PSQ API-ready), Stage 3 (MCP, not pre-committed)
+- → Both persisted to `docs/architecture.md` and `MEMORY.md`
+
+**Vocabulary policy:** Incorporate elements of SWEBOK (SE design) and PMBOK (planning/risk) into operational vocabulary. Term collision rule: specify domain on first use. Standards vocabulary adapter concept added to `ideas.md`.
+
+**200-line MEMORY.md limit clarified:** Hard system constraint (lines 201+ silently truncated). CLAUDE.md (~175 lines available) and CLAUDE.local.md (auto-gitignored, discovered this session) are additional always-loaded space.
+
+**T11 self-audit run:** 10 findings, 7 fixed (stale docs, missing Socratic triggers, confidence calibration trigger, T1 cognitive-triggers load, T11 creation). 3 deferred with future mitigations.
+
+▶ journal.md §6–7, docs/architecture.md, memory/cognitive-triggers.md
+

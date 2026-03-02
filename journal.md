@@ -20,6 +20,8 @@ partner, and Socratic interlocutor
 3. [Architecture: Three Layers](#3-architecture-three-layers)
 4. [PJE as Case Study, Not Specification](#4-pje-as-case-study-not-specification)
 5. [The /doc Skill and the Write-to-Disk Principle](#5-the-doc-skill)
+6. [Cognitive Infrastructure: From Principles to Triggers](#6-cognitive-infrastructure)
+7. [Resolving the Pre-Architecture Questions](#7-pre-architecture-resolution)
 
 ---
 
@@ -138,6 +140,101 @@ The underlying principle — write to disk as you go, not at the end — is now 
 core working principle of the agent system. Context management is the agent's
 responsibility, not the user's. The agent evaluates context pressure before
 responding and proactively invokes documentation when needed.
+
+---
+
+## 6. Cognitive Infrastructure: From Principles to Triggers
+
+A recurring failure mode in complex AI-assisted research is the gap between
+stated principles and operationalized behavior. A principle that says "check for
+open work before moving on" is an aspiration unless it has a mechanical firing
+condition — a specific event that triggers the check. Without triggers, principles
+are documentation. With triggers, they are infrastructure.
+
+This session built a formal trigger system (T1–T11) for the general-purpose
+psychology agent's cognitive architecture (cogarch). Each trigger specifies the
+moment it fires, the check it runs, and the action it takes. The system covers
+session start (T1), response generation (T2), recommendation formation (T3),
+disk writes (T4), phase transitions (T5), user pushback (T6), user approval (T7),
+task completion (T8), memory hygiene (T9), lesson logging (T10), and cogarch
+self-audit (T11).
+
+Two principles received particular attention. First, the **process vs. substance
+distinction** in T3: process decisions (ordering, sequencing, logistics) are resolved
+by the agent autonomously; substance decisions (what gets done, what direction, what
+priority) surface to the user with a recommendation. This eliminates a class of
+unnecessary questions — the agent asking the user to choose an order when the
+order has an obvious answer.
+
+Second, the **recommend-against check** in T3: before executing any default action,
+the agent scans for a specific concrete reason not to proceed. Vague concern is
+not a reason. The check must produce a specific objection or it passes. This operationalizes the user's explicit preference: "make the pragmatic choice unless you
+have reason to recommend against."
+
+A personal learning log (`lessons.md`) was created alongside the trigger system —
+not for the agent, but for the principal investigator. The agent writes to it when
+a transferable pattern error is identified, when the user signals they want to
+internalize something, or when a conceptual reframe changes a class of problems.
+Ten entries were backfilled from this session and prior PSQ work, covering the
+most consequential lessons: category vs. continuum error, confidence ≠ accuracy,
+factor loading ≠ criterion validity, profile predicts while aggregate does not,
+and the halo effect in joint scoring.
+
+The T11 self-audit trigger formalizes a property the system should have had from
+the start: the ability to examine its own cognitive infrastructure for inconsistency
+with the internal psychology model and adopted standards. Running T11 mid-session
+surfaced ten findings and produced seven immediate fixes, including the addition of
+Socratic discipline triggers (evidence before conclusion, competing hypotheses) that
+were present in the design documents but absent from the operationalized trigger system.
+
+
+---
+
+## 7. Resolving the Pre-Architecture Questions
+
+Three open questions had to be resolved before architecture work could begin in
+earnest. Each reveals something about the design space.
+
+**The Socratic protocol adaptation question.** The initial framing — "does the
+Socratic protocol adapt by audience type?" — was itself a category error. Audience
+type is a discrete label applied to a continuous phenomenon: the ongoing stream of
+vocabulary, question sophistication, and domain signals that characterizes any
+conversation. The right question was not how the protocol adapts to a fixed
+category, but how it calibrates dynamically to a running signal stream. Audience
+type becomes a weak prior, updated in real time — not a routing gate.
+
+Machine-to-machine calls are the structural exception. They are reliably detectable
+(format, system prompt self-identification, absence of social hedging) and warrant
+a different mode: no Socratic guidance, direct output. This is the one case where
+a discrete mode change is justified — not because audience type drives it, but
+because the interaction structure itself changes.
+
+**The sub-agent implementation question.** The question had two use cases embedded
+within it that needed to be separated: scoring (needs the DistilBERT model, requires
+an API surface PSQ does not yet have) and consultation (needs PSQ's contextual
+knowledge, achievable via Claude Code session today). Conflating them would have
+produced an architecture designed for the wrong implementation stage.
+
+The resolution was a staged hybrid. Stage 1 — the current and immediately realizable
+state — defines the communication standard (output format, scope declaration,
+limitation disclosure) between sub-agent sessions and the general agent. This
+standard becomes the specification that Stage 2 implements programmatically when
+PSQ's API surface is ready. Stage 3 (MCP wrappers) is not pre-committed.
+
+The key architectural insight: the valuable work at Stage 1 is not technical but
+definitional. What does a sub-agent declare about its scope? How does it represent
+confidence? What limitations must it disclose? These questions must be answered
+regardless of implementation approach, and answering them now prevents rework later.
+
+**Standards vocabulary integration.** A vocabulary policy was established: when
+discussing software engineering and system design, draw from SWEBOK (Software
+Engineering Body of Knowledge, IEEE) knowledge area taxonomy; when discussing
+project planning, scope, and risk, draw from PMBOK (Project Management Body of
+Knowledge, PMI). The framing is incorporation, not standardization — novel
+constructs in PSQ and PJE are not forced into existing taxonomies. The standards
+serve as reference vocabulary where they are precise; the project's own vocabulary
+prevails where the standards are silent or inapposite.
+
 
 ---
 

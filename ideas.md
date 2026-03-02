@@ -49,6 +49,31 @@ Flag: ⚡ = contrarian / worth challenging before pursuing
 
 ---
 
+## Taxonomy Standardization — Broader Pattern
+
+Incorporating elements of industry standards into the project's operational vocabulary
+suggests a generalizable capability: a **standards vocabulary adapter** — a tool or
+sub-agent that takes an external standard, extracts relevant constructs, maps them
+to or enriches the project's existing vocabulary, and identifies gaps.
+
+SWEBOK term: adapter pattern (structural). Knowledge engineering term: ontology mapper
+or vocabulary bridge. Project-specific term: **standards vocabulary adapter**.
+
+Candidate standards for future integration:
+- **Legal domain (PJE "J")** — Restatements, Black's Law Dictionary, or
+  jurisdiction-specific standard as reference
+- **Clinical domain** — DSM-5/ICD-11 for diagnostic constructs; APA Ethics Code
+  for professional practice language
+- **Research methodology** — APA Publication Manual + AERA/APA/NCME Standards for
+  Educational and Psychological Testing
+
+⚡ Risk: over-standardizing creates rigidity. PSQ and PJE have novel constructs that
+shouldn't be forced into existing taxonomies. Standards are reference frames, not
+constraints — the adapter incorporates elements, it doesn't replace the vocabulary.
+
+Not pre-committed. Worth pursuing if the agent's scope expands into those domains.
+
+
 ## Meta
 
 - This agent system is itself a case study in PJE — it embodies Psycho Safety
