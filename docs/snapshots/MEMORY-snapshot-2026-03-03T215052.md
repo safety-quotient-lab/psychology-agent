@@ -71,9 +71,9 @@ Quick reference (when → what fires):
 ```
  Session starts          T1: orientation, skills, TODO, context baseline
  Before any response     T2: context pressure, transition, pacing, bare forks
- Before recommending     T3: classify domain → ground → adjudicate; prerequisites, sycophancy, recommend-against; effort-weight calibration
- Before writing to disk  T4: date, public visibility, memory hygiene, routing, classification, semantic naming, lab-notebook ordering
- Phase boundary / "next" T5: gap check — MANDATORY; Active Thread staleness check; no bare forks until clear
+ Before recommending     T3: classify domain → ground → adjudicate; prerequisites, sycophancy, recommend-against
+ Before writing to disk  T4: date, memory hygiene, routing, classification, semantic naming
+ Phase boundary / "next" T5: gap check — MANDATORY, no bare forks until clear
  User pushes back        T6: position stability, drift audit
  User approves           T7: write to disk, resolve open questions, downstream
  Task completed          T8: loose threads, routing, context reassessment

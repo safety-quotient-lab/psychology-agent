@@ -23,7 +23,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | /capacity skill               | ✓ Created — needs restart to load               |
 | Conventions migration         | ✓ CLAUDE.md holds stable conventions (163 lines) |
 | CLAUDE.md (project root)      | ✓ Created + display convention added             |
-| Cognitive infrastructure      | ✓ T1–T12, lessons.md (13 entries), cogarch       |
+| Cognitive infrastructure      | ✓ T1–T12 + 5 updates (Session 9 T11 audit)       |
 | T10/T11 ordering              | ✓ Fixed — T10 now precedes T11 in file           |
 | T12 trigger                   | ✓ Positive pattern recognition; T10 co-fires     |
 | Timestamp backfill            | ✗ Deferred — no fabrication; exact times unknown |
@@ -380,3 +380,38 @@ publication-safe. No HIGH or MEDIUM findings. Three LOW findings, none requiring
 
 **→ Session ordering fix in lab-notebook.md:** Sessions 6 and 7 were swapped (Session 7
 written at 14:48 appeared before Session 6 at 01:34). Corrected to chronological order.
+
+---
+
+## 2026-03-03T21:50 CST — Session 9 (Cogarch T11 audit)
+
+**Scope:** T11 self-audit pass + 2 pending proposals from unudhr context.
+
+**→ 5 cogarch updates applied:**
+
+1. **T4 — Public repository visibility check (new).** Project is public on GitHub;
+   tracked files must be treated as public. Fires before any git-tracked file write.
+
+2. **T4 — Lab-notebook ordering check (new).** Prevent chronological inversion
+   when appending session entries (failure mode demonstrated in Session 8:
+   Session 7 appended before Session 6).
+
+3. **T3 — Effort weighting calibration (new, from Proposal 2).** Implementation
+   effort is one-time; most other axes compound. Weak signal at M/L scale;
+   can break ties at XS/S scale only.
+
+4. **T5 — Active Thread staleness check (new, from Proposal 1 — T5 portion).**
+   After completing focused work at a phase boundary, verify MEMORY.md
+   "Active Thread → Next:" is updated before closing. Proposal 1's T1 portion
+   declined: our MEMORY.md Active Thread already serves this role.
+
+5. **T10 footer — stale git note removed.** "Add to `.gitignore` when git is
+   initialized" — git was initialized in Session 7, lessons.md is gitignored.
+   Note updated to reflect current state.
+
+**→ 2 proposals processed:**
+- `current-focus-anchor-2026-03-01.md` — ACCEPTED-MODIFIED (T5 only; T1 already covered)
+- `implementation-effort-weight-2026-03-01.md` — ACCEPTED
+- Moved to `~/.claude/proposals/processed/`
+
+**→ MEMORY.md quick-ref updated** to reflect T3, T4, T5 additions.
