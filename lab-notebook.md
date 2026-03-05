@@ -43,7 +43,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | License (root project)        | ✓ CC BY-NC-SA 4.0 — LICENSE at project root      |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
 | Auto-memory recovery          | ✓ Snapshots, bootstrap-check.sh, T1 health check, BOOTSTRAP.md restructure (Session 11) |
-| Platform hooks                | ✓ .claude/settings.json — pre-commit memory check, post-edit T4 reminder + parry (Session 12) |
+| Platform hooks                | ✓ 8 hooks: pre-commit, parry (3), T4 reminder, SessionStart, PreCompact, Stop (Session 12-13) |
 | Antiregression evaluation     | ✓ Evaluated, adopted hooks, TODO items written (Session 11) |
 | Blog post (cogarch)           | ✓ Draft — blog/2026-03-05-cognitive-architecture-for-ai-agents.md (Session 11) |
 | Cogarch canonical location    | ✓ cognitive-triggers.md moved to docs/ (Session 12) |
@@ -60,7 +60,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
-| Git history                   | ✓ 19 commits                                     |
+| Capabilities inventory        | ✓ architecture.md § Capabilities + capabilities.yaml (Session 13) |
+| Hook scripts                  | ✓ 4 scripts in .claude/hooks/, all tested (Session 13) |
+| Git history                   | ✓ 25 commits                                     |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
 
 
@@ -679,4 +681,26 @@ to proceed — or withdraw the recommendation. Modeled on Trail of Bits' mandato
 - Trail of Bits repo only 2 months old — patterns promising but limited battle-testing
 - cchooks evaluation found two different repos (msnidal vs. GowayLee)
 
-▶ docs/cognitive-triggers.md (T13, T3 #10), MEMORY.md quick-ref table
+**→ 4 platform hooks implemented and tested.** All scripts in `.claude/hooks/`:
+
+| Hook | Script | Enforces | Tested |
+|---|---|---|---|
+| SessionStart | session-start-orient.sh | T1 — orientation injection | ✓ |
+| PreCompact | pre-compact-persist.sh | T5/T9 — state persistence | ✓ |
+| Stop | stop-completion-gate.sh | T5/T8 — completion gate | ✓ (clean + dirty) |
+| Statusline | context-pressure-statusline.sh | T2 — context pressure visual | ✓ (4 thresholds + degradation) |
+
+**→ Capabilities inventory created.** Two formats:
+- `docs/architecture.md` § Capabilities & Levers — 5-layer inventory (triggers, hooks,
+  memory, decisions, lessons) with ASCII interaction map
+- `docs/capabilities.yaml` — machine-readable manifest for agent-to-agent discovery
+
+**→ README updated.** File tree expanded (.claude/hooks/, capabilities.yaml), trigger
+count updated to T1-T13, links added to capabilities docs.
+
+**→ CLAUDE.md updated.** Hooks section expanded with SessionStart, PreCompact, Stop
+documentation. Line count: 195/200.
+
+▶ docs/cognitive-triggers.md (T13, T3 #10), docs/architecture.md (capabilities),
+  docs/capabilities.yaml, .claude/hooks/ (4 scripts), .claude/settings.json,
+  CLAUDE.md, README.md, MEMORY.md quick-ref table

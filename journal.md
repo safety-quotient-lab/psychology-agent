@@ -27,7 +27,7 @@ partner, and Socratic interlocutor
 10. [Epistemic Defensibility of the Drift Metric](#10-epistemic-defensibility-of-drift)
 11. [Licensing as Architecture: The Dreaddit Constraint](#11-licensing-as-architecture)
 12. [Semiotic Reflexivity and the Cogarch](#12-semiotic-reflexivity-and-the-cogarch)
-11. [Licensing as Architecture: The Dreaddit Constraint](#11-licensing-as-architecture)
+13. [Making the Cogarch Self-Describing](#13-making-the-cogarch-self-describing)
 
 ---
 
@@ -520,3 +520,43 @@ Chicago Press.
 Lancaster, J. B. (2026). The semiotic-reflexive transformer: A neural architecture
 for detecting and modulating meaning divergence across interpretive communities.
 *SSRN Electronic Journal.* https://doi.org/10.2139/ssrn.5171674
+
+---
+
+## 13. Making the Cogarch Self-Describing
+
+Session 13 crossed a threshold: the cognitive architecture now describes itself in
+two formats — a human-readable capabilities inventory with interaction map
+(`docs/architecture.md`), and a machine-readable manifest (`docs/capabilities.yaml`).
+This matters for three reasons.
+
+First, **the interaction map reveals coverage gaps mechanically.** By mapping which
+triggers have platform hook enforcement and which rely solely on prompt discipline,
+we can see exactly where the system depends on the agent "remembering" to fire a
+check versus where a shell script enforces it. Of 13 triggers, 5 now have mechanical
+enforcement (T1 via SessionStart hook, T4 via PostToolUse, T5/T8 via Stop hook, T13
+via parry). The remaining 8 depend on prompt discipline alone — a clear prioritization
+guide for future hook development.
+
+Second, **the YAML manifest enables interop.** As the project moves toward sub-agent
+integration (Architecture Items 1-3), other agents need to discover what this agent
+offers without parsing prose documentation. The capabilities manifest provides a
+structured surface: triggers with their firing conditions, hooks with what they enforce,
+skills with their invocation patterns, memory layers with their persistence
+characteristics. This represents the first step toward the agent-to-agent protocol
+that Architecture Item 2 requires.
+
+Third, **the ecosystem evaluation validated our architectural choices by contrast.**
+Evaluating 10 external projects (5 in Session 12, 5 in Session 13) revealed that
+our cogarch operates at a layer most tools leave unaddressed — the metacognitive
+regulation layer. Tools like K-Dense scientific skills provide domain knowledge
+injection; Simone provides task decomposition; cc-tools provides operational visibility.
+None provide the self-monitoring, anti-sycophancy, or epistemic quality enforcement
+that our trigger system handles. Trail of Bits came closest with their completion
+gates and rationalization rejection lists — patterns we adopted directly.
+
+The pattern that emerged from this ecosystem contact: **principles without mechanical
+enforcement remain aspirations.** Trail of Bits embodies this with their Stop hooks
+that block premature termination. We now embody it with 8 platform hooks that enforce
+what 13 triggers prescribe. The gap between aspiration and infrastructure narrows with
+each hook that translates a prompt-discipline check into a shell command.

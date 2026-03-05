@@ -6,11 +6,11 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 13 complete. Second ecosystem eval (5 repos), T13 added,
-T3 #10 added, 4 platform hooks implemented + tested, capabilities inventory + YAML
-manifest created, README updated. 26 commits total.
-**Next:** Convert /adjudicate + /capacity to commands (Rank 7, requires restart).
-Then Architecture Item 1 — general agent design.
+**Where we stopped:** Session 13 in progress. Second ecosystem eval complete (Trail of
+Bits, K-Dense, Simone, cc-tools, cchooks). T13 (external content ingestion) added.
+T3 rationalizations-to-reject (#10) added. 7 new candidates ranked, 2 implemented.
+**Next:** Finish /cycle for Session 13. Then convert /adjudicate + /capacity to
+commands (Rank 7). Then Architecture Item 1 — general agent design.
 
 ## Design Decisions
 
