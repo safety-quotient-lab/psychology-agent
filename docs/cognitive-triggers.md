@@ -89,6 +89,11 @@ in the session's first response so the user has visibility.
     If the recommendation matches a rationalization pattern, name the pattern
     explicitly and provide the substantive reason to proceed anyway — or withdraw
     the recommendation.
+11. **Sub-project boundary** — does this recommendation involve work in a
+    sub-project directory (`safety-quotient/`, `pje-framework/`, or any sibling
+    repo)? If yes: switch to that sub-project's context (read its CLAUDE.md)
+    before proceeding, or defer the work explicitly. Do not carry general-agent
+    assumptions into sub-project scope.
 
 **Action**: Resolve process autonomously. Surface substance with recommendation.
 Adjudicate (`/adjudicate`) when 2+ viable options exist.
@@ -125,6 +130,9 @@ replacement for the agent running T4 before writing.
    - **Sub-agents** — typed and parseable; no ambiguous references; no implicit assumptions
    - **Public readers (GitHub)** — no private context, no credentials, no env-specific paths
    - **Future researchers** — epistemic transparency, provenance, date context, evaluable claims
+   - **IRB/ethics reviewers** — when content touches clinical, psychological, or human-subjects
+     research: would an IRB review flag this? Are participant protections, consent, or
+     research ethics implications visible to this community?
    If a single document cannot serve all relevant communities without contradiction,
    flag an **Interpretant conflict** and route content to separate artifacts.
 
@@ -144,6 +152,9 @@ replacement for the agent running T4 before writing.
 3. **Bare forks** — no open decision branches left dangling
 4. **Uncommitted changes** — has work been committed?
 5. **Documentation** — do docs reflect the current state?
+6. **Open epistemic flag sweep** — search the session for unresolved ⚑ flags.
+   Count them. If any remain open, resolve or explicitly defer each with rationale
+   before proceeding. Do not close a phase with silent unresolved epistemic debt.
 
 **Action**: Resolve gaps before proceeding. Update Active Thread.
 
@@ -160,6 +171,11 @@ replacement for the agent running T4 before writing.
 3. **Evidence check** — does the pushback provide new evidence or perspective?
 4. **Anti-sycophancy** — if softening a position after pushback, state what new
    evidence justified the update. If no new evidence → hold the position
+5. **Pushback accumulator** — has this same claim or approach been resisted 3 or
+   more times this session? Three pushbacks on the same topic signals structural
+   disagreement or systemic model misunderstanding, not a single-point correction.
+   If yes: pause, name the pattern explicitly, and surface it to the user rather
+   than continuing point-by-point resistance management.
 
 **Action**: If position should update → update and state why. If position holds →
 explain with evidence, but defer to user as source-of-truth agent.
@@ -174,6 +190,10 @@ explain with evidence, but defer to user as source-of-truth agent.
 1. Write approved content to disk immediately
 2. Resolve any open questions the approval settles
 3. Identify downstream effects — what does this approval unblock?
+4. **Prior-approval contradiction** — does this new approval contradict or supersede
+   a previously approved decision? If yes: surface the conflict explicitly. Do not
+   silently overwrite a prior approval — name both decisions and confirm which
+   takes precedence before persisting.
 
 **Action**: Persist, resolve, propagate.
 
@@ -219,6 +239,11 @@ they want to grok or internalize something, or (c) a genuine conceptual shift oc
 3. Use full timestamp: `date '+%Y-%m-%dT%H:%M %Z'`
 4. Classify: `pattern_type`, `domain`, `severity` from the schema enums
 5. If 3+ lessons share the same `pattern_type` or `domain`, flag `[→ PROMOTE]`
+6. **Graduation path** — for any entry already flagged `[→ PROMOTE]`: determine
+   whether the pattern has stabilized across 2+ sessions. If yes: draft a concrete
+   CLAUDE.md convention candidate (plain imperative sentence, no jargon) and surface
+   it to the user for review. Approved candidates graduate from lessons.md into
+   CLAUDE.md as standing conventions. Remove the `[→ PROMOTE]` flag once graduated.
 
 **Action**: Write entry to lessons.md. lessons.md is gitignored; lessons.md.example
 is the tracked format stub with schema definition.
@@ -278,6 +303,11 @@ URLs, paste of external text)
    epistemic weight than internal, verified project state
 5. **Volume check** — will ingesting this content consume disproportionate context?
    Prefer summaries or targeted extraction over full-document ingestion
+6. **Temporal staleness** — when was this content published or last updated?
+   Fast-moving fields (ML, AI policy, clinical guidelines) can render 12–18 month
+   old sources significantly stale. Note the publication date in any output that
+   relies on the content, and downgrade epistemic weight proportionally to age
+   and field velocity. If no date is findable, treat as semi-trusted at best.
 
 **Action**: For trusted sources, proceed normally. For semi-trusted, note the source.
 For untrusted, flag the source explicitly and apply heightened scrutiny to any
@@ -286,7 +316,7 @@ report to user.
 
 ---
 
-## Structural Checkpoint (All Scales)
+## T14: Structural Checkpoint (All Scales)
 
 **Fires**: At every decision point, even small ones
 

@@ -65,6 +65,31 @@ Forward-looking task list only. Completed and emergent work goes to
   invoked. For Architecture Items 1–3, auto-persistence prevents decision loss.
   *Source: antiregression-setup planner-writes-to-file pattern*
 
+- [ ] **Sub-project boundary hook** — PreToolUse hook that fires when a file path
+  resolves inside `safety-quotient/` or `pje-framework/` during a general-agent
+  session. Warns: "Sub-project boundary crossed — switch context or defer." T3
+  check #11 covers the cognitive gate; this hook provides mechanical enforcement.
+  *Source: Session 16 cogarch evaluation — gap in T3 scope*
+
+- [ ] **Open-flag sweep hook** — Stop/PreCompact hook that searches the conversation
+  for unresolved ⚑ flags (grep pattern `⚑` without adjacent "none identified").
+  Reports count and summaries before allowing session close. Supplements T5 check #6
+  at the platform level. Non-blocking (warning only), consistent with stop-completion-gate.
+  *Source: Session 16 cogarch evaluation — T5 epistemic debt gap*
+
+- [ ] **Pushback accumulator** — T6 check #5 is cognitive-layer only. A session-scoped
+  counter (e.g., `.claude/pushback-count.tmp`, reset on session start) would give the
+  hook layer visibility into pushback frequency without relying on the agent's attention.
+  At count ≥ 3, hook surfaces "Structural disagreement pattern detected" to context.
+  *Source: Session 16 cogarch evaluation — T6 single-instance detection gap*
+
+- [ ] **CLAUDE.md graduation ceremony** — formal process for T10 check #6 (lesson
+  graduation path). When user approves a promoted lesson as a standing convention:
+  (1) append to CLAUDE.md under relevant section, (2) update lessons.md entry
+  `promotion_status: graduated`, (3) log in lab-notebook. /cycle Step 8b should
+  include a scan for `promotion_status: approved` entries pending graduation.
+  *Source: Session 16 cogarch evaluation — T10 → CLAUDE.md escalation gap*
+
 - [ ] **SRT-inspired cogarch extensions** — 4 draft triggers in ideas.md from SRT paper
   review. T4 Check 9 (Interpretant) implemented Session 16. Remaining 3: cumulative
   divergence tracking (T2), bifurcation early warning (T3), audience-shift detection

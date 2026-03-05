@@ -6,15 +6,12 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 16 complete. Architecture Item 1 done (routing +
-identity specs). Adversarial evaluator reasoning procedures spec written (Item 3
-partial): 7 procedures (consensus→parsimony→pragmatism→coherence→falsifiability→
-convergence→escalate), domain-specific priority tables. Cogarch expanded by
-unratified agent: T3 check #11 (sub-project boundary), T5 check #6 (epistemic
-flag sweep), T6 check #5 (pushback accumulator), T7 check #4 (prior-approval
-contradiction), T10 check #6 (graduation path), T13 check #6 (temporal staleness),
-T14 (structural checkpoint named). Blog posts live at blog.unratified.org.
-**Next:** Architecture Item 2 (sub-agent protocol).
+**Where we stopped:** Session 16 complete. General agent routing spec written
+(Architecture Item 1, routing logic). 3 stages: caller classification, request
+classification (7 sign types), evaluator trigger. Machine caller output format
+resolved (editorial/structural/SETL/Fair Witness from unratified pattern). Sub-agent
+discovery via capabilities.yaml manifest. Blog posts published (blog.unratified.org).
+**Next:** Architecture Item 1 remaining — general agent identity and prompt spec.
 
 ## Design Decisions
 

@@ -190,7 +190,86 @@ dimensions.
 
 1. **General agent design** — ✓ Routing logic complete. ✓ Identity spec complete (see below).
 2. **Sub-agent protocol** — how sub-agents plug in, communicate, declare scope
-3. **Adversarial evaluator** — tiered activation logic, parsimony reasoning
+3. **Adversarial evaluator** — ✓ Reasoning procedures spec complete (see below).
+   Tiered activation logic and full evaluator prompt pending.
+
+
+## Component Spec: Adversarial Evaluator — Reasoning Procedures
+
+**Scope:** How the evaluator resolves disagreement between sub-agents or between
+the general agent and evidence. Procedures applied in ranked order until one
+resolves. Escalation is the terminal procedure — never average conflicting outputs.
+
+---
+
+### Procedure Set (ranked, applied in order)
+
+```
+────────────────────────────────────────────────────────────────────────
+ Procedure       Condition              Resolution rule
+────────────────────────────────────────────────────────────────────────
+ Consensus       Sub-agents agree       Report agreement + confidence
+                                        level. Flag if sub-agents share
+                                        training data or methodology —
+                                        consensus can mask shared
+                                        systematic error.
+
+ Parsimony       Disagreement;          Prefer the account with fewer
+                 one account has        assumptions and simpler
+                 fewer assumptions      mechanism. Occam applied to
+                                        competing interpretations.
+
+ Pragmatism      Disagreement;          Prefer the interpretation that
+                 parsimony              produces better outcomes in the
+                 underdetermines        actual use context. Not "more
+                                        elegant" — "more actionable
+                                        given the stakes."
+
+ Coherence       Disagreement           Prefer the interpretation that
+                 persists               coheres best with validated,
+                                        committed project findings
+                                        (PSQ dimensions, architecture
+                                        decisions, prior conclusions).
+
+ Falsifiability  Disagreement           Prefer the more constrained,
+                 persists               testable claim. A claim making
+                                        specific predictions outranks
+                                        one that cannot be falsified.
+
+ Convergence     Multiple independent   If separate reasoning lines
+                 lines point same way   converge on one interpretation,
+                                        weight convergence as positive
+                                        evidence. Independent rediscovery
+                                        increases plausibility; shared
+                                        methodology does not.
+
+ Escalation      No procedure           Preserve the shape of the
+                 resolves               disagreement. Do not average.
+                                        Surface to user: which sub-agents
+                                        conflict, on what claim, and what
+                                        each procedure found. User decides.
+────────────────────────────────────────────────────────────────────────
+```
+
+Procedure selection is not mechanical. The evaluator reads domain and
+stakes before ordering procedures. Clinical safety claims: pragmatism
+may outrank parsimony. Theoretical validation: falsifiability ranks
+higher. Architecture decisions: parsimony first.
+
+---
+
+### Domain-Specific Procedure Priority
+
+```
+────────────────────────────────────────────────────────────────────────
+ Domain                  Procedure priority order
+────────────────────────────────────────────────────────────────────────
+ Clinical / safety       Consensus → Pragmatism → Coherence → Escalate
+ Research / validity     Consensus → Parsimony → Falsifiability → Escalate
+ Architecture / design   Consensus → Parsimony → Coherence → Escalate
+ Applied consultation    Consensus → Pragmatism → Parsimony → Escalate
+────────────────────────────────────────────────────────────────────────
+```
 
 
 ## Component Spec: General Agent Identity
