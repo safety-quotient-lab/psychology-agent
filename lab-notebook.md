@@ -19,7 +19,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Authority hierarchy           | ✓ Documented — docs/architecture.md              |
 | /doc skill                    | ✓ Created and tested                             |
 | /hunt skill                   | ✓ Created and verified                           |
-| /cycle skill                  | ✓ Created and verified + Step 10b added (Session 11) |
+| /cycle skill                  | ✓ Created and verified + Step 10b, Step 12 push (Session 11) |
 | /capacity skill               | ✓ Created and verified                           |
 | Conventions migration         | ✓ CLAUDE.md holds stable conventions (163 lines) |
 | CLAUDE.md (project root)      | ✓ Created + display convention added             |
@@ -508,4 +508,13 @@ session retains Session 10 numbering; this session proceeds as Session 11.
    Step 2 restructured around file→snapshot mapping table with min-line thresholds.
    Manual recovery preserved as fallback. Step 3 now lists all 5 skills.
 
-▶ bootstrap-check.sh, BOOTSTRAP.md, memory/cognitive-triggers.md, docs/cognitive-triggers-snapshot.md
+**→ /cycle Step 12 updated:** commit + push (was commit only). Aligns with
+CLAUDE.md global instruction "always commit and push in between each phase."
+
+**→ README.md restructured:** Quick Start section added (clone, bootstrap-check.sh,
+start Claude Code). Project structure tree added. License section added. Documentation
+table expanded (4 audience-specific entry points). Sub-projects note added pointing
+to per-project CLAUDE.md files.
+
+▶ bootstrap-check.sh, BOOTSTRAP.md, README.md, .claude/skills/cycle/SKILL.md,
+  memory/cognitive-triggers.md, docs/cognitive-triggers-snapshot.md

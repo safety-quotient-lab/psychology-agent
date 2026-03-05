@@ -6,9 +6,10 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 11 complete. Auto-memory restored. Bootstrap system
-built (bootstrap-check.sh, T1 health check, BOOTSTRAP.md + README.md restructured,
-snapshots committed, /cycle Steps 10b + 12 push).
+**Where we stopped:** Session 11 complete. Auto-memory restored from snapshots.
+Bootstrap system updated: bootstrap-check.sh (health check + restore script),
+T1 auto-memory health check, BOOTSTRAP.md restructured around script,
+cognitive-triggers-snapshot.md committed, /cycle Step 10b added.
 **Next:** Architecture Item 1 — general agent design (prompt/identity, routing logic,
 Socratic protocol spec, machine-caller detection).
 

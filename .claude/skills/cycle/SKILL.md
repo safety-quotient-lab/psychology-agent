@@ -269,14 +269,12 @@ PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 grep -o '`[^`]*\.md`' "${PROJECT_ROOT}/BOOTSTRAP.md" | tr -d '`' | sort -u
 ```
 
-### 12. Git Commit
+### 12. Git Commit and Push
 
-Commit all documentation changes made this session.
+Commit and push all documentation changes made this session.
 
 ```bash
 # Guard — skip gracefully if no .git directory exists yet
-# Resolve project root portably: git-based when available, pwd fallback otherwise
-# Works on Linux (/home/user/...) and macOS (/Users/user/...)
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$PROJECT_ROOT"
 if ! git rev-parse --git-dir > /dev/null 2>&1; then
@@ -288,10 +286,11 @@ git add -A
 git status
 ```
 
-Review staged files. Then commit:
+Review staged files. Then commit and push:
 
 ```bash
 git commit -m "Session N: [scope summary]"
+git push
 
 fi  # end guard
 ```
@@ -309,7 +308,7 @@ Step 13.
 Report:
 - **Documentation updated**: which files, what was added or changed
 - **Skipped**: which steps, with reason
-- **Git commit**: hash + one-line message, or reason skipped
+- **Git commit + push**: hash + one-line message, or reason skipped
 - **Skills created mid-session** that need restart to load (list them)
 - **Next session**: what's first, what's blocked
 - **MEMORY.md line count**: current / 200
