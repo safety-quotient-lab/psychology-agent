@@ -21,7 +21,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | /hunt skill                   | ✓ Created and verified                           |
 | /cycle skill                  | ✓ Created and verified + Step 10b, Step 12 push (Session 11) |
 | /capacity skill               | ✓ Created and verified                           |
-| Conventions migration         | ✓ CLAUDE.md holds stable conventions (163 lines) |
+| Conventions migration         | ✓ CLAUDE.md holds stable conventions (178 lines) |
 | CLAUDE.md (project root)      | ✓ Created + display convention added             |
 | Cognitive infrastructure      | ✓ T1–T12 + 5 updates + 4 SRT-inspired drafts (ideas.md) |
 | T10/T11 ordering              | ✓ Fixed — T10 now precedes T11 in file           |
@@ -43,13 +43,16 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | License (root project)        | ✓ CC BY-NC-SA 4.0 — LICENSE at project root      |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
 | Auto-memory recovery          | ✓ Snapshots, bootstrap-check.sh, T1 health check, BOOTSTRAP.md restructure (Session 11) |
+| Platform hooks                | ✓ .claude/settings.json — pre-commit memory check, post-edit T4 reminder (Session 11) |
+| Antiregression evaluation     | ✓ Evaluated, adopted hooks, TODO items written (Session 11) |
+| Blog post (cogarch)           | ✓ Draft — blog/2026-03-05-cognitive-architecture-for-ai-agents.md (Session 11) |
 | PSQ commercial model          | ✗ Undefined — ideas documented in ideas.md       |
 | General agent design          | ✗ Next — item 1 of 3                             |
 | Sub-agent protocol            | ✗ Pending — item 2 of 3                          |
 | Adversarial evaluator         | ✗ Pending — item 3 of 3                          |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
-| Git history                   | ✓ 9 commits — clean chronological order          |
+| Git history                   | ✓ 17 commits                                     |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
 
 
@@ -526,6 +529,22 @@ resolution, research journal.
 - Adopted from CreatmanCEO/claude-code-antiregression-setup evaluation;
   hooks provide mechanical enforcement that prompt-based triggers cannot guarantee
 
+**→ Antiregression-setup evaluation completed.** Full compare/contrast of
+CreatmanCEO/claude-code-antiregression-setup vs. our cogarch. Adopted hooks (above).
+Identified 5 additional improvements → TODO.md. Prepared upstream PR spec (6 changes).
+
+**→ TODO.md updated** with 7 new items from evaluation: compaction threshold (XS),
+glob-scoped rules (S), auto-persist /adjudicate (S), SRT extensions (M),
+write-provenance hook (S), HN post (XS), upstream PR (M). Effort-sized with
+preconditions and sources.
+
+**→ Blog post drafted** at `blog/2026-03-05-cognitive-architecture-for-ai-agents.md`.
+~2,500 words. Unratified format (Astro frontmatter, E-prime, fair witness, lensFraming
+for developer/researcher/educator). Covers triggers, self-healing memory, hooks,
+documentation propagation, structured decisions. Compare/contrast with antiregression
+approach. Draft status — review before publishing.
+
 ▶ bootstrap-check.sh, BOOTSTRAP.md, README.md, .claude/skills/cycle/SKILL.md,
-  .claude/settings.json, CLAUDE.md, memory/cognitive-triggers.md,
-  docs/cognitive-triggers-snapshot.md
+  .claude/settings.json, CLAUDE.md, TODO.md, memory/cognitive-triggers.md,
+  docs/cognitive-triggers-snapshot.md,
+  blog/2026-03-05-cognitive-architecture-for-ai-agents.md

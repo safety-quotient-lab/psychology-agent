@@ -6,12 +6,12 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 11 complete (6 commits, 17 total). Auto-memory restored.
-Bootstrap system built (bootstrap-check.sh, T1 health check). Platform hooks added
-(.claude/settings.json). Antiregression-setup evaluated — hooks adopted, 7 TODOs
-written. Blog post drafted. README restructured. /cycle Step 12 now pushes.
+**Where we stopped:** Session 11 complete. Auto-memory restored. Bootstrap system
+built. Hooks added (PreToolUse git commit, PostToolUse Write/Edit) from
+antiregression-setup evaluation. README restructured with quick start + codebase
+highlights. /cycle Step 12 now pushes.
 **Next:** Architecture Item 1 — general agent design (prompt/identity, routing logic,
-Socratic protocol spec, machine-caller detection). Start in fresh context.
+Socratic protocol spec, machine-caller detection).
 
 ## Design Decisions
 
