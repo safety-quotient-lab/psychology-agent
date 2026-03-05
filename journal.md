@@ -28,6 +28,7 @@ partner, and Socratic interlocutor
 11. [Licensing as Architecture: The Dreaddit Constraint](#11-licensing-as-architecture)
 12. [Semiotic Reflexivity and the Cogarch](#12-semiotic-reflexivity-and-the-cogarch)
 13. [Making the Cogarch Self-Describing](#13-making-the-cogarch-self-describing)
+14. [Semiotics as Organizing Cogarch Principle](#14-semiotics-as-organizing-cogarch-principle)
 
 ---
 
@@ -560,3 +561,110 @@ enforcement remain aspirations.** Trail of Bits embodies this with their Stop ho
 that block premature termination. We now embody it with 8 platform hooks that enforce
 what 13 triggers prescribe. The gap between aspiration and infrastructure narrows with
 each hook that translates a prompt-discipline check into a shell command.
+
+---
+
+## 14. Semiotics as Organizing Cogarch Principle
+
+Session 16 named something the cogarch had been doing implicitly since Session 1:
+semiotic work. Every routing decision asks "what kind of sign is this content?" Every
+trigger fires on a signal — a sign type with a specific action it warrants. The
+session made this explicit, and the explicitness changed what we could see.
+
+The entry point was a question about semiotics as a cogarch principle, which arrived
+at the same moment a Hacker News thread surfaced a paper by Sublius — "The
+Semiotic-Reflexive Transformer" — that operationalized Peircean semiotics as
+differentiable neural computation. Two lines of inquiry converged: the theoretical
+framing we were developing for the cogarch, and an applied architecture that had
+solved an adjacent problem.
+
+**Three semiotic frames, and what each revealed.**
+
+Peirce's triad — signifier, referent, interpretant — surfaces the problem that no
+trigger had addressed: the same content produces different meanings for different
+readers. The lab-notebook entry written for the current session may not orient the
+next session's agent. The commit message legible to the user may confuse a future
+sub-agent. No cogarch check had asked *who interprets this, and does it produce the
+right meaning for them?* This was the gap that T4 Check 9 closes.
+
+Saussure's distinction between langue (the shared system) and parole (a particular
+utterance within it) names what T6 and T11 do. T6 detects when a session's output
+has drifted from the project's established vocabulary — parole diverging from langue.
+T11 audits the langue itself for internal inconsistency. Naming these operations
+semiotic gives them a unifying framework and makes the scope of each trigger more
+precise. A trigger that enforces langue maintenance needs different criteria than
+one that checks individual utterances against it.
+
+Eco's principle — meaning through difference, not inherent content — validates the
+PSQ's "profile predicts, average does not" finding from a theoretical direction. The
+covariance structure between PSQ dimensions *is* the meaning, in exactly the sense
+that Eco means: the signal lives in the difference between dimensions, not in any
+single score. Collapsing to an aggregate destroys the differential structure. The
+same principle applies to the cogarch's classification systems: a three-tier source
+trust taxonomy (T13) only functions if the three tiers produce *different actions*.
+Labels without behavioral contrast are decoration, not infrastructure.
+
+**The trigger map audit.**
+
+Mapping all 13 triggers to their implicit sign-type operations revealed that T3
+(domain classification) and T13 (source classification) already operated explicitly
+semiotically. T4 (routing decisions) and T9 (memory hygiene / langue maintenance)
+operated semiotically but without naming it. T1, T5–T8 were entirely interpretant-
+blind — they verified that work happened and what it produced, but not for whom
+the output would mean something.
+
+The audit also surfaced Eco's test as an evaluation criterion for every classification
+system in the cogarch: does each label produce a distinct behavior? If two labels
+produce the same action, they are one label wearing two names.
+
+**T4 Check 9: the first implementation.**
+
+The interpretant check formalizes the accountability gap T1 and T5–T8 were missing.
+Before any file write, the agent now identifies which interpretant communities will
+encounter the content (future self, user, sub-agents, public readers, future
+researchers) and verifies the content serves each. If a single document cannot serve
+all communities without contradiction — an interpretant conflict — the content routes
+to separate artifacts.
+
+This check has immediate practical consequences. It catches volatility mismatches:
+session-specific inference written as if it were stable fact. It catches implicit
+references that only make sense in the current context. It catches the sub-agent
+opacity problem, where natural-language reasoning written for the user becomes noise
+for a structured caller.
+
+**The blog post as external validation.**
+
+The SRT parallel — two systems independently discovering that compression destroys
+interpretant-community signal — produced a blog post: "When Two Researchers Find the
+Same Cliff from Different Sides." The post traces the formal structural similarity
+between the SRT's interpretant-vector maintenance and the PSQ's profile-shape finding,
+names the precise boundary where the analogy holds and where it breaks (communities
+vs. dimensions), and documents four architectural implications for the PSQ drawn from
+the SRT's full architecture: cumulative divergence tracking, bifurcation early warning,
+audience-shift detection, and micro-semiotic auditing.
+
+The post sits in `blog/2026-03-05-interpretant-collapse.md`, draft, unreviewed.
+It represents the first time the cogarch work has been externalized as a research
+output rather than internal documentation. Attribution: Kashif Shah + Claude (Anthropic).
+Source: Sublius (2026), Substack. HN thread: item 47263653.
+
+**Where this leads.**
+
+Naming semiotics as the organizing framework — rather than a set of parallel
+procedures — does two things. It provides a principled basis for extending the
+cogarch: new triggers, new routing rules, new sub-agents all answer the same
+organizing question (*what sign type does this produce, and what interpretant should
+act on it?*). And it provides a single diagnostic for evaluating any existing check:
+does it classify a sign type and produce the action that sign type warrants? If not,
+the check is incomplete.
+
+Architecture Item 1 (general agent design) now has a theoretical foundation. The
+agent's identity, routing logic, and Socratic protocol all operate in the semiotic
+register: reading which interpretant community the user currently inhabits, binding
+contested terms before they bifurcate, and maintaining the vocabulary's differential
+structure against the pressure to compress.
+
+---
+
+Lancaster, B. (2026). *The semiotic-reflexive transformer: Meaning divergence detection
+and modulation.* Substack. https://sublius.substack.com/p/the-semiotic-reflexive-transformer

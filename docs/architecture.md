@@ -130,6 +130,18 @@
                               ShareAlike clause prohibits adding NC
                               restriction to derivative data.
                               Decided: 2026-03-02
+
+ Cogarch organizing          Semiotics (Peircean) as the unifying framework.
+ principle                   Each trigger classifies a sign type and warrants
+                              a specific action. Sign types: index (fires on
+                              system state), symbol (fires on convention
+                              labels), icon (checks output fidelity to state).
+                              T4 Check 9 (Interpretant) implements the first
+                              explicit audience-aware write discipline.
+                              Eco's test: every classification label must
+                              produce a distinct behavioral consequence;
+                              labels without contrast are decoration.
+                              Decided: 2026-03-05
 ────────────────────────────────────────────────────────────────────────
 ```
 

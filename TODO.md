@@ -66,11 +66,12 @@ Forward-looking task list only. Completed and emergent work goes to
   *Source: antiregression-setup planner-writes-to-file pattern*
 
 - [ ] **SRT-inspired cogarch extensions** — 4 draft triggers in ideas.md from SRT paper
-  review (Session 10): cumulative divergence tracking (T2), bifurcation early warning
-  (T3), audience-shift detection (T3), micro-semiotic audit (T2). All add T2/T3
-  processing overhead. Consider gated activation: full suite only when divergence
-  indicators exceed threshold; light mode (semiotic consistency only) by default.
-  *Source: Lancaster (2026) SRT paper; drafts in ideas.md*
+  review. T4 Check 9 (Interpretant) implemented Session 16. Remaining 3: cumulative
+  divergence tracking (T2), bifurcation early warning (T3), audience-shift detection
+  (T3), micro-semiotic audit (T2). All add T2/T3 processing overhead. Consider gated
+  activation: full suite only when divergence indicators exceed threshold; light mode
+  (semiotic consistency only) by default.
+  *Source: Sublius (2026) SRT paper; drafts in ideas.md*
   *Precondition: T11 audit to evaluate integration points*
 
 - [ ] **Write-provenance hook** — extend PostToolUse Write/Edit hook to log which

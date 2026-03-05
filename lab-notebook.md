@@ -65,6 +65,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Hook scripts                  | ✓ 4 scripts in .claude/hooks/, all tested (Session 13) |
 | Cogarch auto-reload (session start) | ✓ T1 step 7 + hook MANDATORY instruction (Session 14) |
 | AskUserQuestion discipline    | ✓ T2 check 8 + MEMORY user preferences (Session 14) |
+| Semiotics as cogarch principle| ✓ Defined — 3 frames, trigger map, T4 Check 9 (Session 16) |
+| T4 Check 9 (Interpretant)     | ✓ 5 interpretant communities; conflict detection (Session 16) |
+| Blog post (interpretant collapse) | ✓ Draft — blog/2026-03-05-interpretant-collapse.md (Session 16) |
 | Git history                   | ✓ 28 commits                                     |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
 
@@ -755,3 +758,33 @@ documentation. Line count: 195/200.
 
 ▶ .claude/hooks/parry-wrapper.sh, .claude/hooks/parry-start.sh, .claude/hooks/session-start-orient.sh,
   .claude/settings.json, .gitignore
+
+## 2026-03-05T17:03 CST — Session 16 (Semiotics as cogarch principle + blog post)
+
+- → Elaborated semiotics as cogarch organizing framework: three frames (Peirce triadic
+  sign/object/interpretant, Saussure langue/parole, Eco meaning-through-difference).
+  Formal definition written: signifier/referent/interpretant triad; icon/index/symbol
+  taxonomy mapped to trigger types.
+- → Trigger map audit: all T1–T13 mapped to implicit sign-type operations. Findings:
+  T3 and T13 already operate explicitly semiotically; T4 and T9 implicitly; T1 and
+  T5–T8 entirely interpretant-blind (verify what happened, not for whom it means).
+- → T4 extended: Check 9 (Interpretant) added — 5 interpretant communities (future
+  agent self, user, sub-agents, public readers, future researchers); interpretant
+  conflict detection; routes to separate artifacts when a single document cannot
+  serve all audiences.
+- → Fetched and read SRT paper in full (Sublius, 2026, Substack). Key additions beyond
+  HN thread summary: attractor subspace (basin-of-attraction geometry), "snapping not
+  drifting" (cusp catastrophe), REFLEXIVE mode (output modulation, not just detection),
+  critical slowing down as precursor signal. Stage 1 synthetic validation only.
+- → Blog post written and stored: "When Two Researchers Find the Same Cliff from Both
+  Sides" — structural parallel between SRT interpretant-vector maintenance and PSQ
+  profile-shape finding; four PSQ architectural implications; post-reading section
+  with attractor geometry, bifurcation snap, detection vs. intervention, precise
+  disanalogy (communities vs. dimensions). PSQ section abstract (no validation link).
+  Inline caveat on profile-shape finding added + epistemic flag.
+- → Attribution finalized: Sublius (Substack byline), HN link preserved. Both links
+  in post footer.
+- → ideas.md SRT section already present from prior session; no duplication needed.
+
+▶ journal.md §14, docs/architecture.md (cogarch organizing principle), docs/cognitive-triggers.md
+  (T4 Check 9), blog/2026-03-05-interpretant-collapse.md

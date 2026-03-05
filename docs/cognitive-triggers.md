@@ -117,6 +117,16 @@ replacement for the agent running T4 before writing.
 7. **Lab-notebook ordering** — when appending session entries, verify chronological
    order. New entry timestamp must be later than the last existing entry
 8. **Novelty** — read target file first. Does this duplicate existing content?
+9. **Interpretant** — who will read this content? Identify all relevant interpretant
+   communities and verify the content produces the intended meaning for each:
+   - **Future self (agent, next session)** — enough state to reconstruct context cold;
+     needs active thread, decisions, what was deferred and why
+   - **User (human)** — plain language, explicit epistemic flags, stopping points
+   - **Sub-agents** — typed and parseable; no ambiguous references; no implicit assumptions
+   - **Public readers (GitHub)** — no private context, no credentials, no env-specific paths
+   - **Future researchers** — epistemic transparency, provenance, date context, evaluable claims
+   If a single document cannot serve all relevant communities without contradiction,
+   flag an **Interpretant conflict** and route content to separate artifacts.
 
 **Action**: Fix any violations before writing.
 

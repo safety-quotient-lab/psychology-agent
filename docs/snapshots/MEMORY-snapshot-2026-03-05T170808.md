@@ -6,13 +6,11 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 16 complete. Semiotics framed as cogarch organizing
-principle (Peirce triadic, Saussure langue/parole, Eco meaning-through-difference).
-Trigger map audited — T3/T13 explicitly semiotic; T4/T9 implicitly; T1/T5–T8
-interpretant-blind. T4 Check 9 (Interpretant) added. Blog post 2 stored:
-`blog/2026-03-05-interpretant-collapse.md` (SRT parallel, draft). 29 commits.
-**Next:** Architecture Item 1 (general agent design) — semiotic framework now provides
-the organizing foundation (agent identity, routing logic, Socratic protocol).
+**Where we stopped:** Session 15 complete. Parry DX overhaul: wrapper (warn-once ML
+fallback via ~/.parry/config.toml), daemon start script, session-start toggle
+(AskUserQuestion enable/disable). Settings.json routes all parry hooks through wrapper.
+Parry ML still blocked (HF 401 — model slug mismatch?). 28 commits total.
+**Next:** Semiotics as central cogarch principle → Architecture Item 1 (general agent design).
 
 ## Design Decisions
 
@@ -36,11 +34,6 @@ the organizing foundation (agent identity, routing logic, Socratic protocol).
                               (format + self-id + absence of social hedging)
  License (code)              CC BY-NC-SA 4.0 (root + PSQ code)
  License (PSQ data/weights)  CC BY-SA 4.0 (Dreaddit ShareAlike constraint)
- Cogarch organizing          Semiotics (Peircean). Each trigger classifies a
- principle                   sign type + warrants a specific action. T4 Check 9
-                              (Interpretant) = first explicit audience-aware
-                              write discipline. Eco's test: every label must
-                              produce distinct behavior. 2026-03-05
 ```
 
 ## Authority Hierarchy
@@ -79,7 +72,7 @@ Quick reference (when → what fires):
  Session starts          T1: auto-memory health check, orientation, skills, TODO, output baseline summary, context baseline
  Before any response     T2: context pressure, transition, pacing, bare forks, clarification → AskUserQuestion tool
  Before recommending     T3: classify domain → ground → adjudicate; prerequisites, sycophancy, recommend-against; effort-weight calibration
- Before writing to disk  T4: date, public visibility, memory hygiene, routing, classification, semantic naming, lab-notebook ordering, interpretant (Check 9)
+ Before writing to disk  T4: date, public visibility, memory hygiene, routing, classification, semantic naming, lab-notebook ordering
  Phase boundary / "next" T5: gap check — MANDATORY; Active Thread staleness check; no bare forks until clear
  User pushes back        T6: position stability, drift audit
  User approves           T7: write to disk, resolve open questions, downstream
