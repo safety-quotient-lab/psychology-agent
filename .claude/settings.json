@@ -10,6 +10,15 @@
             "timeout": 15000
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v parry >/dev/null && parry hook || true",
+            "timeout": 1000
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -20,6 +29,26 @@
             "type": "command",
             "command": "FILE=\"$TOOL_INPUT_file_path\"; case \"$FILE\" in *MEMORY.md|*cognitive-triggers.md|*CLAUDE.md|*architecture.md) echo \"[HOOK] Critical file modified: $(basename \"$FILE\"). Verify T4 compliance: date discipline, public visibility, routing, semantic naming.\" ;; *lab-notebook.md) echo \"[HOOK] Lab notebook modified. Verify chronological ordering (T4).\" ;; esac",
             "timeout": 5000
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v parry >/dev/null && parry hook || true",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v parry >/dev/null && parry hook || true",
+            "timeout": 2000
           }
         ]
       }

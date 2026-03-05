@@ -32,15 +32,12 @@ Forward-looking task list only. Completed and emergent work goes to
   Add routing table to `/cycle` Step 7: what changed → which topic file to update.
   Update BOOTSTRAP.md Step 4 to reflect new structure.
 
----
-
-## Writing
-
-- [ ] **Blog post: "Jurassic Park Development"** — narrative essay about reconstructing
-  git history from AI chat logs. Core theme: life (and code) finds a way — the project
-  existed before the repo did. Cover: why the history mattered, the relay-agent
-  architecture, drift scoring as an epistemic tool, what the skipped Edit operations
-  reveal about mechanical replay vs. understanding. Audience: developers + AI practitioners.
+- [ ] **Configurable /hunt at bootstrap** — optionally run `/hunt` after T1 orientation
+  completes, so the agent surfaces highest-value work before the user asks. Should
+  default off (not every session needs discovery). Activation options: (A) flag in
+  CLAUDE.local.md, (B) bootstrap-check.sh exit message suggests it, (C) T1 check
+  that reads a config value. Design should avoid adding latency to sessions that
+  don't need discovery.
 
 ---
 
@@ -108,6 +105,77 @@ Forward-looking task list only. Completed and emergent work goes to
   output, provenance tracking on CLAUDE.md template, content guard hook for CLAUDE.md.
   Full PR spec in lab-notebook Session 11.
   *Precondition: our implementations stable and tested across 2+ sessions*
+
+---
+
+## Awesome-Claude-Code Integration (from Session 12 evaluation)
+
+*Source: 5-repo evaluation of awesome-claude-code ecosystem (Session 12).
+Repos evaluated: Context Engineering Kit, Compound Engineering Plugin,
+parry, RIPER Workflow, SuperClaude Framework.*
+
+- [ ] **Graduated document promotion** (Rank 2) — define a lifecycle for how
+  observations become patterns become rules: `lessons.md` → candidate pattern
+  (3+ similar entries) → CLAUDE.md convention. Multiple repos converged on this
+  independently (SuperClaude, Compound Eng, Context Eng Kit). Currently our
+  lessons.md entries have no defined promotion path.
+  *Source: SuperClaude docs/temp→patterns→rules; Compound Eng 3+ threshold → critical-patterns.md*
+
+- [ ] **Evidence decay / freshness management** (Rank 3) — formalize T9 staleness
+  checking with explicit freshness thresholds. Context Eng Kit FPF tracks evidence
+  validity periods with three options: refresh, deprecate, waive. Our T9 checks
+  "stale entries" without defining when an entry becomes stale. Add: age threshold
+  (e.g., entries older than N sessions without update get flagged), decay action
+  options, waiver documentation for entries that remain valid despite age.
+  *Source: Context Eng Kit FPF evidence decay system*
+
+- [ ] **Phase-locked sub-agent orchestration** (Rank 4) — sub-agents return data
+  only; orchestrator holds exclusive write authority. Prevents rogue sub-agent
+  writes. Directly relevant to Architecture Item 2 (sub-agent protocol).
+  *Source: Compound Eng phase-locked execution*
+  *Precondition: Architecture Item 2 in progress*
+
+- [ ] **Schema-validated lesson capture** (Rank 5) — add lightweight structured
+  frontmatter to lessons.md entries (problem type, component, severity, resolution
+  type). Keeps human-readable narrative but enables machine retrieval and pattern
+  matching. Update lessons.md.example with the schema.
+  *Source: Compound Eng YAML-validated docs/solutions/; SuperClaude reflexion.jsonl*
+
+- [ ] **Commands-over-skills token audit** (Rank 7) — evaluate which of our 5
+  skills should become commands (load on-demand) vs. remain skills (load every
+  session). Context Eng Kit argues skill descriptions load into context by default;
+  commands load only when invoked. Candidates for conversion: /adjudicate,
+  /capacity (rarely used every session). Keep as skills: /doc, /cycle (needed
+  frequently). /hunt depends on configurable-bootstrap decision.
+  *Source: Context Eng Kit commands-over-skills pattern*
+
+- [ ] **Attention-aware placement** (Rank 8) — reorder CLAUDE.md and MEMORY.md
+  sections to place critical information at the beginning and end, per the
+  U-shaped attention curve (lost-in-middle effect). Context Eng Kit documents
+  10-40% recall drop for mid-context information.
+  *Source: Context Eng Kit lost-in-middle research*
+
+- [ ] **Modularization candidates** — evaluate external tools that could replace
+  hand-rolled infrastructure:
+  - **recall** (full-text session search) — could replace manual session archaeology
+  - **claude-rules-doctor** — detects dead `.claude/rules/` files; relevant to
+    glob-scoped rules TODO
+  - **cc-tools** (Go-based hooks) — more robust hook infrastructure than hand-rolled
+    settings.json entries
+  Evaluate each for: license compatibility, maintenance activity, installation
+  burden, whether it actually improves on what we have.
+  *Source: awesome-claude-code tooling section*
+
+---
+
+## Awesome-Claude-Code Submission
+
+- [ ] **Submit to awesome-claude-code** — file issue via web form at
+  `https://github.com/hesreallyhim/awesome-claude-code/issues/new?template=recommend-resource.yml`.
+  Category: Workflows & Knowledge Guides. Draft submission details in
+  lab-notebook Session 12. Note: NC license may face scrutiny under their
+  open-source compliance requirement — flag proactively.
+  *Precondition: README polished, repo represents current state*
 
 ---
 

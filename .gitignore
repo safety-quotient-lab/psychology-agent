@@ -14,3 +14,10 @@ reconstruction/divergence-report.md
 
 # Handoff packages
 psychology-handoff*
+
+# Environment variables (credentials)
+.dev.vars
+
+# Parry prompt injection scanner (local cache)
+.parry-guard.redb
+.parry-tainted

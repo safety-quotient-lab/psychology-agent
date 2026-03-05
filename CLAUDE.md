@@ -151,12 +151,21 @@ Platform-level enforcement that supplements cognitive triggers:
 
 - **PreToolUse: git commit** — runs `bootstrap-check.sh --check-only` before every
   commit. Catches unhealthy auto-memory before it gets snapshot-committed via /cycle.
+- **PreToolUse: parry** — prompt injection scanner (6-layer: unicode, substring,
+  secrets, ML, bash exfil, script exfil). Runs before every tool use. Blocks or
+  flags suspicious inputs. External process — operates outside agent context.
 - **PostToolUse: Write/Edit** — fires after modifications to critical files (MEMORY.md,
   docs/cognitive-triggers.md, CLAUDE.md, architecture.md, lab-notebook.md). Reminds of T4
   compliance checks. Safety net, not replacement for T4.
+- **PostToolUse: parry** — scans tool output for injection attempts and credential
+  exposure. Can taint the project (`.parry-tainted` file blocks all tools until
+  manual removal) if injection confirmed by ML.
+- **UserPromptSubmit: parry** — audits `.claude/commands/`, settings files, and
+  hook scripts for injection or dangerous permission patterns at session start.
 
 Hooks enforce mechanically what triggers enforce by prompt discipline. If a trigger
-check can be verified by a shell command, it belongs in hooks.
+check can be verified by a shell command, it belongs in hooks. Parry provides
+defense-in-depth at the platform boundary — see BOOTSTRAP.md for installation.
 
 ---
 

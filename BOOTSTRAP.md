@@ -138,6 +138,36 @@ context from `docs/architecture.md` and `lab-notebook.md`.
 
 ---
 
+## Recommended: Parry Prompt Injection Scanner
+
+[Parry](https://github.com/vaporif/parry) provides platform-level security scanning
+via Claude Code hooks. It runs a 6-layer detection pipeline (unicode, substring,
+secrets, ML classification, bash exfiltration analysis, script exfiltration analysis)
+as an external process — blocking tool use before compromised content reaches the agent.
+
+The cogarch functions without parry, but gains defense-in-depth with it.
+
+### Installation
+
+Requires Rust toolchain (1.82+) and a HuggingFace account.
+
+```bash
+# Install from source
+git clone https://github.com/vaporif/parry.git /tmp/parry-install
+cd /tmp/parry-install
+cargo install --path crates/cli
+
+# Set HuggingFace token (needed for ML model download)
+# Accept model license first: https://huggingface.co/protectai/deberta-v3-base-prompt-injection-v2
+echo 'export HF_TOKEN=your_token_here' >> ~/.zshenv
+```
+
+Hooks are pre-configured in `.claude/settings.json` — parry activates automatically
+when the binary is in PATH. Without parry installed, the hooks fail silently and
+other hooks continue to function.
+
+---
+
 ## Platform-Specific Setup
 
 ### Linux / macOS
