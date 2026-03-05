@@ -788,3 +788,15 @@ documentation. Line count: 195/200.
 
 ▶ journal.md §14, docs/architecture.md (cogarch organizing principle), docs/cognitive-triggers.md
   (T4 Check 9), blog/2026-03-05-interpretant-collapse.md
+
+## 2026-03-05T17:14 CST — Session 16b (Blog lensFraming corrections)
+
+- → Corrected blog pipeline addresses in architecture.md: unratified.org (agent),
+  blog.unratified.org (blog), observatory-agent noted as separate entity.
+- → Fixed lensFraming on both blog posts: added voter + politician framings,
+  reordered all five to canonical order (voter, politician, educator, researcher,
+  developer), renamed technical → developer in interpretant-collapse post.
+- → Both posts now have complete 5-framing frontmatter matching blog.unratified.org.
+
+▶ blog/2026-03-05-interpretant-collapse.md, blog/2026-03-05-cognitive-architecture-for-ai-agents.md,
+  docs/architecture.md
