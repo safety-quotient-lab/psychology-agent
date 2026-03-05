@@ -75,6 +75,24 @@ Read in order:
 **Note:** `CLAUDE.local.md` at the project root is auto-gitignored and always-loaded.
 Create it for personal/local session context that should not be committed.
 
+### Recovery: if auto-memory directory does not exist
+
+Both `MEMORY.md` and `cognitive-triggers.md` live outside the git repo in the
+auto-memory directory. If that directory does not exist (fresh clone, different
+machine, path change), restore from committed snapshots:
+
+| Auto-memory file | Recovery source | Updated by |
+|---|---|---|
+| `MEMORY.md` | `docs/MEMORY-snapshot.md` | /cycle Step 10 |
+| `cognitive-triggers.md` | `docs/cognitive-triggers-snapshot.md` | /cycle Step 10b |
+
+Steps:
+1. Create the auto-memory directory (see Step 2 for path computation)
+2. Copy each recovery source into the auto-memory directory
+3. Add a `<!-- PROVENANCE: ... -->` comment at the top of each restored file
+   noting the source file, date, and session number
+4. Verify line counts (MEMORY.md < 200; cognitive-triggers.md has all T1–T12)
+
 ## Step 5: Sub-projects
 
 Each sub-project has its own CLAUDE.md and memory:

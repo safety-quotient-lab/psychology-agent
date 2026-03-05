@@ -26,6 +26,8 @@ partner, and Socratic interlocutor
 9. [Documentation as Specification: The Reconstruction Method](#9-documentation-as-specification)
 10. [Epistemic Defensibility of the Drift Metric](#10-epistemic-defensibility-of-drift)
 11. [Licensing as Architecture: The Dreaddit Constraint](#11-licensing-as-architecture)
+12. [Semiotic Reflexivity and the Cogarch](#12-semiotic-reflexivity-and-the-cogarch)
+11. [Licensing as Architecture: The Dreaddit Constraint](#11-licensing-as-architecture)
 
 ---
 
@@ -437,6 +439,73 @@ principle holds: data provenance and data licensing are the same audit.
 
 ---
 
+## 12. Semiotic Reflexivity and the Cogarch: What a Neural Architecture Reveals About Trigger Design
+
+Lancaster's (2026) Semiotic-Reflexive Transformer (SRT) addresses a problem that
+our cognitive architecture encounters from a different direction: meaning does not
+hold still across interpretive communities, and systems that treat it as stable
+produce failures they cannot diagnose.
+
+The SRT operationalizes Peircean semiotic theory — the triadic sign model
+(representamen, object, interpretant) — as differentiable neural computation. Its
+four modules decompose token embeddings into semiotic subspaces, track meaning
+divergence across community-conditioned representations, implement a reflexive
+meta-observer, and estimate bifurcation parameters using cusp catastrophe geometry.
+Stage 1 validation on synthetic data confirms that each module learns its intended
+function: subspace specialization produces interpretable decomposition, community-
+conditioned interpretants differentiate contested from neutral terms (3.28x cosine
+distance ratio), and bifurcation detection achieves 100% regime classification
+accuracy.
+
+The architecture operates at the neural embedding level — a fundamentally
+different domain than our trigger-based cogarch. But four conceptual patterns
+transfer directly.
+
+First, **divergence accumulates before it ruptures**. The SRT's Metapragmatic
+Attention Head tracks meaning divergence as a running cumulative signal, not as
+a point measurement. Our T6 (pushback / drift audit) fires only when the user
+explicitly pushes back — by which point the divergence has already crystallized.
+A T2 sub-check that tracks vocabulary alignment continuously would catch drift
+earlier, before the user needs to correct the agent.
+
+Second, **contested terms bifurcate rather than drift**. The SRT's cusp catastrophe
+model predicts that meaning does not slide gradually between communities — it snaps
+between interpretive basins. This matches our existing Term Collision Rule (CLAUDE.md):
+"validation (psychometric)" and "validation (SWEBOK V&V)" are not points on a
+continuum but discrete, incompatible interpretive basins. A T3 sub-check could detect
+when a recommendation contains a term sitting at a bifurcation point and bind it
+explicitly before the ambiguity reaches the user.
+
+Third, **audience identity shifts mid-conversation**. The SRT's community-conditioned
+interpretants produce different vectors for the same token depending on the community
+embedding. Our Socratic protocol already calibrates dynamically rather than routing
+by audience category. But previously bound terms may need rebinding when the user's
+discourse domain shifts — a phenomenon the dynamic calibration does not currently
+address.
+
+Fourth, **reflexive self-monitoring benefits from continuous operation**. The SRT's
+Reflexive Reasoning Module runs at every layer, not on demand. Our T11 (cogarch
+self-audit) runs when invoked. A lightweight semiotic consistency check at T2
+frequency — verifying that project-specific terms appear with their documented
+definitions — would catch vocabulary drift that T11 finds only retroactively.
+
+The most consequential finding for our architecture concerns the adversarial
+evaluator (architecture item 3, not yet built). The SRT's central empirical claim —
+"the interpretant varies by community and collapsing it destroys signal" — is
+structurally identical to the PSQ's central finding: "profile shape predicts; the
+aggregate does not." Both resist dimensionality reduction that averages away
+meaningful variation. When sub-agents disagree, the evaluator should preserve the
+shape of the disagreement — the specific dimensions on which they diverge — rather
+than producing a consensus average. This aligns with the existing design decision
+(tiered: lightweight default, escalate on disagreement) but adds a specific
+prescription: disaggregated disagreement preservation, following the same logic that
+makes PSQ profiles more predictive than PSQ averages.
+
+▶ ideas.md (Semiotic-Reflexive Cogarch Extensions), lab-notebook.md Session 10
+
+
+---
+
 ## References
 
 Edmondson, A. (1999). Psychological safety and learning behavior in work teams.
@@ -447,3 +516,7 @@ French, J. R. P., & Raven, B. (1959). The bases of social power. In D. Cartwrigh
 
 Kuhn, T. S. (1962). *The structure of scientific revolutions.* University of
 Chicago Press.
+
+Lancaster, J. B. (2026). The semiotic-reflexive transformer: A neural architecture
+for detecting and modulating meaning divergence across interpretive communities.
+*SSRN Electronic Journal.* https://doi.org/10.2139/ssrn.5171674

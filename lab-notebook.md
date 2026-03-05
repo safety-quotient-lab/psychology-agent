@@ -10,7 +10,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 
 ## Current State *(overwrite each session)*
 
-### Agent: Design phase (2026-03-04)
+### Agent: Design phase (2026-03-05)
 
 | Item                          | Status                                           |
 |-------------------------------|--------------------------------------------------|
@@ -19,11 +19,11 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Authority hierarchy           | ✓ Documented — docs/architecture.md              |
 | /doc skill                    | ✓ Created and tested                             |
 | /hunt skill                   | ✓ Created and verified                           |
-| /cycle skill                  | ✓ Created and verified                           |
+| /cycle skill                  | ✓ Created and verified + Step 10b added (Session 11) |
 | /capacity skill               | ✓ Created and verified                           |
 | Conventions migration         | ✓ CLAUDE.md holds stable conventions (163 lines) |
 | CLAUDE.md (project root)      | ✓ Created + display convention added             |
-| Cognitive infrastructure      | ✓ T1–T12 + 5 updates (Session 9 T11 audit)       |
+| Cognitive infrastructure      | ✓ T1–T12 + 5 updates + 4 SRT-inspired drafts (ideas.md) |
 | T10/T11 ordering              | ✓ Fixed — T10 now precedes T11 in file           |
 | T12 trigger                   | ✓ Positive pattern recognition; T10 co-fires     |
 | Timestamp backfill            | ✗ Deferred — no fabrication; exact times unknown |
@@ -42,13 +42,14 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Code Style convention         | ✓ CLAUDE.md + T4 cogarch check                  |
 | License (root project)        | ✓ CC BY-NC-SA 4.0 — LICENSE at project root      |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
+| Auto-memory recovery          | ✓ MEMORY.md + cognitive-triggers.md snapshots committed; BOOTSTRAP.md recovery section; /cycle Step 10b (Session 11) |
 | PSQ commercial model          | ✗ Undefined — ideas documented in ideas.md       |
 | General agent design          | ✗ Next — item 1 of 3                             |
 | Sub-agent protocol            | ✗ Pending — item 2 of 3                          |
 | Adversarial evaluator         | ✗ Pending — item 3 of 3                          |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
-| Git history                   | ✓ 8 commits — clean chronological order (Session 10) |
+| Git history                   | ✓ 9 commits — clean chronological order          |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
 
 
@@ -416,3 +417,79 @@ written at 14:48 appeared before Session 6 at 01:34). Corrected to chronological
 - Moved to `~/.claude/proposals/processed/`
 
 **→ MEMORY.md quick-ref updated** to reflect T3, T4, T5 additions.
+
+---
+
+## 2026-03-05 — Session 10 (SRT paper analysis, cogarch extension drafts)
+
+**Scope:** External paper review for cogarch applicability; ideas documentation.
+
+**→ SRT paper analyzed** (Lancaster, 2026 — "The Semiotic-Reflexive Transformer,"
+Substack/SSRN). Neural architecture that operationalizes Peircean semiotic
+decomposition, metapragmatic divergence tracking, and catastrophe-theoretic
+bifurcation detection as differentiable transformer modules. Four transferable
+concepts identified for our trigger-based cogarch:
+
+1. **Cumulative divergence tracking (T2 extension)** — track vocabulary alignment
+   as running estimate, not just event-driven on pushback. Draft trigger language written.
+2. **Bifurcation early warning (T3 extension)** — detect when terms approach
+   interpretive instability before misunderstanding crystallizes. Draft written.
+3. **Audience-shift detection (T3 extension)** — rebind terms when user shifts
+   discourse domain mid-conversation. Draft written.
+4. **Micro-semiotic audit (T2 extension)** — lightweight periodic vocabulary
+   consistency check. Draft written.
+
+**→ Structural resonance noted:** SRT's "interpretant varies by community,
+collapsing destroys signal" echoes PSQ's "profile predicts, average does not."
+Implication for architecture item 3 (adversarial evaluator): preserve disagreement
+shape rather than averaging.
+
+**→ ideas.md updated** with full "Semiotic-Reflexive Cogarch Extensions" section
+including all 4 draft trigger descriptions, gating concern (⚡), effort estimates,
+and evaluator implication.
+
+**→ Effort estimation provided** for remaining project work. Reconstruction
+confirmed complete (Session 10 prior numbering). Critical path: Architecture
+Items 1→2→3.
+
+⚑ Session numbering collision: this session and the relay-agent reconstruction
+session both appear as "Session 10" in lab-notebook. The reconstruction session
+was performed by a relay-agent on a different machine and appears in the current
+state table as "Session 10." This session (SRT analysis) ran from a separate
+Claude Code context. Numbering to be reconciled at next /cycle from the
+psychology-agent home context.
+
+▶ ideas.md (Semiotic-Reflexive Cogarch Extensions section)
+
+---
+
+## 2026-03-05T11:45 CST — Session 11 (Auto-memory restoration, traceability infrastructure)
+
+**Scope:** Restore lost auto-memory; add traceability for memory recovery operations.
+
+**→ Auto-memory directory restored.** The auto-memory path
+(`~/.claude/projects/-Users-kashif-Projects-psychology-agent/memory/`) did not exist.
+MEMORY.md restored from `docs/MEMORY-snapshot.md`. cognitive-triggers.md reconstructed
+from 5 sources: MEMORY.md quick-ref table, lab-notebook Sessions 2–3/5/9, journal §6–7,
+and the unratified project's adapted copy.
+
+**→ Traceability infrastructure added (3 changes):**
+
+1. **Committed cognitive-triggers snapshot** — `docs/cognitive-triggers-snapshot.md`
+   created, mirroring the MEMORY-snapshot pattern. Provides single-file recovery
+   source instead of multi-source reconstruction.
+
+2. **Provenance headers on auto-memory files** — `<!-- PROVENANCE: ... -->` HTML
+   comments at top of both MEMORY.md and cognitive-triggers.md. Record restoration
+   date, source files, and session number. Overwritten on next normal update.
+
+3. **BOOTSTRAP.md recovery section + /cycle Step 10b** — BOOTSTRAP.md Step 4 gained
+   "Recovery: if auto-memory directory does not exist" subsection with file→source
+   mapping table. /cycle gained Step 10b: propagate cognitive-triggers.md to committed
+   snapshot with content guard (≥100 lines). Propagation rules updated.
+
+**→ Session numbering reconciled.** Prior "Session 10" collision (relay-agent
+reconstruction and SRT analysis both labeled Session 10) resolved: SRT analysis
+session retains Session 10 numbering; this session proceeds as Session 11.
+
+▶ BOOTSTRAP.md, .claude/skills/cycle/SKILL.md, docs/cognitive-triggers-snapshot.md

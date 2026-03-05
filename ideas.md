@@ -120,6 +120,76 @@ the data layer. Candidate directions:
 
 ---
 
+## Semiotic-Reflexive Cogarch Extensions (from SRT paper review)
+
+Source: Lancaster (2026), "The Semiotic-Reflexive Transformer," Substack/SSRN.
+The SRT operationalizes Peircean semiotic decomposition, metapragmatic divergence
+tracking, and catastrophe-theoretic bifurcation detection as differentiable neural
+modules. Four concepts transfer to our trigger-based cogarch:
+
+- **Cumulative divergence tracking (T2 extension)** — track vocabulary alignment
+  between agent output and user demonstrated vocabulary as a running estimate,
+  not just event-driven on pushback (T6). The SRT's Metapragmatic Attention Head
+  shows divergence accumulates gradually before rupture. Draft trigger language:
+
+  > **T2 sub-check: Vocabulary alignment scan.** Before responding, compare
+  > terminology in the draft response against the user's demonstrated vocabulary
+  > in the current conversation. If the agent uses a term the user has not used
+  > and the term participates in multiple interpretive communities, flag it for
+  > explicit binding (see Term Collision Rule, CLAUDE.md). Rising misalignment
+  > across consecutive responses warrants a pacing checkpoint.
+
+- **Bifurcation early warning (T3 extension)** — detect when a term or concept
+  approaches interpretive instability before the misunderstanding crystallizes.
+  The SRT's Bifurcation Estimation Network models cusp catastrophe geometry;
+  critical slowing down (rising variance) serves as early warning. Draft trigger:
+
+  > **T3 sub-check: Interpretive bifurcation scan.** Before recommending, check
+  > whether any key term in the recommendation could produce divergent
+  > interpretations depending on the audience's interpretive framework. If a
+  > term sits at a bifurcation point (two plausible, incompatible readings),
+  > bind it explicitly to one reading and name the alternative. Do not leave
+  > contested terms unbound in recommendations.
+
+- **Audience-shift detection (T3 extension)** — the SRT's community-conditioned
+  interpretants vary by community embedding. When the user shifts discourse
+  domain mid-conversation (e.g., clinical discussion to engineering planning),
+  terms previously bound to one interpretive community may need rebinding. Draft:
+
+  > **T3 sub-check: Audience-shift detection.** If the user's vocabulary,
+  > question sophistication, or domain markers shift significantly from the
+  > conversation baseline established at T1, reassess which interpretive
+  > community governs the current exchange. Previously bound terms may need
+  > explicit rebinding. This complements dynamic Socratic calibration.
+
+- **Micro-semiotic audit (T2 extension)** — the SRT's Reflexive Reasoning Module
+  runs continuously as a meta-observer. Our T11 runs on demand. A lighter-weight
+  periodic check at T2 frequency would catch vocabulary drift earlier. Draft:
+
+  > **T2 sub-check: Semiotic consistency.** Before responding, verify that any
+  > project-specific term (cogarch vocabulary, PSQ dimensions, PJE constructs)
+  > appears with its documented definition, not a drifted variant. If the
+  > agent's usage has diverged from the documented definition, correct before
+  > responding. This catches vocabulary drift that T11 would find at audit time.
+
+⚡ All four extensions add T2/T3 processing overhead. The SRT paper itself notes
+training instability when all modules run simultaneously. For our cogarch, the
+risk manifests as over-checking: every response triggers multiple sub-checks that
+add latency without proportional value. Consider gating: run the full suite only
+when divergence indicators (pushback, domain shift, novel terminology) exceed a
+threshold. Light mode (semiotic consistency only) by default.
+
+*Precondition: T11 audit to evaluate integration points. S effort for trigger
+language; M effort for calibrating gate thresholds.*
+
+**Structural resonance:** The SRT's central claim — "the interpretant varies by
+community and collapsing it destroys signal" — echoes the PSQ's "profile predicts,
+average does not." Both resist dimensionality reduction that averages away meaningful
+variation. Implication for architecture item 3 (adversarial evaluator): when
+sub-agents disagree, preserve the shape of the disagreement rather than averaging.
+
+---
+
 ## Meta
 
 - This agent system is itself a case study in PJE — it embodies Psycho Safety

@@ -17,6 +17,7 @@ different levels of abstraction. Each serves a distinct audience and purpose:
 | `memory/cognitive-triggers.md` | Claude | Full T1–T11 trigger system with failure analyses and future mitigations | Operational infrastructure |
 | `CLAUDE.md` | Claude Code (auto-read) | Stable conventions — communication policy, accessibility, project structure, skills | Foundational — how the project works |
 | `docs/MEMORY-snapshot.md` | Fresh Claude sessions | Committed copy of MEMORY.md — portable orientation for fresh installs | Bootstrap context |
+| `docs/cognitive-triggers-snapshot.md` | Fresh Claude sessions | Committed copy of cognitive-triggers.md — recovery source when auto-memory absent | Bootstrap context |
 
 When something changes, update relevant documents *at the appropriate level of
 abstraction*. A resolved design decision needs an entry in architecture.md (facts),
@@ -225,6 +226,36 @@ The archive (`docs/snapshots/`) accumulates one file per /cycle run (timestamp-k
 safe to run multiple times in the same day without collision).
 BOOTSTRAP.md references the canonical — do not change that reference.
 
+### 10b. Update docs/cognitive-triggers-snapshot.md
+
+Mirror the MEMORY-snapshot pattern for cognitive-triggers.md. This provides a
+committed recovery source — without it, restoring cognitive-triggers requires
+multi-source reconstruction (MEMORY.md quick-ref + lab-notebook + journal).
+
+**Step A: Content guard** — verify cognitive-triggers.md has substance.
+
+```bash
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+_HASH="$(echo "$PROJECT_ROOT" | tr '/' '-')"
+TRIGGERS_LIVE="$HOME/.claude/projects/${_HASH}/memory/cognitive-triggers.md"
+LINE_COUNT=$(wc -l < "${TRIGGERS_LIVE}" | tr -d '[:space:]')
+echo "cognitive-triggers.md line count: ${LINE_COUNT}"
+# Proceed only if LINE_COUNT >= 100. If below threshold, STOP and investigate.
+```
+
+**Step B: Update snapshot** — overwrite the committed copy.
+
+```bash
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+_HASH="$(echo "$PROJECT_ROOT" | tr '/' '-')"
+TRIGGERS_LIVE="$HOME/.claude/projects/${_HASH}/memory/cognitive-triggers.md"
+cp "${TRIGGERS_LIVE}" "${PROJECT_ROOT}/docs/cognitive-triggers-snapshot.md"
+```
+
+Note: cognitive-triggers changes less frequently than MEMORY.md, so no versioned
+archive is needed — a single snapshot suffices. If cogarch changes were made this
+session, update the snapshot. Otherwise skip.
+
 ### 11. Orphan Check
 
 - Check for references in docs to files that no longer exist or were renamed
@@ -292,7 +323,8 @@ architecture.md (facts) → journal.md if significant (narrative) →
 MEMORY.md Design Decisions table → lab-notebook.md Current State
 
 **A new cogarch trigger touches:**
-cognitive-triggers.md → MEMORY.md quick-ref table → lab-notebook.md session entry
+cognitive-triggers.md → docs/cognitive-triggers-snapshot.md (Step 10b) →
+MEMORY.md quick-ref table → lab-notebook.md session entry
 
 **A new skill touches:**
 .claude/skills/ → CLAUDE.md Skills section → lab-notebook.md session entry
