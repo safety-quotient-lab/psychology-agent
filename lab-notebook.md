@@ -10,7 +10,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 
 ## Current State *(overwrite each session)*
 
-### Agent: Design phase (2026-03-02)
+### Agent: Design phase (2026-03-04)
 
 | Item                          | Status                                           |
 |-------------------------------|--------------------------------------------------|
@@ -18,9 +18,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Design decisions              | ✓ All resolved — docs/architecture.md            |
 | Authority hierarchy           | ✓ Documented — docs/architecture.md              |
 | /doc skill                    | ✓ Created and tested                             |
-| /hunt skill                   | ✓ Created — needs restart to load               |
-| /cycle skill                  | ✓ Created — needs restart to load               |
-| /capacity skill               | ✓ Created — needs restart to load               |
+| /hunt skill                   | ✓ Created and verified                           |
+| /cycle skill                  | ✓ Created and verified                           |
+| /capacity skill               | ✓ Created and verified                           |
 | Conventions migration         | ✓ CLAUDE.md holds stable conventions (163 lines) |
 | CLAUDE.md (project root)      | ✓ Created + display convention added             |
 | Cognitive infrastructure      | ✓ T1–T12 + 5 updates (Session 9 T11 audit)       |
@@ -32,7 +32,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Socratic protocol             | ✓ Resolved — dynamic calibration; machine detect |
 | Sub-agent implementation      | ✓ Resolved — staged hybrid (see architecture.md) |
 | Reconstruction package        | ✓ reconstruct.py + relay-agent-instructions.md + template |
-| Handoff package               | ✓ ~/psychology-handoff.tar.gz — relay-agent running on other machine |
+| Relay-agent reconstruction    | ✓ Complete — 3 [RECONSTRUCTED] commits (Session 10) |
+| Lab-notebook patch            | ✓ Sessions 2–3 entries backfilled manually (Session 10) |
+| Git history rewrite           | ✓ 8 commits, clean chronological order, pushed (Session 10) |
 | Relay-agent auto-accept gate  | ✓ Only pauses for high-weight SUBSTITUTIVE divergences |
 | /cycle Step 12 git guard      | ✓ Graceful skip when .git absent                |
 | Drift metric (content_drift)  | ✓ SUBTRACTIVE excluded from circuit breaker — epistemically clean |
@@ -41,14 +43,13 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | License (root project)        | ✓ CC BY-NC-SA 4.0 — LICENSE at project root      |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
 | PSQ commercial model          | ✗ Undefined — ideas documented in ideas.md       |
-| General agent design          | ✗ Next                                           |
+| General agent design          | ✗ Next — item 1 of 3                             |
 | Sub-agent protocol            | ✗ Pending — item 2 of 3                          |
 | Adversarial evaluator         | ✗ Pending — item 3 of 3                          |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
-| Initial git commit            | ✓ e12828b — 29 files; remote origin (SSH)        |
+| Git history                   | ✓ 8 commits — clean chronological order (Session 10) |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
-| Reconstruction import         | ✗ Pending receipt of .git/ from other machine    |
 
 
 ### Open Questions

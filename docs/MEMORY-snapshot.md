@@ -1,16 +1,19 @@
 # Psychology Project Memory
 
-## Active Thread (2026-03-02)
+## Active Thread (2026-03-04)
 
 **Context:** User wants this agent to be a **general-purpose psychology agent** (collegial mentor) with:
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 8 complete. Initial commit `e12828b` pushed to
-`safety-quotient-lab/psychology-agent` (main, public). Public audit: publication-safe,
-no HIGH/MEDIUM findings. Relay-agent still running on other machine.
-**Next:** Receive `.git/` from relay-agent → rebase `e12828b` onto 3 [RECONSTRUCTED]
-commits → `push --force-with-lease` → architecture item 1 (general agent design).
+**Where we stopped:** Session 10 complete. Relay-agent reconstruction ran on Mac mini —
+3 [RECONSTRUCTED] commits (Sessions 1–3) built from JSONL `10f3b81d`. Stale lab-notebook
+entries manually patched (Sessions 2–3 missing due to Edit anchor mismatch). History
+rebased: [gitignore] → S1–S3 [R] → Sessions 4–7 catch-up → S8 → S9 → blog post TODO.
+Pushed to `safety-quotient-lab/psychology-agent` (force-with-lease). Root commit date
+fixed. 8-commit history fully clean and chronological.
+**Next:** Architecture Item 1 — general agent design (prompt/identity, routing logic,
+Socratic protocol spec, machine-caller detection).
 
 ## Design Decisions
 
