@@ -7,9 +7,10 @@
 2. A consensus-or-parsimony adversarial evaluator
 
 **Where we stopped:** Session 11 complete. Auto-memory restored from snapshots.
-Bootstrap system updated: bootstrap-check.sh (health check + restore script),
-T1 auto-memory health check, BOOTSTRAP.md restructured around script,
-cognitive-triggers-snapshot.md committed, /cycle Step 10b added.
+Traceability infrastructure added: cognitive-triggers-snapshot.md committed,
+provenance headers on auto-memory files, BOOTSTRAP.md recovery section, /cycle
+Step 10b. 3 unstaged files from Session 10 (ideas.md, journal.md, lab-notebook.md)
+remain uncommitted alongside Session 11 changes.
 **Next:** Architecture Item 1 — general agent design (prompt/identity, routing logic,
 Socratic protocol spec, machine-caller detection).
 
@@ -70,7 +71,7 @@ Full trigger system: `memory/cognitive-triggers.md` — read at session start.
 Quick reference (when → what fires):
 
 ```
- Session starts          T1: auto-memory health check, orientation, skills, TODO, context baseline
+ Session starts          T1: orientation, skills, TODO, context baseline
  Before any response     T2: context pressure, transition, pacing, bare forks
  Before recommending     T3: classify domain → ground → adjudicate; prerequisites, sycophancy, recommend-against; effort-weight calibration
  Before writing to disk  T4: date, public visibility, memory hygiene, routing, classification, semantic naming, lab-notebook ordering

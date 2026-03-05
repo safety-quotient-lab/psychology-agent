@@ -1,9 +1,11 @@
-# Psychology Agent — Cognitive Triggers
+<!-- PROVENANCE: Reconstructed 2026-03-05 (Session 11).
+     Sources: MEMORY.md quick-ref table, lab-notebook Sessions 2-3 (T1-T11
+     creation), Session 5 (T4 semantic naming), Session 9 (T3 effort-weight,
+     T4 public visibility + ordering, T5 staleness check), journal §6-7,
+     unratified project adaptation (structural reference).
+     Committed snapshot: docs/cognitive-triggers-snapshot.md -->
 
-<!-- SNAPSHOT: Committed recovery copy of memory/cognitive-triggers.md
-     Auto-memory lives at: ~/.claude/projects/[hash]/memory/cognitive-triggers.md
-     This file updated by /cycle Step 10b. Do not edit directly — edit the
-     auto-memory source and let /cycle propagate. -->
+# Psychology Agent — Cognitive Triggers
 
 Each trigger has a specific firing condition. Principles without mechanical
 triggers remain aspirations, not infrastructure.
@@ -15,14 +17,20 @@ triggers remain aspirations, not infrastructure.
 **Fires**: Beginning of every session
 
 **Checks**:
-1. Read auto-memory MEMORY.md — restore active thread, design decisions, working principles
-2. Read `memory/cognitive-triggers.md` — load full trigger system
-3. Check TODO.md — current task backlog
-4. Check lab-notebook.md — last session summary and open questions
-5. Verify skills loaded (/doc, /hunt, /cycle, /capacity, /adjudicate)
-6. Establish context baseline before responding to any user request
+1. **Auto-memory health check** — verify the auto-memory directory exists and both
+   files (MEMORY.md, cognitive-triggers.md) are present and substantive. If missing
+   or suspect, run `./bootstrap-check.sh` to restore from committed snapshots.
+   If bootstrap-check.sh is unavailable, restore manually per BOOTSTRAP.md Step 4
+   recovery section. Do not proceed with stale or absent memory.
+2. Read auto-memory MEMORY.md — restore active thread, design decisions, working principles
+3. Read `memory/cognitive-triggers.md` — load full trigger system
+4. Check TODO.md — current task backlog
+5. Check lab-notebook.md — last session summary and open questions
+6. Verify skills loaded (/doc, /hunt, /cycle, /capacity, /adjudicate)
+7. Establish context baseline before responding to any user request
 
-**Action**: Orient fully before doing any work.
+**Action**: Orient fully before doing any work. If restoration occurred, note it
+in the session's first response so the user has visibility.
 
 ---
 

@@ -42,7 +42,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Code Style convention         | ✓ CLAUDE.md + T4 cogarch check                  |
 | License (root project)        | ✓ CC BY-NC-SA 4.0 — LICENSE at project root      |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
-| Auto-memory recovery          | ✓ MEMORY.md + cognitive-triggers.md snapshots committed; BOOTSTRAP.md recovery section; /cycle Step 10b (Session 11) |
+| Auto-memory recovery          | ✓ Snapshots, bootstrap-check.sh, T1 health check, BOOTSTRAP.md restructure (Session 11) |
 | PSQ commercial model          | ✗ Undefined — ideas documented in ideas.md       |
 | General agent design          | ✗ Next — item 1 of 3                             |
 | Sub-agent protocol            | ✗ Pending — item 2 of 3                          |
@@ -492,4 +492,20 @@ and the unratified project's adapted copy.
 reconstruction and SRT analysis both labeled Session 10) resolved: SRT analysis
 session retains Session 10 numbering; this session proceeds as Session 11.
 
-▶ BOOTSTRAP.md, .claude/skills/cycle/SKILL.md, docs/cognitive-triggers-snapshot.md
+**→ Bootstrap system updated (lessons from reconstruction):**
+
+4. **bootstrap-check.sh** — executable health-check script at project root. Two modes:
+   `--check-only` (diagnostics) and default (diagnose + restore). Checks auto-memory
+   directory, file existence, line-count content guards (MEMORY ≥ 50, triggers ≥ 100),
+   snapshot availability, skills on disk. Restores with auto-generated provenance
+   headers. Exit codes 0 (healthy) / 1 (failed). Tested both paths.
+
+5. **T1 updated** — new check 1: auto-memory health check before reads. References
+   bootstrap-check.sh as primary tool, BOOTSTRAP.md manual section as fallback.
+   Action updated: report restoration to user if it occurred.
+
+6. **BOOTSTRAP.md restructured** — Quick Start section at top (run the script).
+   Step 2 restructured around file→snapshot mapping table with min-line thresholds.
+   Manual recovery preserved as fallback. Step 3 now lists all 5 skills.
+
+▶ bootstrap-check.sh, BOOTSTRAP.md, memory/cognitive-triggers.md, docs/cognitive-triggers-snapshot.md

@@ -4,94 +4,113 @@ How to bring a fresh Claude Code session to full project context.
 
 ---
 
+## Quick Start
+
+From the project root, run the health check:
+
+```bash
+./bootstrap-check.sh
+```
+
+This verifies auto-memory, restores from snapshots if needed, checks recovery
+sources, and reports skill availability. If everything passes, proceed to
+Step 4 (Orient). If anything fails, the script reports what to fix.
+
+For diagnostics only (no changes):
+
+```bash
+./bootstrap-check.sh --check-only
+```
+
+---
+
 ## Step 1: Navigate to project root
 
 ```bash
 cd ~/projects/psychology    # default path; adjust to your clone location
 ```
 
-Claude Code will auto-read `CLAUDE.md` at session start.
+Claude Code auto-reads `CLAUDE.md` at session start.
 
-## Step 2: Load memory
+## Step 2: Verify auto-memory health
 
-Memory is path-hash dependent. The hash is derived from your absolute project
-path: strip the leading `/`, replace all `/` with `-`.
+Auto-memory lives outside the git repo, in a path-hash-dependent directory.
+The hash derives from the absolute project path: strip the leading `/`,
+replace all `/` with `-`.
 
 | Platform | Example project path | Hash |
 |----------|---------------------|------|
 | Linux    | `/home/user/projects/psychology` | `-home-user-projects-psychology` |
 | macOS    | `/Users/user/projects/psychology` | `-Users-user-projects-psychology` |
 
-Auto-memory file location:
+Auto-memory directory:
 ```
-~/.claude/projects/[HASH]/memory/MEMORY.md
+~/.claude/projects/[HASH]/memory/
 ```
 
-To find it dynamically:
+Two files live there:
+
+| Auto-memory file | What it holds | Committed snapshot (recovery source) | Min lines |
+|---|---|---|---|
+| `MEMORY.md` | Volatile state: active thread, decisions, cogarch quick-ref | `docs/MEMORY-snapshot.md` | 50 |
+| `cognitive-triggers.md` | Full T1–T12 trigger system | `docs/cognitive-triggers-snapshot.md` | 100 |
+
+**`bootstrap-check.sh` handles all of this automatically.** It checks existence,
+validates line counts against thresholds, restores from snapshots with provenance
+headers, and reports status. Run it instead of doing this manually.
+
+### Manual recovery (if bootstrap-check.sh is unavailable)
+
 ```bash
 PROJECT_ROOT="$(pwd)"
 _HASH="$(echo "$PROJECT_ROOT" | tr '/' '-')"
-echo "$HOME/.claude/projects/${_HASH}/memory/MEMORY.md"
+MEMORY_DIR="$HOME/.claude/projects/${_HASH}/memory"
+
+# Create directory
+mkdir -p "$MEMORY_DIR"
+
+# Restore from snapshots
+cp docs/MEMORY-snapshot.md "$MEMORY_DIR/MEMORY.md"
+cp docs/cognitive-triggers-snapshot.md "$MEMORY_DIR/cognitive-triggers.md"
 ```
 
-This loads automatically if you are working from the correct directory.
-If context is missing, read MEMORY.md manually at session start.
+After manual restoration, add a `<!-- PROVENANCE: ... -->` comment at the top
+of each file noting the source, date, and session number.
 
-A committed snapshot is available at `docs/MEMORY-snapshot.md` — use this
-to restore context on a fresh install before the auto-memory file exists.
+### Snapshot provenance notes
 
-**Snapshot provenance note:** The original Session 1 bootstrap snapshot was
-overwritten before versioned archiving was in place. Reconstructions are at:
-- `docs/snapshots/MEMORY-snapshot-session-1-reconstructed.md` — Session 1 end state
-- `docs/snapshots/MEMORY-snapshot-session-2-reconstructed.md` — Session 2 end state
-Each carries a reconstruction header with source citations. Use for historical
-context only; `docs/MEMORY-snapshot.md` is the authoritative current state.
-
-**Archive integrity note:** `docs/snapshots/MEMORY-snapshot-2026-03-01.md` was
-created before a known integrity fix (adjudicate residue from external agent
-overreach). Do not use it as a recovery source. The canonical is clean.
+- The original Session 1 bootstrap snapshot was overwritten before versioned
+  archiving started. Reconstructions:
+  - `docs/snapshots/MEMORY-snapshot-session-1-reconstructed.md` — Session 1 end state
+  - `docs/snapshots/MEMORY-snapshot-session-2-reconstructed.md` — Session 2 end state
+  - Each carries a reconstruction header. Use for historical context only.
+- `docs/snapshots/MEMORY-snapshot-2026-03-01.md` pre-dates a known integrity fix
+  (adjudicate residue from external agent overreach). Do not use as recovery source.
+- `docs/MEMORY-snapshot.md` and `docs/cognitive-triggers-snapshot.md` are the
+  authoritative current snapshots, updated by /cycle Steps 10 and 10b.
 
 ## Step 3: Verify skills loaded
 
 Run `/doc` to confirm it loads. Expected response: skill invokes and
 reports "nothing to document" or scans context for undocumented items.
 
-Also verify `/hunt`, `/cycle`, and `/capacity` are available — all four skills
-should load from `.claude/skills/` at session start.
+Also verify `/hunt`, `/cycle`, `/capacity`, and `/adjudicate` are available —
+all five skills should load from `.claude/skills/` at session start.
 
-If any skill is not found: it was likely created mid-session in a prior
-run. Restart Claude Code from the project root to reload.
+If any skill not found: likely created mid-session in a prior run. Restart
+Claude Code from the project root to reload.
 
 ## Step 4: Orient to current state
 
 Read in order:
-1. `MEMORY.md` — current active thread and volatile state
-2. `cognitive-triggers.md` — full T1–T12 trigger system (loaded at T1); lives
-   in the auto-memory directory alongside MEMORY.md, not in the project root
+1. `MEMORY.md` — current active thread and volatile state (auto-memory)
+2. `cognitive-triggers.md` — full T1–T12 trigger system (auto-memory)
 3. `docs/architecture.md` — design decisions and system diagram
 4. `lab-notebook.md` — last session summary and open questions
 5. `TODO.md` — task backlog
 
 **Note:** `CLAUDE.local.md` at the project root is auto-gitignored and always-loaded.
 Create it for personal/local session context that should not be committed.
-
-### Recovery: if auto-memory directory does not exist
-
-Both `MEMORY.md` and `cognitive-triggers.md` live outside the git repo in the
-auto-memory directory. If that directory does not exist (fresh clone, different
-machine, path change), restore from committed snapshots:
-
-| Auto-memory file | Recovery source | Updated by |
-|---|---|---|
-| `MEMORY.md` | `docs/MEMORY-snapshot.md` | /cycle Step 10 |
-| `cognitive-triggers.md` | `docs/cognitive-triggers-snapshot.md` | /cycle Step 10b |
-
-Steps:
-1. Create the auto-memory directory (see Step 2 for path computation)
-2. Copy each recovery source into the auto-memory directory
-3. Add a `<!-- PROVENANCE: ... -->` comment at the top of each restored file
-   noting the source file, date, and session number
-4. Verify line counts (MEMORY.md < 200; cognitive-triggers.md has all T1–T12)
 
 ## Step 5: Sub-projects
 
