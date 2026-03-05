@@ -566,12 +566,38 @@ CLAUDE.md, README.md, blog post, /cycle, /hunt, /capacity, MEMORY-snapshot, MEMO
 Historical snapshots and lab-notebook session entries left as-is. Bootstrap health check
 passes. The file no longer lives in auto-memory — read directly from repo at T1.
 
-**→ Awesome-claude-code ecosystem evaluation.** Evaluated 5 repos via parallel subagents:
-Context Engineering Kit (NeoLabHQ), Compound Engineering Plugin (EveryInc), parry
-(vaporif), RIPER Workflow (multiple forks), SuperClaude Framework (SuperClaude-Org).
-3 of 5 URLs had drifted from the awesome list. Produced 10 ranked integration candidates.
-Convergent patterns found across 3+ repos: structured error/lesson capture, graduated
-document promotion, file-system-as-memory.
+**→ Awesome-claude-code ecosystem evaluation.** Evaluated 5 repos via parallel subagents.
+3 of 5 URLs had drifted from the awesome-claude-code listings. Produced 10 ranked
+integration candidates. Convergent patterns found across 3+ repos: structured
+error/lesson capture, graduated document promotion, file-system-as-memory.
+
+Evaluation source: `https://github.com/hesreallyhim/awesome-claude-code` (26.4k stars).
+CONTRIBUTING.md at commit `a93d2181` — submissions via issue form only, not PRs.
+
+**Repos evaluated and key findings:**
+
+| Repository | Actual URL | Key Pattern Extracted |
+|---|---|---|
+| Context Engineering Kit | NeoLabHQ/context-engineering-kit | Commands-over-skills token efficiency, U-shaped attention curve (lost-in-middle), FPF evidence decay with trust calculus, 5-layer memory architecture, compaction at 70-80% |
+| Compound Engineering Plugin | EveryInc/compound-engineering-plugin | Error-to-lesson discipline (YAML-validated docs/solutions/), 3+ threshold for pattern promotion to critical-patterns.md, phase-locked sub-agent orchestration (data-only returns), /heal-skill meta-learning, learnings-researcher retrieval agent |
+| parry | vaporif/parry | 6-layer fail-closed detection (unicode → substring → secrets → ML DeBERTa → bash AST exfil → script AST exfil), taint-tracking quarantine (.parry-tainted), CLAUDE.md scanning at session start, daemon architecture with 30-day scan cache |
+| RIPER Workflow | tony/claude-code-riper-5 + johnpeterman72/CursorRIPER | Mutually exclusive mode state machine (Research/Innovate/Plan/Execute/Review), tool-scoping by sub-agent (research agent lacks Write), explicit plan-approval gate, mode declaration tag |
+| SuperClaude Framework | SuperClaude-Org/SuperClaude_Framework | 16 agent personas as context injections, confidence-first scoring (>=90% proceed), ReflexionMemory (JSONL + keyword similarity), graduated doc promotion (temp → pattern → rule), 3-tier rule priority (CRITICAL/IMPORTANT/RECOMMENDED) |
+
+**Integration candidates ranked (criteria: gap addressed, architectural fit, effort):**
+
+| Rank | Pattern | Source | Status |
+|---|---|---|---|
+| 1 | Parry platform security | parry | ✓ Installed, hooks configured |
+| 2 | Graduated document promotion | SuperClaude + Compound Eng + Context Eng Kit | ✓ Lifecycle defined in lessons.md.example + T10 + /cycle 8b |
+| 3 | Evidence decay / freshness | Context Eng Kit FPF | → TODO |
+| 4 | Phase-locked sub-agent orchestration | Compound Eng | → TODO (Architecture Item 2) |
+| 5 | Schema-validated lesson capture | Compound Eng + SuperClaude | ✓ YAML frontmatter in lessons.md.example + T10 |
+| 6 | Taint-tracking / quarantine | parry | → TODO |
+| 7 | Commands-over-skills audit | Context Eng Kit | ✓ Audit complete; /adjudicate + /capacity → convert |
+| 8 | Attention-aware placement | Context Eng Kit | ✓ CLAUDE.md reordered |
+| 9 | Explicit plan-approval gate | RIPER | → TODO |
+| 10 | Confidence scoring before action | SuperClaude | → TODO |
 
 **→ Parry prompt injection scanner installed and configured.** Binary built from source
 (Rust, Candle backend). Hooks added to `.claude/settings.json` at PreToolUse, PostToolUse,
