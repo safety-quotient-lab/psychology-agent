@@ -46,6 +46,16 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ---
 
+## Writing
+
+- [ ] **Blog post: "Jurassic Park Development"** — narrative essay about reconstructing
+  git history from AI chat logs. Core theme: life (and code) finds a way — the project
+  existed before the repo did. Cover: why the history mattered, the relay-agent
+  architecture, drift scoring as an epistemic tool, what the skipped Edit operations
+  reveal about mechanical replay vs. understanding. Audience: developers + AI practitioners.
+
+---
+
 ## PSQ Sub-Agent Integration
 
 Managed in safety-quotient/ context. Do not duplicate here.
