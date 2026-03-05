@@ -114,12 +114,9 @@ Forward-looking task list only. Completed and emergent work goes to
 Repos evaluated: Context Engineering Kit, Compound Engineering Plugin,
 parry, RIPER Workflow, SuperClaude Framework.*
 
-- [ ] **Graduated document promotion** (Rank 2) — define a lifecycle for how
-  observations become patterns become rules: `lessons.md` → candidate pattern
-  (3+ similar entries) → CLAUDE.md convention. Multiple repos converged on this
-  independently (SuperClaude, Compound Eng, Context Eng Kit). Currently our
-  lessons.md entries have no defined promotion path.
-  *Source: SuperClaude docs/temp→patterns→rules; Compound Eng 3+ threshold → critical-patterns.md*
+- [x] **Graduated document promotion** (Rank 2) — ✓ Session 12. Promotion lifecycle
+  defined in lessons.md.example, T10 updated with promotion check (3+ threshold),
+  /cycle Step 8b updated with promotion scan and schema check.
 
 - [ ] **Evidence decay / freshness management** (Rank 3) — formalize T9 staleness
   checking with explicit freshness thresholds. Context Eng Kit FPF tracks evidence
@@ -135,11 +132,9 @@ parry, RIPER Workflow, SuperClaude Framework.*
   *Source: Compound Eng phase-locked execution*
   *Precondition: Architecture Item 2 in progress*
 
-- [ ] **Schema-validated lesson capture** (Rank 5) — add lightweight structured
-  frontmatter to lessons.md entries (problem type, component, severity, resolution
-  type). Keeps human-readable narrative but enables machine retrieval and pattern
-  matching. Update lessons.md.example with the schema.
-  *Source: Compound Eng YAML-validated docs/solutions/; SuperClaude reflexion.jsonl*
+- [x] **Schema-validated lesson capture** (Rank 5) — ✓ Session 12. YAML frontmatter
+  added to lessons.md.example (pattern_type, domain, severity, recurrence,
+  trigger_relevant, promotion_status). T10 updated with classification step.
 
 - [ ] **Commands-over-skills token audit** (Rank 7) — evaluate which of our 5
   skills should become commands (load on-demand) vs. remain skills (load every
@@ -149,11 +144,9 @@ parry, RIPER Workflow, SuperClaude Framework.*
   frequently). /hunt depends on configurable-bootstrap decision.
   *Source: Context Eng Kit commands-over-skills pattern*
 
-- [ ] **Attention-aware placement** (Rank 8) — reorder CLAUDE.md and MEMORY.md
-  sections to place critical information at the beginning and end, per the
-  U-shaped attention curve (lost-in-middle effect). Context Eng Kit documents
-  10-40% recall drop for mid-context information.
-  *Source: Context Eng Kit lost-in-middle research*
+- [x] **Attention-aware placement** (Rank 8) — ✓ Session 12. CLAUDE.md reordered:
+  hooks + epistemic quality at top (high attention), stable communication conventions
+  in middle, code style + project structure at end (high attention).
 
 - [ ] **Modularization candidates** — evaluate external tools that could replace
   hand-rolled infrastructure:

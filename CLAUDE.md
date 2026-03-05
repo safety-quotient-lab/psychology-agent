@@ -5,6 +5,50 @@ MEMORY.md holds volatile state (active thread, design decisions, cogarch quick-r
 
 ---
 
+## Hooks (`.claude/settings.json`)
+
+Platform-level enforcement that supplements cognitive triggers:
+
+- **PreToolUse: git commit** — runs `bootstrap-check.sh --check-only` before every
+  commit. Catches unhealthy auto-memory before it gets snapshot-committed via /cycle.
+- **PreToolUse: parry** — prompt injection scanner (6-layer: unicode, substring,
+  secrets, ML, bash exfil, script exfil). Runs before every tool use. Blocks or
+  flags suspicious inputs. External process — operates outside agent context.
+- **PostToolUse: Write/Edit** — fires after modifications to critical files (MEMORY.md,
+  docs/cognitive-triggers.md, CLAUDE.md, architecture.md, lab-notebook.md). Reminds of T4
+  compliance checks. Safety net, not replacement for T4.
+- **PostToolUse: parry** — scans tool output for injection attempts and credential
+  exposure. Can taint the project (`.parry-tainted` file blocks all tools until
+  manual removal) if injection confirmed by ML.
+- **UserPromptSubmit: parry** — audits `.claude/commands/`, settings files, and
+  hook scripts for injection or dangerous permission patterns at session start.
+
+Hooks enforce mechanically what triggers enforce by prompt discipline. If a trigger
+check can be verified by a shell command, it belongs in hooks. Parry provides
+defense-in-depth at the platform boundary — see BOOTSTRAP.md for installation.
+
+### Epistemic Quality Standard
+
+**Highest epistemic standards in all analytical work.** Surface threats to validity
+proactively — don't wait for the user to ask.
+
+**Epistemic flags (`⚑`)** are mandatory in session summaries and substantive analytical
+outputs. Format:
+
+```
+⚑ EPISTEMIC FLAGS
+- [uncertainty, scope limitation, or validity threat]
+- [...]
+```
+
+If none: `⚑ EPISTEMIC FLAGS: none identified.`
+
+Epistemic flags cover: confidence miscalibration, scope overreach, implicit assumptions
+treated as facts, evidence-free claims, stale data used as current, conclusions that
+exceed available evidence, or any finding that a peer reviewer would challenge.
+
+---
+
 ## Skills
 
 - `/doc` — Mid-work documentation persistence. Captures decisions, findings,
@@ -99,26 +143,6 @@ parenthetical — they exist for traceability, not readability.
 This applies to all internal references: trigger numbers, section labels,
 abbreviations coined by the project. The user sees the meaning first.
 
-### Epistemic Quality Standard
-
-**Highest epistemic standards in all analytical work.** Surface threats to validity
-proactively — don't wait for the user to ask.
-
-**Epistemic flags (`⚑`)** are mandatory in session summaries and substantive analytical
-outputs. Format:
-
-```
-⚑ EPISTEMIC FLAGS
-- [uncertainty, scope limitation, or validity threat]
-- [...]
-```
-
-If none: `⚑ EPISTEMIC FLAGS: none identified.`
-
-Epistemic flags cover: confidence miscalibration, scope overreach, implicit assumptions
-treated as facts, evidence-free claims, stale data used as current, conclusions that
-exceed available evidence, or any finding that a peer reviewer would challenge.
-
 ### README Policy
 
 Developers have priority at root README.md; also a platform for general audience
@@ -142,30 +166,6 @@ benefit everyone — they are not accommodations for edge cases.
 - **Modular structure** — each section should stand alone; don't require the user to
   hold prior sections in working memory to parse the current one
 - **Offer stopping points** — for long outputs, offer to pause rather than dumping
-
----
-
-## Hooks (`.claude/settings.json`)
-
-Platform-level enforcement that supplements cognitive triggers:
-
-- **PreToolUse: git commit** — runs `bootstrap-check.sh --check-only` before every
-  commit. Catches unhealthy auto-memory before it gets snapshot-committed via /cycle.
-- **PreToolUse: parry** — prompt injection scanner (6-layer: unicode, substring,
-  secrets, ML, bash exfil, script exfil). Runs before every tool use. Blocks or
-  flags suspicious inputs. External process — operates outside agent context.
-- **PostToolUse: Write/Edit** — fires after modifications to critical files (MEMORY.md,
-  docs/cognitive-triggers.md, CLAUDE.md, architecture.md, lab-notebook.md). Reminds of T4
-  compliance checks. Safety net, not replacement for T4.
-- **PostToolUse: parry** — scans tool output for injection attempts and credential
-  exposure. Can taint the project (`.parry-tainted` file blocks all tools until
-  manual removal) if injection confirmed by ML.
-- **UserPromptSubmit: parry** — audits `.claude/commands/`, settings files, and
-  hook scripts for injection or dangerous permission patterns at session start.
-
-Hooks enforce mechanically what triggers enforce by prompt discipline. If a trigger
-check can be verified by a shell command, it belongs in hooks. Parry provides
-defense-in-depth at the platform boundary — see BOOTSTRAP.md for installation.
 
 ---
 

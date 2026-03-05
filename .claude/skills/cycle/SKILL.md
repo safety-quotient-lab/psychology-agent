@@ -171,6 +171,19 @@ catches anything that should have been written but wasn't.
 
 - **Duplicate check:** No two entries for the same pattern. Update rather than append.
 
+- **Schema check:** Any entries written this session — do they have YAML frontmatter
+  with `pattern_type`, `domain`, `severity`, `recurrence`, `trigger_relevant`,
+  `promotion_status`? If not, add the frontmatter now.
+
+- **Promotion scan:** Count entries by `pattern_type` and `domain`. If 3+ lessons
+  share the same value, mark them `promotion_status: candidate` and flag with
+  `[→ PROMOTE]`. Promotion targets:
+  - Recurring `pattern_type` → candidate for CLAUDE.md convention or cogarch trigger
+  - Recurring `domain` → candidate for domain-specific `.claude/rules/` file
+  - Action: add a one-line note to the /cycle summary identifying the promotion
+    candidate and the proposed target. Do not promote automatically — surface to
+    the user as a recommendation (T3 substance decision).
+
 Skip if no T10 or T12 firings occurred this session.
 
 ### 9. Update CLAUDE.md

@@ -6,9 +6,29 @@ git-tracked. Add `lessons.md` to `.gitignore` when git is initialized.
 The agent writes to `lessons.md` (not this file) when a pattern worth
 internalizing surfaces. The format below is the standard entry structure.
 
+**Schema fields** (YAML-style frontmatter) enable machine retrieval and pattern
+matching across lessons. The narrative fields below the frontmatter preserve
+human-readable context. Both are required — the frontmatter classifies, the
+narrative explains.
+
+**Promotion lifecycle:** When 3+ lessons share the same `pattern_type` or
+`domain`, they become candidates for promotion to a CLAUDE.md convention or
+a cogarch trigger. Flag with `[→ PROMOTE]` and note the target (CLAUDE.md
+section or T-number). See TODO.md "Graduated document promotion" for the
+full lifecycle spec.
+
 ---
 
 ## YYYY-MM-DDTHH:MM TZ — [Lesson Title]
+
+```yaml
+pattern_type: [reasoning-error | process-failure | architecture-insight | communication-gap | tooling-discovery]
+domain: [cogarch | memory | sub-agent | evaluation | documentation | security | workflow]
+severity: [low | medium | high]
+recurrence: 1           # increment on each re-encounter
+trigger_relevant: null   # T-number if this maps to a trigger improvement, else null
+promotion_status: null   # null | candidate | promoted | retired
+```
 
 *(Run `date '+%Y-%m-%dT%H:%M %Z'` before writing. Full timestamp required —
 time-between-lessons is a meaningful metric. Existing entries may show date-only.)*

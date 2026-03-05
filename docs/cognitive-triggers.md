@@ -189,12 +189,14 @@ explain with evidence, but defer to user as source-of-truth agent.
 they want to grok or internalize something, or (c) a genuine conceptual shift occurs
 
 **Checks**:
-1. Does this lesson already exist in lessons.md?
-2. Format per lessons.md.example
+1. Does this lesson already exist in lessons.md? If so, increment `recurrence`
+2. Format per lessons.md.example — YAML frontmatter + narrative fields
 3. Use full timestamp: `date '+%Y-%m-%dT%H:%M %Z'`
+4. Classify: `pattern_type`, `domain`, `severity` from the schema enums
+5. If 3+ lessons share the same `pattern_type` or `domain`, flag `[→ PROMOTE]`
 
 **Action**: Write entry to lessons.md. lessons.md is gitignored; lessons.md.example
-is the tracked format stub.
+is the tracked format stub with schema definition.
 
 ---
 
