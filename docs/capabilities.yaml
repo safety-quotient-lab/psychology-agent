@@ -1,0 +1,181 @@
+# Psychology Agent — Capabilities Manifest
+# Machine-readable inventory for agent-to-agent discovery and interop.
+# Human-readable version: docs/architecture.md § Capabilities & Levers
+
+version: "1.0"
+updated: "2026-03-05"
+agent: psychology-agent
+model: claude-opus-4-6
+license: CC-BY-NC-SA-4.0
+
+triggers:
+  - id: T1
+    fires_when: session_start
+    function: orientation and health check
+    mechanical_enforcement: SessionStart hook (session-start-orient.sh)
+  - id: T2
+    fires_when: before_response
+    function: context pressure, pacing, fair witness, e-prime, evidence
+    mechanical_enforcement: null
+  - id: T3
+    fires_when: before_recommending
+    function: domain classification, grounding, process/substance, anti-sycophancy, rationalizations-to-reject
+    mechanical_enforcement: null
+  - id: T4
+    fires_when: before_writing_to_disk
+    function: date discipline, public visibility, routing, semantic naming, novelty
+    mechanical_enforcement: PostToolUse hook (Write|Edit matcher)
+  - id: T5
+    fires_when: phase_boundary
+    function: mandatory gap check, Active Thread staleness, bare forks
+    mechanical_enforcement: Stop hook (stop-completion-gate.sh), PreCompact hook
+  - id: T6
+    fires_when: user_pushback
+    function: position stability, drift audit, anti-sycophancy
+    mechanical_enforcement: null
+  - id: T7
+    fires_when: user_approves
+    function: persist to disk, resolve questions, propagate downstream
+    mechanical_enforcement: null
+  - id: T8
+    fires_when: task_completed
+    function: loose threads, routing, context reassessment
+    mechanical_enforcement: Stop hook (stop-completion-gate.sh)
+  - id: T9
+    fires_when: reading_writing_memory
+    function: line count, stale entries, duplicates, speculation guard
+    mechanical_enforcement: null
+  - id: T10
+    fires_when: lesson_surfaces
+    function: write lessons.md with YAML schema, promotion scan at 3+ threshold
+    mechanical_enforcement: null
+  - id: T11
+    fires_when: on_demand
+    function: architecture audit of cogarch, memory, CLAUDE.md consistency
+    mechanical_enforcement: null
+  - id: T12
+    fires_when: good_thinking_signal
+    function: name principle, mechanism, cross-domain examples; T10 co-fires
+    mechanical_enforcement: null
+  - id: T13
+    fires_when: external_content_enters
+    function: source classification, injection scan, scope relevance, taint propagation
+    mechanical_enforcement: PreToolUse parry hook, PostToolUse parry hook
+
+hooks:
+  - event: SessionStart
+    script: .claude/hooks/session-start-orient.sh
+    enforces: [T1]
+    description: injects orientation context and health check at session start
+  - event: PreToolUse
+    matcher: "Bash(git commit*)"
+    script: bootstrap-check.sh --check-only
+    enforces: [T1]
+    description: memory health check before commits
+  - event: PreToolUse
+    matcher: null
+    command: parry hook
+    enforces: [T13]
+    description: prompt injection scan on all tool inputs
+  - event: PostToolUse
+    matcher: "Write|Edit"
+    command: inline
+    enforces: [T4]
+    description: critical file write compliance reminder
+  - event: PostToolUse
+    matcher: null
+    command: parry hook
+    enforces: [T13]
+    description: injection scan on tool outputs
+  - event: UserPromptSubmit
+    command: parry hook
+    enforces: [T13]
+    description: session-start config audit
+  - event: PreCompact
+    script: .claude/hooks/pre-compact-persist.sh
+    enforces: [T5, T9]
+    description: state persistence before context compaction
+  - event: Stop
+    script: .claude/hooks/stop-completion-gate.sh
+    enforces: [T5, T8]
+    description: uncommitted work warning before exit
+
+skills:
+  - name: /doc
+    invocation: user or agent
+    function: mid-work documentation persistence
+  - name: /hunt
+    invocation: user
+    function: systematic work discovery across all doc sources
+  - name: /cycle
+    invocation: user
+    function: post-session documentation chain propagation
+  - name: /capacity
+    invocation: user
+    function: cognitive capacity audit (line budgets, trigger coverage)
+  - name: /adjudicate
+    invocation: user or agent
+    function: structured decision resolution (8-order knock-on cascade)
+
+memory_layers:
+  - name: volatile_state
+    file: MEMORY.md
+    location: auto-memory
+    limit: 200 lines
+    persistence: per-session
+  - name: stable_conventions
+    file: CLAUDE.md
+    location: project root
+    limit: 200 lines (advisory)
+    persistence: always loaded
+  - name: local_overrides
+    file: CLAUDE.local.md
+    location: project root
+    persistence: always loaded, gitignored
+  - name: canonical_snapshot
+    file: docs/MEMORY-snapshot.md
+    persistence: committed, end-of-session
+  - name: versioned_archive
+    directory: docs/snapshots/
+    persistence: one per /cycle run
+  - name: self_healing
+    file: bootstrap-check.sh
+    function: restores from snapshot when auto-memory missing
+
+decision_framework:
+  method: knock-on analysis
+  orders: 8
+  confidence_bands:
+    - orders: [1, 2]
+      label: certain
+    - orders: [3]
+      label: likely
+    - orders: [4, 5]
+      label: possible
+    - orders: [6]
+      label: speculative
+    - orders: [7]
+      label: structural
+    - orders: [8]
+      label: horizon
+  structural_checkpoint: mandatory at all scales (orders 7-8 scan)
+  severity_tiers:
+    XS: 3-order + scan
+    S: 4-order + scan
+    M: 6-order + 2-pass
+    L: 8-order + 2-pass
+
+lesson_lifecycle:
+  stages:
+    - observation (in-session)
+    - capture (lessons.md, gitignored)
+    - classification (YAML frontmatter)
+    - promotion_candidate (3+ same pattern_type or domain)
+    - promotion (user approves to CLAUDE.md or trigger)
+  schema_fields:
+    - pattern_type
+    - domain
+    - severity
+    - recurrence
+    - trigger_relevant
+    - promotion_status

@@ -197,3 +197,152 @@ dimensions.
 ```
 
 All skills live at `.claude/skills/` (general agent level).
+
+
+## Capabilities & Levers
+
+Complete inventory of cognitive infrastructure with interaction map.
+
+### Layer 1: Cognitive Triggers (prompt-discipline enforcement)
+
+```
+────────────────────────────────────────────────────────────────────────
+ Trigger   Fires When                    Function
+────────────────────────────────────────────────────────────────────────
+ T1        Session starts                Orient: health check, load memory,
+                                          triggers, TODO, lab-notebook, skills
+ T2        Before any response           Quality gate: context pressure, pacing,
+                                          fair witness, e-prime, evidence
+ T3        Before recommending           Decision gate: classify domain, ground,
+                                          process/substance, anti-sycophancy,
+                                          rationalizations-to-reject
+ T4        Before writing to disk        Write gate: date, public visibility,
+                                          routing, semantic naming, novelty
+ T5        Phase boundary / "next"       Gap check (mandatory), Active Thread
+                                          staleness, bare forks, uncommitted
+ T6        User pushes back              Position stability, drift audit,
+                                          anti-sycophancy
+ T7        User approves                 Persist to disk, resolve open questions,
+                                          propagate downstream
+ T8        Task completed                Loose threads, routing, context
+                                          reassessment, next work
+ T9        Reading/writing MEMORY        Hygiene: line count, stale, duplicates,
+                                          speculation, CLAUDE.md overlap
+ T10       Lesson surfaces               Write to lessons.md with schema;
+                                          promotion scan at 3+ threshold
+ T11       Architecture audit            On-demand audit of cogarch, memory,
+                                          CLAUDE.md consistency
+ T12       "Good thinking" signal        Name principle, mechanism, cross-domain
+                                          examples; T10 co-fires
+ T13       External content enters       Source classification, injection scan,
+                                          scope relevance, taint propagation
+────────────────────────────────────────────────────────────────────────
+```
+
+### Layer 2: Platform Hooks (mechanical enforcement)
+
+```
+────────────────────────────────────────────────────────────────────────
+ Hook Event        Script / Command              Enforces
+────────────────────────────────────────────────────────────────────────
+ SessionStart       session-start-orient.sh       T1 — orientation context
+                                                   injection + health check
+ PreToolUse         bootstrap-check.sh            T1 — memory health before
+  (git commit)       (--check-only)                 commits
+ PreToolUse         parry hook                    T13 — prompt injection scan
+  (all tools)                                      on all tool inputs
+ PostToolUse        inline case statement          T4 — critical file write
+  (Write|Edit)                                     compliance reminder
+ PostToolUse        parry hook                    T13 — injection scan on
+  (all tools)                                      tool outputs
+ UserPromptSubmit   parry hook                    T13 — session-start audit
+                                                   of config files
+ PreCompact         pre-compact-persist.sh        T5/T9 — state persistence
+                                                   before context loss
+ Stop               stop-completion-gate.sh       T5/T8 — uncommitted work
+                                                   warning before exit
+────────────────────────────────────────────────────────────────────────
+```
+
+### Layer 3: Memory Architecture (cross-session state)
+
+```
+────────────────────────────────────────────────────────────────────────
+ Layer                  Location                    Persistence
+────────────────────────────────────────────────────────────────────────
+ Volatile state         MEMORY.md (auto-memory)     Per-session, 200-line
+                                                     limit, truncated silently
+ Stable conventions     CLAUDE.md (project root)    Always loaded, ~200-line
+                                                     advisory limit
+ Local overrides        CLAUDE.local.md             Always loaded, gitignored
+ Canonical snapshot     docs/MEMORY-snapshot.md     Committed, end-of-session
+ Versioned archive      docs/snapshots/             One per /cycle run,
+                                                     timestamp-keyed
+ Self-healing           bootstrap-check.sh          Restores from snapshot
+                                                     when auto-memory missing
+────────────────────────────────────────────────────────────────────────
+```
+
+### Layer 4: Decision Framework
+
+```
+────────────────────────────────────────────────────────────────────────
+ Component              Mechanism                   Scale
+────────────────────────────────────────────────────────────────────────
+ Knock-on analysis      8-order cascade             All decisions
+                         (certain → horizon)
+ /adjudicate skill      Domain classify → ground     XS: 3-order + scan
+                         → cascade per option →      S: 4-order + scan
+                         consensus or parsimony      M: 6-order + 2-pass
+                                                     L: 8-order + 2-pass
+ Structural checkpoint  Orders 7-8 scan              Every decision point
+ Process vs. substance  Agent resolves process;      T3 check #3
+                         surfaces substance
+────────────────────────────────────────────────────────────────────────
+```
+
+### Layer 5: Lesson Lifecycle (learning and promotion)
+
+```
+────────────────────────────────────────────────────────────────────────
+ Stage                  Location                    Trigger
+────────────────────────────────────────────────────────────────────────
+ Observation            In-session                  T10 fires
+ Capture                lessons.md (gitignored)     T10 writes with schema
+ Classification         YAML frontmatter            pattern_type, domain,
+                                                     severity, recurrence
+ Promotion candidate    lessons.md [→ PROMOTE]      3+ same pattern_type
+                                                     or domain
+ Promotion              CLAUDE.md or trigger         User approves (T3
+                                                     substance decision)
+────────────────────────────────────────────────────────────────────────
+```
+
+### Interaction Map
+
+```
+SessionStart hook ──→ T1 orientation ──→ MEMORY.md load ──→ triggers load
+                                                              │
+User prompt ──→ UserPromptSubmit (parry) ──→ T2 checks ──→ T3 if recommending
+                                                              │
+                                        T3 fires ←── rationalizations check
+                                            │              sycophancy check
+                                            │              recommend-against
+                                            │
+                                            ▼
+                              T4 fires ←── Write/Edit ──→ PostToolUse hook
+                                                              │
+                                                         parry scan
+                                                         T4 compliance
+                                                              │
+Phase boundary ──→ T5 gap check ──→ Active Thread update
+                                         │
+                        PreCompact hook ──┤ (if compaction)
+                                         │
+                  Stop hook ──→ completion gate (T5/T8 check)
+                                         │
+Task done ──→ T8 ──→ /cycle ──→ lab-notebook → journal → architecture
+                                  → MEMORY → snapshot → git commit/push
+                                         │
+                               T10 if lesson ──→ lessons.md ──→ promotion?
+```

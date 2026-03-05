@@ -78,12 +78,16 @@ psychology-agent/
 ├── lab-notebook.md                 # Session log
 ├── journal.md                      # Research narrative
 ├── ideas.md                        # Speculative directions
-├── .claude/skills/                 # Agent skills (/doc, /hunt, /cycle, etc.)
+├── .claude/
+│   ├── hooks/                      # Hook scripts (SessionStart, PreCompact, Stop)
+│   ├── settings.json               # Platform hooks configuration
+│   └── skills/                     # Agent skills (/doc, /hunt, /cycle, etc.)
 ├── docs/
-│   ├── architecture.md             # Design decisions and system spec
+│   ├── architecture.md             # Design decisions, system spec, capabilities
+│   ├── capabilities.yaml           # Machine-readable capabilities manifest
 │   ├── overview-for-psychologists.md
 │   ├── MEMORY-snapshot.md          # Committed recovery source for MEMORY.md
-│   ├── cognitive-triggers.md           # Cognitive trigger system (canonical)
+│   ├── cognitive-triggers.md       # Cognitive trigger system (canonical)
 │   └── snapshots/                  # Versioned MEMORY archives
 ├── reconstruction/                 # Git history reconstruction tools
 ├── safety-quotient/                # PSQ sub-project
@@ -95,11 +99,16 @@ psychology-agent/
 ## Interesting Parts of the Codebase
 
 **Cognitive architecture (trigger system)** — The agent governs itself through
-12 mechanical triggers (T1–T12) that fire at specific moments: session start,
+13 mechanical triggers (T1–T13) that fire at specific moments: session start,
 before responding, before recommending, before writing to disk, at phase
-boundaries, on user pushback, and more. Principles without firing conditions
-remain aspirations; principles with triggers become infrastructure.
+boundaries, on user pushback, when external content enters context, and more.
+Principles without firing conditions remain aspirations; principles with
+triggers become infrastructure. Platform hooks in `.claude/settings.json`
+provide mechanical enforcement for triggers that can be verified by shell
+commands (SessionStart, PreCompact, Stop, PreToolUse, PostToolUse).
 - [docs/cognitive-triggers.md](docs/cognitive-triggers.md) — the full trigger system
+- [docs/architecture.md](docs/architecture.md) — capabilities inventory with interaction map
+- [docs/capabilities.yaml](docs/capabilities.yaml) — machine-readable capabilities manifest
 - [journal.md §6](journal.md) — the design narrative explaining why triggers exist
 
 **Self-healing memory** — Auto-memory lives outside the git repo and can silently

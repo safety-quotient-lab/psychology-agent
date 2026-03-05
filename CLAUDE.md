@@ -22,10 +22,18 @@ Platform-level enforcement that supplements cognitive triggers:
   manual removal) if injection confirmed by ML.
 - **UserPromptSubmit: parry** — audits `.claude/commands/`, settings files, and
   hook scripts for injection or dangerous permission patterns at session start.
+- **SessionStart: session-start-orient.sh** — injects orientation context (memory
+  health check, last session reference, uncommitted changes warning). Mechanical
+  T1 enforcement — stdout becomes model context.
+- **PreCompact: pre-compact-persist.sh** — fires before context compaction. Surfaces
+  Active Thread and reminds agent to persist state. Addresses mid-session recovery gap.
+- **Stop: stop-completion-gate.sh** — completion gate. Warns of uncommitted changes
+  or untracked doc files before allowing exit. Non-blocking (warning only).
 
-Hooks enforce mechanically what triggers enforce by prompt discipline. If a trigger
-check can be verified by a shell command, it belongs in hooks. Parry provides
-defense-in-depth at the platform boundary — see BOOTSTRAP.md for installation.
+Hook scripts live in `.claude/hooks/`. Hooks enforce mechanically what triggers
+enforce by prompt discipline. If a trigger check can be verified by a shell command,
+it belongs in hooks. Parry provides defense-in-depth at the platform boundary —
+see BOOTSTRAP.md for installation.
 
 ### Epistemic Quality Standard
 
