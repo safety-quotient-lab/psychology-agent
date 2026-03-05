@@ -143,11 +143,13 @@
                               labels without contrast are decoration.
                               Decided: 2026-03-05
 
- Blog publication pipeline   blog/ → unratified-agent (observatory.unratified.org).
-                              Agent imports, respects draft/reviewStatus flags,
-                              and editorializes before publishing. Epistemic
-                              flags section in post body serves as editorial
-                              guidance for the review pass. Decided: 2026-03-05
+ Blog publication pipeline   blog/ → unratified-agent (unratified.org) →
+                              blog.unratified.org. Agent imports, respects
+                              draft/reviewStatus flags, and editorializes before
+                              publishing. Epistemic flags section in post body
+                              serves as editorial guidance for the review pass.
+                              Note: observatory-agent is a separate entity.
+                              Decided: 2026-03-05
 ────────────────────────────────────────────────────────────────────────
 ```
 
