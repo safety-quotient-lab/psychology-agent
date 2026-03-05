@@ -6,13 +6,12 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 12 complete (4 commits, 21 total). Cognitive-triggers
+**Where we stopped:** Session 12 mid-session (2 commits, 19 total). Cognitive-triggers
 canonical location fixed (→ docs/). Parry installed + hooks configured (ML blocked on
-HF license acceptance). 5-repo awesome-claude-code eval, 10 candidates ranked, 4 quick
-wins landed (attention placement, lesson schema, promotion lifecycle, skills audit).
-Commands-over-skills audit: /adjudicate + /capacity → convert to commands next session.
-**Next:** Convert /adjudicate + /capacity to commands (Rank 7 implementation).
-Then Architecture Item 1 — general agent design.
+HF license). 5-repo awesome-claude-code evaluation complete, 10 integration candidates
+ranked. TODO.md expanded with 8 integration items + configurable /hunt. Quick wins next.
+**Next:** Remaining quick wins from integration evaluation (Ranks 2–10), then
+Architecture Item 1 — general agent design.
 
 ## Design Decisions
 

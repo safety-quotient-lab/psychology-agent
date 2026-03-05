@@ -48,7 +48,11 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Blog post (cogarch)           | ✓ Draft — blog/2026-03-05-cognitive-architecture-for-ai-agents.md (Session 11) |
 | Cogarch canonical location    | ✓ cognitive-triggers.md moved to docs/ (Session 12) |
 | Parry integration             | ✓ Installed, hooks configured, ⚑ ML blocked on HF license (Session 12) |
-| Awesome-claude-code eval      | ✓ 5 repos evaluated, 10 candidates ranked (Session 12) |
+| Awesome-claude-code eval      | ✓ 5 repos evaluated, 10 candidates ranked, 4 quick wins landed (Session 12) |
+| Attention-aware placement     | ✓ CLAUDE.md reordered for U-shaped attention curve (Session 12) |
+| Schema-validated lessons      | ✓ YAML frontmatter in lessons.md.example + T10 update (Session 12) |
+| Graduated promotion lifecycle | ✓ 3+ threshold in T10 + /cycle Step 8b (Session 12) |
+| Commands-over-skills audit    | ✓ /adjudicate + /capacity identified for conversion (Session 12) |
 | PSQ commercial model          | ✗ Undefined — ideas documented in ideas.md       |
 | General agent design          | ✗ Next — item 1 of 3                             |
 | Sub-agent protocol            | ✗ Pending — item 2 of 3                          |
