@@ -11,20 +11,20 @@ Platform-level enforcement that supplements cognitive triggers:
 
 - **PreToolUse: git commit** — runs `bootstrap-check.sh --check-only` before every
   commit. Catches unhealthy auto-memory before it gets snapshot-committed via /cycle.
-- **PreToolUse: parry** — prompt injection scanner (6-layer: unicode, substring,
-  secrets, ML, bash exfil, script exfil). Runs before every tool use. Blocks or
-  flags suspicious inputs. External process — operates outside agent context.
+- **PreToolUse: parry-wrapper.sh** — wraps `parry hook` with configurable ML fallback.
+  Reads `~/.parry/config.toml` for `ml_fallback` setting (fail_closed / warn_once / allow).
+  Respects `.parry-session-disabled` flag for per-session toggle. Degrades gracefully
+  when parry not installed. See `parry-start.sh` for daemon management.
 - **PostToolUse: Write/Edit** — fires after modifications to critical files (MEMORY.md,
   docs/cognitive-triggers.md, CLAUDE.md, architecture.md, lab-notebook.md). Reminds of T4
   compliance checks. Safety net, not replacement for T4.
-- **PostToolUse: parry** — scans tool output for injection attempts and credential
-  exposure. Can taint the project (`.parry-tainted` file blocks all tools until
-  manual removal) if injection confirmed by ML.
-- **UserPromptSubmit: parry** — audits `.claude/commands/`, settings files, and
-  hook scripts for injection or dangerous permission patterns at session start.
+- **PostToolUse: parry-wrapper.sh** — scans tool output for injection attempts and
+  credential exposure. Same wrapper and session toggle as PreToolUse.
+- **UserPromptSubmit: parry-wrapper.sh** — audits `.claude/commands/`, settings files,
+  and hook scripts for injection or dangerous permission patterns at session start.
 - **SessionStart: session-start-orient.sh** — injects orientation context (memory
-  health check, last session reference, uncommitted changes warning). Mechanical
-  T1 enforcement — stdout becomes model context.
+  health check, last session reference, uncommitted changes warning, parry session
+  toggle prompt). Mechanical T1 enforcement — stdout becomes model context.
 - **PreCompact: pre-compact-persist.sh** — fires before context compaction. Surfaces
   Active Thread and reminds agent to persist state. Addresses mid-session recovery gap.
 - **Stop: stop-completion-gate.sh** — completion gate. Warns of uncommitted changes

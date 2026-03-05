@@ -6,11 +6,11 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 15 complete. Parry DX overhaul: wrapper (warn-once ML
-fallback via ~/.parry/config.toml), daemon start script, session-start toggle
-(AskUserQuestion enable/disable). Settings.json routes all parry hooks through wrapper.
-Parry ML still blocked (HF 401 — model slug mismatch?). 28 commits total.
-**Next:** Semiotics as central cogarch principle → Architecture Item 1 (general agent design).
+**Where we stopped:** Session 14 complete. Semiotics scan (Saussure/Peirce/Morris-Eco),
+cogarch auto-reload at session start (T1 step 7 + hook MANDATORY instruction), AskUserQuestion
+discipline added (T2 check 8 + MEMORY user prefs). 27 commits total.
+**Next:** Semiotics as central cogarch principle — continue analysis. Then Architecture
+Item 1 — general agent design.
 
 ## Design Decisions
 

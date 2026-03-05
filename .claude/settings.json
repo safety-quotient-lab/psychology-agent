@@ -15,8 +15,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "command -v parry >/dev/null && parry hook || true",
-            "timeout": 1000
+            "command": ".claude/hooks/parry-wrapper.sh",
+            "timeout": 2000
           }
         ]
       }
@@ -36,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "command -v parry >/dev/null && parry hook || true",
+            "command": ".claude/hooks/parry-wrapper.sh",
             "timeout": 5000
           }
         ]
@@ -47,7 +47,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "command -v parry >/dev/null && parry hook || true",
+            "command": ".claude/hooks/parry-wrapper.sh",
             "timeout": 2000
           }
         ]

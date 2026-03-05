@@ -18,6 +18,7 @@ psychology-handoff*
 # Environment variables (credentials)
 .dev.vars
 
-# Parry prompt injection scanner (local cache)
+# Parry prompt injection scanner (local cache + session state)
 .parry-guard.redb
 .parry-tainted
+.parry-session-disabled

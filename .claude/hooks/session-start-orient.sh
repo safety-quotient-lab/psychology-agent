@@ -23,6 +23,10 @@ if [ -n "$LAST_SESSION" ]; then
   echo "[SESSION-START] Last session: $LAST_SESSION"
 fi
 
+# Parry session toggle — clear previous session flag, prompt agent to ask
+rm -f "${PROJECT_ROOT}/.parry-session-disabled"
+echo "[SESSION-START] PARRY TOGGLE: Use AskUserQuestion to ask the user whether to enable parry for this session. If the user chooses to disable, create the file .parry-session-disabled in the project root. If enabled, do nothing (default: enabled)."
+
 # Check for uncommitted changes
 if git -C "$PROJECT_ROOT" diff --quiet 2>/dev/null && git -C "$PROJECT_ROOT" diff --cached --quiet 2>/dev/null; then
   : # clean
