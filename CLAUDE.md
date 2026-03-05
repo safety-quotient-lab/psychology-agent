@@ -57,7 +57,7 @@ exceed available evidence, or any finding that a peer reviewer would challenge.
 
 ---
 
-## Skills
+## Skills (load every session)
 
 - `/doc` — Mid-work documentation persistence. Captures decisions, findings,
   and reasoning to the correct file on disk before context fills up.
@@ -65,12 +65,15 @@ exceed available evidence, or any finding that a peer reviewer would challenge.
   ideas, lessons, docs for highest-value next work.
 - `/cycle` — Post-session documentation checklist. Propagates session changes
   through the full doc chain: lab-notebook, journal, architecture, MEMORY, snapshot.
-- `/capacity` — Cognitive architecture capacity assessment. Reports line budgets,
-  trigger coverage, design decisions space, and skills inventory.
+
+## Commands (load on demand)
+
 - `/adjudicate` — Structured decision resolution. For decisions with 2+ options:
   classify domain → ground dependencies → 8-order knock-on per option → compare →
   consensus or parsimony. Severity-tiered (XS through L). Structural checkpoint
   mandatory at all scales.
+- `/capacity` — Cognitive architecture capacity assessment. Reports line budgets,
+  trigger coverage, design decisions space, hooks inventory, and skills/commands list.
 
 ## Sub-Projects
 

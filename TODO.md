@@ -136,13 +136,9 @@ parry, RIPER Workflow, SuperClaude Framework.*
   added to lessons.md.example (pattern_type, domain, severity, recurrence,
   trigger_relevant, promotion_status). T10 updated with classification step.
 
-- [ ] **Commands-over-skills token audit** (Rank 7) — evaluate which of our 5
-  skills should become commands (load on-demand) vs. remain skills (load every
-  session). Context Eng Kit argues skill descriptions load into context by default;
-  commands load only when invoked. Candidates for conversion: /adjudicate,
-  /capacity (rarely used every session). Keep as skills: /doc, /cycle (needed
-  frequently). /hunt depends on configurable-bootstrap decision.
-  *Source: Context Eng Kit commands-over-skills pattern*
+- [x] **Commands-over-skills token audit** (Rank 7) — ✓ Session 13. /adjudicate
+  and /capacity converted from skills to commands. /doc, /hunt, /cycle remain
+  as skills. Saves ~355 tokens/session from description loading.
 
 - [x] **Attention-aware placement** (Rank 8) — ✓ Session 12. CLAUDE.md reordered:
   hooks + epistemic quality at top (high attention), stable communication conventions

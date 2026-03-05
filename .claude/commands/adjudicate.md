@@ -14,20 +14,9 @@ option effect tracing) with iterative learning (2-pass), structured comparison
 
 ---
 
-## Trigger Phrases
-
-- "which option should we pick?"
-- "compare these approaches"
-- "adjudicate: [topic]"
-- "run adjudication on [decision]"
-- "I can't decide between X and Y"
-- Any bare fork detected by T2 (automatic — agent fires before presenting)
-
----
-
 ## Arguments
 
-Parse `<args>` to determine scope:
+Parse `$ARGUMENTS` to determine scope:
 
 | Argument           | Behavior                                      |
 |--------------------|-----------------------------------------------|

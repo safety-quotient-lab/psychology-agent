@@ -102,20 +102,32 @@ hooks:
 
 skills:
   - name: /doc
+    type: skill
     invocation: user or agent
+    loads: every session (description)
     function: mid-work documentation persistence
   - name: /hunt
+    type: skill
     invocation: user
+    loads: every session (description)
     function: systematic work discovery across all doc sources
   - name: /cycle
+    type: skill
     invocation: user
+    loads: every session (description)
     function: post-session documentation chain propagation
-  - name: /capacity
-    invocation: user
-    function: cognitive capacity audit (line budgets, trigger coverage)
+
+commands:
   - name: /adjudicate
+    type: command
     invocation: user or agent
+    loads: on demand only
     function: structured decision resolution (8-order knock-on cascade)
+  - name: /capacity
+    type: command
+    invocation: user
+    loads: on demand only
+    function: cognitive capacity audit (line budgets, trigger coverage, hooks)
 
 memory_layers:
   - name: volatile_state

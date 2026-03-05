@@ -173,30 +173,32 @@ dimensions.
 3. **Adversarial evaluator** — tiered activation logic, parsimony reasoning
 
 
-## Skills
+## Skills & Commands
 
 ```
 ────────────────────────────────────────────────────────────────────────
- Skill         When              What it does
+ Name          Type      When              What it does
 ────────────────────────────────────────────────────────────────────────
- /doc          Mid-work          Persist decisions, findings, reasoning
-                                  to the correct file on disk
+ /doc          Skill     Mid-work          Persist decisions, findings,
+                                            reasoning to disk
 
- /hunt         Discovery         Find highest-value next work; scans
-                                  all doc sources, extrapolates gaps
+ /hunt         Skill     Discovery         Find highest-value next work;
+                                            scans all doc sources
 
- /cycle        Post-session      Full documentation chain propagation;
-                                  MEMORY-snapshot archive; git commit
+ /cycle        Skill     Post-session      Full documentation chain
+                                            propagation; git commit
 
- /capacity     On demand         Cognitive capacity audit — line
-                                  budgets, trigger coverage, skills
+ /adjudicate   Command   Decision point    Structured resolution —
+                                            8-order cascade, parsimony
 
- /adjudicate   Decision point    Structured resolution — classify domain,
-                                  8-order cascade, consensus or parsimony
+ /capacity     Command   On demand         Cognitive capacity audit —
+                                            line budgets, triggers, hooks
 ────────────────────────────────────────────────────────────────────────
 ```
 
-All skills live at `.claude/skills/` (general agent level).
+Skills (`.claude/skills/`) load descriptions every session — kept to 3 that
+benefit from always-on awareness. Commands (`.claude/commands/`) load only
+when invoked — used for /adjudicate and /capacity which fire explicitly.
 
 
 ## Capabilities & Levers
