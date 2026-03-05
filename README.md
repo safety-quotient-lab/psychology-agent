@@ -83,7 +83,7 @@ psychology-agent/
 │   ├── architecture.md             # Design decisions and system spec
 │   ├── overview-for-psychologists.md
 │   ├── MEMORY-snapshot.md          # Committed recovery source for MEMORY.md
-│   ├── cognitive-triggers-snapshot.md  # Committed recovery source for cogarch
+│   ├── cognitive-triggers.md           # Cognitive trigger system (canonical)
 │   └── snapshots/                  # Versioned MEMORY archives
 ├── reconstruction/                 # Git history reconstruction tools
 ├── safety-quotient/                # PSQ sub-project
@@ -99,7 +99,7 @@ psychology-agent/
 before responding, before recommending, before writing to disk, at phase
 boundaries, on user pushback, and more. Principles without firing conditions
 remain aspirations; principles with triggers become infrastructure.
-- [docs/cognitive-triggers-snapshot.md](docs/cognitive-triggers-snapshot.md) — the full trigger system
+- [docs/cognitive-triggers.md](docs/cognitive-triggers.md) — the full trigger system
 - [journal.md §6](journal.md) — the design narrative explaining why triggers exist
 
 **Self-healing memory** — Auto-memory lives outside the git repo and can silently

@@ -152,7 +152,7 @@ Platform-level enforcement that supplements cognitive triggers:
 - **PreToolUse: git commit** — runs `bootstrap-check.sh --check-only` before every
   commit. Catches unhealthy auto-memory before it gets snapshot-committed via /cycle.
 - **PostToolUse: Write/Edit** — fires after modifications to critical files (MEMORY.md,
-  cognitive-triggers.md, CLAUDE.md, architecture.md, lab-notebook.md). Reminds of T4
+  docs/cognitive-triggers.md, CLAUDE.md, architecture.md, lab-notebook.md). Reminds of T4
   compliance checks. Safety net, not replacement for T4.
 
 Hooks enforce mechanically what triggers enforce by prompt discipline. If a trigger

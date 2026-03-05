@@ -32,7 +32,7 @@ The central design insight: telling an AI agent "always check for X" accomplishe
 
 "Be careful with memory files" functions as aspiration. "Before any file write (T4), verify: date format uses system clock, file routes to the correct document, content does not duplicate existing entries, variable names meet semantic naming standard" functions as infrastructure.
 
-The [cognitive architecture](https://github.com/safety-quotient-lab/psychology-agent/blob/main/docs/cognitive-triggers-snapshot.md) implements 12 triggers (T1–T12), each with a specific moment it fires:
+The [cognitive architecture](https://github.com/safety-quotient-lab/psychology-agent/blob/main/docs/cognitive-triggers.md) implements 12 triggers (T1–T12), each with a specific moment it fires:
 
 | Trigger | Fires when | What it checks |
 |---------|-----------|----------------|
@@ -75,7 +75,7 @@ That multi-source reconstruction prompted three infrastructure additions:
 
 1. **[bootstrap-check.sh](https://github.com/safety-quotient-lab/psychology-agent/blob/main/bootstrap-check.sh)** — a health-check script that detects missing or corrupt auto-memory, restores from committed snapshots with provenance headers, validates content through line-count guards, and reports status. Two modes: `--check-only` (diagnostics) and default (diagnose + restore).
 
-2. **Committed snapshots for both files** — `docs/MEMORY-snapshot.md` and `docs/cognitive-triggers-snapshot.md` provide single-file recovery sources, updated at every `/cycle` run with content guards preventing empty-file overwrites.
+2. **Committed snapshots for both files** — `docs/MEMORY-snapshot.md` and `docs/cognitive-triggers.md` provide single-file recovery sources, updated at every `/cycle` run with content guards preventing empty-file overwrites.
 
 3. **T1 health check** — the session-start trigger now verifies auto-memory existence and substance *before* attempting to read it. If restoration occurs, the agent reports it in the first response so the user has visibility.
 
@@ -116,7 +116,7 @@ The antiregression setup maintains one persistent document (CLAUDE.md). The psyc
 | `cognitive-triggers.md` | Infrastructure — operational | T1–T12 trigger definitions |
 | `CLAUDE.md` | Foundational — conventions | Stable policies and skills |
 | `MEMORY-snapshot.md` | Bootstrap — recovery | Committed copy of volatile state |
-| `cognitive-triggers-snapshot.md` | Bootstrap — recovery | Committed copy of trigger system |
+| `cognitive-triggers.md` | Bootstrap — recovery | Committed copy of trigger system |
 
 The [/cycle skill](https://github.com/safety-quotient-lab/psychology-agent/blob/main/.claude/skills/cycle/SKILL.md) propagates changes through the chain: a resolved design decision touches architecture.md (facts), possibly journal.md (narrative), MEMORY.md (quick-reference), and lab-notebook.md (timeline). A new cognitive trigger touches cognitive-triggers.md, its committed snapshot, MEMORY.md (quick-ref table), and lab-notebook.md.
 
@@ -185,7 +185,7 @@ The convergence point: hooks that enforce mechanically, triggers that enforce ep
 
 - [psychology-agent](https://github.com/safety-quotient-lab/psychology-agent) — the cognitive architecture described in this post
 - [claude-code-antiregression-setup](https://github.com/CreatmanCEO/claude-code-antiregression-setup) — the antiregression approach evaluated here
-- [Cognitive trigger system](https://github.com/safety-quotient-lab/psychology-agent/blob/main/docs/cognitive-triggers-snapshot.md) — full T1–T12 definitions
+- [Cognitive trigger system](https://github.com/safety-quotient-lab/psychology-agent/blob/main/docs/cognitive-triggers.md) — full T1–T12 definitions
 - [Bootstrap health check](https://github.com/safety-quotient-lab/psychology-agent/blob/main/bootstrap-check.sh) — self-healing memory script
 - [/cycle skill](https://github.com/safety-quotient-lab/psychology-agent/blob/main/.claude/skills/cycle/SKILL.md) — 13-step documentation propagation
 - [/adjudicate skill](https://github.com/safety-quotient-lab/psychology-agent/blob/main/.claude/skills/adjudicate/SKILL.md) — structured decision resolution

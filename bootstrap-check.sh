@@ -26,15 +26,16 @@ PATH_HASH="$(echo "$PROJECT_ROOT" | tr '/' '-')"
 AUTO_MEMORY_DIR="$HOME/.claude/projects/${PATH_HASH}/memory"
 
 MEMORY_LIVE="${AUTO_MEMORY_DIR}/MEMORY.md"
-TRIGGERS_LIVE="${AUTO_MEMORY_DIR}/cognitive-triggers.md"
 
 MEMORY_SNAPSHOT="${PROJECT_ROOT}/docs/MEMORY-snapshot.md"
-TRIGGERS_SNAPSHOT="${PROJECT_ROOT}/docs/cognitive-triggers-snapshot.md"
+
+# Cognitive triggers canonical location (in-repo, not auto-memory)
+TRIGGERS_CANONICAL="${PROJECT_ROOT}/docs/cognitive-triggers.md"
+TRIGGERS_MIN_LINES=100
 
 # --- Content guard thresholds ---
 
 MEMORY_MIN_LINES=50
-TRIGGERS_MIN_LINES=100
 
 # --- Helper functions ---
 
@@ -119,12 +120,12 @@ echo ""
 memory_status=0
 triggers_status=0
 
-check_file_health "$MEMORY_LIVE" "$MEMORY_MIN_LINES" "MEMORY.md" || memory_status=$?
-check_file_health "$TRIGGERS_LIVE" "$TRIGGERS_MIN_LINES" "cognitive-triggers.md" || triggers_status=$?
+check_file_health "$MEMORY_LIVE" "$MEMORY_MIN_LINES" "MEMORY.md (auto-memory)" || memory_status=$?
+check_file_health "$TRIGGERS_CANONICAL" "$TRIGGERS_MIN_LINES" "cognitive-triggers.md (docs/)" || triggers_status=$?
 
 echo ""
 
-# Restore if needed
+# Restore MEMORY.md if needed (triggers lives in-repo, no restore needed)
 restore_needed=false
 restore_failed=false
 
@@ -138,16 +139,13 @@ if [[ $memory_status -ne 0 ]]; then
 fi
 
 if [[ $triggers_status -ne 0 ]]; then
-  restore_needed=true
-  if $CHECK_ONLY; then
-    echo "cognitive-triggers.md needs restoration. Run without --check-only."
-  else
-    restore_file "$TRIGGERS_SNAPSHOT" "$TRIGGERS_LIVE" "cognitive-triggers.md" || restore_failed=true
-  fi
+  echo ""
+  echo "WARNING: docs/cognitive-triggers.md missing or suspect."
+  echo "This file lives in the repo — check git status or restore from git history."
 fi
 
-if ! $restore_needed; then
-  echo "All auto-memory files healthy. No restoration needed."
+if ! $restore_needed && [[ $triggers_status -eq 0 ]]; then
+  echo "All files healthy. No restoration needed."
 fi
 
 # Check snapshots exist (recovery sources)
@@ -160,13 +158,6 @@ if [[ -f "$MEMORY_SNAPSHOT" ]]; then
   echo "  OK       docs/MEMORY-snapshot.md"
 else
   echo "  MISSING  docs/MEMORY-snapshot.md"
-  snapshot_warning=true
-fi
-
-if [[ -f "$TRIGGERS_SNAPSHOT" ]]; then
-  echo "  OK       docs/cognitive-triggers-snapshot.md"
-else
-  echo "  MISSING  docs/cognitive-triggers-snapshot.md"
   snapshot_warning=true
 fi
 

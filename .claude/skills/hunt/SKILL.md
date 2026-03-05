@@ -110,7 +110,7 @@ but their downstream specifications don't exist yet.
 
 This is the T11 audit as a hunt source — always run, even for `quick` constraint.
 
-- **Read `memory/cognitive-triggers.md`** — check each trigger (T1–T11) for:
+- **Read `docs/cognitive-triggers.md`** — check each trigger (T1–T12) for:
   - Missing coverage: a working principle in MEMORY.md with no corresponding trigger
   - Contradictions: trigger says X, another says Y for same situation
   - Orphaned triggers: trigger fires on a condition that no longer exists

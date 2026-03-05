@@ -14,10 +14,10 @@ different levels of abstraction. Each serves a distinct audience and purpose:
 | `ideas.md` | Authors | Speculative research directions — not committed, not retired; marked by precondition | Generative — captures the possible |
 | `TODO.md` | Authors | Forward-looking task backlog — open items only; completed items route to lab-notebook | Operational |
 | `MEMORY.md` | Claude across sessions | Volatile orientation state — active thread, design decisions, cogarch quick-ref | Cross-session context |
-| `memory/cognitive-triggers.md` | Claude | Full T1–T11 trigger system with failure analyses and future mitigations | Operational infrastructure |
+| `docs/cognitive-triggers.md` | Claude | Full T1–T12 trigger system — canonical, in-repo | Operational infrastructure |
 | `CLAUDE.md` | Claude Code (auto-read) | Stable conventions — communication policy, accessibility, project structure, skills | Foundational — how the project works |
 | `docs/MEMORY-snapshot.md` | Fresh Claude sessions | Committed copy of MEMORY.md — portable orientation for fresh installs | Bootstrap context |
-| `docs/cognitive-triggers-snapshot.md` | Fresh Claude sessions | Committed copy of cognitive-triggers.md — recovery source when auto-memory absent | Bootstrap context |
+| `docs/cognitive-triggers.md` | Claude + fresh sessions | Full trigger system — canonical location (no separate snapshot needed) | Operational infrastructure + bootstrap |
 
 When something changes, update relevant documents *at the appropriate level of
 abstraction*. A resolved design decision needs an entry in architecture.md (facts),
@@ -137,12 +137,13 @@ update the T1–T11 quick-reference table.
 - Check line count: hard limit 200 (system truncates 201+); pressure point 185.
   If above 185, move stable content to CLAUDE.md. MEMORY.md = volatile state only.
 
-### 8. Update memory/cognitive-triggers.md
+### 8. Update docs/cognitive-triggers.md
 
 Update when cogarch itself was modified — triggers added, changed, or retired;
-failure analyses added; future mitigations updated.
+failure analyses added; future mitigations updated. This file lives in the repo
+(canonical location), not in auto-memory.
 
-- **New triggers**: add to the appropriate T-slot or after T11
+- **New triggers**: add to the appropriate T-slot or after T12
 - **Modified triggers**: update the relevant section
 - **Future mitigations**: if T11 produced deferred items, ensure each has a
   mitigation entry in the Future Mitigations table
@@ -226,35 +227,20 @@ The archive (`docs/snapshots/`) accumulates one file per /cycle run (timestamp-k
 safe to run multiple times in the same day without collision).
 BOOTSTRAP.md references the canonical — do not change that reference.
 
-### 10b. Update docs/cognitive-triggers-snapshot.md
+### 10b. Verify docs/cognitive-triggers.md
 
-Mirror the MEMORY-snapshot pattern for cognitive-triggers.md. This provides a
-committed recovery source — without it, restoring cognitive-triggers requires
-multi-source reconstruction (MEMORY.md quick-ref + lab-notebook + journal).
-
-**Step A: Content guard** — verify cognitive-triggers.md has substance.
+Cognitive triggers now live in-repo at `docs/cognitive-triggers.md` (canonical
+location). No snapshot copy needed — the file itself is committed. Step 8
+handles edits; this step verifies the file is substantive after any changes.
 
 ```bash
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-_HASH="$(echo "$PROJECT_ROOT" | tr '/' '-')"
-TRIGGERS_LIVE="$HOME/.claude/projects/${_HASH}/memory/cognitive-triggers.md"
-LINE_COUNT=$(wc -l < "${TRIGGERS_LIVE}" | tr -d '[:space:]')
-echo "cognitive-triggers.md line count: ${LINE_COUNT}"
-# Proceed only if LINE_COUNT >= 100. If below threshold, STOP and investigate.
+LINE_COUNT=$(wc -l < "${PROJECT_ROOT}/docs/cognitive-triggers.md" | tr -d '[:space:]')
+echo "docs/cognitive-triggers.md line count: ${LINE_COUNT}"
+# Expected >= 100 lines. If below threshold, investigate.
 ```
 
-**Step B: Update snapshot** — overwrite the committed copy.
-
-```bash
-PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-_HASH="$(echo "$PROJECT_ROOT" | tr '/' '-')"
-TRIGGERS_LIVE="$HOME/.claude/projects/${_HASH}/memory/cognitive-triggers.md"
-cp "${TRIGGERS_LIVE}" "${PROJECT_ROOT}/docs/cognitive-triggers-snapshot.md"
-```
-
-Note: cognitive-triggers changes less frequently than MEMORY.md, so no versioned
-archive is needed — a single snapshot suffices. If cogarch changes were made this
-session, update the snapshot. Otherwise skip.
+Skip if no cogarch changes were made this session.
 
 ### 11. Orphan Check
 
@@ -322,7 +308,7 @@ architecture.md (facts) → journal.md if significant (narrative) →
 MEMORY.md Design Decisions table → lab-notebook.md Current State
 
 **A new cogarch trigger touches:**
-cognitive-triggers.md → docs/cognitive-triggers-snapshot.md (Step 10b) →
+docs/cognitive-triggers.md (Step 8) →
 MEMORY.md quick-ref table → lab-notebook.md session entry
 
 **A new skill touches:**

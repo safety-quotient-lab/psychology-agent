@@ -35,7 +35,7 @@ Report: `N lines used (~M available before advisory limit)`
 ### 3. cognitive-triggers.md (practical constraint)
 
 ```bash
-wc -l ~/.claude/projects/-home-kashif-projects-psychology/memory/cognitive-triggers.md
+wc -l docs/cognitive-triggers.md
 ```
 
 Loaded in full at T1. Practical ceiling ~900–1000 lines before context

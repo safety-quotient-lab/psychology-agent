@@ -66,7 +66,7 @@ validated dimensions. PJE is a case study in applying this agent, not a privileg
 
 ## Working Principles
 
-Full trigger system: `memory/cognitive-triggers.md` — read at session start.
+Full trigger system: `docs/cognitive-triggers.md` — read at session start.
 Quick reference (when → what fires):
 
 ```

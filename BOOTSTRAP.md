@@ -48,14 +48,17 @@ Auto-memory directory:
 ~/.claude/projects/[HASH]/memory/
 ```
 
-Two files live there:
+One file lives there:
 
 | Auto-memory file | What it holds | Committed snapshot (recovery source) | Min lines |
 |---|---|---|---|
 | `MEMORY.md` | Volatile state: active thread, decisions, cogarch quick-ref | `docs/MEMORY-snapshot.md` | 50 |
-| `cognitive-triggers.md` | Full T1–T12 trigger system | `docs/cognitive-triggers-snapshot.md` | 100 |
 
-**`bootstrap-check.sh` handles all of this automatically.** It checks existence,
+The cognitive triggers file lives in the repo at `docs/cognitive-triggers.md` (canonical
+location since Session 12). It does not require auto-memory restoration — Claude reads
+it directly from the repo via T1.
+
+**`bootstrap-check.sh` handles MEMORY.md restoration automatically.** It checks existence,
 validates line counts against thresholds, restores from snapshots with provenance
 headers, and reports status. Run it instead of doing this manually.
 
@@ -69,9 +72,9 @@ MEMORY_DIR="$HOME/.claude/projects/${_HASH}/memory"
 # Create directory
 mkdir -p "$MEMORY_DIR"
 
-# Restore from snapshots
+# Restore MEMORY.md from snapshot
 cp docs/MEMORY-snapshot.md "$MEMORY_DIR/MEMORY.md"
-cp docs/cognitive-triggers-snapshot.md "$MEMORY_DIR/cognitive-triggers.md"
+# cognitive-triggers.md lives at docs/cognitive-triggers.md (no auto-memory copy needed)
 ```
 
 After manual restoration, add a `<!-- PROVENANCE: ... -->` comment at the top
@@ -86,8 +89,9 @@ of each file noting the source, date, and session number.
   - Each carries a reconstruction header. Use for historical context only.
 - `docs/snapshots/MEMORY-snapshot-2026-03-01.md` pre-dates a known integrity fix
   (adjudicate residue from external agent overreach). Do not use as recovery source.
-- `docs/MEMORY-snapshot.md` and `docs/cognitive-triggers-snapshot.md` are the
-  authoritative current snapshots, updated by /cycle Steps 10 and 10b.
+- `docs/MEMORY-snapshot.md` is the authoritative MEMORY.md snapshot, updated by
+  /cycle Step 10. `docs/cognitive-triggers.md` is the canonical trigger file
+  (in-repo, no separate snapshot needed).
 
 ## Step 3: Verify skills loaded
 
@@ -104,7 +108,7 @@ Claude Code from the project root to reload.
 
 Read in order:
 1. `MEMORY.md` — current active thread and volatile state (auto-memory)
-2. `cognitive-triggers.md` — full T1–T12 trigger system (auto-memory)
+2. `docs/cognitive-triggers.md` — full T1–T12 trigger system (canonical, in-repo)
 3. `docs/architecture.md` — design decisions and system diagram
 4. `lab-notebook.md` — last session summary and open questions
 5. `TODO.md` — task backlog
