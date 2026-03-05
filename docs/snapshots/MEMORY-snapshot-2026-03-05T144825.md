@@ -6,11 +6,13 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 13 in progress. Second ecosystem eval complete (Trail of
-Bits, K-Dense, Simone, cc-tools, cchooks). T13 (external content ingestion) added.
-T3 rationalizations-to-reject (#10) added. 7 new candidates ranked, 2 implemented.
-**Next:** Finish /cycle for Session 13. Then convert /adjudicate + /capacity to
-commands (Rank 7). Then Architecture Item 1 — general agent design.
+**Where we stopped:** Session 12 complete (4 commits, 21 total). Cognitive-triggers
+canonical location fixed (→ docs/). Parry installed + hooks configured (ML blocked on
+HF license acceptance). 5-repo awesome-claude-code eval, 10 candidates ranked, 4 quick
+wins landed (attention placement, lesson schema, promotion lifecycle, skills audit).
+Commands-over-skills audit: /adjudicate + /capacity → convert to commands next session.
+**Next:** Convert /adjudicate + /capacity to commands (Rank 7 implementation).
+Then Architecture Item 1 — general agent design.
 
 ## Design Decisions
 
@@ -81,7 +83,6 @@ Quick reference (when → what fires):
  Lesson surfaces         T10: write to lessons.md
  Architecture audit      T11: on demand — audit + future mitigations for deferred
  "Good thinking" signal  T12: name principle, mechanism, cross-domain; T10 co-fires
- External content enters T13: classify source (trusted/semi/untrusted), injection scan, scope relevance, taint propagation
 ```
 
 **Knock-on depth:** 8 orders. 1–2: certain. 3: likely. 4–5: possible. 6: speculative.
@@ -115,19 +116,6 @@ can instruct the agent to invoke another. Target skill must allow model invocati
 when: (a) a transferable pattern error is identified, (b) the user says they
 want to grok or internalize something, or (c) a moment of genuine conceptual
 shift occurs. Format: see `lessons.md.example`.
-
-
-## User Preferences
-
-- **Trigger naming in conversation:** Always refer to triggers by their firing condition
-  ("Before recommending," "Session starts") as the primary label. T-numbers go in
-  parenthetical position only. This aligns with the internal reference display convention
-  in CLAUDE.md but makes it explicit for trigger references specifically.
-- **Cogarch baseline summary:** When working on cogarch, always provide the compact
-  cogarch summary as baseline context before proceeding. The summary covers: triggers
-  (table: fires when + function), platform hooks, skills, memory architecture,
-  self-healing, decision framework, lesson lifecycle, and remaining work. Golden-ratio
-  compact — no extra verbosity.
 
 
 ## Stable Conventions

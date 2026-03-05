@@ -23,7 +23,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | /capacity skill               | ✓ Created and verified                           |
 | Conventions migration         | ✓ CLAUDE.md holds stable conventions (178 lines) |
 | CLAUDE.md (project root)      | ✓ Created + display convention added             |
-| Cognitive infrastructure      | ✓ T1–T12 + 5 updates + 4 SRT-inspired drafts (ideas.md) |
+| Cognitive infrastructure      | ✓ T1–T13 + rationalizations-to-reject (T3) + 4 SRT drafts (ideas.md) |
 | T10/T11 ordering              | ✓ Fixed — T10 now precedes T11 in file           |
 | T12 trigger                   | ✓ Positive pattern recognition; T10 co-fires     |
 | Timestamp backfill            | ✗ Deferred — no fabrication; exact times unknown |
@@ -59,6 +59,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Adversarial evaluator         | ✗ Pending — item 3 of 3                          |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
+| Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
 | Git history                   | ✓ 19 commits                                     |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
 
@@ -625,3 +626,57 @@ acceptance.
   .claude/skills/cycle/SKILL.md, .claude/skills/hunt/SKILL.md,
   .claude/skills/capacity/SKILL.md,
   blog/2026-03-05-cognitive-architecture-for-ai-agents.md
+
+---
+
+## 2026-03-05T14:46 CST — Session 13 (Ecosystem eval round 2 + T13 + T3 rationalizations)
+
+**Scope:** Second ecosystem evaluation targeting additional triggers, hooks, and skills
+from awesome-claude-code. Implemented two cogarch extensions.
+
+**→ 5-repo ecosystem evaluation (round 2).** Parallel research agents evaluated:
+
+| Repository | Stars | License | Verdict |
+|---|---|---|---|
+| Trail of Bits `trailofbits/skills` | 3,292 | CC BY-SA 4.0 | High value — ingestion gatekeeper, completion gate, rationalizations-to-reject patterns |
+| K-Dense `K-Dense-AI/claude-scientific-skills` | 13,216 | MIT | Medium — GRADE evidence framework, competing hypotheses workflow |
+| Simone `Helmi/claude-simone` | 547 | MIT | Low — different philosophy (fresh context per task vs. persistent memory) |
+| cc-tools `joshsymonds/cc-tools` | 49 | MIT (no file) | Low — statusline only, confirms context % data available |
+| cchooks `GowayLee/cchooks` | 119 | MIT | Low — Alpha SDK, typed hook boilerplate, no composition |
+
+**→ 7 integration candidates ranked.** Criteria: gap addressed, architectural fit, effort.
+
+| Rank | Candidate | Source | Status |
+|---|---|---|---|
+| 1 | Ingestion gatekeeper trigger (T13) | Trail of Bits gh-cli | ✓ Implemented |
+| 2 | Completion gate hook | Trail of Bits fp-check | → TODO (needs Architecture Item 2) |
+| 3 | Rationalizations-to-reject (T3 #10) | Trail of Bits (all security skills) | ✓ Implemented |
+| 4 | Context pressure hook | cc-tools (data source) | → TODO |
+| 5 | GRADE evidence framework | K-Dense scientific-critical-thinking | → TODO (reference material) |
+| 6 | Competing hypotheses workflow | K-Dense hypothesis-generation | → TODO (adversarial evaluator) |
+| 7 | Activity logger (SQLite) | Simone MCP | → TODO (future infrastructure) |
+
+**→ T13 added: External content entering context.** New trigger fires before ingesting
+content from outside the repository. 5 checks: source classification (trusted/semi-trusted/
+untrusted), injection scan (semantic layer beyond parry), scope relevance, taint
+propagation (epistemic weight), volume check. Modeled on Trail of Bits gh-cli ingestion
+gatekeeper pattern.
+
+**→ T3 check #10 added: Rationalizations to reject.** 5 domain-relevant rationalization
+patterns: deferred-fix, sufficiency bias, authority-as-evidence, consensus-as-evidence,
+scope minimization. Agent must name the pattern and provide substantive justification
+to proceed — or withdraw the recommendation. Modeled on Trail of Bits' mandatory
+"Rationalizations to Reject" sections.
+
+**Key findings from evaluation:**
+- Trail of Bits provides the strongest ecosystem patterns for our cogarch
+- K-Dense scientific skills operate at a different layer (domain knowledge vs. metacognitive)
+- No ecosystem tool addresses mid-session recovery after compaction (Gap 4)
+- Claude Code exposes context window % in statusline input JSON
+
+⚑ EPISTEMIC FLAGS
+- 3 of 5 repo URLs from awesome-claude-code listings had drifted (404s)
+- Trail of Bits repo only 2 months old — patterns promising but limited battle-testing
+- cchooks evaluation found two different repos (msnidal vs. GowayLee)
+
+▶ docs/cognitive-triggers.md (T13, T3 #10), MEMORY.md quick-ref table

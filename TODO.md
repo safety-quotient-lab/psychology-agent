@@ -153,11 +153,59 @@ parry, RIPER Workflow, SuperClaude Framework.*
   - **recall** (full-text session search) — could replace manual session archaeology
   - **claude-rules-doctor** — detects dead `.claude/rules/` files; relevant to
     glob-scoped rules TODO
-  - **cc-tools** (Go-based hooks) — more robust hook infrastructure than hand-rolled
-    settings.json entries
-  Evaluate each for: license compatibility, maintenance activity, installation
+  - ~~**cc-tools** (Go-based hooks)~~ — evaluated Session 13: statusline only, no
+    hook infrastructure. Does not replace hand-rolled hooks. Provides context window %
+    data confirmation. **Not adopting.**
+  - ~~**cchooks** (Python hook SDK)~~ — evaluated Session 13: Alpha v0.1.5, typed
+    boilerplate only, no composition primitives. Revisit if hooks grow beyond 5 entries.
+    **Not adopting now.**
+  Evaluate remaining for: license compatibility, maintenance activity, installation
   burden, whether it actually improves on what we have.
   *Source: awesome-claude-code tooling section*
+
+---
+
+## Awesome-Claude-Code Integration (from Session 13 evaluation)
+
+*Source: 5-repo evaluation round 2 (Session 13).
+Repos evaluated: Trail of Bits skills, K-Dense scientific skills,
+Simone, cc-tools, cchooks.*
+
+- [x] **Ingestion gatekeeper trigger** (Rank 1) — ✓ Session 13. T13 added:
+  fires before external content enters context. 5 checks: source classification,
+  injection scan, scope relevance, taint propagation, volume check.
+  *Source: Trail of Bits gh-cli ingestion gatekeeper pattern*
+
+- [ ] **Completion gate hook** (Rank 2) — Stop/SubagentStop hooks verify all phases
+  executed before allowing "done." Trail of Bits fp-check uses LLM-evaluated
+  structural completeness check at workflow termination. Maps to T5/T8 supplement.
+  *Source: Trail of Bits fp-check*
+  *Precondition: Architecture Item 2 (sub-agent protocol) in progress*
+
+- [x] **Rationalizations-to-reject** (Rank 3) — ✓ Session 13. T3 check #10 added:
+  5 domain-relevant rationalization patterns. Agent must name pattern and justify
+  proceeding — or withdraw.
+  *Source: Trail of Bits mandatory "Rationalizations to Reject" sections*
+
+- [ ] **Context pressure hook** (Rank 4) — PreToolUse hook reads context window %
+  from statusline data, warns at 60% threshold. cc-tools confirms data source exists
+  in Claude Code's statusline input JSON.
+  *Source: cc-tools statusline input format + TODO compaction threshold trigger*
+
+- [ ] **GRADE evidence framework** (Rank 5) — adopt GRADE (Grading of Recommendations,
+  Assessment, Development and Evaluations) as reference material for T3 confidence
+  calibration. Start high, downgrade for problems, upgrade for strength.
+  *Source: K-Dense scientific-critical-thinking skill*
+
+- [ ] **Competing hypotheses workflow** (Rank 6) — 3-5 hypotheses with quality criteria
+  (testability, falsifiability, parsimony). Reference material for adversarial evaluator.
+  *Source: K-Dense hypothesis-generation skill*
+  *Precondition: Architecture Item 3 (adversarial evaluator) in progress*
+
+- [ ] **Activity logger** (Rank 7) — SQLite-backed cross-session audit trail as
+  complement to markdown lab-notebook. Structured, queryable.
+  *Source: Simone MCP activity logger*
+  *Precondition: implementation phase (code exists to log against)*
 
 ---
 
