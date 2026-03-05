@@ -27,7 +27,10 @@ triggers remain aspirations, not infrastructure.
 4. Check TODO.md — current task backlog
 5. Check lab-notebook.md — last session summary and open questions
 6. Verify skills loaded (/doc, /hunt, /cycle, /capacity, /adjudicate)
-7. Establish context baseline before responding to any user request
+7. **Output compact cogarch baseline summary** — read `docs/cognitive-triggers.md` and
+   emit the full trigger table, platform hooks, skills, and memory architecture as the
+   first visible output of the session
+8. Establish context baseline before responding to any user request
 
 **Action**: Orient fully before doing any work. If restoration occurred, note it
 in the session's first response so the user has visibility.
@@ -46,6 +49,8 @@ in the session's first response so the user has visibility.
 5. **Fair witness** — observation vs. inference clearly distinguished?
 6. **E-prime** — no forms of "to be" in user-facing copy?
 7. **Evidence** — claims linked to evidence?
+8. **Clarification** — if clarification is needed, use the `AskUserQuestion` tool;
+   never ask questions as inline plain text
 
 **Action**: If any check fails, fix before sending.
 

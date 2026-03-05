@@ -62,7 +62,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
 | Capabilities inventory        | ✓ architecture.md § Capabilities + capabilities.yaml (Session 13) |
 | Hook scripts                  | ✓ 4 scripts in .claude/hooks/, all tested (Session 13) |
-| Git history                   | ✓ 25 commits                                     |
+| Cogarch auto-reload (session start) | ✓ T1 step 7 + hook MANDATORY instruction (Session 14) |
+| AskUserQuestion discipline    | ✓ T2 check 8 + MEMORY user preferences (Session 14) |
+| Git history                   | ✓ 27 commits                                     |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
 
 
@@ -704,3 +706,23 @@ documentation. Line count: 195/200.
 ▶ docs/cognitive-triggers.md (T13, T3 #10), docs/architecture.md (capabilities),
   docs/capabilities.yaml, .claude/hooks/ (4 scripts), .claude/settings.json,
   CLAUDE.md, README.md, MEMORY.md quick-ref table
+
+## 2026-03-05T15:51 CST — Session 14 (Cogarch auto-reload + AskUserQuestion discipline)
+
+- → Provided semiotics quick scan (Saussure dyadic, Peirce triadic + icon/index/symbol,
+  Morris/Eco applied semiotics). Covered denotation/connotation, semiosis, code-dependency.
+  Identified three relevance angles for psychology agent architecture: indexical text
+  analysis, interpretant recursion in multi-pass pipelines, code-dependency as design
+  constraint (WEIRD assumptions). Conversational only — no doc output.
+- → Added MANDATORY cogarch baseline summary to session start:
+  - `session-start-orient.sh` emits MANDATORY instruction to read cogarch + output summary
+  - `docs/cognitive-triggers.md` T1 step 7: explicit "output compact cogarch baseline
+    summary" requirement; step 8 renumbered
+- → Added AskUserQuestion tool discipline:
+  - `docs/cognitive-triggers.md` T2 check 8: use AskUserQuestion tool for clarification;
+    never ask as inline plain text
+  - MEMORY.md user preferences: both auto-reload and AskUserQuestion rules added
+- → MEMORY.md quick-ref: T1 + T2 entries updated to reflect new checks
+
+▶ docs/cognitive-triggers.md (T1 step 7, T2 check 8), .claude/hooks/session-start-orient.sh,
+  MEMORY.md (active thread, user prefs, quick-ref)

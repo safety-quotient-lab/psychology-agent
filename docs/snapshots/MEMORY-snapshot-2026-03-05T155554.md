@@ -6,11 +6,11 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 14 complete. Semiotics scan (Saussure/Peirce/Morris-Eco),
-cogarch auto-reload at session start (T1 step 7 + hook MANDATORY instruction), AskUserQuestion
-discipline added (T2 check 8 + MEMORY user prefs). 27 commits total.
-**Next:** Semiotics as central cogarch principle — continue analysis. Then Architecture
-Item 1 — general agent design.
+**Where we stopped:** Session 13 complete. Second ecosystem eval (5 repos), T13 added,
+T3 #10 added, 4 platform hooks implemented + tested, capabilities inventory + YAML
+manifest created, README updated. 26 commits total.
+**Next:** Convert /adjudicate + /capacity to commands (Rank 7, requires restart).
+Then Architecture Item 1 — general agent design.
 
 ## Design Decisions
 
@@ -69,8 +69,8 @@ Full trigger system: `docs/cognitive-triggers.md` — read at session start.
 Quick reference (when → what fires):
 
 ```
- Session starts          T1: auto-memory health check, orientation, skills, TODO, output baseline summary, context baseline
- Before any response     T2: context pressure, transition, pacing, bare forks, clarification → AskUserQuestion tool
+ Session starts          T1: auto-memory health check, orientation, skills, TODO, context baseline
+ Before any response     T2: context pressure, transition, pacing, bare forks
  Before recommending     T3: classify domain → ground → adjudicate; prerequisites, sycophancy, recommend-against; effort-weight calibration
  Before writing to disk  T4: date, public visibility, memory hygiene, routing, classification, semantic naming, lab-notebook ordering
  Phase boundary / "next" T5: gap check — MANDATORY; Active Thread staleness check; no bare forks until clear
@@ -123,13 +123,11 @@ shift occurs. Format: see `lessons.md.example`.
   ("Before recommending," "Session starts") as the primary label. T-numbers go in
   parenthetical position only. This aligns with the internal reference display convention
   in CLAUDE.md but makes it explicit for trigger references specifically.
-- **Cogarch baseline summary (every session):** At session start, always read
-  `docs/cognitive-triggers.md` and output the compact cogarch baseline summary as the
-  first visible action. The summary covers: triggers (table: fires when + function),
-  platform hooks, skills, memory architecture. Golden-ratio compact — no extra verbosity.
-  Hook enforces this mechanically via MANDATORY instruction in session-start-orient.sh.
-- **AskUserQuestion tool:** Always use the `AskUserQuestion` tool when seeking
-  clarification or asking questions — never ask inline as plain text.
+- **Cogarch baseline summary:** When working on cogarch, always provide the compact
+  cogarch summary as baseline context before proceeding. The summary covers: triggers
+  (table: fires when + function), platform hooks, skills, memory architecture,
+  self-healing, decision framework, lesson lifecycle, and remaining work. Golden-ratio
+  compact — no extra verbosity.
 
 
 ## Stable Conventions
