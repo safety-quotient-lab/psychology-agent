@@ -6,12 +6,13 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 16 complete. General agent routing spec written
-(Architecture Item 1, routing logic). 3 stages: caller classification, request
-classification (7 sign types), evaluator trigger. Machine caller output format
-resolved (editorial/structural/SETL/Fair Witness from unratified pattern). Sub-agent
-discovery via capabilities.yaml manifest. Blog posts published (blog.unratified.org).
-**Next:** Architecture Item 1 remaining — general agent identity and prompt spec.
+**Where we stopped:** Session 16 complete. Semiotics framed as cogarch organizing
+principle (Peirce triadic, Saussure langue/parole, Eco meaning-through-difference).
+Trigger map audited — T3/T13 explicitly semiotic; T4/T9 implicitly; T1/T5–T8
+interpretant-blind. T4 Check 9 (Interpretant) added. Blog post 2 stored:
+`blog/2026-03-05-interpretant-collapse.md` (SRT parallel, draft). 29 commits.
+**Next:** Architecture Item 1 (general agent design) — semiotic framework now provides
+the organizing foundation (agent identity, routing logic, Socratic protocol).
 
 ## Design Decisions
 

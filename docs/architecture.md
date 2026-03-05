@@ -189,8 +189,272 @@ dimensions.
 ## Remaining Architecture Items
 
 1. **General agent design** — prompt, routing logic, Socratic protocol, skill set
+   ✓ Routing logic spec complete (see below). Identity and prompt spec pending.
 2. **Sub-agent protocol** — how sub-agents plug in, communicate, declare scope
 3. **Adversarial evaluator** — tiered activation logic, parsimony reasoning
+
+
+## Component Spec: General Agent Routing
+
+**Scope:** How the general agent classifies incoming requests and determines
+where to send them. Three sequential stages: caller classification (sets mode),
+request classification (determines destination), adversarial evaluator trigger
+(quality gate). Interpretant community calibration runs parallel to Stage 2.
+
+**Out of scope for this spec:** Sub-agent handoff format and communication
+protocol (Architecture Item 2). Machine caller output schema validation
+(Architecture Item 3). General agent identity and prompt (Architecture Item 1,
+pending).
+
+---
+
+### Stage 1: Caller Classification
+
+Fires before any other routing. Detection operates structurally — no
+inference about intent required.
+
+```
+────────────────────────────────────────────────────────────────────────
+ Caller type         Detection signals                  Mode
+────────────────────────────────────────────────────────────────────────
+ Human user          Natural language; social hedging   Socratic
+                     ("I think," "could you"); no       (dynamic
+                     structured format; conversational  calibration)
+                     phrasing
+
+ Machine caller      Structured format (JSON/YAML/      Direct
+                     typed fields); self-id in system   (no Socratic
+                     prompt; no social hedging;         guidance;
+                     imperative or parametric requests  typed output)
+
+ Sub-agent return    Structured output; explicit scope  Synthesis
+                     declaration present; validated     (integrate,
+                     boundary statement present         challenge,
+                                                        report to user)
+────────────────────────────────────────────────────────────────────────
+```
+
+Stage 1 is a hard gate. Machine callers never enter Socratic routing.
+Sub-agent returns never enter request classification — they route
+directly to synthesis mode.
+
+---
+
+### Stage 2: Request Classification
+
+Applies to human-caller (Socratic) mode only. Seven sign types cover
+the expected request space. Sign type determines destination.
+
+```
+────────────────────────────────────────────────────────────────────────
+ Request sign type    Example surface forms              Route
+────────────────────────────────────────────────────────────────────────
+ Scoring              "Score this," "run PSQ on          Sub-agent
+                      this," "how safe is this?"         (via discovery;
+                                                         see below)
+
+ Analysis             "What does this reveal about,"     Direct
+                      "help me understand"               response
+
+ Synthesis            "Summarize what we know,"          Direct response
+                      "pull together"                    (+ prior
+                                                         sub-agent
+                                                         outputs if held)
+
+ Decision             "Should we X or Y?", "which        /adjudicate
+                      approach?", "what's better?"       (2+ viable
+                                                         options)
+
+ Challenge            "Is this valid?", "push back       Adversarial
+                      on this," "what's wrong with"      evaluator
+                                                         (lightweight)
+
+ Exploration          "Help me think about,"             Socratic
+                      "what if," open questions          dialogue
+
+ Disambiguation       Ambiguous; multiple valid reads;   AskUserQuestion
+                      missing scope                      before routing
+────────────────────────────────────────────────────────────────────────
+```
+
+Scoring requests are the only sign type that routes out of the general
+agent to a sub-agent. All others remain with the general agent, though
+synthesis may draw on prior sub-agent outputs.
+
+Disambiguation fires when sign type cannot be determined. The agent
+does not guess and route — it asks first.
+
+---
+
+### Stage 2b: Interpretant Community Calibration
+
+Runs parallel to Stage 2 for all human-caller interactions. The agent
+maintains a live interpretant community profile from conversational
+signals and updates it continuously.
+
+```
+────────────────────────────────────────────────────────────────────────
+ Signal type                 Calibration update
+────────────────────────────────────────────────────────────────────────
+ Vocabulary sophistication   Explanation depth (technical ↔ plain)
+ Domain markers              Sub-agent relevance (PSQ? PJE? general?)
+ Question framing            Socratic depth (exploratory ↔ direct)
+ Social hedging level        Trust calibration (deferential ↔ peer)
+ Prior turn consistency      Community stability flag
+────────────────────────────────────────────────────────────────────────
+```
+
+When community stability drops sharply (domain shift, vocabulary shift,
+framing shift), the agent flags an audience-shift event, reassesses
+which interpretant community governs the exchange, and rebinds any
+contested terms before continuing. Previously bound terms do not carry
+across a community boundary without explicit rebinding.
+
+---
+
+### Stage 3: Adversarial Evaluator Trigger
+
+Fires in addition to (not instead of) the Stage 2 destination. Tiered
+activation — lightweight by default, full adversarial on escalation.
+
+```
+────────────────────────────────────────────────────────────────────────
+ Condition                           Tier
+────────────────────────────────────────────────────────────────────────
+ Explicit challenge request          Full adversarial (immediately)
+
+ Sub-agents return conflicting       Full adversarial — preserve shape
+ outputs                             of disagreement; do not average
+
+ Agent confidence below threshold    Lightweight — flag + surface
+ on a substantive claim              uncertainty; escalate if pressed
+
+ User expresses doubt about prior    Lightweight → full if disagreement
+ analysis                            persists
+────────────────────────────────────────────────────────────────────────
+```
+
+Parsimony rule: when sub-agents conflict, the evaluator identifies the
+most parsimonious explanation for the disagreement and surfaces it.
+Averaging across conflicting sub-agent outputs destroys differential
+structure — same principle as PSQ profile shape vs. aggregate score.
+
+---
+
+### Sub-Agent Discovery
+
+Scoring requests route by consulting `docs/capabilities.yaml` for
+sub-agent domain coverage.
+
+```
+Scoring request
+      │
+      ▼
+Consult capabilities.yaml
+      │
+      ├── Domain match found  →  route to that sub-agent
+      │
+      └── No match  →  general agent responds with bounded confidence
+                        + notes capability gap explicitly in response
+                        (gap surfaces as /hunt candidate next session)
+```
+
+The capabilities manifest is the registry. No runtime discovery
+protocol — coverage expands by adding sub-agents to capabilities.yaml
+and the routing table updates automatically.
+
+---
+
+### Machine Caller Output Format
+
+Applies to Stage 1 machine-caller mode. Adapted from the unratified
+observatory's Fair Witness output discipline — editorial and structural
+channels scored independently; facts and inferences separated.
+
+```
+────────────────────────────────────────────────────────────────────────
+ Field                  Type        Description
+────────────────────────────────────────────────────────────────────────
+ request_id             string      Caller-supplied or generated UUID
+
+ scope                  string      What the agent was asked to address
+
+ scope_boundary         string      What falls outside validated scope
+                                    for this response
+
+ mode                   enum        "full" | "lite"
+                                    full: all signals + sub-agent outputs
+                                    lite: editorial channel only
+
+ editorial              string      What the agent concludes
+                                    (interpretive)
+
+ structural             string      What the evidence directly supports
+                                    (observable, uninterpreted)
+
+ setl                   float       abs(editorial - structural) divergence
+                        [0.0–1.0]   0.0 = fully evidence-grounded
+                                    1.0 = fully inferential
+
+ confidence             object      level: "high" | "medium" | "low"
+                                    basis: what the confidence rests on
+                                    flags: epistemic flag strings []
+
+ sub_agent_outputs      array       Structured outputs from sub-agents,
+                                    each with their own scope + boundary
+
+ witness_facts          array       Observable, uninterpreted statements
+                                    (direct evidence only)
+
+ witness_inferences     array       Interpretive statements flagged as
+                                    such (derived, not directly observed)
+────────────────────────────────────────────────────────────────────────
+```
+
+SETL (structural-editorial tension level) surfaces when the agent's
+conclusion exceeds what the evidence directly supports. A high SETL
+value signals to machine callers that the response contains meaningful
+inference that warrants independent verification.
+
+---
+
+### Routing Flow (complete)
+
+```
+Incoming request
+      │
+      ▼
+┌─────────────────────────┐
+│  Stage 1                │── Machine caller ──────────→ Direct output
+│  Caller Classification  │                              (typed schema)
+│                         │── Sub-agent return ─────────→ Synthesis mode
+└────────────┬────────────┘
+             │ Human caller
+             ▼
+┌────────────────────────────────────────────────┐
+│  Stage 2b: Interpretant Community Calibration  │
+│  (runs continuously in parallel)               │
+│  Audience-shift event → rebind terms + reassess│
+└────────────┬───────────────────────────────────┘
+             │
+             ▼
+┌─────────────────────────┐
+│  Stage 2                │── Scoring ──────────────────→ Sub-agent
+│  Request Classification │                              (via manifest)
+│                         │── Analysis / Synthesis ─────→ Direct
+│                         │── Decision ─────────────────→ /adjudicate
+│                         │── Challenge ────────────────→ Evaluator
+│                         │── Exploration ──────────────→ Socratic
+│                         │── Ambiguous ────────────────→ Ask first
+└────────────┬────────────┘
+             │
+             ▼
+┌─────────────────────────┐
+│  Stage 3                │── Conflict / challenge ─────→ Full eval
+│  Evaluator Trigger      │── Low confidence ───────────→ Lightweight
+│  (parallel check)       │── User doubt ───────────────→ Lightweight
+└─────────────────────────┘                               → escalate
+```
 
 
 ## Skills & Commands

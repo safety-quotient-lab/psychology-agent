@@ -800,3 +800,20 @@ documentation. Line count: 195/200.
 
 ▶ blog/2026-03-05-interpretant-collapse.md, blog/2026-03-05-cognitive-architecture-for-ai-agents.md,
   docs/architecture.md
+
+## 2026-03-05T17:31 CST — Session 16c (General agent routing spec)
+
+- → Drafted and committed general agent routing spec (Architecture Item 1, routing
+  logic complete). Three stages: caller classification (human/machine/sub-agent),
+  request classification (7 sign types), adversarial evaluator trigger (tiered).
+- → Resolved sub-agent discovery: capabilities.yaml manifest lookup + bounded-
+  confidence fallback for unmatched scoring requests. Gap surfaces as /hunt candidate.
+- → Resolved machine caller output format: editorial/structural channel separation +
+  Fair Witness discipline (witness_facts vs. witness_inferences), adapted from
+  unratified observatory pattern. SETL metric (structural-editorial tension level)
+  surfaces inferential overreach to machine callers.
+- → Stage 2b: interpretant community calibration formalized — 5 signal types,
+  audience-shift event triggers term rebinding before continuation.
+- → Remaining for Architecture Item 1: identity and prompt spec.
+
+▶ docs/architecture.md (Component Spec: General Agent Routing)
