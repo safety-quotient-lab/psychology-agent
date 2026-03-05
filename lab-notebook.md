@@ -511,10 +511,11 @@ session retains Session 10 numbering; this session proceeds as Session 11.
 **→ /cycle Step 12 updated:** commit + push (was commit only). Aligns with
 CLAUDE.md global instruction "always commit and push in between each phase."
 
-**→ README.md restructured:** Quick Start section added (clone, bootstrap-check.sh,
-start Claude Code). Project structure tree added. License section added. Documentation
-table expanded (4 audience-specific entry points). Sub-projects note added pointing
-to per-project CLAUDE.md files.
+**→ README.md restructured:** Quick Start section, project structure tree, license
+section, expanded documentation table. "Interesting Parts of the Codebase" section
+added with GitHub-linked highlights: cognitive trigger system, self-healing memory,
+git reconstruction from chat logs, /cycle propagation chain, /adjudicate decision
+resolution, research journal.
 
 ▶ bootstrap-check.sh, BOOTSTRAP.md, README.md, .claude/skills/cycle/SKILL.md,
   memory/cognitive-triggers.md, docs/cognitive-triggers-snapshot.md

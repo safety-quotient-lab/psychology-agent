@@ -92,6 +92,49 @@ psychology-agent/
 
 ---
 
+## Interesting Parts of the Codebase
+
+**Cognitive architecture (trigger system)** — The agent governs itself through
+12 mechanical triggers (T1–T12) that fire at specific moments: session start,
+before responding, before recommending, before writing to disk, at phase
+boundaries, on user pushback, and more. Principles without firing conditions
+remain aspirations; principles with triggers become infrastructure.
+- [docs/cognitive-triggers-snapshot.md](docs/cognitive-triggers-snapshot.md) — the full trigger system
+- [journal.md §6](journal.md) — the design narrative explaining why triggers exist
+
+**Self-healing memory** — Auto-memory lives outside the git repo and can silently
+disappear (new machine, path change, fresh clone). The bootstrap system detects
+this, restores from committed snapshots with provenance tracking, and reports
+what happened.
+- [bootstrap-check.sh](bootstrap-check.sh) — health check + auto-restore script
+- [BOOTSTRAP.md](BOOTSTRAP.md) — the full bootstrap protocol
+
+**Git history reconstruction from chat logs** — The project existed before its
+repo did. We rebuilt git history by mechanically replaying Write/Edit operations
+from Claude Code JSONL transcripts, with a weighted drift score measuring how
+faithfully the documentation recovers the actual file state.
+- [reconstruction/reconstruct.py](reconstruction/reconstruct.py) — JSONL replay engine with drift scoring
+- [reconstruction/relay-agent-instructions.md](reconstruction/relay-agent-instructions.md) — protocol for a fresh agent to run the reconstruction
+- [journal.md §9–10](journal.md) — the method and its epistemic analysis
+
+**Documentation propagation chain (`/cycle`)** — A 13-step post-session checklist
+that propagates changes through 10 overlapping documents at different abstraction
+levels, with content guards, versioned archives, and orphan detection.
+- [.claude/skills/cycle/SKILL.md](.claude/skills/cycle/SKILL.md) — the full skill definition
+
+**Structured decision resolution (`/adjudicate`)** — Resolves ambiguous decisions
+through 8-order knock-on analysis (certain → structural → horizon), severity-tiered
+depth, 2-pass iterative refinement, and consensus-or-parsimony binding.
+- [.claude/skills/adjudicate/SKILL.md](.claude/skills/adjudicate/SKILL.md) — the full skill definition
+- [journal.md §11](journal.md) — licensing decision as a worked example of the method
+
+**Research journal** — A methods-and-findings narrative covering the full arc from
+initial framing through architecture design, cognitive infrastructure, cross-context
+integrity, reconstruction methodology, and semiotic theory.
+- [journal.md](journal.md) — 12 sections, ~520 lines
+
+---
+
 ## Key Conventions
 
 - **Model:** Opus (Claude's most capable model) for all agent roles
