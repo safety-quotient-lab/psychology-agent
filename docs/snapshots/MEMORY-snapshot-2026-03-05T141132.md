@@ -6,12 +6,12 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 12 mid-session (2 commits, 19 total). Cognitive-triggers
-canonical location fixed (→ docs/). Parry installed + hooks configured (ML blocked on
-HF license). 5-repo awesome-claude-code evaluation complete, 10 integration candidates
-ranked. TODO.md expanded with 8 integration items + configurable /hunt. Quick wins next.
-**Next:** Remaining quick wins from integration evaluation (Ranks 2–10), then
-Architecture Item 1 — general agent design.
+**Where we stopped:** Session 11 complete (6 commits, 17 total). Auto-memory restored.
+Bootstrap system built (bootstrap-check.sh, T1 health check). Platform hooks added
+(.claude/settings.json). Antiregression-setup evaluated — hooks adopted, 7 TODOs
+written. Blog post drafted. README restructured. /cycle Step 12 now pushes.
+**Next:** Architecture Item 1 — general agent design (prompt/identity, routing logic,
+Socratic protocol spec, machine-caller detection). Start in fresh context.
 
 ## Design Decisions
 

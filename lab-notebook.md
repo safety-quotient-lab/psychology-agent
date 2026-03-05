@@ -43,22 +43,25 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | License (root project)        | ✓ CC BY-NC-SA 4.0 — LICENSE at project root      |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
 | Auto-memory recovery          | ✓ Snapshots, bootstrap-check.sh, T1 health check, BOOTSTRAP.md restructure (Session 11) |
-| Platform hooks                | ✓ .claude/settings.json — pre-commit memory check, post-edit T4 reminder (Session 11) |
+| Platform hooks                | ✓ .claude/settings.json — pre-commit memory check, post-edit T4 reminder + parry (Session 12) |
 | Antiregression evaluation     | ✓ Evaluated, adopted hooks, TODO items written (Session 11) |
 | Blog post (cogarch)           | ✓ Draft — blog/2026-03-05-cognitive-architecture-for-ai-agents.md (Session 11) |
+| Cogarch canonical location    | ✓ cognitive-triggers.md moved to docs/ (Session 12) |
+| Parry integration             | ✓ Installed, hooks configured, ⚑ ML blocked on HF license (Session 12) |
+| Awesome-claude-code eval      | ✓ 5 repos evaluated, 10 candidates ranked (Session 12) |
 | PSQ commercial model          | ✗ Undefined — ideas documented in ideas.md       |
 | General agent design          | ✗ Next — item 1 of 3                             |
 | Sub-agent protocol            | ✗ Pending — item 2 of 3                          |
 | Adversarial evaluator         | ✗ Pending — item 3 of 3                          |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
-| Git history                   | ✓ 17 commits                                     |
+| Git history                   | ✓ 19 commits                                     |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
 
 
 ### Open Questions
 
-None.
+- HuggingFace model license acceptance needed for parry ML layer — https://huggingface.co/protectai/deberta-v3-base-prompt-injection-v2
 
 ---
 
@@ -547,4 +550,48 @@ approach. Draft status — review before publishing.
 ▶ bootstrap-check.sh, BOOTSTRAP.md, README.md, .claude/skills/cycle/SKILL.md,
   .claude/settings.json, CLAUDE.md, TODO.md, memory/cognitive-triggers.md,
   docs/cognitive-triggers-snapshot.md,
+  blog/2026-03-05-cognitive-architecture-for-ai-agents.md
+
+---
+
+## 2026-03-05T14:10 CST — Session 12 (Cogarch location fix, parry integration, awesome-claude-code evaluation)
+
+**→ Cognitive-triggers canonical location fix.** Moved `docs/cognitive-triggers-snapshot.md`
+→ `docs/cognitive-triggers.md`. Updated 10 active files (bootstrap-check.sh, BOOTSTRAP.md,
+CLAUDE.md, README.md, blog post, /cycle, /hunt, /capacity, MEMORY-snapshot, MEMORY.md).
+Historical snapshots and lab-notebook session entries left as-is. Bootstrap health check
+passes. The file no longer lives in auto-memory — read directly from repo at T1.
+
+**→ Awesome-claude-code ecosystem evaluation.** Evaluated 5 repos via parallel subagents:
+Context Engineering Kit (NeoLabHQ), Compound Engineering Plugin (EveryInc), parry
+(vaporif), RIPER Workflow (multiple forks), SuperClaude Framework (SuperClaude-Org).
+3 of 5 URLs had drifted from the awesome list. Produced 10 ranked integration candidates.
+Convergent patterns found across 3+ repos: structured error/lesson capture, graduated
+document promotion, file-system-as-memory.
+
+**→ Parry prompt injection scanner installed and configured.** Binary built from source
+(Rust, Candle backend). Hooks added to `.claude/settings.json` at PreToolUse, PostToolUse,
+UserPromptSubmit. Degrades gracefully when parry not installed (`command -v` guard).
+ML layer blocked — HuggingFace model license acceptance needed (HTTP 403). Fast-scan
+layers (unicode, substring, secrets, AST exfil) function without ML. HF_TOKEN added
+to `~/.zshenv`. Rust toolchain updated (rustup stable 1.65.0 → 1.94.0).
+
+**→ TODO.md expanded.** 8 integration candidates from evaluation + configurable /hunt
+at bootstrap. Duplicate Writing section removed. `.dev.vars` and `.parry-*` added
+to `.gitignore`.
+
+**→ CONTRIBUTING.md evaluation.** awesome-claude-code requires issue form submission,
+not PRs. Submission drafted but not filed — pending README polish and HF license
+acceptance.
+
+⚑ EPISTEMIC FLAGS
+- 3 of 5 evaluated repo URLs had drifted from awesome-claude-code listings
+- All performance claims from evaluated repos lack independent verification
+- Parry ML layer untested — fast-scan layers verified, ML blocked on license
+- Parry hook coexistence with existing hooks verified structurally, not under load
+
+▶ .claude/settings.json, BOOTSTRAP.md, CLAUDE.md, README.md, TODO.md, .gitignore,
+  docs/cognitive-triggers.md, docs/MEMORY-snapshot.md, bootstrap-check.sh,
+  .claude/skills/cycle/SKILL.md, .claude/skills/hunt/SKILL.md,
+  .claude/skills/capacity/SKILL.md,
   blog/2026-03-05-cognitive-architecture-for-ai-agents.md
