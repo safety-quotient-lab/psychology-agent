@@ -83,6 +83,9 @@ Adjudicate (`/adjudicate`) when 2+ viable options exist.
 ## T4: Before Writing to Disk
 
 **Fires**: Before any file write (code, docs, memory, cogarch)
+**Platform enforcement**: PostToolUse hook on Write/Edit fires after critical
+file modifications — reminds of T4 checks. Hook is a safety net, not a
+replacement for the agent running T4 before writing.
 
 **Checks**:
 1. **Date discipline** — use `date -Idate` for dates; full timestamp format for

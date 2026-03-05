@@ -517,5 +517,15 @@ added with GitHub-linked highlights: cognitive trigger system, self-healing memo
 git reconstruction from chat logs, /cycle propagation chain, /adjudicate decision
 resolution, research journal.
 
+**→ Hooks added** (from antiregression-setup evaluation):
+- `.claude/settings.json` created with two hooks:
+  - PreToolUse on `git commit` — runs bootstrap-check.sh --check-only
+  - PostToolUse on Write/Edit — T4 compliance reminder for critical files
+- CLAUDE.md: Hooks section added documenting the enforcement layer
+- T4 in cognitive-triggers.md: platform enforcement note added
+- Adopted from CreatmanCEO/claude-code-antiregression-setup evaluation;
+  hooks provide mechanical enforcement that prompt-based triggers cannot guarantee
+
 ▶ bootstrap-check.sh, BOOTSTRAP.md, README.md, .claude/skills/cycle/SKILL.md,
-  memory/cognitive-triggers.md, docs/cognitive-triggers-snapshot.md
+  .claude/settings.json, CLAUDE.md, memory/cognitive-triggers.md,
+  docs/cognitive-triggers-snapshot.md

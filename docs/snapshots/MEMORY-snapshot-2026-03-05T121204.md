@@ -7,9 +7,8 @@
 2. A consensus-or-parsimony adversarial evaluator
 
 **Where we stopped:** Session 11 complete. Auto-memory restored. Bootstrap system
-built. Hooks added (PreToolUse git commit, PostToolUse Write/Edit) from
-antiregression-setup evaluation. README restructured with quick start + codebase
-highlights. /cycle Step 12 now pushes.
+built (bootstrap-check.sh, T1 health check, BOOTSTRAP.md + README.md restructured,
+snapshots committed, /cycle Steps 10b + 12 push).
 **Next:** Architecture Item 1 — general agent design (prompt/identity, routing logic,
 Socratic protocol spec, machine-caller detection).
 
