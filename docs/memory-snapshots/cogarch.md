@@ -1,3 +1,6 @@
+<!-- PROVENANCE: Restored 2026-03-06 by /cycle Step 11 orphan check
+     Source: docs/memory-snapshots/cogarch.md -->
+
 # Working Principles (Cogarch Quick-Reference)
 
 Full trigger system: `docs/cognitive-triggers.md` — read at session start.

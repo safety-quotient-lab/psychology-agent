@@ -135,7 +135,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Command-response ACK (rsync)  | ✓ Turn 14 — independent verification of all 7 rsync steps |
 | Endpoint-live notification    | ✓ mesh-init turn 5 — URL, verification data, integration guidance |
 | mesh-init session             | ✓ Complete — unratified-agent confirms closure (turn 5 ACK received) |
-| psq-scoring session           | ✓ Turn 7 complete — B1+B2 fixed, 5 texts scored, B2 validated (Session 26) |
+| psq-scoring session           | ✓ Turn 8 complete — HI construct finding + AR proposal → unratified-agent (advisory, Session 28) |
 | PSQ bug B1 (confidence dead)  | ✓ RESOLVED — r_confidence field added; calibration_note surfaces r-value; limitation renamed confidence-is-static-r (MEDIUM) — psq-agent 54a1a85, psychology-agent f531c5e |
 | PSQ bug B2 (HI dead zone)     | ✓ RESOLVED — quantile-binned isotonic (n_bins=20); MAE 1.6631→1.5980 (-3.9%); isotonic-v2-2026-03-06 deployed (psq-agent 9629412) |
 | best.pt recovery              | ✓ FOUND on Hetzner (255 MB, v23 DistilBERT, held-out r=0.696); local copy lost; rsync when ready |
@@ -154,6 +154,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | /sync skill                   | ✓ Created — inter-agent mesh sync, adapted from unratified-agent (Session 25) |
 | Blog post (Jurassic Park)     | ✓ Multi-author draft — psychology-agent + psq-agent; PR #7 updated (Session 25) |
 | Transport: blog-jurassic-park | ✓ Session opened — request sent, psq-agent sections received (Session 25) |
+| Adversarial register (AR) rubric | ✓ Phase 1 validated — docs/adversarial-register-rubric.md (dadd3dd); turn 8 advisory sent to unratified-agent (Session 28) |
+| Hetzner deploy script         | ✓ Created — safety-quotient/deploy/hetzner-deploy.sh; 10-step pipeline (ab5fbe7, Session 28) |
+| PSQ v28 training              | ✗ Running — default settings, 128 tokens; results pending (Session 28) |
 
 
 ### Open Questions
@@ -164,9 +167,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 - ~~PSQ bug B1: confidence head dead — which API version carries the fix (v3→v4 or remove from v3)?~~ **ANSWERED:** No version bump. Replace source (model head → static r-estimate), preserve field semantics. Document in calibration_note.
 - ~~PSQ bug B2: HI calibration dead zone — re-fit with finer binning or alternative approach?~~ **ANSWERED:** Quantile-binned isotonic regression (n_bins=20), no model retrain needed. Dead zone [6.0045, 7.2539] differentiated. calibration_version isotonic-v2-2026-03-06.
 - ~~Does the PSQ endpoint currently return raw_score in the response body? (unratified-agent question)~~ **ANSWERED:** Yes — raw_score field present in dimensions[] per v3 spec. Verified via direct curl by unratified-agent.
-- HI direction anomaly — hostile social media anchor scored HI=6.88 vs policy brief HI=6.15 (counterintuitive on PSQ scale); possible TE/HI dimension conflation for ICESCR topic domain. Not yet investigated.
-- TE uniformity: 4/5 ICESCR texts scored TE=6.46 (raw range 5.59–6.07 all mapping to same calibrated value). Possible residual plateau in threat_exposure. Not addressed in B2 fix.
-- PSQ-Lite (TE + HI-raw + TC) adopted by unratified-agent for advocacy content — validate across more content types
+- ~~HI direction anomaly — hostile social media anchor scored HI=6.88 vs policy brief HI=6.15 (counterintuitive on PSQ scale); possible TE/HI dimension conflation for ICESCR topic domain. Not yet investigated.~~ **ANSWERED:** Construct×distribution mismatch. HI measures narrator-experienced hostility (Dreaddit narrator-centric training). Hostile anchor: author is hostile outward, not threatening narrator — so HI=6.88 (safer). Policy brief: institutional inertia is structural antagonism toward narrator (advocate) — so HI=6.15 (less safe). Not fixable with recalibration. AR dimension proposed as replacement for content-type classification.
+- TE uniformity: 4/5 ICESCR texts scored TE=6.46 (raw range 5.59–6.07 all mapping to same calibrated value). Possible residual plateau in threat_exposure. B3 — not yet filed or investigated.
+- PSQ-Lite (TE + HI-raw + TC) — HI invalid for content-type classification (construct×distribution mismatch). Proposed revision: TE + TC + AR. Pending unratified-agent adoption decision.
 - ~~Oracle Ampere A1 vs named tunnel?~~ **ANSWERED:** Oracle A1 free tier unavailable; Hetzner CX (Ashburn, $5/mo) selected
 
 ---
@@ -2047,3 +2050,50 @@ quality stated alongside recommendations. Source: Guyatt et al. (2008).
   docs/hn-draft.md, bootstrap-check.sh, .claude/hooks/context-pressure-gate.sh,
   .claude/hooks/stop-completion-gate.sh, .claude/settings.json, transport/MANIFEST.json,
   TODO.md
+
+## 2026-03-06T17:44 CST — Session 28 (HI construct diagnosis, AR rubric Phase 1, v28 training)
+
+**HI direction anomaly fully diagnosed — construct×distribution mismatch:**
+- Hostile anchor HI=6.88 > policy brief HI=6.15 is not a calibration bug
+- Root cause: PSQ trained on Dreaddit (narrator-centric corpus). HI measures hostility experienced BY the narrator, not hostility emitted BY the author
+- Hostile anchor: author is the hostile agent (outward-directed); narrator is not threatened → HI scores high (safer)
+- Policy brief: institutional inertia = structural antagonism the narrator (advocate) faces → HI scores lower (less safe)
+- Raw model scores show same ordering as calibrated scores — not fixable with recalibration
+- → Construct mismatch documented and transmitted to unratified-agent (psq-scoring turn 8)
+
+**Adversarial register (AR) dimension proposed and Phase 1 validated:**
+- New dimension: measures rhetorical mode orientation toward defeating/discrediting opposing positions
+- Grounded in: Walton & Krabbe (1995) Dialogue Types, Du Bois (2007) Stance Theory, Dodge & Coie (1987) Hostile Attribution Bias
+- Scale: 0–10 (0 = maximum adversarial/eristic, 10 = minimum adversarial/deliberative)
+- Three scoring dimensions: dialogue mode (weight 0.40), stance markers (weight 0.35, 3 sub-components), attribution pattern (weight 0.25)
+- Phase 1 validation on 5-text ICESCR corpus: all 4 criteria passed
+  - Discrimination: hostile_anchor AR=0.76 ≤ 3 ✓; voter_guide AR=7.64 ≥ 7 ✓
+  - Ordering: advocacy (7.64, 7.44) > informational (6.13, 5.57) > hostile (0.76) ✓
+  - Gap signal: AR(hostile_anchor)=0.76 < HI(hostile_anchor)=6.88 (gap +6.12) ✓
+  - Inter-rater: max delta 0.09 vs rubric examples ✓
+- Gap signal interpretation: HI−AR > 0 → author is hostile agent, not threatening narrator
+- PSQ-Lite revision proposed: TE + TC + AR (replaces HI for content-type classification)
+- → Rubric committed: `docs/adversarial-register-rubric.md` (commit dadd3dd)
+- → Advisory transmitted: `transport/sessions/psq-scoring/from-psychology-agent-002.json` (commit 6083a66)
+- → MANIFEST updated: turn 8 advisory in unratified-agent pending queue
+
+**PSQ v28 training — two failed attempts, third launched with correct settings:**
+- Attempt 1: relaunched with `--max-length 256` based on incorrect reading of `v3b_config.json` (experiment artifact in production dir, not production config). Killed when user corrected.
+- Attempt 2: relaunched with 128 tokens but `--drop-proxy-dims all` → training data cut 14,576 → 5,678 texts → underfitting. test_r=0.3432, TE=0.025 (random). Not deploying.
+- Attempt 3 (current): default settings — 128 tokens, all labels, concentration cap. Matches production v23 conditions. Running as background task.
+- Key lesson: v-series table in lab-notebook is the canonical record for token-length decisions. v24 (256 tokens) = 0.670, explicitly rejected in favor of v23 (128 tokens) = 0.684.
+
+**Hetzner deploy script created:**
+- `safety-quotient/deploy/hetzner-deploy.sh` — 10-step pipeline
+- Steps: copy best.pt → calibrate → ONNX export → held-out eval → SHA256 local → rsync → SHA256 verify remote → restart psq-server → health check → scoring smoke test
+- `--dry-run` flag for rehearsal; SHA256 verification gates restart
+- → Committed ab5fbe7
+
+⚑ EPISTEMIC FLAGS
+- AR Phase 1 validated on 5-text corpus only; inter-rater reliability pending (single scoring session)
+- PSQ-Lite revision proposal not yet adopted — unratified-agent decision required
+- B3 (TE uniformity plateau) not yet formally filed or investigated
+- v28 training results pending — may require additional analysis if performance regresses from v23
+
+▶ docs/adversarial-register-rubric.md, transport/sessions/psq-scoring/from-psychology-agent-002.json,
+  transport/MANIFEST.json, safety-quotient/deploy/hetzner-deploy.sh, safety-quotient/models/psq-v28/

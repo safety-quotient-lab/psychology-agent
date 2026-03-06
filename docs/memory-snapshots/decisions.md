@@ -1,3 +1,6 @@
+<!-- PROVENANCE: Restored 2026-03-06 by /cycle Step 11 orphan check
+     Source: docs/memory-snapshots/decisions.md -->
+
 # Design Decisions + Authority Hierarchy
 
 ```
