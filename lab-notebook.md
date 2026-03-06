@@ -55,7 +55,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Graduated promotion lifecycle | ✓ 3+ threshold in T10 + /cycle Step 8b (Session 12) |
 | Commands-over-skills audit    | ✓ /adjudicate + /capacity identified for conversion (Session 12) |
 | PSQ commercial model          | ✗ Undefined — ideas documented in ideas.md       |
-| General agent design          | ✓ Complete — routing spec, identity spec, evaluator procedures (Session 16) |
+| Psychology agent design       | ✓ Complete — routing spec, identity spec, evaluator procedures (Session 16) |
 | Sub-agent protocol            | ✓ Complete — subagent-layer-spec.md + peer-layer-spec.md (Session 20) |
 | Adversarial evaluator (activation) | ✓ Complete — tiered activation, 7 triggers, evaluator prompt (Session 17) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
@@ -68,7 +68,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Semiotics as cogarch principle| ✓ Defined — 3 frames, trigger map, T4 Check 9 (Session 16) |
 | T4 Check 9 (Interpretant)     | ✓ 5+1 interpretant communities; conflict detection (Session 16) |
 | Blog post (interpretant collapse) | ✓ Draft — blog/2026-03-05-interpretant-collapse.md (Session 16) |
-| General agent identity spec   | ✓ Core identity, commitments, refusals, opening behavior (Session 16) |
+| Psychology agent identity spec | ✓ Core identity, commitments, refusals, opening behavior (Session 16) |
 | Evaluator reasoning procedures| ✓ 7-procedure ranked set + domain priority tables (Session 16) |
 | Cogarch extensions (Session 16) | ✓ T3 #11, T5 #6, T6 #5, T7 #4, T10 #6, T13 #6, T14 named |
 | docs/glossary.md              | ✓ 36 project-scoped entries (Session 16)         |
@@ -89,7 +89,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | T14 + T15 cogarch             | ✓ T14 (structural checkpoint, orders 7–10) + T15 (PSQ v3 receiver protocol) in cognitive-triggers.md + MEMORY quick-ref |
 | Knock-on depth 10             | ✓ Extended 8→10; Order 9 Emergent (INCOSE), Order 10 Theory-revising (Popper); M tier 6→8, L tier 8→10 (Session 23) |
 | wrangler version              | ✓ v4.71.0 — clean deploy (Session 21c)           |
-| Blog PR (well-known)          | ✓ PR #2 open — safety-quotient-lab/unratified — psychology-agent consumer perspective |
+| Blog PR (well-known)          | ✓ PR #2 MERGED — safety-quotient-lab/unratified — psychology-agent consumer perspective |
 | interagent/v1 protocol        | ✓ Schema v3 finalized — extension URI, enum, glob, per-message scope |
 | PSQ namespace                 | ✓ Resolved — PSQ-Lite (LLM heuristic) vs PSQ-Full (DistilBERT v23) |
 | 9P transport (canonical)      | ✓ SSH pipe + ramfs -i + 9pfuse — verified cross-machine |
@@ -109,7 +109,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Transport failure modes        | ✓ docs/git-pr-transport-failure-modes.md — 8 modes (F1–F8), EF-4 resolved |
 | Semantic rename (transport)    | ✓ item2-derivation → subagent-protocol, item4-derivation → psychology-interface (Session 22) |
 | PSYCHOLOGY_SYSTEM             | ✓ Full identity + cogarch inlined (Option A); Option B documented in agent.js |
-| Blog PR (well-known)          | ✓ PR #2 open — safety-quotient-lab/unratified    |
+| Blog PR (well-known)          | ✓ PR #2 MERGED — safety-quotient-lab/unratified (2026-03-06) |
 | README interagent sync        | ✓ Documented — first entry in Interesting Parts  |
 | Closing instance              | ✓ Retired — Sessions 1–9, ACK b670bd9            |
 | plan9port                     | ✓ Operational — macOS + Debian (observatory-agent) |
@@ -167,7 +167,7 @@ and time-between-lessons are meaningful metrics. Existing entries are date-only.
 
 ## 2026-03-01 — Session 1 (Architecture design, skill creation)
 
-**Scope:** General-purpose psychology agent — initial architecture design session.
+**Scope:** Psychology agent — initial architecture design session.
 
 **PSQ analysis completed.** Full analysis delivered covering construct validity,
 criterion validity across 4 datasets (AUC 0.57–0.73), open vulnerabilities, and
@@ -180,7 +180,7 @@ PSQ readiness for sub-agent integration.
 - LaTeX for complex docs, markdown for standard docs
 
 **Design decisions resolved** (full table in docs/architecture.md):
-- Three-layer architecture: general agent → sub-agents → adversarial evaluator
+- Three-layer architecture: psychology agent → sub-agents → adversarial evaluator
 - PJE reframed as case study, not sub-agent or specification
 - Tiered adversarial evaluator (lightweight default, escalate on disagreement)
 - Natural language for agent-to-agent protocol
@@ -188,7 +188,7 @@ PSQ readiness for sub-agent integration.
 - Socratic disagreement stance
 - Opus as canonical model
 
-**Authority hierarchy defined.** User = source of truth. General agent = advisory.
+**Authority hierarchy defined.** User = source of truth. Psychology agent = advisory.
 Sub-agents = domain experts subject to scrutiny. Evaluator = quality control.
 
 → All decisions persisted to `docs/architecture.md`
@@ -218,7 +218,7 @@ conventions, points to sub-projects.
 **Open (deferred to next exchange):**
 - Audience adaptation for Socratic protocol
 - Machine-to-machine stance question
-- Architecture items 1–3 (general agent design, sub-agent protocol, evaluator)
+- Architecture items 1–3 (psychology agent design, sub-agent protocol, evaluator)
 
 ▶ journal.md §1–5, docs/architecture.md
 
@@ -269,7 +269,7 @@ Reverted lessons.md (all 11 entries) and lab-notebook Sessions 1–2 to date-onl
 - Source 6 (cogarch) always runs, even for `quick` constraint — live vulnerability
 - Needs restart to load (created mid-session)
 
-**→ /cycle skill created** at `.claude/skills/cycle/SKILL.md`. General agent
+**→ /cycle skill created** at `.claude/skills/cycle/SKILL.md`. Psychology agent
 post-session documentation checklist:
 - 12-step propagation chain: lab-notebook → journal → architecture → ideas →
   TODO → MEMORY → cognitive-triggers → CLAUDE.md → MEMORY-snapshot → orphan check
@@ -874,9 +874,9 @@ documentation. Line count: 195/200.
 ▶ blog/2026-03-05-interpretant-collapse.md, blog/2026-03-05-cognitive-architecture-for-ai-agents.md,
   docs/architecture.md
 
-## 2026-03-05T17:31 CST — Session 16c (General agent routing spec)
+## 2026-03-05T17:31 CST — Session 16c (Psychology agent routing spec)
 
-- → Drafted and committed general agent routing spec (Architecture Item 1, routing
+- → Drafted and committed psychology agent routing spec (Architecture Item 1, routing
   logic complete). Three stages: caller classification (human/machine/sub-agent),
   request classification (7 sign types), adversarial evaluator trigger (tiered).
 - → Resolved sub-agent discovery: capabilities.yaml manifest lookup + bounded-
@@ -889,11 +889,11 @@ documentation. Line count: 195/200.
   audience-shift event triggers term rebinding before continuation.
 - → Remaining for Architecture Item 1: identity and prompt spec.
 
-▶ docs/architecture.md (Component Spec: General Agent Routing)
+▶ docs/architecture.md (Component Spec: Psychology Agent Routing)
 
 ## 2026-03-05T17:45 CST — Session 16d (Identity spec + evaluator reasoning procedures)
 
-- → Drafted general agent identity spec (Architecture Item 1, identity complete).
+- → Drafted psychology agent identity spec (Architecture Item 1, identity complete).
   Core identity: collegial mentor, Opus, advisory not authoritative. Commitments:
   evidence before conclusion, competing hypotheses before settling, Socratic guidance.
   Refusals: diagnosis, deciding, overriding user authority. Opening behavior: 2-question
@@ -915,7 +915,7 @@ documentation. Line count: 195/200.
 - → TODO.md updated: sub-project boundary hook, open-flag sweep hook, pushback
   accumulator counter, CLAUDE.md graduation ceremony, SRT extensions updated.
 
-▶ docs/architecture.md (Component Spec: General Agent Identity, Adversarial Evaluator
+▶ docs/architecture.md (Component Spec: Psychology Agent Identity, Adversarial Evaluator
   Reasoning Procedures), docs/cognitive-triggers.md (T3/T5/T6/T7/T10/T13/T14 extensions),
   TODO.md
 
@@ -1016,7 +1016,7 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
   unverified against primary source — shared by both agents, plausible, not confirmed
 - bootstrap-check.sh reports /adjudicate and /capacity as MISSING — false positive;
   converted to commands Session 13. Script needs updating (low priority)
-- Authority hierarchy in architecture.md does not yet reflect two-general-agent network
+- Authority hierarchy in architecture.md does not yet reflect two-psychology-agent network
 
 ▶ docs/architecture.md (v2 schema, Nash equilibrium), MEMORY.md (transition state)
 
@@ -1683,3 +1683,19 @@ backlog items while psq-agent rsync was pending (resolved by local instance in 2
 
 ▶ transport/sessions/local-coordination/, .claude/rules/, BOOTSTRAP.md,
   bootstrap-check.sh, .claude/skills/cycle/SKILL.md, docs/architecture.md
+
+
+## 2026-03-06T14:23 CST — Session 24 (Blog status check, /cycle)
+
+**Context:** Continuation after context compaction. Minimal session — status check only.
+
+**Blog status audit:**
+- 2 drafts in `blog/`: cogarch post + interpretant collapse post — both `draft: false`, `reviewStatus: unreviewed`
+- Blog PR #2 (safety-quotient-lab/unratified): **MERGED** 2026-03-06T15:11:33Z
+- 2 planned posts not started: Jurassic Park Development, HN Show post
+
+**Noted:** 20-file semantic rename sweep ("general agent" → "psychology agent") unstaged in working tree — belongs to concurrent local instance, left untouched.
+
+⚑ EPISTEMIC FLAGS: none identified.
+
+▶ lab-notebook.md (Blog PR status update, session entry)
