@@ -131,9 +131,10 @@ Forward-looking task list only. Completed and emergent work goes to
   architecture, drift scoring as an epistemic tool, what the skipped Edit operations
   reveal about mechanical replay vs. understanding. Audience: developers + AI practitioners.
 
-- [ ] **HN post for psychology-agent** — Show HN submission. Draft title and body text
-  prepared (Session 11). Publish when README and repo are polished. Title candidates
-  in lab-notebook Session 11.
+- [ ] **HN post for psychology-agent** — Show HN submission. Draft saved at
+  `docs/hn-draft.md` (Session 27). 3 title options + body text. Publish when
+  README and repo are polished.
+  *Precondition: README polished, repo represents current state*
 
 ---
 
@@ -211,11 +212,11 @@ Simone, cc-tools, cchooks.*
   injection scan, scope relevance, taint propagation, volume check.
   *Source: Trail of Bits gh-cli ingestion gatekeeper pattern*
 
-- [ ] **Completion gate hook** (Rank 2) — Stop/SubagentStop hooks verify all phases
-  executed before allowing "done." Trail of Bits fp-check uses LLM-evaluated
-  structural completeness check at workflow termination. Maps to T5/T8 supplement.
+- [x] **Completion gate hook** (Rank 2) — ✓ Session 27. stop-completion-gate.sh extended
+  with MANIFEST pending check, MEMORY.md staleness, docs/MEMORY-snapshot.md freshness.
+  Non-blocking warnings. Maps to T5/T8 supplement.
   *Source: Trail of Bits fp-check*
-  *Precondition: Architecture Item 2 (sub-agent protocol) in progress*
+  *Completed: 2026-03-06*
 
 - [x] **Rationalizations-to-reject** (Rank 3) — ✓ Session 13. T3 check #10 added:
   5 domain-relevant rationalization patterns. Agent must name pattern and justify
@@ -227,10 +228,11 @@ Simone, cc-tools, cchooks.*
   Warns at 60% (PRESSURE), 75% (CRITICAL). Non-blocking.
   *Completed: 2026-03-06*
 
-- [ ] **GRADE evidence framework** (Rank 5) — adopt GRADE (Grading of Recommendations,
-  Assessment, Development and Evaluations) as reference material for T3 confidence
-  calibration. Start high, downgrade for problems, upgrade for strength.
-  *Source: K-Dense scientific-critical-thinking skill*
+- [x] **GRADE evidence framework** (Rank 5) — ✓ Session 27. T3 Check 9 extended with
+  GRADE criteria: start high, downgrade for bias/inconsistency/indirectness/imprecision,
+  upgrade for large effect/dose-response. Output: HIGH/MODERATE/LOW/VERY LOW.
+  *Source: K-Dense scientific-critical-thinking skill + Guyatt et al. (2008)*
+  *Completed: 2026-03-06*
 
 - [ ] **Competing hypotheses workflow** (Rank 6) — 3-5 hypotheses with quality criteria
   (testability, falsifiability, parsimony). Reference material for adversarial evaluator.

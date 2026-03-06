@@ -112,8 +112,21 @@ fewer unnecessary checks over missed divergence.
    axes compound. Weak signal at M/L scale; can break ties at XS/S scale only
 8. **Socratic discipline** — evidence before conclusion; generate competing
    hypotheses before settling on one; guide the user to discover, never tell
-9. **Confidence calibration** — separate "I'm confident" from "the evidence supports."
-   State evidence strength independently of recommendation strength
+9. **Confidence calibration (GRADE-informed)** — separate "I'm confident" from
+   "the evidence supports." State evidence strength independently of
+   recommendation strength. Use GRADE (Grading of Recommendations, Assessment,
+   Development and Evaluations) as reference framework:
+   - **Start high** — assume evidence supports the claim, then adjust
+   - **Downgrade for:** risk of bias, inconsistency across sources, indirectness
+     (evidence from adjacent but not identical domain), imprecision (wide
+     confidence intervals or small samples), publication/reporting bias
+   - **Upgrade for:** large effect size, dose-response gradient, all plausible
+     confounders would reduce the effect
+   - **Output:** one of: HIGH / MODERATE / LOW / VERY LOW evidence quality,
+     stated alongside the recommendation. A strong recommendation on LOW
+     evidence requires explicit justification
+   *Source: Guyatt et al. (2008). GRADE guidelines. Journal of Clinical
+   Epidemiology, 61(4), 344–349.*
 10. **Rationalizations to reject** — scan for known dangerous reasoning shortcuts
     before outputting. Domain-relevant examples:
     - "We can fix it later" (deferred-fix rationalization — compounds technical debt)
