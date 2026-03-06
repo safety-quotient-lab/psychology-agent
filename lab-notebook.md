@@ -108,7 +108,6 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Command-request/v1 protocol   | ✓ docs/command-request-v1-spec.md — command-request + command-response message types |
 | Transport failure modes        | ✓ docs/git-pr-transport-failure-modes.md — 8 modes (F1–F8), EF-4 resolved |
 | Semantic rename (transport)    | ✓ item2-derivation → subagent-protocol, item4-derivation → psychology-interface (Session 22) |
-| /turn route                   | ⚑ DEFERRED — blocked by API credits; 3-step re-enable checklist in TODO.md |
 | PSYCHOLOGY_SYSTEM             | ✓ Full identity + cogarch inlined (Option A); Option B documented in agent.js |
 | Blog PR (well-known)          | ✓ PR #2 open — safety-quotient-lab/unratified    |
 | README interagent sync        | ✓ Documented — first entry in Interesting Parts  |
