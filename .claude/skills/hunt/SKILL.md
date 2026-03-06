@@ -1,3 +1,11 @@
+---
+name: hunt
+description: Systematic work discovery — scan TODO, architecture, cogarch, ideas, lessons for highest-value next work.
+user-invocable: true
+argument-hint: "[all | orthogonal | stale | quick | blocked | cogarch | ideas | extrapolate]"
+allowed-tools: Read, Write, Edit, Grep, Glob, Bash
+---
+
 # Hunt — Systematic Work Discovery (Psychology Agent)
 
 Find the highest-value next work in the psychology agent project.

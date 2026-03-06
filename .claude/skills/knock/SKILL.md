@@ -1,3 +1,11 @@
+---
+name: knock
+description: Single-option 10-order knock-on effect tracing for decisions and changes.
+user-invocable: true
+argument-hint: "[change to trace | inline | full]"
+allowed-tools: Read, Write, Edit, Grep, Glob, Bash
+---
+
 # Knock — Single-Option Effect Tracing
 
 Trace the effects of ONE option, change, or decision through 10 orders of
