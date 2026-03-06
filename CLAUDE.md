@@ -184,12 +184,13 @@ benefit everyone — they are not accommodations for edge cases.
 
 ## Code Style
 
-**Semantic naming (all code and .md table headers):** Every variable, parameter,
-and table column header must be fully descriptive. No single-letter, abbreviated,
-or mnemonic names — not `w`, `frac`, `tc`, `inp`, `score_a`, `ref_root`, `tgt`,
-`sess_n`, or similar. If a name needs an inline comment to explain it, rename it
-instead. The same rule applies to `.md` table column headers: use descriptive
-labels, not abbreviations or internal shorthand.
+**Semantic naming (all user-facing identifiers):** Every variable, parameter,
+table column header, file name, directory name, session name, and spec document
+name must be fully descriptive. No single-letter, abbreviated, mnemonic, or
+opaque item-number names — not `w`, `frac`, `tc`, `item4-spec.md`, `sess_n`,
+or similar. If a name needs context to interpret, rename it instead.
+**Exception:** internal codes not displayed to callers (T-numbers, internal
+enums, machine-only field values) may use compact identifiers.
 
 ---
 
