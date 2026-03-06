@@ -115,6 +115,11 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Closing instance              | ✓ Retired — Sessions 1–9, ACK b670bd9            |
 | plan9port                     | ✓ Operational — macOS + Debian (observatory-agent) |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
+| unratified-agent mesh-init    | ✓ Capability handshake received (turn 1), response sent (turn 2). PSQ collab accepted, ICESCR deferred (Session 23) |
+| Agent-card (discovery)        | ✓ /.well-known/agent-card.json deployed on CF Worker — mesh discovery live (Session 23) |
+| /knock skill                  | ✓ Standalone 10-order effect tracing skill — /hunt references it (Session 23) |
+| T2 compaction threshold       | ✓ 60%/75% explicit thresholds in cognitive-triggers.md (Session 23) |
+| Stop hook (flag sweep)        | ✓ stop-completion-gate.sh scans lab-notebook for ⚑ markers (Session 23) |
 
 
 ### Open Questions
@@ -1461,3 +1466,49 @@ infrastructure (Hetzner production hosting), and codebase hygiene (semantic rena
 ▶ docs/bft-design-note.md, docs/command-request-v1-spec.md,
   docs/git-pr-transport-failure-modes.md, docs/architecture.md,
   transport/sessions/psychology-interface/model-rsync-request-001.json, TODO.md
+
+
+## 2026-03-06T12:44 CST — Session 23b (Mesh init + agent-card + /knock + cogarch)
+
+**Scope:** Inter-agent mesh establishment, infrastructure, new skill, cogarch improvements.
+
+**Unratified-agent mesh-init:**
+- Fetched new branch `unratified-agent/mesh-init/direct-channel-001` from origin
+- Merged capability handshake (turn 1) — unratified-agent proposes PSQ scoring for Bluesky
+  campaign health monitoring + ICESCR framing service
+- Sent capability response (turn 2): accepted PSQ collaboration, deferred ICESCR framing
+- PSQ endpoint pending Hetzner model transfer; will send follow-up with live URL
+- Mesh topology: observatory ↔ psychology ↔ psq, observatory ↔ unratified, psychology ↔ unratified
+
+**Agent-card deployed:**
+- Added `/.well-known/agent-card.json` route to CF Worker (worker.js)
+- protocolVersion 0.3.0, 2 skills (psq-score, psq-health), interagent epistemic extension
+- Deployed via `wrangler deploy`, verified via WebFetch
+- Resolves unratified-agent's epistemic flag about null discovery_url
+
+**`/knock` standalone skill created:**
+- `.claude/skills/knock/SKILL.md` — single-option 10-order effect tracing
+- Domain classification → grounding → 10-order cascade → mitigations → recommend-against scan
+- `inline` mode: 4 orders + structural scan (7–10)
+- `full` mode: all 10 orders elaborated
+- `/hunt` Phase 5 updated to invoke /knock rather than embedding protocol inline
+- CLAUDE.md Skills section updated
+- Skill loaded and verified by system within this session (no restart needed)
+
+**Cogarch improvements:**
+- T2 check 1: explicit compaction thresholds (60% → /doc, 75% → compress/compact)
+- stop-completion-gate.sh: extended to scan lab-notebook Current State for ⚑ markers,
+  reports count in completion gate warning
+
+**TODO.md cleanup:**
+- Item 4 marked ✓ DEPLOYED (was stale — still said step 8 pending)
+- /knock marked ✓ (completed this session)
+- Compaction threshold marked ✓
+- Open-flag sweep hook marked ✓
+- Agent-card marked ✓
+- Mesh-init section added with new tracking items
+
+⚑ EPISTEMIC FLAGS: none identified.
+
+▶ transport/sessions/mesh-init/, interface/src/worker.js, .claude/skills/knock/SKILL.md,
+  docs/cognitive-triggers.md, .claude/hooks/stop-completion-gate.sh, TODO.md, CLAUDE.md
