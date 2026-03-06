@@ -18,12 +18,11 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 23d. PSQ production live (https://psq.unratified.org/score).
-mesh-init complete. psq-scoring session: 3 turns read (initial run, interpretation w/ 2 bugs,
-ACK). Two PSQ bugs open: B1 confidence head dead, B2 HI calibration dead zone. Defensibility
-review delivered (12 findings). Semantic rename + transport discovery + /cycle complete.
-**Next:** PSQ bugs B1/B2 (routes to psq-agent). EF-3 evaluator instantiation. Step 8 browser
-verify. Blog PR #2 open (unratified).
+**Where we stopped:** Session 23c. Semantic rename sweep (I-5), agent-card
+reconciliation (I-3), urgency field adopted. Memory topic-file split in progress.
+**Next:** Await psq-agent rsync to Hetzner (turn 12 unanswered). After rsync: chown →
+psq-server.service → Caddy TLS → wrangler secret → send PSQ URL to unratified-agent.
+Blog PR #2 open (unratified). Observatory-agent urgency field notification pending.
 
 
 ## Memory Hygiene
