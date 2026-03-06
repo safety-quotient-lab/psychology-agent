@@ -28,6 +28,12 @@ if [ -z "$USED_PCT" ] || [ "$USED_PCT" -eq 0 ]; then
   exit 0
 fi
 
+# Persist context % so PreToolUse hooks can read it
+CTX_FILE="/tmp/.claude-context-pct-$$"
+# Use a stable path that doesn't depend on PID (hooks may run in different shells)
+CTX_STABLE="/tmp/.claude-context-pct"
+echo "$USED_PCT" > "$CTX_STABLE" 2>/dev/null
+
 # Visual indicator with threshold warnings
 if [ "$USED_PCT" -ge 80 ]; then
   echo "ctx: ${USED_PCT}% ████ CRITICAL — /doc + /compact NOW"
