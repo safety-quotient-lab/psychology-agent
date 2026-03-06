@@ -8,7 +8,7 @@ option effect tracing) with iterative learning (2-pass), structured comparison
 (differentiating axes), and binding resolution (consensus or parsimony).
 
 ```
-/knock       = trace effects of ONE option/change through 8 orders
+/knock       = trace effects of ONE option/change through 10 orders
 /adjudicate  = 2-pass /knock on EACH option → compare → resolve
 ```
 
@@ -23,11 +23,11 @@ Parse `$ARGUMENTS` to determine scope:
 | *(empty)*          | Identify the decision from context, adjudicate |
 | `[topic]`          | Adjudicate the named decision                  |
 | `inline`           | Abbreviated: 4-order, no 2-pass, for S decisions |
-| `full`             | Full protocol: 8-order, 2-pass, for M/L decisions |
+| `full`             | Full protocol: 10-order, 2-pass, for M/L decisions |
 
 If scale is not specified, infer from context:
 - XS/S decisions → `inline` (4-order knock-on + parsimony + structural scan)
-- M/L decisions → `full` (8-order, 2-pass, comparison, consensus/parsimony)
+- M/L decisions → `full` (10-order, 2-pass, comparison, consensus/parsimony)
 
 ---
 
@@ -42,7 +42,7 @@ If scale is not specified, infer from context:
 
 ### Phase 2: Knock-on Analysis (2-pass for M/L)
 
-For each option, trace effects through 8 orders:
+For each option, trace effects through 10 orders:
 
 ```
  Order   Confidence           What it captures
@@ -61,10 +61,18 @@ For each option, trace effects through 8 orders:
                               what norms, expectations, or
                               constraints does this establish
                               or erode long-term?
+ 9       emergent             Properties arising from interaction
+                              of multiple knock-on chains — not
+                              predictable from individual orders
+                              in isolation (INCOSE)
+ 10      theory-revising      Effects that falsify or require
+                              modification of the theory that
+                              justified the original decision
+                              (Popper)
 ─────────────────────────────────────────────────────────────────
 ```
 
-**Pass 1:** Trace all options through 8 orders. Identify which risks,
+**Pass 1:** Trace all options through 10 orders. Identify which risks,
 benefits, and trade-offs actually differentiate the options.
 
 **Pass 2 (M/L only):** Re-trace with calibration from Pass 1. Tighten
@@ -74,11 +82,13 @@ to be more serious than initially estimated.
 
 **Structural checkpoint (mandatory at all scales):**
 Even for XS/S decisions with abbreviated depth (3-4 orders), always scan
-orders 7-8 as a checklist:
-- Does this set a precedent?
-- Does this affect the open-source trajectory?
-- Does this establish or erode a norm?
-- Does this constrain or enable future decisions by others?
+orders 7-10 as a checklist:
+- Does this set a precedent? (7: structural)
+- Does this affect the open-source trajectory? (7: structural)
+- Does this establish or erode a norm? (8: horizon)
+- Does this constrain or enable future decisions by others? (8: horizon)
+- Do multiple knock-on chains interact to produce unpredicted effects? (9: emergent)
+- Does this change the theory or framework that justified the decision? (10: theory-revising)
 
 If the scan surfaces something, elaborate. If not, note "no structural
 effects" and proceed.
@@ -127,10 +137,10 @@ After resolution, explicitly state:
 ```
  Scale    Elaborated Depth    2-Pass?    Structural Checkpoint
 ──────────────────────────────────────────────────────────────
- XS       3 orders            No         Scan (checklist)
- S        4 orders            No         Scan (checklist)
- M        6 orders            Yes        Elaborate
- L        8 orders            Yes        Elaborate
+ XS       3 orders            No         Scan 7-10 (checklist)
+ S        4 orders            No         Scan 7-10 (checklist)
+ M        8 orders            Yes        Elaborate
+ L        10 orders           Yes        Elaborate
 ──────────────────────────────────────────────────────────────
 ```
 
@@ -162,8 +172,8 @@ is a recovery cycle.
 ### Knock-on Analysis
 
 #### Option A: [name]
-Pass 1: [8 orders]
-Pass 2: [8 orders, calibrated] (M/L only)
+Pass 1: [10 orders]
+Pass 2: [10 orders, calibrated] (M/L only)
 
 #### Option B: [name]
 ...
@@ -190,7 +200,7 @@ Pass 2: [8 orders, calibrated] (M/L only)
   can be grouped. Collapse before adjudicating.
 - **Adjudicating without reading** — don't adjudicate code architecture
   decisions without reading the code first. Evidence before analysis.
-- **Skipping the structural checkpoint** — the whole point of orders 7-8
+- **Skipping the structural checkpoint** — the whole point of orders 7-10
   is to catch effects that tactical analysis misses. Never skip.
 - **Bare comparison without knock-on** — a comparison table without causal
   tracing is opinion, not analysis. The knock-on IS the evidence.

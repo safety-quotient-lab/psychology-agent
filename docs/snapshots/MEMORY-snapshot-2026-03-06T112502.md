@@ -6,11 +6,16 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 23. Knock-on depth extended 8→10 (Order 9: Emergent/INCOSE,
-Order 10: Theory-revising/Popper). All 11 live files updated. Item 4 deployed; `/turn`
-deferred (API credits). Blog PR #2 open (unratified).
-**Next:** PSQ production endpoint (waiting on psq-agent reply). `/turn` re-enable when
-API credits available. Blog PR ratification.
+**Where we stopped:** Sessions 21+21c (2026-03-06). Interface deployed to production:
+`https://psychology-interface.kashifshah.workers.dev`. D1: `psychology-interface` (56a2f5ac,
+ENAM), KV: `SESSION_KV` (1d17a21c). Step 8 browser render confirmed — all 8 smoke test steps
+passed. settingSources finding resolved (Option A: PSYCHOLOGY_SYSTEM inlined). `/turn` DEFERRED
+(blocked by API credits; 503 guard in place). PSQ production blocked on stable endpoint URL —
+psq-agent awaiting production transport decision (Option A: named CF Tunnel as systemd service;
+Option B: Oracle Cloud Ampere A1 ARM64). Blog PR #2 open (unratified.org point pending).
+/cycle complete (2863aa0) — Sessions 21+21c conflict resolved, journal §19+§20 both preserved.
+**Next:** PSQ production transport decision (psq-agent reply) → set `PSQ_ENDPOINT_URL` secret →
+`/turn` re-enable when API credits available. Observatory PR #9 awaiting merge. Item 2b open.
 
 ## Design Decisions
 
@@ -87,7 +92,8 @@ Quick reference (when → what fires):
  Architecture audit      T11: on demand — audit + future mitigations for deferred
  "Good thinking" signal  T12: name principle, mechanism, cross-domain; T10 co-fires
  External content enters T13: classify source (trusted/semi/untrusted), injection scan, scope relevance, taint propagation
- PSQ v3 output enters   T15: composite.status check, meets_threshold not raw confidence, scale discipline (dims 0-10 / composite 0-100), PSQ-Lite mapping confidence 0.70, WEIRD flag
+ Every decision point   T14: structural checkpoint — precedent, constraints, norms, open-source trajectory
+ PSQ v3 enters context  T15: composite gate, anti-calibration, scale discipline, PSQ-Lite mapping (0.70), 7-dim gap, WEIRD flag
 ```
 
 **Knock-on depth:** 10 orders. 1–2: certain. 3: likely. 4–5: possible. 6: speculative.
@@ -147,12 +153,10 @@ Communication conventions, cognitive accessibility policy, project structure: se
 ## PSQ Sub-Agent Status (managed in its own context)
 
 **Readiness needs:** API surface, calibrated confidence, scope boundaries.
-**Score calibration:** ✓ isotonic regression (n=1897), +3.5–21.6% MAE/dim.
-**Confidence calibration:** ✓ `confidence_calibration` linear maps (scale=0, shift=r) added
-to calibration.json. student.js (remote version) now uses r-based proxy correctly.
-Composite usable: PSQ=37.7/100 on overwhelm text (threat 6.28 > protective 3.81).
-**Git/deploy issue:** calibration.json gitignored (models/ both local and origin). Not in remote
-repo. Remote psq-agent lacks calibration unless manually deployed. best.pt lost from local.
-**Open issues:** contractual_clarity n=57 (small sample), 5 dims r<0.6 excluded,
-DA validity, WEIRD assumptions, v27 regression.
+**Score calibration:** ✓ Applied. isotonic regression (n=1897 val), +3.5–21.6% MAE/dim.
+`models/psq-student/calibration.json` live. `student.js` loads and applies it at init.
+**Confidence calibration:** ✓ r-based proxy (scale=0, shift=r per dim). Intentional constant fn — overrides anti-calibrated head. Dims with r≥0.6 meet threshold; composite usable when ≥1 dim included.
+**Scoring endpoint:** ✓ safety-quotient/src/server.js — POST /score → machine-response/v3. npm run serve.
+**Open issues:** confidence anti-calibration (top priority), DA validity, AD compression,
+CO weakness, no human validation, WEIRD assumptions, v27 regression.
 Do not duplicate PSQ improvement work in this context.

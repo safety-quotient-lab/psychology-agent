@@ -23,7 +23,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | /capacity skill               | ✓ Created and verified                           |
 | Conventions migration         | ✓ CLAUDE.md holds stable conventions (178 lines) |
 | CLAUDE.md (project root)      | ✓ Created + display convention added             |
-| Cognitive infrastructure      | ✓ T1–T13 + rationalizations-to-reject (T3) + 4 SRT drafts (ideas.md) |
+| Cognitive infrastructure      | ✓ T1–T15 + rationalizations-to-reject (T3) + 4 SRT drafts (ideas.md) |
 | T10/T11 ordering              | ✓ Fixed — T10 now precedes T11 in file           |
 | T12 trigger                   | ✓ Positive pattern recognition; T10 co-fires     |
 | Timestamp backfill            | ✗ Deferred — no fabrication; exact times unknown |
@@ -86,7 +86,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Psychology interface (/turn)  | ⚑ DEFERRED — blocked by API credits; 503 guard in place; 3-step re-enable in TODO.md Item 4 |
 | settingSources CF Workers     | ✓ RESOLVED — PSYCHOLOGY_SYSTEM expanded (Commitments+Refusals+T15, Option A inline); settingSources removed from agentOptions (Session 21) |
 | CF Tunnel                     | ✓ Live — coordinates-valve-conventions-convertible.trycloudflare.com (ephemeral, session-scoped) |
-| T14 + T15 cogarch             | ✓ T14 (structural checkpoint) + T15 (PSQ v3 receiver protocol) in cognitive-triggers.md + MEMORY quick-ref |
+| T14 + T15 cogarch             | ✓ T14 (structural checkpoint, orders 7–10) + T15 (PSQ v3 receiver protocol) in cognitive-triggers.md + MEMORY quick-ref |
+| Knock-on depth 10             | ✓ Extended 8→10; Order 9 Emergent (INCOSE), Order 10 Theory-revising (Popper); M tier 6→8, L tier 8→10 (Session 23) |
 | wrangler version              | ⚑ v3.114.17 installed; v4.71.0 available — upgrade before production deploy |
 | Blog PR (well-known)          | ✓ PR #2 open — safety-quotient-lab/unratified — psychology-agent consumer perspective |
 | interagent/v1 protocol        | ✓ Schema v3 finalized — extension URI, enum, glob, per-message scope |
@@ -1340,3 +1341,44 @@ ONNX format cross-platform). Probe finding: model files gitignored, live only on
 ▶ interface/src/agent.js, interface/src/worker.js, interface/wrangler.toml,
   transport/sessions/psychology-interface/production-transport-001.json,
   .claude/proposals/from-observatory/blog-well-known-contribution-2026-03-06-draft.md
+
+
+## 2026-03-06T11:23 CST — Session 23 (Knock-on depth extended to 10 orders)
+
+**Scope:** Cogarch design decision — extend knock-on analysis from 8 to 10 orders.
+
+**Design decision: knock-on depth 8 → 10:**
+- User requested establishing depth 10 as default
+- Confirmed no prior 10-order reference existed anywhere in project (searched all files)
+- Order 9: **Emergent** (INCOSE, ISO/IEC 15288) — properties arising from interaction of
+  multiple knock-on chains; not predictable from individual orders in isolation
+- Order 10: **Theory-revising** (Popper, 1959) — effects that falsify or require modification
+  of the theory that justified the original decision
+- User selected Popper's falsificationism over Lakatos research programmes and Kuhn paradigm theory
+- User specified sourcing from standardized definition bodies (rejected custom-coined labels)
+
+**Severity tier shift:**
+- M: 6 → 8 orders (absorbs old L depth)
+- L: 8 → 10 orders (full new depth)
+- XS/S: unchanged (3/4 orders + scan 7–10)
+- Structural checkpoint expanded: scan orders 7–10 (was 7–8) at all scales
+
+**Files updated (11 live files):**
+- docs/cognitive-triggers.md — Knock-On Order Reference + T14 structural checkpoint
+- MEMORY.md — depth line + adjudication tiers
+- CLAUDE.md — adjudicate description
+- docs/architecture.md — two tables (skill table + decision framework)
+- docs/capabilities.yaml — orders, confidence bands, tiers, checkpoint
+- docs/glossary.md — knock-on order entry + adjudication tiers entry
+- docs/MEMORY-snapshot.md — depth + tiers
+- README.md — adjudicate table row + skill description
+- .claude/commands/adjudicate.md — full protocol (table, passes, tiers, checkpoint, output format, anti-patterns)
+- .claude/skills/hunt/SKILL.md — knock-on template (6 → 10 with all order labels)
+- blog/2026-03-05-cognitive-architecture-for-ai-agents.md — researcher blurb + methodology description
+
+**Untouched (historical):** lab-notebook session narratives, transport sessions, blog licensing
+narrative (described what actually happened at 8 orders), all snapshots in docs/snapshots/.
+
+⚑ EPISTEMIC FLAGS: none identified.
+
+▶ docs/cognitive-triggers.md (canonical), .claude/commands/adjudicate.md (protocol)

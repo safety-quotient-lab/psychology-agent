@@ -17,8 +17,8 @@ continuity. Updated at every `/cycle` run.
 
 **adjudication tiers**
 Depth levels for the `/adjudicate` skill, scaled by decision weight:
-XS (3-order + structural scan), S (4-order + scan), M (6-order + 2-pass),
-L (8-order + 2-pass). All tiers include a structural checkpoint at orders 7–8
+XS (3-order + structural scan), S (4-order + scan), M (8-order + 2-pass),
+L (10-order + 2-pass). All tiers include a structural checkpoint at orders 7–10
 regardless of scale.
 
 **adversarial evaluator**
@@ -108,7 +108,10 @@ social hedging, prior-turn consistency).
 The depth level in causal chain analysis used by `/adjudicate` and T3. Orders
 1–2: certain (direct effects). Order 3: likely. Orders 4–5: possible. Order 6:
 speculative. Order 7: structural (ecosystem/precedent). Order 8: horizon
-(normative long-term). A structural checkpoint scans orders 7–8 at every scale.
+(normative long-term). Order 9: emergent (INCOSE — properties arising from
+interaction of multiple chains). Order 10: theory-revising (Popper — effects
+that falsify the theory justifying the decision). A structural checkpoint scans
+orders 7–10 at every scale.
 
 ---
 

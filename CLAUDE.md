@@ -69,7 +69,7 @@ exceed available evidence, or any finding that a peer reviewer would challenge.
 ## Commands (load on demand)
 
 - `/adjudicate` — Structured decision resolution. For decisions with 2+ options:
-  classify domain → ground dependencies → 8-order knock-on per option → compare →
+  classify domain → ground dependencies → 10-order knock-on per option → compare →
   consensus or parsimony. Severity-tiered (XS through L). Structural checkpoint
   mandatory at all scales.
 - `/capacity` — Cognitive architecture capacity assessment. Reports line budgets,

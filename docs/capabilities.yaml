@@ -122,7 +122,7 @@ commands:
     type: command
     invocation: user or agent
     loads: on demand only
-    function: structured decision resolution (8-order knock-on cascade)
+    function: structured decision resolution (10-order knock-on cascade)
   - name: /capacity
     type: command
     invocation: user
@@ -156,7 +156,7 @@ memory_layers:
 
 decision_framework:
   method: knock-on analysis
-  orders: 8
+  orders: 10
   confidence_bands:
     - orders: [1, 2]
       label: certain
@@ -170,12 +170,16 @@ decision_framework:
       label: structural
     - orders: [8]
       label: horizon
-  structural_checkpoint: mandatory at all scales (orders 7-8 scan)
+    - orders: [9]
+      label: emergent (INCOSE)
+    - orders: [10]
+      label: theory-revising (Popper)
+  structural_checkpoint: mandatory at all scales (orders 7-10 scan)
   severity_tiers:
     XS: 3-order + scan
     S: 4-order + scan
-    M: 6-order + 2-pass
-    L: 8-order + 2-pass
+    M: 8-order + 2-pass
+    L: 10-order + 2-pass
 
 lesson_lifecycle:
   stages:
