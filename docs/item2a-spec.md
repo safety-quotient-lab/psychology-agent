@@ -42,6 +42,7 @@ journal.md §15 (Protocol Failure as Specification Method).
 │           scores{psq_composite, dimensions[]},             │
 │           psq_lite_coverage, source{}                      │
 │  Schema gaps (#1–5 below) extend this layer                │
+│  Transport finding #6 (per-message scope) also here        │
 └────────────────────────────────────────────────────────────┘
 ```
 
@@ -49,7 +50,7 @@ journal.md §15 (Protocol Failure as Specification Method).
 
 ## Schema v3 — Transport Layer Fields
 
-Derived from 3 Item 2a findings from the 9P transport test.
+Derived from Item 2a findings 1–3 from the 9P transport test (finding #6 is scope/convention).
 
 ### `transport` object
 
@@ -86,6 +87,11 @@ mixed `human-relay`, `git-push`, and `git-pr` within a single session. Without a
 **Finding that drove persistence:** `ramfs-ephemeral-constraint` — `ramfs -i` on macOS
 exits after initial connection. No schema field signaled this. A receiver needs to know
 whether to expect the channel for follow-up reads.
+
+**Finding #6 — per-message scope + persist-from-last convention:** `transport{}` scope is
+per-message, not per-session. Agents MAY omit `transport{}` when unchanged — receivers
+assume persistence. This rule was implicit in all prior exchanges; the spec makes it
+explicit. Derived independently by both agents during schema v3 finalization.
 
 ---
 
@@ -261,7 +267,8 @@ correction whose magnitude itself carries information.
 ```json
 "scores": {
   "calibration_applied": true,
-  "calibration_method": "isotonic regression per dimension, fitted on 1897 val records"
+  "calibration_method": "isotonic regression per dimension, fitted on 1897 val records",
+  "calibration_version": "isotonic-v1-2026-03-06"
 },
 "dimensions": [
   {
@@ -272,6 +279,10 @@ correction whose magnitude itself carries information.
   }
 ]
 ```
+
+**`calibration_version`** (observatory amendment, accepted): pins the specific calibration
+curve for reproducibility. Optional now; required when multiple calibration curves exist.
+Format: `{method}-v{n}-{date}`. Analogous to `methodology_hash` in observatory eval pipeline.
 
 ---
 
@@ -305,7 +316,8 @@ yet publishing there should note the gap and accept direct-path discovery.
 The evaluator spec (Architecture Item 3) has two parameters that Item 2a must fill:
 
 1. **Sub-agent output format binding** — resolved: `psychology-agent/machine-response/v2`
-   with v3 candidate extensions (#1–5 above). Evaluator inherits this binding.
+   with v3 candidate extensions (#1–5 above, plus `calibration_version` amendment).
+   Evaluator inherits this binding.
 
 2. **Domain SETL thresholds** — `setl: 0.40` is a first approximation. Item 2b
    (peer layer) may refine domain-specific thresholds. PSQ sub-agent SETL values
@@ -324,9 +336,13 @@ The evaluator spec (Architecture Item 3) has two parameters that Item 2a must fi
  Schema v3 transport{}               ✓ Finalized, agreed both agents
  Schema v3 framing{}                 ✓ Finalized, agreed both agents
  PSQ schema gaps #1–5                ✓ Identified — v3 candidates
+ Transport finding #6 (scope)        ✓ Finalized (per-message, persist-from-last)
+ calibration_version field           ✓ Accepted (observatory amendment to gap #5)
  Capability handshake protocol       ✓ Verified in live exchange
+ Item 2a derivation                  ✓ COMPLETE — 6 findings, both agents agreed
+ Item 2a spec document               ✓ Written — docs/item2a-spec.md (2026-03-06)
  PSQ score calibration               ✓ Applied (isotonic, n=1897)
- PSQ confidence calibration          ✗ Pending — composite unusable
+ PSQ confidence calibration          ✓ r-based proxy via confidence_calibration maps
  PSQ scoring endpoint                ✗ Not yet implemented
  PSQ-Lite → PSQ-Full triage          ✗ Pending score threshold calibration
  psychology-agent/machine-response/v3 ✗ Not yet written (gaps documented)
