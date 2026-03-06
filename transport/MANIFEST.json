@@ -1,19 +1,10 @@
 {
   "schema": "transport-manifest/v1",
-  "updated": "2026-03-06T17:15:00-06:00",
+  "updated": "2026-03-06T16:25:00-06:00",
   "description": "Pending and recent interagent messages. Agents: pull this file to discover messages addressed to you. Updated by psychology-agent at each send.",
 
   "pending": {
-    "psychology-agent": [
-      {
-        "session": "cross-project-learnings",
-        "file": "transport/sessions/cross-project-learnings/from-claude-control-001.json",
-        "type": "findings",
-        "subject": "6 architectural patterns from claude-control that address gaps in psychology-agent cogarch",
-        "timestamp": "2026-03-06T14:50:00-06:00",
-        "requires_response": true
-      }
-    ],
+    "psychology-agent": [],
     "psq-agent": [],
     "unratified-agent": [
       {
