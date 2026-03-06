@@ -1117,12 +1117,36 @@ Transport choice affects v2 schema semantics:
   almost always true. `source_confidence` for peer agent files upgrades to
   trusted. The `action_gate` sentinel becomes a filesystem check, not prose.
 
-### Open Questions (pending user decisions)
+### Decisions (2026-03-05)
 
-1. Transport option for Architecture Item 2 derivation exercise (immediate)
-2. Transport option for psychology interface production use (longer term)
-3. F2: hosting machine — this machine, prime, cloud/VPS, or agent-managed?
-4. F2: code location — psychology-agent repo, psychology-interface repo, standalone?
-5. F2: implementation language — Python (py9p) or Go (go9p)?
-6. Psychology interface: separate repo or within psychology-agent?
-7. Psychology interface: primary display target — TUI, web app, or desktop (Electron)?
+```
+────────────────────────────────────────────────────────────────────────
+ Decision                    Choice
+────────────────────────────────────────────────────────────────────────
+ Transport — Item 2          F1 (plan9port). Real 9P namespace semantics.
+ derivation exercise         brew install plan9port. Both agents use
+                              exportfs + import for namespace composition.
+
+ Transport — production      F2 (custom 9P server) hosted on Cloudflare.
+ (psychology interface)      Durable Object or Worker. Both agents connect
+                              to CF endpoint. No machine dependency.
+                              Code: psychology-agent/interface/
+                              Language: TBD.
+
+ Psychology interface         Within psychology-agent repo.
+ location                    Directory: psychology-agent/interface/
+                              Imports Agent SDK. Cogarch config inherited
+                              via settingSources: ['project'].
+
+ Agent topology              Symmetric peers. Both instances equal weight.
+                              Disagreements route to adversarial evaluator.
+                              Interim (evaluator not yet built): user
+                              mediates disagreements.
+────────────────────────────────────────────────────────────────────────
+```
+
+### Open Questions
+
+- F2 language: Python (py9p) or Go (go9p)?
+- Psychology interface primary display target: TUI, web, or desktop?
+- Adversarial evaluator build sequence: before or after symmetric peer topology exercised?
