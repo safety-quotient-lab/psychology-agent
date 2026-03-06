@@ -13,7 +13,6 @@ passed. settingSources finding resolved (Option A: PSYCHOLOGY_SYSTEM inlined). `
 (blocked by API credits; 503 guard in place). PSQ production blocked on stable endpoint URL —
 psq-agent awaiting production transport decision (Option A: named CF Tunnel as systemd service;
 Option B: Oracle Cloud Ampere A1 ARM64). Blog PR #2 open (unratified.org point pending).
-/cycle complete (2863aa0) — Sessions 21+21c conflict resolved, journal §19+§20 both preserved.
 **Next:** PSQ production transport decision (psq-agent reply) → set `PSQ_ENDPOINT_URL` secret →
 `/turn` re-enable when API credits available. Observatory PR #9 awaiting merge. Item 2b open.
 
@@ -152,10 +151,12 @@ Communication conventions, cognitive accessibility policy, project structure: se
 ## PSQ Sub-Agent Status (managed in its own context)
 
 **Readiness needs:** API surface, calibrated confidence, scope boundaries.
-**Score calibration:** ✓ Applied. isotonic regression (n=1897 val), +3.5–21.6% MAE/dim.
-`models/psq-student/calibration.json` live. `student.js` loads and applies it at init.
-**Confidence calibration:** ✓ r-based proxy (scale=0, shift=r per dim). Intentional constant fn — overrides anti-calibrated head. Dims with r≥0.6 meet threshold; composite usable when ≥1 dim included.
-**Scoring endpoint:** ✓ safety-quotient/src/server.js — POST /score → machine-response/v3. npm run serve.
-**Open issues:** confidence anti-calibration (top priority), DA validity, AD compression,
-CO weakness, no human validation, WEIRD assumptions, v27 regression.
+**Score calibration:** ✓ isotonic regression (n=1897), +3.5–21.6% MAE/dim.
+**Confidence calibration:** ✓ `confidence_calibration` linear maps (scale=0, shift=r) added
+to calibration.json. student.js (remote version) now uses r-based proxy correctly.
+Composite usable: PSQ=37.7/100 on overwhelm text (threat 6.28 > protective 3.81).
+**Git/deploy issue:** calibration.json gitignored (models/ both local and origin). Not in remote
+repo. Remote psq-agent lacks calibration unless manually deployed. best.pt lost from local.
+**Open issues:** contractual_clarity n=57 (small sample), 5 dims r<0.6 excluded,
+DA validity, WEIRD assumptions, v27 regression.
 Do not duplicate PSQ improvement work in this context.
