@@ -18,12 +18,12 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 27. All 4 claude-control findings implemented
-(F-2, F-5, F-1, F-6). Context pressure hook deployed. docs/dictionary.md created.
-best.pt recovered + SHA verified. 4 unratified-agent PRs merged (#24-#27).
-HN post draft composed (not yet saved to file).
-**Next:** HN post finalization. AR Phase 2 label generation (when psq-agent ready).
-Remaining TODO: completion gate hook, GRADE framework, competing hypotheses.
+**Where we stopped:** Session 27. claude-control cross-project findings evaluated
+(6 findings: 4 accepted, 1 adopted, 1 rejected). F-2 implemented (T4 Check 10 —
+reversibility assessment). F-5 partial implemented (pre-commit cogarch gate in
+bootstrap-check.sh). Transport response committed + pushed.
+**Next:** F-1 (constraint taxonomy, M effort) → F-6 (T3 constraint cross-ref, XS
+after F-1). best.pt recovery pending. Blog editorial review via unratified-agent.
 
 
 ## Memory Hygiene

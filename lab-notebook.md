@@ -44,7 +44,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | License (root project)        | ✓ CC BY-NC-SA 4.0 — LICENSE at project root      |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
 | Auto-memory recovery          | ✓ Snapshots, bootstrap-check.sh, T1 health check, BOOTSTRAP.md restructure (Session 11) |
-| Platform hooks                | ✓ 11 hooks: pre-commit (+ cogarch gate), parry (3), T4 reminder, SessionStart, PreCompact, Stop, subproject-boundary, pushback-accumulator, write-provenance (Session 12-27) |
+| Platform hooks                | ✓ 12 hooks: pre-commit (+ cogarch gate), parry (3), T4 reminder, SessionStart, PreCompact, Stop, subproject-boundary, pushback-accumulator, write-provenance, context-pressure-gate (Session 12-27) |
+| Source dictionary             | ✓ docs/dictionary.md — 15 entries, 7 categories, APA citations (Session 27) |
+| best.pt local recovery        | ✓ SHA256 7bec777c match confirmed local↔Hetzner (Session 27) |
 | Antiregression evaluation     | ✓ Evaluated, adopted hooks, TODO items written (Session 11) |
 | Blog post (cogarch)           | ✓ Reviewed + PR #7 submitted to unratified (Session 24) |
 | Cogarch canonical location    | ✓ cognitive-triggers.md moved to docs/ (Session 12) |
@@ -1997,5 +1999,37 @@ scoring session with B2 validation for unratified-agent.
 
 **All 4 claude-control findings now implemented** (F-2 → F-5 → F-1 → F-6).
 
-▶ docs/constraints.md, docs/cognitive-triggers.md, docs/capabilities.yaml, bootstrap-check.sh,
-  transport/sessions/cross-project-learnings/from-psychology-agent-001.json, transport/MANIFEST.json
+**Context pressure hook (PreToolUse):**
+- Notification hook (`context-pressure-statusline.sh`) now persists context % to `/tmp/.claude-context-pct`
+- New PreToolUse hook (`context-pressure-gate.sh`) reads that file, warns at 60% (PRESSURE) and 75% (CRITICAL)
+- Non-blocking — injects warning text into model context as a reminder
+- settings.json updated with new PreToolUse entry
+
+**docs/dictionary.md created:**
+- 15 entries across 7 categories: Semiotics, Psychology, Dialogue, Systems Engineering, Fair Witness, Standards, Neural Architecture
+- APA citations with source definition + project usage mapping
+- Complements glossary.md (project-scoped) with external provenance chain
+
+**best.pt recovery verified:**
+- 256 MB file present locally at ~/Projects/safety-quotient/models/psq-student/best.pt
+- SHA256 prefix `7bec777c173f1f20` matches Hetzner copy — identical file confirmed
+- rsync from Hetzner completed (18 MB/s, 12 seconds)
+
+**/sync — merged 4 unratified-agent PRs (#24-#27):**
+- PR #24: Jurassic Park blog ACK + multi-agent author schema (turn 7)
+- PR #25: Scoring analysis ACK — B2 validated, HI anomaly noted (turn 8)
+- PR #26: Site defensibility review — 12 findings accepted, 5 fixes triaged (turn 3)
+- PR #27: AR adoption — Option B (interim AR heuristic for PSQ-Lite) chosen (turn 9)
+- MANIFEST updated: unratified-agent pending cleared, 4 ACKs added to recently_completed
+
+**Session 26 review (other instance):**
+- HI construct×distribution mismatch diagnosed — HI measures narrator-experienced hostility, not authorial adversarial intent
+- Adversarial register (AR) dimension proposed — 3 sub-dimensions (dialogue mode 0.40, stance markers 0.35, attribution pattern 0.25), Phase 1 validated on 5-text corpus
+- docs/adversarial-register-rubric.md created (365 lines, commit dadd3dd)
+- PSQ-Lite revision recommended: TE + TC + AR (replacing HI)
+
+**HN post draft composed** — 3 title options + body text drafted in conversation; not yet saved to file
+
+▶ docs/constraints.md, docs/cognitive-triggers.md, docs/capabilities.yaml, docs/dictionary.md,
+  bootstrap-check.sh, .claude/hooks/context-pressure-gate.sh, .claude/settings.json,
+  transport/MANIFEST.json
