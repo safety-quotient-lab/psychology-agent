@@ -29,18 +29,29 @@ the full bootstrap guide, including manual recovery and platform-specific setup.
 
 ## What This Project Does
 
-A three-layer agent system:
+A three-layer agent system with a live peer-to-peer interagent protocol:
 
 ```
-General-Purpose Psychology Agent  (collegial mentor, Opus)
-  ├── PSQ Agent                   (psychoemotional safety measurement)
-  ├── Future sub-agents           (plug-in, none pre-committed)
-  └── Adversarial Evaluator       (7-procedure ranked resolution, Opus)
+Psychology Agent A ◄──── interagent/v1 ────► Psychology Agent B
+  (this instance)    (git-PR transport,         (peer instance,
+                      schema-versioned,           equal authority)
+                      SETL + epistemic flags)
+        │
+        ▼
+  Sub-agents (Item 2a layer)
+  ├── PSQ Agent (DistilBERT v23, 10-dim, calibrated)
+  └── Future sub-agents (plug-in, none pre-committed)
+        │
+        ▼
+  Adversarial Evaluator (Item 3)
+  └── 7-procedure ranked resolution (consensus → parsimony → … → escalate)
 ```
 
-The general agent synthesizes across sub-agents, routes requests, and maintains
-a Socratic stance — guiding users toward discovery rather than delivering verdicts.
-The adversarial evaluator preserves disagreement rather than averaging it away.
+The general agent maintains a Socratic stance — guiding users toward discovery
+rather than delivering verdicts. Two general-agent peers run in separate sessions
+and communicate via a schema-versioned protocol derived from live exchange failures
+(Protocol Failure as Specification Method). The adversarial evaluator resolves
+peer disagreements rather than averaging them away.
 
 ---
 
@@ -58,14 +69,17 @@ working in a sub-project context.
 
 ## Current Status
 
-**Design phase.** Architecture and conventions established.
+**Architecture complete. Implementation phase begins.**
 
-- ✓ General agent routing logic and identity spec
-- ✓ Adversarial evaluator reasoning procedures (7-procedure ranked set)
-- ✗ Sub-agent protocol (plug-in, communication, scope declaration)
-- ✗ Adversarial evaluator tiered activation and prompt
+- ✓ Architecture Item 1 — General agent routing logic, identity spec, Socratic protocol
+- ✓ Architecture Item 2a — Sub-agent layer: interagent/v1 protocol, schema v3 transport/framing, 6 derivation findings, PSQ binding
+- ✓ Architecture Item 2b — Peer layer: role declaration, divergence detection, evaluator tier binding, SETL thresholds, precedence protocol
+- ✓ Architecture Item 3 — Adversarial evaluator: 7-procedure ranked set, tiered activation (Lite/Standard/Full), peer disagreement protocol
+- ✗ Architecture Item 4 — Psychology interface: Agent SDK wrapper, custom UI, PSQ visualization (precondition: Item 2a defined ✓)
+- ✓ PSQ sub-agent — Live, calibrated (isotonic score + r-based confidence proxy), running at `safety-quotient-lab/safety-quotient`
+- ✓ Observatory-agent peer exchange — 20-turn live exchange; interagent/v1 + schema v3 derived from failures, not design
 
-See `docs/architecture.md` for the full design record.
+See `docs/architecture.md` for the full design record and `docs/item2a-spec.md` / `docs/item2b-spec.md` for protocol specs.
 
 ---
 
@@ -87,6 +101,9 @@ psychology-agent/
 │   └── skills/                     # Agent skills (/doc, /hunt, /cycle, etc.)
 ├── docs/
 │   ├── architecture.md             # Design decisions, system spec, capabilities
+│   ├── item2a-spec.md              # Sub-agent protocol spec (6 findings, schema v3)
+│   ├── item2b-spec.md              # Peer layer protocol spec (divergence, SETL, evaluator binding)
+│   ├── machine-response-v3-spec.md # PSQ sub-agent output schema v3
 │   ├── capabilities.yaml           # Machine-readable capabilities manifest
 │   ├── overview-for-psychologists.md
 │   ├── MEMORY-snapshot.md          # Committed recovery source for MEMORY.md
@@ -100,6 +117,22 @@ psychology-agent/
 ---
 
 ## Interesting Parts of the Codebase
+
+**Interagent sync — two Claude Code instances talking to each other** —
+Two independent Claude Code sessions (psychology-agent on macOS, observatory-agent
+on Debian) communicate via GitHub PRs using a schema-versioned JSON protocol
+derived entirely from live exchange failures. No upfront schema design: each field
+in the spec exists because a receiver needed it and the absence caused a detectable
+gap. Both agents independently derived identical primitives (SETL, Fair Witness
+discipline) without prior coordination — convergent rediscovery from different
+theoretical starting points. The psq-agent (a third instance) runs calibrated
+inference and responds to structured sub-agent requests. Three Claude Code sessions,
+one coherent multi-agent system.
+- [docs/item2a-spec.md](docs/item2a-spec.md) — sub-agent layer protocol (6 findings)
+- [docs/item2b-spec.md](docs/item2b-spec.md) — peer layer protocol (divergence detection, SETL thresholds)
+- [transport/sessions/item2-derivation/](transport/sessions/item2-derivation/) — the actual message exchange
+- [journal.md §15](journal.md) — Protocol Failure as Specification Method
+
 
 **Cognitive architecture (trigger system)** — The agent governs itself through
 13 mechanical triggers (T1–T13) that fire at specific moments: session start,

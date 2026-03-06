@@ -11,16 +11,12 @@ Forward-looking task list only. Completed and emergent work goes to
   identity spec, evaluator reasoning procedures (7-procedure ranked set + domain
   priority tables).
 
-- [ ] **Item 2: Sub-agent protocol** — expanded scope (symmetric peer topology
-  decision, 2026-03-05). Now covers two layers:
-  - **2a: Sub-agent layer** — derivation complete (5 findings). **Next: write
-    Item 2a spec document** formalizing schema v3 fields, PSQ schema gaps (#1–5),
-    extension URI, and framing convention. *(Derivation done; spec doc pending.)*
-  - **2b: Peer layer** — how two equal-weight general agent instances communicate.
-    V2 comm schema (source_confidence, claims[], action_gate, convergence_signals)
-    is the starting point. Peer disagreement routing to evaluator (Item 3) is the
-    open contract.
-  *Precondition: schema v3 finalized ✓ (2026-03-06). Item 2a spec doc is next.*
+- [x] **Item 2: Sub-agent protocol** — ✓ Complete (2026-03-06):
+  - **2a: Sub-agent layer** ✓ — docs/item2a-spec.md. 6 findings, schema v3 transport/framing,
+    PSQ schema gaps #1–5 + calibration_version, A2A Epistemic Extension URI.
+  - **2b: Peer layer** ✓ — docs/item2b-spec.md. Role declaration, divergence detection
+    (context_state + last_commit), SETL thresholds, evaluator tier binding, precedence
+    protocol, convergence signal thresholds, context sync pattern.
 
 - [x] **Item 3: Adversarial evaluator** — ✓ Complete (Session 17). Tiered
   activation (Lite/Standard/Full), 7 activation triggers, peer disagreement
