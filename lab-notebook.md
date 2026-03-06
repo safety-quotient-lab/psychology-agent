@@ -1849,6 +1849,15 @@ using "24b" for this continuation.
 - Gating: divergence indicators (pushback, domain shift, novel terminology)
 - ideas.md marked [→ IMPLEMENTED 2026-03-06]; TODO.md marked complete
 
+**SRT gate threshold calibration (2026-03-06T15:31 CST):**
+- Divergence indicators formalized with concrete thresholds:
+  - Pushback recency: T6 fired within last 3 exchanges
+  - Domain shift: topic words change domain vs. previous 3 messages
+  - Novel terminology: 2+ domain-specific terms in one message, not seen earlier
+- Design rationale: false negatives have T6 safety net → conservative thresholds preferred
+- T3 semiotic gate references T2 definitions (no duplication)
+- TODO.md gate calibration item resolved
+
 ▶ docs/local-coordination-v1-spec.md, .claude/hooks/subproject-boundary.sh,
   .claude/hooks/pushback-accumulator.sh, .claude/hooks/write-provenance.sh,
   docs/cognitive-triggers.md T2+T3+T9, .claude/skills/cycle/SKILL.md,
