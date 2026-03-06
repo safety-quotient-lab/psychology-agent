@@ -130,7 +130,7 @@ inference and responds to structured sub-agent requests. Three Claude Code sessi
 one coherent multi-agent system.
 - [docs/item2a-spec.md](docs/item2a-spec.md) — sub-agent layer protocol (6 findings)
 - [docs/item2b-spec.md](docs/item2b-spec.md) — peer layer protocol (divergence detection, SETL thresholds)
-- [transport/sessions/item2-derivation/](transport/sessions/item2-derivation/) — the actual message exchange
+- [transport/sessions/subagent-protocol/](transport/sessions/subagent-protocol/) — the actual message exchange
 - [journal.md §15](journal.md) — Protocol Failure as Specification Method
 
 

@@ -10,7 +10,7 @@
 
 ## What Changed from v2
 
-v2 gaps identified in live PSQ-Full inference run (item2-derivation, Sessions 18–19):
+v2 gaps identified in live PSQ-Full inference run (subagent-protocol exchange, Sessions 18–19):
 
 | Gap | Problem | v3 Resolution |
 |---|---|---|
