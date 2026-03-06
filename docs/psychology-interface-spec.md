@@ -1,7 +1,7 @@
-# Architecture Item 4 — Psychology Interface Specification
+# Psychology Interface Specification
 
 **Status:** In progress — scaffolding and core integration (2026-03-06)
-**Prerequisite:** Item 2a complete (PSQ sub-agent binding defined ✓)
+**Prerequisite:** Sub-agent layer complete (PSQ sub-agent binding defined ✓)
 **Stack:** @anthropic-ai/claude-agent-sdk v0.2.70 + Cloudflare Workers (F2)
 **Location:** `psychology-agent/interface/`
 
@@ -9,7 +9,7 @@
 
 ## Overview
 
-Item 4 builds the user-facing layer: a purpose-built psychology interface rather
+The psychology interface builds the user-facing layer: a purpose-built interface rather
 than the generic Claude Code shell. It wraps the general-purpose psychology agent
 in a streaming web UI with PSQ score visualization, session persistence, and
 cogarch inheritance via `settingSources: ['project']`.
@@ -80,7 +80,7 @@ Production transport replaces the F1 plan9port derivation channel.
 
 ```
 F1 (derivation, complete):   SSH pipe + ramfs -i + 9pfuse (cross-machine)
-F2 (production, Item 4):     Cloudflare Worker + D1 + KV + R2
+F2 (production, interface):  Cloudflare Worker + D1 + KV + R2
 ```
 
 ### Why Cloudflare
@@ -218,13 +218,13 @@ Phase 4:         Production deployment
 
 ---
 
-## Open Contracts with Items 2 and 3
+## Open Contracts with Sub-Agent, Peer, and Evaluator Layers
 
-- **Item 2a PSQ binding:** Worker uses `psychology-agent/machine-response/v3` schema
+- **Sub-agent layer PSQ binding:** Worker uses `psychology-agent/machine-response/v3` schema
   (docs/machine-response-v3-spec.md) to parse PSQ output from the agent stream.
-- **Item 2b peer layer:** `context_state` column in sessions table carries
+- **Peer layer:** `context_state` column in sessions table carries
   `last_commit` for interagent sync when peer exchanges occur through the interface.
-- **Item 3 evaluator:** Evaluator activation happens inside the Agent SDK session —
+- **Evaluator:** Evaluator activation happens inside the Agent SDK session —
   same tiered logic (Lite/Standard/Full), same 7-procedure set. No interface changes
   needed; evaluator is invisible to the UI layer.
 
@@ -237,7 +237,7 @@ Phase 4:         Production deployment
  Item                                Status
 ────────────────────────────────────────────────────────────────
  Agent SDK surface investigation     ✓ Complete (Session 17)
- Item 4 spec document               ✓ This file
+ Psychology interface spec           ✓ This file
  interface/ directory scaffold       ✓ Phase 1 in progress
  CF Worker entry point               ✓ Phase 1
  Agent SDK query() wrapper           ✓ Phase 1
