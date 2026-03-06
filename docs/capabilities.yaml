@@ -57,8 +57,8 @@ triggers:
     maturity: proven
   - id: T3
     fires_when: before_recommending
-    function: domain classification, grounding, process/substance, anti-sycophancy, rationalizations-to-reject, Tier 1 evaluator proxy, SRT gate
-    checks: 14
+    function: domain classification, grounding, process/substance, anti-sycophancy, rationalizations-to-reject, Tier 1 evaluator proxy, SRT gate, constraint cross-ref
+    checks: 15
     mechanical_enforcement: null
     maturity: proven
   - id: T4
@@ -314,8 +314,8 @@ future_capabilities:
     maturity: explored
     notes: architecture spec written, no code
   - name: formal constraint taxonomy
-    maturity: identified
-    notes: F-1 from claude-control findings — docs/constraints.md with categorized IDs
+    maturity: proven
+    notes: F-1 from claude-control findings — docs/constraints.md, 59 constraints across 5 categories (E/M/P/I/D)
   - name: reversibility gate (T4 extension)
     maturity: proven
     notes: F-2 from claude-control findings — T4 Check 10, reversibility assessment before Write/Edit ops
