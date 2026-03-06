@@ -82,6 +82,11 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Item 2 protocol               | ✓ COMPLETE — Item 2a (6 findings, spec) + Item 2b (peer layer, spec) |
 | Observatory-agent exchange    | ✓ Complete — 20-turn live derivation; PR #9 (closing ACK) open |
 | PSQ scoring endpoint          | ✓ Implemented — safety-quotient/src/server.js, machine-response/v3 (Session 20) |
+| Psychology interface (PSQ)    | ✓ worker.js + psq-client.js + UI (radar/hierarchy/threshold/artifact) — smoke test 7/8 |
+| Psychology interface (/turn)  | ⚑ DEFERRED — requires ANTHROPIC_API_KEY (billable) + settingSources fix (see TODO.md Item 4) |
+| settingSources CF Workers     | ⚑ FINDING: no-op in CF Workers (no local fs) — agent identity-blind in production without fix |
+| wrangler version              | ⚑ v3.114.17 installed; v4.71.0 available — upgrade before production deploy |
+| Blog PR (well-known)          | ✓ PR #2 open — safety-quotient-lab/unratified — psychology-agent consumer perspective |
 | interagent/v1 protocol        | ✓ Schema v3 finalized — extension URI, enum, glob, per-message scope |
 | PSQ namespace                 | ✓ Resolved — PSQ-Lite (LLM heuristic) vs PSQ-Full (DistilBERT v23) |
 | 9P transport (canonical)      | ✓ SSH pipe + ramfs -i + 9pfuse — verified cross-machine |
@@ -1200,4 +1205,44 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
 
 ▶ docs/item2a-spec.md, docs/item2b-spec.md, docs/machine-response-v3-spec.md,
   safety-quotient/src/server.js, safety-quotient/src/student.js
+
+---
+
+## 2026-03-06T09:28 CST — Session 21b (Interface smoke test, blog PR, wrapper deferral)
+
+**Scope:** Phase 4 smoke test, blog contribution, settingSources architecture finding.
+
+**fs.realpathSync blocker resolved** — Static top-level import of `@anthropic-ai/claude-agent-sdk`
+triggered `fs.realpathSync` at Miniflare module init, crashing wrangler dev before any route was
+reachable. Fix: dynamic `await import()` inside `streamAgentResponse` generator — SDK loads on
+first request, not at module startup.
+
+**Smoke test steps 1–7 PASS** against CF Tunnel:
+- Worker starts on 8787 ✓
+- `GET /psq/health` → `{status: ok, ready: true, calibration_version: isotonic-v1-2026-03-06}` ✓
+- `POST /psq/score` → v3 schema, 48ms, `psq_composite: 34.2/100 status: scored` ✓
+- All 10 `dimensions[].meets_threshold` populated (5 above, 5 below) ✓
+- `hierarchy.factors_2/3/5 + g_psq` all present ✓
+- Step 8 (browser render) pending manual verification
+
+**Blog PR** — `safety-quotient-lab/unratified` PR #2 open. Four E-Prime sections:
+agent-card discovery, epistemic extension derivation, interagent/v1 receiving end,
+transport.persistence from ramfs constraint. Psychology-agent contribution point closed.
+
+**settingSources finding** — `settingSources: ['project']` reads CLAUDE.md via `process.cwd()`
+on local filesystem. CF Workers has no local filesystem. In production the `/turn` route would
+run with only the 7-line PSYCHOLOGY_SYSTEM constant — no T1–T15, no identity spec, no cogarch.
+Fix path: inline identity + key cogarch into PSYCHOLOGY_SYSTEM, or fetch from R2/KV at request
+time. Documented in agent.js header + TODO.md Item 4.
+
+**Psychology wrapper deferred** — `/turn` guarded with 503 + explanation if ANTHROPIC_API_KEY
+absent. Two conditions to re-enable: (1) API cost accepted, (2) settingSources fix applied.
+
+⚑ EPISTEMIC FLAGS
+- Step 8 browser render unverified
+- settingSources finding is structural inference; no runtime test possible without API key
+- wrangler v3 compatibility_date falls back to 2025-07-18
+
+▶ interface/src/agent.js, interface/src/worker.js, TODO.md Item 4,
+  transport/sessions/item4-derivation/item4-smoketest-001.json
 >>>>>>> 44f5ada (Session 20: PSQ scoring endpoint; Item 2 complete)

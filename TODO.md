@@ -28,9 +28,25 @@ Forward-looking task list only. Completed and emergent work goes to
 
 - [ ] **Item 4: Psychology interface** — `psychology-agent/interface/`. Agent SDK
   wrapper (`@anthropic-ai/claude-agent-sdk`). Custom UI consuming message stream.
-  Cogarch config via `settingSources: ['project']`. PSQ visualization gates on
-  Item 2a. Production transport: F2 (custom 9P server on Cloudflare).
-  *Precondition: Item 2a defined (PSQ sub-agent binding needed for interface).*
+  PSQ visualization (radar, hierarchy, threshold/artifact indicators) complete and
+  smoke-tested (steps 1–7 pass, step 8 browser render pending).
+  Production transport: wrangler deploy (after step 8 confirms + wrangler v4 upgrade).
+
+  **Deferred: `/turn` route (Agent SDK chat)** — gated on two conditions:
+  1. API key cost model accepted — each `/turn` call invoices the Anthropic account.
+     Set `ANTHROPIC_API_KEY` via `wrangler secret put ANTHROPIC_API_KEY` to enable.
+  2. `settingSources: ['project']` fix — this option reads CLAUDE.md from the local
+     filesystem via `process.cwd()`. CF Workers has no local filesystem; in production
+     the agent runs with the 7-line PSYCHOLOGY_SYSTEM constant only — no T1–T15
+     triggers, no identity spec, no cogarch. Before enabling, inline the identity +
+     key cogarch guidance directly into PSYCHOLOGY_SYSTEM in agent.js, or fetch it
+     from R2/KV at request time.
+     Guard added: worker returns 503 with explanation if ANTHROPIC_API_KEY absent.
+
+  *What's built: worker.js, session.js, agent.js, psq-client.js, schema.sql,
+  public/index.html + style.css + app.js + psq.js. All PSQ routes working.*
+  *What's deferred: /turn (chat streaming), /session CRUD (needs live DB).*
+  *Precondition to re-enable: accept API cost model + fix settingSources.*
 
 ---
 
