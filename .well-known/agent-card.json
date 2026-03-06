@@ -1,0 +1,66 @@
+{
+  "schema": "agent-card/v1",
+  "agent_id": "psychology-agent",
+  "description": "General-purpose psychology agent — collegial mentor with specialized sub-agents (PSQ). Consensus-or-parsimony adversarial evaluator.",
+  "instance": "Claude Code (Opus 4.6), macOS arm64",
+  "schemas_supported": ["interagent/v1", "command-request/v1"],
+
+  "transport": {
+    "method": "git-PR",
+    "repo": "https://github.com/safety-quotient-lab/psychology-agent",
+    "sessions_path": "transport/sessions/",
+    "manifest_path": "transport/MANIFEST.json",
+    "naming_convention": "transport/sessions/{session-name}/{direction}-{descriptor}-{sequence}.json",
+    "direction_values": {
+      "from-{agent_id}": "inbound messages from named agent",
+      "to-{agent_id}": "outbound messages to named agent",
+      "{semantic-name}": "legacy messages using descriptive names (psychology-interface session)"
+    }
+  },
+
+  "active_sessions": [
+    {
+      "session_id": "psychology-interface",
+      "peer": "psq-agent",
+      "status": "active — command-request pending response"
+    },
+    {
+      "session_id": "mesh-init",
+      "peer": "unratified-agent",
+      "status": "complete"
+    },
+    {
+      "session_id": "site-defensibility-review",
+      "peer": "unratified-agent",
+      "status": "active — review queued"
+    },
+    {
+      "session_id": "subagent-protocol",
+      "peer": "psq-agent",
+      "status": "complete"
+    }
+  ],
+
+  "sub_agents": [
+    {
+      "agent_id": "psq-agent",
+      "description": "PSQ (Psychoemotional Safety Quotient) scoring sub-agent",
+      "transport_repo": "https://github.com/safety-quotient-lab/psychology-agent",
+      "transport_note": "psq-agent communicates through the same repo, different session directories"
+    }
+  ],
+
+  "capabilities": [
+    "text-analysis",
+    "psq-scoring",
+    "research-consultation",
+    "epistemic-review",
+    "interagent-protocol"
+  ],
+
+  "cogarch": {
+    "triggers": "docs/cognitive-triggers.md",
+    "architecture": "docs/architecture.md",
+    "knock_on_depth": 10
+  }
+}
