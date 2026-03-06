@@ -98,6 +98,36 @@ in the session's first response so the user has visibility.
     before proceeding, or defer the work explicitly. Do not carry psychology-agent
     assumptions into sub-project scope.
 
+12. **Tier 1 evaluator proxy (parsimony + overreach + audit)** — before issuing the
+    recommendation, run an adversarial self-check that proxies the Tier 1 (Lite)
+    evaluator. Three components:
+
+    **a. Adversarial self-framing** — construct the strongest argument AGAINST the
+    recommendation. If the counter-argument survives scrutiny (evidence-based, not
+    vague concern), flag it explicitly before proceeding. Frame this check as the
+    evaluator's perspective, not the agent's.
+
+    **b. Parsimony comparison** — if 2+ interpretations exist, identify which has
+    fewer assumptions. Prefer it unless pragmatism or coherence overrides (see
+    evaluator domain priority tables in architecture.md). This fills the gap T3
+    #1–#11 leave: recommendation discipline guards *whether* to recommend; parsimony
+    comparison guards *which* recommendation to prefer when multiple candidates exist.
+
+    **c. Audit + random escalation** — log every Tier 1 evaluation to
+    `transport/sessions/evaluator/tier1-audit.jsonl` (structured: timestamp, claim,
+    evaluation, flag_reason if any, confidence_adjustment if any). Every 5th Tier 1
+    check (1-in-5 random escalation), append `"escalate": true` to the log entry.
+    Escalated entries queue for Tier 2 independent review at next evaluator session.
+    The agent cannot predict which checks get escalated — this creates probabilistic
+    independence for a self-check that otherwise shares the agent's blind spots.
+
+    Output: `"proceed"` or `"flag"` (matching evaluator-response/v1 Tier 1 format).
+    If flag: state flag_reason. If proceed with confidence adjustment: state delta.
+
+    *Source: EF-3 adjudication (Session 24). Tier 1 independence strengthened via
+    S4 (audit trail + adversarial framing + random escalation). Structural
+    independence deferred to Tier 2/3 runtime.*
+
 **Action**: Resolve process autonomously. Surface substance with recommendation.
 Adjudicate (`/adjudicate`) when 2+ viable options exist.
 
@@ -225,13 +255,23 @@ explain with evidence, but defer to user as source-of-truth agent.
 **Fires**: When reading or writing auto-memory MEMORY.md
 
 **Checks**:
-1. **Line count** — hard limit 200 lines (system truncates beyond silently)
-2. **Stale entries** — remove anything no longer relevant
-3. **Duplicates** — collapse repeated information
+1. **Line count** — MEMORY.md index: target < 60 lines (hard limit 200, system truncates
+   silently). Topic files: no limit, but audit for relevance
+2. **Stale entries** — remove anything no longer relevant. Freshness thresholds:
+   - **5 sessions without update**: flag for review. The entry may still be valid —
+     if so, add a `[verified YYYY-MM-DD]` annotation to reset the clock
+   - **10 sessions without update**: default to removal unless explicitly waived.
+     Waiver requires a one-line justification (e.g., "stable architecture decision,
+     no change expected")
+   - **Decay actions**: refresh (update content), deprecate (remove), waive (keep
+     with justification). When in doubt, deprecate — re-adding costs less than
+     carrying stale state
+3. **Duplicates** — collapse repeated information across index and topic files
 4. **Speculation** — do not persist speculation as fact
 5. **CLAUDE.md overlap** — don't duplicate what belongs in root instructions
 
-**Action**: Keep MEMORY.md lean, current, and accurate.
+**Action**: Keep memory files lean, current, and accurate. Route detail to topic
+files; keep the MEMORY.md index as a routing table with minimal inline content.
 
 ---
 

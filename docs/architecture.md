@@ -204,7 +204,7 @@
                               bearing responses, (2) idempotent operations,
                               (3) state attestation, (4) refusal with reasoning,
                               (5) human escalation threshold, (6) evaluator as
-                              verification layer (pending instantiation).
+                              verification layer (Tier 1 active, Tier 2/3 pending).
                               Classical BFT (3f+1) not directly applicable —
                               human serves as Trusted Third Party. Evaluator
                               instantiation moves system to f=1 tolerance.
@@ -227,6 +227,21 @@
                               reverse proxy. Oracle Ampere A1 evaluated but
                               unavailable (free tier inventory). Laptop/tunnel
                               rejected for production SaaS (uptime dependency).
+                              Decided: 2026-03-06
+
+ Evaluator instantiation     Tiered hybrid runtime (Option C + S4).
+                              Tier 1 (Lite): T3 check #12 — parsimony
+                              comparison + adversarial self-framing +
+                              audit trail + 1-in-5 random escalation.
+                              Not structurally independent; S4 compensates.
+                              Tier 2 (Standard): Claude Code session,
+                              human mediates structured claims.
+                              Tier 3 (Full): Claude Code session +
+                              mandatory human escalation.
+                              Each tier upgrades independently to Agent SDK
+                              sub-agent when API credits available.
+                              Schema: evaluator-response/v1.
+                              Full spec: §Evaluator Instantiation Protocol.
                               Decided: 2026-03-06
 ────────────────────────────────────────────────────────────────────────
 ```
@@ -625,6 +640,160 @@ The evaluator spec has two parameters that the sub-agent protocol must fill:
    Review plumber rules format when specifying sub-agent routing in the sub-agent layer.
    Not an adoption target — prior art for design.
    *Source: closing instance (Sessions 1–9) architectural note, 2026-03-05.*
+
+---
+
+## Component Spec: Evaluator Instantiation Protocol
+
+**Scope:** How, when, and where the adversarial evaluator runs. Completes EF-3
+(bft-design-note.md open question #3). The evaluator spec above defines *what*
+the evaluator does (7 procedures, 3 tiers, 7 triggers, system prompt). This
+section defines the runtime.
+**Decided:** 2026-03-06
+
+---
+
+### Design Decision: Tiered Hybrid Runtime (Option C + S4)
+
+The evaluator runs at different levels of structural independence depending on
+the activation tier. Independence scales with stakes.
+
+```
+────────────────────────────────────────────────────────────────────────
+ Tier   Runtime                    Independence        Upgrade path
+────────────────────────────────────────────────────────────────────────
+ 1      T3 check #12 (cognitive    Not structurally    → Agent SDK
+ Lite   trigger within psychology  independent.        sub-agent when
+        agent session). Parsimony  Strengthened via    API credits
+        comparison + overreach     S4: audit trail,    available.
+        scan + adversarial self-   adversarial self-
+        framing. Audit trail +     framing, 1-in-5
+        random escalation.         random escalation
+                                   to Tier 2.
+
+ 2      Claude Code session        Structurally        → Agent SDK
+ Std    (separate session, human   independent.        sub-agent when
+        mediates structured        Separate session,   API credits
+        claims via transport/).    separate context,   available.
+        Evaluator system prompt    no conversational
+        from §Evaluator System     framing shared.
+        Prompt above.
+
+ 3      Claude Code session        Structurally        Stays human-
+ Full   (separate session, human   independent.        mediated (by
+        mediates). Human           Human involvement   spec — Tier 3
+        escalation mandatory.      adds judgment and   always surfaces
+        Disagreement shape         breaks ties that    disagreement
+        preserved for user.        procedures cannot.  to user).
+────────────────────────────────────────────────────────────────────────
+```
+
+---
+
+### Instantiation Triggers
+
+```
+────────────────────────────────────────────────────────────────────────
+ Tier   Trigger                          Status
+────────────────────────────────────────────────────────────────────────
+ 1      Immediately — T3 #12 added       Active (Session 24)
+        to cognitive triggers.
+
+ 2      First activation condition met:  Pending — no activation
+        sub-agent conflict, SETL >       condition has occurred yet.
+        0.40, or scope overreach         Create transport/sessions/
+        detected.                        evaluator/ at first fire.
+
+ 3      First disputed claim between     Pending — no peer
+        peer agents OR user              disagreement has occurred.
+        escalation request —
+        whichever comes first.
+────────────────────────────────────────────────────────────────────────
+```
+
+---
+
+### Tier 1 Independence Strengthening (S4)
+
+Tier 1 runs within the psychology agent's own session — it shares the agent's
+blind spots. Four mechanisms compensate:
+
+1. **Adversarial self-framing** — the agent constructs the strongest argument
+   against its own recommendation before issuing "proceed." Framed as the
+   evaluator's perspective, not the agent's.
+
+2. **Parsimony comparison** — explicit Occam's Razor check when 2+ interpretations
+   exist. T3 #1–#11 guard recommendation quality; #12 guards which recommendation
+   among candidates.
+
+3. **Audit trail** — every Tier 1 evaluation logged to structured JSONL
+   (`transport/sessions/evaluator/tier1-audit.jsonl`). Deferred accountability:
+   Tier 2/3 evaluator audits Tier 1 log retroactively when it fires.
+
+4. **Random escalation** — 1-in-5 Tier 1 checks randomly escalate to Tier 2 for
+   independent verification. The agent cannot predict which checks get escalated.
+   Probabilistic independence for a self-check that otherwise lacks structural
+   separation.
+
+**Acknowledged tradeoff:** Tier 1 structural independence is deferred, not
+achieved. The S4 mechanisms reduce the risk of self-serving blind spots but
+cannot eliminate them. Full structural independence begins at Tier 2.
+
+---
+
+### Evaluator Response Schema (evaluator-response/v1)
+
+Extension to interagent/v1. Formalizes the three tier output formats.
+
+**Tier 1 (Lite):**
+```json
+{
+  "schema": "evaluator-response/v1",
+  "tier": 1,
+  "evaluation": "proceed | flag",
+  "flag_reason": "string (if flag)",
+  "confidence_adjustment": 0.0,
+  "escalated": false,
+  "audit_sequence": 1
+}
+```
+
+**Tier 2 (Standard):**
+```json
+{
+  "schema": "evaluator-response/v1",
+  "tier": 2,
+  "domain": "string",
+  "procedure_applied": "string (which procedure resolved)",
+  "resolution": "string",
+  "overreach_flags": [],
+  "escalate_to_tier_3": false
+}
+```
+
+**Tier 3 (Full):**
+```json
+{
+  "schema": "evaluator-response/v1",
+  "tier": 3,
+  "domain": "string",
+  "procedures_run": ["string (in order applied)"],
+  "resolution": "string | null",
+  "disagreement_shape": {
+    "agent_a_position": "string",
+    "agent_b_position": "string",
+    "point_of_conflict": "string",
+    "procedures_that_failed": ["string"],
+    "reason_each_failed": ["string"]
+  },
+  "overreach_flags": [],
+  "user_decision_required": true
+}
+```
+
+All tiers include standard interagent/v1 envelope fields (timestamp, from, to,
+session_id, epistemic_flags) when transported between sessions. Tier 1 entries
+in the audit log use the compact format above (no envelope — they stay local).
 
 ---
 

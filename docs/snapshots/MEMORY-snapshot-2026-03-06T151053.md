@@ -18,11 +18,12 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 24b. Local-coordination/v1 spec written. Three backlog items
-complete: sub-project boundary hook, pushback accumulator, T9 evidence decay thresholds.
-EF-3 resolved by other instance (tiered hybrid + S4). Blog PR #7 submitted (other instance).
-**Next:** Recover best.pt from Hetzner (rsync, TODO). B1/B2 fixes (psq-agent context).
-"Jurassic Park Development" blog post. Configurable /hunt at bootstrap.
+**Where we stopped:** Session 24. PSQ bug investigation: best.pt found on Hetzner (255 MB,
+v23 DistilBERT, held-out r=0.696). B2 corrected (shallow slope, not dead). B1+B2 deferred
+until best.pt recovered locally. Chromebook unreachable — compare SHA later.
+**Next:** Recover best.pt from Hetzner (`rsync` command in TODO). Compare with Chromebook
+copy when reachable. Then retrain confidence head (B1) + recalibrate HI (B2). Blog drafts
+need review. EF-3 evaluator instantiation.
 
 
 ## Memory Hygiene
