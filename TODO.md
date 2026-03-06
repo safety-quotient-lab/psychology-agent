@@ -77,12 +77,11 @@ Forward-looking task list only. Completed and emergent work goes to
   (203 lines, detail loads per-filetype). CLAUDE.md Glob-Scoped Rules section added.
   *Completed: 2026-03-06*
 
-- [ ] **Auto-persist /adjudicate output** — route /adjudicate decision documents to
-  `plans/` or `docs/decisions/` automatically, not just conversation output. Plans
-  written to disk survive context compaction; plans in conversation do not. Currently
-  /adjudicate produces structured output that /doc can persist — but only when manually
-  invoked. For Architecture Items 1–3, auto-persistence prevents decision loss.
-  *Source: antiregression-setup planner-writes-to-file pattern*
+- [x] **Auto-persist /adjudicate output** — ✓ Session 24. /adjudicate command updated
+  with Auto-Persist section: writes full adjudication to `docs/decisions/YYYY-MM-DD-{slug}.md`
+  with YAML frontmatter (decision, date, scale, resolution, session). Skip for inline
+  XS/S under 20 lines. EF-3 adjudication retroactively persisted as first entry.
+  *Completed: 2026-03-06*
 
 - [x] **Sub-project boundary hook** — ✓ Session 24. PreToolUse (Write|Edit|Read) hook
   at `.claude/hooks/subproject-boundary.sh`. Warns when file path crosses into

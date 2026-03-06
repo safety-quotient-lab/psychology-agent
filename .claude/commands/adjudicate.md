@@ -192,6 +192,36 @@ Pass 2: [10 orders, calibrated] (M/L only)
 
 ---
 
+## Auto-Persist
+
+After completing the adjudication (all phases), **write the full output to disk**:
+
+1. **Filename:** `docs/decisions/YYYY-MM-DD-{slug}.md` where `{slug}` is a
+   kebab-case summary of the decision (e.g., `evaluator-instantiation-gate`,
+   `license-selection`). Run `date -Idate` for the date.
+
+2. **Content:** The full adjudication output (all phases), prefixed with YAML
+   frontmatter:
+   ```yaml
+   ---
+   decision: "{Decision Title}"
+   date: "YYYY-MM-DD"
+   scale: "{XS/S/M/L}"
+   resolution: "{Option X}"
+   session: "{Session N}"
+   ---
+   ```
+
+3. **Routing:** This file is the canonical record. Journal.md may narrate the
+   reasoning; architecture.md records the resolved decision; this file preserves
+   the full analysis that produced it. All three serve different audiences.
+
+4. **Skip condition:** If the adjudication was `inline` (XS/S) and produced
+   fewer than 20 lines of analysis, skip persistence — the overhead exceeds
+   the value. Note in conversation: "Inline adjudication — not persisted."
+
+---
+
 ## Anti-patterns
 
 - **Adjudicating XS decisions at L depth** — the cost of deciding exceeds
