@@ -224,10 +224,22 @@ dimensions.
 
 ## Remaining Architecture Items
 
-1. **General agent design** — ✓ Routing logic complete. ✓ Identity spec complete (see below).
-2. **Sub-agent protocol** — how sub-agents plug in, communicate, declare scope
-3. **Adversarial evaluator** — ✓ Reasoning procedures spec complete (see below).
-   Tiered activation logic and full evaluator prompt pending.
+1. **General agent design** — ✓ Complete (Session 16). Routing, identity, evaluator
+   reasoning procedures.
+
+2. **Sub-agent protocol** — expanded scope (symmetric peer topology, 2026-03-05):
+   - **2a Sub-agent layer**: request/response format, scope declaration, PSQ binding.
+     Derive via plan9port live exchange.
+   - **2b Peer layer**: two equal-weight general agent instances. V2 comm schema is
+     the starting point. Peer disagreement routing to evaluator is the open contract.
+
+3. **Adversarial evaluator** — priority elevated. Symmetric peers require evaluator
+   to resolve agent-agent disagreements. ✓ Reasoning procedures spec complete.
+   Remaining: tiered activation logic (now includes peer disagreement trigger) +
+   full evaluator prompt. Build immediately after Item 2.
+
+4. **Psychology interface** — `psychology-agent/interface/`. Agent SDK wrapper.
+   Custom UI. Production transport: F2 on Cloudflare. Precondition: Item 2a.
 
 
 ## Component Spec: Adversarial Evaluator — Reasoning Procedures

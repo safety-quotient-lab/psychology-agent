@@ -7,13 +7,36 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ## Architecture (in progress)
 
-- [ ] **Item 1: General agent design** — prompt/identity, routing logic, Socratic
-  protocol (dynamic calibration for humans; structural detection + direct mode
-  for machine callers)
-- [ ] **Item 2: Sub-agent protocol** — how sub-agents plug in, communicate scope,
-  and declare validated boundaries
-- [ ] **Item 3: Adversarial evaluator** — tiered activation logic, parsimony
-  reasoning, overreach detection
+- [x] **Item 1: General agent design** — ✓ Complete (Session 16). Routing spec,
+  identity spec, evaluator reasoning procedures (7-procedure ranked set + domain
+  priority tables).
+
+- [ ] **Item 2: Sub-agent protocol** — expanded scope (symmetric peer topology
+  decision, 2026-03-05). Now covers two layers:
+  - **2a: Sub-agent layer** — how sub-agents plug in, request/response format,
+    scope declaration, validated boundaries. PSQ sub-agent is the concrete binding.
+    Derive via plan9port live exchange.
+  - **2b: Peer layer** — how two equal-weight general agent instances communicate.
+    V2 comm schema (source_confidence, claims[], action_gate, convergence_signals)
+    is the starting point. Peer disagreement routing to evaluator (Item 3) is the
+    open contract.
+  *Precondition: plan9port installed on both machines.*
+
+- [ ] **Item 3: Adversarial evaluator** — **priority elevated.** Symmetric peer
+  topology (Item 2b) requires evaluator to resolve agent-agent disagreements.
+  Evaluator reasoning procedures ✓ (Session 16). Remaining:
+  - Tiered activation logic — when does the evaluator fire? Triggers: sub-agent
+    conflict, peer disagreement, SETL above threshold, user escalation.
+  - Activation scope extended: now includes peer-agent disagreement (not just
+    sub-agent conflict as originally designed).
+  - Full evaluator prompt.
+  *Build immediately after Item 2. Interim: user mediates peer disagreements.*
+
+- [ ] **Item 4: Psychology interface** — `psychology-agent/interface/`. Agent SDK
+  wrapper (`@anthropic-ai/claude-agent-sdk`). Custom UI consuming message stream.
+  Cogarch config via `settingSources: ['project']`. PSQ visualization gates on
+  Item 2a. Production transport: F2 (custom 9P server on Cloudflare).
+  *Precondition: Item 2a defined (PSQ sub-agent binding needed for interface).*
 
 ---
 
