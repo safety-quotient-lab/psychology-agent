@@ -1509,3 +1509,56 @@ validate this spec and surface gaps (same derivation method as v1→v2).
 - Psychology interface primary display target: TUI, web, or desktop?
 - Adversarial evaluator build sequence: before or after symmetric peer topology exercised?
 - interagent/v1 schema namespace owner: psychology-agent repo, or a neutral shared repo?
+- interagent/v1 vs A2A (Google Agent-to-Agent protocol, v0.3.0): align, extend, or stay separate?
+  observatory-agent's agent.json uses A2A format. A2A may already solve capability discovery.
+  Evaluate before finalizing interagent/v1 spec.
+- observatory PSQ (3-dim: threat exposure, trust conditions, resilience baseline) vs
+  psychology-agent PSQ (10-dim, DistilBERT v23). Same namespace — different models.
+  Coordination needed before either agent's PSQ scores are used by the other.
+
+### Convergence Signals — Observatory Exchange (2026-03-05)
+
+Findings from capability handshake with observatory-agent that bear on architecture:
+
+```
+────────────────────────────────────────────────────────────────────────
+ Signal                    Finding
+────────────────────────────────────────────────────────────────────────
+ SETL                      Shared primitive. Observatory uses identical
+                            definition: structural-editorial tension level,
+                            same divergence model. Convergent independently.
+
+ Fair Witness               Shared epistemic foundation. Observatory uses
+                            Fair Witness as evidence transparency protocol
+                            (observable facts / interpretive inferences).
+                            Not borrowed — convergent.
+
+ Cloudflare stack           Observatory runs CF Workers + D1 + KV + R2 +
+                            Queues. Architecture Item 4 (F2 transport)
+                            targets same stack. Code and infrastructure
+                            patterns may be directly reusable.
+
+ PSQ (experimental)         Observatory already scores PSQ per story and
+                            per domain. 3 dimensions: threat exposure,
+                            trust conditions, resilience baseline.
+                            Psychology-agent PSQ: 10 dimensions, DistilBERT
+                            v23. Namespace collision. Coordination required
+                            before cross-agent PSQ use.
+
+ A2A protocol               Observatory uses Google A2A spec v0.3.0 for
+                            agent.json capability card. interagent/v1 was
+                            derived independently. Evaluate alignment before
+                            finalizing interagent/v1 as a separate standard.
+
+ agent-inbox pattern        /.well-known/agent-inbox.json: static file
+                            publishing inter-agent proposals with lifecycle
+                            (pending → accepted → implemented). Async
+                            coordination without live handshake. Adoption
+                            candidate for psychology-agent.
+
+ License delta              Observatory: Apache-2.0 (code), CC BY-SA 4.0
+                            (content/data). Psychology-agent: CC BY-NC-SA
+                            4.0. NC restriction limits integration depth.
+                            Relevant if sharing code or data.
+────────────────────────────────────────────────────────────────────────
+```
