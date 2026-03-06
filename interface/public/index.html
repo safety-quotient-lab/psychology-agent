@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Psychology Agent</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="site-header">
+      <h1>Psychology Agent</h1>
+      <span id="session-badge" class="session-badge" aria-label="Session status">No session</span>
+    </header>
+
+    <main class="chat-layout">
+      <section class="chat-panel" aria-label="Conversation">
+        <div id="message-list" class="message-list" role="log" aria-live="polite" aria-label="Messages">
+          <div class="message system-message">
+            <p>Start a conversation. Type a message and press Enter or click Send.</p>
+          </div>
+        </div>
+
+        <form id="input-form" class="input-form" aria-label="Send message">
+          <textarea
+            id="prompt-input"
+            class="prompt-input"
+            rows="3"
+            placeholder="Ask something…"
+            aria-label="Message input"
+          ></textarea>
+          <button type="submit" id="send-button" class="send-button">Send</button>
+        </form>
+      </section>
+
+      <aside class="psq-panel" aria-label="PSQ scores" id="psq-panel">
+        <h2>PSQ Analysis</h2>
+        <p class="psq-empty" id="psq-empty">No psychoemotional safety scores yet.</p>
+        <canvas id="psq-radar" width="280" height="280" aria-label="PSQ radar chart" style="display:none"></canvas>
+        <div id="psq-scores-table" class="psq-scores-table" aria-label="PSQ dimension scores"></div>
+      </aside>
+    </main>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

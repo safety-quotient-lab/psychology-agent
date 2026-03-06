@@ -1,0 +1,27 @@
+name = "psychology-interface"
+main = "src/worker.js"
+compatibility_date = "2026-03-06"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "psychology-interface"
+database_id = "TBD"   # set after: wrangler d1 create psychology-interface
+
+[[kv_namespaces]]
+binding = "SESSION_KV"
+id = "TBD"             # set after: wrangler kv:namespace create SESSION_KV
+
+[[r2_buckets]]
+binding = "ARTIFACTS"
+bucket_name = "psychology-interface-artifacts"
+
+[vars]
+PSYCHOLOGY_AGENT_MODEL = "claude-opus-4-6"
+PSQ_CONFIDENCE_THRESHOLD = "0.6"
+
+# Secrets (set via: wrangler secret put ANTHROPIC_API_KEY)
+# ANTHROPIC_API_KEY
+
+[dev]
+port = 8787
