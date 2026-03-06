@@ -33,9 +33,13 @@ MEMORY_SNAPSHOT="${PROJECT_ROOT}/docs/MEMORY-snapshot.md"
 TRIGGERS_CANONICAL="${PROJECT_ROOT}/docs/cognitive-triggers.md"
 TRIGGERS_MIN_LINES=100
 
+# Topic files (index + topic pattern)
+TOPIC_SNAPSHOT_DIR="${PROJECT_ROOT}/docs/memory-snapshots"
+TOPIC_FILES=("decisions.md" "cogarch.md" "psq-status.md")
+
 # --- Content guard thresholds ---
 
-MEMORY_MIN_LINES=50
+MEMORY_MIN_LINES=30
 
 # --- Helper functions ---
 
@@ -120,7 +124,16 @@ echo ""
 memory_status=0
 triggers_status=0
 
-check_file_health "$MEMORY_LIVE" "$MEMORY_MIN_LINES" "MEMORY.md (auto-memory)" || memory_status=$?
+check_file_health "$MEMORY_LIVE" "$MEMORY_MIN_LINES" "MEMORY.md (auto-memory index)" || memory_status=$?
+for topic in "${TOPIC_FILES[@]}"; do
+  topic_path="${AUTO_MEMORY_DIR}/${topic}"
+  if [[ -f "$topic_path" ]]; then
+    local_lines=$(wc -l < "$topic_path" | tr -d '[:space:]')
+    echo "  OK       memory/${topic} (${local_lines} lines)"
+  else
+    echo "  MISSING  memory/${topic}"
+  fi
+done
 check_file_health "$TRIGGERS_CANONICAL" "$TRIGGERS_MIN_LINES" "cognitive-triggers.md (docs/)" || triggers_status=$?
 
 echo ""
@@ -137,6 +150,24 @@ if [[ $memory_status -ne 0 ]]; then
     restore_file "$MEMORY_SNAPSHOT" "$MEMORY_LIVE" "MEMORY.md" || restore_failed=true
   fi
 fi
+
+# Restore topic files if missing
+for topic in "${TOPIC_FILES[@]}"; do
+  topic_live="${AUTO_MEMORY_DIR}/${topic}"
+  topic_snapshot="${TOPIC_SNAPSHOT_DIR}/${topic}"
+  if [[ ! -f "$topic_live" ]]; then
+    if $CHECK_ONLY; then
+      echo "memory/${topic} needs restoration. Run without --check-only."
+      restore_needed=true
+    else
+      if [[ -f "$topic_snapshot" ]]; then
+        restore_file "$topic_snapshot" "$topic_live" "memory/${topic}" || restore_failed=true
+      else
+        echo "  SKIPPED  memory/${topic} — no snapshot available"
+      fi
+    fi
+  fi
+done
 
 if [[ $triggers_status -ne 0 ]]; then
   echo ""
@@ -160,6 +191,15 @@ else
   echo "  MISSING  docs/MEMORY-snapshot.md"
   snapshot_warning=true
 fi
+for topic in "${TOPIC_FILES[@]}"; do
+  topic_snapshot="${TOPIC_SNAPSHOT_DIR}/${topic}"
+  if [[ -f "$topic_snapshot" ]]; then
+    echo "  OK       docs/memory-snapshots/${topic}"
+  else
+    echo "  MISSING  docs/memory-snapshots/${topic}"
+    snapshot_warning=true
+  fi
+done
 
 if $snapshot_warning; then
   echo ""
@@ -173,19 +213,31 @@ echo "Skills:"
 echo ""
 
 skills_found=0
-skills_expected=5
-for skill_name in adjudicate capacity cycle doc hunt; do
+skills_expected=4
+for skill_name in cycle doc hunt knock; do
   skill_path="${PROJECT_ROOT}/.claude/skills/${skill_name}/SKILL.md"
   if [[ -f "$skill_path" ]]; then
-    echo "  OK       /${skill_name}"
+    echo "  OK       /${skill_name} (skill)"
     ((skills_found++))
   else
-    echo "  MISSING  /${skill_name}"
+    echo "  MISSING  /${skill_name} (skill)"
+  fi
+done
+
+commands_found=0
+commands_expected=2
+for cmd_name in adjudicate capacity; do
+  cmd_path="${PROJECT_ROOT}/.claude/commands/${cmd_name}.md"
+  if [[ -f "$cmd_path" ]]; then
+    echo "  OK       /${cmd_name} (command)"
+    ((commands_found++))
+  else
+    echo "  MISSING  /${cmd_name} (command)"
   fi
 done
 
 echo ""
-echo "Skills: ${skills_found}/${skills_expected} found on disk."
+echo "Skills: ${skills_found}/${skills_expected} found. Commands: ${commands_found}/${commands_expected} found."
 echo "(Skills load at Claude Code session start — restart to pick up new ones.)"
 
 # Final status

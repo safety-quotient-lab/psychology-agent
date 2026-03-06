@@ -115,27 +115,35 @@ Forward-looking only. Light-touch maintenance.
 
 Skip if nothing changed that affects the task list.
 
-### 7. Update MEMORY.md
+### 7. Update Memory Files
 
-Volatile orientation state only. MEMORY.md should contain the minimum needed to
-resume work cold without re-reading the full documentation.
+Memory uses an index + topic file pattern. MEMORY.md is the always-loaded index
+(~55 lines). Topic files hold detail and are read on demand.
 
-**Active Thread**: update "where we stopped" and "next" to reflect session end state.
+**Routing table — what changed this session → which file to update:**
 
-**Design Decisions table**: add or update any decisions made this session.
+| Change type | Target file |
+|-------------|-------------|
+| Active thread (where we stopped, next) | `MEMORY.md` (index) |
+| Design decision resolved/modified | `memory/decisions.md` |
+| Authority hierarchy changed | `memory/decisions.md` |
+| Trigger added/changed, cogarch principle | `memory/cogarch.md` |
+| Knock-on depth, adjudication tiers | `memory/cogarch.md` |
+| Working principle (edit/date/anti-sycophancy) | `memory/cogarch.md` |
+| PSQ calibration, deploy, or open issues | `memory/psq-status.md` |
+| User preference | `MEMORY.md` (index) |
+| Memory hygiene rule | `MEMORY.md` (index) |
 
-**Working Principles / cogarch quick-ref**: if triggers were added or changed,
-update the T1–T11 quick-reference table.
+**MEMORY.md index**: update Active Thread to reflect session end state. Keep under 60 lines.
 
-**PSQ Sub-Agent Status**: update only if PSQ work was done in this context
-(rare — PSQ work normally happens in its own context).
+**Topic files**: update only the files that changed this session. No line limit on topic files.
 
 **Memory hygiene (T9)**:
-- Remove or update stale entries
-- Check for duplicates (don't add what's already there)
+- Remove or update stale entries in any memory file
+- Check for duplicates across files (don't add what's already there)
 - Verify no speculation is persisted as fact
-- Check line count: hard limit 200 (system truncates 201+); pressure point 185.
-  If above 185, move stable content to CLAUDE.md. MEMORY.md = volatile state only.
+- Check MEMORY.md line count: target < 60 lines (hard limit 200, but the index
+  should stay lean; detail goes to topic files)
 
 ### 8. Update docs/cognitive-triggers.md
 
@@ -212,27 +220,39 @@ cp "${PROJECT_ROOT}/docs/MEMORY-snapshot.md" \
 ```
 
 **Step B: Content guard** — verify the incoming MEMORY.md is substantive before
-allowing it to overwrite the canonical. Protects against accidentally copying an
-empty, truncated, or corrupted file.
+allowing it to overwrite the canonical. With the topic-file pattern, MEMORY.md
+is the index (~55 lines). Threshold lowered to 30 lines.
 
 ```bash
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 _HASH="$(echo "$PROJECT_ROOT" | tr '/' '-')"
-MEMORY_LIVE="$HOME/.claude/projects/${_HASH}/memory/MEMORY.md"
-LINE_COUNT=$(wc -l < "${MEMORY_LIVE}" | tr -d '[:space:]')
+MEMORY_DIR="$HOME/.claude/projects/${_HASH}/memory"
+LINE_COUNT=$(wc -l < "${MEMORY_DIR}/MEMORY.md" | tr -d '[:space:]')
 echo "MEMORY.md line count: ${LINE_COUNT}"
-# Proceed only if LINE_COUNT >= 50. If below threshold, STOP and investigate.
+# Proceed only if LINE_COUNT >= 30. If below threshold, STOP and investigate.
 ```
 
-If `LINE_COUNT < 50`: do **not** overwrite. Report the anomaly in the cycle summary.
+If `LINE_COUNT < 30`: do **not** overwrite. Report the anomaly in the cycle summary.
 
-**Step C: Update canonical** — only after A and B complete successfully.
+**Step C: Update canonical** — copy index + all topic files. Only after A and B
+complete successfully.
 
 ```bash
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 _HASH="$(echo "$PROJECT_ROOT" | tr '/' '-')"
-MEMORY_LIVE="$HOME/.claude/projects/${_HASH}/memory/MEMORY.md"
-cp "${MEMORY_LIVE}" "${PROJECT_ROOT}/docs/MEMORY-snapshot.md"
+MEMORY_DIR="$HOME/.claude/projects/${_HASH}/memory"
+SNAPSHOT_DIR="${PROJECT_ROOT}/docs"
+
+# Index
+cp "${MEMORY_DIR}/MEMORY.md" "${SNAPSHOT_DIR}/MEMORY-snapshot.md"
+
+# Topic files → docs/memory-snapshots/ (committed alongside MEMORY-snapshot.md)
+mkdir -p "${SNAPSHOT_DIR}/memory-snapshots"
+for topic in decisions.md cogarch.md psq-status.md; do
+  if [ -f "${MEMORY_DIR}/${topic}" ]; then
+    cp "${MEMORY_DIR}/${topic}" "${SNAPSHOT_DIR}/memory-snapshots/${topic}"
+  fi
+done
 ```
 
 The canonical (`docs/MEMORY-snapshot.md`) always reflects end-of-session state.
