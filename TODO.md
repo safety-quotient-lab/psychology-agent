@@ -116,13 +116,10 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ## Documentation
 
-- [ ] **`docs/dictionary.md`** — taxonomy reference with links to canonical source
-  definitions. Each entry: term, how this project uses it, link to original source
-  (Peirce, Silverstein, Henrich et al. WEIRD, Scheffer CSD, PSQ dimensions → own
-  validation paper when published, PJE constructs). Complements `docs/glossary.md`
-  (project-scoped) with external provenance. Audience: researchers needing the
-  citation chain.
-  *Effort: M (source lookup + citation verification per entry)*
+- [x] **`docs/dictionary.md`** — ✓ Session 27. 15 entries across 7 categories
+  (Semiotics, Psychology, Dialogue, Systems Engineering, Fair Witness, Standards,
+  Neural Architecture). APA citations, project usage for each.
+  *Completed: 2026-03-06*
 
 ---
 
@@ -225,10 +222,10 @@ Simone, cc-tools, cchooks.*
   proceeding — or withdraw.
   *Source: Trail of Bits mandatory "Rationalizations to Reject" sections*
 
-- [ ] **Context pressure hook** (Rank 4) — PreToolUse hook reads context window %
-  from statusline data, warns at 60% threshold. cc-tools confirms data source exists
-  in Claude Code's statusline input JSON.
-  *Source: cc-tools statusline input format + TODO compaction threshold trigger*
+- [x] **Context pressure hook** (Rank 4) — ✓ Session 27. PreToolUse hook reads
+  context % from /tmp/.claude-context-pct (written by Notification statusline hook).
+  Warns at 60% (PRESSURE), 75% (CRITICAL). Non-blocking.
+  *Completed: 2026-03-06*
 
 - [ ] **GRADE evidence framework** (Rank 5) — adopt GRADE (Grading of Recommendations,
   Assessment, Development and Evaluations) as reference material for T3 confidence
@@ -278,12 +275,9 @@ Simone, cc-tools, cchooks.*
 Managed in safety-quotient/ context. Do not duplicate here.
 Blocking: API surface, confidence calibration, scope boundaries.
 
-- [ ] **PSQ: Recover best.pt to local** — `best.pt` (255 MB, v23 DistilBERT, held-out
-  r=0.696) confirmed on Hetzner. Recovery:
-  `rsync -avz root@178.156.229.103:/opt/psychology-agent/safety-quotient/models/psq-student/ ~/Projects/safety-quotient/models/psq-student/`
-  After recovery: compare SHA256 with Chromebook version (`chromabook:/home/kashif/projects/psychology/safety-quotient/models/psq-student/best.pt`)
-  when reachable. Use Hetzner copy for now.
-  *Source: Session 24, 2026-03-06*
+- [x] **PSQ: Recover best.pt to local** — ✓ Session 27. 256 MB present locally;
+  SHA256 prefix `7bec777c173f1f20` matches Hetzner copy. Identical file confirmed.
+  *Completed: 2026-03-06*
 
 - [x] **PSQ bug B1: Dead confidence head** — ✓ RESOLVED (Session 26, 2026-03-06).
   No model retrain needed. Fix: r_confidence field added to score output;

@@ -29,6 +29,15 @@
             "timeout": 2000
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/context-pressure-gate.sh",
+            "timeout": 1000
+          }
+        ]
       }
     ],
     "PostToolUse": [
