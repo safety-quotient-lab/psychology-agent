@@ -1503,18 +1503,93 @@ primary domain. observatory.unratified.org/.well-known/agent.json returns 404
 **Open contract:** First real capability handshake with observatory-agent will
 validate this spec and surface gaps (same derivation method as v1→v2).
 
+**Update (2026-03-06):** Handshake complete. A2A Epistemic Extension framing
+adopted (see §A2A Epistemic Extension below). interagent/v1 becomes a profile
+of A2A v0.3.0, not a parallel standard.
+
+### A2A Epistemic Extension (2026-03-06)
+
+interagent/v1 is now framed as a **profile of A2A v0.3.0**, not a parallel
+standard. The novel contribution is the epistemic layer; A2A handles discovery.
+
+```
+────────────────────────────────────────────────────────────────────────
+ Layer                   Source           Fields
+────────────────────────────────────────────────────────────────────────
+ Discovery               A2A v0.3.0       agent.json, skills[], inputModes,
+                                          outputModes, protocolVersion
+ Epistemic extension     interagent/v1    claims[], setl, epistemic_flags,
+                                          action_gate, correction{}
+────────────────────────────────────────────────────────────────────────
+```
+
+Status: adopted in principle. Both agents reading full A2A spec independently
+before finalizing the profile spec.
+
+### 9P Transport — Canonical Pattern (2026-03-06)
+
+Live test between macOS arm64 (psychology-agent) and Debian x86_64
+(observatory-agent) confirmed. 4 files exchanged cross-machine.
+
+**Canonical F1 transport command (client side, on Debian):**
+```bash
+ssh -o ForwardX11=no <macos-host> \
+  'PLAN9=/private/tmp/plan9port PATH=$PLAN9/bin:$PATH exec ramfs -i' \
+  | 9pfuse /dev/fd/0 /tmp/9p-import
+```
+
+**Key findings:**
+- `listen1` with `tcp!` dial strings does NOT work on macOS — zsh globbing
+  eats `*`, Darwin network stack rejects dial strings. SSH pipe is the
+  only working cross-machine pattern in plan9port on macOS.
+- `ramfs -i` is ephemeral — exits after initial connection. Sufficient for
+  single-session file exchange. Not suitable for persistent serving.
+- For persistent 9P serving, `u9fs` or `exportfs` would be needed — neither
+  trivially available in plan9port. F2 (custom 9P server) remains the
+  production transport target.
+
+**Item 2a derivation findings from transport test:**
+1. **No transport field in schema** — method, persistence, and lifetime are
+   architecturally significant but live outside the message envelope.
+   Proposed: `transport: { method, session_id, persistence }`.
+2. **Ephemeral constraint not expressible** — ramfs namespace expires when
+   SSH drops. No schema field signals this. Proposed: `transport.persistence:
+   ephemeral | session | persistent`.
+3. **File/message boundary undefined** — 9P transport delivers raw bytes;
+   schema validation is message-layer. Need a framing convention:
+   filename pattern (`*.interagent.json`) or manifest file in namespace.
+
+### PSQ Namespace Convention (2026-03-06)
+
+Observatory confirmed: obs:psq and psy:psq are **different constructs sharing
+a family name**, not different implementations of the same construct.
+
+```
+────────────────────────────────────────────────────────────────────────
+ Namespace    Owner              Model                  Use
+────────────────────────────────────────────────────────────────────────
+ obs:psq      observatory-agent  LLM heuristic          Corpus triage.
+                                 3 dims, 0-10            Every story scored
+                                 scored during           by free LLM at
+                                 eval pass               ingest. Fast.
+ psy:psq      psq-sub-agent      DistilBERT v23         Clinical text.
+                                 10 dims, 0-10           Validated on
+                                 validated, r=0.684      Dreaddit. Precise.
+────────────────────────────────────────────────────────────────────────
+```
+
+Integration path: obs:psq at ingest as triage layer; psy:psq on flagged
+outliers as detailed pass. Cross-agent PSQ exchange gate now open.
+
 ### Open Questions
 
 - F2 language: Python (py9p) or Go (go9p)?
 - Psychology interface primary display target: TUI, web, or desktop?
-- Adversarial evaluator build sequence: before or after symmetric peer topology exercised?
-- interagent/v1 schema namespace owner: psychology-agent repo, or a neutral shared repo?
-- interagent/v1 vs A2A (Google Agent-to-Agent protocol, v0.3.0): align, extend, or stay separate?
-  observatory-agent's agent.json uses A2A format. A2A may already solve capability discovery.
-  Evaluate before finalizing interagent/v1 spec.
-- observatory PSQ (3-dim: threat exposure, trust conditions, resilience baseline) vs
-  psychology-agent PSQ (10-dim, DistilBERT v23). Same namespace — different models.
-  Coordination needed before either agent's PSQ scores are used by the other.
+- interagent/v1 schema namespace owner: finalize after A2A spec review.
+- A2A Epistemic Extension: both agents reading full A2A spec — compare findings
+  before finalizing profile spec.
+- Item 2a transport fields: transport{}, persistence enum — needs adjudication
+  before next schema version.
 
 ### Convergence Signals — Observatory Exchange (2026-03-05)
 
