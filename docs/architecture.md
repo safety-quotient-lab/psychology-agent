@@ -569,6 +569,13 @@ The evaluator spec has two parameters that Item 2 must fill:
    is a first approximation. Item 2b (peer layer) may refine domain-specific
    thresholds once live peer exchanges establish empirical SETL distributions.
 
+3. **Plumber prior art** — Plan 9's plumber is rule-based message routing with
+   30 years of production use. Its rule format (match conditions → dispatch action)
+   is the Unix-process precedent for what the v2 schema does between agents.
+   Review plumber rules format when specifying sub-agent routing in Item 2a.
+   Not an adoption target — prior art for design.
+   *Source: closing instance (Sessions 1–9) architectural note, 2026-03-05.*
+
 ---
 
 ## Component Spec: General Agent Identity
