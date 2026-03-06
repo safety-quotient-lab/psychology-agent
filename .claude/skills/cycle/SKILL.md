@@ -1,3 +1,10 @@
+---
+name: cycle
+description: Post-session documentation chain — propagate changes through lab-notebook, journal, architecture, MEMORY, snapshot, and commit.
+user-invocable: true
+allowed-tools: Read, Write, Edit, Grep, Glob, Bash
+---
+
 # Post-Session Cycle (Psychology Agent)
 
 Ensures every session's decisions, findings, and reasoning propagate through the
