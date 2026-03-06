@@ -1597,16 +1597,22 @@ ssh -o ForwardX11=no <macos-host> \
   trivially available in plan9port. F2 (custom 9P server) remains the
   production transport target.
 
-**Item 2a derivation findings from transport test:**
+**Item 2a derivation findings from transport test and PSQ inference:**
 1. **No transport field in schema** — method, persistence, and lifetime are
    architecturally significant but live outside the message envelope.
-   Proposed: `transport: { method, session_id, persistence }`.
+   Resolution: `transport: { method, session_id, persistence }` (v3 ✓)
 2. **Ephemeral constraint not expressible** — ramfs namespace expires when
-   SSH drops. No schema field signals this. Proposed: `transport.persistence:
-   ephemeral | session | persistent`.
+   SSH drops. No schema field signals this.
+   Resolution: `transport.persistence: ephemeral | session | persistent` (v3 ✓)
 3. **File/message boundary undefined** — 9P transport delivers raw bytes;
-   schema validation is message-layer. Need a framing convention:
-   filename pattern (`*.interagent.json`) or manifest file in namespace.
+   schema validation is message-layer. Need a framing convention.
+   Resolution: `framing: { convention, pattern }` default `*.json` (v3 ✓)
+4. **Excluded-vs-scored ambiguity** — no field distinguishes "scored but
+   below confidence threshold" from "not scored." Emerged from PSQ response.
+   Proposed: `dimensions[].meets_threshold: boolean` (v3 candidate)
+5. **Calibration-status not expressible** — no field distinguishes raw model
+   output from calibrated output. Emerged from PSQ isotonic calibration.
+   Proposed: `scores.calibration_applied: boolean`, `dimensions[].raw_score: number` (v3 candidate)
 
 ### PSQ Namespace Convention (2026-03-06)
 
@@ -1630,15 +1636,45 @@ a family name**, not different implementations of the same construct.
 Integration path: obs:psq at ingest as triage layer; psy:psq on flagged
 outliers as detailed pass. Cross-agent PSQ exchange gate now open.
 
+### Schema v3 — Finalized (2026-03-06)
+
+All fields agreed by both agents after PR exchange (PRs #2, #6, #7):
+
+```
+────────────────────────────────────────────────────────────────────────
+ Field                   Status   Notes
+────────────────────────────────────────────────────────────────────────
+ transport.method        ✓        enum: git-pr | git-push | ssh-pipe+ramfs+9pfuse |
+                                  http+json | grpc | human-relay |
+                                  plan9-namespace | filesystem
+ transport.persistence   ✓        enum: ephemeral | session | persistent
+ transport.session_id    ✓        transport-layer session ID (distinct from message-layer)
+ framing.convention      ✓        enum: filename-pattern | manifest | envelope
+ framing.pattern         ✓        default glob: *.json (directory = namespace boundary)
+ Extension URI           ✓        https://github.com/safety-quotient-lab/interagent-epistemic/v1
+                                  neutral namespace — jointly derived, joint ownership
+────────────────────────────────────────────────────────────────────────
+```
+
+**Scope rule:** transport{} is per-message. Omission = persist-from-last convention.
+Agents MAY omit transport{} when unchanged from prior turn.
+
+**Item 2a derivation findings — complete (5 total):**
+1. transport-method-not-in-schema → `transport.method`
+2. ramfs-ephemeral-constraint → `transport.persistence` enum
+3. file-vs-message-boundary → `framing.convention` + `framing.pattern`
+4. excluded-vs-scored → `dimensions[].meets_threshold` (PSQ response gap)
+5. calibration-status → `scores.calibration_applied` + `dimensions[].raw_score` (PSQ gap)
+
+**Next:** Item 2a spec document — formalize all 5 findings into a spec.
+
 ### Open Questions
 
 - F2 language: Python (py9p) or Go (go9p)?
 - Psychology interface primary display target: TUI, web, or desktop?
-- interagent/v1 schema namespace owner: finalize after A2A spec review.
-- A2A Epistemic Extension: both agents reading full A2A spec — compare findings
-  before finalizing profile spec.
-- Item 2a transport fields: transport{}, persistence enum — needs adjudication
-  before next schema version.
+- ~~interagent/v1 schema namespace owner~~ **RESOLVED:** `github.com/safety-quotient-lab/interagent-epistemic/v1` (neutral namespace, 2026-03-06)
+- ~~A2A Epistemic Extension: both agents reading full A2A spec~~ **RESOLVED:** interagent/v1 is a formal A2A extension via URI (required: false). Extension URI finalized above. (2026-03-06)
+- ~~Item 2a transport fields: transport{}, persistence enum~~ **RESOLVED:** schema v3 finalized, all fields agreed. (2026-03-06)
 
 ### Convergence Signals — Observatory Exchange (2026-03-05)
 
