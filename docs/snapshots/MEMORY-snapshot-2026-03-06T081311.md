@@ -6,11 +6,12 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 20. Architecture Items 1-3 ✓ complete. Item 2b written by
-psq-agent (docs/item2b-spec.md). calibration.json tracked on safety-quotient remote.
-Epistemic flags resolved. README updated with interagent sync feature.
-**Next:** Architecture Item 4 (psychology interface). PSQ scoring endpoint.
-Resolve safety-quotient local git divergence. Observatory PR #9 (closing ACK) open.
+**Where we stopped:** Session 19/20. Item 2a spec doc written. calibration.json fixed:
+`confidence_calibration` linear maps added (scale=0, shift=r) so remote student.js picks up
+r-based confidence proxy (was silently ignored). safety-quotient git state: diverged from origin,
+staged changes cleared, best.pt lost, calibration.json gitignored (models/ both sides).
+**Next:** Observatory merge PR #7 (schema-v3-ack). Item 2b (peer layer) design.
+Resolve safety-quotient git divergence (user decision needed). PSQ scoring endpoint.
 
 ## Design Decisions
 

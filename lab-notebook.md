@@ -79,23 +79,20 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Architecture Item 3           | ✓ Complete — activation logic, 7 triggers, evaluator prompt (Session 17) |
 | Transport layer               | ✓ F1 (plan9port) for derivation; F2/Cloudflare for production |
 | Agent topology                | ✓ Symmetric peers — evaluator resolves disagreements |
-| Item 2 derivation             | ⚑ In progress — 5 schema findings complete; spec doc is next |
-| Closing instance              | ✓ Retired — Sessions 1–9, ACK b670bd9 |
-| plan9port (macOS)             | ✓ Operational — /private/tmp/plan9port, 267 binaries |
-| plan9port (Debian)            | ✓ Operational — /tmp/plan9port, 269 binaries (observatory-agent) |
-| Observatory-agent exchange    | ⚑ In progress — schema v3 finalized; schema-v3-ack (PR #7) awaiting merge |
+| Item 2 protocol               | ✓ COMPLETE — Item 2a (6 findings, spec) + Item 2b (peer layer, spec) |
+| Observatory-agent exchange    | ✓ Complete — 20-turn live derivation; PR #9 (closing ACK) open |
 | interagent/v1 protocol        | ✓ Schema v3 finalized — extension URI, enum, glob, per-message scope |
 | PSQ namespace                 | ✓ Resolved — PSQ-Lite (LLM heuristic) vs PSQ-Full (DistilBERT v23) |
 | 9P transport (canonical)      | ✓ SSH pipe + ramfs -i + 9pfuse — verified cross-machine |
-| PSQ score calibration         | ✓ Isotonic regression fitted (n=1897); calibration.json live; +3.5–21.6% MAE/dim |
-| PSQ confidence calibration    | ✓ r-based proxy via confidence_calibration linear maps; student.js compatible |
-| PSQ response-001              | ✓ Calibrated scores; merged (PR #5); 5 schema gaps documented |
-| calibration.json on remote    | ✓ Tracked — .gitignore exception added; PR #1 merged (safety-quotient-lab/safety-quotient) |
-| PSQ confidence calibration    | ✓ r-based proxy (constant fn, intentional — overrides anti-calibrated model head) |
-| best.pt loss                  | ✓ Non-blocking — agent uses ONNX; best.pt needed only for recalibration |
-| safety-quotient git divergence| ⚑ Local main diverges from origin; untracked files block checkout; worktree used as workaround |
+| PSQ calibration               | ✓ Score (isotonic) + confidence (r-based proxy, intentional constant fn) |
+| calibration.json on remote    | ✓ Tracked — .gitignore exception; safety-quotient-lab PR #1 merged |
+| best.pt loss                  | ✓ Non-blocking — inference uses ONNX; best.pt only for recalibration |
+| safety-quotient git divergence| ⚑ Local main diverges from origin; worktree used as workaround |
+| Architecture Items 1–3        | ✓ Complete — Item 4 (psychology interface) is next |
+| README interagent sync        | ✓ Documented — first entry in Interesting Parts |
+| Closing instance              | ✓ Retired — Sessions 1–9, ACK b670bd9 |
+| plan9port                     | ✓ Operational — macOS + Debian (observatory-agent) |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
-| Git history                   | ✓ 48+ commits (ae85fbf)                          |
 
 
 ### Open Questions
@@ -1117,3 +1114,40 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
 - best.pt lost from local working tree; calibration.py cannot re-run until recovered.
 - safety-quotient git divergence unresolved.
 
+
+---
+
+## 2026-03-06T08:11 CST — Session 20 (Epistemic flags resolved + Item 2 complete)
+
+- → **Epistemic flags resolved** (three flags from Session 19/20):
+  1. Degenerate confidence calibration: accepted as intentional design — scale=0 overrides
+     anti-calibrated model head with per-dimension validation r. Correct epistemic behavior.
+  2. calibration.json not on remote: .gitignore restructured (`models/*` → `!models/psq-student/`
+     → `models/psq-student/*` → `!calibration.json`). Worktree used to create branch from origin/main
+     without conflicting untracked files. PR #1 merged on safety-quotient-lab/safety-quotient.
+  3. best.pt loss: non-blocking — psq-agent uses ONNX for inference; best.pt only needed
+     for recalibration if model retrains.
+- → **Observatory PRs #7/#8 merged**. PR #9 (item2a-closing-ack-001) sent — acknowledges
+  6 findings (not 5), accepts calibration_version amendment, points to docs/item2a-spec.md.
+- → **Item 2a spec updated**: finding #6 (per-message transport scope, persist-from-last)
+  made explicit; calibration_version amendment added to Gap #5.
+- → **Item 2b complete** — written by psq-agent (docs/item2b-spec.md): role declaration,
+  divergence detection (context_state + last_commit), SETL as peer divergence metric
+  (cumulative 0.40 threshold), evaluator tier binding (3-tier table), precedence protocol
+  (recency for state facts, evaluation for reasoning), convergence signal thresholds (1/2/3+),
+  domain SETL ranges from observatory exchange (0.05–0.65), context sync pattern (5 steps).
+- → **Architecture Items 1-3 complete**. docs/machine-response-v3-spec.md also appeared.
+- → **README updated**: interagent sync added as first Interesting Parts entry; architecture
+  diagram shows peer layer + sub-agent layer; Current Status updated (Items 1-3 ✓, Item 4 ✗).
+- → **psq-agent confirmed live and calibrated** ("psq-agent is at work, now").
+- → **Item 4 next**: psychology interface — Agent SDK wrapper, custom UI, PSQ visualization.
+
+⚑ EPISTEMIC FLAGS
+- safety-quotient local git divergence unresolved (workaround: worktree; root: diverged histories)
+- PR #9 (item2a-closing-ack) awaiting observatory merge
+- Item 2b not yet validated in a second peer exchange (spec derived from one exchange)
+- PSQ scoring endpoint not yet implemented — blocks PSQ integration in Item 4
+
+▶ docs/item2a-spec.md, docs/item2b-spec.md, docs/machine-response-v3-spec.md,
+  transport/sessions/item2-derivation/item2a-closing-ack-001.json,
+  safety-quotient/models/psq-student/calibration.json
