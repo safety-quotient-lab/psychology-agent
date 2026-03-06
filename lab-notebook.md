@@ -79,16 +79,18 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Architecture Item 3           | ✓ Complete — activation logic, 7 triggers, evaluator prompt (Session 17) |
 | Transport layer               | ✓ F1 (plan9port) for derivation; F2/Cloudflare for production |
 | Agent topology                | ✓ Symmetric peers — evaluator resolves disagreements |
-| Item 2 derivation             | ⚑ In progress — 9P transport verified; 3 schema findings; PSQ gate open |
+| Item 2 derivation             | ⚑ In progress — 5 schema findings complete; spec doc is next |
 | Closing instance              | ✓ Retired — Sessions 1–9, ACK b670bd9 |
 | plan9port (macOS)             | ✓ Operational — /private/tmp/plan9port, 267 binaries |
 | plan9port (Debian)            | ✓ Operational — /tmp/plan9port, 269 binaries (observatory-agent) |
-| Observatory-agent exchange    | ⚑ In progress — interagent/v1 handshake complete; A2A review pending |
-| interagent/v1 protocol        | ✓ Draft — A2A Epistemic Extension framing adopted |
-| PSQ namespace                 | ✓ Resolved — obs:psq (LLM heuristic) vs psy:psq (DistilBERT v23) |
+| Observatory-agent exchange    | ⚑ In progress — schema v3 finalized; schema-v3-ack (PR #7) awaiting merge |
+| interagent/v1 protocol        | ✓ Schema v3 finalized — extension URI, enum, glob, per-message scope |
+| PSQ namespace                 | ✓ Resolved — PSQ-Lite (LLM heuristic) vs PSQ-Full (DistilBERT v23) |
 | 9P transport (canonical)      | ✓ SSH pipe + ramfs -i + 9pfuse — verified cross-machine |
+| PSQ score calibration         | ✓ Isotonic regression fitted (n=1897); calibration.json live; +3.5–21.6% MAE/dim |
+| PSQ response-001              | ✓ Calibrated scores; merged (PR #5); 5 schema gaps documented |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
-| Git history                   | ✓ 43+ commits (b244814)                          |
+| Git history                   | ✓ 48+ commits (ae85fbf)                          |
 
 
 ### Open Questions
@@ -1046,4 +1048,46 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
 
 ▶ docs/architecture.md (interagent/v1, A2A extension, 9P transport, PSQ namespace, convergence signals),
   transport/sessions/item2-derivation/ (plan9port corrections, capability handshake, PSQ proposal, ACKs)
+
+---
+
+## 2026-03-06T07:18 CST — Session 19 (PSQ calibration + schema v3 finalized)
+
+- → **calibrate.py bug fix** (safety-quotient/): two bugs identified and fixed:
+  1. Wrong `PSQStudent` architecture in script — used `score_heads`/`conf_heads`
+     instead of `proj` (Sequential: Dropout→Linear→GELU→Dropout) + `heads`
+     (ModuleList of 10 Linear(384→2) layers). Architecture confirmed from distill.py.
+  2. State dict loading: `checkpoint["model_state_dict"]` failed — best.pt is a raw
+     OrderedDict, not a wrapped dict. Fixed to `model.load_state_dict(checkpoint)`.
+- → **Isotonic regression calibration fitted** (safety-quotient/scripts/calibrate.py):
+  1897 val records, all 10 dimensions. MAE improvements:
+  contractual_clarity +21.6%, resilience_baseline +16.3%, defensive_architecture +13.5%,
+  energy_dissipation +9.3%, cooling_capacity +8.3%, threat_exposure +7.5%,
+  trust_conditions +7.5%, hostility_index +6.3%, authority_dynamics +5.1%,
+  regulatory_capacity +3.5%. calibration.json live — student.js loads at init.
+- → **trust_conditions calibration artifact** identified: raw 3.05 → calibrated 5.00
+  (largest correction, compress ratio 0.70→0.55). Flagged in claims[] — may reflect
+  calibration normalizing to dataset mean rather than genuine signal.
+- → **PSQ response-001.json updated** with calibrated scores. 5th schema gap noted:
+  `scores.calibration_applied` + `dimensions[].raw_score` — no v2 field distinguishes
+  raw from calibrated output. PR #5 updated and merged.
+- → **Observatory PR #6 merged** (schema-v3-response-001): all schema v3 amendments
+  accepted — plan9-namespace + filesystem to enum, *.json default glob, per-message
+  scope with persist-from-last convention. Extension URI: neutral namespace preferred.
+- → **Schema v3 finalized**: extension URI = `github.com/safety-quotient-lab/interagent-epistemic/v1`
+  (joint ownership, neutral namespace). All fields agreed. schema-v3-ack-001.json sent (PR #7).
+- → **5 Item 2a derivation findings complete**. Ready for Item 2a spec document.
+- → architecture.md updated: schema v3 field table, 5 findings, 3 Open Questions resolved.
+
+⚑ EPISTEMIC FLAGS
+- Calibration fitted on PyTorch model outputs; applied to ONNX inference — small domain
+  mismatch, treated as acceptable approximation
+- trust_conditions calibrated 5.00 may be calibration artifact (dataset mean normalization)
+- Confidence calibration not yet addressed — all 10 dims still < 0.6 threshold; composite unusable
+- schema-v3-ack (PR #7) not yet merged by observatory — schema v3 considered finalized from
+  psychology-agent's side pending observatory confirmation
+
+▶ docs/architecture.md §Schema v3 Finalized, §Item 2a findings,
+  transport/sessions/item2-derivation/ (response-001, schema-v3-response-001, schema-v3-ack-001),
+  safety-quotient/scripts/calibrate.py, safety-quotient/models/psq-student/calibration.json
 

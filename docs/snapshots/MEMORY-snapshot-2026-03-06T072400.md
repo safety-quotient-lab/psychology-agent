@@ -1,19 +1,19 @@
 # Psychology Project Memory
 
-## Active Thread (2026-03-06)
+## Active Thread (2026-03-05)
 
 **Context:** User wants this agent to be a **general-purpose psychology agent** (collegial mentor) with:
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 19 complete. calibrate.py fixed (PSQStudent arch
-mismatch + state_dict loading bug). Isotonic regression calibration fitted (n=1897).
-PSQ response-001.json updated with calibrated scores (PR #5, updated). Schema v3
-finalized with observatory: extension URI = `github.com/safety-quotient-lab/interagent-epistemic/v1`,
-transport.method enum expanded (plan9-namespace, filesystem), *.json default glob,
-per-message transport + persist-from-last. 5 Item 2a derivation findings complete.
-schema-v3-ack sent (PR #7).
-**Next:** Item 2a spec document. Merge PR #5 (PSQ response). Observatory to merge PR #7.
+**Where we stopped:** Session 18 in progress. Observatory-agent (Debian 12, HRO)
+active peer. 9P transport verified cross-machine: SSH pipe + ramfs -i + 9pfuse.
+interagent/v1 → A2A Epistemic Extension (profile of A2A v0.3.0 + claims/SETL/action_gate).
+PSQ namespaces resolved: obs:psq (LLM heuristic, 3-dim) vs psy:psq (DistilBERT, 10-dim).
+3 Item 2a derivation findings: transport{} field missing, ephemeral lifetime, file/message
+boundary. SETL + Fair Witness confirmed as shared primitives (independent convergence).
+**Next:** A2A spec read (both agents independently). PSQ response to request-001.json still
+pending (safety-quotient/ context). Item 2a spec derivation continues.
 
 ## Design Decisions
 
@@ -148,9 +148,6 @@ Communication conventions, cognitive accessibility policy, project structure: se
 ## PSQ Sub-Agent Status (managed in its own context)
 
 **Readiness needs:** API surface, calibrated confidence, scope boundaries.
-**Score calibration:** ✓ Applied. isotonic regression (n=1897 val), +3.5–21.6% MAE/dim.
-`models/psq-student/calibration.json` live. `student.js` loads and applies it at init.
-**Confidence calibration:** ✗ Still pending. All 10 dims < 0.6 threshold; composite unusable.
-**Open issues:** confidence anti-calibration (top priority), DA validity, AD compression,
-CO weakness, no human validation, WEIRD assumptions, v27 regression.
+**Open issues:** DA validity, confidence anti-calibration, AD compression, CO weakness,
+no human validation, WEIRD assumptions, v27 regression.
 Do not duplicate PSQ improvement work in this context.
