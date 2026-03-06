@@ -13,14 +13,14 @@ Forward-looking task list only. Completed and emergent work goes to
 
 - [ ] **Item 2: Sub-agent protocol** — expanded scope (symmetric peer topology
   decision, 2026-03-05). Now covers two layers:
-  - **2a: Sub-agent layer** — how sub-agents plug in, request/response format,
-    scope declaration, validated boundaries. PSQ sub-agent is the concrete binding.
-    Derive via plan9port live exchange.
+  - **2a: Sub-agent layer** — derivation complete (5 findings). **Next: write
+    Item 2a spec document** formalizing schema v3 fields, PSQ schema gaps (#1–5),
+    extension URI, and framing convention. *(Derivation done; spec doc pending.)*
   - **2b: Peer layer** — how two equal-weight general agent instances communicate.
     V2 comm schema (source_confidence, claims[], action_gate, convergence_signals)
     is the starting point. Peer disagreement routing to evaluator (Item 3) is the
     open contract.
-  *Precondition: plan9port installed on both machines.*
+  *Precondition: schema v3 finalized ✓ (2026-03-06). Item 2a spec doc is next.*
 
 - [x] **Item 3: Adversarial evaluator** — ✓ Complete (Session 17). Tiered
   activation (Lite/Standard/Full), 7 activation triggers, peer disagreement
@@ -291,6 +291,11 @@ Simone, cc-tools, cchooks.*
 
 Managed in safety-quotient/ context. Do not duplicate here.
 Blocking: API surface, confidence calibration, scope boundaries.
+
+- [ ] **PSQ confidence calibration** — score calibration ✓ (isotonic regression, n=1897).
+  Confidence calibration is a separate problem: confidence head outputs do not reflect
+  actual predictive reliability. Needs ground-truth confidence labels or held-out
+  reliability analysis. Until done, composite score remains unusable.
 
 ---
 

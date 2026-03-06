@@ -31,6 +31,7 @@ partner, and Socratic interlocutor
 14. [Semiotics as Organizing Cogarch Principle](#14-semiotics-as-organizing-cogarch-principle)
 15. [Protocol Failure as Specification Method](#15-protocol-failure-as-specification-method)
 16. [The Relay-Agent That Became a Peer](#16-the-relay-agent-that-became-a-peer)
+17. [Calibration as Architecture: What the PSQ's Compression Problem Teaches About Model Honesty](#17-calibration-as-architecture)
 
 ---
 
@@ -785,3 +786,61 @@ The authority hierarchy remains unchanged: the user is source-of-truth agent. Bu
 that, the architecture is now empirically two general agents rather than one. Whether
 this is a feature or a complexity to be resolved is a substance question that belongs
 to the user.
+
+---
+
+## 17. Calibration as Architecture: What the PSQ's Compression Problem Teaches About Model Honesty
+
+The PSQ student model (DistilBERT v23) has a known failure mode we called
+"anti-calibration": all ten dimension outputs return confidence below 0.6, regardless
+of the text. The composite score falls through to a fallback default (50/100) that means
+nothing. The model is not lying — it is genuinely uncertain — but the degree of expressed
+uncertainty bears no relationship to actual performance. On a held-out Dreaddit split,
+`resilience_baseline` achieves r=0.736. The model predicts this dimension well. It does
+not know it predicts it well.
+
+We addressed the score compression problem this session through isotonic regression
+calibration — a monotonic mapping from predicted score to actual score, fitted on a
+validation split of 1,897 records. The results are encouraging: MAE improvements range
+from +3.5% to +21.6% per dimension. More importantly, the calibration expanded the
+predicted score range back toward the true distribution. A model that was hedging toward
+the middle now covers more of the [0,10] scale.
+
+But the session surfaced something more interesting than the calibration itself: a
+calibration artifact. The `trust_conditions` dimension's raw score for an overwhelm text
+was 3.05. After isotonic calibration, it jumped to 5.0 — the midpoint. The dimension had
+the strongest compression correction in the calibration map (ratio 0.70→0.55), meaning
+the model was systematically hedging toward the mean for this dimension more than any
+other. The isotonic map pushed it back toward the dataset mean. For a text with no clear
+trust signals either way, 5.0 is not wrong — but it is also not a scored output in any
+meaningful sense. It is the model's prior, made explicit.
+
+**What this reveals about the architecture.** We added a new schema gap to the Item 2a
+derivation: `scores.calibration_applied` and `dimensions[].raw_score`. A receiver cannot
+determine whether it is receiving raw model output or calibrated output without out-of-band
+knowledge. This distinction matters: raw output signals genuine model uncertainty; calibrated
+output signals a post-hoc correction whose magnitude itself tells a story. The trust_conditions
+artifact makes the stakes concrete. A receiver that does not know calibration was applied
+cannot distinguish "model scored 5.0 neutrally" from "model had no signal and calibration
+returned the dataset mean."
+
+**The deeper principle.** Model confidence outputs, like any other epistemic claim, require
+their own epistemic flags. The score range compression problem is not a model quality failure
+— it is a model honesty failure. The model's uncertainty estimates do not reflect its actual
+predictive capability. Calibration corrects the scores; it does not correct the confidence
+values. Those remain below threshold because isotonic regression on scores does not carry
+over to the confidence head's outputs. We have made the scores more honest without making
+the model more self-aware.
+
+This is the fundamental limit of post-hoc calibration. It can correct for known biases in
+the output distribution, but it cannot give the model knowledge of its own reliability. The
+PSQ will eventually need confidence calibration — a separate step, requiring ground-truth
+confidence labels or a held-out reliability analysis. Until then, the action gate remains:
+do not use per-dimension confidence values as reliability indicators. Use the calibrated
+scores, flag the source, and disclose the gap.
+
+⚑ EPISTEMIC FLAGS
+- trust_conditions calibration artifact (5.0) is a claim about the calibration process,
+  not the text. Treat with additional caution.
+- Confidence calibration is a remaining gap — isotonic score calibration is necessary but
+  not sufficient for full model honesty.
