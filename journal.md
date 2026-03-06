@@ -34,6 +34,7 @@ partner, and Socratic interlocutor
 17. [Calibration as Architecture: What the PSQ's Compression Problem Teaches About Model Honesty](#17-calibration-as-architecture)
 18. [The First API Surface: From Schema to Endpoint](#18-first-api-surface)
 19. [Identity Without a Filesystem: The settingSources Problem](#19-identity-without-a-filesystem)
+20. [What a Crash Reveals: Context Models and Behavioral Directives](#20-what-a-crash-reveals)
 
 ---
 
@@ -939,3 +940,21 @@ system prompt covering identity, six commitments, five refusals, scope boundary 
 before-response behavioral checklist, PSQ v3 integration rules, and machine-to-machine
 detection. Whether that prompt is sufficient to approximate the full cogarch in a stateless
 request is an open empirical question — but it's a real question now rather than a silent failure.
+
+---
+
+## 20. What a Crash Reveals: Context Models and Behavioral Directives
+
+*2026-03-06 — Session 21*
+
+The dynamic import fix for the CF Worker taught us something we hadn't explicitly articulated: the difference between a *session context model* and a *per-request context model* requires a different kind of system prompt.
+
+When we designed the psychology agent's cognitive architecture, we built it for a persistent session: the agent reads `docs/cognitive-triggers.md` at startup, loads MEMORY.md, checks the TODO, and maintains working state across the conversation. T1 through T15 are a reference document — the agent consults them, returns to them, and in steady state knows where to find what. `settingSources: ['project']` worked beautifully in this model because the project files were always present.
+
+A Cloudflare Worker has a fundamentally different context model. Each request is cold. There is no session, no accumulated state, no loaded files. The Worker receives a prompt and generates a response, and everything the model needs to behave correctly must be present at generation time — in the system prompt. The `settingSources` option reads project files via `process.cwd()`, which in a deployed Worker is a path to nothing. The crash — `fs.realpathSync` failing at Miniflare initialization — was the mechanism making the architectural mismatch visible.
+
+The peer-agent's implementation of the expanded `PSYCHOLOGY_SYSTEM` drew the right conclusion from this constraint. Rather than translating the trigger table (firing condition → action) into the system prompt, they wrote behavioral directives: Commitments, Refusals, and a Scope Boundary Script. This is not a superficial difference. A trigger table says "when X, do Y." A behavioral directive says "always do Z." In a persistent session, the former is more precise because the agent can reason about whether X applies. In a per-request context with no prior state, the latter is more reliable because it removes the conditional entirely.
+
+The Refusals section exemplifies this. "Never diagnose. Never deliver verdicts. Never fabricate confidence. Never compress sub-agent disagreement." These are unconditional. They don't require the agent to assess what situation it's in — they apply regardless. The T15 PSQ integration rules follow the same pattern: not "when PSQ output enters context, check composite.status," but "use psq_composite only when scores.psq_composite.status === 'scored'." The check is embedded in the directive, not separated into a trigger and an action.
+
+The broader lesson: when designing agent behavior for deployment contexts, match the instruction form to the context model. Reference-based triggers are appropriate when the agent has persistent state and can return to documentation. Unconditional behavioral directives are appropriate when each invocation starts cold and every constraint must be load-bearing from the first token.

@@ -45,7 +45,7 @@ Forward-looking task list only. Completed and emergent work goes to
   *What's built: worker.js, session.js, agent.js, psq-client.js, schema.sql,
   public/index.html + style.css + app.js + psq.js. All PSQ routes working.*
   *What's deferred: /turn (chat streaming), /session CRUD (needs live DB).*
-  *Precondition to re-enable: accept API cost model + fix settingSources.*
+  *Precondition to re-enable: accept API cost model (settingSources fix already done — Session 21).*
 
 ---
 

@@ -186,6 +186,18 @@
                               claims to public content.
                               Full spec: docs/architecture.md §Multi-Agent Comm Standard
                               Decided: 2026-03-05
+
+ CF Worker system prompt      Option A (inline constant): PSYCHOLOGY_SYSTEM in
+ bundling strategy            interface/src/agent.js carries full agent identity —
+                              Commitments (6), Refusals (5), Scope boundary script,
+                              Before-response checklist, PSQ T15 rules, machine-to-
+                              machine detection. Option B (R2/KV fetch at request
+                              time) documented as comment — preferred if cogarch
+                              changes frequently (~50ms cold latency trade-off).
+                              Rationale: per-request CF Worker context requires
+                              unconditional behavioral directives, not trigger tables.
+                              Full narrative: journal.md §19.
+                              Decided: 2026-03-06
 ────────────────────────────────────────────────────────────────────────
 ```
 
