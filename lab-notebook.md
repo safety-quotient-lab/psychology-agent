@@ -23,7 +23,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | /capacity skill               | ✓ Created and verified                           |
 | Conventions migration         | ✓ CLAUDE.md holds stable conventions (178 lines) |
 | CLAUDE.md (project root)      | ✓ Created + display convention added             |
-| Cognitive infrastructure      | ✓ T1–T15 + rationalizations-to-reject (T3) + 4 SRT drafts (ideas.md) |
+| Cognitive infrastructure      | ✓ T1–T15 + rationalizations-to-reject (T3) + 4 SRT extensions implemented (T2#9-10, T3#13-14) |
 | T10/T11 ordering              | ✓ Fixed — T10 now precedes T11 in file           |
 | T12 trigger                   | ✓ Positive pattern recognition; T10 co-fires     |
 | Timestamp backfill            | ✗ Deferred — no fabrication; exact times unknown |
@@ -43,7 +43,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | License (root project)        | ✓ CC BY-NC-SA 4.0 — LICENSE at project root      |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
 | Auto-memory recovery          | ✓ Snapshots, bootstrap-check.sh, T1 health check, BOOTSTRAP.md restructure (Session 11) |
-| Platform hooks                | ✓ 8 hooks: pre-commit, parry (3), T4 reminder, SessionStart, PreCompact, Stop (Session 12-13) |
+| Platform hooks                | ✓ 10 hooks: pre-commit, parry (3), T4 reminder, SessionStart, PreCompact, Stop, subproject-boundary, pushback-accumulator, write-provenance (Session 12-24b) |
 | Antiregression evaluation     | ✓ Evaluated, adopted hooks, TODO items written (Session 11) |
 | Blog post (cogarch)           | ✓ Reviewed + PR #7 submitted to unratified (Session 24) |
 | Cogarch canonical location    | ✓ cognitive-triggers.md moved to docs/ (Session 12) |
@@ -1832,6 +1832,25 @@ using "24b" for this continuation.
 - Pushback accumulator regex patterns are heuristic — false positives possible but low-cost
 - Evidence decay thresholds (5/10 sessions) chosen without empirical basis; calibrate after use
 
+**Write-provenance hook (backlog item 4):**
+- .claude/hooks/write-provenance.sh — PostToolUse (Write|Edit)
+- Logs file modifications to `.claude/write-log.jsonl` (JSONL, gitignored)
+- Captures: timestamp, file path, session context, tool ID
+
+**Graduation ceremony (backlog item 5):**
+- /cycle Step 8b updated with graduation scan
+- Checks `promotion_status: approved` in lessons.md
+- 3-step ceremony: append CLAUDE.md, update lessons.md graduated, log lab-notebook
+- T10 check #6 in cognitive-triggers.md updated to reference ceremony
+
+**SRT-inspired cogarch extensions (backlog item 6):**
+- T2 checks 9–10: vocabulary alignment scan (gated) + semiotic consistency (always-on)
+- T3 checks 13–14: interpretive bifurcation scan + audience-shift detection (both gated)
+- Gating: divergence indicators (pushback, domain shift, novel terminology)
+- ideas.md marked [→ IMPLEMENTED 2026-03-06]; TODO.md marked complete
+
 ▶ docs/local-coordination-v1-spec.md, .claude/hooks/subproject-boundary.sh,
-  .claude/hooks/pushback-accumulator.sh, docs/cognitive-triggers.md T9,
-  .claude/settings.json, .claude/hooks/session-start-orient.sh, CLAUDE.md, TODO.md
+  .claude/hooks/pushback-accumulator.sh, .claude/hooks/write-provenance.sh,
+  docs/cognitive-triggers.md T2+T3+T9, .claude/skills/cycle/SKILL.md,
+  .claude/settings.json, .claude/hooks/session-start-orient.sh, CLAUDE.md,
+  TODO.md, ideas.md

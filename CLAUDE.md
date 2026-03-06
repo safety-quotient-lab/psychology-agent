@@ -15,9 +15,12 @@ Platform-level enforcement that supplements cognitive triggers:
   Reads `~/.parry/config.toml` for `ml_fallback` setting (fail_closed / warn_once / allow).
   Respects `.parry-session-disabled` flag for per-session toggle. Degrades gracefully
   when parry not installed. See `parry-start.sh` for daemon management.
-- **PostToolUse: Write/Edit** — fires after modifications to critical files (MEMORY.md,
-  docs/cognitive-triggers.md, CLAUDE.md, architecture.md, lab-notebook.md). Reminds of T4
-  compliance checks. Safety net, not replacement for T4.
+- **PostToolUse: Write/Edit (T4 reminder)** — fires after modifications to critical files
+  (MEMORY.md, docs/cognitive-triggers.md, CLAUDE.md, architecture.md, lab-notebook.md).
+  Reminds of T4 compliance checks. Safety net, not replacement for T4.
+- **PostToolUse: write-provenance.sh** — logs every Write/Edit to
+  `.claude/write-log.jsonl` (JSONL, gitignored). Records timestamp, file path, session
+  context, tool ID. Lightweight provenance trail for cross-context overwrite detection.
 - **PostToolUse: parry-wrapper.sh** — scans tool output for injection attempts and
   credential exposure. Same wrapper and session toggle as PreToolUse.
 - **PreToolUse: subproject-boundary.sh** — fires on Write/Edit/Read when file path
