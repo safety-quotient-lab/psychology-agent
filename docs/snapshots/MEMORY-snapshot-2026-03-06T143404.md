@@ -18,11 +18,11 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 23e. Identity rename complete (general-agent → psychology-agent,
-48 files). psq-scoring supervisory turn sent (turn 4, bug fix specs + PSQ-Lite endorsement).
-Blog PR #2 merged. 2 blog drafts unreviewed.
+**Where we stopped:** Session 24. Blog status checked: 2 drafts unreviewed, PR #2 merged,
+2 planned posts not started. 20-file semantic rename ("general→psychology agent") unstaged
+in working tree — belongs to concurrent instance, left untouched.
 **Next:** PSQ bugs B1/B2 (routes to psq-agent). EF-3 evaluator instantiation.
-Blog drafts need review.
+Blog drafts need review. Other instance's rename sweep needs commit.
 
 
 ## Memory Hygiene
