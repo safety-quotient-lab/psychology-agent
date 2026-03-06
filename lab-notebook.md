@@ -132,9 +132,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Command-response ACK (rsync)  | ✓ Turn 14 — independent verification of all 7 rsync steps |
 | Endpoint-live notification    | ✓ mesh-init turn 5 — URL, verification data, integration guidance |
 | mesh-init session             | ✓ Complete — unratified-agent confirms closure (turn 5 ACK received) |
-| psq-scoring session           | ✓ Active — 4 advocacy samples scored, 2 bugs found (B1 confidence dead, B2 HI dead zone), interpretation ACK received |
-| PSQ bug B1 (confidence dead)  | ⚑ OPEN — deferred until best.pt recovered; fix spec sent to psq-agent |
-| PSQ bug B2 (HI dead zone)     | ⚑ OPEN — shallow slope not truly flat (6.05→6.69); deferred until best.pt recovered |
+| psq-scoring session           | ✓ Turn 7 complete — B1+B2 fixed, 5 texts scored, B2 validated (Session 26) |
+| PSQ bug B1 (confidence dead)  | ✓ RESOLVED — r_confidence field added; calibration_note surfaces r-value; limitation renamed confidence-is-static-r (MEDIUM) — psq-agent 54a1a85, psychology-agent f531c5e |
+| PSQ bug B2 (HI dead zone)     | ✓ RESOLVED — quantile-binned isotonic (n_bins=20); MAE 1.6631→1.5980 (-3.9%); isotonic-v2-2026-03-06 deployed (psq-agent 9629412) |
 | best.pt recovery              | ✓ FOUND on Hetzner (255 MB, v23 DistilBERT, held-out r=0.696); local copy lost; rsync when ready |
 | psq-scoring supervisory turn  | ✓ Turn 4 — bug fix specs, Q&A, PSQ-Lite endorsed, A/B test recommended (Session 23d) |
 | Identity rename               | ✓ general-agent → psychology-agent across 48 active files (Session 23d) |
@@ -159,8 +159,10 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 - Parry ML daemon: HTTP 401 after token file exists — investigate token validity or model gating
 - ~~PSQ production URL: Hetzner provisioned; model rsync command-request sent; awaiting psq-agent command-response with state attestation~~ **ANSWERED:** Live at https://psq.unratified.org/score; rsync verified, Caddy TLS, ufw hardened
 - ~~PSQ bug B1: confidence head dead — which API version carries the fix (v3→v4 or remove from v3)?~~ **ANSWERED:** No version bump. Replace source (model head → static r-estimate), preserve field semantics. Document in calibration_note.
-- PSQ bug B2: HI calibration dead zone — re-fit with finer binning or alternative approach?
-- Does the PSQ endpoint currently return raw_score in the response body? (unratified-agent question)
+- ~~PSQ bug B2: HI calibration dead zone — re-fit with finer binning or alternative approach?~~ **ANSWERED:** Quantile-binned isotonic regression (n_bins=20), no model retrain needed. Dead zone [6.0045, 7.2539] differentiated. calibration_version isotonic-v2-2026-03-06.
+- ~~Does the PSQ endpoint currently return raw_score in the response body? (unratified-agent question)~~ **ANSWERED:** Yes — raw_score field present in dimensions[] per v3 spec. Verified via direct curl by unratified-agent.
+- HI direction anomaly — hostile social media anchor scored HI=6.88 vs policy brief HI=6.15 (counterintuitive on PSQ scale); possible TE/HI dimension conflation for ICESCR topic domain. Not yet investigated.
+- TE uniformity: 4/5 ICESCR texts scored TE=6.46 (raw range 5.59–6.07 all mapping to same calibrated value). Possible residual plateau in threat_exposure. Not addressed in B2 fix.
 - PSQ-Lite (TE + HI-raw + TC) adopted by unratified-agent for advocacy content — validate across more content types
 - ~~Oracle Ampere A1 vs named tunnel?~~ **ANSWERED:** Oracle A1 free tier unavailable; Hetzner CX (Ashburn, $5/mo) selected
 
@@ -1902,3 +1904,56 @@ creation and inter-agent synchronization infrastructure.
 
 ▶ .claude/skills/sync/SKILL.md, CLAUDE.md,
   transport/sessions/blog-jurassic-park/
+
+
+## 2026-03-06T16:08 CST — Session 26 (B1+B2 PSQ bug fixes, 5-text scoring, B2 validation)
+
+**Scope:** PSQ production bug fixes (B1 confidence semantics, B2 HI dead zone) + 5-text
+scoring session with B2 validation for unratified-agent.
+
+**B1 fix — confidence semantics formalized:**
+- Root cause: `calibrateConfidence()` with `scale=0` already discarded the model head
+  and returned a static r-value — but the field semantics were undocumented
+- Fix: added `getDimensionRConfidence(dimName)` method to PSQStudent; `r_confidence` field
+  added to per-dimension score output; `calibration_note` populated ("confidence = held-out
+  Pearson r (static per dimension, not per-prediction)")
+- Limitation renamed: `anti-calibration-confidence` (HIGH) → `confidence-is-static-r` (MEDIUM)
+  (HIGH was wrong — this is intentional design, not a defect)
+- machine-response-v3-spec.md updated: `confidence` and `calibration_note` field descriptions
+  reflect r-value semantics
+- Commits: safety-quotient `54a1a85`, psychology-agent `f531c5e`
+
+**B2 fix — HI calibration dead zone resolved:**
+- Root cause diagnosis: NOT data sparsity. 271 of 882 val points (30.7%) in zone [5.854–7.650].
+  Mild non-monotonicity in val data bins 15–17 (true means 6.691→6.639→6.314) caused PAVA
+  (Pool Adjacent Violators Algorithm) to pool the entire range into a single flat step.
+- Fix: quantile-binned isotonic regression (n_bins=20). Pre-aggregate predictions into equal-sample
+  bins before fitting IsotonicRegression — bin means smooth the local inversion; PAVA then produces
+  gradual slope instead of flat step.
+- Results: MAE improved 1.6631→1.5980 (-3.9%); dead zone differentiated [6.0045, 7.2539]
+  (std=0.3783 vs previous 0.000000). calibration_version → `isotonic-v2-2026-03-06`.
+- recalibrate_hi_b2.py added to safety-quotient/scripts/ for reproducibility
+- Deployed to Hetzner: `git pull` + `systemctl restart psq-server`
+- Commit: safety-quotient `9629412`
+
+**5-text scoring + B2 validation (psq-scoring turn 7):**
+- Scored 5 ICESCR texts (4 advocacy + 1 hostile anchor) via live endpoint on Hetzner
+- B2 validation confirmed: 4 texts (formerly in dead zone) now differentiated HI [6.15, 6.55, 6.65, 6.88]
+  vs. previous constant 6.69. homepage_hero (raw=7.900, outside former dead zone upper bound) also scored.
+- `from-psq-sub-agent-003.json` (turn 7) sent; MANIFEST updated; psychology-agent commit `74de0b6`
+
+**SSH scoring workaround:**
+- Direct SSH shell with apostrophe in text caused SyntaxError on escaped string
+- Fix: write `score_5texts.py` locally, `scp` to Hetzner `/tmp/`, run via SSH
+
+**best.pt identity confirmed:**
+- SHA256 of Hetzner best.pt matches Chromebook source — same file; local copy not needed for B2
+
+⚑ EPISTEMIC FLAGS
+- HI direction anomaly: hostile anchor HI=6.88 > policy brief HI=6.15 (counterintuitive on PSQ 0=min/10=max scale). May indicate TE/HI conflation for ICESCR topic domain. Not investigated.
+- TE uniformity (6.46 on 4/5 texts): raw 5.59–6.07 all mapping to same calibrated value — possible residual isotonic plateau in threat_exposure. Not addressed.
+- B2 dry-run printed `calibrated constant 10.0000` for HI upper bound — cosmetic script bug (float equality lookup failure); actual calibration applied correctly (verified by live scoring results).
+
+▶ safety-quotient/src/student.js, safety-quotient/src/server.js, safety-quotient/models/psq-student/calibration.json,
+  safety-quotient/scripts/recalibrate_hi_b2.py, docs/machine-response-v3-spec.md,
+  transport/sessions/psq-scoring/from-psq-sub-agent-003.json, transport/MANIFEST.json

@@ -285,21 +285,22 @@ Blocking: API surface, confidence calibration, scope boundaries.
   when reachable. Use Hetzner copy for now.
   *Source: Session 24, 2026-03-06*
 
-- [ ] **PSQ bug B1: Dead confidence head** — ONNX model confidence output collapsed to
-  per-dimension constants for ALL inputs. **Blocked by:** best.pt recovery (above).
-  After recovery: retrain confidence head, re-export ONNX, redeploy.
-  Routes to psq-agent context.
-  *Source: psq-scoring session, 2026-03-06*
+- [x] **PSQ bug B1: Dead confidence head** — ✓ RESOLVED (Session 26, 2026-03-06).
+  No model retrain needed. Fix: r_confidence field added to score output;
+  calibration_note surfaces the static r-value per dimension; limitation renamed
+  from anti-calibration (HIGH) to confidence-is-static-r (MEDIUM) — correct framing
+  since scale=0 was always intentional. machine-response-v3-spec.md updated.
+  Commits: safety-quotient 54a1a85, psychology-agent f531c5e.
 
-- [ ] **PSQ bug B2: HI calibration dead zone** — isotonic calibration maps raw HI scores
-  5.854–7.650 to shallow slope (6.05→6.69), not truly flat — data sparsity issue.
-  **Blocked by:** best.pt recovery (above). After recovery: re-fit with finer binning
-  or add training data in mid-range band. Routes to psq-agent context.
-  *Source: psq-scoring session + Session 24 investigation, 2026-03-06*
+- [x] **PSQ bug B2: HI calibration dead zone** — ✓ RESOLVED (Session 26, 2026-03-06).
+  Root cause: non-monotonicity in val data bins 15–17 (not sparsity). Fix: quantile-
+  binned isotonic regression (n_bins=20). Dead zone [6.0045, 7.2539]; MAE 1.6631→1.5980
+  (-3.9%). calibration_version → isotonic-v2-2026-03-06. Deployed to Hetzner.
+  Script: safety-quotient/scripts/recalibrate_hi_b2.py. Commit: safety-quotient 9629412.
 
-- [ ] **PSQ raw_score in API response** — unratified-agent asks whether endpoint currently
-  returns raw_score. Verify and document. Routes to psq-agent context.
-  *Source: from-unratified-agent-002.json, 2026-03-06*
+- [x] **PSQ raw_score in API response** — ✓ RESOLVED. raw_score present in
+  dimensions[] per v3 spec; independently verified by unratified-agent via direct curl.
+  *Resolved: 2026-03-06*
 
 ---
 

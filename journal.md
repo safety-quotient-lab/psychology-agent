@@ -39,6 +39,7 @@ partner, and Socratic interlocutor
 22. [Byzantine Consensus on a Human Bus: Adapting BFT for Two-Agent Git Transport](#22-byzantine-consensus-on-a-human-bus)
 23. [What Three Agents Found That One Could Not: The PSQ Scoring Session](#23-what-three-agents-found-that-one-could-not)
 24. [Proportional Independence: How the Evaluator Earned a Tiered Runtime](#24-proportional-independence)
+25. [What a Dead Zone Teaches About Calibration: The B2 Root Cause](#25-b2-root-cause)
 
 ---
 
@@ -1040,3 +1041,27 @@ The adversarial evaluator had a complete spec since Session 17: seven reasoning 
 **What the schema formalized.** The evaluator-response/v1 schema binds the three tier output formats to the interagent/v1 protocol family. Tier 1 produces `"proceed"` or `"flag"` (compact, local). Tier 2 produces a structured resolution identifying which procedure resolved and any overreach flags. Tier 3 preserves the full disagreement shape for human decision. The schema makes the evaluator's output machine-readable at every tier, enabling future automation of the Tier 2 transition from CC session to Agent SDK sub-agent.
 
 **What remains unvalidated.** The 1-in-5 random escalation ratio lacks empirical grounding — chosen for tractability, not from data. After the Tier 1 audit log accumulates entries, we should calibrate: does 1-in-5 produce enough independent verification to catch systematic blind spots, or does it create noise without detection value? The Tier 1 self-evaluation tradeoff remains an acknowledged gap, not a solved problem. S4 reduces risk but cannot eliminate it. Full structural independence begins at Tier 2.
+
+---
+
+## 25. What a Dead Zone Teaches About Calibration: The B2 Root Cause
+
+*2026-03-06 — Session 26*
+
+When we first observed the hostility_index dead zone (§23), we attributed it to data sparsity: raw HI scores 5.854–7.650 map to a constant calibrated value because the training set contains few validation examples in that range, so the isotonic regression has nothing to fit. This diagnosis was plausible — sparse regions are a known pathology of isotonic regression. It was wrong.
+
+The diagnostic showed 271 of 882 validation points (30.7%) with raw HI in the dead zone. The zone was not sparse. The fitting algorithm received abundant data in precisely the region that produced the flat output.
+
+**The actual mechanism: non-monotonic validation data.** Isotonic regression — Pool Adjacent Violators Algorithm (PAVA) — enforces monotonicity on the fitted function. When the training data is monotone, PAVA fits a staircase approximation. When the data is locally non-monotone, PAVA *pools* the non-monotone bins: it merges adjacent bins into a single bin whose fitted value is their weighted average, producing a flat step. The width of the flat step equals the merged bin span.
+
+Examining the raw bin structure revealed mild non-monotonicity in bins 15–17 (corresponding to raw scores roughly 6.0–7.5): the true means across those bins were 6.691, 6.639, 6.314 — three steps in decreasing order where isotonic regression expects increasing order. PAVA pooled bins 15–17 (and adjacent bins that fell into the same merge) into a single flat step spanning the dead zone. The root cause was not absence of data. It was a local inversion in the validation signal itself.
+
+**Why the local inversion?** The validation labels in this mid-range HI band do not form a clean monotone gradient. At raw scores around 6.0–7.5 — the "general register" range for text that contains some conflict but is not clearly hostile — the relationship between raw model output and human-annotated hostility becomes noisy. The model learned a score; the human annotators labeled at different thresholds. The resulting bin means cross over in the 6.0–7.5 range, creating the inversion PAVA then pools.
+
+**The fix: pre-aggregation before PAVA.** Quantile-binned isotonic regression pre-aggregates predictions into equal-sample bins (n_bins=20, ~44 samples per bin) before passing to IsotonicRegression. The bin means smooth the local inversion: instead of exposing three noisy adjacent means (6.691, 6.639, 6.314) to PAVA, the pre-aggregation produces a smoother gradient across the 20 bins. PAVA then has a narrower region to pool — the flat step narrows from spanning 1.796 raw score units to spanning approximately 1.254 raw score units [6.0045, 7.2539]. The dead zone does not disappear; it contracts. Within-zone differentiation returns: four texts that scored 6.690 before the fix now score 6.15, 6.55, 6.65, and 6.88 — a 0.73-unit range where there was none before. MAE improves 3.9%.
+
+**The epistemic lesson.** The wrong hypothesis (sparsity) and the right hypothesis (non-monotonicity) both produce identical observable symptoms: a flat calibration output across a range of raw scores. The diagnostic method for distinguishing them is direct inspection of sample counts in the dead zone. If the zone is empty, the hypothesis is sparsity. If the zone is populated and the flat step persists, the hypothesis is non-monotonicity. We did not inspect sample counts before generating the initial diagnosis. The T3 step "ground dependencies — verify before recommending" applies here: ground the diagnosis on data before proposing a fix.
+
+The residual finding: TE uniformity (threat_exposure scores 6.46 on 4 of 5 ICESCR texts) suggests a possible analogous plateau in threat_exposure — the same mechanism, a different dimension. It was not investigated in this session. The pattern — local non-monotonicity producing PAVA pooling — is now a known failure mode for this calibration architecture, and any future calibration validation should include a dead-zone scan: identify regions where calibrated output is constant across a non-trivial raw score span, then diagnose by sample count.
+
+---
