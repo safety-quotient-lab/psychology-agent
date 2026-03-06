@@ -88,9 +88,12 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | PSQ namespace                 | ✓ Resolved — PSQ-Lite (LLM heuristic) vs PSQ-Full (DistilBERT v23) |
 | 9P transport (canonical)      | ✓ SSH pipe + ramfs -i + 9pfuse — verified cross-machine |
 | PSQ score calibration         | ✓ Isotonic regression fitted (n=1897); calibration.json live; +3.5–21.6% MAE/dim |
-| PSQ confidence calibration    | ✓ r-based proxy via confidence_calibration linear maps (scale=0, shift=r); student.js compatible |
+| PSQ confidence calibration    | ✓ r-based proxy via confidence_calibration linear maps; student.js compatible |
 | PSQ response-001              | ✓ Calibrated scores; merged (PR #5); 5 schema gaps documented |
-| safety-quotient git state     | ⚑ Diverged from origin; calibration.json not trackable (models/ gitignored); best.pt lost in checkout |
+| calibration.json on remote    | ✓ Tracked — .gitignore exception added; PR #1 merged (safety-quotient-lab/safety-quotient) |
+| PSQ confidence calibration    | ✓ r-based proxy (constant fn, intentional — overrides anti-calibrated model head) |
+| best.pt loss                  | ✓ Non-blocking — agent uses ONNX; best.pt needed only for recalibration |
+| safety-quotient git divergence| ⚑ Local main diverges from origin; untracked files block checkout; worktree used as workaround |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
 | Git history                   | ✓ 48+ commits (ae85fbf)                          |
 
