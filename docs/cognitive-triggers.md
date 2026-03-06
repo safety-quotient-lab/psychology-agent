@@ -180,6 +180,14 @@ domain shift, 2+ novel terms). In quiet conversations, skip these.
     explicit rebinding. Complements dynamic Socratic calibration (check 8).
     *Gate: fires when divergence indicators present.*
 
+15. **Constraint cross-reference** — scan `docs/constraints.md` for constraints
+    relevant to this recommendation's domain. E-category constraints apply to
+    all clinical/psychological content. M-category constraints apply when PSQ
+    output enters context. I-category constraints apply to interagent messages.
+    If a recommendation would violate a registered constraint, name the
+    constraint ID and either justify the exception or withdraw.
+    *Source: F-6 from claude-control cross-project findings.*
+
 **Action**: Resolve process autonomously. Surface substance with recommendation.
 Adjudicate (`/adjudicate`) when 2+ viable options exist.
 
