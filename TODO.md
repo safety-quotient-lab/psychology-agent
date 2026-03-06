@@ -313,3 +313,46 @@ Blocking: API surface, confidence calibration, scope boundaries.
 
 ---
 
+## BFT + Command Protocol (from Session 22 epistemic flags)
+
+*Source: docs/bft-design-note.md epistemic flags, 2026-03-06.*
+
+- [ ] **EF-1: Autonomous trust degradation model** — the BFT design treats the human
+  as unconditionally trusted (Trusted Third Party). This assumption breaks if the system
+  ever operates without human mediation. Define what trust model replaces TTP in
+  autonomous operation: (a) evaluator-as-arbiter, (b) cryptographic attestation,
+  (c) consensus quorum with 3+ agents, or (d) bounded-trust decay (trust degrades
+  over N unverified operations). Document threshold for when autonomous operation
+  becomes a real scenario vs. theoretical concern.
+  *Precondition: evaluator instantiated (EF-3)*
+
+- [ ] **EF-2: Claim verification baseline** — zero incorrect agent claims observed
+  to date. The evidence-bearing protocol (BFT Principle 1) adds complexity proportional
+  to a risk that hasn't materialized. Establish a tracking mechanism: log each
+  command-request/response pair, record whether the claimed outcome matched verified
+  state. After N command exchanges (suggested: 20), evaluate whether the overhead
+  produces value. If claim accuracy remains 100%, consider relaxing evidence requirements
+  for low-risk operation types (e.g., `verification` type commands).
+  *Precondition: command-request protocol in use (first use: rsync to Hetzner)*
+
+- [ ] **EF-3: Evaluator instantiation gate** — BFT Principle 6 (evaluator as
+  verification layer) cannot be validated until the adversarial evaluator runs.
+  Define the instantiation trigger: (a) first disputed claim between agents,
+  (b) first production SaaS deployment (unratified.org), (c) manual user request,
+  or (d) scheduled (after N command exchanges). The evaluator spec exists (Item 3,
+  Session 17) but has no runtime. Determine: does the evaluator run as a third
+  Claude Code session, an API call, or an embedded check in the command-response
+  verification step?
+  *Precondition: Item 3 evaluator spec (complete), production deployment (in progress)*
+
+- [ ] **EF-4: git-PR transport failure mode mapping** — BFT literature assumes
+  network partitions; git-PR transport has delay-based failure modes instead.
+  Map the failure taxonomy: (a) human unavailable (delay), (b) PR not merged
+  (message loss), (c) merge order differs from send order (reorder), (d) concurrent
+  pushes (collision — already observed, Session 21). Define protocol responses for
+  each: timeout semantics (how long before escalation?), retry policy (automatic
+  or manual?), collision resolution (sender-scoped turn numbering, already proposed).
+  *Precondition: none — can begin immediately*
+
+---
+
