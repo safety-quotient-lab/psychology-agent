@@ -22,8 +22,8 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 mesh-init complete. psq-scoring session: 3 turns read (initial run, interpretation w/ 2 bugs,
 ACK). Two PSQ bugs open: B1 confidence head dead, B2 HI calibration dead zone. Defensibility
 review delivered (12 findings). Semantic rename + transport discovery + /cycle complete.
-**Next:** PSQ bugs B1/B2 (routes to psq-agent). EF-3 evaluator instantiation.
-Blog PR #2 open (unratified).
+**Next:** PSQ bugs B1/B2 (routes to psq-agent). EF-3 evaluator instantiation. Step 8 browser
+verify. Blog PR #2 open (unratified).
 
 
 ## Memory Hygiene
