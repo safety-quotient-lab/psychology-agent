@@ -57,10 +57,20 @@ in the session's first response so the user has visibility.
 
 **Semiotic sub-checks (SRT-inspired, gated activation):**
 
-These fire only when divergence indicators appear: pushback (T6 fired recently),
-domain shift (user vocabulary changed markedly), or novel terminology (user
-introduced terms not seen earlier in the conversation). In quiet conversations,
-skip these — semiotic consistency alone runs by default.
+These fire only when divergence indicators exceed threshold. In quiet
+conversations, only semiotic consistency (#10) runs.
+
+**Divergence indicators** (any one activates the gate):
+- **Pushback recency** — T6 fired within the last 3 exchanges
+- **Domain shift** — user's last message introduces vocabulary from a different
+  knowledge domain than the previous 3 messages (e.g., clinical → engineering,
+  research → operational). Judged by topic words, not jargon quantity
+- **Novel terminology** — user introduced 2+ terms in a single message that
+  have not appeared earlier in the conversation and carry domain-specific meaning
+
+**Design rationale:** False negatives have a safety net (T6 catches downstream
+pushback). False positives waste attention. Thresholds set conservatively — prefer
+fewer unnecessary checks over missed divergence.
 
 9. **Vocabulary alignment scan** — compare terminology in the draft response
    against the user's demonstrated vocabulary in the current conversation. If
@@ -68,7 +78,7 @@ skip these — semiotic consistency alone runs by default.
    multiple interpretive communities, flag it for explicit binding (see Term
    Collision Rule, CLAUDE.md). Rising misalignment across consecutive responses
    warrants a pacing checkpoint.
-   *Gate: fires when divergence indicators present, or every 5th response as spot-check.*
+   *Gate: fires when divergence indicator active, or every 5th response as spot-check.*
 
 10. **Semiotic consistency** — verify that any project-specific term (cogarch
     vocabulary, PSQ dimensions, PJE constructs) appears with its documented
@@ -152,9 +162,8 @@ skip these — semiotic consistency alone runs by default.
 
 **Semiotic sub-checks (SRT-inspired, gated activation):**
 
-These fire only when divergence indicators appear: pushback (T6 fired recently),
-domain shift (user vocabulary changed markedly), or novel terminology (user
-introduced terms not seen earlier). In quiet conversations, skip these.
+Same divergence indicators as T2 semiotic gate (pushback within 3 exchanges,
+domain shift, 2+ novel terms). In quiet conversations, skip these.
 
 13. **Interpretive bifurcation scan** — before recommending, check whether any
     key term in the recommendation could produce divergent interpretations
@@ -162,7 +171,7 @@ introduced terms not seen earlier). In quiet conversations, skip these.
     bifurcation point (two plausible, incompatible readings), bind it explicitly
     to one reading and name the alternative. Do not leave contested terms
     unbound in recommendations.
-    *Gate: fires when divergence indicators present.*
+    *Gate: fires when divergence indicator active.*
 
 14. **Audience-shift detection** — if the user's vocabulary, question
     sophistication, or domain markers shift significantly from the conversation
