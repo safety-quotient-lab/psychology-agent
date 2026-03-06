@@ -179,6 +179,14 @@ if ! $restore_needed && [[ $triggers_status -eq 0 ]]; then
   echo "All files healthy. No restoration needed."
 fi
 
+# In --check-only mode (pre-commit hook), fail on suspect cogarch
+if $CHECK_ONLY && [[ $triggers_status -ne 0 ]]; then
+  echo ""
+  echo "BLOCKED: docs/cognitive-triggers.md missing or below ${TRIGGERS_MIN_LINES} lines."
+  echo "Pre-commit gate requires healthy cogarch. Fix before committing."
+  exit 1
+fi
+
 # Check snapshots exist (recovery sources)
 echo ""
 echo "Recovery sources:"
@@ -213,8 +221,8 @@ echo "Skills:"
 echo ""
 
 skills_found=0
-skills_expected=4
-for skill_name in cycle doc hunt knock; do
+skills_expected=5
+for skill_name in cycle doc hunt knock sync; do
   skill_path="${PROJECT_ROOT}/.claude/skills/${skill_name}/SKILL.md"
   if [[ -f "$skill_path" ]]; then
     echo "  OK       /${skill_name} (skill)"
