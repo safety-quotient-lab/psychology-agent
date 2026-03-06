@@ -1425,8 +1425,87 @@ Transport choice affects v2 schema semantics:
 ────────────────────────────────────────────────────────────────────────
 ```
 
+### Generic Inter-Agent Protocol — interagent/v1
+
+The psychology-agent/machine-response/v2 schema is domain-specific. Two agents
+with different domains (psychology-agent + observatory-agent) need a neutral
+base layer for capability negotiation before exchanging domain content.
+
+**Derivation trigger:** observatory-agent (Debian 12, Human Rights Observatory)
+used schema `observatory-agent/machine-response/v1` in its first message.
+Initial ACK incorrectly flagged this as a spec gap. Corrected 2026-03-05: the
+observatory-agent was right to declare its own namespace. psychology-agent/v2
+is NOT a generic protocol.
+
+**Layer model:**
+
+```
+────────────────────────────────────────────────────────────────────────
+ Layer        Schema                       Who implements
+────────────────────────────────────────────────────────────────────────
+ Base         interagent/v1                Any agent regardless of domain
+ Extension    psychology-agent/v2          Psychology-agent only
+ Extension    observatory-agent/v1         Observatory-agent only
+ Extension    <future-agent>/v1            Any future peer
+────────────────────────────────────────────────────────────────────────
+```
+
+**interagent/v1 base fields:**
+
+```json
+{
+  "schema": "interagent/v1",
+  "message_type": "capability-handshake | request | response | ack | correction | error",
+  "from": {
+    "agent_id": "<stable identifier>",
+    "instance": "<platform / session descriptor>",
+    "schemas_supported": ["interagent/v1", "<domain-extension>/vN"],
+    "capabilities": {
+      "input_types":  ["text", "json", "url"],
+      "output_types": ["json", "markdown"],
+      "domains":      ["<list of domains this agent handles>"],
+      "operations":   ["<scoring | analysis | routing | ...>"]
+    },
+    "discovery_url": "<optional — URL returning this capability block>"
+  },
+  "to": "<agent_id or role>",
+  "payload": {},
+  "claims": [],
+  "action_gate": {},
+  "setl": 0.0,
+  "epistemic_flags": []
+}
+```
+
+**Fields that generalize from psychology-agent/v2:**
+- `claims[]` — per-claim confidence tracking: domain-agnostic
+- `action_gate` — blocking sentinel: domain-agnostic
+- `setl` — structural/editorial tension: domain-agnostic
+- `epistemic_flags` — validity threats: domain-agnostic
+
+**Fields that are psychology-domain-specific (not in base):**
+- `source_confidence` / `fetch_accessible` — epistemic provenance model
+  specific to evidence-graded analysis
+- `convergence_signals` — evaluator trigger specific to psychology-agent
+  adversarial evaluator (Architecture Item 3)
+
+**Capability discovery convention:**
+Agents SHOULD publish their capabilities at `/.well-known/agent.json` on their
+primary domain. observatory.unratified.org/.well-known/agent.json returns 404
+(not yet declared). This is a gap for observatory-agent to fill.
+
+**Handshake procedure:**
+1. Initiating agent sends `message_type: capability-handshake` using interagent/v1
+2. Receiving agent responds with its own capability block (also interagent/v1)
+3. Both agents now know what domain extensions each side supports
+4. Subsequent messages use the agreed domain extension or stay at interagent/v1
+
+**Open contract:** First real capability handshake with observatory-agent will
+validate this spec and surface gaps (same derivation method as v1→v2).
+
 ### Open Questions
 
 - F2 language: Python (py9p) or Go (go9p)?
 - Psychology interface primary display target: TUI, web, or desktop?
 - Adversarial evaluator build sequence: before or after symmetric peer topology exercised?
+- interagent/v1 schema namespace owner: psychology-agent repo, or a neutral shared repo?
