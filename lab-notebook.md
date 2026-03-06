@@ -102,7 +102,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | D1 database                   | ✓ psychology-interface (56a2f5ac, ENAM region)   |
 | KV namespace                  | ✓ SESSION_KV (1d17a21c)                          |
 | wrangler version              | ✓ v4.71.0 — no warnings, clean deploy            |
-| PSQ production endpoint       | ⚑ BLOCKED — Hetzner (178.156.229.103) provisioned; model rsync command-request sent to psq-agent; awaiting transfer + /health |
+| PSQ production endpoint       | ✓ LIVE — https://psq.unratified.org/score (Caddy TLS, Hetzner CX Ashburn, 84ms inference) |
 | Hetzner Cloud server          | ✓ psq-agent CX (Ashburn, Debian 13, 4 GB RAM) — Node.js 20 + npm deps installed |
 | BFT design note               | ✓ docs/bft-design-note.md — 6 principles, topology analysis |
 | Command-request/v1 protocol   | ✓ docs/command-request-v1-spec.md — command-request + command-response message types |
@@ -120,16 +120,32 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | /knock skill                  | ✓ Standalone 10-order effect tracing skill — /hunt references it (Session 23) |
 | T2 compaction threshold       | ✓ 60%/75% explicit thresholds in cognitive-triggers.md (Session 23) |
 | Stop hook (flag sweep)        | ✓ stop-completion-gate.sh scans lab-notebook for ⚑ markers (Session 23) |
-| Urgency field (interagent/v1) | ✗ Proposed by unratified-agent (turn 2, site-defensibility). Cherry-picked; action gate open |
+| Urgency field (interagent/v1) | ✓ Adopted — architecture.md schema v3 table updated (Session 23c) |
 | Local-coordination/v1         | ✓ First intra-agent message — transport/sessions/local-coordination/ (Session 23c) |
-| Transport discovery (in-repo) | ✓ agent-card.json + MANIFEST.json + transport-scan.sh — committed by local instance (0bd28b7) |
+| Transport discovery (in-repo) | ✓ agent-card.json + MANIFEST.json + transport-scan.sh — committed (0bd28b7) |
+| PSQ endpoint TLS              | ✓ Caddy reverse proxy + auto-TLS (Let's Encrypt) — port 3000 closed from public |
+| PSQ onnxruntime fix           | ✓ postinstall script removes nested onnxruntime-node — survives npm install |
+| wrangler secret               | ✓ PSQ_ENDPOINT_URL = https://psq.unratified.org |
+| Semantic naming (global)      | ✓ 30 files updated — all item-number refs eliminated; T4 Check 6 expanded; CLAUDE.md Code Style updated |
+| Transport discovery (3-layer) | ✓ agent-card + MANIFEST.json + transport-scan.sh; session-start hook integrated |
+| Site defensibility review     | ✓ 12 findings (2 HIGH / 5 MED / 5 LOW) delivered to unratified-agent |
+| Command-response ACK (rsync)  | ✓ Turn 14 — independent verification of all 7 rsync steps |
+| Endpoint-live notification    | ✓ mesh-init turn 5 — URL, verification data, integration guidance |
+| mesh-init session             | ✓ Complete — unratified-agent confirms closure (turn 5 ACK received) |
+| psq-scoring session           | ✓ Active — 4 advocacy samples scored, 2 bugs found (B1 confidence dead, B2 HI dead zone), interpretation ACK received |
+| PSQ bug B1 (confidence dead)  | ⚑ OPEN — ONNX confidence head outputs constants for all inputs; fix needed |
+| PSQ bug B2 (HI dead zone)     | ⚑ OPEN — isotonic calibration maps raw 5.85–7.65 → 6.69; fix needed |
 
 
 ### Open Questions
 
 - HuggingFace model license: parry requests `deberta-v3-small` but docs reference `deberta-v3-base` — verify correct model slug
 - Parry ML daemon: HTTP 401 after token file exists — investigate token validity or model gating
-- PSQ production URL: Hetzner provisioned; model rsync command-request sent; awaiting psq-agent command-response with state attestation
+- ~~PSQ production URL: Hetzner provisioned; model rsync command-request sent; awaiting psq-agent command-response with state attestation~~ **ANSWERED:** Live at https://psq.unratified.org/score; rsync verified, Caddy TLS, ufw hardened
+- PSQ bug B1: confidence head dead — which API version carries the fix (v3→v4 or remove from v3)?
+- PSQ bug B2: HI calibration dead zone — re-fit with finer binning or alternative approach?
+- Does the PSQ endpoint currently return raw_score in the response body? (unratified-agent question)
+- PSQ-Lite (TE + HI-raw + TC) adopted by unratified-agent for advocacy content — validate across more content types
 - ~~Oracle Ampere A1 vs named tunnel?~~ **ANSWERED:** Oracle A1 free tier unavailable; Hetzner CX (Ashburn, $5/mo) selected
 
 ---
@@ -1558,3 +1574,71 @@ Session 23b, then checked for local and remote updates.
 
 ▶ transport/sessions/local-coordination/from-opus-session-23b-001.json,
   transport/sessions/site-defensibility-review/from-unratified-agent-002.json
+
+
+## 2026-03-06T14:01 CST — Session 23d (Production deployment, semantic rename, transport discovery, defensibility review, psq-scoring read)
+
+**Scope:** Major operational session — production deployment end-to-end, semantic rename
+across 30 files, 3-layer transport discovery, scientific defensibility review, 6 branch
+merges, 3 interagent messages sent, psq-scoring session messages read.
+
+**Production deployment (PSQ endpoint):**
+- psq-agent rsync verified — all 7 steps independently confirmed (SHA256 match, 41 files, 531 MB)
+- Caddy v2.11.2 installed on Hetzner, configured: `psq.unratified.org { reverse_proxy localhost:3000 }`
+- ufw hardened: deny incoming, allow SSH + HTTP/HTTPS only, port 3000 closed from public
+- onnxruntime-node postinstall fix: `rm -rf node_modules/@huggingface/transformers/node_modules/onnxruntime-node`
+- wrangler secret PSQ_ENDPOINT_URL set to https://psq.unratified.org
+- systemd psq-server active, 84ms inference, health check passes
+- → Command-response ACK sent to psq-agent (psychology-interface turn 14)
+- → Endpoint-live notification sent to unratified-agent (mesh-init turn 5)
+
+**Semantic naming (global):**
+- All item-number references eliminated across 30 files
+- Spec renames: item2a-spec → subagent-layer-spec, item2b-spec → peer-layer-spec, item4-spec → psychology-interface-spec
+- T4 Check 6 expanded: semantic naming covers file names, dirs, sessions, specs, transport paths
+- CLAUDE.md Code Style updated with matching scope + exception for internal codes
+- Transport session renames: item2-derivation → subagent-protocol, item4-derivation → psychology-interface
+
+**Transport discovery (3-layer):**
+- `.well-known/agent-card.json` — capabilities, active sessions, sub-agents, transport manifest path
+- `transport/MANIFEST.json` — pending messages, recently completed/sent, session renames
+- `transport/hooks/transport-scan.sh` — portable scan hook (jq when available, grep fallback)
+- session-start-orient.sh integrated with transport scan
+
+**Scientific defensibility review:**
+- 12 findings delivered to unratified-agent (site-defensibility-review session):
+  - 2 HIGH: enforcement outcome gap (F1), unqualified speed comparative (F2)
+  - 5 MEDIUM: statistical disambiguation (F3), sample representativeness (F4), undefined metrics (F5), convergence base rate (F6), settled-debate framing (F7)
+  - 5 LOW: F8–F12 (precision/context items)
+- Blog post URL 404 during review — noted in epistemic flags
+
+**Branch merges (6):**
+- unratified-agent/mesh-init branches (capability ACK, defensibility review request)
+- unratified-agent/mesh-init/closure (turn 5)
+- unratified-agent/psq-scoring initial run + psq-agent interpretation + unratified-agent ACK
+
+**psq-scoring session read (turns 1–3):**
+- unratified-agent turn 1: 4 advocacy content samples scored via live PSQ endpoint. Patterns observed:
+  HI flat at 6.69, TC spike at 8.76 for policy brief, 5 sub-threshold dims, narrow composite 55.8–60.8
+- psq-agent turn 2: Two production bugs found:
+  - B1 (HIGH): Confidence head dead — outputs constants for ALL inputs (including "cooking pasta")
+  - B2 (MEDIUM): HI isotonic calibration dead zone — raw 5.854–7.650 all map to 6.69
+  - TC spike confirmed as legitimate signal (institutional/procedural language)
+  - Composite uninformative (AUC 0.515–0.531 for g-PSQ); per-dimension profiles carry signal
+  - Content guidance: 128-token context window; use raw_score for HI; PSQ-Lite (TE + HI-raw + TC) recommended
+- unratified-agent turn 3: Bug ACK, PSQ-Lite adopted, switching to 80–100 word focused extracts
+
+**mesh-init closure read (turn 5):**
+- unratified-agent confirms mesh-init complete
+- Agent-card discovery noted as significant — their cogarch cache updated to canonical
+- PSQ endpoint concerns (HTTP-only, onnxruntime fragility) already addressed by our deployment
+
+⚑ EPISTEMIC FLAGS
+- Blog post URL 404 during defensibility review — findings F1, F2, F7 may be partially addressed by unfetched content
+- PSQ confidence head bug (B1) has been present since v23 ONNX export — all historical API responses had meaningless confidence
+- TC spike interpretation (psq-agent confidence 0.85) adopted as legitimate; causal mechanism is inference, not direct observation
+- Dimension reliability classification for advocacy content (5 more reliable / 5 less reliable) untested empirically
+
+▶ journal.md §22, transport/sessions/ (psq-scoring, mesh-init, site-defensibility-review,
+  psychology-interface), docs/cognitive-triggers.md, CLAUDE.md, TODO.md, MEMORY.md,
+  .well-known/agent-card.json, transport/MANIFEST.json, transport/hooks/transport-scan.sh
