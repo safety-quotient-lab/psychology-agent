@@ -1,0 +1,288 @@
+/* Psychology Agent — Interface Styles
+   Design: clean, readable, accessible. Golden-ratio spacing. */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --color-bg:         #0e1117;
+  --color-surface:    #161b22;
+  --color-border:     #30363d;
+  --color-text:       #c9d1d9;
+  --color-text-muted: #8b949e;
+  --color-accent:     #58a6ff;
+  --color-user-bg:    #1f2d3d;
+  --color-agent-bg:   #1a2232;
+  --color-system-bg:  #161b22;
+  --color-send:       #238636;
+  --color-send-hover: #2ea043;
+  --color-error:      #f85149;
+  --color-psq-low:    #3fb950;
+  --color-psq-mid:    #e3b341;
+  --color-psq-high:   #f85149;
+  --radius:           6px;
+  --spacing-sm:       0.618rem;
+  --spacing-md:       1rem;
+  --spacing-lg:       1.618rem;
+  --font-mono:        "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --font-sans:        -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+html, body {
+  height: 100%;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.618;
+}
+
+/* ── Layout ───────────────────────────────────────────── */
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.site-header h1 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.session-badge {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.1rem 0.5rem;
+}
+
+.session-badge.active {
+  color: var(--color-psq-low);
+  border-color: var(--color-psq-low);
+}
+
+.chat-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Chat panel ───────────────────────────────────────── */
+
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  border-right: 1px solid var(--color-border);
+}
+
+.message-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  scroll-behavior: smooth;
+}
+
+/* ── Messages ─────────────────────────────────────────── */
+
+.message {
+  max-width: 80%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius);
+  font-size: 0.9375rem;
+  line-height: 1.618;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.message.user-message {
+  align-self: flex-end;
+  background: var(--color-user-bg);
+  border: 1px solid #264b73;
+  color: var(--color-text);
+}
+
+.message.agent-message {
+  align-self: flex-start;
+  background: var(--color-agent-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  max-width: 90%;
+}
+
+.message.agent-message.streaming::after {
+  content: "▋";
+  animation: blink 0.8s step-end infinite;
+  color: var(--color-accent);
+}
+
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+.message.system-message {
+  align-self: center;
+  background: var(--color-system-bg);
+  border: 1px dashed var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  max-width: 60%;
+  text-align: center;
+}
+
+.message.error-message {
+  align-self: center;
+  background: #2d1a1a;
+  border: 1px solid var(--color-error);
+  color: var(--color-error);
+  font-size: 0.85rem;
+}
+
+.message .tool-indicator {
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
+  margin-top: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+}
+
+/* ── Input form ───────────────────────────────────────── */
+
+.input-form {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.prompt-input {
+  flex: 1;
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  resize: none;
+  transition: border-color 0.15s;
+}
+
+.prompt-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.prompt-input::placeholder { color: var(--color-text-muted); }
+
+.send-button {
+  align-self: flex-end;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--color-send);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.send-button:hover:not(:disabled) { background: var(--color-send-hover); }
+.send-button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── PSQ panel ────────────────────────────────────────── */
+
+.psq-panel {
+  width: 320px;
+  flex-shrink: 0;
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+  background: var(--color-surface);
+}
+
+.psq-panel h2 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-md);
+}
+
+.psq-empty {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+#psq-radar {
+  display: block;
+  margin: 0 auto var(--spacing-md);
+}
+
+/* ── PSQ score rows ───────────────────────────────────── */
+
+.psq-scores-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.psq-score-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.psq-score-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.psq-score-label span:last-child {
+  font-family: var(--font-mono);
+  color: var(--color-text);
+}
+
+.psq-score-bar-track {
+  height: 4px;
+  background: var(--color-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.psq-score-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .chat-layout { flex-direction: column; }
+  .chat-panel { border-right: none; border-bottom: 1px solid var(--color-border); }
+  .psq-panel { width: 100%; max-height: 280px; }
+}
