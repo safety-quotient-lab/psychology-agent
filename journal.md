@@ -40,6 +40,7 @@ partner, and Socratic interlocutor
 23. [What Three Agents Found That One Could Not: The PSQ Scoring Session](#23-what-three-agents-found-that-one-could-not)
 24. [Proportional Independence: How the Evaluator Earned a Tiered Runtime](#24-proportional-independence)
 25. [What a Dead Zone Teaches About Calibration: The B2 Root Cause](#25-b2-root-cause)
+26. [Construct×Distribution Mismatch: Why HI Cannot Classify Adversarial Content](#26-hi-construct-mismatch)
 
 ---
 
@@ -1065,3 +1066,32 @@ Examining the raw bin structure revealed mild non-monotonicity in bins 15–17 (
 The residual finding: TE uniformity (threat_exposure scores 6.46 on 4 of 5 ICESCR texts) suggests a possible analogous plateau in threat_exposure — the same mechanism, a different dimension. It was not investigated in this session. The pattern — local non-monotonicity producing PAVA pooling — is now a known failure mode for this calibration architecture, and any future calibration validation should include a dead-zone scan: identify regions where calibrated output is constant across a non-trivial raw score span, then diagnose by sample count.
 
 ---
+
+## 26. Construct×Distribution Mismatch: Why HI Cannot Classify Adversarial Content
+
+*2026-03-06 — Session 28*
+
+The second session of PSQ scoring work surfaced an anomaly that looked like a model error. When five advocacy texts on ICESCR ratification were scored, the hostility_index ranked a hostile social media post (HI=6.88) as *safer* than a policy brief (HI=6.15). On the PSQ scale — where higher scores mean greater safety — this ordering inverts the expected common-sense ranking. A post that calls the UN "foreign bureaucrats" and ends with "Hard pass" should, intuitively, score as less safe than a neutral procedural brief describing Senate committee jurisdiction.
+
+The initial hypothesis was calibration error — the same isotonic regression pathology diagnosed in §25. It was wrong.
+
+**What HI actually measures.** The PSQ was trained on Dreaddit (Turcan & McKeown, 2019), a Reddit-derived dataset of self-reported stress posts. The corpus is narrator-centric: every text in the training set is a narrator describing their own experience. The hostility_index construct definition (psq-definition.md §5) reflects this: HI measures hostility as *experienced by the narrator* — overt aggression, passive undermining, or structural antagonism *directed at the narrator*. It does not measure the degree to which the author's rhetoric is oriented toward defeating an opposing position.
+
+**Why the anomaly is not a model error.** In the hostile social media post, the author is the hostile agent — they are directing hostility outward at the UN and "foreign bureaucrats." The narrator is not a victim; they are the perpetrator. The PSQ, trained to detect hostility experienced by narrators, reads this as a relatively low incoming-hostility environment for the narrator and assigns HI=6.88 (safer). In the policy brief, the narrator — an advocate — describes institutional inertia: "the Senate Foreign Relations Committee has not held a hearing on ICESCR since the Clinton administration." This structural antagonism is directed *at* the narrator's cause. The PSQ reads this correctly as something the narrator faces and assigns HI=6.15 (less safe). Both scores are correct given the construct definition. The ordering is counterintuitive only if one assumes HI measures authorial adversarial intent.
+
+**Construct×distribution mismatch.** The failure mode is not in the model or the calibration. It is in the application: using HI as a classifier for content type (adversarial vs. advocacy) when HI was trained on and measures narrator experience. This class of failure — applying a measure outside the distribution on which it was validated — has a canonical name in psychometrics: construct×distribution mismatch. The construct is valid within its training distribution; it is not valid when applied to a population or context the training set did not represent.
+
+The confirmation came from the raw scores, not the calibrated ones. If the anomaly were a calibration artifact, calibrated and raw scores would diverge. They do not: the raw model output shows the same ordering as the calibrated output. Recalibration cannot fix a construct mismatch.
+
+**The adversarial register solution.** Rather than attempting to force HI into a role it cannot fill, we designed a new dimension that measures what HI was mistakenly assumed to measure: adversarial register (AR). AR measures the degree to which a text's rhetorical mode is oriented toward defeating, discrediting, or excluding an opposing position — as opposed to informing, advocating, or deliberating. It scores what the text *does*, not what the narrator *experiences*.
+
+The construct is grounded in three independent bodies of literature: Walton and Krabbe's (1995) dialogue types (eristic vs. deliberative discourse), Du Bois's (2007) stance theory (evaluation, self-positioning, and alignment signals as simultaneous acts), and Dodge and Coie's (1987) hostile attribution bias (the single strongest discriminating marker of eristic register). These three frameworks were selected because they operate at different levels of analysis — discourse structure, linguistic stance, and attribution pattern — and converge on the same phenomenon: the degree to which a text positions itself in combat with an opposing position rather than in dialogue with one.
+
+Phase 1 validation on the five-text ICESCR corpus passed all four pre-registered criteria: discrimination (hostile anchor AR=0.76; advocacy text AR=7.64), ordering (advocacy > informational > hostile), gap signal (AR < HI for hostile anchor, confirming the conceptual distinction), and inter-rater consistency (max delta 0.09 against rubric-scored examples). The gap signal itself carries meaning: a large positive gap (HI much larger than AR) indicates content that is adversarial in rhetorical mode but does not register as a psychoemotionally threatening narrator environment. This is the signature of texts in which the author is the hostile agent — a pattern the PSQ training distribution never modeled.
+
+**What this implies for PSQ-Lite.** The current PSQ-Lite formula (TE + HI-raw + TC) was adopted by the unratified-agent for advocacy content classification. The construct mismatch finding invalidates HI's role in that formula: a measure of narrator-experienced hostility cannot reliably discriminate adversarial from advocacy content, because the same hostility perception can arise from either (narrator describes hostile conditions) or be absent from both (narrator is the hostile agent). The proposed revision is TE + TC + AR — replacing HI with adversarial register. Adoption is the unratified-agent's decision; the finding and proposal have been delivered.
+
+**The general principle.** Every validated measure has a scope of valid application defined by its training distribution. When a measure is applied outside that scope, the failure mode is not always obvious — the model will still produce output, the output will still fall in range, and the output may even appear plausible. The diagnostic is construct alignment: does the training distribution represent the population and context where the measure is being applied? If not, the construct is valid but the application is not. This requires knowing, for each measure, not just what it measures but *in what population and context it was trained to measure it*. For the PSQ, this means treating the Dreaddit training origin as a standing fact about each dimension's scope — not just as historical context.
+
+---
+
