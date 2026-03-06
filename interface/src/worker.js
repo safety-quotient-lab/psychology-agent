@@ -4,6 +4,7 @@
  * Routes:
  *   POST /session              → create session
  *   POST /turn                 → stream agent response (SSE)
+ *   POST /psq/score            → proxy to PSQ scoring endpoint (machine-response/v3)
  *   GET  /session/:id          → retrieve session + turns
  *   GET  /session/:id/psq      → retrieve PSQ scores for session
  *   GET  /health               → health check
@@ -17,6 +18,7 @@
 
 import { createSession, getSession, appendTurn, getSessionTurns } from "./session.js";
 import { streamAgentResponse } from "./agent.js";
+import { scorePSQ, healthCheckPSQ } from "./psq-client.js";
 
 export default {
   async fetch(request, env) {
@@ -143,6 +145,31 @@ export default {
             psq_scores: JSON.parse(turn.psq_scores),
           }));
         return Response.json({ session_id: sessionId, psq_turns: psqTurns }, { headers: corsHeaders });
+      }
+
+      // GET /psq/health → PSQ endpoint liveness check
+      if (method === "GET" && url.pathname === "/psq/health") {
+        const result = await healthCheckPSQ(env.PSQ_ENDPOINT_URL);
+        if (!result.ok) {
+          return Response.json({ error: result.error }, { status: 502, headers: corsHeaders });
+        }
+        return Response.json(result.data, { headers: corsHeaders });
+      }
+
+      // POST /psq/score → proxy to PSQ scoring endpoint (machine-response/v3)
+      // Response includes hierarchy extension (factors_2/3/5, g_psq) and
+      // raw_score per dimension alongside calibrated score.
+      if (method === "POST" && url.pathname === "/psq/score") {
+        const body = await request.json();
+        const { text, session_id } = body;
+        if (!text) {
+          return Response.json({ error: "text is required" }, { status: 400, headers: corsHeaders });
+        }
+        const result = await scorePSQ(env.PSQ_ENDPOINT_URL, text, session_id);
+        if (!result.ok) {
+          return Response.json({ error: result.error }, { status: 502, headers: corsHeaders });
+        }
+        return Response.json(result.data, { headers: corsHeaders });
       }
 
       return Response.json({ error: "not found" }, { status: 404, headers: corsHeaders });

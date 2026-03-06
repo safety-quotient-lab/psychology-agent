@@ -19,9 +19,19 @@ bucket_name = "psychology-interface-artifacts"
 [vars]
 PSYCHOLOGY_AGENT_MODEL = "claude-opus-4-6"
 PSQ_CONFIDENCE_THRESHOLD = "0.6"
+# PSQ scoring endpoint — set to deployed PSQ server URL for production,
+# or http://localhost:<port> for local dev alongside `npm run serve` in safety-quotient/
+# PSQ_ENDPOINT_URL = ""
 
 # Secrets (set via: wrangler secret put ANTHROPIC_API_KEY)
 # ANTHROPIC_API_KEY
+# wrangler secret put PSQ_ENDPOINT_URL  (if URL contains auth token)
 
 [dev]
 port = 8787
+# Local dev: PSQ server binds 127.0.0.1:3000 (npm run serve in safety-quotient/).
+# Both wrangler dev and psq server must run on the same machine.
+# Production: PSQ_ENDPOINT_URL must be set as a secret (wrangler secret put PSQ_ENDPOINT_URL)
+# after deploying psq server to a network-accessible URL (transport decision open).
+[dev.vars]
+PSQ_ENDPOINT_URL = "http://127.0.0.1:3000"
