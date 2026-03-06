@@ -6,13 +6,13 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 23b. Knock-on depth extended to 10 orders (INCOSE +
-Popper grounding). Unratified-agent mesh-init: capability-response sent (PSQ accepted,
-ICESCR deferred). Agent-card deployed at /.well-known/agent-card.json on CF Worker.
-/knock standalone skill created. T2 compaction thresholds (60%/75%). Stop hook ⚑ sweep.
-**Next:** Await psq-agent rsync to Hetzner (turn 12 unanswered). After rsync: chown →
-psq-server.service → Caddy TLS → wrangler secret → send PSQ URL to unratified-agent.
-Blog PR #2 open (unratified).
+**Where we stopped:** Session 22. BFT design note + command-request/v1 protocol +
+Hetzner CX provisioned (178.156.229.103, Debian 13, Node.js 20). Transport failure
+modes mapped (F1–F8, resolves EF-4). Semantic rename: item2→subagent-protocol,
+item4→psychology-interface. First command-request sent (model-rsync-hetzner-001).
+**Next:** Await psq-agent command-response (rsync model files to Hetzner). After rsync:
+chown → fix psq-server.service User → start service → Caddy TLS → wrangler secret.
+Step 8 browser verify still pending. Blog PR #2 open (unratified).
 
 ## Design Decisions
 
