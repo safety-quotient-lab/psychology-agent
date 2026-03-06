@@ -2,7 +2,8 @@
 
 A collegial mentor for psychological analysis, research, and applied consultation —
 built on the PJE (Psychology-Juris-Engineering) framework with specialized
-sub-agents and a consensus-or-parsimony adversarial evaluator.
+sub-agents and a ranked-procedure adversarial evaluator (consensus → parsimony →
+pragmatism → coherence → falsifiability → convergence → escalate).
 
 ---
 
@@ -34,7 +35,7 @@ A three-layer agent system:
 General-Purpose Psychology Agent  (collegial mentor, Opus)
   ├── PSQ Agent                   (psychoemotional safety measurement)
   ├── Future sub-agents           (plug-in, none pre-committed)
-  └── Adversarial Evaluator       (consensus-or-parsimony, Opus)
+  └── Adversarial Evaluator       (7-procedure ranked resolution, Opus)
 ```
 
 The general agent synthesizes across sub-agents, routes requests, and maintains
@@ -57,10 +58,12 @@ working in a sub-project context.
 
 ## Current Status
 
-**Design phase.** Architecture and conventions established. Three items remain:
-1. General agent design (prompt, routing, Socratic protocol)
-2. Sub-agent protocol (plug-in, communication, scope declaration)
-3. Adversarial evaluator (tiered activation, parsimony reasoning)
+**Design phase.** Architecture and conventions established.
+
+- ✓ General agent routing logic and identity spec
+- ✓ Adversarial evaluator reasoning procedures (7-procedure ranked set)
+- ✗ Sub-agent protocol (plug-in, communication, scope declaration)
+- ✗ Adversarial evaluator tiered activation and prompt
 
 See `docs/architecture.md` for the full design record.
 
@@ -137,10 +140,19 @@ depth, 2-pass iterative refinement, and consensus-or-parsimony binding.
 - [.claude/skills/adjudicate/SKILL.md](.claude/skills/adjudicate/SKILL.md) — the full skill definition
 - [journal.md §11](journal.md) — licensing decision as a worked example of the method
 
+**Adversarial evaluator reasoning procedures** — When sub-agents conflict, the
+evaluator applies a ranked 7-procedure set rather than averaging: consensus,
+parsimony (Occam), pragmatism (what's actionable given stakes), coherence
+(fits validated findings), falsifiability (prefer testable claims), convergence
+(independent rediscovery as evidence), escalation (surface disagreement shape to
+user). Domain-specific priority tables govern which procedure ranks first per
+context (clinical vs. research vs. architecture vs. applied consultation).
+- [docs/architecture.md](docs/architecture.md) — Component Spec: Adversarial Evaluator
+
 **Research journal** — A methods-and-findings narrative covering the full arc from
 initial framing through architecture design, cognitive infrastructure, cross-context
-integrity, reconstruction methodology, and semiotic theory.
-- [journal.md](journal.md) — 12 sections, ~520 lines
+integrity, reconstruction methodology, and semiotic theory as cogarch principle.
+- [journal.md](journal.md) — 14 sections
 
 ---
 
