@@ -7,7 +7,7 @@
  * Worker base URL: same origin in production; override WORKER_BASE for dev.
  */
 
-import { renderPSQRadar, renderPSQScoreRows } from "./psq.js";
+import { renderPSQPanel } from "./psq.js";
 
 // In dev, set this to your wrangler dev URL (e.g. http://localhost:8787).
 // In production CF Pages deployment, the worker runs on the same origin.
@@ -20,9 +20,10 @@ const inputForm       = document.getElementById("input-form");
 const promptInput     = document.getElementById("prompt-input");
 const sendButton      = document.getElementById("send-button");
 const sessionBadge    = document.getElementById("session-badge");
-const psqEmpty        = document.getElementById("psq-empty");
-const psqRadarCanvas  = document.getElementById("psq-radar");
-const psqScoresTable  = document.getElementById("psq-scores-table");
+const psqEmpty             = document.getElementById("psq-empty");
+const psqRadarCanvas       = document.getElementById("psq-radar");
+const psqScoresTable       = document.getElementById("psq-scores-table");
+const psqHierarchyContainer = document.getElementById("psq-hierarchy");
 
 // ── Application state ───────────────────────────────────────────────────────
 
@@ -65,14 +66,18 @@ function showError(message) {
 
 // ── PSQ visualization ───────────────────────────────────────────────────────
 
-function displayPSQScores(psqBlock) {
-  if (!psqBlock?.scores) return;
+// Accepts a full machine-response/v3 object.
+// Dimensions[] array drives radar + score rows; hierarchy extension drives factor display.
+function displayPSQScores(v3Response) {
+  if (!v3Response?.dimensions?.length) return;
 
   psqEmpty.style.display = "none";
   psqRadarCanvas.style.display = "block";
+  if (psqHierarchyContainer && v3Response.hierarchy) {
+    psqHierarchyContainer.style.display = "block";
+  }
 
-  renderPSQRadar(psqRadarCanvas, psqBlock.scores);
-  renderPSQScoreRows(psqScoresTable, psqBlock.scores);
+  renderPSQPanel(psqRadarCanvas, psqScoresTable, psqHierarchyContainer, v3Response);
 }
 
 // ── SSE streaming ───────────────────────────────────────────────────────────
