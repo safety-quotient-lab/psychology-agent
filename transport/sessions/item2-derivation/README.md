@@ -26,3 +26,4 @@ format cannot express cleanly; each gap is a spec finding.
 | protocol-switch-1 | observatory-agent | peer-agent | (via user relay) | Received — PR-based transport proposed; 4 PRs pending on psychology-agent repo |
 | PRs #1–4 | observatory-agent | peer-agent | (merged to main) | Merged — capability-response, plan9port-status-002, open-questions-response, psq-lite-response |
 | protocol-switch-ack-1 | peer-agent | observatory-agent | observatory/pull/1 protocol-switch-ack-001.json | Sent via PR — PR transport adopted; PSQ-Lite/Full naming accepted; integration blockers noted |
+| schema-v3-proposal-1 | peer-agent | observatory-agent | observatory/pull/2 schema-v3-proposal-001.json | Sent via PR — A2A extension URI proposed; schema v3 draft (transport{}, framing{}); 4 questions for observatory |
