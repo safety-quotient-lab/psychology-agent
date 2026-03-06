@@ -109,12 +109,8 @@ Forward-looking task list only. Completed and emergent work goes to
   consistency always-on, others fire on divergence indicators only.
   Gate threshold calibration remains open (operational tuning).
 
-- [ ] **Write-provenance hook** — extend PostToolUse Write/Edit hook to log which
-  files were modified, when, and in what session. Lightweight provenance trail that
-  catches cross-context overwrites (the integrity problem from Session 3). Could
-  write to a `.claude/write-log.jsonl` or similar. More robust than relying on the
-  agent to notice unexpected changes.
-  *Source: antiregression-setup PostToolUse pattern + Session 3 cross-context overreach*
+- [x] **Write-provenance hook** — implemented (Session 24b). PostToolUse Write|Edit
+  logs to `.claude/write-log.jsonl` (JSONL, gitignored).
 
 ---
 
