@@ -88,7 +88,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | CF Tunnel                     | ✓ Live — coordinates-valve-conventions-convertible.trycloudflare.com (ephemeral, session-scoped) |
 | T14 + T15 cogarch             | ✓ T14 (structural checkpoint, orders 7–10) + T15 (PSQ v3 receiver protocol) in cognitive-triggers.md + MEMORY quick-ref |
 | Knock-on depth 10             | ✓ Extended 8→10; Order 9 Emergent (INCOSE), Order 10 Theory-revising (Popper); M tier 6→8, L tier 8→10 (Session 23) |
-| wrangler version              | ⚑ v3.114.17 installed; v4.71.0 available — upgrade before production deploy |
+| wrangler version              | ✓ v4.71.0 — clean deploy (Session 21c)           |
 | Blog PR (well-known)          | ✓ PR #2 open — safety-quotient-lab/unratified — psychology-agent consumer perspective |
 | interagent/v1 protocol        | ✓ Schema v3 finalized — extension URI, enum, glob, per-message scope |
 | PSQ namespace                 | ✓ Resolved — PSQ-Lite (LLM heuristic) vs PSQ-Full (DistilBERT v23) |
@@ -102,7 +102,12 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | D1 database                   | ✓ psychology-interface (56a2f5ac, ENAM region)   |
 | KV namespace                  | ✓ SESSION_KV (1d17a21c)                          |
 | wrangler version              | ✓ v4.71.0 — no warnings, clean deploy            |
-| PSQ production endpoint       | ⚑ BLOCKED — awaiting stable URL from psq-agent (Option A or B) |
+| PSQ production endpoint       | ⚑ BLOCKED — Hetzner (178.156.229.103) provisioned; model rsync command-request sent to psq-agent; awaiting transfer + /health |
+| Hetzner Cloud server          | ✓ psq-agent CX (Ashburn, Debian 13, 4 GB RAM) — Node.js 20 + npm deps installed |
+| BFT design note               | ✓ docs/bft-design-note.md — 6 principles, topology analysis |
+| Command-request/v1 protocol   | ✓ docs/command-request-v1-spec.md — command-request + command-response message types |
+| Transport failure modes        | ✓ docs/git-pr-transport-failure-modes.md — 8 modes (F1–F8), EF-4 resolved |
+| Semantic rename (transport)    | ✓ item2-derivation → subagent-protocol, item4-derivation → psychology-interface (Session 22) |
 | /turn route                   | ⚑ DEFERRED — blocked by API credits; 3-step re-enable checklist in TODO.md |
 | PSYCHOLOGY_SYSTEM             | ✓ Full identity + cogarch inlined (Option A); Option B documented in agent.js |
 | Blog PR (well-known)          | ✓ PR #2 open — safety-quotient-lab/unratified    |
@@ -116,7 +121,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 
 - HuggingFace model license: parry requests `deberta-v3-small` but docs reference `deberta-v3-base` — verify correct model slug
 - Parry ML daemon: HTTP 401 after token file exists — investigate token validity or model gating
-- PSQ production URL: waiting on psq-agent reply to production-transport-001.json (Option A named tunnel vs Option B Oracle Ampere)
+- PSQ production URL: Hetzner provisioned; model rsync command-request sent; awaiting psq-agent command-response with state attestation
+- ~~Oracle Ampere A1 vs named tunnel?~~ **ANSWERED:** Oracle A1 free tier unavailable; Hetzner CX (Ashburn, $5/mo) selected
 
 ---
 
@@ -1382,3 +1388,76 @@ narrative (described what actually happened at 8 orders), all snapshots in docs/
 ⚑ EPISTEMIC FLAGS: none identified.
 
 ▶ docs/cognitive-triggers.md (canonical), .claude/commands/adjudicate.md (protocol)
+
+
+## 2026-03-06T12:19 CST — Session 22 (BFT + command protocol + Hetzner deploy + semantic rename)
+
+**Scope:** Protocol architecture (BFT, command-request/v1, transport failure modes),
+infrastructure (Hetzner production hosting), and codebase hygiene (semantic rename).
+
+**Semantic rename** — transport session directories and files:
+- `item2-derivation/` → `subagent-protocol/`
+- `item4-derivation/` → `psychology-interface/`
+- All `item4-*` files → descriptive names (interface-*, settings-sources-*, production-*)
+- `item2a-closing-*` → `subagent-layer-closing-*`
+- session_id values updated in our JSON files; other agents' session_ids left as historical record
+- Markdown references updated across 5 files (lab-notebook, README, item2a-spec, machine-response-v3-spec)
+- Resolved rebase conflict when psq-agent's production-transport-ack-001.json arrived during rename
+
+**Hetzner Cloud production hosting:**
+- Oracle Ampere A1 free tier unavailable (inventory exhausted across US regions)
+- Oracle micro (1 GB RAM) insufficient for ONNX model
+- Evaluated: AWS/GCP/Azure free tier (all 1 GB cap), Hetzner, Vultr, DO, Linode
+- Selected: Hetzner CX (Ashburn, VA), Debian 13, ~$5/mo, 4 GB RAM
+- Provisioned via hcloud CLI: server `psq-agent` at 178.156.229.103
+- Firewall: SSH + ICMP + HTTP + HTTPS + PSQ:3000
+- Node.js 20 + npm dependencies installed; `psq` service user created
+- Model files not yet transferred (gitignored, only on Chromabook)
+
+**psq-agent response (turn 9)** — chose Option B (Oracle Ampere); committed deploy scripts
+(`oracle-vm-setup.sh`, `psq-server.service`). Pivoted to Hetzner after Oracle unavailability.
+
+**BFT design note** (docs/bft-design-note.md):
+- 6 principles: evidence-bearing responses, idempotent operations, state attestation,
+  refusal with reasoning, human escalation threshold, evaluator as verification layer
+- Topology analysis: 2 peers + human TTP + evaluator (when instantiated)
+- Classical BFT (3f+1) doesn't map directly; human serves as trusted oracle
+- Scaling: evaluator instantiation moves system from f=0 to f=1 tolerance
+- 4 epistemic flags → 4 TODOs (EF-1 through EF-4)
+
+**Command-request/v1 protocol** (docs/command-request-v1-spec.md):
+- New interagent/v1 extension: `command-request` and `command-response` message types
+- BFT principles embedded in schema: operation_id, preconditions, authorization chain,
+  execution evidence, state attestation, refusal rights
+- 5 operation types: file_transfer, service_management, build, verification, configuration
+- Security: command injection awareness, secret handling by reference, scope boundary
+
+**git-PR transport failure modes** (docs/git-pr-transport-failure-modes.md, EF-4 resolved):
+- 8 failure modes mapped: concurrent push (F1, observed), human delay (F2), PR not merged (F3),
+  merge reorder (F4), silent drop (F5, partially observed), conflict corruption (F6, observed),
+  stale branch (F7), split-brain (F8)
+- Each: detection, protocol response, prevention, timeout
+- 6 actionable improvements: sender-scoped turn numbering, last-processed-turn tracking,
+  transport scan hook, JSON validation, ACK requirement, divergence budget
+- Compared to classical BFT failure modes
+
+**First command-request** (model-rsync-request-001.json, turn 12):
+- Requests psq-agent to rsync model files from Chromabook to Hetzner
+- Includes post-transfer steps (chown, systemd service User fix, health check)
+- Notes psq-server.service references User=ubuntu (needs User=psq on Hetzner)
+
+**Architecture decisions added to docs/architecture.md:**
+- Byzantine fault tolerance (6 principles, TTP model)
+- Command-request protocol (interagent/v1 extension)
+- PSQ production hosting (Hetzner CX Ashburn, Debian 13)
+
+⚑ EPISTEMIC FLAGS
+- Model files not yet on Hetzner — blocked on psq-agent rsync execution
+- psq-server.service written for Oracle Ubuntu — may need adaptation beyond User= for Debian 13
+- Chromabook SSH key not tested against Hetzner — may need user to authorize
+- EF-1 (autonomous trust) and EF-3 (evaluator instantiation) remain open
+- No T10 lessons written this session (no pattern errors or conceptual shifts identified)
+
+▶ docs/bft-design-note.md, docs/command-request-v1-spec.md,
+  docs/git-pr-transport-failure-modes.md, docs/architecture.md,
+  transport/sessions/psychology-interface/model-rsync-request-001.json, TODO.md
