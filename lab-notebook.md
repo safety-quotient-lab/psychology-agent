@@ -82,9 +82,11 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Item 2 protocol               | ✓ COMPLETE — Item 2a (6 findings, spec) + Item 2b (peer layer, spec) |
 | Observatory-agent exchange    | ✓ Complete — 20-turn live derivation; PR #9 (closing ACK) open |
 | PSQ scoring endpoint          | ✓ Implemented — safety-quotient/src/server.js, machine-response/v3 (Session 20) |
-| Psychology interface (PSQ)    | ✓ worker.js + psq-client.js + UI (radar/hierarchy/threshold/artifact) — smoke test 7/8 |
-| Psychology interface (/turn)  | ⚑ DEFERRED — requires ANTHROPIC_API_KEY (billable) + settingSources fix (see TODO.md Item 4) |
-| settingSources CF Workers     | ⚑ FINDING: no-op in CF Workers (no local fs) — agent identity-blind in production without fix |
+| Psychology interface (PSQ)    | ✓ worker.js + psq-client.js + UI (radar/hierarchy/threshold/artifact) — smoke test 7/8; step 8 (browser render) pending user |
+| Psychology interface (/turn)  | ⚑ DEFERRED — blocked by API credits; 503 guard in place; 3-step re-enable in TODO.md Item 4 |
+| settingSources CF Workers     | ✓ RESOLVED — PSYCHOLOGY_SYSTEM expanded (Commitments+Refusals+T15, Option A inline); settingSources removed from agentOptions (Session 21) |
+| CF Tunnel                     | ✓ Live — coordinates-valve-conventions-convertible.trycloudflare.com (ephemeral, session-scoped) |
+| T14 + T15 cogarch             | ✓ T14 (structural checkpoint) + T15 (PSQ v3 receiver protocol) in cognitive-triggers.md + MEMORY quick-ref |
 | wrangler version              | ⚑ v3.114.17 installed; v4.71.0 available — upgrade before production deploy |
 | Blog PR (well-known)          | ✓ PR #2 open — safety-quotient-lab/unratified — psychology-agent consumer perspective |
 | interagent/v1 protocol        | ✓ Schema v3 finalized — extension URI, enum, glob, per-message scope |
@@ -1254,6 +1256,49 @@ absent. Two conditions to re-enable: (1) API cost accepted, (2) settingSources f
 
 ▶ interface/src/agent.js, interface/src/worker.js, TODO.md Item 4,
   transport/sessions/item4-derivation/item4-smoketest-001.json
+
+---
+
+## 2026-03-06T10:03 CST — Session 21 (CF Tunnel, f3 fix, interagent turns 6–10)
+
+**Scope:** CF Tunnel setup, smoke test completion, PSYCHOLOGY_SYSTEM production fix, /turn deferral.
+
+**CF Tunnel live** — cloudflared 2026.2.0 installed (Debian). PSQ endpoint started (PID 761012,
+`npm run serve`). Quick tunnel: `https://coordinates-valve-conventions-convertible.trycloudflare.com`.
+Health check verified through tunnel. Ephemeral — expires when session ends.
+
+**Interagent turns 6–10** (item4-derivation):
+- Turn 6 (tunnel-ready-001.json): announced CF Tunnel URL to peer-agent
+- Turn 7 (item4-smoketest-001.json, from macOS): smoke test 7/8 PASS; step 8 pending user browser verification
+- Turn 8 (item4-smoketest-ack-001.json): ACK + flagged settingSources production gap (f3 HIGH)
+- Turn 9 (item4-f3-fix-001.json): delegated f3 fix to peer-agent with full proposed PSYCHOLOGY_SYSTEM content
+- Turn 10 (item4-f3-ack-001.json): reviewed peer-agent implementation — approved, flagged TODO staleness, surfaced /turn API key decision
+
+**f3 resolved** — peer-agent (macOS, commits 59f2ebf + fb38bdf):
+- `PSYCHOLOGY_SYSTEM` expanded: Identity, Commitments (6), Refusals (5), Scope boundary script,
+  Before-response checklist, PSQ T15 integration rules, Machine-to-machine detection (~65 lines)
+- `settingSources: ['project']` removed from `agentOptions` (was a no-op in CF Workers)
+- Option B documented as comment (R2/KV fetch at request time — editability vs. ~50ms cold latency)
+- 503 guard in worker.js; `/turn` returns clear error + reason when ANTHROPIC_API_KEY absent
+
+**Design note** — peer-agent's Commitments+Refusals structure is more effective than trigger-by-trigger
+firing conditions for a per-request CF Worker system prompt. Behavioral directives (what to do)
+outperform metacognitive reference tables (when to do what) when the agent has no persistent
+session state between requests.
+
+**T14 + T15 absorbed** — peer-agent committed T14 (structural checkpoint) + T15 (PSQ v3 receiver
+protocol) to docs/cognitive-triggers.md. MEMORY.md quick-ref updated with both triggers.
+
+**Stale conflict marker removed** — `>>>>>>> 44f5ada` fragment at end of lab-notebook.md removed
+(leftover from Session 20 rebase resolution).
+
+⚑ EPISTEMIC FLAGS
+- CF Tunnel URL is ephemeral — not persisted across sessions; requires restart to regenerate
+- Step 8 (browser render) pending user action on macOS
+- /turn API key decision is a substance decision (billing); deferred to user
+
+▶ interface/src/agent.js, transport/sessions/item4-derivation/ (turns 6–10),
+  docs/cognitive-triggers.md (T15), MEMORY.md (T14+T15 quick-ref)
 
 ---
 
