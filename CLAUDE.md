@@ -65,6 +65,8 @@ exceed available evidence, or any finding that a peer reviewer would challenge.
   ideas, lessons, docs for highest-value next work.
 - `/cycle` — Post-session documentation checklist. Propagates session changes
   through the full doc chain: lab-notebook, journal, architecture, MEMORY, snapshot.
+- `/knock` — Single-option 10-order knock-on effect tracing. Used standalone or
+  invoked by /hunt and /adjudicate. Domain classify → ground → trace 10 orders.
 
 ## Commands (load on demand)
 
