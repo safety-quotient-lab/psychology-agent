@@ -29,10 +29,6 @@ PSQ_CONFIDENCE_THRESHOLD = "0.6"
 
 [dev]
 port = 8787
-
-# Local dev default: PSQ server on same machine (npm run serve in safety-quotient/).
-# For CF Tunnel or remote PSQ endpoint: override in .dev.vars (gitignored).
-# See .dev.vars.example for the pattern.
-# Transport decision: Option C (CF Tunnel) for smoke test, Option B (VPS) for production.
-[dev.vars]
-PSQ_ENDPOINT_URL = "http://127.0.0.1:3000"
+# PSQ_ENDPOINT_URL for local dev: set in .dev.vars (gitignored, see .dev.vars.example).
+# Default for same-machine dev: PSQ_ENDPOINT_URL=http://127.0.0.1:3000
+# CF Tunnel or VPS: override with the remote URL in .dev.vars.

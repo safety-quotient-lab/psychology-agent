@@ -13,6 +13,6 @@
     "@anthropic-ai/claude-agent-sdk": "^0.2.70"
   },
   "devDependencies": {
-    "wrangler": "^3"
+    "wrangler": "^4.71.0"
   }
 }
