@@ -30,17 +30,17 @@
   },
   "payload": {
     "subject": "Item 2 exchange complete — beginning Architecture Item 4 (psychology interface)",
-    "item2_closure": {
+    "subagent_protocol_closure": {
       "status": "COMPLETE",
       "artifacts": [
-        "docs/item2a-spec.md — 6 findings, schema v3, PSQ gaps, extension URI",
-        "docs/item2b-spec.md — peer layer, divergence detection, SETL thresholds",
+        "docs/subagent-layer-spec.md — 6 findings, schema v3, PSQ gaps, extension URI",
+        "docs/peer-layer-spec.md — peer layer, divergence detection, SETL thresholds",
         "docs/machine-response-v3-spec.md — PSQ output schema v3",
         "transport/sessions/subagent-protocol/ — full 9-turn exchange record"
       ],
       "psq_status": "Live and calibrated — safety-quotient-lab/safety-quotient; score + confidence proxy active"
     },
-    "item4_scope": {
+    "interface_scope": {
       "description": "Psychology interface — custom UI and API layer for the general-purpose psychology agent",
       "components": [
         "Agent SDK wrapper (@anthropic-ai/claude-agent-sdk) — session, context, memory primitives",

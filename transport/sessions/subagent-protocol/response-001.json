@@ -19,7 +19,7 @@
   "transport": {
     "method": "git-pr",
     "persistence": "persistent",
-    "session_id": "psq-sub-agent/item2-derivation/response-001"
+    "session_id": "psq-sub-agent/subagent-protocol/response-001"
   },
 
   "scope_declaration": {

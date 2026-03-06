@@ -66,7 +66,7 @@
       "note": "PSQ-Full response-001.json has been updated with calibrated scores and these fields in PR #5. Gap logged for Item 2a spec derivation."
     },
 
-    "item2a_status": {
+    "subagent_layer_status": {
       "derivation_findings_count": 5,
       "findings": [
         "transport-method-not-in-schema → transport.method field (v3)",
@@ -89,7 +89,7 @@
       "independently_verified": false
     },
     {
-      "claim_id": "item2a-derivation-complete",
+      "claim_id": "subagent-layer-derivation-complete",
       "text": "Item 2a derivation has produced 5 schema findings from the 9P transport test and PSQ-Full inference. These findings are sufficient to draft the Item 2a spec document.",
       "confidence": 0.85,
       "confidence_basis": "Findings emerged from direct protocol exchange and inference runs. 0.85: additional transport tests may surface further gaps.",

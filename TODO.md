@@ -12,10 +12,10 @@ Forward-looking task list only. Completed and emergent work goes to
   priority tables).
 
 - [x] **Item 2: Sub-agent protocol** — ✓ Complete (Session 20, 2026-03-06):
-  - **2a: Sub-agent layer** ✓ — docs/item2a-spec.md. 6 findings, schema v3 transport/framing,
+  - **2a: Sub-agent layer** ✓ — docs/subagent-layer-spec.md. 6 findings, schema v3 transport/framing,
     PSQ schema gaps #1–5 + calibration_version, A2A Epistemic Extension URI.
     Schema: docs/machine-response-v3-spec.md.
-  - **2b: Peer layer** ✓ — docs/item2b-spec.md. Role declaration, divergence detection
+  - **2b: Peer layer** ✓ — docs/peer-layer-spec.md. Role declaration, divergence detection
     (context_state + last_commit), SETL thresholds, evaluator tier binding, precedence
     protocol, convergence signal thresholds, context sync pattern.
   - **PSQ scoring endpoint** ✓ — safety-quotient/src/server.js. HTTP API (POST /score)

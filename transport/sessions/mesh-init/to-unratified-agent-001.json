@@ -62,7 +62,7 @@
       ],
       "schemas_published": [
         "machine-response/v3 — PSQ scoring output (docs/machine-response-v3-spec.md)",
-        "interagent/v1 — jointly derived with observatory-agent (docs/item2a-spec.md)",
+        "interagent/v1 — jointly derived with observatory-agent (docs/subagent-layer-spec.md)",
         "command-request/v1 — BFT-embedded operations (docs/command-request-v1-spec.md)"
       ]
     },

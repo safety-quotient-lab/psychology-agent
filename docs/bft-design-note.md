@@ -3,7 +3,7 @@
 **Date:** 2026-03-06
 **Status:** Active design — principles adopted, Principle 6 pending evaluator instantiation
 **Scope:** Psychology agent multi-agent system (2 peers + human arbiter + evaluator)
-**Related:** docs/item2b-spec.md (peer layer), docs/command-request-v1-spec.md (command protocol)
+**Related:** docs/peer-layer-spec.md (peer layer), docs/command-request-v1-spec.md (command protocol)
 
 ---
 
@@ -219,5 +219,5 @@ on human availability).
 - Lamport, L., Shostak, R., & Pease, M. (1982). The Byzantine Generals Problem.
   *ACM Transactions on Programming Languages and Systems*, 4(3), 382–401.
 - Castro, M., & Liskov, B. (1999). Practical Byzantine Fault Tolerance. *OSDI '99*.
-- docs/item2b-spec.md — peer layer protocol (divergence detection, SETL thresholds)
+- docs/peer-layer-spec.md — peer layer protocol (divergence detection, SETL thresholds)
 - docs/command-request-v1-spec.md — command execution protocol embedding these principles

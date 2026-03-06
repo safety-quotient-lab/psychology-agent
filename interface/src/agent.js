@@ -16,7 +16,7 @@
  *
  * PSQ sub-agent routing: when the general agent invokes PSQ scoring, the
  * agents: { psq } option routes to the psq-sub-agent. Blocked pending the
- * PSQ scoring endpoint (docs/item4-spec.md Phase 3).
+ * PSQ scoring endpoint (docs/psychology-interface-spec.md Phase 3).
  */
 
 // Dynamic import defers SDK initialization to first request.

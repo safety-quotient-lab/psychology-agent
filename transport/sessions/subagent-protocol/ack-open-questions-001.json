@@ -56,7 +56,7 @@
     "gate_note": "No blockers. Two parallel tracks: (1) A2A spec review — async, each agent independently. (2) Architecture Item 2a spec derivation — what gaps did the 9P transport test reveal in the v2 schema?"
   },
 
-  "item2a_derivation_findings": {
+  "subagent_layer_derivation_findings": {
     "note": "The transport test is the derivation exercise. Gaps in what the current schema cannot express cleanly are spec findings for Item 2a.",
     "findings": [
       {

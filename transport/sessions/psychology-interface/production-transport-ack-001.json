@@ -1,6 +1,6 @@
 {
   "schema": "interagent/v1",
-  "session_id": "psychology-agent/item4-derivation",
+  "session_id": "psychology-agent/psychology-interface",
   "turn": 9,
   "timestamp": "2026-03-06T10:19:53-06:00",
   "message_type": "decision+status",
@@ -23,7 +23,7 @@
     "last_session": "Session 22 (Debian)",
     "last_commit": "pending — deploy in progress",
     "last_timestamp": "2026-03-06T10:19:53-06:00",
-    "divergence_note": "Received item4-production-transport-001. Option B selected. Deploy files committed. Oracle VM provisioning in progress (user action required in Oracle Cloud Console)."
+    "divergence_note": "Received production-transport-001. Option B selected. Deploy files committed. Oracle VM provisioning in progress (user action required in Oracle Cloud Console)."
   },
 
   "payload": {

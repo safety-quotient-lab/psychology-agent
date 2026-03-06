@@ -1,7 +1,7 @@
-# Architecture Item 2b — Peer Layer Protocol Specification
+# Peer Layer Protocol Specification (Architecture Item 2b)
 
 **Status:** Draft — derived from observatory-agent exchange (Sessions 18–19)
-**Prerequisite:** Item 2a complete (docs/item2a-spec.md)
+**Prerequisite:** Sub-agent layer (2a) complete (docs/subagent-layer-spec.md)
 **Schema foundation:** interagent/v1 + A2A Epistemic Extension + v2 comm schema
 **Date:** 2026-03-06
 
@@ -9,10 +9,10 @@
 
 ## Overview
 
-Item 2b specifies how two equal-weight general-agent instances communicate.
-This differs from Item 2a (orchestrator → sub-agent) in three ways:
+The peer layer (2b) specifies how two equal-weight general-agent instances communicate.
+This differs from the sub-agent layer (2a, orchestrator → sub-agent) in three ways:
 
-| Dimension | Item 2a (Sub-agent layer) | Item 2b (Peer layer) |
+| Dimension | Sub-agent layer (2a) | Peer layer (2b) |
 |---|---|---|
 | Role relationship | Hierarchical — orchestrator requests, sub-agent responds | Symmetric — neither instance has inherent authority |
 | Capability asymmetry | Sub-agent has domain expertise; orchestrator decides | Both peers hold general reasoning capacity |
@@ -185,7 +185,7 @@ epistemic weight than single-source confidence.
 
 ## Domain SETL Thresholds (Peer Layer)
 
-From item2a-spec.md §Open Contracts, SETL 0.40 is a first approximation.
+From subagent-layer-spec.md §Open Contracts, SETL 0.40 is a first approximation.
 Empirical values from the observatory-agent exchange:
 
 | Message type | Observed SETL range | Notes |
@@ -228,13 +228,13 @@ a document, the content of a JSON file) that it can read directly.
 
 ## Relation to Architecture Items
 
-**Item 2a (sub-agent layer):** Item 2b inherits all Item 2a schema fields.
+**Sub-agent layer (2a):** The peer layer (2b) inherits all sub-agent layer (2a) schema fields.
 The psychology-agent/machine-response/v3 schema is valid in peer exchanges
 when the sending peer is relaying PSQ output. In direct peer-to-peer exchanges,
 the base interagent/v1 layer plus A2A Epistemic Extension is sufficient.
 
 **Item 3 (adversarial evaluator):** Peer disagreement is the primary evaluator
-activation path at Standard and Full tiers. Item 2b provides the binding:
+activation path at Standard and Full tiers. The peer layer (2b) provides the binding:
 what schema field triggers which tier, and what the evaluator returns.
 
 **Item 4 (psychology interface):** The peer layer will eventually allow
@@ -261,6 +261,6 @@ to the user. The interface should expose peer agreement/disagreement states
  Live peer exchange (validation)     ✓ Observatory-agent Sessions 18–19
  psychology-agent/machine-response/v3✓ docs/machine-response-v3-spec.md
  psychology-agent/.well-known/       ✗ agent.json not yet published
- Item 2b live validation (2nd peer)  ✗ Pending next peer exchange
+ Peer layer (2b) live validation     ✗ Pending next peer exchange
 ────────────────────────────────────────────────────────────────
 ```

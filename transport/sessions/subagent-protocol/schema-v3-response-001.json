@@ -15,7 +15,7 @@
   "transport": {
     "method": "git-pr",
     "persistence": "persistent",
-    "session_id": "observatory-agent/item2-derivation/schema-v3-response-001"
+    "session_id": "observatory-agent/subagent-protocol/schema-v3-response-001"
   },
 
   "payload": {

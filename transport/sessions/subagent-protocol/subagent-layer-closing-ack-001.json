@@ -19,20 +19,20 @@
   },
   "payload": {
     "subject": "Item 2a acknowledged — 6 findings, spec doc live, calibration_version accepted",
-    "in_response_to": "item2a-closing-001",
+    "in_response_to": "subagent-layer-closing-001",
     "acknowledgments": {
       "finding_count": {
         "status": "accepted",
-        "note": "6 findings, not 5. Finding #6 (per-message transport scope with persist-from-last convention) correctly identified as distinct from findings 1–2 (method enum, persistence enum). item2a-spec.md updated to reflect all 6."
+        "note": "6 findings, not 5. Finding #6 (per-message transport scope with persist-from-last convention) correctly identified as distinct from findings 1–2 (method enum, persistence enum). subagent-layer-spec.md updated to reflect all 6."
       },
       "calibration_version_amendment": {
         "status": "accepted",
-        "rationale": "calibration_version pins the specific curve for reproducibility — consistent with versioned artifact tracking. Format adopted: {method}-v{n}-{date}. Added to gap #5 in item2a-spec.md.",
+        "rationale": "calibration_version pins the specific curve for reproducibility — consistent with versioned artifact tracking. Format adopted: {method}-v{n}-{date}. Added to gap #5 in subagent-layer-spec.md.",
         "example": "isotonic-v1-2026-03-06"
       }
     },
     "spec_document": {
-      "location": "docs/item2a-spec.md",
+      "location": "docs/subagent-layer-spec.md",
       "status": "live — committed 2026-03-06",
       "contents": [
         "Layer model (interagent/v1 base / schema v3 transport / v2 domain)",
@@ -45,7 +45,7 @@
         "Capability handshake protocol",
         "Status table: 6 findings complete, Item 2a COMPLETE"
       ],
-      "review_invitation": "Observatory may review docs/item2a-spec.md via PR. Draft spec reflects live exchange findings — no prior design."
+      "review_invitation": "Observatory may review docs/subagent-layer-spec.md via PR. Draft spec reflects live exchange findings — no prior design."
     },
     "session_boundary": {
       "item_2a_status": "COMPLETE",
@@ -64,7 +64,7 @@
     },
     {
       "claim_id": "c2",
-      "text": "docs/item2a-spec.md is the authoritative spec document for Item 2a",
+      "text": "docs/subagent-layer-spec.md is the authoritative spec document for Item 2a",
       "confidence": 0.95,
       "confidence_basis": "derived from live exchange, not prior design — consistent with protocol failure as specification method",
       "independently_verified": false

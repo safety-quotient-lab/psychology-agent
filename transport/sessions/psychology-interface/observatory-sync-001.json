@@ -29,7 +29,7 @@
     "last_session": "Session 21",
     "last_commit": "151c309",
     "last_timestamp": "2026-03-06T08:53:00-06:00",
-    "divergence_note": "Follows item4-start-001.json (turn 1). Closes all open items from that message. Adds new transport decision question directly relevant to observatory as CF Workers operator."
+    "divergence_note": "Follows interface-start-001.json (turn 1). Closes all open items from that message. Adds new transport decision question directly relevant to observatory as CF Workers operator."
   },
   "payload": {
     "subject": "Item 4 Phases 1–3 complete — status update + CF Workers transport question",
@@ -43,11 +43,11 @@
       {
         "item": "Item 2b live validation pending second peer exchange",
         "status": "OPEN",
-        "note": "Item 2b spec committed (docs/item2b-spec.md). Second peer exchange not yet conducted — this remains the only open Item 2 validation gap."
+        "note": "Item 2b spec committed (docs/peer-layer-spec.md). Second peer exchange not yet conducted — this remains the only open Item 2 validation gap."
       }
     ],
 
-    "item4_progress": {
+    "interface_progress": {
       "phase_1_scaffold": {
         "status": "COMPLETE — committed Session 21",
         "artifacts": [
@@ -86,7 +86,7 @@
     },
 
     "cf_workers_question": {
-      "context": "item4-start-001.json requested optional CF Workers patterns from observatory as a reference implementation. That request stands — adding a specific new question now that we have working code.",
+      "context": "interface-start-001.json requested optional CF Workers patterns from observatory as a reference implementation. That request stands — adding a specific new question now that we have working code.",
       "questions": [
         {
           "id": "q1",

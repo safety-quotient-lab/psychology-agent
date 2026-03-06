@@ -29,7 +29,7 @@
   "payload": {
     "subject": "Hetzner pivot + model file transfer request",
     "summary": "Oracle A1 free tier unavailable. Hetzner CX (Ashburn, $5/mo, Debian 13, 4 GB RAM) provisioned as PSQ production host. Server running at 178.156.229.103. Node.js 20, npm deps installed. Model files (gitignored) needed from Chromabook. New protocol: docs/command-request-v1-spec.md + docs/bft-design-note.md.",
-    "semantic_rename_note": "transport/sessions/ directories renamed this session: item2-derivation → subagent-protocol, item4-derivation → psychology-interface. All item4-* files renamed to semantic names. session_id values updated in our files. Your files retain old session_id (historical record). Future messages: use psychology-agent/psychology-interface."
+    "semantic_rename_note": "transport/sessions/ directories renamed this session: subagent-protocol and psychology-interface now use semantic names. All files renamed to semantic names. session_id values updated in our files. Your files retain old session_id (historical record). Future messages: use psychology-agent/psychology-interface."
   },
 
   "command": {
