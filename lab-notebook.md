@@ -55,9 +55,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Graduated promotion lifecycle | ✓ 3+ threshold in T10 + /cycle Step 8b (Session 12) |
 | Commands-over-skills audit    | ✓ /adjudicate + /capacity identified for conversion (Session 12) |
 | PSQ commercial model          | ✗ Undefined — ideas documented in ideas.md       |
-| General agent design          | ✗ Next — item 1 of 3                             |
-| Sub-agent protocol            | ✗ Pending — item 2 of 3                          |
-| Adversarial evaluator         | ✗ Pending — item 3 of 3                          |
+| General agent design          | ✓ Complete — routing spec, identity spec, evaluator procedures (Session 16) |
+| Sub-agent protocol            | ✗ Next — item 2 of 3                             |
+| Adversarial evaluator (activation) | ✗ Pending — item 3 of 3 (procedures ✓, activation ✗) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -66,9 +66,13 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Cogarch auto-reload (session start) | ✓ T1 step 7 + hook MANDATORY instruction (Session 14) |
 | AskUserQuestion discipline    | ✓ T2 check 8 + MEMORY user preferences (Session 14) |
 | Semiotics as cogarch principle| ✓ Defined — 3 frames, trigger map, T4 Check 9 (Session 16) |
-| T4 Check 9 (Interpretant)     | ✓ 5 interpretant communities; conflict detection (Session 16) |
+| T4 Check 9 (Interpretant)     | ✓ 5+1 interpretant communities; conflict detection (Session 16) |
 | Blog post (interpretant collapse) | ✓ Draft — blog/2026-03-05-interpretant-collapse.md (Session 16) |
-| Git history                   | ✓ 28 commits                                     |
+| General agent identity spec   | ✓ Core identity, commitments, refusals, opening behavior (Session 16) |
+| Evaluator reasoning procedures| ✓ 7-procedure ranked set + domain priority tables (Session 16) |
+| Cogarch extensions (Session 16) | ✓ T3 #11, T5 #6, T6 #5, T7 #4, T10 #6, T13 #6, T14 named |
+| docs/glossary.md              | ✓ 36 project-scoped entries (Session 16)         |
+| Git history                   | ✓ 33 commits (c88f359)                           |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
 
 
@@ -817,3 +821,46 @@ documentation. Line count: 195/200.
 - → Remaining for Architecture Item 1: identity and prompt spec.
 
 ▶ docs/architecture.md (Component Spec: General Agent Routing)
+
+## 2026-03-05T17:45 CST — Session 16d (Identity spec + evaluator reasoning procedures)
+
+- → Drafted general agent identity spec (Architecture Item 1, identity complete).
+  Core identity: collegial mentor, Opus, advisory not authoritative. Commitments:
+  evidence before conclusion, competing hypotheses before settling, Socratic guidance.
+  Refusals: diagnosis, deciding, overriding user authority. Opening behavior: 2-question
+  orientation sequence. Scope boundary declaration protocol documented.
+  Identity under pressure: Socratic stance holds; position updates require new evidence.
+- → Drafted adversarial evaluator reasoning procedures (Architecture Item 1, item 3).
+  7-procedure ranked set: consensus → parsimony → pragmatism → coherence →
+  falsifiability → convergence → escalation. Escalation is terminal — preserves
+  disagreement shape, never averages. Domain-specific priority tables: clinical/safety
+  (pragmatism first), research (falsifiability first), architecture (parsimony first),
+  applied consultation (coherence first). Consensus-or-parsimony as primary binding
+  pair; pragmatism as alternative when parsimony underdetermines in high-stakes contexts.
+- → Architecture Item 1 marked complete: routing spec + identity spec + evaluator procedures.
+- → Cogarch extensions written by unratified agent applied: T3 check #11 (sub-project
+  boundary), T5 check #6 (epistemic flag sweep), T6 check #5 (pushback accumulator),
+  T7 check #4 (prior-approval contradiction), T10 check #6 (graduation path),
+  T13 check #6 (temporal staleness), T14 formally named. docs/cognitive-triggers.md
+  expanded to 312 lines.
+- → TODO.md updated: sub-project boundary hook, open-flag sweep hook, pushback
+  accumulator counter, CLAUDE.md graduation ceremony, SRT extensions updated.
+
+▶ docs/architecture.md (Component Spec: General Agent Identity, Adversarial Evaluator
+  Reasoning Procedures), docs/cognitive-triggers.md (T3/T5/T6/T7/T10/T13/T14 extensions),
+  TODO.md
+
+## 2026-03-05T18:30 CST — Session 16e (Glossary + README + /cycle)
+
+- → Created docs/glossary.md — 36 project-scoped entries across 12 letter sections
+  (A, C, E, F, I, K, L, P, R, S, T, W). Terms coined by or used in a project-specific
+  way. Links to planned docs/dictionary.md for external source citations.
+- → Added docs/dictionary.md to TODO.md under new Documentation section.
+- → README.md updated: description updated to "ranked-procedure adversarial evaluator";
+  Current Status rewritten with checkmark format (✓ routing+identity ✓ procedures,
+  ✗ sub-agent protocol, ✗ evaluator activation); Interesting Parts: new entry for
+  evaluator reasoning procedures; Documentation table: glossary row added.
+- → /cycle completed. All documentation propagated. Committed and pushed c88f359.
+
+▶ docs/glossary.md, README.md, TODO.md
+
