@@ -82,7 +82,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Item 2 protocol               | ✓ COMPLETE — Item 2a (6 findings, spec) + Item 2b (peer layer, spec) |
 | Observatory-agent exchange    | ✓ Complete — 20-turn live derivation; PR #9 (closing ACK) open |
 | PSQ scoring endpoint          | ✓ Implemented — safety-quotient/src/server.js, machine-response/v3 (Session 20) |
-| Psychology interface (PSQ)    | ✓ worker.js + psq-client.js + UI (radar/hierarchy/threshold/artifact) — smoke test 7/8; step 8 (browser render) pending user |
+| Psychology interface (PSQ)    | ✓ worker.js + psq-client.js + UI (radar/hierarchy/threshold/artifact) — all 8 smoke test steps passed |
 | Psychology interface (/turn)  | ⚑ DEFERRED — blocked by API credits; 503 guard in place; 3-step re-enable in TODO.md Item 4 |
 | settingSources CF Workers     | ✓ RESOLVED — PSYCHOLOGY_SYSTEM expanded (Commitments+Refusals+T15, Option A inline); settingSources removed from agentOptions (Session 21) |
 | CF Tunnel                     | ✓ Live — coordinates-valve-conventions-convertible.trycloudflare.com (ephemeral, session-scoped) |
@@ -135,6 +135,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | psq-scoring session           | ✓ Active — 4 advocacy samples scored, 2 bugs found (B1 confidence dead, B2 HI dead zone), interpretation ACK received |
 | PSQ bug B1 (confidence dead)  | ⚑ OPEN — ONNX confidence head outputs constants for all inputs; fix needed |
 | PSQ bug B2 (HI dead zone)     | ⚑ OPEN — isotonic calibration maps raw 5.85–7.65 → 6.69; fix needed |
+| Memory topic-file split       | ✓ MEMORY.md 169→53 lines; 3 topic files (decisions, cogarch, psq-status); bootstrap + /cycle + snapshot updated (Session 23c) |
+| Glob-scoped rules             | ✓ .claude/rules/ — markdown.md, javascript.md, transport.md; CLAUDE.md slimmed (Session 23c) |
+| bootstrap-check.sh            | ✓ Updated — topic file health/restore, skills→skills+commands split (Session 23c) |
 
 
 ### Open Questions
