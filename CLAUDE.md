@@ -20,8 +20,12 @@ Platform-level enforcement that supplements cognitive triggers:
   compliance checks. Safety net, not replacement for T4.
 - **PostToolUse: parry-wrapper.sh** — scans tool output for injection attempts and
   credential exposure. Same wrapper and session toggle as PreToolUse.
+- **PreToolUse: subproject-boundary.sh** — fires on Write/Edit/Read when file path
+  crosses into `safety-quotient/` or `pje-framework/`. Non-blocking warning.
 - **UserPromptSubmit: parry-wrapper.sh** — audits `.claude/commands/`, settings files,
   and hook scripts for injection or dangerous permission patterns at session start.
+- **UserPromptSubmit: pushback-accumulator.sh** — tracks pushback signals per session.
+  At count >= 3, surfaces structural disagreement warning. Counter resets at session start.
 - **SessionStart: session-start-orient.sh** — injects orientation context (memory
   health check, last session reference, uncommitted changes warning, parry session
   toggle prompt). Mechanical T1 enforcement — stdout becomes model context.

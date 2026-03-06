@@ -45,7 +45,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Auto-memory recovery          | ✓ Snapshots, bootstrap-check.sh, T1 health check, BOOTSTRAP.md restructure (Session 11) |
 | Platform hooks                | ✓ 8 hooks: pre-commit, parry (3), T4 reminder, SessionStart, PreCompact, Stop (Session 12-13) |
 | Antiregression evaluation     | ✓ Evaluated, adopted hooks, TODO items written (Session 11) |
-| Blog post (cogarch)           | ✓ Draft — blog/2026-03-05-cognitive-architecture-for-ai-agents.md (Session 11) |
+| Blog post (cogarch)           | ✓ Reviewed + PR #7 submitted to unratified (Session 24) |
 | Cogarch canonical location    | ✓ cognitive-triggers.md moved to docs/ (Session 12) |
 | Parry integration             | ✓ Installed, wrapper + config + start script (Session 15) |
 | Parry session toggle          | ✓ AskUserQuestion at session start + .parry-session-disabled flag (Session 15) |
@@ -58,6 +58,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Psychology agent design       | ✓ Complete — routing spec, identity spec, evaluator procedures (Session 16) |
 | Sub-agent protocol            | ✓ Complete — subagent-layer-spec.md + peer-layer-spec.md (Session 20) |
 | Adversarial evaluator (activation) | ✓ Complete — tiered activation, 7 triggers, evaluator prompt (Session 17) |
+| Evaluator instantiation (EF-3) | ✓ Tiered hybrid runtime — T3 #12 (Tier 1), CC session (Tier 2/3), evaluator-response/v1 schema (Session 24) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -67,7 +68,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | AskUserQuestion discipline    | ✓ T2 check 8 + MEMORY user preferences (Session 14) |
 | Semiotics as cogarch principle| ✓ Defined — 3 frames, trigger map, T4 Check 9 (Session 16) |
 | T4 Check 9 (Interpretant)     | ✓ 5+1 interpretant communities; conflict detection (Session 16) |
-| Blog post (interpretant collapse) | ✓ Draft — blog/2026-03-05-interpretant-collapse.md (Session 16) |
+| Blog post (interpretant collapse) | ✓ Reviewed + PR #7 submitted to unratified (Session 24) |
 | Psychology agent identity spec | ✓ Core identity, commitments, refusals, opening behavior (Session 16) |
 | Evaluator reasoning procedures| ✓ 7-procedure ranked set + domain priority tables (Session 16) |
 | Cogarch extensions (Session 16) | ✓ T3 #11, T5 #6, T6 #5, T7 #4, T10 #6, T13 #6, T14 named |
@@ -120,7 +121,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | T2 compaction threshold       | ✓ 60%/75% explicit thresholds in cognitive-triggers.md (Session 23) |
 | Stop hook (flag sweep)        | ✓ stop-completion-gate.sh scans lab-notebook for ⚑ markers (Session 23) |
 | Urgency field (interagent/v1) | ✓ Adopted — architecture.md schema v3 table updated (Session 23c) |
-| Local-coordination/v1         | ✓ First intra-agent message — transport/sessions/local-coordination/ (Session 23c) |
+| Local-coordination/v1         | ✓ Formalized — docs/local-coordination-v1-spec.md (Session 24) |
 | Transport discovery (in-repo) | ✓ agent-card.json + MANIFEST.json + transport-scan.sh — committed (0bd28b7) |
 | PSQ endpoint TLS              | ✓ Caddy reverse proxy + auto-TLS (Let's Encrypt) — port 3000 closed from public |
 | PSQ onnxruntime fix           | ✓ postinstall script removes nested onnxruntime-node — survives npm install |
@@ -140,6 +141,12 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Memory topic-file split       | ✓ MEMORY.md 169→53 lines; 3 topic files (decisions, cogarch, psq-status); bootstrap + /cycle + snapshot updated (Session 23c) |
 | Glob-scoped rules             | ✓ .claude/rules/ — markdown.md, javascript.md, transport.md; CLAUDE.md slimmed (Session 23c) |
 | bootstrap-check.sh            | ✓ Updated — topic file health/restore, skills→skills+commands split (Session 23c) |
+| Local-coordination/v1 spec    | ✓ Formalized — docs/local-coordination-v1-spec.md (Session 24) |
+| Sub-project boundary hook     | ✓ .claude/hooks/subproject-boundary.sh — PreToolUse Write/Edit/Read (Session 24) |
+| Pushback accumulator hook     | ✓ .claude/hooks/pushback-accumulator.sh — UserPromptSubmit, >= 3 threshold (Session 24) |
+| Evidence decay (T9)           | ✓ Freshness thresholds: 5 sessions → flag, 10 → remove/waive (Session 24) |
+| EF-3 evaluator instantiation  | ✓ Tiered hybrid — T3 #12 active (Tier 1), Tier 2/3 pending (Session 24, other instance) |
+| Platform hooks                | ✓ 10 hooks total: pre-commit, parry (3), T4 reminder, boundary, pushback, SessionStart, PreCompact, Stop |
 
 
 ### Open Questions
@@ -1744,3 +1751,80 @@ backlog items while psq-agent rsync was pending (resolved by local instance in 2
 
 ▶ transport/sessions/psq-scoring/from-psychology-agent-001.json, transport/MANIFEST.json,
   48 files renamed (identity), lab-notebook.md, TODO.md
+
+---
+
+## 2026-03-06T15:08 CST — Session 24 (EF-3 evaluator instantiation, blog PR)
+
+**Scope:** EF-3 evaluator instantiation gate resolved via /adjudicate. Blog posts submitted to unratified via PR.
+
+**Blog PR #7 (unratified):**
+- Two reviewed posts submitted: cogarch (15 triggers, reviewed) + interpretant collapse (reviewed)
+- Frontmatter updated: model → Opus 4.6, reviewStatus → reviewed, lensFraming updated
+- Branch: `psychology-agent/blog-posts-cogarch-interpretant-2026-03-06`
+- PR: https://github.com/safety-quotient-lab/unratified/pull/7
+
+**EF-3: Evaluator instantiation gate — RESOLVED:**
+- Full /adjudicate run (M severity, Architecture domain, 6-order + structural checkpoint)
+- Three options evaluated: (A) CC session all tiers, (B) Agent SDK all tiers, (C) Tiered hybrid
+- Resolution: Option C (tiered hybrid) via parsimony — fewest assumptions, works today, clean upgrade path
+- User requested Tier 1 independence strengthening → S4 adopted (audit trail + adversarial self-framing + 1-in-5 random escalation)
+- Four deliverables written:
+  1. T3 #12 added to cognitive-triggers.md (Tier 1 evaluator proxy with S4)
+  2. Evaluator Instantiation Protocol section in architecture.md (tier-runtime mapping, triggers, S4, evaluator-response/v1 schema)
+  3. bft-design-note.md updated (EF-3 resolved, Principle 6 status updated)
+  4. transport/sessions/evaluator/ created with README
+- TODO.md: EF-3 marked complete, EF-1 precondition updated
+
+**Local-coordination/v1** (user-resolved externally):
+- TODO.md updated to reflect formalized spec at docs/local-coordination-v1-spec.md
+
+⚑ EPISTEMIC FLAGS
+- Tier 1 structural independence deliberately traded for immediate availability. S4 mechanisms compensate but do not eliminate self-evaluation blind spots. Full independence begins at Tier 2.
+- Random escalation (1-in-5) ratio chosen without empirical basis — may need calibration after Tier 1 audit log accumulates data.
+
+▶ docs/architecture.md §Evaluator Instantiation Protocol, docs/cognitive-triggers.md T3 #12,
+  docs/bft-design-note.md, transport/sessions/evaluator/, TODO.md
+
+
+## 2026-03-06T15:10 CST — Session 24b (Local-coordination spec, backlog: hooks + T9 decay)
+
+**Context:** Continuation of Session 24 (this instance). Local-coordination protocol
+formalization + three backlog items from cogarch evaluation TODO.
+
+**Local-coordination/v1 formalized:**
+- docs/local-coordination-v1-spec.md — sibling protocol to interagent/v1 (not extension)
+- Git discipline conventions, 8 message types, issue severity, schema
+- Relationship to interagent/v1 documented (what it omits and why)
+- TODO item marked complete
+
+**Sub-project boundary hook:**
+- .claude/hooks/subproject-boundary.sh — PreToolUse (Write|Edit|Read)
+- Warns when file path crosses into safety-quotient/ or pje-framework/
+- Non-blocking. settings.json updated.
+
+**Pushback accumulator hook:**
+- .claude/hooks/pushback-accumulator.sh — UserPromptSubmit
+- Regex-based pushback signal detection, session-scoped counter
+- Reset at session start (session-start-orient.sh updated)
+- Threshold >= 3 triggers structural disagreement warning
+
+**Evidence decay (T9 update):**
+- cognitive-triggers.md T9 check #2 updated with explicit freshness thresholds
+- 5 sessions without update → flag; 10 sessions → remove/waive
+- Three decay actions: refresh, deprecate, waive (with justification)
+- `[verified YYYY-MM-DD]` annotation resets the clock
+
+**CLAUDE.md updated:** 2 new hooks documented (boundary + pushback). Hook count now 10.
+
+**Noted:** Other instance completed EF-3 (evaluator instantiation) + submitted blog
+PR #7 with both reviewed posts. Session numbering collision (both used "Session 24") —
+using "24b" for this continuation.
+
+⚑ EPISTEMIC FLAGS
+- Pushback accumulator regex patterns are heuristic — false positives possible but low-cost
+- Evidence decay thresholds (5/10 sessions) chosen without empirical basis; calibrate after use
+
+▶ docs/local-coordination-v1-spec.md, .claude/hooks/subproject-boundary.sh,
+  .claude/hooks/pushback-accumulator.sh, docs/cognitive-triggers.md T9,
+  .claude/settings.json, .claude/hooks/session-start-orient.sh, CLAUDE.md, TODO.md

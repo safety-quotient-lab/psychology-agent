@@ -19,6 +19,16 @@
             "timeout": 2000
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit|Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/subproject-boundary.sh",
+            "timeout": 2000
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -48,6 +58,15 @@
           {
             "type": "command",
             "command": ".claude/hooks/parry-wrapper.sh",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/pushback-accumulator.sh",
             "timeout": 2000
           }
         ]

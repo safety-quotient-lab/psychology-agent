@@ -6,7 +6,7 @@ Quick reference (when → what fires):
 ```
  Session starts          T1: auto-memory health check, orientation, skills, TODO, output baseline summary, context baseline
  Before any response     T2: context pressure, transition, pacing, bare forks, clarification → AskUserQuestion tool
- Before recommending     T3: classify domain → ground → adjudicate; prerequisites, sycophancy, recommend-against; effort-weight calibration
+ Before recommending     T3: classify domain → ground → adjudicate; prerequisites, sycophancy, recommend-against; effort-weight; Tier 1 evaluator proxy (#12: parsimony + adversarial self-frame + audit + 1-in-5 escalation)
  Before writing to disk  T4: date, public visibility, memory hygiene, routing, classification, semantic naming, lab-notebook ordering, interpretant (Check 9)
  Phase boundary / "next" T5: gap check — MANDATORY; Active Thread staleness check; no bare forks until clear
  User pushes back        T6: position stability, drift audit

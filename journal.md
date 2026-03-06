@@ -38,6 +38,7 @@ partner, and Socratic interlocutor
 21. [Grounding Knock-On Depth in Philosophy of Science](#21-grounding-knock-on-depth-in-philosophy-of-science)
 22. [Byzantine Consensus on a Human Bus: Adapting BFT for Two-Agent Git Transport](#22-byzantine-consensus-on-a-human-bus)
 23. [What Three Agents Found That One Could Not: The PSQ Scoring Session](#23-what-three-agents-found-that-one-could-not)
+24. [Proportional Independence: How the Evaluator Earned a Tiered Runtime](#24-proportional-independence)
 
 ---
 
@@ -1019,3 +1020,23 @@ This pattern — that integration testing across agents surfaces bugs that unit 
 The PSQ-Lite profile — threat_exposure, hostility_index (raw score), trust_conditions — emerged as the working signal for advocacy content. These three dimensions generalize beyond Dreaddit because they measure constructs (perceived threat, hostility, institutional trust) present in any English text with evaluative content. The five less-reliable dimensions (authority_dynamics, cooling_capacity, defensive_architecture, regulatory_capacity, contractual_clarity) measure interpersonal/dyadic constructs that monologic advocacy text does not contain. Low scores on these dimensions reflect absence of dyadic signal, not low safety.
 
 **What remains open.** The confidence head requires either removal from the API response or replacement with static per-dimension reliability estimates. The HI calibration requires re-fitting with finer binning. Both changes route to the psq-agent context. The general agent's role was supervisory: reviewing the diagnosis, confirming the protocol carried the information correctly, and updating the system's understanding of which PSQ outputs carry signal for non-Dreaddit content.
+
+---
+
+## 24. Proportional Independence: How the Evaluator Earned a Tiered Runtime
+
+*2026-03-06 — Session 24*
+
+The adversarial evaluator had a complete spec since Session 17: seven reasoning procedures, three activation tiers, seven triggers, a full system prompt. What it lacked was a runtime — how, when, and where it would actually run. BFT Principle 6 (evaluator as verification layer, docs/bft-design-note.md) could not be validated without an answer. EF-3 asked the question; Session 24's /adjudicate resolved it.
+
+**The core tension.** Structural independence (Lamport et al., 1982) requires the evaluator to operate separately from the agents it evaluates — separate context, separate prompt, no shared conversational framing. A Claude Code session provides that separation. But Tier 1 (Lite) evaluations fire on every substantive claim — "automatic, usually implicit" per the spec. Routing every routine review through a separate session and human relay would make Tier 1 impractical. The user would become the bottleneck, and the evaluator that fires most often would fire least often. That outcome turns structural purity into operational absence — a worse failure mode than the one it prevents.
+
+**The resolution: independence scales with stakes.** We resolved on a tiered hybrid: Tier 1 runs as a cognitive trigger (T3 #12) within the psychology agent's own session. Tier 2 runs as a separate Claude Code session. Tier 3 runs as a separate session with mandatory human escalation. Each tier migrates independently to the Agent SDK sub-agent model when API credits become available.
+
+**The S4 strengthening.** The user challenged the Tier 1 independence gap directly. If the agent evaluates its own output, it shares whatever systematic blind spot produced that output. Four mechanisms compensate: (1) adversarial self-framing — the agent constructs the strongest argument against its own recommendation before proceeding; (2) explicit parsimony comparison — the check T3 #1–#11 lacked, filling the gap between recommendation discipline and recommendation selection; (3) structured audit trail — every Tier 1 evaluation logged to `transport/sessions/evaluator/tier1-audit.jsonl`, creating deferred accountability; (4) random escalation — 1-in-5 Tier 1 checks randomly queue for Tier 2 independent review, creating probabilistic independence that the agent cannot predict or game.
+
+**The architectural principle.** This resolution establishes a precedent we named *proportional independence*: the degree of structural separation between an agent and its evaluator should scale with the stakes of the evaluation, not with theoretical purity. Routine checks tolerate self-evaluation with accountability mechanisms. Adversarial checks require structural separation. The principle maps onto existing practice in other domains — peer review (informal desk check vs. full anonymous review), financial audit (internal audit vs. external audit), and legal proceedings (summary judgment vs. full trial). Each domain calibrates independence to stakes rather than applying maximum formality uniformly.
+
+**What the schema formalized.** The evaluator-response/v1 schema binds the three tier output formats to the interagent/v1 protocol family. Tier 1 produces `"proceed"` or `"flag"` (compact, local). Tier 2 produces a structured resolution identifying which procedure resolved and any overreach flags. Tier 3 preserves the full disagreement shape for human decision. The schema makes the evaluator's output machine-readable at every tier, enabling future automation of the Tier 2 transition from CC session to Agent SDK sub-agent.
+
+**What remains unvalidated.** The 1-in-5 random escalation ratio lacks empirical grounding — chosen for tractability, not from data. After the Tier 1 audit log accumulates entries, we should calibrate: does 1-in-5 produce enough independent verification to catch systematic blind spots, or does it create noise without detection value? The Tier 1 self-evaluation tradeoff remains an acknowledged gap, not a solved problem. S4 reduces risk but cannot eliminate it. Full structural independence begins at Tier 2.

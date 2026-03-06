@@ -85,11 +85,10 @@ Forward-looking task list only. Completed and emergent work goes to
   invoked. For Architecture Items 1–3, auto-persistence prevents decision loss.
   *Source: antiregression-setup planner-writes-to-file pattern*
 
-- [ ] **Sub-project boundary hook** — PreToolUse hook that fires when a file path
-  resolves inside `safety-quotient/` or `pje-framework/` during a psychology-agent
-  session. Warns: "Sub-project boundary crossed — switch context or defer." T3
-  check #11 covers the cognitive gate; this hook provides mechanical enforcement.
-  *Source: Session 16 cogarch evaluation — gap in T3 scope*
+- [x] **Sub-project boundary hook** — ✓ Session 24. PreToolUse (Write|Edit|Read) hook
+  at `.claude/hooks/subproject-boundary.sh`. Warns when file path crosses into
+  `safety-quotient/` or `pje-framework/`. Non-blocking. Settings.json updated.
+  *Completed: 2026-03-06*
 
 - [x] **Open-flag sweep hook** — ✓ Session 23. stop-completion-gate.sh extended to
   scan lab-notebook.md Current State for ⚑ markers. Reports count in completion gate
@@ -97,11 +96,11 @@ Forward-looking task list only. Completed and emergent work goes to
   cannot read conversation context).
   *Source: Session 16 cogarch evaluation — T5 epistemic debt gap*
 
-- [ ] **Pushback accumulator** — T6 check #5 is cognitive-layer only. A session-scoped
-  counter (e.g., `.claude/pushback-count.tmp`, reset on session start) would give the
-  hook layer visibility into pushback frequency without relying on the agent's attention.
-  At count ≥ 3, hook surfaces "Structural disagreement pattern detected" to context.
-  *Source: Session 16 cogarch evaluation — T6 single-instance detection gap*
+- [x] **Pushback accumulator** — ✓ Session 24. UserPromptSubmit hook at
+  `.claude/hooks/pushback-accumulator.sh`. Regex-based pushback signal detection,
+  session-scoped counter (reset at session start via session-start-orient.sh).
+  At count >= 3: "[PUSHBACK] Structural disagreement pattern detected."
+  *Completed: 2026-03-06*
 
 - [ ] **CLAUDE.md graduation ceremony** — formal process for T10 check #6 (lesson
   graduation path). When user approves a promoted lesson as a standing convention:
@@ -176,13 +175,11 @@ parry, RIPER Workflow, SuperClaude Framework.*
   defined in lessons.md.example, T10 updated with promotion check (3+ threshold),
   /cycle Step 8b updated with promotion scan and schema check.
 
-- [ ] **Evidence decay / freshness management** (Rank 3) — formalize T9 staleness
-  checking with explicit freshness thresholds. Context Eng Kit FPF tracks evidence
-  validity periods with three options: refresh, deprecate, waive. Our T9 checks
-  "stale entries" without defining when an entry becomes stale. Add: age threshold
-  (e.g., entries older than N sessions without update get flagged), decay action
-  options, waiver documentation for entries that remain valid despite age.
-  *Source: Context Eng Kit FPF evidence decay system*
+- [x] **Evidence decay / freshness management** (Rank 3) — ✓ Session 24. T9 check #2
+  updated with explicit thresholds: 5 sessions → flag for review, 10 sessions →
+  default removal unless waived. Three decay actions: refresh, deprecate, waive
+  (with justification). `[verified YYYY-MM-DD]` annotation resets the clock.
+  *Completed: 2026-03-06*
 
 - [ ] **Phase-locked sub-agent orchestration** (Rank 4) — sub-agents return data
   only; orchestrator holds exclusive write authority. Prevents rogue sub-agent
@@ -330,7 +327,7 @@ Blocking: API surface, confidence calibration, scope boundaries.
   (c) consensus quorum with 3+ agents, or (d) bounded-trust decay (trust degrades
   over N unverified operations). Document threshold for when autonomous operation
   becomes a real scenario vs. theoretical concern.
-  *Precondition: evaluator instantiated (EF-3)*
+  *Precondition: evaluator instantiated (EF-3 ✓) — Tier 1 active, Tier 2/3 pending*
 
 - [ ] **EF-2: Claim verification baseline** — zero incorrect agent claims observed
   to date. The evidence-bearing protocol (BFT Principle 1) adds complexity proportional
@@ -341,15 +338,13 @@ Blocking: API surface, confidence calibration, scope boundaries.
   for low-risk operation types (e.g., `verification` type commands).
   *Precondition: command-request protocol in use (first use: rsync to Hetzner)*
 
-- [ ] **EF-3: Evaluator instantiation gate** — BFT Principle 6 (evaluator as
-  verification layer) cannot be validated until the adversarial evaluator runs.
-  Define the instantiation trigger: (a) first disputed claim between agents,
-  (b) first production SaaS deployment (unratified.org), (c) manual user request,
-  or (d) scheduled (after N command exchanges). The evaluator spec exists (Item 3,
-  Session 17) but has no runtime. Determine: does the evaluator run as a third
-  Claude Code session, an API call, or an embedded check in the command-response
-  verification step?
-  *Precondition: Item 3 evaluator spec (complete), production deployment (in progress)*
+- [x] **EF-3: Evaluator instantiation gate** — ✓ Complete (Session 24). Tiered
+  hybrid runtime (Option C + S4): Tier 1 via T3 #12 (active — parsimony comparison
+  + overreach + adversarial self-framing + audit trail + 1-in-5 random escalation),
+  Tier 2/3 via Claude Code session (pending first activation trigger). Evaluator
+  response schema (evaluator-response/v1) formalized. Transport directory created.
+  Full spec: architecture.md §Evaluator Instantiation Protocol.
+  *Completed: 2026-03-06*
 
 - [x] **EF-4: git-PR transport failure mode mapping** — ✓ Complete (Session 22).
   8 failure modes mapped (F1–F8): concurrent push collision, human relay delay,
@@ -380,11 +375,11 @@ Blocking: API surface, confidence calibration, scope boundaries.
   Observatory-agent not yet notified — propagate at next sync.
   *Completed: 2026-03-06*
 
-- [ ] **Local-coordination protocol** — formalize local-coordination/v1 for
-  intra-agent messages (same repo, different sessions). Current: ad-hoc JSON.
-  Decide: adopt as lightweight standard or merge into interagent/v1 with a
-  `local` transport type.
-  *Precondition: none*
+- [x] **Local-coordination protocol** — ✓ Formalized (Session 24). Sibling protocol
+  to interagent/v1 (not an extension — same-agent coordination needs differ from
+  cross-agent). Spec: docs/local-coordination-v1-spec.md. Git discipline conventions,
+  message types (8), issue severity, relationship to interagent/v1 documented.
+  *Completed: 2026-03-06*
 
 ---
 

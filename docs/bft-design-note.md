@@ -156,8 +156,9 @@ third participant. For disputed execution claims: requesting agent + executing
 agent + evaluator = 3 parties. Single-agent faults become detectable without
 human intervention.
 
-**Status:** Not yet instantiated. Principle validated by design; empirical
-validation requires evaluator deployment.
+**Status:** Tier 1 active (T3 check #12, Session 24). Tier 2/3 pending first
+activation trigger. Instantiation protocol: docs/architecture.md §Evaluator
+Instantiation Protocol.
 
 **Scaling:** With evaluator active, the system tolerates f=1 Byzantine faults
 algorithmically (4 participants total including human).
@@ -206,8 +207,11 @@ on human availability).
 2. **Claim verification baseline** — zero incorrect claims observed to date.
    The evidence-bearing protocol adds complexity proportional to a risk that
    hasn't materialized. When does the overhead become justified?
-3. **Evaluator instantiation gate** — Principle 6 cannot be validated until the
-   evaluator runs. What triggers instantiation?
+3. ~~**Evaluator instantiation gate**~~ — **RESOLVED (Session 24).** Tiered hybrid
+   runtime: Tier 1 via T3 #12 (active), Tier 2/3 via Claude Code session (pending
+   first activation trigger). Full spec: architecture.md §Evaluator Instantiation
+   Protocol. Independence strengthened via S4 (audit trail + adversarial framing +
+   random escalation).
 4. **Git-PR transport failure mapping** — delay-based failures need different
    protocol responses than partition-based failures. Timeout semantics remain
    undefined.
