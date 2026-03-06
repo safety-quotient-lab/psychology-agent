@@ -65,7 +65,9 @@ export function renderPSQPanel(radarCanvas, scoresTableContainer, hierarchyConta
   renderPSQScoreRows(scoresTableContainer, dimensionMap);
 
   if (hierarchyContainer && v3Response.hierarchy) {
-    renderHierarchy(hierarchyContainer, v3Response.hierarchy, v3Response.scores?.composite);
+    // v3 spec: scores.psq_composite.value (not scores.composite)
+    const compositeValue = v3Response.scores?.psq_composite?.value ?? null;
+    renderHierarchy(hierarchyContainer, v3Response.hierarchy, compositeValue);
   }
 }
 
@@ -240,6 +242,7 @@ function renderHierarchy(container, hierarchy, compositePSQ) {
   hierarchyHeader.textContent = "Factor Structure";
   container.appendChild(hierarchyHeader);
 
+  // Composite score from psq_composite (0–100 scale)
   if (compositePSQ != null) {
     const compositeRow = document.createElement("div");
     compositeRow.classList.add("psq-hierarchy-row", "psq-composite-row");
@@ -247,30 +250,52 @@ function renderHierarchy(container, hierarchy, compositePSQ) {
     container.appendChild(compositeRow);
   }
 
-  const factorDisplayNames = {
-    factors_2: "2-Factor",
-    factors_3: "3-Factor",
-    factors_5: "5-Factor",
-    g_psq:     "g_PSQ",
+  // g_psq from hierarchy (0–10 scale — weighted mean of all 10 dimensions)
+  // Show when compositePSQ is null (fallback mode), or as a secondary reference.
+  if (hierarchy.g_psq != null && compositePSQ == null) {
+    const gPSQScore = hierarchy.g_psq.score;
+    const gPSQRow = document.createElement("div");
+    gPSQRow.classList.add("psq-hierarchy-row", "psq-composite-row");
+    gPSQRow.innerHTML = `<span>g<sub>PSQ</sub> (dim. mean, fallback)</span><span>${gPSQScore.toFixed(2)}/10</span>`;
+    container.appendChild(gPSQRow);
+  }
+
+  const factorLevelDisplayNames = {
+    factors_2: "2-Factor Level",
+    factors_3: "3-Factor Level",
+    factors_5: "5-Factor Level",
   };
 
-  for (const [factorKey, factorValue] of Object.entries(hierarchy)) {
-    if (factorKey === "g_psq" && compositePSQ != null) continue; // already shown above
-    if (factorValue == null || typeof factorValue !== "object") continue;
+  // Render factors_2, factors_3, factors_5 only (skip g_psq — handled above)
+  for (const levelKey of ["factors_2", "factors_3", "factors_5"]) {
+    const levelData = hierarchy[levelKey];
+    if (levelData == null || typeof levelData !== "object") continue;
 
     const factorSection = document.createElement("div");
     factorSection.classList.add("psq-hierarchy-section");
 
     const sectionHeader = document.createElement("div");
     sectionHeader.classList.add("psq-hierarchy-section-label");
-    sectionHeader.textContent = factorDisplayNames[factorKey] ?? factorKey;
+    sectionHeader.textContent = factorLevelDisplayNames[levelKey];
     factorSection.appendChild(sectionHeader);
 
-    for (const [factorName, factorScore] of Object.entries(factorValue)) {
+    // Each entry: factorName → { score (0–10), confidence, dimensions }
+    for (const [factorName, factorData] of Object.entries(levelData)) {
       const factorRow = document.createElement("div");
       factorRow.classList.add("psq-hierarchy-row");
-      const scoreDisplay = typeof factorScore === "number" ? factorScore.toFixed(2) : String(factorScore);
-      factorRow.innerHTML = `<span>${factorName}</span><span>${scoreDisplay}</span>`;
+      const displayName = factorName.replace(/_/g, " ");
+      const scoreDisplay = typeof factorData?.score === "number"
+        ? factorData.score.toFixed(2)
+        : "—";
+      // Show dimension count as tooltip context
+      const dimensionCount = Array.isArray(factorData?.dimensions)
+        ? factorData.dimensions.length
+        : "";
+      const tooltip = dimensionCount
+        ? `${factorData.dimensions.join(", ")}`
+        : "";
+      factorRow.title = tooltip;
+      factorRow.innerHTML = `<span>${displayName}</span><span>${scoreDisplay}/10</span>`;
       factorSection.appendChild(factorRow);
     }
 
