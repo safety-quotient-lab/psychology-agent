@@ -29,6 +29,7 @@ partner, and Socratic interlocutor
 12. [Semiotic Reflexivity and the Cogarch](#12-semiotic-reflexivity-and-the-cogarch)
 13. [Making the Cogarch Self-Describing](#13-making-the-cogarch-self-describing)
 14. [Semiotics as Organizing Cogarch Principle](#14-semiotics-as-organizing-cogarch-principle)
+15. [Protocol Failure as Specification Method](#15-protocol-failure-as-specification-method)
 
 ---
 
@@ -668,3 +669,71 @@ structure against the pressure to compress.
 
 Lancaster, B. (2026). *The semiotic-reflexive transformer: Meaning divergence detection
 and modulation.* Substack. https://sublius.substack.com/p/the-semiotic-reflexive-transformer
+
+---
+
+## 15. Protocol Failure as Specification Method
+
+We did not design the v2 multi-agent communication schema by sitting down and
+reasoning about what a good schema should contain. We derived it from watching v1 fail.
+
+**The exchange.** Session 17 produced a live protocol between this agent (acting as
+relay) and the unratified-agent. The task was a branding compliance check: does the
+psychology-agent codebase or unratified.org use "Claude Code" in a context Anthropic's
+branding guidelines prohibit? The exchange ran on v1 schema — `structural_channel`,
+`editorial_channel`, SETL, `witness_facts`, `witness_inferences`. Standard format.
+
+Two failures materialized immediately.
+
+*First:* the unratified-agent could not verify the source. The relay agent had fetched
+`platform.claude.com` via unauthenticated WebFetch through a redirect chain. The
+unratified-agent, operating in a different network context, received the relay's
+`witness_facts` but could not confirm the source independently. V1 schema had no
+field for source accessibility or source reliability. The receiving agent had to
+infer source confidence from the surrounding text — an interpretant-dependent
+inference, exactly the kind v1 was supposed to prevent.
+
+*Second:* a claim error propagated. The relay-agent's v1 response listed "Powered by
+Claude Code" as a likely permitted form. The receiving agent incorporated this into
+its audit heuristic before detecting the error. The correction required a full
+round-trip. V1 had no claim-level confidence field — all claims in the response
+carried equal implicit weight, so the receiving agent had no signal to apply
+heightened scrutiny to that specific claim.
+
+**What v1 exposed.** SETL (structural-editorial tension level) measures how far the
+agent's conclusions exceed what the evidence directly supports. It captures inferential
+distance within the editorial layer. What it does not capture is reliability of the
+underlying source. An agent can produce a low-SETL response — tightly grounded in
+its source — while the source itself is semi-trusted, unverified, or inaccessible to
+the receiving agent. Both agents independently flagged this conflation. The convergence
+was unplanned; it surfaced because both agents were applying the same Fair Witness
+discipline to the same structural gap from different positions.
+
+**The v2 derivation.** The gaps were mechanical: add `source_confidence` (separate
+from SETL), `fetch_accessible` (did the sending agent actually access the source?),
+`claims[]` (per-claim confidence so the receiving agent can act selectively), and
+`action_gate` (machine-readable condition that blocks or permits action without
+requiring the receiving agent to infer blocking status from prose). The
+`convergence_signals` field formalized what both agents had already done informally:
+note where independent paths had reached the same finding.
+
+**The Nash equilibrium framing.** We described the v2 schema as establishing a Nash
+equilibrium: a protocol where neither agent has incentive to unilaterally deviate.
+Omitting `source_confidence` forces the receiving agent to assume lowest confidence —
+action blocked anyway, worse outcome for the sending agent. Bypassing `action_gate`
+risks propagating unverified claims to public-facing content — worse outcome for the
+receiving agent. The equilibrium is not enforced by rule; it holds because deviation
+is dominated.
+
+**The methodological lesson.** This is the same pattern the PSQ demonstrated at a
+different level. The PSQ's profile-shape finding — that the 10-dimensional vector
+predicts better than the aggregate scalar — did not emerge from a theoretical argument
+about information theory. It emerged from watching aggregate scores underperform on
+criterion validity, then diagnosing why. The specification followed the failure.
+
+We have made this a deliberate method: run the protocol, observe what breaks, derive
+the extension. Architecture Item 2 (sub-agent protocol) now has a concrete starting
+point — not a blank design document, but a live failure analysis and a draft schema
+with known derivation. The PSQ sub-agent exchange will do the same thing for the
+scope declaration and handoff format that the branding exchange did for source
+confidence and action gates.

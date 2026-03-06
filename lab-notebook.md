@@ -72,7 +72,10 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Evaluator reasoning procedures| ✓ 7-procedure ranked set + domain priority tables (Session 16) |
 | Cogarch extensions (Session 16) | ✓ T3 #11, T5 #6, T6 #5, T7 #4, T10 #6, T13 #6, T14 named |
 | docs/glossary.md              | ✓ 36 project-scoped entries (Session 16)         |
-| Git history                   | ✓ 33 commits (c88f359)                           |
+| Agent SDK surface             | ✓ Probed — `@anthropic-ai/claude-agent-sdk` (Session 17) |
+| V2 comm standard              | ✓ Nash equilibrium protocol drafted — docs/architecture.md (Session 17) |
+| Psychology interface TODO     | ✓ Added — Tooling section, TODO.md (Session 17)  |
+| Git history                   | ✓ 35 commits (c7b9a6a)                           |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
 
 
@@ -863,4 +866,42 @@ documentation. Line count: 195/200.
 - → /cycle completed. All documentation propagated. Committed and pushed c88f359.
 
 ▶ docs/glossary.md, README.md, TODO.md
+
+## 2026-03-05T20:40 CST — Session 17 (Agent SDK probe + Nash equilibrium comm protocol)
+
+- → Probed Claude Agent SDK surface (Claude Code SDK renamed). Core findings:
+  `query()` async streaming generator; session persistence via `session_id` +
+  `resume:`; programmatic hooks (same event set as shell hooks, as typed callbacks);
+  sub-agents via `agents:` option; `settingSources: ['project']` loads existing
+  CLAUDE.md, skills, commands automatically — entire cogarch infrastructure carries
+  over to a custom client unchanged. Branding: "Powered by Claude" required for
+  product-facing use; "Claude Code" prohibited as product name.
+- → Psychology interface scoped as Option B (Agent SDK wrapper). Effort revised
+  down from S–M to S (2–4 weeks): SDK handles agent loop, sessions, tool execution;
+  custom UI consumes message stream; existing cogarch loads via settingSources.
+  PSQ sub-agent integration gates on Architecture Item 2.
+- → TODO added: "psychology interface" — custom client tailored to psychological
+  analysis/consultation use case. 3 investigation questions defined.
+- → Live multi-agent exchange with unratified-agent on Anthropic branding compliance.
+  Protocol ran on v1 schema; v1 exposed a structural gap: SETL measured editorial
+  inferential distance only, not source reliability. Exchange required one correction
+  round (permitted-forms error propagated before being caught).
+- → V2 communication schema (Nash equilibrium protocol) derived from the exchange
+  failure. Key additions: source_confidence (separate from SETL), fetch_accessible,
+  claims[] with per-claim confidence, action_gate (machine-readable blocking
+  condition), convergence_signals (activates evaluator procedure 6). Equilibrium:
+  neither agent improves by deviating — omitting fields forces worst-case assumptions.
+- → Branding compliance audit: psychology-agent repo clean under corrected heuristic
+  (all "Claude Code" usage is attribution prose). Unratified-agent unblocked for
+  product-facing copy audit.
+- → V2 schema + Agent SDK decision committed to docs/architecture.md.
+
+⚑ EPISTEMIC FLAGS
+- Agent SDK branding source: unauthenticated WebFetch via redirect chain — semi-trusted
+- V2 schema is a draft; not yet validated across multiple exchange types or agent pairs
+- Attribution prose scope interpretation (product-identity vs. technical description)
+  is an inference from retrieved source, not an explicit stated rule
+
+▶ docs/architecture.md (§Multi-Agent Comm Standard, Design Decisions — Agent SDK,
+  comm standard), TODO.md (Tooling section)
 

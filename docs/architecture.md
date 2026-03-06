@@ -150,6 +150,35 @@
                               serves as editorial guidance for the review pass.
                               Note: observatory-agent is a separate entity.
                               Decided: 2026-03-05
+
+ Agent SDK surface            Claude Code SDK renamed to Claude Agent SDK
+                              (`@anthropic-ai/claude-agent-sdk` / `claude-agent-sdk`).
+                              Core primitive: `query()` async streaming generator.
+                              Sessions: `session_id` from init message; `resume:`
+                              option for continuity. Hooks: programmatic callbacks
+                              (PreToolUse, PostToolUse, Stop, SessionStart,
+                              SessionEnd, UserPromptSubmit). Sub-agents: `agents:`
+                              option with custom prompts + tool sets.
+                              `settingSources: ['project']` loads CLAUDE.md, skills,
+                              commands automatically — existing cogarch carries over.
+                              Psychology interface (Option B) effort: S (2–4 weeks).
+                              Branding: "Powered by Claude" required; "Claude Code"
+                              prohibited in product-facing contexts.
+                              Investigated: 2026-03-05
+
+ Multi-agent comm standard    V2 schema (Nash equilibrium protocol). Derived from
+                              live session-17 exchange failure: v1 conflated source
+                              reliability with SETL (editorial inferential distance).
+                              V2 adds: source_confidence (separate from SETL),
+                              fetch_accessible, claims[] with per-claim confidence,
+                              action_gate (machine-readable blocking condition),
+                              convergence_signals (activates evaluator procedure 6).
+                              Neither agent has incentive to deviate: omitting
+                              source_confidence forces lowest-confidence assumption;
+                              bypassing action_gate risks propagating unverified
+                              claims to public content.
+                              Full spec: docs/architecture.md §Multi-Agent Comm Standard
+                              Decided: 2026-03-05
 ────────────────────────────────────────────────────────────────────────
 ```
 

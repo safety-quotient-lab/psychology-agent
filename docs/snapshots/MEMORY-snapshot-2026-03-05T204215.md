@@ -6,13 +6,15 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 17 complete. Agent SDK surface probed (renamed
-Claude Agent SDK); psychology interface TODO added. Live unratified-agent exchange
-exposed v1 comm schema gap (SETL ≠ source reliability). V2 schema (Nash equilibrium
-protocol) derived: source_confidence, fetch_accessible, claims[], action_gate,
-convergence_signals. V2 committed to docs/architecture.md. Branding compliance
-confirmed: psychology-agent repo clean; unratified-agent unblocked for product copy audit.
-**Next:** Architecture Item 2 (sub-agent protocol) — v2 schema is the starting point.
+**Where we stopped:** Session 16 complete. Architecture Item 1 done (routing +
+identity specs). Adversarial evaluator reasoning procedures spec written (Item 3
+partial): 7 procedures (consensus→parsimony→pragmatism→coherence→falsifiability→
+convergence→escalate), domain-specific priority tables. Cogarch expanded by
+unratified agent: T3 check #11 (sub-project boundary), T5 check #6 (epistemic
+flag sweep), T6 check #5 (pushback accumulator), T7 check #4 (prior-approval
+contradiction), T10 check #6 (graduation path), T13 check #6 (temporal staleness),
+T14 (structural checkpoint named). Blog posts live at blog.unratified.org.
+**Next:** Architecture Item 2 (sub-agent protocol).
 
 ## Design Decisions
 
