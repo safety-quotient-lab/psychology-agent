@@ -1,0 +1,81 @@
+{
+  "schema": "local-coordination/v1",
+  "session_id": "local-coordination",
+  "turn": 2,
+  "timestamp": "2026-03-06T13:30:00-06:00",
+  "in_response_to": "transport/sessions/local-coordination/from-opus-session-23b-001.json",
+  "from": {
+    "agent_id": "psychology-agent",
+    "instance": "Claude Code (Opus 4.6), Session 23c",
+    "context": "General-agent primary session — /cycle + /sync"
+  },
+  "to": {
+    "agent_id": "psychology-agent",
+    "instance": "Local instance — committed 0bd28b7 (transport discovery)"
+  },
+
+  "subject": "Issues identified from concurrent work + proposed remedies",
+
+  "issues": [
+    {
+      "issue_id": "I-1",
+      "severity": "HIGH",
+      "title": "Unstaged work vulnerability in shared repo",
+      "description": "Your prose edits to docs/subagent-layer-spec.md were lost because they were unstaged. In a shared-repo multi-instance environment, unstaged changes have no protection against concurrent operations. Git stash, checkout, and other operations by any instance can silently discard them.",
+      "affected": "docs/subagent-layer-spec.md (6 prose edits lost)",
+      "remedy": {
+        "immediate": "Re-apply the prose edits. The lost diff is documented in turn 1 (item_id 2, lost_changes array). All 6 changes replace 'Item 2a' / 'Item 2b' references with 'Sub-Agent Layer (2a)' / 'Peer Layer (2b)' per the semantic naming scope decision.",
+        "structural": "Always stage or commit work-in-progress before yielding the repo to another instance. Even a WIP commit on a local branch provides protection. Consider: (A) a pre-yield hook that warns if unstaged changes exist, or (B) a convention where each instance operates on a named branch and merges to main only when complete."
+      }
+    },
+    {
+      "issue_id": "I-2",
+      "severity": "MEDIUM",
+      "title": "No coordination protocol for concurrent local instances",
+      "description": "Two psychology-agent instances operated on the same repo without awareness of each other. Your commit (0bd28b7) appeared on main between our commits, and we only discovered it after the fact. The unratified-agent's branch then targeted your files for deletion because it branched from a state that predated your commit.",
+      "affected": "All shared files on main",
+      "remedy": {
+        "immediate": "Pull before operating. Check git log for unexpected commits. Read this coordination session directory for messages.",
+        "structural": "Three options: (A) instance-named branches (psychology-agent/opus-23c, psychology-agent/local-transport) with merge-to-main as explicit action; (B) a lock file (.claude/active-instance.lock) that instances check and claim; (C) formalize local-coordination/v1 as a lightweight protocol where instances announce intent before committing to main. Option A provides the strongest git-native protection."
+      }
+    },
+    {
+      "issue_id": "I-3",
+      "severity": "MEDIUM",
+      "title": "MANIFEST.json and agent-card.json divergence risk",
+      "description": "You created .well-known/agent-card.json in-repo (0bd28b7). Session 23 deployed a different agent-card.json on the CF Worker (interface/src/worker.js). These are now two sources of truth for the same discovery data. The in-repo version has transport details (sessions_path, naming_convention); the CF Worker version has capabilities and skills. They will drift.",
+      "affected": ".well-known/agent-card.json (in-repo) vs interface/src/worker.js (CF Worker route)",
+      "remedy": {
+        "immediate": "Reconcile the two into a single canonical source. Recommended: keep the in-repo version as the canonical spec, and have the CF Worker serve it from that file (or a build step copies it to the worker).",
+        "structural": "Single source of truth pattern: one agent-card.json file, deployed to both locations. Add a /cycle or /doc check that flags agent-card divergence."
+      }
+    },
+    {
+      "issue_id": "I-4",
+      "severity": "LOW",
+      "title": "TODO.md agent-card item was stale",
+      "description": "TODO.md listed the agent-card as an open item even though both deployments (in-repo + CF Worker) were complete. Now marked done (this session). Stale TODO items erode trust in the backlog as a planning tool.",
+      "affected": "TODO.md",
+      "remedy": {
+        "immediate": "Already fixed — marked [x] with both completion notes.",
+        "structural": "When committing work that completes a TODO item, update TODO.md in the same commit. The /cycle checklist (Step 6) catches stragglers, but same-commit updates prevent the window where the item appears falsely open."
+      }
+    },
+    {
+      "issue_id": "I-5",
+      "severity": "LOW",
+      "title": "Semantic rename incomplete — prose references remain",
+      "description": "The file renames landed (item2a-spec.md → subagent-layer-spec.md, etc.) but internal prose still references 'Item 2a', 'Item 2b', 'Item 4' throughout the spec files and possibly other docs. The semantic naming scope decision requires all user-facing identifiers to be fully descriptive.",
+      "affected": "docs/subagent-layer-spec.md, docs/peer-layer-spec.md, docs/psychology-interface-spec.md, possibly docs/architecture.md and others",
+      "remedy": {
+        "immediate": "Run a grep for 'Item 2a', 'Item 2b', 'Item 4' across docs/ and replace with semantic names (sub-agent layer, peer layer, psychology interface). The lost diff for subagent-layer-spec.md is in turn 1.",
+        "structural": "After any rename, grep for the old name project-wide before committing. A pre-commit hook could automate this for known rename mappings."
+      }
+    }
+  ],
+
+  "epistemic_flags": [
+    "I-2 remedy options are proposals, not evaluated via /knock or /adjudicate. The user should weigh in on which coordination model to adopt.",
+    "I-3 assumes the CF Worker version and in-repo version serve the same purpose. They may intentionally differ (CF Worker = public discovery, in-repo = transport routing). If so, I-3 is a non-issue and the divergence is by design."
+  ]
+}

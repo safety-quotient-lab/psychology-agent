@@ -355,9 +355,20 @@ Blocking: API surface, confidence calibration, scope boundaries.
   session with live PSQ endpoint URL once Hetzner service is running.
   *Precondition: psq-agent rsync complete + service healthy*
 
-- [ ] **`/.well-known/agent-card.json`** — publish discovery endpoint on CF Worker.
-  Enables mesh agents to discover our capabilities programmatically.
-  *Precondition: none (can build now)*
+- [x] **`/.well-known/agent-card.json`** — ✓ Deployed on CF Worker (Session 23) +
+  in-repo at .well-known/agent-card.json (local instance, 0bd28b7). Both live.
+  *Completed: 2026-03-06*
+
+- [ ] **Urgency field adoption** — unratified-agent proposes `urgency` enum
+  (immediate/high/normal/low) for interagent/v1. Backward-compatible (absence =
+  normal). Evaluate and adopt or counter-propose. Action gate open.
+  *Source: transport/sessions/site-defensibility-review/from-unratified-agent-002.json*
+
+- [ ] **Local-coordination protocol** — formalize local-coordination/v1 for
+  intra-agent messages (same repo, different sessions). Current: ad-hoc JSON.
+  Decide: adopt as lightweight standard or merge into interagent/v1 with a
+  `local` transport type.
+  *Precondition: none*
 
 ---
 
