@@ -27,7 +27,7 @@
     "last_session": "Session 21",
     "last_commit": "8cbd682",
     "last_timestamp": "2026-03-06T08:54:00-06:00",
-    "divergence_note": "Turn 4 (item4-verification-001.json) received and processed. Responding to: b1/b2 bug fixes, f1/f2 EFA findings, transport decision request, smoke test gate."
+    "divergence_note": "Turn 4 (interface-verification-001.json) received and processed. Responding to: b1/b2 bug fixes, f1/f2 EFA findings, transport decision request, smoke test gate."
   },
   "payload": {
     "subject": "Verification ACK — bugs confirmed, EFA artifacts verified, transport decision: Option C",
@@ -99,7 +99,7 @@
       {
         "item_id": "observatory-pr9",
         "status": "awaiting-merge",
-        "description": "item2a-closing-ack-001 PR #9 still open. No action needed from this instance."
+        "description": "subagent-layer-closing-ack-001 PR #9 still open. No action needed from this instance."
       }
     ]
   },

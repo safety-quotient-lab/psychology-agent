@@ -3,7 +3,7 @@
 **Date:** 2026-03-06
 **Status:** Active — derived from observed failures (Session 21–22) and BFT analysis
 **Resolves:** EF-4 (epistemic flag from bft-design-note.md)
-**Related:** docs/item2b-spec.md (peer layer), docs/bft-design-note.md (BFT principles),
+**Related:** docs/peer-layer-spec.md (peer layer), docs/bft-design-note.md (BFT principles),
 docs/command-request-v1-spec.md (command protocol)
 
 ---
@@ -346,7 +346,7 @@ not data corruption or loss.
 ## References
 
 - docs/bft-design-note.md — Byzantine fault tolerance principles
-- docs/item2b-spec.md §Divergence Detection — `context_state` signaling
+- docs/peer-layer-spec.md §Divergence Detection — `context_state` signaling
 - docs/command-request-v1-spec.md — command protocol (first consumer of
   these failure mode responses)
 - Session 21c lab-notebook — observed F1 (concurrent push), F6 (conflict

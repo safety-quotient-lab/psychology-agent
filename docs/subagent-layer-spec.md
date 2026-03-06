@@ -1,4 +1,4 @@
-# Architecture Item 2a — Sub-Agent Protocol Specification
+# Sub-Agent Layer Protocol Specification (Architecture Item 2a)
 
 **Status:** Draft — derived from live exchange (Sessions 18–19)
 **Derived from:** 9P transport test + PSQ-Full inference run (subagent-protocol exchange)
@@ -9,7 +9,7 @@
 
 ## Overview
 
-Item 2a specifies how sub-agents plug into the general-purpose psychology agent:
+The sub-agent layer (2a) specifies how sub-agents plug into the general-purpose psychology agent:
 the request/response format, scope declaration, validated boundaries, and the
 schema fields required to express what the exchange actually revealed.
 
@@ -43,7 +43,7 @@ journal.md §15 (Protocol Failure as Specification Method).
 │  Extension URI: github.com/safety-quotient-lab/            │
 │                 interagent-epistemic/v1                    │
 ├────────────────────────────────────────────────────────────┤
-│  schema v3 transport layer (NEW — Item 2a)                 │
+│  schema v3 transport layer (NEW — sub-agent layer, 2a)     │
 │  Fields: transport{}, framing{}                            │
 │  Scope: all interagent/v1 messages                         │
 ├────────────────────────────────────────────────────────────┤
@@ -61,7 +61,7 @@ journal.md §15 (Protocol Failure as Specification Method).
 
 ## Schema v3 — Transport Layer Fields
 
-Derived from Item 2a findings 1–3 from the 9P transport test (finding #6 is scope/convention).
+Derived from sub-agent layer (2a) findings 1–3 from the 9P transport test (finding #6 is scope/convention).
 
 ### `transport` object
 
@@ -89,9 +89,9 @@ explicitly changed.
 **Enum notes:**
 - `plan9-namespace` — 9P protocol class (transport-independent of tooling; SSH-pipe+ramfs+9pfuse is one implementation)
 - `filesystem` — shared POSIX mount (NFS, CIFS, local) without protocol wrapper
-- `ssh-pipe+ramfs+9pfuse` — specific toolchain used in Item 2a derivation; prefer `plan9-namespace` for new implementations
+- `ssh-pipe+ramfs+9pfuse` — specific toolchain used in sub-agent layer (2a) derivation; prefer `plan9-namespace` for new implementations
 
-**Finding that drove this:** `transport-method-not-in-schema` — the Item 2a exchange
+**Finding that drove this:** `transport-method-not-in-schema` — the sub-agent layer (2a) exchange
 mixed `human-relay`, `git-push`, and `git-pr` within a single session. Without a
 `transport.method` field, a receiver cannot determine failure modes or expected latency.
 
@@ -294,7 +294,7 @@ correction whose magnitude itself carries information.
 **`calibration_version`** (observatory-agent amendment, accepted): pins the specific calibration
 curve for reproducibility. Optional now; required when multiple calibration curves exist.
 Format: `{method}-v{n}-{date}`. Analogous to `methodology_hash` in observatory eval pipeline.
-*Source: observatory-agent item2a-closing-001.json, PR #8.*
+*Source: observatory-agent subagent-layer-closing-001.json, PR #8.*
 
 ---
 
@@ -323,16 +323,16 @@ yet publishing there should note the gap and accept direct-path discovery.
 
 ---
 
-## Open Contracts with Item 2b (Peer Layer)
+## Open Contracts with Peer Layer (2b)
 
-The evaluator spec (Architecture Item 3) has two parameters that Item 2a must fill:
+The evaluator spec (Architecture Item 3) has two parameters that the sub-agent layer (2a) must fill:
 
 1. **Sub-agent output format binding** — resolved: `psychology-agent/machine-response/v2`
    with v3 candidate extensions (#1–5 above, plus `calibration_version` amendment).
    Evaluator inherits this binding.
 
-2. **Domain SETL thresholds** — `setl: 0.40` is a first approximation. Item 2b
-   (peer layer) may refine domain-specific thresholds. PSQ sub-agent SETL values
+2. **Domain SETL thresholds** — `setl: 0.40` is a first approximation. The peer
+   layer (2b) may refine domain-specific thresholds. PSQ sub-agent SETL values
    observed in derivation: 0.05–0.12 (low editorial distance on structured outputs).
 
 ---
@@ -351,8 +351,8 @@ The evaluator spec (Architecture Item 3) has two parameters that Item 2a must fi
  Transport finding #6 (scope)        ✓ Finalized (per-message, persist-from-last)
  calibration_version field           ✓ Accepted (observatory amendment to gap #5)
  Capability handshake protocol       ✓ Verified in live exchange
- Item 2a derivation                  ✓ COMPLETE — 6 findings, both agents agreed
- Item 2a spec document               ✓ Written — docs/item2a-spec.md (2026-03-06)
+ Sub-agent layer (2a) derivation      ✓ COMPLETE — 6 findings, both agents agreed
+ Sub-agent layer (2a) spec document  ✓ Written — docs/subagent-layer-spec.md (2026-03-06)
  PSQ score calibration               ✓ Applied (isotonic, n=1897)
  PSQ confidence calibration          ✓ r-based proxy (intentional constant fn — overrides anti-calibrated head)
  calibration.json in remote repo     ✓ Tracked — .gitignore exception, safety-quotient-lab/safety-quotient PR #1

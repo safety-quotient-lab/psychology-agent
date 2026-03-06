@@ -277,9 +277,9 @@ dimensions.
    reasoning procedures.
 
 2. **Sub-agent protocol** — ✓ Complete (2026-03-06):
-   - **2a Sub-agent layer**: ✓ docs/item2a-spec.md — 6 derivation findings, PSQ binding,
+   - **2a Sub-agent layer**: ✓ docs/subagent-layer-spec.md — 6 derivation findings, PSQ binding,
      interagent/v1 + schema v3, machine-response/v3 spec (docs/machine-response-v3-spec.md).
-   - **2b Peer layer**: ✓ docs/item2b-spec.md — role declaration, divergence detection,
+   - **2b Peer layer**: ✓ docs/peer-layer-spec.md — role declaration, divergence detection,
      evaluator tier binding, precedence protocol, convergence thresholds, SETL ranges.
 
 3. **Adversarial evaluator** — ✓ Complete (Session 17). Reasoning procedures,
@@ -1715,7 +1715,7 @@ Agents MAY omit transport{} when unchanged from prior turn.
 4. excluded-vs-scored → `dimensions[].meets_threshold` (PSQ response gap)
 5. calibration-status → `scores.calibration_applied` + `dimensions[].raw_score` (PSQ gap)
 
-**Done:** Item 2a spec document written — docs/item2a-spec.md (2026-03-06). Item 2b peer layer: docs/item2b-spec.md. PSQ scoring endpoint: safety-quotient/src/server.js (returns machine-response/v3).
+**Done:** Sub-agent layer (2a) spec document written — docs/subagent-layer-spec.md (2026-03-06). Peer layer (2b): docs/peer-layer-spec.md. PSQ scoring endpoint: safety-quotient/src/server.js (returns machine-response/v3).
 
 ### Open Questions
 

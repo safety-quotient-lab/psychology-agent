@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-06
 **Status:** Draft — first use pending (rsync model files to Hetzner)
-**Prerequisite:** interagent/v1 base protocol (docs/item2a-spec.md)
+**Prerequisite:** interagent/v1 base protocol (docs/subagent-layer-spec.md)
 **Related:** docs/bft-design-note.md (Byzantine fault tolerance principles)
 
 ---

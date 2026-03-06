@@ -79,7 +79,7 @@ working in a sub-project context.
 - ✓ PSQ sub-agent — Live, calibrated (isotonic score + r-based confidence proxy), running at `safety-quotient-lab/safety-quotient`
 - ✓ Observatory-agent peer exchange — 20-turn live exchange; interagent/v1 + schema v3 derived from failures, not design
 
-See `docs/architecture.md` for the full design record and `docs/item2a-spec.md` / `docs/item2b-spec.md` for protocol specs.
+See `docs/architecture.md` for the full design record and `docs/subagent-layer-spec.md` / `docs/peer-layer-spec.md` for protocol specs.
 
 ---
 
@@ -101,8 +101,8 @@ psychology-agent/
 │   └── skills/                     # Agent skills (/doc, /hunt, /cycle, etc.)
 ├── docs/
 │   ├── architecture.md             # Design decisions, system spec, capabilities
-│   ├── item2a-spec.md              # Sub-agent protocol spec (6 findings, schema v3)
-│   ├── item2b-spec.md              # Peer layer protocol spec (divergence, SETL, evaluator binding)
+│   ├── subagent-layer-spec.md      # Sub-agent protocol spec (6 findings, schema v3)
+│   ├── peer-layer-spec.md          # Peer layer protocol spec (divergence, SETL, evaluator binding)
 │   ├── machine-response-v3-spec.md # PSQ sub-agent output schema v3
 │   ├── capabilities.yaml           # Machine-readable capabilities manifest
 │   ├── overview-for-psychologists.md
@@ -128,8 +128,8 @@ discipline) without prior coordination — convergent rediscovery from different
 theoretical starting points. The psq-agent (a third instance) runs calibrated
 inference and responds to structured sub-agent requests. Three Claude Code sessions,
 one coherent multi-agent system.
-- [docs/item2a-spec.md](docs/item2a-spec.md) — sub-agent layer protocol (6 findings)
-- [docs/item2b-spec.md](docs/item2b-spec.md) — peer layer protocol (divergence detection, SETL thresholds)
+- [docs/subagent-layer-spec.md](docs/subagent-layer-spec.md) — sub-agent layer protocol (6 findings)
+- [docs/peer-layer-spec.md](docs/peer-layer-spec.md) — peer layer protocol (divergence detection, SETL thresholds)
 - [transport/sessions/subagent-protocol/](transport/sessions/subagent-protocol/) — the actual message exchange
 - [journal.md §15](journal.md) — Protocol Failure as Specification Method
 

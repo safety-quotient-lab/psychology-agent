@@ -56,7 +56,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Commands-over-skills audit    | ✓ /adjudicate + /capacity identified for conversion (Session 12) |
 | PSQ commercial model          | ✗ Undefined — ideas documented in ideas.md       |
 | General agent design          | ✓ Complete — routing spec, identity spec, evaluator procedures (Session 16) |
-| Sub-agent protocol            | ✓ Complete — item2a-spec.md + item2b-spec.md (Session 20) |
+| Sub-agent protocol            | ✓ Complete — subagent-layer-spec.md + peer-layer-spec.md (Session 20) |
 | Adversarial evaluator (activation) | ✓ Complete — tiered activation, 7 triggers, evaluator prompt (Session 17) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
@@ -1133,7 +1133,7 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
   histories sharing ancestor 978f815. calibration.json not trackable via git (models/ gitignored
   on both sides). best.pt removed by origin checkout; not on remote. Needs user decision on
   git reconciliation. parry disabled for this session.
-- → **Item 2a spec doc** written: docs/item2a-spec.md — layer model, schema v3 fields, A2A
+- → **Item 2a spec doc** written: docs/subagent-layer-spec.md — layer model, schema v3 fields, A2A
   Epistemic Extension, 5 PSQ schema gaps, capability handshake, status table. Committed and pushed.
 
 ⚑ EPISTEMIC FLAGS (continuation)
@@ -1157,10 +1157,10 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
   3. best.pt loss: non-blocking — psq-agent uses ONNX for inference; best.pt only needed
      for recalibration if model retrains.
 - → **Observatory PRs #7/#8 merged**. PR #9 (subagent-layer-closing-ack-001) sent — acknowledges
-  6 findings (not 5), accepts calibration_version amendment, points to docs/item2a-spec.md.
+  6 findings (not 5), accepts calibration_version amendment, points to docs/subagent-layer-spec.md.
 - → **Item 2a spec updated**: finding #6 (per-message transport scope, persist-from-last)
   made explicit; calibration_version amendment added to Gap #5.
-- → **Item 2b complete** — written by psq-agent (docs/item2b-spec.md): role declaration,
+- → **Item 2b complete** — written by psq-agent (docs/peer-layer-spec.md): role declaration,
   divergence detection (context_state + last_commit), SETL as peer divergence metric
   (cumulative 0.40 threshold), evaluator tier binding (3-tier table), precedence protocol
   (recency for state facts, evaluation for reasoning), convergence signal thresholds (1/2/3+),
@@ -1176,7 +1176,7 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
 - PR #9 (subagent-layer-closing-ack) awaiting observatory merge
 - Item 2b not yet validated in a second peer exchange (spec derived from one exchange)
 
-▶ docs/item2a-spec.md, docs/item2b-spec.md, docs/machine-response-v3-spec.md,
+▶ docs/subagent-layer-spec.md, docs/peer-layer-spec.md, docs/machine-response-v3-spec.md,
   transport/sessions/subagent-protocol/subagent-layer-closing-ack-001.json,
   safety-quotient/models/psq-student/calibration.json
 
@@ -1200,10 +1200,10 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
   canonical; (2) cognitive-triggers.md unread → read T1–T14 at session start.
 - → **PR #8 merged** (observatory-agent amendment): `calibration_version` field added to Item 2a
   spec as 6th finding (per-message transport scope) + `calibration_version` as gap #5 extension.
-  item2a-spec.md updated with full 6-finding table and updated status.
+  subagent-layer-spec.md updated with full 6-finding table and updated status.
 - → **machine-response-v3-spec.md written** (docs/): full v3 schema JSON, standard PSQ-Full
   limitations block (3 entries), migration guide from v2, layer model diagram.
-- → **item2b-spec.md written** (docs/): peer identity declaration, divergence detection
+- → **peer-layer-spec.md written** (docs/): peer identity declaration, divergence detection
   (context_state.last_commit), SETL as peer metric (0.40 cumulative threshold), evaluator tier
   binding table (Lite/Standard/Full), precedence protocol (recency → state facts), convergence
   signal thresholds (1/2/3+), domain SETL empirical ranges, 5-step git sync pattern.
@@ -1226,7 +1226,7 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
   documented in limitations block but not surfaced per-dimension in endpoint
 - interagent sync pending — peer-agent not yet notified of scoring endpoint
 
-▶ docs/item2a-spec.md, docs/item2b-spec.md, docs/machine-response-v3-spec.md,
+▶ docs/subagent-layer-spec.md, docs/peer-layer-spec.md, docs/machine-response-v3-spec.md,
   safety-quotient/src/server.js, safety-quotient/src/student.js
 
 ---

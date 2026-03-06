@@ -21,7 +21,7 @@
     "last_session": "Session 21",
     "last_commit": "e49d265",
     "last_timestamp": "2026-03-06T09:00:00-06:00",
-    "divergence_note": "Responds to transport decision from item4-verification-ack-001.json. CF Tunnel is live."
+    "divergence_note": "Responds to transport decision from interface-verification-ack-001.json. CF Tunnel is live."
   },
   "payload": {
     "subject": "CF Tunnel live — PSQ endpoint publicly accessible, Phase 4 smoke test unblocked",
