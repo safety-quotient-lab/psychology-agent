@@ -294,17 +294,24 @@ Simone, cc-tools, cchooks.*
 Managed in safety-quotient/ context. Do not duplicate here.
 Blocking: API surface, confidence calibration, scope boundaries.
 
-- [ ] **PSQ bug B1: Dead confidence head** — ONNX model confidence output collapsed to
-  per-dimension constants for ALL inputs. Fix options: (A) remove confidence from API
-  response, (B) replace with static per-dimension reliability estimates (known Pearson r),
-  (C) retrain confidence head. Routes to psq-agent context.
-  *Source: psq-scoring session, 2026-03-06*
+- [ ] **PSQ: Recover best.pt to local** — `best.pt` (255 MB, v23 DistilBERT, held-out
+  r=0.696) confirmed on Hetzner. Recovery:
+  `rsync -avz root@178.156.229.103:/opt/psychology-agent/safety-quotient/models/psq-student/ ~/Projects/safety-quotient/models/psq-student/`
+  After recovery: compare SHA256 with Chromebook version (`chromabook:/home/kashif/projects/psychology/safety-quotient/models/psq-student/best.pt`)
+  when reachable. Use Hetzner copy for now.
+  *Source: Session 24, 2026-03-06*
 
-- [ ] **PSQ bug B2: HI calibration dead zone** — isotonic regression maps raw HI scores
-  5.854–7.650 to identical 6.69. Fix options: (A) re-fit with finer binning, (B) use
-  raw_score for HI when in dead-zone range, (C) add training data in mid-range band.
+- [ ] **PSQ bug B1: Dead confidence head** — ONNX model confidence output collapsed to
+  per-dimension constants for ALL inputs. **Blocked by:** best.pt recovery (above).
+  After recovery: retrain confidence head, re-export ONNX, redeploy.
   Routes to psq-agent context.
   *Source: psq-scoring session, 2026-03-06*
+
+- [ ] **PSQ bug B2: HI calibration dead zone** — isotonic calibration maps raw HI scores
+  5.854–7.650 to shallow slope (6.05→6.69), not truly flat — data sparsity issue.
+  **Blocked by:** best.pt recovery (above). After recovery: re-fit with finer binning
+  or add training data in mid-range band. Routes to psq-agent context.
+  *Source: psq-scoring session + Session 24 investigation, 2026-03-06*
 
 - [ ] **PSQ raw_score in API response** — unratified-agent asks whether endpoint currently
   returns raw_score. Verify and document. Routes to psq-agent context.

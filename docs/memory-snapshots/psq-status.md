@@ -5,6 +5,9 @@
 **Confidence calibration:** ⚑ BUG B1 — confidence head dead (outputs constants for ALL inputs).
 r-based proxy (scale=0, shift=r) functions as static replacement but model head produces no signal.
 **Model transfer:** ✓ rsync complete. SHA256 verified. 41 files, 531 MB.
+**best.pt recovery:** ✓ FOUND on Hetzner (255 MB, 2026-03-01). Local copy lost.
+Recovery: `rsync -avz root@178.156.229.103:/opt/psychology-agent/safety-quotient/models/psq-student/ ~/Projects/safety-quotient/models/psq-student/`
+B1+B2 fixes deferred until best.pt recovered locally.
 **Service:** systemd psq-server active. 84ms inference. onnxruntime-node postinstall fix.
 **Wrangler secret:** PSQ_ENDPOINT_URL → https://psq.unratified.org
 **Firewall:** ufw SSH + HTTP/HTTPS only. Port 3000 closed from public.
