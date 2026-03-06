@@ -29,9 +29,10 @@ PSQ_CONFIDENCE_THRESHOLD = "0.6"
 
 [dev]
 port = 8787
-# Local dev: PSQ server binds 127.0.0.1:3000 (npm run serve in safety-quotient/).
-# Both wrangler dev and psq server must run on the same machine.
-# Production: PSQ_ENDPOINT_URL must be set as a secret (wrangler secret put PSQ_ENDPOINT_URL)
-# after deploying psq server to a network-accessible URL (transport decision open).
+
+# Local dev default: PSQ server on same machine (npm run serve in safety-quotient/).
+# For CF Tunnel or remote PSQ endpoint: override in .dev.vars (gitignored).
+# See .dev.vars.example for the pattern.
+# Transport decision: Option C (CF Tunnel) for smoke test, Option B (VPS) for production.
 [dev.vars]
 PSQ_ENDPOINT_URL = "http://127.0.0.1:3000"

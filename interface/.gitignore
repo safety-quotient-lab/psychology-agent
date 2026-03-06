@@ -1,0 +1,9 @@
+# Wrangler local dev vars (may contain CF Tunnel URL or other non-public endpoints)
+.dev.vars
+
+# Wrangler build output
+.wrangler/
+dist/
+
+# Node
+node_modules/

@@ -1,0 +1,12 @@
+# interface/.dev.vars — local wrangler dev overrides (gitignored)
+# Copy to .dev.vars and fill in values. Never commit .dev.vars.
+#
+# Phase 4 smoke test: set PSQ_ENDPOINT_URL to the CF Tunnel URL from psq-agent
+# (cloudflared tunnel --url http://127.0.0.1:3000 on Debian machine)
+#
+# For pure local dev (wrangler dev + npm run serve on same machine):
+# PSQ_ENDPOINT_URL is already set to http://127.0.0.1:3000 in wrangler.toml [dev.vars]
+# Override here only when using a remote endpoint.
+
+PSQ_ENDPOINT_URL=https://your-tunnel-url.trycloudflare.com
+# ANTHROPIC_API_KEY=sk-ant-...   # or set via: wrangler secret put ANTHROPIC_API_KEY
