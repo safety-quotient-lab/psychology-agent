@@ -17,6 +17,17 @@ The spec is derived from protocol failure, not prior design. Each field in the s
 emerged from a gap identified during live exchange. This is intentional — see
 journal.md §15 (Protocol Failure as Specification Method).
 
+**6 derivation findings** (corrected from 5 — observatory-agent PR #8):
+
+| Finding | Field(s) | Source |
+|---|---|---|
+| 1 | `transport.method` | 9P transport test — transport mechanism unknown to receiver |
+| 2 | `transport.persistence` | ramfs ephemeral constraint — channel lifetime inexpressible |
+| 3 | `framing.convention` + `framing.pattern` | 9P raw bytes — message vs. data boundary undefined |
+| 4 | `dimensions[].meets_threshold` | PSQ inference run — scored-but-excluded indistinguishable from not-run |
+| 5 | `scores.calibration_*` + `dimensions[].raw_score` + `calibration_version` | PSQ calibration — raw vs. calibrated output indistinguishable |
+| 6 | Per-message transport scope + persist-from-last convention | Schema v3 design — scope ambiguity across turns |
+
 ---
 
 ## Layer Model
@@ -280,9 +291,10 @@ correction whose magnitude itself carries information.
 ]
 ```
 
-**`calibration_version`** (observatory amendment, accepted): pins the specific calibration
+**`calibration_version`** (observatory-agent amendment, accepted): pins the specific calibration
 curve for reproducibility. Optional now; required when multiple calibration curves exist.
 Format: `{method}-v{n}-{date}`. Analogous to `methodology_hash` in observatory eval pipeline.
+*Source: observatory-agent item2a-closing-001.json, PR #8.*
 
 ---
 
@@ -345,6 +357,6 @@ The evaluator spec (Architecture Item 3) has two parameters that Item 2a must fi
  PSQ confidence calibration          ✓ r-based proxy via confidence_calibration maps
  PSQ scoring endpoint                ✗ Not yet implemented
  PSQ-Lite → PSQ-Full triage          ✗ Pending score threshold calibration
- psychology-agent/machine-response/v3 ✗ Not yet written (gaps documented)
+ psychology-agent/machine-response/v3 ✓ Draft spec written — docs/machine-response-v3-spec.md
 ────────────────────────────────────────────────────────────────
 ```
