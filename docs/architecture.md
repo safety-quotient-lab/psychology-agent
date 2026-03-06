@@ -1504,8 +1504,8 @@ primary domain. observatory.unratified.org/.well-known/agent.json returns 404
 validate this spec and surface gaps (same derivation method as v1→v2).
 
 **Update (2026-03-06):** Handshake complete. A2A Epistemic Extension framing
-adopted (see §A2A Epistemic Extension below). interagent/v1 becomes a profile
-of A2A v0.3.0, not a parallel standard.
+adopted (see §A2A Epistemic Extension below). interagent/v1 becomes a formal
+A2A extension declared via URI, not a parallel standard.
 
 ### A2A Epistemic Extension (2026-03-06)
 
@@ -1523,8 +1523,57 @@ standard. The novel contribution is the epistemic layer; A2A handles discovery.
 ────────────────────────────────────────────────────────────────────────
 ```
 
-Status: adopted in principle. Both agents reading full A2A spec independently
-before finalizing the profile spec.
+**A2A spec read complete (2026-03-06).** Formal alignment:
+
+```
+────────────────────────────────────────────────────────────────────────
+ Layer                   Mechanism              Fields
+────────────────────────────────────────────────────────────────────────
+ A2A core                Agent Card             name, description, url,
+                         (/.well-known/         provider, version,
+                          a2a/agent-card)       skills[], capabilities
+                                                (streaming, push),
+                                                interfaces[], security,
+                                                extensions[]
+
+ A2A task layer          Task + Message         role (user|agent),
+                                                parts (text|file|data),
+                                                taskId, contextId,
+                                                status (working →
+                                                completed|failed),
+                                                history[], artifacts[]
+
+ Epistemic extension     A2A extensions[]       Extension URI declared
+ (interagent/v1)         URI-based, required:   in Agent Card. Adds:
+                         false                  claims[], setl,
+                                                epistemic_flags,
+                                                action_gate, correction{}
+────────────────────────────────────────────────────────────────────────
+```
+
+**Extension URI (proposed):**
+`https://psychology-agent.unratified.org/extensions/epistemic/v1`
+
+Agents that support epistemic exchange declare this URI in their Agent Card
+`extensions[]` with `required: false`. Non-epistemic agents can still
+communicate using A2A core; epistemic fields are additive.
+
+**Discovery path delta:**
+A2A canonical: `/.well-known/a2a/agent-card`
+Observatory current: `/.well-known/agent.json`
+These are different paths. Observatory's agent.json is A2A-structured but
+not at the canonical path. Full A2A discovery compliance requires either
+moving the file or adding an alias.
+
+**What A2A does NOT cover** (confirmed open for extension):
+- Per-claim confidence tracking — not in A2A Message or Task
+- SETL — not in any A2A field
+- Epistemic flags — not in A2A
+- Action gate (blocking sentinel) — A2A has task status but no conditional
+  blocking between agents at the message level
+- Correction mechanism — not in A2A
+
+All four are correctly placed in the epistemic extension layer.
 
 ### 9P Transport — Canonical Pattern (2026-03-06)
 
