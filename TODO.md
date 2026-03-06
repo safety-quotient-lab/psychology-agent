@@ -28,7 +28,7 @@ Forward-looking task list only. Completed and emergent work goes to
 
 - [x] **Psychology interface** — ✓ DEPLOYED (Session 21c, 2026-03-06).
   `https://psychology-interface.kashifshah.workers.dev`. D1 + KV + wrangler v4.
-  All 8 smoke test steps passed. PSQ routes live (pending production endpoint URL).
+  All 8 smoke test steps passed. PSQ routes live (endpoint: https://psq.unratified.org/score).
 
   **Remaining work:**
   - [x] PSQ production endpoint — ✓ Live at https://psq.unratified.org/score (Caddy TLS, 84ms inference)
