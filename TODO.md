@@ -36,10 +36,10 @@ Forward-looking task list only. Completed and emergent work goes to
   To re-enable when credits are available:
   1. `wrangler secret put ANTHROPIC_API_KEY`
   2. Remove the 503 guard in worker.js `/turn` handler
-  3. `wrangler d1 create psychology-interface` → fill `database_id` in wrangler.toml
-     (session/turn storage — /turn writes to D1 before streaming)
-  Identity and cogarch are already inlined in PSYCHOLOGY_SYSTEM (agent.js Option A).
-  settingSources no-op resolved — removed from agentOptions.
+  3. D1 schema init: `wrangler d1 execute psychology-interface --file=src/schema.sql`
+     (database already created — 56a2f5ac; schema.sql initializes session/turn tables)
+  Identity and cogarch inlined in PSYCHOLOGY_SYSTEM (59f2ebf, 2026-03-06) — ✓ DONE.
+  settingSources no-op resolved — removed from agentOptions — ✓ DONE.
   503 guard in place: returns clear error + reason if ANTHROPIC_API_KEY absent.
 
   *What's built: worker.js, session.js, agent.js, psq-client.js, schema.sql,

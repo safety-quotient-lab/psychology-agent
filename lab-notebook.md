@@ -115,7 +115,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 
 - HuggingFace model license: parry requests `deberta-v3-small` but docs reference `deberta-v3-base` — verify correct model slug
 - Parry ML daemon: HTTP 401 after token file exists — investigate token validity or model gating
-- PSQ production URL: waiting on psq-agent reply to item4-production-transport-001.json (Option A named tunnel vs Option B Oracle Ampere)
+- PSQ production URL: waiting on psq-agent reply to production-transport-001.json (Option A named tunnel vs Option B Oracle Ampere)
 
 ---
 
@@ -1009,7 +1009,7 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
   that instance ("The Relay-Agent That Became a Peer"). ACK b670bd9 received. Plumber
   prior art note from closing instance accepted: Plan 9 plumber rule format reviewed
   for Architecture Item 2 sub-agent routing design.
-- → Architecture Item 2 derivation initiated. transport/sessions/item2-derivation/
+- → Architecture Item 2 derivation initiated. transport/sessions/subagent-protocol/
   scaffolded. request-001.json sent: PSQ scoring request, clinical reflection text,
   flags set for scope_declaration, limitations_disclosure, confidence_per_dimension.
   Awaiting response-001.json from safety-quotient/ context.
@@ -1023,7 +1023,7 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
 - Item 2 PSQ response pending; spec gaps will emerge from that exchange
 
 ▶ docs/architecture.md (Item 3 spec, transport layer, topology decisions),
-  transport/sessions/item2-derivation/, TODO.md (Items 2–4 updated)
+  transport/sessions/subagent-protocol/, TODO.md (Items 2–4 updated)
 
 ---
 
@@ -1066,7 +1066,7 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
 - Item 2a derivation ongoing — 3 findings from one transport test; more turns needed
 
 ▶ docs/architecture.md (interagent/v1, A2A extension, 9P transport, PSQ namespace, convergence signals),
-  transport/sessions/item2-derivation/ (plan9port corrections, capability handshake, PSQ proposal, ACKs)
+  transport/sessions/subagent-protocol/ (plan9port corrections, capability handshake, PSQ proposal, ACKs)
 
 ---
 
@@ -1107,7 +1107,7 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
   psychology-agent's side pending observatory confirmation
 
 ▶ docs/architecture.md §Schema v3 Finalized, §Item 2a findings,
-  transport/sessions/item2-derivation/ (response-001, schema-v3-response-001, schema-v3-ack-001),
+  transport/sessions/subagent-protocol/ (response-001, schema-v3-response-001, schema-v3-ack-001),
   safety-quotient/scripts/calibrate.py, safety-quotient/models/psq-student/calibration.json
 
 **Session 19 continuation (context compaction):**
@@ -1144,7 +1144,7 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
      without conflicting untracked files. PR #1 merged on safety-quotient-lab/safety-quotient.
   3. best.pt loss: non-blocking — psq-agent uses ONNX for inference; best.pt only needed
      for recalibration if model retrains.
-- → **Observatory PRs #7/#8 merged**. PR #9 (item2a-closing-ack-001) sent — acknowledges
+- → **Observatory PRs #7/#8 merged**. PR #9 (subagent-layer-closing-ack-001) sent — acknowledges
   6 findings (not 5), accepts calibration_version amendment, points to docs/item2a-spec.md.
 - → **Item 2a spec updated**: finding #6 (per-message transport scope, persist-from-last)
   made explicit; calibration_version amendment added to Gap #5.
@@ -1161,11 +1161,11 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
 
 ⚑ EPISTEMIC FLAGS
 - safety-quotient local git divergence unresolved (workaround: worktree; root: diverged histories)
-- PR #9 (item2a-closing-ack) awaiting observatory merge
+- PR #9 (subagent-layer-closing-ack) awaiting observatory merge
 - Item 2b not yet validated in a second peer exchange (spec derived from one exchange)
 
 ▶ docs/item2a-spec.md, docs/item2b-spec.md, docs/machine-response-v3-spec.md,
-  transport/sessions/item2-derivation/item2a-closing-ack-001.json,
+  transport/sessions/subagent-protocol/subagent-layer-closing-ack-001.json,
   safety-quotient/models/psq-student/calibration.json
 
 ---
@@ -1255,7 +1255,7 @@ absent. Two conditions to re-enable: (1) API cost accepted, (2) settingSources f
 - wrangler v3 compatibility_date falls back to 2025-07-18
 
 ▶ interface/src/agent.js, interface/src/worker.js, TODO.md Item 4,
-  transport/sessions/item4-derivation/item4-smoketest-001.json
+  transport/sessions/psychology-interface/interface-smoketest-001.json
 
 ---
 
@@ -1267,12 +1267,12 @@ absent. Two conditions to re-enable: (1) API cost accepted, (2) settingSources f
 `npm run serve`). Quick tunnel: `https://coordinates-valve-conventions-convertible.trycloudflare.com`.
 Health check verified through tunnel. Ephemeral — expires when session ends.
 
-**Interagent turns 6–10** (item4-derivation):
+**Interagent turns 6–10** (psychology-interface):
 - Turn 6 (tunnel-ready-001.json): announced CF Tunnel URL to peer-agent
-- Turn 7 (item4-smoketest-001.json, from macOS): smoke test 7/8 PASS; step 8 pending user browser verification
-- Turn 8 (item4-smoketest-ack-001.json): ACK + flagged settingSources production gap (f3 HIGH)
-- Turn 9 (item4-f3-fix-001.json): delegated f3 fix to peer-agent with full proposed PSYCHOLOGY_SYSTEM content
-- Turn 10 (item4-f3-ack-001.json): reviewed peer-agent implementation — approved, flagged TODO staleness, surfaced /turn API key decision
+- Turn 7 (interface-smoketest-001.json, from macOS): smoke test 7/8 PASS; step 8 pending user browser verification
+- Turn 8 (interface-smoketest-ack-001.json): ACK + flagged settingSources production gap (f3 HIGH)
+- Turn 9 (settings-sources-fix-001.json): delegated f3 fix to peer-agent with full proposed PSYCHOLOGY_SYSTEM content
+- Turn 10 (settings-sources-ack-001.json): reviewed peer-agent implementation — approved, flagged TODO staleness, surfaced /turn API key decision
 
 **f3 resolved** — peer-agent (macOS, commits 59f2ebf + fb38bdf):
 - `PSYCHOLOGY_SYSTEM` expanded: Identity, Commitments (6), Refusals (5), Scope boundary script,
@@ -1297,7 +1297,7 @@ protocol) to docs/cognitive-triggers.md. MEMORY.md quick-ref updated with both t
 - Step 8 (browser render) pending user action on macOS
 - /turn API key decision is a substance decision (billing); deferred to user
 
-▶ interface/src/agent.js, transport/sessions/item4-derivation/ (turns 6–10),
+▶ interface/src/agent.js, transport/sessions/psychology-interface/ (turns 6–10),
   docs/cognitive-triggers.md (T15), MEMORY.md (T14+T15 quick-ref)
 
 ---
@@ -1327,7 +1327,7 @@ in TODO.md Item 4: secret put + remove guard + D1 schema init.
 epistemic extension derivation, interagent/v1 receiving end, transport.persistence from ramfs
 constraint. Psychology-agent contribution point closed; unratified.org point remains open.
 
-**Production transport sync** — `item4-production-transport-001.json` (turn 8) sent to psq-agent.
+**Production transport sync** — `production-transport-001.json` (turn 8) sent to psq-agent.
 Option A: named CF Tunnel as systemd service (~15 min). Option B: Oracle Cloud Ampere A1 ARM64
 (~45 min; ARM64 compatibility confirmed: `onnxruntime-node@1.24.2` ships pre-built ARM64 binaries;
 ONNX format cross-platform). Probe finding: model files gitignored, live only on Debian psq-agent.
@@ -1338,5 +1338,5 @@ ONNX format cross-platform). Probe finding: model files gitignored, live only on
 - settingSources finding structural inference only — not runtime-tested
 
 ▶ interface/src/agent.js, interface/src/worker.js, interface/wrangler.toml,
-  transport/sessions/item4-derivation/item4-production-transport-001.json,
+  transport/sessions/psychology-interface/production-transport-001.json,
   .claude/proposals/from-observatory/blog-well-known-contribution-2026-03-06-draft.md

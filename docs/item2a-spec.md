@@ -1,7 +1,7 @@
 # Architecture Item 2a — Sub-Agent Protocol Specification
 
 **Status:** Draft — derived from live exchange (Sessions 18–19)
-**Derived from:** 9P transport test + PSQ-Full inference run (item2-derivation session)
+**Derived from:** 9P transport test + PSQ-Full inference run (subagent-protocol exchange)
 **Schema version:** interagent/v1 + schema v3 extensions
 **Extension URI:** `https://github.com/safety-quotient-lab/interagent-epistemic/v1`
 
@@ -74,7 +74,7 @@ explicitly changed.
 "transport": {
   "method": "git-pr",
   "persistence": "persistent",
-  "session_id": "psychology-agent/item2-derivation/schema-v3-ack-001"
+  "session_id": "psychology-agent/subagent-protocol/schema-v3-ack-001"
 }
 ```
 
