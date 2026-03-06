@@ -71,13 +71,42 @@ working in a sub-project context.
 
 **Architecture complete. Implementation phase begins.**
 
-- ✓ Architecture Item 1 — Psychology agent routing logic, identity spec, Socratic protocol
-- ✓ Architecture Item 2a — Sub-agent layer: interagent/v1 protocol, schema v3 transport/framing, 6 derivation findings, PSQ binding
-- ✓ Architecture Item 2b — Peer layer: role declaration, divergence detection, evaluator tier binding, SETL thresholds, precedence protocol
-- ✓ Architecture Item 3 — Adversarial evaluator: 7-procedure ranked set, tiered activation (Lite/Standard/Full), peer disagreement protocol
-- ✗ Architecture Item 4 — Psychology interface: Agent SDK wrapper, custom UI, PSQ visualization (precondition: Item 2a defined ✓)
-- ✓ PSQ sub-agent — Live, calibrated (isotonic score + r-based confidence proxy), running at `safety-quotient-lab/safety-quotient`
-- ✓ Observatory-agent peer exchange — 20-turn live exchange; interagent/v1 + schema v3 derived from failures, not design
+### Project Maturity: Design → Implementation Transition
+
+The architecture covers all four design items. The cognitive infrastructure
+(triggers, hooks, memory, skills) operates in production across daily sessions.
+The first sub-agent (PSQ) scores live text. The peer protocol has completed a
+20-turn live exchange. The project transitions from "what should this system
+look like?" to "build the runtime that serves users."
+
+### Architecture Items
+
+| Item | Component | Maturity | Detail |
+|------|-----------|----------|--------|
+| 1 | Psychology agent identity | **Proven** | Routing spec, Socratic protocol, dynamic calibration — in daily use |
+| 2a | Sub-agent layer | **Proven** | interagent/v1 protocol, schema v3, 6 derivation findings, PSQ binding — 20+ turns exchanged |
+| 2b | Peer layer | **Proven** | Role declaration, divergence detection, SETL thresholds — live exchange with observatory-agent |
+| 3 | Adversarial evaluator | **Confirmed** | 7-procedure ranked set, tiered activation spec, Tier 1 proxy implemented — Tier 2/3 await runtime |
+| 4 | Psychology interface | **Explored** | Spec written (`docs/psychology-interface-spec.md`), no implementation — precondition met (Item 2a ✓) |
+
+### Capability Inventory
+
+| Capability | Maturity | Notes |
+|------------|----------|-------|
+| Cognitive triggers (T1–T15) | **Proven** | 15 triggers, 11 platform hooks, SRT extensions with calibrated gates |
+| Skills (/doc, /hunt, /cycle, /knock, /sync) | **Proven** | 5 skills, daily use, tested across 24+ sessions |
+| Commands (/adjudicate, /capacity) | **Proven** | On-demand, verified |
+| Memory architecture (5-layer) | **Proven** | Auto-memory, snapshots, archives, self-healing bootstrap |
+| PSQ sub-agent scoring | **Proven** | DistilBERT v23, isotonic calibration, r-based confidence proxy, live at psq.unratified.org |
+| Interagent transport | **Proven** | Git-PR transport, MANIFEST routing, 3 agents exchanging messages |
+| Local coordination protocol | **Confirmed** | Spec written, used informally between parallel instances — not yet stress-tested |
+| Adversarial evaluator (Tier 1 proxy) | **Confirmed** | Self-check with audit trail + random escalation — structural independence deferred |
+| Adversarial evaluator (Tier 2/3) | **Explored** | Spec defined, requires runtime implementation |
+| Psychology interface (API + UI) | **Explored** | Architecture spec written, no code |
+| Sub-agent discovery | **Identified** | Agent-card convention documented, no automated discovery |
+| MCP wrappers (Stage 3) | **Deferred** | Not pre-committed; revisit when Stage 2 programmatic calls prove insufficient |
+
+**Maturity levels:** Proven (validated, tested, in daily use) · Confirmed (works, lacks full integration or stress testing) · Explored (feasibility established, spec exists) · Identified (on radar, not yet tried) · Deferred (deliberately postponed with rationale)
 
 See `docs/architecture.md` for the full design record and `docs/subagent-layer-spec.md` / `docs/peer-layer-spec.md` for protocol specs.
 
@@ -204,15 +233,17 @@ See `CLAUDE.md` for full conventions.
 
 ---
 
-## Skills
+## Skills & Commands
 
-| Skill         | When          | What                                         |
-|---------------|---------------|----------------------------------------------|
-| `/doc`        | Mid-work      | Persist decisions and findings to disk        |
-| `/cycle`      | Post-session  | Full documentation chain update, commit, push |
-| `/hunt`       | Discovery     | Find highest-value next work                  |
-| `/capacity`   | Housekeeping  | Assess cognitive architecture capacity        |
-| `/adjudicate` | Decisions     | Structured knock-on analysis, 10-order depth  |
+| Name          | Type    | When          | What                                         |
+|---------------|---------|---------------|----------------------------------------------|
+| `/doc`        | Skill   | Mid-work      | Persist decisions and findings to disk        |
+| `/cycle`      | Skill   | Post-session  | Full documentation chain update, commit, push |
+| `/hunt`       | Skill   | Discovery     | Find highest-value next work                  |
+| `/knock`      | Skill   | Analysis      | Single-option 10-order knock-on tracing       |
+| `/sync`       | Skill   | Coordination  | Inter-agent mesh scan, ACKs, MANIFEST update  |
+| `/adjudicate` | Command | Decisions     | Multi-option knock-on comparison, resolution  |
+| `/capacity`   | Command | Housekeeping  | Assess cognitive architecture capacity        |
 
 ---
 
