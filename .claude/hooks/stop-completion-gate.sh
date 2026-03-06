@@ -18,6 +18,15 @@ if [ -n "$UNTRACKED" ]; then
   WARNINGS="${WARNINGS}Untracked files in docs/ or .claude/. "
 fi
 
+# Check for unresolved epistemic flags in lab-notebook Current State block
+NOTEBOOK="${PROJECT_ROOT}/lab-notebook.md"
+if [ -f "$NOTEBOOK" ]; then
+  FLAGGED_ITEMS=$(head -120 "$NOTEBOOK" | grep -c '⚑' 2>/dev/null || true)
+  if [ "$FLAGGED_ITEMS" -gt 0 ]; then
+    WARNINGS="${WARNINGS}${FLAGGED_ITEMS} item(s) flagged ⚑ in lab-notebook Current State. "
+  fi
+fi
+
 if [ -n "$WARNINGS" ]; then
   echo "[COMPLETION-GATE] ${WARNINGS}Consider running /cycle or committing before stopping." >&2
   # Non-blocking warning (exit 0) — surfaces the reminder but allows stop.

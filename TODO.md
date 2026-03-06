@@ -26,37 +26,28 @@ Forward-looking task list only. Completed and emergent work goes to
   protocol, full evaluator system prompt. Open contracts with Item 2:
   sub-agent output format + domain SETL thresholds (first approximation: 0.40).
 
-- [ ] **Item 4: Psychology interface** — `psychology-agent/interface/`. Agent SDK
-  wrapper (`@anthropic-ai/claude-agent-sdk`). Custom UI consuming message stream.
-  PSQ visualization (radar, hierarchy, threshold/artifact indicators) complete and
-  smoke-tested (steps 1–7 pass, step 8 browser render pending).
-  Production transport: wrangler deploy (after step 8 confirms + wrangler v4 upgrade).
+- [x] **Item 4: Psychology interface** — ✓ DEPLOYED (Session 21c, 2026-03-06).
+  `https://psychology-interface.kashifshah.workers.dev`. D1 + KV + wrangler v4.
+  All 8 smoke test steps passed. PSQ routes live (pending production endpoint URL).
 
-  **Deferred: `/turn` route (Agent SDK chat)** — blocked by API credits.
-  To re-enable when credits are available:
-  1. `wrangler secret put ANTHROPIC_API_KEY`
-  2. Remove the 503 guard in worker.js `/turn` handler
-  3. D1 schema init: `wrangler d1 execute psychology-interface --file=src/schema.sql`
-     (database already created — 56a2f5ac; schema.sql initializes session/turn tables)
-  Identity and cogarch inlined in PSYCHOLOGY_SYSTEM (59f2ebf, 2026-03-06) — ✓ DONE.
-  settingSources no-op resolved — removed from agentOptions — ✓ DONE.
-  503 guard in place: returns clear error + reason if ANTHROPIC_API_KEY absent.
-
-  *What's built: worker.js, session.js, agent.js, psq-client.js, schema.sql,
-  public/index.html + style.css + app.js + psq.js. All PSQ routes working.*
-  *What's deferred: /turn (chat streaming), /session CRUD (needs live DB).*
-  *Precondition to re-enable: accept API cost model (settingSources fix already done — Session 21).*
+  **Remaining work:**
+  - [ ] PSQ production endpoint — Hetzner provisioned, model rsync pending (psq-agent)
+  - [ ] `/turn` route — blocked by API credits. Re-enable checklist:
+    1. `wrangler secret put ANTHROPIC_API_KEY`
+    2. Remove 503 guard in worker.js `/turn` handler
+    3. `wrangler d1 execute psychology-interface --file=src/schema.sql`
+  - [x] `/.well-known/agent-card.json` — ✓ Session 23. Deployed and verified
 
 ---
 
 ## Skills
 
-- [ ] **`/knock` as standalone skill** — extract knock-on analysis from `/hunt` Phase 5
-  into a dedicated `/knock` skill (callable independently by user or agent). Add:
+- [x] **`/knock` as standalone skill** — ✓ Session 23. Extract 10-order knock-on analysis from `/hunt`
+  Phase 5 into a dedicated `/knock` skill (callable independently by user or agent). Add:
   domain classification step (Code/Data/Pipeline/Infrastructure/UX/Operational/Product),
   grounding step (verify actual dependencies before tracing orders), cross-domain
-  patterns checklist. Update `/hunt` Phase 5 to reference `/knock` rather than
-  embedding the protocol inline.
+  patterns checklist, all 10 orders with confidence bands and source citations (INCOSE,
+  Popper). Update `/hunt` Phase 5 to reference `/knock` rather than embedding inline.
 
 - [ ] **Memory topic-file pattern** — split MEMORY.md into an index file (~60 lines)
   + topic files read on demand. Candidate topics: `cogarch.md` (triggers quick-ref,
@@ -75,11 +66,9 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ## Cogarch Improvements (from antiregression-setup evaluation + Session 11)
 
-- [ ] **Compaction threshold trigger** — add concrete threshold to T2 context pressure
-  check. Antiregression repo cites 80% of context consumed by file reads/tool results;
-  recommends `/compact` at 60–70%. Add to T2: "If context exceeds 60%, invoke /doc to
-  persist critical state, then consider /compact." Currently T2 says "context pressure"
-  without a number.
+- [x] **Compaction threshold trigger** — ✓ Session 23. T2 check 1 now specifies: 60%
+  → invoke /doc, 75% → actively compress/compact. Aligned with context-pressure-statusline.sh
+  thresholds (60% PRESSURE, 80% CRITICAL).
   *Source: antiregression-setup README ("60% rule")*
 
 - [ ] **Glob-scoped rules** — move language-specific conventions to `.claude/rules/`
@@ -103,10 +92,10 @@ Forward-looking task list only. Completed and emergent work goes to
   check #11 covers the cognitive gate; this hook provides mechanical enforcement.
   *Source: Session 16 cogarch evaluation — gap in T3 scope*
 
-- [ ] **Open-flag sweep hook** — Stop/PreCompact hook that searches the conversation
-  for unresolved ⚑ flags (grep pattern `⚑` without adjacent "none identified").
-  Reports count and summaries before allowing session close. Supplements T5 check #6
-  at the platform level. Non-blocking (warning only), consistent with stop-completion-gate.
+- [x] **Open-flag sweep hook** — ✓ Session 23. stop-completion-gate.sh extended to
+  scan lab-notebook.md Current State for ⚑ markers. Reports count in completion gate
+  warning. Non-blocking. Conversation-level flags remain T5 cognitive-only (hooks
+  cannot read conversation context).
   *Source: Session 16 cogarch evaluation — T5 epistemic debt gap*
 
 - [ ] **Pushback accumulator** — T6 check #5 is cognitive-layer only. A session-scoped
@@ -352,6 +341,23 @@ Blocking: API surface, confidence calibration, scope boundaries.
   prevention, and timeout. 6 actionable improvements defined (3 immediate,
   2 short-term, 1 medium-term). Full spec: docs/git-pr-transport-failure-modes.md.
   *Completed: 2026-03-06*
+
+---
+
+## Inter-Agent Mesh (from Session 23)
+
+- [x] **unratified-agent mesh-init** — ✓ capability handshake received (turn 1),
+  capability response sent (turn 2). PSQ collaboration accepted, ICESCR framing
+  deferred. Session: transport/sessions/mesh-init/.
+  *Completed: 2026-03-06*
+
+- [ ] **PSQ endpoint URL to unratified-agent** — send follow-up turn to mesh-init
+  session with live PSQ endpoint URL once Hetzner service is running.
+  *Precondition: psq-agent rsync complete + service healthy*
+
+- [ ] **`/.well-known/agent-card.json`** — publish discovery endpoint on CF Worker.
+  Enables mesh agents to discover our capabilities programmatically.
+  *Precondition: none (can build now)*
 
 ---
 

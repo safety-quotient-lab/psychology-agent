@@ -42,7 +42,10 @@ in the session's first response so the user has visibility.
 **Fires**: Before every substantive response
 
 **Checks**:
-1. **Context pressure** — approaching context limit? Invoke /doc proactively
+1. **Context pressure** — approaching context limit? At 60% context consumed,
+   invoke /doc to persist critical state. At 75%, actively compress or compact.
+   Tool results and file reads dominate context consumption — persist findings
+   in memory or docs rather than re-reading the same files
 2. **Transition** — does the response shift topic? Signal the shift explicitly
 3. **Pacing** — chunk, don't wall. Offer stopping points for long outputs
 4. **Bare forks** — no open decision branches left dangling without resolution

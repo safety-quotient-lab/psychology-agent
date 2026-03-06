@@ -8,6 +8,7 @@
  *   GET  /session/:id          → retrieve session + turns
  *   GET  /session/:id/psq      → retrieve PSQ scores for session
  *   GET  /health               → health check
+ *   GET  /.well-known/agent-card.json → agent discovery (mesh)
  *
  * Bindings (wrangler.toml):
  *   env.DB          → D1 database (session + turn storage)
@@ -37,6 +38,62 @@ export default {
     }
 
     try {
+      // GET /.well-known/agent-card.json → agent discovery for inter-agent mesh
+      if (method === "GET" && url.pathname === "/.well-known/agent-card.json") {
+        return Response.json({
+          protocolVersion: "0.3.0",
+          name: "Psychology Agent",
+          description: "General-purpose psychology agent (collegial mentor) with PSQ sub-agent. Psychoemotional safety scoring across 10 dimensions via DistilBERT model. Cognitive architecture with 15 triggers and 10-order knock-on analysis. Part of safety-quotient-lab inter-agent mesh.",
+          url: "https://psychology-interface.kashifshah.workers.dev",
+          preferredTransport: "HTTP+JSON",
+          provider: {
+            organization: "Safety Quotient Lab",
+            url: "https://github.com/safety-quotient-lab",
+          },
+          version: "1.0.0",
+          documentationUrl: "https://github.com/safety-quotient-lab/psychology-agent",
+          capabilities: {
+            streaming: true,
+            pushNotifications: false,
+            stateTransitionHistory: false,
+          },
+          defaultInputModes: ["text/plain", "application/json"],
+          defaultOutputModes: ["application/json"],
+          extensions: [
+            {
+              uri: "https://github.com/safety-quotient-lab/interagent-epistemic/v1",
+              required: false,
+              description: "Per-claim confidence tracking, SETL, epistemic flags, action gate, and correction mechanism for A2A messages.",
+            },
+          ],
+          skills: [
+            {
+              id: "psq-score",
+              name: "PSQ Scoring",
+              description: "Scores text across 10 psychoemotional safety dimensions (0-10 each) with composite score (0-100), hierarchy factor analysis, and calibrated confidence. Returns machine-response/v3 schema.",
+              tags: ["psq", "safety", "psychoemotional", "scoring", "machine-response-v3"],
+              inputModes: ["application/json"],
+              outputModes: ["application/json"],
+              endpoint: "/psq/score",
+            },
+            {
+              id: "psq-health",
+              name: "PSQ Health Check",
+              description: "Reports PSQ scoring endpoint liveness and model readiness.",
+              tags: ["psq", "health", "monitoring"],
+              inputModes: ["text/plain"],
+              outputModes: ["application/json"],
+              endpoint: "/psq/health",
+            },
+          ],
+        }, {
+          headers: {
+            ...corsHeaders,
+            "Cache-Control": "public, max-age=3600",
+          },
+        });
+      }
+
       // GET /health
       if (method === "GET" && url.pathname === "/health") {
         return Response.json({ status: "ok", timestamp: Date.now() }, { headers: corsHeaders });
