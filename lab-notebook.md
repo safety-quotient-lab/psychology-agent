@@ -1645,3 +1645,42 @@ merges, 3 interagent messages sent, psq-scoring session messages read.
 ▶ journal.md §22, transport/sessions/ (psq-scoring, mesh-init, site-defensibility-review,
   psychology-interface), docs/cognitive-triggers.md, CLAUDE.md, TODO.md, MEMORY.md,
   .well-known/agent-card.json, transport/MANIFEST.json, transport/hooks/transport-scan.sh
+
+
+## 2026-03-06T14:06 CST — Session 23c (Infrastructure: memory split, glob rules, rename sweep, coordination)
+
+**Context:** Continuation session. Completed interrupted /cycle, then worked through
+backlog items while psq-agent rsync was pending (resolved by local instance in 23d).
+
+**Completed /cycle from 23b (Steps 7-13):**
+- MEMORY.md Active Thread updated to Session 23b; snapshot archived + refreshed
+- Commit ef303b5
+
+**Remote fetch + cherry-pick:**
+- Unratified-agent urgency-amendment-001 (site-defensibility turn 2)
+- Proposed urgency enum for interagent/v1 — cherry-picked payload only, deletions rejected
+- Commit 0f13075
+
+**Local instance coordination:**
+- Discovered concurrent psychology-agent instance (committed 0bd28b7)
+- Created local-coordination/v1 protocol: 2 messages (5 items + 5 issues with remedies)
+- Commit f09cbad
+
+**Three backlog items completed:**
+- Semantic rename sweep: ~25 Item 2a/2b/4 refs replaced across 6 docs (51ecd46)
+- Agent-card reconciliation: cross-reference + session updates (51ecd46)
+- Urgency field adopted into architecture.md schema v3 (51ecd46)
+
+**Memory topic-file split:**
+- MEMORY.md 169→53 lines; 3 topic files; /cycle, BOOTSTRAP, bootstrap-check updated
+- Commit 1a2f1be
+
+**Glob-scoped rules:**
+- 3 rules: markdown.md, javascript.md, transport.md; CLAUDE.md slimmed
+- Commit 44c62e7
+
+⚑ EPISTEMIC FLAGS
+- Lost unstaged edits: diff reconstructed from observed git state; may be incomplete
+
+▶ transport/sessions/local-coordination/, .claude/rules/, BOOTSTRAP.md,
+  bootstrap-check.sh, .claude/skills/cycle/SKILL.md, docs/architecture.md
