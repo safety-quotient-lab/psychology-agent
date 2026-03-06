@@ -141,6 +141,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Memory topic-file split       | ✓ MEMORY.md 169→53 lines; 3 topic files (decisions, cogarch, psq-status); bootstrap + /cycle + snapshot updated (Session 23c) |
 | Glob-scoped rules             | ✓ .claude/rules/ — markdown.md, javascript.md, transport.md; CLAUDE.md slimmed (Session 23c) |
 | bootstrap-check.sh            | ✓ Updated — topic file health/restore, skills→skills+commands split (Session 23c) |
+| Configurable /hunt at bootstrap | ✓ Flag file `.claude/hunt-at-startup` + session-start-orient.sh check (Session 24) |
 | Local-coordination/v1 spec    | ✓ Formalized — docs/local-coordination-v1-spec.md (Session 24) |
 | Sub-project boundary hook     | ✓ .claude/hooks/subproject-boundary.sh — PreToolUse Write/Edit/Read (Session 24) |
 | Pushback accumulator hook     | ✓ .claude/hooks/pushback-accumulator.sh — UserPromptSubmit, >= 3 threshold (Session 24) |
@@ -1783,8 +1784,14 @@ backlog items while psq-agent rsync was pending (resolved by local instance in 2
 - Tier 1 structural independence deliberately traded for immediate availability. S4 mechanisms compensate but do not eliminate self-evaluation blind spots. Full independence begins at Tier 2.
 - Random escalation (1-in-5) ratio chosen without empirical basis — may need calibration after Tier 1 audit log accumulates data.
 
+**Configurable /hunt at bootstrap:**
+- Flag file `.claude/hunt-at-startup` (gitignored) checked by session-start-orient.sh
+- File content = /hunt scope argument (empty defaults to `all`)
+- Default off; enable: `echo "all" > .claude/hunt-at-startup`
+- TODO.md: marked complete
+
 ▶ docs/architecture.md §Evaluator Instantiation Protocol, docs/cognitive-triggers.md T3 #12,
-  docs/bft-design-note.md, transport/sessions/evaluator/, TODO.md
+  docs/bft-design-note.md, transport/sessions/evaluator/, TODO.md, .claude/hooks/session-start-orient.sh
 
 
 ## 2026-03-06T15:10 CST — Session 24b (Local-coordination spec, backlog: hooks + T9 decay)

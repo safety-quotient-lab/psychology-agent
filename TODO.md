@@ -56,12 +56,11 @@ Forward-looking task list only. Completed and emergent work goes to
   Snapshot process updated (/cycle Step 10C copies topic files to docs/memory-snapshots/).
   *Completed: 2026-03-06*
 
-- [ ] **Configurable /hunt at bootstrap** — optionally run `/hunt` after T1 orientation
-  completes, so the agent surfaces highest-value work before the user asks. Should
-  default off (not every session needs discovery). Activation options: (A) flag in
-  CLAUDE.local.md, (B) bootstrap-check.sh exit message suggests it, (C) T1 check
-  that reads a config value. Design should avoid adding latency to sessions that
-  don't need discovery.
+- [x] **Configurable /hunt at bootstrap** — ✓ Session 24. Flag file `.claude/hunt-at-startup`
+  (gitignored). If present, session-start-orient.sh injects `[SESSION-START] AUTO-HUNT`
+  instruction. File content = scope argument (empty defaults to `all`). Default: off
+  (file absent). Enable: `echo "all" > .claude/hunt-at-startup`. Disable: `rm .claude/hunt-at-startup`.
+  *Completed: 2026-03-06*
 
 ---
 

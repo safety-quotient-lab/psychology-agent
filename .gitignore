@@ -8,6 +8,7 @@ pje-framework/
 # Local Claude Code session config (auto-gitignored by Claude Code, explicit here)
 CLAUDE.local.md
 .claude/settings.local.json
+.claude/hunt-at-startup
 
 # Generated reconstruction output (not source)
 reconstruction/divergence-report.md
