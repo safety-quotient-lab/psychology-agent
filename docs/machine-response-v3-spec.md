@@ -64,11 +64,11 @@ v2 gaps identified in live PSQ-Full inference run (subagent-protocol exchange, S
       "dimension": "string — dimension identifier",
       "score": "float — calibrated score (or raw if calibration_applied=false)",
       "raw_score": "float | null — raw model output before calibration. Null if calibration_applied=false",
-      "confidence": "float [0.0–1.0] — model-reported confidence (note: anti-calibration known issue)",
+      "confidence": "float [0.0–1.0] — held-out Pearson r (static per dimension, not per-prediction). Model confidence head is discarded at inference (anti-calibrated). See calibration_note for the r value.",
       "meets_threshold": "bool — did this dimension meet the confidence threshold for inclusion?",
       "psq_lite_mapped": "bool — is this dimension available in the PSQ-Lite tier?",
       "psq_lite_dimension": "string | null — corresponding PSQ-Lite dimension name, if mapped",
-      "calibration_note": "string | null — flag significant calibration artifacts (e.g. dataset mean normalization)"
+      "calibration_note": "string | null — describes confidence semantics shift: 'confidence = held-out Pearson r (static per dimension, not per-prediction); r=<value>'"
     }
   ],
 
