@@ -12,6 +12,7 @@
     "model": "distilbert-base-uncased (distilled)",
     "model_version": "psq-student v3",
     "inference_runtime": "onnxruntime-node (CPU)",
+    "calibration": "isotonic regression per-dimension (scripts/calibrate.py, n=1897 val records)",
     "discovery_url": null
   },
   "to": "general-agent (orchestrator)",
@@ -34,11 +35,11 @@
     "requested": true,
     "limitations": [
       {
-        "id": "anti-calibration",
+        "id": "anti-calibration-confidence",
         "severity": "HIGH",
-        "description": "Confidence outputs are anti-calibrated in v3. All 10 dimensions returned confidence < 0.6 (range: 0.416–0.549). The exclusion threshold (0.6) eliminates all dimensions from the aggregate. PSQ composite score (50/100) is a fallback default — not a scored output. Do not interpret 50/100 as neutral.",
+        "description": "Confidence outputs remain anti-calibrated in v3. Score calibration (isotonic regression) is now applied to dimension scores, partially addressing range compression. Confidence values (range: 0.38–0.599) still understate model certainty — confidence calibration is a separate step not yet implemented. All dimensions remain below the 0.6 exclusion threshold. PSQ composite score (50/100) is a fallback default — not a scored output. Do not interpret 50/100 as neutral.",
         "affected_dimensions": "all",
-        "mitigation": "Use per-dimension scores directly. The raw scores are informative even when confidence is low; anti-calibration affects the confidence number, not necessarily the score ordering."
+        "mitigation": "Use calibrated per-dimension scores directly. Score calibration applied via isotonic regression — scores now reflect true distribution range. Confidence values still not calibrated; do not use as reliability indicators."
       },
       {
         "id": "weird-assumptions",
@@ -47,15 +48,15 @@
         "affected_dimensions": ["contractual_clarity", "authority_dynamics"]
       },
       {
-        "id": "energy-dissipation-compression",
-        "severity": "MEDIUM",
-        "description": "Energy dissipation dimension shows compression at the low end. Score of 1.65/10 may understate depletion severity. The model was trained on shorter Reddit posts; longer first-person reflections with sustained depletion markers may be under-scored.",
-        "affected_dimensions": ["energy_dissipation"]
+        "id": "score-calibration-domain-note",
+        "severity": "LOW",
+        "description": "Isotonic regression calibration was fitted on PyTorch model outputs; production inference uses ONNX. PyTorch and ONNX outputs are numerically close but not identical due to export precision. Calibration maps are approximate for ONNX outputs.",
+        "affected_dimensions": "all"
       },
       {
         "id": "composite-excluded",
         "severity": "HIGH",
-        "description": "PSQ composite (50/100) is not usable for this inference. All dimensions excluded from aggregation due to anti-calibration. Composite score is meaningless — report per-dimension scores only.",
+        "description": "PSQ composite (50/100) is not usable for this inference. All dimensions excluded from aggregation due to confidence below threshold. Composite score is meaningless — report per-dimension calibrated scores only.",
         "affected_dimensions": "aggregate"
       }
     ]
@@ -68,147 +69,149 @@
       "status": "excluded — fallback default (all dimensions below confidence threshold)",
       "usable": false
     },
+    "calibration_applied": true,
+    "calibration_method": "isotonic regression per dimension, fitted on 1897 val records",
     "dimensions": [
       {
         "dimension": "energy_dissipation",
-        "score": 1.65,
+        "score": 1.39,
+        "raw_score": 1.24,
         "scale": "0-10",
         "role": "threat",
-        "confidence": 0.549,
+        "confidence": 0.588,
         "meets_threshold": false,
-        "elapsed_ms": 12,
-        "interpretation": "Strong depletion signal. Lowest score of all dimensions. Highest confidence of threat factors. Text markers: 'piling up', 'don't see a way through', 'doesn't feel that way' — sustained exhaustion pattern.",
+        "interpretation": "Strong depletion signal. Lowest calibrated score across all dimensions. High confidence relative to other dimensions. Text markers: 'completely overwhelmed', 'exhausted', 'drowning' — sustained depletion pattern. Calibration shifted from raw 1.24 to 1.39; remains the most salient threat dimension.",
         "psq_lite_mapped": false
       },
       {
         "dimension": "hostility_index",
-        "score": 4.12,
+        "score": 4.30,
+        "raw_score": 3.72,
         "scale": "0-10",
         "role": "threat",
-        "confidence": 0.546,
+        "confidence": 0.599,
         "meets_threshold": false,
-        "elapsed_ms": 12,
-        "interpretation": "Moderate. No explicit hostility markers in text. Score may reflect latent frustration ('keep telling myself it will get better but it doesn't feel that way').",
+        "interpretation": "Moderate. No explicit hostility markers. Score may reflect latent frustration ('keep piling on more tasks without any support or acknowledgment'). Highest confidence of any dimension — borderline threshold.",
         "psq_lite_mapped": false
       },
       {
         "dimension": "threat_exposure",
-        "score": 4.32,
+        "score": 5.51,
+        "raw_score": 4.92,
         "scale": "0-10",
         "role": "threat",
-        "confidence": 0.423,
+        "confidence": 0.425,
         "meets_threshold": false,
-        "elapsed_ms": 1219,
-        "interpretation": "Moderate. Work pressure framed as accumulating and inescapable ('piling up', 'don't see a way through'). Not acute threat — chronic pressure pattern.",
+        "interpretation": "Elevated. Work pressure accumulating and inescapable ('piling on', 'struggling to keep up'). Calibration expanded from raw 4.92 to 5.51 — model was underestimating relative to true distribution.",
         "psq_lite_mapped": true,
         "psq_lite_dimension": "threat_exposure"
       },
       {
         "dimension": "authority_dynamics",
-        "score": 3.79,
+        "score": 4.81,
+        "raw_score": 3.27,
         "scale": "0-10",
         "role": "threat",
-        "confidence": 0.444,
+        "confidence": 0.454,
         "meets_threshold": false,
-        "elapsed_ms": 12,
-        "interpretation": "Moderate. No explicit authority figures named. Score may reflect implicit power asymmetry (work demands framed as external imposition).",
+        "interpretation": "Moderate-elevated. Power asymmetry implied ('my manager keeps piling on'). Calibration significantly expanded from raw 3.27 to 4.81 — this dimension showed strong compression in the raw model.",
         "psq_lite_mapped": false
       },
       {
         "dimension": "regulatory_capacity",
-        "score": 4.05,
+        "score": 3.45,
+        "raw_score": 3.63,
         "scale": "0-10",
         "role": "protective",
-        "confidence": 0.475,
+        "confidence": 0.495,
         "meets_threshold": false,
-        "elapsed_ms": 12,
-        "interpretation": "Below midpoint. Some regulatory attempt visible ('keep telling myself it will get better') but self-talk framed as ineffective.",
+        "interpretation": "Below midpoint. Some regulatory attempt present ('struggling to keep up' implies effort) but no active coping strategy named.",
         "psq_lite_mapped": false
       },
       {
         "dimension": "resilience_baseline",
-        "score": 2.96,
+        "score": 3.13,
+        "raw_score": 2.84,
         "scale": "0-10",
         "role": "protective",
-        "confidence": 0.455,
+        "confidence": 0.470,
         "meets_threshold": false,
-        "elapsed_ms": 13,
         "interpretation": "Low. Recovery capacity depleted. No evidence of prior successful coping in text.",
         "psq_lite_mapped": true,
         "psq_lite_dimension": "resilience_baseline"
       },
       {
         "dimension": "trust_conditions",
-        "score": 2.96,
+        "score": 5.00,
+        "raw_score": 3.05,
         "scale": "0-10",
         "role": "protective",
-        "confidence": 0.425,
+        "confidence": 0.442,
         "meets_threshold": false,
-        "elapsed_ms": 14,
-        "interpretation": "Low. Absence of trust indicators — no mention of supportive relationships, safety, or predictable environment.",
+        "interpretation": "Midpoint. Major calibration shift: raw 3.05 → calibrated 5.00. This dimension had the strongest compression in the raw model (compress ratio 0.70→0.55). The 5.0 may reflect calibration normalizing toward the dataset mean rather than a genuine trust signal in this text.",
         "psq_lite_mapped": true,
         "psq_lite_dimension": "trust_conditions"
       },
       {
         "dimension": "cooling_capacity",
-        "score": 4.22,
+        "score": 4.76,
+        "raw_score": 3.51,
         "scale": "0-10",
         "role": "protective",
-        "confidence": 0.416,
+        "confidence": 0.473,
         "meets_threshold": false,
-        "elapsed_ms": 13,
-        "interpretation": "Below midpoint. Lowest confidence of all dimensions. Text provides few signals for de-escalation capacity.",
+        "interpretation": "Moderate. Calibration expanded from raw 3.51 to 4.76. Text provides few explicit de-escalation signals.",
         "psq_lite_mapped": false
       },
       {
         "dimension": "defensive_architecture",
-        "score": 2.94,
+        "score": 3.80,
+        "raw_score": 2.97,
         "scale": "0-10",
         "role": "protective",
-        "confidence": 0.5,
+        "confidence": 0.544,
         "meets_threshold": false,
-        "elapsed_ms": 14,
-        "interpretation": "Low. No protective structures visible in text — no named coping strategies, support systems, or boundaries.",
+        "interpretation": "Low-moderate. No protective structures named — no coping strategies, support systems, or explicit boundaries.",
         "psq_lite_mapped": false
       },
       {
         "dimension": "contractual_clarity",
-        "score": 4.9,
+        "score": 4.50,
+        "raw_score": 4.89,
         "scale": "0-10",
         "role": "protective",
-        "confidence": 0.42,
+        "confidence": 0.380,
         "meets_threshold": false,
-        "elapsed_ms": 12,
-        "interpretation": "Highest protective score. Some clarity about the situation present ('work is piling up' is specific). Low confidence — culturally situated construct.",
+        "interpretation": "Moderate. Situation is specific ('manager keeps piling on tasks') — some clarity about the stressor. Lowest confidence. Calibration compressed slightly from raw 4.89 to 4.50.",
         "psq_lite_mapped": false
       }
     ]
   },
 
   "psq_lite_coverage": {
-    "note": "3 of 10 dimensions map to PSQ-Lite (obs). The most clinically salient signal (energy_dissipation: 1.65) is NOT in PSQ-Lite.",
+    "note": "3 of 10 dimensions map to PSQ-Lite (obs). The most salient threat signal (energy_dissipation: 1.39 calibrated) is NOT in PSQ-Lite.",
     "psq_lite_scores": {
-      "threat_exposure": {"score": 4.32, "confidence": 0.423},
-      "trust_conditions": {"score": 2.96, "confidence": 0.425},
-      "resilience_baseline": {"score": 2.96, "confidence": 0.455}
+      "threat_exposure": {"score": 5.51, "confidence": 0.425},
+      "trust_conditions": {"score": 5.00, "confidence": 0.442},
+      "resilience_baseline": {"score": 3.13, "confidence": 0.470}
     },
     "unmapped_in_psq_lite": ["energy_dissipation", "hostility_index", "authority_dynamics", "regulatory_capacity", "cooling_capacity", "defensive_architecture", "contractual_clarity"],
-    "information_loss_example": "energy_dissipation (1.65, conf 0.549) is the strongest signal in this text. PSQ-Lite would miss it entirely. A triage pass using PSQ-Lite would flag this text as moderate (threat_exposure 4.32) rather than high-concern (energy_dissipation 1.65)."
+    "information_loss_example": "energy_dissipation (1.39 calibrated, conf 0.588) is the strongest threat signal in this text. PSQ-Lite would miss it entirely. A triage pass using PSQ-Lite would flag this text as moderate (threat_exposure 5.51) rather than high-concern depletion (energy_dissipation 1.39, lowest score of all dimensions)."
   },
 
   "claims": [
     {
-      "claim_id": "scores-produced",
-      "text": "All 10 PSQ-Full dimensions scored in one forward pass. Raw scores reflect model output. Confidence values are anti-calibrated — they understate actual model certainty and should not be used as reliability indicators without recalibration.",
+      "claim_id": "scores-produced-calibrated",
+      "text": "All 10 PSQ-Full dimensions scored in one forward pass with isotonic regression calibration applied to scores. Calibration fitted on 1897 validation records from Dreaddit corpus. Confidence values remain uncalibrated — they understate actual model certainty.",
       "confidence": 0.85,
-      "confidence_basis": "Direct ONNX inference. 0.85 not 1.0: known anti-calibration issue means score reliability cannot be fully quantified from model outputs alone.",
+      "confidence_basis": "Direct ONNX inference + calibration.json loaded. 0.85 not 1.0: calibration fitted on PyTorch outputs, applied to ONNX — small domain mismatch. Confidence anti-calibration not yet addressed.",
       "independently_verified": false
     },
     {
       "claim_id": "energy-dissipation-primary-signal",
-      "text": "Energy dissipation (1.65/10) is the primary clinical signal in this text. It has the highest confidence of all threat dimensions (0.549) and the lowest score. The text presents a sustained depletion pattern, not an acute crisis.",
+      "text": "Energy dissipation (1.39/10 calibrated) is the primary threat signal in this text. Lowest calibrated score of all dimensions. High relative confidence (0.588). The text presents sustained depletion ('overwhelmed', 'exhausted', 'drowning') consistent with energy_dissipation as the primary concern.",
       "confidence": 0.80,
-      "confidence_basis": "Score ordering consistent with text content. Confidence capped at 0.80 due to anti-calibration issue — cannot rule out that another dimension is actually primary.",
+      "confidence_basis": "Score ordering consistent with text content. Confidence capped at 0.80: anti-calibration on confidence values means we cannot rule out score rank-ordering is affected.",
       "independently_verified": false
     },
     {
@@ -216,6 +219,13 @@
       "text": "PSQ composite (50/100) is the fallback default — all dimensions excluded. Do not report this score to end users or use in downstream calculations.",
       "confidence": 1.0,
       "confidence_basis": "All 10 confidence values below 0.6 threshold; aggregation code returns default 50 when n=0 included dimensions.",
+      "independently_verified": false
+    },
+    {
+      "claim_id": "trust-conditions-calibration-artifact",
+      "text": "trust_conditions jump from raw 3.05 to calibrated 5.00 is partially a calibration artifact. The isotonic map for trust_conditions had compression ratio 0.70→0.55 — a large correction — and the 5.0 midpoint may reflect the calibration map's bias toward the dataset mean rather than a genuine neutrality signal in this specific text.",
+      "confidence": 0.65,
+      "confidence_basis": "Calibration report showed trust_conditions had among the strongest compression corrections. Inference from pattern, not direct measurement.",
       "independently_verified": false
     }
   ],
@@ -242,33 +252,41 @@
         "gap_id": "psq-lite-mapping",
         "description": "No field in v2 marks which scores are available in the PSQ-Lite tier. Added psq_lite_mapped: boolean per dimension — not in v2 spec. Required for the triage integration pattern.",
         "proposed_field": "dimensions[].psq_lite_mapped: boolean, dimensions[].psq_lite_dimension: string"
+      },
+      {
+        "gap_id": "calibration-status",
+        "description": "No v2 field declares whether and what calibration was applied to scores. Raw vs. calibrated scores have meaningfully different interpretations — a receiver cannot determine which they received without out-of-band knowledge. Added scores.calibration_applied and from.calibration fields — not in v2 spec.",
+        "proposed_field": "scores.calibration_applied: boolean, scores.calibration_method: string, dimensions[].raw_score: number"
       }
     ]
   },
 
   "action_gate": {
-    "gate_condition": "Composite score is not usable. Per-dimension scores are available with caveats. Do not use PSQ-Full scores in clinical decision-making without human review.",
+    "gate_condition": "Composite score is not usable. Calibrated per-dimension scores are available. Do not use PSQ-Full scores in clinical decision-making without human review.",
     "gate_status": "open",
-    "gate_note": "Scores are informative for research and derivation purposes. Anti-calibration means confidence values understate reliability — treat all dimensions as provisional."
+    "gate_note": "Score calibration applied. Confidence calibration is a remaining gap — confidence values still understate reliability."
   },
 
   "source": {
     "url": null,
     "classification": "model-inference",
     "fetch_accessible": true,
-    "fetch_method": "local ONNX inference — model_quantized.onnx, onnxruntime-node",
-    "source_confidence": 0.75,
-    "source_confidence_basis": "Model is validated (r=0.684 on Dreaddit held-out). Anti-calibration issue and partial domain shift reduce confidence below 1.0."
+    "fetch_method": "local ONNX inference — model_quantized.onnx, onnxruntime-node + isotonic calibration",
+    "source_confidence": 0.78,
+    "source_confidence_basis": "Model validated (r=0.684 Dreaddit held-out). Score calibration applied (+3.5%–+21.6% MAE improvement per dimension). Confidence anti-calibration and partial domain shift still reduce confidence below 1.0."
   },
 
   "setl": 0.08,
-  "setl_definition": "Low inferential distance. Editorial layer adds interpretation of score patterns; structural layer contains raw model outputs. Interpretations are clearly labeled and capped at 0.80 confidence.",
+  "setl_definition": "Low inferential distance. Editorial layer adds interpretation of score patterns and calibration artifacts; structural layer contains raw model outputs and calibrated scores. Interpretations are clearly labeled and capped at 0.80 confidence.",
 
   "epistemic_flags": [
-    "PSQ composite 50/100 is a fallback default — all 10 dimensions below confidence threshold. Do not use composite.",
-    "Anti-calibration: confidence values (0.416–0.549) understate model reliability. Recalibration via isotonic regression is implemented but not applied here — recalibration data not loaded.",
-    "Domain shift: text labeled 'clinical reflection' — Dreaddit training data is social media stress. Partial overlap; confidence penalty applied implicitly via lower model certainty.",
+    "PSQ composite 50/100 is a fallback default — all 10 dimensions below 0.6 confidence threshold. Do not use composite.",
+    "Score calibration applied (isotonic regression, n=1897). Confidence values remain uncalibrated — range 0.38–0.599 understates actual model certainty.",
+    "trust_conditions calibrated score (5.00) may be a calibration artifact — large compression correction may normalize toward dataset mean rather than true signal.",
+    "Calibration domain mismatch: maps fitted on PyTorch outputs, applied to ONNX. Small numerical difference; treated as acceptable approximation.",
+    "Domain shift: text labeled 'clinical reflection' — Dreaddit training is social media stress. Partial overlap; confidence penalty applies.",
     "WEIRD assumptions apply to culturally situated dimensions (contractual_clarity, authority_dynamics).",
-    "energy_dissipation (1.65) is the most salient signal and NOT covered by PSQ-Lite — concrete information loss example for Item 2a derivation."
+    "energy_dissipation (1.39 calibrated) is the most salient threat signal and NOT covered by PSQ-Lite — concrete information loss example for Item 2a derivation.",
+    "New schema gap identified: no v2 field distinguishes raw from calibrated scores. Added raw_score field and calibration_applied flag — not in v2 spec (Gap #5)."
   ]
 }
