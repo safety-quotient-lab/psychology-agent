@@ -227,11 +227,11 @@ dimensions.
 1. **General agent design** — ✓ Complete (Session 16). Routing, identity, evaluator
    reasoning procedures.
 
-2. **Sub-agent protocol** — expanded scope (symmetric peer topology, 2026-03-05):
-   - **2a Sub-agent layer**: request/response format, scope declaration, PSQ binding.
-     Derive via plan9port live exchange.
-   - **2b Peer layer**: two equal-weight general agent instances. V2 comm schema is
-     the starting point. Peer disagreement routing to evaluator is the open contract.
+2. **Sub-agent protocol** — ✓ Complete (2026-03-06):
+   - **2a Sub-agent layer**: ✓ docs/item2a-spec.md — 6 derivation findings, PSQ binding,
+     interagent/v1 + schema v3, machine-response/v3 spec (docs/machine-response-v3-spec.md).
+   - **2b Peer layer**: ✓ docs/item2b-spec.md — role declaration, divergence detection,
+     evaluator tier binding, precedence protocol, convergence thresholds, SETL ranges.
 
 3. **Adversarial evaluator** — ✓ Complete (Session 17). Reasoning procedures,
    tiered activation logic (Lite/Standard/Full), activation triggers (7 types),
