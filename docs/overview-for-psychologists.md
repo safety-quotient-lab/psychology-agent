@@ -1,4 +1,4 @@
-# A Psychology-Facing Overview of the General-Purpose Psychology Agent
+# A Psychology-Facing Overview of the Psychology Agent
 
 **Audience:** Psychology researchers, clinicians, and academics
 **Date:** 2026-03-01
@@ -11,7 +11,7 @@ question: can the rigorous methodology of psychometrics — construct definition
 measurement, validation, criterion testing — be applied to concepts that
 psychology has named but not yet operationalized?
 
-The system is organized around a **general-purpose psychology agent** that
+The system is organized around a **psychology agent** that
 functions as a collegial mentor: an analytically rigorous partner capable of
 applying established psychological frameworks to novel problems, routing to
 specialized sub-agents when domain expertise is required, and maintaining
@@ -114,13 +114,13 @@ dimensions. PJE originated as an operational vocabulary of 71 terms in 2022.
 The agent treats PJE as a **hypothesis space, not a specification.** The PSQ
 project demonstrated what rigorous evaluation of that vocabulary looks like: 71
 terms were reduced to 10 empirically defensible dimensions through construct
-definition, psychometric validation, and criterion testing. The general agent
+definition, psychometric validation, and criterion testing. The psychology agent
 will apply the same process to the rest of the framework — evaluating which
 constructs are novel (vs. redundant with existing literature), measurable
 (vs. theoretically coherent but operationally undefined), and empirically
 distinguishable (vs. collinear with adjacent constructs).
 
-This is the first real-world application of the general agent, and it is
+This is the first real-world application of the psychology agent, and it is
 deliberately self-critical. The framework is not privileged within the system
 that evaluates it.
 
@@ -141,7 +141,7 @@ This is operationalized through four principles:
 3. **Scope honesty.** State explicitly when a question exceeds the validated
    scope of available instruments.
 4. **Adversarial evaluation.** A separate evaluator layer can challenge any
-   sub-agent's output — including the general agent itself — when disagreement
+   sub-agent's output — including the psychology agent itself — when disagreement
    or overreach is detected.
 
 

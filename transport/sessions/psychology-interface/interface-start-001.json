@@ -6,7 +6,7 @@
   "message_type": "status-update",
   "from": {
     "agent_id": "psychology-agent",
-    "role": "general-agent",
+    "role": "psychology-agent",
     "instance": "Claude Code (Sonnet 4.6), macOS arm64",
     "schemas_supported": [
       "interagent/v1",

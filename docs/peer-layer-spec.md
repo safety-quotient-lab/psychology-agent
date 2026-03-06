@@ -9,7 +9,7 @@
 
 ## Overview
 
-The peer layer (2b) specifies how two equal-weight general-agent instances communicate.
+The peer layer (2b) specifies how two equal-weight psychology-agent instances communicate.
 This differs from the sub-agent layer (2a, orchestrator → sub-agent) in three ways:
 
 | Dimension | Sub-agent layer (2a) | Peer layer (2b) |
@@ -25,14 +25,14 @@ This spec formalizes what that exchange demonstrated.
 
 ## Peer Identity Declaration
 
-In a peer exchange, both agents declare themselves as `general-agent` instances
+In a peer exchange, both agents declare themselves as `psychology-agent` instances
 in the capability handshake `from` block. This distinguishes peer-layer messages
 from sub-agent messages, where `from.agent_id` identifies the domain.
 
 ```json
 "from": {
   "agent_id": "psychology-agent",
-  "role": "general-agent",
+  "role": "psychology-agent",
   "instance": "Claude Code (Sonnet 4.6), Debian x86_64",
   "session_range": "Sessions 1–9 (closed) | Sessions 10+ (active)",
   "schemas_supported": [
@@ -44,16 +44,16 @@ from sub-agent messages, where `from.agent_id` identifies the domain.
 }
 ```
 
-**`role: "general-agent"`** is the peer marker. Sub-agents use
+**`role: "psychology-agent"`** is the peer marker. Sub-agents use
 `role: "psq-sub-agent"` or equivalent domain identifier.
-A receiver that sees `role: "general-agent"` applies peer-layer
+A receiver that sees `role: "psychology-agent"` applies peer-layer
 protocol, not orchestrator-to-sub-agent protocol.
 
 ---
 
 ## Divergence Detection
 
-Two general-agent instances run in separate sessions and accumulate
+Two psychology-agent instances run in separate sessions and accumulate
 divergent context. The peer layer needs a way to signal and measure this.
 
 ### Context delta signaling
@@ -167,7 +167,7 @@ on interpretive claims — those require evaluation.
 
 When two peers independently reach the same finding, `convergence_signals[]`
 activates evaluator procedure 6. In a peer exchange this has heightened
-significance: convergence between two general-agent instances running in
+significance: convergence between two psychology-agent instances running in
 separate sessions, with different context histories, provides stronger
 epistemic weight than single-source confidence.
 

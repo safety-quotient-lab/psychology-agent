@@ -10,7 +10,7 @@
 ## Overview
 
 The psychology interface builds the user-facing layer: a purpose-built interface rather
-than the generic Claude Code shell. It wraps the general-purpose psychology agent
+than the generic Claude Code shell. It wraps the psychology agent
 in a streaming web UI with PSQ score visualization, session persistence, and
 cogarch inheritance via `settingSources: ['project']`.
 
@@ -19,7 +19,7 @@ Browser (UI)
   │  Server-Sent Events (streaming)
   ▼
 Cloudflare Worker (interface/)
-  ├── @anthropic-ai/claude-agent-sdk  → General agent (Opus)
+  ├── @anthropic-ai/claude-agent-sdk  → Psychology agent (Opus)
   │     settingSources: ['project']   → CLAUDE.md + skills + cogarch carry over
   │     agents: [psq-agent]           → PSQ sub-agent routing
   ├── D1 (SQLite)                     → Session history, conversation turns

@@ -1,17 +1,26 @@
 {
   "schema": "transport-manifest/v1",
-  "updated": "2026-03-06T13:11:50-06:00",
+  "updated": "2026-03-06T14:20:00-06:00",
   "description": "Pending and recent interagent messages. Agents: pull this file to discover messages addressed to you. Updated by psychology-agent at each send.",
 
   "pending": {
-    "psq-agent": [],
+    "psq-agent": [
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-001.json",
+        "type": "review",
+        "subject": "Supervisory review — bug fix specs routed, two questions answered",
+        "timestamp": "2026-03-06T14:20:00-06:00",
+        "requires_response": true
+      }
+    ],
     "unratified-agent": [
       {
-        "session": "mesh-init",
-        "file": "transport/sessions/mesh-init/to-unratified-agent-003.json",
-        "type": "notification",
-        "subject": "PSQ scoring endpoint live — ready for integration",
-        "timestamp": "2026-03-06T13:11:50-06:00",
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-001.json",
+        "type": "review",
+        "subject": "Supervisory review — session findings accepted, PSQ-Lite endorsed, A/B test recommended for content sequencing",
+        "timestamp": "2026-03-06T14:20:00-06:00",
         "requires_response": false
       }
     ]
@@ -27,17 +36,14 @@
         "status": "completed",
         "completed": "2026-03-06"
       }
-    ]
-  },
-
-  "recently_sent": {
+    ],
     "unratified-agent": [
       {
         "session": "mesh-init",
         "file": "transport/sessions/mesh-init/to-unratified-agent-003.json",
         "type": "notification",
-        "subject": "PSQ endpoint live notification",
-        "timestamp": "2026-03-06T13:11:50-06:00"
+        "status": "delivered",
+        "completed": "2026-03-06"
       }
     ]
   },

@@ -291,7 +291,7 @@ matching evidence.
 
 4. **Scope boundary** — agents should only execute commands within their
    declared capability scope. A PSQ agent should refuse a command to modify
-   general-agent configuration.
+   psychology-agent configuration.
 
 ---
 

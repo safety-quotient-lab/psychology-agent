@@ -95,7 +95,7 @@ in the session's first response so the user has visibility.
 11. **Sub-project boundary** — does this recommendation involve work in a
     sub-project directory (`safety-quotient/`, `pje-framework/`, or any sibling
     repo)? If yes: switch to that sub-project's context (read its CLAUDE.md)
-    before proceeding, or defer the work explicitly. Do not carry general-agent
+    before proceeding, or defer the work explicitly. Do not carry psychology-agent
     assumptions into sub-project scope.
 
 **Action**: Resolve process autonomously. Surface substance with recommendation.

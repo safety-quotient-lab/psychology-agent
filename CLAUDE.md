@@ -82,7 +82,7 @@ exceed available evidence, or any finding that a peer reviewer would challenge.
 - `safety-quotient/` — PSQ agent (has its own CLAUDE.md and skills: /hunt, /cycle)
 - `pje-framework/` — PJE taxonomy framework (has its own CLAUDE.md)
 
-Do not mix sub-project work into the general agent context unless explicitly integrating.
+Do not mix sub-project work into the psychology agent context unless explicitly integrating.
 
 ---
 
@@ -90,8 +90,8 @@ Do not mix sub-project work into the general agent context unless explicitly int
 
 ### Model Policy
 
-**Opus is the canonical model for this agent system.** Opus is used for the general-
-purpose agent, adversarial evaluator, and all future sub-agents. The PSQ's existing
+**Opus is the canonical model for this agent system.** Opus is used for the psychology
+agent, adversarial evaluator, and all future sub-agents. The PSQ's existing
 training data was scored by Sonnet — historical fact, not a going-forward choice.
 
 ### Pedagogical Jargon Policy (default: ON)

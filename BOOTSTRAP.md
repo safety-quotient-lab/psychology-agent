@@ -1,4 +1,4 @@
-# Bootstrap Guide — General-Purpose Psychology Agent
+# Bootstrap Guide — Psychology Agent
 
 How to bring a fresh Claude Code session to full project context.
 
@@ -131,7 +131,7 @@ Each sub-project has its own CLAUDE.md and memory:
   Read its own CLAUDE.md before doing any PSQ work.
 - `pje-framework/` — PJE taxonomy site. Has its own CLAUDE.md.
 
-Do not mix sub-project work into the general agent context unless
+Do not mix sub-project work into the psychology agent context unless
 explicitly integrating them.
 
 ---

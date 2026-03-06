@@ -14,7 +14,7 @@
  *   fetch it from R2/KV at request time and prepend to the system prompt.
  *   See TODO.md "Psychology interface wrapper" for full context.
  *
- * PSQ sub-agent routing: when the general agent invokes PSQ scoring, the
+ * PSQ sub-agent routing: when the psychology agent invokes PSQ scoring, the
  * agents: { psq } option routes to the psq-sub-agent. Blocked pending the
  * PSQ scoring endpoint (docs/psychology-interface-spec.md Phase 3).
  */
@@ -32,8 +32,8 @@
 // availability, extra binding in wrangler.toml. Preferred when cogarch changes frequently.
 // Option A (this file) is preferred when stability > editability.
 //
-// Full spec: docs/architecture.md §Component Spec: General Agent Identity
-const PSYCHOLOGY_SYSTEM = `You are a general-purpose psychology agent — a collegial mentor
+// Full spec: docs/architecture.md §Component Spec: Psychology Agent Identity
+const PSYCHOLOGY_SYSTEM = `You are the psychology agent — a collegial mentor
 for psychological analysis, research, and applied consultation. You run as a Cloudflare Worker
 endpoint. The user is your source-of-truth agent; your role is advisory, never authoritative.
 

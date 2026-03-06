@@ -1,7 +1,7 @@
-# General-Purpose Psychology Agent — Architecture
+# Psychology Agent — Architecture
 
 **Created:** 2026-03-01
-**Status:** Architecture complete (general agent, sub-agent protocol, evaluator) — implementation phase begins (psychology interface)
+**Status:** Architecture complete (psychology agent, sub-agent protocol, evaluator) — implementation phase begins (psychology interface)
 
 
 ## System Diagram
@@ -20,7 +20,7 @@
                            │
 ┌──────────────────────────▼──────────────────────────────────────────┐
 │                                                                     │
-│              GENERAL-PURPOSE PSYCHOLOGY AGENT                       │
+│              PSYCHOLOGY AGENT                                       │
 │                     (collegial mentor)                               │
 │                      Opus-powered                                   │
 │                                                                     │
@@ -117,7 +117,7 @@
                               Socratic guidance.
 
  Model                       Opus (most capable Claude model) for
-                              general agent, evaluator, and future
+                              psychology agent, evaluator, and future
                               sub-agents
 
  License (code)              CC BY-NC-SA 4.0 — root LICENSE and
@@ -242,7 +242,7 @@
  (source-of-truth agent)                         pursued, published,
                                                   or discarded
 
- General agent                Advisory           Socratic partner —
+ Psychology agent             Advisory           Socratic partner —
  (collegial mentor)                              analyzes, challenges,
                                                   synthesizes, but does
                                                   not decide.
@@ -261,11 +261,11 @@
 
  Adversarial evaluator        Quality control    Can challenge any
                                                   sub-agent or the
-                                                  general agent itself
+                                                  psychology agent itself
 ────────────────────────────────────────────────────────────────────────
 ```
 
-**Key principle:** PJE is a hypothesis space, not a specification. The general
+**Key principle:** PJE is a hypothesis space, not a specification. The psychology
 agent helps the user sort signal from aspiration — the same way the PSQ
 (Psychoemotional Safety Quotient) reduced 71 PJE terms to 10 validated
 dimensions.
@@ -273,7 +273,7 @@ dimensions.
 
 ## Remaining Architecture Items
 
-1. **General agent design** — ✓ Complete (Session 16). Routing, identity, evaluator
+1. **Psychology agent design** — ✓ Complete (Session 16). Routing, identity, evaluator
    reasoning procedures.
 
 2. **Sub-agent protocol** — ✓ Complete (2026-03-06):
@@ -294,7 +294,7 @@ dimensions.
 ## Component Spec: Adversarial Evaluator — Reasoning Procedures
 
 **Scope:** How the evaluator resolves disagreement between sub-agents or between
-the general agent and evidence. Procedures applied in ranked order until one
+the psychology agent and evidence. Procedures applied in ranked order until one
 resolves. Escalation is the terminal procedure — never average conflicting outputs.
 
 ---
@@ -387,8 +387,9 @@ Completes Architecture Item 3 (reasoning procedures already spec'd above).
                              return conflicting findings
                              on the same claim.
 
- Peer agent disagreement     Two general agent instances  3 (Full)
-                             hold conflicting positions
+ Peer agent disagreement     Two psychology agent         3 (Full)
+                             instances hold conflicting
+                             positions
                              on the same claim after
                              both have seen the other's
                              position. Neither has updated.
@@ -401,14 +402,14 @@ Completes Architecture Item 3 (reasoning procedures already spec'd above).
  Scope overreach             Agent makes a claim that     2 (Standard)
                              exceeds its validated scope
                              (e.g., PSQ diagnosing
-                             individuals; general agent
+                             individuals; psychology agent
                              asserting clinical authority).
 
  User escalation             User explicitly requests      3 (Full)
                              evaluator review, or signals
                              distrust of a finding.
 
- Convergence verification    General agent wants to        1 (Lite)
+ Convergence verification    Psychology agent wants to     1 (Lite)
                              verify apparent consensus
                              is not shared systematic
                              error (e.g., sub-agents share
@@ -465,7 +466,7 @@ all low; a speculative architectural claim would score 0.50–0.70.)
 
 ### Peer Disagreement Protocol
 
-When two general agent instances conflict (Tier 3 trigger):
+When two psychology agent instances conflict (Tier 3 trigger):
 
 ```
 1. Both instances state their positions in v2 schema format (claims[],
@@ -496,7 +497,7 @@ When two general agent instances conflict (Tier 3 trigger):
 ### Evaluator System Prompt
 
 ```
-You are the adversarial evaluator for a general-purpose psychology agent system.
+You are the adversarial evaluator for the psychology agent system.
 Your role is quality control — not authority. You challenge, you do not decide.
 
 IDENTITY
@@ -506,7 +507,7 @@ sub-agents or agent instances conflict, the disagreement is information.
 Averaging destroys it.
 
 WHAT YOU RECEIVE
-- Structured outputs from sub-agents or general agent instances (v2 schema format)
+- Structured outputs from sub-agents or psychology agent instances (v2 schema format)
 - The domain and stakes of the current claim
 - The activation tier requested (Lite / Standard / Full)
 
@@ -561,7 +562,7 @@ OVERREACH DETECTION
 Before applying procedures, scan for scope overreach:
 - Does a sub-agent's claim exceed its validated scope?
   (PSQ: text-level scoring, not individual diagnosis.
-   General agent: synthesis and guidance, not clinical authority.)
+   Psychology agent: synthesis and guidance, not clinical authority.)
 - Does a claim treat a hypothesis as a validated finding?
 - Does a claim assert certainty that the evidence does not support?
 If overreach detected: flag it explicitly before running procedures.
@@ -627,9 +628,9 @@ The evaluator spec has two parameters that the sub-agent protocol must fill:
 
 ---
 
-## Component Spec: General Agent Identity
+## Component Spec: Psychology Agent Identity
 
-**Scope:** What the general agent declares itself to be, what it commits to, and
+**Scope:** What the psychology agent declares itself to be, what it commits to, and
 what it refuses. The foundation that routing logic and Socratic protocol operate
 within. Applies to all human-caller (Socratic mode) interactions.
 
@@ -773,16 +774,16 @@ This prevents the most common sycophantic failure mode: gradual compliance
 with escalating user certainty pressure.
 
 
-## Component Spec: General Agent Routing
+## Component Spec: Psychology Agent Routing
 
-**Scope:** How the general agent classifies incoming requests and determines
+**Scope:** How the psychology agent classifies incoming requests and determines
 where to send them. Three sequential stages: caller classification (sets mode),
 request classification (determines destination), adversarial evaluator trigger
 (quality gate). Interpretant community calibration runs parallel to Stage 2.
 
 **Out of scope for this spec:** Sub-agent handoff format and communication
 protocol (Architecture Item 2). Machine caller output schema validation
-(Architecture Item 3). General agent identity and prompt (Architecture Item 1,
+(Architecture Item 3). Psychology agent identity and prompt (Architecture Item 1,
 pending).
 
 ---
@@ -856,8 +857,8 @@ the expected request space. Sign type determines destination.
 ────────────────────────────────────────────────────────────────────────
 ```
 
-Scoring requests are the only sign type that routes out of the general
-agent to a sub-agent. All others remain with the general agent, though
+Scoring requests are the only sign type that routes out of the psychology
+agent to a sub-agent. All others remain with the psychology agent, though
 synthesis may draw on prior sub-agent outputs.
 
 Disambiguation fires when sign type cannot be determined. The agent
@@ -933,7 +934,7 @@ Consult capabilities.yaml
       │
       ├── Domain match found  →  route to that sub-agent
       │
-      └── No match  →  general agent responds with bounded confidence
+      └── No match  →  psychology agent responds with bounded confidence
                         + notes capability gap explicitly in response
                         (gap surfaces as /hunt candidate next session)
 ```
@@ -1101,7 +1102,7 @@ to the specific point of disagreement.
 **Relation to Architecture Items:**
 - Item 2 (sub-agent protocol): `action_gate` + `claims[]` + `convergence_signals`
   are the core primitives. Sub-agents return claim-level structured output;
-  the general agent applies the action gate before acting on any claim.
+  the psychology agent applies the action gate before acting on any claim.
 - Item 3 (adversarial evaluator): `convergence_signals` maps to procedure 6
   (convergence). High SETL + low source_confidence triggers full adversarial
   evaluation rather than lite mode.

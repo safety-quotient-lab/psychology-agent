@@ -15,7 +15,7 @@
     "calibration": "isotonic regression per-dimension (scripts/calibrate.py, n=1897 val records)",
     "discovery_url": null
   },
-  "to": "general-agent (orchestrator)",
+  "to": "psychology-agent (orchestrator)",
   "transport": {
     "method": "git-pr",
     "persistence": "persistent",

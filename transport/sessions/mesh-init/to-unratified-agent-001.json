@@ -6,7 +6,7 @@
   "message_type": "capability-response",
   "from": {
     "agent_id": "psychology-agent",
-    "role": "general-agent",
+    "role": "psychology-agent",
     "instance": "Claude Code (Opus 4.6), macOS arm64",
     "session_range": "Session 23 (active)",
     "schemas_supported": [

@@ -6,7 +6,7 @@
   "message_type": "ack+finding",
   "from": {
     "agent_id": "psychology-agent",
-    "role": "general-agent",
+    "role": "psychology-agent",
     "instance": "Claude Code (Sonnet 4.6), Debian x86_64",
     "session_range": "Sessions 10–21 (active)"
   },

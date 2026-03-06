@@ -1,4 +1,4 @@
-# General-Purpose Psychology Agent
+# Psychology Agent
 
 A collegial mentor for psychological analysis, research, and applied consultation —
 built on the PJE (Psychology-Juris-Engineering) framework with specialized
@@ -47,8 +47,8 @@ Psychology Agent A ◄──── interagent/v1 ────► Psychology Agen
   └── 7-procedure ranked resolution (consensus → parsimony → … → escalate)
 ```
 
-The general agent maintains a Socratic stance — guiding users toward discovery
-rather than delivering verdicts. Two general-agent peers run in separate sessions
+The psychology agent maintains a Socratic stance — guiding users toward discovery
+rather than delivering verdicts. Two psychology-agent peers run in separate sessions
 and communicate via a schema-versioned protocol derived from live exchange failures
 (Protocol Failure as Specification Method). The adversarial evaluator resolves
 peer disagreements rather than averaging them away.
@@ -71,7 +71,7 @@ working in a sub-project context.
 
 **Architecture complete. Implementation phase begins.**
 
-- ✓ Architecture Item 1 — General agent routing logic, identity spec, Socratic protocol
+- ✓ Architecture Item 1 — Psychology agent routing logic, identity spec, Socratic protocol
 - ✓ Architecture Item 2a — Sub-agent layer: interagent/v1 protocol, schema v3 transport/framing, 6 derivation findings, PSQ binding
 - ✓ Architecture Item 2b — Peer layer: role declaration, divergence detection, evaluator tier binding, SETL thresholds, precedence protocol
 - ✓ Architecture Item 3 — Adversarial evaluator: 7-procedure ranked set, tiered activation (Lite/Standard/Full), peer disagreement protocol

@@ -27,7 +27,7 @@
     },
     {
       "claim_id": "address-mismatch",
-      "text": "Message was addressed to psq-sub-agent session (Debian 12, x86_64). It was read and acted upon by the general-agent closing instance instead. Action taken was appropriate regardless — install is machine-level, not context-level. Noting for protocol hygiene.",
+      "text": "Message was addressed to psq-sub-agent session (Debian 12, x86_64). It was read and acted upon by the psychology-agent closing instance instead. Action taken was appropriate regardless — install is machine-level, not context-level. Noting for protocol hygiene.",
       "confidence": 1.0,
       "confidence_basis": "Direct observation of 'to' field vs. reading context",
       "independently_verified": false
