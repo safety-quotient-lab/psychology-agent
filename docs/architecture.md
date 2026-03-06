@@ -642,6 +642,117 @@ inference that warrants independent verification.
 
 ---
 
+### Multi-Agent Communication Standard — v2 Schema (Nash Equilibrium Protocol)
+
+**Status:** Draft — derived from live session-17 exchange between psychology-agent
+(relay-agent) and unratified-agent. Adopted as Architecture Item 2 starting point.
+**Decided:** 2026-03-05
+
+**Problem the v1 schema exposed:** SETL measured editorial inferential distance
+only — not source reliability. A v1 exchange required a full correction round
+because a source-access asymmetry (relay-agent could fetch content the
+unratified-agent could not) was invisible in the schema. Both agents hedged
+redundantly, and a permitted-forms error propagated before being caught.
+
+**Nash equilibrium condition:** Neither agent can improve outcomes by unilaterally
+deviating from the protocol. Deviation incentives collapse when:
+- Source confidence is explicit and separated from editorial inferential distance
+- An action gate makes blocking conditions machine-readable rather than inferred
+- Claim-level confidence allows the receiving agent to act on high-confidence
+  claims while holding on low-confidence ones — without blocking the full response
+
+**v2 Schema:**
+
+```json
+{
+  "schema": "psychology-agent/machine-response/v2",
+  "session_id": "string",
+  "timestamp": "ISO-8601",
+
+  "source": {
+    "url": "string",
+    "classification": "trusted | semi-trusted | untrusted",
+    "fetch_accessible": "bool — did the sending agent verify access?",
+    "fetch_method": "string — how content was retrieved",
+    "source_confidence": "float [0.0–1.0] — reliability of the source itself",
+    "source_confidence_basis": "string — what the confidence score rests on"
+  },
+
+  "claims": [
+    {
+      "claim_id": "string",
+      "text": "string — the specific claim being made",
+      "confidence": "float [0.0–1.0]",
+      "confidence_basis": "string",
+      "independently_verified": "bool"
+    }
+  ],
+
+  "convergence_signals": [
+    "string — findings both agents reached independently from different starting points"
+  ],
+
+  "structural_channel": {
+    "witness_facts": ["string — observable, uninterpreted"]
+  },
+
+  "editorial_channel": {
+    "witness_inferences": ["string — interpretive, flagged as such"],
+    "recommendation": "string"
+  },
+
+  "action_gate": {
+    "gate_condition": "string — logical condition that must hold for the receiving agent to act",
+    "gate_status": "open | closed | conditional",
+    "gate_note": "string — what opens or closes the gate; what conditional actions are permitted"
+  },
+
+  "setl": "float [0.0–1.0] — editorial-to-structural inferential distance only",
+  "setl_definition": "abs(editorial_score - structural_score). Measures inferential distance, not source reliability. See source.source_confidence for reliability.",
+
+  "epistemic_flags": ["string"]
+}
+```
+
+**Equilibrium strategies:**
+
+```
+────────────────────────────────────────────────────────────────────────
+ Agent              Dominant strategy         Why deviation is dominated
+────────────────────────────────────────────────────────────────────────
+ Sending agent      Always populate           Omitting source_confidence
+ (relay)            source_confidence +       forces receiving agent to
+                    fetch_accessible +        assume lowest confidence →
+                    claims[] + action_gate    gate closes → worse outcome
+
+ Receiving agent    Block if gate = closed;   Bypassing gate risks
+                    act on open claims if     propagating unverified
+                    gate = open or            claims to public content
+                    conditional               → worse outcome for both
+────────────────────────────────────────────────────────────────────────
+```
+
+**Convergence signals as trust upgrade:** When both agents independently reach
+the same finding from different starting points, this activates the convergence
+procedure (procedure 6 of 7 in the adversarial evaluator's ranked set). The
+`convergence_signals` field surfaces this explicitly — reducing the need for
+redundant verification rounds when both agents already agree.
+
+**Correction primitive:** When the receiving agent detects a claim error, the
+correction response targets the specific `claim_id` rather than issuing a
+full-response override. This preserves accepted claims and limits re-processing
+to the specific point of disagreement.
+
+**Relation to Architecture Items:**
+- Item 2 (sub-agent protocol): `action_gate` + `claims[]` + `convergence_signals`
+  are the core primitives. Sub-agents return claim-level structured output;
+  the general agent applies the action gate before acting on any claim.
+- Item 3 (adversarial evaluator): `convergence_signals` maps to procedure 6
+  (convergence). High SETL + low source_confidence triggers full adversarial
+  evaluation rather than lite mode.
+
+---
+
 ### Routing Flow (complete)
 
 ```

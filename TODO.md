@@ -254,6 +254,21 @@ Simone, cc-tools, cchooks.*
 
 ---
 
+## Tooling
+
+- [ ] **Investigate alternative Claude Code client ("psychology interface")** —
+  explore building a custom client tailored to the psychology agent use case:
+  a purpose-built interface for psychological analysis, research, and consultation
+  rather than a generic coding assistant shell. Questions to investigate:
+  (1) What does the Claude Code SDK / extension API expose to alternative clients?
+  (2) What session, context, and memory management primitives would carry over?
+  (3) What does a psychology-specific UI need that the CLI does not provide
+      (structured output display, PSQ score visualization, session continuity
+      across consultations, IRB-safe data handling)?
+  Start with the SDK surface before committing to scope.
+
+---
+
 ## PSQ Sub-Agent Integration
 
 Managed in safety-quotient/ context. Do not duplicate here.
