@@ -1,9 +1,18 @@
 /**
  * agent.js — @anthropic-ai/claude-agent-sdk wrapper for the psychology interface.
  *
- * Wraps query() into a streaming SSE generator. settingSources: ['project']
- * loads CLAUDE.md, skills, and hooks automatically — the psychology agent's
- * identity, epistemic triggers, and cognitive architecture carry over unchanged.
+ * STATUS: DEFERRED — requires ANTHROPIC_API_KEY (billable per invocation).
+ * Do not enable the /turn route in production until the API key cost model
+ * is understood and accepted.
+ *
+ * KNOWN GAP — settingSources: ['project'] is a no-op in CF Workers:
+ *   The SDK resolves 'project' settings by reading CLAUDE.md files from the
+ *   local filesystem (process.cwd()). CF Workers has no local filesystem.
+ *   In production, the agent runs with PSYCHOLOGY_SYSTEM only — no T1–T15
+ *   triggers, no identity spec, no cogarch. Fix before enabling /turn:
+ *   inline the identity + key cogarch guidance into PSYCHOLOGY_SYSTEM, or
+ *   fetch it from R2/KV at request time and prepend to the system prompt.
+ *   See TODO.md "Psychology interface wrapper" for full context.
  *
  * PSQ sub-agent routing: when the general agent invokes PSQ scoring, the
  * agents: { psq } option routes to the psq-sub-agent. Blocked pending the

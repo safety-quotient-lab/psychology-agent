@@ -54,7 +54,15 @@ export default {
       }
 
       // POST /turn → stream agent response
+      // DEFERRED: requires ANTHROPIC_API_KEY (billable) and settingSources fix.
+      // See agent.js header comment for full context before enabling.
       if (method === "POST" && url.pathname === "/turn") {
+        if (!env.ANTHROPIC_API_KEY) {
+          return Response.json(
+            { error: "agent unavailable", reason: "ANTHROPIC_API_KEY not configured — /turn is deferred pending cost model acceptance. PSQ scoring routes (/psq/health, /psq/score) remain available." },
+            { status: 503, headers: corsHeaders }
+          );
+        }
         const body = await request.json();
         const { session_id, prompt } = body;
 
