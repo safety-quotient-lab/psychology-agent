@@ -6,12 +6,14 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 19/20. Item 2a spec doc written. calibration.json fixed:
-`confidence_calibration` linear maps added (scale=0, shift=r) so remote student.js picks up
-r-based confidence proxy (was silently ignored). safety-quotient git state: diverged from origin,
-staged changes cleared, best.pt lost, calibration.json gitignored (models/ both sides).
-**Next:** Observatory merge PR #7 (schema-v3-ack). Item 2b (peer layer) design.
-Resolve safety-quotient git divergence (user decision needed). PSQ scoring endpoint.
+**Where we stopped:** Session 19 complete. calibrate.py fixed (PSQStudent arch
+mismatch + state_dict loading bug). Isotonic regression calibration fitted (n=1897).
+PSQ response-001.json updated with calibrated scores (PR #5, updated). Schema v3
+finalized with observatory: extension URI = `github.com/safety-quotient-lab/interagent-epistemic/v1`,
+transport.method enum expanded (plan9-namespace, filesystem), *.json default glob,
+per-message transport + persist-from-last. 5 Item 2a derivation findings complete.
+schema-v3-ack sent (PR #7).
+**Next:** Item 2a spec document. Merge PR #5 (PSQ response). Observatory to merge PR #7.
 
 ## Design Decisions
 
@@ -146,12 +148,9 @@ Communication conventions, cognitive accessibility policy, project structure: se
 ## PSQ Sub-Agent Status (managed in its own context)
 
 **Readiness needs:** API surface, calibrated confidence, scope boundaries.
-**Score calibration:** ✓ isotonic regression (n=1897), +3.5–21.6% MAE/dim.
-**Confidence calibration:** ✓ `confidence_calibration` linear maps (scale=0, shift=r) added
-to calibration.json. student.js (remote version) now uses r-based proxy correctly.
-Composite usable: PSQ=37.7/100 on overwhelm text (threat 6.28 > protective 3.81).
-**Git/deploy issue:** calibration.json gitignored (models/ both local and origin). Not in remote
-repo. Remote psq-agent lacks calibration unless manually deployed. best.pt lost from local.
-**Open issues:** contractual_clarity n=57 (small sample), 5 dims r<0.6 excluded,
-DA validity, WEIRD assumptions, v27 regression.
+**Score calibration:** ✓ Applied. isotonic regression (n=1897 val), +3.5–21.6% MAE/dim.
+`models/psq-student/calibration.json` live. `student.js` loads and applies it at init.
+**Confidence calibration:** ✗ Still pending. All 10 dims < 0.6 threshold; composite unusable.
+**Open issues:** confidence anti-calibration (top priority), DA validity, AD compression,
+CO weakness, no human validation, WEIRD assumptions, v27 regression.
 Do not duplicate PSQ improvement work in this context.

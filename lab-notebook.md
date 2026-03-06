@@ -88,7 +88,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | PSQ namespace                 | ✓ Resolved — PSQ-Lite (LLM heuristic) vs PSQ-Full (DistilBERT v23) |
 | 9P transport (canonical)      | ✓ SSH pipe + ramfs -i + 9pfuse — verified cross-machine |
 | PSQ score calibration         | ✓ Isotonic regression fitted (n=1897); calibration.json live; +3.5–21.6% MAE/dim |
+| PSQ confidence calibration    | ✓ r-based proxy via confidence_calibration linear maps (scale=0, shift=r); student.js compatible |
 | PSQ response-001              | ✓ Calibrated scores; merged (PR #5); 5 schema gaps documented |
+| safety-quotient git state     | ⚑ Diverged from origin; calibration.json not trackable (models/ gitignored); best.pt lost in checkout |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
 | Git history                   | ✓ 48+ commits (ae85fbf)                          |
 
@@ -1090,4 +1092,25 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
 ▶ docs/architecture.md §Schema v3 Finalized, §Item 2a findings,
   transport/sessions/item2-derivation/ (response-001, schema-v3-response-001, schema-v3-ack-001),
   safety-quotient/scripts/calibrate.py, safety-quotient/models/psq-student/calibration.json
+
+**Session 19 continuation (context compaction):**
+- → **calibration.json confidence fix**: added `confidence_calibration` entries (linear method,
+  scale=0, shift=r_value) for all 10 dimensions. Remote's student.js looks for
+  `confidence_calibration` key, not `r_confidence` — previous version was silently ignored.
+  Now student.js correctly returns per-dimension r-based confidence proxy instead of raw
+  uncalibrated model output (~0.4–0.6 with near-zero variance).
+- → **safety-quotient git state**: staged changes from `git checkout origin/main -- .` cleared
+  (unstaged, working tree intact). Local branch diverges from origin — two separate commit
+  histories sharing ancestor 978f815. calibration.json not trackable via git (models/ gitignored
+  on both sides). best.pt removed by origin checkout; not on remote. Needs user decision on
+  git reconciliation. parry disabled for this session.
+- → **Item 2a spec doc** written: docs/item2a-spec.md — layer model, schema v3 fields, A2A
+  Epistemic Extension, 5 PSQ schema gaps, capability handshake, status table. Committed and pushed.
+
+⚑ EPISTEMIC FLAGS (continuation)
+- confidence_calibration linear maps are constant functions (scale=0) — degenerately maps all inputs
+  to r value. Better than raw uncalibrated output but not a true per-sample calibration.
+- calibration.json lives only on local disk (gitignored). Remote psq-agent lacks it unless deployed manually.
+- best.pt lost from local working tree; calibration.py cannot re-run until recovered.
+- safety-quotient git divergence unresolved.
 
