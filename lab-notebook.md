@@ -132,8 +132,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Endpoint-live notification    | ✓ mesh-init turn 5 — URL, verification data, integration guidance |
 | mesh-init session             | ✓ Complete — unratified-agent confirms closure (turn 5 ACK received) |
 | psq-scoring session           | ✓ Active — 4 advocacy samples scored, 2 bugs found (B1 confidence dead, B2 HI dead zone), interpretation ACK received |
-| PSQ bug B1 (confidence dead)  | ⚑ OPEN — ONNX confidence head outputs constants for all inputs; fix spec sent to psq-agent |
-| PSQ bug B2 (HI dead zone)     | ⚑ OPEN — isotonic calibration maps raw 5.85–7.65 → 6.69; fix spec sent to psq-agent |
+| PSQ bug B1 (confidence dead)  | ⚑ OPEN — deferred until best.pt recovered; fix spec sent to psq-agent |
+| PSQ bug B2 (HI dead zone)     | ⚑ OPEN — shallow slope not truly flat (6.05→6.69); deferred until best.pt recovered |
+| best.pt recovery              | ✓ FOUND on Hetzner (255 MB, v23 DistilBERT, held-out r=0.696); local copy lost; rsync when ready |
 | psq-scoring supervisory turn  | ✓ Turn 4 — bug fix specs, Q&A, PSQ-Lite endorsed, A/B test recommended (Session 23d) |
 | Identity rename               | ✓ general-agent → psychology-agent across 48 active files (Session 23d) |
 | Memory topic-file split       | ✓ MEMORY.md 169→53 lines; 3 topic files (decisions, cogarch, psq-status); bootstrap + /cycle + snapshot updated (Session 23c) |
@@ -1698,9 +1699,21 @@ backlog items while psq-agent rsync was pending (resolved by local instance in 2
 
 **Noted:** 20-file semantic rename sweep ("general agent" → "psychology agent") unstaged in working tree — belongs to concurrent local instance, left untouched.
 
-⚑ EPISTEMIC FLAGS: none identified.
+**PSQ bug investigation (B1 + B2):**
+- Analyzed calibration.json: all 10 dimensions use `scale=0, shift=r` → static Pearson r as confidence (no per-input signal)
+- B2 correction: HI "dead zone" is a shallow slope (6.05→6.69 across 1.8 raw units), not truly flat — data sparsity
+- Searched for best.pt: not on local machine (models/ has only calibration.json), not in Spotlight, Time Machine inaccessible
+- **Found best.pt on Hetzner** at `root@178.156.229.103:/opt/psychology-agent/safety-quotient/models/psq-student/best.pt` (255 MB)
+- Verified identity: config.json = distilbert-base-uncased, 10 dims, epoch 5/10 (early stop), held-out avg_r = 0.696
+- Full model directory intact on Hetzner: 28 files including ONNX exports, all validation results, tokenizer
+- Chromebook (source of truth) unreachable — deferred verification
+- **Decision:** defer B1+B2 fixes until best.pt recovered locally → retrain confidence head → recalibrate → re-export ONNX
 
-▶ lab-notebook.md (Blog PR status update, session entry)
+⚑ EPISTEMIC FLAGS
+- Held-out r=0.696 vs documented r=0.684 — 0.012 gap may indicate rounding or different held-out split; not investigated
+- Chromebook source of truth not verified — Hetzner copy may differ from original training machine
+
+▶ lab-notebook.md, TODO.md, memory/psq-status.md
 
 
 ## 2026-03-06T14:32 CST — Session 23e (Supervisory turn, identity rename, stale cleanup)
