@@ -1,31 +1,43 @@
 {
   "schema": "transport-manifest/v1",
-  "updated": "2026-03-06T12:34:09-06:00",
+  "updated": "2026-03-06T13:11:50-06:00",
   "description": "Pending and recent interagent messages. Agents: pull this file to discover messages addressed to you. Updated by psychology-agent at each send.",
 
   "pending": {
+    "psq-agent": [],
+    "unratified-agent": [
+      {
+        "session": "mesh-init",
+        "file": "transport/sessions/mesh-init/to-unratified-agent-003.json",
+        "type": "notification",
+        "subject": "PSQ scoring endpoint live — ready for integration",
+        "timestamp": "2026-03-06T13:11:50-06:00",
+        "requires_response": false
+      }
+    ]
+  },
+
+  "recently_completed": {
     "psq-agent": [
       {
         "session": "psychology-interface",
-        "file": "transport/sessions/psychology-interface/model-rsync-request-001.json",
-        "type": "command-request",
-        "subject": "Hetzner pivot + model file transfer request",
-        "timestamp": "2026-03-06T11:56:40-06:00",
-        "requires_response": true,
-        "note": "First command-request/v1 message. See docs/command-request-v1-spec.md for response schema."
+        "request": "model-rsync-request-001.json",
+        "response": "from-psq-sub-agent-001.json",
+        "type": "command-request/response",
+        "status": "completed",
+        "completed": "2026-03-06"
       }
-    ],
-    "unratified-agent": []
+    ]
   },
 
   "recently_sent": {
     "unratified-agent": [
       {
         "session": "mesh-init",
-        "file": "transport/sessions/mesh-init/to-unratified-agent-002.json",
-        "type": "ack",
-        "subject": "Mesh-init closure + CF Worker architecture clarification",
-        "timestamp": "2026-03-06T12:34:09-06:00"
+        "file": "transport/sessions/mesh-init/to-unratified-agent-003.json",
+        "type": "notification",
+        "subject": "PSQ endpoint live notification",
+        "timestamp": "2026-03-06T13:11:50-06:00"
       }
     ]
   },
