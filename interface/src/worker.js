@@ -54,12 +54,14 @@ export default {
       }
 
       // POST /turn → stream agent response
-      // DEFERRED: requires ANTHROPIC_API_KEY (billable) and settingSources fix.
-      // See agent.js header comment for full context before enabling.
+      // DEFERRED: blocked by API credits. To re-enable:
+      //   wrangler secret put ANTHROPIC_API_KEY
+      //   remove the 503 guard below
+      //   wrangler d1 create psychology-interface → fill database_id in wrangler.toml
       if (method === "POST" && url.pathname === "/turn") {
         if (!env.ANTHROPIC_API_KEY) {
           return Response.json(
-            { error: "agent unavailable", reason: "ANTHROPIC_API_KEY not configured — /turn is deferred pending cost model acceptance. PSQ scoring routes (/psq/health, /psq/score) remain available." },
+            { error: "agent unavailable", reason: "/turn deferred — blocked by API credits. PSQ scoring (/psq/health, /psq/score) remains available." },
             { status: 503, headers: corsHeaders }
           );
         }

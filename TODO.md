@@ -32,16 +32,15 @@ Forward-looking task list only. Completed and emergent work goes to
   smoke-tested (steps 1–7 pass, step 8 browser render pending).
   Production transport: wrangler deploy (after step 8 confirms + wrangler v4 upgrade).
 
-  **Deferred: `/turn` route (Agent SDK chat)** — gated on two conditions:
-  1. API key cost model accepted — each `/turn` call invoices the Anthropic account.
-     Set `ANTHROPIC_API_KEY` via `wrangler secret put ANTHROPIC_API_KEY` to enable.
-  2. `settingSources: ['project']` fix — this option reads CLAUDE.md from the local
-     filesystem via `process.cwd()`. CF Workers has no local filesystem; in production
-     the agent runs with the 7-line PSYCHOLOGY_SYSTEM constant only — no T1–T15
-     triggers, no identity spec, no cogarch. Before enabling, inline the identity +
-     key cogarch guidance directly into PSYCHOLOGY_SYSTEM in agent.js, or fetch it
-     from R2/KV at request time.
-     Guard added: worker returns 503 with explanation if ANTHROPIC_API_KEY absent.
+  **Deferred: `/turn` route (Agent SDK chat)** — blocked by API credits.
+  To re-enable when credits are available:
+  1. `wrangler secret put ANTHROPIC_API_KEY`
+  2. Remove the 503 guard in worker.js `/turn` handler
+  3. `wrangler d1 create psychology-interface` → fill `database_id` in wrangler.toml
+     (session/turn storage — /turn writes to D1 before streaming)
+  Identity and cogarch are already inlined in PSYCHOLOGY_SYSTEM (agent.js Option A).
+  settingSources no-op resolved — removed from agentOptions.
+  503 guard in place: returns clear error + reason if ANTHROPIC_API_KEY absent.
 
   *What's built: worker.js, session.js, agent.js, psq-client.js, schema.sql,
   public/index.html + style.css + app.js + psq.js. All PSQ routes working.*

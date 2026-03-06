@@ -1,9 +1,9 @@
 /**
  * agent.js — @anthropic-ai/claude-agent-sdk wrapper for the psychology interface.
  *
- * STATUS: DEFERRED — requires ANTHROPIC_API_KEY (billable per invocation).
- * Do not enable the /turn route in production until the API key cost model
- * is understood and accepted.
+ * STATUS: DEFERRED — blocked by API credits.
+ * Re-enable when API credits are available: set ANTHROPIC_API_KEY via
+ * `wrangler secret put ANTHROPIC_API_KEY` and remove the 503 guard in worker.js.
  *
  * KNOWN GAP — settingSources: ['project'] is a no-op in CF Workers:
  *   The SDK resolves 'project' settings by reading CLAUDE.md files from the
@@ -134,7 +134,8 @@ export async function* streamAgentResponse({ prompt, sessionId, previousTurns = 
 
   const agentOptions = {
     model: resolvedModel,
-    settingSources: ["project"],     // inherit CLAUDE.md, skills, hooks
+    // settingSources: ["project"] omitted — no-op in CF Workers (no local filesystem).
+    // Identity and cogarch are inlined in PSYCHOLOGY_SYSTEM above (Option A).
     session_id: sessionId,
     system: PSYCHOLOGY_SYSTEM,
     apiKey,                          // CF Workers: pass explicitly (process.env unavailable)
