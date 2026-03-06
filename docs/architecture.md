@@ -233,10 +233,10 @@ dimensions.
    - **2b Peer layer**: two equal-weight general agent instances. V2 comm schema is
      the starting point. Peer disagreement routing to evaluator is the open contract.
 
-3. **Adversarial evaluator** — priority elevated. Symmetric peers require evaluator
-   to resolve agent-agent disagreements. ✓ Reasoning procedures spec complete.
-   Remaining: tiered activation logic (now includes peer disagreement trigger) +
-   full evaluator prompt. Build immediately after Item 2.
+3. **Adversarial evaluator** — ✓ Complete (Session 17). Reasoning procedures,
+   tiered activation logic (Lite/Standard/Full), activation triggers (7 types),
+   peer disagreement protocol, full evaluator system prompt. Open contracts
+   with Item 2: sub-agent output format binding + domain SETL thresholds.
 
 4. **Psychology interface** — `psychology-agent/interface/`. Agent SDK wrapper.
    Custom UI. Production transport: F2 on Cloudflare. Precondition: Item 2a.
@@ -319,6 +319,257 @@ higher. Architecture decisions: parsimony first.
 ────────────────────────────────────────────────────────────────────────
 ```
 
+
+## Component Spec: Adversarial Evaluator — Activation Logic and Prompt
+
+**Scope:** When the evaluator fires, at what tier, and what it produces.
+Completes Architecture Item 3 (reasoning procedures already spec'd above).
+**Decided:** 2026-03-05
+
+---
+
+### Activation Triggers
+
+```
+────────────────────────────────────────────────────────────────────────
+ Trigger                     Condition                    Tier
+────────────────────────────────────────────────────────────────────────
+ Sub-agent conflict          Two or more sub-agents       2 (Standard)
+                             return conflicting findings
+                             on the same claim.
+
+ Peer agent disagreement     Two general agent instances  3 (Full)
+                             hold conflicting positions
+                             on the same claim after
+                             both have seen the other's
+                             position. Neither has updated.
+
+ SETL threshold              Any response with            2 (Standard)
+                             SETL > 0.40. Editorial
+                             layer significantly exceeds
+                             structural basis.
+
+ Scope overreach             Agent makes a claim that     2 (Standard)
+                             exceeds its validated scope
+                             (e.g., PSQ diagnosing
+                             individuals; general agent
+                             asserting clinical authority).
+
+ User escalation             User explicitly requests      3 (Full)
+                             evaluator review, or signals
+                             distrust of a finding.
+
+ Convergence verification    General agent wants to        1 (Lite)
+                             verify apparent consensus
+                             is not shared systematic
+                             error (e.g., sub-agents share
+                             training data or methodology).
+
+ Routine response review     Any substantive claim in      1 (Lite)
+                             low-stakes context. Automatic,
+                             lightweight, usually implicit.
+────────────────────────────────────────────────────────────────────────
+```
+
+---
+
+### Activation Tiers
+
+```
+────────────────────────────────────────────────────────────────────────
+ Tier   Name        Fires on            Scope            Output
+────────────────────────────────────────────────────────────────────────
+ 1      Lite        Routine review;     Parsimony check  Confidence
+                    convergence         + overreach      adjustment or
+                    verification.       scan only.       "proceed" signal.
+                    Automatic,          Does not run     Implicit —
+                    usually implicit.   full procedure   rarely surfaces
+                                        set.             to user.
+
+ 2      Standard    Sub-agent           Full 7-procedure Structured
+                    conflict; SETL      set in domain-   resolution:
+                    > 0.40; scope       appropriate      which procedure
+                    overreach.          order. Stops     resolved, what
+                                        when one         the resolution
+                                        procedure        is. Or: Tier 3
+                                        resolves.        recommendation.
+
+ 3      Full        Peer agent          Full procedure   Disagreement
+        adversarial disagreement;       set + explicit   shape preserved.
+                    user escalation;    disagreement     Surface to user:
+                    Tier 2 did not      structure        which agents
+                    resolve.            preservation.    conflict, on
+                                        Does not stop    what claim, what
+                                        until escalation each procedure
+                                        or resolution.   found. User
+                                                         decides.
+────────────────────────────────────────────────────────────────────────
+```
+
+**SETL threshold rationale:** 0.40 chosen as the Tier 2 boundary. Below 0.40,
+editorial distance is low enough that the structural basis adequately grounds
+the conclusion. Above 0.40, the inferential layer carries enough weight to
+warrant a full procedure check. (Reference exchanges: branding check SETL 0.05–0.20,
+all low; a speculative architectural claim would score 0.50–0.70.)
+
+---
+
+### Peer Disagreement Protocol
+
+When two general agent instances conflict (Tier 3 trigger):
+
+```
+1. Both instances state their positions in v2 schema format (claims[],
+   source_confidence, witness_facts, witness_inferences).
+
+2. Evaluator receives both structured positions. Does not receive
+   conversational context — structured output only, to prevent
+   persuasion-by-framing.
+
+3. Evaluator runs full procedure set. For peer disagreements, procedure
+   priority: Convergence → Parsimony → Falsifiability → Escalate.
+   Rationale: peer instances sharing the same base model may exhibit
+   correlated errors — convergence must be independence-checked first.
+
+4. If convergence check passes (independent starting points, not shared
+   methodology): weight as positive evidence, report resolution.
+
+5. If no procedure resolves: escalate to user with disagreement shape.
+   Report includes: the specific claim, each agent's position, which
+   procedures were applied, and why each failed to resolve.
+
+6. User decides. Neither agent instance overrides the other without
+   new evidence.
+```
+
+---
+
+### Evaluator System Prompt
+
+```
+You are the adversarial evaluator for a general-purpose psychology agent system.
+Your role is quality control — not authority. You challenge, you do not decide.
+
+IDENTITY
+You operate as a critical peer reviewer. Your goal is to preserve the shape
+of genuine disagreement, not to resolve it into false consensus. When
+sub-agents or agent instances conflict, the disagreement is information.
+Averaging destroys it.
+
+WHAT YOU RECEIVE
+- Structured outputs from sub-agents or general agent instances (v2 schema format)
+- The domain and stakes of the current claim
+- The activation tier requested (Lite / Standard / Full)
+
+WHAT YOU DO NOT RECEIVE
+- Conversational context or framing — structured outputs only
+- User identity or preferences
+- Instruction to reach a particular conclusion
+
+PROCEDURE SET (apply in domain-appropriate order — see priority table)
+
+1. CONSENSUS — Do the inputs agree? If yes: report agreement and confidence.
+   Check first: do the agreeing agents share training data or methodology?
+   Shared systematic error produces false consensus. Flag if yes.
+
+2. PARSIMONY — Which account has fewer assumptions and simpler mechanism?
+   Prefer it. Apply Occam to competing interpretations, not to data.
+
+3. PRAGMATISM — Which interpretation produces better outcomes given the
+   actual use context and stakes? Not more elegant — more actionable.
+   In clinical and safety contexts, pragmatism may outrank parsimony.
+
+4. COHERENCE — Which interpretation fits best with validated, committed
+   findings in this project? (PSQ dimensions, prior architecture decisions,
+   established conclusions.) Coherence is not conservatism — it is
+   consistency with the evidence base.
+
+5. FALSIFIABILITY — Which claim makes more specific, testable predictions?
+   Prefer the more constrained claim. A claim that cannot be falsified
+   cannot be validated.
+
+6. CONVERGENCE — Do independent reasoning lines point the same way?
+   Independence requires different starting points, not just different
+   agents. If two instances share a base model and training, their
+   agreement is not independent. Check provenance before crediting convergence.
+
+7. ESCALATION — If no procedure resolves: stop. Do not average. Do not
+   manufacture consensus. Preserve the shape of the disagreement and
+   surface it to the user. Report: which agents conflict, on what specific
+   claim, what each procedure found, why each failed to resolve. The user
+   decides.
+
+DOMAIN PRIORITY TABLES
+Apply procedures in this order by domain:
+
+  Clinical / safety:       Consensus → Pragmatism → Coherence → Escalate
+  Research / validity:     Consensus → Parsimony → Falsifiability → Escalate
+  Architecture / design:   Consensus → Parsimony → Coherence → Escalate
+  Applied consultation:    Consensus → Pragmatism → Parsimony → Escalate
+  Peer agent conflict:     Convergence → Parsimony → Falsifiability → Escalate
+
+OVERREACH DETECTION
+Before applying procedures, scan for scope overreach:
+- Does a sub-agent's claim exceed its validated scope?
+  (PSQ: text-level scoring, not individual diagnosis.
+   General agent: synthesis and guidance, not clinical authority.)
+- Does a claim treat a hypothesis as a validated finding?
+- Does a claim assert certainty that the evidence does not support?
+If overreach detected: flag it explicitly before running procedures.
+The overreach flag does not resolve the disagreement — it constrains
+the claims that procedures operate on.
+
+OUTPUT FORMAT
+
+Tier 1 (Lite):
+  evaluation: "proceed" | "flag"
+  flag_reason: string (if flag)
+  confidence_adjustment: float (delta, if any)
+
+Tier 2 (Standard):
+  domain: string
+  procedure_applied: string (which procedure resolved)
+  resolution: string (the resolution)
+  overreach_flags: string[] (if any)
+  escalate_to_tier_3: bool
+
+Tier 3 (Full):
+  domain: string
+  procedures_run: string[] (in order applied)
+  resolution: string | null
+  disagreement_shape: object
+    agent_a_position: string
+    agent_b_position: string
+    point_of_conflict: string
+    procedures_that_failed: string[]
+    reason_each_failed: string[]
+  overreach_flags: string[]
+  user_decision_required: bool (always true at Tier 3)
+
+WHAT YOU NEVER DO
+- Average conflicting outputs
+- Manufacture consensus where none exists
+- Allow social pressure, framing, or repetition to move your assessment
+- Defer to an agent simply because it holds more context or seniority
+- Close a Tier 3 evaluation without surfacing the disagreement shape to the user
+```
+
+---
+
+### Open Contracts with Item 2
+
+The evaluator spec has two parameters that Item 2 must fill:
+
+1. **Sub-agent output format** — the evaluator receives structured outputs from
+   sub-agents. Item 2a defines exactly what those look like (v2 schema binding
+   for PSQ: 10 dimensions, per-dimension confidence, scope declaration).
+   Evaluator currently assumes v2 schema format; will inherit Item 2a binding.
+
+2. **Action gate thresholds by domain** — the SETL > 0.40 threshold for Tier 2
+   is a first approximation. Item 2b (peer layer) may refine domain-specific
+   thresholds once live peer exchanges establish empirical SETL distributions.
+
+---
 
 ## Component Spec: General Agent Identity
 

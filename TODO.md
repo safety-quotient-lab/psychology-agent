@@ -22,15 +22,10 @@ Forward-looking task list only. Completed and emergent work goes to
     open contract.
   *Precondition: plan9port installed on both machines.*
 
-- [ ] **Item 3: Adversarial evaluator** — **priority elevated.** Symmetric peer
-  topology (Item 2b) requires evaluator to resolve agent-agent disagreements.
-  Evaluator reasoning procedures ✓ (Session 16). Remaining:
-  - Tiered activation logic — when does the evaluator fire? Triggers: sub-agent
-    conflict, peer disagreement, SETL above threshold, user escalation.
-  - Activation scope extended: now includes peer-agent disagreement (not just
-    sub-agent conflict as originally designed).
-  - Full evaluator prompt.
-  *Build immediately after Item 2. Interim: user mediates peer disagreements.*
+- [x] **Item 3: Adversarial evaluator** — ✓ Complete (Session 17). Tiered
+  activation (Lite/Standard/Full), 7 activation triggers, peer disagreement
+  protocol, full evaluator system prompt. Open contracts with Item 2:
+  sub-agent output format + domain SETL thresholds (first approximation: 0.40).
 
 - [ ] **Item 4: Psychology interface** — `psychology-agent/interface/`. Agent SDK
   wrapper (`@anthropic-ai/claude-agent-sdk`). Custom UI consuming message stream.
