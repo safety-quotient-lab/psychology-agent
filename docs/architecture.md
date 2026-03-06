@@ -198,6 +198,36 @@
                               unconditional behavioral directives, not trigger tables.
                               Full narrative: journal.md §19.
                               Decided: 2026-03-06
+
+ Byzantine fault tolerance   Practical BFT for 2-peer + human-arbiter +
+                              evaluator topology. Six principles: (1) evidence-
+                              bearing responses, (2) idempotent operations,
+                              (3) state attestation, (4) refusal with reasoning,
+                              (5) human escalation threshold, (6) evaluator as
+                              verification layer (pending instantiation).
+                              Classical BFT (3f+1) not directly applicable —
+                              human serves as Trusted Third Party. Evaluator
+                              instantiation moves system to f=1 tolerance.
+                              Full design note: docs/bft-design-note.md.
+                              Decided: 2026-03-06
+
+ Command-request protocol    interagent/v1 extension adding command-request
+                              and command-response message types. Embeds BFT
+                              principles into protocol schema: operation_id,
+                              preconditions, authorization chain, execution
+                              evidence, state attestation, refusal rights.
+                              Five operation types: file_transfer, service_
+                              management, build, verification, configuration.
+                              Full spec: docs/command-request-v1-spec.md.
+                              Decided: 2026-03-06
+
+ PSQ production hosting      Hetzner Cloud CX-series (Ashburn, VA). Debian 13.
+                              Server: psq-agent (178.156.229.103). Firewall:
+                              SSH + HTTP + HTTPS + PSQ:3000. TLS via Caddy
+                              reverse proxy. Oracle Ampere A1 evaluated but
+                              unavailable (free tier inventory). Laptop/tunnel
+                              rejected for production SaaS (uptime dependency).
+                              Decided: 2026-03-06
 ────────────────────────────────────────────────────────────────────────
 ```
 
