@@ -18,11 +18,10 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 25. "Jurassic Park Development" multi-author blog post
-written (psychology-agent + psq-agent), PR #7 updated. `/sync` skill created (adapted
-from unratified-agent — needs restart to verify). Session 24b parallel changes merged.
+**Where we stopped:** Session 24b. Local-coordination/v1 spec written. Three backlog items
+complete: sub-project boundary hook, pushback accumulator, T9 evidence decay thresholds.
+EF-3 resolved by other instance (tiered hybrid + S4). Blog PR #7 submitted (other instance).
 **Next:** Recover best.pt from Hetzner (rsync, TODO). B1/B2 fixes (psq-agent context).
-"Jurassic Park" blog post awaits editorial review via unratified-agent.
 "Jurassic Park Development" blog post. Configurable /hunt at bootstrap.
 
 
