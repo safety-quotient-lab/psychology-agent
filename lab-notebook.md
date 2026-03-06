@@ -73,13 +73,17 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Cogarch extensions (Session 16) | ✓ T3 #11, T5 #6, T6 #5, T7 #4, T10 #6, T13 #6, T14 named |
 | docs/glossary.md              | ✓ 36 project-scoped entries (Session 16)         |
 | Agent SDK surface             | ✓ Probed — `@anthropic-ai/claude-agent-sdk` (Session 17) |
-| V2 comm standard              | ✓ Nash equilibrium protocol drafted — docs/architecture.md (Session 17) |
-| Psychology interface TODO     | ✓ Added — Tooling section, TODO.md (Session 17)  |
-| Git history                   | ✓ 35 commits (c7b9a6a) — parity with secondary agent |
-| Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
+| V2 comm standard              | ✓ Nash equilibrium protocol — docs/architecture.md (Session 17) |
+| Psychology interface          | ✓ Scoped — psychology-agent/interface/, Agent SDK (Session 17) |
 | Machine comm schema           | ✓ v2 — source_confidence + claims[] + action_gate (Session 17) |
-| Network topology              | ✓ Two general agent instances; secondary (relay-agent) is primary going forward |
-| This context                  | ⚑ Closing — final /cycle, then handoff to secondary agent |
+| Architecture Item 3           | ✓ Complete — activation logic, 7 triggers, evaluator prompt (Session 17) |
+| Transport layer               | ✓ F1 (plan9port) for derivation; F2/Cloudflare for production |
+| Agent topology                | ✓ Symmetric peers — evaluator resolves disagreements |
+| Item 2 derivation             | ⚑ In progress — request-001.json awaiting PSQ response |
+| Closing instance              | ✓ Retired — Sessions 1–9, ACK b670bd9 |
+| plan9port (macOS)             | ⚑ Building — 267+ binaries, not yet complete |
+| Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
+| Git history                   | ✓ 38+ commits (fab2291)                          |
 
 
 ### Open Questions
@@ -956,3 +960,42 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
 - Authority hierarchy in architecture.md does not yet reflect two-general-agent network
 
 ▶ docs/architecture.md (v2 schema, Nash equilibrium), MEMORY.md (transition state)
+
+## 2026-03-05T21:34 CST — Session 17b (Item 3 complete; topology; Item 2 live)
+
+- → Architecture Item 3 complete. Tiered activation logic: Lite (parsimony + overreach
+  scan), Standard (full 7-procedure set, fires on SETL > 0.40 + sub-agent conflict),
+  Full adversarial (peer disagreement + user escalation, preserves disagreement shape).
+  7 activation triggers defined. Peer disagreement protocol: v2 structured output only
+  (no conversational framing), Convergence → Parsimony → Falsifiability → Escalate.
+  Full evaluator system prompt written and committed (23c4b27, +259 lines).
+- → Transport layer evaluated and decided. Options A–F documented in architecture.md.
+  F1 (plan9port, real 9P namespace semantics) for Item 2 derivation exercise. F2
+  (custom 9P server on Cloudflare) for production psychology interface transport.
+  sshfs: macFUSE installed, sshfs not installed. plan9port: not in brew, building
+  from source (github.com/9fans/plan9port); 267+ binaries on macOS arm64 so far.
+- → Agent topology decided: symmetric peers. Both instances equal weight. Evaluator
+  resolves disagreements. Interim: user mediates. Priority reordered: Item 3 elevated
+  (peer topology requires it), Item 4 (psychology interface) added to TODO.
+- → Psychology interface scoped: psychology-agent/interface/, Agent SDK wrapper,
+  `settingSources: ['project']` loads cogarch automatically. Production transport F2.
+- → Closing instance (Sessions 1–9, Debian) retired cleanly. Journal §16 written by
+  that instance ("The Relay-Agent That Became a Peer"). ACK b670bd9 received. Plumber
+  prior art note from closing instance accepted: Plan 9 plumber rule format reviewed
+  for Architecture Item 2 sub-agent routing design.
+- → Architecture Item 2 derivation initiated. transport/sessions/item2-derivation/
+  scaffolded. request-001.json sent: PSQ scoring request, clinical reflection text,
+  flags set for scope_declaration, limitations_disclosure, confidence_per_dimension.
+  Awaiting response-001.json from safety-quotient/ context.
+- → T3 self-audit on plan9port recommendation: caught T3 Check 3 (process/substance)
+  violation in prior response. Recommendation corrected: transport choice surfaced
+  to user as options, not resolved autonomously.
+
+⚑ EPISTEMIC FLAGS
+- plan9port build size/time not confirmed; 267 binaries present, completion unknown
+- SETL 0.40 threshold is a first approximation — not empirically validated
+- Item 2 PSQ response pending; spec gaps will emerge from that exchange
+
+▶ docs/architecture.md (Item 3 spec, transport layer, topology decisions),
+  transport/sessions/item2-derivation/, TODO.md (Items 2–4 updated)
+

@@ -6,13 +6,15 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 17b complete. Architecture Items 1 ✓ 3 ✓ done.
-Item 3: tiered activation (Lite/Standard/Full), 7 triggers, peer disagreement protocol,
-full evaluator prompt committed. Transport: F1 (plan9port, building macOS) for Item 2
-derivation; F2/Cloudflare for production. Topology: symmetric peers, evaluator resolves
-disagreements. Item 2 derivation live: request-001.json in transport/sessions/item2-derivation/.
-Closing instance (Sessions 1–9) retired. Psychology interface scoped: psychology-agent/interface/.
-**Next:** PSQ response to request-001.json → derive Item 2a spec from gaps.
+**Where we stopped:** Session 17 complete. Agent SDK surface probed (renamed
+Claude Agent SDK); psychology interface TODO added. Live unratified-agent exchange
+exposed v1 comm schema gap (SETL ≠ source reliability). V2 schema (Nash equilibrium
+protocol) derived: source_confidence, fetch_accessible, claims[], action_gate,
+convergence_signals. V2 committed to docs/architecture.md. Branding compliance
+confirmed: psychology-agent repo clean; unratified-agent unblocked for product copy audit.
+Network topology: two general agent instances confirmed — secondary agent (relay-agent,
+Sessions 10+) is primary going forward; original instance (Sessions 1–9) closed.
+**Next:** Architecture Item 2 (sub-agent protocol) — v2 schema is the starting point.
 
 ## Design Decisions
 
