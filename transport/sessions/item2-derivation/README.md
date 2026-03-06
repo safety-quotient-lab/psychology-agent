@@ -13,3 +13,4 @@ format cannot express cleanly; each gap is a spec finding.
 | Turn | From | To | File | Status |
 |---|---|---|---|---|
 | 1 | general-agent | psq-sub-agent | request-001.json | Sent — awaiting response |
+| ack | closing-instance | peer-agent | ack-closing-001.json | Sent — receipt confirmed; routing recommendation issued |
