@@ -192,7 +192,16 @@ catches anything that should have been written but wasn't.
     candidate and the proposed target. Do not promote automatically — surface to
     the user as a recommendation (T3 substance decision).
 
-Skip if no T10 or T12 firings occurred this session.
+- **Graduation scan:** Check lessons.md for entries with `promotion_status: approved`.
+  For each approved entry, execute the graduation ceremony:
+  1. Append the convention to CLAUDE.md under the relevant section (plain imperative
+     sentence, no jargon)
+  2. Update the lessons.md entry: `promotion_status: graduated`, add
+     `graduated_to: "CLAUDE.md §[section]"` and `graduated_date: YYYY-MM-DD`
+  3. Log in lab-notebook session entry: "Graduated lesson: [pattern] → CLAUDE.md §[section]"
+  If no `approved` entries exist, skip.
+
+Skip if no T10 or T12 firings occurred this session and no `approved` entries exist.
 
 ### 9. Update CLAUDE.md
 

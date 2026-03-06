@@ -100,21 +100,14 @@ Forward-looking task list only. Completed and emergent work goes to
   At count >= 3: "[PUSHBACK] Structural disagreement pattern detected."
   *Completed: 2026-03-06*
 
-- [ ] **CLAUDE.md graduation ceremony** — formal process for T10 check #6 (lesson
-  graduation path). When user approves a promoted lesson as a standing convention:
-  (1) append to CLAUDE.md under relevant section, (2) update lessons.md entry
-  `promotion_status: graduated`, (3) log in lab-notebook. /cycle Step 8b should
-  include a scan for `promotion_status: approved` entries pending graduation.
-  *Source: Session 16 cogarch evaluation — T10 → CLAUDE.md escalation gap*
+- [x] **CLAUDE.md graduation ceremony** — formalized in /cycle Step 8b (Session 24b).
+  Graduation scan checks `promotion_status: approved`, executes 3-step ceremony.
 
-- [ ] **SRT-inspired cogarch extensions** — 4 draft triggers in ideas.md from SRT paper
-  review. T4 Check 9 (Interpretant) implemented Session 16. Remaining 3: cumulative
-  divergence tracking (T2), bifurcation early warning (T3), audience-shift detection
-  (T3), micro-semiotic audit (T2). All add T2/T3 processing overhead. Consider gated
-  activation: full suite only when divergence indicators exceed threshold; light mode
-  (semiotic consistency only) by default.
-  *Source: Sublius (2026) SRT paper; drafts in ideas.md*
-  *Precondition: T11 audit to evaluate integration points*
+- [x] **SRT-inspired cogarch extensions** — all 4 implemented (Session 24b):
+  T2 checks 9–10 (vocabulary alignment + semiotic consistency), T3 checks 13–14
+  (bifurcation scan + audience-shift detection). Gated activation: semiotic
+  consistency always-on, others fire on divergence indicators only.
+  Gate threshold calibration remains open (operational tuning).
 
 - [ ] **Write-provenance hook** — extend PostToolUse Write/Edit hook to log which
   files were modified, when, and in what session. Lightweight provenance trail that

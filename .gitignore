@@ -19,6 +19,12 @@ psychology-handoff*
 # Environment variables (credentials)
 .dev.vars
 
+# Write provenance log (session-local audit trail)
+.claude/write-log.jsonl
+
+# Pushback counter (session-scoped, reset at start)
+.pushback-count.tmp
+
 # Parry prompt injection scanner (local cache + session state)
 .parry-guard.redb
 .parry-tainted

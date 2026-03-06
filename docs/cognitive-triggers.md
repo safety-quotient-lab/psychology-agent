@@ -55,6 +55,28 @@ in the session's first response so the user has visibility.
 8. **Clarification** — if clarification is needed, use the `AskUserQuestion` tool;
    never ask questions as inline plain text
 
+**Semiotic sub-checks (SRT-inspired, gated activation):**
+
+These fire only when divergence indicators appear: pushback (T6 fired recently),
+domain shift (user vocabulary changed markedly), or novel terminology (user
+introduced terms not seen earlier in the conversation). In quiet conversations,
+skip these — semiotic consistency alone runs by default.
+
+9. **Vocabulary alignment scan** — compare terminology in the draft response
+   against the user's demonstrated vocabulary in the current conversation. If
+   the agent uses a term the user has not used and the term participates in
+   multiple interpretive communities, flag it for explicit binding (see Term
+   Collision Rule, CLAUDE.md). Rising misalignment across consecutive responses
+   warrants a pacing checkpoint.
+   *Gate: fires when divergence indicators present, or every 5th response as spot-check.*
+
+10. **Semiotic consistency** — verify that any project-specific term (cogarch
+    vocabulary, PSQ dimensions, PJE constructs) appears with its documented
+    definition, not a drifted variant. If the agent's usage has diverged from
+    the documented definition, correct before responding. Catches vocabulary
+    drift that architecture audit (T11) would find at audit time, but earlier.
+    *Gate: always active (lightweight). This is the default-on semiotic check.*
+
 **Action**: If any check fails, fix before sending.
 
 ---
@@ -127,6 +149,27 @@ in the session's first response so the user has visibility.
     *Source: EF-3 adjudication (Session 24). Tier 1 independence strengthened via
     S4 (audit trail + adversarial framing + random escalation). Structural
     independence deferred to Tier 2/3 runtime.*
+
+**Semiotic sub-checks (SRT-inspired, gated activation):**
+
+These fire only when divergence indicators appear: pushback (T6 fired recently),
+domain shift (user vocabulary changed markedly), or novel terminology (user
+introduced terms not seen earlier). In quiet conversations, skip these.
+
+13. **Interpretive bifurcation scan** — before recommending, check whether any
+    key term in the recommendation could produce divergent interpretations
+    depending on the audience's interpretive framework. If a term sits at a
+    bifurcation point (two plausible, incompatible readings), bind it explicitly
+    to one reading and name the alternative. Do not leave contested terms
+    unbound in recommendations.
+    *Gate: fires when divergence indicators present.*
+
+14. **Audience-shift detection** — if the user's vocabulary, question
+    sophistication, or domain markers shift significantly from the conversation
+    baseline established at session start (T1), reassess which interpretive
+    community governs the current exchange. Previously bound terms may need
+    explicit rebinding. Complements dynamic Socratic calibration (check 8).
+    *Gate: fires when divergence indicators present.*
 
 **Action**: Resolve process autonomously. Surface substance with recommendation.
 Adjudicate (`/adjudicate`) when 2+ viable options exist.
@@ -289,8 +332,10 @@ they want to grok or internalize something, or (c) a genuine conceptual shift oc
 6. **Graduation path** — for any entry already flagged `[→ PROMOTE]`: determine
    whether the pattern has stabilized across 2+ sessions. If yes: draft a concrete
    CLAUDE.md convention candidate (plain imperative sentence, no jargon) and surface
-   it to the user for review. Approved candidates graduate from lessons.md into
-   CLAUDE.md as standing conventions. Remove the `[→ PROMOTE]` flag once graduated.
+   it to the user for review. User sets `promotion_status: approved` to authorize.
+   Graduation ceremony (/cycle Step 8b) then executes: (1) append to CLAUDE.md,
+   (2) update lessons.md `promotion_status: graduated` + `graduated_to` + date,
+   (3) log in lab-notebook. Remove `[→ PROMOTE]` flag once graduated.
 
 **Action**: Write entry to lessons.md. lessons.md is gitignored; lessons.md.example
 is the tracked format stub with schema definition.
