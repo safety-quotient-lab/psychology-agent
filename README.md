@@ -168,7 +168,7 @@ levels, with content guards, versioned archives, and orphan detection.
 - [.claude/skills/cycle/SKILL.md](.claude/skills/cycle/SKILL.md) — the full skill definition
 
 **Structured decision resolution (`/adjudicate`)** — Resolves ambiguous decisions
-through 8-order knock-on analysis (certain → structural → horizon), severity-tiered
+through 10-order knock-on analysis (certain → emergent → theory-revising), severity-tiered
 depth, 2-pass iterative refinement, and consensus-or-parsimony binding.
 - [.claude/skills/adjudicate/SKILL.md](.claude/skills/adjudicate/SKILL.md) — the full skill definition
 - [journal.md §11](journal.md) — licensing decision as a worked example of the method
@@ -212,7 +212,7 @@ See `CLAUDE.md` for full conventions.
 | `/cycle`      | Post-session  | Full documentation chain update, commit, push |
 | `/hunt`       | Discovery     | Find highest-value next work                  |
 | `/capacity`   | Housekeeping  | Assess cognitive architecture capacity        |
-| `/adjudicate` | Decisions     | Structured knock-on analysis, 8-order depth   |
+| `/adjudicate` | Decisions     | Structured knock-on analysis, 10-order depth  |
 
 ---
 

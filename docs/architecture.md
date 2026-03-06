@@ -1133,7 +1133,7 @@ Incoming request
                                             propagation; git commit
 
  /adjudicate   Command   Decision point    Structured resolution —
-                                            8-order cascade, parsimony
+                                            10-order cascade, parsimony
 
  /capacity     Command   On demand         Cognitive capacity audit —
                                             line budgets, triggers, hooks
@@ -1235,13 +1235,13 @@ Complete inventory of cognitive infrastructure with interaction map.
 ────────────────────────────────────────────────────────────────────────
  Component              Mechanism                   Scale
 ────────────────────────────────────────────────────────────────────────
- Knock-on analysis      8-order cascade             All decisions
-                         (certain → horizon)
+ Knock-on analysis      10-order cascade            All decisions
+                         (certain → theory-revising)
  /adjudicate skill      Domain classify → ground     XS: 3-order + scan
                          → cascade per option →      S: 4-order + scan
-                         consensus or parsimony      M: 6-order + 2-pass
-                                                     L: 8-order + 2-pass
- Structural checkpoint  Orders 7-8 scan              Every decision point
+                         consensus or parsimony      M: 8-order + 2-pass
+                                                     L: 10-order + 2-pass
+ Structural checkpoint  Orders 7-10 scan             Every decision point
  Process vs. substance  Agent resolves process;      T3 check #3
                          surfaces substance
 ────────────────────────────────────────────────────────────────────────

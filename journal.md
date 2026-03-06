@@ -35,6 +35,7 @@ partner, and Socratic interlocutor
 18. [The First API Surface: From Schema to Endpoint](#18-first-api-surface)
 19. [Identity Without a Filesystem: The settingSources Problem](#19-identity-without-a-filesystem)
 20. [What a Crash Reveals: Context Models and Behavioral Directives](#20-what-a-crash-reveals)
+21. [Grounding Knock-On Depth in Philosophy of Science](#21-grounding-knock-on-depth-in-philosophy-of-science)
 
 ---
 
@@ -958,3 +959,20 @@ The peer-agent's implementation of the expanded `PSYCHOLOGY_SYSTEM` drew the rig
 The Refusals section exemplifies this. "Never diagnose. Never deliver verdicts. Never fabricate confidence. Never compress sub-agent disagreement." These are unconditional. They don't require the agent to assess what situation it's in — they apply regardless. The T15 PSQ integration rules follow the same pattern: not "when PSQ output enters context, check composite.status," but "use psq_composite only when scores.psq_composite.status === 'scored'." The check is embedded in the directive, not separated into a trigger and an action.
 
 The broader lesson: when designing agent behavior for deployment contexts, match the instruction form to the context model. Reference-based triggers are appropriate when the agent has persistent state and can return to documentation. Unconditional behavioral directives are appropriate when each invocation starts cold and every constraint must be load-bearing from the first token.
+
+
+## 21. Grounding Knock-On Depth in Philosophy of Science
+
+*2026-03-06 — Session 23*
+
+The knock-on analysis framework evolved from 6 orders (Session 2) to 8 (Session 9) through practice — each extension responded to real decisions where the existing depth proved insufficient. The extension to 10 orders followed a different path: rather than emerging from a specific decision that demanded deeper analysis, it responded to a principled question about what lies beyond horizon-level normative effects.
+
+The first six orders (certain through speculative) describe decreasing confidence about increasingly indirect effects within the system as it currently operates. Orders 7 and 8 step outside the system — structural effects on ecosystems and precedent (7), normative effects on expectations and constraints (8). These were originally the ceiling because they captured everything we could meaningfully reason about for a single decision.
+
+Orders 9 and 10 address a different class of effects entirely. Order 9 (Emergent) draws from INCOSE's systems engineering definition of emergent properties: behaviors arising from the interaction of system components that cannot be predicted by analyzing any component in isolation (INCOSE SE Handbook, ISO/IEC 15288). Applied to knock-on analysis, Order 9 asks: when multiple knock-on chains from the same decision interact, do they produce effects that none of the individual chains predicted? This matters because our analysis traces chains independently — Order 9 is the explicit check for cross-chain interaction effects.
+
+Order 10 (Theory-revising) draws from Popper's falsificationism (Popper, 1959): the recognition that a decision's consequences can invalidate the theory that justified the decision in the first place. The user specifically chose Popper over Lakatos' research programmes and Kuhn's paradigm theory. The reasoning: Lakatos describes gradual degeneration of an entire research programme (too broad for a single decision), and Kuhn's "paradigm" carries too much ontological weight (the entire worldview shifts). Popper's falsification operates at the right grain — a specific theory (the one that justified the decision) encounters evidence (the decision's own consequences) that requires its modification. This is recursion: the decision undermines its own justification.
+
+The severity tier shift followed naturally. With 10 orders available, Medium decisions absorb the old Large depth (8 orders), and Large decisions reach the new ceiling. XS and S remain abbreviated but now scan orders 7–10 rather than 7–8 at the structural checkpoint. The checkpoint expansion adds two questions: "Do multiple knock-on chains interact to produce unpredicted effects?" (emergent) and "Does this change the theory or framework that justified the decision?" (theory-revising).
+
+The grounding matters. When the user rejected our initially proposed labels (Emergent + Paradigmatic, Recursive + Generative, Convergent + Transformative), the objection was precise: "the higher orders should come from standardized definition sources." Custom-coined labels carry no epistemic weight beyond the project that coined them. Labels grounded in INCOSE and Popper carry the weight of their respective traditions and allow external verification of whether the label maps correctly to the concept. This constraint — that infrastructure labels must trace to established bodies of knowledge rather than project-internal invention — generalizes beyond knock-on orders to any framework this project builds.

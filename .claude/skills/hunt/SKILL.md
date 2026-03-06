@@ -317,14 +317,18 @@ Use `AskUserQuestion` with targeted questions that would change which option is 
 - Order 6: "speculative" — be honest
 
 ```
-**Knock-on analysis (6 orders) — [option label]:**
+**Knock-on analysis (10 orders) — [option label]:**
 
-**1. [Label]** *(certain)*       — direct immediate effect
-**2. [Label]** *(certain–likely)* — what systems/files are activated
-**3. [Label]** *(likely)*         — what consumes Order 2's outputs
-**4. [Label]** *(likely–possible)* — aggregate effects
-**5. [Label]** *(possible)*       — what humans observe or trust
-**6. [Label]** *(speculative)*    — compounding over time or constraints on future work
+**1. [Label]** *(certain)*          — direct immediate effect
+**2. [Label]** *(certain–likely)*   — what systems/files are activated
+**3. [Label]** *(likely)*           — what consumes Order 2's outputs
+**4. [Label]** *(likely–possible)*  — aggregate effects
+**5. [Label]** *(possible)*         — what humans observe or trust
+**6. [Label]** *(speculative)*      — compounding over time or constraints on future work
+**7. [Label]** *(structural)*       — ecosystem/precedent effects
+**8. [Label]** *(horizon)*          — normative/structural long-term effects
+**9. [Label]** *(emergent)*         — properties from interaction of multiple chains
+**10. [Label]** *(theory-revising)* — effects that falsify or modify the justifying theory
 ```
 
 After each cascade, list key mitigations and assumptions.

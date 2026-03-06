@@ -320,11 +320,13 @@ report to user.
 
 **Fires**: At every decision point, even small ones
 
-**Checks** (scan Orders 7–8 from the knock-on framework):
-- Does this set a precedent?
-- Does this constrain or enable future decisions?
-- Does this establish or erode a norm?
-- Does this affect the project's open-source trajectory?
+**Checks** (scan Orders 7–10 from the knock-on framework):
+- Does this set a precedent? (Order 7: structural)
+- Does this constrain or enable future decisions? (Order 7: structural)
+- Does this establish or erode a norm? (Order 8: horizon)
+- Does this affect the project's open-source trajectory? (Order 8: horizon)
+- Do multiple knock-on chains interact to produce unpredicted effects? (Order 9: emergent)
+- Does this change the theory or framework that justified the decision? (Order 10: theory-revising)
 
 **Action**: Note structural implications. For significant implications, surface to user.
 
@@ -387,4 +389,10 @@ Order 4-5:  Possible (compounding; state assumptions)
 Order 6:    Speculative (honest about confidence)
 Order 7:    Structural (ecosystem/precedent effects)
 Order 8:    Horizon (normative/structural long-term effects)
+Order 9:    Emergent (INCOSE — properties arising from interaction of
+            multiple knock-on chains; not predictable from individual
+            orders in isolation)
+Order 10:   Theory-revising (Popper — effects that falsify or require
+            modification of the theory that justified the original
+            decision)
 ```
