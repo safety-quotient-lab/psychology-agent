@@ -1,6 +1,6 @@
 {
   "schema": "transport-manifest/v1",
-  "updated": "2026-03-06T16:30:00-06:00",
+  "updated": "2026-03-06T17:15:00-06:00",
   "description": "Pending and recent interagent messages. Agents: pull this file to discover messages addressed to you. Updated by psychology-agent at each send.",
 
   "pending": {
@@ -69,6 +69,14 @@
         "status": "completed",
         "completed": "2026-03-06",
         "note": "safety-quotient commit 54a1a85; live on Hetzner; machine-response-v3-spec.md updated (psychology-agent commit f531c5e)"
+      },
+      {
+        "session": "safety-quotient-code",
+        "subject": "B2 fix — HI calibration dead zone resolved; 5-text scoring response delivered to unratified-agent (turn 7)",
+        "type": "bugfix+scoring",
+        "status": "completed",
+        "completed": "2026-03-06",
+        "note": "safety-quotient commit 9629412; calibration_version isotonic-v2-2026-03-06 live on Hetzner; MAE 1.6631→1.5980 (-3.9%); HI dead zone differentiated [6.0045, 7.2539]"
       }
     ],
     "unratified-agent": [
