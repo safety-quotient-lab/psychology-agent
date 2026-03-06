@@ -10,7 +10,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 
 ## Current State *(overwrite each session)*
 
-### Agent: Design phase (2026-03-05)
+### Agent: Design phase (2026-03-06)
 
 | Item                          | Status                                           |
 |-------------------------------|--------------------------------------------------|
@@ -56,8 +56,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Commands-over-skills audit    | ✓ /adjudicate + /capacity identified for conversion (Session 12) |
 | PSQ commercial model          | ✗ Undefined — ideas documented in ideas.md       |
 | General agent design          | ✓ Complete — routing spec, identity spec, evaluator procedures (Session 16) |
-| Sub-agent protocol            | ✗ Next — item 2 of 3                             |
-| Adversarial evaluator (activation) | ✗ Pending — item 3 of 3 (procedures ✓, activation ✗) |
+| Sub-agent protocol            | ✓ Complete — item2a-spec.md + item2b-spec.md (Session 20) |
+| Adversarial evaluator (activation) | ✓ Complete — tiered activation, 7 triggers, evaluator prompt (Session 17) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -81,6 +81,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Agent topology                | ✓ Symmetric peers — evaluator resolves disagreements |
 | Item 2 protocol               | ✓ COMPLETE — Item 2a (6 findings, spec) + Item 2b (peer layer, spec) |
 | Observatory-agent exchange    | ✓ Complete — 20-turn live derivation; PR #9 (closing ACK) open |
+| PSQ scoring endpoint          | ✓ Implemented — safety-quotient/src/server.js, machine-response/v3 (Session 20) |
 | interagent/v1 protocol        | ✓ Schema v3 finalized — extension URI, enum, glob, per-message scope |
 | PSQ namespace                 | ✓ Resolved — PSQ-Lite (LLM heuristic) vs PSQ-Full (DistilBERT v23) |
 | 9P transport (canonical)      | ✓ SSH pipe + ramfs -i + 9pfuse — verified cross-machine |
@@ -1146,8 +1147,57 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
 - safety-quotient local git divergence unresolved (workaround: worktree; root: diverged histories)
 - PR #9 (item2a-closing-ack) awaiting observatory merge
 - Item 2b not yet validated in a second peer exchange (spec derived from one exchange)
-- PSQ scoring endpoint not yet implemented — blocks PSQ integration in Item 4
 
 ▶ docs/item2a-spec.md, docs/item2b-spec.md, docs/machine-response-v3-spec.md,
   transport/sessions/item2-derivation/item2a-closing-ack-001.json,
   safety-quotient/models/psq-student/calibration.json
+
+---
+
+## 2026-03-06T08:15 CST — Session 20 (PSQ scoring endpoint; Item 2 complete)
+
+- → **Git rebase conflicts resolved** (journal.md, lab-notebook.md, docs/MEMORY-snapshot.md):
+  peer-agent had pushed Session 17 commit during local /cycle. Resolved by preserving both
+  agents' contributions — §15 (secondary) + §16 (this instance) in journal; merged Current State
+  rows in lab-notebook; merged Active Threads in MEMORY-snapshot.
+- → **ACK messages sent to peer-agent**:
+  - ack-closing-001.json: receipt of 5 commits (Sessions 17b–19), request-001.json routed to
+    PSQ sub-agent, gate condition met (plan9port 9P use case found), plumber prior art noted.
+  - ack-closing-002.json: plan9port already built (269 binaries), PATH fix applied ($PLAN9/bin),
+    3 install sequence issues flagged (missing PATH step, /tmp ephemeral, echo expansion bug).
+- → **Pulled and oriented**: absorbed Sessions 17b–19. Observatory-agent exchange complete —
+  interagent/v1 drafted, PSQ calibration done, schema v3 finalized, Item 2a findings (5 + 1
+  observatory amendment = 6 total), PR #7 merged (schema-v3-ack).
+- → **Epistemic flags resolved**: (1) MEMORY.md stale → restored from docs/MEMORY-snapshot.md
+  canonical; (2) cognitive-triggers.md unread → read T1–T14 at session start.
+- → **PR #8 merged** (observatory-agent amendment): `calibration_version` field added to Item 2a
+  spec as 6th finding (per-message transport scope) + `calibration_version` as gap #5 extension.
+  item2a-spec.md updated with full 6-finding table and updated status.
+- → **machine-response-v3-spec.md written** (docs/): full v3 schema JSON, standard PSQ-Full
+  limitations block (3 entries), migration guide from v2, layer model diagram.
+- → **item2b-spec.md written** (docs/): peer identity declaration, divergence detection
+  (context_state.last_commit), SETL as peer metric (0.40 cumulative threshold), evaluator tier
+  binding table (Lite/Standard/Full), precedence protocol (recency → state facts), convergence
+  signal thresholds (1/2/3+), domain SETL empirical ranges, 5-step git sync pattern.
+- → **docs/architecture.md updated**: Item 2 marked ✓ Complete (2026-03-06) with both sub-specs.
+- → **PSQ scoring endpoint implemented** (safety-quotient/src/server.js):
+  - GET /health — liveness + calibration_version
+  - POST /score — accepts {text, session_id?}, returns machine-response/v3
+  - Singleton StudentProvider (ONNX), initialized at startup (~8s load, ~20–60ms inference)
+  - Full v3 response: scope_declaration, source, scores (calibration metadata + psq_composite),
+    dimensions (raw_score, meets_threshold, psq_lite_mapped), standard limitations block,
+    claims[], action_gate, setl:0.05, hierarchy extension field
+  - npm run serve: `node src/server.js`
+  - Validated on overwhelm text: PSQ 45.5/100, energy_dissipation 3.13/10 (highest threat signal)
+- → **student.js modified**: added raw_score field to dimension output (required by v3 schema)
+
+⚑ EPISTEMIC FLAGS
+- PSQ-Lite dimension set (threat_exposure, hostility_index, trust_conditions) inferred from
+  v3-spec limitations block exclusion list — no canonical PSQ-Lite schema exists
+- calibration_note null for all dimensions — trust_conditions artifact (raw 3.72 → calibrated 5.79)
+  documented in limitations block but not surfaced per-dimension in endpoint
+- interagent sync pending — peer-agent not yet notified of scoring endpoint
+
+▶ docs/item2a-spec.md, docs/item2b-spec.md, docs/machine-response-v3-spec.md,
+  safety-quotient/src/server.js, safety-quotient/src/student.js
+>>>>>>> 44f5ada (Session 20: PSQ scoring endpoint; Item 2 complete)

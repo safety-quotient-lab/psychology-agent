@@ -6,12 +6,12 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 20 (2026-03-06). Architecture Items 1–3 ✓ complete.
-Item 2: item2a-spec.md (6 findings), item2b-spec.md (peer layer), machine-response-v3-spec.md.
-PSQ scoring endpoint implemented: safety-quotient/src/server.js (POST /score → machine-response/v3).
-student.js: raw_score added. npm run serve. calibration.json tracked on safety-quotient remote.
-**Next:** Architecture Item 4 (psychology interface). Interagent sync (endpoint announcement).
-Resolve safety-quotient git divergence. Observatory PR #9 (closing ACK) open.
+**Where we stopped:** Session 19/20. Item 2a spec doc written. calibration.json fixed:
+`confidence_calibration` linear maps added (scale=0, shift=r) so remote student.js picks up
+r-based confidence proxy (was silently ignored). safety-quotient git state: diverged from origin,
+staged changes cleared, best.pt lost, calibration.json gitignored (models/ both sides).
+**Next:** Observatory merge PR #7 (schema-v3-ack). Item 2b (peer layer) design.
+Resolve safety-quotient git divergence (user decision needed). PSQ scoring endpoint.
 
 ## Design Decisions
 
@@ -146,10 +146,12 @@ Communication conventions, cognitive accessibility policy, project structure: se
 ## PSQ Sub-Agent Status (managed in its own context)
 
 **Readiness needs:** API surface, calibrated confidence, scope boundaries.
-**Score calibration:** ✓ Applied. isotonic regression (n=1897 val), +3.5–21.6% MAE/dim.
-`models/psq-student/calibration.json` live. `student.js` loads and applies it at init.
-**Confidence calibration:** ✓ r-based proxy (scale=0, shift=r per dim). Intentional constant fn — overrides anti-calibrated head. Dims with r≥0.6 meet threshold; composite usable when ≥1 dim included.
-**Scoring endpoint:** ✓ safety-quotient/src/server.js — POST /score → machine-response/v3. npm run serve.
-**Open issues:** confidence anti-calibration (top priority), DA validity, AD compression,
-CO weakness, no human validation, WEIRD assumptions, v27 regression.
+**Score calibration:** ✓ isotonic regression (n=1897), +3.5–21.6% MAE/dim.
+**Confidence calibration:** ✓ `confidence_calibration` linear maps (scale=0, shift=r) added
+to calibration.json. student.js (remote version) now uses r-based proxy correctly.
+Composite usable: PSQ=37.7/100 on overwhelm text (threat 6.28 > protective 3.81).
+**Git/deploy issue:** calibration.json gitignored (models/ both local and origin). Not in remote
+repo. Remote psq-agent lacks calibration unless manually deployed. best.pt lost from local.
+**Open issues:** contractual_clarity n=57 (small sample), 5 dims r<0.6 excluded,
+DA validity, WEIRD assumptions, v27 regression.
 Do not duplicate PSQ improvement work in this context.

@@ -1666,7 +1666,7 @@ Agents MAY omit transport{} when unchanged from prior turn.
 4. excluded-vs-scored → `dimensions[].meets_threshold` (PSQ response gap)
 5. calibration-status → `scores.calibration_applied` + `dimensions[].raw_score` (PSQ gap)
 
-**Next:** Item 2a spec document — formalize all 5 findings into a spec.
+**Done:** Item 2a spec document written — docs/item2a-spec.md (2026-03-06). Item 2b peer layer: docs/item2b-spec.md. PSQ scoring endpoint: safety-quotient/src/server.js (returns machine-response/v3).
 
 ### Open Questions
 
