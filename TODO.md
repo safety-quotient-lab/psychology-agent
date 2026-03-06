@@ -345,14 +345,13 @@ Blocking: API surface, confidence calibration, scope boundaries.
   verification step?
   *Precondition: Item 3 evaluator spec (complete), production deployment (in progress)*
 
-- [ ] **EF-4: git-PR transport failure mode mapping** — BFT literature assumes
-  network partitions; git-PR transport has delay-based failure modes instead.
-  Map the failure taxonomy: (a) human unavailable (delay), (b) PR not merged
-  (message loss), (c) merge order differs from send order (reorder), (d) concurrent
-  pushes (collision — already observed, Session 21). Define protocol responses for
-  each: timeout semantics (how long before escalation?), retry policy (automatic
-  or manual?), collision resolution (sender-scoped turn numbering, already proposed).
-  *Precondition: none — can begin immediately*
+- [x] **EF-4: git-PR transport failure mode mapping** — ✓ Complete (Session 22).
+  8 failure modes mapped (F1–F8): concurrent push collision, human relay delay,
+  PR not merged, merge order mismatch, silent drop, conflict marker corruption,
+  stale branch, split-brain. Each with detection method, protocol response,
+  prevention, and timeout. 6 actionable improvements defined (3 immediate,
+  2 short-term, 1 medium-term). Full spec: docs/git-pr-transport-failure-modes.md.
+  *Completed: 2026-03-06*
 
 ---
 
