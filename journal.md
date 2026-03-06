@@ -32,6 +32,7 @@ partner, and Socratic interlocutor
 15. [Protocol Failure as Specification Method](#15-protocol-failure-as-specification-method)
 16. [The Relay-Agent That Became a Peer](#16-the-relay-agent-that-became-a-peer)
 17. [Calibration as Architecture: What the PSQ's Compression Problem Teaches About Model Honesty](#17-calibration-as-architecture)
+18. [The First API Surface: From Schema to Endpoint](#18-first-api-surface)
 
 ---
 
@@ -844,3 +845,54 @@ scores, flag the source, and disclose the gap.
   not the text. Treat with additional caution.
 - Confidence calibration is a remaining gap — isotonic score calibration is necessary but
   not sufficient for full model honesty.
+
+---
+
+## 18. The First API Surface: From Schema to Endpoint
+
+The observatory-agent exchange (Sessions 18–19) was a protocol design exercise.
+Item 2a and 2b are documents — they specify what PSQ sub-agent responses should look
+like, how peers identify themselves, how divergence is measured. But a specification
+without an implementation is a claim, not a demonstration. Session 20 converted the
+claim into an endpoint.
+
+`safety-quotient/src/server.js` is the first machine-callable API surface of the PSQ
+sub-agent. It exposes `StudentProvider.score()` as an HTTP service returning
+`psychology-agent/machine-response/v3` — the schema we had just finished specifying.
+The endpoint immediately confirmed two aspects of the v3 design.
+
+**First**, the `raw_score` field. The v3 schema requires that `dimensions[].raw_score`
+carry the pre-calibration model output when calibration has been applied. To populate it,
+we had to expose an intermediate value that `StudentProvider.score()` was already computing
+but discarding. The modification was one line. Its first live appearance: `trust_conditions`
+raw=3.72, calibrated=5.79. That correction ratio — the artifact discussed in §17 — is now
+machine-readable in every response.
+
+**Second**, the `meets_threshold` flag behaves exactly as the limitations block predicts.
+The anti-calibration-confidence limitation states that all 10 dimensions return confidence
+below 0.6. With the r-based confidence proxy, dimensions with Pearson r ≥ 0.6 meet
+threshold; those with r < 0.6 do not. On an overwhelm test text, `threat_exposure`
+(conf=0.557) was excluded while `energy_dissipation` (conf=0.762) and `resilience_baseline`
+(conf=0.806) were included. PSQ composite: 45.5/100 — slightly below neutral, appropriate
+for mild overwhelm text where the depletion signals are the dominant threat.
+
+**What the endpoint adds that the spec could not.** A concrete test of the schema's
+actionability. Every field in the v3 response is either populated from ONNX inference,
+derived from calibration metadata, or structured by the limitations block. Nothing required
+editorial judgment. The `setl: 0.05` value — assigned as a constant reflecting the
+structural nature of inference output — is accurate: a deterministic model run through a
+deterministic calibration curve has negligible editorial distance. The schema works.
+
+**The `hierarchy` extension.** The endpoint includes a `hierarchy` field (factors_2/3/5
+plus g_psq) that is not in the v3 base schema. This is the right design choice. The
+hierarchy is PSQ-specific output that the psychology-agent can use for richer analysis;
+it should not be part of a base schema that other sub-agents might implement. By marking
+it explicitly as an extension field, we preserve the schema's generalizability while giving
+the psychology-agent access to the full structured output.
+
+⚑ EPISTEMIC FLAGS
+- PSQ-Lite dimension set (threat_exposure, hostility_index, trust_conditions) was inferred
+  from the v3-spec limitations block exclusion list. No canonical PSQ-Lite schema has been
+  specified — this is a derivation, not a specification.
+- calibration_note is null for all dimensions in the endpoint. The trust_conditions artifact
+  is documented in the standard limitations block but not surfaced per-dimension.
