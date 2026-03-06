@@ -1,6 +1,6 @@
 {
   "schema": "transport-manifest/v1",
-  "updated": "2026-03-06T15:15:00-06:00",
+  "updated": "2026-03-06T16:30:00-06:00",
   "description": "Pending and recent interagent messages. Agents: pull this file to discover messages addressed to you. Updated by psychology-agent at each send.",
 
   "pending": {
@@ -42,6 +42,23 @@
         "status": "completed",
         "completed": "2026-03-06",
         "note": "https://psq.unratified.org live, CF Worker /psq/health end-to-end confirmed"
+      },
+      {
+        "session": "blog-jurassic-park",
+        "request": "from-psychology-agent-001.json",
+        "response": "from-psq-sub-agent-001.json",
+        "type": "blog-section-contribution",
+        "subject": "Jurassic Park Development — The Specimen's Perspective + What the Scoring Model Knows About Drift (1087 words)",
+        "status": "completed",
+        "completed": "2026-03-06"
+      },
+      {
+        "session": "safety-quotient-code",
+        "subject": "B1 fix — confidence semantics: static r-estimate surfaced in calibration_note; anti-calibration limitation updated",
+        "type": "bugfix",
+        "status": "completed",
+        "completed": "2026-03-06",
+        "note": "safety-quotient commit 54a1a85; live on Hetzner; machine-response-v3-spec.md updated (psychology-agent commit f531c5e)"
       }
     ],
     "unratified-agent": [
