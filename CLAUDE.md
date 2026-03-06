@@ -74,6 +74,8 @@ exceed available evidence, or any finding that a peer reviewer would challenge.
   through the full doc chain: lab-notebook, journal, architecture, MEMORY, snapshot.
 - `/knock` — Single-option 10-order knock-on effect tracing. Used standalone or
   invoked by /hunt and /adjudicate. Domain classify → ground → trace 10 orders.
+- `/sync` — Inter-agent mesh synchronization. Scans transport sessions for new
+  messages, checks peer repos, writes ACKs, updates MANIFEST. No auto-merge.
 
 ## Commands (load on demand)
 

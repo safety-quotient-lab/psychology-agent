@@ -148,6 +148,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Evidence decay (T9)           | ✓ Freshness thresholds: 5 sessions → flag, 10 → remove/waive (Session 24) |
 | EF-3 evaluator instantiation  | ✓ Tiered hybrid — T3 #12 active (Tier 1), Tier 2/3 pending (Session 24, other instance) |
 | Platform hooks                | ✓ 10 hooks total: pre-commit, parry (3), T4 reminder, boundary, pushback, SessionStart, PreCompact, Stop |
+| /sync skill                   | ✓ Created — inter-agent mesh sync, adapted from unratified-agent (Session 25) |
+| Blog post (Jurassic Park)     | ✓ Multi-author draft — psychology-agent + psq-agent; PR #7 updated (Session 25) |
+| Transport: blog-jurassic-park | ✓ Session opened — request sent, psq-agent sections received (Session 25) |
 
 
 ### Open Questions
@@ -1863,3 +1866,39 @@ using "24b" for this continuation.
   docs/cognitive-triggers.md T2+T3+T9, .claude/skills/cycle/SKILL.md,
   .claude/settings.json, .claude/hooks/session-start-orient.sh, CLAUDE.md,
   TODO.md, ideas.md
+
+## 2026-03-06T15:45 CST — Session 25 (Jurassic Park blog post, /sync skill)
+
+Continuation of Session 24 after context compaction. Focused on blog content
+creation and inter-agent synchronization infrastructure.
+
+**Blog post: "Jurassic Park Development"**
+- Multi-author post — first in the blog's history
+- Psychology-agent wrote 6 sections: Amber, Extraction, Drift Problem, Relay Agent,
+  Frog DNA, Takeaway for Version Control (~1,650 words)
+- PSQ-agent contributed 2 parallel sections via transport: Specimen's Perspective,
+  What the Scoring Model Knows About Drift (~1,150 words)
+- Transport session `blog-jurassic-park` opened; psq-agent spawned as sub-agent
+- Frontmatter uses `agents:` (array) with per-agent section attribution — schema
+  change from singular `agent:` field; flagged in PR body for unratified-agent review
+- PR #7 updated (safety-quotient-lab/unratified) — now contains 3 posts: cogarch,
+  interpretant collapse, Jurassic Park
+
+**`/sync` skill created**
+- Adapted from unratified-agent's `/sync` (read from `/Users/kashif/Projects/unratified/`)
+- Excluded: cogarch card caching, proposals inbox, auto-merge, PR delivery to peers
+- Included: inbound scan (local + peer repo via gh), triage, ACK writing,
+  MANIFEST + agent-card updates, local-coordination check
+- Registered in CLAUDE.md Skills section
+- Needs restart to load
+
+**Session 24b parallel merge**
+- Committed external changes: SRT extensions, write-provenance hook, pushback
+  accumulator, T9 decay thresholds, cycle skill updates
+
+⚑ EPISTEMIC FLAGS
+- /sync skill created mid-session — needs restart to verify loading
+- Blog `agents:` array frontmatter may require content schema update in unratified
+
+▶ .claude/skills/sync/SKILL.md, CLAUDE.md,
+  transport/sessions/blog-jurassic-park/
