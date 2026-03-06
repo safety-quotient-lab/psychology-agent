@@ -6,11 +6,11 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "psychology-interface"
-database_id = "TBD"   # set after: wrangler d1 create psychology-interface
+database_id = "56a2f5ac-0eb1-44d8-83f4-8940fb62804c"
 
 [[kv_namespaces]]
 binding = "SESSION_KV"
-id = "TBD"             # set after: wrangler kv:namespace create SESSION_KV
+id = "1d17a21cedde4804b68ab4afe9f8fd38"
 
 [[r2_buckets]]
 binding = "ARTIFACTS"
