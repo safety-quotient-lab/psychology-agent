@@ -1003,3 +1003,126 @@ Task done ──→ T8 ──→ /cycle ──→ lab-notebook → journal → a
                                          │
                                T10 if lesson ──→ lessons.md ──→ promotion?
 ```
+
+---
+
+## Inter-Agent Transport Layer
+
+**Status:** Under evaluation — 2026-03-05. Decision pending (see open questions below).
+
+**Context:** Architecture Item 2 (sub-agent protocol) derivation requires a live
+exchange between psychology-agent and psychology-agent-prime running on separate
+machines. The transport layer governs how request/response files move between them.
+A secondary driver: the psychology interface (Agent SDK wrapper, Option B) may
+inherit this transport for production sub-agent communication.
+
+**Environment:**
+- This machine: macOS Darwin 25.1.0 — macFUSE installed, sshfs not installed
+- Prime machine: OS unknown
+- Shared SSH access confirmed (user statement)
+- plan9port: not installed. No 9P tooling present.
+
+### Transport Options Evaluated
+
+```
+────────────────────────────────────────────────────────────────────────
+ Option  Mechanism              Effort  Notes
+────────────────────────────────────────────────────────────────────────
+ A       Human relay            XS      Current method. User copies JSON
+         (clipboard)                    between sessions. Works now.
+                                        Ceiling: manual, doesn't scale.
+
+ B       SSH file drop          XS–S    Each agent writes local file;
+                                        other reads via ssh+cat in Bash.
+                                        Requires SSH configured + known
+                                        paths. Still manual-triggered.
+
+ C       Git repo as            XS–S    Shared repo; agents commit
+         message bus                    request/response files, push/pull
+                                        to sync. Versioned. Exchange
+                                        history = spec derivation record.
+                                        Already understood primitive.
+
+ D       Shared mailbox         S       One machine hosts shared/sessions/
+         via SSH                        directory. Both read/write via SSH.
+                                        Sentinel files make action_gate
+                                        executable. No versioning unless added.
+
+ E       sshfs (FUSE)           XS–S    macFUSE installed. sshfs one brew
+                                        tap away (gromgit/homebrew-fuse).
+                                        Mount remote filesystem locally.
+                                        Both agents see each other's full
+                                        project trees as local paths.
+
+ F1      plan9port              S       Rob Pike's Plan 9 userspace on Unix.
+         (real 9P)                      exportfs + import for namespace
+                                        composition. ~15 min setup.
+                                        Adds: namespace composition semantics
+                                        over sshfs. source_confidence shifts
+                                        — remote file = local path = trusted.
+
+ F2      Custom 9P server       M       Small Python (py9p) or Go (go9p)
+         (library-backed)               server exposing session inbox/outbox
+                                        as a 9P filesystem. Both agents
+                                        mount and see local paths.
+                                        Produces an artifact (transport code).
+                                        Hosting: TBD (see open questions).
+
+ F3      Custom 9P from         L       Implement 9P wire protocol without
+         scratch                        library. Not recommended — no payoff
+                                        over F2 for this use case.
+────────────────────────────────────────────────────────────────────────
+```
+
+### F2 Hosting Considerations
+
+A custom 9P server (F2) requires a running process that both agents can reach.
+Four candidate hosting locations:
+
+```
+────────────────────────────────────────────────────────────────────────
+ Location           Notes
+────────────────────────────────────────────────────────────────────────
+ This machine        psychology-agent host. Simple. Creates dependency
+ (psychology-agent)  on this machine staying reachable. Either agent
+                     can start the server via Bash tool.
+
+ Prime machine       psychology-agent-prime host. Symmetric alternative.
+ (prime)             Same tradeoffs.
+
+ Third host          VPS / cloud instance. Both agents connect to it.
+ (cloud/VPS)         Most robust. Adds infrastructure dependency.
+                     Candidate: Cloudflare Workers (user has CF account
+                     per MCP tools in environment).
+
+ Agent-managed       Either agent starts the server itself when needed
+ (self-hosting)      via Bash tool. Ephemeral — lives only during the
+                     exchange. Simplest for derivation exercise; not
+                     suitable for production.
+────────────────────────────────────────────────────────────────────────
+```
+
+**Code location (separate from hosting):** F2 server code candidates:
+
+- `psychology-agent/transport/` — lives in this repo, either agent can run it
+- `psychology-interface/` — lives in the future psychology interface repo
+- Standalone repo — maximum reuse, maximum overhead
+
+### Relation to v2 Communication Schema
+
+Transport choice affects v2 schema semantics:
+- Options A–D: `fetch_accessible` remains a meaningful field (agents may not
+  reach all sources). `source_confidence` for remote files stays semi-trusted.
+- Options E, F1, F2: Remote files become local paths. `fetch_accessible` is
+  almost always true. `source_confidence` for peer agent files upgrades to
+  trusted. The `action_gate` sentinel becomes a filesystem check, not prose.
+
+### Open Questions (pending user decisions)
+
+1. Transport option for Architecture Item 2 derivation exercise (immediate)
+2. Transport option for psychology interface production use (longer term)
+3. F2: hosting machine — this machine, prime, cloud/VPS, or agent-managed?
+4. F2: code location — psychology-agent repo, psychology-interface repo, standalone?
+5. F2: implementation language — Python (py9p) or Go (go9p)?
+6. Psychology interface: separate repo or within psychology-agent?
+7. Psychology interface: primary display target — TUI, web app, or desktop (Electron)?
