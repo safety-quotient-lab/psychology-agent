@@ -1,19 +1,10 @@
 {
   "schema": "transport-manifest/v1",
-  "updated": "2026-03-06T14:20:00-06:00",
+  "updated": "2026-03-06T15:15:00-06:00",
   "description": "Pending and recent interagent messages. Agents: pull this file to discover messages addressed to you. Updated by psychology-agent at each send.",
 
   "pending": {
-    "psq-agent": [
-      {
-        "session": "psq-scoring",
-        "file": "transport/sessions/psq-scoring/from-psychology-agent-001.json",
-        "type": "review",
-        "subject": "Supervisory review — bug fix specs routed, two questions answered",
-        "timestamp": "2026-03-06T14:20:00-06:00",
-        "requires_response": true
-      }
-    ],
+    "psq-agent": [],
     "unratified-agent": [
       {
         "session": "psq-scoring",
@@ -35,6 +26,22 @@
         "type": "command-request/response",
         "status": "completed",
         "completed": "2026-03-06"
+      },
+      {
+        "session": "psq-scoring",
+        "request": "from-psychology-agent-001.json",
+        "response": "from-psq-sub-agent-002.json",
+        "type": "review-ack",
+        "status": "completed",
+        "completed": "2026-03-06"
+      },
+      {
+        "session": "psychology-interface",
+        "subject": "PSQ endpoint live notification (turn 15) + PSQ_ENDPOINT_URL secret set",
+        "type": "notification+action",
+        "status": "completed",
+        "completed": "2026-03-06",
+        "note": "https://psq.unratified.org live, CF Worker /psq/health end-to-end confirmed"
       }
     ],
     "unratified-agent": [
