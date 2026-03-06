@@ -79,11 +79,16 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Architecture Item 3           | ✓ Complete — activation logic, 7 triggers, evaluator prompt (Session 17) |
 | Transport layer               | ✓ F1 (plan9port) for derivation; F2/Cloudflare for production |
 | Agent topology                | ✓ Symmetric peers — evaluator resolves disagreements |
-| Item 2 derivation             | ⚑ In progress — request-001.json awaiting PSQ response |
+| Item 2 derivation             | ⚑ In progress — 9P transport verified; 3 schema findings; PSQ gate open |
 | Closing instance              | ✓ Retired — Sessions 1–9, ACK b670bd9 |
-| plan9port (macOS)             | ⚑ Building — 267+ binaries, not yet complete |
+| plan9port (macOS)             | ✓ Operational — /private/tmp/plan9port, 267 binaries |
+| plan9port (Debian)            | ✓ Operational — /tmp/plan9port, 269 binaries (observatory-agent) |
+| Observatory-agent exchange    | ⚑ In progress — interagent/v1 handshake complete; A2A review pending |
+| interagent/v1 protocol        | ✓ Draft — A2A Epistemic Extension framing adopted |
+| PSQ namespace                 | ✓ Resolved — obs:psq (LLM heuristic) vs psy:psq (DistilBERT v23) |
+| 9P transport (canonical)      | ✓ SSH pipe + ramfs -i + 9pfuse — verified cross-machine |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
-| Git history                   | ✓ 38+ commits (fab2291)                          |
+| Git history                   | ✓ 43+ commits (b244814)                          |
 
 
 ### Open Questions
@@ -998,4 +1003,47 @@ source_confidence + claims[] + action_gate. Schema committed to docs/architectur
 
 ▶ docs/architecture.md (Item 3 spec, transport layer, topology decisions),
   transport/sessions/item2-derivation/, TODO.md (Items 2–4 updated)
+
+---
+
+## 2026-03-05T22:16 CST — Session 18 (Observatory exchange + 9P transport + interagent/v1)
+
+- → Observatory-agent (Debian 12, Human Rights Observatory, safety-quotient-lab/observatory)
+  identified as active peer. 4 SSH sessions from 192.168.0.46 (Chromebook) to 192.168.0.40
+  (macOS) confirmed via netstat.
+- → plan9port build corrections propagated: libfontconfig1-dev + libfreetype-dev missing from
+  Debian apt line; PLAN9 export syntax fixed (quoted string + export keyword). architecture.md
+  updated. brew install plan9port removed — not in Homebrew, source build required.
+- → schema namespace finding from ack-plan9port-001 retracted. observatory-agent/v1 was correct —
+  independent agents should not adopt psychology-domain schemas.
+- → interagent/v1 base protocol drafted: generic agent-to-agent base layer. Layer model:
+  base (interagent/v1) / domain extension (psychology-agent/v2, observatory-agent/v1).
+- → Capability handshake completed with observatory-agent. observatory.unratified.org/.well-known/
+  agent.json live (A2A v0.3.0, 8 skills). Convergence signals table written to architecture.md
+  (8 signals, 5 columns: both-agent detail, convergence/tension, status, arch impact).
+- → PSQ namespace resolved: obs:psq (LLM heuristic, 3-dim) vs psy:psq (DistilBERT v23, 10-dim).
+  Different constructs sharing a family name. Integration path: obs:psq at ingest (triage);
+  psy:psq on flagged outliers (detailed pass). Cross-agent PSQ gate open.
+- → interagent/v1 reframed as A2A Epistemic Extension — profile of A2A v0.3.0 that inherits
+  discovery and adds claims[], setl, epistemic_flags, action_gate. Novel contribution is the
+  epistemic layer. Both agents reading full A2A spec independently.
+- → 9P transport verified cross-machine: SSH pipe + ramfs -i (macOS server) + 9pfuse (Debian
+  client). 4 files exchanged. Canonical command documented in architecture.md. listen1 tcp!
+  broken on Darwin (zsh globbing + Darwin network stack) — SSH pipe is the only working pattern.
+- → 3 Item 2a derivation findings: (1) no transport{} field in schema, (2) ephemeral lifetime
+  not expressible, (3) file/message boundary undefined. Logged to architecture.md + ACK.
+- → SETL and Fair Witness confirmed as shared primitives between both agents — independent
+  convergence, not borrowed.
+- → Cloudflare stack convergence: observatory runs CF Workers + D1 + KV + R2 + Queues.
+  Architecture Item 4 targets same stack. Observatory is a working reference implementation.
+- → agent-inbox pattern (/.well-known/agent-inbox.json) noted as adoption candidate.
+
+⚑ EPISTEMIC FLAGS
+- A2A Epistemic Extension accepted at 0.90 confidence — pending full A2A spec read
+- PSQ dimension mapping inference (0.70 conf) validated by observatory-agent confirmation
+  that PSQ constructs are different — dimension-level mapping still unconfirmed
+- Item 2a derivation ongoing — 3 findings from one transport test; more turns needed
+
+▶ docs/architecture.md (interagent/v1, A2A extension, 9P transport, PSQ namespace, convergence signals),
+  transport/sessions/item2-derivation/ (plan9port corrections, capability handshake, PSQ proposal, ACKs)
 

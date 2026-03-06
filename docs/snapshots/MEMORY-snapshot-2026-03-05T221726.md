@@ -6,14 +6,13 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 18 in progress. Observatory-agent (Debian 12, HRO)
-active peer. 9P transport verified cross-machine: SSH pipe + ramfs -i + 9pfuse.
-interagent/v1 → A2A Epistemic Extension (profile of A2A v0.3.0 + claims/SETL/action_gate).
-PSQ namespaces resolved: obs:psq (LLM heuristic, 3-dim) vs psy:psq (DistilBERT, 10-dim).
-3 Item 2a derivation findings: transport{} field missing, ephemeral lifetime, file/message
-boundary. SETL + Fair Witness confirmed as shared primitives (independent convergence).
-**Next:** A2A spec read (both agents independently). PSQ response to request-001.json still
-pending (safety-quotient/ context). Item 2a spec derivation continues.
+**Where we stopped:** Session 17b complete. Architecture Items 1 ✓ 3 ✓ done.
+Item 3: tiered activation (Lite/Standard/Full), 7 triggers, peer disagreement protocol,
+full evaluator prompt committed. Transport: F1 (plan9port, building macOS) for Item 2
+derivation; F2/Cloudflare for production. Topology: symmetric peers, evaluator resolves
+disagreements. Item 2 derivation live: request-001.json in transport/sessions/item2-derivation/.
+Closing instance (Sessions 1–9) retired. Psychology interface scoped: psychology-agent/interface/.
+**Next:** PSQ response to request-001.json → derive Item 2a spec from gaps.
 
 ## Design Decisions
 
