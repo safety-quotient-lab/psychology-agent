@@ -129,20 +129,11 @@ vocabulary — not wholesale adoption, but informed alignment. Novel constructs
 and a SWEBOK/PMBOK meaning, specify which is active on first use.
 Example: "validation (psychometric)" vs. "validation (SWEBOK V&V)."
 
-### Document Format Policy
+### Document Format & Whitespace
 
-- **LaTeX** for complex documentation (papers, psychometric reports, formal analyses)
-- **Markdown** for standard documentation (lab notebooks, READMEs, memory files)
-- Never use Word. Never use plain text when markdown is available.
-
-### Formatting & Whitespace Policy
-
-- **APA-style formatting** adapted for terminal/markdown output
-- APA tables: no vertical rules; horizontal rules at top, under headers, and bottom
-- 1.618x (golden ratio) whitespace between sections and logical blocks
-- ASCII box-drawing for architecture diagrams and structural elements
-- Symbols: ✓ ✗ ★ ↑↓≈ ⚑ ⚠ | Severity: ██░░ HIGH, █░░░ MOD, ░░░░ LOW
-- In-text citations where referencing established literature (Author, Year)
+Scoped to `.claude/rules/markdown.md` (loaded for `**/*.md` files).
+Summary: APA tables, golden ratio whitespace, ASCII box-drawing, in-text citations.
+LaTeX for formal docs, markdown for everything else.
 
 ### Internal Reference Display Convention
 
@@ -179,6 +170,17 @@ benefit everyone — they are not accommodations for edge cases.
 - **Modular structure** — each section should stand alone; don't require the user to
   hold prior sections in working memory to parse the current one
 - **Offer stopping points** — for long outputs, offer to pause rather than dumping
+
+---
+
+## Glob-Scoped Rules
+
+File-type-specific conventions live in `.claude/rules/` with glob patterns:
+- `markdown.md` (`**/*.md`) — formatting, whitespace, epistemic flags, lab-notebook
+- `javascript.md` (`**/*.js`) — CF Worker patterns, Agent SDK, PSQ client
+- `transport.md` (`transport/**/*.json`) — interagent protocol, naming, urgency field
+
+These load automatically when editing matching files. CLAUDE.md retains universal conventions.
 
 ---
 

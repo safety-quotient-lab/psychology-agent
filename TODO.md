@@ -31,7 +31,7 @@ Forward-looking task list only. Completed and emergent work goes to
   All 8 smoke test steps passed. PSQ routes live (pending production endpoint URL).
 
   **Remaining work:**
-  - [ ] PSQ production endpoint — Hetzner provisioned, model rsync pending (psq-agent)
+  - [x] PSQ production endpoint — ✓ Live at https://psq.unratified.org/score (Caddy TLS, 84ms inference)
   - [ ] `/turn` route — blocked by API credits. Re-enable checklist:
     1. `wrangler secret put ANTHROPIC_API_KEY`
     2. Remove 503 guard in worker.js `/turn` handler
@@ -72,13 +72,11 @@ Forward-looking task list only. Completed and emergent work goes to
   thresholds (60% PRESSURE, 80% CRITICAL).
   *Source: antiregression-setup README ("60% rule")*
 
-- [ ] **Glob-scoped rules** — move language-specific conventions to `.claude/rules/`
-  with glob patterns (e.g., `rules/python.md` scoped to `**/*.py`). Reduces CLAUDE.md
-  context load when editing non-matching files. Currently CLAUDE.md loads 178 lines
-  every session regardless. Low priority until implementation phase produces substantial
-  code files.
-  *Source: antiregression-setup `.claude/rules/` pattern*
-  *Precondition: implementation phase started (code exists to scope against)*
+- [x] **Glob-scoped rules** — ✓ Session 23c. Three rules created:
+  `markdown.md` (`**/*.md`), `javascript.md` (`**/*.js`), `transport.md`
+  (`transport/**/*.json`). CLAUDE.md formatting section replaced with pointer
+  (203 lines, detail loads per-filetype). CLAUDE.md Glob-Scoped Rules section added.
+  *Completed: 2026-03-06*
 
 - [ ] **Auto-persist /adjudicate output** — route /adjudicate decision documents to
   `plans/` or `docs/decisions/` automatically, not just conversation output. Plans
@@ -296,10 +294,21 @@ Simone, cc-tools, cchooks.*
 Managed in safety-quotient/ context. Do not duplicate here.
 Blocking: API surface, confidence calibration, scope boundaries.
 
-- [ ] **PSQ confidence calibration** — score calibration ✓ (isotonic regression, n=1897).
-  Confidence calibration is a separate problem: confidence head outputs do not reflect
-  actual predictive reliability. Needs ground-truth confidence labels or held-out
-  reliability analysis. Until done, composite score remains unusable.
+- [ ] **PSQ bug B1: Dead confidence head** — ONNX model confidence output collapsed to
+  per-dimension constants for ALL inputs. Fix options: (A) remove confidence from API
+  response, (B) replace with static per-dimension reliability estimates (known Pearson r),
+  (C) retrain confidence head. Routes to psq-agent context.
+  *Source: psq-scoring session, 2026-03-06*
+
+- [ ] **PSQ bug B2: HI calibration dead zone** — isotonic regression maps raw HI scores
+  5.854–7.650 to identical 6.69. Fix options: (A) re-fit with finer binning, (B) use
+  raw_score for HI when in dead-zone range, (C) add training data in mid-range band.
+  Routes to psq-agent context.
+  *Source: psq-scoring session, 2026-03-06*
+
+- [ ] **PSQ raw_score in API response** — unratified-agent asks whether endpoint currently
+  returns raw_score. Verify and document. Routes to psq-agent context.
+  *Source: from-unratified-agent-002.json, 2026-03-06*
 
 ---
 
@@ -352,9 +361,8 @@ Blocking: API surface, confidence calibration, scope boundaries.
   deferred. Session: transport/sessions/mesh-init/.
   *Completed: 2026-03-06*
 
-- [ ] **PSQ endpoint URL to unratified-agent** — send follow-up turn to mesh-init
-  session with live PSQ endpoint URL once Hetzner service is running.
-  *Precondition: psq-agent rsync complete + service healthy*
+- [x] **PSQ endpoint URL to unratified-agent** — ✓ Sent (mesh-init turn 5, Session 23d).
+  *Completed: 2026-03-06*
 
 - [x] **`/.well-known/agent-card.json`** — ✓ Deployed on CF Worker (Session 23) +
   in-repo at .well-known/agent-card.json (local instance, 0bd28b7). Both live.
