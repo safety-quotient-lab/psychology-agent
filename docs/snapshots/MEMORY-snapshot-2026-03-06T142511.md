@@ -14,15 +14,16 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 
 ## Active Thread (2026-03-06)
 
-**Context:** User wants this agent to be the **psychology agent** (collegial mentor) with:
+**Context:** User wants this agent to be a **general-purpose psychology agent** (collegial mentor) with:
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 24. Blog status checked: 2 drafts unreviewed, PR #2 merged,
-2 planned posts not started. 20-file semantic rename ("general→psychology agent") unstaged
-in working tree — belongs to concurrent instance, left untouched.
+**Where we stopped:** Session 23d. PSQ production live (https://psq.unratified.org/score).
+mesh-init complete. psq-scoring session: 3 turns read (initial run, interpretation w/ 2 bugs,
+ACK). Two PSQ bugs open: B1 confidence head dead, B2 HI calibration dead zone. Defensibility
+review delivered (12 findings). Semantic rename + transport discovery + /cycle complete.
 **Next:** PSQ bugs B1/B2 (routes to psq-agent). EF-3 evaluator instantiation.
-Blog drafts need review. Other instance's rename sweep needs commit.
+Blog PR #2 open (unratified).
 
 
 ## Memory Hygiene
