@@ -159,12 +159,19 @@
                               (PreToolUse, PostToolUse, Stop, SessionStart,
                               SessionEnd, UserPromptSubmit). Sub-agents: `agents:`
                               option with custom prompts + tool sets.
-                              `settingSources: ['project']` loads CLAUDE.md, skills,
-                              commands automatically — existing cogarch carries over.
-                              Psychology interface (Option B) effort: S (2–4 weeks).
-                              Branding: "Powered by Claude" required; "Claude Code"
-                              prohibited in product-facing contexts.
-                              Investigated: 2026-03-05
+                              `settingSources: ['project']` is a no-op in CF Workers
+                              (no local filesystem — reads via process.cwd()). Fix:
+                              inline identity + cogarch into system prompt (Option A,
+                              implemented) or fetch from R2/KV at request time
+                              (Option B, documented in agent.js).
+                              Investigated: 2026-03-05. settingSources finding: 2026-03-06.
+
+ Psychology interface         Deployed: https://psychology-interface.kashifshah.workers.dev
+ production                  D1: psychology-interface (56a2f5ac, ENAM).
+                              KV: SESSION_KV (1d17a21c).
+                              PSQ routes live (awaiting PSQ_ENDPOINT_URL secret).
+                              /turn deferred — blocked by API credits.
+                              Deployed: 2026-03-06.
 
  Multi-agent comm standard    V2 schema (Nash equilibrium protocol). Derived from
                               live session-17 exchange failure: v1 conflated source
