@@ -108,6 +108,18 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ---
 
+## Documentation
+
+- [ ] **`docs/dictionary.md`** — taxonomy reference with links to canonical source
+  definitions. Each entry: term, how this project uses it, link to original source
+  (Peirce, Silverstein, Henrich et al. WEIRD, Scheffer CSD, PSQ dimensions → own
+  validation paper when published, PJE constructs). Complements `docs/glossary.md`
+  (project-scoped) with external provenance. Audience: researchers needing the
+  citation chain.
+  *Effort: M (source lookup + citation verification per entry)*
+
+---
+
 ## Writing
 
 - [ ] **Blog post: "Jurassic Park Development"** — narrative essay about reconstructing

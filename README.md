@@ -191,6 +191,7 @@ See `CLAUDE.md` for full conventions.
 | Psychology researchers | `docs/overview-for-psychologists.md`     |
 | Current project state  | `docs/MEMORY-snapshot.md`                |
 | Design record          | `docs/architecture.md`                   |
+| Project terminology    | `docs/glossary.md`                       |
 
 ---
 
