@@ -23,7 +23,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | /capacity skill               | ✓ Created and verified                           |
 | Conventions migration         | ✓ CLAUDE.md holds stable conventions (178 lines) |
 | CLAUDE.md (project root)      | ✓ Created + display convention added             |
-| Cognitive infrastructure      | ✓ T1–T15 + rationalizations-to-reject (T3) + 4 SRT extensions implemented (T2#9-10, T3#13-14) |
+| Cognitive infrastructure      | ✓ T1–T15, 4 SRT extensions (T2#9-10, T3#13-14), T4#10 reversibility, T3#15 constraint cross-ref |
+| Constraint taxonomy           | ✓ docs/constraints.md — 59 constraints, 5 categories (E/M/P/I/D) (Session 27) |
 | T10/T11 ordering              | ✓ Fixed — T10 now precedes T11 in file           |
 | T12 trigger                   | ✓ Positive pattern recognition; T10 co-fires     |
 | Timestamp backfill            | ✗ Deferred — no fabrication; exact times unknown |
@@ -1981,5 +1982,20 @@ scoring session with B2 validation for unratified-agent.
 - Blocks commits with broken cogarch mechanically (pre-commit hook fires bootstrap-check.sh)
 - Also fixed: skills count 4→5 (added /sync to enumeration)
 
-▶ docs/cognitive-triggers.md, docs/capabilities.yaml, bootstrap-check.sh,
+**F-1 implemented — formal constraint taxonomy (M effort):**
+- Created `docs/constraints.md` — 59 constraints across 5 categories (E:10, M:10, P:16, I:15, D:8)
+- Consolidates constraints previously scattered across cognitive-triggers.md, architecture.md, CLAUDE.md, subagent-layer-spec.md, peer-layer-spec.md, machine-response-v3-spec.md
+- Each constraint has ID, one-line statement, and provenance pointer to canonical enforcement source
+- Usage section: cross-reference from T3, adding/retiring protocol, relation to other documents
+- capabilities.yaml updated: F-1 maturity identified→proven
+
+**F-6 implemented — T3 Check 15 (constraint cross-reference):**
+- Scans docs/constraints.md for constraints relevant to the recommendation domain
+- E-category for clinical/psychological, M-category when PSQ output present, I-category for interagent
+- If recommendation violates a registered constraint, name the ID and justify or withdraw
+- capabilities.yaml updated: T3 checks 14→15
+
+**All 4 claude-control findings now implemented** (F-2 → F-5 → F-1 → F-6).
+
+▶ docs/constraints.md, docs/cognitive-triggers.md, docs/capabilities.yaml, bootstrap-check.sh,
   transport/sessions/cross-project-learnings/from-psychology-agent-001.json, transport/MANIFEST.json
