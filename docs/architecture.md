@@ -1518,47 +1518,68 @@ validate this spec and surface gaps (same derivation method as v1→v2).
 
 ### Convergence Signals — Observatory Exchange (2026-03-05)
 
-Findings from capability handshake with observatory-agent that bear on architecture:
+Findings from capability handshake with observatory-agent that bear on architecture.
+Each signal is assessed across both agents, the nature of the convergence or tension,
+the current status, and the downstream architecture impact.
 
 ```
-────────────────────────────────────────────────────────────────────────
- Signal                    Finding
-────────────────────────────────────────────────────────────────────────
- SETL                      Shared primitive. Observatory uses identical
-                            definition: structural-editorial tension level,
-                            same divergence model. Convergent independently.
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Signal             Psychology-agent                  Observatory-agent                 Convergence / Tension                Status          Architecture Impact
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ SETL               Structural-Editorial Tension       Identical definition: divergence   Strong independent convergence.      ✓ Resolved      Item 2b: SETL is a valid
+                    Level: abs(editorial − structural)  between what content says and       Both agents derived the same                        peer-layer metric. Include in
+                    per message. Used in all            what the site does. Computed        formulation independently via                        interagent/v1 base spec as a
+                    machine-to-machine comms.           per-story across 800+ stories.      similar epistemic discipline.                       first-class field.
 
- Fair Witness               Shared epistemic foundation. Observatory uses
-                            Fair Witness as evidence transparency protocol
-                            (observable facts / interpretive inferences).
-                            Not borrowed — convergent.
+ Fair Witness        Observable facts separated from    "Evidence transparency protocol     Same epistemic foundation.           ✓ Resolved      Both agents can share annotated
+                    interpretive inferences. Used as    — observable facts separated        Observatory applies it at            (shared        claims[] without translation.
+                    epistemic discipline in all         from interpretive inferences."      corpus scale; psychology-agent       primitive)      Reduces friction at Item 2a/2b
+                    claims[] and responses.             Applied in HRCB dual-channel        applies it per-message. Same                        payload interpretation.
+                                                        scoring methodology.                principle, different granularity.
 
- Cloudflare stack           Observatory runs CF Workers + D1 + KV + R2 +
-                            Queues. Architecture Item 4 (F2 transport)
-                            targets same stack. Code and infrastructure
-                            patterns may be directly reusable.
+ Cloudflare stack   Architecture Item 4 targets         Deployed: CF Workers (SSR/API),     Full stack match. Observatory        ✓ Confirmed     Item 4 (F2 transport, psychology
+                    Cloudflare for F2 transport         CF D1 (SQLite), CF KV (cache),      is a working reference for this     (use as ref)    interface): use observatory
+                    and psychology interface.           CF R2 (assets), CF Queues           exact stack. Code patterns,                         architecture as reference
+                    Language and exact services         (pipeline). Built in 8 days.        deployment config, and                              implementation. Reduces
+                    TBD.                                Apache-2.0.                         Wrangler setup reusable.                            unknowns significantly.
 
- PSQ (experimental)         Observatory already scores PSQ per story and
-                            per domain. 3 dimensions: threat exposure,
-                            trust conditions, resilience baseline.
-                            Psychology-agent PSQ: 10 dimensions, DistilBERT
-                            v23. Namespace collision. Coordination required
-                            before cross-agent PSQ use.
+ PSQ                10-dimension DistilBERT v23.        3-dimension experimental model:     Namespace collision. Same term,      ⚑ Open         Blocks cross-agent PSQ
+ (namespace         Validated on Dreaddit (Reddit       threat exposure, trust conditions,  different constructs. Cannot         (coordination   exchange. Must be resolved
+  collision)        stress corpus). Dimensions:         resilience baseline. Served         determine overlap without            required)       before Item 2a sends PSQ
+                    DA, CO, EM, TR, RE, HO, AG,         per-story and per-domain via        reading observatory's PSQ                           scores in machine responses.
+                    SC, AU, AC. r=0.684.                /api/v1. Status: experimental.      methodology. Risk: a consumer                       Propose: namespace qualifier
+                                                                                            agent treats 3-dim obs scores                       (psq:10d:psq-agent vs
+                                                                                            as 10-dim psq-agent scores.                         psq:3d:observatory).
 
- A2A protocol               Observatory uses Google A2A spec v0.3.0 for
-                            agent.json capability card. interagent/v1 was
-                            derived independently. Evaluate alignment before
-                            finalizing interagent/v1 as a separate standard.
+ A2A protocol       interagent/v1 derived in this       agent.json uses Google A2A          Parallel derivation. A2A v0.3.0      ⚑ Open         interagent/v1 should not be
+                    exchange as a base-layer spec        spec v0.3.0 (protocolVersion,       is an emerging standard for         (evaluate       finalized until A2A is read.
+                    for capability handshake and         name, description, skills[],        agent capability cards. If A2A      alignment)      If A2A covers the use case,
+                    message routing. Not yet read        inputModes, outputModes).           already handles handshake and                       interagent/v1 becomes an A2A
+                    against an existing standard.        8 skills declared.                  routing, interagent/v1 should                       profile, not a parallel spec.
+                                                                                            extend A2A rather than replace.                     Read A2A spec before v2.
 
- agent-inbox pattern        /.well-known/agent-inbox.json: static file
-                            publishing inter-agent proposals with lifecycle
-                            (pending → accepted → implemented). Async
-                            coordination without live handshake. Adoption
-                            candidate for psychology-agent.
+ agent-inbox         No equivalent. Inter-agent          /.well-known/agent-inbox.json:      Observatory has a working           ⚑ Open         Candidate for psychology-agent
+ pattern            proposals handled in                 static JSON file listing            implementation. Proposals           (adoption       to adopt. Async inter-agent
+                    conversation or transport/           pending, accepted, and              follow a lifecycle schema:           candidate)      coordination without a live
+                    sessions/ messages only.             implemented proposals.              pending → accepted →                                session. Complements transport/
+                    No machine-readable proposal         Auto-generated from                  implemented. Operated                               sessions/ structure already
+                    lifecycle.                          .claude/plans/memorized/.            between observatory and             in place.
+                                                                                            unratified.org successfully.
 
- License delta              Observatory: Apache-2.0 (code), CC BY-SA 4.0
-                            (content/data). Psychology-agent: CC BY-NC-SA
-                            4.0. NC restriction limits integration depth.
-                            Relevant if sharing code or data.
-────────────────────────────────────────────────────────────────────────
+ License delta      CC BY-NC-SA 4.0 (code +             Apache-2.0 (code),                  NC restriction is the limiting      ✗ Tension      Direct code sharing requires
+                    content). NC clause prohibits        CC BY-SA 4.0 (content/data).        factor. Psychology-agent cannot     (no action     license compatibility review.
+                    commercial use by third             Permissive code license;             incorporate observatory code        yet)           PSQ data licensed CC BY-SA —
+                    parties. Not a problem for          ShareAlike on data.                  under its current license                          may carry into any derivative
+                    internal use between agents                                              without triggering NC for all                      that includes PSQ scores.
+                    in the same lab.                                                         downstream users.                                  Low priority until sharing.
+
+ Cognitive           MEMORY.md orientation index         MEMORY.md + topic files:            Similar cogarch pattern. Both        ✓ Noted        No action required. Confirms
+ architecture       + docs/ topic files. T1–T13          ops, patterns, calibration,         agents built under comparable        (informational) that cogarch conventions
+ (cogarch)          trigger system. Skills in            pipeline. Skills in                  epistemic discipline by Claude                     generalize across agents in
+                    .claude/skills/. Memory              .claude/skills/. Plans in            Code under human direction.                        this lab. interagent/v1
+                    hygiene rules enforced.             .claude/plans/memorized/.            Differences likely in domain-                      handshake benefits from this.
+                                                                                            specific triggers, not structure.
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ```
+
+**Status key:** ✓ Resolved = no action needed | ⚑ Open = requires decision or coordination | ✗ Tension = acknowledged conflict, no resolution path yet
