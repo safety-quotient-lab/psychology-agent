@@ -1543,13 +1543,14 @@ the current status, and the downstream architecture impact.
                     Language and exact services         (pipeline). Built in 8 days.        deployment config, and                              implementation. Reduces
                     TBD.                                Apache-2.0.                         Wrangler setup reusable.                            unknowns significantly.
 
- PSQ                10-dimension DistilBERT v23.        3-dimension experimental model:     Namespace collision. Same term,      ⚑ Open         Blocks cross-agent PSQ
- (namespace         Validated on Dreaddit (Reddit       threat exposure, trust conditions,  different constructs. Cannot         (coordination   exchange. Must be resolved
-  collision)        stress corpus). Dimensions:         resilience baseline. Served         determine overlap without            required)       before Item 2a sends PSQ
-                    DA, CO, EM, TR, RE, HO, AG,         per-story and per-domain via        reading observatory's PSQ                           scores in machine responses.
-                    SC, AU, AC. r=0.684.                /api/v1. Status: experimental.      methodology. Risk: a consumer                       Propose: namespace qualifier
-                                                                                            agent treats 3-dim obs scores                       (psq:10d:psq-agent vs
-                                                                                            as 10-dim psq-agent scores.                         psq:3d:observatory).
+ PSQ                PSQ-Full: 10-dimension DistilBERT   PSQ-Lite (proposed): 3-dimension    Proposed resolution: tiered          ⚑ Proposed     Namespace collision resolved
+ (PSQ-Lite          v23. Validated on Dreaddit          experimental model maps onto         naming. Lite = composite rollup     (awaiting       by tier name. Integration
+  proposed)         (Reddit stress corpus).             composite clusters of Full dims:     of Full dimensions, suitable        observatory-    path: observatory scores
+                    Dimensions: DA, CO, EM, TR,         threat exposure → DA+AG;             for corpus-scale triage.            agent           PSQ-Lite at ingest;
+                    RE, HO, AG, SC, AU, AC.             trust conditions → TR+SC;            Full = fine-grained clinical        confirmation)   psychology-agent scores
+                    r=0.684. Validated.                 resilience baseline → RE+HO.         analysis. Unmapped in Lite:                         PSQ-Full on flagged items.
+                                                        4 dims absent (CO, EM, AU, AC)       CO, EM, AU, AC — require                            Lite as triage layer;
+                                                        — require finer clinical grain.      finer clinical granularity.                         Full as detailed pass.
 
  A2A protocol       interagent/v1 derived in this       agent.json uses Google A2A          Parallel derivation. A2A v0.3.0      ⚑ Open         interagent/v1 should not be
                     exchange as a base-layer spec        spec v0.3.0 (protocolVersion,       is an emerging standard for         (evaluate       finalized until A2A is read.
@@ -1582,4 +1583,4 @@ the current status, and the downstream architecture impact.
 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ```
 
-**Status key:** ✓ Resolved = no action needed | ⚑ Open = requires decision or coordination | ✗ Tension = acknowledged conflict, no resolution path yet
+**Status key:** ✓ Resolved = no action needed | ⚑ Open/Proposed = requires decision, coordination, or confirmation | ✗ Tension = acknowledged conflict, no resolution path yet
