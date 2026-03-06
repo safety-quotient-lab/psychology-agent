@@ -330,6 +330,54 @@ report to user.
 
 ---
 
+## T15: PSQ v3 Output Enters Context
+
+**Fires**: When machine-response/v3 output from the PSQ sub-agent enters context
+— as an interagent message, API response from `/psq/score`, or embedded JSON
+block extracted from the agent stream
+
+**Checks**:
+1. **Composite citation gate** — before citing the PSQ composite score, check
+   `scores.psq_composite.status`. Permissible cite values: `"scored"` only.
+   If status is `"excluded"` or `"fallback"` (50/100 default), do not cite
+   the composite as a meaningful result. State the exclusion reason instead
+2. **Anti-calibration known issue** — raw confidence values in v3 dimensions are
+   anti-calibrated (all 10 dims return < 0.6 regardless of text content). This
+   is an expected model limitation, not an error. Never cite raw confidence as
+   a reliability indicator. Use `dimensions[].meets_threshold` (r-based proxy,
+   r ≥ 0.6) as the per-dimension reliability signal
+3. **Scale discipline** — dimension scores are 0–10; psq_composite is 0–100;
+   hierarchy factor scores (factors_2/3/5, g_psq) are 0–10. Do not mix scales
+   when comparing or reporting. Confirm scale before arithmetic on PSQ values
+4. **PSQ-Lite mapping confidence discipline** — the mapping of PSQ-Full 10-dim
+   names to observatory PSQ-Lite 3-dim names is a semantic inference
+   (confidence: 0.70, confirmed by observatory-agent 2026-03-05). Do not
+   elevate above 0.70 without independent validation. When citing the mapping,
+   state its basis ("semantic inference from dimension names, not validated
+   decomposition")
+5. **Information-loss flag (PSQ-Lite triage)** — PSQ-Lite covers 3 dimensions
+   (threat_exposure, hostility_index, trust_conditions). The 7 PSQ-Full
+   dimensions outside PSQ-Lite may carry the dominant clinical signal for
+   certain text types (e.g. energy_dissipation for depletion/overwhelm). When
+   relaying PSQ-Lite scores as a triage output, flag the 7-dim coverage gap
+   explicitly. Do not treat PSQ-Lite triage as a complete psychoemotional
+   safety assessment
+6. **WEIRD distribution flag** — PSQ-Full trained on Dreaddit (Reddit stress
+   posts). When scoring text outside this distribution (clinical text,
+   non-English, non-Western, formal/professional), surface the WEIRD assumption.
+   Do not use PSQ scores for clinical decision support without this flag
+
+**Action**: Apply checks before relaying, citing, or reasoning from PSQ v3 output.
+If composite is excluded/fallback, surface the limitation explicitly rather than
+citing the number. Check 2 is mandatory for any response that discusses PSQ
+confidence values.
+
+**Provenance**: Derived from live psq-agent exchange (psq-endpoint-001.json,
+2026-03-06) + observatory-agent psq-lite-response-001.json (2026-03-05) +
+machine-response-v3-spec.md standard limitations block.
+
+---
+
 ## Knock-On Order Reference
 
 ```
