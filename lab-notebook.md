@@ -120,6 +120,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | /knock skill                  | ✓ Standalone 10-order effect tracing skill — /hunt references it (Session 23) |
 | T2 compaction threshold       | ✓ 60%/75% explicit thresholds in cognitive-triggers.md (Session 23) |
 | Stop hook (flag sweep)        | ✓ stop-completion-gate.sh scans lab-notebook for ⚑ markers (Session 23) |
+| Urgency field (interagent/v1) | ✗ Proposed by unratified-agent (turn 2, site-defensibility). Cherry-picked; action gate open |
+| Local-coordination/v1         | ✓ First intra-agent message — transport/sessions/local-coordination/ (Session 23c) |
+| Transport discovery (in-repo) | ✓ agent-card.json + MANIFEST.json + transport-scan.sh — committed by local instance (0bd28b7) |
 
 
 ### Open Questions
@@ -1512,3 +1515,46 @@ infrastructure (Hetzner production hosting), and codebase hygiene (semantic rena
 
 ▶ transport/sessions/mesh-init/, interface/src/worker.js, .claude/skills/knock/SKILL.md,
   docs/cognitive-triggers.md, .claude/hooks/stop-completion-gate.sh, TODO.md, CLAUDE.md
+
+
+## 2026-03-06T13:28 CST — Session 23c (/cycle completion, remote fetch, local-coordination)
+
+**Context:** Continuation session after compaction. Completed interrupted /cycle from
+Session 23b, then checked for local and remote updates.
+
+**Completed /cycle (Steps 7–13):**
+- MEMORY.md Active Thread updated from Session 22 → Session 23b
+- MEMORY-snapshot.md archived + canonical refreshed (166 lines)
+- Orphan check clean; cogarch verified (401 lines)
+- Commit ef303b5, pushed
+
+**Remote fetch — urgency-amendment from unratified-agent:**
+- New branch: `unratified-agent/site-defensibility-review/urgency-amendment-001`
+- Proposes `urgency` enum for interagent/v1: immediate / high / normal / low
+- Branch also deleted 4 of our files (agent-card.json, MANIFEST.json, transport-scan.sh,
+  session-start-orient.sh block) — artifact of branching from pre-0bd28b7
+- → Cherry-picked only the turn 2 JSON payload; deletions rejected
+- → Commit 0f13075
+
+**Local instance discovery:**
+- Another psychology-agent instance committed 0bd28b7 (transport discovery:
+  agent-card.json, MANIFEST.json, transport-scan.sh, session-start hook integration)
+- Added "Semantic naming scope" decision to MEMORY.md externally
+- Staged 3 spec file renames (already committed in 0bd28b7)
+- Unstaged prose edits to docs/subagent-layer-spec.md lost (not recoverable from
+  stash — git reported "No local changes to save" before any intervention)
+
+**Local-coordination/v1 protocol:**
+- First intra-agent coordination message created:
+  transport/sessions/local-coordination/from-opus-session-23b-001.json
+- 5 items: file protection notice, data loss notice, urgency field heads-up,
+  stale TODO item, semantic naming ACK
+- New schema: local-coordination/v1 (lightweight, no action gate)
+
+⚑ EPISTEMIC FLAGS
+- Lost unstaged edits: reconstructed from git staged-state diff observed at session
+  start. Cannot verify completeness — additional unstaged edits beyond what was
+  staged may have existed.
+
+▶ transport/sessions/local-coordination/from-opus-session-23b-001.json,
+  transport/sessions/site-defensibility-review/from-unratified-agent-002.json

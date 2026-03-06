@@ -6,12 +6,13 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 23c. Cherry-picked unratified-agent urgency-amendment
-(turn 2, site-defensibility). Discovered local instance (0bd28b7: transport discovery).
-Created first local-coordination/v1 message. Lost unstaged prose edits documented.
+**Where we stopped:** Session 23b. Knock-on depth extended to 10 orders (INCOSE +
+Popper grounding). Unratified-agent mesh-init: capability-response sent (PSQ accepted,
+ICESCR deferred). Agent-card deployed at /.well-known/agent-card.json on CF Worker.
+/knock standalone skill created. T2 compaction thresholds (60%/75%). Stop hook ⚑ sweep.
 **Next:** Await psq-agent rsync to Hetzner (turn 12 unanswered). After rsync: chown →
 psq-server.service → Caddy TLS → wrangler secret → send PSQ URL to unratified-agent.
-Urgency field: evaluate + adopt or counter-propose. Blog PR #2 open (unratified).
+Blog PR #2 open (unratified).
 
 ## Design Decisions
 
@@ -46,10 +47,6 @@ Urgency field: evaluate + adopt or counter-propose. Blog PR #2 open (unratified)
                               Idempotent, state-attested, human-authorized.
  Production hosting           Hetzner CX Ashburn VA ($5/mo, 4GB, Debian 13).
                               Oracle A1 free tier unavailable. 2026-03-06
- Semantic naming scope        All user-facing identifiers: files, dirs, sessions,
-                              specs, variables, table headers. No opaque item
-                              numbers. Exception: internal codes not displayed
-                              to callers (T-numbers, enums). 2026-03-06
 ```
 
 ## Authority Hierarchy
