@@ -1,9 +1,9 @@
-# Post-Session Cycle (General Agent)
+# Post-Session Cycle (Psychology Agent)
 
 Ensures every session's decisions, findings, and reasoning propagate through the
 full documentation chain. Run at the end of any session with meaningful work.
 
-**Design principle:** The general agent maintains several overlapping documents at
+**Design principle:** The psychology agent maintains several overlapping documents at
 different levels of abstraction. Each serves a distinct audience and purpose:
 
 | Document | Audience | Purpose | Abstraction |
@@ -90,7 +90,7 @@ Update when any design decision is resolved, modified, or its implementation
 approach changes.
 
 - **Decisions table**: add or update resolved decisions with date
-- **Component specs**: if a component was designed (general agent identity,
+- **Component specs**: if a component was designed (psychology agent identity,
   sub-agent comm standard, evaluator logic), add its spec section
 - **Status markers**: update ✗ → ✓ for items that are now complete
 - **Authority hierarchy**: update only if the hierarchy itself changed (rare)

@@ -40,10 +40,10 @@
 ## Authority Hierarchy
 
 1. **User** = source-of-truth agent. Final authority on what gets pursued, published, or discarded.
-2. **General agent** = advisory, Socratic. Analyzes, challenges, synthesizes — does not decide.
+2. **Psychology agent** = advisory, Socratic. Analyzes, challenges, synthesizes — does not decide.
 3. **Sub-agents** (PSQ, future) = domain experts. Their content is subject to scrutiny.
 4. **Adversarial evaluator** = quality control. Can challenge any sub-agent.
 
-**Key principle:** PJE is a hypothesis space, not a specification. The general agent helps
+**Key principle:** PJE is a hypothesis space, not a specification. The psychology agent helps
 the user sort signal from aspiration — the same way PSQ reduced 71 PJE terms to 10
 validated dimensions. PJE is a case study in applying this agent, not a privileged component.

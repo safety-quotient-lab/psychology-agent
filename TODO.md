@@ -1,4 +1,4 @@
-# General-Purpose Psychology Agent — TODO
+# Psychology Agent — TODO
 
 Forward-looking task list only. Completed and emergent work goes to
 `lab-notebook.md`, not here. See `lab-notebook.md` for session history.
@@ -7,7 +7,7 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ## Architecture (in progress)
 
-- [x] **Item 1: General agent design** — ✓ Complete (Session 16). Routing spec,
+- [x] **Item 1: Psychology agent design** — ✓ Complete (Session 16). Routing spec,
   identity spec, evaluator reasoning procedures (7-procedure ranked set + domain
   priority tables).
 
@@ -86,7 +86,7 @@ Forward-looking task list only. Completed and emergent work goes to
   *Source: antiregression-setup planner-writes-to-file pattern*
 
 - [ ] **Sub-project boundary hook** — PreToolUse hook that fires when a file path
-  resolves inside `safety-quotient/` or `pje-framework/` during a general-agent
+  resolves inside `safety-quotient/` or `pje-framework/` during a psychology-agent
   session. Warns: "Sub-project boundary crossed — switch context or defer." T3
   check #11 covers the cognitive gate; this hook provides mechanical enforcement.
   *Source: Session 16 cogarch evaluation — gap in T3 scope*

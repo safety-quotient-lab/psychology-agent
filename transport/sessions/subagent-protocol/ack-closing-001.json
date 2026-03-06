@@ -33,7 +33,7 @@
     },
     {
       "claim_id": "request-001-receipt",
-      "text": "transport/sessions/subagent-protocol/request-001.json received and read. Schema: psychology-agent/machine-request/v2. From: general-agent (orchestrator). To: psq-sub-agent. Turn 1. Type: scoring. Text: clinical reflection on overwhelm/work stress. Flags set: scope_declaration_requested, limitations_disclosure_requested, confidence_per_dimension_requested. Gate: open.",
+      "text": "transport/sessions/subagent-protocol/request-001.json received and read. Schema: psychology-agent/machine-request/v2. From: psychology-agent (orchestrator). To: psq-sub-agent. Turn 1. Type: scoring. Text: clinical reflection on overwhelm/work stress. Flags set: scope_declaration_requested, limitations_disclosure_requested, confidence_per_dimension_requested. Gate: open.",
       "confidence": 1.0,
       "confidence_basis": "File read directly",
       "independently_verified": false

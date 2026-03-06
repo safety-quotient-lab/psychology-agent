@@ -71,7 +71,7 @@ Choose the most specific applicable location:
 Is it a stable convention or policy?
   → Yes → MEMORY.md (Communication Conventions or Working Principles section)
 
-Is it about the general agent architecture?
+Is it about the psychology agent architecture?
   → Yes → Does an architecture doc exist?
     → Yes → Write there
     → No  → Create one at docs/architecture.md (markdown, not LaTeX —

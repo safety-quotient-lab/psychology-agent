@@ -7,7 +7,7 @@
   "in_response_to": "transport/sessions/mesh-init/from-unratified-agent-002.json",
   "from": {
     "agent_id": "psychology-agent",
-    "role": "general-agent",
+    "role": "psychology-agent",
     "instance": "Claude Code (Opus 4.6), macOS arm64",
     "schemas_supported": ["interagent/v1", "command-request/v1"]
   },

@@ -1,6 +1,6 @@
-# Hunt — Systematic Work Discovery (General Agent)
+# Hunt — Systematic Work Discovery (Psychology Agent)
 
-Find the highest-value next work in the general-purpose psychology agent project.
+Find the highest-value next work in the psychology agent project.
 Aggregates all the ways you'd search for "what's next" into one structured sweep.
 
 ---
@@ -127,9 +127,9 @@ This is the T11 audit as a hunt source — always run, even for `quick` constrai
 - **Glob `.claude/skills/**/*.md`** in project root — what skills exist?
 - **Cross-reference against TODO.md** — which skills are planned but not yet created?
 - **Check PSQ sub-project skills** — are there skills in `safety-quotient/.claude/skills/`
-  that are being invoked from the general agent context without a general-agent adaptation?
+  that are being invoked from the psychology agent context without a psychology-agent adaptation?
   (The PSQ `/hunt` and `/cycle` skills contain PSQ-specific logic; a caller from the
-  general agent context gets the wrong behavior.)
+  psychology agent context gets the wrong behavior.)
 - **Test each skill** — skills created mid-session don't load until restart;
   flag any skill that hasn't been verified post-creation.
 
@@ -158,7 +158,7 @@ When asked to "extrapolate" or "go deeper than the backlog," scan three layers:
 
 What does the architecture call for that has no specification yet?
 
-- **General agent identity spec** — architecture.md says "collegial mentor, Opus,
+- **Psychology agent identity spec** — architecture.md says "collegial mentor, Opus,
   Socratic, dynamic calibration." Has this been written as a prompt/system spec?
   What's the actual first-message behavior?
 - **Sub-agent communication standard** — staged hybrid Stage 1 requires a comm

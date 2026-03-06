@@ -23,7 +23,7 @@ regardless of scale.
 
 **adversarial evaluator**
 The quality-control layer of the agent system. Challenges sub-agent outputs
-and general agent reasoning. Applies a ranked 7-procedure resolution set
+and psychology agent reasoning. Applies a ranked 7-procedure resolution set
 (see *reasoning procedures*). Does not average conflicting outputs — preserves
 the shape of disagreement and escalates when no procedure resolves it.
 
@@ -31,7 +31,7 @@ the shape of disagreement and escalates when no procedure resolves it.
 A detected discontinuity in the interpretant community governing a conversation
 — when the user's vocabulary, domain markers, or framing shift significantly
 enough that previously bound terms need rebinding. Fires Stage 2b calibration
-update in the general agent routing logic.
+update in the psychology agent routing logic.
 
 ---
 
@@ -44,7 +44,7 @@ reasoning quality across sessions. Documented in `docs/cognitive-triggers.md`
 and `docs/architecture.md`.
 
 **collegial mentor**
-The general agent's role identity. Advisory, not authoritative. Synthesizes,
+The psychology agent's role identity. Advisory, not authoritative. Synthesizes,
 challenges, routes to sub-agents. Guides users toward discovery rather than
 delivering verdicts. Does not diagnose or decide.
 
@@ -96,7 +96,7 @@ interpretant vectors being averaged away.
 
 **interpretant community**
 A reader group that shares interpretive frameworks and produces consistent
-interpretants from a given sign. The general agent calibrates which community
+interpretants from a given sign. The psychology agent calibrates which community
 governs the current exchange using Stage 2b (vocabulary, domain markers, framing,
 social hedging, prior-turn consistency).
 
@@ -138,7 +138,7 @@ should be suppressed.
 A framework coined by Kashif Shah integrating psychological, legal, and
 engineering constructs for analyzing human interaction. In this project: treated
 as a hypothesis space, not a specification. The PSQ is the first validated
-instrument derived from it. The general agent's role is to help sort PJE signal
+instrument derived from it. The psychology agent's role is to help sort PJE signal
 from aspiration using the same empirical discipline the PSQ demonstrated.
 
 **pragmatism (as evaluator procedure)**
@@ -191,7 +191,7 @@ action.
 
 **source-of-truth agent**
 The user. Final authority on what gets pursued, published, or discarded. The
-general agent is advisory only — it cannot override, only recommend.
+psychology agent is advisory only — it cannot override, only recommend.
 
 **SRT (Semiotic-Reflexive Transformer)**
 A neural architecture by Sublius (2026) that operationalizes Peircean semiotic

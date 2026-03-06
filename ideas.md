@@ -1,4 +1,4 @@
-# General-Purpose Psychology Agent — Ideas
+# Psychology Agent — Ideas
 
 Speculative and aspirational — not yet ready for TODO. Items here are hypotheses,
 possibilities, and directions worth keeping visible without committing to them.
@@ -29,7 +29,7 @@ Flag: ⚡ = contrarian / worth challenging before pursuing
 
 ## PJE Case Study (first real-world application)
 
-- Use general agent to systematically evaluate each PJE operational definition
+- Use psychology agent to systematically evaluate each PJE operational definition
   against three criteria: (1) novel construct or redundant with existing literature?,
   (2) measurable with current methods?, (3) empirically distinguishable from
   adjacent constructs?
@@ -42,7 +42,7 @@ Flag: ⚡ = contrarian / worth challenging before pursuing
 ## Interface & Access
 
 - **Structured report mode** — for clinician/researcher audiences, offer a formatted
-  PDF output (LaTeX-rendered) summarizing PSQ profile + general agent synthesis
+  PDF output (LaTeX-rendered) summarizing PSQ profile + psychology agent synthesis
 - **API mode** — for machine callers, return structured JSON with confidence-flagged
   dimensions and evaluator summary
 - **Conversation mode** — current default; Socratic dialogue for individual users

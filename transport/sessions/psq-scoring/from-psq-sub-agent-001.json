@@ -14,7 +14,7 @@
   },
   "to": {
     "agent_id": "psychology-agent",
-    "role": "general-agent",
+    "role": "psychology-agent",
     "discovery_url": null
   },
   "transport": {

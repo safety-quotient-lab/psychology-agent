@@ -25,7 +25,7 @@
                  │                       │
        ┌─────────▼─────────┐   ┌─────────▼─────────┐
        │                   │   │                   │
-       │  general-agent    │   │   psq-agent       │
+       │  psychology-agent │   │   psq-agent       │
        │  (macOS)          │   │   (Chromabook)    │
        │  orchestrator     │   │   domain expert   │
        │                   │   │                   │

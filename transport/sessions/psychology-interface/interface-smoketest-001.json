@@ -6,7 +6,7 @@
   "message_type": "status-report",
   "from": {
     "agent_id": "psychology-agent",
-    "role": "general-agent",
+    "role": "psychology-agent",
     "instance": "Claude Code (Sonnet 4.6), macOS arm64",
     "session_range": "Sessions 1–21 (active)"
   },

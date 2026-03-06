@@ -3,7 +3,7 @@
   "session_id": "subagent-protocol",
   "turn": 1,
   "timestamp": "2026-03-05",
-  "from": "general-agent (orchestrator)",
+  "from": "psychology-agent (orchestrator)",
   "to": "psq-sub-agent",
 
   "request": {
