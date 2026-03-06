@@ -1,7 +1,7 @@
 # General-Purpose Psychology Agent — Architecture
 
 **Created:** 2026-03-01
-**Status:** Design phase — decisions resolved, implementation not started
+**Status:** Architecture complete (Items 1–3) — implementation phase begins (Item 4)
 
 
 ## System Diagram
