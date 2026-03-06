@@ -354,7 +354,9 @@ The evaluator spec (Architecture Item 3) has two parameters that Item 2a must fi
  Item 2a derivation                  ✓ COMPLETE — 6 findings, both agents agreed
  Item 2a spec document               ✓ Written — docs/item2a-spec.md (2026-03-06)
  PSQ score calibration               ✓ Applied (isotonic, n=1897)
- PSQ confidence calibration          ✓ r-based proxy via confidence_calibration maps
+ PSQ confidence calibration          ✓ r-based proxy (intentional constant fn — overrides anti-calibrated head)
+ calibration.json in remote repo     ✓ Tracked — .gitignore exception, safety-quotient-lab/safety-quotient PR #1
+ best.pt loss                        ✓ Non-blocking — inference uses ONNX; best.pt only needed for recalibration
  PSQ scoring endpoint                ✗ Not yet implemented
  PSQ-Lite → PSQ-Full triage          ✗ Pending score threshold calibration
  psychology-agent/machine-response/v3 ✓ Draft spec written — docs/machine-response-v3-spec.md
