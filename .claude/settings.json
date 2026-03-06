@@ -43,6 +43,16 @@
         ]
       },
       {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/write-provenance.sh",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
         "hooks": [
           {
             "type": "command",

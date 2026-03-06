@@ -179,8 +179,12 @@ add latency without proportional value. Consider gating: run the full suite only
 when divergence indicators (pushback, domain shift, novel terminology) exceed a
 threshold. Light mode (semiotic consistency only) by default.
 
-*Precondition: T11 audit to evaluate integration points. S effort for trigger
-language; M effort for calibrating gate thresholds.*
+**[→ IMPLEMENTED 2026-03-06]** All four SRT extensions added to cogarch:
+- T2 checks 9–10: vocabulary alignment scan (gated) + semiotic consistency (always-on)
+- T3 checks 13–14: interpretive bifurcation scan + audience-shift detection (both gated)
+- Gating: divergence indicators (pushback, domain shift, novel terminology).
+  Semiotic consistency runs by default; others fire only when indicators present.
+- Gate threshold calibration remains open — operational tuning, not design work.
 
 **Structural resonance:** The SRT's central claim — "the interpretant varies by
 community and collapsing it destroys signal" — echoes the PSQ's "profile predicts,
