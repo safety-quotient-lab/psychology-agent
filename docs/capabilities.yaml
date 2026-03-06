@@ -1,133 +1,236 @@
 # Psychology Agent — Capabilities Manifest
 # Machine-readable inventory for agent-to-agent discovery and interop.
 # Human-readable version: docs/architecture.md § Capabilities & Levers
+# Maturity levels: proven | confirmed | explored | identified | deferred
 
-version: "1.0"
-updated: "2026-03-05"
+version: "2.0"
+updated: "2026-03-06"
 agent: psychology-agent
 model: claude-opus-4-6
 license: CC-BY-NC-SA-4.0
+
+maturity_levels:
+  proven: "Validated, tested, documented, in daily use"
+  confirmed: "Works but lacks full integration or stress testing"
+  explored: "Feasibility established, spec exists, no implementation"
+  identified: "On the radar, not yet tried"
+  deferred: "Deliberately postponed with rationale"
+
+architecture_items:
+  - id: item-1
+    name: Psychology agent identity
+    maturity: proven
+    spec: docs/psychology-interface-spec.md
+    notes: routing spec, Socratic protocol, dynamic calibration
+  - id: item-2a
+    name: Sub-agent layer
+    maturity: proven
+    spec: docs/subagent-layer-spec.md
+    notes: interagent/v1, schema v3, 6 derivation findings, PSQ binding
+  - id: item-2b
+    name: Peer layer
+    maturity: proven
+    spec: docs/peer-layer-spec.md
+    notes: role declaration, divergence detection, SETL thresholds
+  - id: item-3
+    name: Adversarial evaluator
+    maturity: confirmed
+    spec: docs/architecture.md
+    notes: 7-procedure ranked set, tiered activation — Tier 1 proxy active, Tier 2/3 await runtime
+  - id: item-4
+    name: Psychology interface
+    maturity: explored
+    spec: docs/psychology-interface-spec.md
+    notes: spec written, no implementation — precondition met (Item 2a)
 
 triggers:
   - id: T1
     fires_when: session_start
     function: orientation and health check
     mechanical_enforcement: SessionStart hook (session-start-orient.sh)
+    maturity: proven
   - id: T2
     fires_when: before_response
-    function: context pressure, pacing, fair witness, e-prime, evidence
+    function: context pressure, pacing, fair witness, e-prime, evidence, SRT semiotic gate
+    checks: 10
     mechanical_enforcement: null
+    maturity: proven
   - id: T3
     fires_when: before_recommending
-    function: domain classification, grounding, process/substance, anti-sycophancy, rationalizations-to-reject
+    function: domain classification, grounding, process/substance, anti-sycophancy, rationalizations-to-reject, Tier 1 evaluator proxy, SRT gate
+    checks: 14
     mechanical_enforcement: null
+    maturity: proven
   - id: T4
     fires_when: before_writing_to_disk
-    function: date discipline, public visibility, routing, semantic naming, novelty
+    function: date discipline, public visibility, routing, semantic naming, novelty, interpretant
+    checks: 9
     mechanical_enforcement: PostToolUse hook (Write|Edit matcher)
+    maturity: proven
   - id: T5
     fires_when: phase_boundary
-    function: mandatory gap check, Active Thread staleness, bare forks
-    mechanical_enforcement: Stop hook (stop-completion-gate.sh), PreCompact hook
+    function: mandatory gap check, Active Thread staleness, bare forks, epistemic sweep
+    checks: 6
+    mechanical_enforcement: Stop hook, PreCompact hook
+    maturity: proven
   - id: T6
     fires_when: user_pushback
-    function: position stability, drift audit, anti-sycophancy
-    mechanical_enforcement: null
+    function: position stability, drift audit, anti-sycophancy, pushback accumulator
+    checks: 5
+    mechanical_enforcement: UserPromptSubmit pushback-accumulator.sh
+    maturity: proven
   - id: T7
     fires_when: user_approves
-    function: persist to disk, resolve questions, propagate downstream
+    function: persist to disk, resolve questions, propagate downstream, prior-approval contradiction
+    checks: 4
     mechanical_enforcement: null
+    maturity: proven
   - id: T8
     fires_when: task_completed
     function: loose threads, routing, context reassessment
+    checks: 4
     mechanical_enforcement: Stop hook (stop-completion-gate.sh)
+    maturity: proven
   - id: T9
     fires_when: reading_writing_memory
-    function: line count, stale entries, duplicates, speculation guard
+    function: line count, stale entries (5/10 session decay), duplicates, speculation guard
+    checks: 5
     mechanical_enforcement: null
+    maturity: proven
   - id: T10
     fires_when: lesson_surfaces
-    function: write lessons.md with YAML schema, promotion scan at 3+ threshold
+    function: write lessons.md with YAML schema, promotion scan at 3+ threshold, graduation path
+    checks: 6
     mechanical_enforcement: null
+    maturity: proven
   - id: T11
     fires_when: on_demand
     function: architecture audit of cogarch, memory, CLAUDE.md consistency
+    checks: 5
     mechanical_enforcement: null
+    maturity: proven
   - id: T12
     fires_when: good_thinking_signal
     function: name principle, mechanism, cross-domain examples; T10 co-fires
+    checks: 4
     mechanical_enforcement: null
+    maturity: proven
   - id: T13
     fires_when: external_content_enters
-    function: source classification, injection scan, scope relevance, taint propagation
+    function: source classification, injection scan, scope relevance, taint propagation, temporal staleness
+    checks: 6
     mechanical_enforcement: PreToolUse parry hook, PostToolUse parry hook
+    maturity: proven
+  - id: T14
+    fires_when: every_decision_point
+    function: structural checkpoint — orders 7-10 scan (precedent, norms, emergent, theory-revising)
+    checks: 6
+    mechanical_enforcement: null
+    maturity: proven
+  - id: T15
+    fires_when: psq_v3_output_enters
+    function: composite gate, anti-calibration, scale discipline, PSQ-Lite mapping, WEIRD flag
+    checks: 6
+    mechanical_enforcement: null
+    maturity: proven
 
 hooks:
   - event: SessionStart
     script: .claude/hooks/session-start-orient.sh
     enforces: [T1]
-    description: injects orientation context and health check at session start
+    maturity: proven
   - event: PreToolUse
     matcher: "Bash(git commit*)"
     script: bootstrap-check.sh --check-only
     enforces: [T1]
-    description: memory health check before commits
+    maturity: proven
   - event: PreToolUse
     matcher: null
-    command: parry hook
+    script: .claude/hooks/parry-wrapper.sh
     enforces: [T13]
-    description: prompt injection scan on all tool inputs
+    maturity: proven
+  - event: PreToolUse
+    matcher: "Write|Edit|Read"
+    script: .claude/hooks/subproject-boundary.sh
+    enforces: [T3]
+    maturity: proven
   - event: PostToolUse
     matcher: "Write|Edit"
-    command: inline
+    command: inline case statement
     enforces: [T4]
-    description: critical file write compliance reminder
+    maturity: proven
+  - event: PostToolUse
+    matcher: "Write|Edit"
+    script: .claude/hooks/write-provenance.sh
+    enforces: [T4]
+    maturity: proven
   - event: PostToolUse
     matcher: null
-    command: parry hook
+    script: .claude/hooks/parry-wrapper.sh
     enforces: [T13]
-    description: injection scan on tool outputs
+    maturity: proven
   - event: UserPromptSubmit
-    command: parry hook
+    script: .claude/hooks/parry-wrapper.sh
     enforces: [T13]
-    description: session-start config audit
+    maturity: proven
+  - event: UserPromptSubmit
+    script: .claude/hooks/pushback-accumulator.sh
+    enforces: [T6]
+    maturity: proven
   - event: PreCompact
     script: .claude/hooks/pre-compact-persist.sh
     enforces: [T5, T9]
-    description: state persistence before context compaction
+    maturity: proven
   - event: Stop
     script: .claude/hooks/stop-completion-gate.sh
     enforces: [T5, T8]
-    description: uncommitted work warning before exit
+    maturity: proven
 
 skills:
   - name: /doc
     type: skill
     invocation: user or agent
-    loads: every session (description)
+    loads: every session
     function: mid-work documentation persistence
+    maturity: proven
   - name: /hunt
     type: skill
     invocation: user
-    loads: every session (description)
+    loads: every session
     function: systematic work discovery across all doc sources
+    maturity: proven
   - name: /cycle
     type: skill
     invocation: user
-    loads: every session (description)
+    loads: every session
     function: post-session documentation chain propagation
+    maturity: proven
+  - name: /knock
+    type: skill
+    invocation: user or agent
+    loads: every session
+    function: single-option 10-order knock-on effect tracing
+    maturity: proven
+  - name: /sync
+    type: skill
+    invocation: user or agent
+    loads: every session
+    function: inter-agent mesh synchronization
+    maturity: proven
 
 commands:
   - name: /adjudicate
     type: command
     invocation: user or agent
-    loads: on demand only
+    loads: on demand
     function: structured decision resolution (10-order knock-on cascade)
+    maturity: proven
   - name: /capacity
     type: command
     invocation: user
-    loads: on demand only
+    loads: on demand
     function: cognitive capacity audit (line budgets, trigger coverage, hooks)
+    maturity: proven
 
 memory_layers:
   - name: volatile_state
@@ -135,24 +238,87 @@ memory_layers:
     location: auto-memory
     limit: 200 lines
     persistence: per-session
+    maturity: proven
+  - name: topic_files
+    files: [memory/decisions.md, memory/cogarch.md, memory/psq-status.md]
+    location: auto-memory
+    persistence: per-session
+    maturity: proven
   - name: stable_conventions
     file: CLAUDE.md
     location: project root
     limit: 200 lines (advisory)
     persistence: always loaded
+    maturity: proven
   - name: local_overrides
     file: CLAUDE.local.md
     location: project root
     persistence: always loaded, gitignored
+    maturity: proven
   - name: canonical_snapshot
     file: docs/MEMORY-snapshot.md
     persistence: committed, end-of-session
+    maturity: proven
   - name: versioned_archive
     directory: docs/snapshots/
     persistence: one per /cycle run
+    maturity: proven
   - name: self_healing
     file: bootstrap-check.sh
     function: restores from snapshot when auto-memory missing
+    maturity: proven
+
+sub_agents:
+  - name: psq-agent
+    model: distilbert-base-uncased (v23)
+    function: 10-dimension psychoemotional safety scoring
+    maturity: proven
+    endpoint: https://psq.unratified.org/score
+    calibration: isotonic regression + r-based confidence proxy
+
+peers:
+  - name: unratified-agent
+    role: blog platform, consumer
+    transport: git-PR to our repo
+    maturity: proven
+  - name: claude-control
+    role: systems automation, cogarch adopter
+    transport: filesystem (cross-project-learnings session)
+    maturity: confirmed
+
+protocols:
+  - name: interagent/v1
+    function: agent-to-agent messaging
+    maturity: proven
+  - name: command-request/v1
+    function: sub-agent command dispatch
+    maturity: proven
+  - name: local-coordination/v1
+    function: parallel instance coordination
+    maturity: confirmed
+  - name: transport-manifest/v1
+    function: message routing and discovery
+    maturity: proven
+
+future_capabilities:
+  - name: sub-agent discovery
+    maturity: identified
+    notes: agent-card convention documented, no automated discovery
+  - name: MCP wrappers (Stage 3)
+    maturity: deferred
+    notes: revisit when Stage 2 programmatic calls prove insufficient
+  - name: adversarial evaluator Tier 2/3
+    maturity: explored
+    notes: spec defined, requires runtime implementation
+  - name: psychology interface API
+    maturity: explored
+    notes: architecture spec written, no code
+  - name: formal constraint taxonomy
+    maturity: identified
+    notes: F-1 from claude-control findings — docs/constraints.md with categorized IDs
+  - name: reversibility gate (T4 extension)
+    maturity: identified
+    notes: F-2 from claude-control findings — blast radius check before destructive ops
 
 decision_framework:
   method: knock-on analysis
@@ -188,6 +354,7 @@ lesson_lifecycle:
     - classification (YAML frontmatter)
     - promotion_candidate (3+ same pattern_type or domain)
     - promotion (user approves to CLAUDE.md or trigger)
+    - graduation (ceremony via /cycle Step 8b)
   schema_fields:
     - pattern_type
     - domain
