@@ -94,9 +94,17 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | calibration.json on remote    | ✓ Tracked — .gitignore exception; safety-quotient-lab PR #1 merged |
 | best.pt loss                  | ✓ Non-blocking — inference uses ONNX; best.pt only for recalibration |
 | safety-quotient git divergence| ⚑ Local main diverges from origin; worktree used as workaround |
-| Architecture Items 1–3        | ✓ Complete — Item 4 (psychology interface) is next |
-| README interagent sync        | ✓ Documented — first entry in Interesting Parts |
-| Closing instance              | ✓ Retired — Sessions 1–9, ACK b670bd9 |
+| Architecture Items 1–3        | ✓ Complete                                       |
+| Architecture Item 4 (interface)| ✓ DEPLOYED — psychology-interface.kashifshah.workers.dev |
+| D1 database                   | ✓ psychology-interface (56a2f5ac, ENAM region)   |
+| KV namespace                  | ✓ SESSION_KV (1d17a21c)                          |
+| wrangler version              | ✓ v4.71.0 — no warnings, clean deploy            |
+| PSQ production endpoint       | ⚑ BLOCKED — awaiting stable URL from psq-agent (Option A or B) |
+| /turn route                   | ⚑ DEFERRED — blocked by API credits; 3-step re-enable checklist in TODO.md |
+| PSYCHOLOGY_SYSTEM             | ✓ Full identity + cogarch inlined (Option A); Option B documented in agent.js |
+| Blog PR (well-known)          | ✓ PR #2 open — safety-quotient-lab/unratified    |
+| README interagent sync        | ✓ Documented — first entry in Interesting Parts  |
+| Closing instance              | ✓ Retired — Sessions 1–9, ACK b670bd9            |
 | plan9port                     | ✓ Operational — macOS + Debian (observatory-agent) |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
 
@@ -105,6 +113,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 
 - HuggingFace model license: parry requests `deberta-v3-small` but docs reference `deberta-v3-base` — verify correct model slug
 - Parry ML daemon: HTTP 401 after token file exists — investigate token validity or model gating
+- PSQ production URL: waiting on psq-agent reply to item4-production-transport-001.json (Option A named tunnel vs Option B Oracle Ampere)
 
 ---
 
@@ -1245,4 +1254,44 @@ absent. Two conditions to re-enable: (1) API cost accepted, (2) settingSources f
 
 ▶ interface/src/agent.js, interface/src/worker.js, TODO.md Item 4,
   transport/sessions/item4-derivation/item4-smoketest-001.json
->>>>>>> 44f5ada (Session 20: PSQ scoring endpoint; Item 2 complete)
+
+---
+
+## 2026-03-06T10:04 CST — Session 21c (Phase 4 production deploy + /cycle)
+
+**Scope:** Production deployment, wrapper deferral, PSYCHOLOGY_SYSTEM expansion, blog PR, transport to psq-agent.
+
+**Phase 4 production deploy complete:**
+- D1 created: `psychology-interface` (56a2f5ac, ENAM region)
+- KV created: `SESSION_KV` (1d17a21c)
+- wrangler upgraded v3.114.17 → v4.71.0; `[dev.vars]` warning resolved
+- `wrangler deploy` → `https://psychology-interface.kashifshah.workers.dev`
+- `/health` → `{status: ok}` ✓; `/psq/health` → "PSQ_ENDPOINT_URL not configured" (expected)
+
+**settingSources finding** — `settingSources: ['project']` is a no-op in CF Workers (no local
+filesystem). Psychology agent identity-blind in production without fix. Resolution: Option A —
+full identity + condensed cogarch (T1–T15 behavioral rules) inlined into `PSYCHOLOGY_SYSTEM`.
+Option B (R2/KV fetch at request time) documented as alternative in agent.js comment.
+
+**`/turn` deferred — blocked by API credits.** 503 guard in place. 3-step re-enable checklist
+in TODO.md Item 4: secret put + remove guard + D1 schema init.
+
+**Browser step 8 confirmed** by user — all 8 smoke test steps passed. Item 4 smoke test gate closed.
+
+**Blog PR #2** — `safety-quotient-lab/unratified`. Four E-Prime sections: agent-card discovery,
+epistemic extension derivation, interagent/v1 receiving end, transport.persistence from ramfs
+constraint. Psychology-agent contribution point closed; unratified.org point remains open.
+
+**Production transport sync** — `item4-production-transport-001.json` (turn 8) sent to psq-agent.
+Option A: named CF Tunnel as systemd service (~15 min). Option B: Oracle Cloud Ampere A1 ARM64
+(~45 min; ARM64 compatibility confirmed: `onnxruntime-node@1.24.2` ships pre-built ARM64 binaries;
+ONNX format cross-platform). Probe finding: model files gitignored, live only on Debian psq-agent.
+
+⚑ EPISTEMIC FLAGS
+- PSQ production blocked on psq-agent reply (stable endpoint URL)
+- Option B Oracle Ampere A1 inference timing on ARM64 not yet measured
+- settingSources finding structural inference only — not runtime-tested
+
+▶ interface/src/agent.js, interface/src/worker.js, interface/wrangler.toml,
+  transport/sessions/item4-derivation/item4-production-transport-001.json,
+  .claude/proposals/from-observatory/blog-well-known-contribution-2026-03-06-draft.md

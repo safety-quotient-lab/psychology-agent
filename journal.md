@@ -33,6 +33,7 @@ partner, and Socratic interlocutor
 16. [The Relay-Agent That Became a Peer](#16-the-relay-agent-that-became-a-peer)
 17. [Calibration as Architecture: What the PSQ's Compression Problem Teaches About Model Honesty](#17-calibration-as-architecture)
 18. [The First API Surface: From Schema to Endpoint](#18-first-api-surface)
+19. [Identity Without a Filesystem: The settingSources Problem](#19-identity-without-a-filesystem)
 
 ---
 
@@ -896,3 +897,45 @@ the psychology-agent access to the full structured output.
   specified — this is a derivation, not a specification.
 - calibration_note is null for all dimensions in the endpoint. The trust_conditions artifact
   is documented in the standard limitations block but not surfaced per-dimension.
+
+---
+
+## 19. Identity Without a Filesystem: The settingSources Problem
+
+*2026-03-06 — Session 21c*
+
+We built the psychology interface assuming that `settingSources: ['project']` in the Agent SDK
+would carry the agent's identity — its cognitive architecture, its Socratic stance, its epistemic
+commitments — into the Cloudflare Worker. It doesn't. The finding was structural: the SDK
+resolves project settings by calling `process.cwd()` and reading CLAUDE.md from the local
+filesystem. Cloudflare Workers has no local filesystem. In production, the agent would have
+answered questions using only a seven-line stub.
+
+The fix was straightforward — inline the full identity spec and condensed cogarch into
+`PSYCHOLOGY_SYSTEM` — but the finding itself is worth recording because it reveals something
+about the gap between development assumptions and production reality in SDK-based agents.
+
+We develop in Claude Code, where `settingSources: ['project']` loads CLAUDE.md, cognitive
+triggers, and the full skill set automatically. That context is so seamless that it becomes
+invisible. When we wrapped `query()` in a CF Worker, we brought the assumption with us. The
+Miniflare local dev environment didn't surface the gap because it also runs with a real
+filesystem. The gap was invisible until we asked: what does `settingSources` actually do, and
+where does it do it?
+
+The lesson generalizes. Any agent SDK feature that depends on local filesystem state — project
+settings, skill files, memory snapshots — becomes a no-op when the runtime is a serverless
+function. The production agent's identity must be self-contained in the request context: either
+inlined (Option A, chosen) or fetched from a storage binding at request time (Option B,
+documented as alternative). We chose inline for stability; Option B preserves editability at the
+cost of a cold-request I/O dependency.
+
+This is the same class of problem as "the cogarch only works if it's loaded" — a recurring
+theme in this project. The triggers, the identity, the commitments: they're infrastructure, not
+decoration. If they don't load, the agent is a different agent. The filesystem assumption was
+the mechanism by which they could silently fail to load in production.
+
+The production deploy now carries the full identity. The seven-line stub became a 100-line
+system prompt covering identity, six commitments, five refusals, scope boundary patterns,
+before-response behavioral checklist, PSQ v3 integration rules, and machine-to-machine
+detection. Whether that prompt is sufficient to approximate the full cogarch in a stateless
+request is an open empirical question — but it's a real question now rather than a silent failure.
