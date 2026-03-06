@@ -63,8 +63,8 @@ triggers:
     maturity: proven
   - id: T4
     fires_when: before_writing_to_disk
-    function: date discipline, public visibility, routing, semantic naming, novelty, interpretant
-    checks: 9
+    function: date discipline, public visibility, routing, semantic naming, novelty, interpretant, reversibility
+    checks: 10
     mechanical_enforcement: PostToolUse hook (Write|Edit matcher)
     maturity: proven
   - id: T5
@@ -317,8 +317,8 @@ future_capabilities:
     maturity: identified
     notes: F-1 from claude-control findings — docs/constraints.md with categorized IDs
   - name: reversibility gate (T4 extension)
-    maturity: identified
-    notes: F-2 from claude-control findings — blast radius check before destructive ops
+    maturity: proven
+    notes: F-2 from claude-control findings — T4 Check 10, reversibility assessment before Write/Edit ops
 
 decision_framework:
   method: knock-on analysis

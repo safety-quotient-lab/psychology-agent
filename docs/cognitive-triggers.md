@@ -224,6 +224,15 @@ replacement for the agent running T4 before writing.
      research ethics implications visible to this community?
    If a single document cannot serve all relevant communities without contradiction,
    flag an **Interpretant conflict** and route content to separate artifacts.
+10. **Reversibility assessment** — can this write undo itself? Classify:
+    - **Additive** (new content, new file) — reversible by deletion. Proceed
+    - **Substitutive** (replacing existing content) — reversible if old content
+      recoverable from git. Proceed with care; verify the old content is committed
+    - **Subtractive on shared state** (deleting content others depend on, removing
+      files referenced elsewhere, clearing transport state) — confirm before proceeding.
+      Check: does any other file, agent, or session reference the content being removed?
+    Platform-level confirmation handles destructive Bash operations (rm, git reset).
+    This check covers Write/Edit operations that the platform does not gate.
 
 **Action**: Fix any violations before writing.
 

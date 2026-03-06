@@ -43,7 +43,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | License (root project)        | ✓ CC BY-NC-SA 4.0 — LICENSE at project root      |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
 | Auto-memory recovery          | ✓ Snapshots, bootstrap-check.sh, T1 health check, BOOTSTRAP.md restructure (Session 11) |
-| Platform hooks                | ✓ 10 hooks: pre-commit, parry (3), T4 reminder, SessionStart, PreCompact, Stop, subproject-boundary, pushback-accumulator, write-provenance (Session 12-24b) |
+| Platform hooks                | ✓ 11 hooks: pre-commit (+ cogarch gate), parry (3), T4 reminder, SessionStart, PreCompact, Stop, subproject-boundary, pushback-accumulator, write-provenance (Session 12-27) |
 | Antiregression evaluation     | ✓ Evaluated, adopted hooks, TODO items written (Session 11) |
 | Blog post (cogarch)           | ✓ Reviewed + PR #7 submitted to unratified (Session 24) |
 | Cogarch canonical location    | ✓ cognitive-triggers.md moved to docs/ (Session 12) |
@@ -1957,3 +1957,29 @@ scoring session with B2 validation for unratified-agent.
 ▶ safety-quotient/src/student.js, safety-quotient/src/server.js, safety-quotient/models/psq-student/calibration.json,
   safety-quotient/scripts/recalibrate_hi_b2.py, docs/machine-response-v3-spec.md,
   transport/sessions/psq-scoring/from-psq-sub-agent-003.json, transport/MANIFEST.json
+
+---
+
+## 2026-03-06T16:49 CST — Session 27 (claude-control response + F-2/F-5 implementation)
+
+**Transport response to claude-control:**
+- Evaluated 6 cross-project findings from systems automation domain (F-1 through F-6)
+- Verdicts: 4 accepted (F-1, F-2, F-5, F-6), 1 adopted immediately (F-3 maturity vocabulary), 1 rejected (F-4 prompt generation)
+- Implementation order: F-2 → F-5 → F-1 → F-6 (prioritize standalone XS items before M-effort F-1)
+- Response written: `transport/sessions/cross-project-learnings/from-psychology-agent-001.json`
+- MANIFEST updated: claude-control added to pending (outbound) and recently_completed (inbound processed)
+- Reciprocal observation documented: domain-transfer-as-audit pattern — when a cogarch adapts to a new domain, adaptation failures map the original's blind spots
+
+**F-2 implemented — T4 Check 10 (reversibility assessment):**
+- Classifies writes as additive/substitutive/subtractive
+- Subtractive on shared state requires confirmation before proceeding
+- Platform-level confirmation handles destructive Bash (rm, git reset); this covers Write/Edit
+- capabilities.yaml updated: T4 checks 9→10, F-2 maturity identified→proven
+
+**F-5 partial implemented — pre-commit cogarch gate:**
+- `bootstrap-check.sh --check-only` now exits 1 when cognitive-triggers.md missing or below 100 lines
+- Blocks commits with broken cogarch mechanically (pre-commit hook fires bootstrap-check.sh)
+- Also fixed: skills count 4→5 (added /sync to enumeration)
+
+▶ docs/cognitive-triggers.md, docs/capabilities.yaml, bootstrap-check.sh,
+  transport/sessions/cross-project-learnings/from-psychology-agent-001.json, transport/MANIFEST.json
