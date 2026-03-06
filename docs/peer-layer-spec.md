@@ -18,7 +18,7 @@ This differs from the sub-agent layer (2a, orchestrator → sub-agent) in three 
 | Capability asymmetry | Sub-agent has domain expertise; orchestrator decides | Both peers hold general reasoning capacity |
 | Disagreement resolution | Orchestrator decides or escalates to evaluator | Evaluator required; user is last resort |
 
-The observatory-agent exchange (Sessions 18–19) was Item 2b in practice.
+The observatory-agent exchange (Sessions 18–19) served as the peer layer derivation in practice.
 This spec formalizes what that exchange demonstrated.
 
 ---
@@ -233,11 +233,11 @@ The psychology-agent/machine-response/v3 schema is valid in peer exchanges
 when the sending peer is relaying PSQ output. In direct peer-to-peer exchanges,
 the base interagent/v1 layer plus A2A Epistemic Extension is sufficient.
 
-**Item 3 (adversarial evaluator):** Peer disagreement is the primary evaluator
+**Adversarial evaluator:** Peer disagreement is the primary evaluator
 activation path at Standard and Full tiers. The peer layer (2b) provides the binding:
 what schema field triggers which tier, and what the evaluator returns.
 
-**Item 4 (psychology interface):** The peer layer will eventually allow
+**Psychology interface:** The peer layer will eventually allow
 two psychology-agent instances to collaborate on a shared analysis visible
 to the user. The interface should expose peer agreement/disagreement states
 — convergence signals and evaluator findings — as first-class UI elements.

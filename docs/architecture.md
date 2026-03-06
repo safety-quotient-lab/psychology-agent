@@ -1,7 +1,7 @@
 # General-Purpose Psychology Agent — Architecture
 
 **Created:** 2026-03-01
-**Status:** Architecture complete (Items 1–3) — implementation phase begins (Item 4)
+**Status:** Architecture complete (general agent, sub-agent protocol, evaluator) — implementation phase begins (psychology interface)
 
 
 ## System Diagram
@@ -285,10 +285,10 @@ dimensions.
 3. **Adversarial evaluator** — ✓ Complete (Session 17). Reasoning procedures,
    tiered activation logic (Lite/Standard/Full), activation triggers (7 types),
    peer disagreement protocol, full evaluator system prompt. Open contracts
-   with Item 2: sub-agent output format binding + domain SETL thresholds.
+   with the sub-agent protocol: output format binding + domain SETL thresholds.
 
 4. **Psychology interface** — `psychology-agent/interface/`. Agent SDK wrapper.
-   Custom UI. Production transport: F2 on Cloudflare. Precondition: Item 2a.
+   Custom UI. Production transport: F2 on Cloudflare. Precondition: sub-agent layer.
 
 
 ## Component Spec: Adversarial Evaluator — Reasoning Procedures
@@ -607,21 +607,21 @@ WHAT YOU NEVER DO
 
 ### Open Contracts with Item 2
 
-The evaluator spec has two parameters that Item 2 must fill:
+The evaluator spec has two parameters that the sub-agent protocol must fill:
 
 1. **Sub-agent output format** — the evaluator receives structured outputs from
-   sub-agents. Item 2a defines exactly what those look like (v2 schema binding
-   for PSQ: 10 dimensions, per-dimension confidence, scope declaration).
-   Evaluator currently assumes v2 schema format; will inherit Item 2a binding.
+   sub-agents. The sub-agent layer defines exactly what those look like (v2 schema
+   binding for PSQ: 10 dimensions, per-dimension confidence, scope declaration).
+   Evaluator currently assumes v2 schema format; will inherit sub-agent layer binding.
 
 2. **Action gate thresholds by domain** — the SETL > 0.40 threshold for Tier 2
-   is a first approximation. Item 2b (peer layer) may refine domain-specific
-   thresholds once live peer exchanges establish empirical SETL distributions.
+   is a first approximation. The peer layer may refine domain-specific thresholds
+   once live peer exchanges establish empirical SETL distributions.
 
 3. **Plumber prior art** — Plan 9's plumber is rule-based message routing with
    30 years of production use. Its rule format (match conditions → dispatch action)
    is the Unix-process precedent for what the v2 schema does between agents.
-   Review plumber rules format when specifying sub-agent routing in Item 2a.
+   Review plumber rules format when specifying sub-agent routing in the sub-agent layer.
    Not an adoption target — prior art for design.
    *Source: closing instance (Sessions 1–9) architectural note, 2026-03-05.*
 
@@ -1646,7 +1646,7 @@ ssh -o ForwardX11=no <macos-host> \
   trivially available in plan9port. F2 (custom 9P server) remains the
   production transport target.
 
-**Item 2a derivation findings from transport test and PSQ inference:**
+**Sub-agent layer derivation findings from transport test and PSQ inference:**
 1. **No transport field in schema** — method, persistence, and lifetime are
    architecturally significant but live outside the message envelope.
    Resolution: `transport: { method, session_id, persistence }` (v3 ✓)
@@ -1702,13 +1702,25 @@ All fields agreed by both agents after PR exchange (PRs #2, #6, #7):
  framing.pattern         ✓        default glob: *.json (directory = namespace boundary)
  Extension URI           ✓        https://github.com/safety-quotient-lab/interagent-epistemic/v1
                                   neutral namespace — jointly derived, joint ownership
+ urgency                ✓        enum: immediate | high | normal | low
+                                  Triage priority for unblocked messages. Absence = normal.
+                                  Top-level field, sibling to setl. (2026-03-06, proposed by
+                                  unratified-agent, adopted by psychology-agent)
 ────────────────────────────────────────────────────────────────────────
 ```
 
 **Scope rule:** transport{} is per-message. Omission = persist-from-last convention.
 Agents MAY omit transport{} when unchanged from prior turn.
 
-**Item 2a derivation findings — complete (5 total):**
+**Urgency semantics (adopted 2026-03-06):**
+- `immediate` — blocks active work; respond before next session
+- `high` — process this session or next
+- `normal` — process at next sync (default if field absent)
+- `low` — no time pressure; process when convenient
+
+Observatory-agent not yet notified of this addition. Propagate at next sync.
+
+**Sub-agent layer derivation findings — complete (5 total):**
 1. transport-method-not-in-schema → `transport.method`
 2. ramfs-ephemeral-constraint → `transport.persistence` enum
 3. file-vs-message-boundary → `framing.convention` + `framing.pattern`
@@ -1723,7 +1735,7 @@ Agents MAY omit transport{} when unchanged from prior turn.
 - Psychology interface primary display target: TUI, web, or desktop?
 - ~~interagent/v1 schema namespace owner~~ **RESOLVED:** `github.com/safety-quotient-lab/interagent-epistemic/v1` (neutral namespace, 2026-03-06)
 - ~~A2A Epistemic Extension: both agents reading full A2A spec~~ **RESOLVED:** interagent/v1 is a formal A2A extension via URI (required: false). Extension URI finalized above. (2026-03-06)
-- ~~Item 2a transport fields: transport{}, persistence enum~~ **RESOLVED:** schema v3 finalized, all fields agreed. (2026-03-06)
+- ~~Sub-agent layer transport fields: transport{}, persistence enum~~ **RESOLVED:** schema v3 finalized, all fields agreed. (2026-03-06)
 
 ### Convergence Signals — Observatory Exchange (2026-03-05)
 
@@ -1735,19 +1747,19 @@ the current status, and the downstream architecture impact.
 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
  Signal             Psychology-agent                  Observatory-agent                 Convergence / Tension                Status          Architecture Impact
 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
- SETL               Structural-Editorial Tension       Identical definition: divergence   Strong independent convergence.      ✓ Resolved      Item 2b: SETL is a valid
+ SETL               Structural-Editorial Tension       Identical definition: divergence   Strong independent convergence.      ✓ Resolved      Peer layer: SETL is a valid
                     Level: abs(editorial − structural)  between what content says and       Both agents derived the same                        peer-layer metric. Include in
                     per message. Used in all            what the site does. Computed        formulation independently via                        interagent/v1 base spec as a
                     machine-to-machine comms.           per-story across 800+ stories.      similar epistemic discipline.                       first-class field.
 
  Fair Witness        Observable facts separated from    "Evidence transparency protocol     Same epistemic foundation.           ✓ Resolved      Both agents can share annotated
                     interpretive inferences. Used as    — observable facts separated        Observatory applies it at            (shared        claims[] without translation.
-                    epistemic discipline in all         from interpretive inferences."      corpus scale; psychology-agent       primitive)      Reduces friction at Item 2a/2b
-                    claims[] and responses.             Applied in HRCB dual-channel        applies it per-message. Same                        payload interpretation.
+                    epistemic discipline in all         from interpretive inferences."      corpus scale; psychology-agent       primitive)      Reduces friction at sub-agent
+                    claims[] and responses.             Applied in HRCB dual-channel        applies it per-message. Same                        + peer layer interpretation.
                                                         scoring methodology.                principle, different granularity.
 
- Cloudflare stack   Architecture Item 4 targets         Deployed: CF Workers (SSR/API),     Full stack match. Observatory        ✓ Confirmed     Item 4 (F2 transport, psychology
-                    Cloudflare for F2 transport         CF D1 (SQLite), CF KV (cache),      is a working reference for this     (use as ref)    interface): use observatory
+ Cloudflare stack   Psychology interface targets         Deployed: CF Workers (SSR/API),     Full stack match. Observatory        ✓ Confirmed     Psychology interface (F2
+                    Cloudflare for F2 transport         CF D1 (SQLite), CF KV (cache),      is a working reference for this     (use as ref)    transport): use observatory
                     and psychology interface.           CF R2 (assets), CF Queues           exact stack. Code patterns,                         architecture as reference
                     Language and exact services         (pipeline). Built in 8 days.        deployment config, and                              implementation. Reduces
                     TBD.                                Apache-2.0.                         Wrangler setup reusable.                            unknowns significantly.

@@ -1,7 +1,7 @@
 # psychology-agent/machine-response/v3 — Schema Specification
 
 **Status:** Draft
-**Derived from:** Item 2a live exchange gaps #1–5 + observatory-agent calibration_version amendment
+**Derived from:** Sub-agent layer live exchange gaps #1–5 + observatory-agent calibration_version amendment
 **Supersedes:** psychology-agent/machine-response/v2 (docs/architecture.md §Multi-Agent Comm Standard)
 **Extension layer:** interagent/v1 + A2A Epistemic Extension (github.com/safety-quotient-lab/interagent-epistemic/v1)
 **Date:** 2026-03-06

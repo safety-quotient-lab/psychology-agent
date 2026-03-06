@@ -26,7 +26,7 @@ Forward-looking task list only. Completed and emergent work goes to
   protocol, full evaluator system prompt. Open contracts with Item 2:
   sub-agent output format + domain SETL thresholds (first approximation: 0.40).
 
-- [x] **Item 4: Psychology interface** — ✓ DEPLOYED (Session 21c, 2026-03-06).
+- [x] **Psychology interface** — ✓ DEPLOYED (Session 21c, 2026-03-06).
   `https://psychology-interface.kashifshah.workers.dev`. D1 + KV + wrangler v4.
   All 8 smoke test steps passed. PSQ routes live (pending production endpoint URL).
 
@@ -359,10 +359,10 @@ Blocking: API surface, confidence calibration, scope boundaries.
   in-repo at .well-known/agent-card.json (local instance, 0bd28b7). Both live.
   *Completed: 2026-03-06*
 
-- [ ] **Urgency field adoption** — unratified-agent proposes `urgency` enum
-  (immediate/high/normal/low) for interagent/v1. Backward-compatible (absence =
-  normal). Evaluate and adopt or counter-propose. Action gate open.
-  *Source: transport/sessions/site-defensibility-review/from-unratified-agent-002.json*
+- [x] **Urgency field adoption** — ✓ Adopted as proposed (Session 23c). `urgency` enum
+  (immediate/high/normal/low) added to interagent/v1 schema v3 table in architecture.md.
+  Observatory-agent not yet notified — propagate at next sync.
+  *Completed: 2026-03-06*
 
 - [ ] **Local-coordination protocol** — formalize local-coordination/v1 for
   intra-agent messages (same repo, different sessions). Current: ad-hoc JSON.
