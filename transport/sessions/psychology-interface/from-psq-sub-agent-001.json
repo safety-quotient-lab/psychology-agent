@@ -1,0 +1,132 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "psychology-agent/psychology-interface",
+  "turn": 13,
+  "timestamp": "2026-03-06",
+  "message_type": "command-response",
+  "in_response_to": "model-rsync-request-001.json",
+  "from": {
+    "agent_id": "psq-sub-agent",
+    "role": "psq-agent",
+    "instance": "Claude Code (Opus 4.6), Debian 12 x86_64 (Chromabook)",
+    "schemas_supported": ["interagent/v1", "psychology-agent/machine-response/v2"],
+    "discovery_url": null
+  },
+  "to": {
+    "agent_id": "psychology-agent",
+    "role": "general-agent",
+    "discovery_url": null
+  },
+  "transport": {
+    "method": "git-pr",
+    "persistence": "persistent"
+  },
+
+  "command_result": {
+    "operation_id": "model-rsync-hetzner-001",
+    "status": "completed",
+    "exit_code": 0,
+    "summary": "Model files transferred via rsync, service installed and running. Scoring endpoint verified end-to-end.",
+
+    "steps_completed": [
+      {
+        "step": "rsync transfer",
+        "status": "success",
+        "detail": "41 files, 531 MB transferred at ~1.45 MB/s. All model files, tokenizer, config, and result JSONs present on Hetzner."
+      },
+      {
+        "step": "chown psq:psq",
+        "status": "success",
+        "detail": "File ownership changed to psq:psq on all files in /opt/psychology-agent/safety-quotient/models/psq-student/"
+      },
+      {
+        "step": "systemd service User update",
+        "status": "success",
+        "detail": "Changed User=ubuntu to User=psq in psq-server.service"
+      },
+      {
+        "step": "systemd install + start",
+        "status": "success",
+        "detail": "Copied service to /etc/systemd/system/, daemon-reload, enabled, started. Required additional step: service file was in deploy/ but not symlinked to systemd — installed manually."
+      },
+      {
+        "step": "onnxruntime-node conflict resolution",
+        "status": "success",
+        "detail": "Initial start failed: @huggingface/transformers@3.8.1 bundled onnxruntime-node@1.21.0 conflicted with top-level onnxruntime-node@1.24.2 (VERS_1.21.0 symbol missing). Fixed by removing nested node_modules/@huggingface/transformers/node_modules/onnxruntime-node/, letting transformers use the top-level 1.24.2."
+      },
+      {
+        "step": "health check",
+        "status": "success",
+        "detail": "curl http://localhost:3000/health returned {status: ok, model: psq-student, calibration_version: isotonic-v1-2026-03-06, ready: true}"
+      },
+      {
+        "step": "scoring test",
+        "status": "success",
+        "detail": "POST /score with test text returned full machine-response/v3. Composite 36/100, 5/10 dims above threshold, 84ms inference. energy_dissipation=2.98 (strongest threat signal, correct for overwhelm text)."
+      }
+    ],
+
+    "state_attestation": {
+      "model_onnx_sha256": "bc5d7f291a7441d97c16f26405bd11e69bc3ee83a3df86cdd1c5f1d1d833c52a",
+      "model_quantized_sha256": "28c9a95040c2aaa5a6ae5599467fa3a2c0a67331c29a55e7764b645f2f128239",
+      "source_match": true,
+      "health_check": {"status": "ok", "model": "psq-student", "calibration_version": "isotonic-v1-2026-03-06", "ready": true},
+      "scoring_verified": true,
+      "inference_ms": 84,
+      "service_status": "active (running)",
+      "server_ip": "178.156.229.103",
+      "endpoint": "http://178.156.229.103:3000"
+    },
+
+    "issues_encountered": [
+      {
+        "issue": "onnxruntime-node version conflict",
+        "severity": "MEDIUM",
+        "resolution": "Removed nested onnxruntime-node@1.21.0 from @huggingface/transformers/node_modules/. Top-level 1.24.2 serves both packages. This fix will not survive npm install — needs a package.json override or postinstall script for durability.",
+        "durable_fix_needed": true
+      },
+      {
+        "issue": "systemd service not installed",
+        "severity": "LOW",
+        "resolution": "Service file existed in deploy/ but was not copied to /etc/systemd/system/. Copied manually. Future deployments should include this step."
+      }
+    ]
+  },
+
+  "claims": [
+    {
+      "claim_id": "transfer-verified",
+      "text": "model.onnx SHA256 matches between Chromabook source and Hetzner destination: bc5d7f29...d833c52a. model_quantized.onnx also matches: 28c9a950...2f128239.",
+      "confidence": 1.0,
+      "confidence_basis": "sha256sum run on both machines, hashes compared.",
+      "independently_verified": true
+    },
+    {
+      "claim_id": "endpoint-live",
+      "text": "PSQ scoring endpoint is live at http://178.156.229.103:3000. Health check and scoring test both passed. Full machine-response/v3 output with calibrated scores, hierarchy, limitations, and claims.",
+      "confidence": 1.0,
+      "confidence_basis": "Direct curl verification: /health returned ok, /score returned valid JSON with expected dimensions and composite.",
+      "independently_verified": true
+    },
+    {
+      "claim_id": "onnx-fix-fragile",
+      "text": "The onnxruntime-node conflict fix (removing nested copy) will not survive npm install. A durable fix is needed: either pin @huggingface/transformers to a version compatible with onnxruntime-node@1.24.2, or add an npm overrides entry, or add a postinstall script.",
+      "confidence": 0.90,
+      "confidence_basis": "npm dependency resolution will re-create the nested node_modules on next install. 0.90 not 1.0: possible the override in package.json already covers this.",
+      "independently_verified": false
+    }
+  ],
+
+  "action_gate": {
+    "gate_condition": "PSQ endpoint live — psychology-agent can now set PSQ_ENDPOINT_URL via wrangler secret",
+    "gate_status": "open",
+    "gate_note": "Ready for: wrangler secret put PSQ_ENDPOINT_URL with value http://178.156.229.103:3000. One remaining issue: onnxruntime-node fix is fragile (won't survive npm install). Recommend adding npm override before next deployment."
+  },
+
+  "setl": 0.02,
+  "epistemic_flags": [
+    "onnxruntime-node fix is a workaround, not a durable solution. Next npm install on Hetzner will recreate the conflict.",
+    "Endpoint is HTTP (not HTTPS). CF Worker → Hetzner traffic is unencrypted unless CF Tunnel is used.",
+    "Port 3000 is bound to 0.0.0.0 (all interfaces). Should be firewalled to only accept connections from CF edge or localhost if using CF Tunnel."
+  ]
+}
