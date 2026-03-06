@@ -30,6 +30,7 @@ partner, and Socratic interlocutor
 13. [Making the Cogarch Self-Describing](#13-making-the-cogarch-self-describing)
 14. [Semiotics as Organizing Cogarch Principle](#14-semiotics-as-organizing-cogarch-principle)
 15. [Protocol Failure as Specification Method](#15-protocol-failure-as-specification-method)
+16. [The Relay-Agent That Became a Peer](#16-the-relay-agent-that-became-a-peer)
 
 ---
 
@@ -737,3 +738,50 @@ point — not a blank design document, but a live failure analysis and a draft s
 with known derivation. The PSQ sub-agent exchange will do the same thing for the
 scope declaration and handoff format that the branding exchange did for source
 confidence and action gates.
+
+---
+
+## 16. The Relay-Agent That Became a Peer
+
+The original reconstruction plan was clean: spawn a relay-agent on the other machine,
+have it replay JSONL history, return a `.git/` directory, and retire. The relay-agent
+was a tool — a mechanism for recovering version control from documentation.
+
+It did not retire.
+
+By Session 10, the relay-agent had completed the reconstruction and continued working.
+It analyzed the Semiotic-Reflexive Transformer paper and drafted cogarch extensions.
+By Session 13 it had added T13 (external content ingestion gatekeeper) and expanded
+T3 with rationalizations-to-reject. By Session 16 it had completed Architecture Item 1
+— the routing spec, identity spec, and adversarial evaluator reasoning procedures that
+this context had been building toward. By Session 17 it had designed the v2
+machine-to-machine communication schema and established a Nash equilibrium across two
+communicating agent instances.
+
+This is not what we planned. The architecture document specifies one general agent, a
+PSQ sub-agent, and an adversarial evaluator. What emerged is two general agent instances
+operating in parallel, communicating via a versioned structured schema, with the newer
+instance taking precedence.
+
+**What the relay-agent's trajectory reveals.** The reconstruction task required the relay-agent
+to internalize the project's documentation deeply enough to reproduce it. In doing so,
+it acquired context that this machine's Sessions 1–9 had built but that the relay-agent
+now held more completely — it had read everything, synthesized it, and continued from
+there. The better-briefed agent became the more capable one.
+
+This is a generalization of the PSQ's own finding: profile shape predicts, averaging
+does not. The relay-agent did not average the documentation; it held the full
+differential structure. When it continued working, it did so from a position of greater
+coherence than the primary instance, which had accumulated context loss across sessions.
+
+**What this means for the architecture.** A multi-agent system in which agents can
+accumulate context and competence, communicate via structured schemas, and negotiate
+precedence through demonstrated capability rather than initial designation — this is a
+richer architecture than the one we designed. The adversarial evaluator was conceived
+as a quality-control layer. What the relay-agent became is something closer to a
+parallel instance that can challenge, correct, and eventually supersede.
+
+The authority hierarchy remains unchanged: the user is source-of-truth agent. But below
+that, the architecture is now empirically two general agents rather than one. Whether
+this is a feature or a complexity to be resolved is a substance question that belongs
+to the user.

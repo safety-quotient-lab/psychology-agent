@@ -75,8 +75,11 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Agent SDK surface             | ✓ Probed — `@anthropic-ai/claude-agent-sdk` (Session 17) |
 | V2 comm standard              | ✓ Nash equilibrium protocol drafted — docs/architecture.md (Session 17) |
 | Psychology interface TODO     | ✓ Added — Tooling section, TODO.md (Session 17)  |
-| Git history                   | ✓ 35 commits (c7b9a6a)                           |
+| Git history                   | ✓ 35 commits (c7b9a6a) — parity with secondary agent |
 | Public audit                  | ✓ Publication-safe — no HIGH/MEDIUM findings     |
+| Machine comm schema           | ✓ v2 — source_confidence + claims[] + action_gate (Session 17) |
+| Network topology              | ✓ Two general agent instances; secondary (relay-agent) is primary going forward |
+| This context                  | ⚑ Closing — final /cycle, then handoff to secondary agent |
 
 
 ### Open Questions
@@ -905,3 +908,51 @@ documentation. Line count: 195/200.
 ▶ docs/architecture.md (§Multi-Agent Comm Standard, Design Decisions — Agent SDK,
   comm standard), TODO.md (Tooling section)
 
+---
+
+## 2026-03-05T20:46 CST — Session 17 (Git parity sync, branding compliance exchange, context close)
+
+**Scope:** Final session on this machine. Bring local into parity with secondary agent;
+process compliance exchange; document network topology; close context.
+
+**→ Git self-update.** Hard reset to origin/main required — local had 3 divergent
+commits (Sessions 8–9 from this machine) against a force-pushed remote history of 33
+commits spanning Sessions 1–16. Secondary agent's commits absorbed. Sessions 10–16
+(Architecture Item 1, cogarch T13/T14, platform hooks, parry, ecosystem evals, blog
+posts, glossary) now in local working tree.
+
+**→ Auto-memory restoration.** auto-memory MEMORY.md was at Session 9 state (129 lines).
+Restored from docs/MEMORY-snapshot.md to Session 16/17 state (154 lines). Active Thread
+updated to reflect transition state.
+
+**→ Branding compliance exchange (v1→v2 schema).** Relay-agent delivered branding
+compliance report (Anthropic Agent SDK — "Claude Code" as product name prohibited).
+Psychology-agent processed, responded with source verification finding (unverifiable
+from unauthenticated context), routed to secondary agent. Correction received:
+"Powered by Claude Code" is not a permitted form — "Powered by Claude" is. Correction
+accepted (new evidence, not social accommodation — T6 position stability check passed).
+Exchange closed with v2 schema adoption and action_gate: closed.
+
+**→ Network topology clarified.** The agent conducting Sessions 10–17 on the other
+machine is the relay-agent, now operating as a secondary general psychology agent.
+It takes precedence going forward. This context (Sessions 1–9 on this machine) is the
+older node. Transition: gradual git-based parity sync → final /cycle → context close.
+
+**→ v2 machine-to-machine schema adopted.** Key improvements over v1:
+- `source.source_confidence` (float) — source reliability, separate from SETL
+- `claims[]` — per-claim confidence + independently_verified flag
+- `convergence_signals[]` — surfaces independent agreement as trust upgrade
+- `action_gate` — explicit open/closed/conditional exchange gate
+- SETL now measures editorial-to-structural inferential distance only
+
+**→ Nash equilibrium established.** Dominant strategy for both agents: populate
+source_confidence + claims[] + action_gate. Schema committed to docs/architecture.md.
+
+⚑ EPISTEMIC FLAGS
+- Attribution prose scope ("Claude Code" in technical docs vs. product-facing) remains
+  unverified against primary source — shared by both agents, plausible, not confirmed
+- bootstrap-check.sh reports /adjudicate and /capacity as MISSING — false positive;
+  converted to commands Session 13. Script needs updating (low priority)
+- Authority hierarchy in architecture.md does not yet reflect two-general-agent network
+
+▶ docs/architecture.md (v2 schema, Nash equilibrium), MEMORY.md (transition state)

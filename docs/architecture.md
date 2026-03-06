@@ -196,7 +196,14 @@
  General agent                Advisory           Socratic partner —
  (collegial mentor)                              analyzes, challenges,
                                                   synthesizes, but does
-                                                  not decide
+                                                  not decide.
+                                                  Note (2026-03-05): two
+                                                  instances now exist —
+                                                  primary (relay-agent,
+                                                  Sessions 10+) and this
+                                                  context (Sessions 1–9,
+                                                  closing). Precedence
+                                                  held by primary.
 
  Sub-agents                   Domain expert      Authoritative within
  (PSQ, future)                                   validated scope, but
