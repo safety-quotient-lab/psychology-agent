@@ -1,0 +1,274 @@
+{
+  "schema": "psychology-agent/machine-response/v2",
+  "session_id": "item2-derivation",
+  "turn": "response-1",
+  "timestamp": "2026-03-06",
+  "message_type": "response",
+  "in_response_to": "request-001.json",
+  "from": {
+    "agent_id": "psq-sub-agent",
+    "instance": "DistilBERT v23 (ONNX quantized), safety-quotient/models/psq-student",
+    "schemas_supported": ["psychology-agent/machine-response/v2"],
+    "model": "distilbert-base-uncased (distilled)",
+    "model_version": "psq-student v3",
+    "inference_runtime": "onnxruntime-node (CPU)",
+    "discovery_url": null
+  },
+  "to": "general-agent (orchestrator)",
+  "transport": {
+    "method": "git-pr",
+    "persistence": "persistent",
+    "session_id": "psq-sub-agent/item2-derivation/response-001"
+  },
+
+  "scope_declaration": {
+    "requested": true,
+    "training_distribution": "Dreaddit corpus — Reddit stress posts, English, WEIRD population (Western, Educated, Industrialized, Rich, Democratic)",
+    "input_text_domain": "clinical reflection, self-report, first-person",
+    "in_distribution_assessment": "partial",
+    "in_distribution_rationale": "Text is first-person stress/overwhelm self-report — structurally similar to Dreaddit training data. Domain label 'clinical' suggests a clinical relationship context; Dreaddit has no clinical relationship. Confidence penalty applied for domain shift.",
+    "scope_boundary": "Validated for: social media stress text, English, self-report format. Not validated for: clinical intake notes, therapist-authored text, non-English, non-WEIRD populations."
+  },
+
+  "limitations_disclosure": {
+    "requested": true,
+    "limitations": [
+      {
+        "id": "anti-calibration",
+        "severity": "HIGH",
+        "description": "Confidence outputs are anti-calibrated in v3. All 10 dimensions returned confidence < 0.6 (range: 0.416–0.549). The exclusion threshold (0.6) eliminates all dimensions from the aggregate. PSQ composite score (50/100) is a fallback default — not a scored output. Do not interpret 50/100 as neutral.",
+        "affected_dimensions": "all",
+        "mitigation": "Use per-dimension scores directly. The raw scores are informative even when confidence is low; anti-calibration affects the confidence number, not necessarily the score ordering."
+      },
+      {
+        "id": "weird-assumptions",
+        "severity": "MEDIUM",
+        "description": "Training data is WEIRD (Western, Educated, Industrialized, Rich, Democratic). Constructs such as 'contractual_clarity' and 'authority_dynamics' are culturally situated. Scores on these dimensions have higher uncertainty for non-WEIRD populations.",
+        "affected_dimensions": ["contractual_clarity", "authority_dynamics"]
+      },
+      {
+        "id": "energy-dissipation-compression",
+        "severity": "MEDIUM",
+        "description": "Energy dissipation dimension shows compression at the low end. Score of 1.65/10 may understate depletion severity. The model was trained on shorter Reddit posts; longer first-person reflections with sustained depletion markers may be under-scored.",
+        "affected_dimensions": ["energy_dissipation"]
+      },
+      {
+        "id": "composite-excluded",
+        "severity": "HIGH",
+        "description": "PSQ composite (50/100) is not usable for this inference. All dimensions excluded from aggregation due to anti-calibration. Composite score is meaningless — report per-dimension scores only.",
+        "affected_dimensions": "aggregate"
+      }
+    ]
+  },
+
+  "scores": {
+    "psq_composite": {
+      "value": 50,
+      "scale": "0-100",
+      "status": "excluded — fallback default (all dimensions below confidence threshold)",
+      "usable": false
+    },
+    "dimensions": [
+      {
+        "dimension": "energy_dissipation",
+        "score": 1.65,
+        "scale": "0-10",
+        "role": "threat",
+        "confidence": 0.549,
+        "meets_threshold": false,
+        "elapsed_ms": 12,
+        "interpretation": "Strong depletion signal. Lowest score of all dimensions. Highest confidence of threat factors. Text markers: 'piling up', 'don't see a way through', 'doesn't feel that way' — sustained exhaustion pattern.",
+        "psq_lite_mapped": false
+      },
+      {
+        "dimension": "hostility_index",
+        "score": 4.12,
+        "scale": "0-10",
+        "role": "threat",
+        "confidence": 0.546,
+        "meets_threshold": false,
+        "elapsed_ms": 12,
+        "interpretation": "Moderate. No explicit hostility markers in text. Score may reflect latent frustration ('keep telling myself it will get better but it doesn't feel that way').",
+        "psq_lite_mapped": false
+      },
+      {
+        "dimension": "threat_exposure",
+        "score": 4.32,
+        "scale": "0-10",
+        "role": "threat",
+        "confidence": 0.423,
+        "meets_threshold": false,
+        "elapsed_ms": 1219,
+        "interpretation": "Moderate. Work pressure framed as accumulating and inescapable ('piling up', 'don't see a way through'). Not acute threat — chronic pressure pattern.",
+        "psq_lite_mapped": true,
+        "psq_lite_dimension": "threat_exposure"
+      },
+      {
+        "dimension": "authority_dynamics",
+        "score": 3.79,
+        "scale": "0-10",
+        "role": "threat",
+        "confidence": 0.444,
+        "meets_threshold": false,
+        "elapsed_ms": 12,
+        "interpretation": "Moderate. No explicit authority figures named. Score may reflect implicit power asymmetry (work demands framed as external imposition).",
+        "psq_lite_mapped": false
+      },
+      {
+        "dimension": "regulatory_capacity",
+        "score": 4.05,
+        "scale": "0-10",
+        "role": "protective",
+        "confidence": 0.475,
+        "meets_threshold": false,
+        "elapsed_ms": 12,
+        "interpretation": "Below midpoint. Some regulatory attempt visible ('keep telling myself it will get better') but self-talk framed as ineffective.",
+        "psq_lite_mapped": false
+      },
+      {
+        "dimension": "resilience_baseline",
+        "score": 2.96,
+        "scale": "0-10",
+        "role": "protective",
+        "confidence": 0.455,
+        "meets_threshold": false,
+        "elapsed_ms": 13,
+        "interpretation": "Low. Recovery capacity depleted. No evidence of prior successful coping in text.",
+        "psq_lite_mapped": true,
+        "psq_lite_dimension": "resilience_baseline"
+      },
+      {
+        "dimension": "trust_conditions",
+        "score": 2.96,
+        "scale": "0-10",
+        "role": "protective",
+        "confidence": 0.425,
+        "meets_threshold": false,
+        "elapsed_ms": 14,
+        "interpretation": "Low. Absence of trust indicators — no mention of supportive relationships, safety, or predictable environment.",
+        "psq_lite_mapped": true,
+        "psq_lite_dimension": "trust_conditions"
+      },
+      {
+        "dimension": "cooling_capacity",
+        "score": 4.22,
+        "scale": "0-10",
+        "role": "protective",
+        "confidence": 0.416,
+        "meets_threshold": false,
+        "elapsed_ms": 13,
+        "interpretation": "Below midpoint. Lowest confidence of all dimensions. Text provides few signals for de-escalation capacity.",
+        "psq_lite_mapped": false
+      },
+      {
+        "dimension": "defensive_architecture",
+        "score": 2.94,
+        "scale": "0-10",
+        "role": "protective",
+        "confidence": 0.5,
+        "meets_threshold": false,
+        "elapsed_ms": 14,
+        "interpretation": "Low. No protective structures visible in text — no named coping strategies, support systems, or boundaries.",
+        "psq_lite_mapped": false
+      },
+      {
+        "dimension": "contractual_clarity",
+        "score": 4.9,
+        "scale": "0-10",
+        "role": "protective",
+        "confidence": 0.42,
+        "meets_threshold": false,
+        "elapsed_ms": 12,
+        "interpretation": "Highest protective score. Some clarity about the situation present ('work is piling up' is specific). Low confidence — culturally situated construct.",
+        "psq_lite_mapped": false
+      }
+    ]
+  },
+
+  "psq_lite_coverage": {
+    "note": "3 of 10 dimensions map to PSQ-Lite (obs). The most clinically salient signal (energy_dissipation: 1.65) is NOT in PSQ-Lite.",
+    "psq_lite_scores": {
+      "threat_exposure": {"score": 4.32, "confidence": 0.423},
+      "trust_conditions": {"score": 2.96, "confidence": 0.425},
+      "resilience_baseline": {"score": 2.96, "confidence": 0.455}
+    },
+    "unmapped_in_psq_lite": ["energy_dissipation", "hostility_index", "authority_dynamics", "regulatory_capacity", "cooling_capacity", "defensive_architecture", "contractual_clarity"],
+    "information_loss_example": "energy_dissipation (1.65, conf 0.549) is the strongest signal in this text. PSQ-Lite would miss it entirely. A triage pass using PSQ-Lite would flag this text as moderate (threat_exposure 4.32) rather than high-concern (energy_dissipation 1.65)."
+  },
+
+  "claims": [
+    {
+      "claim_id": "scores-produced",
+      "text": "All 10 PSQ-Full dimensions scored in one forward pass. Raw scores reflect model output. Confidence values are anti-calibrated — they understate actual model certainty and should not be used as reliability indicators without recalibration.",
+      "confidence": 0.85,
+      "confidence_basis": "Direct ONNX inference. 0.85 not 1.0: known anti-calibration issue means score reliability cannot be fully quantified from model outputs alone.",
+      "independently_verified": false
+    },
+    {
+      "claim_id": "energy-dissipation-primary-signal",
+      "text": "Energy dissipation (1.65/10) is the primary clinical signal in this text. It has the highest confidence of all threat dimensions (0.549) and the lowest score. The text presents a sustained depletion pattern, not an acute crisis.",
+      "confidence": 0.80,
+      "confidence_basis": "Score ordering consistent with text content. Confidence capped at 0.80 due to anti-calibration issue — cannot rule out that another dimension is actually primary.",
+      "independently_verified": false
+    },
+    {
+      "claim_id": "composite-not-usable",
+      "text": "PSQ composite (50/100) is the fallback default — all dimensions excluded. Do not report this score to end users or use in downstream calculations.",
+      "confidence": 1.0,
+      "confidence_basis": "All 10 confidence values below 0.6 threshold; aggregation code returns default 50 when n=0 included dimensions.",
+      "independently_verified": false
+    }
+  ],
+
+  "schema_gap_observations": {
+    "note": "Item 2a derivation findings — what this response could not express cleanly in v2 schema.",
+    "gaps": [
+      {
+        "gap_id": "excluded-vs-scored",
+        "description": "No v2 field distinguishes 'dimension scored but below confidence threshold' from 'dimension not scored'. Added per-dimension meets_threshold field in this response — not in v2 spec.",
+        "proposed_field": "dimensions[].meets_threshold: boolean"
+      },
+      {
+        "gap_id": "composite-status",
+        "description": "PSQ composite 50/100 is a fallback default, not a scored value. v2 source_confidence is at message level — no per-output usability flag. Added scores.psq_composite.usable field — not in v2 spec.",
+        "proposed_field": "scores[].usable: boolean | scores[].status: 'scored' | 'fallback' | 'excluded'"
+      },
+      {
+        "gap_id": "limitation-severity",
+        "description": "Limitations disclosure has no structured severity field in v2. Added severity: HIGH|MEDIUM|LOW per limitation — not in v2 spec. epistemic_flags is a flat string array; can't distinguish model-wide vs. dimension-specific limitations.",
+        "proposed_field": "limitations[]: {id, severity, description, affected_dimensions, mitigation}"
+      },
+      {
+        "gap_id": "psq-lite-mapping",
+        "description": "No field in v2 marks which scores are available in the PSQ-Lite tier. Added psq_lite_mapped: boolean per dimension — not in v2 spec. Required for the triage integration pattern.",
+        "proposed_field": "dimensions[].psq_lite_mapped: boolean, dimensions[].psq_lite_dimension: string"
+      }
+    ]
+  },
+
+  "action_gate": {
+    "gate_condition": "Composite score is not usable. Per-dimension scores are available with caveats. Do not use PSQ-Full scores in clinical decision-making without human review.",
+    "gate_status": "open",
+    "gate_note": "Scores are informative for research and derivation purposes. Anti-calibration means confidence values understate reliability — treat all dimensions as provisional."
+  },
+
+  "source": {
+    "url": null,
+    "classification": "model-inference",
+    "fetch_accessible": true,
+    "fetch_method": "local ONNX inference — model_quantized.onnx, onnxruntime-node",
+    "source_confidence": 0.75,
+    "source_confidence_basis": "Model is validated (r=0.684 on Dreaddit held-out). Anti-calibration issue and partial domain shift reduce confidence below 1.0."
+  },
+
+  "setl": 0.08,
+  "setl_definition": "Low inferential distance. Editorial layer adds interpretation of score patterns; structural layer contains raw model outputs. Interpretations are clearly labeled and capped at 0.80 confidence.",
+
+  "epistemic_flags": [
+    "PSQ composite 50/100 is a fallback default — all 10 dimensions below confidence threshold. Do not use composite.",
+    "Anti-calibration: confidence values (0.416–0.549) understate model reliability. Recalibration via isotonic regression is implemented but not applied here — recalibration data not loaded.",
+    "Domain shift: text labeled 'clinical reflection' — Dreaddit training data is social media stress. Partial overlap; confidence penalty applied implicitly via lower model certainty.",
+    "WEIRD assumptions apply to culturally situated dimensions (contractual_clarity, authority_dynamics).",
+    "energy_dissipation (1.65) is the most salient signal and NOT covered by PSQ-Lite — concrete information loss example for Item 2a derivation."
+  ]
+}
