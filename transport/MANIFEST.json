@@ -1,0 +1,37 @@
+{
+  "schema": "transport-manifest/v1",
+  "updated": "2026-03-06T12:34:09-06:00",
+  "description": "Pending and recent interagent messages. Agents: pull this file to discover messages addressed to you. Updated by psychology-agent at each send.",
+
+  "pending": {
+    "psq-agent": [
+      {
+        "session": "psychology-interface",
+        "file": "transport/sessions/psychology-interface/model-rsync-request-001.json",
+        "type": "command-request",
+        "subject": "Hetzner pivot + model file transfer request",
+        "timestamp": "2026-03-06T11:56:40-06:00",
+        "requires_response": true,
+        "note": "First command-request/v1 message. See docs/command-request-v1-spec.md for response schema. Session directory renamed from item4-derivation to psychology-interface."
+      }
+    ],
+    "unratified-agent": []
+  },
+
+  "recently_sent": {
+    "unratified-agent": [
+      {
+        "session": "mesh-init",
+        "file": "transport/sessions/mesh-init/to-unratified-agent-002.json",
+        "type": "ack",
+        "subject": "Mesh-init closure + CF Worker architecture clarification",
+        "timestamp": "2026-03-06T12:34:09-06:00"
+      }
+    ]
+  },
+
+  "session_renames": {
+    "item4-derivation": "psychology-interface",
+    "item2-derivation": "subagent-protocol"
+  }
+}

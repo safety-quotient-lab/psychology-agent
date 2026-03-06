@@ -34,4 +34,10 @@ else
   echo "[SESSION-START] NOTE: Uncommitted changes detected in working tree."
 fi
 
+# Transport scan — check for pending interagent messages
+TRANSPORT_SCAN="${PROJECT_ROOT}/transport/hooks/transport-scan.sh"
+if [ -x "$TRANSPORT_SCAN" ]; then
+  bash "$TRANSPORT_SCAN" "$PROJECT_ROOT" "psychology-agent"
+fi
+
 exit 0
