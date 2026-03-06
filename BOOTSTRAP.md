@@ -48,11 +48,16 @@ Auto-memory directory:
 ~/.claude/projects/[HASH]/memory/
 ```
 
-One file lives there:
+Memory uses an index + topic file pattern:
 
 | Auto-memory file | What it holds | Committed snapshot (recovery source) | Min lines |
 |---|---|---|---|
-| `MEMORY.md` | Volatile state: active thread, decisions, cogarch quick-ref | `docs/MEMORY-snapshot.md` | 50 |
+| `MEMORY.md` | Index: active thread, hygiene rules, user preferences, topic file routing | `docs/MEMORY-snapshot.md` | 30 |
+| `memory/decisions.md` | Design decisions table + authority hierarchy | (included in MEMORY-snapshot.md archive) | — |
+| `memory/cogarch.md` | Trigger quick-ref, knock-on depth, adjudication, working principles | (included in MEMORY-snapshot.md archive) | — |
+| `memory/psq-status.md` | PSQ sub-agent calibration, deploy status, open issues | (included in MEMORY-snapshot.md archive) | — |
+
+MEMORY.md stays under 60 lines. Topic files hold the detail and have no line limit.
 
 The cognitive triggers file lives in the repo at `docs/cognitive-triggers.md` (canonical
 location since Session 12). It does not require auto-memory restoration — Claude reads
@@ -107,11 +112,13 @@ Claude Code from the project root to reload.
 ## Step 4: Orient to current state
 
 Read in order:
-1. `MEMORY.md` — current active thread and volatile state (auto-memory)
-2. `docs/cognitive-triggers.md` — full T1–T12 trigger system (canonical, in-repo)
-3. `docs/architecture.md` — design decisions and system diagram
-4. `lab-notebook.md` — last session summary and open questions
-5. `TODO.md` — task backlog
+1. `MEMORY.md` — index: active thread, topic file routing (auto-memory)
+2. `memory/decisions.md` — design decisions + authority hierarchy (auto-memory)
+3. `memory/cogarch.md` — trigger quick-ref + working principles (auto-memory)
+4. `docs/cognitive-triggers.md` — full T1–T15 trigger system (canonical, in-repo)
+5. `docs/architecture.md` — design decisions and system diagram
+6. `lab-notebook.md` — last session summary and open questions
+7. `TODO.md` — task backlog
 
 **Note:** `CLAUDE.local.md` at the project root is auto-gitignored and always-loaded.
 Create it for personal/local session context that should not be committed.

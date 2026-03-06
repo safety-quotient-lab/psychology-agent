@@ -49,11 +49,12 @@ Forward-looking task list only. Completed and emergent work goes to
   patterns checklist, all 10 orders with confidence bands and source citations (INCOSE,
   Popper). Update `/hunt` Phase 5 to reference `/knock` rather than embedding inline.
 
-- [ ] **Memory topic-file pattern** — split MEMORY.md into an index file (~60 lines)
-  + topic files read on demand. Candidate topics: `cogarch.md` (triggers quick-ref,
-  working principles), `decisions.md` (design decisions table), `psq-status.md`.
-  Add routing table to `/cycle` Step 7: what changed → which topic file to update.
-  Update BOOTSTRAP.md Step 4 to reflect new structure.
+- [x] **Memory topic-file pattern** — ✓ Session 23c. MEMORY.md split into index (53 lines)
+  + 3 topic files: `decisions.md` (49 lines), `cogarch.md` (54 lines), `psq-status.md`
+  (12 lines). /cycle Step 7 routing table added. BOOTSTRAP.md updated (Step 2 + Step 4).
+  bootstrap-check.sh updated (topic file health + restore + recovery sources).
+  Snapshot process updated (/cycle Step 10C copies topic files to docs/memory-snapshots/).
+  *Completed: 2026-03-06*
 
 - [ ] **Configurable /hunt at bootstrap** — optionally run `/hunt` after T1 orientation
   completes, so the agent surfaces highest-value work before the user asks. Should
