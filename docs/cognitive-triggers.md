@@ -120,8 +120,12 @@ replacement for the agent running T4 before writing.
 4. **Routing** — does this content belong in this file? Check /doc routing table
 5. **Classification** — ADDITIVE / SUBTRACTIVE / SUBSTITUTIVE. New content?
    Replacing content? Modifying existing content?
-6. **Semantic naming** — variable names must be fully descriptive; table column
-   headers must use semantic labels. No abbreviations, no single-letter names
+6. **Semantic naming** — all user-facing identifiers must be fully descriptive:
+   variable names, table column headers, file names, directory names, session
+   names, spec document names, transport paths. No abbreviations, no single-letter
+   names, no opaque item numbers (e.g., "item4-spec.md" → "psychology-interface-spec.md").
+   **Exception:** internal codes not displayed to callers (T-numbers, internal
+   enums, machine-only field values) may use compact identifiers
 7. **Lab-notebook ordering** — when appending session entries, verify chronological
    order. New entry timestamp must be later than the last existing entry
 8. **Novelty** — read target file first. Does this duplicate existing content?
