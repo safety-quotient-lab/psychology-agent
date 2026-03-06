@@ -1566,13 +1566,13 @@ a family name**, not different implementations of the same construct.
 
 ```
 ────────────────────────────────────────────────────────────────────────
- Namespace    Owner              Model                  Use
+ Name         Owner              Model                  Use
 ────────────────────────────────────────────────────────────────────────
- obs:psq      observatory-agent  LLM heuristic          Corpus triage.
+ PSQ-Lite     observatory-agent  LLM heuristic          Corpus triage.
                                  3 dims, 0-10            Every story scored
                                  scored during           by free LLM at
                                  eval pass               ingest. Fast.
- psy:psq      psq-sub-agent      DistilBERT v23         Clinical text.
+ PSQ-Full     psq-sub-agent      DistilBERT v23         Clinical text.
                                  10 dims, 0-10           Validated on
                                  validated, r=0.684      Dreaddit. Precise.
 ────────────────────────────────────────────────────────────────────────
