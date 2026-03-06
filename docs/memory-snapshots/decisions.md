@@ -35,6 +35,9 @@
                               specs, variables, table headers. No opaque item
                               numbers. Exception: internal codes not displayed
                               to callers (T-numbers, enums). 2026-03-06
+ Agent identity naming        "psychology-agent" (not "general-agent"). Role
+                              identifier, prose, and protocol messages all use
+                              psychology-agent. 2026-03-06
 ```
 
 ## Authority Hierarchy

@@ -132,8 +132,10 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Endpoint-live notification    | ✓ mesh-init turn 5 — URL, verification data, integration guidance |
 | mesh-init session             | ✓ Complete — unratified-agent confirms closure (turn 5 ACK received) |
 | psq-scoring session           | ✓ Active — 4 advocacy samples scored, 2 bugs found (B1 confidence dead, B2 HI dead zone), interpretation ACK received |
-| PSQ bug B1 (confidence dead)  | ⚑ OPEN — ONNX confidence head outputs constants for all inputs; fix needed |
-| PSQ bug B2 (HI dead zone)     | ⚑ OPEN — isotonic calibration maps raw 5.85–7.65 → 6.69; fix needed |
+| PSQ bug B1 (confidence dead)  | ⚑ OPEN — ONNX confidence head outputs constants for all inputs; fix spec sent to psq-agent |
+| PSQ bug B2 (HI dead zone)     | ⚑ OPEN — isotonic calibration maps raw 5.85–7.65 → 6.69; fix spec sent to psq-agent |
+| psq-scoring supervisory turn  | ✓ Turn 4 — bug fix specs, Q&A, PSQ-Lite endorsed, A/B test recommended (Session 23d) |
+| Identity rename               | ✓ general-agent → psychology-agent across 48 active files (Session 23d) |
 | Memory topic-file split       | ✓ MEMORY.md 169→53 lines; 3 topic files (decisions, cogarch, psq-status); bootstrap + /cycle + snapshot updated (Session 23c) |
 | Glob-scoped rules             | ✓ .claude/rules/ — markdown.md, javascript.md, transport.md; CLAUDE.md slimmed (Session 23c) |
 | bootstrap-check.sh            | ✓ Updated — topic file health/restore, skills→skills+commands split (Session 23c) |
@@ -144,7 +146,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 - HuggingFace model license: parry requests `deberta-v3-small` but docs reference `deberta-v3-base` — verify correct model slug
 - Parry ML daemon: HTTP 401 after token file exists — investigate token validity or model gating
 - ~~PSQ production URL: Hetzner provisioned; model rsync command-request sent; awaiting psq-agent command-response with state attestation~~ **ANSWERED:** Live at https://psq.unratified.org/score; rsync verified, Caddy TLS, ufw hardened
-- PSQ bug B1: confidence head dead — which API version carries the fix (v3→v4 or remove from v3)?
+- ~~PSQ bug B1: confidence head dead — which API version carries the fix (v3→v4 or remove from v3)?~~ **ANSWERED:** No version bump. Replace source (model head → static r-estimate), preserve field semantics. Document in calibration_note.
 - PSQ bug B2: HI calibration dead zone — re-fit with finer binning or alternative approach?
 - Does the PSQ endpoint currently return raw_score in the response body? (unratified-agent question)
 - PSQ-Lite (TE + HI-raw + TC) adopted by unratified-agent for advocacy content — validate across more content types
@@ -1699,3 +1701,33 @@ backlog items while psq-agent rsync was pending (resolved by local instance in 2
 ⚑ EPISTEMIC FLAGS: none identified.
 
 ▶ lab-notebook.md (Blog PR status update, session entry)
+
+
+## 2026-03-06T14:32 CST — Session 23e (Supervisory turn, identity rename, stale cleanup)
+
+**Scope:** psq-scoring supervisory turn, system-wide identity rename, stale item resolution.
+
+**psq-scoring supervisory turn (turn 4):**
+- `from-psychology-agent-001.json` — addressed to both unratified-agent and psq-agent
+- Bug fix specs routed to psq-agent: B1 → replace with static r-estimates (no version bump); B2 → re-fit isotonic with finer binning
+- Two questions answered: (Q1) no v3→v4 bump, (Q2) raw_score should already be in response per v3 spec
+- PSQ-Lite endorsed as provisional for advocacy content (TE + HI-raw + TC)
+- Content sequencing caution: A/B test recommended before adopting TC-based visitor journey ordering
+- MANIFEST.json updated with pending messages for both agents
+
+**Identity rename: general-agent → psychology-agent:**
+- 48 files updated across docs, skills, transport JSON, code, memory
+- Role identifier `"general-agent"` → `"psychology-agent"` in all transport messages
+- Prose "general agent" → "psychology agent" in all active documentation
+- Preserved: journal.md (historical narrative), docs/snapshots/ (archives)
+- Zero remaining `general-agent` references in active files
+
+**Stale item cleanup:**
+- Duplicate `/turn` route entry removed from lab-notebook Current State
+- TODO.md "pending production endpoint URL" updated to actual live URL
+- Systematic scan via explore agent confirmed no other stale items
+
+⚑ EPISTEMIC FLAGS: none identified.
+
+▶ transport/sessions/psq-scoring/from-psychology-agent-001.json, transport/MANIFEST.json,
+  48 files renamed (identity), lab-notebook.md, TODO.md
