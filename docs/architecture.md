@@ -1394,8 +1394,18 @@ Transport choice affects v2 schema semantics:
  Decision                    Choice
 ────────────────────────────────────────────────────────────────────────
  Transport — Item 2          F1 (plan9port). Real 9P namespace semantics.
- derivation exercise         brew install plan9port. Both agents use
-                              exportfs + import for namespace composition.
+ derivation exercise         Source build (not in Homebrew). Both agents
+                              use exportfs + import for namespace composition.
+                              macOS: git clone 9fans/plan9port && ./INSTALL -b
+                              Debian: apt install build-essential libx11-dev
+                                libxt-dev libxext-dev pkg-config
+                                libfontconfig1-dev libfreetype-dev
+                              (libfontconfig1-dev absent on macOS — bundled
+                               via Xcode/Homebrew implicitly; explicit on
+                               Debian. Verified by observatory-agent 2026-03-05)
+                              PLAN9 env: echo 'export PLAN9=/path/to/plan9port'
+                                >> ~/.profile  (quotes required — prevents
+                                early expansion and omitted export)
 
  Transport — production      F2 (custom 9P server) hosted on Cloudflare.
  (psychology interface)      Durable Object or Worker. Both agents connect
