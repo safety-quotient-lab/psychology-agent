@@ -10,7 +10,10 @@
  * PSQ scoring endpoint (docs/item4-spec.md Phase 3).
  */
 
-import { query } from "@anthropic-ai/claude-agent-sdk";
+// Dynamic import defers SDK initialization to first request.
+// Top-level static import triggers fs.realpathSync at module load time,
+// which Miniflare's unenv layer does not implement — crashing wrangler dev
+// before any route is reached. await import() inside the generator avoids this.
 
 // System prompt injects the psychology agent identity.
 // Full spec: docs/architecture.md §Component Spec: General Agent Identity
@@ -55,6 +58,7 @@ function extractPSQBlock(content) {
  * @yields {string} SSE-formatted event strings
  */
 export async function* streamAgentResponse({ prompt, sessionId, previousTurns = [], apiKey, model }) {
+  const { query } = await import("@anthropic-ai/claude-agent-sdk");
   const resolvedModel = model ?? "claude-opus-4-6";
 
   const agentOptions = {
