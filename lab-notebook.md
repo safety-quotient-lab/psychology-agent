@@ -23,7 +23,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | /capacity skill               | ✓ Created and verified                           |
 | Conventions migration         | ✓ CLAUDE.md holds stable conventions (178 lines) |
 | CLAUDE.md (project root)      | ✓ Created + display convention added             |
-| Cognitive infrastructure      | ✓ T1–T15, 4 SRT extensions (T2#9-10, T3#13-14), T4#10 reversibility, T3#15 constraint cross-ref |
+| Cognitive infrastructure      | ✓ T1–T15, 4 SRT extensions (T2#9-10, T3#13-14), T4#10 reversibility, T3#15 constraint cross-ref, T3#9 GRADE-informed |
 | Constraint taxonomy           | ✓ docs/constraints.md — 59 constraints, 5 categories (E/M/P/I/D) (Session 27) |
 | T10/T11 ordering              | ✓ Fixed — T10 now precedes T11 in file           |
 | T12 trigger                   | ✓ Positive pattern recognition; T10 co-fires     |
@@ -2028,8 +2028,22 @@ scoring session with B2 validation for unratified-agent.
 - docs/adversarial-register-rubric.md created (365 lines, commit dadd3dd)
 - PSQ-Lite revision recommended: TE + TC + AR (replacing HI)
 
-**HN post draft composed** — 3 title options + body text drafted in conversation; not yet saved to file
+**HN post draft saved** — 3 title options + body text at `docs/hn-draft.md`
+
+**Completion gate hook extended** — `stop-completion-gate.sh` now checks:
+- MANIFEST.json for pending messages addressed to psychology-agent
+- MEMORY.md modified today (staleness check)
+- docs/MEMORY-snapshot.md modified today (snapshot freshness)
+All non-blocking warnings. Hook count remains 12 (existing hook, extended).
+
+**GRADE evidence framework** — T3 Check 9 (confidence calibration) extended with
+GRADE criteria: start HIGH, downgrade for bias/inconsistency/indirectness/imprecision,
+upgrade for large effect/dose-response. Output: HIGH/MODERATE/LOW/VERY LOW evidence
+quality stated alongside recommendations. Source: Guyatt et al. (2008).
+
+**/sync (final)** — full sweep, no new activity across all peers.
 
 ▶ docs/constraints.md, docs/cognitive-triggers.md, docs/capabilities.yaml, docs/dictionary.md,
-  bootstrap-check.sh, .claude/hooks/context-pressure-gate.sh, .claude/settings.json,
-  transport/MANIFEST.json
+  docs/hn-draft.md, bootstrap-check.sh, .claude/hooks/context-pressure-gate.sh,
+  .claude/hooks/stop-completion-gate.sh, .claude/settings.json, transport/MANIFEST.json,
+  TODO.md
