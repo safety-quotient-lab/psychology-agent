@@ -6,13 +6,11 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 22. BFT design note + command-request/v1 protocol +
-Hetzner CX provisioned (178.156.229.103, Debian 13, Node.js 20). Transport failure
-modes mapped (F1–F8, resolves EF-4). Semantic rename: item2→subagent-protocol,
-item4→psychology-interface. First command-request sent (model-rsync-hetzner-001).
-**Next:** Await psq-agent command-response (rsync model files to Hetzner). After rsync:
-chown → fix psq-server.service User → start service → Caddy TLS → wrangler secret.
-Step 8 browser verify still pending. Blog PR #2 open (unratified).
+**Where we stopped:** Session 23. Knock-on depth extended 8→10 (Order 9: Emergent/INCOSE,
+Order 10: Theory-revising/Popper). All 11 live files updated. Item 4 deployed; `/turn`
+deferred (API credits). Blog PR #2 open (unratified).
+**Next:** PSQ production endpoint (waiting on psq-agent reply). `/turn` re-enable when
+API credits available. Blog PR ratification.
 
 ## Design Decisions
 
@@ -41,12 +39,6 @@ Step 8 browser verify still pending. Blog PR #2 open (unratified).
                               (Interpretant) = first explicit audience-aware
                               write discipline. Eco's test: every label must
                               produce distinct behavior. 2026-03-05
- BFT model                   2-peer + human TTP. 6 principles from Lamport
-                              adapted for git-PR transport. 2026-03-06
- Command protocol             command-request/v1 extension to interagent/v1.
-                              Idempotent, state-attested, human-authorized.
- Production hosting           Hetzner CX Ashburn VA ($5/mo, 4GB, Debian 13).
-                              Oracle A1 free tier unavailable. 2026-03-06
 ```
 
 ## Authority Hierarchy
