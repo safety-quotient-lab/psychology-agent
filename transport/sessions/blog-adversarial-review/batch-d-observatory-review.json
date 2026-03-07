@@ -1,0 +1,226 @@
+[
+  {
+    "slug": "2026-03-03-what-806-stories-reveal",
+    "ar_score": 6.8,
+    "ar_confidence": 0.72,
+    "ar_dimensions": {
+      "dialogue_mode": 6.5,
+      "stance_markers": 6.3,
+      "attribution_pattern": 8.0
+    },
+    "defensibility_findings": [
+      {
+        "id": "F-D1",
+        "severity": "MEDIUM",
+        "finding": "The post claims 806 stories but the table uses vague qualifiers ('moderate', '~500+', '~400+', '~300+') for most rows. A data-driven observatory post should present exact numbers, not approximations. The specificity of Art. 19 (726 stories, +0.38) and Art. 4 (106 stories, +0.06) contrasts sharply with the hand-waved middle rows, undermining the empirical framing.",
+        "recommendation": "Replace all '~N+' and 'moderate'/'low' entries with exact counts and scores from the Observatory database. If the data exists to power the Observatory API, it exists to populate this table."
+      },
+      {
+        "id": "F-D2",
+        "severity": "MEDIUM",
+        "finding": "The claim 'stories without transparency markers contribute to public discourse without readers knowing who paid for them' implies a causal link between transparency scores and funding opacity. The Observatory's transparency metric measures disclosure presence/absence — it does not verify whether undisclosed funding actually exists. The implication overreaches the measurement.",
+        "recommendation": "Reframe: 'stories without transparency markers leave readers unable to assess potential conflicts' — this stays within what the metric actually measures."
+      },
+      {
+        "id": "F-D3",
+        "severity": "LOW",
+        "finding": "The propaganda technique distribution shows 579 total flags across 806 stories (sum of table), but the text says loaded language appears 'in nearly a quarter of all evaluated stories.' 197/806 = 24.4%, which is 'nearly a quarter.' However, the table header says 'Flags' not 'Stories' — a single story can receive multiple flags. If 197 is flag count rather than story count, the 'quarter of all stories' claim may be inaccurate.",
+        "recommendation": "Clarify whether 197 represents unique stories flagged for loaded language or total flag instances. If the latter, state the unique story count."
+      },
+      {
+        "id": "F-D4",
+        "severity": "LOW",
+        "finding": "The claim that 'slavery, asylum, and the rights of marginalized populations receive minimal attention — despite their relevance to the global supply chains that produce the hardware running AI systems' introduces a supply-chain argument not grounded in the Observatory data. The Observatory measures HN coverage, not supply-chain relevance.",
+        "recommendation": "Either cite supply-chain evidence separately or soften to 'despite potential relevance to global supply chains' with a link to supporting analysis."
+      }
+    ],
+    "source_issues": [
+      "All sources are internal (observatory.unratified.org, unratified.org). No external validation of the Observatory's scoring methodology is cited. A hostile critic would ask: who validates the validator?",
+      "The UDHR link is valid (un.org). ICESCR link is valid (ohchr.org).",
+      "The Observatory API endpoint (observatory.unratified.org/api/v1/signals) is cited but not independently verifiable from this review — no external audit of the pipeline exists in the post."
+    ],
+    "status": "pass-with-notes",
+    "summary": "Solid observatory overview with appropriate scope, but the data table mixes exact and approximate values in a way that undercuts the empirical framing. The propaganda technique count needs clarification (flags vs. stories)."
+  },
+  {
+    "slug": "2026-03-03-who-speaks-who-gets-spoken-about",
+    "ar_score": 6.4,
+    "ar_confidence": 0.70,
+    "ar_dimensions": {
+      "dialogue_mode": 6.0,
+      "stance_markers": 5.8,
+      "attribution_pattern": 7.8
+    },
+    "defensibility_findings": [
+      {
+        "id": "F-D5",
+        "severity": "HIGH",
+        "finding": "The central claim — '10:1 worker voice gap' — rests on 13 speaker slots vs. 129 subject slots across 806 stories. The absolute numbers are very small (13 speaker instances). A hostile critic would note: (1) 13 is not a robust base for ratio claims; (2) the ratio is sensitive to classification methodology — how does the HRCB pipeline determine 'speaker' vs. 'subject'? (3) Hacker News stories are primarily links to external articles; the voice gap may reflect source publication norms, not HN-specific curation effects.",
+        "recommendation": "Acknowledge the small absolute speaker count explicitly. Add a methodological note on how speaker/subject classification works. Discuss whether the pattern reflects HN curation or upstream publication norms (or both)."
+      },
+      {
+        "id": "F-D6",
+        "severity": "MEDIUM",
+        "finding": "The blockquote ('No person should have their economic future shaped by a discourse they cannot participate in') shifts from measurement to normative claim. This is legitimate editorial, but the framing as 'The observation' is misleading — it is not an observation but a value judgment derived from observations.",
+        "recommendation": "Relabel as 'The implication' or 'The principle' rather than 'The observation.' The observation is the 10:1 ratio; the normative claim is a separate move."
+      },
+      {
+        "id": "F-D7",
+        "severity": "MEDIUM",
+        "finding": "The claim 'Stories flagged for loaded language (197 of 806) concentrate among those with the narrowest stakeholder representation' presents a correlation without evidence. No correlation coefficient, p-value, or even a cross-tabulation is provided. This is an empirical claim that requires empirical support.",
+        "recommendation": "Either provide the cross-tabulation data (loaded language flag rate by stakeholder diversity quartile) or soften to 'appear to concentrate' with a note that formal analysis is pending."
+      },
+      {
+        "id": "F-D8",
+        "severity": "LOW",
+        "finding": "The 'Individuals (general)' row in the table shows '~1:1' ratio with 'dominant' for both speaker and subject columns. This is the only category without specific numbers, which undermines the precision of the other rows.",
+        "recommendation": "Provide exact counts or remove the row. The contrast between precise minority-group counts and vague majority-group counts could itself be read as a framing choice."
+      }
+    ],
+    "source_issues": [
+      "All sources are internal. The stakeholder voice methodology (HRCB evaluation with structured stakeholder tagging) is described but not externally validated.",
+      "ICESCR and UDHR links are valid external sources.",
+      "No external research on stakeholder voice in tech media is cited for comparison — e.g., no reference to existing media representation studies that could triangulate the finding."
+    ],
+    "status": "pass-with-notes",
+    "summary": "The 10:1 ratio is a striking finding but rests on very small absolute numbers (n=13 speakers). The post needs methodological transparency about classification and should acknowledge the small-n limitation. Unsupported correlation claim about loaded language and stakeholder representation."
+  },
+  {
+    "slug": "2026-03-03-privacy-paradox-editorial-structural-gap",
+    "ar_score": 6.1,
+    "ar_confidence": 0.68,
+    "ar_dimensions": {
+      "dialogue_mode": 5.5,
+      "stance_markers": 5.8,
+      "attribution_pattern": 7.5
+    },
+    "defensibility_findings": [
+      {
+        "id": "F-D9",
+        "severity": "HIGH",
+        "finding": "The post states 'The United States signed the ICESCR in 1977.' According to multiple sources including Amnesty International (cited on Wikipedia), the US signed the ICESCR in 1979 under the Carter administration, not 1977. This is a factual error.",
+        "recommendation": "Correct to 1979. Verify against the UN Treaty Collection or Amnesty International's records."
+      },
+      {
+        "id": "F-D10",
+        "severity": "HIGH",
+        "finding": "The post claims 'the OBBBA cut $990 billion (gross) from Medicaid.' Current CBO estimates and reporting indicate the OBBBA cuts over $1.2 trillion from Medicaid. The $990 billion figure may reflect an earlier House version or a different scoring window. Using an outdated or incorrect figure in a post about the gap between stated and actual commitments is particularly damaging to credibility.",
+        "recommendation": "Update to the current CBO-scored figure, cite the specific CBO report, and note the date of the estimate. If $990B referred to a specific earlier version, say so explicitly."
+      },
+      {
+        "id": "F-D11",
+        "severity": "MEDIUM",
+        "finding": "The SETL metric (Structural-Editorial Tension Level) is a novel, project-specific construct. The post treats it as established methodology ('The Observatory flags provisions where the editorial-structural gap exceeds a significance threshold') without defining what that threshold is, how it was determined, or whether it has been validated. The word 'significance' implies statistical testing that may not exist.",
+        "recommendation": "Define the threshold numerically. Replace 'significance threshold' with 'flagging threshold' unless actual statistical significance testing was performed. Acknowledge SETL as a novel metric without external validation."
+      },
+      {
+        "id": "F-D12",
+        "severity": "MEDIUM",
+        "finding": "The claim 'privacy functions as a health determinant — surveillance stress, data exploitation, and algorithmic profiling all carry measurable psychological and economic consequences' is presented without citations. This is a substantive empirical claim about health determinants that requires supporting evidence.",
+        "recommendation": "Cite specific research on surveillance stress and health outcomes. Without citations, this reads as assertion rather than evidence-grounded analysis — ironic for a post about the gap between editorial claims and structural practices."
+      },
+      {
+        "id": "F-D13",
+        "severity": "LOW",
+        "finding": "The post conflates UDHR Article 12 (privacy) with ICESCR Article 12 (right to health) in the section 'Why This Connects to the ICESCR.' These are different instruments with different article numbering. The move from UDHR privacy to ICESCR health is legitimate but should be made more explicit — a reader could confuse the two Article 12s.",
+        "recommendation": "Add explicit disambiguation: 'UDHR Article 12 protects privacy; ICESCR Article 12 protects the right to health. The connection between them...' "
+      }
+    ],
+    "source_issues": [
+      "ICESCR signing date is wrong (claims 1977, actually 1979). This is a verifiable factual error.",
+      "OBBBA Medicaid figure ($990B) does not match current CBO estimates ($1.2T+). May be from an earlier scoring.",
+      "The SETL metric is entirely internal with no external validation or peer review cited.",
+      "The privacy-as-health-determinant claim lacks any citation despite being empirically testable.",
+      "Internal links (observatory.unratified.org/rights/articles, etc.) are not independently verifiable from this review."
+    ],
+    "status": "revise",
+    "summary": "Contains two factual errors (ICESCR signing date, OBBBA Medicaid figure) that require correction before publication. The SETL metric is interesting but under-defined. The post's thesis — measuring say-do gaps — is undermined by its own factual imprecision."
+  },
+  {
+    "slug": "2026-03-03-confidence-weighting-inversion",
+    "ar_score": 8.2,
+    "ar_confidence": 0.82,
+    "ar_dimensions": {
+      "dialogue_mode": 8.5,
+      "stance_markers": 7.8,
+      "attribution_pattern": 8.5
+    },
+    "defensibility_findings": [
+      {
+        "id": "F-D14",
+        "severity": "LOW",
+        "finding": "The Tetlock & Gardner (2015) citation references 'Chapter 7, Superteams.' The actual chapter title in the published edition is 'Superbosses' in some printings and the superteams concept appears across multiple chapters. The chapter reference should be verified against the specific edition cited.",
+        "recommendation": "Verify chapter title against the Crown Publishers first edition. If the chapter is 'Superteams,' confirm; if not, correct the reference."
+      },
+      {
+        "id": "F-D15",
+        "severity": "LOW",
+        "finding": "The Niculescu-Mizil & Caruana (2005) citation lists 'Proceedings of the 22nd International Conference on Machine Learning, 625-632.' ICML 2005 was the 22nd edition — this checks out. Page numbers are plausible for proceedings format.",
+        "recommendation": "No action needed; citation appears accurate."
+      },
+      {
+        "id": "F-D16",
+        "severity": "LOW",
+        "finding": "The Caveats section acknowledges that the fix 'introduced a new assumption' and that 'the inversion may have persisted for weeks.' This is excellent epistemic transparency. However, the post does not quantify the impact: how many scores were affected by the recomputation sweep? What was the magnitude of score changes?",
+        "recommendation": "Add a sentence quantifying the recomputation impact (e.g., 'N stories received updated consensus scores, with mean delta of X')."
+      },
+      {
+        "id": "F-D17",
+        "severity": "LOW",
+        "finding": "The claim that 'Expert calibration research consistently finds that calibrated experts express more uncertainty than overconfident ones' is attributed to Tetlock & Gardner but this is a broad claim about an entire research field. Tetlock's work supports it, but 'consistently finds' implies a literature review that a single citation cannot anchor.",
+        "recommendation": "Either add 1-2 additional citations (e.g., Lichtenstein, Fischhoff, & Phillips, 1982; Moore & Healy, 2008) or soften to 'Expert calibration research, such as Tetlock & Gardner (2015), finds that...'"
+      }
+    ],
+    "source_issues": [
+      "Lamport et al. (1982) is not cited in this post (that is the BFT post). Both academic citations (Tetlock 2015, Niculescu-Mizil 2005) appear real and accurately attributed.",
+      "The code snippets reference the actual HRCB pipeline, which is internal but verifiable against the observatory codebase.",
+      "No source issues identified that would undermine the post's core argument."
+    ],
+    "status": "pass",
+    "summary": "The strongest post in the batch. Clear problem statement, concrete code-level evidence, honest caveats, and appropriate generalization. Minor citation refinements possible but nothing requires revision."
+  },
+  {
+    "slug": "2026-03-03-byzantine-fault-tolerance-ui",
+    "ar_score": 7.8,
+    "ar_confidence": 0.78,
+    "ar_dimensions": {
+      "dialogue_mode": 8.0,
+      "stance_markers": 7.2,
+      "attribution_pattern": 8.5
+    },
+    "defensibility_findings": [
+      {
+        "id": "F-D18",
+        "severity": "MEDIUM",
+        "finding": "The post claims the analogy maps from distributed systems to human-AI interaction, and that 'practitioners currently lack vocabulary to name it.' This is a strong claim about HCI literature. Signal conflict in multi-modal interfaces has been studied under various names: mode confusion (aviation HCI), intent disambiguation (dialogue systems), and grounding failure (Clark & Brennan, 1991). The claim of novelty should be scoped more carefully.",
+        "recommendation": "Acknowledge related HCI concepts (mode confusion, grounding failure) and clarify that the specific contribution is applying BFT's formal detection/quorum framework, not discovering the phenomenon of contradictory signals."
+      },
+      {
+        "id": "F-D19",
+        "severity": "MEDIUM",
+        "finding": "The post references 'T13, Byzantine Signal Detection' as a trigger in the cognitive architecture. However, the cogarch trigger list in MEMORY.md shows T13 as 'External content enters context' (source classification, injection scan, taint propagation), not Byzantine Signal Detection. Either the trigger numbering has changed or the post uses an incorrect trigger number.",
+        "recommendation": "Verify the correct trigger number for Byzantine Signal Detection in the current cognitive architecture. If T13 is now external content classification, update the post to use the correct number."
+      },
+      {
+        "id": "F-D20",
+        "severity": "LOW",
+        "finding": "The Lamport et al. (1982) citation is accurate: ACM TOPLAS 4(3), pp. 382-401. Verified against Wikipedia's bibliographic data.",
+        "recommendation": "No action needed."
+      },
+      {
+        "id": "F-D21",
+        "severity": "LOW",
+        "finding": "The post describes a specific failure instance ('What should observatory.ratified.org be?') but observatory.ratified.org is a different domain from observatory.unratified.org. If this is an actual historical event, the domain discrepancy should be clarified — was the question about a potential alias for the existing observatory?",
+        "recommendation": "Clarify the domain reference in the failure instance narrative."
+      }
+    ],
+    "source_issues": [
+      "Lamport et al. (1982) citation verified as accurate.",
+      "The post correctly describes Byzantine fault tolerance concepts from the distributed systems literature.",
+      "No external HCI literature is cited despite making claims about HCI practice gaps — this weakens the novelty claim.",
+      "The trigger number (T13) may conflict with the current cogarch trigger numbering."
+    ],
+    "status": "pass-with-notes",
+    "summary": "Well-constructed analogy with a real failure instance. The BFT mapping is intellectually sound. Two issues: the novelty claim overstates (related HCI concepts exist), and the trigger number may be misaligned with current cogarch."
+  }
+]

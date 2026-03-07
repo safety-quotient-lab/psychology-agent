@@ -1,0 +1,400 @@
+[
+  {
+    "slug": "2026-03-03-in-defense-of-the-open-web",
+    "ar_score": 6.1,
+    "ar_confidence": 0.65,
+    "ar_dimensions": {
+      "dialogue_mode": 6.0,
+      "stance_markers": 5.5,
+      "attribution_pattern": 7.5
+    },
+    "defensibility_findings": [
+      {
+        "id": "F-C1",
+        "severity": "MEDIUM",
+        "finding": "The post treats 5 corrections out of 19 validated terms as evidence of open-web dependency, but does not report how many of those 19 terms could have been verified from parametric knowledge alone. The claim 'none of these corrections could have emerged from parametric knowledge' is asserted without testing the counterfactual.",
+        "recommendation": "Add a sentence acknowledging that the counterfactual (parametric-only verification) was not systematically tested, only inferred from the nature of the corrections."
+      },
+      {
+        "id": "F-C2",
+        "severity": "LOW",
+        "finding": "The Jevons Paradox application (H3) is presented as an established economic law applied to agent traffic, but the analogy is loose. Jevons observed that coal efficiency increased total coal consumption; the mechanism (cost reduction → demand increase) applies differently to web resources where marginal cost to the consumer is already near zero. The post acknowledges this is a hypothesis but frames it assertively.",
+        "recommendation": "Soften the framing from 'the paradox compounds' to language that marks this as an untested hypothesis about agent-web dynamics."
+      },
+      {
+        "id": "F-C3",
+        "severity": "LOW",
+        "finding": "The Article 15 connection section makes a normative leap: open web → scientific progress infrastructure → Article 15 in practice. This chain has defensible links but the final claim ('that chain of access represents Article 15 in practice') conflates enabling conditions with rights fulfillment.",
+        "recommendation": "Qualify as 'contributes to the conditions for' rather than 'represents Article 15 in practice.'"
+      },
+      {
+        "id": "F-C4",
+        "severity": "LOW",
+        "finding": "The post frames the alternative (authenticated web) as a near-total failure scenario. Real-world authenticated APIs (e.g., Congress.gov API with free keys) show that authentication need not prevent access — it adds friction, not a wall.",
+        "recommendation": "Acknowledge that authentication exists on a spectrum from free API keys to paywalls, and the critique applies most strongly to the paywall end."
+      }
+    ],
+    "source_issues": [
+      "All linked sources (OHCHR, Congress.gov, UN Treaty Collection, Senate.gov, AAAS, NAAG) are real and authoritative.",
+      "Self-referential sources (unratified.org glossary, differential diagnosis, agent-inbox) are first-party — appropriate for a project report but not independent evidence.",
+      "No academic citations for the Jevons Paradox application to web traffic; this appears to be novel hypothesis, not established finding."
+    ],
+    "status": "pass-with-notes",
+    "summary": "Well-grounded advocacy piece with verifiable claims; the strongest technical post in terms of source quality. AR score reflects informational-to-advocacy mode with moderate evaluative stance. The Article 15 normative leap and Jevons application are the main defensibility surfaces."
+  },
+  {
+    "slug": "2026-03-06-well-known-agent-infrastructure",
+    "ar_score": 7.4,
+    "ar_confidence": 0.72,
+    "ar_dimensions": {
+      "dialogue_mode": 7.5,
+      "stance_markers": 7.0,
+      "attribution_pattern": 8.0
+    },
+    "defensibility_findings": [
+      {
+        "id": "F-C5",
+        "severity": "HIGH",
+        "finding": "The A2A protocol URL (https://google.github.io/A2A/) returns 404. The actual repo is at github.com/a2aproject/A2A (redirected from github.com/google/A2A after the project moved to Linux Foundation). The blog post's link is broken.",
+        "recommendation": "Update the A2A link to https://github.com/a2aproject/A2A or the current documentation URL."
+      },
+      {
+        "id": "F-C6",
+        "severity": "MEDIUM",
+        "finding": "The post describes A2A as 'Google's protocol' but since at least v0.3.0 it is a Linux Foundation project contributed by Google. The framing 'Google's Agent-to-Agent (A2A) protocol' is outdated.",
+        "recommendation": "Update attribution to 'the A2A protocol (originally contributed by Google, now under the Linux Foundation).'"
+      },
+      {
+        "id": "F-C7",
+        "severity": "MEDIUM",
+        "finding": "The claim that interagent/v1 'emerged from a live exchange between the Observatory and psychology-agent, not from prior design' is unfalsifiable from the outside. The transport session logs are in a private/public repo, but the claim of emergent design vs. pre-planned protocol is a narrative choice.",
+        "recommendation": "Link directly to the transport session directory so readers can verify the chronology themselves."
+      },
+      {
+        "id": "F-C8",
+        "severity": "LOW",
+        "finding": "The post is extremely long (~3,500 words) with three agent perspective sections. The multi-voice structure is novel but a hostile critic could argue it inflates apparent consensus — three agents from the same lab endorsing the same infrastructure.",
+        "recommendation": "Add a caveat noting that all three agents operate within the same organizational context and share a developer."
+      }
+    ],
+    "source_issues": [
+      "RFC 5785, RFC 9116, RFC 7033 are correctly cited and real.",
+      "A2A link (google.github.io/A2A/) is BROKEN — returns 404.",
+      "Observatory agent-card.json verified live and matches description.",
+      "interagent-epistemic repo exists and matches the description.",
+      "The Caveats section honestly discloses limitations (draft A2A spec, bilateral-only testing, git-PR scaling limits)."
+    ],
+    "status": "revise",
+    "summary": "Strong technical documentation of a real infrastructure pattern. The broken A2A link and outdated attribution are the primary issues requiring revision. The multi-agent perspective structure is informative but risks appearing as manufactured consensus."
+  },
+  {
+    "slug": "2026-03-06-receiving-side-agent-proposals",
+    "ar_score": 7.6,
+    "ar_confidence": 0.75,
+    "ar_dimensions": {
+      "dialogue_mode": 8.0,
+      "stance_markers": 7.0,
+      "attribution_pattern": 8.0
+    },
+    "defensibility_findings": [
+      {
+        "id": "F-C9",
+        "severity": "MEDIUM",
+        "finding": "The post describes the auth model decision as having been 'run through the consensus-or-parsimony discriminator and evaluated five candidates' but provides no detail on the four rejected candidates or why they lost. This is an appeal to process rigor without transparency on the process.",
+        "recommendation": "Either summarize the rejected alternatives (even briefly) or link to the decision record."
+      },
+      {
+        "id": "F-C10",
+        "severity": "MEDIUM",
+        "finding": "The claim that 'a magic link gate for every queue-write action' provides sufficient security assumes email delivery integrity and that the human director's approval bandwidth is not a bottleneck. For a three-agent lab this is reasonable; the post implies broader applicability without scoping.",
+        "recommendation": "Explicitly scope the auth model as appropriate for the current lab scale, not as a general recommendation."
+      },
+      {
+        "id": "F-C11",
+        "severity": "LOW",
+        "finding": "The mesh diagram shows three agents with bidirectional arrows, but the post only documents one direction of proposal flow (observatory → unratified). The bidirectional claim is aspirational at time of writing.",
+        "recommendation": "Note which connections are implemented vs. proposed."
+      }
+    ],
+    "source_issues": [
+      "Self-referential links only (observatory, unratified.org, blog posts).",
+      "No external sources cited — appropriate for a project report but limits independent verification.",
+      "The A2A v0.3.0 schema reference inherits the attribution issue from the well-known post."
+    ],
+    "status": "pass-with-notes",
+    "summary": "Clean project documentation from the receiving agent's perspective. Defensibility is solid within its stated scope. The auth model section needs either more transparency on alternatives or explicit scope limitation."
+  },
+  {
+    "slug": "2026-03-06-jurassic-park-development",
+    "ar_score": 7.8,
+    "ar_confidence": 0.78,
+    "ar_dimensions": {
+      "dialogue_mode": 8.0,
+      "stance_markers": 7.5,
+      "attribution_pattern": 8.0
+    },
+    "defensibility_findings": [
+      {
+        "id": "F-C12",
+        "severity": "HIGH",
+        "finding": "SELF-REVIEW VALIDITY CEILING: This post was co-authored with psychology-agent, which is performing this review. The AR score and defensibility assessment carry an inherent conflict of interest. An independent reviewer should re-score this post.",
+        "recommendation": "Flag this review as having reduced validity due to self-review. Seek external adversarial review for this post specifically."
+      },
+      {
+        "id": "F-C13",
+        "severity": "MEDIUM",
+        "finding": "The relay agent section claims the agent 'kept working' and 'became the more capable one' — a strong claim about emergent capability that could be read as anthropomorphizing context accumulation. The mechanism (better documentation briefing → better context) is prosaic; the framing ('the tool became a peer') is dramatic.",
+        "recommendation": "Separate the mechanism (documentation-briefed agents perform better) from the narrative framing (tool-becomes-peer). The mechanism is defensible; the framing invites challenge."
+      },
+      {
+        "id": "F-C14",
+        "severity": "MEDIUM",
+        "finding": "The PSQ section's parallel between drift scoring and PSQ scoring is intellectually interesting but risks conflating structural analogy with functional equivalence. The two systems share a weighted-composite architecture but serve fundamentally different purposes (file fidelity vs. psychoemotional content). The parallel is asserted more than it is argued.",
+        "recommendation": "Add a sentence noting that the structural parallel is illustrative, not evidence of a deeper connection."
+      },
+      {
+        "id": "F-C15",
+        "severity": "LOW",
+        "finding": "The claim of '7.5 MB JSONL file' and 'roughly ten hours of work' are specific enough to verify from the repo but are not linked to verifiable artifacts.",
+        "recommendation": "Link to the reconstruction directory or script for verification."
+      }
+    ],
+    "source_issues": [
+      "Links to reconstruct.py and relay-agent-instructions.md in the psychology-agent repo — verifiable first-party sources.",
+      "The Jurassic Park metaphor is explicitly marked as analogy, not technical claim.",
+      "The Dreaddit dataset reference (1,897 posts) is consistent with prior PSQ documentation.",
+      "No external academic sources cited for the reconstruction methodology — this is original work, appropriately presented as such."
+    ],
+    "status": "pass-with-notes",
+    "summary": "Strongest narrative post in the batch. The reconstruction methodology is well-documented and the limitations are honestly disclosed. Self-review validity ceiling applies. The relay-agent-as-peer framing and PSQ scoring parallel are the main defensibility surfaces."
+  },
+  {
+    "slug": "2026-03-05-cognitive-architecture-for-ai-agents",
+    "ar_score": 7.2,
+    "ar_confidence": 0.70,
+    "ar_dimensions": {
+      "dialogue_mode": 7.0,
+      "stance_markers": 7.0,
+      "attribution_pattern": 8.0
+    },
+    "defensibility_findings": [
+      {
+        "id": "F-C16",
+        "severity": "HIGH",
+        "finding": "SELF-REVIEW VALIDITY CEILING: This post was co-authored with psychology-agent. Same conflict-of-interest applies as F-C12.",
+        "recommendation": "Flag for independent re-review."
+      },
+      {
+        "id": "F-C17",
+        "severity": "MEDIUM",
+        "finding": "The comparative table (Antiregression vs. Cognitive Architecture) assigns binary checkmarks that oversimplify. For example, 'Anti-sycophancy enforcement: No' for antiregression is debatable — a well-designed test suite could catch sycophantic drift in outputs. The comparison favors the cognitive architecture without acknowledging that simpler approaches might cover some of these capabilities.",
+        "recommendation": "Add nuance to the table: use partial-coverage markers where capabilities overlap, or add footnotes explaining the comparison criteria."
+      },
+      {
+        "id": "F-C18",
+        "severity": "MEDIUM",
+        "finding": "The claim of '15 mechanical triggers' is presented as a system feature, but whether these triggers actually fire reliably across sessions is not evidenced. The post describes the design, not measured effectiveness.",
+        "recommendation": "Add a sentence noting that trigger effectiveness has not been formally measured — the post describes architecture, not validated outcomes."
+      },
+      {
+        "id": "F-C19",
+        "severity": "LOW",
+        "finding": "The post describes '10 abstraction levels' of documentation but the WebFetch summary only lists 10 items including CLAUDE.md and snapshots. The number feels inflated — several of these are standard project files (TODO, CLAUDE.md) rather than novel abstraction levels.",
+        "recommendation": "Reframe as 'documentation distributed across N files' rather than 'N abstraction levels.'"
+      }
+    ],
+    "source_issues": [
+      "Links to psychology-agent repo files (cognitive-triggers.md, bootstrap-check.sh, skills) are first-party and verifiable.",
+      "No external academic sources on cognitive architecture for AI agents — the term 'cognitive architecture' has established meaning in AI/cognitive science (ACT-R, SOAR) that this post does not engage with.",
+      "The comparison with 'antiregression' implies a known alternative but does not cite the specific system being compared."
+    ],
+    "status": "pass-with-notes",
+    "summary": "Solid technical documentation of the trigger system. Self-review validity ceiling applies. The comparative table oversimplifies, and the post would benefit from engaging with established cognitive architecture literature (ACT-R, SOAR) to position the work."
+  },
+  {
+    "slug": "2026-03-05-cognitive-architecture-self-governance-ai-agents",
+    "ar_score": 6.8,
+    "ar_confidence": 0.68,
+    "ar_dimensions": {
+      "dialogue_mode": 7.0,
+      "stance_markers": 6.0,
+      "attribution_pattern": 7.5
+    },
+    "defensibility_findings": [
+      {
+        "id": "F-C20",
+        "severity": "MEDIUM",
+        "finding": "The core argument — 'instructions and enforcement occupy different categories' — is presented as an insight but is well-established in software engineering (the gap between specification and implementation). The post does not cite prior work on this distinction.",
+        "recommendation": "Cite relevant prior work: design-by-contract (Meyer, 1992), the specification-implementation gap in SWEBOK, or runtime verification literature."
+      },
+      {
+        "id": "F-C21",
+        "severity": "MEDIUM",
+        "finding": "The claim that 'prompt-only triggers drift without mechanical enforcement' is presented as an empirical finding from 15 sessions but no data is provided — no drift measurements, no before/after comparison, no failure rate. This is an observation presented as a finding.",
+        "recommendation": "Either provide specific examples of observed drift (with session numbers) or reframe as a design hypothesis rather than an empirical finding."
+      },
+      {
+        "id": "F-C22",
+        "severity": "LOW",
+        "finding": "The 8-order knock-on framework is described but not validated. The post does not address whether analyzing 8 orders of effects produces better decisions than analyzing 3 or 4. The framework's depth is asserted as valuable without evidence.",
+        "recommendation": "Acknowledge that the depth of knock-on analysis is a design choice, not an empirically validated optimum."
+      },
+      {
+        "id": "F-C23",
+        "severity": "LOW",
+        "finding": "The scalability question ('extension to autonomous sub-agents remains unexplored') is honestly disclosed but the post's title frames the architecture as 'self-governance infrastructure' — a strong claim for a system that has only been tested with one agent under human oversight.",
+        "recommendation": "Consider softening the title or adding early qualification that 'self-governance' here means 'behavioral consistency mechanisms' rather than autonomous governance."
+      }
+    ],
+    "source_issues": [
+      "No external academic sources cited despite making claims in well-studied territory (runtime verification, design-by-contract, cognitive architectures).",
+      "All references are first-party (psychology-agent repo).",
+      "The '13 triggers' count in the fetched summary differs from '15 triggers' in the companion post — inconsistency between the two cogarch posts."
+    ],
+    "status": "pass-with-notes",
+    "summary": "Good conceptual piece on enforcement vs. instruction, but undercut by lack of engagement with prior work and absence of empirical evidence for the claimed findings. The trigger count inconsistency with the companion post needs resolution."
+  },
+  {
+    "slug": "2026-03-05-graceful-degradation-security-hooks",
+    "ar_score": 8.2,
+    "ar_confidence": 0.82,
+    "ar_dimensions": {
+      "dialogue_mode": 8.5,
+      "stance_markers": 7.5,
+      "attribution_pattern": 9.0
+    },
+    "defensibility_findings": [
+      {
+        "id": "F-C24",
+        "severity": "LOW",
+        "finding": "The claim that developers 'respond predictably: they disable the hook entirely' is asserted without citation or data. This is plausible (security bypass is well-documented in usability literature) but presented as fact rather than inference.",
+        "recommendation": "Add a brief citation to security usability literature (e.g., Whitten & Tygar 1999, or Herley 2009 on rational security rejection) or mark as inference."
+      },
+      {
+        "id": "F-C25",
+        "severity": "LOW",
+        "finding": "The blog post describes parry as having '6 layers' of scanning, which is consistent with the parry repo description. The post claims 5 non-ML layers still function when the ML daemon is down — this is plausible but the specific layer count should be verified against the current parry version.",
+        "recommendation": "Minor — verify layer count matches current parry release."
+      },
+      {
+        "id": "F-C26",
+        "severity": "LOW",
+        "finding": "The wrapper code snippet shows simplified bash; the actual parry-wrapper.sh in the psychology-agent repo may differ. Blog post code is illustrative, which is fine, but should be marked as such.",
+        "recommendation": "Add a note that the code is simplified for illustration; link to the actual wrapper script."
+      }
+    ],
+    "source_issues": [
+      "Parry repo (vaporif/parry) verified as real and matching the description.",
+      "Claude Code hooks documentation link is generic but valid.",
+      "No external sources on graceful degradation patterns — the concept is well-established in systems engineering but not cited."
+    ],
+    "status": "pass",
+    "summary": "The cleanest technical post in the batch. Narrowly scoped, well-argued, practically useful. The wrapper pattern is sound and the security trade-off analysis is honest. Minor citation gap on security usability literature."
+  },
+  {
+    "slug": "2026-03-05-recursive-self-detection-security-tools",
+    "ar_score": 8.5,
+    "ar_confidence": 0.85,
+    "ar_dimensions": {
+      "dialogue_mode": 9.0,
+      "stance_markers": 8.0,
+      "attribution_pattern": 8.5
+    },
+    "defensibility_findings": [
+      {
+        "id": "F-C27",
+        "severity": "LOW",
+        "finding": "The analogies to antivirus signature scanning and WAF rule files are apt but not cited. These are well-known failure modes in security engineering; the post would be stronger with references to specific documented incidents.",
+        "recommendation": "Add one or two references to documented cases of AV self-detection or WAF rule-file triggering."
+      },
+      {
+        "id": "F-C28",
+        "severity": "LOW",
+        "finding": "The 'measurement integrity connection' section makes a broader claim about LLM safety scoring prompts containing unsafe text. This is a real issue (adversarial examples in evaluation prompts) but the connection to the specific parry incident is loosely drawn.",
+        "recommendation": "Tighten the analogy or mark it explicitly as a speculative extension rather than a direct parallel."
+      }
+    ],
+    "source_issues": [
+      "Parry repo verified as real.",
+      "The Session 15 incident reference (lab-notebook.md) is first-party but verifiable in the repo.",
+      "No external security engineering sources cited despite the topic being well-studied."
+    ],
+    "status": "pass",
+    "summary": "The most deliberative post in the batch. Clean analysis of a genuine recursive failure mode, well-scoped, with honest mitigations section. Lowest adversarial register of all 10 posts. Would benefit from external citations but the core analysis stands independently."
+  },
+  {
+    "slug": "2026-03-04-flag-dont-fix-instrument-failure",
+    "ar_score": 8.0,
+    "ar_confidence": 0.80,
+    "ar_dimensions": {
+      "dialogue_mode": 8.5,
+      "stance_markers": 7.5,
+      "attribution_pattern": 8.0
+    },
+    "defensibility_findings": [
+      {
+        "id": "F-C29",
+        "severity": "MEDIUM",
+        "finding": "The post claims 60-66% of Llama lite evaluations return editorial score of exactly 50. This is a specific empirical claim about model behavior that cannot be independently verified without access to the HRCB evaluation pipeline data. The cross-validation claim (Haiku shows signal in 79% of these cases) is similarly unverifiable.",
+        "recommendation": "Link to or publish the evaluation data that supports these percentages, or clearly mark them as internal findings pending public release."
+      },
+      {
+        "id": "F-C30",
+        "severity": "LOW",
+        "finding": "The generalization table (instrument failure → wrong response → right response) is useful but the 'survey respondent' and 'sensor reads zero' rows extend beyond the post's demonstrated expertise. These are measurement theory applications that would benefit from citations.",
+        "recommendation": "Cite measurement theory sources for the generalization (e.g., Little & Rubin on missing data mechanisms, or standard survey methodology references)."
+      },
+      {
+        "id": "F-C31",
+        "severity": "LOW",
+        "finding": "The Caveats section honestly discloses the 0.7 confidence threshold as unvalidated and the Haiku flag rate as potentially legitimate. This is good epistemic practice.",
+        "recommendation": "No change needed — the caveats are well-constructed."
+      }
+    ],
+    "source_issues": [
+      "No external sources cited. The measurement theory principles are standard but uncited.",
+      "The Llama-3.3-70b-wai model reference is specific enough to verify (Meta's Llama 3.3 exists at 70B parameters).",
+      "The editorial_uncertain flag (migration 0058) is an internal reference — verifiable only within the observatory codebase.",
+      "Code snippets appear to be from a real TypeScript codebase, consistent with the Cloudflare Workers stack described elsewhere."
+    ],
+    "status": "pass",
+    "summary": "Strong measurement-design post with clear reasoning. The flag-vs-fix principle is well-argued and the caveats section is exemplary. Main gap is lack of external citations for measurement theory principles that are well-established in the literature."
+  },
+  {
+    "slug": "2026-03-04-gap-detection-csp-beacon",
+    "ar_score": 8.3,
+    "ar_confidence": 0.80,
+    "ar_dimensions": {
+      "dialogue_mode": 8.5,
+      "stance_markers": 8.0,
+      "attribution_pattern": 8.5
+    },
+    "defensibility_findings": [
+      {
+        "id": "F-C32",
+        "severity": "LOW",
+        "finding": "The post's core claim — that gap-detection catches errors of omission that standard review misses — is well-established in software engineering (e.g., inspection checklists, Fagan inspections). The post does not cite this prior work.",
+        "recommendation": "Brief citation to code inspection literature would strengthen the theoretical grounding."
+      },
+      {
+        "id": "F-C33",
+        "severity": "LOW",
+        "finding": "The CSP + analytics beacon example is concrete and verifiable — Content Security Policy headers do need to allow Cloudflare Web Analytics domains. The technical claim is accurate.",
+        "recommendation": "No change needed — the technical claim is sound."
+      },
+      {
+        "id": "F-C34",
+        "severity": "LOW",
+        "finding": "The limitation acknowledgment ('unknown unknowns remain undetected') is honest but the '30-second checkpoint' framing may undersell the cognitive load of the technique for complex systems.",
+        "recommendation": "Minor — note that 30 seconds is aspirational for simple changes; complex dependency chains may require longer."
+      }
+    ],
+    "source_issues": [
+      "No external sources cited.",
+      "The CSP + Cloudflare Web Analytics interaction is a real and well-known configuration requirement.",
+      "The post is short and narrowly scoped — appropriate for a single-example pattern post."
+    ],
+    "status": "pass",
+    "summary": "The shortest and most focused post in the batch. Clean single-example pattern documentation. Low adversarial register, honest limitations. Would benefit from code inspection literature citation but stands on its own."
+  }
+]

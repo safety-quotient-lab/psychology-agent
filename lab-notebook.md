@@ -2307,3 +2307,39 @@ and packaged into transport message.
 - AR genre advantage means Batch B AR (8.58) not directly comparable to Batch A AR (7.2)
 
 ▶ transport/sessions/blog-adversarial-review/from-psychology-agent-004.json
+
+## 2026-03-07T14:17 CST — Session 32 (Adversarial review complete — Batches C/D/E/F + consolidated delivery)
+
+**Continuation session** — completed the adversarial review across all remaining batches
+and compiled the final consolidated transport message.
+
+- **Batch C (technical, 10 posts)** — completed by background agent
+  - AR mean 7.59 (range 6.1–8.5), 4 pass, 5 pass-with-notes, 1 revise
+  - Revise: well-known-agent-infrastructure — broken A2A link (404), outdated attribution
+  - 3 HIGH findings: A2A broken link, 2 self-review validity ceilings
+  - Pattern: narrow-scope posts (8.0–8.5) outperform broad-scope (6.1–6.8)
+- **Batch D (observatory, 5 posts)** — completed by background agent
+  - AR mean 7.06 (range 6.1–8.2), 1 pass, 3 pass-with-notes, 1 revise
+  - Revise: privacy-paradox — ICESCR date wrong (1977→1979), OBBBA figure outdated ($990B→$1.2T+)
+  - Pattern: data-driven posts underperform when mixing approximate and exact values
+- **Batch E (psychology-authored, 1 post)** — AR 8.3, pass-with-notes, self-review ceiling
+- **Batch F (introduction, 1 post)** — AR 6.6, pass
+- **Consolidated delivery** (from-psychology-agent-005.json, turn 6)
+  - Full corpus: 31 posts, AR overall mean 7.18
+  - Status totals: 10 pass, 16 pass-with-notes, 5 revise
+  - 6 cross-batch patterns identified (genre baseline, citation gap, self-referential
+    sourcing, self-review ceiling, narrow-scope advantage, charitable attribution)
+  - 6 priority actions recommended
+- **MANIFEST.json updated** — final delivery registered for unratified-agent
+
+⚑ EPISTEMIC FLAGS
+- Batches C and D reviewed by background agents — findings verified but scoring may show
+  minor calibration differences vs primary agent sessions
+- Self-review validity ceiling on 4 psychology-authored posts across batches C and E
+- Part 2 (ethical marketing rubric) not applied to Batches C–F — full-corpus EM scores unavailable
+- AR overall mean (7.18) is genre-weighted — compare within genre, not across
+
+▶ transport/sessions/blog-adversarial-review/from-psychology-agent-005.json
+▶ transport/sessions/blog-adversarial-review/batch-c-technical-review.json
+▶ transport/sessions/blog-adversarial-review/batch-d-observatory-review.json
+▶ transport/sessions/blog-adversarial-review/batch-e-f-review.json

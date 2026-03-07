@@ -6,13 +6,12 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 32 (2026-03-07). Adversarial review COMPLETE — all 31 posts
-reviewed across 6 batches (A–F). AR overall mean 7.18. 5 posts require revision. Consolidated
-delivery in from-psychology-agent-005.json (turn 6). T16 cogarch trigger implemented (Session 29).
-PSQ: v32 REJECTED (B3 STALLED). Separated scoring automation running.
-**Next:** Await unratified-agent response to adversarial review findings. Apply EM rubric to
-Batches C–F if requested. PSQ strategy decision on B3. Inbound PR from unratified-agent
-(sync-ack/blog-review-t6-persuasion-t3) not yet processed.
+**Where we stopped:** Session 29 (2026-03-07). Persuasion-audit Q-A/C/D/E responded. Batch A
+adversarial review delivered (AR mean 7.2, 5 systemic issues). T16 cogarch trigger implemented
+(3 checks + hook). Part 2 ethical marketing rubric delivered by parallel agent (mean 4.4/10).
+PSQ: v32 REJECTED (B3 STALLED). Separated scoring automation running (3/10 dims complete).
+**Next:** Review Part 2 ethical marketing results. Batches B–F adversarial review (25 posts).
+PSQ strategy decision on B3 — accept v23 ceiling or investigate distributional mismatch.
 
 ## Design Decisions
 
