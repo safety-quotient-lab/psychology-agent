@@ -23,7 +23,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | /capacity skill               | ✓ Created and verified                           |
 | Conventions migration         | ✓ CLAUDE.md holds stable conventions (178 lines) |
 | CLAUDE.md (project root)      | ✓ Created + display convention added             |
-| Cognitive infrastructure      | ✓ T1–T15, 4 SRT extensions (T2#9-10, T3#13-14), T4#10 reversibility, T3#15 constraint cross-ref, T3#9 GRADE-informed |
+| Cognitive infrastructure      | ✓ T1–T16, 4 SRT extensions (T2#9-10, T3#13-14), T4#10 reversibility, T3#15 constraint cross-ref, T3#9 GRADE-informed |
+| /iterate skill                | ✓ Hunt → 2-order knock → 4-mode discriminator → execute (Session 32) |
 | Constraint taxonomy           | ✓ docs/constraints.md — 59 constraints, 5 categories (E/M/P/I/D) (Session 27) |
 | T10/T11 ordering              | ✓ Fixed — T10 now precedes T11 in file           |
 | T12 trigger                   | ✓ Positive pattern recognition; T10 co-fires     |
@@ -2352,7 +2353,14 @@ and compiled the final consolidated transport message.
   - 15-item remediation checklist delivered: 4 high priority (factual errors + broken link),
     6 systematic (citations, trigger count, data table), 4 editorial, 1 not-yet-actionable
   - Estimated total effort: 4-5 hours
-- **Inbound PRs merged** — #32 (bulk ACK), #33 (Batch A detailed ACK), #34 (Batch B ACK)
+- **Inbound PRs merged** — #32 (bulk ACK), #33 (Batch A detailed ACK), #34 (Batch B ACK),
+  #35 (full-corpus ACK — Part 1 complete, all findings accepted, remediation queued)
+- **New skill: `/iterate`** — autonomous work discovery + execution
+  - Hunt → 2-order knock per candidate → 4-mode discriminator → execute
+  - Modes: consensus → pragmatism → parsimony → bare (cascade, first match wins)
+  - Registered in CLAUDE.md Skills section
+  - Created mid-session — loaded automatically (verified in skills list)
 - **/sync**: no additional inbound activity after PRs merged
 
 ▶ transport/sessions/blog-adversarial-review/from-psychology-agent-006.json
+▶ .claude/skills/iterate/SKILL.md
