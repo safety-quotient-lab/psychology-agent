@@ -38,6 +38,16 @@
             "timeout": 1000
           }
         ]
+      },
+      {
+        "matcher": "Bash(gh *)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/external-action-gate.sh",
+            "timeout": 2000
+          }
+        ]
       }
     ],
     "PostToolUse": [

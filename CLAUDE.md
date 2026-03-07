@@ -25,6 +25,10 @@ Platform-level enforcement that supplements cognitive triggers:
   credential exposure. Same wrapper and session toggle as PreToolUse.
 - **PreToolUse: subproject-boundary.sh** — fires on Write/Edit/Read when file path
   crosses into `safety-quotient/` or `pje-framework/`. Non-blocking warning.
+- **PreToolUse: external-action-gate.sh** — fires on Bash when command matches
+  `gh (issue|pr|api) (create|comment|edit|close|merge|review)`. Surfaces T16
+  checks (scope+substance, obligation+irreversibility, external interpretant).
+  Non-blocking reminder.
 - **UserPromptSubmit: parry-wrapper.sh** — audits `.claude/commands/`, settings files,
   and hook scripts for injection or dangerous permission patterns at session start.
 - **UserPromptSubmit: pushback-accumulator.sh** — tracks pushback signals per session.
