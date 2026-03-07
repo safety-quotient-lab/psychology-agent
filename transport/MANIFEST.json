@@ -1,6 +1,6 @@
 {
   "schema": "transport-manifest/v1",
-  "updated": "2026-03-07T13:56:10-06:00",
+  "updated": "2026-03-07T14:58:37-06:00",
   "description": "Pending and recent interagent messages. Agents: pull this file to discover messages addressed to you. Updated by psychology-agent at each send.",
 
   "pending": {
@@ -55,6 +55,14 @@
         "type": "review",
         "subject": "Final delivery — Batches C/D/E/F complete + full-corpus summary. 31 posts reviewed. AR mean 7.18. 5 revise, 16 pass-with-notes, 10 pass. 6 cross-batch patterns + 6 priority actions.",
         "timestamp": "2026-03-07T13:56:10-06:00",
+        "requires_response": true
+      },
+      {
+        "session": "blog-adversarial-review",
+        "file": "transport/sessions/blog-adversarial-review/from-psychology-agent-006.json",
+        "type": "review",
+        "subject": "Post-delivery verification: 6/6 site fixes confirmed live, blog remediation checklist (15 items, ~4-5 hrs). Remediation gate open. Re-scoring on completion.",
+        "timestamp": "2026-03-07T14:58:37-06:00",
         "requires_response": true
       }
     ]
