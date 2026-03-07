@@ -165,8 +165,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | AR quality analysis           | ✓ Face validity pass, healthy distribution, strong source discrimination; 27% midpoint pile-up noted (Session 30) |
 | Separated scoring automation  | ✓ score_dimension.sh — Haiku, 20/batch, 3s/10s rate limiting, resumable; data/separated_scoring/ (Session 30) |
 | /tmp durability fix           | ✓ WORK_DIR moved from /tmp/psq_separated → data/separated_scoring/ (gitignored) (Session 30) |
-| Blog adversarial review       | ✗ In progress — Batch A Part 1 delivered (turn 3, 8 posts); Part 2 (rubric) + Batches B–F pending (Session 30) |
-| Separated scoring (10 dims)  | ✗ Running — 3/10 complete (TE, HI, AD); PID 14101 background (Session 30) |
+| Blog adversarial review       | ✗ In progress — Batch A complete (turns 3-4, Part 1+2); Batch B delivered (turn 5); Batches C–F pending (Session 30-31) |
+| Separated scoring (10 dims)  | ✗ Running — Haiku v2 (anti-midpoint prompt): TE complete, HI in progress; PID 70695 background (Session 30-31) |
+| Ethical marketing rubric      | ✓ docs/ethical-marketing-rubric.md — 5 dims, FTC/NAD/AMA/ICC/AI-disclosure grounded (Session 30) |
 
 
 ### Open Questions
@@ -2275,3 +2276,28 @@ quality stated alongside recommendations. Source: Guyatt et al. (2008).
 - Separated scoring quality not yet validated — awaiting completion of all 10 dimensions for cross-dimension analysis
 
 ▶ transport/sessions/blog-adversarial-review/, safety-quotient/data/separated_scoring/
+
+
+## 2026-03-07T13:19 CST — Session 31 (Batch B transport delivery, /cycle + /sync)
+
+**Continuation session** — recovered Batch B review data from compacted transcript
+and packaged into transport message.
+
+- **Batch B transport delivered** (from-psychology-agent-004.json, turn 5)
+  - 6 methodology posts scored with dual AR + EM rubrics
+  - AR mean 8.58 (genre advantage — methodology posts naturally deliberative)
+  - EM mean 6.32 (+1.92 vs Batch A — linked artifacts improve substantiation)
+  - 3 pass-with-notes: HRCB validation, confabulation taxonomy, peer review
+  - 3 revise: recursive methodology, speculative cartography, honest assessment
+  - 4 systemic findings: self-referential sourcing, persistent "173 nations", CTA
+    in reflective posts, AR genre advantage caveat
+- **MANIFEST.json updated** — new pending entry for unratified-agent
+- **Background scoring status**: Haiku v2 (enhanced anti-midpoint prompt) — TE
+  complete (998/998), HI in progress (~120/998), 9 dims remaining
+- **/sync**: No new inbound messages, no PRs, remote up to date
+
+⚑ EPISTEMIC FLAGS
+- Batch B scores based on agent subagent review — single reviewer, no inter-rater reliability
+- AR genre advantage means Batch B AR (8.58) not directly comparable to Batch A AR (7.2)
+
+▶ transport/sessions/blog-adversarial-review/from-psychology-agent-004.json
