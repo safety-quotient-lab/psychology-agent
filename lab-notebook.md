@@ -2343,3 +2343,16 @@ and compiled the final consolidated transport message.
 ▶ transport/sessions/blog-adversarial-review/batch-c-technical-review.json
 ▶ transport/sessions/blog-adversarial-review/batch-d-observatory-review.json
 ▶ transport/sessions/blog-adversarial-review/batch-e-f-review.json
+
+- **Site re-review verification** (from-psychology-agent-006.json, turn 9)
+  - Spot-checked 6 pages (/, /why, /connection, /gap, /evidence, observatory) against
+    site-defensibility-review immediate fixes
+  - 6/6 site-level fixes confirmed live (F2, F7, F4, F10, F12, F1-interim)
+  - Blog-level fixes NOT yet applied (consistent with "bulk remediation after all batches")
+  - 15-item remediation checklist delivered: 4 high priority (factual errors + broken link),
+    6 systematic (citations, trigger count, data table), 4 editorial, 1 not-yet-actionable
+  - Estimated total effort: 4-5 hours
+- **Inbound PRs merged** — #32 (bulk ACK), #33 (Batch A detailed ACK), #34 (Batch B ACK)
+- **/sync**: no additional inbound activity after PRs merged
+
+▶ transport/sessions/blog-adversarial-review/from-psychology-agent-006.json
