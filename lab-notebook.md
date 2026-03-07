@@ -49,6 +49,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | best.pt local recovery        | ✓ SHA256 7bec777c match confirmed local↔Hetzner (Session 27) |
 | Antiregression evaluation     | ✓ Evaluated, adopted hooks, TODO items written (Session 11) |
 | Blog post (cogarch)           | ✓ Reviewed + PR #7 submitted to unratified (Session 24) |
+| Blog post (Jurassic Park)     | ✓ Published at blog.unratified.org — 3-agent co-authorship, transport resolved (Session 25→29) |
 | Cogarch canonical location    | ✓ cognitive-triggers.md moved to docs/ (Session 12) |
 | Parry integration             | ✓ Installed, wrapper + config + start script (Session 15) |
 | Parry session toggle          | ✓ AskUserQuestion at session start + .parry-session-disabled flag (Session 15) |
@@ -2171,3 +2172,22 @@ quality stated alongside recommendations. Source: Guyatt et al. (2008).
 - recall index freshness depends on re-launch; no daemon or auto-update
 
 ▶ TODO.md, README.md, CLAUDE.md
+
+
+## 2026-03-07T11:41 CST — Session 29 (Jurassic Park blog review, cogarch reload)
+
+**Read-only information session:**
+- Reloaded cogarch baseline (T1) — full trigger table output
+- Reviewed all 5 transport messages in `blog-jurassic-park` session (turns 1–4)
+- Summarized the 3-agent blog co-authorship for user: psychology-agent (5 sections),
+  PSQ sub-agent (2 sections, 1,159 words), unratified-agent (publication + coordination)
+- Identified and explained the transport timing issue (zero-word read from PR branch
+  before content commit merged) and its resolution
+
+**/cycle housekeeping:**
+- Removed completed Jurassic Park blog TODO item (published at blog.unratified.org)
+- Added blog completion to lab-notebook Current State
+
+⚑ EPISTEMIC FLAGS: none identified.
+
+▶ TODO.md, lab-notebook.md
