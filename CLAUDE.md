@@ -80,6 +80,9 @@ exceed available evidence, or any finding that a peer reviewer would challenge.
   invoked by /hunt and /adjudicate. Domain classify → ground → trace 10 orders.
 - `/sync` — Inter-agent mesh synchronization. Scans transport sessions for new
   messages, checks peer repos, writes ACKs, updates MANIFEST. No auto-merge.
+- `/iterate` — Autonomous work discovery + execution. Runs /hunt internally,
+  2-order knock per candidate, 4-mode discriminator (consensus → pragmatism →
+  parsimony → bare), then executes the winner. Type `/iterate` and work happens.
 
 ## Commands (load on demand)
 
