@@ -6,13 +6,13 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** PSQ Session 28 (2026-03-07). F4 (350 texts: 200 prosocial + 150 esconv)
-scored and ingested. v33 trained — REJECTED (TE=0.742, overall=0.672). B3 CLOSED (5 consecutive
-rejections; 1,550 expansion texts; SE(r)≈0.10 noise floor binding). v23 remains production.
-Hook symlinks created in safety-quotient/.claude/hooks/ (parry, subproject-boundary, context-pressure-gate).
-**Next:** PSQ — accept B3 ceiling, redirect to publication work or other dim improvements.
-Psychology agent — adversarial review COMPLETE (Session 32); await unratified-agent response.
-Inbound PR (sync-ack/blog-review-t6-persuasion-t3) not yet processed.
+**Where we stopped:** Session 32 (2026-03-07). Adversarial review COMPLETE — all 31 posts
+reviewed across 6 batches (A–F). AR overall mean 7.18. 5 posts require revision. Consolidated
+delivery in from-psychology-agent-005.json (turn 6). T16 cogarch trigger implemented (Session 29).
+PSQ: v32 REJECTED (B3 STALLED). Separated scoring automation running.
+**Next:** Await unratified-agent response to adversarial review findings. Apply EM rubric to
+Batches C–F if requested. PSQ strategy decision on B3. Inbound PR from unratified-agent
+(sync-ack/blog-review-t6-persuasion-t3) not yet processed.
 
 ## Design Decisions
 
@@ -155,6 +155,6 @@ Communication conventions, cognitive accessibility policy, project structure: se
   Static r-estimate (intentional). Limitation = confidence-is-static-r (MEDIUM, not HIGH).
 **Scoring endpoint:** ✓ POST /score → machine-response/v3. Hetzner psq.unratified.org live.
 **Open issues:** DA validity, AD compression, CO weakness, no human validation, WEIRD assumptions,
-TE uniformity plateau (B3 CLOSED — v23 TE=0.795 accepted as ceiling; 5 consecutive rejections),
-HI direction anomaly (hostile anchor > policy brief on 0–10 safety scale — counterintuitive, uninvestigated).
+v27 regression, TE uniformity plateau (4/5 ICESCR texts = 6.46), HI direction anomaly (hostile
+anchor > policy brief on 0–10 safety scale — counterintuitive, uninvestigated).
 Do not duplicate PSQ improvement work in this context.
