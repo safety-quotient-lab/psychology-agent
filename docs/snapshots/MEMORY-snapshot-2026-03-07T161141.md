@@ -6,12 +6,14 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** PSQ Session 29 (2026-03-07). Context-aware API design decisions
-resolved (distillation-research.md §68). Return format, context specification, implementation
-layer, and schema extension (v3→v3.1) all decided. Implementation work itemized in TODO.md.
-**Next:** Implement context-aware scoring in server.js (`context-weights.json` + handler).
+**Where we stopped:** PSQ Session 28 (2026-03-07). F4 (350 texts: 200 prosocial + 150 esconv)
+scored and ingested. v33 trained — REJECTED (TE=0.742, overall=0.672). B3 CLOSED (5 consecutive
+rejections; 1,550 expansion texts; SE(r)≈0.10 noise floor binding). v23 remains production.
+Hook symlinks created in safety-quotient/.claude/hooks/ (parry, subproject-boundary, context-pressure-gate).
+**Next:** PSQ — accept B3 ceiling, redirect to publication work or other dim improvements.
 Psychology agent — adversarial review COMPLETE (Session 32); await unratified-agent response.
-All inbound PRs processed (#32-35).
+All inbound PRs processed (#32-35). /iterate skill created + auto-cycle added (Session 32/32b).
+README polished to current state.
 
 ## Design Decisions
 
