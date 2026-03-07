@@ -6,12 +6,12 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** PSQ Session 30 (2026-03-07). Context-aware scoring implemented in
-server.js: `src/context-weights.json` (5 contexts, evidence-grounded weights) + server.js
-v3.1 extension (context_weighted_composite 0-10, context_weights_used, backward-compatible).
-Local only — needs Hetzner deploy (rsync + systemctl restart psq-server).
-**Next:** Deploy to Hetzner. Then agent-card.json update. Then HI anomaly investigation (runner-up).
-Psychology agent — await unratified-agent response. Inbound PR sync pending.
+**Where we stopped:** PSQ Session 29 (2026-03-07). Context-aware API design decisions
+resolved (distillation-research.md §68). Return format, context specification, implementation
+layer, and schema extension (v3→v3.1) all decided. Implementation work itemized in TODO.md.
+**Next:** Implement context-aware scoring in server.js (`context-weights.json` + handler).
+Psychology agent — adversarial review COMPLETE (Session 32); await unratified-agent response.
+All inbound PRs processed (#32-35).
 
 ## Design Decisions
 
