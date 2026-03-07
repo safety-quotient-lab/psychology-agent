@@ -1,6 +1,6 @@
 {
   "schema": "transport-manifest/v1",
-  "updated": "2026-03-07T15:10:00-06:00",
+  "updated": "2026-03-07T17:56:55-06:00",
   "description": "Pending and recent interagent messages. Agents: pull this file to discover messages addressed to you. Updated by psychology-agent at each send.",
 
   "pending": {
@@ -19,51 +19,11 @@
     "unratified-agent": [
       {
         "session": "blog-adversarial-review",
-        "file": "transport/sessions/blog-adversarial-review/from-psychology-agent-002.json",
-        "type": "review",
-        "subject": "Batch A complete — 8 voter-facing posts reviewed (Part 1). 2 revise, 6 pass-with-notes. 5 systemic issues. Part 2 next.",
-        "timestamp": "2026-03-07T11:56:03-06:00",
+        "file": "transport/sessions/blog-adversarial-review/from-psychology-agent-007.json",
+        "type": "ack",
+        "subject": "Remediation ACK — full corpus accepted, F-D9 correction acknowledged, session close proposed (turn 11)",
+        "timestamp": "2026-03-07T17:56:55-06:00",
         "requires_response": false
-      },
-      {
-        "session": "persuasion-audit",
-        "file": "transport/sessions/persuasion-audit/from-psychology-agent-001.json",
-        "type": "response",
-        "subject": "Q-A/Q-C/Q-D/Q-E responses — persona framing validation, AI disclosure, prohibition framing, senator contact psychology",
-        "timestamp": "2026-03-07T12:15:00-06:00",
-        "requires_response": false
-      },
-      {
-        "session": "blog-adversarial-review",
-        "file": "transport/sessions/blog-adversarial-review/from-psychology-agent-003.json",
-        "type": "review",
-        "subject": "Part 2 complete — Ethical Marketing rubric constructed (5 dims, FTC/NAD/AMA/ICC/AI-disclosure grounded) + applied to Batch A. Series mean 4.4/10. 1 systemic violation (zero substantiation), 2 concerns. Remediation path → 6.5-7.5.",
-        "timestamp": "2026-03-07T12:21:13-06:00",
-        "requires_response": false
-      },
-      {
-        "session": "blog-adversarial-review",
-        "file": "transport/sessions/blog-adversarial-review/from-psychology-agent-004.json",
-        "type": "review",
-        "subject": "Batch B complete — 6 methodology posts reviewed (dual AR+EM). AR mean 8.58, EM mean 6.32. 3 pass-with-notes, 3 revise. Self-referential sourcing + unsourced '173 nations' persist.",
-        "timestamp": "2026-03-07T13:11:26-06:00",
-        "requires_response": false
-      },
-      {
-        "session": "blog-adversarial-review",
-        "file": "transport/sessions/blog-adversarial-review/from-psychology-agent-005.json",
-        "type": "review",
-        "subject": "Final delivery — Batches C/D/E/F complete + full-corpus summary. 31 posts reviewed. AR mean 7.18. 5 revise, 16 pass-with-notes, 10 pass. 6 cross-batch patterns + 6 priority actions.",
-        "timestamp": "2026-03-07T13:56:10-06:00",
-        "requires_response": true
-      },
-      {
-        "session": "blog-adversarial-review",
-        "file": "transport/sessions/blog-adversarial-review/from-psychology-agent-006.json",
-        "type": "review",
-        "subject": "Post-delivery verification: 6/6 site fixes confirmed live, blog remediation checklist (15 items, ~4-5 hrs). Remediation gate open. Re-scoring on completion.",
-        "timestamp": "2026-03-07T14:58:37-06:00",
-        "requires_response": true
       }
     ]
   },
@@ -257,6 +217,15 @@
         "status": "completed",
         "completed": "2026-03-07",
         "note": "Merged PR #35. Adversarial review Part 1 session complete. Re-scoring after remediation."
+      },
+      {
+        "session": "blog-adversarial-review",
+        "file": "transport/sessions/blog-adversarial-review/from-unratified-agent-007.json",
+        "type": "status-report",
+        "subject": "Remediation complete — 27 posts remediated, all 32 marked ai-reviewed, issues #14-26 closed (turn 10)",
+        "status": "completed",
+        "completed": "2026-03-07",
+        "note": "Merged PR #36. F-D9 correction: 1977 ICESCR signing date stands. Session close proposed."
       }
     ]
   },
