@@ -156,7 +156,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Transport: blog-jurassic-park | ✓ Session opened — request sent, psq-agent sections received (Session 25) |
 | Adversarial register (AR) rubric | ✓ Phase 1 validated — docs/adversarial-register-rubric.md (dadd3dd); turn 8 advisory sent to unratified-agent (Session 28) |
 | Hetzner deploy script         | ✓ Created — safety-quotient/deploy/hetzner-deploy.sh; 10-step pipeline (ab5fbe7, Session 28) |
-| PSQ v28 training              | ✗ Running — default settings, 128 tokens; results pending (Session 28) |
+| PSQ v28 training              | ✗ NOT PROMOTED — held-out r=0.678 < v23 0.684; TE regression (0.762 vs 0.800); v23 stays in production (Session 28) |
+| B3 (TE plateau)               | ✓ Filed — distillation-research.md §65; calibration dead zone + label degradation; F1/F2 fix plan (Session 28) |
 
 
 ### Open Questions
