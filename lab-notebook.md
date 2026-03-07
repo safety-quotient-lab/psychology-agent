@@ -2376,5 +2376,8 @@ and compiled the final consolidated transport message.
   Each /iterate now leaves a clean committed state instead of deferring to manual /cycle.
 - **ideas.md**: YAML frontmatter item marked complete
 
+- **/iterate invocation 3**: `$ARGUMENTS` parsing audit — found 4/6 skills already
+  use structured mode tables; /doc and /cycle correctly use free-form. Marked complete in ideas.md.
+
 ▶ README.md
 ▶ .claude/skills/iterate/SKILL.md

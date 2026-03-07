@@ -80,10 +80,10 @@ Not pre-committed. Worth pursuing if the agent's scope expands into those domain
   All 6 skills (/doc, /hunt, /cycle, /knock, /sync, /iterate) now have YAML frontmatter.
   /capacity is a command (not a skill) — commands use a different format.
 
-- **`$ARGUMENTS` parsing pattern** — update skill argument-handling from prose
-  description to structured `$ARGUMENTS` mode tables (Claude Code native variable).
-  Makes skill interfaces explicit and machine-parseable.
-  *Precondition: none — S effort per skill.*
+- ~~**`$ARGUMENTS` parsing pattern**~~ [→ COMPLETE Session 32b, 2026-03-07]
+  4 of 6 skills (/knock, /iterate, /hunt, /sync) already use structured `$ARGUMENTS`
+  mode tables. /doc and /cycle correctly use free-form arguments (semantic content
+  and commit message respectively — mode tables don't apply).
 
 - **`/audit` general codebase skill** — 11-category codebase audit (security, errors,
   data integrity, performance, resilience, database, frontend, worker/queue, knowledge,
