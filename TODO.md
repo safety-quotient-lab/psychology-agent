@@ -16,12 +16,6 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ## Writing
 
-- [ ] **Blog post: "Jurassic Park Development"** — narrative essay about reconstructing
-  git history from AI chat logs. Core theme: life (and code) finds a way — the project
-  existed before the repo did. Cover: why the history mattered, the relay-agent
-  architecture, drift scoring as an epistemic tool, what the skipped Edit operations
-  reveal about mechanical replay vs. understanding. Audience: developers + AI practitioners.
-
 - [ ] **HN post for psychology-agent** — Show HN submission. Draft saved at
   `docs/hn-draft.md` (Session 27). 3 title options + body text. Publish when
   README and repo are polished.
