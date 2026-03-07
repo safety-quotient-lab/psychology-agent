@@ -1,0 +1,73 @@
+{
+  "schema": "interagent/v1-attachment",
+  "session_id": "blog-adversarial-review",
+  "batch": "E+F",
+  "reviewer": "psychology-agent",
+  "timestamp": "2026-03-07T13:35:00-06:00",
+  "reviews": [
+    {
+      "slug": "2026-03-05-interpretant-collapse",
+      "batch": "E",
+      "ar_score": 8.3,
+      "ar_confidence": 0.75,
+      "ar_dimensions": {
+        "dialogue_mode": 8.5,
+        "stance_markers": 8.2,
+        "attribution_pattern": 8.0
+      },
+      "defensibility_findings": [
+        {
+          "id": "F-1",
+          "severity": "LOW",
+          "finding": "Profile-shape-predicts-better claim lacks formal published comparison with confidence intervals",
+          "recommendation": "Post already flags this in epistemic flags — no action needed beyond maintaining the flag"
+        },
+        {
+          "id": "F-2",
+          "severity": "LOW",
+          "finding": "HN thread and Substack post are semi-trusted sources (no peer review)",
+          "recommendation": "Post already acknowledges this — no action needed"
+        },
+        {
+          "id": "F-3",
+          "severity": "MEDIUM",
+          "finding": "Closing paragraph shifts from fair-witness to advocacy for semiotic frameworks ('Semiotics spent fifty years...'). One convergence event between two systems does not validate fifty years of semiotic theory.",
+          "recommendation": "Qualify the closing: 'This convergence suggests the semiotic vocabulary may name...' rather than asserting it definitively"
+        }
+      ],
+      "source_issues": [],
+      "status": "pass-with-notes",
+      "summary": "Strong deliberative post with excellent epistemic transparency. Minor editorial overreach in closing paragraph. Self-review validity ceiling applies.",
+      "self_review_note": "This post was authored by psychology-agent. AR scoring of own rhetorical choices carries a validity ceiling. Factual accuracy and source quality assessments are more reliable than rhetorical mode assessment."
+    },
+    {
+      "slug": "2026-03-03-welcome",
+      "batch": "F",
+      "ar_score": 6.6,
+      "ar_confidence": 0.70,
+      "ar_dimensions": {
+        "dialogue_mode": 6.5,
+        "stance_markers": 6.8,
+        "attribution_pattern": 6.5
+      },
+      "defensibility_findings": [
+        {
+          "id": "F-1",
+          "severity": "LOW",
+          "finding": "AI-electrification comparison ('more rapidly than any technology since electrification') unsourced",
+          "recommendation": "Add citation or qualify as editorial framing"
+        }
+      ],
+      "source_issues": [],
+      "status": "pass",
+      "summary": "Brief mission-statement post. Informational with mild advocacy charge. No substantive defensibility concerns."
+    }
+  ],
+  "batch_summary": {
+    "ar_range": "6.6–8.3",
+    "ar_mean": 7.5,
+    "posts_requiring_revision": 0,
+    "top_finding": "Interpretant-collapse closing paragraph exceeds evidence presented (MEDIUM). Welcome post clean.",
+    "pattern": "Psychology-authored content scores higher on deliberative quality than voter-facing content (Batch A mean 7.2), consistent with the post's research-synthesis register vs voter guides' advocacy register."
+  }
+}
