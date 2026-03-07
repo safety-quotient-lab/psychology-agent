@@ -12,7 +12,7 @@ rejections; 1,550 expansion texts; SE(r)≈0.10 noise floor binding). v23 remain
 Hook symlinks created in safety-quotient/.claude/hooks/ (parry, subproject-boundary, context-pressure-gate).
 **Next:** PSQ — accept B3 ceiling, redirect to publication work or other dim improvements.
 Psychology agent — adversarial review COMPLETE (Session 32); await unratified-agent response.
-All inbound PRs processed (#32-35). /iterate skill created (Session 32).
+Inbound PR (sync-ack/blog-review-t6-persuasion-t3) not yet processed.
 
 ## Design Decisions
 
