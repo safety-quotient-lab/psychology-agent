@@ -93,6 +93,20 @@ Not pre-committed. Worth pursuing if the agent's scope expands into those domain
   workflow. Highly reusable; the unudhr version is already well-tested.
   *Precondition: implementation phase started (codebase exists to audit).*
 
+- **T16: External-facing action trigger** — fires before any action visible to
+  external parties: `gh issue create`, `gh pr create`, `gh api` write operations,
+  transport message delivery via PR, comments on peer repos. Checks: (1) scope
+  appropriateness — does this action serve the current task? (2) user confirmation
+  for substance decisions (T3 process/substance distinction applies), (3) MANIFEST
+  update — record outbound action, (4) reversibility assessment — issues can be
+  closed but not deleted; PR comments persist in history, (5) audience calibration
+  — who will read this? (T4 Check 9 interpretant, applied to external platforms).
+  Gap identified: Session 29, filing GitHub issue #13 on peer repo without trigger
+  coverage. Currently only T4 (disk writes) and T14 (structural checkpoint) apply
+  tangentially; neither mechanically fires on `gh` CLI operations.
+  *Precondition: user approval (substance decision). Hook candidate: PreToolUse
+  on Bash when command matches `gh (issue|pr|api)` write patterns.*
+
 ---
 
 ## PSQ Commercial Model (undefined — ideas only)

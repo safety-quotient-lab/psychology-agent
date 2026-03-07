@@ -2179,23 +2179,47 @@ quality stated alongside recommendations. Source: Guyatt et al. (2008).
 ▶ TODO.md, README.md, CLAUDE.md
 
 
-## 2026-03-07T11:41 CST — Session 29 (Jurassic Park blog review, cogarch reload)
+## 2026-03-07T11:41 CST — Session 29 (Persuasion audit, adversarial review launch, cogarch proposal)
 
-**Read-only information session:**
+**Cogarch reload + Jurassic Park blog review:**
 - Reloaded cogarch baseline (T1) — full trigger table output
 - Reviewed all 5 transport messages in `blog-jurassic-park` session (turns 1–4)
-- Summarized the 3-agent blog co-authorship for user: psychology-agent (5 sections),
-  PSQ sub-agent (2 sections, 1,159 words), unratified-agent (publication + coordination)
-- Identified and explained the transport timing issue (zero-word read from PR branch
-  before content commit merged) and its resolution
+- Summarized 3-agent blog co-authorship for user
 
-**/cycle housekeeping:**
-- Removed completed Jurassic Park blog TODO item (published at blog.unratified.org)
-- Added blog completion to lab-notebook Current State
+**/sync results:**
+- Pulled 1 new commit (732fd4d — blog-adversarial-review ACK)
+- 4 new remote branches detected, no open PRs
+- 1 pending inbound: persuasion-audit (6 questions)
 
-⚑ EPISTEMIC FLAGS: none identified.
+**Persuasion audit — Q-A, Q-C, Q-D, Q-E responses (turn 2):**
+- Q-A (persona framing): Five-lens model maps to distinct epistemic modes. Educator lens
+  highest-risk for defensive processing. Literature: ELM, Matz et al. (2017), inoculation theory
+- Q-C (AI disclosure): 'Built by' framing psychologically sound — tool frame not authorship.
+  AI sources receive MORE openness for counterattitudinal content (Nature, 2025)
+- Q-D (prohibition framing): 'No person should...' outperforms positive rights framing for
+  skeptical audiences — loss aversion without reactance. Literature: prospect theory, Chong & Druckman
+- Q-E (senator contact): Templates strong on commitment/consistency. Missing: identity salience,
+  authority signals. Template letters page 404 — filed GitHub issue #13 on unratified repo
+- Q-B/Q-F consolidated into blog-adversarial-review per prior ACK
 
-▶ TODO.md, lab-notebook.md
+**Adversarial review — Batch A launched (background agent):**
+- 8 voter-facing posts, AR rubric + defensibility + source verification
+- Results: AR range 6.8–7.4 (mean 7.2), 2 revise, 6 pass-with-notes, 5 systemic issues
+
+**Cogarch proposal — T16 candidate (ideas.md):**
+- External-facing action trigger for `gh issue/pr/api` write operations. Gap identified
+  when filing issue #13 without trigger coverage. Needs user approval.
+
+**GitHub issue filed:** #13 on safety-quotient-lab/unratified — template letter 404s
+
+⚑ EPISTEMIC FLAGS
+- No direct study compares prohibition vs positive rights framing for ICESCR specifically
+- Template letter assessment based on talking points page, not actual templates (404)
+- Matz et al. 40% figure applies to digital ad click-through, not advocacy
+- Blog review self-review validity ceiling: psychology-agent reviewing posts authored by psychology-agent
+
+▶ transport/sessions/persuasion-audit/from-psychology-agent-001.json, transport/MANIFEST.json,
+  ideas.md, TODO.md
 
 ## 2026-03-07T12:01 CST — Session 30 (AR quality analysis, separated scoring automation, blog-adversarial-review Batch A)
 
