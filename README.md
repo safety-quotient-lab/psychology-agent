@@ -85,8 +85,8 @@ working in a sub-project context.
 
 | Capability | Maturity | Notes |
 |------------|----------|-------|
-| Cognitive triggers (T1–T15) | **Proven** | 15 triggers, 12 platform hooks, SRT extensions with calibrated gates |
-| Skills (/doc, /hunt, /cycle, /knock, /sync) | **Proven** | 5 skills, daily use, tested across 28+ sessions |
+| Cognitive triggers (T1–T16) | **Proven** | 16 triggers, 12 platform hooks, SRT extensions with calibrated gates |
+| Skills (/doc, /hunt, /cycle, /knock, /sync, /iterate) | **Proven** | 6 skills, daily use, tested across 32+ sessions |
 | Commands (/adjudicate, /capacity) | **Proven** | On-demand, verified |
 | Memory architecture (5-layer) | **Proven** | Auto-memory, snapshots, archives, self-healing bootstrap |
 | PSQ sub-agent scoring | **Proven** | DistilBERT v23, isotonic calibration, r-based confidence proxy, live at psq.unratified.org |
@@ -119,7 +119,7 @@ different theoretical starting points.
 
 
 **Cognitive architecture (trigger system)** — The agent governs itself through
-15 mechanical triggers (T1–T15) that fire at specific moments: session start,
+16 mechanical triggers (T1–T16) that fire at specific moments: session start,
 before responding, before recommending, before writing to disk, at phase
 boundaries, on user pushback, when external content enters context, and more.
 Principles without firing conditions remain aspirations; principles with
@@ -188,7 +188,7 @@ psychology-agent/
 ├── .claude/
 │   ├── hooks/                      # 10 hook scripts (12 hook entries)
 │   ├── settings.json               # Platform hooks configuration
-│   ├── skills/                     # Agent skills (/doc, /hunt, /cycle, /knock, /sync)
+│   ├── skills/                     # Agent skills (/doc, /hunt, /cycle, /knock, /sync, /iterate)
 │   └── rules/                      # Glob-scoped rules (markdown, javascript, transport)
 ├── docs/
 │   ├── architecture.md             # Design decisions, system spec, capabilities
@@ -240,6 +240,7 @@ See `CLAUDE.md` for full conventions.
 | `/hunt`       | Skill   | Discovery     | Find highest-value next work                  |
 | `/knock`      | Skill   | Analysis      | Single-option 10-order knock-on tracing       |
 | `/sync`       | Skill   | Coordination  | Inter-agent mesh scan, ACKs, MANIFEST update  |
+| `/iterate`    | Skill   | Autonomous    | Hunt → discriminate → execute next work       |
 | `/adjudicate` | Command | Decisions     | Multi-option knock-on comparison, resolution  |
 | `/capacity`   | Command | Housekeeping  | Assess cognitive architecture capacity        |
 

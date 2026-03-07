@@ -2,6 +2,7 @@
 name: cycle
 description: Post-session documentation chain — propagate changes through lab-notebook, journal, architecture, MEMORY, snapshot, and commit.
 user-invocable: true
+argument-hint: "[scope summary for commit message]"
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 
