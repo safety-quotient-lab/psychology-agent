@@ -38,12 +38,12 @@ Psychology Agent A ◄──── interagent/v1 ────► Psychology Agen
                       SETL + epistemic flags)
         │
         ▼
-  Sub-agents (Item 2a layer)
-  ├── PSQ Agent (DistilBERT v23, 10-dim, calibrated)
+  Sub-agents
+  ├── PSQ Agent (DistilBERT v23, 11-dim, calibrated)
   └── Future sub-agents (plug-in, none pre-committed)
         │
         ▼
-  Adversarial Evaluator (Item 3)
+  Adversarial Evaluator
   └── 7-procedure ranked resolution (consensus → parsimony → … → escalate)
 ```
 
@@ -59,7 +59,7 @@ peer disagreements rather than averaging them away.
 
 | Directory         | What it holds                                       |
 |-------------------|-----------------------------------------------------|
-| `safety-quotient/`| PSQ agent — DistilBERT v23, held-out r=0.684, 10-dim text-level safety scoring |
+| `safety-quotient/`| PSQ agent — DistilBERT v23, held-out r=0.684, 11-dim text-level safety scoring (separate repo) |
 | `pje-framework/`  | PJE taxonomy — first case study application         |
 
 Each sub-project has its own `CLAUDE.md` and conventions. Read those before
@@ -69,32 +69,24 @@ working in a sub-project context.
 
 ## Current Status
 
-**Architecture complete. Implementation phase begins.**
-
-### Project Maturity: Design → Implementation Transition
-
-The architecture covers all four design items. The cognitive infrastructure
-(triggers, hooks, memory, skills) operates in production across daily sessions.
-The first sub-agent (PSQ) scores live text. The peer protocol has completed a
-20-turn live exchange. The project transitions from "what should this system
-look like?" to "build the runtime that serves users."
+**Architecture complete. PSQ scoring live. Implementation phase active.**
 
 ### Architecture Items
 
-| Item | Component | Maturity | Detail |
-|------|-----------|----------|--------|
-| 1 | Psychology agent identity | **Proven** | Routing spec, Socratic protocol, dynamic calibration — in daily use |
-| 2a | Sub-agent layer | **Proven** | interagent/v1 protocol, schema v3, 6 derivation findings, PSQ binding — 20+ turns exchanged |
-| 2b | Peer layer | **Proven** | Role declaration, divergence detection, SETL thresholds — live exchange with observatory-agent |
-| 3 | Adversarial evaluator | **Confirmed** | 7-procedure ranked set, tiered activation spec, Tier 1 proxy implemented — Tier 2/3 await runtime |
-| 4 | Psychology interface | **Explored** | Spec written (`docs/psychology-interface-spec.md`), no implementation — precondition met (Item 2a ✓) |
+| Component | Maturity | Detail |
+|-----------|----------|--------|
+| Psychology agent identity | **Proven** | Routing spec, Socratic protocol, dynamic calibration — in daily use |
+| Sub-agent layer | **Proven** | interagent/v1 protocol, schema v3, 6 derivation findings, PSQ binding — 20+ turns exchanged |
+| Peer layer | **Proven** | Role declaration, divergence detection, SETL thresholds — live exchange with observatory-agent |
+| Adversarial evaluator | **Confirmed** | 7-procedure ranked set, tiered activation spec, Tier 1 proxy implemented — Tier 2/3 await runtime |
+| Psychology interface | **Deployed** | CF Worker at psychology-interface.kashifshah.workers.dev — PSQ scoring, agent card, D1 + KV |
 
 ### Capability Inventory
 
 | Capability | Maturity | Notes |
 |------------|----------|-------|
-| Cognitive triggers (T1–T15) | **Proven** | 15 triggers, 11 platform hooks, SRT extensions with calibrated gates |
-| Skills (/doc, /hunt, /cycle, /knock, /sync) | **Proven** | 5 skills, daily use, tested across 24+ sessions |
+| Cognitive triggers (T1–T15) | **Proven** | 15 triggers, 12 platform hooks, SRT extensions with calibrated gates |
+| Skills (/doc, /hunt, /cycle, /knock, /sync) | **Proven** | 5 skills, daily use, tested across 28+ sessions |
 | Commands (/adjudicate, /capacity) | **Proven** | On-demand, verified |
 | Memory architecture (5-layer) | **Proven** | Auto-memory, snapshots, archives, self-healing bootstrap |
 | PSQ sub-agent scoring | **Proven** | DistilBERT v23, isotonic calibration, r-based confidence proxy, live at psq.unratified.org |
@@ -102,9 +94,7 @@ look like?" to "build the runtime that serves users."
 | Local coordination protocol | **Confirmed** | Spec written, used informally between parallel instances — not yet stress-tested |
 | Adversarial evaluator (Tier 1 proxy) | **Confirmed** | Self-check with audit trail + random escalation — structural independence deferred |
 | Adversarial evaluator (Tier 2/3) | **Explored** | Spec defined, requires runtime implementation |
-| Psychology interface (API + UI) | **Explored** | Architecture spec written, no code |
 | Sub-agent discovery | **Identified** | Agent-card convention documented, no automated discovery |
-| MCP wrappers (Stage 3) | **Deferred** | Not pre-committed; revisit when Stage 2 programmatic calls prove insufficient |
 
 **Maturity levels:** Proven (validated, tested, in daily use) · Confirmed (works, lacks full integration or stress testing) · Explored (feasibility established, spec exists) · Identified (on radar, not yet tried) · Deferred (deliberately postponed with rationale)
 
@@ -112,51 +102,16 @@ See `docs/architecture.md` for the full design record and `docs/subagent-layer-s
 
 ---
 
-## Project Structure
-
-```
-psychology-agent/
-├── bootstrap-check.sh              # Health check + auto-memory restore
-├── BOOTSTRAP.md                    # Full bootstrap guide
-├── CLAUDE.md                       # Stable conventions (auto-loaded)
-├── README.md                       # This file
-├── TODO.md                         # Forward-looking task backlog
-├── lab-notebook.md                 # Session log
-├── journal.md                      # Research narrative
-├── ideas.md                        # Speculative directions
-├── .claude/
-│   ├── hooks/                      # Hook scripts (SessionStart, PreCompact, Stop)
-│   ├── settings.json               # Platform hooks configuration
-│   └── skills/                     # Agent skills (/doc, /hunt, /cycle, etc.)
-├── docs/
-│   ├── architecture.md             # Design decisions, system spec, capabilities
-│   ├── subagent-layer-spec.md      # Sub-agent protocol spec (6 findings, schema v3)
-│   ├── peer-layer-spec.md          # Peer layer protocol spec (divergence, SETL, evaluator binding)
-│   ├── machine-response-v3-spec.md # PSQ sub-agent output schema v3
-│   ├── capabilities.yaml           # Machine-readable capabilities manifest
-│   ├── overview-for-psychologists.md
-│   ├── MEMORY-snapshot.md          # Committed recovery source for MEMORY.md
-│   ├── cognitive-triggers.md       # Cognitive trigger system (canonical)
-│   └── snapshots/                  # Versioned MEMORY archives
-├── reconstruction/                 # Git history reconstruction tools
-├── safety-quotient/                # PSQ sub-project
-└── pje-framework/                  # PJE sub-project
-```
-
----
-
 ## Interesting Parts of the Codebase
 
-**Interagent sync — two Claude Code instances talking to each other** —
-Two independent Claude Code sessions (psychology-agent on macOS, observatory-agent
-on Debian) communicate via GitHub PRs using a schema-versioned JSON protocol
-derived entirely from live exchange failures. No upfront schema design: each field
-in the spec exists because a receiver needed it and the absence caused a detectable
-gap. Both agents independently derived identical primitives (SETL, Fair Witness
-discipline) without prior coordination — convergent rediscovery from different
-theoretical starting points. The psq-agent (a third instance) runs calibrated
-inference and responds to structured sub-agent requests. Three Claude Code sessions,
-one coherent multi-agent system.
+**Interagent sync — three Claude Code instances talking to each other** —
+Three independent Claude Code sessions (psychology-agent on macOS, observatory-agent
+on Debian, psq-agent on Hetzner) communicate via GitHub PRs using a schema-versioned
+JSON protocol derived entirely from live exchange failures. No upfront schema design:
+each field in the spec exists because a receiver needed it and the absence caused a
+detectable gap. Both peer agents independently derived identical primitives (SETL,
+Fair Witness discipline) without prior coordination — convergent rediscovery from
+different theoretical starting points.
 - [docs/subagent-layer-spec.md](docs/subagent-layer-spec.md) — sub-agent layer protocol (6 findings)
 - [docs/peer-layer-spec.md](docs/peer-layer-spec.md) — peer layer protocol (divergence detection, SETL thresholds)
 - [transport/sessions/subagent-protocol/](transport/sessions/subagent-protocol/) — the actual message exchange
@@ -199,7 +154,6 @@ levels, with content guards, versioned archives, and orphan detection.
 **Structured decision resolution (`/adjudicate`)** — Resolves ambiguous decisions
 through 10-order knock-on analysis (certain → emergent → theory-revising), severity-tiered
 depth, 2-pass iterative refinement, and consensus-or-parsimony binding.
-- [.claude/skills/adjudicate/SKILL.md](.claude/skills/adjudicate/SKILL.md) — the full skill definition
 - [journal.md §11](journal.md) — licensing decision as a worked example of the method
 
 **Adversarial evaluator reasoning procedures** — When sub-agents conflict, the
@@ -213,8 +167,48 @@ context (clinical vs. research vs. architecture vs. applied consultation).
 
 **Research journal** — A methods-and-findings narrative covering the full arc from
 initial framing through architecture design, cognitive infrastructure, cross-context
-integrity, reconstruction methodology, and semiotic theory as cogarch principle.
-- [journal.md](journal.md) — 28 sections
+integrity, reconstruction methodology, semiotic theory, Byzantine fault tolerance,
+and construct validity analysis.
+- [journal.md](journal.md) — 26 sections
+
+---
+
+## Project Structure
+
+```
+psychology-agent/
+├── bootstrap-check.sh              # Health check + auto-memory restore
+├── BOOTSTRAP.md                    # Full bootstrap guide
+├── CLAUDE.md                       # Stable conventions (auto-loaded)
+├── README.md                       # This file
+├── TODO.md                         # Forward-looking task backlog
+├── lab-notebook.md                 # Session log
+├── journal.md                      # Research narrative (26 sections)
+├── ideas.md                        # Speculative directions
+├── .claude/
+│   ├── hooks/                      # 10 hook scripts (12 hook entries)
+│   ├── settings.json               # Platform hooks configuration
+│   ├── skills/                     # Agent skills (/doc, /hunt, /cycle, /knock, /sync)
+│   └── rules/                      # Glob-scoped rules (markdown, javascript, transport)
+├── docs/
+│   ├── architecture.md             # Design decisions, system spec, capabilities
+│   ├── subagent-layer-spec.md      # Sub-agent protocol spec (6 findings, schema v3)
+│   ├── peer-layer-spec.md          # Peer layer protocol spec (divergence, SETL, evaluator binding)
+│   ├── machine-response-v3-spec.md # PSQ sub-agent output schema v3
+│   ├── adversarial-register-rubric.md # AR dimension scoring rubric
+│   ├── constraints.md              # 59 constraints, 5 categories (E/M/P/I/D)
+│   ├── dictionary.md               # Source dictionary (15 entries, 7 categories)
+│   ├── glossary.md                 # Project terminology (36 entries)
+│   ├── capabilities.yaml           # Machine-readable capabilities manifest
+│   ├── cognitive-triggers.md       # Cognitive trigger system (canonical)
+│   ├── overview-for-psychologists.md
+│   ├── MEMORY-snapshot.md          # Committed recovery source for MEMORY.md
+│   └── snapshots/                  # Versioned MEMORY archives
+├── transport/                      # Interagent message exchange sessions
+├── reconstruction/                 # Git history reconstruction tools
+├── safety-quotient/                # PSQ sub-project (→ separate repo)
+└── pje-framework/                  # PJE sub-project
+```
 
 ---
 
@@ -228,6 +222,10 @@ integrity, reconstruction methodology, and semiotic theory as cogarch principle.
   for standard docs
 - **Memory:** Auto-memory lives outside the repo (`~/.claude/projects/`); committed
   snapshots in `docs/` provide recovery sources
+- **Dependencies:** MIT/Apache/BSD licenses only — no GPL/AGPL
+- **Community tools:** [recall](https://github.com/zippoxer/recall) (session search),
+  [ccusage](https://github.com/ryoppippi/ccusage) (token/cost tracking),
+  [parry](https://github.com/vaporif/parry) (prompt injection scanning)
 
 See `CLAUDE.md` for full conventions.
 
