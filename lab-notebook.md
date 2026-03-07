@@ -2364,3 +2364,17 @@ and compiled the final consolidated transport message.
 
 ▶ transport/sessions/blog-adversarial-review/from-psychology-agent-006.json
 ▶ .claude/skills/iterate/SKILL.md
+
+## 2026-03-07T15:28 CST — Session 32b (README polish + /iterate auto-cycle)
+
+- **/iterate test runs** (2 invocations):
+  1. YAML frontmatter standardization on /cycle skill (XS, process decision — auto-executed)
+  2. README polish (S, substance decision — user approved via T3 gate)
+- **README updates**: T1-T15→T1-T16, 15→16 triggers, 5→6 skills, 28+→32+ sessions,
+  /iterate added to capabilities table, project structure tree, Skills & Commands table
+- **/iterate design change**: auto-cycle added to Phase 4 close (user request).
+  Each /iterate now leaves a clean committed state instead of deferring to manual /cycle.
+- **ideas.md**: YAML frontmatter item marked complete
+
+▶ README.md
+▶ .claude/skills/iterate/SKILL.md

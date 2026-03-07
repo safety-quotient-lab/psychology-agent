@@ -76,11 +76,9 @@ Not pre-committed. Worth pursuing if the agent's scope expands into those domain
 
 ## Cognitive Architecture Improvements (from unudhr cogarch review)
 
-- **YAML frontmatter on all skills** — add structured `name`, `description`,
-  `user-invocable`, `argument-hint`, `allowed-tools` headers to all four skills
-  (/doc, /hunt, /cycle, /capacity). Self-documenting; consistent with unudhr pattern;
-  `allowed-tools` could serve as a permission boundary in future Claude Code versions.
-  *Precondition: none — XS effort.*
+- ~~**YAML frontmatter on all skills**~~ [→ COMPLETE Session 32, 2026-03-07]
+  All 6 skills (/doc, /hunt, /cycle, /knock, /sync, /iterate) now have YAML frontmatter.
+  /capacity is a command (not a skill) — commands use a different format.
 
 - **`$ARGUMENTS` parsing pattern** — update skill argument-handling from prose
   description to structured `$ARGUMENTS` mode tables (Claude Code native variable).

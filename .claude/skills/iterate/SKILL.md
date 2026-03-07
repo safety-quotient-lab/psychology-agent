@@ -140,9 +140,8 @@ After execution:
 2. **State what changed** — which files were modified
 3. **Runner-up note** — "Next highest-value item is [runner-up] if you
    want to /iterate again."
-4. **Do NOT auto-/cycle** — /iterate is a single work unit. The user
-   decides when to /cycle. Multiple /iterate calls can accumulate before
-   a single /cycle.
+4. **Auto-/cycle** — run /cycle to propagate changes and commit. This
+   ensures every /iterate leaves a clean, committed state.
 
 ---
 
@@ -151,8 +150,8 @@ After execution:
 `/iterate` can be called repeatedly. Each call is independent — it re-hunts
 from current state (which now includes whatever the previous /iterate changed).
 
-The user can type `/iterate` three times in a row and get three pieces of work
-done, then `/cycle` once to propagate all changes.
+Each /iterate auto-cycles at close, so the user always has a clean committed
+state between iterations.
 
 ---
 
@@ -166,8 +165,8 @@ done, then `/cycle` once to propagate all changes.
 - **Executing substance decisions without surfacing** — T3 still applies.
   /iterate is autonomous for process decisions, not for "should we change
   the architecture" decisions.
-- **Running /cycle after every /iterate** — /iterate is a work unit, not
-  a session. Accumulate, then /cycle.
+- **Skipping /cycle** — every /iterate should leave a clean committed state.
+  Auto-cycle ensures this.
 - **Discriminating between 1 candidate** — if there's only one option,
   just do it. The discriminator is for choosing between alternatives.
 
@@ -180,6 +179,6 @@ done, then `/cycle` once to propagate all changes.
 | `/hunt` | /iterate runs /hunt internally as Phase 1. If the user wants to see candidates without executing, they use /hunt directly. |
 | `/knock` | /iterate runs 2-order inline knock per candidate in Phase 2. If deeper analysis is needed, the user runs /knock directly. |
 | `/adjudicate` | If Phase 2 reveals a genuine M/L decision between candidates (not just prioritization), /iterate escalates to /adjudicate and pauses for user input. |
-| `/cycle` | /iterate does NOT auto-cycle. The user cycles when ready. |
+| `/cycle` | /iterate auto-cycles at Phase 4 close. Each iteration leaves a clean commit. |
 | `/doc` | /iterate may invoke /doc during Phase 3 if execution produces findings worth persisting. |
 | `/sync` | /iterate may invoke /sync if the winner involves transport. |
