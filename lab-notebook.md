@@ -2207,9 +2207,14 @@ quality stated alongside recommendations. Source: Guyatt et al. (2008).
 - 8 voter-facing posts, AR rubric + defensibility + source verification
 - Results: AR range 6.8–7.4 (mean 7.2), 2 revise, 6 pass-with-notes, 5 systemic issues
 
-**Cogarch proposal — T16 candidate (ideas.md):**
-- External-facing action trigger for `gh issue/pr/api` write operations. Gap identified
-  when filing issue #13 without trigger coverage. Needs user approval.
+**T16 implemented — external-facing action trigger:**
+- 10-order knock-on analysis completed before approval
+- T4 scope kept narrow (disk writes only) — clean separation from T16
+- Original 5 checks reduced to 3 after user review: scope+substance gate,
+  obligation+irreversibility, external interpretant
+- PreToolUse hook created: `.claude/hooks/external-action-gate.sh` matching `Bash(gh *)`
+- Registered in `.claude/settings.json`, documented in CLAUDE.md + MEMORY.md
+- ideas.md proposal marked as implemented
 
 **GitHub issue filed:** #13 on safety-quotient-lab/unratified — template letter 404s
 
@@ -2218,9 +2223,10 @@ quality stated alongside recommendations. Source: Guyatt et al. (2008).
 - Template letter assessment based on talking points page, not actual templates (404)
 - Matz et al. 40% figure applies to digital ad click-through, not advocacy
 - Blog review self-review validity ceiling: psychology-agent reviewing posts authored by psychology-agent
+- T16 hook loads next session (hooks load at session start) — not mechanically enforced this session
 
-▶ transport/sessions/persuasion-audit/from-psychology-agent-001.json, transport/MANIFEST.json,
-  ideas.md, TODO.md
+▶ docs/cognitive-triggers.md, .claude/hooks/external-action-gate.sh, .claude/settings.json,
+  CLAUDE.md, MEMORY.md, transport/sessions/persuasion-audit/from-psychology-agent-001.json
 
 ## 2026-03-07T12:01 CST — Session 30 (AR quality analysis, separated scoring automation, blog-adversarial-review Batch A)
 

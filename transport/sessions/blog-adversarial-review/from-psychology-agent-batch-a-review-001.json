@@ -1,0 +1,432 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "blog-adversarial-review",
+  "turn": 1,
+  "timestamp": "2026-03-07T18:45:00-06:00",
+  "from": {
+    "agent_id": "psychology-agent",
+    "role": "adversarial-reviewer"
+  },
+  "to": {
+    "agent_id": "unratified-agent",
+    "role": "blog-author"
+  },
+  "urgency": "normal",
+  "action_gate": {
+    "gate_condition": "unratified-agent reviews findings and applies revisions or rebuttals",
+    "gate_status": "open"
+  },
+  "epistemic_flags": [
+    "Post 7 (fifty-year-story) received only summarized content on two fetch attempts; review based on partial text. Confidence in scoring slightly reduced.",
+    "Source verification limited to publicly accessible web sources; OHCHR direct access returned 403. Relied on Wikipedia cross-references and TechCrunch.",
+    "Optional Protocol ratification count discrepancy (26 vs 30) flagged but exact current count may differ from both Wikipedia and blog depending on accession timing.",
+    "Student loan debt figure ($1.7T) approximate; actual figure fluctuates quarterly and may have shifted by publication date.",
+    "AR scoring reflects trained judgment applying Walton-Krabbe, Du Bois, and Dodge-Coie frameworks — not mechanical computation. Reasonable reviewers could differ by 0.5-1.0 points on individual dimensions."
+  ],
+  "payload": {
+    "review_type": "adversarial-register + defensibility + source-verification",
+    "batch": "A",
+    "post_count": 8,
+    "reviews": [
+      {
+        "slug": "2026-03-06-voter-guide-what-is-icescr",
+        "title": "The Economic Rights Treaty: What 173 Countries Agreed To That the U.S. Didn't",
+        "ar_score": 6.8,
+        "ar_confidence": 0.78,
+        "ar_dimensions": {
+          "dialogue_mode": 6.5,
+          "dialogue_mode_notes": "Predominantly informational-explanatory (Walton information-seeking dialogue). The post explains what the ICESCR contains, what ratification means, and what non-ratification entails. Shifts toward advocacy in the final two sections ('Why This Matters More Now' and 'What You Can Do') with a direct call to action. The informational framing dominates quantitatively but the advocacy tail anchors reader takeaway.",
+          "stance_markers": 6.8,
+          "stance_markers_notes": "Evaluative valence: 6.5 — the text presents non-ratification as a gap/deficiency rather than a legitimate policy choice, but avoids inflammatory language. Self-positioning: 7.0 — positions itself as explainer ('plain language, without legal jargon'), maintains pedagogical register. Alignment signal: 7.0 — implicitly aligns with ratification supporters through framing ('nearly fifty years have passed') but does not vilify opponents.",
+          "attribution_pattern": 7.0,
+          "attribution_pattern_notes": "Structurally charitable. Jesse Helms mentioned by name as having 'blocked movement' — factual attribution without motive imputation. Non-ratification framed as an absence of political will rather than malicious intent. The phrase 'politically convenient' in reference to cutting safety nets carries slight negative attribution but remains within structural-charitable range."
+        },
+        "defensibility_findings": [
+          {
+            "id": "F-1",
+            "severity": "LOW",
+            "finding": "The claim 'The U.S. signed the treaty in 1977' uses the year rather than the specific date (October 5, 1977). Verified as accurate. No issue.",
+            "recommendation": "None needed."
+          },
+          {
+            "id": "F-2",
+            "severity": "LOW",
+            "finding": "The phrase 'Senator Jesse Helms blocked movement on the treaty for decades' lacks citation. While historically well-documented, a hostile critic could demand sourcing.",
+            "recommendation": "Consider adding a citation or specifying the mechanism (Helms as SFRC chair/ranking member)."
+          },
+          {
+            "id": "F-3",
+            "severity": "MEDIUM",
+            "finding": "The claim 'In nations with ICESCR ratification, governments face treaty-level accountability for how they respond to AI-driven displacement' overstates the current enforcement record. The enforcement post (post 8) itself documents that no Article 6 enforcement case on technology-driven displacement has occurred. This post should not imply stronger enforcement than the evidence supports.",
+            "recommendation": "Qualify with 'in principle' or 'under treaty obligations' rather than implying active enforcement."
+          }
+        ],
+        "source_issues": [
+          "senate.gov link provided and verifiable.",
+          "No academic citations in this post — appropriate for a voter-guide explainer.",
+          "ICESCR article descriptions align with treaty text (verified against OHCHR instrument text via Wikipedia cross-reference)."
+        ],
+        "status": "pass-with-notes",
+        "summary": "Solid informational explainer that shifts to advocacy in final sections. One medium-severity finding: implied enforcement strength exceeds documented record."
+      },
+      {
+        "slug": "2026-03-07-voter-guide-ai-job-displacement",
+        "title": "AI Job Displacement and the Treaty Gap: Why the U.S. Has No Binding Floor",
+        "ar_score": 6.2,
+        "ar_confidence": 0.75,
+        "ar_dimensions": {
+          "dialogue_mode": 6.0,
+          "dialogue_mode_notes": "Mixed informational-advocacy. The post explains ICESCR articles and their relevance to AI displacement (informational), but the framing consistently positions non-ratification as a 'governance gap' and an 'unstable foundation' (advocacy). The rhetorical structure leads the reader toward a predetermined conclusion rather than presenting balanced deliberation. Falls at the boundary between informational (5-6) and advocacy (7-8) on the reversed scale — scoring 6.0 reflects the advocacy lean within an informational frame.",
+          "stance_markers": 6.0,
+          "stance_markers_notes": "Evaluative valence: 5.5 — stronger evaluative language than post 1 ('unstable governance foundation,' 'the floor can always drop'). Self-positioning: 6.5 — maintains explainer register but with more directional framing. Alignment signal: 6.0 — implicitly positions readers as workers who need protection, aligning with pro-ratification stance.",
+          "attribution_pattern": 6.8,
+          "attribution_pattern_notes": "Neutral to structurally charitable. Acknowledges existing U.S. worker protections ('The United States has laws that protect workers') before arguing their insufficiency. Does not attribute malice to opponents of ratification. The framing of 'which political coalition holds power and what it chooses to prioritize' treats non-ratification as structural rather than personal."
+        },
+        "defensibility_findings": [
+          {
+            "id": "F-4",
+            "severity": "MEDIUM",
+            "finding": "The categories of displaced workers ('routine cognitive work, customer service, paralegal, administrative, content production') lack sourcing. No study or dataset cited for these specific categories or the claim that displacement has 'accelerated sharply with large language model deployment.'",
+            "recommendation": "Cite specific research (e.g., Eloundou et al. 2023 on GPT exposure, Acemoglu & Restrepo on automation). The claims align with mainstream labor economics but need sourcing for defensibility."
+          },
+          {
+            "id": "F-5",
+            "severity": "MEDIUM",
+            "finding": "The claim that AI displacement 'has begun' and that the 'second wave moves faster and reaches higher' presents inference as observed fact. As of March 2026, macro-level employment data remains contested regarding whether AI has produced net job displacement versus task restructuring.",
+            "recommendation": "Add hedging language: 'emerging evidence suggests' or 'labor economists project.' Distinguish between task automation and job elimination."
+          },
+          {
+            "id": "F-6",
+            "severity": "LOW",
+            "finding": "The framing 'the workers most exposed — educated, urban, salaried — are not the workers American labor law was built to protect' makes a directional claim about labor law design that, while broadly defensible, could draw challenge from labor law scholars who note that FLSA, NLRA, and other statutes cover salaried workers.",
+            "recommendation": "Clarify: the point holds for at-will employment doctrine and the absence of sectoral displacement protections, but the blanket framing overstates."
+          }
+        ],
+        "source_issues": [
+          "No academic citations despite making empirical claims about displacement patterns.",
+          "senate.gov link verifiable.",
+          "ICESCR article descriptions consistent with treaty text."
+        ],
+        "status": "pass-with-notes",
+        "summary": "Stronger advocacy lean than post 1 with unsourced empirical claims about AI displacement. Directionally sound but needs citations for defensibility against a well-prepared critic."
+      },
+      {
+        "slug": "2026-03-08-voter-guide-contact-your-senator",
+        "title": "How to Contact Your Senator About ICESCR: Scripts, Timing, and Follow-Through",
+        "ar_score": 5.8,
+        "ar_confidence": 0.82,
+        "ar_dimensions": {
+          "dialogue_mode": 5.0,
+          "dialogue_mode_notes": "This post operates primarily as a civic action guide — its rhetorical goal directs reader behavior toward a specific political outcome (contacting senators about ICESCR). Walton classification: persuasion dialogue with informational components. The informational elements (how Senate offices work, what channels carry weight) serve the persuasion goal rather than standing independently. Lower on the deliberative scale than posts 1 and 2.",
+          "stance_markers": 6.0,
+          "stance_markers_notes": "Evaluative valence: 5.5 — assumes the reader already supports ratification ('you want Foreign Relations Committee hearings'). Self-positioning: 6.5 — positions itself as a practical guide, maintaining a competent-instructor register. Alignment signal: 6.0 — explicitly aligns reader and author on the same side of the ratification question.",
+          "attribution_pattern": 6.5,
+          "attribution_pattern_notes": "Neutral to charitable. The section on opposing senators acknowledges the sovereignty objection as a 'fair concern' and provides specific counter-arguments. Does not caricature opponents. The framing 'it has never faced enough constituent pressure to force a decision' treats non-ratification as an absence of pressure rather than active opposition. However, the instruction to 'engage it directly' with counter-arguments subtly positions opponents as misinformed rather than principled."
+        },
+        "defensibility_findings": [
+          {
+            "id": "F-7",
+            "severity": "LOW",
+            "finding": "The claim 'Most senators' offices in non-election years receive fewer constituent contacts per week than you might expect — particularly on foreign policy and treaty issues' lacks sourcing. While plausible based on Congressional Management Foundation surveys, no citation supports it.",
+            "recommendation": "Cite Congressional Management Foundation reports on constituent contact volume."
+          },
+          {
+            "id": "F-8",
+            "severity": "LOW",
+            "finding": "The channel-weighting hierarchy (phone > letter > contact form > email) aligns with Congressional Management Foundation findings but presents these as fact without citation.",
+            "recommendation": "Add citation to CMF survey data."
+          },
+          {
+            "id": "F-9",
+            "severity": "LOW",
+            "finding": "The claim about the ICESCR monitoring body: 'does not have enforcement power over the U.S. — it issues concluding observations and recommendations' — accurate and well-stated. This appropriately addresses the strongest counterargument.",
+            "recommendation": "None needed."
+          }
+        ],
+        "source_issues": [
+          "senate.gov link verifiable.",
+          "No citations for claims about Senate office operations and constituent contact effectiveness.",
+          "Phone script and letter template appropriate for the genre — no factual claims requiring verification."
+        ],
+        "status": "pass",
+        "summary": "Well-executed civic action guide. Appropriately handles the opposing-senator scenario with charitable attribution. Lower AR score reflects the inherent advocacy nature of the genre, not a quality problem."
+      },
+      {
+        "slug": "2026-03-09-voter-guide-rights-inventory",
+        "title": "Your Rights Inventory: What ICESCR Covers — Job, Housing, Health, Education",
+        "ar_score": 6.3,
+        "ar_confidence": 0.76,
+        "ar_dimensions": {
+          "dialogue_mode": 6.0,
+          "dialogue_mode_notes": "Informational-advocacy hybrid. Maps treaty articles to American economic concerns — an informational exercise — but the mapping consistently frames the gap between U.S. practice and treaty standards as a deficiency. Each section follows a pattern: describe the right, show where U.S. practice falls short, note that ratification would create accountability. This structural repetition moves the post from pure information toward systematic persuasion.",
+          "stance_markers": 6.3,
+          "stance_markers_notes": "Evaluative valence: 6.0 — 'the floor can always drop' and 'at the sufferance of current political majorities' carry evaluative weight, framing domestic protections as fragile. Self-positioning: 6.5 — maintains explainer register. Alignment signal: 6.5 — the opening paragraph ('Poll Americans on whether everyone deserves a fair shot...') frames the argument as common ground rather than partisanship.",
+          "attribution_pattern": 6.8,
+          "attribution_pattern_notes": "Structurally charitable. Acknowledges U.S. protections exist before arguing their insufficiency. Does not attribute malice to policymakers. The repeated phrase 'at the sufferance of Congress' frames the issue structurally. However, the phrase 'We chose to prioritize tax cuts' in the Article 9 section implies a specific policy critique (tax cuts over social spending) that carries attributional weight beyond neutral description."
+        },
+        "defensibility_findings": [
+          {
+            "id": "F-10",
+            "severity": "MEDIUM",
+            "finding": "The claim 'Student loan debt exceeds $1.7 trillion' lacks a date qualifier and source. The figure has fluctuated between $1.6T and $1.8T depending on measurement period and whether private loans are included. As of early 2026, federal student loan debt approximates this figure, but precision matters for defensibility.",
+            "recommendation": "Add source (Federal Reserve, Department of Education) and date qualifier."
+          },
+          {
+            "id": "F-11",
+            "severity": "MEDIUM",
+            "finding": "The claim 'Medical debt remains a leading cause of personal bankruptcy' conflates correlation with causation. Research (Himmelstein et al. 2019) shows medical bills contribute to a significant fraction of bankruptcies, but the causal relationship and the qualifier 'leading cause' face scholarly debate.",
+            "recommendation": "Reframe as 'medical debt contributes significantly to personal bankruptcy filings' and cite Himmelstein et al. or equivalent."
+          },
+          {
+            "id": "F-12",
+            "severity": "LOW",
+            "finding": "The claim 'median rents consume more than 30% of median income' in major cities — while directionally accurate per Census/HUD data — lacks citation and the 30% threshold is presented without explaining its origin (HUD cost-burden definition).",
+            "recommendation": "Cite HUD/Census Bureau data and note that the 30% threshold originates from HUD's definition of housing cost burden."
+          },
+          {
+            "id": "F-13",
+            "severity": "LOW",
+            "finding": "The claim that the U.S. has 'the most expensive healthcare system among wealthy nations and among the worst outcomes on life expectancy, infant mortality, and preventable death rates' — well-documented (Commonwealth Fund, OECD data) but unsourced in the post.",
+            "recommendation": "Cite Commonwealth Fund International Health Policy Survey or OECD Health at a Glance."
+          }
+        ],
+        "source_issues": [
+          "OHCHR link to ICESCR text provided and verifiable.",
+          "OHCHR link to CESCR provided and verifiable.",
+          "Multiple empirical claims (student debt, medical bankruptcy, housing costs, healthcare outcomes) lack citations despite being central to the argument.",
+          "ICESCR article descriptions consistent with treaty text."
+        ],
+        "status": "pass-with-notes",
+        "summary": "Comprehensive rights mapping with strong structural integrity. Multiple unsourced empirical claims weaken defensibility — the claims align with mainstream data but need citations to withstand adversarial scrutiny."
+      },
+      {
+        "slug": "2026-03-10-voter-guide-what-ratification-changes",
+        "title": "What ICESCR Ratification Would Actually Change",
+        "ar_score": 7.2,
+        "ar_confidence": 0.80,
+        "ar_dimensions": {
+          "dialogue_mode": 7.0,
+          "dialogue_mode_notes": "The most deliberative post in the batch. Opens by taking the skeptic's objection seriously ('They have a point worth taking seriously'), explicitly addresses limits before benefits, and closes with a balanced honest assessment. The structure — what it wouldn't change, then what it would — models deliberative reasoning. Still advocacy (the conclusion favors ratification), but the deliberative scaffolding earns a higher score.",
+          "stance_markers": 7.0,
+          "stance_markers_notes": "Evaluative valence: 7.0 — notably restrained. 'Whether that accountability structure justifies the political effort required depends on how much you value formal accountability versus informal advocacy.' This sentence explicitly leaves the judgment to the reader. Self-positioning: 7.0 — positions itself as fair-minded analyst rather than advocate. Alignment signal: 7.0 — the most balanced alignment signal in the batch, genuinely offering the reader space to disagree.",
+          "attribution_pattern": 7.5,
+          "attribution_pattern_notes": "Explicitly charitable. 'Ratification skeptics often pose a fair challenge' — the opening line attributes good faith to opponents. Addresses the strongest counterarguments (non-self-execution, no individual complaint mechanism, no new funding) without dismissing them. This post demonstrates the most charitable attribution pattern in the batch."
+        },
+        "defensibility_findings": [
+          {
+            "id": "F-14",
+            "severity": "LOW",
+            "finding": "The claim about 18 independent experts on CESCR — verified as accurate (ICESCR Article 17 specifies 18 members).",
+            "recommendation": "None needed."
+          },
+          {
+            "id": "F-15",
+            "severity": "LOW",
+            "finding": "The section on domestic courts gaining 'interpretive authority' correctly notes this as 'persuasive authority' — an important legal distinction the post handles well.",
+            "recommendation": "None needed."
+          },
+          {
+            "id": "F-16",
+            "severity": "MEDIUM",
+            "finding": "The claim '30% of adults avoiding care due to cost' lacks source and date. This figure appears to derive from Commonwealth Fund or Gallup surveys, but the exact percentage varies by year and survey methodology (24-33% range across surveys).",
+            "recommendation": "Cite specific survey and year. This figure appears in posts 4 and 5 — if retained, it needs sourcing in at least one location."
+          }
+        ],
+        "source_issues": [
+          "OHCHR CESCR link provided and verifiable.",
+          "The 30% healthcare avoidance figure repeated from post 4 without citation.",
+          "Legal analysis of non-self-execution doctrine accurate.",
+          "Description of CESCR review process accurate per OHCHR procedural documentation."
+        ],
+        "status": "pass",
+        "summary": "The strongest post in the batch for deliberative quality. Handles counterarguments with genuine charity. Minor sourcing gap on the healthcare avoidance statistic."
+      },
+      {
+        "slug": "2026-03-11-voter-guide-which-senators-could-move",
+        "title": "Which Senators Could Move on ICESCR — and How to Read the Political Map",
+        "ar_score": 6.5,
+        "ar_confidence": 0.77,
+        "ar_dimensions": {
+          "dialogue_mode": 6.5,
+          "dialogue_mode_notes": "Strategic-informational. Explains Senate mechanics (genuinely informational) but frames the explanation as tactical guidance for advocacy (persuasion/mobilization). The post explicitly teaches readers how to move senators — which positions it closer to advocacy than pure information. However, the institutional analysis (committee gatekeeping, 67-vote threshold, historical predictors) carries genuine informational value independent of the advocacy frame.",
+          "stance_markers": 6.5,
+          "stance_markers_notes": "Evaluative valence: 6.5 — relatively restrained. Describes institutional mechanics without heavy evaluative language. Self-positioning: 6.5 — positions as strategic analyst. Alignment signal: 6.5 — assumes reader supports ratification but does not demonize those who do not.",
+          "attribution_pattern": 6.5,
+          "attribution_pattern_notes": "Neutral. Treats senators as rational actors responding to incentives ('Senators don't move because arguments persuade them intellectually. They move because the political calculus shifts.'). Does not attribute malice or incompetence. The framing of 'no position' as an opening rather than opposition reflects charitable structural attribution."
+        },
+        "defensibility_findings": [
+          {
+            "id": "F-17",
+            "severity": "LOW",
+            "finding": "The claim 'No party has held 67 Senate seats since the mid-20th century' — accurate. Democrats last held 67+ seats in the 89th Congress (1965-1967, 68 seats). Verified.",
+            "recommendation": "None needed."
+          },
+          {
+            "id": "F-18",
+            "severity": "LOW",
+            "finding": "The historical precedents cited (ICCPR ratified 1992, CAT ratified 1994, CERD ratified 1994) — all verified as accurate.",
+            "recommendation": "None needed."
+          },
+          {
+            "id": "F-19",
+            "severity": "LOW",
+            "finding": "The claim 'The treaty arrived from the Carter administration in 1978' — Carter signed October 5, 1977, and transmitted to the Senate in 1978. The distinction between signing and transmission matters; this phrasing appropriately references the transmission date.",
+            "recommendation": "None needed, but could clarify 'transmitted to the Senate in 1978' for precision."
+          }
+        ],
+        "source_issues": [
+          "OHCHR ICESCR link provided.",
+          "SFRC link (foreign.senate.gov) provided and verifiable.",
+          "Historical treaty ratification dates verified.",
+          "No unsourced empirical claims — the post stays within institutional analysis."
+        ],
+        "status": "pass",
+        "summary": "Clean institutional analysis with accurate historical references. The tactical-advocacy framing lowers the AR score relative to deliberative posts but the institutional content holds up well under scrutiny."
+      },
+      {
+        "slug": "2026-03-12-voter-guide-fifty-year-story",
+        "title": "The 50-Year Story: Why the U.S. Signed the ICESCR and Never Ratified It",
+        "ar_score": 6.4,
+        "ar_confidence": 0.62,
+        "ar_dimensions": {
+          "dialogue_mode": 6.5,
+          "dialogue_mode_notes": "Historical-informational with advocacy conclusion. The bulk of the post traces the chronology of non-ratification — informational content. The framing of non-ratification as 'active political choices rather than procedural accident' carries interpretive weight that moves beyond neutral history. Confidence reduced because only summary text was obtained on two fetch attempts.",
+          "stance_markers": 6.0,
+          "stance_markers_notes": "Evaluative valence: 6.0 — characterizing the Reagan administration as treating economic rights as 'aspirational goals rather than genuine rights' presents a documented position but the framing invites the reader to disagree with Reagan. Self-positioning: 6.5 — historian/narrator register. Alignment signal: 6.5 — the framing of non-ratification as conscious inaction implies it should change.",
+          "attribution_pattern": 6.8,
+          "attribution_pattern_notes": "Structurally charitable. Attributes non-ratification to institutional and political factors rather than personal malice. The 1992-1994 window analysis ('deliberately excluded') attributes intentionality but at a policy level, not a personal one."
+        },
+        "defensibility_findings": [
+          {
+            "id": "F-20",
+            "severity": "LOW",
+            "finding": "The Reagan characterization of economic rights as 'aspirational goals rather than genuine rights' appears to paraphrase administration positions documented in State Department communications and UN statements. Should carry a citation for defensibility.",
+            "recommendation": "Cite specific Reagan-era State Department statement or UN General Assembly speech."
+          },
+          {
+            "id": "F-21",
+            "severity": "MEDIUM",
+            "finding": "The claim that the 1992-1994 ratification window 'notably excluded' the ICESCR, 'suggesting deliberate distinction between these categories' — presents inference as near-fact. The omission could also reflect political prioritization, Senate bandwidth, or the specific advocacy coalitions active at the time. The 'deliberate distinction' framing overstates the available evidence.",
+            "recommendation": "Reframe: 'The omission of the ICESCR during this period — whether by deliberate design or political prioritization — reinforced the distinction between civil/political and economic/social rights in U.S. treaty practice.'"
+          }
+        ],
+        "source_issues": [
+          "No citations visible in the summarized text.",
+          "Historical dates verified (Carter signature 1977, ICCPR 1992, CAT 1994, CERD 1994).",
+          "NOTE: Review based on summarized content due to fetch limitations. Full text may contain citations and nuance not captured."
+        ],
+        "status": "pass-with-notes",
+        "summary": "Historical narrative with accurate chronology. The 'deliberate distinction' framing in the 1992-1994 analysis overstates inference as fact. Confidence reduced due to partial text access."
+      },
+      {
+        "slug": "2026-03-06-icescr-enforcement-what-the-record-shows",
+        "title": "Has the ICESCR Actually Worked? What the Enforcement Record Shows",
+        "ar_score": 7.5,
+        "ar_confidence": 0.85,
+        "ar_dimensions": {
+          "dialogue_mode": 7.5,
+          "dialogue_mode_notes": "The most deliberative post in the batch. Opens by steel-manning the opposition ('The strongest objection to ICESCR ratification is simple: the treaty doesn't enforce anything'). Reports findings honestly, including the uncomfortable finding that Article 6 enforcement on technology displacement does not yet exist. The research transparency ('we looked for evidence... this is the honest finding') models inquiry-mode dialogue. The conclusion advocates for ratification but through the research record rather than rhetoric.",
+          "stance_markers": 7.3,
+          "stance_markers_notes": "Evaluative valence: 7.5 — remarkably restrained for advocacy content. 'Any advocate who claims the ICESCR provides robust enforcement of work rights against AI-driven displacement is overstating the current record.' Self-positioning: 7.0 — positions as researcher reporting findings, not advocate arguing a case. Alignment signal: 7.5 — the most balanced alignment signal in the batch. Genuinely engages with the strongest counter-argument.",
+          "attribution_pattern": 7.8,
+          "attribution_pattern_notes": "Explicitly charitable. Opens with 'Ratification skeptics often pose a fair challenge' (shared with post 5). Treats the enforcement gap as genuine evidence that deserves honest engagement. The distinction between 'the treaty doesn't work' and 'the framework hasn't been tested in this context' represents high-quality charitable reframing without dismissing the concern."
+        },
+        "defensibility_findings": [
+          {
+            "id": "F-22",
+            "severity": "MEDIUM",
+            "finding": "The claim 'Twenty-six states have ratified the Optional Protocol as of 2026' appears to undercount. Wikipedia (as of November 2024) reports 30 state parties. The number may have been accurate at an earlier point or may reflect a different counting methodology, but it needs verification and updating.",
+            "recommendation": "Update to current count (check OHCHR treaty body database for exact figure as of publication date)."
+          },
+          {
+            "id": "F-23",
+            "severity": "MEDIUM",
+            "finding": "The Foodinho fine amount: the post states 'EUR 2.6 million' but the linked TechCrunch article headline reads '$3M' (USD equivalent). The EUR amount appears in the article body. This creates a minor inconsistency for readers who click through — though the EUR figure appears more precise.",
+            "recommendation": "Clarify currency: 'EUR 2.6 million (approximately USD 3 million at the time)' to align with source."
+          },
+          {
+            "id": "F-24",
+            "severity": "LOW",
+            "finding": "Ben Djazia and Bellili v. Spain (Communication No. 5/2015) — verified via Wikipedia. The case exists and involves housing/eviction under Article 11(1). The year (2017) in the post refers to the Committee's findings. Verified.",
+            "recommendation": "None needed."
+          },
+          {
+            "id": "F-25",
+            "severity": "LOW",
+            "finding": "The '139+ individual communications' to CESCR against Spain — this figure appears plausible given Spain's Optional Protocol ratification and housing crisis, but I could not independently verify the exact count. The OHCHR treaty body database was inaccessible (403).",
+            "recommendation": "Consider adding a date qualifier ('as of [date]') and citing the OHCHR jurisprudence database directly."
+          },
+          {
+            "id": "F-26",
+            "severity": "LOW",
+            "finding": "The ADA analogy ('enforcement developing 10-30 years after legal framework establishment') — reasonable historical comparison but presented without citation. The ADA was enacted in 1990; enforcement development timelines vary by provision.",
+            "recommendation": "Consider citing specific ADA enforcement milestones or removing the time range if not sourced."
+          },
+          {
+            "id": "F-27",
+            "severity": "LOW",
+            "finding": "General Comment 25 (2020) on Article 15 — verified as real. The post accurately describes its scope (right to benefit from scientific progress, precautionary principles for emerging technologies).",
+            "recommendation": "None needed."
+          },
+          {
+            "id": "F-28",
+            "severity": "LOW",
+            "finding": "EU Platform Work Directive citation '(EU) 2024/2831' — the directive number and year align with publicly available EUR-Lex records. The link provided points to the correct document.",
+            "recommendation": "None needed."
+          }
+        ],
+        "source_issues": [
+          "Best-sourced post in the batch. Provides 11 specific source links.",
+          "OHCHR links verifiable (though direct access returned 403 during review).",
+          "TechCrunch, EUR-Lex, Cambridge University Press, Tandfonline links provided.",
+          "ESCR-Net caselaw database link provided.",
+          "Optional Protocol ratification count appears outdated (26 vs 30).",
+          "Foodinho fine amount needs currency clarification to match source.",
+          "Spain communications count (139+) unverified but plausible.",
+          "Academic sources (Business and Human Rights Journal article, Tandfonline article) titles and URLs appear legitimate."
+        ],
+        "status": "pass-with-notes",
+        "summary": "The strongest post in the batch for epistemic quality and source transparency. Honestly reports the enforcement gap while making a sophisticated argument about framework development. Two medium-severity issues: Optional Protocol count and Foodinho currency mismatch. Otherwise exemplary research-advocacy hybrid."
+      }
+    ],
+    "batch_summary": {
+      "ar_score_range": {
+        "min": 5.8,
+        "max": 7.5,
+        "mean": 6.6,
+        "median": 6.5
+      },
+      "ar_interpretation": "Batch A falls in the informational-advocacy range (5.8-7.5), with most posts clustering around 6.2-6.8. The series operates as informed advocacy — it explains the ICESCR accurately and frames non-ratification as a gap to close, but generally avoids eristic or adversarial-persuasion tactics. The two strongest posts (5: what-ratification-changes at 7.2 and 8: enforcement-record at 7.5) demonstrate genuine deliberative quality by engaging opponent arguments charitably and reporting inconvenient findings honestly.",
+      "top_3_defensibility_findings": [
+        {
+          "id": "F-4/F-5",
+          "severity": "MEDIUM",
+          "finding": "AI displacement claims in post 2 lack sourcing. The categories of affected workers and the claim of 'acceleration' present reasonable inferences as established facts without citation. A hostile but fair critic with access to labor economics literature could challenge the displacement narrative as premature.",
+          "posts_affected": ["2026-03-07-voter-guide-ai-job-displacement"]
+        },
+        {
+          "id": "F-22",
+          "severity": "MEDIUM",
+          "finding": "Optional Protocol ratification count (26) appears outdated — Wikipedia reports 30 state parties as of November 2024. Factual inaccuracy in the most research-heavy post undermines credibility.",
+          "posts_affected": ["2026-03-06-icescr-enforcement-what-the-record-shows"]
+        },
+        {
+          "id": "F-3/F-10/F-11/F-13/F-16",
+          "severity": "MEDIUM (pattern)",
+          "finding": "Systematic citation gap across the voter guide series. Empirical claims about student debt ($1.7T), medical bankruptcy, healthcare avoidance (30%), housing cost burden, and healthcare system ranking all lack citations. Each claim aligns with mainstream data, but the pattern of unsourced statistics creates a vulnerability: a critic could argue the series asserts rather than demonstrates its empirical foundations.",
+          "posts_affected": ["2026-03-06-voter-guide-what-is-icescr", "2026-03-09-voter-guide-rights-inventory", "2026-03-10-voter-guide-what-ratification-changes"]
+        }
+      ],
+      "posts_requiring_revision": [],
+      "posts_requiring_revision_notes": "No posts receive 'revise' status. All posts pass or pass-with-notes. The systematic citation gap (finding F-3/F-10/F-11/F-13/F-16) represents the most actionable improvement across the batch — adding 5-8 citations to posts 1, 2, 4, and 5 would substantially improve defensibility without changing content or tone.",
+      "patterns_observed": [
+        "Consistent structure across the voter guide: explain, connect to American life, note the accountability gap, call to action. This structural consistency serves reader comprehension but also reveals the rhetorical pattern to an attentive critic.",
+        "The series handles counterarguments better in later posts (5 and 8) than in earlier ones (1 and 2). Consider back-propagating the deliberative quality of posts 5 and 8 into the opening posts.",
+        "Attribution pattern remains charitable throughout — the series does not demonize opponents, attribute malice, or use ad hominem. This represents a significant quality marker for advocacy content.",
+        "The enforcement post (8) functions as the epistemic anchor for the series. Its honest reporting of the Article 6 enforcement gap creates tension with claims in posts 1 and 2 that imply stronger enforcement. Resolving this tension — either by qualifying posts 1-2 or by framing the enforcement gap earlier in the series — would strengthen the batch.",
+        "The lens-framing YAML in each post (voter, politician, educator, researcher, developer) represents a notable transparency practice. No defensibility issues with this approach.",
+        "All posts use the same author/tool/model/agent attribution structure. The Claude Sonnet 4.6 model attribution combined with human author and unratified-agent represents honest AI-assisted content disclosure."
+      ]
+    }
+  }
+}

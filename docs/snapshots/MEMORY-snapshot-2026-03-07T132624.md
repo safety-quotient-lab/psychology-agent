@@ -6,12 +6,12 @@
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 29 (2026-03-07). Persuasion-audit Q-A/C/D/E responded. Batch A
-adversarial review delivered (AR mean 7.2, 5 systemic issues). T16 cogarch trigger implemented
-(3 checks + hook). Part 2 ethical marketing rubric delivered by parallel agent (mean 4.4/10).
-PSQ: v32 REJECTED (B3 STALLED). Separated scoring automation running (3/10 dims complete).
-**Next:** Review Part 2 ethical marketing results. Batches B–F adversarial review (25 posts).
-PSQ strategy decision on B3 — accept v23 ceiling or investigate distributional mismatch.
+**Where we stopped:** PSQ session (2026-03-07). B3 F3b complete. v32 REJECTED (TE=0.739, overall=0.676).
+700 more TE texts (score=5=9.9%) caused TE regression vs v31 (counterintuitive). 1,200 total expansion texts
+insufficient. B3 STALLED. v23 remains production. User request pending: use structured labels like
+"B3 (TE uniformity)" and "F3b (unlabeled-pool expansion)" throughout docs.
+**Next:** Strategy decision on B3 — accept v23 ceiling, investigate distributional mismatch, or move to other dims.
+AD and DA improved in v32 (+0.061, +0.057 vs v31) — may warrant targeted labeling. 25 residual scores deferred.
 
 ## Design Decisions
 
@@ -90,7 +90,6 @@ Quick reference (when → what fires):
  External content enters T13: classify source (trusted/semi/untrusted), injection scan, scope relevance, taint propagation
  Every decision point   T14: structural checkpoint — precedent, constraints, norms, open-source trajectory
  PSQ v3 enters context  T15: composite gate, anti-calibration, scale discipline, PSQ-Lite mapping (0.70), 7-dim gap, WEIRD flag
- External-facing action T16: scope+substance gate, obligation+irreversibility, external interpretant — gh issues/PRs/comments
 ```
 
 **Knock-on depth:** 8 orders. 1–2: certain. 3: likely. 4–5: possible. 6: speculative.
