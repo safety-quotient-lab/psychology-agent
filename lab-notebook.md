@@ -2378,6 +2378,9 @@ and compiled the final consolidated transport message.
 
 - **/iterate invocation 3**: `$ARGUMENTS` parsing audit — found 4/6 skills already
   use structured mode tables; /doc and /cycle correctly use free-form. Marked complete in ideas.md.
+- **/iterate invocation 4**: capabilities.yaml updated to v2.1 — added T16 trigger
+  and /iterate skill (both missing from machine-readable manifest)
 
 ▶ README.md
 ▶ .claude/skills/iterate/SKILL.md
+▶ docs/capabilities.yaml

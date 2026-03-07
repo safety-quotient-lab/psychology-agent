@@ -3,8 +3,8 @@
 # Human-readable version: docs/architecture.md § Capabilities & Levers
 # Maturity levels: proven | confirmed | explored | identified | deferred
 
-version: "2.0"
-updated: "2026-03-06"
+version: "2.1"
+updated: "2026-03-07"
 agent: psychology-agent
 model: claude-opus-4-6
 license: CC-BY-NC-SA-4.0
@@ -133,6 +133,12 @@ triggers:
     checks: 6
     mechanical_enforcement: null
     maturity: proven
+  - id: T16
+    fires_when: external_facing_action
+    function: 3-check gate for gh issue/PR/comment operations (audience, reversibility, content review)
+    checks: 3
+    mechanical_enforcement: PreToolUse hook
+    maturity: proven
 
 hooks:
   - event: SessionStart
@@ -216,6 +222,12 @@ skills:
     invocation: user or agent
     loads: every session
     function: inter-agent mesh synchronization
+    maturity: proven
+  - name: /iterate
+    type: skill
+    invocation: user
+    loads: every session
+    function: autonomous work discovery + execution (hunt → discriminate → execute → auto-cycle)
     maturity: proven
 
 commands:
