@@ -214,7 +214,7 @@ context (clinical vs. research vs. architecture vs. applied consultation).
 **Research journal** — A methods-and-findings narrative covering the full arc from
 initial framing through architecture design, cognitive infrastructure, cross-context
 integrity, reconstruction methodology, and semiotic theory as cogarch principle.
-- [journal.md](journal.md) — 14 sections
+- [journal.md](journal.md) — 28 sections
 
 ---
 

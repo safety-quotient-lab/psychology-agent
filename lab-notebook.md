@@ -100,7 +100,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | PSQ calibration               | ✓ Score (isotonic) + confidence (r-based proxy, intentional constant fn) |
 | calibration.json on remote    | ✓ Tracked — .gitignore exception; safety-quotient-lab PR #1 merged |
 | best.pt loss                  | ✓ Non-blocking — inference uses ONNX; best.pt only for recalibration |
-| safety-quotient git divergence| ⚑ Local main diverges from origin; worktree used as workaround |
+| safety-quotient git divergence| ✓ RESOLVED — worktree workaround applied; local commit 26d7cd5 present (Session 28c) |
 | Architecture Items 1–3        | ✓ Complete                                       |
 | Architecture Item 4 (interface)| ✓ DEPLOYED — psychology-interface.kashifshah.workers.dev |
 | D1 database                   | ✓ psychology-interface (56a2f5ac, ENAM region)   |
@@ -156,6 +156,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Transport: blog-jurassic-park | ✓ Session opened — request sent, psq-agent sections received (Session 25) |
 | Adversarial register (AR) rubric | ✓ Phase 1 validated — docs/adversarial-register-rubric.md (dadd3dd); turn 8 advisory sent to unratified-agent (Session 28) |
 | AR labeling pipeline             | ✓ 11th dim in label_separated.py + instruments.json; automated script; 998-text stratified subset; Haiku validated (r=0.822, 85%) (Session 28c) |
+| Community tooling adopted        | ✓ recall (session search, MIT) + ccusage (token/cost, MIT) — 4 others evaluated, skipped (Session 28c) |
+| License gate                     | ✓ No GPL/AGPL — MIT/Apache/BSD only for external dependencies (Session 28c) |
 | Hetzner deploy script         | ✓ Created — safety-quotient/deploy/hetzner-deploy.sh; 10-step pipeline (ab5fbe7, Session 28) |
 | PSQ v28 training              | ✗ NOT PROMOTED — held-out r=0.678 < v23 0.684; TE regression (0.762 vs 0.800); v23 stays in production (Session 28) |
 | B3 (TE plateau)               | ✓ Filed — distillation-research.md §65; calibration dead zone + label degradation; F1/F2 fix plan (Session 28) |

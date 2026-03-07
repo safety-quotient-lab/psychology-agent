@@ -193,6 +193,16 @@ These load automatically when editing matching files. CLAUDE.md retains universa
 
 ---
 
+## Dependency Policy
+
+**License gate:** MIT, Apache 2.0, and BSD only. No GPL or AGPL dependencies.
+
+**Adopted community tools:**
+- `recall` — full-text session search (`brew install zippoxer/tap/recall`; `recall search "query"`)
+- `ccusage` — token/cost tracking (`npx ccusage@latest daily`)
+
+---
+
 ## Code Style
 
 **Semantic naming (all user-facing identifiers):** Every variable, parameter,
