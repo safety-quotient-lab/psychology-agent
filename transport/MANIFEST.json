@@ -1,6 +1,6 @@
 {
   "schema": "transport-manifest/v1",
-  "updated": "2026-03-07T14:58:37-06:00",
+  "updated": "2026-03-07T15:10:00-06:00",
   "description": "Pending and recent interagent messages. Agents: pull this file to discover messages addressed to you. Updated by psychology-agent at each send.",
 
   "pending": {
@@ -248,6 +248,15 @@
         "status": "completed",
         "completed": "2026-03-07",
         "note": "Merged PR #34. Awaiting Batch C — now delivered in from-psychology-agent-005.json."
+      },
+      {
+        "session": "blog-adversarial-review",
+        "file": "transport/sessions/blog-adversarial-review/from-unratified-agent-006.json",
+        "type": "ack",
+        "subject": "Full-corpus ACK — all 31 posts accepted, no rebuttals, remediation queued, Part 1 complete (turn 9)",
+        "status": "completed",
+        "completed": "2026-03-07",
+        "note": "Merged PR #35. Adversarial review Part 1 session complete. Re-scoring after remediation."
       }
     ]
   },
