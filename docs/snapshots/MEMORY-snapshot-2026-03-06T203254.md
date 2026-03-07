@@ -18,12 +18,14 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 28c. README polished (7f70b0c) — unblocks HN post,
-awesome-claude-code submission, antiregression PR. Community tools adopted: recall
-(session search) + ccusage (token/cost). License gate: MIT/Apache/BSD only. TODO
-cleaned (38 completed items removed). AR Haiku labeling running (~batch 28/50).
-**Next:** Analyze AR labeling results when complete. Then HN post (README precondition
-met). Remaining TODO: competing hypotheses, phase-locked orchestration, activity logger.
+**Where we stopped:** Session 28 (continued). AR pipeline complete: 11th dim in
+label_separated.py + instruments.json, automated labeling script, 998-text stratified
+subset prepared. Haiku validated for AR labeling (r=0.822, 85% within threshold vs
+Sonnet). Inter-rater reliability passed for both models.
+**Next:** User runs `./scripts/label_ar_automated.sh --batch-size 20 --model haiku`
+from plain terminal (nested session blocking prevents in-agent execution). Then analyze
+results, train v29 with AR. HN post finalization. Remaining TODO: competing hypotheses,
+phase-locked sub-agent orchestration, activity logger.
 
 
 ## Memory Hygiene
