@@ -511,6 +511,37 @@ machine-response-v3-spec.md standard limitations block.
 
 ---
 
+## T16: External-Facing Action
+
+**Fires**: Before any action visible to external parties — `gh issue/PR/comment`
+creation, `gh api` write operations, transport message delivery to peer repos
+
+**Platform enforcement**: PreToolUse hook on Bash matching
+`gh (issue|pr|api)\s+(create|comment|edit|close|merge|review)` patterns.
+
+**Checks**:
+1. **Scope + substance gate** — does this action serve the current task?
+   If it involves substance (filing claims, committing to work, creating
+   obligations for others), confirm with user before proceeding. Process
+   actions (labeling, closing, formatting) may proceed autonomously
+2. **Obligation + irreversibility** — does this create a response obligation
+   for the recipient or an open item on our backlog? GitHub issues can be
+   closed but not deleted; PR comments persist; transport messages become
+   part of peer committed state. Record obligations in MANIFEST
+3. **External interpretant** — who reads this on the external platform?
+   Peer agents, their human operators, and public GitHub visitors may all
+   see the action. Calibrate tone, detail, and epistemic flags for the
+   external audience (inherits T4 Check 9 interpretant communities,
+   applied to external platforms)
+
+**Action**: If any check fails, pause and surface to user before proceeding.
+
+**Provenance**: Gap identified Session 29 (2026-03-07) — GitHub issue #13 filed
+on peer repo without trigger coverage. Knock-on analysis traced 10 orders;
+T4 scope kept narrow (disk writes only) to maintain hook-scope honesty.
+
+---
+
 ## Knock-On Order Reference
 
 ```
