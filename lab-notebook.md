@@ -2138,3 +2138,36 @@ quality stated alongside recommendations. Source: Guyatt et al. (2008).
 
 ▶ safety-quotient/scripts/label_separated.py, safety-quotient/instruments.json,
   safety-quotient/scripts/label_ar_automated.sh, safety-quotient/data/ar-labeling-1k-stratified.jsonl
+
+
+## 2026-03-06T20:32 CST — Session 28c continued (TODO cleanup, README polish, community tooling)
+
+**TODO.md cleanup:**
+- Removed 38 completed `[x]` items — TODO now forward-looking only per its header convention
+- 12 open items remain across 7 sections
+
+**README polish — unblocks HN post + awesome-claude-code submission:**
+- Fixed stale facts: 10-dim → 11-dim, Item 4 Explored → Deployed, session count 24→28+, hooks 3→12
+- Removed internal item numbers from architecture diagram (semantic naming)
+- Added community tools to Key Conventions (recall, ccusage, parry)
+- Added license gate to Key Conventions
+- Expanded project structure tree (rules/, transport/, new docs entries)
+- Fixed broken /adjudicate SKILL.md link (now a command)
+- Updated journal section count and description
+
+**Community tooling evaluation — 6 tools assessed from awesome-claude-code:**
+- ✓ ADOPTED: recall (MIT, 127★, session search), ccusage (MIT, 11.3k★, token/cost tracking)
+- ✗ SKIPPED: claude-rules-doctor (9★, single maintainer), cchistory (30-day ceiling),
+  Claude Squad (AGPL), claude-tmux (44★, too small)
+- Both tools installed and verified: recall indexed 67 sessions, ccusage showed $252.36 today
+
+**Design decision — license gate codified:**
+- MIT/Apache/BSD only for external dependencies — no GPL/AGPL
+- Added to CLAUDE.md §Dependency Policy
+- Added to TODO.md modularization candidates section
+
+⚑ EPISTEMIC FLAGS
+- ccusage cost figure ($252.36) covers all projects on this machine, not just psychology-agent
+- recall index freshness depends on re-launch; no daemon or auto-update
+
+▶ TODO.md, README.md, CLAUDE.md
