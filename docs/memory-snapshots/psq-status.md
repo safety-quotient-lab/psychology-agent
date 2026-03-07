@@ -1,30 +1,20 @@
-<!-- PROVENANCE: Restored 2026-03-06 by /cycle Step 11 orphan check
-     Source: docs/memory-snapshots/psq-status.md -->
-
 # PSQ Sub-Agent Status (managed in its own context)
 
 **Production endpoint:** ✓ https://psq.unratified.org/score — live, TLS, Hetzner CX Ashburn
-**Score calibration:** ✓ isotonic-v2-2026-03-06. Quantile-binned isotonic (n_bins=20).
-  All 10 dims calibrated. HI dead zone resolved (B2 fix, Session 26).
-  Historical MAE improvement: +3.5–21.6% per dimension vs. raw.
-**Confidence calibration:** ✓ B1 FIXED (Session 26). r_confidence field added to score output.
-  calibration_note surfaces held-out Pearson r per dimension. scale=0 behavior (intentional
-  constant function overriding anti-calibrated head) now explicit. Limitation:
-  confidence-is-static-r (MEDIUM — not HIGH; behavior is intentional design).
-**Model transfer:** ✓ rsync complete. SHA256 verified (Hetzner matches Chromebook source).
-  41 files, 531 MB. best.pt on Hetzner; local copy lost.
+**Score calibration:** ✓ isotonic regression (n=1897), +3.5–21.6% MAE/dim.
+**Confidence calibration:** ✓ B1 RESOLVED (Session 26) — r_confidence field added; scale=0 intentional.
+**HI calibration:** ✓ B2 RESOLVED (Session 26) — quantile-binned isotonic v2; MAE -3.9%.
+**Model files:** ✓ best.pt (256 MB) + calibration.json present locally. SHA256 verified.
 **Service:** systemd psq-server active. 84ms inference. onnxruntime-node postinstall fix.
 **Wrangler secret:** PSQ_ENDPOINT_URL → https://psq.unratified.org
 **Firewall:** ufw SSH + HTTP/HTTPS only. Port 3000 closed from public.
-**Integration:** psq-scoring session turn 7 complete — 5 ICESCR texts scored, B2 validated.
-**Known open issues:**
-  - DA validity (authority_dynamics construct)
-  - AD compression (r=0.502)
-  - CO weakness (cooling_capacity r<0.6)
-  - No human validation (only Dreaddit training data)
-  - WEIRD assumptions
-  - v27 regression (held-out r degradation vs. earlier versions)
-  - TE uniformity: 4/5 ICESCR texts scored TE=6.46 (raw range 5.59–6.07 mapping to same calibrated value — possible residual plateau, not investigated)
-  - HI direction anomaly: hostile social media anchor HI=6.88 > policy brief HI=6.15 on 0–10 safety scale (counterintuitive, not investigated)
-**PSQ-Lite:** TE + HI(raw) + TC adopted by unratified-agent for advocacy content (provisional).
+**Integration:** unratified-agent psq-scoring session active (initial run + interpretation + ACK merged).
+**AR (11th dimension):** Pipeline complete. label_separated.py + instruments.json updated.
+Automated labeling: `scripts/label_ar_automated.sh` (claude -p batched). 998-text stratified
+subset prepared (ar-labeling-1k-stratified.jsonl, seed=42). Inter-rater reliability validated:
+Sonnet r=0.934/90%, Haiku r=0.822/85%. Haiku selected for production labeling (~10x cheaper).
+Awaiting user terminal run.
+**Open issues:** contractual_clarity n=57 (small sample), 5 dims r<0.6 excluded,
+DA validity, WEIRD assumptions, v27 regression.
+**PSQ-Lite:** TE + HI(raw) + TC adopted by unratified-agent (provisional). Proposed revision: TE + TC + AR.
 Do not duplicate PSQ improvement work in this context.

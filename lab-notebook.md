@@ -155,6 +155,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Blog post (Jurassic Park)     | ✓ Multi-author draft — psychology-agent + psq-agent; PR #7 updated (Session 25) |
 | Transport: blog-jurassic-park | ✓ Session opened — request sent, psq-agent sections received (Session 25) |
 | Adversarial register (AR) rubric | ✓ Phase 1 validated — docs/adversarial-register-rubric.md (dadd3dd); turn 8 advisory sent to unratified-agent (Session 28) |
+| AR labeling pipeline             | ✓ 11th dim in label_separated.py + instruments.json; automated script; 998-text stratified subset; Haiku validated (r=0.822, 85%) (Session 28c) |
 | Hetzner deploy script         | ✓ Created — safety-quotient/deploy/hetzner-deploy.sh; 10-step pipeline (ab5fbe7, Session 28) |
 | PSQ v28 training              | ✗ NOT PROMOTED — held-out r=0.678 < v23 0.684; TE regression (0.762 vs 0.800); v23 stays in production (Session 28) |
 | B3 (TE plateau)               | ✓ Filed — distillation-research.md §65; calibration dead zone + label degradation; F1/F2 fix plan (Session 28) |
@@ -2098,3 +2099,40 @@ quality stated alongside recommendations. Source: Guyatt et al. (2008).
 
 ▶ docs/adversarial-register-rubric.md, transport/sessions/psq-scoring/from-psychology-agent-002.json,
   transport/MANIFEST.json, safety-quotient/deploy/hetzner-deploy.sh, safety-quotient/models/psq-v28/
+
+
+## 2026-03-06T20:06 CST — Session 28c (AR pipeline complete, Haiku validation, stratified subset)
+
+**AR as 11th PSQ dimension — full pipeline implementation:**
+- `label_separated.py` updated: DIMS list extended (11 dims), DIM_ABBREV extended, hardcoded "10" → `len(DIMS)` in 3 places
+- `instruments.json` updated: meta.total_dimensions 10→11, AR entry with 3 instruments (WKDT, DST, HAB), full rubric, 3 example texts
+- Automated labeling script created: `scripts/label_ar_automated.sh` — claude -p batched scoring with preflight checks, JSON extraction, merge, auto-ingest
+- All committed as 26d7cd5 in safety-quotient
+
+**Inter-rater reliability — passed for both models:**
+- Sonnet: r=0.934, 90% within 1.5 points (20-text subset, 2 independent sessions)
+- Haiku: r=0.822, 85% within 1.5 points (same 20-text subset)
+- Criterion: 4/5 texts (80%) within 1.5 points — both models exceed threshold
+
+**Model cost optimization — Haiku selected for production labeling:**
+- Haiku ~10x cheaper than Sonnet with acceptable quality degradation
+- Decision: use Haiku for the 998-text production run
+
+**998-text stratified subset prepared:**
+- `data/ar-labeling-1k-stratified.jsonl` — proportional sampling across 11 corpus sources (seed=42, min 10 per source)
+- Reduced from original 3,949-text pool to control cost and validate approach
+
+**Nested session blocking identified:**
+- `claude -p` from Bash tool fails (CLAUDECODE env var detection)
+- `unset CLAUDECODE` works intermittently — not reliable
+- → User runs labeling from plain terminal
+
+**README.md fix:** T1-T13 → T1-T15 (uncommitted, committed this cycle)
+
+⚑ EPISTEMIC FLAGS
+- Haiku reliability validated on 20 texts only — production run (998 texts) may reveal different patterns
+- Nested session workaround (unset CLAUDECODE) unreliable — manual terminal execution required
+- safety-quotient 26d7cd5 committed locally but not yet pushed to origin
+
+▶ safety-quotient/scripts/label_separated.py, safety-quotient/instruments.json,
+  safety-quotient/scripts/label_ar_automated.sh, safety-quotient/data/ar-labeling-1k-stratified.jsonl

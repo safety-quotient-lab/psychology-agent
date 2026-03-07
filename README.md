@@ -164,7 +164,7 @@ one coherent multi-agent system.
 
 
 **Cognitive architecture (trigger system)** — The agent governs itself through
-13 mechanical triggers (T1–T13) that fire at specific moments: session start,
+15 mechanical triggers (T1–T15) that fire at specific moments: session start,
 before responding, before recommending, before writing to disk, at phase
 boundaries, on user pushback, when external content enters context, and more.
 Principles without firing conditions remain aspirations; principles with
