@@ -12,18 +12,18 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 | `memory/psq-status.md` | PSQ sub-agent calibration, deploy status, open issues | PSQ work in this context (rare) |
 | `memory/cognitive-triggers.md` | Legacy — full trigger descriptions (canonical: `docs/cognitive-triggers.md`) | Superseded; read canonical instead |
 
-## Active Thread (2026-03-07)
+## Active Thread (2026-03-06)
 
 **Context:** User wants this agent to be the **psychology agent** (collegial mentor) with:
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 30. Blog adversarial review Batch A Part 1 delivered
-(8 voter-facing posts, turn 3). Separated scoring automation running (3/10 dims
-complete: TE, HI, AD). AR quality validated (998 texts, face validity pass).
-**Next:** Check separated scoring completion → quality analysis. Blog adversarial
-review Part 2 (ethical marketing rubric) + Batches B–F. persuasion-audit remaining
-4 questions. Then HN post (README precondition met).
+**Where we stopped:** Session 28c. README polished (7f70b0c) — unblocks HN post,
+awesome-claude-code submission, antiregression PR. Community tools adopted: recall
+(session search) + ccusage (token/cost). License gate: MIT/Apache/BSD only. TODO
+cleaned (38 completed items removed). AR Haiku labeling running (~batch 28/50).
+**Next:** Analyze AR labeling results when complete. Then HN post (README precondition
+met). Remaining TODO: competing hypotheses, phase-locked orchestration, activity logger.
 
 
 ## Memory Hygiene

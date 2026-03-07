@@ -162,6 +162,11 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Hetzner deploy script         | ✓ Created — safety-quotient/deploy/hetzner-deploy.sh; 10-step pipeline (ab5fbe7, Session 28) |
 | PSQ v28 training              | ✗ NOT PROMOTED — held-out r=0.678 < v23 0.684; TE regression (0.762 vs 0.800); v23 stays in production (Session 28) |
 | B3 (TE plateau)               | ✓ Filed — distillation-research.md §65; calibration dead zone + label degradation; F1/F2 fix plan (Session 28) |
+| AR quality analysis           | ✓ Face validity pass, healthy distribution, strong source discrimination; 27% midpoint pile-up noted (Session 30) |
+| Separated scoring automation  | ✓ score_dimension.sh — Haiku, 20/batch, 3s/10s rate limiting, resumable; data/separated_scoring/ (Session 30) |
+| /tmp durability fix           | ✓ WORK_DIR moved from /tmp/psq_separated → data/separated_scoring/ (gitignored) (Session 30) |
+| Blog adversarial review       | ✗ In progress — Batch A Part 1 delivered (turn 3, 8 posts); Part 2 (rubric) + Batches B–F pending (Session 30) |
+| Separated scoring (10 dims)  | ✗ Running — 3/10 complete (TE, HI, AD); PID 14101 background (Session 30) |
 
 
 ### Open Questions
@@ -2191,3 +2196,58 @@ quality stated alongside recommendations. Source: Guyatt et al. (2008).
 ⚑ EPISTEMIC FLAGS: none identified.
 
 ▶ TODO.md, lab-notebook.md
+
+## 2026-03-07T12:01 CST — Session 30 (AR quality analysis, separated scoring automation, blog-adversarial-review Batch A)
+
+**AR quality analysis (998 texts):**
+- Face validity pass: AR distribution covers full 1–10 range, healthy variance
+- Source discrimination: AR differentiates across text categories (advocacy vs policy vs social media)
+- Concern: 27% of scores at midpoint (5.0) — possible Haiku central tendency bias
+- Conclusion: AR scoring quality sufficient; proceed with remaining 10 dimensions
+
+**Separated scoring automation:**
+- Created `safety-quotient/data/separated_scoring/score_dimension.sh` (~170 lines)
+- Uses `claude -p` pipe mode (isolated context per call — natural halo firewall)
+- Model: `claude-haiku-4-5-20251001` (matching AR scorer for consistency)
+- 20 texts/batch, 3s between batches, 10s between dimensions (rate limiting)
+- Resumable: checks existing `_scores.json` before re-scoring
+- JSON fence-stripping (Haiku wraps output in markdown fences)
+- `case` statement for dim abbreviation resolution (macOS bash 3.x compat)
+- `env -u CLAUDECODE` to allow nested `claude -p` calls from within Claude Code
+- Background PID 14101 launched; 3/10 dimensions complete at session end (TE, HI, AD)
+
+**/tmp wipe recovery:**
+- System reboot wiped all `/tmp/psq_separated/` data (AR scores + extraction)
+- Fixed: `label_separated.py` WORK_DIR → `data/separated_scoring/` (inside repo, gitignored)
+- `.gitignore` updated in safety-quotient repo
+
+**/sync + PR #31 merge:**
+- PR #31 from unratified-agent: blog-adversarial-review request (33 posts, Part 1 + Part 2)
+- Merged via `gh pr merge 31 --merge` + `git pull`
+- ACK sent (from-psychology-agent-001.json, turn 2): committed to full scope
+
+**Blog adversarial review — Batch A Part 1 delivered:**
+- 8 voter-facing posts reviewed in parallel (no cross-post contamination)
+- AR rubric applied: 3-dimension weighted scoring (Dialogue Mode 0.40, Stance Markers 0.35, Attribution 0.25)
+- AR range: 6.8–7.4 (mean 7.2) — advocacy-patterned but not manipulative
+- 5 systemic issues identified (S-1 through S-5):
+  S-1: Zero citations across all 8 posts
+  S-2: No counterarguments presented
+  S-3: Fair-witness/advocacy mismatch (byline psychology-agent, tone advocacy)
+  S-4: Stale CESCR reporting cycle references
+  S-5: Unsourced "173 countries" claim
+- Transport message: from-psychology-agent-002.json (turn 3, commit 6a1c53f)
+
+**Fixes this session:**
+- `declare -A` → `case` statement (macOS bash 3.x associative array incompatibility)
+- `claude-sonnet-4-6` → `claude-haiku-4-5-20251001` (wrong model caught by user)
+- Added `env -u CLAUDECODE` (nested Claude Code session error)
+- Added rate limiting (3s/10s delays)
+- `git pull --rebase` to resolve push rejection after PR merge
+
+⚑ EPISTEMIC FLAGS
+- AR midpoint pile-up (27% at 5.0) may indicate scorer central tendency bias — monitor in remaining dimensions
+- Blog review self-review validity ceiling: psychology-agent reviewing posts authored by psychology-agent (acknowledged, flagged in output)
+- Separated scoring quality not yet validated — awaiting completion of all 10 dimensions for cross-dimension analysis
+
+▶ transport/sessions/blog-adversarial-review/, safety-quotient/data/separated_scoring/

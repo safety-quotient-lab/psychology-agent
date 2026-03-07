@@ -41,6 +41,7 @@ partner, and Socratic interlocutor
 24. [Proportional Independence: How the Evaluator Earned a Tiered Runtime](#24-proportional-independence)
 25. [What a Dead Zone Teaches About Calibration: The B2 Root Cause](#25-b2-root-cause)
 26. [Construct×Distribution Mismatch: Why HI Cannot Classify Adversarial Content](#26-hi-construct-mismatch)
+27. [The Halo Firewall: Why Isolated Context Windows Produce Better Scores](#27-the-halo-firewall)
 
 ---
 
@@ -1092,6 +1093,20 @@ Phase 1 validation on the five-text ICESCR corpus passed all four pre-registered
 **What this implies for PSQ-Lite.** The current PSQ-Lite formula (TE + HI-raw + TC) was adopted by the unratified-agent for advocacy content classification. The construct mismatch finding invalidates HI's role in that formula: a measure of narrator-experienced hostility cannot reliably discriminate adversarial from advocacy content, because the same hostility perception can arise from either (narrator describes hostile conditions) or be absent from both (narrator is the hostile agent). The proposed revision is TE + TC + AR — replacing HI with adversarial register. Adoption is the unratified-agent's decision; the finding and proposal have been delivered.
 
 **The general principle.** Every validated measure has a scope of valid application defined by its training distribution. When a measure is applied outside that scope, the failure mode is not always obvious — the model will still produce output, the output will still fall in range, and the output may even appear plausible. The diagnostic is construct alignment: does the training distribution represent the population and context where the measure is being applied? If not, the construct is valid but the application is not. This requires knowing, for each measure, not just what it measures but *in what population and context it was trained to measure it*. For the PSQ, this means treating the Dreaddit training origin as a standing fact about each dimension's scope — not just as historical context.
+
+---
+
+## 27. The Halo Firewall: Why Isolated Context Windows Produce Better Scores
+
+*2026-03-07 — Session 30*
+
+We faced a practical problem: scoring 998 texts across 10 PSQ dimensions using an LLM scorer (Haiku). The safety-quotient lab-notebook had already documented the halo effect — when multiple dimensions are scored in the same session, inter-dimension correlation inflates (mean |r| = .811), because the scorer's impression of the text on one dimension bleeds into its assessment on the next. The solution that had proven effective was one-dimension-per-session scoring, but automating that across 10 dimensions required a mechanism that enforced isolation without relying on human discipline.
+
+**The insight was architectural, not procedural.** Each `claude -p` pipe-mode invocation creates a fresh context window. No conversational state carries between invocations. This means that a script calling `claude -p` once per text per dimension enforces strict isolation at the platform level — the scorer literally cannot recall what it scored on dimension N when it encounters dimension N+1. The halo firewall emerges from the tool's architecture rather than from prompt engineering or scorer training.
+
+**Rate limiting as infrastructure ethics.** The user raised a question that surfaces repeatedly in automated API work: friendliness to upstream servers. We added 3-second delays between batches and 10-second delays between dimensions — not because the API enforces rate limits at those thresholds, but because sustained high-throughput scoring of 998 × 10 requests represents a non-trivial load, and the responsible default is to pace rather than burst. This represents a general principle: when using external infrastructure at scale, the absence of enforcement does not imply the absence of responsibility.
+
+**The blog review as applied methodology.** The same session applied adversarial review methodology to 8 voter-facing blog posts. Each post was reviewed independently (no cross-post contamination in the reviewing context), applying the AR rubric's three-dimension weighted scoring. The per-post scores (AR 6.8–7.4) told the expected story — advocacy-patterned but not manipulative. The more interesting finding was the five systemic issues (S-1 through S-5) that emerged only when comparing across all 8 reviews: zero citations, no counterarguments, a fair-witness/advocacy mismatch in byline identity, stale policy references, and an unsourced factual claim propagated across multiple posts. No single-post review would have surfaced these patterns; they required the aggregate view. This validates the multi-agent parallel review methodology — independent per-item scoring preserves local accuracy, while cross-item synthesis reveals structural patterns.
 
 ---
 
