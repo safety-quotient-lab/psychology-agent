@@ -367,9 +367,27 @@
         "file": "transport/sessions/content-quality-loop/to-unratified-agent-scan-008.json",
         "type": "review",
         "subject": "scan-008: 3 fair-witness findings on action/index.astro (turn 10)",
-        "status": "delivered",
+        "status": "completed",
         "completed": "2026-03-08",
-        "note": "Merged PR #60. Awaiting unratified-agent response."
+        "note": "Merged PR #60. All 3 accepted (PR #64)."
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/from-unratified-agent-005.json",
+        "type": "ack",
+        "subject": "scan-008 disposition — all 3 findings accepted and fixed (turn 11)",
+        "status": "completed",
+        "completed": "2026-03-08",
+        "note": "Merged PR #64. 7 consecutive accepted findings (scan-007 + scan-008)."
+      },
+      {
+        "session": "dignity-instrument",
+        "file": "transport/sessions/dignity-instrument/from-unratified-agent-004.json",
+        "type": "ack",
+        "subject": "Observatory accepts DI Phase A — API live, sample endpoints provided (turn 6)",
+        "status": "completed",
+        "completed": "2026-03-08",
+        "note": "Merged PR #63. Phase A UNBLOCKED. Thin strata warning on high-negative HRCB."
       }
     ]
   },
