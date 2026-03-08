@@ -25,6 +25,13 @@ if echo "$PROMPT" | grep -qiE "$PUSHBACK_PATTERNS"; then
 
   if [ "$COUNT" -ge 3 ]; then
     echo "[PUSHBACK] Structural disagreement pattern detected (${COUNT} pushback signals this session). T6: verify position stability — has the position shifted without new evidence?"
+    # Bridge to T10 lesson pipeline: generate a lesson candidate stub
+    # when structural disagreement threshold reached for the first time
+    if [ "$COUNT" -eq 3 ]; then
+      TOPIC_FILE="${HOME}/.claude/.pushback-topic.tmp"
+      TOPIC_SNIPPET=$(echo "$PROMPT" | head -c 120 | tr '\n' ' ')
+      echo "[PUSHBACK→T10] Structural disagreement reached threshold. Consider writing a lessons.md entry with pattern_type: structural-disagreement, domain: (classify from context), topic hint: \"${TOPIC_SNIPPET}\""
+    fi
   fi
 fi
 
