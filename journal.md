@@ -42,6 +42,7 @@ partner, and Socratic interlocutor
 25. [What a Dead Zone Teaches About Calibration: The B2 Root Cause](#25-b2-root-cause)
 26. [Construct×Distribution Mismatch: Why HI Cannot Classify Adversarial Content](#26-hi-construct-mismatch)
 27. [The Halo Firewall: Why Isolated Context Windows Produce Better Scores](#27-the-halo-firewall)
+28. [What the Anti-Midpoint Prompt Reveals About LLM Scorer Compression](#28-anti-midpoint-prompt-analysis)
 
 ---
 
@@ -1107,6 +1108,26 @@ We faced a practical problem: scoring 998 texts across 10 PSQ dimensions using a
 **Rate limiting as infrastructure ethics.** The user raised a question that surfaces repeatedly in automated API work: friendliness to upstream servers. We added 3-second delays between batches and 10-second delays between dimensions — not because the API enforces rate limits at those thresholds, but because sustained high-throughput scoring of 998 × 10 requests represents a non-trivial load, and the responsible default is to pace rather than burst. This represents a general principle: when using external infrastructure at scale, the absence of enforcement does not imply the absence of responsibility.
 
 **The blog review as applied methodology.** The same session applied adversarial review methodology to 8 voter-facing blog posts. Each post was reviewed independently (no cross-post contamination in the reviewing context), applying the AR rubric's three-dimension weighted scoring. The per-post scores (AR 6.8–7.4) told the expected story — advocacy-patterned but not manipulative. The more interesting finding was the five systemic issues (S-1 through S-5) that emerged only when comparing across all 8 reviews: zero citations, no counterarguments, a fair-witness/advocacy mismatch in byline identity, stale policy references, and an unsourced factual claim propagated across multiple posts. No single-post review would have surfaced these patterns; they required the aggregate view. This validates the multi-agent parallel review methodology — independent per-item scoring preserves local accuracy, while cross-item synthesis reveals structural patterns.
+
+---
+
+## 28. What the Anti-Midpoint Prompt Reveals About LLM Scorer Compression
+
+*2026-03-07 — Session 34*
+
+We ran the first systematic comparison between Haiku v1 (standard prompt) and v2 (anti-midpoint prompt guidance) scoring across the PSQ's dimensions. The analysis confirms that explicit prompt guidance reduces midpoint compression, but exposes a more fundamental limitation: the LLM scorer collapses distinct psychological constructs into a general text-quality factor.
+
+**The anti-midpoint prompt works — partially.** Of the four dimensions with v1 backup data, two showed meaningful improvement: threat exposure dropped from 29.6% to 24.8% midpoint pile-up (-4.7 percentage points), and hostility index dropped from 29.7% to 25.5% (-4.2 pp). Authority dynamics (-1.2 pp) and energy dissipation (-2.0 pp) showed marginal improvement. The prompt intervention moves the needle, but does not solve the problem — even the improved dimensions still show roughly one-quarter of all texts scored at exactly 5.0.
+
+**Rank-order preservation validates the construct.** Despite the score-level changes, v1 and v2 maintain strong rank-order agreement (Pearson r = 0.807–0.913). This means the anti-midpoint prompt does not introduce noise — it redistributes existing compression without disrupting the underlying ordering. Texts that scored high in v1 still score high in v2; the prompt just encourages the scorer to use more of the scale. This is an important validation: the v2 scores are not different constructs, they are the same constructs with less range restriction.
+
+**Contractual clarity exposes a construct boundary.** One dimension stands apart: contractual clarity at 56.1% midpoint pile-up. Over half of all 998 texts received a score of exactly 5.0. The anti-midpoint prompt, which succeeded in reducing pile-up for other dimensions, failed to differentiate here. This suggests the problem lies not in prompt engineering but in construct definition — the dimension may not map naturally to the Dreaddit-adjacent text corpus, or the dimension's criteria may not provide enough discriminative anchor points for an LLM scorer to differentiate meaningfully between texts. The distinction between a prompt problem and a construct problem matters: prompt problems can be fixed with better instructions, construct problems require rethinking what the dimension measures and whether it applies to this text population.
+
+**The halo effect persists despite isolated scoring.** The session-isolated scoring architecture (§27) was designed to prevent halo contamination by enforcing separate context windows per dimension. The halo analysis reveals 23 dimension pairs with inter-dimension correlation exceeding r=0.7 — the highest being adversarial register and hostility index at r=0.841. This level of correlation, despite strict context isolation, suggests the halo effect has two independent sources: (1) shared context within a scoring session (addressed by isolation), and (2) genuine construct overlap in how texts distribute across dimensions (not addressable by isolation). The 23 high-correlation pairs likely reflect a mixture of both: some pairs (like AR↔HI) have genuine conceptual overlap, while others (like regulatory capacity↔resilience baseline at r=0.792) may represent the scorer applying a single "how difficult/safe does this text feel" heuristic that correlates with multiple dimensions simultaneously.
+
+**Mean pile-up of 32.2% with no dimension below 20%.** This aggregate statistic carries a specific implication: Haiku, even with anti-midpoint prompting and session isolation, produces distributions with roughly one-third of scores at the midpoint across all dimensions. For psychometric purposes, this level of central tendency compression reduces effective scale resolution from 0–10 to approximately a 5-point scale with a heavy center. The DistilBERT model (v23), trained on these Haiku labels, inherits this compression — a ceiling on discriminative power that no amount of model tuning can overcome.
+
+**The general lesson.** LLM-as-scorer architectures face an inherent tension: the scorer must be cheap enough to run at scale (ruling out Opus for 11,000 scoring calls) but sophisticated enough to differentiate fine-grained psychological constructs (ruling out simple heuristics). Haiku occupies a practical middle ground, but our data show that middle ground includes systematic compression and construct collapse. The path forward involves either (a) a more capable scorer model (higher cost), (b) reducing the number of dimensions to only those that demonstrate genuine independence (lower coverage), or (c) accepting the compression and treating the Haiku scores as ordinal rather than interval data. Each path carries different trade-offs for the PSQ's psychometric claims.
 
 ---
 
