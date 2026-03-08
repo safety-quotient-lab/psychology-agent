@@ -170,9 +170,11 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Separated scoring (11 dims) | ✓ Complete — Haiku v2 all 11 dims × 998 texts (Session 30-34) |
 | v1 vs v2 quality analysis    | ✓ Complete — compare_v1_v2.py; 4 dims compared; mean pile-up 32.7%; 23 halo pairs (Session 34) |
 | Scorer comparison (Haiku vs Sonnet) | ✓ Complete — 100-text stratified subset, all 11 dims; Sonnet 24.7% vs Haiku 31.2% pile-up; CC+DA construct problems confirmed (Session 34) |
-| psq-quality-update session   | ✓ Opened + ACK received — observatory relay confirmed by unratified-agent (PR #39, Session 34) |
+| psq-quality-update session   | ✓ 6 turns — PSQ review (T4), HRCB validity (T5), E+S channels (T6); PR #40 merged (Session 34-35) |
 | PR #38 (/iterate unified)    | ✓ Merged + CLAUDE.md trimmed 257→192 lines (Session 34) |
 | Ethical marketing rubric      | ✓ docs/ethical-marketing-rubric.md — 5 dims, FTC/NAD/AMA/ICC/AI-disclosure grounded (Session 30) |
+| Observatory HRCB review       | ✓ 7 findings (2 critical: absence-as-negative, violations-as-negative) + E+S channel assessment (8 findings) (Session 35) |
+| psq-agent scorer comparison msg | ✓ Turn 11 — full scorer comparison findings to psq-agent (Session 35) |
 
 
 ### Open Questions
@@ -2499,3 +2501,52 @@ and compiled the final consolidated transport message.
   rather than scorer failure — needs rubric review
 - CC construct problem may be corpus-specific (Dreaddit texts lack contractual content)
   rather than universal — untested on other corpora
+
+## 2026-03-07T21:21 CST — Session 35 (Observatory validity review — PSQ + HRCB + E/S channels)
+
+- **PR #40 merged** — unratified-agent relay of observatory response (psq-quality-update turn 3).
+  Observatory accepted all 4 PSQ quality recommendations; uses Workers AI models, not Haiku.
+- **PSQ display review** (turn 4) — 6 findings, 3 recommendations:
+  - F1-F2: Dimension selection (TE, TC, RB) and composite-only display — both positive findings
+  - F3: Two-decimal precision overstates accuracy for ordinal measure (low)
+  - F4: Interpretive label boundaries undocumented (low)
+  - F5: Experimental badge + ordinal caveat — strong epistemic coverage (positive)
+  - F6: Workers AI scorer models unmeasured — quality findings may not transfer (medium)
+  - Recommendations: reduce precision, document label thresholds, conduct Workers AI comparison
+- **HRCB validity assessment** (turn 5) — 7 findings, 2 critical:
+  - H1 (CRITICAL): Absence-as-negative bias — XML schema specs score -0.88, RFC docs score -0.70.
+    Instrument treats "no human rights content" as "opposed to human rights." Fundamental construct
+    validity failure. Relevance gate needed before scoring.
+  - H2 (CRITICAL): Content-about-violations scored negative — NK refugees site -0.70, ACLU ICE
+    deportation -0.26. Scorer conflates event valence with editorial stance. The methodology
+    page's own example ("torture exposé scores high HRCB") is not implemented correctly.
+  - H3 (medium): Weather.gov +0.75, CERN First Website +0.74 — structural channel inflates
+    content-neutral sites with good infrastructure
+  - H4 (high): Inter-model spread up to 0.54 on [-1,+1] scale — 27% of range
+  - H5 (medium): Full vs lite mode measurement inequivalence
+  - H6 (low): Known-groups validation scope limited (N=44, domain-level only)
+  - H7 (low): Bimodal score distribution (polar compression, inverse of PSQ midpoint pile-up)
+- **E+S channel assessment** (turn 6) — 8 findings:
+  - Key insight: observatory operates **two instruments under one name**. Full mode (31-provision +
+    browser-verified structural + Fair Witness + SETL) is a serious instrument. Lite mode (holistic
+    LLM inference, no DCP, no browser data) is a zero-shot judgment call. Both display as "HRCB score."
+  - E-Prime constraint on Fair Witness facts — brilliant epistemic discipline (Korzybski, Bourland)
+  - Browser-verified structural signals (Puppeteer) identified as strongest measurement mechanism
+  - Lite mode disables the mechanisms designed to solve H1 and H2 (per-provision ND routing,
+    directionality markers)
+  - SETL in lite mode may measure LLM internal consistency, not actual editorial-structural tension
+  - Recommendations: add minimal directionality to lite mode, inject cached browser data into lite,
+    publish scorer prompt, document lite content-type determination
+- **Transport messages sent** (4 total):
+  - psq-scoring turn 11: scorer comparison findings to psq-agent (requires_response)
+  - psq-quality-update turns 4-6: PSQ review, HRCB validity, E+S channels to unratified-agent
+- → All transport messages in transport/sessions/psq-scoring/ and psq-quality-update/
+
+▶ journal.md §29 (observatory validity review — if warranted)
+
+⚑ EPISTEMIC FLAGS
+- WebFetch returns processed summaries, not raw HTML — display elements may have been missed
+- North Korean refugees and ACLU editorial stances inferred from source identity, not content review
+- Full-mode evaluation quality not assessable — no full-mode evaluations visible in pages reviewed
+- All HRCB findings may apply primarily to lite mode; full mode may handle H1/H2 correctly
+- DCP modifier stacking behavior (linear vs capped) inferred, not confirmed
