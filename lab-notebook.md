@@ -189,7 +189,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 - ~~PSQ bug B2: HI calibration dead zone — re-fit with finer binning or alternative approach?~~ **ANSWERED:** Quantile-binned isotonic regression (n_bins=20), no model retrain needed. Dead zone [6.0045, 7.2539] differentiated. calibration_version isotonic-v2-2026-03-06.
 - ~~Does the PSQ endpoint currently return raw_score in the response body? (unratified-agent question)~~ **ANSWERED:** Yes — raw_score field present in dimensions[] per v3 spec. Verified via direct curl by unratified-agent.
 - ~~HI direction anomaly — hostile social media anchor scored HI=6.88 vs policy brief HI=6.15 (counterintuitive on PSQ scale); possible TE/HI dimension conflation for ICESCR topic domain. Not yet investigated.~~ **ANSWERED:** Construct×distribution mismatch. HI measures narrator-experienced hostility (Dreaddit narrator-centric training). Hostile anchor: author is hostile outward, not threatening narrator — so HI=6.88 (safer). Policy brief: institutional inertia is structural antagonism toward narrator (advocate) — so HI=6.15 (less safe). Not fixable with recalibration. AR dimension proposed as replacement for content-type classification.
-- TE uniformity: 4/5 ICESCR texts scored TE=6.46 (raw range 5.59–6.07 all mapping to same calibrated value). Possible residual plateau in threat_exposure. B3 — not yet filed or investigated.
+- ~~TE uniformity: 4/5 ICESCR texts scored TE=6.46 (raw range 5.59–6.07 all mapping to same calibrated value). Possible residual plateau in threat_exposure. B3 — not yet filed or investigated.~~ **ANSWERED (Session 37):** Confirmed isotonic plateau B3. Root cause: sparsity in raw range [5.64, 6.39] — PAVA pooled across 0.75 raw units to y=6.4556. calibrate.py uses raw isotonic (no quantile binning). TE has 4 plateaus >0.5 raw units; largest at [6.65, 8.17] spans 1.51 units (CRITICAL). Fix: apply quantile-binned pre-aggregation (as HI B2 fix) across all dimensions. Filed as psq-agent work item.
 - PSQ-Lite (TE + HI-raw + TC) — HI invalid for content-type classification (construct×distribution mismatch). Proposed revision: TE + TC + AR. Pending unratified-agent adoption decision.
 - ~~Oracle Ampere A1 vs named tunnel?~~ **ANSWERED:** Oracle A1 free tier unavailable; Hetzner CX (Ashburn, $5/mo) selected
 
@@ -2602,3 +2602,17 @@ and compiled the final consolidated transport message.
   skills count 6→7 (/scan-peer), session count 32+→36+, journal sections 26→29, hook scripts 10→11,
   /scan-peer added to skills table, 6 missing doc files added to project structure tree.
   README now reflects current project state — unblocks HN post and awesome-claude-code submission.
+- **HN post published** — user confirmed (2026-03-08). TODO.md updated.
+- **B3 TE uniformity investigated** — confirmed isotonic plateau. calibrate.py at
+  `safety-quotient/scripts/calibrate.py` uses raw isotonic regression (no quantile binning).
+  TE dimension has 21 plateaus total; 4 with span >0.5 raw units:
+  - [2.47, 3.65] → y=4.34, span=1.18 (CRITICAL)
+  - [3.71, 4.42] → y=4.99, span=0.71 (HIGH)
+  - [5.64, 6.39] → y=6.46, span=0.75 (HIGH) ← the ICESCR plateau
+  - [6.65, 8.17] → y=7.29, span=1.51 (CRITICAL) ← largest, 15% of raw scale
+  Root cause: sparsity — insufficient training samples in these raw score regions.
+  PAVA (Pool Adjacent Violators Algorithm) creates flat steps when it encounters
+  gaps between data points. Fix: quantile-binned pre-aggregation (proven on HI B2).
+  The B2 fix was applied only to HI, not to all dimensions. All 10 dimensions
+  need recalibration with quantile binning.
+- ▶ journal.md §25 (original B2 analysis); no new journal section needed (mechanism already described)
