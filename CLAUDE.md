@@ -7,44 +7,22 @@ MEMORY.md holds volatile state (active thread, design decisions, cogarch quick-r
 
 ## Hooks (`.claude/settings.json`)
 
-Platform-level enforcement that supplements cognitive triggers:
+12 hooks enforce cogarch mechanically. Scripts live in `.claude/hooks/`.
 
-- **PreToolUse: git commit** — runs `bootstrap-check.sh --check-only` before every
-  commit. Catches unhealthy auto-memory before it gets snapshot-committed via /cycle.
-- **PreToolUse: parry-wrapper.sh** — wraps `parry hook` with configurable ML fallback.
-  Reads `~/.parry/config.toml` for `ml_fallback` setting (fail_closed / warn_once / allow).
-  Respects `.parry-session-disabled` flag for per-session toggle. Degrades gracefully
-  when parry not installed. See `parry-start.sh` for daemon management.
-- **PostToolUse: Write/Edit (T4 reminder)** — fires after modifications to critical files
-  (MEMORY.md, docs/cognitive-triggers.md, CLAUDE.md, architecture.md, lab-notebook.md).
-  Reminds of T4 compliance checks. Safety net, not replacement for T4.
-- **PostToolUse: write-provenance.sh** — logs every Write/Edit to
-  `.claude/write-log.jsonl` (JSONL, gitignored). Records timestamp, file path, session
-  context, tool ID. Lightweight provenance trail for cross-context overwrite detection.
-- **PostToolUse: parry-wrapper.sh** — scans tool output for injection attempts and
-  credential exposure. Same wrapper and session toggle as PreToolUse.
-- **PreToolUse: subproject-boundary.sh** — fires on Write/Edit/Read when file path
-  crosses into `safety-quotient/` or `pje-framework/`. Non-blocking warning.
-- **PreToolUse: external-action-gate.sh** — fires on Bash when command matches
-  `gh (issue|pr|api) (create|comment|edit|close|merge|review)`. Surfaces T16
-  checks (scope+substance, obligation+irreversibility, external interpretant).
-  Non-blocking reminder.
-- **UserPromptSubmit: parry-wrapper.sh** — audits `.claude/commands/`, settings files,
-  and hook scripts for injection or dangerous permission patterns at session start.
-- **UserPromptSubmit: pushback-accumulator.sh** — tracks pushback signals per session.
-  At count >= 3, surfaces structural disagreement warning. Counter resets at session start.
-- **SessionStart: session-start-orient.sh** — injects orientation context (memory
-  health check, last session reference, uncommitted changes warning, parry session
-  toggle prompt). Mechanical T1 enforcement — stdout becomes model context.
-- **PreCompact: pre-compact-persist.sh** — fires before context compaction. Surfaces
-  Active Thread and reminds agent to persist state. Addresses mid-session recovery gap.
-- **Stop: stop-completion-gate.sh** — completion gate. Warns of uncommitted changes
-  or untracked doc files before allowing exit. Non-blocking (warning only).
+| Hook | Event | Purpose |
+|------|-------|---------|
+| bootstrap-check.sh | PreToolUse: git commit | Memory health before commit |
+| parry-wrapper.sh | Pre/PostToolUse, UserPromptSubmit | Injection/credential defense |
+| T4 reminder | PostToolUse: Write/Edit | Critical file compliance |
+| write-provenance.sh | PostToolUse | Provenance trail (write-log.jsonl) |
+| subproject-boundary.sh | PreToolUse | Cross-project write warning |
+| external-action-gate.sh | PreToolUse: Bash | T16 gate for gh commands |
+| pushback-accumulator.sh | UserPromptSubmit | Structural disagreement (>=3) |
+| session-start-orient.sh | SessionStart | T1 orientation context |
+| pre-compact-persist.sh | PreCompact | Persist state before compaction |
+| stop-completion-gate.sh | Stop | Uncommitted changes warning |
 
-Hook scripts live in `.claude/hooks/`. Hooks enforce mechanically what triggers
-enforce by prompt discipline. If a trigger check can be verified by a shell command,
-it belongs in hooks. Parry provides defense-in-depth at the platform boundary —
-see BOOTSTRAP.md for installation.
+Parry provides defense-in-depth — see BOOTSTRAP.md for installation.
 
 ### Epistemic Quality Standard
 
@@ -112,44 +90,21 @@ training data was scored by Sonnet — historical fact, not a going-forward choi
 
 ### Pedagogical Jargon Policy (default: ON)
 
-Explain jargon, acronyms, and technical terms parenthetically on first use per response.
-
-**Parenthetical rule:** Parentheses ONLY expand the acronym or give a 3–7 word gloss.
-The definition belongs in the sentence prose, not inside parentheses.
-
-Good: "The PSQ (Psychoemotional Safety Quotient) measures how safe text is across 10 dimensions."
-Bad: "PSQ (Psychoemotional Safety Quotient — a composite measure of how safe text is) is a..."
-
-Rules:
-- Define on FIRST use per response; don't repeat in the same message
-- Parenthetical = expansion only (3–7 words max inside parens)
-- Definition = in the sentence, after or around the parenthetical
-- If a term was coined by this project, say so
-- **cogarch** = cognitive architecture (established project abbreviation; no expansion needed)
+Define jargon on FIRST use per response. Parentheses expand acronyms only (3–7 words);
+the definition belongs in sentence prose, not inside parens. If a term was coined by
+this project, say so. **cogarch** = cognitive architecture (no expansion needed).
 
 ### Domain Taxonomy Standards
 
-Incorporate elements of industry-standard bodies of knowledge into operational
-vocabulary — not wholesale adoption, but informed alignment. Novel constructs
-(PSQ, PJE) are not forced into existing taxonomies.
-
-- **Software engineering / system design** → SWEBOK (Software Engineering Body of
-  Knowledge, IEEE): requirements, design, construction, testing, configuration
-  management, quality knowledge areas as reference vocabulary
-- **Project planning, scope, risk, schedule** → PMBOK (Project Management Body of
-  Knowledge, PMI): scope, schedule, risk, stakeholder management as reference
-
-**Threshold:** Design and planning discussions. Not casual operational references.
-
-**Term collision rule:** When a term has both a domain-specific psychology meaning
-and a SWEBOK/PMBOK meaning, specify which is active on first use.
-Example: "validation (psychometric)" vs. "validation (SWEBOK V&V)."
+Use SWEBOK (software engineering) and PMBOK (project management) as reference
+vocabulary in design/planning discussions. When a term collides with psychology
+usage, specify which meaning on first use (e.g., "validation (psychometric)"
+vs. "validation (SWEBOK V&V)").
 
 ### Document Format & Whitespace
 
-Scoped to `.claude/rules/markdown.md` (loaded for `**/*.md` files).
-Summary: APA tables, golden ratio whitespace, ASCII box-drawing, in-text citations.
-LaTeX for formal docs, markdown for everything else.
+Scoped to `.claude/rules/markdown.md`. APA tables, golden ratio whitespace, LaTeX
+for formal docs, markdown for everything else.
 
 ### Internal Reference Display Convention
 
@@ -172,20 +127,10 @@ content. Link out to audience-specific docs rather than duplicating inline.
 
 ## Cognitive Accessibility Policy (default: ON)
 
-Default to cognitively accessible communication. These practices cost nothing and
-benefit everyone — they are not accommodations for edge cases.
-
-- **Chunk, don't wall** — break multi-part answers into labeled sections; never
-  deliver a paragraph block when structure is available
-- **Explicit pacing** — name the structure before executing it; offer a checkpoint
-  at natural pauses rather than assuming continuation. Example:
-  > "Three parts: (1) measurement, (2) validation, (3) limitations. Covering (1) now —
-  > say 'continue' or redirect after."
-- **Plain-first language** — use the simplest accurate word; technical terms explained
-  on first use (see Jargon Policy)
-- **Modular structure** — each section should stand alone; don't require the user to
-  hold prior sections in working memory to parse the current one
-- **Offer stopping points** — for long outputs, offer to pause rather than dumping
+Default to cognitively accessible communication — these practices cost nothing and
+benefit everyone. Chunk (don't wall), name the structure before executing it, offer
+stopping points for long outputs, use plain-first language, make each section stand
+alone without requiring prior sections in working memory.
 
 ---
 
@@ -200,19 +145,10 @@ dozens of failing attempts.
 
 ## Workflow Continuity
 
-When resuming after a stall, context loss, or session continuation, reload relevant
-state from disk before continuing:
-- Re-read TODO.md, lab-notebook.md Current State, MEMORY.md Active Thread
-- Re-read any in-progress file that was being edited
-- Check `git status` and `git log -3` to reorient
-
----
-
-## Environment Pitfalls
-
-- **Shell state does not persist between Bash calls** — environment variables, `cd`,
-  and shell functions set in one Bash tool call do not carry to the next. Either chain
-  commands in a single call (`export FOO=bar && use $FOO`) or write to a file and source it.
+On resume/stall/continuation: re-read TODO.md, lab-notebook Current State, MEMORY.md
+Active Thread, any in-progress file, `git status` and `git log -3`. Shell state
+(env vars, `cd`, functions) does not persist between Bash calls — chain in one call
+or write to file.
 
 ---
 
