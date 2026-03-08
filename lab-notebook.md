@@ -175,6 +175,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Ethical marketing rubric      | ✓ docs/ethical-marketing-rubric.md — 5 dims, FTC/NAD/AMA/ICC/AI-disclosure grounded (Session 30) |
 | Observatory HRCB review       | ✓ 7 findings (2 critical: absence-as-negative, violations-as-negative) + E+S channel assessment (8 findings) (Session 35) |
 | psq-agent scorer comparison msg | ✓ Turn 11 — full scorer comparison findings to psq-agent (Session 35) |
+| claude-replay adopted          | ✓ Installed, tested (Session 35, 819KB HTML), documented in README + CLAUDE.md (Session 35) |
+| /scan-peer skill               | ⚑ Created by parallel instance (58e69dd) — needs restart to verify loading; needs CLAUDE.md registration |
 
 
 ### Open Questions
@@ -2550,3 +2552,16 @@ and compiled the final consolidated transport message.
 - Full-mode evaluation quality not assessable — no full-mode evaluations visible in pages reviewed
 - All HRCB findings may apply primarily to lite mode; full mode may handle H1/H2 correctly
 - DCP modifier stacking behavior (linear vs capped) inferred, not confirmed
+
+## 2026-03-07T21:40 CST — Session 35 addendum (claude-replay adoption + /scan-peer registration)
+
+- **claude-replay adopted** — `npm install -g claude-replay` (MIT, 283 stars, zero runtime deps).
+  Converts `~/.claude/projects/` JSONL transcripts → self-contained HTML replays with playback
+  controls, speed adjustment, theme support, automatic secret redaction.
+  - Test: Session 35 transcript → 819KB HTML, 64 turns. Opened successfully in browser.
+  - Documented in README.md ("Session replays" section + community tools list) and CLAUDE.md
+    (dependency policy). `docs/replays/` added to .gitignore.
+- **/scan-peer skill** — created by parallel instance (`58e69dd`). Scans peer content for fair
+  witness violations, vocabulary drift, rhetorical register issues, structural problems.
+  Produces interagent/v1 findings. **Not yet verified post-restart** — flagged in Current State.
+  Needs CLAUDE.md Skills section registration after restart verification.
