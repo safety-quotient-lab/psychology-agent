@@ -120,10 +120,10 @@
                               psychology agent, evaluator, and future
                               sub-agents
 
- License (code)              CC BY-NC-SA 4.0 — root LICENSE and
-                              safety-quotient/LICENSE. NonCommercial
-                              retained; no source dataset constraint
-                              applies to the code layer.
+ License (code)              Apache 2.0 — root LICENSE + NOTICE.
+                              Relicensed from CC BY-NC-SA 4.0
+                              (Session 32c, 2026-03-07). Patent grant
+                              protects contributors and adopters.
 
  License (PSQ data +         CC BY-SA 4.0 — safety-quotient/LICENSE-DATA.
  model weights)              Required by Dreaddit (CC BY-SA 4.0) source:
@@ -1958,12 +1958,11 @@ the current status, and the downstream architecture impact.
                     lifecycle.                          .claude/plans/memorized/.            between observatory and             in place.
                                                                                             unratified.org successfully.
 
- License delta      CC BY-NC-SA 4.0 (code +             Apache-2.0 (code),                  NC restriction is the limiting      ✗ Tension      Direct code sharing requires
-                    content). NC clause prohibits        CC BY-SA 4.0 (content/data).        factor. Psychology-agent cannot     (no action     license compatibility review.
-                    commercial use by third             Permissive code license;             incorporate observatory code        yet)           PSQ data licensed CC BY-SA —
-                    parties. Not a problem for          ShareAlike on data.                  under its current license                          may carry into any derivative
-                    internal use between agents                                              without triggering NC for all                      that includes PSQ scores.
-                    in the same lab.                                                         downstream users.                                  Low priority until sharing.
+ License delta      Apache 2.0 (code),                  Apache-2.0 (code),                  Both Apache 2.0. Fully               ✓ Resolved     License tension eliminated
+                    CC BY-SA 4.0 (PSQ data/             CC BY-SA 4.0 (content/data).        compatible. Code can be shared       (Session 32c)  by relicensing psychology-agent
+                    weights). Relicensed from           Permissive code license;             freely between agents. PSQ data                     from CC BY-NC-SA 4.0 to
+                    CC BY-NC-SA 4.0 in Session          ShareAlike on data.                  licensed CC BY-SA — carries into                    Apache 2.0. Patent grant
+                    32c (2026-03-07).                                                        derivatives that include scores.                    protects contributors.
 
  Cognitive           MEMORY.md orientation index         MEMORY.md + topic files:            Similar cogarch pattern. Both        ✓ Noted        No action required. Confirms
  architecture       + docs/ topic files. T1–T13          ops, patterns, calibration,         agents built under comparable        (informational) that cogarch conventions

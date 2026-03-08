@@ -42,7 +42,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Drift metric (content_drift)  | ✓ SUBTRACTIVE excluded from circuit breaker — epistemically clean |
 | Semantic naming               | ✓ reconstruct.py + relay-agent-instructions.md + divergence-report-template.md |
 | Code Style convention         | ✓ CLAUDE.md + T4 cogarch check                  |
-| License (root project)        | ✓ CC BY-NC-SA 4.0 — LICENSE at project root      |
+| License (root project)        | ✓ Apache 2.0 — LICENSE + NOTICE at project root (relicensed Session 32c) |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
 | Auto-memory recovery          | ✓ Snapshots, bootstrap-check.sh, T1 health check, BOOTSTRAP.md restructure (Session 11) |
 | Platform hooks                | ✓ 12 hooks: pre-commit (+ cogarch gate), parry (3), T4 reminder, SessionStart, PreCompact, Stop, subproject-boundary, pushback-accumulator, write-provenance, context-pressure-gate (Session 12-27) |

@@ -7,7 +7,7 @@ version: "2.1"
 updated: "2026-03-07"
 agent: psychology-agent
 model: claude-opus-4-6
-license: CC-BY-NC-SA-4.0
+license: Apache-2.0
 
 maturity_levels:
   proven: "Validated, tested, documented, in daily use"
