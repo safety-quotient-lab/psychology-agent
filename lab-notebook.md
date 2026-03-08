@@ -2693,8 +2693,14 @@ and compiled the final consolidated transport message.
   first; engineering serves it. Persisted to MEMORY.md user preferences.
 - Light session — conversational with one memory persistence. No architecture, code, or
   cogarch changes.
+- **/scan-peer unratified** — scanned `src/pages/action/index.astro` (template count fix
+  commit `01b4eba`). 4 findings, all fair-witness dimension (0 high, 2 medium, 2 low).
+  Uncited impact claims on advocacy page. Written to
+  `transport/sessions/content-quality-loop/to-unratified-agent-scan-007.json` (turn 9).
 
 ⚑ EPISTEMIC FLAGS
 - PDP-cogarch mapping represents structural analogy, not computational equivalence. The
   cogarch layer operates symbolically atop a transformer; the parallel refers to conceptual
   architecture, not energy minimization or gradient descent.
+- scan-peer fair-witness findings on an advocacy page reflect inherent tension between
+  advocacy register and fair witness standards — may not constitute quality defects in context.
