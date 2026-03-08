@@ -12,18 +12,17 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 | `memory/psq-status.md` | PSQ sub-agent calibration, deploy status, open issues | PSQ work in this context (rare) |
 | `memory/cognitive-triggers.md` | Legacy — full trigger descriptions (canonical: `docs/cognitive-triggers.md`) | Superseded; read canonical instead |
 
-## Active Thread (2026-03-08)
+## Active Thread (2026-03-07)
 
 **Context:** User wants this agent to be the **psychology agent** (collegial mentor) with:
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 38. EF-2 claim verification tracker created
-(`docs/claim-verification-log.json`, 1/10 exchanges). EF-1 evaluated — zero autonomous
-pressure, correctly deferred. TODO.md Sonnet re-score corrected to 10 dims.
-**Next:** Await psq-agent ACK on gate resolution (T14) → Sonnet re-score (10 dims, ~10
-sessions). B3 recalibration. User considering delegating all safety-quotient work to psq-agent —
-if so, psychology-agent focuses on awesome-cc submission, EF-2 tracking, interface investigation.
+**Where we stopped:** Session 37. README polished (7 stale refs fixed). HN post
+precondition now met. Parry ML operational (Session 36). psq-agent work order
+pending (turn 12 — Sonnet re-score 998×9).
+**Next:** HN post draft review + publish. Factor analysis on Haiku data.
+Await psq-agent ACK → Sonnet re-score → DistilBERT retrain.
 
 
 ## Memory Hygiene
