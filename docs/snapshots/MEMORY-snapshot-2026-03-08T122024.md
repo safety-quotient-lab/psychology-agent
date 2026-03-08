@@ -17,11 +17,12 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 43. DI Phase A Pass 1 COMPLETE — 50/50 assessed (27 PASS,
-19 ND, 4 deferred). r=0.328 (10.7% variance). 8 signal inversions. Three-zone structure:
-inversion, all-high, alignment. 3/4 success criteria met.
-**Next:** Pass 2 (fresh session, inter-rater reliability). awesome-cc (#52) blocked on
-more repo runtime. Await psq-agent ACK on Sonnet re-score gate resolution.
+**Where we stopped:** Session 42. DI Phase A feasibility study in progress.
+50-story sample selected from observatory API (713 stories). 5/50 scored:
+signal inversion confirmed (ACLU ICE DI=95, PSQ=3.71; Gaza DI=92.5, PSQ=3.25),
+relevance gate correct (3/3 technical = ND). Study doc: `docs/dignity-phase-a-study.md`.
+**Next:** Score remaining 45 stories (full content access required). Then Pass 2
+for inter-rater reliability. awesome-cc submission (#52). Await psq-agent ACK.
 
 
 ## Memory Hygiene
