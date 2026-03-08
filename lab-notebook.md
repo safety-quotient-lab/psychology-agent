@@ -184,7 +184,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | GitHub integration              | ✓ Full — 12 issues (#46–57), 14 labels, project board (table), wiki (6 pages), 2 issue templates, convention doc (Session 39) |
 | Dignity Index spec              | ✓ docs/dignity-instrument-spec.md — Hicks 10-element rubric, 3-phase plan, HRCB lessons applied (Session 41) |
 | dignity-instrument session      | ✓ T1–T6 complete; observatory accepted Phase A; API live (713 stories) (Session 41–42) |
-| DI Phase A feasibility study    | ✗ In progress — 20/50 assessed (10 PASS, 8 ND, 2 deferred); r=0.126 (PSQ explains 1.6% DI variance); 6 signal inversions; relevance gate 8/8 correct (Session 42) |
+| DI Phase A feasibility study    | ⚑ Pass 1 COMPLETE — 50/50 assessed (27 PASS, 19 ND, 4 deferred); r=0.328 (10.7% variance); 8 signal inversions; relevance gate 19/19 correct; 3/4 success criteria met; Pass 2 pending (Session 43) |
 
 
 ### Open Questions
@@ -2797,3 +2797,44 @@ and compiled the final consolidated transport message.
   on `consensus_score=0` + `hcb_weighted_mean=0` (proxy, not the intended field).
 - API sort parameters appear non-functional — stories return in hcb_weighted_mean order
   regardless of sort/order query params. Sample selection required manual offset scanning.
+
+
+## 2026-03-08T12:17 CDT — Session 43 (DI Phase A Pass 1 complete — 50/50 scored)
+
+**Scope:** DI Phase A feasibility study — complete Pass 1 scoring of all 50 stories.
+
+Continuation of Session 42. Scored remaining 30 stories using HN discussion pages
+as primary content source (original article URLs mostly blocked by WebFetch).
+
+- **Pass 1 complete** — 50/50 stories assessed:
+  - 27 PASS with DI composites (DI range: 7.5–95.0)
+  - 19 ND (relevance gate: 100% correct, 19/19)
+  - 4 DEFERRED (insufficient content access: #16, #27, #34, #40)
+- **r = 0.328** (n=27, weak positive). PSQ explains 10.7% of DI variance.
+  Construct distinctness confirmed (spec threshold: r < 0.50).
+- **Signal inversions:** 8 clear + 3 partial (spec required ≥ 5)
+- **Three-zone structure emerged** (not predicted by spec):
+  1. Inversion zone (DI≥65, PSQ<5): violation reporting with editorial dignity
+  2. All-high zone (DI≥70, PSQ≥5): analytical/systemic/memorial content
+  3. Alignment zone (DI<60, PSQ<5): content that itself violates/neglects dignity
+- **"All-high" pattern** — Stories #4 (DI=90, PSQ=6.61), #9 (DI=92.5, PSQ=8.0),
+  #28 (DI=90.6, PSQ=7.20) demonstrate high dignity does NOT require low PSQ.
+  The variable: editorial distance from suffering.
+- **Success criteria status:** 3/4 met (signal inversion ✓, correlation ✓,
+  relevance gate ✓). Inter-rater reliability pending Pass 2.
+- **Content access:** 4 D-level (full article), 23 I-level (HN discussion).
+  Phase B should standardize content access for production scoring.
+
+▶ docs/dignity-phase-a-study.md (primary deliverable — all 50 stories scored)
+▶ journal.md §30 (Phase A empirical findings extend the DI narrative)
+
+⚑ EPISTEMIC FLAGS
+- Single-rater results (Pass 1 only). Systematic bias possible. Pass 2 needed.
+- r strengthened from 0.126 (n=10) to 0.328 (n=27) — shared "editorial engagement"
+  factor likely inflates the correlation slightly. Relationship is non-linear.
+- Evidence quality: mostly I-level (HN discussion inference). D-level evidence
+  from full articles produced more confident scores.
+- 4 stories deferred due to minimal HN discussion (0-2 comments).
+- Cross-cultural validity flag on Story #10 remains a single data point.
+- "All-high" zone was not predicted — Phase B instrument should explicitly
+  accommodate content that dignifies without threatening.

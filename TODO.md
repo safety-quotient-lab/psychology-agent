@@ -117,10 +117,10 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ## Dignity Index
 
-- [ ] **Phase A: Feasibility study** — IN PROGRESS. 20/50 assessed (10 PASS with DI
-  composites, 8 ND correct, 2 deferred). Key results: r=0.126 (PSQ explains 1.6% DI
-  variance), 6 signal inversions confirmed (spec required ≥5), relevance gate 8/8.
-  Remaining: score 30 more stories, Pass 2 for inter-rater reliability.
+- [ ] **Phase A: Feasibility study** — PASS 1 COMPLETE. 50/50 assessed (27 PASS with DI
+  composites, 19 ND correct, 4 deferred). Key results: r=0.328 (10.7% DI variance),
+  8 signal inversions + 3 partial (spec required ≥5), relevance gate 19/19 (100%).
+  3/4 success criteria met. Remaining: Pass 2 (fresh session, inter-rater reliability).
   Study doc: `docs/dignity-phase-a-study.md`. Spec: `docs/dignity-instrument-spec.md`.
   *Precondition: ✓ MET — observatory accepted Phase A (turn 6, PR #63)*
 
