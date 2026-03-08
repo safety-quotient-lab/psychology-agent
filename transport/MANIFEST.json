@@ -33,6 +33,14 @@
         "subject": "Haiku v2 scoring quality analysis — 11 dims complete, systemic limitations, dimension tiers, CC unusable",
         "timestamp": "2026-03-07T19:43:25-06:00",
         "requires_response": true
+      },
+      {
+        "session": "psq-quality-update",
+        "file": "transport/sessions/psq-quality-update/from-psychology-agent-002.json",
+        "type": "review",
+        "subject": "Observatory PSQ display review — 6 findings, 3 recommendations; 3-dim selection defensible",
+        "timestamp": "2026-03-07T20:18:00-06:00",
+        "requires_response": false
       }
     ]
   },
@@ -253,6 +261,15 @@
         "status": "completed",
         "completed": "2026-03-07",
         "note": "Merged PR #39. Observatory relay initiated by unratified-agent."
+      },
+      {
+        "session": "psq-quality-update",
+        "file": "transport/sessions/psq-quality-update/from-unratified-agent-002.json",
+        "type": "request",
+        "subject": "Observatory review request — review stories page PSQ display for psychometric appropriateness (turn 3)",
+        "status": "completed",
+        "completed": "2026-03-07",
+        "note": "Merged PR #40. Response sent: from-psychology-agent-002.json (turn 4) — 6 findings, 3 recommendations."
       }
     ]
   },
