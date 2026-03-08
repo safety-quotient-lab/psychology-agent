@@ -167,7 +167,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Separated scoring automation  | ✓ score_dimension.sh — Haiku, 20/batch, 3s/10s rate limiting, resumable; data/separated_scoring/ (Session 30) |
 | /tmp durability fix           | ✓ WORK_DIR moved from /tmp/psq_separated → data/separated_scoring/ (gitignored) (Session 30) |
 | Blog adversarial review       | ✓ CLOSED — 12 turns, 31 reviewed, 27 remediated, session-close accepted (PR #37). 1 reviewer error (F-D9) caught by pipeline. (Session 30-33) |
-| Separated scoring (10 dims)  | ✗ Running — Haiku v2 (anti-midpoint prompt): 9/11 complete, contractual_clarity 460/998; PID 70695 (Session 30-33) |
+| Separated scoring (11 dims) | ✗ Running — Haiku v2: 10/11 complete, adversarial_register 180/998; PID 70695 (Session 30-34) |
+| v1 vs v2 quality analysis    | ✓ Preliminary — compare_v1_v2.py written + run; 4 dims compared; CC 56% pile-up, 23 halo pairs flagged (Session 34) |
 | Ethical marketing rubric      | ✓ docs/ethical-marketing-rubric.md — 5 dims, FTC/NAD/AMA/ICC/AI-disclosure grounded (Session 30) |
 
 
@@ -2436,3 +2437,29 @@ and compiled the final consolidated transport message.
 - **No active sessions** with unratified-agent remaining
 
 ▶ transport/sessions/blog-adversarial-review/from-unratified-agent-008.json
+
+
+## 2026-03-07T18:27 CST — Session 34 (v1 vs v2 quality analysis — preliminary results)
+
+- **compare_v1_v2.py created** — comprehensive quality comparison script in
+  safety-quotient/data/separated_scoring/. Two modes: `compare` (v1 vs v2 matched)
+  and `full` (all v2 dimensions). Metrics: midpoint pile-up, near-center band,
+  distribution stats, Pearson r, MAD, agreement, halo effect matrix.
+- **Preliminary results** (10/11 dims, adversarial_register partial at 180/998):
+  - Anti-midpoint prompt effect: TE -4.7% pile-up (IMPROVED), HI -4.2% (IMPROVED),
+    AD -1.2% (MARGINAL), ED -2.0% (MARGINAL). Only 4/11 dims have v1 backup.
+  - Rank-order preservation strong: Pearson r = 0.807–0.913
+  - Within-1-point agreement: 78–88% across all 4 comparable dimensions
+  - **Contractual clarity: 56.1% midpoint pile-up** — worst dimension by far;
+    over half of all texts scored at exactly 5.0
+  - **Mean pile-up across 11 dims: 32.2%** — no dimension dropped below 20%
+  - **Halo effect: 23 dimension pairs exceed r=0.7** — highest: AR↔HI at 0.841.
+    Suggests Haiku collapses distinct constructs into general text-quality factor
+- **Scoring status**: adversarial_register at 180/998 (PID 70695 still running)
+- → Script lives in safety-quotient repo, not committed to psychology-agent
+
+⚑ EPISTEMIC FLAGS
+- adversarial_register results based on 180/998 texts — final statistics may shift
+- v1 vs v2 comparison limited to 4/11 dimensions (others lack v1 backup data)
+- 56% CC pile-up may indicate construct definition problem rather than prompt problem
+- Halo effect analysis uses only matched text IDs — correlation structure may change with full AR data
