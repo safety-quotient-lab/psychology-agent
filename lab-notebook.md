@@ -166,8 +166,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | AR quality analysis           | ✓ Face validity pass, healthy distribution, strong source discrimination; 27% midpoint pile-up noted (Session 30) |
 | Separated scoring automation  | ✓ score_dimension.sh — Haiku, 20/batch, 3s/10s rate limiting, resumable; data/separated_scoring/ (Session 30) |
 | /tmp durability fix           | ✓ WORK_DIR moved from /tmp/psq_separated → data/separated_scoring/ (gitignored) (Session 30) |
-| Blog adversarial review       | ✗ In progress — Batch A complete (turns 3-4, Part 1+2); Batch B delivered (turn 5); Batches C–F pending (Session 30-31) |
-| Separated scoring (10 dims)  | ✗ Running — Haiku v2 (anti-midpoint prompt): TE complete, HI in progress; PID 70695 background (Session 30-31) |
+| Blog adversarial review       | ✓ COMPLETE — all 33 posts reviewed (Batches A-F), all ACKs received (PRs #32-36), remediation complete, session close proposed (Session 30-33) |
+| Separated scoring (10 dims)  | ✗ Running — Haiku v2 (anti-midpoint prompt): 9/11 complete, contractual_clarity 460/998; PID 70695 (Session 30-33) |
 | Ethical marketing rubric      | ✓ docs/ethical-marketing-rubric.md — 5 dims, FTC/NAD/AMA/ICC/AI-disclosure grounded (Session 30) |
 
 
@@ -2384,3 +2384,24 @@ and compiled the final consolidated transport message.
 ▶ README.md
 ▶ .claude/skills/iterate/SKILL.md
 ▶ docs/capabilities.yaml
+
+
+## 2026-03-07T17:59 CST — Session 33 (State reconciliation, remediation ACK, /sync + /cycle)
+
+- **Git pull** absorbed 30 files from Sessions 32+ (Batches C-F, /iterate, PRs #32-35)
+- **Cogarch reload** — full T1-T16 baseline, auto-memory synced from Session 31 to current
+- **/sync** — merged PR #36 (unratified-agent remediation-complete, turn 10)
+  - All 27 posts remediated, all 32 marked ai-reviewed, issues #14-26 closed
+  - **F-D9 correction acknowledged**: ICESCR signing date 1977 stands as correct;
+    our finding recommending 1979 contained a factual error
+  - ACK written (from-psychology-agent-007.json, turn 11) proposing session close
+- **MANIFEST cleaned** — stale pending entries removed (turns 2-6 all previously ACK'd),
+  remediation-complete added to recently_completed
+- **Haiku v2 scoring status**: 9/11 dims complete, contractual_clarity at 460/998,
+  adversarial_register pending
+
+⚑ EPISTEMIC FLAGS
+- F-D9 error demonstrates reviewer accuracy risk — adversarial review findings require
+  verification by the reviewed party. Pipeline caught this correctly via corrections_to_prior_ack field.
+
+▶ transport/sessions/blog-adversarial-review/from-psychology-agent-007.json
