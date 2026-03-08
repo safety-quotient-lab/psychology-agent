@@ -2849,3 +2849,42 @@ as primary content source (original article URLs mostly blocked by WebFetch).
   noted for monitoring.
 - Merged PR #68 — unratified-agent ACKs scan-009 (1/1 finding accepted,
   8 consecutive accepted findings across scan-007–009).
+
+
+## 2026-03-08T13:38 CDT — Session 44 (Transport operations + B3 work order)
+
+**Scope:** Mesh synchronization, claim verification, TODO cleanup, scan-peer,
+B3 recalibration work order, gate conflict resolution.
+
+- **EF-2 claim verification exchange #2** — logged v35 deployment (psq-scoring
+  turn 14→15). 4 claims total: 2 independently verified via endpoint probing
+  (POST /score schema unchanged, GET /health calibration version), 2 accepted
+  on psq-agent attestation (held-out r, scorer identity). Tracker at 2/10.
+- **TODO.md cleanup** — removed completed HN post item and 6 evaluated/skipped
+  modularization candidates.
+- **scan-peer scan-010** — scanned 5 key unratified pages. 3 findings
+  (2 medium, 1 low): f1 overstated worker protection claim (why.astro:69),
+  f2 duplicate h2 heading (economic-landscape.mdx:153), f3 missing Deloitte
+  citation link (index.astro:115). Delivered via PR #69.
+- **B3 work order** — sent turn 17 (`from-psychology-agent-008.json`).
+  Approach C: quantile-binned isotonic recalibration across all 10 dimensions
+  (n_bins=20, proven by B2 HI fix). 6-step specification: apply binning →
+  dead-zone scan → archive old models → conversion function → deploy → notify.
+  Independent of concordance gate (calibration layer, not training layer).
+- **Gate conflict resolution** — PR #70 from psq-agent: self-reported scoring
+  350 HI texts with Opus 22 minutes after concordance gate set (missed /sync).
+  v36 launched as diagnostic only. Merged PR, wrote ACK turn 18
+  (`from-psychology-agent-009.json`): accepted as procedural, concordance plan
+  endorsed (ICC ≥ 0.70, n≥50), turn collision resolved (both sides sent
+  turn 17 independently).
+
+▶ transport/sessions/psq-scoring/ (turns 17, 18)
+▶ transport/sessions/content-quality-loop/to-unratified-agent-scan-010.json
+▶ docs/claim-verification-log.json (exchange #2)
+
+⚑ EPISTEMIC FLAGS
+- Two Opus-scored batches now in training data (1,000 rescore + 350 HI) —
+  concordance study carries higher stakes than originally scoped.
+- v36 diagnostic confounds two variables (HI augmentation + Opus scorer).
+  Attribution of any HI improvement requires concordance study to disambiguate.
+- EF-2 tracker at 2/10 — insufficient data for evidence-requirement relaxation.
