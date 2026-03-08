@@ -44,6 +44,29 @@ Filter to content files only: `.mdx`, `.md`, `.astro` (pages with prose), `.ts` 
 
 If no content files changed, write a "no-findings" message and stop.
 
+### Phase 1b: Diff Verification (false-positive guard)
+
+Before passing changed files to Phase 2, filter out non-changes:
+
+1. **Skip empty-file diffs** — if both sides of the diff exist but contain
+   identical content (rename-only, mode change), exclude the file
+2. **Ignore whitespace-only diffs** — run `git diff --ignore-all-space` on each
+   file. If the whitespace-insensitive diff produces no output, exclude the file.
+   **Exception:** YAML frontmatter (between `---` delimiters) and Markdown table
+   rows (lines matching `^\|`) treat whitespace as significant — keep these files
+3. **Verify both sides exist** — if `git diff` reports a file as "added" but
+   the file existed in the prior commit (rename detection), verify the content
+   actually changed. A diff against a non-existent file reports the entire file
+   as new content, which inflates findings
+4. **Log filtered files** — record `files_filtered` count and reasons in the
+   transport payload `scan_range` block for audit trail
+
+Add to `scan_range` in Phase 4 payload:
+```json
+"files_filtered": N,
+"filter_reasons": { "empty_diff": 0, "whitespace_only": 0, "existence_check": 0 }
+```
+
 ### Phase 2: Scan Each Changed File
 
 For each changed file, evaluate across these dimensions:
