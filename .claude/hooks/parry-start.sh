@@ -18,12 +18,13 @@ fi
 # Load HF token if not in environment
 if [ -z "${HF_TOKEN:-}" ]; then
   if [ -f "$TOKEN_FILE" ]; then
+    chmod 600 "$TOKEN_FILE" 2>/dev/null
     HF_TOKEN="$(cat "$TOKEN_FILE")"
     export HF_TOKEN
     echo "Loaded HF_TOKEN from ${TOKEN_FILE}"
   else
     echo "ERROR: HF_TOKEN not set and ${TOKEN_FILE} not found."
-    echo "Create it with: echo 'your_token' > ${TOKEN_FILE}"
+    echo "Create it with: echo 'your_token' > ${TOKEN_FILE} && chmod 600 ${TOKEN_FILE}"
     exit 1
   fi
 fi

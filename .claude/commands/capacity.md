@@ -133,7 +133,7 @@ CLAUDE.md:              NNN lines        [~NN available]
 cognitive-triggers.md:  NNN lines        [~NN before ceiling]
 
 ### Trigger Coverage
-Active triggers: T1–T13 (13 total)
+Active triggers: T1–T16 (16 total)
 Coverage gaps:  [list or "none identified"]
 Recommended:    [any new triggers worth adding]
 
@@ -142,7 +142,7 @@ Current decisions: N rows (~NN lines)
 Remaining MEMORY.md capacity: ~NN decisions before pressure
 
 ### Skills & Commands
-Skills (always loaded): /doc  /hunt  /cycle
+Skills (always loaded): /doc  /hunt  /cycle  /knock  /sync  /iterate
 Commands (on-demand):   /adjudicate  /capacity
 Mid-session (need restart): [list or "none"]
 

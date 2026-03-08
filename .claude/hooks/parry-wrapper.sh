@@ -59,7 +59,7 @@ if echo "$PARRY_OUTPUT" | grep -q "ML unavailable"; then
     warn_once|*)
       # Check if we already warned recently
       if [ -f "$WARNED_FILE" ]; then
-        FILE_AGE=$(( $(date +%s) - $(stat -f %m "$WARNED_FILE" 2>/dev/null || echo 0) ))
+        FILE_AGE=$(( $(date +%s) - $(date -r "$WARNED_FILE" +%s 2>/dev/null || stat -c %Y "$WARNED_FILE" 2>/dev/null || echo 0) ))
         if [ "$FILE_AGE" -lt "$SESSION_TTL" ]; then
           # Already warned this session — suppress
           exit 0

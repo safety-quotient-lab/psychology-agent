@@ -82,7 +82,8 @@ exceed available evidence, or any finding that a peer reviewer would challenge.
   messages, checks peer repos, writes ACKs, updates MANIFEST. No auto-merge.
 - `/iterate` — Autonomous work discovery + execution. Runs /hunt internally,
   2-order knock per candidate, 4-mode discriminator (consensus → pragmatism →
-  parsimony → bare), then executes the winner. Type `/iterate` and work happens.
+  parsimony → bare), then executes the winner and auto-cycles. May use WebFetch
+  during execution for research tasks.
 
 ## Commands (load on demand)
 

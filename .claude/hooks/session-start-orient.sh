@@ -13,8 +13,8 @@ if [ ! -s "$MEMORY_LIVE" ]; then
 fi
 
 # Remind of trigger system
-echo "[SESSION-START] Cognitive triggers T1-T13 active. Read docs/cognitive-triggers.md for full system."
-echo "[SESSION-START] Skills: /doc /hunt /cycle /capacity /adjudicate"
+echo "[SESSION-START] Cognitive triggers T1-T16 active. Read docs/cognitive-triggers.md for full system."
+echo "[SESSION-START] Skills: /doc /hunt /cycle /knock /sync /iterate"
 echo "[SESSION-START] MANDATORY: Read docs/cognitive-triggers.md and output the compact cogarch baseline summary as your first response action this session."
 
 # Surface last session from lab-notebook (last session header)

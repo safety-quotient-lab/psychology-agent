@@ -29,9 +29,8 @@ if [ -z "$USED_PCT" ] || [ "$USED_PCT" -eq 0 ]; then
 fi
 
 # Persist context % so PreToolUse hooks can read it
-CTX_FILE="/tmp/.claude-context-pct-$$"
-# Use a stable path that doesn't depend on PID (hooks may run in different shells)
-CTX_STABLE="/tmp/.claude-context-pct"
+# User-namespaced path so hooks can read it across shells
+CTX_STABLE="${XDG_RUNTIME_DIR:-/tmp}/.claude-context-pct-$(id -u)"
 echo "$USED_PCT" > "$CTX_STABLE" 2>/dev/null
 
 # Visual indicator with threshold warnings

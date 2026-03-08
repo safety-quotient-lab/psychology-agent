@@ -2385,7 +2385,6 @@ and compiled the final consolidated transport message.
 ▶ .claude/skills/iterate/SKILL.md
 ▶ docs/capabilities.yaml
 
-
 ## 2026-03-07T17:59 CST — Session 33 (State reconciliation, remediation ACK, /sync + /cycle)
 
 - **Git pull** absorbed 30 files from Sessions 32+ (Batches C-F, /iterate, PRs #32-35)
@@ -2405,3 +2404,24 @@ and compiled the final consolidated transport message.
   verification by the reviewed party. Pipeline caught this correctly via corrections_to_prior_ack field.
 
 ▶ transport/sessions/blog-adversarial-review/from-psychology-agent-007.json
+
+## 2026-03-07T18:13 CST — Session 32c (Awesome-claude-code eval + hygiene fixes)
+
+- **Self-evaluation**: ran awesome-claude-code's `evaluate-repository.md` prompt against
+  our repo via subagent. Result: 8/10, "Recommend with caveats." 6 remediation items
+  identified, 5 fixed this session.
+- **Fix 1**: cross-platform `stat` — replaced macOS-only `stat -f %m` with portable
+  `date -r` + `stat -c %Y` fallback chain in parry-wrapper.sh and stop-completion-gate.sh
+- **Fix 2**: temp file namespacing — `/tmp/.claude-context-pct` now user-namespaced
+  via `$(id -u)` with `$XDG_RUNTIME_DIR` preference in both statusline and gate hooks
+- **Fix 3**: stale trigger refs — session-start-orient.sh and /capacity command updated
+  from T1-T13 to T1-T16, skills list updated
+- **Fix 4**: HF token permissions — parry-start.sh now enforces `chmod 600` on token
+  file at load and in setup instructions
+- **Fix 5**: /iterate WebFetch disclosure — CLAUDE.md skill description now notes
+  WebFetch capability
+- **Remaining**: shellcheck CI (S effort), license question (substance decision)
+
+⚑ EPISTEMIC FLAGS
+- Self-evaluation carries inherent conflict of interest — same agent system reviewing itself
+- Cross-platform fixes verified by syntax check only, not runtime test on macOS
