@@ -42,7 +42,7 @@ if command -v jq &>/dev/null; then
 else
   # Fallback: grep for agent_id in manifest
   if grep -q "\"${AGENT_ID}\"" "$MANIFEST" 2>/dev/null; then
-    PENDING_LINES=$(grep -A 5 "\"${AGENT_ID}\"" "$MANIFEST" | grep '"file"' | wc -l | tr -d '[:space:]')
+    PENDING_LINES=$(grep -A 5 "\"${AGENT_ID}\"" "$MANIFEST" | grep -c '"file"')
     if [ "$PENDING_LINES" -gt 0 ]; then
       echo "[TRANSPORT] Pending messages detected for ${AGENT_ID} (install jq for details)."
       echo "[TRANSPORT] Check: ${MANIFEST}"
