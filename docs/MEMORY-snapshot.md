@@ -18,11 +18,11 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 35b. PRs #41/#42/#43 processed. psq-agent work order
-sent (turn 12 — Sonnet re-score 998×9). H2 corrected: ACLU +0.83 full mode, downgraded
-to lite-mode residual. MANIFEST updated. All unratified-agent pending cleared.
-**Next:** Await psq-agent ACK on work order → Sonnet re-score → DistilBERT retrain →
-factor analysis. HN post (README precondition met).
+**Where we stopped:** Session 37. README polished (7 stale refs fixed). HN post
+precondition now met. Parry ML operational (Session 36). psq-agent work order
+pending (turn 12 — Sonnet re-score 998×9).
+**Next:** HN post draft review + publish. Factor analysis on Haiku data.
+Await psq-agent ACK → Sonnet re-score → DistilBERT retrain.
 
 
 ## Memory Hygiene

@@ -2595,3 +2595,10 @@ and compiled the final consolidated transport message.
   clean input passes, prompt injection blocked with `permissionDecision: ask`. Two open questions resolved.
 - **Parallel instance activity** — `5180505` (scan-peer scan, 0 findings) landed on remote during
   our session. Rebased over it cleanly.
+
+## 2026-03-08T06:26 CDT — Session 37 (/iterate: README polish)
+
+- **README.md updated** — 7 stale references fixed: architecture diagram names Unratified Agent,
+  skills count 6→7 (/scan-peer), session count 32+→36+, journal sections 26→29, hook scripts 10→11,
+  /scan-peer added to skills table, 6 missing doc files added to project structure tree.
+  README now reflects current project state — unblocks HN post and awesome-claude-code submission.
