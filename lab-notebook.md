@@ -48,6 +48,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Platform hooks                | ✓ 12 hooks: pre-commit (+ cogarch gate), parry (3), T4 reminder, SessionStart, PreCompact, Stop, subproject-boundary, pushback-accumulator, write-provenance, context-pressure-gate (Session 12-27) |
 | Source dictionary             | ✓ docs/dictionary.md — 15 entries, 7 categories, APA citations (Session 27) |
 | best.pt local recovery        | ✓ SHA256 7bec777c match confirmed local↔Hetzner (Session 27) |
+| Agent identity directive      | ✓ Psychology agent first; engineering serves the discipline (Session 40) |
 | Antiregression evaluation     | ✓ Evaluated, adopted hooks, TODO items written (Session 11) |
 | Blog post (cogarch)           | ✓ Reviewed + PR #7 submitted to unratified (Session 24) |
 | Blog post (Jurassic Park)     | ✓ Published at blog.unratified.org — 3-agent co-authorship, transport resolved (Session 25→29) |
@@ -2680,3 +2681,20 @@ and compiled the final consolidated transport message.
   exists yet — wiki drift will occur if docs change without wiki sync.
 - Project board custom field values not yet populated per-issue (Domain, Effort, Blocked By
   fields created but item-level values require manual or scripted assignment).
+
+## 2026-03-08T08:04 CDT — Session 40 (Identity directive — psychology agent first)
+
+- **PDP discussion** — covered Parallel Distributed Processing (Rumelbart, McClelland, 1986)
+  framework, connections to psychology (CLS theory, triangle model, developmental modeling,
+  clinical applications), and structural analogies to this agent's cogarch (distributed
+  memory, constraint satisfaction, graceful degradation, weight-based learning)
+- **Identity directive established** — user directed that this agent operates as a psychology
+  agent first, not a coding assistant that happens to know psychology. The discipline comes
+  first; engineering serves it. Persisted to MEMORY.md user preferences.
+- Light session — conversational with one memory persistence. No architecture, code, or
+  cogarch changes.
+
+⚑ EPISTEMIC FLAGS
+- PDP-cogarch mapping represents structural analogy, not computational equivalence. The
+  cogarch layer operates symbolically atop a transformer; the parallel refers to conceptual
+  architecture, not energy minimization or gradient descent.
