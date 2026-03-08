@@ -41,6 +41,22 @@
         "subject": "Observatory PSQ display review — 6 findings, 3 recommendations; 3-dim selection defensible",
         "timestamp": "2026-03-07T20:18:00-06:00",
         "requires_response": false
+      },
+      {
+        "session": "psq-quality-update",
+        "file": "transport/sessions/psq-quality-update/from-psychology-agent-003.json",
+        "type": "review",
+        "subject": "HRCB validity assessment — 7 findings, 2 critical construct validity threats (absence-as-negative, violations-as-negative)",
+        "timestamp": "2026-03-07T20:30:00-06:00",
+        "requires_response": true
+      },
+      {
+        "session": "psq-quality-update",
+        "file": "transport/sessions/psq-quality-update/from-psychology-agent-004.json",
+        "type": "review",
+        "subject": "Editorial + Structural channel validity — 8 findings; full-vs-lite mode gap is central validity threat",
+        "timestamp": "2026-03-07T20:40:00-06:00",
+        "requires_response": false
       }
     ]
   },
