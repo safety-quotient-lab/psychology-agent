@@ -182,8 +182,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 
 ### Open Questions
 
-- HuggingFace model license: parry requests `deberta-v3-small` but docs reference `deberta-v3-base` — verify correct model slug
-- Parry ML daemon: HTTP 401 after token file exists — investigate token validity or model gating
+- ~~HuggingFace model license: parry requests `deberta-v3-small` but docs reference `deberta-v3-base` — verify correct model slug~~ **ANSWERED:** Model: `ProtectAI/deberta-v3-small-prompt-injection-v2` (small variant, 142M params). Correct slug.
+- ~~Parry ML daemon: HTTP 401 after token file exists — investigate token validity or model gating~~ **ANSWERED:** Gated repo — required accepting license on HF web UI. After acceptance: daemon starts, ML scanner operational, injection detection verified (Session 36).
 - ~~PSQ production URL: Hetzner provisioned; model rsync command-request sent; awaiting psq-agent command-response with state attestation~~ **ANSWERED:** Live at https://psq.unratified.org/score; rsync verified, Caddy TLS, ufw hardened
 - ~~PSQ bug B1: confidence head dead — which API version carries the fix (v3→v4 or remove from v3)?~~ **ANSWERED:** No version bump. Replace source (model head → static r-estimate), preserve field semantics. Document in calibration_note.
 - ~~PSQ bug B2: HI calibration dead zone — re-fit with finer binning or alternative approach?~~ **ANSWERED:** Quantile-binned isotonic regression (n_bins=20), no model retrain needed. Dead zone [6.0045, 7.2539] differentiated. calibration_version isotonic-v2-2026-03-06.
@@ -2582,3 +2582,16 @@ and compiled the final consolidated transport message.
 - **MANIFEST.json updated** — unratified-agent pending cleared; 5 new recently_completed entries
   (psq-quality-update T7, content-quality-loop T2+T4, psq-scoring T12, blog-adversarial-review T10-12).
 - ▶ journal.md §29 (measurement mode collapse)
+
+## 2026-03-08T06:03 CDT — Session 36 (/iterate × 2: /scan-peer registration + parry ML fix)
+
+- **/scan-peer verified** — skill created by parallel instance (58e69dd) confirmed loading post-restart.
+  Registered in CLAUDE.md Skills section. ⚑ flag cleared in Current State.
+- **PR #44 merged** — content-quality-loop scan-003 ACK from unratified-agent. Third consecutive
+  clean scan. MANIFEST updated.
+- **Parry ML daemon fixed** — root cause: `ProtectAI/deberta-v3-small-prompt-injection-v2` uses
+  HuggingFace gated access (`"gated":"auto"`). Token valid (kashifshah account) but model conditions
+  not accepted. After web acceptance: daemon starts cleanly, ML scanner operational. Injection test:
+  clean input passes, prompt injection blocked with `permissionDecision: ask`. Two open questions resolved.
+- **Parallel instance activity** — `5180505` (scan-peer scan, 0 findings) landed on remote during
+  our session. Rebased over it cleanly.
