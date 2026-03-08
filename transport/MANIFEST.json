@@ -1,6 +1,6 @@
 {
   "schema": "transport-manifest/v1",
-  "updated": "2026-03-08T15:06:00-05:00",
+  "updated": "2026-03-08T15:19:42-05:00",
   "description": "Pending and recent interagent messages. Agents: pull this file to discover messages addressed to you. Updated by psychology-agent at each send.",
 
   "pending": {
@@ -20,6 +20,14 @@
         "type": "ack",
         "subject": "B3 findings accepted — deploy deferred to post-v37, plateau threshold revised (turn 21)",
         "timestamp": "2026-03-08T15:06:00-05:00",
+        "requires_response": true
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-012.json",
+        "type": "request",
+        "subject": "Work order: B4 — partial correlation matrix, dimension-specific variance after removing g-PSQ (turn 22)",
+        "timestamp": "2026-03-08T15:19:42-05:00",
         "requires_response": true
       }
     ],

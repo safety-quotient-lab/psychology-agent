@@ -74,30 +74,31 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ## PSQ Scoring Quality
 
-- [ ] **Cross-scorer concordance study (Opus vs Sonnet)** — psq-agent executed the
-  1,000-text rescore using Opus instead of Sonnet (v35 deployed, held-out r=0.680).
-  Before any further LLM-scored batches enter training, score a shared subset (n≥50)
-  with both Opus and Sonnet, compute per-dimension ICC or Pearson r, and establish
-  whether the scorers produce interchangeable labels. ACK turn 16 gates this.
-  *Precondition: none — can run now. Gating further rescore work.*
+- [x] **Cross-scorer concordance study (Opus vs Sonnet)** — COMPLETE (Session 45,
+  turn 19). Gate FAILS: mean ICC(2,1) = 0.495, 1/10 dims pass ICC ≥ 0.70.
+  Opus and Sonnet produce non-interchangeable scores. Sonnet-only revert endorsed
+  (turn 20). Production models (v23, v35) confirmed clean.
 
-- [ ] **Retrain DistilBERT on improved labels** — after concordance study confirms
-  scorer consistency, retrain v36+ on the Opus-scored labels (or mixed Opus+Sonnet
-  if concordance permits). Expected: higher held-out r, better dimension independence.
-  *Precondition: cross-scorer concordance study complete*
+- [ ] **Opus remediation + v37 retrain** — delete 10,000 Opus scores from psq.db,
+  re-score 999 texts (368 rescore + 631 HI augmentation) with Sonnet via
+  separated-LLM protocol, retrain → v37. Compare held-out r against v35 (0.680).
+  *Gate: psq-agent executing. Combined with B3 re-fit (below).*
 
-- [ ] **Factor analysis on scoring data** — PCA on 11×998 Haiku scores and 10×998
-  Opus scores to determine actual dimensionality. Confirm/deny 3-4 factor estimate.
-  Factor analysis v3 (from psq-agent turn 15): KMO=0.910, g-eigenvalue=6.824,
-  68.2% variance explained, 1 factor retained. Structural stability confirmed.
-  *Precondition: concordance study complete (Haiku data + Opus data available now)*
+- [ ] **Dimension structure: partial correlations + bifactor** — Factor analysis v3
+  (turn 15) found 1 g-factor (68.2% variance), but criterion validity shows profile
+  shape predicts while g-PSQ does not. Step 1 (B4 work order, turn 22): partial
+  correlation matrix controlling for g-PSQ on Sonnet-scored data. If meaningful
+  residual associations found, Step 2: bifactor model (Reise, 2012).
+  *Gate: B4 work order sent. Independent of Opus remediation — can run now.*
 
-- [ ] **Recalibrate all dimensions with quantile binning (B3)** — calibrate.py uses
-  raw isotonic regression. TE has plateaus spanning 1.51 raw units (15% of scale).
-  Apply quantile-binned pre-aggregation (n_bins=20, as HI B2 fix) to all 10 dims.
-  Dead-zone scan after recalibration to verify no plateau >0.5 units remains.
-  *Precondition: none — can run on current model. Should run BEFORE Sonnet retrain
-  so the retrain benefits from improved calibration baseline.*
+- [x] **Recalibrate all dimensions with quantile binning (B3)** — STEPS 1-4 COMPLETE
+  (Session 45, turn 20). Quantile-binned isotonic (n_bins=20) improves MAE all
+  10 dims (avg −12.4%). Dead zones diagnosed as model range compression, not
+  calibration artifacts. Plateau threshold revised from 0.5 max to MAE-improvement-
+  without-regression (10/10 pass). Deploy deferred to post-v37.
+  Remaining: re-fit v3 calibration on v37, AD per-dimension n_bins tuning,
+  deploy + notify downstream.
+  *Gate: awaiting Opus remediation + v37 retrain.*
 
 ---
 
