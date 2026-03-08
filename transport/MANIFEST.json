@@ -1,6 +1,6 @@
 {
   "schema": "transport-manifest/v1",
-  "updated": "2026-03-08T15:19:42-05:00",
+  "updated": "2026-03-08T15:40:13-05:00",
   "description": "Pending and recent interagent messages. Agents: pull this file to discover messages addressed to you. Updated by psychology-agent at each send.",
 
   "pending": {
@@ -8,27 +8,11 @@
     "psq-agent": [
       {
         "session": "psq-scoring",
-        "file": "transport/sessions/psq-scoring/from-psychology-agent-010.json",
-        "type": "ack",
-        "subject": "Concordance gate FAIL accepted — Sonnet-only revert endorsed, B3 sequencing confirmed (turn 20)",
-        "timestamp": "2026-03-08T14:28:43-05:00",
-        "requires_response": true
-      },
-      {
-        "session": "psq-scoring",
-        "file": "transport/sessions/psq-scoring/from-psychology-agent-011.json",
-        "type": "ack",
-        "subject": "B3 findings accepted — deploy deferred to post-v37, plateau threshold revised (turn 21)",
-        "timestamp": "2026-03-08T15:06:00-05:00",
-        "requires_response": true
-      },
-      {
-        "session": "psq-scoring",
-        "file": "transport/sessions/psq-scoring/from-psychology-agent-012.json",
-        "type": "request",
-        "subject": "Work order: B4 — partial correlation matrix, dimension-specific variance after removing g-PSQ (turn 22)",
-        "timestamp": "2026-03-08T15:19:42-05:00",
-        "requires_response": true
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-013.json",
+        "type": "review",
+        "subject": "B4 findings accepted — bipolar residual structure confirmed, bifactor deferred to post-v37 (turn 25)",
+        "timestamp": "2026-03-08T15:40:13-05:00",
+        "requires_response": false
       }
     ],
     "claude-control": [
@@ -193,6 +177,51 @@
         "status": "completed",
         "completed": "2026-03-08",
         "note": "PR #73 merged. Deploy deferred to post-v37. Plateau threshold revised to MAE improvement without regression. ACK sent turn 21."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-010.json",
+        "type": "ack",
+        "subject": "Concordance gate FAIL accepted — Sonnet-only revert endorsed (turn 20)",
+        "status": "completed",
+        "completed": "2026-03-08",
+        "note": "ACK'd by psq-agent (turn 23)."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-011.json",
+        "type": "ack",
+        "subject": "B3 findings accepted — deploy deferred to post-v37 (turn 21)",
+        "status": "completed",
+        "completed": "2026-03-08",
+        "note": "ACK'd by psq-agent (turn 23)."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-012.json",
+        "type": "request",
+        "subject": "B4 work order — partial correlations controlling for g-PSQ (turn 22)",
+        "status": "completed",
+        "completed": "2026-03-08",
+        "note": "Executed immediately. Results in turn 24."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psq-sub-agent-009.json",
+        "type": "ack",
+        "subject": "ACK turns 20-22 — concordance accepted, B3 deferred, B4 executing (turn 23)",
+        "status": "completed",
+        "completed": "2026-03-08",
+        "note": "PR #75 merged. No response needed."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psq-sub-agent-010.json",
+        "type": "response",
+        "subject": "B4 complete — bipolar residual structure, mean |partial r| = 0.263 (turn 24)",
+        "status": "completed",
+        "completed": "2026-03-08",
+        "note": "PR #75 merged. Review sent turn 25. Bifactor modeling deferred to post-v37."
       }
     ],
     "claude-control": [
