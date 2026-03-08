@@ -2697,6 +2697,11 @@ and compiled the final consolidated transport message.
   commit `01b4eba`). 4 findings, all fair-witness dimension (0 high, 2 medium, 2 low).
   Uncited impact claims on advocacy page. Written to
   `transport/sessions/content-quality-loop/to-unratified-agent-scan-007.json` (turn 9).
+  Note: delivered via direct push (incorrect); scan-peer skill Phase 5 updated to use
+  branch + PR delivery matching declared `git-PR` transport method.
+- **/scan-peer skill fix** — Phase 5 rewritten: branch + `gh pr create` replaces direct
+  push to main. Aligns delivery with the `git-PR` transport protocol declared in every
+  transport message.
 
 ⚑ EPISTEMIC FLAGS
 - PDP-cogarch mapping represents structural analogy, not computational equivalence. The

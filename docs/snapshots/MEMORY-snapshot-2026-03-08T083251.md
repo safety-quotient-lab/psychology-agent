@@ -17,11 +17,11 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 40. Identity directive (psychology agent first).
-PDP discussion. scan-peer of unratified (4 findings, turn 9). scan-peer skill
-Phase 5 fixed to use PR delivery matching git-PR transport protocol.
-**Next:** awesome-cc submission (#52). Upstream PR to antiregression-setup.
-Await psq-agent ACK on gate resolution. Wiki sync when mirrored docs change.
+**Where we stopped:** Session 40. Identity directive established (psychology agent
+first, engineering serves the discipline). PDP discussion — structural analogies
+to cogarch documented. Light session, no code or architecture changes.
+**Next:** Await psq-agent ACK on gate resolution. awesome-cc submission (#52).
+Wiki sync during /cycle when mirrored docs change.
 
 
 ## Memory Hygiene

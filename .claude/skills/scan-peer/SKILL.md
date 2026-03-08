@@ -154,18 +154,43 @@ Write findings as a transport message:
 
 File naming: `to-unratified-agent-scan-NNN.json`
 
-### Phase 5: Deliver
+### Phase 5: Deliver via PR
+
+Transport method: `git-PR`. Findings deliver on a branch via pull request, not
+pushed directly to main. This matches the declared transport protocol and ensures
+the interagent daemon webhook fires on the PR event.
 
 ```bash
 cd ~/Projects/psychology-agent
+BRANCH="psychology-agent/content-quality-loop/scan-NNN"
+git checkout -b "$BRANCH"
 git add transport/sessions/content-quality-loop/
 git commit -m "scan-peer: content quality scan of unratified (N findings)
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
-git push
+git push -u origin "$BRANCH"
 ```
 
-The push triggers the interagent daemon webhook, which will trigger
+Then open a PR:
+
+```bash
+gh pr create \
+  --title "scan-peer: content quality scan of unratified (N findings)" \
+  --body "Interagent transport: content-quality-loop turn N.
+
+N findings (H high, M medium, L low) on M content files.
+
+Daemon will trigger /process-feedback on merge." \
+  --label "interagent,transport"
+```
+
+Return to main after delivery:
+
+```bash
+git checkout main
+```
+
+The PR merge triggers the interagent daemon webhook, which triggers
 `/process-feedback` on the unratified side.
 
 ## Output Format
@@ -178,7 +203,7 @@ The push triggers the interagent daemon webhook, which will trigger
     - f1: [file:line] [dimension] [severity] — description
     - f2: ...
   Written: transport/sessions/content-quality-loop/to-unratified-agent-scan-NNN.json
-  Delivered: git push (webhook will trigger /process-feedback)
+  Delivered: PR #NN (branch: psychology-agent/content-quality-loop/scan-NNN)
 ```
 
 ## What /scan-peer Does NOT Do
