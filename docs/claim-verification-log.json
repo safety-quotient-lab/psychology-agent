@@ -12,5 +12,46 @@
     "claims_incorrect": 0,
     "verification_method": "SHA256 hash match (model.onnx + model_quantized.onnx), curl health check (/health → 200), POST /score → valid machine-response/v3",
     "notes": "First command-request/v1 exchange. All evidence-bearing claims confirmed by independent verification from macOS. Two issues flagged by executing agent (onnxruntime-node conflict, systemd path) — both resolved post-verification."
+  },
+  {
+    "exchange_id": 2,
+    "session": "psq-scoring",
+    "date": "2026-03-08",
+    "turn_request": 14,
+    "turn_response": 15,
+    "command": "Gate resolution for Sonnet re-score (turn 14) → psq-agent deployed v35 with 1,000-text Opus rescore (turn 15)",
+    "executing_agent": "psq-agent",
+    "claims_count": 4,
+    "claims_verified": 2,
+    "claims_not_verified": 2,
+    "claims_incorrect": 0,
+    "verification_method": "curl /health (calibration_version isotonic-v2-2026-03-08 confirmed), POST /score (v3 schema unchanged, r=0.680 in scope_declaration)",
+    "claim_detail": [
+      {
+        "claim_id": "c1",
+        "text": "v35 held-out r=0.680 within noise floor of v23 r=0.684",
+        "verified": false,
+        "reason": "Accepted noise-floor argument (SE≈0.10) but did not independently rerun held-out evaluation"
+      },
+      {
+        "claim_id": "c2",
+        "text": "1,000-text rescore scored by Opus, not Sonnet",
+        "verified": false,
+        "reason": "Self-reported by psq-agent. No independent provenance check of scorer model ID in DB"
+      },
+      {
+        "claim_id": "c3",
+        "text": "No API contract changes between v23 and v35",
+        "verified": true,
+        "reason": "POST /score returns psychology-agent/machine-response/v3 schema unchanged. All fields present."
+      },
+      {
+        "claim_id": "c4",
+        "text": "Calibration version updated on live endpoint",
+        "verified": true,
+        "reason": "GET /health returns calibration_version isotonic-v2-2026-03-08 (updated from 2026-03-06)"
+      }
+    ],
+    "notes": "Exchange type: gate-resolution → deployment notification. 2/4 claims independently verified via endpoint probing. 2/4 claims accepted on psq-agent attestation without independent check (held-out r, scorer identity). Claim c4 modified from original (rollback procedure) to what we could actually verify (calibration version on endpoint). Cross-scorer concordance flagged as open concern in ACK turn 16."
   }
 ]

@@ -14,13 +14,6 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ---
 
-## Writing
-
-- [x] **HN post for psychology-agent** — Published (2026-03-08). Draft was at
-  `docs/hn-draft.md`.
-
----
-
 ## Upstream Contribution
 
 - [ ] **PR to CreatmanCEO/claude-code-antiregression-setup** — contribute memory
@@ -40,16 +33,6 @@ Forward-looking task list only. Completed and emergent work goes to
   writes. Directly relevant to Architecture Item 2 (sub-agent protocol).
   *Source: Compound Eng phase-locked execution*
   *Precondition: Architecture Item 2 in progress*
-
-- [ ] **Modularization candidates** — evaluate external tools that could replace
-  hand-rolled infrastructure. **License gate: MIT/Apache/BSD only — no GPL/AGPL.**
-  - ~~**recall** (full-text session search)~~ — ✓ ADOPTED (Session 28c). `brew install zippoxer/tap/recall`. MIT.
-  - ~~**ccusage** (token/cost tracking)~~ — ✓ ADOPTED (Session 28c). `npx ccusage@latest`. MIT.
-  - ~~**claude-rules-doctor**~~ — SKIPPED. 9 stars, single maintainer; 5-line shell script equivalent.
-  - ~~**cchistory**~~ — SKIPPED. 30-day retention ceiling, 6 months stale.
-  - ~~**Claude Squad**~~ — SKIPPED. AGPL license; also assumes single-repo worktrees.
-  - ~~**claude-tmux**~~ — SKIPPED. MIT but 44 stars, too small to depend on.
-  *Evaluated: 2026-03-06 (Session 28c). Source: awesome-claude-code tooling section*
 
 - [ ] **Competing hypotheses workflow** (Rank 6) — 3-5 hypotheses with quality criteria
   (testability, falsifiability, parsimony). Reference material for adversarial evaluator.
