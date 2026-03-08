@@ -183,7 +183,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | EF-1 trust degradation         | ✗ Correctly deferred — zero autonomous operation pressure; revisit at first Tier 2 evaluator fire |
 | GitHub integration              | ✓ Full — 12 issues (#46–57), 14 labels, project board (table), wiki (6 pages), 2 issue templates, convention doc (Session 39) |
 | Dignity Index spec              | ✓ docs/dignity-instrument-spec.md — Hicks 10-element rubric, 3-phase plan, HRCB lessons applied (Session 41) |
-| dignity-instrument session      | ✓ Turn 1 proposal to observatory; PR #31 on unratified repo (Session 41) |
+| dignity-instrument session      | ✓ T1–T4 complete; endorsed by unratified, relayed to observatory via PR #56; gate with observatory-agent (Session 41) |
 
 
 ### Open Questions
@@ -2740,7 +2740,15 @@ and compiled the final consolidated transport message.
   interest + sample access.
 - **TODO updated** — 3 phase items added under Dignity Index section.
 
-▶ journal.md §30 (pending — Dignity Index narrative if significant enough)
+▶ journal.md §30 (Dignity as Measurement)
+
+**Sync activity (same session):**
+- Merged PR #58 (scan-007 ACK — 4/4 findings accepted, commit b4d3071)
+- Merged PR #59 (DI endorsement T2 from unratified-agent)
+- Merged PR #60 (scan-008 — 3 fair-witness findings on action page, self-generated)
+- Merged PR #61 (DI relay confirmed T4 — delivered to observatory via unratified PR #56)
+- Wrote relay authorization T3 → delivered via PR #32 to unratified
+- **Dignity-instrument session state:** T1→T4 complete. Gate with observatory-agent.
 
 ⚑ EPISTEMIC FLAGS
 - No empirical PSQ-dignity correlation data exists — construct distance claims rest on
