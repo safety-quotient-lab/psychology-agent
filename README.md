@@ -32,7 +32,7 @@ the full bootstrap guide, including manual recovery and platform-specific setup.
 A three-layer agent system with a live peer-to-peer interagent protocol:
 
 ```
-Psychology Agent A ◄──── interagent/v1 ────► Psychology Agent B
+Psychology Agent  ◄──── interagent/v1 ────► Unratified Agent
   (this instance)    (git-PR transport,         (peer instance,
                       schema-versioned,           equal authority)
                       SETL + epistemic flags)
@@ -86,11 +86,11 @@ working in a sub-project context.
 | Capability | Maturity | Notes |
 |------------|----------|-------|
 | Cognitive triggers (T1–T16) | **Proven** | 16 triggers, 12 platform hooks, SRT extensions with calibrated gates |
-| Skills (/doc, /hunt, /cycle, /knock, /sync, /iterate) | **Proven** | 6 skills, daily use, tested across 32+ sessions |
+| Skills (/doc, /hunt, /cycle, /knock, /sync, /iterate, /scan-peer) | **Proven** | 7 skills, daily use, tested across 36+ sessions |
 | Commands (/adjudicate, /capacity) | **Proven** | On-demand, verified |
 | Memory architecture (5-layer) | **Proven** | Auto-memory, snapshots, archives, self-healing bootstrap |
 | PSQ sub-agent scoring | **Proven** | DistilBERT v23, isotonic calibration, r-based confidence proxy, live at psq.unratified.org |
-| Interagent transport | **Proven** | Git-PR transport, MANIFEST routing, 3 agents exchanging messages |
+| Interagent transport | **Proven** | Git-PR transport, MANIFEST routing, 3 agents exchanging messages, /scan-peer quality loop |
 | Local coordination protocol | **Confirmed** | Spec written, used informally between parallel instances — not yet stress-tested |
 | Adversarial evaluator (Tier 1 proxy) | **Confirmed** | Self-check with audit trail + random escalation — structural independence deferred |
 | Adversarial evaluator (Tier 2/3) | **Explored** | Spec defined, requires runtime implementation |
@@ -198,12 +198,12 @@ psychology-agent/
 ├── README.md                       # This file
 ├── TODO.md                         # Forward-looking task backlog
 ├── lab-notebook.md                 # Session log
-├── journal.md                      # Research narrative (26 sections)
+├── journal.md                      # Research narrative (29 sections)
 ├── ideas.md                        # Speculative directions
 ├── .claude/
-│   ├── hooks/                      # 10 hook scripts (12 hook entries)
+│   ├── hooks/                      # 11 hook scripts (12 hook entries)
 │   ├── settings.json               # Platform hooks configuration
-│   ├── skills/                     # Agent skills (/doc, /hunt, /cycle, /knock, /sync, /iterate)
+│   ├── skills/                     # Agent skills (/doc, /hunt, /cycle, /knock, /sync, /iterate, /scan-peer)
 │   └── rules/                      # Glob-scoped rules (markdown, javascript, transport)
 ├── docs/
 │   ├── architecture.md             # Design decisions, system spec, capabilities
@@ -214,9 +214,15 @@ psychology-agent/
 │   ├── constraints.md              # 59 constraints, 5 categories (E/M/P/I/D)
 │   ├── dictionary.md               # Source dictionary (15 entries, 7 categories)
 │   ├── glossary.md                 # Project terminology (36 entries)
+│   ├── bft-design-note.md          # Byzantine fault tolerance design (6 principles)
 │   ├── capabilities.yaml           # Machine-readable capabilities manifest
 │   ├── cognitive-triggers.md       # Cognitive trigger system (canonical)
+│   ├── command-request-v1-spec.md  # Inter-agent command protocol spec
+│   ├── ethical-marketing-rubric.md # 5-dim rubric (FTC/NAD/AMA/ICC/AI-disclosure)
+│   ├── git-pr-transport-failure-modes.md  # 8 transport failure modes (F1–F8)
+│   ├── local-coordination-v1-spec.md      # Parallel-instance coordination spec
 │   ├── overview-for-psychologists.md
+│   ├── psychology-interface-spec.md       # CF Worker interface design spec
 │   ├── MEMORY-snapshot.md          # Committed recovery source for MEMORY.md
 │   └── snapshots/                  # Versioned MEMORY archives
 ├── transport/                      # Interagent message exchange sessions
@@ -257,6 +263,7 @@ See `CLAUDE.md` for full conventions.
 | `/knock`      | Skill   | Analysis      | Single-option 10-order knock-on tracing       |
 | `/sync`       | Skill   | Coordination  | Inter-agent mesh scan, ACKs, MANIFEST update  |
 | `/iterate`    | Skill   | Autonomous    | Hunt → discriminate → execute next work       |
+| `/scan-peer`  | Skill   | Quality       | Peer content scan for safety + drift issues   |
 | `/adjudicate` | Command | Decisions     | Multi-option knock-on comparison, resolution  |
 | `/capacity`   | Command | Housekeeping  | Assess cognitive architecture capacity        |
 
