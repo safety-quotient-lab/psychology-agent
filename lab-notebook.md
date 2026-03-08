@@ -180,6 +180,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | /scan-peer skill               | ✓ Verified loading (Session 36) + registered in CLAUDE.md Skills section |
 | EF-2 claim verification        | ✓ Tracker created — docs/claim-verification-log.json, 1/10 exchanges logged (Session 38) |
 | EF-1 trust degradation         | ✗ Correctly deferred — zero autonomous operation pressure; revisit at first Tier 2 evaluator fire |
+| GitHub integration              | ✓ Full — 12 issues (#46–57), 14 labels, project board (table), wiki (6 pages), 2 issue templates, convention doc (Session 39) |
 
 
 ### Open Questions
@@ -2651,3 +2652,31 @@ and compiled the final consolidated transport message.
 - EF-1 "zero pressure" assessment based on 37 sessions of observation. Absence of evidence
   for autonomous operation pressure does not constitute evidence of absence — the system
   may simply not have reached the scale where pressure emerges.
+
+## 2026-03-08T07:30 CDT — Session 39 (Full GitHub integration)
+
+- **GitHub issues created (#46–57)** — all 12 open TODO.md items mirrored to GH issues with
+  full descriptions, precondition checklists, and domain/effort labels. Issues remain
+  independent from TODO.md — TODO.md stays as internal quick-ref, issues provide external
+  visibility and cross-referencing.
+- **14 labels created** — 6 domain (cogarch, psq, transport, interface, evaluator,
+  documentation), 4 effort (xs/s/m/l), 4 status (blocked, decision, external-suggestion,
+  interagent). All 40 transport PRs labeled retroactively with `interagent` + `transport`.
+  3 code PRs labeled with appropriate domain + type.
+- **Project board created** — table view at `safety-quotient-lab/projects/1`. 3 custom fields:
+  Domain, Effort, Blocked By. All 12 issues added. Public visibility.
+- **Wiki deployed** — 6 pages: Home (index + quick links), Architecture, Cognitive Triggers,
+  BFT Design Note, Overview for Psychologists, Glossary. In-repo docs remain source of truth;
+  wiki mirrors for navigation.
+- **Issue templates** — `.github/ISSUE_TEMPLATE/suggestion.yml` and `bug.yml`. External
+  submissions auto-labeled `external-suggestion` for triage.
+- **Convention documented** — `docs/github-workflow-convention.md` covers labels, triage flow,
+  PR conventions, wiki sync, cogarch integration (T16).
+- **GH auth token refreshed** — added `read:project` + `project` scopes for board operations.
+- ▶ docs/github-workflow-convention.md (full convention reference)
+
+⚑ EPISTEMIC FLAGS
+- Wiki mirrors require manual refresh during /cycle when underlying docs change. No automation
+  exists yet — wiki drift will occur if docs change without wiki sync.
+- Project board custom field values not yet populated per-issue (Domain, Effort, Blocked By
+  fields created but item-level values require manual or scripted assignment).

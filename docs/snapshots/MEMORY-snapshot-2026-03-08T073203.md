@@ -18,11 +18,12 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 39. Full GitHub integration: 12 issues (#46–57),
-14 labels, project board (table view), wiki (6 pages), issue templates, convention doc.
-psq-agent handling safety-quotient work autonomously.
-**Next:** Await psq-agent ACK on gate resolution. awesome-cc submission (#52).
-Wiki sync during /cycle when mirrored docs change.
+**Where we stopped:** Session 38. EF-2 claim verification tracker created
+(`docs/claim-verification-log.json`, 1/10 exchanges). EF-1 evaluated — zero autonomous
+pressure, correctly deferred. TODO.md Sonnet re-score corrected to 10 dims.
+**Next:** Await psq-agent ACK on gate resolution (T14) → Sonnet re-score (10 dims, ~10
+sessions). B3 recalibration. User considering delegating all safety-quotient work to psq-agent —
+if so, psychology-agent focuses on awesome-cc submission, EF-2 tracking, interface investigation.
 
 
 ## Memory Hygiene
