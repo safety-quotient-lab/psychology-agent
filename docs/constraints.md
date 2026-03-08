@@ -83,6 +83,9 @@ canonical sources where each constraint receives its mechanical enforcement.
 | P-18 | Data integrity read-diff-write-verify for transport and external writes — prevents duplicates, naming collisions, MANIFEST drift | T16 Check 5; transport.md §Data Integrity |
 | P-19 | Pushback accumulator bridges to lesson pipeline — 3+ pushbacks generates T10 lesson candidate with pattern_type: structural-disagreement | pushback-accumulator.sh hook; T10 |
 | P-20 | Anti-patterns registry in CLAUDE.md — known-failing approaches loaded every session, no graduation ceremony required | CLAUDE.md §Anti-Patterns |
+| P-21 | Hook health audit in T11 — verify each hook script exists and has execute permission | T11 Check 5 |
+| P-22 | Lesson promotion velocity gate — recurrence >= 2 AND span <= 10 calendar days required for promotion | T10 Check 6 |
+| P-23 | Diff verification in /scan-peer — skip empty diffs, whitespace-only changes, verify file existence before reporting | /scan-peer Phase 1b |
 
 ---
 
@@ -136,7 +139,7 @@ protocol spec). A constraint without enforcement is an aspiration.
 **Retiring constraints:** Do not delete — mark as `[RETIRED: reason, date]`.
 Retired constraints preserve the reasoning for why they once existed.
 
-**Constraint count:** E:10, M:10, P:20, I:15, D:8 — 63 total
+**Constraint count:** E:10, M:10, P:23, I:15, D:8 — 66 total
 
 ---
 
