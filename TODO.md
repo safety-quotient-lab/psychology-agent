@@ -117,11 +117,12 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ## Dignity Index
 
-- [ ] **Phase A: Feasibility study** — score 50 observatory stories on Hicks' 10
-  dignity elements + PSQ. Measure empirical construct distance. Stratified sample:
-  10 high-HRCB+, 10 high-HRCB−, 10 mid-HRCB, 10 high-PSQ, 10 technical/neutral.
-  Full spec: `docs/dignity-instrument-spec.md`.
-  *Precondition: observatory-agent accepts proposal (dignity-instrument turn 1)*
+- [ ] **Phase A: Feasibility study** — IN PROGRESS. 50-story sample selected, 5/50
+  scored. Signal inversion confirmed (2/2 high-HRCB stories). Relevance gate correct
+  (3/3 technical). Remaining: score 45 stories from full content, Pass 2 for inter-rater
+  reliability, correlation matrix. Study doc: `docs/dignity-phase-a-study.md`.
+  Spec: `docs/dignity-instrument-spec.md`.
+  *Precondition: ✓ MET — observatory accepted Phase A (turn 6, PR #63)*
 
 - [ ] **Phase B: Instrument design** — Hicks-based Dignity Index scoring prompt,
   calibration protocol, storage schema. Applies HRCB mode-collapse lessons.

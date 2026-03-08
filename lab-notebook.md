@@ -183,7 +183,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | EF-1 trust degradation         | ✗ Correctly deferred — zero autonomous operation pressure; revisit at first Tier 2 evaluator fire |
 | GitHub integration              | ✓ Full — 12 issues (#46–57), 14 labels, project board (table), wiki (6 pages), 2 issue templates, convention doc (Session 39) |
 | Dignity Index spec              | ✓ docs/dignity-instrument-spec.md — Hicks 10-element rubric, 3-phase plan, HRCB lessons applied (Session 41) |
-| dignity-instrument session      | ✓ T1–T4 complete; endorsed by unratified, relayed to observatory via PR #56; gate with observatory-agent (Session 41) |
+| dignity-instrument session      | ✓ T1–T6 complete; observatory accepted Phase A; API live (713 stories) (Session 41–42) |
+| DI Phase A feasibility study    | ✗ In progress — 50-story sample selected, 5/50 scored; signal inversion confirmed (2/2 high-HRCB); relevance gate correct (3/3 technical) (Session 42) |
 
 
 ### Open Questions
@@ -2759,3 +2760,40 @@ and compiled the final consolidated transport message.
   relational norms. Scoring non-Western content requires explicit flagging.
 - The signal inversion claim (high PSQ threat + high DI on dignity-restoring content) follows
   logically but lacks empirical measurement on scored examples.
+
+
+## 2026-03-08T11:23 CDT — Session 42 (DI Phase A — sample selection + initial scoring)
+
+- **Observatory acceptance processed** — merged PRs #63 (observatory Phase A acceptance,
+  turn 6) and #64 (scan-008 disposition). Observatory API live at
+  `https://observatory.unratified.org/api/v1`; 713 scored stories available.
+  Key constraint: high-negative HRCB stratum nearly empty (~15 stories below 0.0).
+- **Phase A sample selected** — 50 stories across 5 strata:
+  Stratum 1: High-HRCB positive (n=10, consensus > 0.5)
+  Stratum 2: Low/Negative HRCB (n=10, consensus < 0.0)
+  Stratum 3: Mid-HRCB (n=10, consensus 0.1–0.3)
+  Stratum 4: High-PSQ threat (n=10, psq < 4.0)
+  Stratum 5: Technical/Neutral (n=10, consensus=0, hcb_weighted_mean=0)
+- **Initial scoring (5 stories)** — 2 high-HRCB stories scored from full article content,
+  3 technical stories scored via relevance gate. Results:
+  - Story #1 (ACLU ICE children): DI=95.0, PSQ=3.71 — **signal inversion confirmed**
+  - Story #10 (Gaza detention testimony): DI=92.5, PSQ=3.25 — **signal inversion confirmed**
+  - Stories #41, #48, #49 (technical): all correctly classified ND by relevance gate
+- **Composite formula corrected** — study doc initially had wrong formula (×5 gives 0–200).
+  Corrected to spec §3.4: `DI = ((mean_scored + 2) / 4) × 100` (0–100 range).
+- **Methodology finding:** Scoring from titles alone produces weak, mostly-neutral scores.
+  Full article content access required for rigorous dimension-level scoring.
+- **Cross-cultural flag raised** on Story #10 — Hicks framework may underweight collective
+  dignity violations in conflict contexts (spec §10.1, Metz 2007).
+- **Study document created:** `docs/dignity-phase-a-study.md`
+
+▶ journal.md §30 (Dignity as Measurement — Phase A extends the narrative)
+
+⚑ EPISTEMIC FLAGS
+- 5/50 stories scored (10%). Preliminary signal inversion finding based on 2 stories only.
+- Signal inversion confirmed empirically for the first time — Session 41 was theoretical only.
+- Remaining 45 stories require full content fetching and scoring across multiple sessions.
+- `rs_score` field not exposed in observatory API — technical/neutral classification relies
+  on `consensus_score=0` + `hcb_weighted_mean=0` (proxy, not the intended field).
+- API sort parameters appear non-functional — stories return in hcb_weighted_mean order
+  regardless of sort/order query params. Sample selection required manual offset scanning.

@@ -17,12 +17,13 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 42. DI Phase A feasibility study in progress.
-50-story sample selected from observatory API (713 stories). 5/50 scored:
-signal inversion confirmed (ACLU ICE DI=95, PSQ=3.71; Gaza DI=92.5, PSQ=3.25),
-relevance gate correct (3/3 technical = ND). Study doc: `docs/dignity-phase-a-study.md`.
-**Next:** Score remaining 45 stories (full content access required). Then Pass 2
-for inter-rater reliability. awesome-cc submission (#52). Await psq-agent ACK.
+**Where we stopped:** Session 41. Dignity Index spec + observatory proposal.
+PSQ-as-proxy analysis (HRCB + dignity: both infeasible as proxies, defensible
+as complements). dignity-instrument session T1–T4 complete: endorsed by
+unratified, relayed to observatory (PR #56). scan-008 delivered (3 findings).
+**Next:** Await observatory response on DI proposal (via unratified relay).
+awesome-cc submission (#52). Upstream PR to antiregression-setup. Await
+psq-agent ACK on gate resolution.
 
 
 ## Memory Hygiene
