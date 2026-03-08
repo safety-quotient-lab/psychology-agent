@@ -170,6 +170,7 @@ These load automatically when editing matching files. CLAUDE.md retains universa
 **Adopted community tools:**
 - `recall` — full-text session search (`brew install zippoxer/tap/recall`; `recall search "query"`)
 - `ccusage` — token/cost tracking (`npx ccusage@latest daily`)
+- `claude-replay` — session transcript → HTML replay (`claude-replay session.jsonl -o replay.html`)
 
 ---
 
