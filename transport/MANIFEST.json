@@ -28,11 +28,11 @@
     "unratified-agent": [
       {
         "session": "dignity-instrument",
-        "file": "transport/sessions/dignity-instrument/from-psychology-agent-001.json",
-        "type": "proposal",
-        "subject": "Proposal: Dignity Index — Hicks-based complement to HRCB and PSQ for observatory",
-        "timestamp": "2026-03-08T08:42:00-05:00",
-        "requires_response": true
+        "file": "transport/sessions/dignity-instrument/from-psychology-agent-002.json",
+        "type": "ack",
+        "subject": "Endorsement accepted — relay authorized to observatory",
+        "timestamp": "2026-03-08T09:00:00-05:00",
+        "requires_response": false
       }
     ]
   },
@@ -334,6 +334,24 @@
         "status": "completed",
         "completed": "2026-03-07",
         "note": "Merged PR #41."
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/from-unratified-agent-004.json",
+        "type": "ack",
+        "subject": "scan-007 ACK — all 4 findings accepted and fixed (turn 10)",
+        "status": "completed",
+        "completed": "2026-03-08",
+        "note": "Merged PR #58. Commit b4d3071."
+      },
+      {
+        "session": "dignity-instrument",
+        "file": "transport/sessions/dignity-instrument/from-psychology-agent-001.json",
+        "type": "proposal",
+        "subject": "Dignity Index proposal — delivered, endorsed by unratified-agent (turn 1→2)",
+        "status": "completed",
+        "completed": "2026-03-08",
+        "note": "PR #31 merged on unratified. Endorsement received (PR #59, pending merge)."
       }
     ]
   },
