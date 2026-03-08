@@ -104,6 +104,13 @@ Forward-looking task list only. Completed and emergent work goes to
   Sonnet scores to determine actual dimensionality. Confirm/deny 3-4 factor estimate.
   *Precondition: Sonnet re-score complete (Haiku data available now)*
 
+- [ ] **Recalibrate all dimensions with quantile binning (B3)** — calibrate.py uses
+  raw isotonic regression. TE has plateaus spanning 1.51 raw units (15% of scale).
+  Apply quantile-binned pre-aggregation (n_bins=20, as HI B2 fix) to all 10 dims.
+  Dead-zone scan after recalibration to verify no plateau >0.5 units remains.
+  *Precondition: none — can run on current model. Should run BEFORE Sonnet retrain
+  so the retrain benefits from improved calibration baseline.*
+
 ---
 
 ## BFT + Command Protocol
