@@ -18,9 +18,10 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 33. Blog adversarial review CLOSED (turn 12, PR #37).
-No active sessions with unratified-agent. Haiku v2 scoring: 9/11 dims done
-(contractual_clarity + adversarial_register remaining). /iterate skill created (Session 32).
+**Where we stopped:** Session 33. Blog adversarial review session close proposed
+(turn 11) — remediation ACK sent, F-D9 error acknowledged (1977 ICESCR date correct).
+PR #36 merged. Haiku v2 scoring: 9/11 dims done (contractual_clarity + adversarial_register
+remaining). /iterate skill created (Session 32).
 **Next:** Haiku v2 scoring completion → v1 vs v2 quality analysis. PSQ context-aware
 scoring implementation (server.js, v3.1). Then HN post (README precondition met).
 

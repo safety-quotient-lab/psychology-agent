@@ -166,7 +166,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | AR quality analysis           | ✓ Face validity pass, healthy distribution, strong source discrimination; 27% midpoint pile-up noted (Session 30) |
 | Separated scoring automation  | ✓ score_dimension.sh — Haiku, 20/batch, 3s/10s rate limiting, resumable; data/separated_scoring/ (Session 30) |
 | /tmp durability fix           | ✓ WORK_DIR moved from /tmp/psq_separated → data/separated_scoring/ (gitignored) (Session 30) |
-| Blog adversarial review       | ✓ COMPLETE — all 33 posts reviewed (Batches A-F), all ACKs received (PRs #32-36), remediation complete, session close proposed (Session 30-33) |
+| Blog adversarial review       | ✓ CLOSED — 12 turns, 31 reviewed, 27 remediated, session-close accepted (PR #37). 1 reviewer error (F-D9) caught by pipeline. (Session 30-33) |
 | Separated scoring (10 dims)  | ✗ Running — Haiku v2 (anti-midpoint prompt): 9/11 complete, contractual_clarity 460/998; PID 70695 (Session 30-33) |
 | Ethical marketing rubric      | ✓ docs/ethical-marketing-rubric.md — 5 dims, FTC/NAD/AMA/ICC/AI-disclosure grounded (Session 30) |
 
@@ -2425,3 +2425,14 @@ and compiled the final consolidated transport message.
 ⚑ EPISTEMIC FLAGS
 - Self-evaluation carries inherent conflict of interest — same agent system reviewing itself
 - Cross-platform fixes verified by syntax check only, not runtime test on macOS
+
+
+## 2026-03-07T18:15 CST — Session 33 addendum (blog-adversarial-review session close)
+
+- **PR #37 merged** — unratified-agent session-close ACK (turn 12)
+- **blog-adversarial-review session CLOSED** — 12 turns, 31 posts reviewed, 27
+  remediated, 1 reviewer error caught (F-D9), 4 deferred items. Both parties agree.
+- **MANIFEST updated** — pending cleared, session-close in recently_completed
+- **No active sessions** with unratified-agent remaining
+
+▶ transport/sessions/blog-adversarial-review/from-unratified-agent-008.json
