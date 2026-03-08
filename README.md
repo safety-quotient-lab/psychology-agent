@@ -165,11 +165,26 @@ user). Domain-specific priority tables govern which procedure ranks first per
 context (clinical vs. research vs. architecture vs. applied consultation).
 - [docs/architecture.md](docs/architecture.md) — Component Spec: Adversarial Evaluator
 
+**Session replays** — Any session transcript can become a self-contained HTML replay
+with playback controls, speed adjustment, and automatic secret redaction using
+[claude-replay](https://github.com/es617/claude-replay). Replays live in
+`docs/replays/` (gitignored — they embed full transcripts including file paths
+and source code). Review before sharing externally.
+
+```bash
+# Generate a replay from any session transcript
+claude-replay ~/.claude/projects/<project>/<session>.jsonl \
+  --title "Session Name" --no-thinking --speed 2.0 -o docs/replays/session.html
+
+# List available themes
+claude-replay --list-themes
+```
+
 **Research journal** — A methods-and-findings narrative covering the full arc from
 initial framing through architecture design, cognitive infrastructure, cross-context
 integrity, reconstruction methodology, semiotic theory, Byzantine fault tolerance,
 and construct validity analysis.
-- [journal.md](journal.md) — 26 sections
+- [journal.md](journal.md) — 29 sections
 
 ---
 
@@ -225,7 +240,8 @@ psychology-agent/
 - **Dependencies:** MIT/Apache/BSD licenses only — no GPL/AGPL
 - **Community tools:** [recall](https://github.com/zippoxer/recall) (session search),
   [ccusage](https://github.com/ryoppippi/ccusage) (token/cost tracking),
-  [parry](https://github.com/vaporif/parry) (prompt injection scanning)
+  [parry](https://github.com/vaporif/parry) (prompt injection scanning),
+  [claude-replay](https://github.com/es617/claude-replay) (session transcript → HTML replay)
 
 See `CLAUDE.md` for full conventions.
 
