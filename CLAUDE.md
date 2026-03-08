@@ -80,10 +80,9 @@ exceed available evidence, or any finding that a peer reviewer would challenge.
   invoked by /hunt and /adjudicate. Domain classify → ground → trace 10 orders.
 - `/sync` — Inter-agent mesh synchronization. Scans transport sessions for new
   messages, checks peer repos, writes ACKs, updates MANIFEST. No auto-merge.
-- `/iterate` — Autonomous work discovery + execution. Runs /hunt internally,
-  2-order knock per candidate, 4-mode discriminator (consensus → pragmatism →
-  parsimony → bare), then executes the winner and auto-cycles. May use WebFetch
-  during execution for research tasks.
+- `/iterate` — Unified work loop: sync → hunt → discriminate → execute → cycle.
+  One command does everything. Runs /sync as Phase 0, /hunt as Phase 1, 2-order
+  knock + 4-mode discriminator, executes the winner, auto-cycles at close.
 
 ## Commands (load on demand)
 
@@ -187,6 +186,33 @@ benefit everyone — they are not accommodations for edge cases.
 - **Modular structure** — each section should stand alone; don't require the user to
   hold prior sections in working memory to parse the current one
 - **Offer stopping points** — for long outputs, offer to pause rather than dumping
+
+---
+
+## Problem-Solving Discipline
+
+Before implementing a fix or new approach, write a 2-sentence plan explaining WHY
+the approach should work. If an approach fails twice, stop and list 3 alternative
+approaches before trying again. Do not brute-force system-level tasks through
+dozens of failing attempts.
+
+---
+
+## Workflow Continuity
+
+When resuming after a stall, context loss, or session continuation, reload relevant
+state from disk before continuing:
+- Re-read TODO.md, lab-notebook.md Current State, MEMORY.md Active Thread
+- Re-read any in-progress file that was being edited
+- Check `git status` and `git log -3` to reorient
+
+---
+
+## Environment Pitfalls
+
+- **Shell state does not persist between Bash calls** — environment variables, `cd`,
+  and shell functions set in one Bash tool call do not carry to the next. Either chain
+  commands in a single call (`export FOO=bar && use $FOO`) or write to a file and source it.
 
 ---
 
