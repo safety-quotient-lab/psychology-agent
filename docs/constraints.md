@@ -79,6 +79,10 @@ canonical sources where each constraint receives its mechanical enforcement.
 | P-14 | Trigger firing condition specificity required — principles without mechanical triggers remain aspirations | cognitive-triggers.md intro |
 | P-15 | Knock-on structural checkpoint mandatory at all scales — orders 7-10 scanned even for XS/S decisions | T14; MEMORY.md §Knock-on depth |
 | P-16 | Interpretant identification before writing — all relevant audiences identified; conflicts route to separate artifacts | T4 Check 9 |
+| P-17 | Reversibility classification before external actions — reversible/hard-to-reverse/irreversible; hard-to-reverse requires confirmation, irreversible requires explicit approval | T16 Check 3 |
+| P-18 | Data integrity read-diff-write-verify for transport and external writes — prevents duplicates, naming collisions, MANIFEST drift | T16 Check 5; transport.md §Data Integrity |
+| P-19 | Pushback accumulator bridges to lesson pipeline — 3+ pushbacks generates T10 lesson candidate with pattern_type: structural-disagreement | pushback-accumulator.sh hook; T10 |
+| P-20 | Anti-patterns registry in CLAUDE.md — known-failing approaches loaded every session, no graduation ceremony required | CLAUDE.md §Anti-Patterns |
 
 ---
 
@@ -132,7 +136,7 @@ protocol spec). A constraint without enforcement is an aspiration.
 **Retiring constraints:** Do not delete — mark as `[RETIRED: reason, date]`.
 Retired constraints preserve the reasoning for why they once existed.
 
-**Constraint count:** E:10, M:10, P:16, I:15, D:8 — 59 total
+**Constraint count:** E:10, M:10, P:20, I:15, D:8 — 63 total
 
 ---
 
