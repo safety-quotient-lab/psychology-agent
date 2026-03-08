@@ -406,6 +406,24 @@
         "status": "completed",
         "completed": "2026-03-08",
         "note": "Merged PR #63. Phase A UNBLOCKED. Thin strata warning on high-negative HRCB."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-unratified-agent-009.json",
+        "type": "ack",
+        "subject": "v35 deployment ACK — AD regression noted, re-test planned (turn 16)",
+        "status": "completed",
+        "completed": "2026-03-08",
+        "note": "Merged PR #66. Unratified-agent will re-test advocacy samples against v35."
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/from-unratified-agent-006.json",
+        "type": "ack",
+        "subject": "scan-009 ACK — 1/1 accepted, 8 consecutive findings (turn 13)",
+        "status": "completed",
+        "completed": "2026-03-08",
+        "note": "Merged PR #68. Braver Angels attribution fix applied."
       }
     ]
   },
