@@ -91,20 +91,23 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ## PSQ Scoring Quality
 
-- [ ] **Full Sonnet re-score (998 texts × 10 dims)** — re-score all 10 dimensions
-  (TE, HI, AD, ED, RC, RB, TC, CC, DA, CO) with Sonnet. User chose to preserve
-  full dataset at scoring time (Session 37 P2 resolution); psychology-agent decides
-  which dims to use at retrain time. In-conversation protocol, one dim per session
-  (~10 sessions). Gate resolution sent (turn 14); awaiting psq-agent ACK.
-  *Precondition: scorer comparison complete (✓ Session 34), gate resolution sent (✓ Session 37)*
+- [ ] **Cross-scorer concordance study (Opus vs Sonnet)** — psq-agent executed the
+  1,000-text rescore using Opus instead of Sonnet (v35 deployed, held-out r=0.680).
+  Before any further LLM-scored batches enter training, score a shared subset (n≥50)
+  with both Opus and Sonnet, compute per-dimension ICC or Pearson r, and establish
+  whether the scorers produce interchangeable labels. ACK turn 16 gates this.
+  *Precondition: none — can run now. Gating further rescore work.*
 
-- [ ] **Retrain DistilBERT on Sonnet labels** — after Sonnet re-score, retrain v29+
-  on improved labels. Expected: higher held-out r, better dimension independence.
-  *Precondition: full Sonnet re-score complete*
+- [ ] **Retrain DistilBERT on improved labels** — after concordance study confirms
+  scorer consistency, retrain v36+ on the Opus-scored labels (or mixed Opus+Sonnet
+  if concordance permits). Expected: higher held-out r, better dimension independence.
+  *Precondition: cross-scorer concordance study complete*
 
 - [ ] **Factor analysis on scoring data** — PCA on 11×998 Haiku scores and 10×998
-  Sonnet scores to determine actual dimensionality. Confirm/deny 3-4 factor estimate.
-  *Precondition: Sonnet re-score complete (Haiku data available now)*
+  Opus scores to determine actual dimensionality. Confirm/deny 3-4 factor estimate.
+  Factor analysis v3 (from psq-agent turn 15): KMO=0.910, g-eigenvalue=6.824,
+  68.2% variance explained, 1 factor retained. Structural stability confirmed.
+  *Precondition: concordance study complete (Haiku data + Opus data available now)*
 
 - [ ] **Recalibrate all dimensions with quantile binning (B3)** — calibrate.py uses
   raw isotonic regression. TE has plateaus spanning 1.51 raw units (15% of scale).

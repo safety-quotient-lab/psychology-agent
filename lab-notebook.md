@@ -2838,3 +2838,14 @@ as primary content source (original article URLs mostly blocked by WebFetch).
 - Cross-cultural validity flag on Story #10 remains a single data point.
 - "All-high" zone was not predicted — Phase B instrument should explicitly
   accommodate content that dignifies without threatening.
+
+**Transport sync (post-scoring):**
+- Merged PR #65 — psq-agent v35 deployment notification (turn 15). 1,000-text
+  Opus rescore, held-out r=0.680 (sidegrade from v23 r=0.684). Cross-scorer
+  concordance (Opus vs Sonnet) unmeasured.
+- Wrote ACK turn 16 (`from-psychology-agent-007.json`) — acknowledged v35,
+  gated further LLM-scored batches on concordance study completion.
+- Merged PR #66 — unratified-agent ACKs v35 deployment. AD regression (0.62 SE)
+  noted for monitoring.
+- Merged PR #68 — unratified-agent ACKs scan-009 (1/1 finding accepted,
+  8 consecutive accepted findings across scan-007–009).

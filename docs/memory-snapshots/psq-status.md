@@ -1,11 +1,12 @@
 # PSQ Sub-Agent Status (managed in its own context)
 
 **Production endpoint:** ✓ https://psq.unratified.org/score — live, TLS, Hetzner CX Ashburn
-**Score calibration:** ✓ isotonic regression (n=1897), +3.5–21.6% MAE/dim.
+**Model version:** v35 (deployed 2026-03-08). Held-out r=0.680 (v23 was 0.684, Δ=-0.004 sidegrade).
+**Score calibration:** ✓ isotonic-v2-2026-03-08. 6/10 dims improved, 4/10 regressed. RB +0.113, AD -0.062.
 **Confidence calibration:** ✓ B1 RESOLVED (Session 26) — r_confidence field added; scale=0 intentional.
 **HI calibration:** ✓ B2 RESOLVED (Session 26) — quantile-binned isotonic v2; MAE -3.9%.
-**Model files:** ✓ best.pt (256 MB) + calibration.json present locally. SHA256 verified.
-**Service:** systemd psq-server active. 84ms inference. onnxruntime-node postinstall fix.
+**Model files:** ✓ v35 ONNX + calibration.json on Hetzner. v23 tagged as v23-production-backup.
+**Service:** systemd psq-server active. 42ms inference. onnxruntime-node postinstall fix.
 **Wrangler secret:** PSQ_ENDPOINT_URL → https://psq.unratified.org
 **Firewall:** ufw SSH + HTTP/HTTPS only. Port 3000 closed from public.
 **Integration:** unratified-agent psq-scoring session active (initial run + interpretation + ACK merged).
@@ -21,5 +22,8 @@ Awaiting user terminal run.
 **Viable dims (9/11):** TE, HI, AD, ED, RC, RB, TC, cooling, AR. Drop CC + DA.
 **Open issues:** WEIRD assumptions, v27 regression, factor analysis pending.
 **PSQ-Lite:** TE + HI(raw) + TC adopted by unratified-agent (provisional). Proposed revision: TE + TC + AR.
-**Next:** Full Sonnet re-score (998 × 9 dims) → retrain DistilBERT on Sonnet labels.
+**Rescore status:** 1,000-text rescore COMPLETE — scored by Opus (not Sonnet as authorized).
+  Cross-scorer concordance (Opus vs Sonnet) unmeasured. Gated in ACK turn 16.
+**Factor analysis v3:** KMO=0.910, g-eigenvalue=6.824, 68.2% variance, 1 factor. Structural stability confirmed.
+**Next:** Cross-scorer concordance study (n≥50, Opus vs Sonnet) → then retrain if concordance holds.
 Do not duplicate PSQ improvement work in this context.
