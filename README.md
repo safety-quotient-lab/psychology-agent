@@ -260,7 +260,7 @@ See `CLAUDE.md` for full conventions.
 
 ## License
 
-- **Code:** CC BY-NC-SA 4.0 (`LICENSE`)
+- **Code:** Apache 2.0 (`LICENSE`)
 - **PSQ data + model weights:** CC BY-SA 4.0 (`safety-quotient/LICENSE-DATA`)
 
 ---

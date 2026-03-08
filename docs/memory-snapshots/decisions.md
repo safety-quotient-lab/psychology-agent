@@ -18,7 +18,7 @@
                               categories; reads ongoing signals in real time
  Machine-to-machine          Socratic stance drops; detection is structural
                               (format + self-id + absence of social hedging)
- License (code)              CC BY-NC-SA 4.0 (root + PSQ code)
+ License (code)              Apache 2.0 (relicensed Session 32c)
  License (PSQ data/weights)  CC BY-SA 4.0 (Dreaddit ShareAlike constraint)
  Cogarch organizing          Semiotics (Peircean). Each trigger classifies a
  principle                   sign type + warrants a specific action. T4 Check 9

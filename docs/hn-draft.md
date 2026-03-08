@@ -40,6 +40,6 @@ The interesting parts:
 
 Code: https://github.com/safety-quotient-lab/psychology-agent
 
-License: CC BY-NC-SA 4.0 (code), CC BY-SA 4.0 (PSQ data/weights)
+License: Apache 2.0 (code), CC BY-SA 4.0 (PSQ data/weights)
 
 I'm the PI (Kashif Shah). The agents did most of the engineering. Happy to answer questions about multi-agent coordination, the cognitive trigger system, or what broke along the way.

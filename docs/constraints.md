@@ -37,7 +37,7 @@ canonical sources where each constraint receives its mechanical enforcement.
 | E-6 | Fabricated confidence forbidden — will not assert certainty beyond evidence; low-evidence claims flagged | architecture.md §Refusals |
 | E-7 | Conflicting sub-agent outputs preserved in shape, not averaged — disagreement carries information | architecture.md §Refusals; peer-layer-spec.md §MUST NOT |
 | E-8 | Shared systematic error must be declared in consensus — shared training data or methodology disclosed | architecture.md §Consensus procedure |
-| E-9 | CC BY-NC-SA 4.0 on code; CC BY-SA 4.0 on PSQ data/weights (Dreaddit ShareAlike constraint) | README.md; LICENSE; safety-quotient/LICENSE-DATA |
+| E-9 | Apache 2.0 on code; CC BY-SA 4.0 on PSQ data/weights (Dreaddit ShareAlike constraint) | README.md; LICENSE; NOTICE; safety-quotient/LICENSE-DATA |
 | E-10 | Public repository — all tracked files treated as public; no credentials, private paths, sensitive data | T4 Check 2 |
 
 ---
