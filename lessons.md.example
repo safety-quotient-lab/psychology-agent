@@ -22,10 +22,12 @@ full lifecycle spec.
 ## YYYY-MM-DDTHH:MM TZ — [Lesson Title]
 
 ```yaml
-pattern_type: [reasoning-error | process-failure | architecture-insight | communication-gap | tooling-discovery]
+pattern_type: [reasoning-error | process-failure | architecture-insight | communication-gap | tooling-discovery | structural-disagreement]
 domain: [cogarch | memory | sub-agent | evaluation | documentation | security | workflow]
 severity: [low | medium | high]
 recurrence: 1           # increment on each re-encounter
+first_seen: null         # ISO date of first occurrence (set on creation)
+last_seen: null          # ISO date of most recent recurrence (updated on each increment)
 trigger_relevant: null   # T-number if this maps to a trigger improvement, else null
 promotion_status: null   # null | candidate | promoted | retired
 ```
