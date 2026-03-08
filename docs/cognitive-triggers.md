@@ -364,17 +364,22 @@ they want to grok or internalize something, or (c) a genuine conceptual shift oc
 
 **Checks**:
 1. Does this lesson already exist in lessons.md? If so, increment `recurrence`
+   and update `last_seen` to today's date (`date -Idate`)
 2. Format per lessons.md.example — YAML frontmatter + narrative fields
 3. Use full timestamp: `date '+%Y-%m-%dT%H:%M %Z'`
-4. Classify: `pattern_type`, `domain`, `severity` from the schema enums
+4. Classify: `pattern_type`, `domain`, `severity` from the schema enums.
+   Set `first_seen` to today's date on creation; set `last_seen` = `first_seen`
 5. If 3+ lessons share the same `pattern_type` or `domain`, flag `[→ PROMOTE]`
-6. **Graduation path** — for any entry already flagged `[→ PROMOTE]`: determine
-   whether the pattern has stabilized across 2+ sessions. If yes: draft a concrete
-   CLAUDE.md convention candidate (plain imperative sentence, no jargon) and surface
-   it to the user for review. User sets `promotion_status: approved` to authorize.
-   Graduation ceremony (/cycle Step 8b) then executes: (1) append to CLAUDE.md,
-   (2) update lessons.md `promotion_status: graduated` + `graduated_to` + date,
-   (3) log in lab-notebook. Remove `[→ PROMOTE]` flag once graduated.
+6. **Velocity-gated promotion** — for any entry already flagged `[→ PROMOTE]`:
+   check `recurrence >= 2 AND (last_seen - first_seen) <= 10 calendar days`.
+   Fast-recurring patterns get promoted; slow-burn patterns (same recurrence
+   spread over months) hold for more evidence. If velocity gate passes: draft
+   a concrete CLAUDE.md convention candidate (plain imperative sentence, no
+   jargon) and surface it to the user for review. User sets
+   `promotion_status: approved` to authorize. Graduation ceremony (/cycle
+   Step 8b) then executes: (1) append to CLAUDE.md, (2) update lessons.md
+   `promotion_status: graduated` + `graduated_to` + date, (3) log in
+   lab-notebook. Remove `[→ PROMOTE]` flag once graduated.
 
 **Action**: Write entry to lessons.md. lessons.md is gitignored; lessons.md.example
 is the tracked format stub with schema definition.
@@ -390,7 +395,11 @@ is the tracked format stub with schema definition.
 2. Audit MEMORY.md against current project state
 3. Audit CLAUDE.md against current project state
 4. Check for inconsistencies between docs
-5. For deferred items: document future mitigations
+5. **Hook health** — parse `.claude/settings.json`, resolve each hook command
+   path, verify the script file exists and has execute permission. Report any
+   missing or non-executable hooks. (Firing verification deferred — most hooks
+   produce ephemeral stdout with no persistent artifact to check.)
+6. For deferred items: document future mitigations
 
 **Action**: Report findings. Fix what can be fixed immediately. Document deferrals
 with mitigations.
