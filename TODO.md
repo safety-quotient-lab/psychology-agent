@@ -16,10 +16,8 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ## Writing
 
-- [ ] **HN post for psychology-agent** — Show HN submission. Draft saved at
-  `docs/hn-draft.md` (Session 27). 3 title options + body text. Publish when
-  README and repo are polished.
-  *Precondition: README polished, repo represents current state*
+- [x] **HN post for psychology-agent** — Published (2026-03-08). Draft was at
+  `docs/hn-draft.md`.
 
 ---
 
