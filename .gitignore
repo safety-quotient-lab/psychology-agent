@@ -30,3 +30,6 @@ psychology-handoff*
 .parry-tainted
 .parry-session-disabled
 .DS_Store
+
+# Session replays (contain full transcripts — do not commit)
+docs/replays/
