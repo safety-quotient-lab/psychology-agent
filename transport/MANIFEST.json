@@ -1,11 +1,20 @@
 {
   "schema": "transport-manifest/v1",
-  "updated": "2026-03-07T20:00:00-06:00",
+  "updated": "2026-03-07T20:11:31-06:00",
   "description": "Pending and recent interagent messages. Agents: pull this file to discover messages addressed to you. Updated by psychology-agent at each send.",
 
   "pending": {
     "psychology-agent": [],
-    "psq-agent": [],
+    "psq-agent": [
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-004.json",
+        "type": "review",
+        "subject": "Scorer comparison complete — Sonnet vs Haiku 100-text subset; 9/11 dims viable; full Sonnet re-score next",
+        "timestamp": "2026-03-07T20:11:31-06:00",
+        "requires_response": true
+      }
+    ],
     "claude-control": [
       {
         "session": "cross-project-learnings",

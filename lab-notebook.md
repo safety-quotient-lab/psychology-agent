@@ -167,8 +167,11 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Separated scoring automation  | ✓ score_dimension.sh — Haiku, 20/batch, 3s/10s rate limiting, resumable; data/separated_scoring/ (Session 30) |
 | /tmp durability fix           | ✓ WORK_DIR moved from /tmp/psq_separated → data/separated_scoring/ (gitignored) (Session 30) |
 | Blog adversarial review       | ✓ CLOSED — 12 turns, 31 reviewed, 27 remediated, session-close accepted (PR #37). 1 reviewer error (F-D9) caught by pipeline. (Session 30-33) |
-| Separated scoring (11 dims) | ✗ Running — Haiku v2: 10/11 complete, adversarial_register 180/998; PID 70695 (Session 30-34) |
-| v1 vs v2 quality analysis    | ✓ Preliminary — compare_v1_v2.py written + run; 4 dims compared; CC 56% pile-up, 23 halo pairs flagged (Session 34) |
+| Separated scoring (11 dims) | ✓ Complete — Haiku v2 all 11 dims × 998 texts (Session 30-34) |
+| v1 vs v2 quality analysis    | ✓ Complete — compare_v1_v2.py; 4 dims compared; mean pile-up 32.7%; 23 halo pairs (Session 34) |
+| Scorer comparison (Haiku vs Sonnet) | ✓ Complete — 100-text stratified subset, all 11 dims; Sonnet 24.7% vs Haiku 31.2% pile-up; CC+DA construct problems confirmed (Session 34) |
+| psq-quality-update session   | ✓ Opened + ACK received — observatory relay confirmed by unratified-agent (PR #39, Session 34) |
+| PR #38 (/iterate unified)    | ✓ Merged + CLAUDE.md trimmed 257→192 lines (Session 34) |
 | Ethical marketing rubric      | ✓ docs/ethical-marketing-rubric.md — 5 dims, FTC/NAD/AMA/ICC/AI-disclosure grounded (Session 30) |
 
 
@@ -2463,3 +2466,36 @@ and compiled the final consolidated transport message.
 - v1 vs v2 comparison limited to 4/11 dimensions (others lack v1 backup data)
 - 56% CC pile-up may indicate construct definition problem rather than prompt problem
 - Halo effect analysis uses only matched text IDs — correlation structure may change with full AR data
+
+
+## 2026-03-07T20:07 CST — Session 34 addendum (scorer comparison + transport + CLAUDE.md trim)
+
+- **Haiku v2 scoring complete** — adversarial_register reached 998/998. Final v2 analysis:
+  mean pile-up 32.7%, no dimension below 20%, 23 halo pairs > r=0.7
+- **Scorer comparison (Haiku vs Sonnet)** — 100-text stratified subset (20 per TE quintile),
+  all 11 dimensions scored with Sonnet. Key results:
+  - Mean pile-up: Haiku 31.2% → Sonnet 24.7% (21% relative reduction)
+  - 8/10 dimensions improve with Sonnet — confirms compression belongs to scorer capacity
+  - CC: 59% → 51% (still unusable, r=0.644) — **construct problem confirmed**
+  - DA: 38% → 39% (no improvement, r=0.595) — **construct problem confirmed**
+  - AR: 31% → 14% (biggest improvement, r=0.854) — construct validates strongly
+  - Existing 50-text Opus ED comparison also consistent (10% pile-up)
+- **Transport messages sent**:
+  - psq-scoring turn 10: full v2 quality findings to unratified-agent
+  - psq-quality-update turn 1: observatory epistemic stance update request
+  - psq-quality-update turn 2: ACK received (PR #39 merged) — all findings accepted,
+    observatory relay confirmed
+- **PR #38 merged** — unified /iterate loop (Phase 0 sync) + problem-solving discipline
+- **CLAUDE.md trimmed** 257 → 192 lines: hooks section → table, jargon/accessibility/
+  taxonomy compressed, workflow+environment merged
+- → Artifacts in safety-quotient repo: compare_v1_v2.py, scorer_comparison.py,
+  score_subset_sonnet.sh, scorer_comparison_subset.json
+
+▶ journal.md §28 (anti-midpoint prompt analysis, written earlier this session)
+
+⚑ EPISTEMIC FLAGS
+- Sonnet comparison based on 100-text subset — full 998-text re-score needed to confirm
+- DA low inter-scorer agreement (r=0.595) may reflect ambiguous construct definition
+  rather than scorer failure — needs rubric review
+- CC construct problem may be corpus-specific (Dreaddit texts lack contractual content)
+  rather than universal — untested on other corpora
