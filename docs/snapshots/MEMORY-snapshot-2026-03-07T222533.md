@@ -18,11 +18,12 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 1. Specialized sub-agents (PSQ is the first)
 2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 35b. PRs #41/#42/#43 processed. psq-agent work order
-sent (turn 12 — Sonnet re-score 998×9). H2 corrected: ACLU +0.83 full mode, downgraded
-to lite-mode residual. MANIFEST updated. All unratified-agent pending cleared.
-**Next:** Await psq-agent ACK on work order → Sonnet re-score → DistilBERT retrain →
-factor analysis. HN post (README precondition met).
+**Where we stopped:** Session 35. Observatory validity review complete — PSQ display
+(6 findings), HRCB validity (7 findings, 2 critical), E+S channels (8 findings).
+Named "measurement mode collapse" concept (journal §29). psq-agent scorer comparison
+message sent (turn 11, awaiting ACK).
+**Next:** Full Sonnet re-score (998 × 9 dims). DistilBERT retrain on Sonnet labels.
+Factor analysis. HN post (README precondition met).
 
 
 ## Memory Hygiene

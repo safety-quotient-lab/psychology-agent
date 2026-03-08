@@ -173,8 +173,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | psq-quality-update session   | ✓ 6 turns — PSQ review (T4), HRCB validity (T5), E+S channels (T6); PR #40 merged (Session 34-35) |
 | PR #38 (/iterate unified)    | ✓ Merged + CLAUDE.md trimmed 257→192 lines (Session 34) |
 | Ethical marketing rubric      | ✓ docs/ethical-marketing-rubric.md — 5 dims, FTC/NAD/AMA/ICC/AI-disclosure grounded (Session 30) |
-| Observatory HRCB review       | ✓ 7 findings (2 critical: absence-as-negative, violations-as-negative) + E+S channel assessment (8 findings) (Session 35) |
-| psq-agent scorer comparison msg | ✓ Turn 11 — full scorer comparison findings to psq-agent (Session 35) |
+| Observatory HRCB review       | ✓ 7 findings (H1 CRITICAL confirmed, H2 downgraded to lite-mode residual after verification) + E+S channel assessment (8 findings) (Session 35) |
+| PRs #41/#42/#43 processed     | ✓ #41+#42 merged, #43 enriched version applied manually (a9505dd) (Session 35) |
+| psq-agent scorer comparison msg | ✓ Turn 11 (findings) + Turn 12 (work order: 998×9 Sonnet re-score) to psq-agent (Session 35) |
 | claude-replay adopted          | ✓ Installed, tested (Session 35, 819KB HTML), documented in README + CLAUDE.md (Session 35) |
 | /scan-peer skill               | ⚑ Created by parallel instance (58e69dd) — needs restart to verify loading; needs CLAUDE.md registration |
 
@@ -2565,3 +2566,19 @@ and compiled the final consolidated transport message.
   witness violations, vocabulary drift, rhetorical register issues, structural problems.
   Produces interagent/v1 findings. **Not yet verified post-restart** — flagged in Current State.
   Needs CLAUDE.md Skills section registration after restart verification.
+
+## 2026-03-07T22:24 CST — Session 35b (PR processing + psq-agent work order + MANIFEST update)
+
+- **psq-agent work order sent** — `from-psychology-agent-005.json` (turn 12): full Sonnet re-score
+  request. 998 texts × 9 dimensions (CC+DA excluded). Adaptation steps from
+  score_subset_sonnet.sh, quality checks, downstream task chain (retrain → PCA → recalibrate).
+  Estimated $15-20, 2-3 hours wall time.
+- **PRs processed** — #41 (three-session-ack: psq-quality-update T7 + content-quality-loop T2 +
+  psq-scoring T12), #42 (content-quality-loop scan-002-ack T4), #43 (enriched T7 with independent
+  verification — conflict with #41, applied manually as a9505dd).
+- **H2 correction** — unratified-agent independently verified HRCB findings against codebase.
+  ACLU ICE story scores +0.83 in full mode (not -0.26 as reported). H2 downgraded from CRITICAL
+  to lite-mode residual risk. E4 corrected: scorer prompts exist in repo (prompts.ts, CC-BY-SA-4.0).
+- **MANIFEST.json updated** — unratified-agent pending cleared; 5 new recently_completed entries
+  (psq-quality-update T7, content-quality-loop T2+T4, psq-scoring T12, blog-adversarial-review T10-12).
+- ▶ journal.md §29 (measurement mode collapse)
