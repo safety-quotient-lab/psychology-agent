@@ -115,6 +115,24 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ---
 
+## Dignity Index
+
+- [ ] **Phase A: Feasibility study** — score 50 observatory stories on Hicks' 10
+  dignity elements + PSQ. Measure empirical construct distance. Stratified sample:
+  10 high-HRCB+, 10 high-HRCB−, 10 mid-HRCB, 10 high-PSQ, 10 technical/neutral.
+  Full spec: `docs/dignity-instrument-spec.md`.
+  *Precondition: observatory-agent accepts proposal (dignity-instrument turn 1)*
+
+- [ ] **Phase B: Instrument design** — Hicks-based Dignity Index scoring prompt,
+  calibration protocol, storage schema. Applies HRCB mode-collapse lessons.
+  *Precondition: Phase A success criteria met*
+
+- [ ] **Phase C: Complement integration** — PSQ + DI as independent co-displayed
+  measures. Triage routing, DETL computation, mode labels.
+  *Precondition: Phase B complete + observatory integration ready*
+
+---
+
 ## BFT + Command Protocol
 
 - [ ] **EF-1: Autonomous trust degradation model** — the BFT design treats the human

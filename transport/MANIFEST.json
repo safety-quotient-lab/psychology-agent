@@ -25,7 +25,16 @@
         "requires_response": false
       }
     ],
-    "unratified-agent": []
+    "unratified-agent": [
+      {
+        "session": "dignity-instrument",
+        "file": "transport/sessions/dignity-instrument/from-psychology-agent-001.json",
+        "type": "proposal",
+        "subject": "Proposal: Dignity Index — Hicks-based complement to HRCB and PSQ for observatory",
+        "timestamp": "2026-03-08T08:42:00-05:00",
+        "requires_response": true
+      }
+    ]
   },
 
   "recently_completed": {
