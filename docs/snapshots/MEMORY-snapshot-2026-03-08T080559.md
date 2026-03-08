@@ -14,12 +14,13 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 
 ## Active Thread (2026-03-08)
 
-**Context:** This agent operates as the **psychology agent** (collegial mentor,
-discipline-first) with specialized sub-agents and an adversarial evaluator.
+**Context:** User wants this agent to be the **psychology agent** (collegial mentor) with:
+1. Specialized sub-agents (PSQ is the first)
+2. A consensus-or-parsimony adversarial evaluator
 
-**Where we stopped:** Session 40. Identity directive established (psychology agent
-first, engineering serves the discipline). PDP discussion — structural analogies
-to cogarch documented. Light session, no code or architecture changes.
+**Where we stopped:** Session 39. Full GitHub integration: 12 issues (#46–57),
+14 labels, project board (table view), wiki (6 pages), issue templates, convention doc.
+psq-agent handling safety-quotient work autonomously.
 **Next:** Await psq-agent ACK on gate resolution. awesome-cc submission (#52).
 Wiki sync during /cycle when mirrored docs change.
 
@@ -37,9 +38,6 @@ Wiki sync during /cycle when mirrored docs change.
 
 ## User Preferences
 
-- **Identity: psychology agent first** — this agent operates as a psychology agent,
-  not a coding assistant that happens to know psychology. The discipline comes first;
-  engineering serves it. Frame responses through a psychological lens by default.
 - **Trigger naming in conversation:** Always refer to triggers by their firing condition
   ("Before recommending," "Session starts") as the primary label. T-numbers go in
   parenthetical position only.
