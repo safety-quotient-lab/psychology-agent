@@ -15,6 +15,9 @@ Flag: ⚡ = contrarian / worth challenging before pursuing
   cultural, demographic, or situational contexts (addresses WEIRD assumption gap)
 - **Relational dynamics agent** — maps power and trust patterns across longer
   interaction sequences, not just single texts
+- ~~**Dignity measurement agent**~~ [→ TODO Phase A/B/C, Session 41, 2026-03-08]
+  Hicks-based 10-element dignity instrument for observatory. Spec at
+  `docs/dignity-instrument-spec.md`. Promoted from idea to active work.
 
 ---
 
