@@ -91,6 +91,23 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ---
 
+## PSQ Scoring Quality
+
+- [ ] **Full Sonnet re-score (998 texts × 9 dims)** — re-score TE, HI, AD, ED, RC,
+  RB, TC, CC (cooling), AR with Sonnet. Drop contractual clarity + defensive
+  architecture (construct problems confirmed). Score all 998 texts, not subset.
+  *Precondition: scorer comparison complete (✓ Session 34)*
+
+- [ ] **Retrain DistilBERT on Sonnet labels** — after Sonnet re-score, retrain v29+
+  on improved labels. Expected: higher held-out r, better dimension independence.
+  *Precondition: full Sonnet re-score complete*
+
+- [ ] **Factor analysis on scoring data** — PCA on 11×998 Haiku scores and 9×998
+  Sonnet scores to determine actual dimensionality. Confirm/deny 3-4 factor estimate.
+  *Precondition: Sonnet re-score complete (Haiku data available now)*
+
+---
+
 ## BFT + Command Protocol
 
 - [ ] **EF-1: Autonomous trust degradation model** — the BFT design treats the human

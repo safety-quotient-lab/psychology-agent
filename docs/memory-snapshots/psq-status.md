@@ -14,7 +14,12 @@ Automated labeling: `scripts/label_ar_automated.sh` (claude -p batched). 998-tex
 subset prepared (ar-labeling-1k-stratified.jsonl, seed=42). Inter-rater reliability validated:
 Sonnet r=0.934/90%, Haiku r=0.822/85%. Haiku selected for production labeling (~10x cheaper).
 Awaiting user terminal run.
-**Open issues:** contractual_clarity n=57 (small sample), 5 dims r<0.6 excluded,
-DA validity, WEIRD assumptions, v27 regression.
+**Haiku v2 scoring:** ✓ Complete — all 11 dims × 998 texts. Mean pile-up 32.7%.
+**Scorer comparison:** ✓ Complete (Session 34) — 100-text Sonnet subset.
+  Sonnet 24.7% vs Haiku 31.2% pile-up. Compression belongs mainly to Haiku.
+**Construct problems confirmed:** CC (51% pile-up even with Sonnet, r=0.644) + DA (39%, r=0.595).
+**Viable dims (9/11):** TE, HI, AD, ED, RC, RB, TC, cooling, AR. Drop CC + DA.
+**Open issues:** WEIRD assumptions, v27 regression, factor analysis pending.
 **PSQ-Lite:** TE + HI(raw) + TC adopted by unratified-agent (provisional). Proposed revision: TE + TC + AR.
+**Next:** Full Sonnet re-score (998 × 9 dims) → retrain DistilBERT on Sonnet labels.
 Do not duplicate PSQ improvement work in this context.
