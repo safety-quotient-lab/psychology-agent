@@ -528,11 +528,27 @@ creation, `gh api` write operations, transport message delivery to peer repos
    for the recipient or an open item on our backlog? GitHub issues can be
    closed but not deleted; PR comments persist; transport messages become
    part of peer committed state. Record obligations in MANIFEST
-3. **External interpretant** — who reads this on the external platform?
+3. **Reversibility classification** — classify before executing:
+   - **Reversible**: create branch, open draft PR, add label, create transport
+     message file → proceed
+   - **Hard to reverse**: merge PR, close issue, publish release, push transport
+     ACK (becomes part of peer committed state) → confirm with user
+   - **Irreversible**: delete repo, force push main, deploy to production,
+     remove published content → require explicit user approval
+4. **External interpretant** — who reads this on the external platform?
    Peer agents, their human operators, and public GitHub visitors may all
    see the action. Calibrate tone, detail, and epistemic flags for the
    external audience (inherits T4 Check 9 interpretant communities,
    applied to external platforms)
+5. **Data integrity (read-diff-write-verify)** — before writing to external
+   state (transport sessions, GitHub, APIs):
+   - **Read** — fetch existing state (list transport session files, check
+     open PRs/issues, read MANIFEST)
+   - **Diff** — compare existing against intended write. Identify duplicates,
+     naming collisions, superseded messages
+   - **Write** — create/modify only what the diff shows as needed. Skip duplicates
+   - **Verify** — after writing, confirm: file count matches expectation,
+     MANIFEST updated, no duplicates introduced, no records lost
 
 **Action**: If any check fails, pause and surface to user before proceeding.
 
