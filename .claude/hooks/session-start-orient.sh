@@ -32,7 +32,7 @@ echo "[SESSION-START] PARRY TOGGLE: Use AskUserQuestion to ask the user whether 
 
 # Configurable /hunt at bootstrap — if flag file exists, inject instruction
 if [ -f "${PROJECT_ROOT}/.claude/hunt-at-startup" ]; then
-  HUNT_SCOPE=$(cat "${PROJECT_ROOT}/.claude/hunt-at-startup" 2>/dev/null | head -1 | tr -d '[:space:]')
+  HUNT_SCOPE=$(head -1 < "${PROJECT_ROOT}/.claude/hunt-at-startup" 2>/dev/null | tr -d '[:space:]')
   if [ -z "$HUNT_SCOPE" ]; then
     HUNT_SCOPE="all"
   fi

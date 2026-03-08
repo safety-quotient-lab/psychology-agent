@@ -13,7 +13,7 @@ if [ ! -f "$CTX_FILE" ]; then
   exit 0
 fi
 
-USED_PCT=$(cat "$CTX_FILE" 2>/dev/null | tr -d '[:space:]')
+USED_PCT=$(tr -d '[:space:]' < "$CTX_FILE" 2>/dev/null)
 
 if [ -z "$USED_PCT" ]; then
   exit 0
