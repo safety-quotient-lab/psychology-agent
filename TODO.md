@@ -125,12 +125,13 @@ Forward-looking task list only. Completed and emergent work goes to
   over N unverified operations). Document threshold for when autonomous operation
   becomes a real scenario vs. theoretical concern.
   *Precondition: evaluator instantiated (EF-3 ✓) — Tier 1 active, Tier 2/3 pending*
+  *Evaluated Session 38: zero autonomous operation pressure observed. No agent has
+  attempted action without human approval. Revisit trigger: first Tier 2 evaluator
+  session fires. Correctly deferred until then.*
 
-- [ ] **EF-2: Claim verification baseline** — zero incorrect agent claims observed
-  to date. The evidence-bearing protocol (BFT Principle 1) adds complexity proportional
-  to a risk that hasn't materialized. Establish a tracking mechanism: log each
-  command-request/response pair, record whether the claimed outcome matched verified
-  state. After N command exchanges (suggested: 20), evaluate whether the overhead
-  produces value. If claim accuracy remains 100%, consider relaxing evidence requirements
-  for low-risk operation types (e.g., `verification` type commands).
-  *Precondition: command-request protocol in use (first use: rsync to Hetzner)*
+- [x] **EF-2: Claim verification baseline — tracker created** — tracking log at
+  `docs/claim-verification-log.json`. Seeded with exchange #1 (rsync to Hetzner,
+  7/7 claims verified). Review threshold lowered from 20 to 10 exchanges (current
+  rate ~1/week makes 20 impractical). At 10 exchanges with 100% accuracy, relax
+  evidence requirements for `verification`-type commands.
+  *Created: Session 38 (2026-03-08). Next review: exchange #10.*

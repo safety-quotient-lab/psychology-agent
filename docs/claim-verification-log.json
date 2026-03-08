@@ -1,0 +1,16 @@
+[
+  {
+    "exchange_id": 1,
+    "session": "psychology-interface",
+    "date": "2026-03-06",
+    "turn_request": 12,
+    "turn_response": 13,
+    "command": "rsync PSQ model files (531 MB, 41 files) from Chromabook to Hetzner production server",
+    "executing_agent": "psq-agent",
+    "claims_count": 7,
+    "claims_verified": 7,
+    "claims_incorrect": 0,
+    "verification_method": "SHA256 hash match (model.onnx + model_quantized.onnx), curl health check (/health → 200), POST /score → valid machine-response/v3",
+    "notes": "First command-request/v1 exchange. All evidence-bearing claims confirmed by independent verification from macOS. Two issues flagged by executing agent (onnxruntime-node conflict, systemd path) — both resolved post-verification."
+  }
+]
