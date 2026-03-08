@@ -182,6 +182,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | EF-2 claim verification        | ✓ Tracker created — docs/claim-verification-log.json, 1/10 exchanges logged (Session 38) |
 | EF-1 trust degradation         | ✗ Correctly deferred — zero autonomous operation pressure; revisit at first Tier 2 evaluator fire |
 | GitHub integration              | ✓ Full — 12 issues (#46–57), 14 labels, project board (table), wiki (6 pages), 2 issue templates, convention doc (Session 39) |
+| Dignity Index spec              | ✓ docs/dignity-instrument-spec.md — Hicks 10-element rubric, 3-phase plan, HRCB lessons applied (Session 41) |
+| dignity-instrument session      | ✓ Turn 1 proposal to observatory; PR #31 on unratified repo (Session 41) |
 
 
 ### Open Questions
@@ -2709,3 +2711,43 @@ and compiled the final consolidated transport message.
   architecture, not energy minimization or gradient descent.
 - scan-peer fair-witness findings on an advocacy page reflect inherent tension between
   advocacy register and fair witness standards — may not constitute quality defects in context.
+
+
+## 2026-03-08T08:46 CDT — Session 41 (Dignity Index — instrument spec + observatory proposal)
+
+- **PSQ-as-HRCB-proxy analysis** — full construct distance analysis. Concluded PSQ cannot
+  proxy for HRCB: directionality blindness (rights advocacy reporting inverts signal),
+  no structural channel, absence handling diverges, granularity mismatch (10 PSQ dims vs
+  31 UDHR provisions). PSQ defensible as triage gate and complement, not replacement.
+- **PSQ-as-dignity-proxy analysis** — construct distance even larger than HRCB. PSQ covers
+  ~1.5 of Hicks' (2011) 10 essential elements of dignity (partial Safety, weak Inclusion).
+  Remaining 8 elements (Recognition, Acknowledgment, Acceptance of Identity, Fairness,
+  Freedom, Understanding, Benefit of the Doubt, Accountability) have no PSQ representation.
+  Signal inversion: dignity-restoring content (TRC testimony, investigative journalism)
+  scores high PSQ threat while performing multiple dignity elements. Jingle fallacy
+  (Block, 1995) identified as the core risk.
+- **Dignity Index specification** — `docs/dignity-instrument-spec.md`. 10 dimensions from
+  Hicks' relational dignity model. Scoring: -2 (Violated) to +2 (Honored), 0 = Neutral/ND.
+  Composite DI 0–100. Two-channel (editorial + structural). Relevance gate addresses HRCB
+  H1 finding. Directionality markers (S/A/T/R) address HRCB H2 finding. Lite mode
+  non-negotiables from HRCB mode-collapse lessons. Cross-cultural validity limitation
+  flagged (Hicks model = Western conflict-resolution origin; Ubuntu, Confucian, Islamic
+  karama alternatives noted).
+- **Three-phase plan**: A (feasibility: 50-story sample, PSQ×DI construct distance),
+  B (instrument build), C (complement integration: HRCB + PSQ + DI co-display).
+- **Transport**: dignity-instrument session opened, turn 1 proposal to unratified-agent.
+  PR #31 delivered to `safety-quotient-lab/unratified`. Gate blocked on observatory
+  interest + sample access.
+- **TODO updated** — 3 phase items added under Dignity Index section.
+
+▶ journal.md §30 (pending — Dignity Index narrative if significant enough)
+
+⚑ EPISTEMIC FLAGS
+- No empirical PSQ-dignity correlation data exists — construct distance claims rest on
+  theoretical analysis only. Phase A feasibility study will provide empirical validation.
+- Hicks (2011) model adapted from interpersonal conflict resolution to content scoring —
+  this adaptation has not been validated. Phase A inter-rater reliability tests the rubric.
+- Cross-cultural dignity limitation under-addressed — Hicks' 10 elements reflect Western
+  relational norms. Scoring non-Western content requires explicit flagging.
+- The signal inversion claim (high PSQ threat + high DI on dignity-restoring content) follows
+  logically but lacks empirical measurement on scored examples.

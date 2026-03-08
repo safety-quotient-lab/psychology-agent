@@ -17,13 +17,11 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 41. Dignity Index instrument spec + observatory
-proposal. PSQ-as-proxy analysis (HRCB: infeasible, dignity: infeasible; both
-defensible as complements). Transport: dignity-instrument session opened (turn 1),
-PR #31 delivered to unratified repo. Journal §30 written.
-**Next:** Await observatory response on dignity proposal. awesome-cc submission
-(#52). Upstream PR to antiregression-setup. Await psq-agent ACK on gate
-resolution. Wiki sync when mirrored docs change.
+**Where we stopped:** Session 40. Identity directive (psychology agent first).
+PDP discussion. scan-peer of unratified (4 findings, turn 9). scan-peer skill
+Phase 5 fixed to use PR delivery matching git-PR transport protocol.
+**Next:** awesome-cc submission (#52). Upstream PR to antiregression-setup.
+Await psq-agent ACK on gate resolution. Wiki sync when mirrored docs change.
 
 
 ## Memory Hygiene
