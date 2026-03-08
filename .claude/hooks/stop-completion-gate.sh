@@ -48,7 +48,7 @@ fi
 MEMORY_DIR="$HOME/.claude/projects/$(echo "$PROJECT_ROOT" | tr '/' '-')/memory"
 if [ -f "${MEMORY_DIR}/MEMORY.md" ]; then
   TODAY=$(date -Idate)
-  LAST_MOD=$(date -r "${MEMORY_DIR}/MEMORY.md" -Idate 2>/dev/null || stat -f '%Sm' -t '%Y-%m-%d' "${MEMORY_DIR}/MEMORY.md" 2>/dev/null)
+  LAST_MOD=$(date -r "${MEMORY_DIR}/MEMORY.md" -Idate 2>/dev/null || stat -c %Y "${MEMORY_DIR}/MEMORY.md" 2>/dev/null | xargs -I{} date -d @{} -Idate 2>/dev/null)
   if [ "$LAST_MOD" != "$TODAY" ]; then
     WARNINGS="${WARNINGS}MEMORY.md not updated today — Active Thread may be stale. "
   fi
@@ -57,7 +57,7 @@ fi
 # Check docs/MEMORY-snapshot.md freshness (should match session work)
 SNAPSHOT="${PROJECT_ROOT}/docs/MEMORY-snapshot.md"
 if [ -f "$SNAPSHOT" ]; then
-  SNAP_MOD=$(date -r "$SNAPSHOT" -Idate 2>/dev/null || stat -f '%Sm' -t '%Y-%m-%d' "$SNAPSHOT" 2>/dev/null)
+  SNAP_MOD=$(date -r "$SNAPSHOT" -Idate 2>/dev/null || stat -c %Y "$SNAPSHOT" 2>/dev/null | xargs -I{} date -d @{} -Idate 2>/dev/null)
   TODAY=$(date -Idate)
   if [ "$SNAP_MOD" != "$TODAY" ]; then
     WARNINGS="${WARNINGS}docs/MEMORY-snapshot.md not updated today — run /cycle Step 10. "

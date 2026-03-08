@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # PreToolUse hook — warns when context pressure exceeds thresholds.
-# Reads context % from /tmp/.claude-context-pct (written by Notification hook).
+# Reads context % from user-namespaced temp file (written by Notification hook).
 # Non-blocking: outputs warning text that enters model context as a reminder.
 #
 # Thresholds (aligned with T2 Check 1):
 #   60% — PRESSURE: consider /doc to persist findings
 #   75% — CRITICAL: actively compress, /doc now, prepare for compaction
 
-CTX_FILE="/tmp/.claude-context-pct"
+CTX_FILE="${XDG_RUNTIME_DIR:-/tmp}/.claude-context-pct-$(id -u)"
 
 if [ ! -f "$CTX_FILE" ]; then
   exit 0
