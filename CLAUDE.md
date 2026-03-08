@@ -61,6 +61,8 @@ exceed available evidence, or any finding that a peer reviewer would challenge.
 - `/iterate` — Unified work loop: sync → hunt → discriminate → execute → cycle.
   One command does everything. Runs /sync as Phase 0, /hunt as Phase 1, 2-order
   knock + 4-mode discriminator, executes the winner, auto-cycles at close.
+- `/scan-peer` — Peer content quality scan. Scans peer repo content for PSQ safety,
+  vocabulary drift, fair witness violations. Writes structured findings to transport.
 
 ## Commands (load on demand)
 

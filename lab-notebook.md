@@ -177,7 +177,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | PRs #41/#42/#43 processed     | ✓ #41+#42 merged, #43 enriched version applied manually (a9505dd) (Session 35) |
 | psq-agent scorer comparison msg | ✓ Turn 11 (findings) + Turn 12 (work order: 998×9 Sonnet re-score) to psq-agent (Session 35) |
 | claude-replay adopted          | ✓ Installed, tested (Session 35, 819KB HTML), documented in README + CLAUDE.md (Session 35) |
-| /scan-peer skill               | ⚑ Created by parallel instance (58e69dd) — needs restart to verify loading; needs CLAUDE.md registration |
+| /scan-peer skill               | ✓ Verified loading (Session 36) + registered in CLAUDE.md Skills section |
 
 
 ### Open Questions
