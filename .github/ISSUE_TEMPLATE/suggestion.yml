@@ -1,0 +1,52 @@
+name: Suggestion
+description: Suggest an improvement, feature, or report an issue
+labels: ["external-suggestion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to contribute! This project uses a cognitive
+        architecture with structured decision-making — your suggestion will go
+        through our triage process.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: What area does this relate to?
+      options:
+        - Cognitive architecture (triggers, hooks, skills)
+        - PSQ (safety quotient scoring)
+        - Interface (CF Worker, UI)
+        - Documentation
+        - Transport (interagent protocol)
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What would you like to see changed or added?
+      placeholder: Describe the suggestion clearly...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Why does this matter? What problem does it solve?
+      placeholder: Optional — helps us evaluate priority
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Have you considered other approaches?
+      placeholder: Optional
+    validations:
+      required: false
