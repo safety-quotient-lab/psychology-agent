@@ -25,7 +25,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | CLAUDE.md (project root)      | ✓ Created + display convention added             |
 | Cognitive infrastructure      | ✓ T1–T16, 4 SRT extensions (T2#9-10, T3#13-14), T4#10 reversibility, T3#15 constraint cross-ref, T3#9 GRADE-informed |
 | /iterate skill                | ✓ Hunt → 2-order knock → 4-mode discriminator → execute (Session 32) |
-| Constraint taxonomy           | ✓ docs/constraints.md — 59 constraints, 5 categories (E/M/P/I/D) (Session 27) |
+| Constraint taxonomy           | ✓ docs/constraints.md — 66 constraints, 5 categories (E/M/P/I/D) (Session 27→45) |
 | T10/T11 ordering              | ✓ Fixed — T10 now precedes T11 in file           |
 | T12 trigger                   | ✓ Positive pattern recognition; T10 co-fires     |
 | Timestamp backfill            | ✗ Deferred — no fabrication; exact times unknown |
@@ -65,6 +65,10 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Sub-agent protocol            | ✓ Complete — subagent-layer-spec.md + peer-layer-spec.md (Session 20) |
 | Adversarial evaluator (activation) | ✓ Complete — tiered activation, 7 triggers, evaluator prompt (Session 17) |
 | Evaluator instantiation (EF-3) | ✓ Tiered hybrid runtime — T3 #12 (Tier 1), CC session (Tier 2/3), evaluator-response/v1 schema (Session 24) |
+| Cross-scorer concordance       | ✓ COMPLETE — gate FAILS (1/10 dims ICC ≥ 0.70, mean ICC = 0.495). Sonnet-only revert endorsed (Session 45) |
+| B3 recalibration (steps 1-4)  | ✓ COMPLETE — MAE −12.4% avg, dead zones = model compression. Deploy deferred to post-v37 (Session 45) |
+| Opus remediation + v37        | ✗ Awaiting psq-agent — delete Opus scores, Sonnet re-score, retrain |
+| B4 partial correlations       | ✗ Work order sent (turn 22) — dimension-specific variance after removing g-PSQ |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -2888,3 +2892,52 @@ B3 recalibration work order, gate conflict resolution.
 - v36 diagnostic confounds two variables (HI augmentation + Opus scorer).
   Attribution of any HI improvement requires concordance study to disambiguate.
 - EF-2 tracker at 2/10 — insufficient data for evidence-requirement relaxation.
+
+
+## 2026-03-08T15:29 CDT — Session 45 (Concordance gate, B3 results, B4 work order, cogarch upgrades)
+
+**Scope:** Concordance study review, B3 recalibration review, factor analysis
+reframing, cogarch Phase A+B upgrades, TODO cleanup.
+
+- **Concordance study received** (PR #71, turn 19) — 50 texts × 10 dims × 2
+  scorers (Opus vs Sonnet), blind separated-LLM protocol. Gate FAILS: mean
+  ICC(2,1) = 0.495, only RC passes (0.755). Opus scores systematically higher
+  (+0.25 avg). TE diagnostic: near-zero bias (−0.02) yet worst ICC (0.346) —
+  genuine text-level disagreement, not correctable offset. HI bias (+0.82)
+  retroactively explains v36 HI augmentation failure. Sonnet-only revert
+  endorsed (turn 20 ACK, `from-psychology-agent-010.json`).
+- **B3 recalibration received** (PR #73, turn 20 collision) — quantile-binned
+  isotonic (n_bins=20) improves MAE all 10 dims (avg −12.4%). Key finding:
+  dead zones reflect model range compression, not calibration artifacts. TE
+  compresses to 1.85 effective points on 10-point scale. Plateau threshold
+  revised from 0.5 max to MAE-improvement-without-regression. Deploy deferred
+  to post-v37. AD plateau worsened (1.300 → 1.753) — per-dimension n_bins
+  tuning endorsed. Turn 21 ACK sent (`from-psychology-agent-011.json`).
+- **B4 work order sent** (turn 22, `from-psychology-agent-012.json`) — partial
+  correlation matrix controlling for g-PSQ. Motivated by tension between
+  g-factor dominance (68.2% variance) and criterion validity (profile shape
+  predicts, g-PSQ does not). Tests whether dimensions carry information beyond
+  g. If meaningful partial r found, bifactor model (Reise, 2012) as follow-up.
+  Independent of Opus remediation — can run now.
+- **Cogarch Phase A merged** (PR #72) — T16 Checks 3+5 (reversibility
+  classification, data integrity read-diff-write-verify), anti-patterns
+  registry (5 entries), pushback→lesson bridge. P-17 through P-20.
+- **Cogarch Phase B merged** (PR #74) — scan-peer diff verification (Phase 1b),
+  lesson promotion velocity gate (recurrence ≥ 2, span ≤ 10 days), T11 hook
+  health audit. P-21 through P-23. Constraint count 59 → 66.
+- **TODO cleanup** — concordance study and B3 marked complete with current
+  status. Factor analysis reframed as dimension structure investigation
+  (partial correlations → bifactor).
+
+▶ transport/sessions/psq-scoring/ (turns 19–22)
+▶ docs/constraints.md (P-17 through P-23)
+▶ docs/cognitive-triggers.md (T10 velocity gate, T11 hook health, T16 Checks 3+5)
+
+⚑ EPISTEMIC FLAGS
+- Concordance study reviewed but ICC calculations not independently replicated.
+  Trust rests on psq-agent's verified claims and internal consistency (TE diagnostic).
+- Plateau threshold revision lowers the quality bar — accepts structural limitations
+  rather than pursuing model-level changes. Revisit if training data or architecture
+  changes later enable narrower dead zones.
+- Turn collision frequency (2 in 4 turns) degrades turn-number utility as ordering
+  mechanism. File sequence numbers remain authoritative.

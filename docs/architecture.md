@@ -243,6 +243,36 @@
                               Schema: evaluator-response/v1.
                               Full spec: §Evaluator Instantiation Protocol.
                               Decided: 2026-03-06
+
+ Scorer consistency policy    Single-scorer constraint: all training labels
+                              for a given model version must come from the
+                              same LLM scorer. Different LLMs produce non-
+                              interchangeable scores (mean ICC = 0.495, 1/10
+                              dims pass ≥ 0.70). Sonnet is the validated
+                              baseline (all criterion studies used Sonnet).
+                              New scorer introduction requires concordance
+                              study (n≥50, ICC ≥ 0.70 on ≥7/10 dims) before
+                              labels enter training pool.
+                              Evidence: concordance study Session 45.
+                              Full narrative: journal.md §29.
+                              Decided: 2026-03-08
+
+ Calibration success          MAE improvement without regression per dimension.
+ criterion                    Original 0.5 max-plateau threshold structurally
+                              unachievable — dead zones reflect model range
+                              compression (TE: 1.85 effective points on 10-pt
+                              scale), not calibration artifacts. Plateau
+                              reduction tracked as secondary metric.
+                              Evidence: B3 recalibration Session 45.
+                              Full narrative: journal.md §30 (context).
+                              Decided: 2026-03-08
+
+ Calibration deploy timing    Deploy calibration updates only after the
+                              underlying model stabilizes. Do not deploy
+                              calibration artifacts fitted on a model that
+                              will be retrained. Prevents state churn for
+                              downstream consumers.
+                              Decided: 2026-03-08
 ────────────────────────────────────────────────────────────────────────
 ```
 

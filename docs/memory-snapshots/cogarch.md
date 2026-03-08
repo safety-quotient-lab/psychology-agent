@@ -18,6 +18,7 @@ Quick reference (when → what fires):
  "Good thinking" signal  T12: name principle, mechanism, cross-domain; T10 co-fires
  External content enters T13: classify source (trusted/semi/untrusted), injection scan, scope relevance, taint propagation
  PSQ v3 output enters   T15: composite.status check, meets_threshold not raw confidence, scale discipline (dims 0-10 / composite 0-100), PSQ-Lite mapping confidence 0.70, WEIRD flag
+ External action (gh)   T16: obligation check, reversibility classify, external interpretant, read-diff-write-verify, data integrity
 ```
 
 **Knock-on depth:** 10 orders. 1–2: certain. 3: likely. 4–5: possible. 6: speculative.

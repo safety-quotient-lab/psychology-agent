@@ -43,6 +43,8 @@ partner, and Socratic interlocutor
 26. [Construct×Distribution Mismatch: Why HI Cannot Classify Adversarial Content](#26-hi-construct-mismatch)
 27. [The Halo Firewall: Why Isolated Context Windows Produce Better Scores](#27-the-halo-firewall)
 28. [What the Anti-Midpoint Prompt Reveals About LLM Scorer Compression](#28-anti-midpoint-prompt-analysis)
+29. [When Your Scorers Disagree: The Concordance Gate and What It Reveals About LLM Measurement](#29-when-your-scorers-disagree)
+30. [The g-Factor Paradox: Why a Dominant Factor and Distinct Profiles Coexist](#30-the-g-factor-paradox)
 29. [Two Instruments Under One Name: What the Observatory Review Reveals About Measurement Mode Collapse](#29-two-instruments-under-one-name)
 30. [Dignity as Measurement: Why Psychoemotional Safety Cannot Proxy for Inherent Worth](#30-dignity-as-measurement)
 
@@ -1185,6 +1187,36 @@ We investigated whether PSQ could serve as a proxy for two constructs on the obs
 The "all-high" zone proved the most informative finding because it refutes a naive reading of our signal inversion prediction. We predicted that high-DI content would produce low PSQ — and it does, for testimonial and confrontational reporting about violations. But the Norwegian Consumer Council report on Meta scam ads (DI=92.5, PSQ=8.0), the 10th Circuit ruling protecting protesters' devices (DI=90.0, PSQ=6.61), and the Bill Atkinson memorial (DI=90.6, PSQ=7.20) all achieve very high dignity with very high safety. What distinguishes these from the inversion zone stories amounts to editorial distance from suffering: systemic analysis, judicial vindication, and community remembrance can honor every Hicks element without describing individual suffering in detail. The variable that determines which zone a story occupies appears to be not *whether* dignity elements appear, but *through what discursive mode* they appear — testimony vs. analysis vs. vindication.
 
 The relevance gate achieved 100% accuracy (19/19) — every technical, product, economic, and documentation story correctly classified as ND. This validates the gate design: content category alone provides sufficient signal for the absence determination, and the instrument does not commit the HRCB H1 error of scoring absence as negative. Three of four Phase A success criteria now stand met; inter-rater reliability awaits Pass 2 in a fresh session.
+
+
+## §29 — When Your Scorers Disagree: The Concordance Gate and What It Reveals About LLM Measurement {#29-when-your-scorers-disagree}
+
+The PSQ system trained its DistilBERT student on LLM-generated dimension scores — Sonnet scored ~5,000 texts across 10 dimensions, and these scores served as both training labels and validation targets. When the psq-agent executed a 1,000-text rescore using Opus instead of Sonnet (v35), we gated further work on a concordance study: score a shared subset with both models and measure agreement.
+
+The results challenged an assumption we had not examined carefully enough: that two capable LLMs scoring the same construct with the same prompt would produce interchangeable labels. They do not. Mean ICC(2,1) across 10 dimensions reached 0.495 — "poor" agreement per Cicchetti's (1994) classification. Only regulatory capacity passed the 0.70 threshold (ICC = 0.755). The remaining nine dimensions ranged from 0.346 (threat exposure) to 0.668 (trust conditions, marginal).
+
+**The TE diagnostic proved most informative.** Threat exposure showed near-zero systematic bias between scorers (mean difference = −0.02) yet produced the worst ICC (0.346). If the disagreement were merely a calibration offset — Opus consistently scoring higher or lower — then zero-bias dimensions would show high agreement. They don't. The disagreement operates at the text level: given the same text and the same prompt, Opus and Sonnet assign meaningfully different threat exposure scores. This rules out simple offset correction as a remediation strategy.
+
+**The HI bias provided retroactive explanation.** Hostility index showed the largest systematic offset (+0.82 points, Opus higher). The psq-agent had earlier augmented training data with 631 Opus-scored HI texts, and the resulting v36 model showed no HI improvement over v35. The concordance data explains why: Opus HI labels ran nearly a full point higher than the Sonnet-calibrated held-out targets. The augmentation pulled the model away from its validation standard rather than toward it. This amounts to a form of label contamination — not in the sense of data leakage, but in the sense that two different measurement instruments were treated as one.
+
+**The psychometric implication.** LLM scorers function as raters, not as deterministic measurement instruments. Different LLMs produce different score distributions — wider or narrower ranges, different central tendencies, different text-level sensitivities — even when given identical prompts. This parallels the well-established finding in human rating studies that trained raters disagree at specific items even when they agree on overall rank ordering (the moderate Pearson r with poor ICC pattern, which appeared in our data across all 10 dimensions). Treating LLM-scored training labels as ground truth requires specifying *which* LLM produced them, and new labels from a different LLM cannot enter the same training pool without concordance evidence.
+
+The gate outcome: revert to Sonnet-only scoring. Delete the 10,000 Opus scores, re-score the affected texts with Sonnet, retrain. Production models (v23, v35) remain clean — both trained before Opus scores entered the database. The concordance dataset itself retains value as a reference artifact for future scorer evaluation.
+
+
+## §30 — The g-Factor Paradox: Why a Dominant Factor and Distinct Profiles Coexist {#30-the-g-factor-paradox}
+
+Factor analysis v3 on the PSQ scoring data found a dominant general factor: KMO = 0.910, g-eigenvalue = 6.824, 68.2% variance explained, one factor retained by parallel analysis. By conventional psychometric criteria, the PSQ measures one thing — a general psychoemotional safety/threat construct.
+
+But four independent criterion validity studies tell a different story. Across combined n > 21,000, dimension profiles predict behavioral outcomes (negotiation satisfaction, conversation derailment, persuasion success, deal completion) while the g-PSQ aggregate performs near chance. Energy dissipation predicts negotiation satisfaction; authority dynamics predicts derailment; defensive architecture predicts persuasion. The aggregate — the very thing the g-factor says the instrument primarily measures — carries almost no predictive information.
+
+This appears paradoxical. If the dimensions are highly intercorrelated (one dominant factor), how can their *pattern* predict when their *sum* does not?
+
+The resolution comes from bifactor theory (Reise, 2012). A bifactor model posits a general factor that accounts for shared variance across all items, plus specific factors that capture the residual variance unique to each subscale. In this framing, the g-factor reflects what all PSQ dimensions share — a general sensitivity to threatening content. The specific factors reflect what each dimension uniquely captures after removing that shared sensitivity. The criterion validity evidence implies the specific factors, not the general factor, carry the predictive signal.
+
+We designed a diagnostic test: compute partial correlations between each dimension pair after controlling for g-PSQ (unweighted mean). If the partial correlations fall near zero, the dimensions carry no information beyond g, and the criterion validity of profile shape may reflect noise or overfitting. If meaningful partial correlations remain, the dimensions carry distinct residual information — the structural precondition for a bifactor model exists, and the criterion validity findings have a statistical explanation.
+
+The practical stake: if the dimensions are truly interchangeable after removing g, then maintaining 10 separate dimensions adds complexity without value — a single PSQ score would suffice. If they carry distinct information, the 10-dimension profile represents genuine measurement structure, and consumers who use only the aggregate lose predictive power that the profile provides. The answer shapes how we present PSQ to downstream systems.
 
 ---
 

@@ -38,6 +38,16 @@
  Agent identity naming        "psychology-agent" (not "general-agent"). Role
                               identifier, prose, and protocol messages all use
                               psychology-agent. 2026-03-06
+ Scorer consistency           Single-scorer constraint: all training labels from
+                              same LLM. Concordance (n≥50, ICC ≥ 0.70 on ≥7/10)
+                              required before mixing. Sonnet = validated baseline.
+                              Evidence: concordance gate FAIL. 2026-03-08
+ Calibration success          MAE improvement without regression (per dim).
+                              Original 0.5 max-plateau structurally unachievable
+                              (model range compression). 2026-03-08
+ Calibration deploy timing    Deploy calibration only after model stabilizes.
+                              No artifacts fitted on soon-to-be-replaced models.
+                              2026-03-08
 ```
 
 ## Authority Hierarchy

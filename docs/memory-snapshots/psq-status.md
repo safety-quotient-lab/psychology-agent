@@ -22,8 +22,18 @@ Awaiting user terminal run.
 **Viable dims (9/11):** TE, HI, AD, ED, RC, RB, TC, cooling, AR. Drop CC + DA.
 **Open issues:** WEIRD assumptions, v27 regression, factor analysis pending.
 **PSQ-Lite:** TE + HI(raw) + TC adopted by unratified-agent (provisional). Proposed revision: TE + TC + AR.
-**Rescore status:** 1,000-text rescore COMPLETE — scored by Opus (not Sonnet as authorized).
-  Cross-scorer concordance (Opus vs Sonnet) unmeasured. Gated in ACK turn 16.
-**Factor analysis v3:** KMO=0.910, g-eigenvalue=6.824, 68.2% variance, 1 factor. Structural stability confirmed.
-**Next:** Cross-scorer concordance study (n≥50, Opus vs Sonnet) → then retrain if concordance holds.
+**Concordance study:** ✓ COMPLETE (Session 45) — gate FAILS. Mean ICC(2,1) = 0.495 (poor).
+  1/10 dims pass ICC ≥ 0.70 (only RC at 0.755). Opus scores systematically higher (+0.25 avg).
+  Sonnet-only revert endorsed. Production models (v23, v35) confirmed clean.
+**B3 recalibration:** ✓ Steps 1-4 COMPLETE (Session 45) — quantile-binned isotonic (n_bins=20).
+  MAE improves all 10 dims (avg −12.4%). Dead zones = model range compression, not calibration
+  artifacts. Plateau threshold revised: MAE improvement without regression. Deploy deferred to post-v37.
+**Opus remediation:** ✗ PENDING — delete 10,000 Opus scores, Sonnet re-score 999 texts, retrain v37.
+**B4 partial correlations:** ✗ Work order sent (turn 22) — dimension-specific variance after
+  removing g-PSQ. Tests bifactor precondition. Independent of remediation.
+**Factor analysis v3:** KMO=0.910, g-eigenvalue=6.824, 68.2% variance, 1 factor. But criterion
+  validity shows profile shape predicts while g-PSQ does not → bifactor investigation.
+**Design decisions (Session 45):** Single-scorer constraint, calibration success criterion revised,
+  calibration deploy timing (post-model-stabilization). See architecture.md.
+**Next:** Await Opus remediation + v37 + B4 results from psq-agent.
 Do not duplicate PSQ improvement work in this context.
