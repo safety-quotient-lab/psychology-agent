@@ -17,11 +17,11 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 43. DI Phase A Pass 1 COMPLETE. PSQ v35 deployed
-(Opus-scored, held-out r=0.680). ACK turn 16 sent — cross-scorer concordance gated.
-PRs #65, #66, #68 merged (v35 notification + unratified ACKs).
-**Next:** DI Pass 2 (fresh session, inter-rater reliability). Cross-scorer concordance
-study (Opus vs Sonnet, n≥50). awesome-cc (#52) blocked on more repo runtime.
+**Where we stopped:** Session 43. DI Phase A Pass 1 COMPLETE — 50/50 assessed (27 PASS,
+19 ND, 4 deferred). r=0.328 (10.7% variance). 8 signal inversions. Three-zone structure:
+inversion, all-high, alignment. 3/4 success criteria met.
+**Next:** Pass 2 (fresh session, inter-rater reliability). awesome-cc (#52) blocked on
+more repo runtime. Await psq-agent ACK on Sonnet re-score gate resolution.
 
 
 ## Memory Hygiene
