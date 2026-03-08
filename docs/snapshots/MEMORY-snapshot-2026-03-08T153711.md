@@ -17,14 +17,11 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 45. Concordance gate FAILS (mean ICC=0.495,
-1/10 dims pass). Sonnet-only revert endorsed (turn 20). B3 recalibration
-accepted — dead zones = model compression, plateau threshold revised (turn 21).
-B4 work order sent — partial correlations controlling for g-PSQ (turn 22).
-Cogarch PRs #72, #74 merged (P-17 through P-23, constraints 59→66).
-**Next:** DI Pass 2 (fresh session, inter-rater reliability). Await psq-agent:
-Opus remediation + v37 retrain + B4 partial correlations. Await scan-010 ACK
-from unratified-agent (PR #69).
+**Where we stopped:** Session 43. DI Phase A Pass 1 COMPLETE. PSQ v35 deployed
+(Opus-scored, held-out r=0.680). ACK turn 16 sent — cross-scorer concordance gated.
+PRs #65, #66, #68 merged (v35 notification + unratified ACKs).
+**Next:** DI Pass 2 (fresh session, inter-rater reliability). Cross-scorer concordance
+study (Opus vs Sonnet, n≥50). awesome-cc (#52) blocked on more repo runtime.
 
 
 ## Memory Hygiene
