@@ -184,7 +184,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | GitHub integration              | ✓ Full — 12 issues (#46–57), 14 labels, project board (table), wiki (6 pages), 2 issue templates, convention doc (Session 39) |
 | Dignity Index spec              | ✓ docs/dignity-instrument-spec.md — Hicks 10-element rubric, 3-phase plan, HRCB lessons applied (Session 41) |
 | dignity-instrument session      | ✓ T1–T6 complete; observatory accepted Phase A; API live (713 stories) (Session 41–42) |
-| DI Phase A feasibility study    | ✗ In progress — 50-story sample selected, 5/50 scored; signal inversion confirmed (2/2 high-HRCB); relevance gate correct (3/3 technical) (Session 42) |
+| DI Phase A feasibility study    | ✗ In progress — 20/50 assessed (10 PASS, 8 ND, 2 deferred); r=0.126 (PSQ explains 1.6% DI variance); 6 signal inversions; relevance gate 8/8 correct (Session 42) |
 
 
 ### Open Questions

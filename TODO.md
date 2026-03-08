@@ -117,11 +117,11 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ## Dignity Index
 
-- [ ] **Phase A: Feasibility study** — IN PROGRESS. 50-story sample selected, 5/50
-  scored. Signal inversion confirmed (2/2 high-HRCB stories). Relevance gate correct
-  (3/3 technical). Remaining: score 45 stories from full content, Pass 2 for inter-rater
-  reliability, correlation matrix. Study doc: `docs/dignity-phase-a-study.md`.
-  Spec: `docs/dignity-instrument-spec.md`.
+- [ ] **Phase A: Feasibility study** — IN PROGRESS. 20/50 assessed (10 PASS with DI
+  composites, 8 ND correct, 2 deferred). Key results: r=0.126 (PSQ explains 1.6% DI
+  variance), 6 signal inversions confirmed (spec required ≥5), relevance gate 8/8.
+  Remaining: score 30 more stories, Pass 2 for inter-rater reliability.
+  Study doc: `docs/dignity-phase-a-study.md`. Spec: `docs/dignity-instrument-spec.md`.
   *Precondition: ✓ MET — observatory accepted Phase A (turn 6, PR #63)*
 
 - [ ] **Phase B: Instrument design** — Hicks-based Dignity Index scoring prompt,
