@@ -2615,4 +2615,12 @@ and compiled the final consolidated transport message.
   gaps between data points. Fix: quantile-binned pre-aggregation (proven on HI B2).
   The B2 fix was applied only to HI, not to all dimensions. All 10 dimensions
   need recalibration with quantile binning.
+- **psq-agent gate-blocked ACK processed** — turn 13 raised 3 policy conflicts on the Sonnet
+  re-score work order: P1 (labeling method — API scripts vs in-conversation), P2 (construct
+  boundary — which dims to score), P3 (missing infrastructure — data access path). All three
+  conflicts discussed with user individually. Resolutions: P1=in-conversation protocol (no API
+  override, preserves halo separation), P2=score all 10 dimensions (user chose full dataset
+  preservation over dropping CC/DA), P3=dissolved (P1 resolution means PSQ uses own tooling).
+  Gate-resolution message sent as turn 14 (`from-psychology-agent-006.json`). MANIFEST updated.
+  PR #45 closed (duplicate of commit already on main).
 - ▶ journal.md §25 (original B2 analysis); no new journal section needed (mechanism already described)
