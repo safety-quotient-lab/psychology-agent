@@ -178,6 +178,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | psq-agent scorer comparison msg | ✓ Turn 11 (findings) + Turn 12 (work order: 998×9 Sonnet re-score) to psq-agent (Session 35) |
 | claude-replay adopted          | ✓ Installed, tested (Session 35, 819KB HTML), documented in README + CLAUDE.md (Session 35) |
 | /scan-peer skill               | ✓ Verified loading (Session 36) + registered in CLAUDE.md Skills section |
+| EF-2 claim verification        | ✓ Tracker created — docs/claim-verification-log.json, 1/10 exchanges logged (Session 38) |
+| EF-1 trust degradation         | ✗ Correctly deferred — zero autonomous operation pressure; revisit at first Tier 2 evaluator fire |
 
 
 ### Open Questions
@@ -2624,3 +2626,28 @@ and compiled the final consolidated transport message.
   Gate-resolution message sent as turn 14 (`from-psychology-agent-006.json`). MANIFEST updated.
   PR #45 closed (duplicate of commit already on main).
 - ▶ journal.md §25 (original B2 analysis); no new journal section needed (mechanism already described)
+
+## 2026-03-08T07:07 CDT — Session 38 (EF-2 claim verification tracker + EF-1 evaluation)
+
+- **EF-2 claim verification tracker created** — `docs/claim-verification-log.json`, append-only
+  JSON log. Seeded with exchange #1 (rsync to Hetzner, 7/7 claims verified, 2026-03-06).
+  Review threshold lowered from 20 to 10 exchanges — current exchange rate (~1/week)
+  makes 20 impractical. At 10 exchanges with 100% accuracy, relax evidence requirements
+  for `verification`-type commands. TODO.md EF-2 marked complete.
+- **EF-1 evaluated via 10-order knock-on** — orders 1–4 produce real architectural value
+  (trust model choice → evaluator requirements → command-request spec changes → operational
+  modes). Orders 5–10 speculative and depend on production SaaS becoming real. Assessment:
+  zero autonomous operation pressure observed. No agent has attempted action without human
+  approval. Revisit trigger: first Tier 2 evaluator session. Correctly deferred. TODO.md
+  annotated with evaluation finding.
+- **TODO.md consistency fix** — Sonnet re-score entry corrected from "9 dims" to "10 dims"
+  per P2 gate resolution. Factor analysis entry also corrected (9→10). Description now
+  reflects in-conversation protocol and gate resolution status.
+
+⚑ EPISTEMIC FLAGS
+- EF-2 tracker seeded with 1 exchange — sample size insufficient for any conclusion about
+  evidence-bearing overhead value. The 10-exchange threshold represents a pragmatic minimum,
+  not a statistically meaningful sample.
+- EF-1 "zero pressure" assessment based on 37 sessions of observation. Absence of evidence
+  for autonomous operation pressure does not constitute evidence of absence — the system
+  may simply not have reached the scale where pressure emerges.
