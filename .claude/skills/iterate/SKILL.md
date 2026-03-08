@@ -1,6 +1,6 @@
 ---
 name: iterate
-description: Find next highest-value work and do it. Hunt → 2-order knock per candidate → discriminate → execute.
+description: Unified work loop — sync, hunt, discriminate, execute, cycle. One command does everything.
 user-invocable: true
 argument-hint: "[quick | deep | domain-filter]"
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash, Agent, AskUserQuestion, WebFetch
@@ -11,8 +11,9 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash, Agent, AskUserQuestion, WebF
 Find the single most important thing to do next, then do it.
 
 ```
+/sync      = check for inbound activity
 /hunt      = discover candidates, present to user
-/iterate   = discover → evaluate → discriminate → execute
+/iterate   = sync → hunt → discriminate → execute → cycle
 ```
 
 The user types `/iterate` and the next most important thing gets worked on.
@@ -33,6 +34,20 @@ Parse `$ARGUMENTS` to determine scope:
 ---
 
 ## Protocol
+
+### Phase 0: Sync (compressed)
+
+Run a quick sync internally — not user-facing output, just input to the hunt.
+
+1. `git fetch origin` — new remote commits?
+2. `git log HEAD..origin/main --oneline` — anything landed?
+3. `ls -t transport/sessions/*/from-*.json | head -5` — new inbound messages?
+4. `gh pr list --repo safety-quotient-lab/psychology-agent --json number,title` — open PRs?
+
+**If sync finds actionable items** (new commits, unread transport messages,
+open PRs), they become candidates in Phase 1 alongside hunt results.
+
+**If clean**, proceed silently to Phase 1.
 
 ### Phase 1: Hunt (compressed)
 
