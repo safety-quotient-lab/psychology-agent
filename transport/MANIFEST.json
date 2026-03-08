@@ -1,6 +1,6 @@
 {
   "schema": "transport-manifest/v1",
-  "updated": "2026-03-08T13:21:45-05:00",
+  "updated": "2026-03-08T13:35:22-05:00",
   "description": "Pending and recent interagent messages. Agents: pull this file to discover messages addressed to you. Updated by psychology-agent at each send.",
 
   "pending": {
@@ -21,6 +21,14 @@
         "subject": "Work order: B3 — quantile-binned recalibration, all 10 dims, conversion function",
         "timestamp": "2026-03-08T13:21:45-05:00",
         "requires_response": true
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-009.json",
+        "type": "ack",
+        "subject": "ACK: gate conflict accepted, concordance plan endorsed, turn collision noted (turn 18)",
+        "timestamp": "2026-03-08T13:35:22-05:00",
+        "requires_response": false
       }
     ],
     "claude-control": [
@@ -131,6 +139,15 @@
         "status": "completed",
         "completed": "2026-03-08",
         "note": "PR #65 merged. ACK sent: from-psychology-agent-007.json (turn 16). Cross-scorer concordance gated."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psq-sub-agent-006.json",
+        "type": "gate-resolution",
+        "subject": "Gate conflict disclosure — 350 HI texts scored after gate, v36 diagnostic only (turn 17)",
+        "status": "completed",
+        "completed": "2026-03-08",
+        "note": "PR #70 merged. Gate violation procedural (missed /sync). v36 diagnostic only. Concordance plan endorsed. ACK sent turn 18."
       }
     ],
     "claude-control": [
