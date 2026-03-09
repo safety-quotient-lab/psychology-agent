@@ -29,15 +29,17 @@ See `docs/architecture.md` for the full mapping.
 
 ## Hooks (`.claude/settings.json`)
 
-23 hooks enforce cogarch mechanically. Scripts live in `.claude/hooks/`.
+22 hook entries (19 unique mechanisms) enforce cogarch mechanically. Scripts live
+in `.claude/hooks/`.
 
 | Hook | Event | Purpose |
 |------|-------|---------|
 | parry-wrapper.sh | Pre/PostToolUse, UserPromptSubmit | Injection/credential defense |
 | T4 reminder | PostToolUse: Write/Edit | Critical file compliance |
 | write-provenance.sh | PostToolUse | Provenance trail (write-log.jsonl) |
-| subproject-boundary.sh | PreToolUse | Cross-project write warning |
+| subproject-boundary.sh | PreToolUse: Write/Edit | Cross-project write warning |
 | external-action-gate.sh | PreToolUse: Bash | T16 gate for gh commands |
+| context-pressure-gate.sh | PreToolUse | Context window pressure check |
 | pushback-accumulator.sh | UserPromptSubmit | Structural disagreement (>=3) |
 | session-start-orient.sh | SessionStart | T1 orientation context |
 | pre-compact-persist.sh | PreCompact | Persist state before compaction |
@@ -50,6 +52,7 @@ See `docs/architecture.md` for the full mapping.
 | instructions-health.sh | InstructionsLoaded | CLAUDE.md validation + glob rule report |
 | task-completed-route.sh | TaskCompleted | Routes completed tasks for /cycle pickup |
 | config-drift-detector.sh | ConfigChange | Settings modification alert |
+| context-pressure-statusline.sh | Notification | Status line context pressure display |
 
 Parry provides defense-in-depth — see BOOTSTRAP.md for installation.
 

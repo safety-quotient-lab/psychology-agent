@@ -77,7 +77,7 @@ On launch, you should see hook output confirming the cognitive architecture load
 ```
 
 The agent reads `CLAUDE.md` automatically and loads glob-scoped rules from
-`.claude/rules/`. 21 hooks enforce the cognitive architecture mechanically.
+`.claude/rules/`. 22 hooks (19 unique mechanisms) enforce the cognitive architecture mechanically.
 
 If the hooks do not fire, check that `.claude/settings.json` exists and that
 the hook scripts in `.claude/hooks/` have execute permissions (`chmod +x`).
@@ -338,7 +338,7 @@ working in a sub-project context.
 
 | Capability | Maturity | Notes |
 |------------|----------|-------|
-| Cognitive triggers (T1-T16) | **Proven** | 16 triggers, 21 platform hooks, SRT extensions with calibrated gates |
+| Cognitive triggers (T1-T16) | **Proven** | 16 triggers, 22 platform hooks (19 unique), SRT extensions with calibrated gates |
 | Skills (/doc, /hunt, /cycle, /knock, /sync, /iterate, /scan-peer) | **Proven** | 7 skills, daily use, tested across 50+ sessions |
 | Commands (/adjudicate, /capacity) | **Proven** | On-demand, verified |
 | Memory architecture (5-layer) | **Proven** | Auto-memory, snapshots, archives, self-healing bootstrap |
