@@ -408,6 +408,37 @@
                                   (processed column replaces ACK function).
                                 Full narrative: journal.md §35.
                                 Decided: 2026-03-09
+
+ Domain-Driven Design           DDD (Evans, 2003) adopted as core
+ (organizing principle)          architectural principle. The cogarch
+                                separates into three DDD layers:
+                                (1) DOMAIN layer — psychology-specific
+                                  content (PSQ, DI, PJE, transport
+                                  topology, agent identities). Adopters
+                                  replace this entirely.
+                                (2) APPLICATION layer — skills (/hunt,
+                                  /cycle, /sync, /knock, /iterate),
+                                  evaluator protocol, trust model.
+                                  Adopters configure, rarely replace.
+                                (3) INFRASTRUCTURE layer — trigger system
+                                  (T1-T16), hooks, memory pattern,
+                                  dual-write, lite prompts, bootstrap.
+                                  Adopters inherit as-is.
+                                Bounded contexts: each agent (psychology-
+                                  agent, psq-agent, unratified-agent)
+                                  operates as a bounded context with its
+                                  own ubiquitous language. interagent/v1
+                                  serves as the context map.
+                                Anti-corruption layers: T15 (receiver
+                                  protocol), T3 (substance gate).
+                                De-branding delivery: B+C — configuration
+                                  layer (cogarch.config.json) parameterizes
+                                  the domain layer boundary; adaptation
+                                  guide documents the replacement path.
+                                Derives from: coupling-point inventory
+                                  (Session 52), lite prompt distillation
+                                  (Session 49, journal §33).
+                                Decided: 2026-03-09
 ────────────────────────────────────────────────────────────────────────
 ```
 

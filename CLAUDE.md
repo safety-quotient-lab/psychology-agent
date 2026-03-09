@@ -3,6 +3,12 @@
 General-purpose psychology agent project root. Specialized sub-projects below.
 MEMORY.md holds volatile state (active thread, design decisions, cogarch quick-ref).
 
+**Core organizing principle: Domain-Driven Design (Evans, 2003).** The cogarch separates
+into three layers: INFRASTRUCTURE (triggers, hooks, memory, dual-write — inherited as-is),
+APPLICATION (skills, evaluator, trust model — configured per agent), DOMAIN (PSQ, DI, PJE,
+transport topology — replaced by adopters). Each agent operates as a bounded context;
+interagent/v1 serves as the context map. See `docs/architecture.md` for the full DDD mapping.
+
 ---
 
 ## Hooks (`.claude/settings.json`)
