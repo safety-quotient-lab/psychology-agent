@@ -309,11 +309,9 @@ After adaptation, verify:
 - [ ] `.well-known/agent-card.json` reflects your agent identity
 - [ ] `transport/agent-registry.json` lists your agents (or empty agents block)
 - [ ] `transport/MANIFEST.json` cleared (empty pending + recently_completed)
-- [ ] `python scripts/bootstrap_state_db.py --force` completes without errors.
-  Note: validation checks use psychology-agent-specific thresholds (min 15
-  psq messages, min 40 transport total, etc.). A fresh install with no history
-  will fail these — that's expected. The checks that matter for adopters:
-  triggers indexed (≥10) and design decisions indexed (≥10).
+- [ ] `python scripts/bootstrap_state_db.py --force` completes with all checks passing.
+  The script detects fresh installs (no transport session directories) and
+  applies structural-only thresholds automatically.
 - [ ] `CLAUDE.md` top paragraph matches your system classification
 - [ ] `docs/cognitive-triggers.md` exists and has 100+ lines (unchanged from source)
 - [ ] No grep hits for "psychology-agent" in `*.sh *.js *.py *.json *.md` outside
