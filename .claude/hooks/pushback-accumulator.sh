@@ -6,6 +6,7 @@
 # Heuristic: scans the user prompt for pushback signals (negation, correction,
 # disagreement). Not perfect — false positives are low-cost (extra awareness),
 # false negatives just mean the cognitive T6 layer handles it alone.
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 COUNTER_FILE="${HOME}/.claude/.pushback-count.tmp"
 PROMPT="${USER_PROMPT:-}"

@@ -45,7 +45,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | License (root project)        | ✓ Apache 2.0 — LICENSE + NOTICE at project root (relicensed Session 32c) |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
 | Auto-memory recovery          | ✓ Snapshots, bootstrap-check.sh, T1 health check, BOOTSTRAP.md restructure (Session 11) |
-| Platform hooks                | ✓ 14 hook events (17 active scripts): T4, provenance, subproject, external-action, pushback, SessionStart (+ state.db bootstrap), PreCompact, Stop, Notification, tool-failure (2), subagent-audit (2), SessionEnd, InstructionsLoaded, TaskCompleted, ConfigChange, context-pressure-gate, context-pressure-statusline. Parry ⚑ diagnostic removal (Session 12-56) |
+| Platform hooks                | ✓ 14 hook events (17 active scripts + _debug.sh shared helper): T4, provenance, subproject, external-action, pushback, SessionStart (+ state.db bootstrap), PreCompact, Stop, Notification, tool-failure (2), subagent-audit (2), SessionEnd, InstructionsLoaded, TaskCompleted, ConfigChange, context-pressure-gate, context-pressure-statusline. Debug logging: `touch/rm .claude/hooks/.debug` (Session 57) |
 | Source dictionary             | ✓ docs/dictionary.md — 15 entries, 7 categories, APA citations (Session 27) |
 | best.pt local recovery        | ✓ SHA256 7bec777c match confirmed local↔Hetzner (Session 27) |
 | Agent identity directive      | ✓ Psychology agent first; engineering serves the discipline (Session 40) |
@@ -3589,3 +3589,37 @@ Continued from Session 52 (context compaction — resumed from cogarch.config.js
 ⚑ EPISTEMIC FLAGS
 - Stress test exercised T3, T4, T14 only — 13 other triggers remain untested this session
 - "No MCP consumer exists" assumes current peer transport topology stays static
+
+
+## 2026-03-09T17:08 CDT — Session 57 (Hook error investigation, configurable debug logging)
+
+Continuation of Session 56 after context compaction. Focused on investigating
+hook errors reported during Session 56 edits and adding configurable debug logging
+to all hooks.
+
+- **Hook error investigation:** User reported PreToolUse:Edit and PostToolUse:Edit
+  errors during Session 56 edits to `interface/wrangler.toml` and `interface/.gitignore`.
+  Reviewed all 6 hooks that fire on Edit operations. All scripts exit 0 unconditionally,
+  handle empty `$TOOL_INPUT_file_path`, and match `interface/` paths to no-op branches.
+  Manual testing reproduced no errors. Checked all available hook logs: `write-log.jsonl`
+  had only 1 entry (missing entries for other Session 56 edits correlates with hook failures),
+  `consecutive-failures` at 0, `config-drift.jsonl` showed clusters during editing window.
+  Claude Code maintains no separate hook execution logs — output feeds directly into
+  conversation transcript. **Conclusion:** transient errors, likely timeout race or
+  Claude Code hook runner environment difference. No structural defect found.
+
+- **Configurable hook debug logging:** Created `.claude/hooks/_debug.sh` shared helper.
+  Added `source "${BASH_SOURCE[0]%/*}/_debug.sh"` to all 17 hook scripts. Toggle:
+  `touch .claude/hooks/.debug` (enable) / `rm .claude/hooks/.debug` (disable). Log:
+  `/tmp/psychology-agent-hook-debug.log` (JSONL — timestamp, hook name, file path, event).
+  Zero overhead when disabled (single file-existence check). Tested both paths: no-flag
+  produces no log; with-flag produces correct JSONL entry.
+
+- **Artifacts created:**
+  - `.claude/hooks/_debug.sh` — shared debug logging helper
+
+⚑ EPISTEMIC FLAGS
+- Hook error root cause remains unobservable — transient classification rests on
+  absence of reproduction, not positive identification of the cause
+- `CLAUDE_HOOK_EVENT` env var availability in Claude Code hook runner unverified —
+  may log "unknown" for the event field

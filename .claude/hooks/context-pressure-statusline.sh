@@ -7,6 +7,7 @@
 # This provides visual awareness of context pressure; T2 (before response)
 # handles the behavioral response. Mechanical enforcement would require
 # a PreToolUse hook, but PreToolUse does not receive context % data.
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 INPUT=$(cat)
 

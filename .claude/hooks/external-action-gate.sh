@@ -2,6 +2,7 @@
 # T16: External-facing action gate (PreToolUse: Bash)
 # Fires when gh CLI write operations detected in Bash command input.
 # Non-blocking — outputs a reminder of T16 checks, does not prevent the operation.
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 COMMAND="${TOOL_INPUT_command:-}"
 [ -z "$COMMAND" ] && exit 0

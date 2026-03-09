@@ -50,6 +50,10 @@ Forward-looking task list only. Completed and emergent work goes to
   complement to markdown lab-notebook. Structured, queryable.
   *Source: Simone MCP activity logger*
   *Precondition: implementation phase (code exists to log against)*
+  *Grounding audit Session 57: largely superseded by SL-2 dual-write (session_log
+  table + dual_write.py). Remaining delta: Simone-style MCP server exposing the
+  existing state.db to external tools. Reclassify as XS enhancement, not standalone
+  work item.*
 
 ---
 

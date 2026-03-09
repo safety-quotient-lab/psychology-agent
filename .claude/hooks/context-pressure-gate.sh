@@ -6,6 +6,7 @@
 # Thresholds (aligned with T2 Check 1):
 #   60% — PRESSURE: consider /doc to persist findings
 #   75% — CRITICAL: actively compress, /doc now, prepare for compaction
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 CTX_FILE="${XDG_RUNTIME_DIR:-/tmp}/.claude-context-pct-$(id -u)"
 

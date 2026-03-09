@@ -2,6 +2,7 @@
 # SessionEnd hook — uncommitted work detector + session logger.
 # Warns if uncommitted changes exist in tracked files.
 # Logs session end timestamp.
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$PROJECT_ROOT" || exit 0

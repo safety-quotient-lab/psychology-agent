@@ -3,6 +3,7 @@
 # Validates memory file structure on write. Ensures entries follow expected
 # format for their topic file. Mechanical enforcement replaces convention-reliance.
 # Source: Synrix enforced prefix taxonomy (adapted for markdown conventions).
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 FILE_PATH="${TOOL_INPUT_file_path:-}"
 [ -z "$FILE_PATH" ] && exit 0

@@ -3,6 +3,7 @@
 # Logs which files were modified, when, and approximate session context.
 # Lightweight provenance trail — catches cross-context overwrites.
 # Log: .claude/write-log.jsonl (gitignored)
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 FILE_PATH="${TOOL_INPUT_file_path:-}"
 [ -z "$FILE_PATH" ] && exit 0

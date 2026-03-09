@@ -2,6 +2,7 @@
 # PostToolUseFailure hook — consecutive failure halt
 # Counts consecutive tool failures; after 3, warns to pause and diagnose.
 # Prevents brute-force retry anti-pattern (CLAUDE.md Problem-Solving Discipline).
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 COUNTER_FILE="/tmp/psychology-agent-consecutive-failures"
 

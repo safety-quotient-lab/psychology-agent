@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # InstructionsLoaded hook — validates loaded instruction files and reports
 # which glob-scoped rules are active.
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
