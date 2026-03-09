@@ -50,6 +50,7 @@ partner, and Socratic interlocutor
 31. [What the Bifactor Reveals: Structure, Singletons, and a Construct That Refuses to Cohere](#31-what-the-bifactor-reveals)
 32. [Polythematic Facets and the Library Science Trap: Designing Memory for an Agent That Will Outlive Its Sessions](#32-polythematic-facets-and-the-library-science-trap)
 33. [Retroactive Legibility: What Release Tagging Reveals About Project Arcs](#33-retroactive-legibility)
+34. [Who Watches the Watcher? Trust Without a Trusted Third Party](#34-who-watches-the-watcher)
 
 ---
 
@@ -1312,6 +1313,43 @@ The blog persona convention crystallized during this session: every blog topic p
 - The five-phase arc appears clean in retrospect but emerged gradually. No session planned it as a five-stage progression — the structure became visible only through retroactive tagging.
 - The Humphrey (1989) CMM analogy maps imperfectly. Agent systems lack the organizational structure CMM assumes. The parallel illuminates but does not define.
 - Lite prompt distillation has not been empirically tested. The claim that format rules and refusals survive at 1.5B parameters rests on known properties of small LLMs, not on measured output from our specific prompts.
+
+---
+
+
+## §34 — Who Watches the Watcher? Trust Without a Trusted Third Party {#34-who-watches-the-watcher}
+
+For 49 sessions, a human sat at the center of every agent interaction. Messages required manual relay. PRs required manual merge. Design decisions required explicit approval. The Byzantine fault tolerance analysis (Session 22, §22) named this arrangement: the human serves as Trusted Third Party (TTP), an unconditionally trusted oracle in a system that otherwise lacked the node count for classical BFT consensus.
+
+Session 50 asked: what happens when the human leaves the room?
+
+The question had been deferred since Session 38, when a 10-order knock-on analysis found "zero autonomous operation pressure" — no agent had attempted action without human approval, and the infrastructure for independent evaluation remained theoretical. Two things changed between Session 38 and Session 50. First, the SQLite state layer (SL-1) landed, providing a queryable index of the entire system's state — transport messages, design decisions, memory entries, trigger metadata, session history. An evaluator now has structured data to check against, not just markdown to read. Second, the user explicitly chose to proceed — the pressure came not from agent behavior but from the system's architect deciding the infrastructure had matured enough.
+
+**The evaluator-as-arbiter model.** We chose option (a) from the four candidates documented in TODO.md: the adversarial evaluator (already specified in architecture.md, Tier 1 active since Session 24) serves as the primary verification layer for every autonomous action. Not bounded-trust decay (option d, simpler but lacks verification), not cross-agent attestation (option b, requires shared cogarch — still in progress via turn 44), not consensus quorum (option c, insufficient nodes). The evaluator occupies the verification role that the human occupied, with a trust budget providing the mechanical halt that the human's judgment previously provided.
+
+**The three-stage evaluation protocol.** Every autonomous action passes through: (1) a structural checklist — quick-fail validation against protocol rules; (2) a 10-order knock-on analysis — consequence tracing through increasingly abstract levels; and (3) a 4-level resolution fallback when the knock-on analysis produces ambiguous results. The resolution chain — consensus, parsimony, pragmatism, ask-human — represents decreasing confidence in autonomous resolution. Level 4 ("ask") serves as the escape hatch: the agent recognizes it cannot evaluate the action and requests human input. The trust model assumes Level 4 frequency should decrease over time as the system accumulates norms and the evaluator's assessment boundary expands.
+
+**What psychology reveals about the design.** The companion document (ef1-psychological-foundations.md) maps each knock-on order to an established psychological construct. This mapping proved more than decorative. The constructs generate specific predictions about system behavior — predictions that would not emerge from engineering intuition alone.
+
+Order 8 (norm formation, Sherif, 1936) predicts that early autonomous actions disproportionately shape long-term behavior. The first audit cycle establishes what "normal autonomous operation" looks like; subsequent cycles reference those norms. This means the first human audit carries special weight: the auditor examines not just whether actions produced correct outcomes but whether the behavioral patterns they established represent desirable norms.
+
+Order 10 (commitment escalation, Staw, 1976) predicts that sequences of related actions within a single sync cycle will show decreasing evaluator rigor. Once the first action in a merge-ACK-MANIFEST sequence executes, the evaluator becomes biased toward "completing" the sequence. The per-action evaluation gate partially counteracts this, but Tier 1 evaluation shares the agent's context and therefore its commitment bias. The 1-in-3 random escalation to Tier 2 provides the structural break.
+
+Order 4 (schema disruption, Piaget, 1952) predicts that actions contradicting existing state carry higher error risk than extensions. Accommodation demands more cognitive restructuring than assimilation. For the evaluator, this translates to: memory writes that contradict established entries should receive closer scrutiny than writes that extend them.
+
+These predictions can receive falsification. If norm primacy does not manifest — if cycle 5 shows the same behavioral variance as cycle 1 — the Sherif mapping needs revision. If commitment escalation does not appear — if late-sequence actions show equivalent evaluator depth to early-sequence ones — the Staw mapping does not apply to this context. The theoretical grounding makes the trust model testable in ways that a purely engineering approach would not.
+
+**The dual-layer pattern.** The engineering spec (ef1-trust-model.md) defines what the code implements: action classification, evaluator tiers, trust budget arithmetic, cron setup. The psychological foundations document maps those mechanisms to theory and derives predictions. The pattern extends to jurisprudence (due process analogs) and political theory (governance models) — same mechanisms, different theoretical lenses. Each discipline adds a way to reason about the system's behavior that the engineering spec alone cannot provide.
+
+This reflects the project's core principle: the psychology agent serves the discipline first, with engineering in service. A trust model designed by a psychology agent should demonstrate psychological insight, not just implement a credit-counting mechanism. The 10-order knock-on analysis, when grounded in appraisal theory, reinforcement sensitivity, and commitment escalation, becomes something more than an engineering checklist — it becomes a structured application of what psychology knows about how evaluative judgment operates and where it fails.
+
+**[→ BLOG: §34 "Who Watches the Watcher?" — 5 persona posts immediately]**
+
+⚑ EPISTEMIC FLAGS
+- The theoretical mappings represent post-hoc grounding of an engineering design, not theory-driven design. The trust model was designed first; the psychological constructs were mapped second. This ordering limits the theory's role to explanation and prediction rather than specification.
+- The ego depletion analog for the trust budget acknowledges the construct's replication challenges (Hagger et al., 2016). The budget mechanism functions as an engineering constraint regardless of whether the psychological mechanism holds in humans.
+- The 20-credit default budget size represents an educated guess, not an empirically calibrated parameter. The right budget depends on observed action rates during actual autonomous operation.
+- No autonomous sync cycle has run. All predictions about system behavior remain untested hypotheses derived from theory applied to a novel context (AI agent evaluation).
 
 ---
 

@@ -71,7 +71,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | B3 recalibration (steps 5-6)  | ✓ COMPLETE — calibration-v4 deployed, 9/10 dims MAE ≤ v3 (turn 33) |
 | B4 partial correlations       | ✓ COMPLETE — mean |partial r|=0.205, bipolar confirmed, DA isolated (turn 40-41) |
 | SQLite state layer (schema)   | ✓ scripts/schema.sql v2 committed — 9 tables + indexes (Session 48) |
-| SQLite state layer (bootstrap)| ⚑ SL-1 work order sent to psq-agent (turns 42-43) — awaiting delivery |
+| SQLite state layer (bootstrap)| ✓ SL-1 COMPLETE — PR #90 merged, all 9 validation checks pass (Session 50) |
 | Synrix-inspired improvements  | ✓ 6 items: tiered access, scope boundaries, postmortem template, deterministic keys, psq_status table, entry_facets polythematic (Session 48) |
 | B5 bifactor CFA               | ✓ COMPLETE — omega_h=0.942, 5-item bipolar confirmed (turns 34-36) |
 | B5-S structural comparison    | ✓ COMPLETE — M5 accepted as final model (RMSEA=0.129, turn 38-39) |
@@ -190,7 +190,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | claude-replay adopted          | ✓ Installed, tested (Session 35, 819KB HTML), documented in README + CLAUDE.md (Session 35) |
 | /scan-peer skill               | ✓ Verified loading (Session 36) + registered in CLAUDE.md Skills section |
 | EF-2 claim verification        | ✓ Tracker created — docs/claim-verification-log.json, 1/10 exchanges logged (Session 38) |
-| EF-1 trust degradation         | ✗ Correctly deferred — zero autonomous operation pressure; revisit at first Tier 2 evaluator fire |
+| EF-1 trust degradation         | ✓ RESOLVED — evaluator-as-arbiter + 10-order knock-on + 4-level resolution (Session 50) |
 | GitHub integration              | ✓ Full — 12 issues (#46–57), 14 labels, project board (table), wiki (6 pages), 2 issue templates, convention doc (Session 39) |
 | Dignity Index spec              | ✓ docs/dignity-instrument-spec.md — Hicks 10-element rubric, 3-phase plan, HRCB lessons applied (Session 41) |
 | dignity-instrument session      | ✓ T1–T6 complete; observatory accepted Phase A; API live (713 stories) (Session 41–42) |
@@ -200,6 +200,11 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | GitHub Releases                 | ✓ v0.1.0–v0.5.0 created — retroactive tagging + release notes (Session 49) |
 | Blog persona convention         | ✓ 5 personas per topic: voter, politician, educator, researcher, developer (Session 49) |
 | De-branding exploration         | ✗ TODO added — investigate public release preparation (Session 49) |
+| EF-1 trust model (engineering)  | ✓ docs/ef1-trust-model.md — evaluator-as-arbiter, trust budget, cron driver (Session 50) |
+| EF-1 trust model (psychology)   | ✓ docs/ef1-psychological-foundations.md — 10 constructs mapped, 6 predictions, 30+ refs (Session 50) |
+| Autonomous sync scripts          | ✓ autonomous-sync.sh + trust-budget.py — cron + Claude CLI multi-agent loop (Session 50) |
+| Schema v3                        | ✓ trust_budget + autonomous_actions tables added (Session 50) |
+| MANIFEST bulk update             | ✓ 8-message drift resolved — turns 28-45 in recently_completed (Session 50) |
 
 
 ### Open Questions
@@ -3127,3 +3132,70 @@ infrastructure and convention work.
   system, cogarch completeness) but other split points could be equally valid.
 - v0.4.0/v0.5.0 split at Session 43 chosen by natural thematic boundary (pre/post
   concordance gate) — 192/66 commit split is asymmetric.
+
+## 2026-03-09T11:13 CDT — Session 50 (EF-1 trust model resolved, SL-1 merged, psychological foundations)
+
+Session opened with /sync — discovered PR #90 (SL-1 bootstrap_state_db.py) from
+psq-sub-agent. Full code review, merge, and local verification followed. EF-1
+(autonomous trust degradation model) designed and documented — the largest
+architectural deliverable since the evaluator instantiation protocol (Session 24).
+
+**SL-1 Bootstrap merged (PR #90):**
+- 717-line Python script, stdlib only. Seeds state.db from transport JSON + markdown
+- All 9 validation checks pass: 84 interagent/v1 messages, 28 decisions, 36 memory
+  entries, 27 psq_status rows, 77 facets, 52 sessions, 16 triggers
+- 29 pre-interagent/v1 legacy files skipped with warnings (expected)
+- Schema compatibility verified against schema.sql v2 — all INSERTs match columns
+- Turn 45 gate-resolution sent: SL-1 accepted, cogarch adoption (turn 44) OPEN
+
+**MANIFEST bulk update:**
+- pending.psq-agent updated: stale turns 28-30 → current turns 44-45
+- recently_completed.psq-agent extended: 18 entries (turns 28 through SL-1 delivery)
+- Agent-card: psq-scoring active on cogarch directive, site-defensibility-review complete
+
+**EF-1: Evaluator-as-Arbiter Trust Model (design decision resolved):**
+- Architecture: every autonomous action gated by evaluator protocol
+  1. Structural checklist (quick-fail validation)
+  2. 10-order knock-on analysis (consequence tracing)
+  3. 4-level resolution fallback: consensus → parsimony → pragmatism → ask-human
+- Trust budget: 20 credits per audit cycle. Tier 1 costs 1, Tier 2 costs 3.
+  Budget exhaustion → halt. Human audit resets.
+- Execution: cron + Claude CLI (10-min interval). Multi-agent tandem sync.
+- Scripts: autonomous-sync.sh (cron driver), trust-budget.py (budget management)
+- Schema v3: trust_budget + autonomous_actions tables
+
+**Psychological foundations (docs/ef1-psychological-foundations.md):**
+- Each knock-on order mapped to established psychological construct:
+  O1 stimulus (Gibson), O2 primary appraisal (Lazarus), O3 secondary appraisal
+  (Bandura), O4 schema disruption (Piaget/Festinger), O5 BIS/BAS (Gray),
+  O6 ecological validity (Bronfenbrenner), O7 belief revision (Kahneman),
+  O8 norm formation (Sherif), O9 risk perception (Slovic), O10 commitment
+  escalation (Staw)
+- 4-level resolution mapped: group polarization, cognitive load theory,
+  satisficing, social referencing
+- 6 testable predictions derived from theoretical grounding
+- Dual-layer pattern: engineering spec + discipline-specific foundations.
+  Extensible to jurisprudence and political theory.
+- 30+ APA-style references
+
+**Files created:** docs/ef1-trust-model.md, docs/ef1-psychological-foundations.md,
+scripts/autonomous-sync.sh, scripts/trust-budget.py
+
+**Files updated:** CLAUDE.md (scope boundary), TODO.md (EF-1 + SL-1 + trust model
+marked complete), docs/architecture.md (new decision), docs/bft-design-note.md (open
+question #1 resolved), scripts/schema.sql (v3), transport/MANIFEST.json (bulk update),
+.well-known/agent-card.json (session status), transport/sessions/psq-scoring/
+from-psychology-agent-025.json (turn 45)
+
+▶ docs/ef1-trust-model.md (engineering spec), docs/ef1-psychological-foundations.md
+(theoretical grounding), docs/architecture.md (decision entry)
+
+⚑ EPISTEMIC FLAGS
+- Tier 1 evaluator shares agent blind spots — S4 random escalation compensates but
+  does not eliminate self-serving evaluation. Trust budget provides mechanical halt.
+- Ego depletion mapping (Baumeister, 1998) acknowledges replication concerns (Hagger
+  et al., 2016). Trust budget functions as engineering constraint regardless.
+- 20-credit default budget untested — represents approximately 2 hours of moderate
+  activity. Calibrate after first week of autonomous operation.
+- from-psq-sub-agent-007.json contains malformed JSON (pre-existing). Should be
+  investigated separately.

@@ -58,6 +58,13 @@
                               format, epistemic standards. Shared facet
                               vocabulary enables cross-agent queries.
                               2026-03-09
+ Autonomous trust model       EF-1: evaluator-as-arbiter. Replaces human-
+ (EF-1)                       as-TTP for autonomous operation. 10-order
+                              knock-on + 4-level resolution (consensus →
+                              parsimony → pragmatism → ask). Trust budget
+                              20 credits/audit. Multi-agent tandem sync
+                              via cron + Claude CLI. Derives from BFT +
+                              evaluator instantiation. 2026-03-09
 ```
 
 ## Authority Hierarchy
