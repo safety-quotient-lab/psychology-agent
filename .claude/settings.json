@@ -72,6 +72,16 @@
         ]
       },
       {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/memory-structure-validate.sh",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
         "hooks": [
           {
             "type": "command",

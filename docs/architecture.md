@@ -265,6 +265,7 @@
                               reduction tracked as secondary metric.
                               Evidence: B3 recalibration Session 45.
                               Full narrative: journal.md §30 (context).
+                              Derives from: Scorer consistency policy.
                               Decided: 2026-03-08
 
  Calibration deploy timing    Deploy calibration updates only after the
@@ -272,6 +273,8 @@
                               calibration artifacts fitted on a model that
                               will be retrained. Prevents state churn for
                               downstream consumers.
+                              Derives from: Calibration success criterion,
+                                Scorer consistency policy.
                               Decided: 2026-03-08
 
  PSQ structural model         M5 bifactor (Reise, 2012): g (all 10 dims)
@@ -300,6 +303,11 @@
                               complete-case). Human expert structure may differ.
                               Evidence: psq-scoring turns 34-38.
                               Full narrative: journal.md §31.
+                              Derives from: Scorer consistency policy →
+                                Calibration success criterion →
+                                B3 recalibration → B5 bifactor CFA →
+                                B5-R respecification → B5-S comparison →
+                                B4 partial correlations.
                               Decided: 2026-03-08
 
  SQLite state layer            Phase 1: markdown = source of truth, DB =
@@ -322,6 +330,9 @@
                                Source: Synrix Memory Engine evaluation
                                (design principles extracted, tool rejected).
                                Evidence: Session 47-48 analysis.
+                               Derives from: Cogarch organizing principle
+                                 (Peircean semiotics → typed state needs
+                                 queryable index, not just flat files).
                                Decided: 2026-03-09
 ────────────────────────────────────────────────────────────────────────
 ```

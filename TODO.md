@@ -124,27 +124,18 @@ Items informed by Synrix Memory Engine evaluation (Session 47). Framed for the
 long-term goal of fully automating the psychology agent — transitioning from
 human-mediated Claude Code sessions to autonomous operation.
 
-- [ ] **Temporal decay for memory entries** — Add `last_confirmed: YYYY-MM-DD` to
-  memory topic file entries. /cycle Step 7 flags entries not confirmed in 5+ sessions
-  as archival candidates. Prevents stale-entry accumulation in long-running autonomous
-  operation where manual pruning does not occur.
-  *Source: Synrix temporal decay (relevance_score, decay_rate, last_access_time)*
-  *Precondition: none — can implement now*
+- [x] **Temporal decay for memory entries** — COMPLETE (Session 48). `[confirmed YYYY-MM-DD]`
+  annotations added to all memory topic file entries. Hook validates presence on write.
+  T9 freshness thresholds (5 sessions → flag, 10 → remove) operate on these dates.
 
-- [ ] **Decision chain backreferences** — Add explicit `derives_from` references in
-  architecture.md design decision entries, linking each decision to its evidence chain
-  (e.g., M5 → B5-S → B5-R → B5 → B4 → g-factor paradox). Enables an autonomous agent
-  to reconstruct reasoning provenance without human context or full session transcripts.
-  *Source: Synrix parent_id reasoning chains*
-  *Precondition: none — can implement now*
+- [x] **Decision chain backreferences** — COMPLETE (Session 48). `Derives from:` lines
+  added to architecture.md decisions with evidence chains (PSQ structural model traces
+  through 7 predecessor decisions; calibration decisions link to scorer consistency).
 
-- [ ] **Memory structure validation hook** — PostToolUse hook that validates memory
-  file structure on write. Ensures entries follow expected format for their topic file
-  (e.g., psq-status.md entries have status markers, decisions.md entries have dates).
-  Mechanical enforcement replaces convention-reliance — critical when no human reviews
-  memory writes in autonomous operation.
-  *Source: Synrix enforced prefix taxonomy*
-  *Precondition: none — extends existing write-provenance.sh*
+- [x] **Memory structure validation hook** — COMPLETE (Session 48). PostToolUse hook
+  `.claude/hooks/memory-structure-validate.sh` validates: psq-status (status markers +
+  confirmed dates), decisions (table format + dates), cogarch (trigger table + confirmed
+  dates), MEMORY.md (line count thresholds). Registered in settings.json.
 
 - [x] **Programmatic state layer evaluation** — RESOLVED (Session 48). SQLite state
   layer adopted. Schema v2 committed (scripts/schema.sql, 9 tables). Conventions at
