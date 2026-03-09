@@ -15,8 +15,8 @@ gradient. Each layer carries a different adoption cost:
 
 | Layer | DOF | What it contains | Adopter action |
 |-------|-----|------------------|----------------|
-| **Infrastructure** | Low | Triggers (T1-T16), hooks (13 scripts), memory pattern (index + topic files), dual-write (state.db), lite prompts, bootstrap | **Inherit as-is.** Leverage points (Meadows, 1999) — highest systemic impact, fewest adjustable parameters. |
-| **Application** | Medium | Skills (/hunt, /cycle, /sync, /knock, /iterate, /doc), evaluator protocol, trust model, /adjudicate command | **Configure.** Skills work for any agent; evaluator and trust model may need domain-specific tuning. |
+| **Infrastructure** | Low | Triggers (T1-T16), hooks (13 scripts), memory pattern (index + topic files), dual-write (state.db), lite prompts, bootstrap | **Inherit logic as-is; replace identity values.** Hooks contain `/tmp/{agent-id}-*` paths and agent ID arguments — the enforcement logic stays identical, only the name changes. Leverage points (Meadows, 1999). |
+| **Application** | Medium | Skills (/hunt, /cycle, /sync, /knock, /iterate, /doc), evaluator protocol, trust model, /adjudicate command | **Configure.** Skills contain agent identity in message templates and example commands — replace those values. Skill logic works for any agent; evaluator and trust model may need domain-specific tuning. |
 | **Domain** | High | Agent identity, organization, peer agents, scoring subsystem, transport topology, domain documents | **Replace entirely.** `cogarch.config.json` parameterizes all domain-layer degrees of freedom. |
 
 
@@ -82,9 +82,13 @@ Points the adaptation path to files that an adopter replaces entirely.
 ## Step 2: Update Downstream Consumers
 
 After replacing `cogarch.config.json`, update the files that currently hardcode
-domain-layer values. The table below maps each config section to its consumers.
+identity and domain-layer values. Four tiers, ordered by coupling strength — Tier 1
+reads directly from config sections; Tiers 2-4 use the agent name in paths, templates,
+and scripts.
 
-### Consumer mapping (23 locations across 6 files)
+### Consumer mapping (42 locations across 15 files)
+
+**Tier 1 — Config consumers (23 locations, 6 files):**
 
 | Config section | File | Lines | What to change |
 |---|---|---|---|
@@ -103,6 +107,41 @@ domain-layer values. The table below maps each config section to its consumers.
 | `facets.topic_domain_map` | `scripts/bootstrap_state_db.py` | 267-271 | `TOPIC_DOMAIN_MAP` dict |
 | `facets.work_stream_prefixes` | `scripts/bootstrap_state_db.py` | 273-281 | `WORK_STREAM_PREFIXES` list |
 | `facets.agent_detection_patterns` | `scripts/bootstrap_state_db.py` | 493-499 | Agent detection if/elif logic |
+
+**Tier 2 — Hook identity references (7 locations, 6 files):**
+
+Hook scripts use `/tmp/psychology-agent-*` temp file paths and agent ID arguments.
+The *logic* stays the same — only the agent name in the path changes. Find-and-replace
+`psychology-agent` with your agent ID in these files:
+
+| File | What to change |
+|---|---|
+| `.claude/hooks/tool-failure-halt.sh` | `/tmp/psychology-agent-consecutive-failures` path |
+| `.claude/hooks/tool-failure-reset.sh` | Same path (must match halt script) |
+| `.claude/hooks/session-end-check.sh` | `/tmp/psychology-agent-session-log.jsonl` path |
+| `.claude/hooks/config-drift-detector.sh` | `/tmp/psychology-agent-config-drift.jsonl` path |
+| `.claude/hooks/subagent-audit.sh` | `/tmp/psychology-agent-subagent-audit.jsonl` + budget file paths |
+| `.claude/hooks/task-completed-route.sh` | `/tmp/psychology-agent-completed-tasks.jsonl` path |
+| `.claude/hooks/session-start-orient.sh` | Agent ID argument passed to transport-scan.sh |
+
+**Tier 3 — Skill identity references (12 locations, 3 files):**
+
+Skills contain agent ID, discovery URL, and repo URL in JSON templates and example
+commands. The *skill logic* stays the same — only the identity values change:
+
+| File | What to change |
+|---|---|
+| `.claude/skills/sync/SKILL.md` | `agent_id`, `role`, `discovery_url` in message template; `--from-agent` argument; repo URLs in example commands |
+| `.claude/skills/scan-peer/SKILL.md` | `agent_id`, `discovery_url`, `repo` in message template; project paths in examples |
+| `.claude/skills/iterate/SKILL.md` | Repo URL in example `gh pr list` command |
+
+**Tier 4 — Autonomous operation scripts (not needed if no autonomous mode):**
+
+| File | What to change |
+|---|---|
+| `scripts/autonomous-sync.sh` | Agent ID default, repo URL, cron target |
+| `scripts/trust-budget.py` | Agent ID references |
+| `transport/hooks/transport-scan.sh` | Default `AGENT_ID` fallback value |
 
 **If you have no scoring subsystem:** Delete `interface/src/psq-client.js` entirely.
 Remove the PSQ routes from `worker.js` (lines 218-240). Remove the `extractPSQBlock`
@@ -184,17 +223,22 @@ Delete or replace the files listed in `domain_content.domain_docs`:
 ## What NOT to Change
 
 These components represent the infrastructure layer — low DOF, high leverage.
-Modifying them breaks the embedded cognitive system:
+Modifying their **logic** breaks the embedded cognitive system:
 
 - **Triggers T1-T16** — the behavioral governance system. Fires on tool use,
   session start, compaction, response generation. Domain-agnostic.
-- **Hook scripts** — mechanical enforcement of triggers. The scripts in
-  `.claude/hooks/` intercept Claude Code's I/O pipeline.
+- **Hook script logic** — mechanical enforcement of triggers. The scripts in
+  `.claude/hooks/` intercept Claude Code's I/O pipeline. **Do not change what
+  hooks do** — only replace the agent identity values they reference (Step 2,
+  Tier 2). The temp file paths and agent ID arguments carry your agent's name;
+  the enforcement logic stays identical.
 - **Memory pattern** — index (MEMORY.md) + topic files + snapshots + bootstrap.
   The structure works for any agent; only the content changes.
 - **Dual-write protocol** — markdown first, then DB. Recovery via bootstrap script.
-- **Skills structure** — /hunt, /cycle, /sync, /knock, /iterate, /doc operate
-  on the documentation chain, not on domain content.
+- **Skill logic** — /hunt, /cycle, /sync, /knock, /iterate, /doc operate on the
+  documentation chain, not on domain content. **Do not change what skills do** —
+  only replace the agent identity values in message templates and example commands
+  (Step 2, Tier 3). The workflow logic stays identical.
 - **interagent/v1 protocol** — message schema, SETL, epistemic flags, action gates.
 
 

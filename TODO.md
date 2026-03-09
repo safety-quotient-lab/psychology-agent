@@ -202,8 +202,8 @@ human-mediated Claude Code sessions to autonomous operation.
   programming A+C (expression — docs-as-code + narrative-driven), embedded system
   (deployment — cogarch inside host).
   Delivery: **B+C** — (B) `cogarch.config.json` parameterizes domain-layer degrees
-  of freedom (13 sections, 23 consumer locations); (C) adaptation guide documents
-  the replacement path with the 4-tier coupling inventory.
+  of freedom (13 sections); (C) adaptation guide documents the full replacement path
+  (42 consumer locations across 15 files, organized in 4 tiers by coupling strength).
   Completed:
   - [x] Coupling-point inventory (Session 52, 7 categories, 4 tiers)
   - [x] `cogarch.config.json` schema (Session 53, 13 sections)
