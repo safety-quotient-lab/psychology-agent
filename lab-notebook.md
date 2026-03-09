@@ -196,6 +196,10 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | dignity-instrument session      | ✓ T1–T6 complete; observatory accepted Phase A; API live (713 stories) (Session 41–42) |
 | DI Phase A feasibility study    | ⚑ Pass 1 COMPLETE — 50/50 assessed (27 PASS, 19 ND, 4 deferred); r=0.328 (10.7% variance); 8 signal inversions; relevance gate 19/19 correct; 3/4 success criteria met; Pass 2 pending (Session 43) |
 | Site defensibility review       | ✓ COMPLETE — 9/12 resolved, F6 queued (unratified), F9/F11 routed to observatory. T4 status report received, ACK sent (Session 48) |
+| Lite system prompts             | ✓ 4 tiers split into standalone files in docs/prompts/ (Session 48-49) |
+| GitHub Releases                 | ✓ v0.1.0–v0.5.0 created — retroactive tagging + release notes (Session 49) |
+| Blog persona convention         | ✓ 5 personas per topic: voter, politician, educator, researcher, developer (Session 49) |
+| De-branding exploration         | ✗ TODO added — investigate public release preparation (Session 49) |
 
 
 ### Open Questions
@@ -3088,3 +3092,38 @@ Continued from Session 47 (same day). Focus shifted from PSQ structural modeling
 - "What can we teach Synrix" analysis assumes Synrix lacks these patterns based on
   a single-session GitHub evaluation. Synrix may have features not visible in its
   public documentation.
+
+
+## 2026-03-09T10:27 CDT — Session 49 (Releases, lite prompt split, blog personas)
+
+**Continuation of Session 48** — lite system prompt work completed, then
+infrastructure and convention work.
+
+- **Lite system prompts split into standalone files:** `docs/lite-system-prompt.md`
+  separated into 4 prompt-only files in `docs/prompts/`. Each filename conveys
+  target models (e.g., `psychology-agent-qwen1.5b-llama1b.md`). File content
+  contains only the raw prompt — no metadata, routing tables, or usage notes.
+  Original file rewritten as reference document (design rationale, selection guide,
+  testing protocol).
+
+- **GitHub Releases created (v0.1.0–v0.5.0):** Retroactive release tagging:
+  - v0.1.0: Bootstrap (Sessions 1-7, 5b5a331)
+  - v0.2.0: Cognitive Architecture Maturity (Sessions 8-17, 4b786cd)
+  - v0.3.0: First Production Integration (Sessions 18-24, 6a27ff2) — existing tag
+  - v0.4.0: Scientific Validation + Dignity Index (Sessions 25-43, 7c9f38c)
+  - v0.5.0: Calibration Pipeline + Autonomous Infrastructure (Sessions 44-48, HEAD)
+  All published via `gh release create` with structured release notes.
+
+- **Blog persona convention established:** Every blog topic requires 5 posts from
+  safety-quotient-lab's perspective: voter, politician, educator, researcher,
+  developer. Saved to MEMORY.md user preferences.
+
+- **De-branding TODO added:** Public release preparation — explore what it takes to
+  make the cogarch, conventions, and tooling reusable outside safety-quotient-lab.
+  Coupling-point inventory before committing to approach.
+
+⚑ EPISTEMIC FLAGS
+- v0.1.0 and v0.2.0 split points chosen by observable milestones (first coherent
+  system, cogarch completeness) but other split points could be equally valid.
+- v0.4.0/v0.5.0 split at Session 43 chosen by natural thematic boundary (pre/post
+  concordance gate) — 192/66 commit split is asymmetric.

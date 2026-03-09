@@ -28,7 +28,6 @@ if echo "$PROMPT" | grep -qiE "$PUSHBACK_PATTERNS"; then
     # Bridge to T10 lesson pipeline: generate a lesson candidate stub
     # when structural disagreement threshold reached for the first time
     if [ "$COUNT" -eq 3 ]; then
-      TOPIC_FILE="${HOME}/.claude/.pushback-topic.tmp"
       TOPIC_SNIPPET=$(echo "$PROMPT" | head -c 120 | tr '\n' ' ')
       echo "[PUSHBACK→T10] Structural disagreement reached threshold. Consider writing a lessons.md entry with pattern_type: structural-disagreement, domain: (classify from context), topic hint: \"${TOPIC_SNIPPET}\""
     fi

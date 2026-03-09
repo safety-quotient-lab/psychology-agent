@@ -195,3 +195,23 @@ human-mediated Claude Code sessions to autonomous operation.
   rate ~1/week makes 20 impractical). At 10 exchanges with 100% accuracy, relax
   evidence requirements for `verification`-type commands.
   *Created: Session 38 (2026-03-08). Next review: exchange #10.*
+
+---
+
+## Public Release Preparation
+
+- [ ] **De-brand psychology-agent for public usage** — Explore what it takes to make
+  the psychology agent cogarch, conventions, and tooling reusable by others outside
+  safety-quotient-lab. Questions to investigate:
+  (1) What references to safety-quotient-lab, unratified, PSQ, and internal transport
+      sessions are load-bearing vs. cosmetic? Which can be parameterized?
+  (2) What does a "clean fork" look like — someone cloning this repo and replacing
+      our domain-specific content with their own while keeping the cogarch intact?
+  (3) Which components are genuinely portable (trigger system, hooks, memory pattern,
+      lite prompts, skills) vs. tightly coupled to our domain (PSQ scoring, DI,
+      transport topology)?
+  (4) Does de-branding mean a separate repo/template, a configuration layer over this
+      repo, or documentation showing how to adapt it?
+  (5) License implications — current NC license vs. what public adoption requires.
+  Start with an inventory of coupling points before committing to approach.
+  *Precondition: none — exploratory; can begin anytime*
