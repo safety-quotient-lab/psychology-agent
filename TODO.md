@@ -93,8 +93,9 @@ Forward-looking task list only. Completed and emergent work goes to
   wins: RMSEA=0.129, best fit with fewest parameters. M5b adds zero improvement.
   M5 accepted as final structural model.
 
-- [ ] **B4 partial correlations** — Work order sent (turn 22). Dimension-specific
-  variance after removing g-PSQ. Still pending. *Gate: OPEN — awaiting psq-agent.*
+- [x] **B4 partial correlations** — COMPLETE (Session 47, turn 40). Mean |partial r|
+  = 0.205, bipolar confirmed in residuals, DA isolated (DA-AD=+0.044), CC-CO
+  negative (−0.338). All psq-scoring work orders complete.
 
 ---
 
@@ -114,6 +115,58 @@ Forward-looking task list only. Completed and emergent work goes to
 - [ ] **Phase C: Complement integration** — PSQ + DI as independent co-displayed
   measures. Triage routing, DETL computation, mode labels.
   *Precondition: Phase B complete + observatory integration ready*
+
+---
+
+## Autonomous Agent Infrastructure
+
+Items informed by Synrix Memory Engine evaluation (Session 47). Framed for the
+long-term goal of fully automating the psychology agent — transitioning from
+human-mediated Claude Code sessions to autonomous operation.
+
+- [ ] **Temporal decay for memory entries** — Add `last_confirmed: YYYY-MM-DD` to
+  memory topic file entries. /cycle Step 7 flags entries not confirmed in 5+ sessions
+  as archival candidates. Prevents stale-entry accumulation in long-running autonomous
+  operation where manual pruning does not occur.
+  *Source: Synrix temporal decay (relevance_score, decay_rate, last_access_time)*
+  *Precondition: none — can implement now*
+
+- [ ] **Decision chain backreferences** — Add explicit `derives_from` references in
+  architecture.md design decision entries, linking each decision to its evidence chain
+  (e.g., M5 → B5-S → B5-R → B5 → B4 → g-factor paradox). Enables an autonomous agent
+  to reconstruct reasoning provenance without human context or full session transcripts.
+  *Source: Synrix parent_id reasoning chains*
+  *Precondition: none — can implement now*
+
+- [ ] **Memory structure validation hook** — PostToolUse hook that validates memory
+  file structure on write. Ensures entries follow expected format for their topic file
+  (e.g., psq-status.md entries have status markers, decisions.md entries have dates).
+  Mechanical enforcement replaces convention-reliance — critical when no human reviews
+  memory writes in autonomous operation.
+  *Source: Synrix enforced prefix taxonomy*
+  *Precondition: none — extends existing write-provenance.sh*
+
+- [ ] **Programmatic state layer evaluation** — Evaluate whether the markdown-and-git
+  memory architecture can support autonomous operation at scale, or whether a
+  programmatic state layer (SQLite, structured binary, or Synrix-style engine) should
+  complement or replace markdown files. Key questions:
+  (1) At what session count does linear-scan memory access degrade agent performance?
+  (2) Can temporal queries ("what did I decide about CC in the last 5 sessions?") run
+      efficiently on flat files?
+  (3) Does the Agent SDK's session/hook infrastructure provide sufficient state
+      primitives, or does the agent need its own persistence layer?
+  *Source: Synrix architecture evaluation — binary lattice vs markdown trade-offs*
+  *Precondition: /turn route live (API credits) OR Agent SDK programmatic access*
+
+- [ ] **Autonomous operation trust model** — Define what replaces the human-as-TTP
+  assumption when the psychology agent operates without human mediation. Connects to
+  EF-1 (below) but scoped specifically to memory integrity: who validates that an
+  autonomous agent's memory writes represent accurate state rather than drift or
+  hallucination? Options: (a) evaluator-verified memory writes, (b) cross-agent
+  attestation (psq-agent confirms psychology-agent's PSQ-related memory entries),
+  (c) periodic human audit with bounded-trust decay between audits.
+  *Source: Synrix append-only + WAL design (durability without trust assumptions)*
+  *Precondition: EF-1 trust degradation model resolved*
 
 ---
 
