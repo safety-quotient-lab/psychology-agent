@@ -92,8 +92,8 @@ check_budget() {
         "SELECT budget_current FROM trust_budget WHERE agent_id = '${AGENT_ID}';")
 
     if [ -z "${budget}" ] || [ "${budget}" -le 0 ]; then
-        log "HALT — trust budget exhausted (${budget:-0} credits). Human audit required."
-        log "Run: python3 scripts/trust-budget.py reset"
+        err "HALT — trust budget exhausted (${budget:-0} credits). Human audit required."
+        err "Run: python3 scripts/trust-budget.py reset"
 
         # Write halt marker to local-coordination
         local halt_file="${PROJECT_ROOT}/transport/sessions/local-coordination/halt-${AGENT_ID}-$(date '+%Y%m%dT%H%M%S').json"
@@ -120,7 +120,7 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>" && \
         exit 1
     fi
 
-    log "Trust budget: ${budget} credits remaining"
+    log "Trust budget: ${budget} credits remaining" >&2
     echo "${budget}"
 }
 
@@ -156,7 +156,7 @@ git_push() {
 run_sync() {
     cd "${PROJECT_ROOT}"
 
-    log "Running /sync --autonomous..."
+    log "Running /sync --autonomous..." >&2
     local sync_output
     sync_output=$(claude -p "/sync" \
         --allowedTools "Read,Write,Edit,Glob,Grep,Bash" \
