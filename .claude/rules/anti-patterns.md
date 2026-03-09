@@ -15,6 +15,3 @@ globs: ["**/*.sh", "**/*.js", "**/*.py", "**/*.md"]
 - **Shell state across Bash calls** — env vars, `cd`, and shell functions do not persist.
   Chain commands in a single call (`export FOO=bar && use $FOO`) or write to a file
   and source it.
-- **Parry scanning its own source** — reading `/tmp/parry-install/` or similar paths
-  triggers taint from test fixture strings. Use `--ignore-path` or avoid reading
-  scanner internals in sessions with active Parry hooks.

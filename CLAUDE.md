@@ -16,7 +16,6 @@ loops, config parameterization). Full mapping: `docs/architecture.md`.
 ## Hooks (`.claude/settings.json`)
 
 14 hook events, 17 active scripts. Full table: `docs/hooks-reference.md`.
-Parry disabled as diagnostic (#32596) — scripts on disk, not wired.
 
 ### Epistemic Quality Standard
 
