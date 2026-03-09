@@ -5,7 +5,7 @@ Quick reference (when → what fires):
 
 ```
  Session starts          T1: auto-memory health check, orientation, skills, TODO, output baseline summary, context baseline
- Before any response     T2: context pressure, transition, pacing, bare forks, clarification → AskUserQuestion tool; SRT gated: vocabulary alignment (#9), semiotic consistency (#10, always-on). Gate: T6 within 3 exchanges, domain shift vs. last 3 msgs, or 2+ novel terms
+ Before any response     T2: context pressure, transition, pacing, bare forks, clarification → AskUserQuestion tool, Socratic gate (#8b — bias toward AskUserQuestion on direction-setting Qs); SRT gated: vocabulary alignment (#9), semiotic consistency (#10, always-on). Gate: T6 within 3 exchanges, domain shift vs. last 3 msgs, or 2+ novel terms
  Before recommending     T3: classify domain → ground → adjudicate; prerequisites, sycophancy, recommend-against; effort-weight; GRADE confidence (#9); Tier 1 evaluator proxy (#12); SRT gated: bifurcation scan (#13), audience-shift (#14); constraint cross-ref (#15, docs/constraints.md). Same gate as T2
  Before writing to disk  T4: date, public visibility, memory hygiene, routing, classification, semantic naming, lab-notebook ordering, interpretant (#9), commit discipline (#10), reversibility (#11)
  Phase boundary / "next" T5: gap check — MANDATORY; Active Thread staleness check; no bare forks until clear

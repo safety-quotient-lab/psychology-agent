@@ -564,6 +564,23 @@
                                   (bounded contexts with independent
                                   architectural decisions).
                                 Decided: 2026-03-09
+
+ MANIFEST as generated artifact  MANIFEST.json auto-generated from
+                                state.db (Phase 1.5). Pending messages
+                                only — completed history in state.db
+                                (queryable) and git history (auditable).
+                                `scripts/generate_manifest.py` queries
+                                `transport_messages WHERE processed =
+                                FALSE`, writes thin addressing file for
+                                git-transportable peer discovery.
+                                Phase 1.5: for structured non-prose
+                                state, DB = source of truth, file =
+                                derived view. Phase 1 contract (markdown
+                                wins) still holds for documents with
+                                irreducible narrative value.
+                                Derives from: State layer dual-write
+                                  (SL-2, Session 51).
+                                Decided: 2026-03-09
 ────────────────────────────────────────────────────────────────────────
 ```
 

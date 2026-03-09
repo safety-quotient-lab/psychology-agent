@@ -69,7 +69,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Opus remediation + v37        | ✓ COMPLETE — v37 deployed, calibration-v4 live (Session 46-47) |
 | B3 recalibration (steps 5-6)  | ✓ COMPLETE — calibration-v4 deployed, 9/10 dims MAE ≤ v3 (turn 33) |
 | B4 partial correlations       | ✓ COMPLETE — mean |partial r|=0.205, bipolar confirmed, DA isolated (turn 40-41) |
-| SQLite state layer (schema)   | ✓ scripts/schema.sql v5 committed — 9 tables + trust budget + ACK columns (Session 48-51) |
+| SQLite state layer (schema)   | ✓ scripts/schema.sql v6 committed — 9 tables + trust budget + ACK columns + MANIFEST migration (Session 48-51, 59) |
 | SQLite state layer (bootstrap)| ✓ SL-1 COMPLETE — PR #90 merged, all 9 validation checks pass (Session 50) |
 | SQLite dual-write (SL-2)     | ✓ COMPLETE — scripts/dual_write.py (6 subcommands), /sync + /cycle skills updated (Session 51) |
 | Optional ACK protocol         | ✓ ack_required flag (sender-controlled, default false); state.db processed column replaces mandatory ACKs (Session 51) |
@@ -79,6 +79,12 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | B5-S structural comparison    | ✓ COMPLETE — M5 accepted as final model (RMSEA=0.129, turn 38-39) |
 | Project board sync            | ✓ `sync_project_board.py` — TODO.md ↔ GitHub Projects reconciliation, /cycle Step 11b, cogarch.config.json `project_tracking` (Session 58) |
 | GitHub release v0.6.0         | ✓ Sessions 50-57: autonomous infra, SL-2, cogarch portability, hooks, interagent, DX (Session 58) |
+| Orientation payload           | ✓ `scripts/orientation-payload.py` — state.db → compact context for autonomous sessions (Session 59) |
+| Heartbeat mesh                | ✓ `scripts/heartbeat.py` — emit/scan/negotiate, 30-min stale threshold, registry-filtered (Session 59) |
+| Agent identity                | ✓ `.agent-identity.json` (gitignored, machine-local) — hostname, platform, capabilities (Session 59) |
+| MANIFEST auto-generation      | ✓ `scripts/generate_manifest.py` — state.db → thin MANIFEST (pending only, 793→21 lines) (Session 59) |
+| Cloud-free bounded context    | ✓ Architecture decision — zero cloud runtime dependency; CF Worker = separate context (Session 59) |
+| Socratic gate (T2#8b)         | ✓ Cogarch — AskUserQuestion bias on direction-setting questions (Session 59) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -104,7 +110,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Observatory-agent exchange    | ✓ Complete — 20-turn live derivation; PR #9 (closing ACK) open |
 | PSQ scoring endpoint          | ✓ Implemented — safety-quotient/src/server.js, machine-response/v3 (Session 20) |
 | Psychology interface (PSQ)    | ✓ worker.js + psq-client.js + UI (radar/hierarchy/threshold/artifact) — all 8 smoke test steps passed |
-| Psychology interface (/turn)  | ⚑ DEFERRED — blocked by API credits; 503 guard in place; 3-step re-enable in TODO.md Item 4 |
+| Psychology interface (/turn)  | ✗ DEPRECATED (Session 59) — removed, not guarded. CF Worker lacks cogarch; autonomous sync mesh replaces programmatic access |
 | settingSources CF Workers     | ✓ RESOLVED — PSYCHOLOGY_SYSTEM expanded (Commitments+Refusals+T15, Option A inline); settingSources removed from agentOptions (Session 21) |
 | CF Tunnel                     | ✓ Live — coordinates-valve-conventions-convertible.trycloudflare.com (ephemeral, session-scoped) |
 | T14 + T15 cogarch             | ✓ T14 (structural checkpoint, orders 7–10) + T15 (PSQ v3 receiver protocol) in cognitive-triggers.md + MEMORY quick-ref |
@@ -3704,3 +3710,89 @@ project tracking infrastructure.
   may need tuning as TODO.md titles evolve
 - TODO.md has duplicate EF-1 entry under two different headings — creates a
   stable 1-add residual in sync output (cosmetic, not functional)
+
+
+## 2026-03-09T18:50 CDT — Session 59 (Autonomous mesh infra, MANIFEST migration, state.db consumers)
+
+Dense infrastructure session. Eight commits covering autonomous operation
+readiness, state.db consumption, transport streamlining, and cogarch additions.
+
+- **Bugfixes:**
+  - Fixed stderr/stdout contamination in `autonomous-sync.sh` — `log()` calls
+    inside `$(...)` captured functions routed to stderr (`>&2`)
+  - Fixed ShellCheck CI (3 runs): `.shellcheckrc` with `source-path=SCRIPTDIR`
+    (SC1091 ×17), `export MAX_ACTIONS_PER_CYCLE` (SC2034), split `local`
+    declaration (SC2155), `if-then` restructure (SC2015)
+
+- **Autonomous operation infrastructure:**
+  - `scripts/orientation-payload.py` (259 lines) — queries state.db for trust
+    budget, recent sessions, unprocessed messages, open claims, unresolved flags,
+    active decisions, stale memory. Produces ~3KB structured context for
+    `claude -p` prompts. Replaces reading 15+ markdown files at autonomous
+    session start
+  - `scripts/heartbeat.py` (269 lines) — agent mesh presence: emit, scan,
+    negotiate commands. 30-min stale threshold. Only `autonomous: true` agents
+    in registry participate. Writes to `transport/sessions/local-coordination/`
+  - `.agent-identity.json` (gitignored) — machine-local identity binding
+    agent_id to hostname + platform + capabilities
+  - `autonomous-sync.sh` updated: loads agent identity, emits heartbeat at
+    cycle start, injects orientation payload into `claude -p` prompt
+
+- **MANIFEST.json migration to state.db:**
+  - `scripts/generate_manifest.py` — auto-generates thin MANIFEST (pending only)
+    from `transport_messages WHERE processed = FALSE`. File reduced from 793 to
+    21 lines. Completed history stays in state.db (queryable) and git history
+    (auditable). Hooks (`transport-scan.sh`, `stop-completion-gate.sh`) work
+    unchanged — same JSON structure, just thinner
+  - Schema v6 recorded. /sync skill updated (regenerate vs manual edit)
+
+- **Design decisions (▶ docs/architecture.md):**
+  - Cloud-free bounded context — psychology-agent has zero cloud runtime
+    dependency. CF Worker belongs to separate bounded context. Each agent context
+    inherits constraint but MAY override (DDD bounded context independence)
+  - /turn route deprecated — CF Worker lacks cogarch, memory, hooks; autonomous
+    sync mesh provides full-cogarch programmatic access instead
+
+- **Cogarch:**
+  - T2 Check 8b (Socratic gate) — before delivering substantive answers to
+    direction-setting questions, bias toward `AskUserQuestion` to surface
+    assumptions and trade-offs. Does not fire on mechanical tasks
+
+- **Transport:**
+  - Blog-publication session opened — 3 posts submitted to unratified-agent
+    (Cognitive Architecture, Interpretant Collapse, Who Watches the Watcher)
+  - `transport/agent-registry.json` updated: `autonomous` field added to all agents
+
+- **TODO.md:**
+  - 7 state.db consumer items added (epistemic debt dashboard, claim verification
+    velocity, decision provenance graph, session velocity, trigger effectiveness,
+    communication asymmetry, memory staleness heatmap)
+  - /turn marked deprecated; orientation payload marked complete
+
+- **Removed:**
+  - `interface/src/agent.js` (185 lines) — PSYCHOLOGY_SYSTEM prompt, stream
+    generator, PSQ extraction. Sole consumer was /turn route
+  - /turn route handler from `interface/src/worker.js`
+
+- **Artifacts created/modified:**
+  - `scripts/orientation-payload.py` — autonomous session context generator
+  - `scripts/heartbeat.py` — mesh presence + auto-negotiation
+  - `scripts/generate_manifest.py` — MANIFEST auto-generation from state.db
+  - `.agent-identity.json` — machine-local agent identity (gitignored)
+  - `.shellcheckrc` — `source-path=SCRIPTDIR`
+  - `scripts/autonomous-sync.sh` — identity, heartbeat, orientation integration
+  - `docs/cognitive-triggers.md` — T2 Check 8b (Socratic gate)
+  - `docs/architecture.md` — cloud-free bounded context + /turn deprecation
+  - `transport/sessions/blog-publication/from-psychology-agent-001.json` — blog submission
+  - `transport/MANIFEST.json` — now auto-generated (v2 schema)
+  - `scripts/schema.sql` — v6
+  - `.claude/skills/sync/SKILL.md` — regenerate vs manual MANIFEST edit
+
+⚑ EPISTEMIC FLAGS
+- Stale doc references remain: ef1-trust-model.md, constraints.md,
+  cogarch-adaptation-guide.md, T16 in cognitive-triggers.md still reference
+  manual MANIFEST editing. Functional behavior correct; documentation lags
+- Socratic gate (T2#8b) untested in practice — calibration of when it fires
+  vs when it stays silent will emerge over next few sessions
+- Blog posts submitted to unratified-agent but publication pipeline untested
+  for this session format (blog-publication is new)

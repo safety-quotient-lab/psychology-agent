@@ -48,11 +48,20 @@
  Calibration deploy timing    Deploy calibration only after model stabilizes.
                               No artifacts fitted on soon-to-be-replaced models.
                               2026-03-08
- SQLite state layer           Phase 1: markdown SOT, DB = queryable index.
-                              Schema v5 (9 tables + trust + ACK cols).
-                              SL-2 dual-write live via dual_write.py.
-                              Polythematic facets (3 types). Deterministic
-                              keys. Hybrid topic model. 2026-03-09
+ SQLite state layer           Phase 1/1.5: markdown SOT for prose docs,
+                              DB SOT for structured non-prose state
+                              (MANIFEST). Schema v6. SL-2 dual-write
+                              live. Polythematic facets. Deterministic
+                              keys. 2026-03-09
+ MANIFEST generated artifact  MANIFEST.json auto-generated from state.db.
+                              Pending only (793→21 lines). Completed
+                              history in DB + git history. Phase 1.5:
+                              DB = SOT for structured non-prose state.
+                              2026-03-09
+ Cloud-free bounded context   Psychology-agent: zero cloud runtime dep.
+                              CF Worker = separate bounded context.
+                              Each agent context inherits but MAY
+                              override (DDD). 2026-03-09
  SL-2 dual-write             /sync + /cycle write to state.db alongside
                               markdown in real time. Markdown first, then DB.
                               dual_write.py: 6 subcommands. 2026-03-09
