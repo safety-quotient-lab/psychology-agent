@@ -51,6 +51,7 @@ partner, and Socratic interlocutor
 32. [Polythematic Facets and the Library Science Trap: Designing Memory for an Agent That Will Outlive Its Sessions](#32-polythematic-facets-and-the-library-science-trap)
 33. [Retroactive Legibility: What Release Tagging Reveals About Project Arcs](#33-retroactive-legibility)
 34. [Who Watches the Watcher? Trust Without a Trusted Third Party](#34-who-watches-the-watcher)
+35. [When the Index Becomes the Instrument: State Layer Dual-Write and the ACK Question](#35-when-the-index-becomes-the-instrument)
 
 ---
 
@@ -1350,6 +1351,29 @@ This reflects the project's core principle: the psychology agent serves the disc
 - The ego depletion analog for the trust budget acknowledges the construct's replication challenges (Hagger et al., 2016). The budget mechanism functions as an engineering constraint regardless of whether the psychological mechanism holds in humans.
 - The 20-credit default budget size represents an educated guess, not an empirically calibrated parameter. The right budget depends on observed action rates during actual autonomous operation.
 - No autonomous sync cycle has run. All predictions about system behavior remain untested hypotheses derived from theory applied to a novel context (AI agent evaluation).
+
+---
+
+
+## 35. When the Index Becomes the Instrument: State Layer Dual-Write and the ACK Question
+
+Session 48 introduced the SQLite state layer as a "queryable index" — a read-only mirror of markdown files that existed to make lookups faster. Session 50 delivered the bootstrap script (SL-1) that populated it from canonical files. Session 51 transforms the relationship: the DB now receives writes *alongside* markdown, in real time, from the skills that produce state changes.
+
+**The dual-write contract.** Markdown remains source of truth. The DB remains a derivative. But the DB now receives writes at the moment of state change rather than waiting for a full rebuild. This shift carries a subtle but important implication: the DB begins to capture *temporal ordering* that the markdown files do not naturally preserve. A `processed_at` timestamp on a transport message records when processing occurred, not just that it occurred. A `last_confirmed` timestamp on a memory entry tracks recency mechanically rather than relying on the agent to remember when it last verified a fact.
+
+The implementation follows the convention established in `.claude/rules/sqlite.md`: write markdown first, then DB. If the DB write fails, markdown stands alone. If both succeed, the DB provides structured access to information that previously required parsing markdown. The `dual_write.py` helper (6 subcommands) keeps the interface narrow — each write operation maps to exactly one table, with deterministic keys computed from source material.
+
+**The ACK question.** This session also resolved a question that had accumulated quietly across 50 sessions of interagent exchange: do acknowledgment messages earn their keep?
+
+The analysis found three functions ACKs serve: delivery confirmation, processing confirmation, and state machine progression. In a same-repo git transport — where file existence proves delivery — the first function adds no information. The third function (turn counter advancement) works without explicit ACK files. Only the second function — "I read and processed your message" — carries genuine value, and SL-2's `processed` column now provides that function without generating additional JSON files.
+
+The resolution follows option B from the analysis: ACKs become optional, controlled by a sender-side `ack_required` flag (default `false`). When a sender needs explicit acknowledgment — autonomous agents gating follow-up actions, protocol upgrades requiring handshake, session closures — the sender sets `ack_required: true` and the receiver writes the ACK. Otherwise, the `mark-processed` dual-write serves as the confirmation layer. This eliminates the file proliferation problem (ACK files that say nothing the git log doesn't already show) while preserving the protocol for autonomous operation where handshakes become load-bearing.
+
+The decision illustrates a pattern that recurs across this project: features designed for a future capability (autonomous multi-agent operation) generate overhead in the current mode (human-mediated sessions). The discipline of asking "does this earn its cost *now*?" while preserving the mechanism for when it will — that represents the engineering maturity the psychology agent demands of its infrastructure.
+
+⚑ EPISTEMIC FLAGS
+- Dual-write introduces a new failure mode: DB and markdown disagreeing. The contract (markdown wins, bootstrap rebuilds) handles recovery, but silent divergence between the two could persist undetected until the next rebuild.
+- The ACK protocol analysis reflects Phase 1 (human-mediated) economics. Phase 2 (autonomous) may reveal ACK value that Phase 1 cannot observe.
 
 ---
 

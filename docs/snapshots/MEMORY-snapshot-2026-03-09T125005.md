@@ -17,20 +17,21 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 51. SL-2 dual-write live (/sync + /cycle write
-to state.db). Optional ACK protocol (ack_required flag). README zero-to-demo
-quickstart with 5 accordion demos. 21 hooks registered. Schema v5.
+**Where we stopped:** Session 50b. Core governance trust model created
+(ef1-governance.md, 7 invariants). BCP 14 (RFC 2119+8174) applied across all
+cogarch triggers and trust model docs. T4 Check 10 (commit discipline) added.
+Epistemic flag mitigations written. Schema v4. README quickstart TODO added.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - PSQ scoring: all work orders complete, quiescent `[hot: no action needed]`
-- SQLite state layer: SL-2 ✓ dual-write live, schema v5 `[warm: dual_write.py]`
-- EF-1 trust model: ✓ resolved — governance + trust model + psychological foundations
+- SQLite state layer: SL-1 ✓ merged, schema v3 (trust_budget + autonomous_actions) `[warm]`
+- EF-1 trust model: ✓ resolved — `docs/ef1-trust-model.md` + `docs/ef1-psychological-foundations.md`
 - DI Phase A Pass 2: pending (inter-rater reliability) `[cold: docs/dignity-phase-a-study.md]`
-- PSQ cogarch mirror: work order sent (T44), gate open (T45), awaiting response
 - De-branding: exploratory TODO added, no precondition `[cold: TODO.md]`
 
-**Next:** Blog §34 ("Who Watches the Watcher?" — 5 personas). Await psq-agent
-cogarch mirror response. DI Phase A Pass 2 (fresh session). De-branding inventory.
+**Next:** Blog §34 ("Who Watches the Watcher?" — 5 personas). README quickstart
+guide. Unused hooks investigation. /sync skill update (agent registry). Await
+psq-agent cogarch mirror ACK.
 
 
 ## Memory Hygiene
@@ -60,3 +61,8 @@ cogarch mirror response. DI Phase A Pass 2 (fresh session). De-branding inventor
   first visible action. Hook enforces this mechanically.
 - **AskUserQuestion tool:** Always use the `AskUserQuestion` tool when seeking
   clarification or asking questions — never ask inline as plain text.
+
+
+## Stable Conventions
+
+Communication conventions, cognitive accessibility policy, project structure: see CLAUDE.md.

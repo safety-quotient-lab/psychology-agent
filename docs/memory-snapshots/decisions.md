@@ -49,9 +49,16 @@
                               No artifacts fitted on soon-to-be-replaced models.
                               2026-03-08
  SQLite state layer           Phase 1: markdown SOT, DB = queryable index.
-                              Schema v2 (9 tables). Polythematic facets (3
-                              facet types). Deterministic keys. Dual-write.
-                              Hybrid topic model: generic + psq_status typed.
+                              Schema v5 (9 tables + trust + ACK cols).
+                              SL-2 dual-write live via dual_write.py.
+                              Polythematic facets (3 types). Deterministic
+                              keys. Hybrid topic model. 2026-03-09
+ SL-2 dual-write             /sync + /cycle write to state.db alongside
+                              markdown in real time. Markdown first, then DB.
+                              dual_write.py: 6 subcommands. 2026-03-09
+ Optional ACK protocol        ack_required flag (default false). state.db
+                              processed column replaces mandatory ACKs.
+                              Schema v5: ack_required + ack_received cols.
                               2026-03-09
  Sub-agent cogarch mirror     All agents mirror psychology-agent cogarch
                               exactly: triggers, state layer, memory, FA

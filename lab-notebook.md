@@ -70,8 +70,11 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Opus remediation + v37        | ✓ COMPLETE — v37 deployed, calibration-v4 live (Session 46-47) |
 | B3 recalibration (steps 5-6)  | ✓ COMPLETE — calibration-v4 deployed, 9/10 dims MAE ≤ v3 (turn 33) |
 | B4 partial correlations       | ✓ COMPLETE — mean |partial r|=0.205, bipolar confirmed, DA isolated (turn 40-41) |
-| SQLite state layer (schema)   | ✓ scripts/schema.sql v2 committed — 9 tables + indexes (Session 48) |
+| SQLite state layer (schema)   | ✓ scripts/schema.sql v5 committed — 9 tables + trust budget + ACK columns (Session 48-51) |
 | SQLite state layer (bootstrap)| ✓ SL-1 COMPLETE — PR #90 merged, all 9 validation checks pass (Session 50) |
+| SQLite dual-write (SL-2)     | ✓ COMPLETE — scripts/dual_write.py (6 subcommands), /sync + /cycle skills updated (Session 51) |
+| Optional ACK protocol         | ✓ ack_required flag (sender-controlled, default false); state.db processed column replaces mandatory ACKs (Session 51) |
+| README quickstart             | ✓ Zero-to-demo with 5 accordion demos (conversational, PSQ, /knock, /iterate, SPSS) (Session 51) |
 | Synrix-inspired improvements  | ✓ 6 items: tiered access, scope boundaries, postmortem template, deterministic keys, psq_status table, entry_facets polythematic (Session 48) |
 | B5 bifactor CFA               | ✓ COMPLETE — omega_h=0.942, 5-item bipolar confirmed (turns 34-36) |
 | B5-S structural comparison    | ✓ COMPLETE — M5 accepted as final model (RMSEA=0.129, turn 38-39) |
@@ -3247,3 +3250,43 @@ Continuation of Session 50 after context compaction.
   reveals constraints not visible from psychology or engineering alone
 - RFC 8174 keywords create a compliance layer — enforcement remains agent-level
   (no mechanical hook validates MUST compliance in prose)
+
+
+## 2026-03-09T12:43 CDT — Session 51 (SL-2 dual-write, optional ACK, README quickstart)
+
+Continuation of Session 50b after compaction.
+
+- **Hook registration (7 new):** Registered tool-failure-halt.sh (PostToolUseFailure),
+  tool-failure-reset.sh (PostToolUse), subagent-audit.sh (SubagentStart/Stop),
+  session-end-check.sh (SessionEnd), instructions-health.sh (InstructionsLoaded),
+  task-completed-route.sh (TaskCompleted), config-drift-detector.sh (ConfigChange)
+  in `.claude/settings.json`. Hook count 13 → 21. CLAUDE.md hooks table updated.
+- **SL-2 dual-write integration:** Created `scripts/dual_write.py` with 6 subcommands
+  (transport-message, mark-processed, memory-entry, session-entry, decision,
+  trigger-fired). Updated /sync skill (Phase 3 indexes inbound, Phase 5 indexes
+  outbound, marks processed). Updated /cycle skill (Steps 2, 4, 7 dual-write
+  sessions, decisions, memory entries). `.claude/rules/sqlite.md` updated.
+- **Optional ACK protocol:** Added `ack_required` field to transport conventions.
+  Default `false` — receiver MAY send ACK but not required (state.db `processed`
+  column serves as confirmation). When `true`, receiver MUST write ACK. Schema v5
+  adds `ack_required` + `ack_received` columns to `transport_messages`. /sync
+  Phase 3 updated to check the flag before writing ACKs.
+- **README quickstart guide:** Rewrote README.md with accordion-style "Zero to Demo"
+  section. Steps 1-3 collapsible (install Claude Code, clone + setup, verify hooks).
+  5 demos: conversational exchange (fair witness + Socratic), PSQ scoring (10-dim
+  breakdown), /knock (10-order knock-on), /iterate (autonomous work loop), SPSS
+  data interaction (exploratory). Status tables updated (21 hooks, schema v5, 50+
+  sessions, EF-1 governance). "Interesting Parts" collapsed into `<details>` block.
+- **PSQ cogarch mirror:** Checked transport — work order sent (turn 44), gate opened
+  (turn 45), no psq-agent response yet. Remains awaiting.
+
+Commits: `6de251b` (hooks), `1bab608` (SL-2), `91b757f` (ACK protocol),
+`82363ba` (README), `2052978` (TODO + lab-notebook housekeeping)
+
+▶ docs/architecture.md (2 new decisions)
+
+⚑ EPISTEMIC FLAGS
+- Demo output in README represents idealized agent behavior — actual responses
+  vary by session context, model temperature, and available endpoints
+- SPSS demo (Demo 5) listed as exploratory — pyreadstat dependency not yet tested
+  in this project context

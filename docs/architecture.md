@@ -313,9 +313,14 @@
  SQLite state layer            Phase 1: markdown = source of truth, DB =
                                queryable index. Phase 2 (autonomous): DB
                                = source of truth, markdown = derived view.
-                               Schema: scripts/schema.sql (v2, 9 tables).
+                               Schema: scripts/schema.sql (v5, 9 tables +
+                               trust_budget + autonomous_actions + ACK cols).
                                Conventions: .claude/rules/sqlite.md.
                                DB: state.db in project root (gitignored).
+                               Bootstrap: scripts/bootstrap_state_db.py
+                               (full rebuild from files).
+                               Dual-write: scripts/dual_write.py (6
+                               incremental subcommands for /sync + /cycle).
                                Hybrid topic model: generic memory_entries
                                for most topics; psq_status with typed
                                columns for the most-queried topic.
@@ -325,11 +330,9 @@
                                work_stream, agent). Deterministic keys
                                convention: every queryable entity has a
                                computable address derived from source data.
-                               Estimated 57% token reduction per session
-                               (unvalidated — requires SL-2+ integration).
                                Source: Synrix Memory Engine evaluation
                                (design principles extracted, tool rejected).
-                               Evidence: Session 47-48 analysis.
+                               Evidence: Session 47-51 analysis.
                                Derives from: Cogarch organizing principle
                                  (Peircean semiotics → typed state needs
                                  queryable index, not just flat files).
@@ -376,6 +379,34 @@
                                 ordinary English meaning.
                                 Derives from: Core governance trust model
                                   (consistency requirement for spec docs).
+                                Decided: 2026-03-09
+
+ SL-2 dual-write protocol       /sync and /cycle write to state.db
+                                alongside markdown in real time via
+                                scripts/dual_write.py. Markdown remains
+                                source of truth. DB captures temporal
+                                ordering (processed_at, last_confirmed)
+                                that markdown does not naturally preserve.
+                                Write order: markdown first, then DB.
+                                Recovery: bootstrap_state_db.py rebuilds.
+                                Derives from: SQLite state layer (Phase 1
+                                  dual-write contract now implemented).
+                                Decided: 2026-03-09
+
+ Optional ACK protocol           ACK messages opt-in via sender-controlled
+                                ack_required field (default false). When
+                                false, state.db processed column serves as
+                                processing confirmation — no ACK file
+                                written. When true, receiver MUST write
+                                ACK before sender considers exchange
+                                complete. Eliminates file proliferation
+                                from routine exchanges while preserving
+                                handshake protocol for autonomous operation.
+                                Schema v5: ack_required + ack_received
+                                columns in transport_messages.
+                                Derives from: SL-2 dual-write protocol
+                                  (processed column replaces ACK function).
+                                Full narrative: journal.md §35.
                                 Decided: 2026-03-09
 ────────────────────────────────────────────────────────────────────────
 ```
