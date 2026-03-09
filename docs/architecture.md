@@ -515,6 +515,27 @@
                                   (Session 52), lite prompt distillation
                                   (Session 49, journal §33).
                                 Decided: 2026-03-09
+
+ Bootstrap adaptive              Infrastructure-layer validation tools
+ thresholds                      adapt to deployment context. bootstrap_
+                                state_db.py detects empty transport/
+                                sessions/ (fresh install) and applies
+                                structural-only minimums (triggers ≥ 1,
+                                decisions ≥ 1, all data-dependent ≥ 0).
+                                Existing installations unchanged.
+                                Prevents boy-who-cried-wolf dynamic
+                                where adopters learn to ignore failures.
+                                Precedent: infrastructure tools degrade
+                                gracefully — they never assume a specific
+                                data profile.
+                                Full adjudication:
+                                  docs/decisions/2026-03-09-bootstrap-
+                                  adaptive-thresholds.md
+                                Derives from: Domain-Driven Design
+                                  (DOF gradient — infrastructure carries
+                                  low DOF but must not encode domain
+                                  assumptions).
+                                Decided: 2026-03-09
 ────────────────────────────────────────────────────────────────────────
 ```
 

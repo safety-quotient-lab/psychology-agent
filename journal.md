@@ -28,6 +28,7 @@ partner, and Socratic interlocutor
 11. [Licensing as Architecture: The Dreaddit Constraint](#11-licensing-as-architecture)
 12. [Semiotic Reflexivity and the Cogarch](#12-semiotic-reflexivity-and-the-cogarch)
 13. [Making the Cogarch Self-Describing](#13-making-the-cogarch-self-describing)
+14. [Adoption Testing and the Portability Proof](#37-adoption-testing-and-the-portability-proof)
 14. [Semiotics as Organizing Cogarch Principle](#14-semiotics-as-organizing-cogarch-principle)
 15. [Protocol Failure as Specification Method](#15-protocol-failure-as-specification-method)
 16. [The Relay-Agent That Became a Peer](#16-the-relay-agent-that-became-a-peer)
@@ -1406,6 +1407,38 @@ The cogarch.config.json created this session parameterizes all 23 hardcoded doma
 - The DOF gradient (high/medium/low) represents qualitative classification, not a measured count of independent parameters. A formal DOF analysis would enumerate every configurable variable per layer — we have not done that.
 - Literate programming A+C formalizes existing practice but adds no mechanical enforcement. Unlike hooks (which block on violation), nothing currently prevents creating an architectural element without narrative context. The principle operates as convention, not constraint.
 - The "embedded system" classification may carry implications we have not fully traced — embedded systems engineering has its own body of practice (INCOSE, DO-178C) that we have not consulted. The analogy holds structurally; whether it holds operationally remains untested.
+
+---
+
+
+## 37. Adoption Testing and the Portability Proof
+
+Session 54 subjected the cogarch adaptation guide to seven rounds of fresh-clone testing — the empirical counterpart to Session 53's theoretical portability framework. Where Session 53 asked "what transfers and what doesn't?", Session 54 asked "does it actually work when someone follows the instructions?"
+
+The answer, initially, was no. Each fresh clone revealed a progressively deeper layer of identity coupling:
+
+**Round 1** caught config-consumer references — the 23 locations mapped in Session 53 where `cogarch.config.json` values feed into code. These replaced cleanly.
+
+**Rounds 2-3** caught hook identity references — 8 locations across 7 scripts where hooks write agent-specific temp files, pass agent IDs as command arguments, or construct identity-bearing paths. These fell outside the config-consumer mapping because hooks interact with the filesystem, not with the config file.
+
+**Rounds 4-5** caught skill message templates — 12 locations across 3 skills where interagent/v1 JSON templates hardcode `psychology-agent` as the sender identity, the agent card discovery URL, and the peer agent list. These required a new tier in the consumer mapping because skills operate at the application layer, not infrastructure.
+
+**Rounds 6-7** caught markdown documentation references — 24 files containing `psychology-agent` in examples, cross-references, or narrative prose. Most belong to domain content (delete entirely), but some appear in infrastructure/application docs as illustrative examples (replace via sed, preserve the doc).
+
+The four-tier structure that emerged (config consumers → hook identity → skill identity → autonomous scripts) reflects a gradient of coupling strength. Tier 1 couples through a single file (cogarch.config.json) and a JSON read. Tier 4 couples through hardcoded strings in standalone scripts that run without the config system. Each tier requires a different replacement strategy, and an adopter proceeding top-down through the tiers encounters decreasing leverage and increasing manual effort.
+
+The most instructive failure was the bootstrap validation script. `bootstrap_state_db.py` validates state.db integrity with minimum-count thresholds tuned to psychology-agent's data volume: 15 outbound messages, 10 triggers indexed, 10 decisions. A fresh adopter with no transport history fails 7 of 9 checks immediately. The script sits in the infrastructure layer (low DOF, inherit as-is), but its thresholds encoded domain-layer assumptions. This violated the DOF gradient principle identified in Session 53.
+
+We adjudicated the fix (Option A: adaptive thresholds) by tracing knock-on effects through four orders. The key insight at order 3: if the bootstrap script fails on first run, adopters learn to ignore it. The boy-who-cried-wolf dynamic defeats the script's purpose as a regression test. At order 4 of the alternative (Option B: document expected failures), maintaining synchronization between the script's thresholds and the guide's explanatory prose creates exactly the kind of manual coupling the cogarch avoids.
+
+The adaptive detection uses a binary signal: does `transport/sessions/` contain any session directories? Empty means fresh install; structural-only thresholds apply (triggers ≥ 1, decisions ≥ 1, everything else ≥ 0). Non-empty means established deployment; full thresholds engage. The binary nature makes the transition predictable — there exists no intermediate state to miscalibrate.
+
+This session established a precedent: infrastructure-layer tools should adapt to deployment context rather than assuming a specific data profile. The DOF gradient describes what transfers between agents; adaptive detection ensures the transferred tools function correctly regardless of the receiving agent's maturity.
+
+⚑ EPISTEMIC FLAGS
+- The seven fresh-clone tests verified mechanical replacement (strings substituted correctly) but did not simulate an adopter building their own domain content. The guide's instructions appear correct; whether an adopter can follow them without assistance remains untested.
+- Adaptive thresholds solve the fresh-install case but create a binary cliff: the moment any session directory appears, full thresholds engage. An adopter with one test session and little data might hit intermediate failures not covered by either threshold set.
+- The four-tier coupling model emerged empirically from failure analysis, not from systematic enumeration. Additional tiers or cross-tier dependencies may exist that the seven test rounds did not surface.
 
 ---
 

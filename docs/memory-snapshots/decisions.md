@@ -111,6 +111,13 @@
                               PJE, topology — cogarch.config.json). Each
                               agent = bounded context. interagent/v1 =
                               context map. De-branding: B+C. 2026-03-09
+ Bootstrap adaptive            Infrastructure tools adapt to deployment
+ thresholds                    context. Empty transport/sessions/ →
+                              structural-only minimums (triggers ≥ 1,
+                              decisions ≥ 1, data-dependent ≥ 0).
+                              Precedent: infrastructure never assumes
+                              a specific data profile. Derives from DDD
+                              (DOF gradient). 2026-03-09
 ```
 
 ## Authority Hierarchy

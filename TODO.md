@@ -196,20 +196,7 @@ human-mediated Claude Code sessions to autonomous operation.
 
 ## Public Release Preparation
 
-- [ ] **Cogarch portability (systems thinking framed)** — Make the embedded cognitive
-  system adoptable by other Claude Code agent projects. Systems thinking methodology
-  with three principles: DDD (structural — DOF gradient across layers), literate
-  programming A+C (expression — docs-as-code + narrative-driven), embedded system
-  (deployment — cogarch inside host).
-  Delivery: **B+C** — (B) `cogarch.config.json` parameterizes domain-layer degrees
-  of freedom (13 sections); (C) adaptation guide documents the full replacement path
-  (42 consumer locations across 15 files, organized in 4 tiers by coupling strength).
-  Completed:
-  - [x] Coupling-point inventory (Session 52, 7 categories, 4 tiers)
-  - [x] `cogarch.config.json` schema (Session 53, 13 sections)
-  Completed:
-  - [x] Adaptation guide (Session 53, `docs/cogarch-adaptation-guide.md` — 6-step
-    replacement path, consumer mapping, verification checklist)
-  - [x] Apache 2.0 license verified (adaptation guide §License — infrastructure +
-    application layers carry Apache 2.0; domain content carries adopter's choice)
-  *Status: all sub-items complete — parent item ready to close pending final review*
+- [x] **Cogarch portability (systems thinking framed)** — COMPLETE (Session 52-54).
+  Config layer (`cogarch.config.json`, 13 sections), adaptation guide (7-step
+  replacement path, 4 tiers across 19 files), fresh-clone tested ×7, adaptive
+  bootstrap thresholds for adopters, Apache 2.0 license verified.
