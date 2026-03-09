@@ -355,6 +355,28 @@
                                   verification layer), Evaluator
                                   instantiation (tiered hybrid runtime).
                                 Decided: 2026-03-09
+ Core governance trust model     docs/ef1-governance.md — 7 invariants
+                                governing all discipline-specific EF-1
+                                extensions (P/J/E lenses). No action
+                                without evaluation, bounded autonomy,
+                                human escalation path, consequence
+                                tracing, reversibility-scaled rigor,
+                                transparent audit, falsifiability.
+                                Lens interaction rules for cross-
+                                discipline conflicts.
+                                Derives from: EF-1 trust model
+                                  (governance layer above engineering,
+                                  psychology, jurisprudence extensions).
+                                Decided: 2026-03-09
+ Requirement-level keywords      BCP 14 (RFC 2119 + RFC 8174) adopted
+ (BCP 14)                        across all cogarch, governance, and
+                                trust model documents. UPPER CASE
+                                keywords (MUST, SHOULD, MAY) carry
+                                RFC-defined meaning. Lower case carries
+                                ordinary English meaning.
+                                Derives from: Core governance trust model
+                                  (consistency requirement for spec docs).
+                                Decided: 2026-03-09
 ────────────────────────────────────────────────────────────────────────
 ```
 

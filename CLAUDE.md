@@ -168,10 +168,12 @@ dozens of failing attempts.
 
 ## Workflow Continuity
 
-On resume/stall/continuation: re-read TODO.md, lab-notebook Current State, MEMORY.md
-Active Thread, any in-progress file, `git status` and `git log -3`. Shell state
-(env vars, `cd`, functions) does not persist between Bash calls — chain in one call
-or write to file.
+On resume/stall/continuation/post-compaction: re-read `docs/cognitive-triggers.md`
+(reload full cogarch — REQUIRED after compaction), TODO.md, lab-notebook Current
+State, MEMORY.md Active Thread, any in-progress file, `git status` and `git log -3`.
+The cogarch reload MUST happen before any substantive work — compaction strips the
+loaded trigger system from context. Shell state (env vars, `cd`, functions) does not
+persist between Bash calls — chain in one call or write to file.
 
 ---
 

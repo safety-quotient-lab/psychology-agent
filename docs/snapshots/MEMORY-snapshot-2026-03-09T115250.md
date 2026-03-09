@@ -17,10 +17,9 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 50b. Core governance trust model created
-(ef1-governance.md, 7 invariants). BCP 14 (RFC 2119+8174) applied across all
-cogarch triggers and trust model docs. T4 Check 10 (commit discipline) added.
-Epistemic flag mitigations written. Schema v4. README quickstart TODO added.
+**Where we stopped:** Session 50. EF-1 trust model resolved (evaluator-as-arbiter).
+SL-1 merged (PR #90). Autonomous sync infrastructure created (cron + Claude CLI).
+Psychological foundations documented (30+ APA refs). /cycle in progress (Step 7+).
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - PSQ scoring: all work orders complete, quiescent `[hot: no action needed]`
@@ -29,9 +28,9 @@ Epistemic flag mitigations written. Schema v4. README quickstart TODO added.
 - DI Phase A Pass 2: pending (inter-rater reliability) `[cold: docs/dignity-phase-a-study.md]`
 - De-branding: exploratory TODO added, no precondition `[cold: TODO.md]`
 
-**Next:** Blog §34 ("Who Watches the Watcher?" — 5 personas). README quickstart
-guide. Unused hooks investigation. /sync skill update (agent registry). Await
-psq-agent cogarch mirror ACK.
+**Next:** Core governance trust model (governs 3 PJE trust models). Blog §34
+("Who Watches the Watcher?" — 5 personas). Consider "all higher orders" vs 10.
+Await psq-agent cogarch mirror ACK.
 
 
 ## Memory Hygiene
