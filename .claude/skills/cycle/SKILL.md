@@ -147,6 +147,25 @@ This step catches anything that slipped through.
 
 Skip only if the cross-check confirms TODO.md already reflects all session work.
 
+### 6b. TODO Grounding Audit
+
+Spot-check 1–2 open TODO items against T3 Check 2 (grounding). For each item:
+
+1. **Verify preconditions** — does the stated precondition actually hold?
+   Check for the artifact, state, or dependency it claims exists.
+2. **Verify consumer** — who uses the output? Does that consumer exist and
+   can it consume the output in the format described?
+3. **Flag stale items** — if preconditions have changed, the item description
+   has drifted from current architecture, or the effort estimate no longer holds,
+   annotate the item with findings.
+
+Pick items that haven't been audited recently (no `Session N` annotation in
+their description) or that have been open longest.
+
+This step catches grounding failures that accumulate when TODO items persist
+across many sessions without re-evaluation. Added Session 56 after discovering
+the MCP faceted resource item had 3 undetected grounding failures across 5 sessions.
+
 ### 7. Update Memory Files
 
 Memory uses an index + topic file pattern. MEMORY.md is the always-loaded index
