@@ -195,6 +195,16 @@ dozens of failing attempts.
 
 ---
 
+## TODO Discipline
+
+**Update TODO.md immediately when completing a work item** — don't defer to /cycle.
+When a task finishes (code committed, document written, decision resolved), mark it
+complete or remove it from TODO.md in the same working block. /cycle Step 6 serves
+as a safety net that cross-checks session work against TODO items, not as the
+primary update mechanism.
+
+---
+
 ## Workflow Continuity
 
 On resume/stall/continuation/post-compaction: re-read `docs/cognitive-triggers.md`

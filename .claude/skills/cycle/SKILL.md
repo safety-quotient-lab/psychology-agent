@@ -130,14 +130,22 @@ Skip if no design decisions were made or changed.
 
 ### 6. Update TODO.md
 
-Forward-looking only. Light-touch maintenance.
+Safety net for in-session TODO updates. The primary convention (CLAUDE.md §TODO
+Discipline) requires updating TODO.md immediately when completing a work item.
+This step catches anything that slipped through.
 
-- **Completed items**: remove (summary goes to lab-notebook.md session entry)
+**Cross-check procedure:**
+1. Review what was accomplished this session (from Step 1 categorization)
+2. Read TODO.md and compare against session accomplishments
+3. Flag any completed work that still appears as open in TODO.md
+
+- **Completed items**: mark complete or remove (summary goes to lab-notebook.md)
 - **New items**: add items that emerged from this session's work
 - **Stale items**: update status if an in-progress or blocked item has changed state
 - **Blocked items**: note what's blocking and what would unblock
+- **Preconditions met**: flag items whose stated precondition was satisfied this session
 
-Skip if nothing changed that affects the task list.
+Skip only if the cross-check confirms TODO.md already reflects all session work.
 
 ### 7. Update Memory Files
 
