@@ -11,6 +11,21 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 Ensures every session's decisions, findings, and reasoning propagate through the
 full documentation chain. Run at the end of any session with meaningful work.
 
+### When to run
+
+Run /cycle **once, after all work in the session completes.** Do not run it
+mid-session when the user might continue working — any work done after /cycle
+produces undocumented changes that require running /cycle again, duplicating
+effort and creating redundant commits.
+
+**Gotcha (Session 57):** If the user asks "what's next?" and the answer leads to
+more work, that work should finish before /cycle runs. The phrase "what's next?"
+can mean "what should we do next session?" (safe to /cycle) or "let's keep going"
+(defer /cycle). When ambiguous, ask.
+
+/cycle does NOT call itself. If post-cycle work occurs, the next session's
+/cycle Step 2 cross-check catches anything that slipped through.
+
 **Design principle:** The psychology agent maintains several overlapping documents at
 different levels of abstraction. Each serves a distinct audience and purpose:
 
