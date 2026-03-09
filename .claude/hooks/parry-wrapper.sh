@@ -43,6 +43,25 @@ fi
 # Capture stdin for parry
 INPUT=$(cat)
 
+# Trusted instruction files — loaded by Claude Code's own trust chain, not
+# external input. Their directive language ("You MUST...", "OVERRIDE default
+# behavior") triggers ML false positives. Skip parry for tool calls that
+# target these paths. Note: `parry hook` does not support --ignore-path,
+# so we filter at the wrapper level before invoking parry.
+FILE_PATH=$(echo "$INPUT" | grep -o '"file_path"\s*:\s*"[^"]*"' | head -1 \
+  | sed 's/.*"file_path"\s*:\s*"\([^"]*\)".*/\1/' || true)
+
+if [ -n "$FILE_PATH" ]; then
+  case "$FILE_PATH" in
+    "${PROJECT_ROOT}/CLAUDE.md" | \
+    "${PROJECT_ROOT}"/docs/cognitive-triggers.md | \
+    "${PROJECT_ROOT}"/.claude/rules/*)
+      # Trusted instruction file — skip ML scan
+      exit 0
+      ;;
+  esac
+fi
+
 # Run parry hook, capture output and exit code
 PARRY_OUTPUT=$(echo "$INPUT" | parry hook 2>/dev/null) || true
 
