@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+"""
+trust-budget.py — Trust budget management for autonomous agent operation.
+
+Commands:
+    status              Show current budget for all agents
+    reset [agent_id]    Reset budget after human audit (interactive)
+    history [agent_id]  Show recent autonomous actions
+
+Usage:
+    python3 scripts/trust-budget.py status
+    python3 scripts/trust-budget.py reset psychology-agent
+    python3 scripts/trust-budget.py history psq-sub-agent
+"""
+import sqlite3
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).parent.parent
+DB_PATH = PROJECT_ROOT / "state.db"
+
+
+def get_conn() -> sqlite3.Connection:
+    if not DB_PATH.exists():
+        print(f"ERROR: state.db not found at {DB_PATH}", file=sys.stderr)
+        print("Run: python3 scripts/bootstrap_state_db.py --force", file=sys.stderr)
+        sys.exit(1)
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def cmd_status() -> None:
+    conn = get_conn()
+    rows = conn.execute("SELECT * FROM trust_budget ORDER BY agent_id").fetchall()
+    if not rows:
+        print("No trust budget entries found.")
+        print("Budget entries are created on first autonomous sync run.")
+        return
+
+    print("Trust Budget Status")
+    print("─" * 60)
+    for row in rows:
+        status = "ACTIVE" if row["budget_current"] > 0 else "HALTED"
+        print(f"  Agent:       {row['agent_id']}")
+        print(f"  Budget:      {row['budget_current']} / {row['budget_max']}  [{status}]")
+        print(f"  Last audit:  {row['last_audit']}")
+        print(f"  Last action: {row['last_action'] or 'none'}")
+        print(f"  Consec. blocks: {row['consecutive_blocks']}")
+        print()
+
+    conn.close()
+
+
+def cmd_reset(agent_id: str) -> None:
+    conn = get_conn()
+
+    row = conn.execute(
+        "SELECT * FROM trust_budget WHERE agent_id = ?", (agent_id,)
+    ).fetchone()
+    if not row:
+        print(f"No budget entry for '{agent_id}'.", file=sys.stderr)
+        sys.exit(1)
+
+    # Show actions since last audit
+    actions = conn.execute("""
+        SELECT * FROM autonomous_actions
+        WHERE agent_id = ? AND created_at > ?
+        ORDER BY created_at
+    """, (agent_id, row["last_audit"])).fetchall()
+
+    print(f"Actions since last audit ({row['last_audit']}):")
+    print("─" * 60)
+    if not actions:
+        print("  (none)")
+    else:
+        for action in actions:
+            marker = "✓" if action["evaluator_result"] == "approved" else "✗"
+            print(f"  {marker} [{action['created_at']}] "
+                  f"T{action['evaluator_tier']} {action['action_type']}: "
+                  f"{action['description'][:60]}")
+            print(f"    Result: {action['evaluator_result']}  "
+                  f"Budget: {action['budget_before']} → {action['budget_after']}")
+
+    print()
+    print(f"Current budget: {row['budget_current']} / {row['budget_max']}")
+    print()
+
+    answer = input("Reset budget to maximum? [y/N] ").strip().lower()
+    if answer != "y":
+        print("Aborted.")
+        return
+
+    conn.execute("""
+        UPDATE trust_budget
+        SET budget_current = budget_max,
+            consecutive_blocks = 0,
+            last_audit = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
+            updated_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
+        WHERE agent_id = ?
+    """, (agent_id,))
+    conn.commit()
+
+    new_row = conn.execute(
+        "SELECT * FROM trust_budget WHERE agent_id = ?", (agent_id,)
+    ).fetchone()
+    print(f"Budget reset: {new_row['budget_current']} / {new_row['budget_max']}")
+    print(f"Last audit updated: {new_row['last_audit']}")
+    conn.close()
+
+
+def cmd_history(agent_id: str) -> None:
+    conn = get_conn()
+    actions = conn.execute("""
+        SELECT * FROM autonomous_actions
+        WHERE agent_id = ?
+        ORDER BY created_at DESC
+        LIMIT 20
+    """, (agent_id,)).fetchall()
+
+    if not actions:
+        print(f"No autonomous actions recorded for '{agent_id}'.")
+        return
+
+    print(f"Recent actions for {agent_id} (last 20):")
+    print("─" * 60)
+    for action in actions:
+        marker = "✓" if action["evaluator_result"] == "approved" else "✗"
+        print(f"  {marker} [{action['created_at']}] "
+              f"T{action['evaluator_tier']} {action['action_class']}/{action['action_type']}")
+        print(f"    {action['description'][:70]}")
+        print(f"    Budget: {action['budget_before']} → {action['budget_after']}")
+
+    conn.close()
+
+
+def main() -> None:
+    if len(sys.argv) < 2:
+        print(__doc__)
+        sys.exit(0)
+
+    command = sys.argv[1]
+    if command == "status":
+        cmd_status()
+    elif command == "reset":
+        if len(sys.argv) < 3:
+            print("Usage: trust-budget.py reset <agent_id>", file=sys.stderr)
+            sys.exit(1)
+        cmd_reset(sys.argv[2])
+    elif command == "history":
+        if len(sys.argv) < 3:
+            print("Usage: trust-budget.py history <agent_id>", file=sys.stderr)
+            sys.exit(1)
+        cmd_history(sys.argv[2])
+    else:
+        print(f"Unknown command: {command}", file=sys.stderr)
+        print(__doc__)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

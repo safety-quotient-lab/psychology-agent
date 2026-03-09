@@ -141,10 +141,10 @@ human-mediated Claude Code sessions to autonomous operation.
   layer adopted. Schema v2 committed (scripts/schema.sql, 9 tables). Conventions at
   .claude/rules/sqlite.md. Phase 1: markdown = source of truth, DB = queryable index.
 
-- [ ] **SL-1: Bootstrap state DB script** — `scripts/bootstrap_state_db.py`. Parses
-  transport JSON, architecture.md, memory snapshots, lab-notebook, cognitive-triggers
-  into SQLite tables. Work order sent to psq-agent (turns 42-43).
-  *Precondition: psq-agent delivery (awaiting)*
+- [x] **SL-1: Bootstrap state DB script** — COMPLETE (Session 50). PR #90 merged.
+  `scripts/bootstrap_state_db.py` seeds 9 tables from transport JSON, architecture.md,
+  memory snapshots, lab-notebook, cognitive-triggers. All 9 validation checks pass.
+  29 pre-interagent/v1 legacy files skipped (expected).
 
 - [ ] **SL-2: /sync + /cycle dual-write integration** — Modify /sync and /cycle skills
   to write SQLite alongside markdown (dual-write protocol per sqlite.md). Transport
@@ -163,31 +163,22 @@ human-mediated Claude Code sessions to autonomous operation.
   shared facet vocabulary. Work order sent (turn 44).
   *Precondition: SL-1 complete*
 
-- [ ] **Autonomous operation trust model** — Define what replaces the human-as-TTP
-  assumption when the psychology agent operates without human mediation. Connects to
-  EF-1 (below) but scoped specifically to memory integrity: who validates that an
-  autonomous agent's memory writes represent accurate state rather than drift or
-  hallucination? Options: (a) evaluator-verified memory writes, (b) cross-agent
-  attestation (psq-agent confirms psychology-agent's PSQ-related memory entries),
-  (c) periodic human audit with bounded-trust decay between audits.
-  *Source: Synrix append-only + WAL design (durability without trust assumptions)*
-  *Precondition: EF-1 trust degradation model resolved*
+- [x] **Autonomous operation trust model** — RESOLVED (Session 50). Evaluator-as-arbiter
+  with 10-order knock-on analysis and 4-level resolution fallback (consensus → parsimony
+  → pragmatism → ask). Trust budget (20 credits, decrement per action, human audit resets).
+  Full spec: `docs/ef1-trust-model.md`. Scripts: `autonomous-sync.sh`, `trust-budget.py`.
+  *Unblocks: autonomous multi-agent tandem /sync via cron + Claude CLI.*
 
 ---
 
 ## BFT + Command Protocol
 
-- [ ] **EF-1: Autonomous trust degradation model** — the BFT design treats the human
-  as unconditionally trusted (Trusted Third Party). This assumption breaks if the system
-  ever operates without human mediation. Define what trust model replaces TTP in
-  autonomous operation: (a) evaluator-as-arbiter, (b) cryptographic attestation,
-  (c) consensus quorum with 3+ agents, or (d) bounded-trust decay (trust degrades
-  over N unverified operations). Document threshold for when autonomous operation
-  becomes a real scenario vs. theoretical concern.
-  *Precondition: evaluator instantiated (EF-3 ✓) — Tier 1 active, Tier 2/3 pending*
-  *Evaluated Session 38: zero autonomous operation pressure observed. No agent has
-  attempted action without human approval. Revisit trigger: first Tier 2 evaluator
-  session fires. Correctly deferred until then.*
+- [x] **EF-1: Autonomous trust degradation model** — RESOLVED (Session 50).
+  Evaluator-as-arbiter chosen (option a). Every autonomous action gated by evaluator
+  protocol: structural checklist → 10-order knock-on analysis → 4-level resolution
+  (consensus / parsimony / pragmatism / ask-human). Trust budget (20 credits) provides
+  mechanical halt. Cron + Claude CLI drives multi-agent tandem sync (10-min interval).
+  Full spec: `docs/ef1-trust-model.md`. BFT open question #1 resolved.
 
 - [x] **EF-2: Claim verification baseline — tracker created** — tracking log at
   `docs/claim-verification-log.json`. Seeded with exchange #1 (rsync to Hetzner,

@@ -334,6 +334,27 @@
                                  (Peircean semiotics → typed state needs
                                  queryable index, not just flat files).
                                Decided: 2026-03-09
+
+ Autonomous trust model         EF-1 resolved: evaluator-as-arbiter.
+ (EF-1)                         Every autonomous action gated by
+                                evaluator protocol: structural
+                                checklist → 10-order knock-on analysis
+                                → 4-level resolution fallback (consensus
+                                / parsimony / pragmatism / ask-human).
+                                Trust budget: 20 credits per audit
+                                cycle; each action costs 1 (Tier 1) or
+                                3 (Tier 2). Budget exhaustion → halt.
+                                Execution: cron + Claude CLI, 10-min
+                                interval, multi-agent tandem sync.
+                                Schema additions: trust_budget,
+                                autonomous_actions tables in state.db.
+                                BFT open question #1 resolved.
+                                Full spec: docs/ef1-trust-model.md.
+                                Derives from: Byzantine fault tolerance
+                                  (BFT Principle 6: evaluator as
+                                  verification layer), Evaluator
+                                  instantiation (tiered hybrid runtime).
+                                Decided: 2026-03-09
 ────────────────────────────────────────────────────────────────────────
 ```
 
