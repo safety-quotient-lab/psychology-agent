@@ -64,7 +64,7 @@ Forward-looking task list only. Completed and emergent work goes to
   Category: Workflows & Knowledge Guides. Draft submission details in
   lab-notebook Session 12. Note: NC license may face scrutiny under their
   open-source compliance requirement — flag proactively.
-  *Precondition: README polished, repo represents current state*
+  *Precondition: ✓ MET — README recalibrated Session 57, v0.6.0 released Session 58. Grounding audit Session 58.*
 
 ---
 

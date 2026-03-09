@@ -77,6 +77,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Synrix-inspired improvements  | ✓ 6 items: tiered access, scope boundaries, postmortem template, deterministic keys, psq_status table, entry_facets polythematic (Session 48) |
 | B5 bifactor CFA               | ✓ COMPLETE — omega_h=0.942, 5-item bipolar confirmed (turns 34-36) |
 | B5-S structural comparison    | ✓ COMPLETE — M5 accepted as final model (RMSEA=0.129, turn 38-39) |
+| Project board sync            | ✓ `sync_project_board.py` — TODO.md ↔ GitHub Projects reconciliation, /cycle Step 11b, cogarch.config.json `project_tracking` (Session 58) |
+| GitHub release v0.6.0         | ✓ Sessions 50-57: autonomous infra, SL-2, cogarch portability, hooks, interagent, DX (Session 58) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -3662,3 +3664,43 @@ to all hooks.
 - `CLAUDE_HOOK_EVENT` env var availability in Claude Code hook runner unverified —
   may log "unknown" for the event field
 - ~~Shellcheck fix unpushed~~ — resolved via `gh auth refresh -s workflow`
+
+
+## 2026-03-09T18:02 CDT — Session 58 (GitHub release v0.6.0, project board sync)
+
+Continuation of Session 57 (same day). Focused on release management and
+project tracking infrastructure.
+
+- **ShellCheck CI fix:** Added `-x` flag to `.github/workflows/shellcheck.yml`
+  for `source` directive following. Push required `gh auth refresh -s workflow`
+  for OAuth `workflow` scope.
+
+- **GitHub release v0.6.0:** Published covering Sessions 50-57. Seven feature
+  areas: autonomous infrastructure (EF-1), SQLite state layer (SL-1/SL-2),
+  cogarch portability, hook system, interagent protocol, developer experience,
+  fixes. URL: https://github.com/safety-quotient-lab/psychology-agent/releases/tag/v0.6.0
+
+- **GitHub Projects board sync:** User noted board out of date. Manually updated,
+  then built automated infrastructure:
+  - `scripts/sync_project_board.py` — reconciles TODO.md against GitHub Projects
+    board. Parses `**bold**` and `` `backtick` `` items, handles parentheticals.
+    Fuzzy matching via SequenceMatcher + Jaccard token overlap (threshold 0.6).
+    Exclusive 1:1 matching prevents collisions. Done items added directly as Done.
+    Dry-run by default, `--apply` to execute.
+  - `cogarch.config.json` — added `project_tracking` section (project #1,
+    safety-quotient-lab, status field mappings)
+  - `/cycle` SKILL.md — added Step 11b (Sync Project Board) after orphan check
+  - Board populated: 28 items synced (12 Todo, 16 Done), 0 orphans. One residual
+    add from TODO.md EF-1 duplicate entry (cosmetic).
+
+- **Artifacts created/modified:**
+  - `scripts/sync_project_board.py` — project board reconciliation script
+  - `cogarch.config.json` — `project_tracking` section
+  - `.claude/skills/cycle/SKILL.md` — Step 11b
+  - `.github/workflows/shellcheck.yml` — `-x` flag
+
+⚑ EPISTEMIC FLAGS
+- Fuzzy matching threshold (0.6) chosen empirically during initial population —
+  may need tuning as TODO.md titles evolve
+- TODO.md has duplicate EF-1 entry under two different headings — creates a
+  stable 1-add residual in sync output (cosmetic, not functional)
