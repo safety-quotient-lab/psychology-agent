@@ -77,7 +77,7 @@ On launch, you should see hook output confirming the cognitive architecture load
 ```
 
 The agent reads `CLAUDE.md` automatically and loads glob-scoped rules from
-`.claude/rules/`. 22 hooks (19 unique mechanisms) enforce the cognitive architecture mechanically.
+`.claude/rules/`. 14 hook events (17 scripts) enforce the cognitive architecture mechanically.
 
 If the hooks do not fire, check that `.claude/settings.json` exists and that
 the hook scripts in `.claude/hooks/` have execute permissions (`chmod +x`).
@@ -328,22 +328,22 @@ working in a sub-project context.
 |-----------|----------|--------|
 | Psychology agent identity | **Proven** | Routing spec, Socratic protocol, dynamic calibration — in daily use |
 | Sub-agent layer | **Proven** | interagent/v1 protocol, schema v3, 6 derivation findings, PSQ binding — 20+ turns exchanged |
-| Peer layer | **Proven** | Role declaration, divergence detection, SETL thresholds — live exchange with observatory-agent |
+| Peer layer | **Confirmed** | Role declaration, divergence detection, SETL thresholds — one live exchange with observatory-agent; not yet stress-tested across multiple peers |
 | Adversarial evaluator | **Confirmed** | 7-procedure ranked set, tiered activation spec, Tier 1 proxy implemented — Tier 2/3 await runtime |
 | Psychology interface | **Deployed** | CF Worker at psychology-interface.kashifshah.workers.dev — PSQ scoring, agent card, D1 + KV |
 | SQLite state layer | **Proven** | Schema v5, 9 tables, dual-write protocol, bootstrap + incremental scripts |
-| Core governance (EF-1) | **Confirmed** | 7 invariants, 3 disciplinary lenses, BCP 14 keywords, trust budget |
+| Core governance (EF-1) | **Explored** | 7 invariants, 3 disciplinary lenses, BCP 14 keywords, trust budget — spec complete, not yet exercised in autonomous operation |
 
 ### Capability Inventory
 
 | Capability | Maturity | Notes |
 |------------|----------|-------|
-| Cognitive triggers (T1-T16) | **Proven** | 16 triggers, 22 platform hooks (19 unique), SRT extensions with calibrated gates |
+| Cognitive triggers (T1-T16) | **Proven** | 16 triggers, 14 hook events (17 scripts), SRT extensions with calibrated gates |
 | Skills (/doc, /hunt, /cycle, /knock, /sync, /iterate, /scan-peer) | **Proven** | 7 skills, daily use, tested across 50+ sessions |
 | Commands (/adjudicate, /capacity) | **Proven** | On-demand, verified |
 | Memory architecture (5-layer) | **Proven** | Auto-memory, snapshots, archives, self-healing bootstrap |
 | PSQ sub-agent scoring | **Proven** | DistilBERT v23, isotonic calibration, r-based confidence proxy, live at psq.unratified.org |
-| Interagent transport | **Proven** | Git-PR transport, MANIFEST routing, 3 agents exchanging messages, /scan-peer quality loop |
+| Interagent transport | **Confirmed** | Git-PR transport, MANIFEST routing, 3 agents have exchanged messages — transport works but volume remains low (dozens of messages, not hundreds) |
 | Local coordination protocol | **Confirmed** | Spec written, used informally between parallel instances — not yet stress-tested |
 | Adversarial evaluator (Tier 1 proxy) | **Confirmed** | Self-check with audit trail + random escalation — structural independence deferred |
 | Adversarial evaluator (Tier 2/3) | **Explored** | Spec defined, requires runtime implementation |
@@ -458,7 +458,7 @@ psychology-agent/
 |   +-- bootstrap_state_db.py       # Rebuild state.db from files
 |   +-- dual_write.py               # Incremental state.db writes (/sync, /cycle)
 +-- .claude/
-|   +-- hooks/                      # 19 hook scripts (21 hook entries)
+|   +-- hooks/                      # 17 hook scripts + _debug.sh shared helper
 |   +-- settings.json               # Platform hooks configuration
 |   +-- skills/                     # /doc /hunt /cycle /knock /sync /iterate /scan-peer
 |   +-- rules/                      # Glob-scoped rules (markdown, js, transport, sqlite)
@@ -524,7 +524,6 @@ psychology-agent/
 - **Dependencies:** MIT/Apache/BSD licenses only — no GPL/AGPL
 - **Community tools:** [recall](https://github.com/zippoxer/recall) (session search),
   [ccusage](https://github.com/ryoppippi/ccusage) (token/cost tracking),
-  [parry](https://github.com/vaporif/parry) (prompt injection scanning),
   [claude-replay](https://github.com/es617/claude-replay) (session transcript -> HTML replay)
 
 See `CLAUDE.md` for full conventions.

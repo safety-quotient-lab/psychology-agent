@@ -245,3 +245,22 @@ sub-agents disagree, preserve the shape of the disagreement rather than averagin
   Engineering (structured conditions for psychological safety in human-AI interaction)
   and Psycho Ergonomics (interaction design that reduces cognitive load). Worth
   documenting this reflexivity explicitly at some point.
+
+---
+
+## Editorial Complaints (accepted, deferred)
+
+- **Governance theater** — EF-1 uses RFC 2119 keywords, codenames, and formal
+  governance language for a system run by one developer and two shell scripts.
+  The register exceeds the operational reality. Accepted as intentional design
+  scaffolding: the formalism pre-structures autonomous operation before it runs.
+  Revisit if external contributors find it off-putting.
+  *Noted: Session 57 (2026-03-09)*
+
+- **Academic name-dropping** — docs cite theorists by name (von Bertalanffy, Knuth,
+  Popper, INCOSE) in contexts where APA-style citations (Author, Year) would serve
+  better. Not every psychologist recognizes these names; the project claims APA style
+  but sometimes leans toward appeal-to-authority framing. Shift toward proper in-text
+  citations where the reference matters, and remove name-drops where the concept
+  stands on its own without attribution.
+  *Noted: Session 57 (2026-03-09)*
