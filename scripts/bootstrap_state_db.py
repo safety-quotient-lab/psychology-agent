@@ -594,34 +594,52 @@ def load_triggers(conn: sqlite3.Connection) -> int:
 # ──────────────────────────────────────────────────────────────────────────────
 
 def validate(conn: sqlite3.Connection) -> list[str]:
-    """Run sanity checks. Returns list of failure descriptions."""
+    """Run sanity checks. Returns list of failure descriptions.
+
+    Detects fresh installs (no transport session directories) and applies
+    structural-only thresholds. Data-dependent thresholds engage only when
+    transport history exists — prevents false failures for adopters.
+    """
     failures: list[str] = []
 
-    checks: list[tuple[str, str, int]] = [
-        # (SQL fragment after FROM, label, minimum expected count)
+    # Detect fresh install: no session directories under transport/sessions/
+    sessions_dir = PROJECT_ROOT / "transport" / "sessions"
+    has_history = (
+        sessions_dir.exists()
+        and any(p.is_dir() for p in sessions_dir.iterdir())
+    )
+    fresh_install = not has_history
+    if fresh_install:
+        print("  ℹ  Fresh install detected (no transport sessions) — "
+              "applying structural-only thresholds")
+
+    # Thresholds: (full, fresh) — fresh install uses relaxed minimums
+    checks: list[tuple[str, str, int, int]] = [
+        # (SQL fragment, label, min_with_history, min_fresh)
         ("transport_messages WHERE from_agent='psq-sub-agent'",
-         "psq-sub-agent outbound messages indexed", 15),
+         "psq-sub-agent outbound messages indexed", 15, 0),
         ("transport_messages",
-         "total transport messages indexed", 40),
+         "total transport messages indexed", 40, 0),
         ("psq_status WHERE model_version IS NOT NULL",
-         "psq_status rows with typed model_version", 1),
+         "psq_status rows with typed model_version", 1, 0),
         ("psq_status WHERE calibration_id IS NOT NULL",
-         "psq_status rows with typed calibration_id", 1),
+         "psq_status rows with typed calibration_id", 1, 0),
         ("entry_facets WHERE facet_type='domain' AND facet_value='psychometrics'",
-         "psychometrics domain facets", 1),
+         "psychometrics domain facets", 1, 0),
         ("entry_facets ef "
          "JOIN memory_entries me ON ef.entry_id = me.id "
          "WHERE ef.facet_type = 'domain'",
-         "memory_entries with domain facet", 5),
+         "memory_entries with domain facet", 5, 0),
         ("trigger_state",
-         "triggers indexed", 10),
+         "triggers indexed", 10, 1),
         ("session_log",
-         "lab-notebook sessions indexed", 20),
+         "lab-notebook sessions indexed", 20, 0),
         ("decision_chain",
-         "design decisions indexed", 10),
+         "design decisions indexed", 10, 1),
     ]
 
-    for sql_from, label, min_count in checks:
+    for sql_from, label, min_with_history, min_fresh in checks:
+        min_count = min_fresh if fresh_install else min_with_history
         n = conn.execute(f"SELECT COUNT(*) FROM {sql_from}").fetchone()[0]
         marker = "✓" if n >= min_count else "✗"
         print(f"  {marker}  {label}: {n} (min {min_count})")
@@ -637,7 +655,7 @@ def validate(conn: sqlite3.Connection) -> list[str]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Bootstrap psychology-agent state.db from markdown and transport files."
+        description="Bootstrap state.db from markdown and transport files."
     )
     parser.add_argument(
         "--force", action="store_true",
