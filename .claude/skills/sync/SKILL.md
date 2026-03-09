@@ -168,10 +168,13 @@ message for psq-agent and surfaces it to the user.
      --claims-count {len(claims)} --setl {setl} --urgency "{urgency}"
    ```
 3. Classify: ACK, request, review, notification, session-close
-4. Determine if a response is needed
-5. If response needed: draft it (but MUST NOT send without user confirmation
-   for substance decisions; process decisions MAY proceed autonomously)
-6. If ACK only: write the ACK
+4. Determine if a response is needed:
+   - Check `ack_required` field. If `true`, an ACK MUST be written.
+   - If `ack_required` is `false` or absent, skip ACK — the `mark-processed`
+     dual-write serves as processing confirmation.
+5. If substantive response needed: draft it (but MUST NOT send without user
+   confirmation for substance decisions; process decisions MAY proceed autonomously)
+6. If `ack_required: true` and no substantive response: write a minimal ACK
 7. **Dual-write (SL-2):** After processing, mark as processed:
    ```bash
    python scripts/dual_write.py mark-processed --filename "{filename}"
@@ -213,6 +216,7 @@ Template — adapt per message:
     "gate_condition": "none",
     "gate_status": "open"
   },
+  "ack_required": false,
   "urgency": "normal",
   "setl": 0.0,
   "epistemic_flags": []

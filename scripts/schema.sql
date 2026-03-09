@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS transport_messages (
     claims_count    INTEGER DEFAULT 0,
     setl            REAL,
     urgency         TEXT DEFAULT 'normal',
+    ack_required    INTEGER DEFAULT 0,
+    ack_received    INTEGER DEFAULT 0,
     processed       BOOLEAN DEFAULT FALSE,
     processed_at    TEXT,
     created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
@@ -218,3 +220,6 @@ VALUES (3, 'Add trust_budget, autonomous_actions (EF-1 evaluator-as-arbiter trus
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (4, 'Add shadow_mode to trust_budget, adversarial_reason + peer_reviewed_by to autonomous_actions (EF-1 flag mitigations)');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (5, 'Add ack_required + ack_received to transport_messages (optional ACK protocol)');

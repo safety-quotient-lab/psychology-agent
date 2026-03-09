@@ -29,6 +29,33 @@ Direction values: `from-{agent_id}`, `to-{agent_id}`, or `{semantic-name}` (lega
 Top-level, sibling to `setl`. Enum: `immediate | high | normal | low`.
 Absence implies `normal`. Backward-compatible.
 
+## ACK Protocol (adopted 2026-03-09)
+
+ACKs are **optional by default**. The sender controls whether an ACK is
+required via the `ack_required` field:
+
+```json
+"ack_required": false
+```
+
+- `false` (default, absence implies false) — receiver MAY send an ACK but
+  is not required to. The `processed` column in state.db serves as the
+  processing confirmation. No ACK file needed.
+- `true` — receiver MUST write an ACK message before the sender considers
+  the exchange complete. Use for: gated follow-ups in autonomous operation,
+  explicit confirmation of substance decisions, handshake sequences where
+  the sender blocks on receiver acknowledgment.
+
+**When to set `ack_required: true`:**
+- Autonomous agents sending messages that gate subsequent actions
+- Requests that change shared state (schema migrations, protocol upgrades)
+- Session-close messages (confirms both sides agree the session ended)
+
+**When to leave `ack_required: false` (or omit):**
+- Notifications and status updates
+- Messages in human-mediated sessions (user observes processing directly)
+- ACK messages themselves (ACKs never require ACKs)
+
 ## Action Gate
 
 Every message should include `action_gate` with:
