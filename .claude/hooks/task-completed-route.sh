@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # TaskCompleted hook — routes completed tasks to staging file for /cycle pickup.
 # Also checks for matching TODO.md entries to flag for removal.
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 STAGING_FILE="/tmp/psychology-agent-completed-tasks.jsonl"

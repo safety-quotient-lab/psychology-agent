@@ -17,9 +17,9 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 57. Hook error investigation (transient, no structural
-defect). Configurable debug logging added to all 17 hooks (`_debug.sh` shared helper).
-TODO grounding audit: activity logger item largely superseded by SL-2.
+**Where we stopped:** Session 56. Self-evaluation: doc drift fixes, CLAUDE.md trimmed
+(280→186 lines), cogarch stress-tested (synthetic + real item), MCP resource reframed
+as autonomous-op prerequisite (PSQ sub-agent = consumer when autonomous op begins).
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - Cogarch portability: ✓ COMPLETE `[cold: done]`
@@ -28,10 +28,9 @@ TODO grounding audit: activity logger item largely superseded by SL-2.
 - SQLite state layer: SL-2 ✓ dual-write live, schema v5, auto-bootstrap on session start `[warm]`
 - PSQ cogarch mirror: Phase 2 ✓ COMPLETE, Phase 3 → autonomous-op prerequisite `[hot]`
 - DI Phase A Pass 2: pending (inter-rater reliability) `[cold: docs/dignity-phase-a-study.md]`
-- Hook debug logging: ✓ COMPLETE — toggle via `.claude/hooks/.debug` `[cold: done]`
 
 **Next:** DI Phase A Pass 2 (fresh session). First autonomous sync cycle (unblocks
-cross-agent faceted queries).
+cross-agent faceted queries). Parry diagnostic conclusion (observe permission prompts).
 
 
 ## Memory Hygiene

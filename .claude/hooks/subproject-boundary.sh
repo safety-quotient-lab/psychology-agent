@@ -2,6 +2,7 @@
 # Sub-project boundary hook (PreToolUse: Write|Edit|Read)
 # Warns when a psychology-agent session touches files inside sub-project directories.
 # Non-blocking — outputs a warning, does not prevent the operation.
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 FILE_PATH="${TOOL_INPUT_file_path:-}"
 [ -z "$FILE_PATH" ] && exit 0

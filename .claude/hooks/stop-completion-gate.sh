@@ -2,6 +2,7 @@
 # Stop hook — completion gate. Fires when agent attempts to stop.
 # Exit 0 = allow stop. Exit 2 + stderr = block stop with message to Claude.
 # Checks for uncommitted changes and reminds of gap check obligations.
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 

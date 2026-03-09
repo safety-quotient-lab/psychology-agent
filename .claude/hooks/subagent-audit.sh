@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # SubagentStart/SubagentStop hook — audit trail for sub-agent invocations.
 # Logs to /tmp/psychology-agent-subagent-audit.jsonl.
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 AUDIT_FILE="/tmp/psychology-agent-subagent-audit.jsonl"
 EVENT="${HOOK_EVENT:-unknown}"

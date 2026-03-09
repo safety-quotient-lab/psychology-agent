@@ -2,6 +2,7 @@
 # SessionStart hook — injects orientation context into Claude's conversation.
 # stdout from this hook becomes additional context for the model.
 # Supplements MEMORY.md auto-load with mechanical reminders.
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 

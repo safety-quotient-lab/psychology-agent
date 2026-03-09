@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # ConfigChange hook — detects and logs changes to configuration files.
 # Alerts if hooks were modified mid-session (potential security concern).
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 DRIFT_LOG="/tmp/psychology-agent-config-drift.jsonl"

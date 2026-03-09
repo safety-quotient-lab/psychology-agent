@@ -2,6 +2,7 @@
 # PreCompact hook — fires before context compaction.
 # stdout becomes additionalContext that survives compaction.
 # Purpose: ensure critical state persists across the compaction boundary.
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
