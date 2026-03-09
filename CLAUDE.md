@@ -3,59 +3,20 @@
 General-purpose psychology agent project root. Specialized sub-projects below.
 MEMORY.md holds volatile state (active thread, design decisions, cogarch quick-ref).
 
-**System classification: embedded cognitive system.** The cogarch operates as an embedded
-system inside Claude Code — triggers fire within the host's tool-use loop, hooks intercept
-I/O, memory persists across sessions, identity injects into the system prompt.
+**Embedded cognitive system** — triggers fire in the host's tool-use loop, hooks
+intercept I/O, memory persists across sessions, identity injects into the system prompt.
 
-**Methodology: systems thinking** (von Bertalanffy, 1968; Meadows, 2008). Three principles:
-- **DDD** (Evans, 2003) — structural: INFRASTRUCTURE (low degrees of freedom — triggers,
-  hooks, memory, dual-write — inherited as-is; leverage points live here), APPLICATION
-  (medium DOF — skills, evaluator, trust model — configured per agent), DOMAIN (high DOF —
-  PSQ, DI, PJE, transport topology — replaced by adopters; cogarch.config.json parameterizes
-  all domain-layer degrees of freedom). Each agent = bounded context; interagent/v1 =
-  context map.
-- **Literate programming** (Knuth, 1984, adapted) — expression: every artifact governing
-  agent behavior MUST read as prose, not just parse as config (documentation-as-code). No
-  architectural element exists without narrative context — triggers link to origin failures,
-  decisions carry Derives-from chains, journal.md serves as a first-class architectural
-  artifact (narrative-driven architecture).
-- **Embedded system principles** — deployment: the cogarch governs host behavior through
-  mechanical enforcement (hooks), feedback loops (T10/T12), and leverage points (config
-  parameterization).
-
-See `docs/architecture.md` for the full mapping.
+**Methodology:** systems thinking (von Bertalanffy, 1968). Three structural principles:
+DDD (Evans, 2003) layering (infrastructure/application/domain), literate programming
+(Knuth, 1984 — artifacts read as prose), embedded system enforcement (hooks, feedback
+loops, config parameterization). Full mapping: `docs/architecture.md`.
 
 ---
 
 ## Hooks (`.claude/settings.json`)
 
-14 hook events (17 active scripts) enforce cogarch mechanically. Scripts live
-in `.claude/hooks/`. (Parry hooks removed as diagnostic — see #32596.)
-
-| Hook | Event | Purpose |
-|------|-------|---------|
-| ~~parry-wrapper.sh~~ | ~~Pre/PostToolUse, UserPromptSubmit~~ | ~~Injection/credential defense~~ (removed as diagnostic — #32596) |
-| T4 reminder | PostToolUse: Write/Edit | Critical file compliance |
-| write-provenance.sh | PostToolUse | Provenance trail (write-log.jsonl) |
-| subproject-boundary.sh | PreToolUse: Write/Edit | Cross-project write warning |
-| external-action-gate.sh | PreToolUse: Bash | T16 gate for gh commands |
-| context-pressure-gate.sh | PreToolUse | Context window pressure check |
-| pushback-accumulator.sh | UserPromptSubmit | Structural disagreement (>=3) |
-| session-start-orient.sh | SessionStart | T1 orientation context |
-| pre-compact-persist.sh | PreCompact | Persist state before compaction |
-| memory-structure-validate.sh | PostToolUse: Write/Edit | Memory file format enforcement |
-| stop-completion-gate.sh | Stop | Uncommitted changes warning |
-| tool-failure-halt.sh | PostToolUseFailure | Consecutive failure detection (>=3 halts) |
-| tool-failure-reset.sh | PostToolUse | Resets failure counter on success |
-| subagent-audit.sh | SubagentStart/Stop | Sub-agent audit trail + budget (15 max) |
-| session-end-check.sh | SessionEnd | Uncommitted work detector + session logger |
-| instructions-health.sh | InstructionsLoaded | CLAUDE.md validation + glob rule report |
-| task-completed-route.sh | TaskCompleted | Routes completed tasks for /cycle pickup |
-| config-drift-detector.sh | ConfigChange | Settings modification alert |
-| context-pressure-statusline.sh | Notification | Status line context pressure display |
-
-Parry provides defense-in-depth when active — currently disabled as diagnostic
-(#32596). Scripts remain on disk; see BOOTSTRAP.md for re-installation.
+14 hook events, 17 active scripts. Full table: `docs/hooks-reference.md`.
+Parry disabled as diagnostic (#32596) — scripts on disk, not wired.
 
 ### Epistemic Quality Standard
 
@@ -73,38 +34,25 @@ outputs. Format:
 
 If none: `⚑ EPISTEMIC FLAGS: none identified.`
 
-Epistemic flags cover: confidence miscalibration, scope overreach, implicit assumptions
-treated as facts, evidence-free claims, stale data used as current, conclusions that
-exceed available evidence, or any finding that a peer reviewer would challenge.
+Covers: miscalibration, scope overreach, unstated assumptions, evidence-free claims,
+stale data, conclusions exceeding evidence.
 
 ---
 
 ## Skills (load every session)
 
-- `/doc` — Mid-work documentation persistence. Captures decisions, findings,
-  and reasoning to the correct file on disk before context fills up.
-- `/hunt` — Systematic work discovery. Scans TODO.md, cogarch, architecture,
-  ideas, lessons, docs for highest-value next work.
-- `/cycle` — Post-session documentation checklist. Propagates session changes
-  through the full doc chain: lab-notebook, journal, architecture, MEMORY, snapshot.
-- `/knock` — Single-option 10-order knock-on effect tracing. Used standalone or
-  invoked by /hunt and /adjudicate. Domain classify → ground → trace 10 orders.
-- `/sync` — Inter-agent mesh synchronization. Scans transport sessions for new
-  messages, checks peer repos, writes ACKs, updates MANIFEST. No auto-merge.
-- `/iterate` — Unified work loop: sync → hunt → discriminate → execute → cycle.
-  One command does everything. Runs /sync as Phase 0, /hunt as Phase 1, 2-order
-  knock + 4-mode discriminator, executes the winner, auto-cycles at close.
-- `/scan-peer` — Peer content quality scan. Scans peer repo content for PSQ safety,
-  vocabulary drift, fair witness violations. Writes structured findings to transport.
+- `/doc` — persist decisions/findings to disk mid-work
+- `/hunt` — systematic work discovery from TODO, cogarch, architecture
+- `/cycle` — post-session doc chain (lab-notebook → journal → architecture → MEMORY)
+- `/knock` — 10-order knock-on effect tracing for a single option
+- `/sync` — inter-agent mesh synchronization (transport scan, ACKs, MANIFEST)
+- `/iterate` — unified loop: sync → hunt → discriminate → execute → cycle
+- `/scan-peer` — peer content quality scan (PSQ safety, vocabulary, fair witness)
 
 ## Commands (load on demand)
 
-- `/adjudicate` — Structured decision resolution. For decisions with 2+ options:
-  classify domain → ground dependencies → 10-order knock-on per option → compare →
-  consensus or parsimony. Severity-tiered (XS through L). Structural checkpoint
-  mandatory at all scales.
-- `/capacity` — Cognitive architecture capacity assessment. Reports line budgets,
-  trigger coverage, design decisions space, hooks inventory, and skills/commands list.
+- `/adjudicate` — structured decision resolution (2+ options, knock-on per option)
+- `/capacity` — cogarch capacity assessment (line budgets, triggers, hooks, skills)
 
 ## Sub-Projects
 
@@ -136,22 +84,11 @@ vocabulary in design/planning discussions. When a term collides with psychology
 usage, specify which meaning on first use (e.g., "validation (psychometric)"
 vs. "validation (SWEBOK V&V)").
 
-### Document Format & Whitespace
-
-Scoped to `.claude/rules/markdown.md`. APA tables, golden ratio whitespace, LaTeX
-for formal docs, markdown for everything else.
-
 ### Internal Reference Display Convention
 
-When surfacing internal references to the user, lead with the plain-language
-description. Internal labels (T-numbers, skill shorthand, file paths) are
-parenthetical — they exist for traceability, not readability.
-
-  Correct:   "Running gap check (T5) before answering."
-  Incorrect: "Running T5 gap check before answering."
-
-This applies to all internal references: trigger numbers, section labels,
-abbreviations coined by the project. The user sees the meaning first.
+Lead with plain-language description; internal labels (T-numbers, skill shorthand)
+go in parenthetical position. The user sees the meaning first.
+Example: "Running gap check (T5)" not "Running T5 gap check."
 
 ### README Policy
 
@@ -180,10 +117,8 @@ alone without requiring prior sections in working memory.
   explicit user instruction.
 - **Does not accept proposals without substance review** — sub-agent deliverables undergo
   T3 substance gate before acceptance.
-- **Autonomous operation requires evaluator gate** — EF-1 resolved (Session 50).
-  Every autonomous action passes through: structural checklist → 10-order knock-on →
-  4-level resolution (consensus / parsimony / pragmatism / ask-human). Trust budget
-  (20 credits) provides mechanical halt. Spec: `docs/ef1-trust-model.md`.
+- **Autonomous operation requires evaluator gate** — trust budget (20 credits),
+  4-level resolution fallback. Spec: `docs/ef1-trust-model.md`.
 - **Does not provide clinical decision support** — PSQ scores carry WEIRD distribution
   flags and lack clinical validation (T15 Check 6).
 
@@ -225,6 +160,7 @@ File-type-specific conventions live in `.claude/rules/` with glob patterns:
 - `markdown.md` (`**/*.md`) — formatting, whitespace, epistemic flags, lab-notebook
 - `javascript.md` (`**/*.js`) — CF Worker patterns, Agent SDK, PSQ client
 - `transport.md` (`transport/**/*.json`) — interagent protocol, naming, urgency field
+- `anti-patterns.md` (`**/*.{sh,js,py,md}`) — known-failing approaches
 
 These load automatically when editing matching files. CLAUDE.md retains universal conventions.
 
@@ -234,29 +170,7 @@ These load automatically when editing matching files. CLAUDE.md retains universa
 
 **License gate:** MIT, Apache 2.0, and BSD only. No GPL or AGPL dependencies.
 
-**Adopted community tools:**
-- `recall` — full-text session search (`brew install zippoxer/tap/recall`; `recall search "query"`)
-- `ccusage` — token/cost tracking (`npx ccusage@latest daily`)
-- `claude-replay` — session transcript → HTML replay (`claude-replay session.jsonl -o replay.html`)
-
----
-
-## Anti-Patterns (known-failing approaches)
-
-- **Security tool source code triggers its own detection** — reading a scanner's
-  test fixtures fires the scanner's PostToolUse hook. Check whether the file contains
-  test injection strings before reading active scanner source.
-- **`settingSources: ['project']` in serverless** — silently no-ops in CF Workers
-  (no local filesystem). Inline identity and cogarch into the system prompt constant.
-- **Script architecture diverges from saved checkpoint** — inference/calibration scripts
-  that rebuild model classes differently from the training script produce silent failures
-  or cryptic KeyErrors. Canonical source for model architecture: the training script.
-- **Shell state across Bash calls** — env vars, `cd`, and shell functions do not persist.
-  Chain commands in a single call (`export FOO=bar && use $FOO`) or write to a file
-  and source it.
-- **Parry scanning its own source** — reading `/tmp/parry-install/` or similar paths
-  triggers taint from test fixture strings. Use `--ignore-path` or avoid reading
-  scanner internals in sessions with active Parry hooks.
+**Adopted tools:** `recall` (session search), `ccusage` (token tracking), `claude-replay` (transcript → HTML).
 
 ---
 
@@ -270,10 +184,3 @@ or similar. If a name needs context to interpret, rename it instead.
 **Exception:** internal codes not displayed to callers (T-numbers, internal
 enums, machine-only field values) may use compact identifiers.
 
----
-
-## Project Structure
-
-- `safety-quotient/` — PSQ agent (DistilBERT v23, held-out r=0.684)
-- `pje-framework/` — PJE framework (case study, taxonomy.yaml)
-- PSQ has its own CLAUDE.md with full conventions — read it on any safety-quotient session
