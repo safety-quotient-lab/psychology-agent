@@ -3618,6 +3618,16 @@ to all hooks.
 - **Artifacts created:**
   - `.claude/hooks/_debug.sh` — shared debug logging helper
 
+- **README maturity table recalibrated:** Three downgrades from embarrassment audit
+  follow-up. Peer layer: Proven → Confirmed (one exchange, not stress-tested). Core
+  governance EF-1: Confirmed → Explored (spec only, never run autonomously). Interagent
+  transport: Proven → Confirmed (low volume). Hook counts corrected in 3 locations
+  (22/19 → 14 events/17 scripts). Parry removed from community tools.
+
+- **Editorial complaints noted (ideas.md):** Governance theater and academic
+  name-dropping accepted as known issues, deferred with rationale. APA-style citation
+  preference noted as the corrective direction for name-dropping.
+
 ⚑ EPISTEMIC FLAGS
 - Hook error root cause remains unobservable — transient classification rests on
   absence of reproduction, not positive identification of the cause
