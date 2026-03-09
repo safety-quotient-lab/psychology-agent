@@ -169,9 +169,12 @@
  Psychology interface         Deployed: https://psychology-interface.kashifshah.workers.dev
  production                  D1: psychology-interface (56a2f5ac, ENAM).
                               KV: SESSION_KV (1d17a21c).
-                              PSQ routes live (awaiting PSQ_ENDPOINT_URL secret).
-                              /turn deferred — blocked by API credits.
-                              Deployed: 2026-03-06.
+                              PSQ routes live (/psq/score, /psq/health).
+                              /turn deprecated Session 59 — removed, not
+                              guarded. CF Worker lacks cogarch; autonomous
+                              sync mesh provides programmatic access with
+                              full cognitive architecture instead.
+                              Deployed: 2026-03-06. /turn removed: 2026-03-09.
 
  Multi-agent comm standard    V2 schema (Nash equilibrium protocol). Derived from
                               live session-17 exchange failure: v1 conflated source
@@ -535,6 +538,31 @@
                                   (DOF gradient — infrastructure carries
                                   low DOF but must not encode domain
                                   assumptions).
+                                Decided: 2026-03-09
+
+ Cloud-free bounded context    The psychology-agent bounded context
+                                has zero runtime dependency on cloud
+                                services (Cloudflare, AWS, etc.).
+                                Execution: Claude Code CLI (local).
+                                State: state.db (local SQLite).
+                                Memory: ~/.claude auto-memory (local).
+                                Transport: git push/pull (repo as bus).
+                                Mesh: heartbeat files + orientation
+                                payload, both local-first.
+                                The CF Worker (psychology-interface)
+                                belongs to a separate bounded context
+                                — a public API gateway for PSQ scoring.
+                                The psychology-agent does not call it,
+                                depend on it, or notice its absence.
+                                Each agent bounded context inherits
+                                this constraint by default but MAY
+                                override within its own context (e.g.,
+                                psq-agent may adopt cloud hosting for
+                                model inference without violating the
+                                psychology-agent's constraint).
+                                Derives from: Domain-Driven Design
+                                  (bounded contexts with independent
+                                  architectural decisions).
                                 Decided: 2026-03-09
 ────────────────────────────────────────────────────────────────────────
 ```
