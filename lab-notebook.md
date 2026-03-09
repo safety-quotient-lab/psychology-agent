@@ -53,7 +53,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Blog post (cogarch)           | ✓ Reviewed + PR #7 submitted to unratified (Session 24) |
 | Blog post (Jurassic Park)     | ✓ Published at blog.unratified.org — 3-agent co-authorship, transport resolved (Session 25→29) |
 | Cogarch canonical location    | ✓ cognitive-triggers.md moved to docs/ (Session 12) |
-| Parry integration             | ✓ Installed, wrapper + config + start script + --ignore-path for trusted files (Session 15, 55) |
+| Parry integration             | ⚑ DIAGNOSTIC: hooks removed from settings.json to isolate permission prompt issue. Scripts on disk. Re-enable after #32596 resolved (Session 15→55) |
 | Parry session toggle          | ✓ AskUserQuestion at session start + .parry-session-disabled flag (Session 15) |
 | Awesome-claude-code eval      | ✓ 5 repos evaluated, 10 candidates ranked, 4 quick wins landed (Session 12) |
 | Attention-aware placement     | ✓ CLAUDE.md reordered for U-shaped attention curve (Session 12) |
@@ -3477,9 +3477,10 @@ Continued from Session 52 (context compaction — resumed from cogarch.config.js
 
 - **Parry false positive fix:** ML injection scanner flagged CLAUDE.md and cogarch
   instruction files because imperative directive language ("You MUST...", "OVERRIDE
-  default behavior") structurally resembles prompt injection. Added `--ignore-path`
-  entries to `parry-wrapper.sh` for trusted instruction files (CLAUDE.md,
-  docs/cognitive-triggers.md, .claude/rules/).
+  default behavior") structurally resembles prompt injection. Initial fix used
+  `--ignore-path` (broken — `parry hook` doesn't support it). Corrected to
+  wrapper-level pre-filter extracting `file_path` from tool input JSON. PR #93
+  tested (5 cases pass), merged (`e0533b3`).
 
 - **Parry cache lock discovery:** Daemon (PID) holds exclusive lock on
   `scan-cache.redb`, preventing hook subprocess from using cached scan results.
@@ -3489,14 +3490,46 @@ Continued from Session 52 (context compaction — resumed from cogarch.config.js
 - **Lessons documented:** Two entries in lessons.md with FAQ-ready versions for
   potential upstream contribution to Claude Code and parry documentation.
 
-- **Commits (1, pushed):**
-  1. `81f27a5` — fix: parry ML false positives on trusted instruction files
+- **Memory path mismatch:** Project at `psychology-agent.test` but auto-memory
+  mapped to `-Users-kashif-Projects-psychology-agent` (original instance). Created
+  and seeded `-test` memory directory from bootstrap snapshots.
 
-- **PR:** #93 (`fix/parry-ignore-trusted-instructions`) — pushed and open
+- **Capacity assessment:** Global CLAUDE.md 133→48 lines (4 sections removed:
+  inspirations → cogarch.config.json identity, suggestions/vertical-slice/creative
+  thinking removed as redundant with cogarch triggers). Project CLAUDE.md at 278
+  lines (78 over ~200 advisory — content substantive, no easy trims).
+
+- **cogarch.config.json:** Added `identity.inspirations` — 6 authors with influence
+  descriptions + 4 communication principles. Adopter-replaceable.
+
+- **TODO.md:** Antiregression PR updated to "waiting on external" — maintainer
+  forked but not responding.
+
+- **Bypass permissions bug:** Filed anthropics/claude-code #32596. Intermittent
+  permission prompts in bypass mode. Project reference added in comments.
+
+- **Parry removed (diagnostic):** All 3 parry-wrapper.sh hook entries removed from
+  settings.json to isolate whether parry contributes to permission prompt issue.
+  Scripts remain on disk. Hook count: 22→19 entries, 19→16 mechanisms.
+
+- **Three permission layers mapped:**
+  1. Tool permissions (`settings.local.json` allow list) — fixed
+  2. Injection scanner (parry ML false positives) — fixed, then removed as diagnostic
+  3. Config file protection (CLAUDE.md overwrite gate) — intentional, no fix needed
+
+- **Commits (5, all pushed):**
+  1. `81f27a5` — fix: parry ML false positives on trusted instruction files
+  2. `dca19d7` — fix: wrapper-level path filter (corrects broken --ignore-path)
+  3. `6866bc4` — refactor: inspirations to cogarch.config.json, trim global CLAUDE.md
+  4. `e0533b3` — PR #93 merged (squash)
+  5. `e0322df` — diagnostic: remove parry hooks to isolate permission prompt issue
+
+- **PR:** #93 merged. **Bug:** anthropics/claude-code #32596 filed.
 
 ⚑ EPISTEMIC FLAGS
-- The `--ignore-path` flag behavior in `parry hook` mode has not been verified
-  against parry's documentation — assumed to work the same as the top-level
-  `parry` command based on `--help` output
 - Cache lock contention diagnosed from log messages and `lsof` — root cause
   (exclusive vs shared lock) inferred, not confirmed from parry source code
+- Bypass permissions intermittent behavior not yet root-caused — parry removal
+  as diagnostic step; next session tests whether prompts recur without parry
+- Global CLAUDE.md trim affects all projects sharing that file — changes tested
+  only in psychology-agent context

@@ -17,11 +17,10 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 55. Three permission layers mapped and fixed.
-PR #93 merged (parry wrapper pre-filter). Parry hooks removed as diagnostic
-for intermittent bypass-mode permission prompts (bug #32596 filed). Global
-CLAUDE.md trimmed 133→48 lines; inspirations moved to cogarch.config.json.
-Antiregression PR marked waiting-on-external.
+**Where we stopped:** Session 55. Fixed two permission/scanning gotchas:
+(1) `settings.local.json` partial allow list gating tools in bypass mode — expanded;
+(2) parry ML false positives on trusted instruction files — `--ignore-path` added to
+`parry-wrapper.sh`. PR #93 open. Lessons documented with FAQ-ready versions.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - Cogarch portability: ✓ COMPLETE — config + guide + tests + adaptive bootstrap `[cold: done]`
