@@ -22,4 +22,5 @@ jobs:
           shellcheck -x \
             .claude/hooks/*.sh \
             bootstrap-check.sh \
-            transport/hooks/*.sh
+            transport/hooks/*.sh \
+            scripts/*.sh
