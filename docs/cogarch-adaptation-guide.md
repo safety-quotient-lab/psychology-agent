@@ -33,6 +33,11 @@ gradient. Each layer carries a different adoption cost:
 This single file parameterizes all domain-layer values. Replace every field
 with your agent's identity, organization, and domain content.
 
+**After editing per-section, run a global find-and-replace** within the file:
+replace `psychology-agent` with your agent ID, and `safety-quotient-lab` with
+your GitHub org/user. This catches nested fields (repo URLs, schema references,
+default agent values) that appear across multiple sections.
+
 ### Section-by-section guide
 
 **`identity`** — your agent's name, role, description, model, capabilities.
@@ -143,6 +148,11 @@ commands. The *skill logic* stays the same — only the identity values change:
 | `scripts/trust-budget.py` | Agent ID references |
 | `transport/hooks/transport-scan.sh` | Default `AGENT_ID` fallback value |
 
+**Organization name:** In addition to the agent ID replacement above, find-and-replace
+`Safety Quotient Lab` with your organization name in `interface/src/worker.js` (line 50,
+agent card `organization` field). If you delete the `interface/` directory (no CF Worker),
+this step becomes unnecessary.
+
 **If you have no scoring subsystem:** Delete `interface/src/psq-client.js` entirely.
 Remove the PSQ routes from `worker.js` (lines 218-240). Remove the `extractPSQBlock`
 function from `agent.js`. Set `scoring_subsystem.enabled` to `false` in your config.
@@ -180,7 +190,23 @@ Delete or replace the files listed in `domain_content.domain_docs`:
 | `safety-quotient/` | PSQ sub-agent (DistilBERT model) | Replace with your sub-agent or delete |
 | `pje-framework/` | PJE case study | Delete or replace with your case study |
 
-**Keep these files** — they belong to the infrastructure and application layers:
+**Also delete** — domain-specific content not in `domain_docs`:
+
+| File / directory | Reason |
+|---|---|
+| `blog/` | Psychology agent blog posts |
+| `.claude/proposals/` | Inbound proposals from peer agents |
+| `docs/psychology-interface-spec.md` | CF Worker spec for psychology agent |
+| `docs/lite-system-prompt.md` | Lite prompt for psychology agent |
+| `docs/hn-draft.md` | Hacker News submission draft |
+| `docs/github-workflow-convention.md` | Psychology agent GitHub workflow |
+| `docs/memory-snapshots/*.md` | Memory snapshots (clear content; files get repopulated by /cycle) |
+| `lessons.md` | Lessons learned (start fresh) |
+| `README.md` | Rewrite for your agent |
+
+**Keep these files** — they belong to the infrastructure and application layers.
+After keeping them, run `sed -i 's/psychology-agent/your-agent/g'` across all of
+them to replace example agent names in JSON samples and message templates:
 
 - `docs/architecture.md` — your design decisions (clear the psychology-agent entries,
   keep the table structure)
@@ -188,11 +214,17 @@ Delete or replace the files listed in `domain_content.domain_docs`:
 - `docs/ef1-trust-model.md` — autonomous trust model (application layer)
 - `docs/ef1-governance.md` — governance invariants (application layer)
 - `docs/bft-design-note.md` — BFT design (application layer)
+- `docs/command-request-v1-spec.md` — command protocol spec (application layer)
+- `docs/machine-response-v3-spec.md` — scoring response schema (application layer)
+- `docs/local-coordination-v1-spec.md` — local coordination protocol (application layer)
+- `docs/subagent-layer-spec.md` — sub-agent communication spec (application layer)
+- `docs/peer-layer-spec.md` — peer agent spec (application layer)
+- `docs/adversarial-register-rubric.md` — adversarial evaluator rubric (application layer)
 - `scripts/schema.sql` — state layer schema (infrastructure layer)
 - `scripts/bootstrap_state_db.py` — after updating facet vocabulary (Step 2)
 - `scripts/dual_write.py` — state layer dual-write (infrastructure layer)
-- `.claude/hooks/` — all hook scripts (infrastructure layer)
-- `.claude/skills/` — all skills (application layer)
+- `.claude/hooks/` — hook scripts (infrastructure layer; identity already handled in Step 2)
+- `.claude/skills/` — skills (application layer; identity already handled in Step 2)
 - `.claude/rules/` — glob-scoped conventions (infrastructure layer)
 
 
@@ -215,9 +247,32 @@ Delete or replace the files listed in `domain_content.domain_docs`:
 3. **`journal.md`** — clear; start your own research narrative
 4. **`TODO.md`** — clear; add your own task backlog
 5. **`ideas.md`** — clear; add your own speculative directions
-6. **`BOOTSTRAP.md`** — verify all referenced files exist after your changes
-7. **Memory files** (`MEMORY.md` + `memory/*.md`) — clear content; keep the
+6. **`lessons.md`** — clear; start fresh
+7. **`README.md`** — rewrite for your agent
+8. **`BOOTSTRAP.md`** — verify all referenced files exist after your changes
+9. **Memory files** (`MEMORY.md` + `memory/*.md`) — clear content; keep the
    index + topic file structure
+
+
+## Step 7: Global Cleanup
+
+After completing Steps 1-6, run a final sweep to catch any references that
+individual steps missed:
+
+```bash
+# Find remaining agent identity references
+grep -rn "psychology-agent" --include='*.md' --include='*.sh' \
+  --include='*.js' --include='*.py' --include='*.json' . \
+  | grep -v '.git/' | grep -v 'node_modules/'
+
+# Find remaining organization references
+grep -rn "Safety Quotient Lab" . | grep -v '.git/'
+grep -rn "safety-quotient-lab" . | grep -v '.git/'
+```
+
+**Expected survivors:** `docs/cogarch-adaptation-guide.md` references
+`psychology-agent` as the reference implementation — leave those as-is.
+Everything else should carry your agent's identity.
 
 
 ## What NOT to Change
