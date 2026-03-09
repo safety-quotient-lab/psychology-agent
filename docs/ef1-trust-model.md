@@ -298,7 +298,7 @@ safeguards:
 ### psychology-agent (macOS)
 
 ```cron
-*/10 * * * * /Users/kashif/Projects/psychology-agent/scripts/autonomous-sync.sh >> /tmp/psychology-agent-sync.log 2>&1
+*/10 * * * * $PROJECT_ROOT/scripts/autonomous-sync.sh >> /tmp/psychology-agent-sync.log 2>&1
 ```
 
 ### psq-agent (Hetzner, Debian)

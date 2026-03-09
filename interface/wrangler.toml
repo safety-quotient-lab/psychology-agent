@@ -3,14 +3,18 @@ main = "src/worker.js"
 compatibility_date = "2026-03-06"
 compatibility_flags = ["nodejs_compat"]
 
+# Create these resources via wrangler CLI, then paste the IDs here:
+#   wrangler d1 create psychology-interface
+#   wrangler kv namespace create SESSION_KV
+#   wrangler r2 bucket create psychology-interface-artifacts
 [[d1_databases]]
 binding = "DB"
 database_name = "psychology-interface"
-database_id = "56a2f5ac-0eb1-44d8-83f4-8940fb62804c"
+database_id = "YOUR_D1_DATABASE_ID"
 
 [[kv_namespaces]]
 binding = "SESSION_KV"
-id = "1d17a21cedde4804b68ab4afe9f8fd38"
+id = "YOUR_KV_NAMESPACE_ID"
 
 [[r2_buckets]]
 binding = "ARTIFACTS"
