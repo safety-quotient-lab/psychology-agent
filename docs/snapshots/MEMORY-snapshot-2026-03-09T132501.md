@@ -17,19 +17,20 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 52. Blog persona guidelines PR #40 submitted to
-unratified. De-branding coupling-point inventory complete (4 tiers, 7 categories).
-PRs #91-92 merged (cogarch Phase 2 + CO concentration). Blog §34 published.
+**Where we stopped:** Session 51. SL-2 dual-write live (/sync + /cycle write
+to state.db). Optional ACK protocol (ack_required flag). README zero-to-demo
+quickstart with 5 accordion demos. 21 hooks registered. Schema v5.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- PSQ scoring: CO rubric updated (Variant B), monitoring plan active `[warm]`
+- PSQ scoring: all work orders complete, quiescent `[hot: no action needed]`
 - SQLite state layer: SL-2 ✓ dual-write live, schema v5 `[warm: dual_write.py]`
-- PSQ cogarch mirror: Phase 2 ✓ COMPLETE, Phase 3 gate OPEN `[hot: ready]`
-- De-branding: inventory done, delivery mechanism TBD `[cold: TODO.md]`
+- EF-1 trust model: ✓ resolved — governance + trust model + psychological foundations
 - DI Phase A Pass 2: pending (inter-rater reliability) `[cold: docs/dignity-phase-a-study.md]`
+- PSQ cogarch mirror: work order sent (T44), gate open (T45), awaiting response
+- De-branding: exploratory TODO added, no precondition `[cold: TODO.md]`
 
-**Next:** Reframe de-branding goal and decide delivery mechanism. DI Phase A
-Pass 2 (fresh session). Phase 3 cross-agent faceted queries (precondition met).
+**Next:** Blog §34 ("Who Watches the Watcher?" — 5 personas). Await psq-agent
+cogarch mirror response. DI Phase A Pass 2 (fresh session). De-branding inventory.
 
 
 ## Memory Hygiene
@@ -50,11 +51,7 @@ Pass 2 (fresh session). Phase 3 cross-agent faceted queries (precondition met).
   engineering serves it. Frame responses through a psychological lens by default.
 - **Blog posts require five personas** — every topic produces posts for: voter,
   politician, educator, researcher, developer. All from safety-quotient-lab's
-  perspective, routed through unratified-agent. Reading levels by persona:
-  voter (8th grade, plain language, concrete analogies), politician (professional
-  staff-briefing level, actionable), educator (pedagogical framing with discussion
-  prompts), researcher (methods-and-findings, citations, epistemic flags),
-  developer (architecture deep-dive, implementation detail, code references).
+  perspective, routed through unratified-agent.
 - **Trigger naming in conversation:** Always refer to triggers by their firing condition
   ("Before recommending," "Session starts") as the primary label. T-numbers go in
   parenthetical position only.

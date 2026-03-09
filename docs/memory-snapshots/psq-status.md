@@ -45,6 +45,11 @@ Awaiting user terminal run.
   validity shows profile shape predicts while g-PSQ does not → bifactor investigation.
 **Design decisions (Session 45):** Single-scorer constraint, calibration success criterion revised,
   calibration deploy timing (post-model-stabilization). See architecture.md.
-**Next:** All psq-scoring work orders complete. SL-1 (bootstrap_state_db.py) and cogarch
-  mirror directive (turn 44) awaiting psq-agent. No active PSQ improvement work.
-  Do not duplicate PSQ improvement work in this context.
+**Cogarch mirror:** ✓ Phase 2 COMPLETE (PR #91, turn 46). T1-T16 mirrored, T15 adapted.
+  Phase 3 (cross-agent faceted queries) gate OPEN — SL-2 landed. [confirmed 2026-03-09]
+**CO concentration finding:** ✓ Accepted (PR #92, turn 47). 49.3% of CO scores at 5.0.
+  Root cause: rubric conflated absent vs implicit. Variant B adopted (implicit-vs-absent).
+  SD +21%, concentration -6pp. CO held-out r improvement hypothesis plausible but unverified
+  (c=0.55). Monitoring plan: %@5 in next 3 CO sessions. [confirmed 2026-03-09]
+**Next:** Phase 3 cross-agent faceted queries (precondition met). CO monitoring in next
+  labeling session. No other active PSQ improvement work.

@@ -156,11 +156,9 @@ human-mediated Claude Code sessions to autonomous operation.
   without scanning markdown files.
   *Precondition: SL-2 complete (state layer operational with live data)*
 
-- [ ] **PSQ sub-agent cogarch mirror** — psq-sub-agent adopts the psychology agent's
-  cognitive architecture: SQLite state layer (same schema pattern), trigger system,
-  memory conventions, postmortem format. Enables bidirectional memory sync and
-  shared facet vocabulary. Work order sent (turn 44).
-  *Precondition: SL-1 complete*
+- [x] **PSQ sub-agent cogarch mirror (Phase 2)** — COMPLETE (Session 52). PR #91 merged.
+  T1-T16 mirrored, T15 adapted as producer self-check. Phase 3 (cross-agent faceted
+  queries) gate OPEN — SL-2 landed Session 51.
 
 - [x] **Autonomous operation trust model** — RESOLVED (Session 50). Evaluator-as-arbiter
   with 10-order knock-on analysis and 4-level resolution fallback (consensus → parsimony
@@ -198,18 +196,12 @@ human-mediated Claude Code sessions to autonomous operation.
 
 ## Public Release Preparation
 
-- [ ] **De-brand psychology-agent for public usage** — Explore what it takes to make
-  the psychology agent cogarch, conventions, and tooling reusable by others outside
-  safety-quotient-lab. Questions to investigate:
-  (1) What references to safety-quotient-lab, unratified, PSQ, and internal transport
-      sessions are load-bearing vs. cosmetic? Which can be parameterized?
-  (2) What does a "clean fork" look like — someone cloning this repo and replacing
-      our domain-specific content with their own while keeping the cogarch intact?
-  (3) Which components are genuinely portable (trigger system, hooks, memory pattern,
-      lite prompts, skills) vs. tightly coupled to our domain (PSQ scoring, DI,
-      transport topology)?
+- [ ] **De-brand psychology-agent for public usage** — Coupling-point inventory
+  COMPLETE (Session 52). 7 categories, 4 tiers by difficulty. Key finding: cogarch
+  (triggers, hooks, memory, skills) relatively portable; interface layer carries
+  deepest PSQ coupling. Remaining questions:
   (4) Does de-branding mean a separate repo/template, a configuration layer over this
       repo, or documentation showing how to adapt it?
-  (5) License implications — current NC license vs. what public adoption requires.
-  Start with an inventory of coupling points before committing to approach.
-  *Precondition: none — exploratory; can begin anytime*
+  (5) License implications — current Apache 2.0 (code) + CC BY-SA (PSQ data) vs.
+      what public adoption requires.
+  *Next step: reframe the goal and decide delivery mechanism*
