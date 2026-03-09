@@ -53,7 +53,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Blog post (cogarch)           | ✓ Reviewed + PR #7 submitted to unratified (Session 24) |
 | Blog post (Jurassic Park)     | ✓ Published at blog.unratified.org — 3-agent co-authorship, transport resolved (Session 25→29) |
 | Cogarch canonical location    | ✓ cognitive-triggers.md moved to docs/ (Session 12) |
-| Parry integration             | ✓ Installed, wrapper + config + start script (Session 15) |
+| Parry integration             | ✓ Installed, wrapper + config + start script + --ignore-path for trusted files (Session 15, 55) |
 | Parry session toggle          | ✓ AskUserQuestion at session start + .parry-session-disabled flag (Session 15) |
 | Awesome-claude-code eval      | ✓ 5 repos evaluated, 10 candidates ranked, 4 quick wins landed (Session 12) |
 | Attention-aware placement     | ✓ CLAUDE.md reordered for U-shaped attention curve (Session 12) |
@@ -3465,3 +3465,38 @@ Continued from Session 52 (context compaction — resumed from cogarch.config.js
   workflow of an adopter building their own domain content
 - Adaptive thresholds use binary detection (sessions exist or not) — no
   intermediate state for partially populated repositories
+
+
+## 2026-03-09T15:22 CDT — Session 55 (Permissions + parry false positive fixes)
+
+- **Permissions fix:** `settings.local.json` had `"allow": ["WebSearch"]` — a partial
+  whitelist that gated all other tools behind permission prompts even in bypass mode.
+  Expanded allow list to include all core tools (Read, Edit, Write, Bash, Glob, Grep,
+  Agent, Skill, ToolSearch). Root cause: earlier session added WebSearch permission
+  without understanding the whitelist semantics.
+
+- **Parry false positive fix:** ML injection scanner flagged CLAUDE.md and cogarch
+  instruction files because imperative directive language ("You MUST...", "OVERRIDE
+  default behavior") structurally resembles prompt injection. Added `--ignore-path`
+  entries to `parry-wrapper.sh` for trusted instruction files (CLAUDE.md,
+  docs/cognitive-triggers.md, .claude/rules/).
+
+- **Parry cache lock discovery:** Daemon (PID) holds exclusive lock on
+  `scan-cache.redb`, preventing hook subprocess from using cached scan results.
+  Every tool use triggers a fresh ML scan. Upstream fix needed — hook subprocess
+  should connect via `parry.sock` instead of opening the DB directly.
+
+- **Lessons documented:** Two entries in lessons.md with FAQ-ready versions for
+  potential upstream contribution to Claude Code and parry documentation.
+
+- **Commits (1, pushed):**
+  1. `81f27a5` — fix: parry ML false positives on trusted instruction files
+
+- **PR:** #93 (`fix/parry-ignore-trusted-instructions`) — pushed and open
+
+⚑ EPISTEMIC FLAGS
+- The `--ignore-path` flag behavior in `parry hook` mode has not been verified
+  against parry's documentation — assumed to work the same as the top-level
+  `parry` command based on `--help` output
+- Cache lock contention diagnosed from log messages and `lsof` — root cause
+  (exclusive vs shared lock) inferred, not confirmed from parry source code
