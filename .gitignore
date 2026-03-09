@@ -34,6 +34,9 @@ psychology-handoff*
 # Session replays (contain full transcripts — do not commit)
 docs/replays/
 
+# Agent identity (machine-specific, not shared across hosts)
+.agent-identity.json
+
 # SQLite state layer (rebuilt from scripts/schema.sql + bootstrap_state_db.py)
 state.db
 state.db-wal

@@ -17,8 +17,14 @@ set -euo pipefail
 
 # ── Configuration ────────────────────────────────────────────────────────────
 
-AGENT_ID="${AGENT_ID:-psychology-agent}"
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+IDENTITY_FILE="${PROJECT_ROOT}/.agent-identity.json"
+
+# Agent identity: .agent-identity.json > AGENT_ID env var > default
+if [ -f "${IDENTITY_FILE}" ]; then
+    AGENT_ID=$(python3 -c "import json; print(json.load(open('${IDENTITY_FILE}'))['agent_id'])" 2>/dev/null)
+fi
+AGENT_ID="${AGENT_ID:-psychology-agent}"
 DB_PATH="${PROJECT_ROOT}/state.db"
 LOCK_FILE="/tmp/autonomous-sync-${AGENT_ID}.lock"
 export MAX_ACTIONS_PER_CYCLE=5  # reserved for evaluator gate (not yet enforced)
@@ -159,8 +165,24 @@ run_sync() {
     cd "${PROJECT_ROOT}"
 
     log "Running /sync --autonomous..." >&2
+
+    # Generate orientation payload from state.db
+    local orientation
+    orientation=$(python3 "${PROJECT_ROOT}/scripts/orientation-payload.py" \
+        --agent-id "${AGENT_ID}" 2>/dev/null) || {
+        err "orientation-payload.py failed — proceeding with bare /sync"
+        orientation=""
+    }
+
+    local prompt
+    if [ -n "${orientation}" ]; then
+        prompt=$(printf '%s\n\n/sync' "${orientation}")
+    else
+        prompt="/sync"
+    fi
+
     local sync_output
-    sync_output=$(claude -p "/sync" \
+    sync_output=$(claude -p "${prompt}" \
         --allowedTools "Read,Write,Edit,Glob,Grep,Bash" \
         --max-turns 30 \
         2>&1) || {
@@ -217,6 +239,9 @@ main() {
 
     check_lock
     ensure_db
+
+    # Emit heartbeat (mesh presence announcement)
+    python3 "${PROJECT_ROOT}/scripts/heartbeat.py" emit >&2 || true
 
     # Check budget before doing anything
     local budget
