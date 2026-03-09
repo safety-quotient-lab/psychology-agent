@@ -12,26 +12,18 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 | `memory/psq-status.md` | PSQ sub-agent calibration, deploy status, open issues | PSQ work in this context (rare) |
 | `memory/cognitive-triggers.md` | Legacy — full trigger descriptions (canonical: `docs/cognitive-triggers.md`) | Superseded; read canonical instead |
 
-## Active Thread (2026-03-09)
+## Active Thread (2026-03-08)
 
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 47 (continued). All psq-scoring work orders
-complete — B3, B5, B5-R, B5-S (M5 final), B4 partial correlations accepted.
-SQLite state layer designed: schema.sql committed, .claude/rules/sqlite.md
-committed, SL-1 work order sent to psq-agent (turn 42 — bootstrap_state_db.py).
-Synrix evaluation complete; 4 small improvements implementing now.
-
-**Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- PSQ scoring: all work orders complete, session quiescent `[hot: no action needed]`
-- SQLite state layer: SL-1 awaiting psq-agent delivery `[warm: query transport_messages]`
-- DI Phase A Pass 2: pending (inter-rater reliability) `[cold: docs/dignity-phase-a-study.md]`
-- Unratified: scan-010 ACK outstanding `[warm: query transport_messages WHERE processed=FALSE]`
-
-**Next:** Finish Synrix-inspired small items (tiered access, scope boundaries,
-postmortem format, deterministic keys). Then schema extension discussion.
-Await psq-agent: SL-1 bootstrap script.
+**Where we stopped:** Session 47. Full B5 work stream complete (turns 32-39).
+M5 accepted as final structural model: g (all 10) + bipolar (TE/HI/AD vs
+RC/RB) + DA singleton. omega_h=0.938, RMSEA=0.129. CC construct question
+open (structurally diffuse unique variance — deferred to expert validation).
+calibration-v4 deployed. GitHub issues #47-50 closed.
+**Next:** Await B4 partial correlations from psq-agent. DI Pass 2 still
+pending. Scan-010 ACK from unratified-agent still outstanding.
 
 
 ## Memory Hygiene

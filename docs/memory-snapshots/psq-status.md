@@ -28,7 +28,9 @@ Awaiting user terminal run.
 **B3 recalibration:** ✓ COMPLETE (Steps 1-6). calibration-v4 deployed on v37. 9/10 dims improve.
   AD n_bins sensitivity tested (10/20/30); n_bins=20 selected. CO n=153 (low confidence).
 **Opus remediation:** ✓ COMPLETE — v37 deployed with Sonnet-only training data.
-**B4 partial correlations:** ✗ PENDING — work order sent (turn 22). Awaiting psq-agent.
+**B4 partial correlations:** ✓ COMPLETE (turn 40-41). Mean |partial r|=0.205, bipolar
+  confirmed in residuals (cross-cluster mean r=−0.386). DA isolated (DA-AD=+0.044).
+  CC-CO negative (−0.338). All psq-scoring work orders complete.
 **B5 bifactor CFA:** ✓ COMPLETE (turn 34). semopy ML, N=4,432 Sonnet labels.
   omega_h=0.942 — g-PSQ validated as reliable composite. Bipolar factor: 5 items
   (TE/HI/AD vs RC/RB); TC marginal, CC non-significant. ED singleton confirmed.
@@ -43,5 +45,6 @@ Awaiting user terminal run.
   validity shows profile shape predicts while g-PSQ does not → bifactor investigation.
 **Design decisions (Session 45):** Single-scorer constraint, calibration success criterion revised,
   calibration deploy timing (post-model-stabilization). See architecture.md.
-**Next:** Await B4 partial correlations from psq-agent (only remaining psq-scoring work order).
-Do not duplicate PSQ improvement work in this context.
+**Next:** All psq-scoring work orders complete. SL-1 (bootstrap_state_db.py) and cogarch
+  mirror directive (turn 44) awaiting psq-agent. No active PSQ improvement work.
+  Do not duplicate PSQ improvement work in this context.

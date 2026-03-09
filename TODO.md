@@ -146,17 +146,31 @@ human-mediated Claude Code sessions to autonomous operation.
   *Source: Synrix enforced prefix taxonomy*
   *Precondition: none — extends existing write-provenance.sh*
 
-- [ ] **Programmatic state layer evaluation** — Evaluate whether the markdown-and-git
-  memory architecture can support autonomous operation at scale, or whether a
-  programmatic state layer (SQLite, structured binary, or Synrix-style engine) should
-  complement or replace markdown files. Key questions:
-  (1) At what session count does linear-scan memory access degrade agent performance?
-  (2) Can temporal queries ("what did I decide about CC in the last 5 sessions?") run
-      efficiently on flat files?
-  (3) Does the Agent SDK's session/hook infrastructure provide sufficient state
-      primitives, or does the agent need its own persistence layer?
-  *Source: Synrix architecture evaluation — binary lattice vs markdown trade-offs*
-  *Precondition: /turn route live (API credits) OR Agent SDK programmatic access*
+- [x] **Programmatic state layer evaluation** — RESOLVED (Session 48). SQLite state
+  layer adopted. Schema v2 committed (scripts/schema.sql, 9 tables). Conventions at
+  .claude/rules/sqlite.md. Phase 1: markdown = source of truth, DB = queryable index.
+
+- [ ] **SL-1: Bootstrap state DB script** — `scripts/bootstrap_state_db.py`. Parses
+  transport JSON, architecture.md, memory snapshots, lab-notebook, cognitive-triggers
+  into SQLite tables. Work order sent to psq-agent (turns 42-43).
+  *Precondition: psq-agent delivery (awaiting)*
+
+- [ ] **SL-2: /sync + /cycle dual-write integration** — Modify /sync and /cycle skills
+  to write SQLite alongside markdown (dual-write protocol per sqlite.md). Transport
+  messages get indexed on ingest; memory entries get updated on /cycle Step 7.
+  *Precondition: SL-1 bootstrap script delivered and validated*
+
+- [ ] **MCP resource: faceted classification** — Expose `entry_facets` as an MCP
+  resource so peer agents can query "what does the psychology agent know about
+  {domain}?" via structured facet lookup. Enables cross-agent thematic discovery
+  without scanning markdown files.
+  *Precondition: SL-2 complete (state layer operational with live data)*
+
+- [ ] **PSQ sub-agent cogarch mirror** — psq-sub-agent adopts the psychology agent's
+  cognitive architecture: SQLite state layer (same schema pattern), trigger system,
+  memory conventions, postmortem format. Enables bidirectional memory sync and
+  shared facet vocabulary. Work order sent (turn 44).
+  *Precondition: SL-1 complete*
 
 - [ ] **Autonomous operation trust model** — Define what replaces the human-as-TTP
   assumption when the psychology agent operates without human mediation. Connects to

@@ -63,6 +63,63 @@ When a design decision resolves:
 - Never drop columns in Phase 1 — append only
 - Migration scripts: `scripts/migrate_v{N}.sql`
 
+## Deterministic Keys
+
+Every queryable entity has a computable address — a key derivable from its
+source data without search. This eliminates ambiguous lookups and enables
+cross-table references by convention.
+
+| Table | Key column | Derivation rule | Example |
+|-------|-----------|-----------------|---------|
+| `transport_messages` | `filename` | File basename (unique per session dir) | `from-psq-sub-agent-021.json` |
+| `decision_chain` | `decision_key` | Kebab-case of decision name from architecture.md | `psq-structural-model` |
+| `memory_entries` | `(topic, entry_key)` | Topic from filename; entry_key from bold-prefix or table row key | `('psq-status', 'model-version')` |
+| `psq_status` | `entry_key` | Kebab-case of bold-prefix key from psq-status.md | `'model-version'` |
+| `entry_facets` | `(entry_id, facet_type, facet_value)` | Entry FK + facet type + derived value | `(12, 'domain', 'psychometrics')` |
+| `trigger_state` | `trigger_id` | `T{N}` from docs/cognitive-triggers.md heading | `T3` |
+| `session_log` | `id` | Session number from lab-notebook heading | `47` |
+| `claims` | `(transport_msg, claim_id)` | Parent message FK + claim_id from JSON | `(42, 'c1')` |
+
+**Convention:** When inserting, compute the key from the source material. When
+querying, compute the key from the same rule — never search by free text when
+a deterministic key exists. If a new entity type lacks an obvious deterministic
+key, define one in this table before creating the schema.
+
+## Polythematic Facets
+
+Memory entries carry multi-faceted classification via the `entry_facets` join
+table. Three facet types, mechanically derivable — no manual tagging:
+
+| Facet type | Derivation | Values |
+|-----------|-----------|--------|
+| `domain` | Topic filename | `psychometrics`, `cognitive-architecture`, `design`, `operations` |
+| `work_stream` | Entry key prefix | `psq-scoring/b3`, `psq-scoring/b5`, `dignity/phase-a`, `state-layer/sl-1` |
+| `agent` | Producer/owner | `psychology-agent`, `psq-sub-agent`, `unratified-agent` |
+
+**Query pattern:**
+```sql
+-- Cross-cut: all psychometrics entries owned by psq-sub-agent
+SELECT me.* FROM memory_entries me
+  JOIN entry_facets ef1 ON me.id = ef1.entry_id
+  JOIN entry_facets ef2 ON me.id = ef2.entry_id
+  WHERE ef1.facet_type = 'domain' AND ef1.facet_value = 'psychometrics'
+    AND ef2.facet_type = 'agent' AND ef2.facet_value = 'psq-sub-agent';
+```
+
+Expand the vocabulary only when a query pattern demands it. New facet types
+require a convention entry in this table before populating.
+
+## Topic-Specific Tables
+
+When a topic has enough structured, frequently-queried fields to justify
+dedicated columns, create a topic-specific table alongside `memory_entries`.
+
+Current topic tables:
+- `psq_status` — model version, calibration ID, endpoint URL, status markers
+
+Other topics remain in the generic `memory_entries` table. Promote to a
+dedicated table only when free-text `value` parsing becomes a query bottleneck.
+
 ## Gitignore
 
 `state.db` and `state.db-wal` and `state.db-shm` are gitignored.

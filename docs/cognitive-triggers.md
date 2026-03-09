@@ -567,6 +567,47 @@ T4 scope kept narrow (disk writes only) to maintain hook-scope honesty.
 
 ---
 
+## Postmortem Template (Cogarch Failure Analysis)
+
+When a cogarch trigger fails to prevent an error it should have caught, or when
+a trigger fires but the agent overrides it incorrectly, document using this
+structured format. Append FA entries to this section.
+
+```
+### FA-{N}: {One-line description}
+
+**Date:** YYYY-MM-DD
+**Session:** N
+**Severity:** HIGH / MOD / LOW
+
+**What happened:** {Observable facts only — fair witness standard}
+
+**Detection latency:** {How many exchanges before the error surfaced}
+
+**Root cause chain:**
+1. {Immediate cause}
+2. {Contributing factor}
+3. {Structural condition that allowed 1+2}
+
+**Which trigger should have caught this:** T{N} Check {M} — {check name}
+
+**Why it missed:**
+- {Specific gap in the trigger's coverage}
+
+**Prevention (choose one or more):**
+- [ ] Trigger patch: {specific change to T{N}}
+- [ ] New check: {add to existing trigger}
+- [ ] New trigger: {if no existing trigger covers this domain}
+- [ ] Convention change: {CLAUDE.md or rules/ update}
+- [ ] Hook enforcement: {mechanical prevention via .claude/hooks/}
+
+**Status:** open | patched | deferred ({reason})
+```
+
+*(No FA entries yet. First entry expected when the next cogarch failure surfaces.)*
+
+---
+
 ## Knock-On Order Reference
 
 ```

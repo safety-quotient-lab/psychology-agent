@@ -129,6 +129,42 @@ CREATE INDEX IF NOT EXISTS idx_flags_unresolved
     ON epistemic_flags (resolved) WHERE resolved = FALSE;
 
 
+-- PSQ operational status (typed columns for the most-queried topic)
+-- Complements memory_entries — psq-status entries live here with structured
+-- fields instead of free-text value column. Other topics stay in memory_entries.
+CREATE TABLE IF NOT EXISTS psq_status (
+    entry_key           TEXT PRIMARY KEY,
+    value               TEXT NOT NULL,
+    status_marker       TEXT,
+    model_version       TEXT,
+    calibration_id      TEXT,
+    endpoint_url        TEXT,
+    resolved_session    INTEGER,
+    last_confirmed      TEXT,
+    created_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
+);
+
+
+-- Polythematic facets (structured subject headings for memory entries)
+-- Each entry can participate in multiple thematic dimensions simultaneously.
+-- Facet vocabulary kept small and mechanically derivable:
+--   domain:      derived from topic filename (psq-status → psychometrics)
+--   work_stream: derived from entry_key prefix (b5-* → psq-scoring/b5)
+--   agent:       derived from which agent produced/owns the entry
+CREATE TABLE IF NOT EXISTS entry_facets (
+    entry_id    INTEGER NOT NULL REFERENCES memory_entries(id),
+    facet_type  TEXT NOT NULL,
+    facet_value TEXT NOT NULL,
+    PRIMARY KEY (entry_id, facet_type, facet_value)
+);
+
+CREATE INDEX IF NOT EXISTS idx_facet_lookup
+    ON entry_facets (facet_type, facet_value);
+
+CREATE INDEX IF NOT EXISTS idx_facet_entry
+    ON entry_facets (entry_id);
+
+
 -- Schema version tracking
 CREATE TABLE IF NOT EXISTS schema_version (
     version         INTEGER PRIMARY KEY,
@@ -138,3 +174,6 @@ CREATE TABLE IF NOT EXISTS schema_version (
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (1, 'Initial schema — transport, memory, decisions, triggers, sessions, claims, flags');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (2, 'Add psq_status (typed topic table), entry_facets (polythematic subject headings)');
