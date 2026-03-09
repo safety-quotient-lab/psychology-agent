@@ -19,7 +19,7 @@ jobs:
 
       - name: Run ShellCheck
         run: |
-          shellcheck \
+          shellcheck -x \
             .claude/hooks/*.sh \
             bootstrap-check.sh \
             transport/hooks/*.sh
