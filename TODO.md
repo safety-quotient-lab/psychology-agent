@@ -196,12 +196,17 @@ human-mediated Claude Code sessions to autonomous operation.
 
 ## Public Release Preparation
 
-- [ ] **De-brand psychology-agent for public usage** — Coupling-point inventory
-  COMPLETE (Session 52). 7 categories, 4 tiers by difficulty. Key finding: cogarch
-  (triggers, hooks, memory, skills) relatively portable; interface layer carries
-  deepest PSQ coupling. Remaining questions:
-  (4) Does de-branding mean a separate repo/template, a configuration layer over this
-      repo, or documentation showing how to adapt it?
-  (5) License implications — current Apache 2.0 (code) + CC BY-SA (PSQ data) vs.
-      what public adoption requires.
-  *Next step: reframe the goal and decide delivery mechanism*
+- [ ] **Cogarch portability (DDD-framed)** — Make the cognitive architecture adoptable
+  by other Claude Code agent projects. DDD organizing principle (Evans, 2003) adopted:
+  infrastructure layer (triggers, hooks, memory, dual-write) portable as-is;
+  application layer (skills, evaluator, trust model) configurable; domain layer
+  (PSQ, DI, PJE, topology) replaced by adopters.
+  Delivery: **B+C** — (B) `cogarch.config.json` parameterizes domain-layer boundary
+  (agent name, org, peer agents, scoring endpoints, transport topology);
+  (C) adaptation guide documents the replacement path with the 4-tier inventory.
+  Coupling-point inventory complete (Session 52, 7 categories, 4 tiers).
+  Remaining work:
+  (1) Design and implement `cogarch.config.json` schema
+  (2) Write adaptation guide (which files to change, what to keep, what to replace)
+  (3) Verify Apache 2.0 license covers the portable layers without friction
+  *Precondition: none — can begin anytime*
