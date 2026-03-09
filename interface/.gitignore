@@ -1,3 +1,6 @@
+# Wrangler config (contains CF resource IDs — use wrangler.toml.example as template)
+wrangler.toml
+
 # Wrangler local dev vars (may contain CF Tunnel URL or other non-public endpoints)
 .dev.vars
 
