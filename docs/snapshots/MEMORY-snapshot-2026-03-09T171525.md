@@ -17,9 +17,9 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 57. Hook error investigation (transient), configurable
-debug logging (all 17 hooks), README maturity table recalibrated (3 downgrades),
-editorial complaints noted (governance theater, name-dropping → ideas.md).
+**Where we stopped:** Session 57. Hook error investigation (transient, no structural
+defect). Configurable debug logging added to all 17 hooks (`_debug.sh` shared helper).
+TODO grounding audit: activity logger item largely superseded by SL-2.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - Cogarch portability: ✓ COMPLETE `[cold: done]`
