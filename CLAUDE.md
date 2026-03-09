@@ -29,7 +29,7 @@ See `docs/architecture.md` for the full mapping.
 
 ## Hooks (`.claude/settings.json`)
 
-19 hook entries (16 unique mechanisms) enforce cogarch mechanically. Scripts live
+14 hook events (17 active scripts) enforce cogarch mechanically. Scripts live
 in `.claude/hooks/`. (Parry hooks removed as diagnostic — see #32596.)
 
 | Hook | Event | Purpose |
@@ -54,7 +54,8 @@ in `.claude/hooks/`. (Parry hooks removed as diagnostic — see #32596.)
 | config-drift-detector.sh | ConfigChange | Settings modification alert |
 | context-pressure-statusline.sh | Notification | Status line context pressure display |
 
-Parry provides defense-in-depth — see BOOTSTRAP.md for installation.
+Parry provides defense-in-depth when active — currently disabled as diagnostic
+(#32596). Scripts remain on disk; see BOOTSTRAP.md for re-installation.
 
 ### Epistemic Quality Standard
 
