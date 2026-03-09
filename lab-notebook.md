@@ -1960,7 +1960,7 @@ creation and inter-agent synchronization infrastructure.
   interpretant collapse, Jurassic Park
 
 **`/sync` skill created**
-- Adapted from unratified-agent's `/sync` (read from `/Users/kashif/Projects/unratified/`)
+- Adapted from unratified-agent's `/sync` (read from sibling `../unratified/` repo)
 - Excluded: cogarch card caching, proposals inbox, auto-merge, PR delivery to peers
 - Included: inbound scan (local + peer repo via gh), triage, ACK writing,
   MANIFEST + agent-card updates, local-coordination check
