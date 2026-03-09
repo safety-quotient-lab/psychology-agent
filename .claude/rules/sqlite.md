@@ -5,6 +5,7 @@
 - Database: `state.db` in project root (gitignored)
 - Schema: `scripts/schema.sql` (committed — canonical schema definition)
 - Bootstrap: `scripts/bootstrap_state_db.py` (committed — rebuilds DB from files)
+- Dual-write: `scripts/dual_write.py` (committed — incremental upserts for /sync and /cycle)
 
 ## Phase 1 Protocol (current)
 

@@ -64,6 +64,14 @@ gets an entry.
 - Bullet points: what was done, what decisions were made, what artifacts created
 - Cross-references: `▶ journal.md §N, docs/architecture.md` for detailed write-ups
 - Note skills created mid-session that need restart to load
+- **Dual-write (SL-2):** After writing the session entry to markdown:
+  ```bash
+  python scripts/dual_write.py session-entry \
+    --id {session_number} --timestamp "{YYYY-MM-DDTHH:MM TZ}" \
+    --summary "{1-line summary}" \
+    --artifacts "{comma-separated artifact list}" \
+    --flags "{epistemic flags or 'none'}"
+  ```
 
 **Open Questions** (end of current state block):
 
@@ -102,6 +110,14 @@ approach changes.
   sub-agent comm standard, evaluator logic), add its spec section
 - **Status markers**: update ✗ → ✓ for items that are now complete
 - **Authority hierarchy**: update only if the hierarchy itself changed (rare)
+- **Dual-write (SL-2):** For each decision added or updated:
+  ```bash
+  python scripts/dual_write.py decision \
+    --key "{kebab-case-decision-name}" \
+    --text "{choice text}" \
+    --date "{YYYY-MM-DD}" \
+    --source "docs/architecture.md"
+  ```
 
 Skip if no design decisions were made or changed.
 
@@ -145,6 +161,14 @@ Memory uses an index + topic file pattern. MEMORY.md is the always-loaded index
 **MEMORY.md index**: update Active Thread to reflect session end state. Keep under 60 lines.
 
 **Topic files**: update only the files that changed this session. No line limit on topic files.
+
+**Dual-write (SL-2):** For each memory entry added or updated in topic files:
+```bash
+python scripts/dual_write.py memory-entry \
+  --topic "{topic-filename-stem}" --key "{kebab-case-key}" \
+  --value "{value text}" --status "{✓|✗|⚑|null}" \
+  --session-id {current_session_number}
+```
 
 **Memory hygiene (T9)**:
 - Remove or update stale entries in any memory file

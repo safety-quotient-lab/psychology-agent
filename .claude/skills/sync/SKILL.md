@@ -158,11 +158,24 @@ message for psq-agent and surfaces it to the user.
 #### For a new transport message:
 
 1. Read the message JSON
-2. Classify: ACK, request, review, notification, session-close
-3. Determine if a response is needed
-4. If response needed: draft it (but MUST NOT send without user confirmation
+2. **Dual-write (SL-2):** Index the message in state.db:
+   ```bash
+   python scripts/dual_write.py transport-message \
+     --session "{session_name}" --filename "{filename}" \
+     --turn {turn} --type "{message_type}" \
+     --from-agent "{from.agent_id}" --to-agent "{to.agent_id}" \
+     --timestamp "{timestamp}" --subject "{subject}" \
+     --claims-count {len(claims)} --setl {setl} --urgency "{urgency}"
+   ```
+3. Classify: ACK, request, review, notification, session-close
+4. Determine if a response is needed
+5. If response needed: draft it (but MUST NOT send without user confirmation
    for substance decisions; process decisions MAY proceed autonomously)
-5. If ACK only: write the ACK
+6. If ACK only: write the ACK
+7. **Dual-write (SL-2):** After processing, mark as processed:
+   ```bash
+   python scripts/dual_write.py mark-processed --filename "{filename}"
+   ```
 
 #### For an inbound PR:
 
@@ -218,7 +231,15 @@ Template — adapt per message:
    `recently_completed`; add new outbound to `pending` for the target agent
 2. **agent-card.json** — update `active_sessions` if sessions opened or closed
 3. **agent-registry.json** — update `active_sessions` for agents if changed
-4. **Git** — stage, commit, push:
+4. **Dual-write (SL-2):** Index any outbound ACKs/messages written this cycle:
+   ```bash
+   python scripts/dual_write.py transport-message \
+     --session "{session}" --filename "{outbound_filename}" \
+     --turn {turn} --type "{type}" \
+     --from-agent psychology-agent --to-agent "{target}" \
+     --timestamp "{timestamp}" --subject "{subject}"
+   ```
+5. **Git** — stage, commit, push:
 
 ```bash
 git add transport/ .well-known/agent-card.json
@@ -258,6 +279,7 @@ git push
   ACKs written: {session}/{filename} | none
   MANIFEST updated: {yes — summary | no changes}
   Sessions opened/closed: {session-id} | none
+  Dual-write: {N indexed, M marked processed | skipped (no state.db)}
   No new activity: true/false
   Next expected: {what we await from each peer}
 ```
