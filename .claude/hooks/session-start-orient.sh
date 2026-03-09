@@ -6,11 +6,21 @@ source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
-# Check auto-memory health (lightweight — full check in bootstrap-check.sh)
+# Auto-bootstrap memory if missing
 _HASH="$(echo "$PROJECT_ROOT" | tr '/' '-')"
 MEMORY_LIVE="$HOME/.claude/projects/${_HASH}/memory/MEMORY.md"
 if [ ! -s "$MEMORY_LIVE" ]; then
-  echo "[SESSION-START] WARNING: MEMORY.md missing or empty. Run ./bootstrap-check.sh to restore."
+  BOOTSTRAP_CHECK="${PROJECT_ROOT}/bootstrap-check.sh"
+  if [ -x "$BOOTSTRAP_CHECK" ]; then
+    bash "$BOOTSTRAP_CHECK" 2>/dev/null
+    if [ -s "$MEMORY_LIVE" ]; then
+      echo "[SESSION-START] Auto-memory restored from committed snapshots."
+    else
+      echo "[SESSION-START] WARNING: bootstrap-check.sh ran but MEMORY.md still missing. Check docs/MEMORY-snapshot.md exists."
+    fi
+  else
+    echo "[SESSION-START] WARNING: MEMORY.md missing and bootstrap-check.sh not found or not executable."
+  fi
 fi
 
 # Remind of trigger system
