@@ -2,15 +2,6 @@
   "hooks": {
     "PreToolUse": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/parry-wrapper.sh",
-            "timeout": 2000
-          }
-        ]
-      },
-      {
         "matcher": "Write|Edit|Read",
         "hooks": [
           {
@@ -68,15 +59,6 @@
             "type": "command",
             "command": ".claude/hooks/memory-structure-validate.sh",
             "timeout": 2000
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/parry-wrapper.sh",
-            "timeout": 5000
           }
         ]
       },
@@ -168,15 +150,6 @@
       }
     ],
     "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/parry-wrapper.sh",
-            "timeout": 2000
-          }
-        ]
-      },
       {
         "hooks": [
           {
