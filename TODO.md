@@ -189,6 +189,28 @@ human-mediated Claude Code sessions to autonomous operation.
 
 ---
 
+## GitHub README Quickstart
+
+- [ ] **README quickstart guide ("zero to demo")** — Rewrite root README.md with a
+  step-by-step guide taking someone from bare metal to a working psychology agent demo.
+  Accordion-style (collapsible `<details>` blocks) so experienced users skip steps they
+  already have. Structure:
+  1. Install Claude Code (bare metal — link to Anthropic docs)
+  2. Clone repo, install Python 3.10+ deps
+  3. First run — bootstrap state.db, verify hooks load
+  4. **Demo 1: Conversational exchange** — fair witness + Socratic persona in action
+  5. **Demo 2: PSQ score on sample text** — 10-dimension breakdown + composite
+  6. **Demo 3: /knock on a decision** — 10-order knock-on analysis
+  7. **Demo 4: /iterate cycle** — sync → hunt → discriminate → execute → cycle
+  8. **Demo 5 (exploratory): SPSS integration?** — investigate whether the agent can
+     interact with SPSS data files, run analyses, interpret output. Scope TBD.
+  Each demo shows the command, then a representative output snippet that makes the
+  system's value immediately visible. Keep the path from clone to first demo under
+  5 minutes for someone with Claude Code already installed.
+  *Precondition: none — can begin anytime. Pairs with de-branding effort.*
+
+---
+
 ## Public Release Preparation
 
 - [ ] **De-brand psychology-agent for public usage** — Explore what it takes to make

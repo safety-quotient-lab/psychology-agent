@@ -188,6 +188,7 @@ CREATE TABLE IF NOT EXISTS trust_budget (
     last_audit          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
     last_action         TEXT,
     consecutive_blocks  INTEGER DEFAULT 0,
+    shadow_mode         INTEGER NOT NULL DEFAULT 1,
     updated_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
 );
 
@@ -202,6 +203,8 @@ CREATE TABLE IF NOT EXISTS autonomous_actions (
     knock_on_depth      INTEGER DEFAULT 0,
     resolution_level    TEXT,
     description         TEXT NOT NULL,
+    adversarial_reason  TEXT,
+    peer_reviewed_by    TEXT,
     budget_before       INTEGER NOT NULL,
     budget_after        INTEGER NOT NULL,
     created_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
@@ -212,3 +215,6 @@ CREATE INDEX IF NOT EXISTS idx_actions_agent
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (3, 'Add trust_budget, autonomous_actions (EF-1 evaluator-as-arbiter trust model)');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (4, 'Add shadow_mode to trust_budget, adversarial_reason + peer_reviewed_by to autonomous_actions (EF-1 flag mitigations)');

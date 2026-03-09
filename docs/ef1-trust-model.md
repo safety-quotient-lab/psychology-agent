@@ -4,9 +4,14 @@
 **Status:** Active design — resolves BFT open question #1
 **Resolves:** EF-1 (TODO.md), bft-design-note.md open question #1
 **Scope:** Replaces human-as-TTP assumption for autonomous agent operation
+**Governed by:** `docs/ef1-governance.md` — core governance trust model (7 invariants, BCP 14 keywords)
 **Theoretical grounding:**
 - `docs/ef1-psychological-foundations.md` — psychology (cognitive, social, organizational)
 - `docs/ef1-jurisprudence-extensions.md` — legal theory (planned)
+
+**Requirement-level keywords:** Per BCP 14 (RFC 2119 + RFC 8174), UPPER CASE
+keywords carry their RFC-defined meaning. See `docs/ef1-governance.md` for
+full definitions.
 
 
 ---
@@ -14,10 +19,10 @@
 
 ## Core Principle
 
-Every autonomous action passes through an evaluator gate before execution.
-The evaluator tier scales with the action's irreversibility. No action
-lands without evaluation — the evaluator serves as arbiter in the absence
-of the human TTP.
+Every autonomous action MUST pass through an evaluator gate before
+execution. The evaluator tier MUST scale with the action's irreversibility.
+No action SHALL land without evaluation — the evaluator serves as arbiter
+in the absence of the human TTP.
 
 
 ---
@@ -79,9 +84,9 @@ architecture.md § S4 tradeoff).
 | Tier 2 | 3 credits | Higher stakes, separate session overhead |
 | Quiescent cycle | 0 credits | No work found — poll costs nothing |
 
-**Halt condition:** `budget_current <= 0` → agent writes halt marker to
-`transport/sessions/local-coordination/`, logs to state.db, and exits.
-Resume requires human audit (direct observation of actions since
+**Halt condition:** `budget_current <= 0` → agent MUST write halt marker to
+`transport/sessions/local-coordination/`, log to state.db, and exit.
+Resume REQUIRES human audit (direct observation of actions since
 `last_audit`) and explicit budget reset.
 
 **Budget reset:** Human runs `python3 scripts/trust-budget.py reset`
@@ -96,7 +101,7 @@ after reviewing the audit trail. The reset command:
 
 ## Evaluator Protocol (Autonomous Mode)
 
-When /sync runs autonomously, every action passes through the evaluator
+When /sync runs autonomously, every action MUST pass through the evaluator
 protocol before execution. The protocol operationalizes the existing T3
 substance gate, Tier 1 S4 mechanisms, and 10-order knock-on analysis
 (/knock) for autonomous context.
@@ -104,8 +109,8 @@ substance gate, Tier 1 S4 mechanisms, and 10-order knock-on analysis
 
 ### Step 1: Structural Checklist
 
-Quick-fail checks. Any failure → action blocked immediately (no knock-on
-needed).
+Quick-fail checks. Any failure → action MUST be blocked immediately (no
+knock-on needed).
 
 **For inbound transport messages:**
 
@@ -133,8 +138,8 @@ needed).
 
 ### Step 2: 10-Order Knock-On Analysis
 
-Every action that passes the structural checklist undergoes knock-on
-tracing (/knock protocol). The agent traces consequences through 10
+Every action that passes the structural checklist MUST undergo knock-on
+tracing (/knock protocol). The agent SHALL trace consequences through 10
 orders, classifying the action's domain and grounding its dependencies.
 
 ```
@@ -155,11 +160,21 @@ orders, classifying the action's domain and grounding its dependencies.
 ```
 
 **Threshold:** If any order surfaces a consequence that the evaluator
-cannot assess with confidence > 0.70, the action escalates.
+cannot assess with confidence > 0.70, the action MUST escalate.
 
 **Depth calibration:** Orders 1–4 carry weight for all actions. Orders
 5–7 carry weight for moderate+ actions. Orders 8–10 carry weight only
 for irreversible actions. Quiescent cycles skip knock-on entirely.
+
+**Beyond order 10:** The 10 named orders represent the defined analytical
+framework — each grounded in a distinct psychological construct (see
+ef1-psychological-foundations.md). Reality does not stop at 10: if order
+10 analysis surfaces consequences that imply further-order effects the
+evaluator cannot assess, this triggers escalation (Tier 3) rather than
+additional speculative analysis. The evaluator notes "beyond-10 emergence
+detected" in the action log. This preserves theoretical grounding while
+acknowledging that emergent consequences (INCOSE, order 9) can cascade
+past any finite boundary.
 
 
 ### Step 3: Resolution (Consensus-or-Parsimony-or-Pragmatism-or-Ask)
@@ -202,13 +217,13 @@ chain. Each level attempts resolution; failure cascades to the next.
 ────────────────────────────────────────────────────────────────────────
 ```
 
-**Resolution logging:** Every action records which level resolved it
+**Resolution logging:** Every action MUST record which level resolved it
 in the `autonomous_actions` table (`evaluator_result` field encodes
 the level: `approved-L1`, `approved-L2`, `approved-L3`, `blocked-L4`).
 
-**Any structural checklist item that fails → action blocked, logged,
-budget not consumed.** Three consecutive blocked actions → Tier 3
-escalation (human review).
+**Any structural checklist item that fails → action MUST be blocked,
+logged, budget not consumed.** Three consecutive blocked actions → Tier 3
+escalation REQUIRED (human review).
 
 
 ---
@@ -268,11 +283,11 @@ sections. `git pull --rebase` before push handles ordering.
 **Runaway prevention:** The trust budget provides the hard halt. Additional
 safeguards:
 - Maximum actions per cycle: 5 (configurable). More than 5 actions in one
-  /sync suggests unexpected volume — halt and flag.
-- Maximum cycles per hour: 6 (one per 10 minutes). Faster polling wastes
-  budget on git operations.
+  /sync SHOULD trigger a halt and flag for review.
+- Maximum cycles per hour: 6 (one per 10 minutes). Agents MUST NOT poll
+  faster than the configured interval.
 - Consecutive error threshold: 2. Two git push failures or Claude CLI
-  errors → halt and log.
+  errors MUST trigger halt and log.
 
 
 ---
@@ -365,21 +380,76 @@ CREATE INDEX IF NOT EXISTS idx_actions_agent
 ---
 
 
-## Epistemic Flags
+## Epistemic Flags + Mitigations
 
-- The Tier 1 evaluator shares the agent's blind spots (acknowledged in S4
-  tradeoff). The trust budget provides a mechanical halt but does not detect
-  sophisticated self-serving errors. Tier 2 escalation (random or triggered)
-  partially compensates.
-- The 1-in-3 random escalation rate for moderate actions (up from 1-in-5 in
-  the original S4 spec) increases independence overhead. If Tier 2 sessions
-  consume too many resources, the rate may need adjustment.
-- Multi-agent MANIFEST.json updates represent a collision risk. The `git
-  pull --rebase` strategy works for non-overlapping changes but could fail
-  if both agents modify the same MANIFEST section simultaneously. The
-  section-ownership convention (each agent updates only its own entries)
-  mitigates this.
-- The 20-credit default budget represents approximately 2 hours of
-  10-minute-interval polling with moderate activity (10 actions per hour).
-  The right budget size depends on observed action rates — calibrate after
-  the first week of autonomous operation.
+### EF-flag 1: Tier 1 blind spots (self-evaluation limitation)
+
+**Risk:** The Tier 1 evaluator shares the agent's blind spots (acknowledged
+in S4 tradeoff). The trust budget provides a mechanical halt but does not
+detect sophisticated self-serving errors. Tier 2 escalation (random or
+triggered) partially compensates.
+
+**Mitigation A — Cross-agent peer review:** In tandem mode, each agent's
+sync cycle includes a review of the *other* agent's last-cycle actions.
+Psychology-agent reviews psq-agent's actions and vice versa. The agents
+operate on different domains (psychology vs. psychometrics), so their
+blind spots differ — a psychometrics-domain error that psychology-agent's
+self-evaluation misses may surface under psq-agent's domain expertise, and
+the reverse. This converts the single-point-of-failure into a delayed peer
+review without adding a third evaluator.
+
+**Mitigation B — Adversarial self-framing (mandatory for moderate+):**
+Before approving any moderate or irreversible action, the Tier 1 evaluator
+MUST articulate one concrete reason the action could produce harm. If it
+cannot generate a reason, the action passes. If it can, the reason gets
+logged in `autonomous_actions.evaluator_result` and weighed against the
+knock-on analysis. This forces the evaluator to actively search for
+counter-evidence rather than confirming its own assessment.
+
+
+### EF-flag 2: Budget calibration uncertainty
+
+**Risk:** The 20-credit default budget represents approximately 2 hours of
+10-minute-interval polling with moderate activity (10 actions per hour).
+The right budget size depends on observed action rates — calibration
+requires empirical data that does not yet exist.
+
+**Mitigation — Shadow mode (first week):** The first week of autonomous
+operation runs with full budget tracking and halt conditions *logged but
+not enforced*. The agent records what would have triggered a halt (budget
+exhaustion, consecutive blocks) while the human retains manual oversight
+via the existing Phase 1 mediation. After one week, compare:
+- Shadow-halt points against actual human intervention points
+- Action rate distribution (how many actions per cycle, per hour)
+- Tier distribution (what fraction Tier 1 vs. Tier 2)
+
+Adjust `budget_max` based on observed rates before enabling enforced mode.
+Shadow mode uses a `shadow_mode` boolean in `trust_budget` (default TRUE
+for new agents; human sets FALSE after calibration review).
+
+
+### EF-flag 3: MANIFEST.json collision risk
+
+**Risk:** Multi-agent MANIFEST.json updates represent a collision risk. The
+`git pull --rebase` strategy works for non-overlapping changes but could
+fail if both agents modify the same section simultaneously.
+
+**Mitigation — Per-agent staging files:** Each agent writes its transport
+state to `transport/MANIFEST.{agent-id}.json` (staging file). The sync
+script's post-action step merges all staging files into the canonical
+`transport/MANIFEST.json` using a deterministic merge (each agent's
+`pending` and `recently_completed` sections replace only its own entries
+in the canonical). This eliminates direct concurrent writes to the same
+file. The `git pull --rebase` strategy remains as a secondary safeguard
+for the canonical file.
+
+Staging file schema matches the canonical MANIFEST but contains only the
+writing agent's entries. The merge produces a union.
+
+
+### EF-flag 4: Escalation rate overhead
+
+The 1-in-3 random escalation rate for moderate actions (up from 1-in-5 in
+the original S4 spec) increases independence overhead. If Tier 2 sessions
+consume too many resources, the rate may need adjustment. Monitor during
+shadow mode; adjust after first calibration review.
