@@ -31,8 +31,8 @@ lessons merge (25 entries from 3 sources), auto-bootstrap memory on first launch
 - Hook debug logging: ✓ COMPLETE — toggle via `.claude/hooks/.debug` `[cold: done]`
 - Auto-bootstrap: ✓ Both memory + state.db restore on SessionStart `[cold: done]`
 
-**Next:** DI Phase A Pass 2 (fresh session). First autonomous sync cycle.
-Awesome-claude-code submission (precondition met: README polished).
+**Next:** Push shellcheck fix (needs `workflow` OAuth scope). DI Phase A Pass 2
+(fresh session). First autonomous sync cycle.
 
 
 ## Memory Hygiene
