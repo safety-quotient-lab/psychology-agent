@@ -17,10 +17,10 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 55. Fixed two permission/scanning gotchas:
-(1) `settings.local.json` partial allow list gating tools in bypass mode — expanded;
-(2) parry ML false positives on trusted instruction files — `--ignore-path` added to
-`parry-wrapper.sh`. PR #93 open. Lessons documented with FAQ-ready versions.
+**Where we stopped:** Session 54. Cogarch portability COMPLETE — adaptation guide
+hardened through 7 fresh-clone tests, 4-tier consumer mapping (19 files), adaptive
+bootstrap thresholds adjudicated (Option A). TODO discipline convention added to
+CLAUDE.md. Phantom hook cleanup (bootstrap-check.sh removed, counts corrected).
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - Cogarch portability: ✓ COMPLETE — config + guide + tests + adaptive bootstrap `[cold: done]`
