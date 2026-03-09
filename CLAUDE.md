@@ -29,12 +29,12 @@ See `docs/architecture.md` for the full mapping.
 
 ## Hooks (`.claude/settings.json`)
 
-22 hook entries (19 unique mechanisms) enforce cogarch mechanically. Scripts live
-in `.claude/hooks/`.
+19 hook entries (16 unique mechanisms) enforce cogarch mechanically. Scripts live
+in `.claude/hooks/`. (Parry hooks removed as diagnostic — see #32596.)
 
 | Hook | Event | Purpose |
 |------|-------|---------|
-| parry-wrapper.sh | Pre/PostToolUse, UserPromptSubmit | Injection/credential defense |
+| ~~parry-wrapper.sh~~ | ~~Pre/PostToolUse, UserPromptSubmit~~ | ~~Injection/credential defense~~ (removed as diagnostic — #32596) |
 | T4 reminder | PostToolUse: Write/Edit | Critical file compliance |
 | write-provenance.sh | PostToolUse | Provenance trail (write-log.jsonl) |
 | subproject-boundary.sh | PreToolUse: Write/Edit | Cross-project write warning |

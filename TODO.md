@@ -16,13 +16,13 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ## Upstream Contribution
 
-- [ ] **PR to CreatmanCEO/claude-code-antiregression-setup** — contribute memory
-  persistence, self-healing bootstrap, epistemic triggers, and provenance tracking.
-  Six proposed changes: memory snapshot layer, bootstrap-check.sh, planner cognitive
-  triggers (recommend-against + process/substance), epistemic flags in code-reviewer
-  output, provenance tracking on CLAUDE.md template, content guard hook for CLAUDE.md.
-  Full PR spec in lab-notebook Session 11.
-  *Precondition: our implementations stable and tested across 2+ sessions*
+- [ ] **PR to CreatmanCEO/claude-code-antiregression-setup** — WAITING ON EXTERNAL.
+  Reached out; maintainer forked our repo but has not responded. Original scope:
+  3 high-value items (bootstrap-check.sh, epistemic flags in code-reviewer,
+  write-provenance.sh hook) + reference to full cogarch framework. Do not push
+  further — if they engage, respond; if not, the awesome-claude-code submission
+  provides broader visibility independently.
+  *Status: waiting on maintainer response (as of 2026-03-09)*
 
 ---
 
