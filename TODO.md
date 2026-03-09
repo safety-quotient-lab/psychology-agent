@@ -79,24 +79,22 @@ Forward-looking task list only. Completed and emergent work goes to
   Opus and Sonnet produce non-interchangeable scores. Sonnet-only revert endorsed
   (turn 20). Production models (v23, v35) confirmed clean.
 
-- [x] **Opus remediation + v37 retrain** — COMPLETE (Session 46, turn 27).
-  999 texts re-scored with Sonnet (9,990 scores, separated-LLM protocol).
-  v37 held-out_r=0.639 (−0.041 vs v35, p=0.617, not significant). Opus scores
-  preserved but deprioritized. Deploy authorized (turn 28). CC/CO monitoring flagged.
+- [x] **Opus remediation + v37 retrain** — COMPLETE (Session 46). v37 deployed,
+  Sonnet-only training data. calibration-v4 deployed (Session 47).
 
-- [ ] **Dimension structure: bifactor modeling** — B4 partial correlations COMPLETE
-  (turn 24): mean |partial r| = 0.263, bipolar structure confirmed (threat vs
-  protection poles), DA and CO structural singletons. Bifactor spec: g + bipolar +
-  DA singleton + CO singleton (turn 25). Remaining: formal bifactor fit (CFI, RMSEA,
-  SRMR), omega_h, omega_s per specific factor.
-  *Gate: awaiting v37 deployment — bifactor should run on v37-scored data.*
+- [x] **Recalibrate all dimensions with quantile binning (B3)** — COMPLETE (Session 47,
+  turn 33). calibration-v4 (quantile-binned isotonic, n_bins=20). 9/10 dims MAE ≤ v3.
 
-- [ ] **Recalibrate all dimensions with quantile binning (B3)** — STEPS 1-4 COMPLETE
-  (Session 45, turn 20). Steps 5-6 NOW UNBLOCKED: re-fit isotonic calibration on
-  v37 outputs, verify v37 prediction distribution compatibility, AD per-dimension
-  n_bins tuning, deploy calibration-v3 + notify downstream.
-  Work order sent (turn 28). B3 steps 5-6 can proceed alongside v37 deployment.
-  *Gate: OPEN — v37 retrain complete.*
+- [x] **Dimension structure: bifactor modeling (B5)** — COMPLETE (Session 47, turns
+  34-36). omega_h=0.942. 5-item bipolar (TE/HI/AD vs RC/RB). DA paradox revised.
+  B5-R respecification confirmed. RMSEA=0.1365 (above threshold).
+
+- [ ] **B5-S structural comparison (M5/M5b)** — Work order sent (turn 37). M5: collapse
+  ED/CO singletons. M5b: add CC singleton. 4-way fit comparison. Documentation-quality
+  refinement, low urgency. *Gate: OPEN — awaiting psq-agent.*
+
+- [ ] **B4 partial correlations** — Work order sent (turn 22). Dimension-specific
+  variance after removing g-PSQ. Still pending. *Gate: OPEN — awaiting psq-agent.*
 
 ---
 
