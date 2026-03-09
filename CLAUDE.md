@@ -29,11 +29,10 @@ See `docs/architecture.md` for the full mapping.
 
 ## Hooks (`.claude/settings.json`)
 
-21 hooks enforce cogarch mechanically. Scripts live in `.claude/hooks/`.
+23 hooks enforce cogarch mechanically. Scripts live in `.claude/hooks/`.
 
 | Hook | Event | Purpose |
 |------|-------|---------|
-| bootstrap-check.sh | PreToolUse: git commit | Memory health before commit |
 | parry-wrapper.sh | Pre/PostToolUse, UserPromptSubmit | Injection/credential defense |
 | T4 reminder | PostToolUse: Write/Edit | Critical file compliance |
 | write-provenance.sh | PostToolUse | Provenance trail (write-log.jsonl) |
