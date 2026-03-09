@@ -27,7 +27,7 @@
     {
       "session_id": "psq-scoring",
       "peer": "psq-agent",
-      "status": "active — turn 44 (cogarch adoption directive) pending response, SL-1 gate OPEN"
+      "status": "active — turn 48 (methodology framing notification). Phase 2 mirror current, Phase 3 gate OPEN"
     },
     {
       "session_id": "mesh-init",
