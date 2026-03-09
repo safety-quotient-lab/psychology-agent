@@ -3,9 +3,14 @@
 **Date:** 2026-03-09
 **Status:** Active — theoretical grounding for docs/ef1-trust-model.md
 **Discipline:** Psychology (cognitive, social, organizational)
+**Governed by:** `docs/ef1-governance.md` — core governance trust model (7 invariants, BCP 14 keywords)
 **Companion docs:**
 - `docs/ef1-trust-model.md` — engineering spec (what the code implements)
 - `docs/ef1-jurisprudence-extensions.md` — legal theory (planned)
+
+**Requirement-level keywords:** Per BCP 14 (RFC 2119 + RFC 8174), UPPER CASE
+keywords carry their RFC-defined meaning. See `docs/ef1-governance.md` for
+full definitions.
 
 
 ---
