@@ -3628,8 +3628,37 @@ to all hooks.
   name-dropping accepted as known issues, deferred with rationale. APA-style citation
   preference noted as the corrective direction for name-dropping.
 
+- **/cycle timing discipline:** Premature /cycle mid-session caused documentation
+  gap when user continued working. Added "When to run" section to `/cycle` SKILL.md
+  with Session 57 gotcha. Lesson logged to `lessons.md`.
+
+- **Lessons merge:** Consolidated learning from 3 project instances (psychology-reference:
+  17 entries, psychology-agent.test: 2 entries + 3 FAQ sections, current: 6 entries)
+  into canonical `lessons.md` (25 entries + FAQ, 1095 lines). Gitignored file — no
+  commit needed.
+
+- **README quickstart simplified:** Removed manual `bootstrap-check.sh` and
+  `bootstrap_state_db.py` steps. Both now auto-bootstrap on SessionStart hook.
+  "Zero to Demo" reduced to: clone → verify python → launch claude.
+
+- **Auto-bootstrap memory on first launch:** Added memory recovery to
+  `session-start-orient.sh`. When `MEMORY.md` missing, runs `bootstrap-check.sh`
+  to restore from committed snapshots. Complements existing `state.db` auto-bootstrap.
+
+- **ShellCheck CI fix:** Added `-x` flag to `.github/workflows/shellcheck.yml` so
+  shellcheck follows `source` directives for `_debug.sh`. Resolved 17× SC1091 warnings.
+  Push requires `workflow` OAuth scope — manual push needed.
+
+- **Artifacts created/modified:**
+  - `.claude/skills/cycle/SKILL.md` — "When to run" timing discipline
+  - `.claude/hooks/session-start-orient.sh` — auto-bootstrap memory
+  - `.github/workflows/shellcheck.yml` — `-x` flag for sourced files
+  - `README.md` — simplified quickstart (zero manual bootstrap)
+  - `lessons.md` — merged to 25 entries + FAQ (gitignored)
+
 ⚑ EPISTEMIC FLAGS
 - Hook error root cause remains unobservable — transient classification rests on
   absence of reproduction, not positive identification of the cause
 - `CLAUDE_HOOK_EVENT` env var availability in Claude Code hook runner unverified —
   may log "unknown" for the event field
+- Shellcheck fix unpushed — requires manual `git push` with `workflow`-scoped token
