@@ -17,20 +17,22 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 58. GitHub release v0.6.0 published. Project board
-sync built and integrated as /cycle Step 11b. Board populated: 28 items synced.
-ShellCheck CI fix pushed (OAuth `workflow` scope added).
+**Where we stopped:** Session 57. Hook debug logging, README maturity recalibration,
+lessons merge (25 entries from 3 sources), auto-bootstrap memory on first launch,
+/cycle timing discipline, shellcheck CI fix (unpushed — needs `workflow` scope).
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - Cogarch portability: ✓ COMPLETE `[cold: done]`
 - CLAUDE.md: ✓ trimmed to 186 lines (below ~200 advisory) `[hot: healthy]`
 - PSQ scoring: all work orders complete, quiescent `[hot: no action needed]`
-- SQLite state layer: SL-2 ✓ dual-write live, schema v5, auto-bootstrap `[warm]`
-- Project board sync: ✓ `sync_project_board.py` + /cycle Step 11b `[warm: gh CLI]`
+- SQLite state layer: SL-2 ✓ dual-write live, schema v5, auto-bootstrap on session start `[warm]`
+- PSQ cogarch mirror: Phase 2 ✓ COMPLETE, Phase 3 → autonomous-op prerequisite `[hot]`
 - DI Phase A Pass 2: pending (inter-rater reliability) `[cold: docs/dignity-phase-a-study.md]`
+- Hook debug logging: ✓ COMPLETE — toggle via `.claude/hooks/.debug` `[cold: done]`
+- Auto-bootstrap: ✓ Both memory + state.db restore on SessionStart `[cold: done]`
 
-**Next:** Awesome-claude-code submission (precondition met). DI Phase A Pass 2
-(fresh session). First autonomous sync cycle.
+**Next:** DI Phase A Pass 2 (fresh session). First autonomous sync cycle.
+Awesome-claude-code submission (precondition met: README polished).
 
 
 ## Memory Hygiene
