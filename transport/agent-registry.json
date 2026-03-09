@@ -24,7 +24,7 @@
       "repo": "safety-quotient-lab/unratified",
       "sessions_path": "transport/sessions/",
       "message_prefix": "from-unratified-agent-",
-      "active_sessions": [],
+      "active_sessions": ["blog-publication"],
       "always_consider": false,
       "discovery_url": "https://unratified.org/.well-known/agent-card.json",
       "notes": "Separate repo. PRs to our repo for inbound; we write to our transport for them to fetch. Blog posts, content quality, PSQ display — content-facing topics SHOULD be surfaced."
