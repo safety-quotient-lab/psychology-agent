@@ -301,6 +301,28 @@
                               Evidence: psq-scoring turns 34-38.
                               Full narrative: journal.md §31.
                               Decided: 2026-03-08
+
+ SQLite state layer            Phase 1: markdown = source of truth, DB =
+                               queryable index. Phase 2 (autonomous): DB
+                               = source of truth, markdown = derived view.
+                               Schema: scripts/schema.sql (v2, 9 tables).
+                               Conventions: .claude/rules/sqlite.md.
+                               DB: state.db in project root (gitignored).
+                               Hybrid topic model: generic memory_entries
+                               for most topics; psq_status with typed
+                               columns for the most-queried topic.
+                               Polythematic facets (entry_facets) provide
+                               multi-dimensional subject headings with 3
+                               mechanically derivable facet types (domain,
+                               work_stream, agent). Deterministic keys
+                               convention: every queryable entity has a
+                               computable address derived from source data.
+                               Estimated 57% token reduction per session
+                               (unvalidated — requires SL-2+ integration).
+                               Source: Synrix Memory Engine evaluation
+                               (design principles extracted, tool rejected).
+                               Evidence: Session 47-48 analysis.
+                               Decided: 2026-03-09
 ────────────────────────────────────────────────────────────────────────
 ```
 

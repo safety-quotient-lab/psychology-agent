@@ -198,6 +198,29 @@ sub-agents disagree, preserve the shape of the disagreement rather than averagin
 
 ---
 
+## Synrix Cross-Pollination (from Session 48 evaluation)
+
+- **Upstream contribution to Synrix** — offer tiered evaluation pattern (random
+  escalation for write verification), dual-write with graceful degradation
+  (human-readable primary store), and postmortem template for systematic failure
+  analysis. These fill gaps in Synrix's append-only trust model. Format: GitHub
+  issue or discussion on RyjoxTechnologies/synrix-memory-engine.
+  *Precondition: our implementations stable across 2+ sessions.*
+
+- **Faceted classification as MCP resource** — expose `entry_facets` as an MCP
+  resource that other agents can query. A peer agent asking "what does the
+  psychology agent know about psychometrics?" gets a structured answer via
+  facet query rather than scanning markdown files. [→ TODO, Session 48]
+  *Precondition: SQLite state layer operational (SL-2+ complete).*
+
+- ⚡ **Bidirectional memory sync between agents** — if both psychology-agent and
+  psq-sub-agent maintain SQLite state layers, their `entry_facets` tables could
+  enable cross-agent thematic queries. Requires shared facet vocabulary governance.
+  Risk: vocabulary drift between agents creates false associations or missed matches.
+  *Precondition: psq-sub-agent has its own state layer (planned — cogarch mirror).*
+
+---
+
 ## Meta
 
 - This agent system is itself a case study in PJE — it embodies Psycho Safety

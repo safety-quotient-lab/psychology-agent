@@ -69,7 +69,10 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | B3 recalibration (steps 1-4)  | ✓ COMPLETE — MAE −12.4% avg, dead zones = model compression. Deploy deferred to post-v37 (Session 45) |
 | Opus remediation + v37        | ✓ COMPLETE — v37 deployed, calibration-v4 live (Session 46-47) |
 | B3 recalibration (steps 5-6)  | ✓ COMPLETE — calibration-v4 deployed, 9/10 dims MAE ≤ v3 (turn 33) |
-| B4 partial correlations       | ✗ Work order sent (turn 22) — awaiting psq-agent |
+| B4 partial correlations       | ✓ COMPLETE — mean |partial r|=0.205, bipolar confirmed, DA isolated (turn 40-41) |
+| SQLite state layer (schema)   | ✓ scripts/schema.sql v2 committed — 9 tables + indexes (Session 48) |
+| SQLite state layer (bootstrap)| ⚑ SL-1 work order sent to psq-agent (turns 42-43) — awaiting delivery |
+| Synrix-inspired improvements  | ✓ 6 items: tiered access, scope boundaries, postmortem template, deterministic keys, psq_status table, entry_facets polythematic (Session 48) |
 | B5 bifactor CFA               | ✓ COMPLETE — omega_h=0.942, 5-item bipolar confirmed (turns 34-36) |
 | B5-S structural comparison    | ✓ COMPLETE — M5 accepted as final model (RMSEA=0.129, turn 38-39) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
@@ -3017,3 +3020,70 @@ B5 respecification. Sent turns 35 and 37.
   to pending B4 partial correlations.
 - RMSEA=0.1365 after respecification still exceeds 0.10. Model captures most shared
   variance (CFI=0.946) but represents an approximate structural description.
+
+
+## 2026-03-09T09:34 CDT — Session 48 (SQLite state layer v2 + Synrix-inspired cogarch improvements)
+
+Continued from Session 47 (same day). Focus shifted from PSQ structural modeling
+(now complete) to infrastructure for autonomous operation.
+
+**B4 partial correlations — ACCEPTED (turns 40-41):**
+- PR #86 merged. Mean |partial r| = 0.205, 27/45 pairs exceed 0.15.
+- Bipolar confirmed in residuals (cross-cluster mean r = −0.386).
+- DA structurally isolated (DA-AD = +0.044). CC-CO negative (−0.338).
+- All psq-scoring work orders now complete. Session quiescent.
+
+**Synrix Memory Engine evaluation:**
+- Evaluated @RyjoxTechnologies Synrix Memory Engine (GitHub).
+- Extracted 8 design principles applicable to cogarch. Rejected the tool itself
+  (binary lattice format, GPL license, different use case).
+- Reframed evaluation through automation lens — what infrastructure does the
+  psychology agent need to operate without human mediation?
+
+**SQLite state layer designed and committed:**
+- Schema v1: `scripts/schema.sql` — 7 tables (transport_messages, memory_entries,
+  decision_chain, trigger_state, session_log, claims, epistemic_flags) + schema_version
+- Schema v2: added `psq_status` (typed columns for most-queried topic) +
+  `entry_facets` (polythematic structured subject headings, 3 facet types)
+- Conventions: `.claude/rules/sqlite.md` — dual-write protocol, query patterns,
+  deterministic keys, polythematic facets, topic-specific table promotion
+- Phase 1: markdown = source of truth, DB = queryable index
+- Estimated 57% token reduction per session (unvalidated)
+
+**SL-1 work order sent to psq-agent:**
+- Turn 42: bootstrap_state_db.py spec (Python 3.10+ stdlib only)
+- Turn 43: amendment — schema v2 additions (psq_status + entry_facets)
+
+**Six Synrix-inspired improvements implemented:**
+1. Tiered access pattern in MEMORY.md Active Thread (hot/warm/cold status)
+2. "What This Agent Does Not Do" scope boundaries in CLAUDE.md (7 items)
+3. Postmortem template (FA format) in docs/cognitive-triggers.md
+4. Deterministic keys convention in .claude/rules/sqlite.md
+5. psq_status typed topic table in schema.sql
+6. entry_facets polythematic subject headings in schema.sql
+
+**Design decision recorded:** SQLite state layer → docs/architecture.md
+
+**Synrix cross-pollination analysis** (user request: "what can we teach Synrix?"):
+- Our cogarch offers several patterns Synrix lacks: tiered evaluator with random
+  escalation (trust verification), polythematic facets (their taxonomy enforces
+  single-prefix), postmortem format for systematic failure analysis, deterministic
+  key derivation rules documented per table, and the dual-write protocol (markdown
+  first, DB second — recovery without a specialized binary format).
+- Synrix's append-only reasoning chains parallel our decision_chain derives_from
+  backreferences — but ours connect to human-readable architecture.md entries, not
+  opaque binary nodes. The provenance chain remains auditable by non-technical reviewers.
+
+▶ docs/architecture.md (SQLite state layer decision)
+▶ journal.md §32 (polythematic facets + Synrix cross-pollination)
+▶ transport/sessions/psq-scoring/ (turns 40-43)
+
+⚑ EPISTEMIC FLAGS
+- Token savings estimate (57%) has not been validated empirically. Actual savings
+  depend on behavioral change (SQL queries replacing file reads) that requires
+  SL-2+ skill/hook integration.
+- Facet derivation rules (especially work_stream from entry_key prefix) may produce
+  false positives. Acceptable for bootstrap — facets can be corrected by re-running.
+- "What can we teach Synrix" analysis assumes Synrix lacks these patterns based on
+  a single-session GitHub evaluation. Synrix may have features not visible in its
+  public documentation.

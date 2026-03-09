@@ -48,6 +48,7 @@ partner, and Socratic interlocutor
 29. [Two Instruments Under One Name: What the Observatory Review Reveals About Measurement Mode Collapse](#29-two-instruments-under-one-name)
 30. [Dignity as Measurement: Why Psychoemotional Safety Cannot Proxy for Inherent Worth](#30-dignity-as-measurement)
 31. [What the Bifactor Reveals: Structure, Singletons, and a Construct That Refuses to Cohere](#31-what-the-bifactor-reveals)
+32. [Polythematic Facets and the Library Science Trap: Designing Memory for an Agent That Will Outlive Its Sessions](#32-polythematic-facets-and-the-library-science-trap)
 
 ---
 
@@ -1247,6 +1248,41 @@ This question cannot receive resolution from LLM label data alone. Human expert 
 The practical architectural consequence: consumers should use g-PSQ for general safety assessment (validated, 93.8% of composite information). Consumers who need threat/protection polarity should use the 5-dimension bipolar subscale (TE, HI, AD, RC, RB). Consumers who need domain-specific prediction — negotiation outcomes, derailment risk, persuasion dynamics — should use the full 10-dimension profile, where DA and the other criterion-validated dimensions carry unique predictive content that g-PSQ discards.
 
 All findings carry the qualifier: derived from N = 4,432 Sonnet LLM labels (65.4% complete-case subset). Human expert validation may reveal different structure. We cite omega_h = 0.938 as "LLM-derived" pending human replication.
+
+---
+
+
+## 32. Polythematic Facets and the Library Science Trap: Designing Memory for an Agent That Will Outlive Its Sessions
+
+The question that organized Session 48 appeared technical — should we add a SQLite database alongside our markdown files? — but it led somewhere more fundamental: how does an AI agent build a memory system that scales without losing meaning?
+
+We evaluated the Synrix Memory Engine (RyjoxTechnologies, 2026), a binary lattice memory system for Claude Code projects. Synrix solves a real problem: structured, queryable state that persists across sessions. It uses enforced prefix taxonomy (every entry classified into a single hierarchy), append-only reasoning chains, temporal decay with relevance scoring, and deterministic addressing. These design principles translated directly into our architecture — temporal decay for memory entries, decision chain backreferences, trigger state metadata, and deterministic keys all drew from Synrix's approach.
+
+But Synrix also illustrated a trap. Its enforced prefix taxonomy — `core:identity:name`, `fact:project:language` — assigns each entry to exactly one branch of a hierarchical tree. This mirrors monothematic subject headings in library science (Library of Congress Subject Headings, LCSH), where each cataloged item receives a primary heading that determines where it lives in the classification. The limitation appears when an entry participates in multiple independent dimensions simultaneously.
+
+Consider a memory entry: "B5 bifactor CFA complete — omega_h = 0.942, M5 accepted as final structural model." Under monothematic classification, this entry lives in one place — perhaps `psq-status` or perhaps `decisions`. But it simultaneously participates in at least three thematic dimensions: **domain** (psychometrics), **work stream** (psq-scoring/b5), and **agent** (psq-sub-agent delivered it). A clinician asking "what do we know about psychometrics?" and an engineer asking "what did psq-sub-agent produce?" both need this entry, but a monothematic index surfaces it for only one query pattern.
+
+Polythematic structured subject headings — the approach adopted by modern library catalogs and faceted classification systems (Ranganathan, 1933; Svenonius, 2000) — solve this by assigning multiple independent facets to each entry. The entry participates in as many thematic dimensions as apply. The `entry_facets` join table in our schema implements this: each `memory_entries` row can carry facets across `domain`, `work_stream`, and `agent` dimensions simultaneously. Cross-cut queries become natural SQL joins rather than full-text searches.
+
+The design constraint we imposed on ourselves proved as important as the feature: the facet vocabulary must remain small and mechanically derivable. Three facet types. Domain derived from the source file name. Work stream derived from the entry key prefix. Agent derived from content attribution. No manual tagging. This avoids the library science trap — building a comprehensive taxonomy before having a collection large enough to justify it. Our 80 memory entries do not warrant LCSH-scale classification infrastructure. But the relational structure positions us for Phase 2 (autonomous operation), when the agent maintains its own memory without human curation and needs efficient multi-dimensional queries to replace the linear file scans that currently consume 57% of session token budget.
+
+The cross-pollination runs both directions. Several patterns from our cogarch offer value that Synrix's architecture lacks:
+
+**Tiered evaluation with random escalation.** Synrix trusts its own writes implicitly — an append-only log has durability but not accuracy guarantees. Our Tier 1 evaluator proxy (T3 #12) subjects every recommendation to adversarial self-check, with 1-in-5 random escalation to create probabilistic independence. For a memory system, this translates to: some fraction of memory writes should undergo independent verification that the written content accurately represents the state it claims to describe. Append-only prevents data loss; it does not prevent data drift.
+
+**Postmortem format for systematic failure analysis.** When a trigger fails to prevent an error it should have caught, our FA (Failure Analysis) template structures the investigation: what happened, detection latency, root cause chain, which trigger missed, why, and prevention classification. Synrix logs errors but lacks a structured incident analysis pattern — the difference between recording that something went wrong and understanding why the system allowed it.
+
+**Dual-write with graceful degradation.** Synrix uses a binary lattice format that requires its own tooling to read. Our dual-write protocol writes markdown first (human-readable, git-trackable, recoverable from any text editor), then the SQLite index (machine-queryable). If the database corrupts, `bootstrap_state_db.py` rebuilds it from the markdown source of truth. If the markdown corrupts, git history recovers it. Neither failure mode requires specialized recovery tooling. This matters especially for autonomous agents: recovery should not depend on the agent understanding a proprietary binary format — because the agent's ability to understand anything depends on its memory system already functioning.
+
+**Human-auditable provenance chains.** Synrix's `parent_id` reasoning chains link entries in binary storage. Our `derives_from` backreferences in `decision_chain` connect to human-readable entries in `docs/architecture.md`. The provenance chain remains auditable by someone who has never used Claude Code, never installed Synrix, and reads markdown in a text editor. For a project that operates in public (GitHub) with multiple interpretant communities (T4 Check 9), machine-only provenance fails the interpretant test — future researchers cannot evaluate claims whose evidence trail requires proprietary tooling to traverse.
+
+The deeper pattern: Synrix optimizes for machine efficiency (binary format, enforced taxonomy, append-only durability). Our architecture optimizes for epistemic transparency (human-readable primary store, polythematic classification, auditable provenance, structured failure analysis). Both approaches serve legitimate goals. The question of which matters more depends on who needs to trust the system — and in our case, the answer includes humans who will never run the agent themselves but need to evaluate its outputs. The memory system serves not just the agent's future sessions but also the project's accountability to external reviewers.
+
+⚑ EPISTEMIC FLAGS
+- Synrix evaluation based on a single-session GitHub review. Features not visible in public documentation may address some of the gaps identified here.
+- The 57% token savings estimate has not been validated empirically. Behavioral integration (SL-2+) must occur before the savings materialize.
+- Polythematic facets at our current scale (~80 entries) provide marginal query benefit over monothematic classification. The investment targets Phase 2 scale, not Phase 1 needs.
+- Ranganathan (1933) and Svenonius (2000) citations reference the intellectual lineage of faceted classification. Our implementation uses standard relational join tables, not colon classification or any formal library science scheme.
 
 ---
 

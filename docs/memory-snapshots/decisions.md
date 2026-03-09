@@ -48,6 +48,16 @@
  Calibration deploy timing    Deploy calibration only after model stabilizes.
                               No artifacts fitted on soon-to-be-replaced models.
                               2026-03-08
+ SQLite state layer           Phase 1: markdown SOT, DB = queryable index.
+                              Schema v2 (9 tables). Polythematic facets (3
+                              facet types). Deterministic keys. Dual-write.
+                              Hybrid topic model: generic + psq_status typed.
+                              2026-03-09
+ Sub-agent cogarch mirror     All agents mirror psychology-agent cogarch
+                              exactly: triggers, state layer, memory, FA
+                              format, epistemic standards. Shared facet
+                              vocabulary enables cross-agent queries.
+                              2026-03-09
 ```
 
 ## Authority Hierarchy
