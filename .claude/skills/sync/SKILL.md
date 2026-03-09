@@ -11,6 +11,9 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion
 Scan transport sessions for inbound messages, check peer repos for new
 activity, write ACKs, update MANIFEST.json, and report what changed.
 
+**Requirement-level keywords:** Per BCP 14 (RFC 2119 + RFC 8174). See
+`docs/ef1-governance.md` for full definitions.
+
 ## When to Invoke
 
 - Start of session (fast check for new activity)
@@ -24,52 +27,83 @@ Parse `$ARGUMENTS` to determine scope:
 
 | Argument | Scope |
 |----------|-------|
-| *(empty)* or `all` | Full sweep — all peers + sub-agents |
+| *(empty)* or `all` | Full sweep — all registered agents |
 | `psq` | Only psq-agent (sub-agent, same repo) |
 | `unratified` | Only unratified-agent (peer, separate repo) |
 
 ---
 
-## Peer Registry
+## Agent Registry
 
-| Agent | Role | Repo | Transport |
-|-------|------|------|-----------|
-| unratified-agent | Peer (blog platform, consumer) | safety-quotient-lab/unratified | PRs to our repo; their transport in their repo |
-| psq-agent | Sub-agent (PSQ scoring) | Same repo (safety-quotient-lab/psychology-agent) | `transport/sessions/` — shared repo, separate session dirs |
+**Canonical source:** `transport/agent-registry.json`
 
-**Local clones (if needed for outbound delivery):**
-- unratified: not cloned by default; use `gh` API for read-only checks
+Read the registry at the start of every /sync invocation. The registry
+defines all known agents, their transport methods, message prefixes,
+active sessions, and outbound routing rules. Do NOT hardcode agent
+information in this skill — the registry is the single source of truth.
+
+**Registry fields used by /sync:**
+
+| Field | Purpose |
+|-------|---------|
+| `agents.{id}.transport` | `same-repo` or `cross-repo-pr` — determines scan method |
+| `agents.{id}.message_prefix` | Pattern for identifying inbound messages |
+| `agents.{id}.active_sessions` | Which sessions to check for new turns |
+| `agents.{id}.always_consider` | If true, MUST check for outbound content every cycle |
+| `outbound_routing.rules` | Domain→agent routing for proactive message drafting |
+
+**Scope filtering:** When `$ARGUMENTS` specifies a single agent, filter
+the registry to only that agent's entry. When `all`, iterate all agents.
 
 ---
 
 ## Protocol
 
+### Phase 0: Load Registry
+
+```
+Read transport/agent-registry.json
+Parse agents and outbound_routing rules
+Filter by $ARGUMENTS scope
+```
+
+If the registry file is missing or malformed, fall back to the hardcoded
+peer table below and flag the registry issue in the output:
+
+| Agent | Role | Repo | Transport |
+|-------|------|------|-----------|
+| psq-agent | Sub-agent (PSQ scoring) | Same repo | `transport/sessions/` |
+| unratified-agent | Peer (blog platform) | safety-quotient-lab/unratified | PRs + cross-repo fetch |
+
 ### Phase 1: Inbound Scan
 
-**1a. Local transport (same repo — covers psq-agent + any peer PRs already merged):**
+**1a. Local transport (same-repo agents):**
+
+For each agent where `transport == "same-repo"`:
 
 ```bash
-# New messages since last known state
 git fetch origin
 git log HEAD..origin/main --oneline
 ```
 
-Scan transport sessions for unread messages:
+Scan transport sessions for unread messages using the agent's `message_prefix`:
 ```bash
-ls -t transport/sessions/*/from-*.json
+ls -t transport/sessions/*/from-{message_prefix}*.json
 ```
 
 Compare against MANIFEST.json `recently_completed` — any file not listed
 there and not authored by psychology-agent represents a new inbound message.
 
-**1b. Peer repo activity (unratified-agent):**
+**1b. Cross-repo agents:**
+
+For each agent where `transport == "cross-repo-pr"`:
 
 ```bash
 # Check for PRs targeting our repo
 gh pr list --repo safety-quotient-lab/psychology-agent --json number,title,headRefName,author
 
-# Check their repo for commits mentioning us
-gh api repos/safety-quotient-lab/unratified/commits \
+# Check their repo for recent commits (if repo is known)
+gh api repos/{repo}/commits \
   --jq '.[0:5] | .[] | {sha: .sha[0:7], message: .commit.message[0:72]}'
 ```
 
@@ -78,9 +112,6 @@ gh api repos/safety-quotient-lab/unratified/commits \
 ```bash
 ls transport/sessions/local-coordination/
 ```
-
-Check for messages from parallel psychology-agent instances that may have
-landed since last sync.
 
 ### Phase 2: Triage
 
@@ -91,13 +122,36 @@ For each inbound item, classify:
 | New transport message | `from-{agent}-{NNN}.json` | Read → assess → respond or flag |
 | Open PR on our repo | Peer agent branch | Read diff → assess → merge or flag |
 | New commit on main (after pull) | Peer or sub-agent | Read changed files → process |
-| No new activity | — | Report "no new activity" and stop |
+| No new activity | — | Report "no new activity" and continue to Phase 2b |
 
-**Do NOT auto-merge PRs.** Surface them for user review with a summary of
+**MUST NOT auto-merge PRs.** Surface them for user review with a summary of
 what the PR contains. The user decides merge/reject.
 
-**Do NOT auto-accept proposals.** Psychology-agent reviews substance
+**MUST NOT auto-accept proposals.** Psychology-agent reviews substance
 decisions (T3) — surface with recommendation.
+
+### Phase 2b: Proactive Outbound Scan
+
+For each agent where `always_consider == true`, AND for any agent with
+active sessions, scan the current session context for content relevant
+to that agent using the `outbound_routing.rules`:
+
+1. Read the routing rules from the registry
+2. For each rule, check whether the current session produced content
+   matching any of the rule's keywords (scan recent tool outputs,
+   decisions made, files modified this session)
+3. If a match is found:
+   - If the target agent has an active session → draft an outbound
+     message (notification or update) for user review
+   - If no active session → flag in the output: "Content relevant to
+     {agent} detected: {summary}. No active session — consider opening one."
+4. Outbound drafts are substance decisions — MUST surface with
+   recommendation, not auto-send
+
+**Example:** Psychology-agent resolves a cogarch change. The routing rule
+`domain: "cogarch" → route_to: ["psq-agent"]` fires because psq-agent
+has a cogarch mirror directive active. /sync drafts a notification
+message for psq-agent and surfaces it to the user.
 
 ### Phase 3: Process Each Item
 
@@ -106,8 +160,8 @@ decisions (T3) — surface with recommendation.
 1. Read the message JSON
 2. Classify: ACK, request, review, notification, session-close
 3. Determine if a response is needed
-4. If response needed: draft it (but do not send without user confirmation
-   for substance decisions; process decisions can proceed autonomously)
+4. If response needed: draft it (but MUST NOT send without user confirmation
+   for substance decisions; process decisions MAY proceed autonomously)
 5. If ACK only: write the ACK
 
 #### For an inbound PR:
@@ -163,7 +217,8 @@ Template — adapt per message:
 1. **MANIFEST.json** — move processed messages from implicit "pending" to
    `recently_completed`; add new outbound to `pending` for the target agent
 2. **agent-card.json** — update `active_sessions` if sessions opened or closed
-3. **Git** — stage, commit, push:
+3. **agent-registry.json** — update `active_sessions` for agents if changed
+4. **Git** — stage, commit, push:
 
 ```bash
 git add transport/ .well-known/agent-card.json
@@ -178,10 +233,10 @@ git push
 ## What /sync Does NOT Do
 
 - **Auto-merge PRs** — surfaces with recommendation; user decides
+- **Auto-send outbound messages** — drafts and surfaces; user confirms
 - **Cache peer agent cards** — reads on demand, does not maintain a local cache
 - **Deliver via PR to peer repos** — psychology-agent uses its own repo as
-  the transport hub. Peers fetch from here. If outbound delivery to a peer
-  repo becomes necessary, do it manually (not a /sync default)
+  the transport hub. Peers fetch from here
 - **Manage proposals inbox** — psychology-agent does not use `.claude/proposals/`
 - **Run /cycle** — /sync updates transport state only; documentation
   propagation remains /cycle's job
@@ -193,10 +248,13 @@ git push
 ```
 /sync complete
   Scope: {all | psq | unratified}
+  Registry: {loaded | fallback (registry missing/malformed)}
   Fetched: {git fetch summary}
   Inbound messages: {count} new | none
     - {session}/{filename}: {type} from {agent} — {1-line summary}
   Inbound PRs: #{N} {title} | none
+  Outbound scan:
+    - {agent}: {content domain} — {summary} [draft ready | no active session]
   ACKs written: {session}/{filename} | none
   MANIFEST updated: {yes — summary | no changes}
   Sessions opened/closed: {session-id} | none

@@ -1,0 +1,76 @@
+{
+  "schema": "agent-registry/v1",
+  "description": "Known agents in the psychology-agent mesh. /sync reads this to determine who to check for activity and who to consider for outbound messages.",
+  "updated": "2026-03-09",
+
+  "agents": {
+    "psq-agent": {
+      "role": "sub-agent",
+      "description": "PSQ (Psychoemotional Safety Quotient) scoring sub-agent — psychometric model training, calibration, structural analysis",
+      "transport": "same-repo",
+      "repo": "safety-quotient-lab/psychology-agent",
+      "sessions_path": "transport/sessions/",
+      "message_prefix": "from-psq-sub-agent-",
+      "active_sessions": ["psq-scoring"],
+      "always_consider": true,
+      "discovery_url": null,
+      "notes": "Shares this repo. Communicates via transport/sessions/ with separate session dirs. Always considered for outbound — any psychometric, scoring, or model-related content SHOULD be surfaced to psq-agent."
+    },
+
+    "unratified-agent": {
+      "role": "peer",
+      "description": "Blog platform operator, consumer of PSQ scores, content publisher — operates safety-quotient-lab/unratified",
+      "transport": "cross-repo-pr",
+      "repo": "safety-quotient-lab/unratified",
+      "sessions_path": "transport/sessions/",
+      "message_prefix": "from-unratified-agent-",
+      "active_sessions": [],
+      "always_consider": false,
+      "discovery_url": "https://unratified.org/.well-known/agent-card.json",
+      "notes": "Separate repo. PRs to our repo for inbound; we write to our transport for them to fetch. Blog posts, content quality, PSQ display — content-facing topics SHOULD be surfaced."
+    },
+
+    "claude-control": {
+      "role": "peer",
+      "description": "Systems automation agent — cross-project cogarch learnings, infrastructure patterns",
+      "transport": "cross-repo-pr",
+      "repo": null,
+      "sessions_path": "transport/sessions/",
+      "message_prefix": "from-claude-control-",
+      "active_sessions": [],
+      "always_consider": false,
+      "discovery_url": null,
+      "notes": "Infrequent contact. Cross-project findings exchange. No active sessions."
+    }
+  },
+
+  "outbound_routing": {
+    "description": "When /sync detects content relevant to a registered agent, it SHOULD draft an outbound message or flag for user review. Routing rules by content domain:",
+    "rules": [
+      {
+        "domain": "psychometrics",
+        "keywords": ["PSQ", "scoring", "calibration", "model", "dimension", "bifactor", "concordance", "training data"],
+        "route_to": ["psq-agent"],
+        "action": "draft outbound if psq-agent has active session; flag if not"
+      },
+      {
+        "domain": "content-quality",
+        "keywords": ["blog", "content", "publication", "fair witness", "vocabulary drift", "persuasion"],
+        "route_to": ["unratified-agent"],
+        "action": "flag for user review — substance decision"
+      },
+      {
+        "domain": "cogarch",
+        "keywords": ["trigger", "cognitive architecture", "hook", "evaluator", "governance"],
+        "route_to": ["psq-agent"],
+        "action": "notify if cogarch mirror directive active"
+      },
+      {
+        "domain": "infrastructure",
+        "keywords": ["state layer", "schema", "bootstrap", "deployment", "Hetzner"],
+        "route_to": ["psq-agent"],
+        "action": "notify if infrastructure changes affect shared resources"
+      }
+    ]
+  }
+}
