@@ -182,6 +182,64 @@ human-mediated Claude Code sessions to autonomous operation.
 
 ---
 
+## State Layer Consumers (state.db)
+
+Items that consume the existing state.db index to enable new capabilities.
+The dual-write pipeline (SL-2) populates the index; these items read from it.
+
+- [x] **Autonomous sync orientation payload** — COMPLETE (Session 59).
+  `scripts/orientation-payload.py` queries state.db for compact context
+  (trust budget, recent sessions, unprocessed messages, open claims, stale
+  memory) and injects into `claude -p` prompts. Replaces reading 15+ markdown
+  files at autonomous session start.
+  *Precondition: ✓ MET — SL-2 dual-write populates all queried tables.*
+
+- [ ] **Epistemic debt dashboard** — query unresolved epistemic flags across
+  sessions. Surface which sessions left the most unresolved uncertainty.
+  Turns invisible accumulation into a visible backlog. XS effort.
+  *Precondition: ✓ MET — epistemic_flags table populated (270 rows).*
+  *Tables: epistemic_flags (resolved = FALSE, grouped by session_id)*
+
+- [ ] **Claim verification velocity** — track how quickly claims get verified,
+  which agents produce the highest-confidence claims, and whether SETL scores
+  correlate with actual verification outcomes. Feeds EF-2 claim verification
+  baseline — currently manual, could become automated. S effort.
+  *Precondition: ✓ MET — claims table populated (190 rows).*
+  *Tables: claims JOIN transport_messages (confidence, verified, from_agent)*
+
+- [ ] **Decision provenance graph** — walk the `derives_from` self-referential
+  FK in decision_chain to trace any decision backward through its full evidence
+  chain. A `/provenance <decision-key>` command. Answers "why did we decide
+  this?" with a recursive chain, not a markdown search. S effort.
+  *Precondition: ✓ MET — decision_chain populated (35 rows, derives_from links).*
+  *Tables: decision_chain (recursive CTE on derives_from)*
+
+- [ ] **Session velocity and pattern analysis** — compute session duration
+  trends, artifact output rate, and epistemic flag density per session. Spot
+  when sessions become less productive or more epistemically risky. S effort.
+  *Precondition: ✓ MET — session_log populated (55 rows).*
+  *Tables: session_log (timestamp, artifacts, epistemic_flags)*
+
+- [ ] **Trigger effectiveness scoring** — cross-reference trigger_state
+  (fire_count, last_fired) with epistemic_flags to identify which triggers
+  earn their cognitive overhead and which don't. Trigger health report. S effort.
+  *Precondition: ✓ MET — trigger_state populated (16 rows).*
+  *Tables: trigger_state JOIN epistemic_flags (fire_count vs flag accumulation)*
+
+- [ ] **Agent communication asymmetry** — detect conversation imbalances
+  across the mesh. Which agent dominates communication, whether uncertainty
+  differs by direction, whether some agent pairs have gone quiet. XS effort.
+  *Precondition: ✓ MET — transport_messages populated (88 rows).*
+  *Tables: transport_messages (from_agent, to_agent, setl, COUNT)*
+
+- [ ] **Memory staleness heatmap** — automated T9 freshness enforcement via
+  SQL instead of reading every topic file. Feed into `/hunt` to prioritize
+  stale memory entries alongside TODO items. XS effort.
+  *Precondition: ✓ MET — memory_entries populated (38 rows, last_confirmed).*
+  *Tables: memory_entries (julianday staleness calculation)*
+
+---
+
 ## BFT + Command Protocol
 
 - [x] **EF-1: Autonomous trust degradation model** — RESOLVED (Session 50).
