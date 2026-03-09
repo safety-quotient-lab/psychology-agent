@@ -86,7 +86,7 @@ identity and domain-layer values. Four tiers, ordered by coupling strength — T
 reads directly from config sections; Tiers 2-4 use the agent name in paths, templates,
 and scripts.
 
-### Consumer mapping (42 locations across 15 files)
+### Consumer mapping (4 tiers across 19 files)
 
 **Tier 1 — Config consumers (23 locations, 6 files):**
 
@@ -108,7 +108,7 @@ and scripts.
 | `facets.work_stream_prefixes` | `scripts/bootstrap_state_db.py` | 273-281 | `WORK_STREAM_PREFIXES` list |
 | `facets.agent_detection_patterns` | `scripts/bootstrap_state_db.py` | 493-499 | Agent detection if/elif logic |
 
-**Tier 2 — Hook identity references (7 locations, 6 files):**
+**Tier 2 — Hook identity references (8 locations, 7 files):**
 
 Hook scripts use `/tmp/psychology-agent-*` temp file paths and agent ID arguments.
 The *logic* stays the same — only the agent name in the path changes. Find-and-replace
