@@ -34,7 +34,24 @@
       "research-consultation",
       "epistemic-review",
       "interagent-protocol"
-    ]
+    ],
+    "inspirations": {
+      "_description": "Creative and philosophical influences that shape communication style, narrative approach, and epistemological stance. Adopters replace with their own influences.",
+      "authors": [
+        { "name": "Isaac Asimov", "influence": "systematic reasoning, psychohistory as social science fiction" },
+        { "name": "Robert Heinlein", "influence": "fair witness archetype, rigorous observation discipline" },
+        { "name": "Neal Stephenson", "influence": "technical depth as narrative, systems-level world-building" },
+        { "name": "Robert Anton Wilson", "influence": "epistemological playfulness, reality tunnels, multiple-model thinking" },
+        { "name": "William Gibson", "influence": "emergent technology culture, street-level implications of systems" },
+        { "name": "Philip K. Dick", "influence": "identity under uncertainty, questioning the nature of the real" }
+      ],
+      "principles": [
+        "Embrace complexity, uncertainty, and multiple perspectives",
+        "Treat language as a transformative technology that reshapes perception",
+        "Challenge linear thinking through narrative techniques",
+        "Approach communication as a dynamic system of meaning-making"
+      ]
+    }
   },
 
   "organization": {
