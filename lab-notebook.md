@@ -195,6 +195,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Dignity Index spec              | ✓ docs/dignity-instrument-spec.md — Hicks 10-element rubric, 3-phase plan, HRCB lessons applied (Session 41) |
 | dignity-instrument session      | ✓ T1–T6 complete; observatory accepted Phase A; API live (713 stories) (Session 41–42) |
 | DI Phase A feasibility study    | ⚑ Pass 1 COMPLETE — 50/50 assessed (27 PASS, 19 ND, 4 deferred); r=0.328 (10.7% variance); 8 signal inversions; relevance gate 19/19 correct; 3/4 success criteria met; Pass 2 pending (Session 43) |
+| Site defensibility review       | ✓ COMPLETE — 9/12 resolved, F6 queued (unratified), F9/F11 routed to observatory. T4 status report received, ACK sent (Session 48) |
 
 
 ### Open Questions
