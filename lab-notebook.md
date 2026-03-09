@@ -3574,14 +3574,18 @@ Continued from Session 52 (context compaction — resumed from cogarch.config.js
   - `docs/hooks-reference.md` — full hooks table (moved from CLAUDE.md)
   - `.claude/rules/anti-patterns.md` — glob-loaded anti-patterns (moved from CLAUDE.md)
 
-- **Commits (4, all on main):**
+- **Parry fully removed** — scripts deleted, session toggle removed, references cleaned
+  from CLAUDE.md, hooks-reference, anti-patterns, BOOTSTRAP.md, lab-notebook. TODO item
+  added with re-enable checklist gated on anthropics/claude-code #32596.
+
+- **Commits (6, all pushed to main):**
   1. `2a62b3d` — fix: correct hook counts and parry status contradiction
   2. `84e8ddd` — refactor: trim CLAUDE.md from 280 to 186 lines
   3. `1e844cf` — docs: defer MCP faceted resource with T3 grounding failures
   4. `83c2725` — docs: reframe MCP item as autonomous-op prerequisite
   5. `c1fdfef` — feat: auto-bootstrap state.db, add TODO grounding audit to /cycle
+  6. `566f293` — remove: parry injection scanner — re-add when #32596 resolved
 
 ⚑ EPISTEMIC FLAGS
 - Stress test exercised T3, T4, T14 only — 13 other triggers remain untested this session
-- Parry diagnostic inconclusive — user did not observe permission prompt behavior closely
 - "No MCP consumer exists" assumes current peer transport topology stays static
