@@ -47,12 +47,8 @@ cd psychology-agent
 python3 --version   # needs 3.10+
 ```
 
-**Bootstrap memory** (state.db builds automatically on first launch):
-
-```bash
-# Restore auto-memory from committed snapshots (safe to re-run)
-./bootstrap-check.sh
-```
+Both auto-memory and state.db bootstrap automatically on first launch — no manual
+setup needed beyond cloning.
 
 </details>
 
@@ -65,14 +61,13 @@ Start Claude Code from the project root:
 claude
 ```
 
-On first launch, you should see hook output confirming the cognitive architecture loaded
-and the state layer bootstrapped:
+On first launch, you should see hook output confirming everything bootstrapped:
 
 ```
+[SESSION-START] Auto-memory restored from committed snapshots.
 [SESSION-START] state.db bootstrapped from source files.
 [SESSION-START] Cognitive triggers T1-T16 active.
 [SESSION-START] Skills: /doc /hunt /cycle /knock /sync /iterate
-[SESSION-START] Last session: ...
 ```
 
 The agent reads `CLAUDE.md` automatically and loads glob-scoped rules from
