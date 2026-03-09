@@ -17,22 +17,20 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 59. Autonomous mesh infrastructure built (orientation
-payload, heartbeat, agent identity). MANIFEST.json migrated to state.db-generated
-artifact (793→21 lines, Phase 1.5). /turn route deprecated. Cloud-free bounded
-context decision. Socratic gate (T2#8b) added. Blog-publication session opened.
+**Where we stopped:** Session 58. GitHub release v0.6.0 published. Project board
+sync built and integrated as /cycle Step 11b. Board populated: 28 items synced.
+ShellCheck CI fix pushed (OAuth `workflow` scope added).
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - Cogarch portability: ✓ COMPLETE `[cold: done]`
-- CLAUDE.md: ✓ 186 lines `[hot: healthy]`
-- PSQ scoring: quiescent `[hot: no action needed]`
-- SQLite state layer: schema v6, MANIFEST now generated from DB `[warm]`
-- Autonomous mesh: orientation payload + heartbeat + agent identity `[warm]`
-- DI Phase A Pass 2: pending (inter-rater reliability) `[cold]`
+- CLAUDE.md: ✓ trimmed to 186 lines (below ~200 advisory) `[hot: healthy]`
+- PSQ scoring: all work orders complete, quiescent `[hot: no action needed]`
+- SQLite state layer: SL-2 ✓ dual-write live, schema v5, auto-bootstrap `[warm]`
+- Project board sync: ✓ `sync_project_board.py` + /cycle Step 11b `[warm: gh CLI]`
+- DI Phase A Pass 2: pending (inter-rater reliability) `[cold: docs/dignity-phase-a-study.md]`
 
-**Next:** First autonomous sync cycle (cron test). Awesome-claude-code submission.
-DI Phase A Pass 2 (fresh session). Stale doc cleanup (MANIFEST refs in
-ef1-trust-model, constraints, adaptation-guide, T16).
+**Next:** Awesome-claude-code submission (precondition met). DI Phase A Pass 2
+(fresh session). First autonomous sync cycle.
 
 
 ## Memory Hygiene

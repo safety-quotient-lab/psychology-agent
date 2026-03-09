@@ -54,6 +54,8 @@ partner, and Socratic interlocutor
 34. [Who Watches the Watcher? Trust Without a Trusted Third Party](#34-who-watches-the-watcher)
 35. [When the Index Becomes the Instrument: State Layer Dual-Write and the ACK Question](#35-when-the-index-becomes-the-instrument)
 36. [Firmware for a Mind: Naming What the Cogarch Already Was](#36-firmware-for-a-mind)
+37. [Adoption Testing and the Portability Proof](#37-adoption-testing-and-the-portability-proof)
+38. [When the Index Replaces the Ledger: MANIFEST as Generated Artifact](#38-when-the-index-replaces-the-ledger)
 
 ---
 
@@ -1439,6 +1441,25 @@ This session established a precedent: infrastructure-layer tools should adapt to
 - The seven fresh-clone tests verified mechanical replacement (strings substituted correctly) but did not simulate an adopter building their own domain content. The guide's instructions appear correct; whether an adopter can follow them without assistance remains untested.
 - Adaptive thresholds solve the fresh-install case but create a binary cliff: the moment any session directory appears, full thresholds engage. An adopter with one test session and little data might hit intermediate failures not covered by either threshold set.
 - The four-tier coupling model emerged empirically from failure analysis, not from systematic enumeration. Additional tiers or cross-tier dependencies may exist that the seven test rounds did not surface.
+
+---
+
+
+## §38 — When the Index Replaces the Ledger: MANIFEST as Generated Artifact {#38-when-the-index-replaces-the-ledger}
+
+Session 59 resolved a tension that had been accumulating since the dual-write pipeline landed in Session 51. The transport MANIFEST.json file — the addressing index that tells peer agents which messages await them — had grown to 793 lines. Every completed exchange added an entry to `recently_completed`, and the file grew monotonically. Meanwhile, state.db's `transport_messages` table indexed the same information in 88 queryable rows with a `processed` boolean.
+
+We had been maintaining both: the file for git-transportable discovery, the database for queries. The dual-write contract (Phase 1: markdown = source of truth, DB = queryable index) applied cleanly to documents where prose carries irreducible value — journal entries, architecture rationale, trigger definitions. But MANIFEST.json carried no prose. Every field had a mechanical counterpart in the database. The "source of truth" designation protected no irreplaceable content.
+
+The resolution inverted the relationship. Instead of writing MANIFEST manually and mirroring to the DB, we now write to the DB (via `dual_write.py`) and generate MANIFEST from the DB (via `generate_manifest.py`). The generated file contains only pending messages — the one function that requires git-transportable visibility. Completed history stays in state.db (queryable by agent, session, type, date range) and git history (auditable via `git log`).
+
+This represents Phase 1.5 of the state layer migration: for structured, non-prose state, the DB serves as source of truth and the file becomes a derived view. The Phase 1 contract (markdown wins) still holds for documents with irreducible narrative value. The distinction maps to the question: "does this file carry meaning that structured fields cannot capture?" MANIFEST carried none. Architecture.md, journal.md, lab-notebook.md carry plenty.
+
+The cloud-free bounded context decision, also resolved this session, reinforces the same pattern. The psychology-agent runs entirely on local infrastructure: Claude Code CLI, state.db (SQLite), git push/pull as the transport bus, heartbeat files for mesh presence. The Cloudflare Worker — which we deprecated the /turn route from this session — belongs to a separate bounded context. Each agent bounded context inherits the cloud-free constraint by default but MAY override within its own scope (Evans, 2003 — bounded context independence). The psq-agent, for instance, runs model inference on Hetzner cloud infrastructure without violating the psychology-agent's constraint.
+
+⚑ EPISTEMIC FLAGS
+- The Phase 1.5 classification (DB as source of truth for structured non-prose state) emerged from a single case (MANIFEST). Whether it generalizes cleanly to other candidates (memory topic files, TODO items) remains untested. Each candidate requires its own "irreducible prose" assessment.
+- The cloud-free constraint represents a design aspiration enforced by convention, not by mechanical gate. Nothing prevents a future session from introducing a cloud dependency; the architecture decision provides a reference point for pushback, not a technical barrier.
 
 ---
 
