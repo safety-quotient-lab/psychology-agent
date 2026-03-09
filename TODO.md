@@ -207,7 +207,9 @@ human-mediated Claude Code sessions to autonomous operation.
   Completed:
   - [x] Coupling-point inventory (Session 52, 7 categories, 4 tiers)
   - [x] `cogarch.config.json` schema (Session 53, 13 sections)
-  Remaining work:
-  (1) Write adaptation guide (which files to change, what to keep, what to replace)
-  (2) Verify Apache 2.0 license covers the portable layers without friction
-  *Precondition: none — can begin anytime*
+  Completed:
+  - [x] Adaptation guide (Session 53, `docs/cogarch-adaptation-guide.md` — 6-step
+    replacement path, consumer mapping, verification checklist)
+  - [x] Apache 2.0 license verified (adaptation guide §License — infrastructure +
+    application layers carry Apache 2.0; domain content carries adopter's choice)
+  *Status: all sub-items complete — parent item ready to close pending final review*
