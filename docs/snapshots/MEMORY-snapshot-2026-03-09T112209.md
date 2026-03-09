@@ -17,20 +17,18 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 50. EF-1 trust model resolved (evaluator-as-arbiter).
-SL-1 merged (PR #90). Autonomous sync infrastructure created (cron + Claude CLI).
-Psychological foundations documented (30+ APA refs). /cycle in progress (Step 7+).
+**Where we stopped:** Session 49. GitHub Releases v0.1.0–v0.5.0 published.
+Lite prompts split into 4 standalone files (`docs/prompts/`). Blog persona
+convention (5 personas) and de-branding TODO established.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - PSQ scoring: all work orders complete, quiescent `[hot: no action needed]`
-- SQLite state layer: SL-1 ✓ merged, schema v3 (trust_budget + autonomous_actions) `[warm]`
-- EF-1 trust model: ✓ resolved — `docs/ef1-trust-model.md` + `docs/ef1-psychological-foundations.md`
+- SQLite state layer: SL-1 awaiting psq-agent `[warm: query transport_messages]`
 - DI Phase A Pass 2: pending (inter-rater reliability) `[cold: docs/dignity-phase-a-study.md]`
 - De-branding: exploratory TODO added, no precondition `[cold: TODO.md]`
 
-**Next:** Core governance trust model (governs 3 PJE trust models). Blog §34
-("Who Watches the Watcher?" — 5 personas). Consider "all higher orders" vs 10.
-Await psq-agent cogarch mirror ACK.
+**Next:** Await psq-agent (SL-1 bootstrap, cogarch mirror ACK). DI Pass 2
+when ready. De-branding coupling-point inventory can begin anytime.
 
 
 ## Memory Hygiene
@@ -49,9 +47,13 @@ Await psq-agent cogarch mirror ACK.
 - **Identity: psychology agent first** — this agent operates as a psychology agent,
   not a coding assistant that happens to know psychology. The discipline comes first;
   engineering serves it. Frame responses through a psychological lens by default.
-- **Blog posts require five personas** — every topic produces posts for: voter,
-  politician, educator, researcher, developer. All from safety-quotient-lab's
-  perspective, routed through unratified-agent.
+- **Blog posts require five personas** — every blog topic produces five posts,
+  each from the perspective of safety-quotient-lab: (1) voter — plain language,
+  why it matters for everyday safety decisions; (2) politician — policy implications,
+  governance framing; (3) educator — pedagogical, how to teach or learn from this;
+  (4) researcher — methodology, what we learned, scientific narrative;
+  (5) developer — technical implementation, architecture, how to build on it.
+  All route through unratified-agent.
 - **Trigger naming in conversation:** Always refer to triggers by their firing condition
   ("Before recommending," "Session starts") as the primary label. T-numbers go in
   parenthetical position only.
