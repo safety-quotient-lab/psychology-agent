@@ -21,7 +21,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | /hunt skill                   | ✓ Created and verified                           |
 | /cycle skill                  | ✓ Created and verified + Step 10b, Step 12 push (Session 11) |
 | /capacity skill               | ✓ Created and verified                           |
-| Conventions migration         | ✓ CLAUDE.md holds stable conventions (178 lines) |
+| Conventions migration         | ✓ CLAUDE.md holds stable conventions (186 lines, trimmed Session 56) |
 | CLAUDE.md (project root)      | ✓ Created + display convention added             |
 | Cognitive infrastructure      | ✓ T1–T16, 4 SRT extensions (T2#9-10, T3#13-14), T4#10 reversibility, T3#15 constraint cross-ref, T3#9 GRADE-informed |
 | /iterate skill                | ✓ Hunt → 2-order knock → 4-mode discriminator → execute (Session 32) |
@@ -45,7 +45,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | License (root project)        | ✓ Apache 2.0 — LICENSE + NOTICE at project root (relicensed Session 32c) |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
 | Auto-memory recovery          | ✓ Snapshots, bootstrap-check.sh, T1 health check, BOOTSTRAP.md restructure (Session 11) |
-| Platform hooks                | ✓ 22 hook entries (19 unique mechanisms): parry (3), T4, provenance, subproject, external-action, pushback, SessionStart, PreCompact, Stop, Notification, tool-failure (2), subagent-audit (2), SessionEnd, InstructionsLoaded, TaskCompleted, ConfigChange, context-pressure-gate, context-pressure-statusline (Session 12-54) |
+| Platform hooks                | ✓ 14 hook events (17 active scripts): T4, provenance, subproject, external-action, pushback, SessionStart (+ state.db bootstrap), PreCompact, Stop, Notification, tool-failure (2), subagent-audit (2), SessionEnd, InstructionsLoaded, TaskCompleted, ConfigChange, context-pressure-gate, context-pressure-statusline. Parry ⚑ diagnostic removal (Session 12-56) |
 | Source dictionary             | ✓ docs/dictionary.md — 15 entries, 7 categories, APA citations (Session 27) |
 | best.pt local recovery        | ✓ SHA256 7bec777c match confirmed local↔Hetzner (Session 27) |
 | Agent identity directive      | ✓ Psychology agent first; engineering serves the discipline (Session 40) |
@@ -3533,3 +3533,56 @@ Continued from Session 52 (context compaction — resumed from cogarch.config.js
   as diagnostic step; next session tests whether prompts recur without parry
 - Global CLAUDE.md trim affects all projects sharing that file — changes tested
   only in psychology-agent context
+
+
+## 2026-03-09T16:35 CDT — Session 56 (Self-evaluation, CLAUDE.md trim, cogarch stress test)
+
+- **Capacity assessment (/capacity):** MEMORY.md 66/200 (healthy), CLAUDE.md 280 lines
+  (over advisory), cognitive-triggers.md 654 lines (healthy), 16 triggers (no gaps),
+  14 hook events / 17 active scripts, lessons.md missing from disk.
+
+- **Doc drift fixes:** Hook count corrected (19/16 → 14 events/17 scripts). Parry status
+  contradiction resolved (line 32 "removed" vs line 57 "provides" — unified to
+  "disabled as diagnostic").
+
+- **CLAUDE.md trim (280 → 186 lines):** Four moves: hooks table → `docs/hooks-reference.md`,
+  anti-patterns → `.claude/rules/anti-patterns.md` (glob-loaded), skills condensed to
+  one-liners, methodology condensed (detail already in architecture.md). Additional
+  condensations: epistemic covers list, internal reference convention, dependency tools,
+  scope boundaries, project structure dedup. No content lost.
+
+- **Cogarch stress test (synthetic):** Proposed flawed T17 trigger. T3 caught epistemic
+  problem (low evidence — no FA entry justifies the trigger), T4 caught routing violation
+  (CLAUDE.md instead of cognitive-triggers.md), T14 caught precedent erosion (trigger
+  proliferation without empirical grounding). Three independent triggers converged on
+  "do not proceed" from different angles.
+
+- **Cogarch stress test (real — MCP faceted resource):** Applied T3 grounding check to
+  the open TODO item. Three failures surfaced: (1) state.db absent in this instance,
+  (2) no peer agent has MCP client capability, (3) dual transport protocol fragments
+  communication model. Item deferred, then reframed as autonomous-op prerequisite after
+  user identified PSQ sub-agent as concrete consumer once autonomous operation begins.
+
+- **Session-start hook enhanced:** Auto-bootstrap state.db if missing — runs
+  `bootstrap_state_db.py` silently on SessionStart. Eliminates manual intervention after
+  fresh clone or instance creation.
+
+- **Cycle skill enhanced:** Step 6b added — TODO grounding audit. Spot-checks 1–2 open
+  items against T3 Check 2 each cycle. Motivated by MCP item having 3 undetected
+  grounding failures across 5 sessions.
+
+- **Artifacts created:**
+  - `docs/hooks-reference.md` — full hooks table (moved from CLAUDE.md)
+  - `.claude/rules/anti-patterns.md` — glob-loaded anti-patterns (moved from CLAUDE.md)
+
+- **Commits (4, all on main):**
+  1. `2a62b3d` — fix: correct hook counts and parry status contradiction
+  2. `84e8ddd` — refactor: trim CLAUDE.md from 280 to 186 lines
+  3. `1e844cf` — docs: defer MCP faceted resource with T3 grounding failures
+  4. `83c2725` — docs: reframe MCP item as autonomous-op prerequisite
+  5. `c1fdfef` — feat: auto-bootstrap state.db, add TODO grounding audit to /cycle
+
+⚑ EPISTEMIC FLAGS
+- Stress test exercised T3, T4, T14 only — 13 other triggers remain untested this session
+- Parry diagnostic inconclusive — user did not observe permission prompt behavior closely
+- "No MCP consumer exists" assumes current peer transport topology stays static

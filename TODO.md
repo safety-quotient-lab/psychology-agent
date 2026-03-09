@@ -30,14 +30,14 @@ Forward-looking task list only. Completed and emergent work goes to
 
 - [ ] **Phase-locked sub-agent orchestration** (Rank 4) — sub-agents return data
   only; orchestrator holds exclusive write authority. Prevents rogue sub-agent
-  writes. Directly relevant to Architecture Item 2 (sub-agent protocol).
+  writes. Directly relevant to sub-agent protocol (complete, Session 20).
   *Source: Compound Eng phase-locked execution*
-  *Precondition: Architecture Item 2 in progress*
+  *Precondition: ✓ MET — sub-agent protocol complete (Session 20). Grounding audit Session 56.*
 
 - [ ] **Competing hypotheses workflow** (Rank 6) — 3-5 hypotheses with quality criteria
   (testability, falsifiability, parsimony). Reference material for adversarial evaluator.
   *Source: K-Dense hypothesis-generation skill*
-  *Precondition: Architecture Item 3 (adversarial evaluator) in progress*
+  *Precondition: ✓ MET — adversarial evaluator complete (Session 17). Grounding audit Session 56.*
 
 - [ ] **Activity logger** (Rank 7) — SQLite-backed cross-session audit trail as
   complement to markdown lab-notebook. Structured, queryable.
