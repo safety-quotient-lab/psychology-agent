@@ -7,6 +7,13 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ## Architecture
 
+- [ ] **Re-add parry injection defense** — removed Session 56 due to permission prompt
+  interference (anthropics/claude-code #32596). Re-add when upstream bug resolved.
+  Re-enable checklist: (1) install parry, (2) restore hook entries to settings.json
+  (3 events: PreToolUse, PostToolUse, UserPromptSubmit), (3) test trusted-file
+  pre-filter (wrapper-level path exclusion for CLAUDE.md, cogarch files).
+  *Precondition: #32596 resolved or workaround confirmed*
+
 - [ ] `/turn` route — blocked by API credits. Re-enable checklist:
   1. `wrangler secret put ANTHROPIC_API_KEY`
   2. Remove 503 guard in worker.js `/turn` handler

@@ -53,8 +53,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Blog post (cogarch)           | ✓ Reviewed + PR #7 submitted to unratified (Session 24) |
 | Blog post (Jurassic Park)     | ✓ Published at blog.unratified.org — 3-agent co-authorship, transport resolved (Session 25→29) |
 | Cogarch canonical location    | ✓ cognitive-triggers.md moved to docs/ (Session 12) |
-| Parry integration             | ⚑ DIAGNOSTIC: hooks removed from settings.json to isolate permission prompt issue. Scripts on disk. Re-enable after #32596 resolved (Session 15→55) |
-| Parry session toggle          | ✓ AskUserQuestion at session start + .parry-session-disabled flag (Session 15) |
+| Parry integration             | ✗ REMOVED (Session 56) — scripts deleted, session toggle removed. Re-add when #32596 resolved (TODO item) |
 | Awesome-claude-code eval      | ✓ 5 repos evaluated, 10 candidates ranked, 4 quick wins landed (Session 12) |
 | Attention-aware placement     | ✓ CLAUDE.md reordered for U-shaped attention curve (Session 12) |
 | Schema-validated lessons      | ✓ YAML frontmatter in lessons.md.example + T10 update (Session 12) |
