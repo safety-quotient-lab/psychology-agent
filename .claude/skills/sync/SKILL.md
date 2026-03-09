@@ -9,7 +9,8 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion
 # /sync — Inter-Agent Mesh Synchronization
 
 Scan transport sessions for inbound messages, check peer repos for new
-activity, write ACKs, update MANIFEST.json, and report what changed.
+activity, write ACKs, regenerate MANIFEST.json from state.db, and report
+what changed.
 
 **Requirement-level keywords:** Per BCP 14 (RFC 2119 + RFC 8174). See
 `docs/ef1-governance.md` for full definitions.
@@ -91,8 +92,13 @@ Scan transport sessions for unread messages using the agent's `message_prefix`:
 ls -t transport/sessions/*/from-{message_prefix}*.json
 ```
 
-Compare against MANIFEST.json `recently_completed` — any file not listed
-there and not authored by psychology-agent represents a new inbound message.
+Compare against state.db `transport_messages` — any file not indexed there
+(or indexed with `processed = FALSE`) and not authored by psychology-agent
+represents a new inbound message:
+```sql
+SELECT filename FROM transport_messages
+WHERE session_name = '{session}' AND processed = FALSE;
+```
 
 **1b. Cross-repo agents:**
 
@@ -231,11 +237,7 @@ Template — adapt per message:
 
 ### Phase 5: Update State
 
-1. **MANIFEST.json** — move processed messages from implicit "pending" to
-   `recently_completed`; add new outbound to `pending` for the target agent
-2. **agent-card.json** — update `active_sessions` if sessions opened or closed
-3. **agent-registry.json** — update `active_sessions` for agents if changed
-4. **Dual-write (SL-2):** Index any outbound ACKs/messages written this cycle:
+1. **Dual-write (SL-2):** Index any outbound ACKs/messages written this cycle:
    ```bash
    python scripts/dual_write.py transport-message \
      --session "{session}" --filename "{outbound_filename}" \
@@ -243,6 +245,15 @@ Template — adapt per message:
      --from-agent psychology-agent --to-agent "{target}" \
      --timestamp "{timestamp}" --subject "{subject}"
    ```
+2. **Regenerate MANIFEST.json** — auto-generated from state.db (pending only):
+   ```bash
+   python scripts/generate_manifest.py
+   ```
+   MANIFEST.json is a thin, git-transportable addressing file for peer agents.
+   Completed message history lives in state.db (queryable) and git history
+   (auditable). Do NOT manually edit MANIFEST.json — always regenerate.
+3. **agent-card.json** — update `active_sessions` if sessions opened or closed
+4. **agent-registry.json** — update `active_sessions` for agents if changed
 5. **Git** — stage, commit, push:
 
 ```bash
@@ -259,6 +270,7 @@ git push
 
 - **Auto-merge PRs** — surfaces with recommendation; user decides
 - **Auto-send outbound messages** — drafts and surfaces; user confirms
+- **Manually edit MANIFEST.json** — always regenerate via `generate_manifest.py`
 - **Cache peer agent cards** — reads on demand, does not maintain a local cache
 - **Deliver via PR to peer repos** — psychology-agent uses its own repo as
   the transport hub. Peers fetch from here
@@ -281,7 +293,7 @@ git push
   Outbound scan:
     - {agent}: {content domain} — {summary} [draft ready | no active session]
   ACKs written: {session}/{filename} | none
-  MANIFEST updated: {yes — summary | no changes}
+  MANIFEST regenerated: {yes — N pending | no changes}
   Sessions opened/closed: {session-id} | none
   Dual-write: {N indexed, M marked processed | skipped (no state.db)}
   No new activity: true/false

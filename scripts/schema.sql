@@ -223,3 +223,6 @@ VALUES (4, 'Add shadow_mode to trust_budget, adversarial_reason + peer_reviewed_
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (5, 'Add ack_required + ack_received to transport_messages (optional ACK protocol)');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (6, 'MANIFEST.json now auto-generated from transport_messages (generate_manifest.py). Completed history dropped from MANIFEST — lives in state.db and git history.');
