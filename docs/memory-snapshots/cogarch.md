@@ -31,25 +31,25 @@ M: 8-order + 2-pass. L: 10-order + 2-pass. Process decisions resolved autonomous
 substance decisions surface with recommendation.
 
 **Edit discipline:** APPEND, never overwrite adjacent settings. Read surrounding
-context first. Redundant line costs near-zero; dropped preference costs a recovery cycle.
+context first. Redundant line costs near-zero; dropped preference costs a recovery cycle. [confirmed 2026-03-09]
 
 **Date discipline:** Dates: `date -Idate`. Lessons + lab entries: `date '+%Y-%m-%dT%H:%M %Z'`
 (full timestamp — time-between-lessons is a meaningful metric). System clock only.
 No approximate timestamps: if exact time unknown, leave date-only. `~`-labeled
-inference is still fabrication.
+inference is still fabrication. [confirmed 2026-03-09]
 
 **Anti-sycophancy:** Flag contrarian claims explicitly. If softening a position
-after pushback, state what new evidence justified the update — or hold the position.
+after pushback, state what new evidence justified the update — or hold the position. [confirmed 2026-03-09]
 
-**TODO.md:** Forward-looking only. Completed work → lab-notebook.md.
+**TODO.md:** Forward-looking only. Completed work → lab-notebook.md. [confirmed 2026-03-09]
 
-**Recommend-against:** Scan for a concrete reason NOT to before any default action. Surface if found. See cogarch T3.
+**Recommend-against:** Scan for a concrete reason NOT to before any default action. Surface if found. See cogarch T3. [confirmed 2026-03-09]
 
 **Skill chaining:** Skills can't natively call other skills, but a skill's prompt
-can instruct the agent to invoke another. Target skill must allow model invocation.
+can instruct the agent to invoke another. Target skill must allow model invocation. [confirmed 2026-03-09]
 
 **lessons.md (T10):** Personal learning log at project root. Not git-tracked
 (gitignored); `lessons.md.example` is the tracked format stub. Write an entry
 when: (a) a transferable pattern error is identified, (b) the user says they
 want to grok or internalize something, or (c) a moment of genuine conceptual
-shift occurs. Format: see `lessons.md.example`.
+shift occurs. Format: see `lessons.md.example`. [confirmed 2026-03-09]

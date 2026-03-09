@@ -7,7 +7,7 @@ MEMORY.md holds volatile state (active thread, design decisions, cogarch quick-r
 
 ## Hooks (`.claude/settings.json`)
 
-12 hooks enforce cogarch mechanically. Scripts live in `.claude/hooks/`.
+13 hooks enforce cogarch mechanically. Scripts live in `.claude/hooks/`.
 
 | Hook | Event | Purpose |
 |------|-------|---------|
@@ -20,6 +20,7 @@ MEMORY.md holds volatile state (active thread, design decisions, cogarch quick-r
 | pushback-accumulator.sh | UserPromptSubmit | Structural disagreement (>=3) |
 | session-start-orient.sh | SessionStart | T1 orientation context |
 | pre-compact-persist.sh | PreCompact | Persist state before compaction |
+| memory-structure-validate.sh | PostToolUse: Write/Edit | Memory file format enforcement |
 | stop-completion-gate.sh | Stop | Uncommitted changes warning |
 
 Parry provides defense-in-depth — see BOOTSTRAP.md for installation.

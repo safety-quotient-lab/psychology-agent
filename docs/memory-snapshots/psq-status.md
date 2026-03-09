@@ -1,16 +1,16 @@
 # PSQ Sub-Agent Status (managed in its own context)
 
-**Production endpoint:** ✓ https://psq.unratified.org/score — live, TLS, Hetzner CX Ashburn
-**Model version:** v37 (deployed 2026-03-08). Sonnet-only retrained.
-**Score calibration:** ✓ quantile-binned-v4-2026-03-08 (n_bins=20). 9/10 dims MAE ≤ v3. TC exception +0.005 (negligible).
-**Confidence calibration:** ✓ B1 RESOLVED (Session 26) — r_confidence field added; scale=0 intentional.
-**HI calibration:** ✓ B2 RESOLVED (Session 26) — quantile-binned isotonic v2; MAE -3.9%.
-**Model files:** ✓ v35 ONNX + calibration.json on Hetzner. v23 tagged as v23-production-backup.
-**Service:** systemd psq-server active. 42ms inference. onnxruntime-node postinstall fix.
-**Wrangler secret:** PSQ_ENDPOINT_URL → https://psq.unratified.org
-**Firewall:** ufw SSH + HTTP/HTTPS only. Port 3000 closed from public.
-**Integration:** unratified-agent psq-scoring session active (initial run + interpretation + ACK merged).
-**AR (11th dimension):** Pipeline complete. label_separated.py + instruments.json updated.
+**Production endpoint:** ✓ https://psq.unratified.org/score — live, TLS, Hetzner CX Ashburn [confirmed 2026-03-09]
+**Model version:** v37 (deployed 2026-03-08). Sonnet-only retrained. [confirmed 2026-03-09]
+**Score calibration:** ✓ quantile-binned-v4-2026-03-08 (n_bins=20). 9/10 dims MAE ≤ v3. TC exception +0.005 (negligible). [confirmed 2026-03-09]
+**Confidence calibration:** ✓ B1 RESOLVED (Session 26) — r_confidence field added; scale=0 intentional. [confirmed 2026-03-09]
+**HI calibration:** ✓ B2 RESOLVED (Session 26) — quantile-binned isotonic v2; MAE -3.9%. [confirmed 2026-03-09]
+**Model files:** ✓ v35 ONNX + calibration.json on Hetzner. v23 tagged as v23-production-backup. [confirmed 2026-03-09]
+**Service:** systemd psq-server active. 42ms inference. onnxruntime-node postinstall fix. [confirmed 2026-03-09]
+**Wrangler secret:** PSQ_ENDPOINT_URL → https://psq.unratified.org [confirmed 2026-03-09]
+**Firewall:** ufw SSH + HTTP/HTTPS only. Port 3000 closed from public. [confirmed 2026-03-09]
+**Integration:** unratified-agent psq-scoring session active (initial run + interpretation + ACK merged). [confirmed 2026-03-09]
+**AR (11th dimension):** Pipeline complete. label_separated.py + instruments.json updated. [confirmed 2026-03-09]
 Automated labeling: `scripts/label_ar_automated.sh` (claude -p batched). 998-text stratified
 subset prepared (ar-labeling-1k-stratified.jsonl, seed=42). Inter-rater reliability validated:
 Sonnet r=0.934/90%, Haiku r=0.822/85%. Haiku selected for production labeling (~10x cheaper).
