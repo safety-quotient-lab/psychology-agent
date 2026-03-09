@@ -3647,7 +3647,7 @@ to all hooks.
 
 - **ShellCheck CI fix:** Added `-x` flag to `.github/workflows/shellcheck.yml` so
   shellcheck follows `source` directives for `_debug.sh`. Resolved 17× SC1091 warnings.
-  Push requires `workflow` OAuth scope — manual push needed.
+  Push required `gh auth refresh -s workflow` for OAuth scope; pushed successfully.
 
 - **Artifacts created/modified:**
   - `.claude/skills/cycle/SKILL.md` — "When to run" timing discipline
@@ -3661,4 +3661,4 @@ to all hooks.
   absence of reproduction, not positive identification of the cause
 - `CLAUDE_HOOK_EVENT` env var availability in Claude Code hook runner unverified —
   may log "unknown" for the event field
-- Shellcheck fix unpushed — requires manual `git push` with `workflow`-scoped token
+- ~~Shellcheck fix unpushed~~ — resolved via `gh auth refresh -s workflow`
