@@ -17,20 +17,19 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 53. Systems thinking adopted as umbrella methodology.
-Three principles established: DDD (structural), literate programming A+C (expression),
-embedded system (deployment). cogarch.config.json schema written (11 sections, 23
-consumer locations mapped). Cogarch now classified as "embedded cognitive system."
+**Where we stopped:** Session 52. Blog persona guidelines PR #40 submitted to
+unratified. De-branding coupling-point inventory complete (4 tiers, 7 categories).
+PRs #91-92 merged (cogarch Phase 2 + CO concentration). Blog §34 published.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- Cogarch portability: config schema ✓, adaptation guide pending `[cold: TODO.md]`
 - PSQ scoring: CO rubric updated (Variant B), monitoring plan active `[warm]`
 - SQLite state layer: SL-2 ✓ dual-write live, schema v5 `[warm: dual_write.py]`
 - PSQ cogarch mirror: Phase 2 ✓ COMPLETE, Phase 3 gate OPEN `[hot: ready]`
+- De-branding: inventory done, delivery mechanism TBD `[cold: TODO.md]`
 - DI Phase A Pass 2: pending (inter-rater reliability) `[cold: docs/dignity-phase-a-study.md]`
 
-**Next:** Write adaptation guide (cogarch portability item 2). Phase 3 cross-agent
-faceted queries. DI Phase A Pass 2 (fresh session).
+**Next:** Reframe de-branding goal and decide delivery mechanism. DI Phase A
+Pass 2 (fresh session). Phase 3 cross-agent faceted queries (precondition met).
 
 
 ## Memory Hygiene

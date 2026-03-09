@@ -52,6 +52,7 @@ partner, and Socratic interlocutor
 33. [Retroactive Legibility: What Release Tagging Reveals About Project Arcs](#33-retroactive-legibility)
 34. [Who Watches the Watcher? Trust Without a Trusted Third Party](#34-who-watches-the-watcher)
 35. [When the Index Becomes the Instrument: State Layer Dual-Write and the ACK Question](#35-when-the-index-becomes-the-instrument)
+36. [Firmware for a Mind: Naming What the Cogarch Already Was](#36-firmware-for-a-mind)
 
 ---
 
@@ -1374,6 +1375,37 @@ The decision illustrates a pattern that recurs across this project: features des
 ⚑ EPISTEMIC FLAGS
 - Dual-write introduces a new failure mode: DB and markdown disagreeing. The contract (markdown wins, bootstrap rebuilds) handles recovery, but silent divergence between the two could persist undetected until the next rebuild.
 - The ACK protocol analysis reflects Phase 1 (human-mediated) economics. Phase 2 (autonomous) may reveal ACK value that Phase 1 cannot observe.
+
+---
+
+
+## 36. Firmware for a Mind: Naming What the Cogarch Already Was
+
+Session 53 resolved a question that had been building since the de-branding work of Session 52: what *kind* of thing did we build?
+
+The coupling-point inventory (Session 52) revealed that the cogarch separates cleanly into layers: infrastructure that any agent could adopt, application logic that agents configure, and domain content that agents replace. DDD (Evans, 2003) named the structural pattern. But DDD addresses layer separation — *what goes where*. It does not address how the system governs itself, how it should read, or what it means for the cogarch to run inside a host process.
+
+Three observations converged:
+
+**First, the cogarch functions as an embedded system.** Not metaphorically — architecturally. The triggers fire within Claude Code's tool-use loop. The hooks intercept the host's I/O pipeline. Memory persists across the host's sessions. The agent identity injects into the host's system prompt. This relationship mirrors firmware governing a processor: the cogarch does not run independently; it shapes the behavior of the system it inhabits. Naming it an "embedded cognitive system" makes the deployment model explicit and clarifies why certain constraints exist (hooks must be lightweight, triggers must be stateless across calls, memory must survive session boundaries).
+
+**Second, the cogarch already exhibits systems thinking properties.** Feedback loops (T10 lessons feed into future behavior; T12 reinforcement strengthens named principles; the trust budget decays and resets). Boundaries (DDD layers, sub-project fences, scope refusals). Emergence (agent behavior arises from trigger interactions, not from any single instruction). Leverage points (hooks as mechanical enforcement — the highest-impact, lowest-DOF interventions in the system). Stocks and flows (memory entries accumulate via /doc and /cycle, decay via T9 freshness thresholds, get consumed by decisions that reference them).
+
+**Third, the artifacts already practiced literate programming.** CLAUDE.md reads as prose. Cognitive-triggers.md explains itself. Skills narrate their own logic. The journal traces every decision's origin. We had been doing Knuth (1984) — adapted — without naming it. Formalizing the principle required distinguishing what we practice (A: documentation-as-code + C: narrative-driven architecture) from what we might aspire to (B: Knuth-strict tangle/weave source files). A+C costs nothing to formalize because the practice already exists; B requires toolchain investment that only pays off when the codebase stabilizes.
+
+**The synthesis: systems thinking as umbrella methodology.** Three principles operate under it: DDD governs structure (what goes where), literate programming governs expression (how artifacts read), and embedded system principles govern deployment (cogarch inside host). This hierarchy resolves a tension that DDD alone could not: DDD tells you which layer a component belongs to, but not *how much freedom* an adopter has within that layer. Degrees of freedom (DOF) — the independent parameters defining the system's configuration space — provide the missing dimension.
+
+The DOF gradient maps cleanly onto DDD layers. The domain layer carries high degrees of freedom: identity, organization, peers, scoring subsystem, domain content — all parameterized through `cogarch.config.json`, all replaced by adopters. The application layer carries medium degrees of freedom: skills, evaluator, trust model — adopters configure behavioral parameters while the structure remains. The infrastructure layer carries low degrees of freedom: triggers, hooks, memory, dual-write — adopters inherit as-is. And per Meadows (1999), the lowest-DOF interventions carry the highest systemic leverage. Changing a hook changes everything the agent can do; changing a config field changes only what the agent calls itself.
+
+This explains why the lite prompt distillation (Session 49) worked: the distilled prompts preserved the infrastructure layer (behavioral commitments, epistemic discipline) and dropped the domain layer (PSQ specifics, PJE references). They intuitively followed the DOF gradient — keeping the low-DOF leverage points that shape all behavior, releasing the high-DOF parameters that only matter for this particular agent.
+
+The cogarch.config.json created this session parameterizes all 23 hardcoded domain-layer values across 6 code files. An adopter replaces this single file and follows the adaptation guide through the downstream consumers. The infrastructure layer — 16 triggers, 13 hooks, the memory pattern, the dual-write protocol — transfers untouched. The system classification, the methodology, and the DOF gradient tell the adopter *why* certain things transfer and others don't. That understanding distinguishes a principled architecture from a template.
+
+⚑ EPISTEMIC FLAGS
+- Systems thinking framing represents post-hoc naming of properties that already existed — the cogarch was not designed from systems theory; it was recognized as exhibiting systems properties after the fact. This mirrors the trust model (§34): engineering first, theoretical grounding second.
+- The DOF gradient (high/medium/low) represents qualitative classification, not a measured count of independent parameters. A formal DOF analysis would enumerate every configurable variable per layer — we have not done that.
+- Literate programming A+C formalizes existing practice but adds no mechanical enforcement. Unlike hooks (which block on violation), nothing currently prevents creating an architectural element without narrative context. The principle operates as convention, not constraint.
+- The "embedded system" classification may carry implications we have not fully traced — embedded systems engineering has its own body of practice (INCOSE, DO-178C) that we have not consulted. The analogy holds structurally; whether it holds operationally remains untested.
 
 ---
 

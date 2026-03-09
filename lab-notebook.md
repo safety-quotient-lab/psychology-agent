@@ -145,6 +145,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | PSQ endpoint TLS              | ✓ Caddy reverse proxy + auto-TLS (Let's Encrypt) — port 3000 closed from public |
 | PSQ onnxruntime fix           | ✓ postinstall script removes nested onnxruntime-node — survives npm install |
 | wrangler secret               | ✓ PSQ_ENDPOINT_URL = https://psq.unratified.org |
+| Cogarch portability (config)  | ✓ cogarch.config.json — 13 sections, 23 consumer locations mapped (Session 53) |
+| Systems thinking methodology  | ✓ Umbrella: DDD (structural) + literate programming A+C (expression) + embedded system (deployment) + DOF gradient (Session 53) |
 | Semantic naming (global)      | ✓ 30 files updated — all item-number refs eliminated; T4 Check 6 expanded; CLAUDE.md Code Style updated |
 | Transport discovery (3-layer) | ✓ agent-card + MANIFEST.json + transport-scan.sh; session-start hook integrated |
 | Site defensibility review     | ✓ 12 findings (2 HIGH / 5 MED / 5 LOW) delivered to unratified-agent |
@@ -3352,3 +3354,58 @@ Commits: `b3eecb7` (SPSS validation), `28a2431` (blog §34), `000c879` (/cycle S
 - De-branding tier classification reflects structural assessment, not measured effort
 - CO concentration experiment N=50 — directional, not definitive (per psq-agent's own flags)
 - Blog persona guidelines untested — no post has been authored against the new spec yet
+
+
+## 2026-03-09T13:52 CDT — Session 53 (Systems thinking, literate programming, cogarch.config.json)
+
+Continued from Session 52 (context compaction — resumed from cogarch.config.json design).
+
+- **cogarch.config.json created:** 13 top-level sections parameterizing the domain-layer
+  boundary. Covers: identity, organization, infrastructure, scoring subsystem, peers,
+  sub-projects, facets, transport, domain content. 23 consumer locations mapped across
+  6 code files (worker.js, agent.js, psq-client.js, bootstrap_state_db.py,
+  subproject-boundary.sh, agent-card.json). Reference implementation uses psychology-agent
+  values; adopters replace this single file.
+
+- **System classification resolved:** "Embedded cognitive system" — the cogarch operates
+  as an embedded system inside Claude Code (the host). Triggers fire within the host's
+  tool-use loop, hooks intercept I/O, memory persists across sessions, identity injects
+  into the system prompt. Architecturally equivalent to firmware governing a host processor.
+
+- **Systems thinking adopted as umbrella methodology:** (von Bertalanffy, 1968; Meadows,
+  2008). The cogarch exhibits: feedback loops (T10/T12, trust budget), boundaries (DDD
+  layers, sub-project fences), emergence (behavior from trigger interactions), leverage
+  points (hooks, config — Meadows, 1999), stocks and flows (memory accumulation, T9
+  decay), degrees of freedom (DOF gradient across DDD layers).
+
+- **Three principles under the umbrella:**
+  1. DDD (Evans, 2003) — structural: what goes where. DDD layers annotated with DOF
+     gradient: domain (high DOF — adopters replace), application (medium DOF — adopters
+     configure), infrastructure (low DOF — adopters inherit; leverage points live here).
+  2. Literate programming (Knuth, 1984, adapted) — expression: how artifacts read.
+     A+C interpretation: (A) documentation-as-code — every governing artifact reads as
+     prose; (C) narrative-driven architecture — no element without origin story, mandatory
+     Derives-from chains, journal as first-class architectural artifact. B (Knuth-strict
+     tangle/weave) deferred to ideas.md.
+  3. Embedded system principles — deployment: cogarch inside host.
+
+- **Degrees of freedom (DOF):** Each DDD layer exposes a distinct gradient of independent
+  configurable parameters. High DOF = adopters replace (domain); low DOF = adopters inherit
+  (infrastructure — leverage points per Meadows). cogarch.config.json parameterizes all
+  domain-layer degrees of freedom. Added to architecture.md, CLAUDE.md, config, memory.
+
+- **Files created:** cogarch.config.json
+- **Files modified:** docs/architecture.md (4 new decision entries + DDD DOF annotations),
+  CLAUDE.md (top paragraph rewritten), ideas.md (Knuth-strict B as future aspiration),
+  memory/decisions.md (4 new entries), memory/MEMORY.md (active thread updated)
+
+▶ docs/architecture.md (systems thinking + literate programming + DOF decisions)
+
+⚑ EPISTEMIC FLAGS
+- Systems thinking framing reflects structural analysis of existing cogarch properties,
+  not a greenfield design — properties (feedback loops, leverage points, etc.) were
+  already present; this session named and formalized them
+- DOF gradient (high/medium/low) represents a qualitative classification, not a measured
+  count of independent parameters
+- Literate programming A+C formalizes existing practice — no new artifacts created to
+  enforce it mechanically (unlike hooks which enforce triggers)

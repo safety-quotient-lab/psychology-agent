@@ -221,6 +221,24 @@ sub-agents disagree, preserve the shape of the disagreement rather than averagin
 
 ---
 
+## Literate Programming — Knuth-Strict (B)
+
+- **Prose-first source files with tangled code extraction** — adopt Knuth's full
+  WEB/CWEB model (or modern equivalent: org-babel, noweb, entangled). Hook scripts,
+  bootstrap_state_db.py, skills, and dual_write.py would live as literate source
+  documents where prose explains the design rationale and code blocks get extracted
+  (tangled) for execution. The reader understands *why* every regex, every facet
+  derivation rule, and every validation check exists — because the prose wraps the
+  code, not the other way around.
+  *Precondition: stable cogarch with infrequent hook/script changes. A+C (documentation-
+  as-code + narrative-driven architecture) already adopted as the expression principle.
+  B adds toolchain overhead that only pays off when the codebase stabilizes enough
+  that onboarding new adopters matters more than iteration speed.*
+  ⚡ Tangled code becomes a build artifact — quick edits to a .sh hook now require
+  editing the literate source and re-tangling. Friction increases with change frequency.
+
+---
+
 ## Meta
 
 - This agent system is itself a case study in PJE — it embodies Psycho Safety
