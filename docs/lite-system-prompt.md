@@ -1,7 +1,17 @@
 # Lite System Prompt — Psychology Agent (Small LLMs)
 
-Target: models with 1B-7B parameters (Qwen 1.5B, Phi-3 Mini, Llama 3.2 1B/3B,
-Gemma 2B). Designed for ~500-800 tokens of system prompt capacity.
+Distilled cogarch for running the psychology agent on small local models
+(Ollama, llama.cpp, vLLM, or any chat interface). These prompts replace the
+full T1-T16 trigger system and CLAUDE.md conventions with behavioral directives
+sized for limited context windows and parameter counts.
+
+**Not for the CF Worker.** The Cloudflare Worker uses `PSYCHOLOGY_SYSTEM` in
+`interface/src/agent.js` (Agent SDK, Opus-backed). These tiers target local
+inference — someone running a Qwen 1.5B or Llama 4 Scout as a psychology
+agent instance on their own hardware.
+
+Target: models with 1B-20B parameters. Designed for ~400-1200 tokens of
+system prompt capacity depending on tier.
 
 **Design rationale:** Small LLMs cannot reliably execute multi-step conditional
 checks (T1-T16 triggers), maintain semiotic consistency across long exchanges, or
@@ -148,9 +158,9 @@ Hard refusals:
 
 ---
 
-## Tier 4: Worker (≤1200 tokens) — Llama 4 Scout, Qwen 2.5 14B, Mistral Nemo 12B
+## Tier 4: Full Lite (≤1200 tokens) — Llama 4 Scout, Qwen 2.5 14B, Mistral Nemo 12B
 
-Target: CF Worker or similar serverless endpoint running a mid-size model.
+Target: mid-size local models capable of sustained reasoning across a session.
 Adds: simplified trigger checks, machine-to-machine detection, structured
 claims protocol. These models can execute 2-3 step conditional reasoning
 but not the full 16-trigger cascade.
@@ -245,7 +255,7 @@ If interagent/v1 protocol present, follow its schema.
 - Parameter count 2B–4B → Tier 2
 - Parameter count 4B–8B → Tier 3
 - Parameter count 8B–20B (or MoE with ≤20B active) → Tier 4
-- Parameter count > 20B or Opus/Sonnet-class → Full PSYCHOLOGY_SYSTEM or full cogarch
+- Parameter count > 20B or Opus/Sonnet-class → Full cogarch (CLAUDE.md + docs/cognitive-triggers.md)
 
 **Quantization:** These prompts assume the model runs at its native precision or
 Q8. At Q4 or below, drop one tier (e.g., a 7B Q4 model should use Tier 2, not
@@ -272,6 +282,8 @@ multi-turn semiotic consistency.
    analytical depth (expected), no hallucinated clinical claims (mandatory)
 
 **Provenance:** Distilled from psychology-agent cogarch (Session 48, 2026-03-09).
-Source: CLAUDE.md, docs/cognitive-triggers.md, interface/src/agent.js
-PSYCHOLOGY_SYSTEM constant. Distillation principle: behavioral directives that
-change output quality at small parameter counts; everything else dropped.
+Source: CLAUDE.md, docs/cognitive-triggers.md. The CF Worker's PSYCHOLOGY_SYSTEM
+constant (interface/src/agent.js) served as a reference for mid-tier distillation
+but targets a different runtime (Agent SDK + Opus, not local inference).
+Distillation principle: behavioral directives that change output quality at
+small parameter counts; everything else dropped.
