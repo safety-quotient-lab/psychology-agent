@@ -7,7 +7,7 @@ MEMORY.md holds volatile state (active thread, design decisions, cogarch quick-r
 
 ## Hooks (`.claude/settings.json`)
 
-13 hooks enforce cogarch mechanically. Scripts live in `.claude/hooks/`.
+21 hooks enforce cogarch mechanically. Scripts live in `.claude/hooks/`.
 
 | Hook | Event | Purpose |
 |------|-------|---------|
@@ -22,6 +22,13 @@ MEMORY.md holds volatile state (active thread, design decisions, cogarch quick-r
 | pre-compact-persist.sh | PreCompact | Persist state before compaction |
 | memory-structure-validate.sh | PostToolUse: Write/Edit | Memory file format enforcement |
 | stop-completion-gate.sh | Stop | Uncommitted changes warning |
+| tool-failure-halt.sh | PostToolUseFailure | Consecutive failure detection (>=3 halts) |
+| tool-failure-reset.sh | PostToolUse | Resets failure counter on success |
+| subagent-audit.sh | SubagentStart/Stop | Sub-agent audit trail + budget (15 max) |
+| session-end-check.sh | SessionEnd | Uncommitted work detector + session logger |
+| instructions-health.sh | InstructionsLoaded | CLAUDE.md validation + glob rule report |
+| task-completed-route.sh | TaskCompleted | Routes completed tasks for /cycle pickup |
+| config-drift-detector.sh | ConfigChange | Settings modification alert |
 
 Parry provides defense-in-depth — see BOOTSTRAP.md for installation.
 
