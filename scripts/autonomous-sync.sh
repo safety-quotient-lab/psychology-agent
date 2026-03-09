@@ -21,7 +21,7 @@ AGENT_ID="${AGENT_ID:-psychology-agent}"
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DB_PATH="${PROJECT_ROOT}/state.db"
 LOCK_FILE="/tmp/autonomous-sync-${AGENT_ID}.lock"
-MAX_ACTIONS_PER_CYCLE=5
+export MAX_ACTIONS_PER_CYCLE=5  # reserved for evaluator gate (not yet enforced)
 MAX_CONSECUTIVE_ERRORS=2
 LOG_PREFIX="[$(date '+%Y-%m-%dT%H:%M:%S%z')] [${AGENT_ID}]"
 
@@ -96,7 +96,8 @@ check_budget() {
         err "Run: python3 scripts/trust-budget.py reset"
 
         # Write halt marker to local-coordination
-        local halt_file="${PROJECT_ROOT}/transport/sessions/local-coordination/halt-${AGENT_ID}-$(date '+%Y%m%dT%H%M%S').json"
+        local halt_file
+        halt_file="${PROJECT_ROOT}/transport/sessions/local-coordination/halt-${AGENT_ID}-$(date '+%Y%m%dT%H%M%S').json"
         cat > "${halt_file}" <<HALT_JSON
 {
   "schema": "local-coordination/v1",
