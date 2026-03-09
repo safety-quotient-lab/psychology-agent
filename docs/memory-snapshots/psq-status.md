@@ -1,8 +1,8 @@
 # PSQ Sub-Agent Status (managed in its own context)
 
 **Production endpoint:** ✓ https://psq.unratified.org/score — live, TLS, Hetzner CX Ashburn
-**Model version:** v35 (deployed 2026-03-08). Held-out r=0.680 (v23 was 0.684, Δ=-0.004 sidegrade).
-**Score calibration:** ✓ isotonic-v2-2026-03-08. 6/10 dims improved, 4/10 regressed. RB +0.113, AD -0.062.
+**Model version:** v37 (deployed 2026-03-08). Sonnet-only retrained.
+**Score calibration:** ✓ quantile-binned-v4-2026-03-08 (n_bins=20). 9/10 dims MAE ≤ v3. TC exception +0.005 (negligible).
 **Confidence calibration:** ✓ B1 RESOLVED (Session 26) — r_confidence field added; scale=0 intentional.
 **HI calibration:** ✓ B2 RESOLVED (Session 26) — quantile-binned isotonic v2; MAE -3.9%.
 **Model files:** ✓ v35 ONNX + calibration.json on Hetzner. v23 tagged as v23-production-backup.
@@ -25,15 +25,20 @@ Awaiting user terminal run.
 **Concordance study:** ✓ COMPLETE (Session 45) — gate FAILS. Mean ICC(2,1) = 0.495 (poor).
   1/10 dims pass ICC ≥ 0.70 (only RC at 0.755). Opus scores systematically higher (+0.25 avg).
   Sonnet-only revert endorsed. Production models (v23, v35) confirmed clean.
-**B3 recalibration:** ✓ Steps 1-4 COMPLETE (Session 45) — quantile-binned isotonic (n_bins=20).
-  MAE improves all 10 dims (avg −12.4%). Dead zones = model range compression, not calibration
-  artifacts. Plateau threshold revised: MAE improvement without regression. Deploy deferred to post-v37.
-**Opus remediation:** ✗ PENDING — delete 10,000 Opus scores, Sonnet re-score 999 texts, retrain v37.
-**B4 partial correlations:** ✗ Work order sent (turn 22) — dimension-specific variance after
-  removing g-PSQ. Tests bifactor precondition. Independent of remediation.
+**B3 recalibration:** ✓ COMPLETE (Steps 1-6). calibration-v4 deployed on v37. 9/10 dims improve.
+  AD n_bins sensitivity tested (10/20/30); n_bins=20 selected. CO n=153 (low confidence).
+**Opus remediation:** ✓ COMPLETE — v37 deployed with Sonnet-only training data.
+**B4 partial correlations:** ✗ PENDING — work order sent (turn 22). Awaiting psq-agent.
+**B5 bifactor CFA:** ✓ COMPLETE (turn 34). semopy ML, N=4,432 Sonnet labels.
+  omega_h=0.942 — g-PSQ validated as reliable composite. Bipolar factor: 5 items
+  (TE/HI/AD vs RC/RB); TC marginal, CC non-significant. ED singleton confirmed.
+  DA paradox revised (rotation artifact; DA g=0.825, CO g=0.717 lowest).
+  RMSEA=0.141 (misfit from TC/CC on bipolar + N-sensitivity).
+**B5-R respecification:** ✗ PENDING — work order sent (turn 35). 5-item bipolar refit
+  + standardized loadings. Expected to improve RMSEA.
 **Factor analysis v3:** KMO=0.910, g-eigenvalue=6.824, 68.2% variance, 1 factor. But criterion
   validity shows profile shape predicts while g-PSQ does not → bifactor investigation.
 **Design decisions (Session 45):** Single-scorer constraint, calibration success criterion revised,
   calibration deploy timing (post-model-stabilization). See architecture.md.
-**Next:** Await Opus remediation + v37 + B4 results from psq-agent.
+**Next:** Await B5-R respecification + B4 partial correlations from psq-agent.
 Do not duplicate PSQ improvement work in this context.

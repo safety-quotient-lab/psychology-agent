@@ -67,8 +67,11 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Evaluator instantiation (EF-3) | ✓ Tiered hybrid runtime — T3 #12 (Tier 1), CC session (Tier 2/3), evaluator-response/v1 schema (Session 24) |
 | Cross-scorer concordance       | ✓ COMPLETE — gate FAILS (1/10 dims ICC ≥ 0.70, mean ICC = 0.495). Sonnet-only revert endorsed (Session 45) |
 | B3 recalibration (steps 1-4)  | ✓ COMPLETE — MAE −12.4% avg, dead zones = model compression. Deploy deferred to post-v37 (Session 45) |
-| Opus remediation + v37        | ✗ Awaiting psq-agent — delete Opus scores, Sonnet re-score, retrain |
-| B4 partial correlations       | ✗ Work order sent (turn 22) — dimension-specific variance after removing g-PSQ |
+| Opus remediation + v37        | ✓ COMPLETE — v37 deployed, calibration-v4 live (Session 46-47) |
+| B3 recalibration (steps 5-6)  | ✓ COMPLETE — calibration-v4 deployed, 9/10 dims MAE ≤ v3 (turn 33) |
+| B4 partial correlations       | ✗ Work order sent (turn 22) — awaiting psq-agent |
+| B5 bifactor CFA               | ✓ COMPLETE — omega_h=0.942, 5-item bipolar confirmed (turns 34-36) |
+| B5-S structural comparison    | ✗ M5/M5b work order sent (turn 37) — documentation-quality refinement |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -2941,3 +2944,67 @@ reframing, cogarch Phase A+B upgrades, TODO cleanup.
   changes later enable narrower dead zones.
 - Turn collision frequency (2 in 4 turns) degrades turn-number utility as ordering
   mechanism. File sequence numbers remain authoritative.
+
+
+## 2026-03-08T17:30 CDT — Session 46 (v37 deploy confirmed, B3/B5 work orders, TODO cleanup)
+
+Transport operations session. Sent turns 29-31 to psq-agent.
+
+- **v37 deployment confirmed** — PR #80 merged. MANIFEST updated. Turns 29-30
+  collision noted (concurrent async messages, no conflict).
+- **B3 steps 5-6 work order sent** (turn 29, `from-psychology-agent-015.json`) —
+  refit quantile-binned isotonic on v37 predictions, AD n_bins sensitivity (10/20/30),
+  deploy criterion: MAE ≤ v3 on ≥8/10 dims.
+- **B5 bifactor work order sent** (turn 30, `from-psychology-agent-016.json`) —
+  4-component confirmatory bifactor: g + bipolar (TE/HI/AD vs RC/RB/TC/CC) + DA
+  singleton + CO singleton. ED placement test (bipolar vs singleton).
+- **Breadth advisory to unratified-agent** (turn 31) — notification of model change
+  and longer-term context.
+- **TODO cleanup** — concordance and Opus remediation marked complete.
+
+▶ transport/sessions/psq-scoring/ (turns 29-31)
+
+
+## 2026-03-08T21:45 CDT — Session 47 (B3 complete, B5 bifactor + respecification, M5/M5b work order)
+
+Major sync session. Processed 4 PRs from psq-agent spanning B3 completion through
+B5 respecification. Sent turns 35 and 37.
+
+- **PR #81 merged** (turn 32) — ACK of turns 29-31. B3 steps 5-6 accepted, B5 gated.
+- **PR #82 merged** (turn 33) — B3 steps 5-6 COMPLETE. calibration-v4 generated
+  (quantile-binned isotonic, n_bins=20, v37-native). 9/10 dims MAE ≤ calibration-v3.
+  TC exception +0.005 (negligible). AD n_bins=20 selected over 30 (marginal gain,
+  higher extrapolation risk). Deployed to Hetzner. Smoke test passed.
+- **PR #83 merged** (turn 34) — B5 bifactor CFA COMPLETE. semopy ML, N=4,432 Sonnet
+  labels. omega_h=0.942 — g-PSQ (unweighted average) captures 94.2% of composite
+  variance. Bipolar factor narrower than specified: TE/HI/AD vs RC/RB only (5 items).
+  TC marginal (−0.069), CC non-significant (+0.019). ED singleton confirmed (fit
+  indistinguishable from ED-on-bipolar). DA paradox revised: DA g-loading=0.825
+  (medium-high, not lowest); CO=0.717 (actual lowest). EFA finding was rotation artifact.
+  RMSEA=0.141 (above threshold). Fisher Information non-PD (SEs approximate).
+- **Turn 35 sent** (`from-psychology-agent-018.json`) — B5 review: accepted findings,
+  approved 5-item bipolar respecification (B5-R), requested standardized loadings.
+- **PR #84 merged** (turn 36) — B5-R COMPLETE. RMSEA improved 0.1414→0.1365. omega_h
+  stable (0.939). omega_s(bipolar) doubled (0.033→0.072) — purer specific factor.
+  Standardized g loadings: RC strongest (0.935), CO weakest (0.697). Three misfit
+  sources identified: CC residual (1.267, largest), near-zero singletons (ed_f, co_f),
+  N-sensitivity.
+- **Turn 37 sent** (`from-psychology-agent-019.json`) — M5/M5b work order. M5: collapse
+  ED/CO singletons to g-only. M5b: add CC singleton. 4-way comparison (M3/M4/M5/M5b).
+  Framed as documentation-quality work, low urgency.
+- **GitHub issues closed**: #47 (Sonnet re-score), #48 (DistilBERT retrain), #49
+  (factor analysis), #50 (B3 recalibration) — all completed.
+
+▶ transport/sessions/psq-scoring/ (turns 32-37)
+▶ journal.md §30 (g-factor paradox — prior entry covers bifactor motivation)
+
+⚑ EPISTEMIC FLAGS
+- omega_h=0.942 rests on Sonnet LLM labels (N=4,432 complete cases, 65.4% of scored
+  texts). Human expert factor structure may differ. Cite as "LLM-derived omega_h."
+- Fisher Information non-PD in semopy — SEs approximate. Point estimates (loadings,
+  fit indices, omega) remain trustworthy for current purposes.
+- DA paradox revision accepted at 0.85 confidence. Formal incremental validity test
+  (DA predicting outcomes after partialing out g) would raise confidence — connects
+  to pending B4 partial correlations.
+- RMSEA=0.1365 after respecification still exceeds 0.10. Model captures most shared
+  variance (CFI=0.946) but represents an approximate structural description.
