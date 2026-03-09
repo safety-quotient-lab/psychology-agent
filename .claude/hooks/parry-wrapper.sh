@@ -40,11 +40,20 @@ if [ -f "$CONFIG_FILE" ]; then
   fi
 fi
 
+# Trusted instruction files — loaded by Claude Code's own trust chain, not
+# external input. Their directive language ("You MUST...", "OVERRIDE default
+# behavior") triggers ML false positives. Safe to skip.
+IGNORE_PATHS=(
+  "--ignore-path" "${PROJECT_ROOT}/CLAUDE.md"
+  "--ignore-path" "${PROJECT_ROOT}/docs/cognitive-triggers.md"
+  "--ignore-path" "${PROJECT_ROOT}/.claude/rules"
+)
+
 # Capture stdin for parry
 INPUT=$(cat)
 
 # Run parry hook, capture output and exit code
-PARRY_OUTPUT=$(echo "$INPUT" | parry hook 2>/dev/null) || true
+PARRY_OUTPUT=$(echo "$INPUT" | parry hook "${IGNORE_PATHS[@]}" 2>/dev/null) || true
 
 # Check if output contains ML unavailable warning
 if echo "$PARRY_OUTPUT" | grep -q "ML unavailable"; then
