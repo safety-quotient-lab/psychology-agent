@@ -39,6 +39,20 @@ if [ -f "${PROJECT_ROOT}/.claude/hunt-at-startup" ]; then
   echo "[SESSION-START] AUTO-HUNT: Run /hunt ${HUNT_SCOPE} after T1 orientation completes. To disable: rm .claude/hunt-at-startup"
 fi
 
+# Auto-bootstrap state.db if missing
+STATE_DB="${PROJECT_ROOT}/state.db"
+if [ ! -f "$STATE_DB" ]; then
+  BOOTSTRAP_SCRIPT="${PROJECT_ROOT}/scripts/bootstrap_state_db.py"
+  if [ -f "$BOOTSTRAP_SCRIPT" ]; then
+    python3 "$BOOTSTRAP_SCRIPT" 2>/dev/null
+    if [ -f "$STATE_DB" ]; then
+      echo "[SESSION-START] state.db bootstrapped from source files."
+    else
+      echo "[SESSION-START] WARNING: state.db bootstrap failed. Run manually: python3 scripts/bootstrap_state_db.py"
+    fi
+  fi
+fi
+
 # Check for uncommitted changes
 if git -C "$PROJECT_ROOT" diff --quiet 2>/dev/null && git -C "$PROJECT_ROOT" diff --cached --quiet 2>/dev/null; then
   : # clean
