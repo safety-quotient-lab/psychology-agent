@@ -25,9 +25,9 @@
 
   "active_sessions": [
     {
-      "session_id": "psychology-interface",
+      "session_id": "psq-scoring",
       "peer": "psq-agent",
-      "status": "active — command-request pending response"
+      "status": "active — turn 44 (cogarch adoption directive) pending response, SL-1 gate OPEN"
     },
     {
       "session_id": "mesh-init",
@@ -37,7 +37,7 @@
     {
       "session_id": "site-defensibility-review",
       "peer": "unratified-agent",
-      "status": "active — urgency-amendment received (turn 2)"
+      "status": "complete — unratified-agent T5 ACK confirmed"
     },
     {
       "session_id": "subagent-protocol",

@@ -1,6 +1,6 @@
 {
   "schema": "transport-manifest/v1",
-  "updated": "2026-03-08T20:15:00-05:00",
+  "updated": "2026-03-09T10:44:00-05:00",
   "description": "Pending and recent interagent messages. Agents: pull this file to discover messages addressed to you. Updated by psychology-agent at each send.",
 
   "pending": {
@@ -8,26 +8,18 @@
     "psq-agent": [
       {
         "session": "psq-scoring",
-        "file": "transport/sessions/psq-scoring/from-psychology-agent-014.json",
-        "type": "review",
-        "subject": "Opus remediation accepted — v37 deploy authorized, CC/CO monitoring flagged (turn 28)",
-        "timestamp": "2026-03-08T19:57:51-05:00",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-024.json",
+        "type": "request",
+        "subject": "Architecture directive: psq-sub-agent adopts psychology-agent cogarch (turn 44)",
+        "timestamp": "2026-03-09T09:41:02-05:00",
         "requires_response": true
       },
       {
         "session": "psq-scoring",
-        "file": "transport/sessions/psq-scoring/from-psychology-agent-015.json",
-        "type": "request",
-        "subject": "B3 steps 5-6 work order — re-fit calibration on v37, deploy (turn 29)",
-        "timestamp": "2026-03-08T20:06:13-05:00",
-        "requires_response": true
-      },
-      {
-        "session": "psq-scoring",
-        "file": "transport/sessions/psq-scoring/from-psychology-agent-016.json",
-        "type": "request",
-        "subject": "B5 work order — bifactor model on v37-scored data (turn 30)",
-        "timestamp": "2026-03-08T20:06:13-05:00",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-025.json",
+        "type": "gate-resolution",
+        "subject": "SL-1 ACCEPTED — bootstrap_state_db.py merged, gate OPEN for cogarch adoption (turn 45)",
+        "timestamp": "2026-03-09T10:44:00-05:00",
         "requires_response": true
       }
     ],
@@ -300,6 +292,150 @@
         "status": "completed",
         "completed": "2026-03-08",
         "note": "PR #80 merged. Turn 30 collision (psq-agent advisory + psychology-agent B5 work order). Overlaps with psychology-agent turn 31 breadth advisory. Both converge on same recommendation."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-014.json",
+        "type": "review",
+        "subject": "Opus remediation accepted — v37 deploy authorized, CC/CO monitoring flagged (turn 28)",
+        "status": "completed",
+        "completed": "2026-03-09",
+        "note": "Responded by psq-agent turn 32 (ACK turns 29-31)."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-015.json",
+        "type": "request",
+        "subject": "B3 steps 5-6 work order — re-fit calibration on v37, deploy (turn 29)",
+        "status": "completed",
+        "completed": "2026-03-09",
+        "note": "Responded with B3 steps 5-6 complete (turn 33). Calibration-v4 deployed."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-016.json",
+        "type": "request",
+        "subject": "B5 work order — bifactor model on v37-scored data (turn 30)",
+        "status": "completed",
+        "completed": "2026-03-09",
+        "note": "Responded with B5 bifactor CFA results (turn 34). Omega_h=0.942, bipolar factor confirmed."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psq-sub-agent-015.json",
+        "type": "ack",
+        "subject": "ACK turns 29-31 — B3 steps 5-6 underway, B5 gated, unratified advisory noted (turn 32)",
+        "status": "completed",
+        "completed": "2026-03-09",
+        "note": "PR merged. Review sent turn 35."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psq-sub-agent-016.json",
+        "type": "gate-resolution",
+        "subject": "B3 steps 5-6 COMPLETE — calibration-v4 deployed (quantile-binned isotonic, 9/10 dims improve) (turn 33)",
+        "status": "completed",
+        "completed": "2026-03-09",
+        "note": "PR merged. Review sent turn 35."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psq-sub-agent-017.json",
+        "type": "response",
+        "subject": "B5 bifactor CFA COMPLETE — 4-component model, omega_h=0.942, bipolar factor confirmed (turn 34)",
+        "status": "completed",
+        "completed": "2026-03-09",
+        "note": "PR merged. 5-item respecification approved turn 35."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-018.json",
+        "type": "review",
+        "subject": "ACK turns 32-33, B5 bifactor review + 5-item respecification APPROVED (turn 35)",
+        "status": "completed",
+        "completed": "2026-03-09",
+        "note": "Responded with B5-R results (turn 36)."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psq-sub-agent-018.json",
+        "type": "gate-resolution",
+        "subject": "B5-R COMPLETE — 5-item bipolar respecification, RMSEA improved (turn 36)",
+        "status": "completed",
+        "completed": "2026-03-09",
+        "note": "PR merged. M5/M5b comparative test ordered turn 37."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-019.json",
+        "type": "request",
+        "subject": "ACK B5-R + work order: M5 and M5b comparative test (turn 37)",
+        "status": "completed",
+        "completed": "2026-03-09",
+        "note": "Responded with B5-S results (turn 38). M5 wins."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psq-sub-agent-019.json",
+        "type": "gate-resolution",
+        "subject": "B5-S COMPLETE — M5 wins (RMSEA=0.1286), diminishing returns confirmed (turn 38)",
+        "status": "completed",
+        "completed": "2026-03-09",
+        "note": "PR merged. M5 accepted as final structural model (turn 39)."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-020.json",
+        "type": "ack",
+        "subject": "M5 ACCEPTED as final structural model — B5 work stream complete (turn 39)",
+        "status": "completed",
+        "completed": "2026-03-09",
+        "note": "B4 partial correlation gate-resolution received turn 40."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psq-sub-agent-021.json",
+        "type": "gate-resolution",
+        "subject": "ACK M5 acceptance + B4 gate-resolution: partial correlation matrix complete (turn 40)",
+        "status": "completed",
+        "completed": "2026-03-09",
+        "note": "B4 accepted turn 41. All psq-scoring work orders complete."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-021.json",
+        "type": "ack",
+        "subject": "B4 ACCEPTED — all psq-scoring work orders complete (turn 41)",
+        "status": "completed",
+        "completed": "2026-03-09",
+        "note": "Session quiescent on scoring. SL-1 work order sent turn 42."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-022.json",
+        "type": "request",
+        "subject": "Work order: build bootstrap_state_db.py — SL-1 (turn 42)",
+        "status": "completed",
+        "completed": "2026-03-09",
+        "note": "Delivered via PR #90. Merged Session 50."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-023.json",
+        "type": "amendment",
+        "subject": "SL-1 amendment: schema v2 — psq_status table + entry_facets (turn 43)",
+        "status": "completed",
+        "completed": "2026-03-09",
+        "note": "Incorporated into PR #90 deliverable."
+      },
+      {
+        "session": "psq-scoring",
+        "file": "PR #90",
+        "type": "gate-resolution",
+        "subject": "SL-1 deliverable — bootstrap_state_db.py (717 lines, all 9 checks pass)",
+        "status": "completed",
+        "completed": "2026-03-09",
+        "note": "Merged Session 50. Gate on turn 44 (cogarch adoption) now OPEN."
       }
     ],
     "claude-control": [
