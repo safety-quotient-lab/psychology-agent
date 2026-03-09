@@ -177,3 +177,38 @@ VALUES (1, 'Initial schema — transport, memory, decisions, triggers, sessions,
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (2, 'Add psq_status (typed topic table), entry_facets (polythematic subject headings)');
+
+-- ── Schema v3: Autonomous operation (EF-1 trust model) ─────────────────
+
+-- Trust budget — tracks autonomous operation credits per agent
+CREATE TABLE IF NOT EXISTS trust_budget (
+    agent_id            TEXT PRIMARY KEY,
+    budget_max          INTEGER NOT NULL DEFAULT 20,
+    budget_current      INTEGER NOT NULL DEFAULT 20,
+    last_audit          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
+    last_action         TEXT,
+    consecutive_blocks  INTEGER DEFAULT 0,
+    updated_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
+);
+
+-- Autonomous actions audit trail — every action taken without human mediation
+CREATE TABLE IF NOT EXISTS autonomous_actions (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    agent_id            TEXT NOT NULL,
+    action_type         TEXT NOT NULL,
+    action_class        TEXT NOT NULL,
+    evaluator_tier      INTEGER NOT NULL,
+    evaluator_result    TEXT NOT NULL,
+    knock_on_depth      INTEGER DEFAULT 0,
+    resolution_level    TEXT,
+    description         TEXT NOT NULL,
+    budget_before       INTEGER NOT NULL,
+    budget_after        INTEGER NOT NULL,
+    created_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_actions_agent
+    ON autonomous_actions (agent_id, created_at);
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (3, 'Add trust_budget, autonomous_actions (EF-1 evaluator-as-arbiter trust model)');

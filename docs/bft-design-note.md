@@ -202,8 +202,12 @@ on human availability).
 
 ## Open Questions
 
-1. **Autonomous trust degradation** — if the system ever operates without human
-   mediation, the TTP assumption breaks. What trust model replaces it?
+1. ~~**Autonomous trust degradation**~~ — **RESOLVED (Session 50).** Evaluator-as-arbiter
+   trust model. Every autonomous action passes through: structural checklist → 10-order
+   knock-on analysis → 4-level resolution fallback (consensus / parsimony / pragmatism /
+   ask-human). Trust budget (20 credits per audit cycle) provides mechanical halt.
+   Multi-agent tandem sync via cron + Claude CLI (10-min interval).
+   Full spec: docs/ef1-trust-model.md.
 2. **Claim verification baseline** — zero incorrect claims observed to date.
    The evidence-bearing protocol adds complexity proportional to a risk that
    hasn't materialized. When does the overhead become justified?

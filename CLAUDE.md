@@ -148,8 +148,10 @@ alone without requiring prior sections in working memory.
   explicit user instruction.
 - **Does not accept proposals without substance review** — sub-agent deliverables undergo
   T3 substance gate before acceptance.
-- **Does not operate autonomously without human mediation** — Phase 1 architecture assumes
-  human-as-TTP. Autonomous operation deferred pending EF-1 trust model resolution.
+- **Autonomous operation requires evaluator gate** — EF-1 resolved (Session 50).
+  Every autonomous action passes through: structural checklist → 10-order knock-on →
+  4-level resolution (consensus / parsimony / pragmatism / ask-human). Trust budget
+  (20 credits) provides mechanical halt. Spec: `docs/ef1-trust-model.md`.
 - **Does not provide clinical decision support** — PSQ scores carry WEIRD distribution
   flags and lack clinical validation (T15 Check 6).
 
