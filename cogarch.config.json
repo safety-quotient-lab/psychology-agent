@@ -1,0 +1,192 @@
+{
+  "$schema": "cogarch-config/v1",
+  "_description": "Domain-layer configuration for an embedded cognitive system. Adopters replace this file to rebrand the agent. Infrastructure layer (triggers, hooks, memory, dual-write) reads from here instead of hardcoding domain-specific values. See docs/cogarch-adaptation-guide.md for the full replacement path.",
+
+  "system_classification": "embedded cognitive system",
+  "methodology": {
+    "name": "systems thinking",
+    "references": ["von Bertalanffy, 1968", "Meadows, 2008"],
+    "principles": {
+      "structural": "Domain-Driven Design (Evans, 2003)",
+      "expression": "Literate programming (Knuth, 1984, adapted: A+C)",
+      "deployment": "Embedded system principles"
+    },
+    "degrees_of_freedom": {
+      "_description": "Each DDD layer exposes a distinct gradient of independent configurable parameters. High DOF = adopters replace; low DOF = adopters inherit (leverage points — Meadows, 1999).",
+      "domain_layer": "high — identity, org, peers, scoring, domain content (cogarch.config.json)",
+      "application_layer": "medium — skills, evaluator, trust model (behavioral parameters)",
+      "infrastructure_layer": "low — triggers, hooks, memory, dual-write (leverage points)"
+    }
+  },
+
+  "identity": {
+    "agent_id": "psychology-agent",
+    "display_name": "Psychology Agent",
+    "role": "collegial mentor",
+    "description": "General-purpose psychology agent — collegial mentor with specialized sub-agents. Psychoemotional safety scoring, cognitive architecture with 16 triggers and 10-order knock-on analysis.",
+    "model": "claude-opus-4-6",
+    "instance_label": "Claude Code (Opus 4.6), macOS arm64",
+    "stance": "socratic",
+    "schemas_supported": ["interagent/v1", "command-request/v1", "local-coordination/v1"],
+    "capabilities": [
+      "text-analysis",
+      "psq-scoring",
+      "research-consultation",
+      "epistemic-review",
+      "interagent-protocol"
+    ]
+  },
+
+  "organization": {
+    "name": "Safety Quotient Lab",
+    "github_handle": "safety-quotient-lab",
+    "url": "https://github.com/safety-quotient-lab",
+    "primary_repo": "psychology-agent",
+    "documentation_url": "https://github.com/safety-quotient-lab/psychology-agent"
+  },
+
+  "infrastructure": {
+    "worker_url": "https://psychology-interface.kashifshah.workers.dev",
+    "worker_agent_card_path": "/.well-known/agent-card.json",
+    "production_endpoint": "https://psq.unratified.org",
+    "hosting": {
+      "provider": "Hetzner CX Ashburn VA",
+      "note": "PSQ inference server — systemd psq-server, onnxruntime-node"
+    }
+  },
+
+  "scoring_subsystem": {
+    "enabled": true,
+    "id": "psq",
+    "display_name": "Psychoemotional Safety Quotient",
+    "abbreviation": "PSQ",
+    "routes": {
+      "score": "/psq/score",
+      "health": "/psq/health"
+    },
+    "env_var": "PSQ_ENDPOINT_URL",
+    "model_env_var": "PSYCHOLOGY_AGENT_MODEL",
+    "response_schema": "psychology-agent/machine-response",
+    "response_schema_version": "v3",
+    "dimensions": {
+      "count": 10,
+      "range": [0, 10],
+      "composite_range": [0, 100],
+      "composite_field": "psq_composite"
+    },
+    "extraction_pattern": "psychology-agent/machine-response",
+    "_note": "extraction_pattern is the regex anchor used in agent.js to find scoring blocks in streamed output. Adopters with a different scoring subsystem replace this with their response schema prefix."
+  },
+
+  "peers": {
+    "_description": "Registered agents in the mesh. Mirrors agent-registry.json structure but scoped to identity fields that adopters must change. The full registry (transport/agent-registry.json) derives from these values.",
+    "agents": {
+      "psq-agent": {
+        "role": "sub-agent",
+        "display_name": "PSQ Scoring Sub-Agent",
+        "description": "Psychometric model training, calibration, structural analysis",
+        "transport": "same-repo",
+        "message_prefix": "from-psq-sub-agent-",
+        "always_consider": true,
+        "discovery_url": null
+      },
+      "unratified-agent": {
+        "role": "peer",
+        "display_name": "Unratified Agent",
+        "description": "Blog platform operator, consumer of PSQ scores, content publisher",
+        "transport": "cross-repo-pr",
+        "repo": "safety-quotient-lab/unratified",
+        "message_prefix": "from-unratified-agent-",
+        "always_consider": false,
+        "discovery_url": "https://unratified.org/.well-known/agent-card.json"
+      }
+    },
+    "outbound_routing_domains": [
+      {
+        "domain": "psychometrics",
+        "keywords": ["PSQ", "scoring", "calibration", "model", "dimension", "bifactor", "concordance", "training data"],
+        "route_to": ["psq-agent"]
+      },
+      {
+        "domain": "content-quality",
+        "keywords": ["blog", "content", "publication", "fair witness", "vocabulary drift", "persuasion"],
+        "route_to": ["unratified-agent"]
+      },
+      {
+        "domain": "cogarch",
+        "keywords": ["trigger", "cognitive architecture", "hook", "evaluator", "governance"],
+        "route_to": ["psq-agent"]
+      },
+      {
+        "domain": "infrastructure",
+        "keywords": ["state layer", "schema", "bootstrap", "deployment"],
+        "route_to": ["psq-agent"]
+      }
+    ]
+  },
+
+  "sub_projects": [
+    {
+      "path": "safety-quotient/",
+      "agent_id": "psq-agent",
+      "boundary_message": "This work normally routes to the psq-agent context. Switch context or defer unless explicitly integrating."
+    },
+    {
+      "path": "pje-framework/",
+      "agent_id": null,
+      "boundary_message": "This work normally routes to the pje context. Switch context or defer unless explicitly integrating."
+    }
+  ],
+
+  "facets": {
+    "_description": "Vocabulary for the polythematic facet system (entry_facets table). Adopters replace domain values; facet_types remain stable infrastructure.",
+    "topic_domain_map": {
+      "psq-status": "psychometrics",
+      "decisions": "design",
+      "cogarch": "cognitive-architecture"
+    },
+    "default_domain": "operations",
+    "work_stream_prefixes": {
+      "b3-": "psq-scoring/b3",
+      "b4-": "psq-scoring/b4",
+      "b5-": "psq-scoring/b5",
+      "b5r-": "psq-scoring/b5",
+      "b5s-": "psq-scoring/b5",
+      "di-": "dignity/phase-a",
+      "sl-": "state-layer/sl-1"
+    },
+    "agent_detection_patterns": {
+      "_description": "Substring patterns matched against entry_key + value to assign agent facets. Order matters — first match wins.",
+      "patterns": [
+        { "match": ["psq-sub-agent", "psq sub-agent"], "agent": "psq-sub-agent" },
+        { "match": ["unratified"], "agent": "unratified-agent" }
+      ],
+      "default_agent": "psychology-agent"
+    }
+  },
+
+  "transport": {
+    "method": "git-PR",
+    "repo_url": "https://github.com/safety-quotient-lab/psychology-agent",
+    "sessions_path": "transport/sessions/",
+    "manifest_path": "transport/MANIFEST.json",
+    "naming_convention": "transport/sessions/{session-name}/{direction}-{descriptor}-{sequence}.json",
+    "agent_card_path": ".well-known/agent-card.json"
+  },
+
+  "domain_content": {
+    "_description": "References to domain-specific content that adopters replace entirely. These paths and constructs define what this agent knows about — not how it thinks.",
+    "system_prompt_file": "interface/src/agent.js",
+    "system_prompt_constant": "PSYCHOLOGY_SYSTEM",
+    "domain_docs": [
+      "docs/dignity-instrument-spec.md",
+      "docs/dignity-phase-a-study.md",
+      "docs/ethical-marketing-rubric.md"
+    ],
+    "domain_constructs": [
+      "PSQ (Psychoemotional Safety Quotient)",
+      "DI (Dignity Index)",
+      "PJE (Psychology of Just Environments)"
+    ]
+  }
+}

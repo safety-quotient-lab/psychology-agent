@@ -196,17 +196,18 @@ human-mediated Claude Code sessions to autonomous operation.
 
 ## Public Release Preparation
 
-- [ ] **Cogarch portability (DDD-framed)** — Make the cognitive architecture adoptable
-  by other Claude Code agent projects. DDD organizing principle (Evans, 2003) adopted:
-  infrastructure layer (triggers, hooks, memory, dual-write) portable as-is;
-  application layer (skills, evaluator, trust model) configurable; domain layer
-  (PSQ, DI, PJE, topology) replaced by adopters.
-  Delivery: **B+C** — (B) `cogarch.config.json` parameterizes domain-layer boundary
-  (agent name, org, peer agents, scoring endpoints, transport topology);
-  (C) adaptation guide documents the replacement path with the 4-tier inventory.
-  Coupling-point inventory complete (Session 52, 7 categories, 4 tiers).
+- [ ] **Cogarch portability (systems thinking framed)** — Make the embedded cognitive
+  system adoptable by other Claude Code agent projects. Systems thinking methodology
+  with three principles: DDD (structural — DOF gradient across layers), literate
+  programming A+C (expression — docs-as-code + narrative-driven), embedded system
+  (deployment — cogarch inside host).
+  Delivery: **B+C** — (B) `cogarch.config.json` parameterizes domain-layer degrees
+  of freedom (13 sections, 23 consumer locations); (C) adaptation guide documents
+  the replacement path with the 4-tier coupling inventory.
+  Completed:
+  - [x] Coupling-point inventory (Session 52, 7 categories, 4 tiers)
+  - [x] `cogarch.config.json` schema (Session 53, 13 sections)
   Remaining work:
-  (1) Design and implement `cogarch.config.json` schema
-  (2) Write adaptation guide (which files to change, what to keep, what to replace)
-  (3) Verify Apache 2.0 license covers the portable layers without friction
+  (1) Write adaptation guide (which files to change, what to keep, what to replace)
+  (2) Verify Apache 2.0 license covers the portable layers without friction
   *Precondition: none — can begin anytime*

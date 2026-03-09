@@ -81,6 +81,36 @@
  Requirement-level keywords    BCP 14 (RFC 2119 + RFC 8174). UPPER CASE
  (BCP 14)                     MUST/SHOULD/MAY across all cogarch +
                               trust model docs. 2026-03-09
+ System classification          Embedded cognitive system. Cogarch
+                              operates as firmware inside Claude Code
+                              host. Not metaphorical — architectural.
+                              2026-03-09
+ Systems thinking              Umbrella methodology (von Bertalanffy,
+ (methodology)                 Meadows). 3 sub-principles: DDD
+                              (structural), literate programming
+                              (expression), embedded system
+                              (deployment). Key properties: feedback
+                              loops, boundaries, emergence, leverage
+                              points (Meadows 1999), stocks/flows,
+                              degrees of freedom (DOF gradient across
+                              DDD layers: domain=high, application=
+                              medium, infrastructure=low). 2026-03-09
+ Literate programming          A+C (Knuth 1984, adapted). (A) Docs-as-
+ (expression principle)        code: every governing artifact reads as
+                              prose. (C) Narrative-driven: no element
+                              without origin story, Derives-from chains
+                              mandatory, journal = first-class artifact.
+                              B (Knuth-strict tangle/weave) deferred.
+                              2026-03-09
+ Domain-Driven Design          DDD (Evans, 2003) as structural principle
+ (structural principle)        under systems thinking. 3 layers with
+                              DOF gradient: infrastructure (low DOF —
+                              triggers, hooks, memory — leverage points),
+                              application (medium DOF — skills, evaluator,
+                              trust model), domain (high DOF — PSQ, DI,
+                              PJE, topology — cogarch.config.json). Each
+                              agent = bounded context. interagent/v1 =
+                              context map. De-branding: B+C. 2026-03-09
 ```
 
 ## Authority Hierarchy

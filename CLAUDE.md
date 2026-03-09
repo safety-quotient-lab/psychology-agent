@@ -3,11 +3,27 @@
 General-purpose psychology agent project root. Specialized sub-projects below.
 MEMORY.md holds volatile state (active thread, design decisions, cogarch quick-ref).
 
-**Core organizing principle: Domain-Driven Design (Evans, 2003).** The cogarch separates
-into three layers: INFRASTRUCTURE (triggers, hooks, memory, dual-write — inherited as-is),
-APPLICATION (skills, evaluator, trust model — configured per agent), DOMAIN (PSQ, DI, PJE,
-transport topology — replaced by adopters). Each agent operates as a bounded context;
-interagent/v1 serves as the context map. See `docs/architecture.md` for the full DDD mapping.
+**System classification: embedded cognitive system.** The cogarch operates as an embedded
+system inside Claude Code — triggers fire within the host's tool-use loop, hooks intercept
+I/O, memory persists across sessions, identity injects into the system prompt.
+
+**Methodology: systems thinking** (von Bertalanffy, 1968; Meadows, 2008). Three principles:
+- **DDD** (Evans, 2003) — structural: INFRASTRUCTURE (low degrees of freedom — triggers,
+  hooks, memory, dual-write — inherited as-is; leverage points live here), APPLICATION
+  (medium DOF — skills, evaluator, trust model — configured per agent), DOMAIN (high DOF —
+  PSQ, DI, PJE, transport topology — replaced by adopters; cogarch.config.json parameterizes
+  all domain-layer degrees of freedom). Each agent = bounded context; interagent/v1 =
+  context map.
+- **Literate programming** (Knuth, 1984, adapted) — expression: every artifact governing
+  agent behavior MUST read as prose, not just parse as config (documentation-as-code). No
+  architectural element exists without narrative context — triggers link to origin failures,
+  decisions carry Derives-from chains, journal.md serves as a first-class architectural
+  artifact (narrative-driven architecture).
+- **Embedded system principles** — deployment: the cogarch governs host behavior through
+  mechanical enforcement (hooks), feedback loops (T10/T12), and leverage points (config
+  parameterization).
+
+See `docs/architecture.md` for the full mapping.
 
 ---
 

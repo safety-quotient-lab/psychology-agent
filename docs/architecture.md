@@ -409,21 +409,97 @@
                                 Full narrative: journal.md §35.
                                 Decided: 2026-03-09
 
+ System classification          Embedded cognitive system. The cogarch
+                                operates as an embedded system inside
+                                a host (Claude Code): triggers fire
+                                within the host's tool-use loop, hooks
+                                intercept I/O, memory persists across
+                                sessions, identity injects into the
+                                system prompt. Not metaphorical —
+                                architecturally equivalent to firmware
+                                governing a host processor's behavior.
+                                Decided: 2026-03-09
+
+ Systems thinking               Systems thinking (von Bertalanffy,
+ (methodology)                   1968; Meadows, 2008) as the umbrella
+                                methodology. The cogarch exhibits:
+                                feedback loops (T10 lessons, T12
+                                reinforcement, trust budget decay),
+                                boundaries (DDD layers, sub-project
+                                fences, scope refusals), emergence
+                                (agent behavior from trigger
+                                interactions), leverage points (hooks
+                                as mechanical enforcement, config as
+                                parameterization — Meadows, 1999),
+                                stocks and flows (memory accumulation,
+                                T9 decay, decision consumption),
+                                degrees of freedom (independent
+                                parameters defining the system's
+                                configuration space — each DDD layer
+                                exposes a distinct DOF gradient).
+                                Three principles operate under this
+                                umbrella:
+                                (1) DDD — structural (what goes where)
+                                (2) Literate programming — expression
+                                  (how artifacts read)
+                                (3) Embedded system — deployment
+                                  (cogarch inside host)
+                                Derives from: Cogarch organizing
+                                  principle (Peircean semiotics),
+                                  DDD decision.
+                                Decided: 2026-03-09
+
+ Literate programming            A+C interpretation (Knuth, 1984,
+ (expression principle)          adapted). Two components:
+                                (A) Documentation-as-code — every
+                                  artifact governing agent behavior
+                                  MUST read as prose, not just parse
+                                  as config. CLAUDE.md, cognitive-
+                                  triggers.md, skills, and config
+                                  files serve as both executable
+                                  instructions and human-readable
+                                  documentation.
+                                (C) Narrative-driven architecture —
+                                  no architectural element exists
+                                  without its narrative context. Every
+                                  trigger links to its origin failure
+                                  or design principle. Every decision
+                                  carries a Derives-from chain.
+                                  Journal.md is a first-class
+                                  architectural artifact, not optional
+                                  documentation. Orphan decisions
+                                  (no antecedent) constitute a gap.
+                                Knuth-strict (B) — prose-first source
+                                  files with tangled code extraction —
+                                  deferred as future aspiration (requires
+                                  tangle/weave toolchain).
+                                Derives from: Systems thinking
+                                  (expression principle under the
+                                  methodology umbrella).
+                                Decided: 2026-03-09
+
  Domain-Driven Design           DDD (Evans, 2003) adopted as core
- (organizing principle)          architectural principle. The cogarch
+ (structural principle)          structural principle. The cogarch
                                 separates into three DDD layers:
-                                (1) DOMAIN layer — psychology-specific
-                                  content (PSQ, DI, PJE, transport
-                                  topology, agent identities). Adopters
-                                  replace this entirely.
-                                (2) APPLICATION layer — skills (/hunt,
-                                  /cycle, /sync, /knock, /iterate),
-                                  evaluator protocol, trust model.
-                                  Adopters configure, rarely replace.
-                                (3) INFRASTRUCTURE layer — trigger system
-                                  (T1-T16), hooks, memory pattern,
-                                  dual-write, lite prompts, bootstrap.
-                                  Adopters inherit as-is.
+                                (1) DOMAIN layer (high DOF) —
+                                  psychology-specific content (PSQ, DI,
+                                  PJE, transport topology, agent
+                                  identities). Adopters replace this
+                                  entirely. cogarch.config.json
+                                  parameterizes all domain-layer
+                                  degrees of freedom.
+                                (2) APPLICATION layer (medium DOF) —
+                                  skills (/hunt, /cycle, /sync, /knock,
+                                  /iterate), evaluator protocol, trust
+                                  model. Adopters configure behavioral
+                                  parameters; structure remains.
+                                (3) INFRASTRUCTURE layer (low DOF) —
+                                  trigger system (T1-T16), hooks,
+                                  memory pattern, dual-write, lite
+                                  prompts, bootstrap. Adopters inherit
+                                  as-is. Leverage points (Meadows) live
+                                  here — highest systemic impact, fewest
+                                  adjustable parameters.
                                 Bounded contexts: each agent (psychology-
                                   agent, psq-agent, unratified-agent)
                                   operates as a bounded context with its
