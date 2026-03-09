@@ -65,6 +65,15 @@
                               20 credits/audit. Multi-agent tandem sync
                               via cron + Claude CLI. Derives from BFT +
                               evaluator instantiation. 2026-03-09
+ Core governance trust model   7 invariants governing P/J/E lenses.
+                              No action without evaluation; bounded
+                              autonomy; human escalation; consequence
+                              tracing; reversibility-scaled rigor;
+                              transparent audit; falsifiability.
+                              Derives from EF-1. 2026-03-09
+ Requirement-level keywords    BCP 14 (RFC 2119 + RFC 8174). UPPER CASE
+ (BCP 14)                     MUST/SHOULD/MAY across all cogarch +
+                              trust model docs. 2026-03-09
 ```
 
 ## Authority Hierarchy

@@ -205,6 +205,14 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Autonomous sync scripts          | ✓ autonomous-sync.sh + trust-budget.py — cron + Claude CLI multi-agent loop (Session 50) |
 | Schema v3                        | ✓ trust_budget + autonomous_actions tables added (Session 50) |
 | MANIFEST bulk update             | ✓ 8-message drift resolved — turns 28-45 in recently_completed (Session 50) |
+| EF-1 governance layer            | ✓ docs/ef1-governance.md — 7 invariants governing P/J/E lenses, RFC 2119/8174 (Session 50) |
+| BCP 14 cogarch pass              | ✓ RFC 2119+8174 MUST/SHOULD/MAY applied across all triggers + trust models (Session 50) |
+| T4 Check 10 (commit discipline)  | ✓ Every file write MUST be followed by git commit (Session 50) |
+| Schema v4                         | ✓ shadow_mode, adversarial_reason, peer_reviewed_by columns (Session 50) |
+| EF-1 flag mitigations            | ✓ Cross-agent peer review, adversarial self-framing, shadow mode, MANIFEST staging (Session 50) |
+| Beyond-order-10 clause           | ✓ 10 named orders + emergence escalation (Session 50) |
+| README quickstart TODO           | ✗ Added — bare metal, accordion, 5 demos (Session 50) |
+| Workflow Continuity (compaction)  | ✓ CLAUDE.md updated — cogarch reload REQUIRED post-compaction (Session 50) |
 
 
 ### Open Questions
@@ -3199,3 +3207,43 @@ from-psychology-agent-025.json (turn 45)
   activity. Calibrate after first week of autonomous operation.
 - from-psq-sub-agent-007.json contains malformed JSON (pre-existing). Should be
   investigated separately.
+
+
+## 2026-03-09T11:50 CDT — Session 50b (EF-1 governance layer, BCP 14 pass, commit discipline)
+
+Continuation of Session 50 after context compaction.
+
+- Created `docs/ef1-governance.md` — core governance trust model with 7 invariants
+  governing all discipline-specific EF-1 extensions (psychology, jurisprudence,
+  engineering). RFC 2119 + RFC 8174 (BCP 14) keyword definitions adopted as the
+  requirement-level language standard for the entire cogarch
+- Applied BCP 14 keywords (MUST, MUST NOT, SHOULD, MAY, REQUIRED) across:
+  - `docs/cognitive-triggers.md` — all prescriptive checks upgraded
+  - `docs/ef1-trust-model.md` — core principle, evaluator protocol, halt conditions
+  - `docs/ef1-psychological-foundations.md` — governance reference added
+- New T4 Check 10: commit discipline — every file write MUST be followed by a git
+  commit before proceeding to the next logical unit of work
+- Resolved "all higher orders" vs "just 10": 10 named orders stay (each grounded
+  in a distinct psychological construct), with "beyond-10 emergence" clause that
+  escalates to Tier 3 rather than generating speculative analysis
+- Epistemic flag mitigations written for all 3 user-flagged concerns:
+  - EF-flag 1 (blind spots): cross-agent peer review + adversarial self-framing
+  - EF-flag 2 (budget calibration): shadow mode for first week
+  - EF-flag 3 (MANIFEST collision): per-agent staging files
+- Schema v4: shadow_mode, adversarial_reason, peer_reviewed_by columns
+- CLAUDE.md Workflow Continuity updated: cogarch reload REQUIRED post-compaction
+- TODO.md: README quickstart guide added (bare metal, accordion, 5 demos + SPSS)
+- Governance invariants: (1) no action without evaluation, (2) bounded autonomy,
+  (3) escalation path to human, (4) consequence tracing before resolution,
+  (5) reversibility determines rigor, (6) transparent audit trail,
+  (7) falsifiability of predictions
+- Lens interaction rules: check invariants → check falsifiable predictions →
+  apply parsimony → escalate to user
+
+▶ journal.md §34, docs/ef1-governance.md, docs/ef1-trust-model.md
+
+⚑ EPISTEMIC FLAGS
+- Governance invariants may need revision when the jurisprudence extension
+  reveals constraints not visible from psychology or engineering alone
+- RFC 8174 keywords create a compliance layer — enforcement remains agent-level
+  (no mechanical hook validates MUST compliance in prose)
