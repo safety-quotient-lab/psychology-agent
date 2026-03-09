@@ -17,9 +17,9 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 57. Hook debug logging, README maturity recalibration,
-lessons merge (25 entries from 3 sources), auto-bootstrap memory on first launch,
-/cycle timing discipline, shellcheck CI fix (unpushed — needs `workflow` scope).
+**Where we stopped:** Session 57. Hook error investigation (transient), configurable
+debug logging (all 17 hooks), README maturity table recalibrated (3 downgrades),
+editorial complaints noted (governance theater, name-dropping → ideas.md).
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - Cogarch portability: ✓ COMPLETE `[cold: done]`
@@ -29,10 +29,9 @@ lessons merge (25 entries from 3 sources), auto-bootstrap memory on first launch
 - PSQ cogarch mirror: Phase 2 ✓ COMPLETE, Phase 3 → autonomous-op prerequisite `[hot]`
 - DI Phase A Pass 2: pending (inter-rater reliability) `[cold: docs/dignity-phase-a-study.md]`
 - Hook debug logging: ✓ COMPLETE — toggle via `.claude/hooks/.debug` `[cold: done]`
-- Auto-bootstrap: ✓ Both memory + state.db restore on SessionStart `[cold: done]`
 
-**Next:** Push shellcheck fix (needs `workflow` OAuth scope). DI Phase A Pass 2
-(fresh session). First autonomous sync cycle.
+**Next:** DI Phase A Pass 2 (fresh session). First autonomous sync cycle (unblocks
+cross-agent faceted queries).
 
 
 ## Memory Hygiene
