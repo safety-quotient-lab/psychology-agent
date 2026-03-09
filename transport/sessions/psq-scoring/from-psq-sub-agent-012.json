@@ -65,7 +65,7 @@
         "threat_exposure":         {"v35": 0.759, "v37": 0.754, "delta": -0.005, "p": 0.934},
         "hostility_index":         {"v35": 0.714, "v37": 0.711, "delta": -0.003, "p": 0.965},
         "authority_dynamics":      {"v35": 0.651, "v37": 0.600, "delta": -0.051, "p": 0.559},
-        "energy_dissipation":      {"v35": 0.762, "v37": 0.767, "delta": +0.005, "p": 0.940},
+        "energy_dissipation":      {"v35": 0.762, "v37": 0.767, "delta": 0.005, "p": 0.940},
         "regulatory_capacity":     {"v35": 0.765, "v37": 0.747, "delta": -0.018, "p": 0.764},
         "resilience_baseline":     {"v35": 0.639, "v37": 0.619, "delta": -0.020, "p": 0.820},
         "trust_conditions":        {"v35": 0.711, "v37": 0.681, "delta": -0.031, "p": 0.679},
