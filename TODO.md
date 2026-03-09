@@ -146,10 +146,9 @@ human-mediated Claude Code sessions to autonomous operation.
   memory snapshots, lab-notebook, cognitive-triggers. All 9 validation checks pass.
   29 pre-interagent/v1 legacy files skipped (expected).
 
-- [ ] **SL-2: /sync + /cycle dual-write integration** — Modify /sync and /cycle skills
-  to write SQLite alongside markdown (dual-write protocol per sqlite.md). Transport
-  messages get indexed on ingest; memory entries get updated on /cycle Step 7.
-  *Precondition: SL-1 bootstrap script delivered and validated*
+- [x] **SL-2: /sync + /cycle dual-write integration** — COMPLETE (Session 51).
+  `scripts/dual_write.py` (6 subcommands). /sync Phase 3+5 index transport messages.
+  /cycle Steps 2, 4, 7 dual-write sessions, decisions, memory entries. Schema v5.
 
 - [ ] **MCP resource: faceted classification** — Expose `entry_facets` as an MCP
   resource so peer agents can query "what does the psychology agent know about
@@ -191,23 +190,9 @@ human-mediated Claude Code sessions to autonomous operation.
 
 ## GitHub README Quickstart
 
-- [ ] **README quickstart guide ("zero to demo")** — Rewrite root README.md with a
-  step-by-step guide taking someone from bare metal to a working psychology agent demo.
-  Accordion-style (collapsible `<details>` blocks) so experienced users skip steps they
-  already have. Structure:
-  1. Install Claude Code (bare metal — link to Anthropic docs)
-  2. Clone repo, install Python 3.10+ deps
-  3. First run — bootstrap state.db, verify hooks load
-  4. **Demo 1: Conversational exchange** — fair witness + Socratic persona in action
-  5. **Demo 2: PSQ score on sample text** — 10-dimension breakdown + composite
-  6. **Demo 3: /knock on a decision** — 10-order knock-on analysis
-  7. **Demo 4: /iterate cycle** — sync → hunt → discriminate → execute → cycle
-  8. **Demo 5 (exploratory): SPSS integration?** — investigate whether the agent can
-     interact with SPSS data files, run analyses, interpret output. Scope TBD.
-  Each demo shows the command, then a representative output snippet that makes the
-  system's value immediately visible. Keep the path from clone to first demo under
-  5 minutes for someone with Claude Code already installed.
-  *Precondition: none — can begin anytime. Pairs with de-branding effort.*
+- [x] **README quickstart guide ("zero to demo")** — COMPLETE (Session 51). Accordion
+  setup (Steps 1-3), 5 demos (conversational, PSQ score, /knock, /iterate, SPSS).
+  Status tables updated. Project structure refreshed.
 
 ---
 

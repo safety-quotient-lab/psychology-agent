@@ -45,7 +45,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | License (root project)        | ✓ Apache 2.0 — LICENSE + NOTICE at project root (relicensed Session 32c) |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
 | Auto-memory recovery          | ✓ Snapshots, bootstrap-check.sh, T1 health check, BOOTSTRAP.md restructure (Session 11) |
-| Platform hooks                | ✓ 12 hooks: pre-commit (+ cogarch gate), parry (3), T4 reminder, SessionStart, PreCompact, Stop, subproject-boundary, pushback-accumulator, write-provenance, context-pressure-gate (Session 12-27) |
+| Platform hooks                | ✓ 21 hooks: pre-commit, parry (3), T4, provenance, subproject, external-action, pushback, SessionStart, PreCompact, Stop, Notification, tool-failure (2), subagent-audit, SessionEnd, InstructionsLoaded, TaskCompleted, ConfigChange (Session 12-51) |
 | Source dictionary             | ✓ docs/dictionary.md — 15 entries, 7 categories, APA citations (Session 27) |
 | best.pt local recovery        | ✓ SHA256 7bec777c match confirmed local↔Hetzner (Session 27) |
 | Agent identity directive      | ✓ Psychology agent first; engineering serves the discipline (Session 40) |
