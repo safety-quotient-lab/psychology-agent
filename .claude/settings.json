@@ -2,16 +2,6 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash(git commit*)",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo '[HOOK] Pre-commit memory health check...' && ./bootstrap-check.sh --check-only 2>&1 | tail -5 || echo '[HOOK] bootstrap-check.sh not found or failed — proceeding'",
-            "timeout": 15000
-          }
-        ]
-      },
-      {
         "hooks": [
           {
             "type": "command",

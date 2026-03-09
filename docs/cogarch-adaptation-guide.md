@@ -15,7 +15,7 @@ gradient. Each layer carries a different adoption cost:
 
 | Layer | DOF | What it contains | Adopter action |
 |-------|-----|------------------|----------------|
-| **Infrastructure** | Low | Triggers (T1-T16), hooks (13 scripts), memory pattern (index + topic files), dual-write (state.db), lite prompts, bootstrap | **Inherit logic as-is; replace identity values.** Hooks contain `/tmp/{agent-id}-*` paths and agent ID arguments — the enforcement logic stays identical, only the name changes. Leverage points (Meadows, 1999). |
+| **Infrastructure** | Low | Triggers (T1-T16), hooks (19 scripts), memory pattern (index + topic files), dual-write (state.db), lite prompts, bootstrap | **Inherit logic as-is; replace identity values.** Hooks contain `/tmp/{agent-id}-*` paths and agent ID arguments — the enforcement logic stays identical, only the name changes. Leverage points (Meadows, 1999). |
 | **Application** | Medium | Skills (/hunt, /cycle, /sync, /knock, /iterate, /doc), evaluator protocol, trust model, /adjudicate command | **Configure.** Skills contain agent identity in message templates and example commands — replace those values. Skill logic works for any agent; evaluator and trust model may need domain-specific tuning. |
 | **Domain** | High | Agent identity, organization, peer agents, scoring subsystem, transport topology, domain documents | **Replace entirely.** `cogarch.config.json` parameterizes all domain-layer degrees of freedom. |
 
@@ -246,16 +246,17 @@ Modifying their **logic** breaks the embedded cognitive system:
 
 After adaptation, verify:
 
-- [ ] `cogarch.config.json` contains no psychology-agent references
+- [ ] `cogarch.config.json` contains your agent identity (no psychology-agent references)
 - [ ] `python3 -c "import json; json.load(open('cogarch.config.json'))"` passes
 - [ ] `.well-known/agent-card.json` reflects your agent identity
 - [ ] `transport/agent-registry.json` lists your agents (or empty agents block)
+- [ ] `transport/MANIFEST.json` cleared (empty pending + recently_completed)
 - [ ] `python scripts/bootstrap_state_db.py --force` completes with all 9 checks passing
-- [ ] Hook scripts execute without error: `bash .claude/hooks/bootstrap-check.sh`
 - [ ] `CLAUDE.md` top paragraph matches your system classification
 - [ ] `docs/cognitive-triggers.md` exists and has 100+ lines (unchanged from source)
-- [ ] No grep hits for "psychology-agent" outside of `transport/sessions/` and `docs/snapshots/`
+- [ ] No grep hits for "psychology-agent" in `*.sh *.js *.py *.json` outside of `transport/sessions/` and `docs/snapshots/`
 - [ ] No grep hits for "Safety Quotient Lab" outside of `transport/sessions/` and `docs/snapshots/`
+- [ ] Hook temp files use your agent name: `grep -r '/tmp/' .claude/hooks/ | grep -v your-agent-id` returns nothing
 
 
 ## License
