@@ -34,11 +34,14 @@ Awaiting user terminal run.
   (TE/HI/AD vs RC/RB); TC marginal, CC non-significant. ED singleton confirmed.
   DA paradox revised (rotation artifact; DA g=0.825, CO g=0.717 lowest).
   RMSEA=0.141 (misfit from TC/CC on bipolar + N-sensitivity).
-**B5-R respecification:** ✗ PENDING — work order sent (turn 35). 5-item bipolar refit
-  + standardized loadings. Expected to improve RMSEA.
+**B5-R respecification:** ✓ COMPLETE (turn 36). RMSEA 0.1414→0.1365. omega_s(bipolar)
+  doubled (0.033→0.072). Standardized loadings delivered.
+**B5-S structural comparison:** ✓ COMPLETE (turn 38). M5 wins 4-way comparison
+  (M3/M4/M5/M5b). RMSEA=0.1286. M5b (cc_f) adds zero fit — CC structurally diffuse.
+  M5 accepted as final structural model (turn 39). B5 work stream closed.
 **Factor analysis v3:** KMO=0.910, g-eigenvalue=6.824, 68.2% variance, 1 factor. But criterion
   validity shows profile shape predicts while g-PSQ does not → bifactor investigation.
 **Design decisions (Session 45):** Single-scorer constraint, calibration success criterion revised,
   calibration deploy timing (post-model-stabilization). See architecture.md.
-**Next:** Await B5-R respecification + B4 partial correlations from psq-agent.
+**Next:** Await B4 partial correlations from psq-agent (only remaining psq-scoring work order).
 Do not duplicate PSQ improvement work in this context.

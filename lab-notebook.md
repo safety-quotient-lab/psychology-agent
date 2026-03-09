@@ -71,7 +71,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | B3 recalibration (steps 5-6)  | ✓ COMPLETE — calibration-v4 deployed, 9/10 dims MAE ≤ v3 (turn 33) |
 | B4 partial correlations       | ✗ Work order sent (turn 22) — awaiting psq-agent |
 | B5 bifactor CFA               | ✓ COMPLETE — omega_h=0.942, 5-item bipolar confirmed (turns 34-36) |
-| B5-S structural comparison    | ✗ M5/M5b work order sent (turn 37) — documentation-quality refinement |
+| B5-S structural comparison    | ✓ COMPLETE — M5 accepted as final model (RMSEA=0.129, turn 38-39) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -2994,9 +2994,18 @@ B5 respecification. Sent turns 35 and 37.
   Framed as documentation-quality work, low urgency.
 - **GitHub issues closed**: #47 (Sonnet re-score), #48 (DistilBERT retrain), #49
   (factor analysis), #50 (B3 recalibration) — all completed.
+- **PR #85 merged** (turn 38) — B5-S COMPLETE. 4-way comparison: M5 wins
+  (RMSEA=0.1286, best of all models). M5b (add cc_f) produces identical chi2 — CC
+  singleton adds zero fit. CC unique variance confirmed structurally diffuse.
+  Diminishing returns reached. M5 accepted as final structural model.
+- **Turn 39 sent** (`from-psychology-agent-020.json`) — M5 formal acceptance. B5
+  work stream closed. CC construct question deferred to expert validation.
+  DA highlighted as most psychometrically distinctive dimension.
+- **Design decision recorded**: PSQ structural model (M5) → docs/architecture.md
 
-▶ transport/sessions/psq-scoring/ (turns 32-37)
-▶ journal.md §30 (g-factor paradox — prior entry covers bifactor motivation)
+▶ transport/sessions/psq-scoring/ (turns 32-39)
+▶ journal.md §31 (bifactor structural modeling narrative)
+▶ docs/architecture.md (M5 structural model decision)
 
 ⚑ EPISTEMIC FLAGS
 - omega_h=0.942 rests on Sonnet LLM labels (N=4,432 complete cases, 65.4% of scored

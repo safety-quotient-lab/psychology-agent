@@ -89,9 +89,9 @@ Forward-looking task list only. Completed and emergent work goes to
   34-36). omega_h=0.942. 5-item bipolar (TE/HI/AD vs RC/RB). DA paradox revised.
   B5-R respecification confirmed. RMSEA=0.1365 (above threshold).
 
-- [ ] **B5-S structural comparison (M5/M5b)** — Work order sent (turn 37). M5: collapse
-  ED/CO singletons. M5b: add CC singleton. 4-way fit comparison. Documentation-quality
-  refinement, low urgency. *Gate: OPEN — awaiting psq-agent.*
+- [x] **B5-S structural comparison (M5/M5b)** — COMPLETE (Session 47, turn 38). M5
+  wins: RMSEA=0.129, best fit with fewest parameters. M5b adds zero improvement.
+  M5 accepted as final structural model.
 
 - [ ] **B4 partial correlations** — Work order sent (turn 22). Dimension-specific
   variance after removing g-PSQ. Still pending. *Gate: OPEN — awaiting psq-agent.*

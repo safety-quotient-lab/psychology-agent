@@ -47,6 +47,7 @@ partner, and Socratic interlocutor
 30. [The g-Factor Paradox: Why a Dominant Factor and Distinct Profiles Coexist](#30-the-g-factor-paradox)
 29. [Two Instruments Under One Name: What the Observatory Review Reveals About Measurement Mode Collapse](#29-two-instruments-under-one-name)
 30. [Dignity as Measurement: Why Psychoemotional Safety Cannot Proxy for Inherent Worth](#30-dignity-as-measurement)
+31. [What the Bifactor Reveals: Structure, Singletons, and a Construct That Refuses to Cohere](#31-what-the-bifactor-reveals)
 
 ---
 
@@ -1217,6 +1218,35 @@ The resolution comes from bifactor theory (Reise, 2012). A bifactor model posits
 We designed a diagnostic test: compute partial correlations between each dimension pair after controlling for g-PSQ (unweighted mean). If the partial correlations fall near zero, the dimensions carry no information beyond g, and the criterion validity of profile shape may reflect noise or overfitting. If meaningful partial correlations remain, the dimensions carry distinct residual information — the structural precondition for a bifactor model exists, and the criterion validity findings have a statistical explanation.
 
 The practical stake: if the dimensions are truly interchangeable after removing g, then maintaining 10 separate dimensions adds complexity without value — a single PSQ score would suffice. If they carry distinct information, the 10-dimension profile represents genuine measurement structure, and consumers who use only the aggregate lose predictive power that the profile provides. The answer shapes how we present PSQ to downstream systems.
+
+
+## §31 — What the Bifactor Reveals: Structure, Singletons, and a Construct That Refuses to Cohere {#31-what-the-bifactor-reveals}
+
+The partial correlations (B4, §30) established the precondition: dimensions carry information beyond g. The confirmatory bifactor analysis (B5, turns 34-38) answered the structural question — and revealed three findings that reshape our understanding of the PSQ.
+
+**The g-factor holds.** Across four progressively refined bifactor models (M3 through M5), omega_h remained stable at 0.938-0.942. The g-PSQ (unweighted average of all 10 dimensions) captures 93.8% of composite score variance. This validates the simplest possible scoring approach — unweighted averaging — as psychometrically sound. A consumer who uses only g-PSQ loses approximately 6% of the available information. Weighted composites would offer negligible improvement.
+
+**The bipolar factor turned out narrower than we hypothesized.** Our initial specification put seven dimensions on the bipolar specific factor: threat pole (TE, HI, AD) versus protection pole (RC, RB, TC, CC). The data showed otherwise. TC's bipolar loading came through as marginal (β = −0.069, practically zero), and CC's loading proved non-significant (β = +0.019, p = 0.421). The effective bipolar factor spans five dimensions: TE, HI, and AD define the threat pole; RC and RB define the protection pole. TC and CC function as pure g-markers — they contribute to general safety measurement without differentiating threat from protection contexts.
+
+This narrowing makes psychological sense. Trust conditions (TC) measure the relationship scaffolding that enables or constrains interaction — present in both threatening and protective contexts. Contractual clarity (CC) measures norm/communication transparency — similarly context-invariant. Neither polarizes between threat and protection the way hostility (HI) or resilience baseline (RB) do.
+
+Respecifying the bipolar factor as 5-item (B5-R, turn 36) confirmed the improvement: omega_s(bipolar) doubled from 0.033 to 0.072. The 5-item factor captures genuine threat/protection polarity rather than diluted g-variance.
+
+**The DA paradox dissolved.** An earlier EFA (exploratory factor analysis) had identified a paradox: authority dynamics (DA) showed the weakest Factor 1 loading (0.332) yet produced the strongest criterion validity across four independent studies. The bifactor model resolved this: DA's g-loading in the confirmatory model stands at 0.814 — medium-high, not the lowest. The EFA finding was a rotation artifact. Oblique and orthogonal rotation produce non-unique solutions; what appeared as DA's isolation from the general factor reflected an arbitrary choice among equivalent rotations, not a structural property of the data.
+
+DA's criterion superiority now has a cleaner explanation. DA carries both a reliable general safety signal (66.8% of variance from g) *and* meaningful domain-specific content about peer-context status negotiation (6.7% from the DA singleton, 26.5% residual unique variance). The "paradox" reframes as: DA contributes to the general factor and adds unique predictive content. CO, not DA, holds the weakest g-loading (0.697) — making CO the most structurally isolated dimension.
+
+**CC refused to cohere.** The most unexpected finding emerged from the M5/M5b comparison (B5-S, turn 38). We tested whether CC's large residual variance (1.275, 38% larger than any other dimension) represented an under-specified latent construct — perhaps a "contextual clarity" factor that the bifactor had not modeled. The cc_f singleton test (M5b) produced identical chi2 to M5 despite adding a dedicated CC factor. The CC singleton variance came through as near-zero (0.022), omega_s(cc_f) = 0.008. CC's unique variance does not conform to a simple latent dimension.
+
+This result, combined with CC's other anomalies — 51% score pile-up even with Sonnet scoring, near-zero criterion validity (CMV: p = 0.155), and now the largest unabsorbed residual — suggests CC may not measure a coherent unitary construct. Norm/communication clarity may tap into multiple situationally-specific processes that share only g-variance. The question shifts from "does CC have unique variance?" (it does — the largest residual confirms this) to "does CC measure one thing or several things that happen to share a label?"
+
+This question cannot receive resolution from LLM label data alone. Human expert raters may disagree substantially on CC scores — and that disagreement itself would carry diagnostic value. CC takes priority in the expert validation study design.
+
+**The final structural model (M5)** emerged from systematic elimination across four specifications: g (all 10 dimensions) + bipolar (TE/HI/AD vs RC/RB, 5 items) + DA singleton. Eight dimensions (TC, CC, ED, CO, and the five bipolar items) load only on g or on g + bipolar. RMSEA = 0.129 — above the conventional 0.06 threshold but within the range where N-sensitivity (4,432 observations inflating chi2 approximately 4.4×) and CC's diffuse residual account for the gap. CFI = 0.948 indicates the model captures most shared variance.
+
+The practical architectural consequence: consumers should use g-PSQ for general safety assessment (validated, 93.8% of composite information). Consumers who need threat/protection polarity should use the 5-dimension bipolar subscale (TE, HI, AD, RC, RB). Consumers who need domain-specific prediction — negotiation outcomes, derailment risk, persuasion dynamics — should use the full 10-dimension profile, where DA and the other criterion-validated dimensions carry unique predictive content that g-PSQ discards.
+
+All findings carry the qualifier: derived from N = 4,432 Sonnet LLM labels (65.4% complete-case subset). Human expert validation may reveal different structure. We cite omega_h = 0.938 as "LLM-derived" pending human replication.
 
 ---
 

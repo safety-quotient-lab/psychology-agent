@@ -273,6 +273,34 @@
                               will be retrained. Prevents state churn for
                               downstream consumers.
                               Decided: 2026-03-08
+
+ PSQ structural model         M5 bifactor (Reise, 2012): g (all 10 dims)
+ (final)                      + bipolar specific factor (TE/HI/AD threat
+                              pole vs RC/RB protection pole, 5 items) +
+                              DA singleton. TC, CC, ED, CO load on g only.
+                              omega_h = 0.938 — g-PSQ (unweighted average)
+                              captures 93.8% of composite variance, stable
+                              across M3/M4/M5/M5b. omega_s(bipolar) = 0.071,
+                              omega_s(da_f) = 0.067.
+                              RMSEA = 0.129 (above 0.10 threshold —
+                              attributable to CC diffuse residual variance
+                              + N=4,432 chi2 sensitivity). CFI = 0.948.
+                              CC construct question open: cc_f singleton
+                              adds zero fit improvement — CC unique variance
+                              appears structurally diffuse, not a unitary
+                              latent construct. Deferred to expert validation.
+                              DA: only dimension with substantive singleton
+                              (var=0.129). Criterion superiority explained by
+                              content specificity + g signal, not structural
+                              isolation (prior EFA paradox was rotation artifact).
+                              4-way comparison (M3/M4/M5/M5b) rules out
+                              alternative specifications. Further refinement
+                              has diminishing returns.
+                              Data: N=4,432 Sonnet LLM labels (65.4%
+                              complete-case). Human expert structure may differ.
+                              Evidence: psq-scoring turns 34-38.
+                              Full narrative: journal.md §31.
+                              Decided: 2026-03-08
 ────────────────────────────────────────────────────────────────────────
 ```
 
