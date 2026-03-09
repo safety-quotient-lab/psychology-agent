@@ -112,11 +112,12 @@ check_budget() {
 }
 HALT_JSON
         cd "${PROJECT_ROOT}"
-        git add "${halt_file}" && \
-        git commit -m "autonomous: ${AGENT_ID} halted — trust budget exhausted
+        if git add "${halt_file}" && \
+           git commit -m "autonomous: ${AGENT_ID} halted — trust budget exhausted
 
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>" && \
-        git push origin main || true
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"; then
+            git push origin main || true
+        fi
 
         exit 1
     fi
