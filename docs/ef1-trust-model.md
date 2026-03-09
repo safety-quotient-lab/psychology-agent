@@ -4,6 +4,9 @@
 **Status:** Active design — resolves BFT open question #1
 **Resolves:** EF-1 (TODO.md), bft-design-note.md open question #1
 **Scope:** Replaces human-as-TTP assumption for autonomous agent operation
+**Theoretical grounding:**
+- `docs/ef1-psychological-foundations.md` — psychology (cognitive, social, organizational)
+- `docs/ef1-jurisprudence-extensions.md` — legal theory (planned)
 
 
 ---
