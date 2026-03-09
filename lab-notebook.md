@@ -45,7 +45,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | License (root project)        | ✓ Apache 2.0 — LICENSE + NOTICE at project root (relicensed Session 32c) |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
 | Auto-memory recovery          | ✓ Snapshots, bootstrap-check.sh, T1 health check, BOOTSTRAP.md restructure (Session 11) |
-| Platform hooks                | ✓ 21 hooks: pre-commit, parry (3), T4, provenance, subproject, external-action, pushback, SessionStart, PreCompact, Stop, Notification, tool-failure (2), subagent-audit, SessionEnd, InstructionsLoaded, TaskCompleted, ConfigChange (Session 12-51) |
+| Platform hooks                | ✓ 22 hook entries (19 unique mechanisms): parry (3), T4, provenance, subproject, external-action, pushback, SessionStart, PreCompact, Stop, Notification, tool-failure (2), subagent-audit (2), SessionEnd, InstructionsLoaded, TaskCompleted, ConfigChange, context-pressure-gate, context-pressure-statusline (Session 12-54) |
 | Source dictionary             | ✓ docs/dictionary.md — 15 entries, 7 categories, APA citations (Session 27) |
 | best.pt local recovery        | ✓ SHA256 7bec777c match confirmed local↔Hetzner (Session 27) |
 | Agent identity directive      | ✓ Psychology agent first; engineering serves the discipline (Session 40) |
@@ -145,7 +145,11 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | PSQ endpoint TLS              | ✓ Caddy reverse proxy + auto-TLS (Let's Encrypt) — port 3000 closed from public |
 | PSQ onnxruntime fix           | ✓ postinstall script removes nested onnxruntime-node — survives npm install |
 | wrangler secret               | ✓ PSQ_ENDPOINT_URL = https://psq.unratified.org |
-| Cogarch portability (config)  | ✓ cogarch.config.json — 13 sections, 23 consumer locations mapped (Session 53) |
+| Cogarch portability (config)  | ✓ cogarch.config.json — 13 sections, 4 tiers across 19 files (Session 53-54) |
+| Cogarch portability (guide)   | ✓ Adaptation guide: 7-step replacement path, fresh-clone tested ×7, adaptive bootstrap thresholds (Session 54) |
+| TODO discipline convention    | ✓ CLAUDE.md §TODO Discipline — immediate update on completion; /cycle Step 6 as safety net (Session 54) |
+| Bootstrap adaptive thresholds | ✓ Adjudicated (Option A) — empty transport/sessions/ → structural-only minimums; docs/decisions/ record (Session 54) |
+| Phantom hook cleanup          | ✓ bootstrap-check.sh removed from settings.json + CLAUDE.md; context-pressure hooks added to table (Session 54) |
 | Systems thinking methodology  | ✓ Umbrella: DDD (structural) + literate programming A+C (expression) + embedded system (deployment) + DOF gradient (Session 53) |
 | Semantic naming (global)      | ✓ 30 files updated — all item-number refs eliminated; T4 Check 6 expanded; CLAUDE.md Code Style updated |
 | Transport discovery (3-layer) | ✓ agent-card + MANIFEST.json + transport-scan.sh; session-start hook integrated |
@@ -168,7 +172,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Pushback accumulator hook     | ✓ .claude/hooks/pushback-accumulator.sh — UserPromptSubmit, >= 3 threshold (Session 24) |
 | Evidence decay (T9)           | ✓ Freshness thresholds: 5 sessions → flag, 10 → remove/waive (Session 24) |
 | EF-3 evaluator instantiation  | ✓ Tiered hybrid — T3 #12 active (Tier 1), Tier 2/3 pending (Session 24, other instance) |
-| Platform hooks                | ✓ 10 hooks total: pre-commit, parry (3), T4 reminder, boundary, pushback, SessionStart, PreCompact, Stop |
+| Platform hooks (full count)   | ✓ 22 entries (19 unique) — see row above for full list |
 | /sync skill                   | ✓ Created — inter-agent mesh sync, adapted from unratified-agent (Session 25) |
 | Blog post (Jurassic Park)     | ✓ Multi-author draft — psychology-agent + psq-agent; PR #7 updated (Session 25) |
 | Transport: blog-jurassic-park | ✓ Session opened — request sent, psq-agent sections received (Session 25) |
@@ -3409,3 +3413,55 @@ Continued from Session 52 (context compaction — resumed from cogarch.config.js
   count of independent parameters
 - Literate programming A+C formalizes existing practice — no new artifacts created to
   enforce it mechanically (unlike hooks which enforce triggers)
+
+
+## 2026-03-09T14:57 CDT — Session 54 (Cogarch portability end-to-end test, cleanup, adaptive bootstrap)
+
+- **End-to-end adoption testing:** 7 fresh-clone tests of the cogarch adaptation guide.
+  Each iteration caught progressively deeper issues: config/code refs → hook identity
+  refs → skill message templates → markdown documentation refs → bootstrap thresholds.
+
+- **Consumer mapping expanded to 4 tiers:** Original guide mapped 23 locations in 6
+  config-consumer files. Expanded to 4 tiers by coupling strength covering 19 files:
+  Tier 1 (config consumers), Tier 2 (hook identity refs), Tier 3 (skill identity refs),
+  Tier 4 (autonomous scripts).
+
+- **Adaptation guide hardened:** 7-step replacement path (was 6). Added global cleanup
+  step (Step 7). Expanded Step 4 domain content deletion list (+12 items). Added sed
+  instruction for infrastructure docs containing psychology-agent in examples. Expanded
+  verification checklist to include *.md files. Added Apache 2.0 §4(a) NOTICE retention
+  guidance.
+
+- **Phantom hook cleanup:** `bootstrap-check.sh` referenced in settings.json and
+  CLAUDE.md hooks table but never created. Silently failed via `|| echo` fallback.
+  Removed from settings.json and CLAUDE.md. Added missing `context-pressure-gate.sh`
+  and `context-pressure-statusline.sh` to CLAUDE.md hooks table. Corrected hook counts
+  across README.md (2 locations) and CLAUDE.md: 22 entries, 19 unique mechanisms.
+
+- **TODO discipline convention:** Added CLAUDE.md §TODO Discipline — update TODO.md
+  immediately on completion, /cycle Step 6 reframed as safety-net cross-check.
+
+- **Bootstrap adaptive thresholds (adjudicated):** Decision: Option A — adaptive
+  detection of empty `transport/sessions/` triggers structural-only minimums (triggers
+  ≥ 1, decisions ≥ 1, all data-dependent ≥ 0). Preserves regression testing for
+  existing installations. Written to `docs/decisions/2026-03-09-bootstrap-adaptive-thresholds.md`.
+
+- **Commits (8, all pushed):**
+  1. `572905a` — TODO discipline: immediate update convention + /cycle safety net
+  2. `e4d62a2` — docs: expand adaptation guide consumer mapping — 42 locations across 15 files
+  3. `a2a8e26` — cleanup: remove phantom bootstrap-check.sh, fix hook count, update checklist
+  4. `07264ef` — cleanup: fix hook counts, add missing hooks to table, correct tier counts
+  5. `1a980ea` — docs: adaptation guide — add global cleanup step, expand domain content list
+  6. `d744c53` — docs: adaptation guide — fix missed files, bootstrap thresholds, LICENSE note
+  7. `d4dcd3a` — bootstrap: adaptive validation thresholds for fresh installs
+  8. `fb23dbf` — docs: add docs/decisions/ to domain content deletion list
+
+▶ docs/decisions/2026-03-09-bootstrap-adaptive-thresholds.md (full adjudication)
+▶ docs/cogarch-adaptation-guide.md (adoption guide, 4-tier mapping)
+
+⚑ EPISTEMIC FLAGS
+- Fresh-clone tests ran in /tmp directories without simulating actual adopter
+  customization — replacement steps verified mechanically but not the full
+  workflow of an adopter building their own domain content
+- Adaptive thresholds use binary detection (sessions exist or not) — no
+  intermediate state for partially populated repositories

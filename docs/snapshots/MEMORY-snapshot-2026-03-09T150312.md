@@ -17,20 +17,20 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 54. Cogarch portability COMPLETE — adaptation guide
-hardened through 7 fresh-clone tests, 4-tier consumer mapping (19 files), adaptive
-bootstrap thresholds adjudicated (Option A). TODO discipline convention added to
-CLAUDE.md. Phantom hook cleanup (bootstrap-check.sh removed, counts corrected).
+**Where we stopped:** Session 53. Systems thinking adopted as umbrella methodology.
+Three principles established: DDD (structural), literate programming A+C (expression),
+embedded system (deployment). cogarch.config.json schema written (11 sections, 23
+consumer locations mapped). Cogarch now classified as "embedded cognitive system."
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- Cogarch portability: ✓ COMPLETE — config + guide + tests + adaptive bootstrap `[cold: done]`
-- PSQ scoring: all work orders complete, quiescent `[hot: no action needed]`
+- Cogarch portability: config schema ✓, adaptation guide pending `[cold: TODO.md]`
+- PSQ scoring: CO rubric updated (Variant B), monitoring plan active `[warm]`
 - SQLite state layer: SL-2 ✓ dual-write live, schema v5 `[warm: dual_write.py]`
 - PSQ cogarch mirror: Phase 2 ✓ COMPLETE, Phase 3 gate OPEN `[hot: ready]`
 - DI Phase A Pass 2: pending (inter-rater reliability) `[cold: docs/dignity-phase-a-study.md]`
 
-**Next:** MCP resource (faceted classification, when API credits available). DI Phase A
-Pass 2 (fresh session). Phase 3 cross-agent faceted queries.
+**Next:** Write adaptation guide (cogarch portability item 2). Phase 3 cross-agent
+faceted queries. DI Phase A Pass 2 (fresh session).
 
 
 ## Memory Hygiene
