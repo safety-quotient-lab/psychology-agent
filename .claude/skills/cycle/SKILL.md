@@ -371,6 +371,30 @@ PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 grep -o '`[^`]*\.md`' "${PROJECT_ROOT}/BOOTSTRAP.md" | tr -d '`' | sort -u
 ```
 
+### 11b. Sync Project Board
+
+Reconcile TODO.md against the GitHub Projects board using the project tracking
+configuration from `cogarch.config.json`.
+
+**Pre-check:** Read `cogarch.config.json` → `project_tracking.enabled`. If `false`
+or the section does not exist, skip this step entirely.
+
+**Execute:**
+
+```bash
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+python3 "${PROJECT_ROOT}/scripts/sync_project_board.py" --apply
+```
+
+**Report:** Include the sync summary in the /cycle Step 13 output:
+- Items added to board
+- Items marked done on board
+- Orphaned board items (on board but not in TODO.md)
+- Errors encountered
+
+**Skip if:** `project_tracking.enabled` evaluates to `false`, the section
+does not exist in `cogarch.config.json`, or `gh` CLI authentication fails.
+
 ### 12. Git Commit and Push
 
 Commit and push all documentation changes made this session.
