@@ -202,7 +202,10 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Lite system prompts             | ✓ 4 tiers split into standalone files in docs/prompts/ (Session 48-49) |
 | GitHub Releases                 | ✓ v0.1.0–v0.5.0 created — retroactive tagging + release notes (Session 49) |
 | Blog persona convention         | ✓ 5 personas per topic: voter, politician, educator, researcher, developer (Session 49) |
-| De-branding exploration         | ✗ TODO added — investigate public release preparation (Session 49) |
+| De-branding exploration         | ⚑ Coupling-point inventory COMPLETE — 4 tiers, 7 categories, ~5,500 occurrences mapped (Session 52) |
+| psq-agent cogarch mirror (Phase 2) | ✓ COMPLETE — PR #91 merged, T1-T16 mirrored, T15 adapted. Phase 3 gate OPEN (Session 52) |
+| CO concentration finding        | ✓ Accepted — PR #92 merged, Variant B rubric adopted, monitoring plan active (Session 52) |
+| Blog persona guidelines         | ✓ PR #40 to unratified repo — psychologically-grounded, 5 personas, ethical marketing integrated (Session 52) |
 | EF-1 trust model (engineering)  | ✓ docs/ef1-trust-model.md — evaluator-as-arbiter, trust budget, cron driver (Session 50) |
 | EF-1 trust model (psychology)   | ✓ docs/ef1-psychological-foundations.md — 10 constructs mapped, 6 predictions, 30+ refs (Session 50) |
 | Autonomous sync scripts          | ✓ autonomous-sync.sh + trust-budget.py — cron + Claude CLI multi-agent loop (Session 50) |
@@ -3290,3 +3293,62 @@ Commits: `6de251b` (hooks), `1bab608` (SL-2), `91b757f` (ACK protocol),
   vary by session context, model temperature, and available endpoints
 - SPSS demo (Demo 5) listed as exploratory — pyreadstat dependency not yet tested
   in this project context
+
+
+## 2026-03-09T13:21 CDT — Session 52 (Blog persona PR, de-branding inventory, psq-agent sync)
+
+Continuation of Session 51 after compaction. Completed blog persona guidelines,
+de-branding coupling-point inventory, and processed two psq-agent PRs.
+
+- **Blog persona guidelines PR #40 (unratified repo):** Psychologically-grounded
+  authoring guidelines added to `blog/public/.well-known/blog-spec.json`. Machine-
+  readable `personaGuidelines` section covering all 5 personas with: reading level
+  (Flesch-Kincaid grade), vocabulary constraints, tone register, rhetorical mode,
+  cognitive processing model (ELM, levels of processing, experiential learning),
+  psychological safety mechanisms, ethical marketing constraints, avoidance lists.
+  Cross-cutting layers: `_ethicalConstraints` (FTC/NAD/AMA/ICC-grounded),
+  `_psychologicalSafety` (5 principles from Bruner, Deci & Ryan, Steele & Aronson,
+  Sweller), `depolarization` (Braver Angels LAPP).
+
+- **De-branding coupling-point inventory:** Comprehensive scan of all domain-specific
+  references across the codebase. 7 categories (org refs, domain refs, PSQ-specific,
+  transport topology, PJE/Dignity, agent identities, personal domain). 4 tiers by
+  de-branding difficulty:
+  - Tier 1 (hardest): interface layer (worker.js, psq-client.js, agent.js, psq.js,
+    agent-registry.json, agent-card.json, bootstrap_state_db.py)
+  - Tier 2 (medium): config/schema (wrangler.toml, schema.sql, CSS, hooks)
+  - Tier 3 (mechanical): MANIFEST, transport sessions, snapshot docs
+  - Tier 4 (documentation): README, CLAUDE.md, journal, lab-notebook, blog
+  Key insight: cogarch (triggers, hooks, memory, skills) relatively clean to extract;
+  interface layer carries deepest PSQ coupling.
+
+- **De-branding historical context:** Traced 3 independent roots — upstream
+  contribution ambition (Session 11), awesome-claude-code submission (Sessions 12-13),
+  lite prompt distillation (Session 49). Journal §33 contains the key insight:
+  portable core = elements that survive distillation.
+
+- **/sync — PRs #91-92 merged:**
+  - PR #91 (turn 46): psq-agent cogarch Phase 2 COMPLETE. T1-T16 mirrored, T15
+    adapted as producer self-check. Phase 3 gate now OPEN (SL-2 landed Session 51).
+  - PR #92 (turn 47): CO concentration finding. 49.3% of CO scores at 5.0. Root
+    cause: rubric conflates absent vs. implicit at score 5. 3-variant experiment
+    (N=50): Variant B (implicit-vs-absent) adopted. SD +21%, concentration -6pp.
+  - MANIFEST updated: turns 44-47 → recently_completed. Dual-write: 2 indexed,
+    2 marked processed.
+
+- **SPSS validation:** pyreadstat confirmed working (round-trip, metadata, compression).
+  README Demo 5 upgraded from exploratory to validated.
+
+- **Blog §34 "Who Watches the Watcher?":** 5-persona blog post for journal §34
+  (trust model). Voter rewritten to 8th grade level after user feedback.
+
+Commits: `b3eecb7` (SPSS validation), `28a2431` (blog §34), `000c879` (/cycle Session 51),
+`5d790c5` (sync PRs #91-92)
+
+▶ journal.md §33 (de-branding insight), unratified PR #40
+
+⚑ EPISTEMIC FLAGS
+- Coupling-point inventory counts are approximate (grep-based, some multi-match lines)
+- De-branding tier classification reflects structural assessment, not measured effort
+- CO concentration experiment N=50 — directional, not definitive (per psq-agent's own flags)
+- Blog persona guidelines untested — no post has been authored against the new spec yet
