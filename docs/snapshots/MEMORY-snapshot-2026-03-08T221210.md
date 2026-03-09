@@ -17,13 +17,14 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 47. Full B5 work stream complete (turns 32-39).
-M5 accepted as final structural model: g (all 10) + bipolar (TE/HI/AD vs
-RC/RB) + DA singleton. omega_h=0.938, RMSEA=0.129. CC construct question
-open (structurally diffuse unique variance — deferred to expert validation).
-calibration-v4 deployed. GitHub issues #47-50 closed.
-**Next:** Await B4 partial correlations from psq-agent. DI Pass 2 still
-pending. Scan-010 ACK from unratified-agent still outstanding.
+**Where we stopped:** Session 47. PRs #81-83 merged (psq-agent turns 32-34).
+B3 steps 5-6 COMPLETE — calibration-v4 deployed (quantile-binned isotonic,
+9/10 dims MAE ≤ v3). B5 bifactor CFA COMPLETE — omega_h=0.942, g-PSQ
+validated. Bipolar factor narrowed to 5 items (TE/HI/AD vs RC/RB); TC/CC
+are g-only. DA paradox revised (rotation artifact, not structural isolation).
+Turn 35 sent: B5-R respecification work order (5-item bipolar + standardized
+loadings). **Next:** Await B5-R results. Await B4 partial correlations.
+DI Pass 2 still pending. Scan-010 ACK from unratified-agent still outstanding.
 
 
 ## Memory Hygiene
