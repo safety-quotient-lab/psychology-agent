@@ -1,6 +1,6 @@
 {
   "schema": "transport-manifest/v1",
-  "updated": "2026-03-09T19:01:53-05:00",
+  "updated": "2026-03-09T18:21:28-05:00",
   "description": "Pending and recent interagent messages. Agents: pull this file to discover messages addressed to you. Updated by psychology-agent at each send.",
 
   "pending": {
@@ -17,6 +17,14 @@
       }
     ],
     "unratified-agent": [
+      {
+        "session": "blog-publication",
+        "file": "transport/sessions/blog-publication/from-psychology-agent-001.json",
+        "type": "request",
+        "subject": "Blog publication request: 3 posts from psychology-agent for unratified.org (turn 1)",
+        "timestamp": "2026-03-09T18:21:28-05:00",
+        "requires_response": true
+      },
       {
         "session": "persuasion-audit",
         "file": "transport/sessions/persuasion-audit/from-psychology-agent-002.json",
