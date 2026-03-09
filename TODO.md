@@ -79,26 +79,24 @@ Forward-looking task list only. Completed and emergent work goes to
   Opus and Sonnet produce non-interchangeable scores. Sonnet-only revert endorsed
   (turn 20). Production models (v23, v35) confirmed clean.
 
-- [ ] **Opus remediation + v37 retrain** — delete 10,000 Opus scores from psq.db,
-  re-score 999 texts (368 rescore + 631 HI augmentation) with Sonnet via
-  separated-LLM protocol, retrain → v37. Compare held-out r against v35 (0.680).
-  *Gate: psq-agent executing. Combined with B3 re-fit (below).*
+- [x] **Opus remediation + v37 retrain** — COMPLETE (Session 46, turn 27).
+  999 texts re-scored with Sonnet (9,990 scores, separated-LLM protocol).
+  v37 held-out_r=0.639 (−0.041 vs v35, p=0.617, not significant). Opus scores
+  preserved but deprioritized. Deploy authorized (turn 28). CC/CO monitoring flagged.
 
-- [ ] **Dimension structure: partial correlations + bifactor** — Factor analysis v3
-  (turn 15) found 1 g-factor (68.2% variance), but criterion validity shows profile
-  shape predicts while g-PSQ does not. Step 1 (B4 work order, turn 22): partial
-  correlation matrix controlling for g-PSQ on Sonnet-scored data. If meaningful
-  residual associations found, Step 2: bifactor model (Reise, 2012).
-  *Gate: B4 work order sent. Independent of Opus remediation — can run now.*
+- [ ] **Dimension structure: bifactor modeling** — B4 partial correlations COMPLETE
+  (turn 24): mean |partial r| = 0.263, bipolar structure confirmed (threat vs
+  protection poles), DA and CO structural singletons. Bifactor spec: g + bipolar +
+  DA singleton + CO singleton (turn 25). Remaining: formal bifactor fit (CFI, RMSEA,
+  SRMR), omega_h, omega_s per specific factor.
+  *Gate: awaiting v37 deployment — bifactor should run on v37-scored data.*
 
-- [x] **Recalibrate all dimensions with quantile binning (B3)** — STEPS 1-4 COMPLETE
-  (Session 45, turn 20). Quantile-binned isotonic (n_bins=20) improves MAE all
-  10 dims (avg −12.4%). Dead zones diagnosed as model range compression, not
-  calibration artifacts. Plateau threshold revised from 0.5 max to MAE-improvement-
-  without-regression (10/10 pass). Deploy deferred to post-v37.
-  Remaining: re-fit v3 calibration on v37, AD per-dimension n_bins tuning,
-  deploy + notify downstream.
-  *Gate: awaiting Opus remediation + v37 retrain.*
+- [ ] **Recalibrate all dimensions with quantile binning (B3)** — STEPS 1-4 COMPLETE
+  (Session 45, turn 20). Steps 5-6 NOW UNBLOCKED: re-fit isotonic calibration on
+  v37 outputs, verify v37 prediction distribution compatibility, AD per-dimension
+  n_bins tuning, deploy calibration-v3 + notify downstream.
+  Work order sent (turn 28). B3 steps 5-6 can proceed alongside v37 deployment.
+  *Gate: OPEN — v37 retrain complete.*
 
 ---
 
