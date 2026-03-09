@@ -239,11 +239,12 @@ Next awaiting: DI Phase A Pass 2 (needs fresh session), PSQ cogarch
 mirror (awaiting psq-agent response).
 ```
 
-### Demo 5: SPSS data interaction (exploratory)
+### Demo 5: SPSS data interaction
 
-The psychology agent can read SPSS `.sav` files, run descriptive analyses,
-and interpret output — bridging the gap between statistical software and
-psychological interpretation.
+The psychology agent can read SPSS `.sav` files (including `.zsav` compressed
+and `.por` portable formats), preserve variable and value labels, run
+descriptive analyses, and interpret output — bridging the gap between
+statistical software and psychological interpretation.
 
 ```
 You: Load survey_data.sav and tell me what you find.
@@ -271,9 +272,9 @@ Three analysis paths present themselves:
 Which direction serves your research question?
 ```
 
-**Note:** SPSS interaction requires the `pyreadstat` package
-(`pip install pyreadstat`). This capability works with `.sav`, `.zsav`,
-and `.por` files.
+**Requires:** `pip install pyreadstat` (MIT license, stdlib-only C extension).
+Verified: `.sav` read/write, `.zsav` compressed, variable labels, value labels,
+and descriptive statistics all function correctly.
 
 ---
 
