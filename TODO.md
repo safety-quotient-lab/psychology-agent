@@ -150,11 +150,14 @@ human-mediated Claude Code sessions to autonomous operation.
   `scripts/dual_write.py` (6 subcommands). /sync Phase 3+5 index transport messages.
   /cycle Steps 2, 4, 7 dual-write sessions, decisions, memory entries. Schema v5.
 
-- [ ] **MCP resource: faceted classification** — Expose `entry_facets` as an MCP
-  resource so peer agents can query "what does the psychology agent know about
-  {domain}?" via structured facet lookup. Enables cross-agent thematic discovery
-  without scanning markdown files.
-  *Precondition: SL-2 complete (state layer operational with live data)*
+- [ ] **MCP resource: faceted classification** — DEFERRED (Session 56 T3 evaluation).
+  Original: expose `entry_facets` as MCP resource for cross-agent thematic discovery.
+  **Grounding failures found:** (1) state.db absent in current instance, (2) no peer
+  agent has MCP client capability, (3) dual transport protocol (MCP + git-PR) fragments
+  communication model. **Reframe path:** transport command-request first (S effort),
+  then MCP wrapper when consumer exists. **Gate:** defer until a peer agent requests
+  faceted information via transport — demand signal shapes the interface.
+  *Precondition: SL-2 complete + peer demand signal*
 
 - [x] **PSQ sub-agent cogarch mirror (Phase 2)** — COMPLETE (Session 52). PR #91 merged.
   T1-T16 mirrored, T15 adapted as producer self-check. Phase 3 (cross-agent faceted
