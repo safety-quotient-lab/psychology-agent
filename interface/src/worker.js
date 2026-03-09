@@ -3,7 +3,6 @@
  *
  * Routes:
  *   POST /session              → create session
- *   POST /turn                 → stream agent response (SSE)
  *   POST /psq/score            → proxy to PSQ scoring endpoint (machine-response/v3)
  *   GET  /session/:id          → retrieve session + turns
  *   GET  /session/:id/psq      → retrieve PSQ scores for session
@@ -14,11 +13,10 @@
  *   env.DB          → D1 database (session + turn storage)
  *   env.SESSION_KV  → KV namespace (fast session state)
  *   env.ARTIFACTS   → R2 bucket (reports, exports)
- *   env.ANTHROPIC_API_KEY → secret (set via wrangler secret put)
+ *   env.ANTHROPIC_API_KEY → secret (reserved for future use)
  */
 
-import { createSession, getSession, appendTurn, getSessionTurns } from "./session.js";
-import { streamAgentResponse } from "./agent.js";
+import { createSession, getSession, getSessionTurns } from "./session.js";
 import { scorePSQ, healthCheckPSQ } from "./psq-client.js";
 
 export default {
@@ -108,83 +106,6 @@ export default {
           ...body.metadata,
         });
         return Response.json({ session_id: sessionId }, { headers: corsHeaders });
-      }
-
-      // POST /turn → stream agent response
-      // DEFERRED: blocked by API credits. To re-enable:
-      //   wrangler secret put ANTHROPIC_API_KEY
-      //   remove the 503 guard below
-      //   wrangler d1 create psychology-interface → fill database_id in wrangler.toml
-      if (method === "POST" && url.pathname === "/turn") {
-        if (!env.ANTHROPIC_API_KEY) {
-          return Response.json(
-            { error: "agent unavailable", reason: "/turn deferred — blocked by API credits. PSQ scoring (/psq/health, /psq/score) remains available." },
-            { status: 503, headers: corsHeaders }
-          );
-        }
-        const body = await request.json();
-        const { session_id, prompt } = body;
-
-        if (!session_id || !prompt) {
-          return Response.json(
-            { error: "session_id and prompt are required" },
-            { status: 400, headers: corsHeaders }
-          );
-        }
-
-        const session = await getSession(env.DB, session_id);
-        if (!session) {
-          return Response.json({ error: "session not found" }, { status: 404, headers: corsHeaders });
-        }
-
-        const previousTurns = await getSessionTurns(env.DB, session_id);
-
-        // Store user turn
-        await appendTurn(env.DB, session_id, { role: "user", content: prompt });
-
-        // Stream response
-        const sseStream = new ReadableStream({
-          async start(controller) {
-            const encoder = new TextEncoder();
-            let fullContent = "";
-            let psqBlock = null;
-
-            for await (const chunk of streamAgentResponse({
-              prompt,
-              sessionId: session_id,
-              previousTurns,
-              apiKey: env.ANTHROPIC_API_KEY,
-              model: env.PSYCHOLOGY_AGENT_MODEL,
-            })) {
-              controller.enqueue(encoder.encode(chunk));
-
-              // Track content for session storage
-              try {
-                const event = JSON.parse(chunk.replace(/^data: /, "").trim());
-                if (event.type === "text") fullContent += event.text;
-                if (event.type === "psq_scores") psqBlock = event.scores;
-              } catch { /* non-JSON chunk, skip */ }
-            }
-
-            // Store assistant turn after stream completes
-            await appendTurn(env.DB, session_id, {
-              role: "assistant",
-              content: fullContent,
-              psqScores: psqBlock,
-            });
-
-            controller.close();
-          },
-        });
-
-        return new Response(sseStream, {
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "text/event-stream",
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-          },
-        });
       }
 
       // GET /session/:id → session + turns

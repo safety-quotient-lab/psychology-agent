@@ -14,10 +14,10 @@ Forward-looking task list only. Completed and emergent work goes to
   pre-filter (wrapper-level path exclusion for CLAUDE.md, cogarch files).
   *Precondition: #32596 resolved or workaround confirmed*
 
-- [ ] `/turn` route — blocked by API credits. Re-enable checklist:
-  1. `wrangler secret put ANTHROPIC_API_KEY`
-  2. Remove 503 guard in worker.js `/turn` handler
-  3. `wrangler d1 execute psychology-interface --file=src/schema.sql`
+- [x] `/turn` route — DEPRECATED (Session 59). Removed: the CF Worker
+  lacked cogarch (T1-T16), memory, hooks — delivering a degraded agent.
+  The autonomous sync mesh (`claude -p` + orientation payload) provides
+  programmatic agent access with full cogarch. PSQ routes remain live.
 
 ---
 
