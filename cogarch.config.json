@@ -191,6 +191,19 @@
     "agent_card_path": ".well-known/agent-card.json"
   },
 
+  "project_tracking": {
+    "enabled": true,
+    "provider": "github-projects",
+    "project_number": 1,
+    "owner": "safety-quotient-lab",
+    "status_field": "Status",
+    "status_map": {
+      "open": "Todo",
+      "in_progress": "In Progress",
+      "done": "Done"
+    }
+  },
+
   "domain_content": {
     "_description": "References to domain-specific content that adopters replace entirely. These paths and constructs define what this agent knows about — not how it thinks.",
     "system_prompt_file": "interface/src/agent.js",
