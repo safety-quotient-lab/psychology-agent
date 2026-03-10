@@ -15,13 +15,17 @@ Requires: Python 3.10+ (stdlib only — http.server, sqlite3, json)
 
 import argparse
 import json
+import re
 import sqlite3
+import subprocess
 import sys
 from datetime import datetime, timedelta
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
+from urllib.parse import unquote
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+REPLAYS_DIR = PROJECT_ROOT / "docs" / "replays"
 DB_PATH = PROJECT_ROOT / "state.db"
 REGISTRY_PATH = PROJECT_ROOT / "transport" / "agent-registry.json"
 REGISTRY_LOCAL_PATH = PROJECT_ROOT / "transport" / "agent-registry.local.json"
@@ -238,6 +242,66 @@ def _collect_remote_states(registry_agents: dict) -> list[dict]:
     return results
 
 
+def _collect_replays() -> list[dict]:
+    """Collect replay HTML files from docs/replays/ with metadata."""
+    replays = []
+    if not REPLAYS_DIR.exists():
+        return replays
+
+    for f in sorted(REPLAYS_DIR.glob("session-*.html"), reverse=True):
+        name = f.stem
+        size_kb = f.stat().st_size // 1024
+        mtime = datetime.fromtimestamp(f.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+
+        # Extract session number from filename (session-35.html → 35)
+        match = re.match(r"session-(\d+)", name)
+        session_num = int(match.group(1)) if match else None
+
+        replays.append({
+            "filename": f.name,
+            "session": session_num,
+            "size_kb": size_kb,
+            "modified": mtime,
+        })
+
+    return replays
+
+
+def _collect_remote_replays(registry_agents: dict) -> list[dict]:
+    """List replay files available on remote peers via git ls-tree."""
+    results = []
+    reg = _load_registry()
+    if not reg:
+        return results
+
+    for agent_id, cfg in reg.get("agents", {}).items():
+        if cfg.get("transport") != "cross-repo-fetch":
+            continue
+        remote_name = cfg.get("remote_name")
+        if not remote_name:
+            continue
+
+        try:
+            result = subprocess.run(
+                ["git", "-C", str(PROJECT_ROOT), "ls-tree",
+                 "--name-only", f"{remote_name}/main", "docs/replays/"],
+                capture_output=True, text=True, timeout=10
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                for line in result.stdout.strip().splitlines():
+                    fname = Path(line).name
+                    if fname.endswith(".html"):
+                        results.append({
+                            "agent_id": agent_id,
+                            "filename": fname,
+                            "remote": remote_name,
+                        })
+        except (subprocess.TimeoutExpired, OSError):
+            pass
+
+    return results
+
+
 def collect_status() -> dict:
     """Collect all mesh status data from state.db."""
     agent_id = get_agent_id()
@@ -367,6 +431,10 @@ def collect_status() -> dict:
     # Remote peer state (via git show on mesh-state exports)
     remote_states = _collect_remote_states(registry_agents)
 
+    # Session replays
+    local_replays = _collect_replays()
+    remote_replays = _collect_remote_replays(registry_agents)
+
     return {
         "agent_id": agent_id,
         "collected_at": now_iso,
@@ -397,6 +465,10 @@ def collect_status() -> dict:
             "schema_distribution": schema_dist,
             "version_distribution": version_dist,
             "low_confidence_count": low_conf_count,
+        },
+        "replays": {
+            "local": local_replays,
+            "remote": remote_replays,
         },
     }
 
@@ -718,6 +790,39 @@ def render_html(status: dict) -> str:
     total_facets = sum(d.get("entity_count", 0) for d in psh_dist) + sum(d.get("entity_count", 0) for d in schema_dist)
     active_categories = len([d for d in psh_dist if d.get("facet_value") != "unclassified"])
 
+    # ── Replays tab ──────────────────────────────────────────────────────
+    replay_data = status.get("replays", {})
+    local_replays = replay_data.get("local", [])
+    remote_replays = replay_data.get("remote", [])
+
+    local_replay_rows = ""
+    for r in local_replays:
+        session_num = r.get("session", "?")
+        local_replay_rows += f"""
+        <tr>
+            <td><a href="/replays/{r['filename']}" target="_blank" style="color:#58a6ff;text-decoration:none">Session {session_num}</a></td>
+            <td>{r['filename']}</td>
+            <td style="text-align:right">{r['size_kb']} KB</td>
+            <td style="color:#6e7681">{r['modified']}</td>
+            <td><a href="/replays/{r['filename']}" target="_blank" style="color:#58a6ff;text-decoration:none">open ↗</a></td>
+        </tr>"""
+
+    if not local_replay_rows:
+        local_replay_rows = '<tr><td colspan="5" class="empty">No replays generated yet. Run: claude-replay &lt;session.jsonl&gt; -o docs/replays/session-N.html</td></tr>'
+
+    remote_replay_rows = ""
+    for r in remote_replays:
+        remote_replay_rows += f"""
+        <tr>
+            <td>{r.get('agent_id', '?')}</td>
+            <td><a href="/replays/remote/{r.get('remote', '?')}/{r['filename']}" target="_blank" style="color:#58a6ff;text-decoration:none">{r['filename']}</a></td>
+            <td style="color:#6e7681">{r.get('remote', '?')}/main</td>
+            <td><a href="/replays/remote/{r.get('remote', '?')}/{r['filename']}" target="_blank" style="color:#58a6ff;text-decoration:none">open ↗</a></td>
+        </tr>"""
+
+    if not remote_replay_rows:
+        remote_replay_rows = '<tr><td colspan="4" class="empty">No remote replays found</td></tr>'
+
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -839,6 +944,7 @@ def render_html(status: dict) -> str:
     <div class="tabs">
         <div class="tab active" onclick="switchTab('mesh')">Mesh</div>
         <div class="tab" onclick="switchTab('semiotics')">Semiotics</div>
+        <div class="tab" onclick="switchTab('replays')">Replays</div>
     </div>
 
     <div id="tab-mesh" class="tab-content active">
@@ -1003,6 +1109,42 @@ def render_html(status: dict) -> str:
 
     </div><!-- end tab-semiotics -->
 
+    <div id="tab-replays" class="tab-content">
+
+    <div class="grid">
+        <div class="card">
+            <div class="card-label">Local Replays</div>
+            <div class="card-value">{len(local_replays)}</div>
+            <div class="card-detail">session transcripts</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Remote Replays</div>
+            <div class="card-value">{len(remote_replays)}</div>
+            <div class="card-detail">from peer agents</div>
+        </div>
+    </div>
+
+    <h2>Local Session Replays</h2>
+    <table>
+        <tr><th>Session</th><th>File</th><th style="text-align:right">Size</th><th>Generated</th><th></th></tr>
+        {local_replay_rows}
+    </table>
+
+    <h2>Remote Peer Replays</h2>
+    <table>
+        <tr><th>Agent</th><th>File</th><th>Source</th><th></th></tr>
+        {remote_replay_rows}
+    </table>
+
+    <div style="margin-top:16px; padding:12px; background:#161b22; border:1px solid #21262d; border-radius:6px; font-size:0.85em; color:#8b949e">
+        <strong>Generate replays:</strong>
+        <code style="color:#c9d1d9">claude-replay &lt;session.jsonl&gt; -o docs/replays/session-N.html --theme tokyo-night</code><br>
+        <strong>Batch generate:</strong>
+        <code style="color:#c9d1d9">scripts/generate-replays.sh</code>
+    </div>
+
+    </div><!-- end tab-replays -->
+
     <script>
     function switchTab(tabName) {{
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -1037,15 +1179,64 @@ class StatusHandler(BaseHTTPRequestHandler):
     """Serve the mesh status dashboard."""
 
     def do_GET(self):
-        status = collect_status()
+        path = unquote(self.path).split("?")[0]
 
-        if self.path == "/api/status":
+        # Serve local replay files
+        if path.startswith("/replays/") and not path.startswith("/replays/remote/"):
+            filename = Path(path).name
+            # Sanitize: only allow .html files, no path traversal
+            if not filename.endswith(".html") or "/" in filename or ".." in filename:
+                self.send_error(404)
+                return
+            replay_path = REPLAYS_DIR / filename
+            if not replay_path.exists():
+                self.send_error(404)
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(replay_path.read_bytes())
+            return
+
+        # Serve remote replay files via git show
+        if path.startswith("/replays/remote/"):
+            # /replays/remote/{remote_name}/{filename}
+            parts = path.split("/")
+            if len(parts) != 5 or not parts[4].endswith(".html"):
+                self.send_error(404)
+                return
+            remote_name = parts[3]
+            filename = parts[4]
+            # Sanitize
+            if ".." in remote_name or "/" in filename or ".." in filename:
+                self.send_error(404)
+                return
+            try:
+                result = subprocess.run(
+                    ["git", "-C", str(PROJECT_ROOT), "show",
+                     f"{remote_name}/main:docs/replays/{filename}"],
+                    capture_output=True, timeout=15
+                )
+                if result.returncode == 0 and result.stdout:
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(result.stdout)
+                    return
+            except (subprocess.TimeoutExpired, OSError):
+                pass
+            self.send_error(404)
+            return
+
+        if path == "/api/status":
+            status = collect_status()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             self.wfile.write(json.dumps(status, indent=2).encode())
         else:
+            status = collect_status()
             html = render_html(status)
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
