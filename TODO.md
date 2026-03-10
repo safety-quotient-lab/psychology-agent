@@ -461,14 +461,20 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   `net.kashifshah.internal.psychology-agent-tunnel`. Verify no orphan
   references to old label in scripts or docs.
 
-- [ ] **Add JSON-LD structured data to agent dashboards** — embed
+- [x] **Add JSON-LD structured data to agent dashboards** — embed
   `<script type="application/ld+json">` in mesh-status.py HTML output.
   Schema.org types: `SoftwareApplication` (agent identity), `WebAPI`
   (capabilities), `Organization` (safety-quotient-lab). Enables search
   engine discovery and machine-readable agent metadata on
   psychology-agent.safety-quotient.dev and psq-agent.safety-quotient.dev.
-  Apply to both agents (psychology-agent direct edit, psq-agent via PR).
-  *Precondition: none*
+  ✓ Session 66. Psychology-agent direct; psq-agent via PR. Also added:
+  CORS origin lockdown, /.well-known/agent-card.json route, and
+  interagent/index.html static compositor for interagent.safety-quotient.dev.
+
+- [ ] **Deploy interagent.safety-quotient.dev** — serve `interagent/index.html`
+  via Cloudflare Pages. Create DNS CNAME for `interagent` subdomain.
+  The static site fetches from both agent /api/status endpoints client-side.
+  *Precondition: ✓ MET — index.html complete, JSON-LD on both agents.*
 
 ---
 
