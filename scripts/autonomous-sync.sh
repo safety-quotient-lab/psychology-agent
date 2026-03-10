@@ -34,8 +34,11 @@ AGENT_ID="${AGENT_ID:-psychology-agent}"
 export AUTONOMOUS_AGENT="${AGENT_ID}"  # signals pre-commit hook to enforce allowlist
 DB_PATH="${PROJECT_ROOT}/state.db"
 LOCK_FILE="/tmp/autonomous-sync-${AGENT_ID}.lock"
+WAKE_FILE="/tmp/sync-wake-${AGENT_ID}"
 export MAX_ACTIONS_PER_CYCLE=5  # reserved for evaluator gate (not yet enforced)
 MAX_CONSECUTIVE_ERRORS=2
+GATE_ACCELERATED=false
+GATE_ACCELERATED_INTERVAL=60  # seconds — fast lane when gates active
 LOG_PREFIX="[$(date '+%Y-%m-%dT%H:%M:%S%z')] [${AGENT_ID}]"
 
 # ── Functions ────────────────────────────────────────────────────────────────
@@ -154,9 +157,104 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"; then
     echo "${budget}"
 }
 
+check_wake_signal() {
+    # L3 fallback: check for LAN wake-up file (SSH touch from peer agent)
+    if [ -f "${WAKE_FILE}" ]; then
+        rm -f "${WAKE_FILE}"
+        log "WAKE-UP signal received — accelerating cycle"
+        GATE_ACCELERATED=true
+    fi
+}
+
+check_active_gates() {
+    # L2 fallback: if any gates await a response, accelerate polling interval
+    # Gate check runs BEFORE interval check — active gates override the standard
+    # min_action_interval with GATE_ACCELERATED_INTERVAL (60s)
+    local active_gates
+    active_gates=$(sqlite3 "${DB_PATH}" \
+        "SELECT COUNT(*) FROM active_gates
+         WHERE status = 'waiting'
+         AND datetime(timeout_at) > datetime('now', 'localtime')
+         AND sending_agent = '${AGENT_ID}';" 2>/dev/null || echo "0")
+
+    if [ "${active_gates}" -gt 0 ]; then
+        log "GATE-ACCELERATED — ${active_gates} active gate(s), using ${GATE_ACCELERATED_INTERVAL}s interval"
+        GATE_ACCELERATED=true
+    fi
+}
+
+handle_gate_timeouts() {
+    # Process any gates that have exceeded their timeout_at
+    local timed_out
+    timed_out=$(sqlite3 "${DB_PATH}" \
+        "SELECT gate_id, fallback_action FROM active_gates
+         WHERE status = 'waiting'
+         AND datetime(timeout_at) <= datetime('now', 'localtime')
+         AND sending_agent = '${AGENT_ID}';" 2>/dev/null || echo "")
+
+    if [ -z "${timed_out}" ]; then
+        return 0
+    fi
+
+    echo "${timed_out}" | while IFS='|' read -r gate_id fallback_action; do
+        log "GATE TIMEOUT: ${gate_id} — fallback: ${fallback_action}"
+
+        case "${fallback_action}" in
+            continue-without-response)
+                python3 "${PROJECT_ROOT}/scripts/dual_write.py" gate-timeout \
+                    --gate-id "${gate_id}" 2>/dev/null || true
+                ;;
+            retry-once)
+                # Check if already retried (status would have been set to timed-out)
+                local retry_count
+                retry_count=$(sqlite3 "${DB_PATH}" \
+                    "SELECT COUNT(*) FROM autonomous_actions
+                     WHERE description LIKE '%retry gate ${gate_id}%'
+                     AND agent_id = '${AGENT_ID}';" 2>/dev/null || echo "0")
+                if [ "${retry_count}" -gt 0 ]; then
+                    log "GATE TIMEOUT: ${gate_id} already retried — escalating to halt"
+                    python3 "${PROJECT_ROOT}/scripts/dual_write.py" gate-timeout \
+                        --gate-id "${gate_id}" 2>/dev/null || true
+                else
+                    log "GATE TIMEOUT: ${gate_id} — will retry once"
+                    # Mark timed-out (caller can re-send and open a new gate)
+                    python3 "${PROJECT_ROOT}/scripts/dual_write.py" gate-timeout \
+                        --gate-id "${gate_id}" 2>/dev/null || true
+                fi
+                ;;
+            halt-and-escalate)
+                python3 "${PROJECT_ROOT}/scripts/dual_write.py" gate-timeout \
+                    --gate-id "${gate_id}" 2>/dev/null || true
+                err "HALT — gate ${gate_id} timed out with halt-and-escalate"
+                # Write halt marker
+                local halt_file
+                halt_file="${PROJECT_ROOT}/transport/sessions/local-coordination/halt-gate-${AGENT_ID}-$(date '+%Y%m%dT%H%M%S').json"
+                cat > "${halt_file}" <<GATE_HALT_JSON
+{
+  "schema": "local-coordination/v1",
+  "timestamp": "$(date '+%Y-%m-%dT%H:%M:%S%z')",
+  "from": {"agent_id": "${AGENT_ID}"},
+  "message_type": "halt",
+  "payload": {
+    "reason": "gate_timeout_escalation",
+    "gate_id": "${gate_id}",
+    "action": "Gated chain timed out with halt-and-escalate. Human review required."
+  }
+}
+GATE_HALT_JSON
+                ;;
+        esac
+    done
+}
+
 check_interval() {
     # Enforce min_action_interval — defer (not halt) if too soon since last action.
     # Budget check runs first: exhausted agents halt, not defer.
+    #
+    # Gate-aware acceleration: when GATE_ACCELERATED=true, use the shorter
+    # gate interval instead of the configured min_action_interval. This
+    # creates a fast lane for gated chains while preserving the standard
+    # interval as authoritative for ungated operation.
     local result
     result=$(sqlite3 "${DB_PATH}" "
         SELECT
@@ -172,6 +270,17 @@ check_interval() {
     local interval_secs elapsed_secs
     interval_secs=$(echo "${result}" | cut -d'|' -f1)
     elapsed_secs=$(echo "${result}" | cut -d'|' -f2)
+
+    # Gate-aware override: use accelerated interval when gates active
+    if [ "${GATE_ACCELERATED}" = true ]; then
+        if [ "${elapsed_secs}" -lt "${GATE_ACCELERATED_INTERVAL}" ]; then
+            local remaining=$((GATE_ACCELERATED_INTERVAL - elapsed_secs))
+            log "GATE-DEFER — ${elapsed_secs}s since last action, gate minimum ${GATE_ACCELERATED_INTERVAL}s. Retry in ${remaining}s."
+            exit 0
+        fi
+        log "Gate-accelerated interval check passed: ${elapsed_secs}s since last action (gate minimum ${GATE_ACCELERATED_INTERVAL}s)" >&2
+        return 0
+    fi
 
     if [ "${elapsed_secs}" -lt "${interval_secs}" ]; then
         local remaining=$((interval_secs - elapsed_secs))
@@ -302,11 +411,23 @@ main() {
     # Emit heartbeat (mesh presence announcement)
     python3 "${PROJECT_ROOT}/scripts/heartbeat.py" emit >&2 || true
 
+    # L3: Check for wake-up signal from peer (SSH touch)
+    check_wake_signal
+
+    # L2: Check for active gates that need accelerated polling
+    check_active_gates
+
+    # Handle any gates that have timed out (before budget check —
+    # timeout handling may write halt markers that consume budget)
+    handle_gate_timeouts
+
     # Check budget before doing anything (halt if exhausted)
     local budget
     budget=$(check_budget) || exit 1
 
     # Check interval (defer if too soon — must follow budget check)
+    # Gate-aware: uses 60s interval when GATE_ACCELERATED=true,
+    # standard min_action_interval otherwise
     check_interval
 
     # Pull latest
@@ -321,8 +442,29 @@ main() {
         log "Sync completed successfully"
 
         # Record the sync action (Tier 1 — reversible)
-        budget=$(record_action "sync" "reversible" 1 "approved" \
-            "Autonomous /sync cycle completed" "${budget}")
+        # Gate-accelerated no-op polls: if /sync found no new messages and
+        # this cycle was gate-accelerated, record as gate_poll with 0 cost
+        if [ "${GATE_ACCELERATED}" = true ]; then
+            # Check if any messages were actually processed this cycle
+            local new_processed
+            new_processed=$(echo "${sync_output}" | grep -c "marked processed\|ACKs written" 2>/dev/null || echo "0")
+            if [ "${new_processed}" -eq 0 ]; then
+                # No-op gate poll — 0 cost, no budget deduction
+                record_action "gate_poll" "reversible" 1 "approved" \
+                    "Gate-accelerated poll — no new messages (0 cost)" "${budget}" > /dev/null
+                # Don't update last_action for no-op polls — allows immediate re-poll
+                sqlite3 "${DB_PATH}" "UPDATE trust_budget
+                    SET last_action = NULL
+                    WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || true
+                log "Gate-accelerated no-op poll — 0 budget cost, immediate re-poll enabled"
+            else
+                budget=$(record_action "sync" "reversible" 1 "approved" \
+                    "Gate-accelerated /sync — processed ${new_processed} items" "${budget}")
+            fi
+        else
+            budget=$(record_action "sync" "reversible" 1 "approved" \
+                "Autonomous /sync cycle completed" "${budget}")
+        fi
 
         # Push any changes
         if ! git_push; then

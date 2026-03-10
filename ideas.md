@@ -264,3 +264,12 @@ sub-agents disagree, preserve the shape of the disagreement rather than averagin
   citations where the reference matters, and remove name-drops where the concept
   stands on its own without attribution.
   *Noted: Session 57 (2026-03-09)*
+
+- **L4 push-notification (post-receive hook on LAN bare repo)** — deferred
+  enhancement to the gated autonomous chain fallback cascade. /knock analysis
+  (Session 61) identified 4 new failure modes and shared infrastructure
+  contradiction with the Plan 9 split-outbox model. L1-L3 provide sub-minute
+  delivery without shared infrastructure. Implement L4 only if a protocol
+  requires sub-10-second message delivery latency — no current use case demands
+  this. *Precondition: gated chain protocol requires delivery latency < 10 seconds.*
+  *Noted: Session 61 (2026-03-09)*

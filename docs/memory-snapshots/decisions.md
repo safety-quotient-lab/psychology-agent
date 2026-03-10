@@ -50,10 +50,10 @@
                               2026-03-08
  SQLite state layer           Phase 1/1.5: markdown SOT for prose docs,
                               DB SOT for structured non-prose state.
-                              Schema v9. 12 tables. SL-2 dual-write
-                              live. Polythematic facets. Deterministic
-                              keys. 4-tier visibility. min_action_interval.
-                              2026-03-09
+                              Schema v10. 13 tables (incl. active_gates).
+                              SL-2 dual-write live. Polythematic facets.
+                              Deterministic keys. 4-tier visibility.
+                              min_action_interval. 2026-03-09
  MANIFEST generated artifact  MANIFEST.json auto-generated from state.db.
                               Pending only (793→21 lines). Completed
                               history in DB + git history. Phase 1.5:
@@ -65,8 +65,8 @@
                               override (DDD). 2026-03-09
  SL-2 dual-write             /sync + /cycle write to state.db alongside
                               markdown in real time. Markdown first, then DB.
-                              dual_write.py: 7 subcommands (incl. lesson).
-                              2026-03-09
+                              dual_write.py: 11 subcommands (incl. lesson
+                              + 4 gate cmds). 2026-03-09
  Optional ACK protocol        ack_required flag (default false). state.db
                               processed column replaces mandatory ACKs.
                               Schema v5: ack_required + ack_received cols.
@@ -148,6 +148,15 @@
                               cron (ensure-cron.sh). Trust model
                               min_action_interval (300s) decouples
                               temporal spacing from trigger mechanism.
+                              2026-03-09
+ Gated autonomous chains       4-layer fallback cascade for blocking
+                              message exchanges. L1: standard cron
+                              poll. L2: gate-aware acceleration (60s,
+                              0-cost no-op polls). L3: LAN SSH wake-up.
+                              L4: push-notification (deferred). Gate
+                              protocol extends interagent/v1. Schema
+                              v10 (active_gates). Trust model preserved.
+                              Spec: docs/gated-chains-spec.md.
                               2026-03-09
 ```
 

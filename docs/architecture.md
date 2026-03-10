@@ -647,6 +647,25 @@
                                    EF-1 trust model (temporal spacing);
                                    agent mesh architecture (Session 57).
                                  Decided: 2026-03-09
+
+ Gated autonomous chains        4-layer fallback cascade for blocking
+                                 message exchanges. L1: standard cron
+                                 poll (always on). L2: gate-aware
+                                 acceleration (60s interval when gates
+                                 active, 0-cost no-op polls). L3: LAN
+                                 SSH wake-up signal. L4: push-notification
+                                 hook (deferred). Gate protocol extends
+                                 interagent/v1 with sender-side blocking
+                                 semantics (blocks_until, timeout, fallback).
+                                 Trust model preserved: min_action_interval
+                                 remains authoritative for ungated ops;
+                                 gate-accelerated polls cost 0 credits.
+                                 Schema v10 (active_gates table).
+                                 Spec: docs/gated-chains-spec.md
+                                 Derives from: cross-repo transport
+                                   (Session 60); EF-1 trust model;
+                                   /knock analysis of push-notification.
+                                 Decided: 2026-03-09
 ────────────────────────────────────────────────────────────────────────
 ```
 
