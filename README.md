@@ -312,6 +312,82 @@ working in a sub-project context.
 
 ---
 
+## State Layer (SQLite)
+
+The project maintains a queryable SQLite database (`state.db`, gitignored) alongside
+its markdown documentation. Markdown remains the source of truth for prose-heavy
+documents; the database provides structured queries over transport messages, design
+decisions, memory entries, session history, and more.
+
+**Schema:** `scripts/schema.sql` (v8, 12 tables). **Bootstrap:** `scripts/bootstrap_state_db.py`
+rebuilds the entire database from source files. **Incremental writes:** `scripts/dual_write.py`
+keeps the database in sync during normal operation.
+
+### Tables
+
+| Table | Rows | Purpose |
+|-------|------|---------|
+| `transport_messages` | 88 | Interagent message index (metadata — full JSON on disk) |
+| `decision_chain` | 39 | Design decisions with `derives_from` provenance links |
+| `memory_entries` | 38 | Structured index of memory topic file contents |
+| `session_log` | 56 | Session history with summaries and epistemic flags |
+| `claims` | 190 | Verified claims extracted from transport messages |
+| `epistemic_flags` | 270 | Uncertainty and validity threats across sessions |
+| `trigger_state` | 16 | Cognitive trigger metadata (fire count, decay, relevance) |
+| `psq_status` | 29 | PSQ operational status (calibration, endpoints, models) |
+| `lessons` | 24 | Structured index of lessons.md entries |
+| `trust_budget` | 1 | Autonomous operation credits per agent |
+| `autonomous_actions` | 0 | Audit trail for actions taken without human mediation |
+| `entry_facets` | 81 | Polythematic classification (domain, work_stream, agent) |
+
+### Visibility Model
+
+Every table carries a visibility classification that controls what ships in exports:
+
+| Tier | Audience | What it contains |
+|------|----------|------------------|
+| **public** | Any adopter | Infrastructure (triggers, schema) — the starter kit |
+| **shared** | GitHub viewers | Research output (decisions, sessions, flags) — visible, not seeded |
+| **commercial** | Licensed customers | Monetizable assets (calibration, endpoints, service configs) |
+| **private** | Never exported | Personal state (memory, lessons, trust budgets) |
+
+Private by default — every new table starts private and requires explicit promotion.
+
+**Export profiles** generate filtered databases for different audiences:
+
+```bash
+python scripts/export_public_state.py --profile seed       # public only (adopter kit)
+python scripts/export_public_state.py --profile release     # + shared (GitHub release)
+python scripts/export_public_state.py --profile licensed    # + commercial (paying customers)
+python scripts/export_public_state.py --dry-run             # preview without writing
+```
+
+### Querying
+
+Collaborators can query state.db directly for structured lookups that would otherwise
+require scanning multiple markdown files:
+
+```sql
+-- Unprocessed transport messages awaiting action
+SELECT filename, subject, from_agent FROM transport_messages WHERE processed = FALSE;
+
+-- Decisions and their evidence chains
+SELECT decision_key, decision_text, decided_date FROM decision_chain ORDER BY decided_date;
+
+-- Unresolved epistemic flags by session
+SELECT session_id, COUNT(*) as open_flags FROM epistemic_flags
+WHERE resolved = FALSE GROUP BY session_id ORDER BY open_flags DESC;
+
+-- Lessons by pattern type (promotion scan)
+SELECT pattern_type, COUNT(*) FROM lessons
+WHERE pattern_type IS NOT NULL GROUP BY pattern_type HAVING COUNT(*) >= 3;
+```
+
+See `.claude/rules/sqlite.md` for full conventions, deterministic key rules, and
+the polythematic facet system.
+
+---
+
 ## Current Status
 
 **Architecture complete. PSQ scoring live. Implementation phase active.**
@@ -325,7 +401,7 @@ working in a sub-project context.
 | Peer layer | **Confirmed** | Role declaration, divergence detection, SETL thresholds — one live exchange with observatory-agent; not yet stress-tested across multiple peers |
 | Adversarial evaluator | **Confirmed** | 7-procedure ranked set, tiered activation spec, Tier 1 proxy implemented — Tier 2/3 await runtime |
 | Psychology interface | **Deployed** | CF Worker at psychology-interface.kashifshah.workers.dev — PSQ scoring, agent card, D1 + KV |
-| SQLite state layer | **Proven** | Schema v5, 9 tables, dual-write protocol, bootstrap + incremental scripts |
+| SQLite state layer | **Proven** | Schema v8, 12 tables, dual-write protocol, 4-tier visibility model, bootstrap + incremental + export scripts |
 | Core governance (EF-1) | **Explored** | 7 invariants, 3 disciplinary lenses, BCP 14 keywords, trust budget — spec complete, not yet exercised in autonomous operation |
 
 ### Capability Inventory
@@ -425,11 +501,22 @@ claude-replay ~/.claude/projects/<project>/<session>.jsonl \
   --title "Session Name" --no-thinking --speed 2.0 -o docs/replays/session.html
 ```
 
+**Queryable state layer with 4-tier visibility** — A SQLite database (state.db)
+indexes 12 tables of structured state alongside the markdown documentation.
+A 4-tier visibility model (public/shared/commercial/private) controls what
+ships in exports — from adopter starter kits (triggers only) through commercial
+licensed access (calibration data, endpoint URLs) to full debug backups.
+Private by default; explicit promotion required.
+- [scripts/schema.sql](scripts/schema.sql) — the full schema (v8, 12 tables)
+- [scripts/export_public_state.py](scripts/export_public_state.py) — filtered exports by visibility tier
+- [.claude/rules/sqlite.md](.claude/rules/sqlite.md) — conventions, deterministic keys, facet system
+- [journal.md #39](journal.md) — Private by Default: How Data Governance Emerges in Agent Systems
+
 **Research journal** — A methods-and-findings narrative covering the full arc from
 initial framing through architecture design, cognitive infrastructure, cross-context
 integrity, reconstruction methodology, semiotic theory, Byzantine fault tolerance,
 and construct validity analysis.
-- [journal.md](journal.md) — 34 sections
+- [journal.md](journal.md) — 39 sections
 
 </details>
 
@@ -448,9 +535,14 @@ psychology-agent/
 +-- journal.md                      # Research narrative (34 sections)
 +-- ideas.md                        # Speculative directions
 +-- scripts/
-|   +-- schema.sql                  # SQLite state layer schema (v5)
-|   +-- bootstrap_state_db.py       # Rebuild state.db from files
+|   +-- schema.sql                  # SQLite state layer schema (v8, 12 tables)
+|   +-- bootstrap_state_db.py       # Rebuild state.db from source files
 |   +-- dual_write.py               # Incremental state.db writes (/sync, /cycle)
+|   +-- export_public_state.py      # Export filtered DB by visibility tier
+|   +-- generate_manifest.py        # Auto-generate MANIFEST.json from state.db
+|   +-- bootstrap_lessons.py        # Index lessons.md entries into state.db
+|   +-- orientation-payload.py      # State.db → compact context for autonomous sessions
+|   +-- sync_project_board.py       # TODO.md ↔ GitHub Projects board reconciliation
 +-- .claude/
 |   +-- hooks/                      # 17 hook scripts + _debug.sh shared helper
 |   +-- settings.json               # Platform hooks configuration
@@ -501,6 +593,7 @@ psychology-agent/
 | Psychology researchers | `docs/overview-for-psychologists.md`     |
 | Current project state  | `docs/MEMORY-snapshot.md`                |
 | Design record          | `docs/architecture.md`                   |
+| State layer / database | [Wiki: State Layer](https://github.com/safety-quotient-lab/psychology-agent/wiki/State-Layer) |
 | Project terminology    | `docs/glossary.md`                       |
 
 ---
