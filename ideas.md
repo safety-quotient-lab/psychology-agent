@@ -296,6 +296,46 @@ interagent commands (gate resolution, wake-up, health checks) require HTTP endpo
 
 ---
 
+## Public Demo vs Private Infrastructure (Dual-Repo Model)
+
+Separate the public showcase (cogarch framework, PSQ model, documentation) from
+private operational infrastructure (transport state, session transcripts, auth
+secrets, infrastructure config).
+
+**Candidate approaches:**
+
+- **Private-primary, public-downstream** — all development in private repo.
+  Automated script or CI cherry-picks sanitized commits → public repo. Avoids
+  merge divergence (private never pulls from public). Public repo stays clean.
+  *Most alignment with current 4-tier visibility model (public/shared/commercial/private).*
+
+- **git filter-repo** — maintain a branch filter that strips private paths
+  (`transport/sessions/`, `docs/replays/`, `.agent-identity.json`, state.db
+  artifacts). Automated CI pushes filtered branch to public remote.
+
+- **GitHub Actions sync** — on push to private main, CI runs sanitization
+  (path stripping + secret scanning) and pushes to public repo. Provides
+  audit trail of what got published.
+
+- **Monorepo with export profiles** — extend existing `export_public_state.py`
+  to generate a full public-safe snapshot (not just state.db). Export profiles
+  already exist conceptually (seed/release/licensed/full). The `release` profile
+  becomes the public repo content.
+
+⚡ The reverse direction (fork private from public) creates merge headaches.
+The private repo accumulates commits the public one never sees, leading to
+permanent divergence. Private-as-upstream avoids this.
+
+*Key question:* Does the public repo track git history, or just receive snapshot
+releases? History provides provenance; snapshots provide simplicity.
+
+*Precondition: public release readiness (cogarch portability complete, README done).
+Not urgent — current repo handles both roles adequately for now.*
+
+*Noted: Session 64 (2026-03-10)*
+
+---
+
 ## Meta
 
 - This agent system is itself a case study in PJE — it embodies Psycho Safety
