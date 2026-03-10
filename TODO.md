@@ -277,10 +277,12 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   Wiki: State-Layer.md page (tables, visibility, exports, scripts, query patterns,
   deterministic keys, conventions). Home.md updated with new entry.
 
-- [ ] **Backfill 17 lessons without YAML frontmatter** — bootstrap_lessons.py found
-  17/24 entries lacking pattern_type, domain, severity classification. Need manual
-  review to assign correct values. Enables promotion scan via SQL GROUP BY.
-  *Precondition: ✓ MET — lessons table populated, dual_write lesson subcommand live.*
+- [x] **Backfill 17 lessons without YAML frontmatter** — COMPLETE (Session 59d).
+  25/25 entries now have YAML frontmatter. 2 malformatted entries fixed (frontmatter
+  before heading). bootstrap_lessons.py confirms 25/25 parsed and indexed. Promotion
+  scan: 4 pattern_types at 3+ (reasoning-error 7, architecture-insight 7,
+  tooling-discovery 4, process-failure 3); 5 domains at 3+ (workflow 6, evaluation 6,
+  security 3, documentation 3, cogarch 3).
 
 - [x] **Cogarch portability (systems thinking framed)** — COMPLETE (Session 52-54).
   Config layer (`cogarch.config.json`, 13 sections), adaptation guide (7-step
