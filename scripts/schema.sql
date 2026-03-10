@@ -404,3 +404,70 @@ VALUES ('universal_facets', 'shared', 'Cross-entity facets — PSH subjects, sch
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (12, 'Universal facets — polymorphic entity tagging. Dual vocabulary: PSH subjects (11 L1 categories incl. PL-001 ai-systems) + schema.org types. Replaces PJE taxonomy and entry_facets FK-bound pattern.');
+
+
+-- ── Schema v13: Facet vocabulary reference table ─────────────────────
+--
+-- Queryable source of truth for PSH categories and schema.org types.
+-- bootstrap_facets.py Python constants remain the write-time implementation;
+-- this table provides the queryable, shared registry that other scripts
+-- and downstream consumers can read without importing Python.
+--
+-- Visibility: shared — these represent public vocabulary definitions.
+
+CREATE TABLE IF NOT EXISTS facet_vocabulary (
+    facet_type      TEXT NOT NULL,        -- 'psh' or 'schema_type'
+    facet_value     TEXT NOT NULL,        -- e.g., 'psychology', 'schema:Message'
+    code            TEXT,                 -- PSH code (e.g., 'PSH9194') or null for schema.org
+    source          TEXT NOT NULL,        -- 'PSH', 'schema.org', or 'project-local'
+    description     TEXT,                 -- human-readable description
+    entity_scope    TEXT,                 -- for schema_type: which table(s) carry this type
+    active          INTEGER NOT NULL DEFAULT 1,  -- 0 = retired (e.g., pje_domain)
+    keyword_count   INTEGER DEFAULT 0,   -- number of keywords in the classification set
+    created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
+    updated_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
+    PRIMARY KEY (facet_type, facet_value)
+);
+
+CREATE INDEX IF NOT EXISTS idx_fv_active
+    ON facet_vocabulary (facet_type) WHERE active = 1;
+
+-- Seed PSH categories
+INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, description, keyword_count) VALUES
+    ('psh', 'psychology',          'PSH9194',  'PSH',           'Empirical, measurement, constructs, calibration, human factors',  43),
+    ('psh', 'law',                 'PSH8808',  'PSH',           'Governance, obligations, precedent, rights, due process',          35),
+    ('psh', 'computer-technology', 'PSH12314', 'PSH',           'Systems, specs, architecture, transport, databases',               32),
+    ('psh', 'information-science', 'PSH6445',  'PSH',           'Memory, indexing, classification, metadata, provenance',           20),
+    ('psh', 'systems-theory',      'PSH11322', 'PSH',           'Cogarch, feedback, emergence, cascade, self-healing',              11),
+    ('psh', 'philosophy',          'PSH2596',  'PSH',           'Epistemology, fair witness, falsifiability, evidence, warrant',     13),
+    ('psh', 'sociology',           'PSH9508',  'PSH',           'Dignity index, cultural, community, audience, stakeholder',          8),
+    ('psh', 'mathematics',         'PSH7093',  'PSH',           'Calibration, regression, factor analysis, statistical methods',     13),
+    ('psh', 'communications',      'PSH9759',  'PSH',           'Interagent protocol, transport, mesh, sync, notification',          12),
+    ('psh', 'pedagogy',            'PSH8126',  'PSH',           'Socratic method, jargon policy, learning, onboarding',              10),
+    ('psh', 'ai-systems',          'PL-001',   'project-local', 'LLM, multi-agent, tool use, alignment — no PSH equivalent',         17);
+
+-- Seed schema.org types
+INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, description, entity_scope) VALUES
+    ('schema_type', 'schema:Message',          NULL, 'schema.org', 'Transport messages between agents',           'transport_messages'),
+    ('schema_type', 'schema:ChooseAction',     NULL, 'schema.org', 'Resolved design decisions',                   'decision_chain'),
+    ('schema_type', 'schema:Event',            NULL, 'schema.org', 'Session log entries',                         'session_log'),
+    ('schema_type', 'schema:Claim',            NULL, 'schema.org', 'Verified claims from transport',              'claims'),
+    ('schema_type', 'schema:DefinedTerm',      NULL, 'schema.org', 'Memory entries — structured knowledge',       'memory_entries'),
+    ('schema_type', 'schema:LearningResource', NULL, 'schema.org', 'Lessons — transferable patterns',             'lessons'),
+    ('schema_type', 'schema:HowToStep',        NULL, 'schema.org', 'Cognitive triggers — operational procedures', 'trigger_state'),
+    ('schema_type', 'schema:Action',           NULL, 'schema.org', 'Autonomous actions audit trail',              'autonomous_actions'),
+    ('schema_type', 'schema:SuspendAction',    NULL, 'schema.org', 'Active gates — blocking operations',          'active_gates'),
+    ('schema_type', 'schema:Comment',          NULL, 'schema.org', 'Epistemic flags — quality concerns',          'epistemic_flags');
+
+-- Retire PJE vocabulary entries (historical record)
+INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, description, active) VALUES
+    ('pje_domain', 'psychology',    NULL, 'project-local', 'RETIRED 2026-03-10 — replaced by PSH facets', 0),
+    ('pje_domain', 'jurisprudence', NULL, 'project-local', 'RETIRED 2026-03-10 — replaced by PSH facets', 0),
+    ('pje_domain', 'engineering',   NULL, 'project-local', 'RETIRED 2026-03-10 — replaced by PSH facets', 0),
+    ('pje_domain', 'cross-cutting', NULL, 'project-local', 'RETIRED 2026-03-10 — replaced by PSH facets', 0);
+
+INSERT OR IGNORE INTO table_visibility (table_name, default_visibility, description)
+VALUES ('facet_vocabulary', 'shared', 'Vocabulary definitions for PSH categories and schema.org types — public reference data');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (13, 'Facet vocabulary reference table — queryable source of truth for PSH categories and schema.org types. Shared visibility. Retired PJE entries preserved with active=0.');
