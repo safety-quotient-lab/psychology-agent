@@ -240,7 +240,7 @@ Template — adapt per message:
     "role": "psychology-agent",
     "instance": "Claude Code (Opus 4.6), macOS arm64",
     "schemas_supported": ["interagent/v1", "command-request/v1", "local-coordination/v1"],
-    "discovery_url": "https://psychology-agent.unratified.org/.well-known/agent-card.json"
+    "discovery_url": "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json"
   },
   "to": {
     "agent_id": "{peer-agent-id}",

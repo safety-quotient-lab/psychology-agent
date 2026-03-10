@@ -63,9 +63,9 @@
   },
 
   "infrastructure": {
-    "worker_url": "https://psychology-interface.kashifshah.workers.dev",
+    "worker_url": "https://api.safety-quotient.dev",
     "worker_agent_card_path": "/.well-known/agent-card.json",
-    "production_endpoint": "https://psq.unratified.org",
+    "production_endpoint": "https://psq.safety-quotient.dev",
     "hosting": {
       "provider": "Hetzner CX Ashburn VA",
       "note": "PSQ inference server — systemd psq-server, onnxruntime-node"
@@ -105,7 +105,7 @@
         "transport": "same-repo",
         "message_prefix": "from-psq-sub-agent-",
         "always_consider": true,
-        "discovery_url": null
+        "discovery_url": "https://psq.safety-quotient.dev/.well-known/agent-card.json"
       },
       "unratified-agent": {
         "role": "peer",
