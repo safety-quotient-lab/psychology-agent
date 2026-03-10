@@ -420,6 +420,13 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   from mesh-status.py? (3) link from session_log entries to replay files?
   *Precondition: claude-replay installed and working (adopted tool)*
 
+- [ ] **Naming audit: "safety-quotient agent" → "psq-agent"** — now that
+  safety-quotient.dev represents the whole lab, "safety-quotient agent" creates
+  ambiguity. Audit docs, registries, transport messages, skills, and memory
+  files. Replace informal "safety-quotient agent" with "psq-agent" where it
+  refers to the scoring sub-agent. Keep "safety-quotient-lab" for the org.
+  *Precondition: none — prose cleanup only*
+
 - [ ] **Deploy dashboard to chromabook** — PR #5 adds scripts. After merge:
   bootstrap state.db, verify mesh-status.py serves, add to cron or launchd.
   *Precondition: PR #5 merged on safety-quotient*
