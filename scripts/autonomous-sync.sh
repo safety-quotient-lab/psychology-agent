@@ -87,6 +87,10 @@ CREATE TABLE IF NOT EXISTS autonomous_actions (
 );
 SQL
 
+    # Add min_action_interval column if absent (migration-safe)
+    sqlite3 "${DB_PATH}" \
+        "ALTER TABLE trust_budget ADD COLUMN min_action_interval INTEGER NOT NULL DEFAULT 300;" 2>/dev/null || true
+
     # Initialize budget row if absent
     sqlite3 "${DB_PATH}" \
         "INSERT OR IGNORE INTO trust_budget (agent_id) VALUES ('${AGENT_ID}');"
@@ -130,6 +134,34 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"; then
 
     log "Trust budget: ${budget} credits remaining" >&2
     echo "${budget}"
+}
+
+check_interval() {
+    # Enforce min_action_interval — defer (not halt) if too soon since last action.
+    # Budget check runs first: exhausted agents halt, not defer.
+    local result
+    result=$(sqlite3 "${DB_PATH}" "
+        SELECT
+            COALESCE(min_action_interval, 300) as interval_secs,
+            CASE
+                WHEN last_action IS NULL THEN 999999
+                ELSE CAST((julianday('now', 'localtime') - julianday(last_action)) * 86400 AS INTEGER)
+            END as elapsed_secs
+        FROM trust_budget
+        WHERE agent_id = '${AGENT_ID}';
+    ")
+
+    local interval_secs elapsed_secs
+    interval_secs=$(echo "${result}" | cut -d'|' -f1)
+    elapsed_secs=$(echo "${result}" | cut -d'|' -f2)
+
+    if [ "${elapsed_secs}" -lt "${interval_secs}" ]; then
+        local remaining=$((interval_secs - elapsed_secs))
+        log "DEFER — ${elapsed_secs}s since last action, minimum ${interval_secs}s. Retry in ${remaining}s."
+        exit 0
+    fi
+
+    log "Interval check passed: ${elapsed_secs}s since last action (minimum ${interval_secs}s)" >&2
 }
 
 git_sync() {
@@ -243,9 +275,12 @@ main() {
     # Emit heartbeat (mesh presence announcement)
     python3 "${PROJECT_ROOT}/scripts/heartbeat.py" emit >&2 || true
 
-    # Check budget before doing anything
+    # Check budget before doing anything (halt if exhausted)
     local budget
     budget=$(check_budget) || exit 1
+
+    # Check interval (defer if too soon — must follow budget check)
+    check_interval
 
     # Pull latest
     if ! git_sync; then

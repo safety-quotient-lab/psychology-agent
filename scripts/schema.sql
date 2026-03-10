@@ -184,14 +184,15 @@ VALUES (2, 'Add psq_status (typed topic table), entry_facets (polythematic subje
 
 -- Trust budget — tracks autonomous operation credits per agent
 CREATE TABLE IF NOT EXISTS trust_budget (
-    agent_id            TEXT PRIMARY KEY,
-    budget_max          INTEGER NOT NULL DEFAULT 20,
-    budget_current      INTEGER NOT NULL DEFAULT 20,
-    last_audit          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
-    last_action         TEXT,
-    consecutive_blocks  INTEGER DEFAULT 0,
-    shadow_mode         INTEGER NOT NULL DEFAULT 1,
-    updated_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
+    agent_id             TEXT PRIMARY KEY,
+    budget_max           INTEGER NOT NULL DEFAULT 20,
+    budget_current       INTEGER NOT NULL DEFAULT 20,
+    min_action_interval  INTEGER NOT NULL DEFAULT 300,
+    last_audit           TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
+    last_action          TEXT,
+    consecutive_blocks   INTEGER DEFAULT 0,
+    shadow_mode          INTEGER NOT NULL DEFAULT 1,
+    updated_at           TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
 );
 
 -- Autonomous actions audit trail — every action taken without human mediation
@@ -294,3 +295,6 @@ INSERT OR IGNORE INTO table_visibility (table_name, default_visibility, descript
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (8, 'State lifecycle — table_visibility with 4-tier model (public/shared/commercial/private). Commercial tier for monetizable assets (calibration, rubrics, datasets, service configs).');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (9, 'Add min_action_interval to trust_budget — temporal spacing guarantee decoupled from triggering mechanism (EF-1 trust model update)');
