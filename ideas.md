@@ -358,10 +358,11 @@ come from disciplined synthesis, not from pai's raw output.
   aggregation operations.
   *Precondition: PSQ-Full and PSQ-Lite scoring both operational.*
 
-- **Category theory → interagent protocol** — agents as objects, messages as
-  morphisms, session composition as functor. Formalizes "protocol-compatible":
-  two agents compose iff their message categories admit a natural transformation.
-  Highest structural payoff, highest implementation cost.
+- **Category theory → interagent protocol** ★ PRIORITY — agents as objects,
+  messages as morphisms, session composition as functor. Formalizes
+  "protocol-compatible": two agents compose iff their message categories admit
+  a natural transformation. Highest structural payoff, highest implementation
+  cost. User directive: prioritize all category theory work.
   *Precondition: 3+ agents with operational transport.*
 
 - **Group theory → score calibration transforms** — raw → calibrated PSQ
