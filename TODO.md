@@ -476,16 +476,16 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
 
 Design approved (Session 65). 10-order knock-on trace in journal §47.
 
-- [ ] **Schema v14: engineering_incidents table** — incident_type, severity,
+- [x] **Schema v14: engineering_incidents table** — incident_type, severity,
   detection_tier (1=mechanical, 2=cognitive), session_id, description,
   tool_context, recurrence count, graduated flag. Private visibility.
-  *Precondition: none*
+  ✓ Session 66.
 
-- [ ] **Tier 1: PostToolUse hook for mechanical detection** — scan Bash output
+- [x] **Tier 1: PostToolUse hook for mechanical detection** — scan Bash output
   for: (a) credentials/tokens in command arguments, (b) repeated create/delete
   cycles on same resource type within session, (c) error-retry loops without
   strategy change. Write incidents via `dual_write.py engineering-incident`.
-  *Precondition: schema v14*
+  ✓ Session 66. Hook: `.claude/hooks/engineering-incident-detect.sh`.
 
 - [ ] **Tier 2: T17 cognitive self-assessment trigger** — fires at session
   end or /cycle. Agent reviews session actions for: premature execution

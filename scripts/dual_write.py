@@ -42,6 +42,10 @@ Usage:
 
     python scripts/dual_write.py next-turn --session SESSION
 
+    python scripts/dual_write.py engineering-incident --incident-type TYPE \
+        --description TEXT [--session-id N] [--severity low|moderate|high|critical] \
+        [--tool-name NAME] [--tool-context CTX] [--detection-tier 1|2]
+
     python scripts/dual_write.py facet --entity-type TABLE --entity-id N \
         --facet-type TYPE --facet-value VALUE
 
@@ -366,6 +370,45 @@ def cmd_next_turn(args: argparse.Namespace) -> None:
     conn.close()
 
 
+# ── engineering-incident ──────────────────────────────────────────────────
+
+def cmd_engineering_incident(args: argparse.Namespace) -> None:
+    """Record an engineering incident, incrementing recurrence on duplicate type."""
+    conn = get_connection()
+    # Check if same incident_type already exists (for recurrence increment)
+    row = conn.execute(
+        "SELECT id, recurrence FROM engineering_incidents "
+        "WHERE incident_type = ? AND graduated = 0 "
+        "ORDER BY created_at DESC LIMIT 1",
+        (args.incident_type,)
+    ).fetchone()
+    if row:
+        conn.execute(
+            "UPDATE engineering_incidents SET recurrence = ?, "
+            "description = ?, tool_name = ?, tool_context = ?, "
+            "session_id = ?, severity = ? "
+            "WHERE id = ?",
+            (row[1] + 1, args.description, args.tool_name,
+             args.tool_context, args.session_id, args.severity or "moderate",
+             row[0])
+        )
+        print(f"incremented: engineering_incidents/{args.incident_type} "
+              f"(recurrence={row[1] + 1})")
+    else:
+        conn.execute(
+            "INSERT INTO engineering_incidents "
+            "(session_id, incident_type, detection_tier, severity, "
+            "description, tool_name, tool_context) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (args.session_id, args.incident_type,
+             args.detection_tier or 1, args.severity or "moderate",
+             args.description, args.tool_name, args.tool_context)
+        )
+        print(f"recorded: engineering_incidents/{args.incident_type}")
+    conn.commit()
+    conn.close()
+
+
 def cmd_facet(args: argparse.Namespace) -> None:
     """Add a universal facet to any entity."""
     conn = get_connection()
@@ -495,6 +538,25 @@ def main() -> None:
                         help="Print the next available turn number for a session")
     nt.add_argument("--session", required=True)
 
+    # engineering-incident
+    ei = sub.add_parser("engineering-incident",
+                        help="Record an engineering anti-pattern incident")
+    ei.add_argument("--incident-type", required=True,
+                    help="Category: credential-exposure, dns-churn, error-loop, "
+                         "premature-execution, stale-process")
+    ei.add_argument("--description", required=True,
+                    help="What happened (fair witness: facts only)")
+    ei.add_argument("--session-id", type=int)
+    ei.add_argument("--severity", default="moderate",
+                    choices=["low", "moderate", "high", "critical"])
+    ei.add_argument("--tool-name",
+                    help="Tool that triggered detection (e.g., Bash)")
+    ei.add_argument("--tool-context",
+                    help="Command or context that triggered detection")
+    ei.add_argument("--detection-tier", type=int, default=1,
+                    choices=[1, 2],
+                    help="1=mechanical (hook), 2=cognitive (T17)")
+
     # facet
     fa = sub.add_parser("facet", help="Add a universal facet to any entity")
     fa.add_argument("--entity-type", required=True,
@@ -527,6 +589,7 @@ def main() -> None:
         "gate-timeout": cmd_gate_timeout,
         "gate-status": cmd_gate_status,
         "next-turn": cmd_next_turn,
+        "engineering-incident": cmd_engineering_incident,
         "facet": cmd_facet,
         "facet-query": cmd_facet_query,
     }
