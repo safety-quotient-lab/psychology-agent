@@ -273,6 +273,25 @@ interagent commands (gate resolution, wake-up, health checks) require HTTP endpo
   authorization proves permission; T3 proves the action merits execution.
   *Precondition: auth model selected.*
 
+- **Byzantine fault tolerance for interagent consensus** — when multiple agents
+  need to agree on shared state (schema migrations, protocol upgrades, vocabulary
+  changes), a BFT-inspired protocol prevents faulty or compromised agents from
+  corrupting consensus. Praxis Protocol (PBFT variant) offers practical tolerance
+  with 3f+1 participants (tolerates f Byzantine faults). Current mesh has 3 agents
+  — BFT becomes meaningful at 4+ peers operating autonomously on shared state.
+  Relevant failure modes:
+  - **Schema divergence** — agent A upgrades schema; agent B rejects; agent C
+    operates on old schema. Who wins? Current answer: authority hierarchy (psychology-
+    agent decides). BFT answer: 2/3 agreement required for protocol changes.
+  - **Stale state propagation** — an agent with a crashed autonomous-sync commits
+    outdated state that overwrites newer state from a peer.
+  - **Compromised agent** — web-exposed agent receives manipulated commands from an
+    authenticated but compromised peer.
+  ⚡ The authority hierarchy already handles the 2-tier case (sub-agents defer to
+  psychology-agent). BFT adds value only for peer-to-peer consensus among equals.
+  Premature to implement; the threat model doesn't yet warrant it.
+  *Precondition: 4+ autonomous peer agents, or web exposure across trust boundaries.*
+
 *Noted: Session 62 (2026-03-10)*
 
 ---
