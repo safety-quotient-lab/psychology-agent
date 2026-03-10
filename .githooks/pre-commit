@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+# Pre-commit hook: block commits containing secrets or sensitive patterns.
+# Works for both human and autonomous (claude -p) commits.
+#
+# Install: git config core.hooksPath .githooks
+# (Committed to repo — every clone gets the protection automatically.)
+
+set -euo pipefail
+
+# ── Allowlisted paths ────────────────────────────────────────────────────────
+# Autonomous agents SHOULD only commit to these paths. Commits touching
+# other paths still pass but log a warning. This allowlist prevents
+# accidental sweeps (git add -A) from including unexpected files.
+
+AUTONOMOUS_ALLOWLIST=(
+    "transport/"
+    "docs/"
+    "lab-notebook.md"
+    "journal.md"
+    "TODO.md"
+    "ideas.md"
+    "MEMORY.md"
+    "scripts/"
+    ".claude/skills/"
+    ".claude/rules/"
+    "CLAUDE.md"
+    ".githooks/"
+    ".well-known/"
+    "capabilities.yaml"
+)
+
+# ── Secret patterns ──────────────────────────────────────────────────────────
+# Scan staged file contents for high-confidence secret indicators.
+# Each pattern targets a specific leak type. Minimizes false positives
+# by matching structural patterns, not just keywords.
+
+SECRET_PATTERNS=(
+    'ANTHROPIC_API_KEY'
+    'CLOUDFLARE_API_TOKEN'
+    'sk-ant-[a-zA-Z0-9]'
+    'ghp_[a-zA-Z0-9]'
+    'ghs_[a-zA-Z0-9]'
+    'glpat-[a-zA-Z0-9]'
+    'xoxb-[0-9]'
+    'xoxp-[0-9]'
+    'AKIA[0-9A-Z]{16}'
+    'AIza[0-9A-Za-z_-]{35}'
+    'BEGIN .*PRIVATE KEY'
+    'password\s*[:=]\s*["\x27][^\s]'
+    'secret\s*[:=]\s*["\x27][^\s]'
+    'token\s*[:=]\s*["\x27][^\s]'
+)
+
+# ── Forbidden file patterns ──────────────────────────────────────────────────
+# Block these files from ever being committed, regardless of content.
+
+FORBIDDEN_FILES=(
+    '\.env$'
+    '\.env\.'
+    'credentials\.json'
+    'service-account.*\.json'
+    '\.pem$'
+    'id_rsa$'
+    'id_ed25519$'
+    '\.key$'
+)
+
+# ── Check staged files ───────────────────────────────────────────────────────
+
+staged_files=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null || true)
+
+if [ -z "${staged_files}" ]; then
+    exit 0
+fi
+
+errors=0
+warnings=0
+
+# Check for forbidden filenames
+for pattern in "${FORBIDDEN_FILES[@]}"; do
+    matches=$(echo "${staged_files}" | grep -E "${pattern}" || true)
+    if [ -n "${matches}" ]; then
+        echo "BLOCKED: Forbidden file pattern '${pattern}' matched:"
+        echo "${matches}" | sed 's/^/  /'
+        errors=$((errors + 1))
+    fi
+done
+
+# Check staged content for secret patterns
+# Exclude the hook file itself (contains patterns as detection rules, not secrets)
+for pattern in "${SECRET_PATTERNS[@]}"; do
+    matches=$(git diff --cached -U0 --no-color -- ':!.githooks/pre-commit' 2>/dev/null \
+        | grep -E "^\+" \
+        | grep -E -- "${pattern}" || true)
+    if [ -n "${matches}" ]; then
+        echo "BLOCKED: Secret pattern '${pattern}' found in staged content:"
+        echo "${matches}" | head -3 | sed 's/^/  /'
+        errors=$((errors + 1))
+    fi
+done
+
+# Check for state.db accidentally staged (belt + suspenders with .gitignore)
+if echo "${staged_files}" | grep -qE '^state\.db'; then
+    echo "BLOCKED: state.db must not be committed (contains local trust state)"
+    errors=$((errors + 1))
+fi
+
+# Warn if autonomous commit touches files outside the allowlist
+if [ -n "${AUTONOMOUS_AGENT:-}" ]; then
+    while IFS= read -r file; do
+        allowed=0
+        for prefix in "${AUTONOMOUS_ALLOWLIST[@]}"; do
+            if [[ "${file}" == ${prefix}* ]]; then
+                allowed=1
+                break
+            fi
+        done
+        if [ "${allowed}" -eq 0 ]; then
+            echo "WARNING: Autonomous commit touches non-allowlisted path: ${file}"
+            warnings=$((warnings + 1))
+        fi
+    done <<< "${staged_files}"
+fi
+
+if [ "${errors}" -gt 0 ]; then
+    echo ""
+    echo "Commit blocked: ${errors} secret/forbidden file issue(s) detected."
+    echo "If this is a false positive, review the patterns in .githooks/pre-commit."
+    exit 1
+fi
+
+if [ "${warnings}" -gt 0 ]; then
+    echo "(${warnings} allowlist warnings — commit proceeds)"
+fi
+
+exit 0
