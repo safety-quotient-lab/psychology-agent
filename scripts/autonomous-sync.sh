@@ -316,7 +316,13 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>" 2>/dev/null || true
 git_push() {
     cd "${PROJECT_ROOT}"
 
-    if git diff --cached --quiet && git diff --quiet; then
+    # Check for uncommitted changes OR unpushed commits
+    local has_uncommitted=false
+    local has_unpushed=false
+    git diff --cached --quiet && git diff --quiet || has_uncommitted=true
+    [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main 2>/dev/null)" ] && has_unpushed=true
+
+    if [ "${has_uncommitted}" = false ] && [ "${has_unpushed}" = false ]; then
         log "No changes to push"
         return 0
     fi
