@@ -63,6 +63,7 @@ partner, and Socratic interlocutor
 43. [The First Autonomous Exchange: What Three Bugs Reveal About Agent Infrastructure](#43-the-first-autonomous-exchange)
 44. [From Ping to Knowledge: The First Substantive Autonomous Exchange](#44-from-ping-to-knowledge)
 45. [When the Vocabulary Outlives Its Authority: Replacing PJE with Literary Warrant](#45-when-the-vocabulary-outlives-its-authority)
+46. [Specification Without Instantiation: Separating Cogarch from Infrastructure](#46-specification-without-instantiation)
 
 ---
 
@@ -1698,3 +1699,24 @@ What remains open: L2 sub-categories (e.g., `psychology/psychometrics`) have not
 - PSH keyword matching uses substring containment, not word boundaries — short keywords like "rule" or "gate" may produce false positives at scale
 - Literary warrant thresholds (L1: 5+ entities, L2: 10+ entities) were chosen pragmatically, not from any established standard
 - The agent-ID noise fix handles known agent names but would miss novel agent names introduced without updating the exclusion list
+
+
+## 46. Specification Without Instantiation: Separating Cogarch from Infrastructure
+
+Session 63 confronted a question that lurks in every open-source agent project: what can you publish when your architecture documentation contains your infrastructure topology?
+
+We had committed `agent-registry.json` with `"lan_host": "chromabook.local"` and `"lan_user": "kashif"` — LAN hostnames and SSH credentials sitting in a public GitHub repository. The transport protocol design, routing rules, and agent role specifications belonged in the public record. The hostnames did not.
+
+The fix involved splitting the registry into two layers: a **specification** (committed, public-safe) describing the transport pattern, and an **instantiation** (gitignored, machine-local) filling in the concrete topology. A `_deep_merge()` function combines them at runtime — the local override wins on conflict, and any script that reads the registry automatically picks up machine-specific details without the committed file containing them.
+
+This echoes a pattern from software deployment (Nygard, 2018): configuration separates into what the system *does* (specification) from where and how it *runs* (instantiation). In twelve-factor app terms (Wiggins, 2011), the registry split moves infrastructure details from code (tracked, shared) to config (per-environment, private). The difference here: our "environments" are physical machines running autonomous agent instances, not cloud deployments. The `agent-registry.local.json` functions like an `.env` file, but structured as a JSON overlay rather than flat key-value pairs — because agent configuration has hierarchical structure that flat env vars cannot express.
+
+The deeper insight: a public cognitive architecture project produces a paradox. The cogarch specification gains value from transparency — others can adopt, critique, and extend it. But the operational state that *instantiates* the cogarch contains attack surface: hostnames for SSH wake-up signals, directory paths for SCP commands, cron intervals that reveal polling patterns. Publishing one without exposing the other requires a clean seam between specification and instantiation.
+
+The same session introduced a pre-flight transport diff in `autonomous-sync.sh` — recording HEAD before and after `git pull`, then checking whether transport-relevant files changed. If nothing changed and no unprocessed messages exist in state.db, the cycle skips the expensive claude CLI invocation entirely. This saves trust budget credits on quiet polling cycles. The check respects urgency: gate-accelerated cycles and wake-up signals bypass the pre-flight, because urgent exchanges should not wait for an optimization to complete.
+
+Together, these changes reveal a maturation pattern: as the agent mesh grows from experiment to infrastructure, concerns that began as engineering convenience (registry file, polling interval) acquire security and efficiency dimensions that demand explicit architectural treatment.
+
+⚑ EPISTEMIC FLAGS
+- The specification/instantiation split handles the two-layer case (public template + private override). A third layer (per-agent within the same machine) might emerge if multiple agents share a host
+- Pre-flight diff checks git log for transport changes but does not detect changes made by other processes between pull and check — a narrow race window exists

@@ -106,6 +106,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Bootstrap schema propagation   | ✓ ensure_db() applies schema.sql idempotently + column migrations — fixes missing-table class of failures (Session 62c) |
 | Autonomous-sync directory arg | ✓ `autonomous-sync.sh` accepts $1 or PROJECT_ROOT env — multi-repo capable (Session 60) |
 | Universal facets (PSH + schema.org) | ✓ bootstrap_facets.py — 11 L1 categories (10 PSH + PL-001 ai-systems), 9 schema.org types, literary warrant discovery with PSH staleness analysis. Replaces bootstrap_pje_facets.py (Session 62e) |
+| Mesh-state export              | ✓ `mesh-state-export.py` — mesh-state/v1 JSON snapshot, wired into autonomous-sync.sh, dashboard remote peer view (Session 63) |
+| Registry spec/instantiation split | ✓ agent-registry.json (public) + agent-registry.local.json (gitignored) — `_deep_merge` pattern in 3 consuming scripts (Session 63) |
+| Pre-flight transport diff      | ✓ autonomous-sync.sh skips claude invocation when no transport changes + no unprocessed messages + no active gates (Session 63) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -4363,3 +4366,38 @@ Continuation of Session 62d — taxonomy overhaul.
   than new categories
 - L2 sub-categories not yet populated (schema ready, no warrant-meeting
   candidates identified)
+
+
+## 2026-03-10T13:04 CDT — Session 63 (Mesh-state export, registry split, pre-flight diff)
+
+Continuation of 62e. Three infrastructure improvements for cross-machine mesh
+visibility and operational security.
+
+- **Mesh-state export** — `scripts/mesh-state-export.py` produces lean JSON
+  snapshots (mesh-state/v1) of operational state: trust budget, recent actions,
+  transport health, PSH facet distribution, epistemic flags. Wired into
+  `autonomous-sync.sh` after heartbeat emission.
+- **Dashboard remote peer view** — `mesh-status.py` reads mesh-state snapshots
+  from `local-coordination/` and cross-repo-fetch remotes via `git show`. New
+  "Remote Peer State" section in Mesh tab. Plan 9-style federated dashboard —
+  each agent exports its own state, dashboard composes namespace at query time.
+- **Agent registry split (specification vs instantiation)** — `agent-registry.json`
+  scrubbed of LAN hostnames and SSH users (now public-safe). Local infrastructure
+  details in `agent-registry.local.json` (gitignored). `_deep_merge()` pattern
+  added to all 3 consuming scripts (cross_repo_fetch, verify_shared_scripts,
+  mesh-status). Security improvement: no sensitive topology in committed files.
+- **Pre-flight transport diff** — `autonomous-sync.sh` now records HEAD before/after
+  `git pull`, checks whether new commits touch `transport/` or `.well-known/`, and
+  queries state.db for unprocessed messages. Skips expensive claude /sync invocation
+  when nothing changed. Gate-accelerated cycles bypass the check (urgency overrides
+  efficiency).
+- **Ideas documented** — web exposure for interagent HTTP commands (CF Worker or
+  direct), auth model candidates (mTLS, JWT, API keys, OAuth 2.0) with authority
+  hierarchy asymmetry, BFT/Praxis Protocol for interagent consensus, command
+  authorization through T3 gate.
+
+⚑ EPISTEMIC FLAGS
+- Tunnel URL (trycloudflare.com) remains in historical transport message — ephemeral,
+  already expired, scrubbing would break audit trail
+- agent-registry.local.json must be created manually on each machine — no
+  auto-generation mechanism yet
