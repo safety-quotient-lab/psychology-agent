@@ -2,20 +2,22 @@
 """
 export_public_state.py — Generate a public seed DB from state.db.
 
-Three-tier visibility model:
-  public  — infrastructure that transfers to any adopter (triggers, schema, config)
-  shared  — research output (decisions, sessions, flags — visible on GitHub,
-            not seeded into adopter DBs)
-  private — personal state (lessons, memory, trust — never exported)
+Four-tier visibility model:
+  public     — infrastructure that transfers to any adopter (triggers, schema)
+  shared     — research output (decisions, sessions, flags — visible on GitHub)
+  commercial — monetizable assets (calibration, rubrics, datasets, service configs)
+  private    — personal state (lessons, memory, trust — never exported)
 
 Profiles control which tiers get included:
-  seed    — public only (adopter starter kit: empty DB + triggers)
-  release — public + shared (GitHub release: our research data included)
-  full    — all tiers (debug only, includes private)
+  seed       — public only (adopter starter kit: triggers + empty schema)
+  release    — public + shared (GitHub release: research data included)
+  licensed   — public + shared + commercial (paying customers)
+  full       — all tiers (debug/backup only, includes private)
 
 Usage:
     python scripts/export_public_state.py                         # seed (default)
-    python scripts/export_public_state.py --profile release       # include shared
+    python scripts/export_public_state.py --profile release       # + shared
+    python scripts/export_public_state.py --profile licensed      # + commercial
     python scripts/export_public_state.py --output path.db        # custom output
     python scripts/export_public_state.py --dry-run               # print plan only
 
@@ -41,6 +43,8 @@ def get_visible_tables(conn: sqlite3.Connection, profile: str) -> list[dict]:
     """Get tables that match the requested visibility profile."""
     if profile == "full":
         where = "1=1"
+    elif profile == "licensed":
+        where = "default_visibility IN ('public', 'shared', 'commercial')"
     elif profile == "release":
         where = "default_visibility IN ('public', 'shared')"
     else:  # seed
@@ -93,8 +97,8 @@ def main() -> None:
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT),
                         help="Output database path")
     parser.add_argument("--profile", default="seed",
-                        choices=["seed", "release", "full"],
-                        help="Visibility profile: seed (public infra only), release (+ shared research), full (debug)")
+                        choices=["seed", "release", "licensed", "full"],
+                        help="seed (infra), release (+ research), licensed (+ commercial), full (debug)")
     parser.add_argument("--dry-run", action="store_true",
                         help="Print plan without writing")
     args = parser.parse_args()
@@ -127,7 +131,7 @@ def main() -> None:
         row_count = source.execute(
             f"SELECT COUNT(*) FROM {table['name']}"
         ).fetchone()[0]
-        marker = {"public": "●", "shared": "◐", "private": "○"}
+        marker = {"public": "●", "shared": "◐", "commercial": "◆", "private": "○"}
         print(f"  {marker.get(table['visibility'], '?')} {table['name']}: "
               f"{row_count} rows ({table['visibility']})")
         if table["name"] in SANITIZE_COLUMNS:

@@ -271,19 +271,21 @@ CREATE TABLE IF NOT EXISTS table_visibility (
     description         TEXT
 );
 
--- Three-tier visibility:
---   public  = infrastructure that transfers to any adopter (triggers, schema, config)
---   shared  = our research output (decisions, sessions, flags — visible on GitHub,
---             not seeded into adopter DBs; included in release exports)
---   private = personal state (lessons, memory, trust budget — never exported)
+-- Four-tier visibility:
+--   public     = infrastructure that transfers to any adopter (triggers, schema)
+--   shared     = research output (decisions, sessions, flags — visible on GitHub,
+--                included in release exports, not seeded into adopter DBs)
+--   commercial = monetizable assets (calibration pipelines, scoring rubrics,
+--                curated datasets, service configs — licensed access only)
+--   private    = personal state (lessons, memory, trust — never exported)
 INSERT OR IGNORE INTO table_visibility (table_name, default_visibility, description) VALUES
     ('trigger_state',       'public',       'Cogarch infrastructure — triggers must exist for system to fire'),
-    ('decision_chain',      'shared',       'Research output — our design decisions, visible but not seeded'),
-    ('session_log',         'shared',       'Research output — our session history'),
-    ('epistemic_flags',     'shared',       'Research output — our epistemic audit trail'),
-    ('psq_status',          'shared',       'Research output — our PSQ operational status'),
+    ('decision_chain',      'shared',       'Research output — design decisions, visible but not seeded'),
+    ('session_log',         'shared',       'Research output — session history'),
+    ('epistemic_flags',     'shared',       'Research output — epistemic audit trail'),
     ('transport_messages',  'shared',       'Research output — transport index, strip subjects in export'),
     ('claims',              'shared',       'Research output — verified claims from transport'),
+    ('psq_status',          'commercial',   'PSQ operational status — calibration IDs, endpoint URLs, model versions'),
     ('memory_entries',      'private',      'Personal memory — not exported'),
     ('lessons',             'private',      'Personal learning log — not exported'),
     ('trust_budget',        'private',      'Operational budget — machine-specific'),
@@ -291,4 +293,4 @@ INSERT OR IGNORE INTO table_visibility (table_name, default_visibility, descript
     ('entry_facets',        'private',      'Derived from memory_entries — inherits private');
 
 INSERT OR IGNORE INTO schema_version (version, description)
-VALUES (8, 'State lifecycle — table_visibility with 3-tier model (public/shared/private). Public = transferable infrastructure. Shared = research output (visible, not seeded). Private = personal.');
+VALUES (8, 'State lifecycle — table_visibility with 4-tier model (public/shared/commercial/private). Commercial tier for monetizable assets (calibration, rubrics, datasets, service configs).');
