@@ -17,9 +17,9 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 59e. Lessons backfill complete (25/25 frontmatter),
-17/25 graduated to enforcement targets, epistemic debt dashboard wired into
-/hunt + /cycle.
+**Where we stopped:** Session 59d. State layer documented in README + wiki (#107
+complete). Grounding audit caught stale NC license note in awesome-claude-code
+TODO item — corrected to Apache 2.0.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - Cogarch portability: ✓ COMPLETE `[cold: done]`
@@ -28,13 +28,10 @@ discipline-first) with specialized sub-agents and an adversarial evaluator.
 - SQLite state layer: schema v8, 12 tables, 4-tier visibility, documented `[warm]`
 - Autonomous mesh: orientation payload + heartbeat + agent identity `[warm]`
 - Project board: ✓ full coverage — all TODO items have issues + board items `[warm]`
-- Lesson lifecycle: ✓ 17/25 graduated, 1 candidate, 7 below threshold `[warm]`
-- Epistemic debt: 270 flags, 0% resolved — no resolution mechanism yet `[warm]`
 - DI Phase A Pass 2: pending (inter-rater reliability) `[cold]`
 
-**Next:** Awesome-claude-code submission (#52). State layer consumer scripts
-(agent communication asymmetry, memory staleness heatmap — both XS).
-First autonomous sync cycle. DI Phase A Pass 2 (fresh session).
+**Next:** Backfill 17 lessons (#108). Stale doc cleanup (MANIFEST refs).
+First autonomous sync cycle. Awesome-claude-code submission (#52). DI Phase A Pass 2.
 
 
 ## Memory Hygiene

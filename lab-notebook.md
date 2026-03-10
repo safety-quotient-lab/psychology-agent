@@ -90,6 +90,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Lesson promotion lifecycle    | ✓ 17/25 graduated: evaluation.md (6), anti-patterns.md (+2), CLAUDE.md (+2 lines), cogarch/hooks (4). 1 candidate, 7 below threshold (Session 59d) |
 | 4-tier visibility (schema v8) | ✓ table_visibility (public/shared/commercial/private), export_public_state.py (4 profiles: seed/release/licensed/full), private-by-default (Session 59) |
 | Epistemic debt dashboard      | ✓ `scripts/epistemic_debt.py` — 4 modes (full, --summary, --by-source, --by-session), wired into /hunt Phase 1 + /cycle Step 11c (Session 59d) |
+| Agent communication asymmetry | ✓ `scripts/agent_communication.py` — mesh imbalance detection, direction asymmetry, quiet pairs (Session 60) |
+| Memory staleness heatmap      | ✓ `scripts/memory_staleness.py` — T9 proxy thresholds, per-topic aggregation, 4 modes (Session 60) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -3965,3 +3967,38 @@ Continuation — lessons infrastructure and epistemic debt visibility.
 - 270 transport flags at 0% resolution — no flags have ever been marked resolved.
   Likely a tooling gap: no mechanism currently marks flags resolved. The dual_write
   pipeline and bootstrap both set resolved=FALSE; nothing sets resolved=TRUE.
+
+
+## 2026-03-09T21:03 CDT — Session 60 (State layer consumer scripts, cogarch quick-ref fix)
+
+Short session — /hunt quick wins, then execute.
+
+- **Committed Session 59e /cycle output** that survived context loss (journal §40 +
+  lab-notebook entry). Pushed cb5f195.
+
+- **Cogarch quick-ref fix:** T14 (structural checkpoint) missing from
+  `memory/cogarch.md` trigger table. All other triggers (T1-T13, T15-T16)
+  present. Added T14 line.
+
+- **MEMORY.md Active Thread refreshed:** Updated from Session 59d → 59e.
+  Removed completed items from "Next" (lessons backfill, stale doc cleanup).
+  Added lesson lifecycle + epistemic debt status tiers.
+
+- **State layer consumer scripts (2 new):**
+  - `scripts/agent_communication.py` — mesh imbalance detection. 3 modes
+    (full, --summary, --pairs). Findings: psychology-agent dominates (57/88
+    messages, 64.8%), 2:1 asymmetry toward unratified-agent, no quiet pairs.
+  - `scripts/memory_staleness.py` — T9 freshness enforcement via SQL. 4 modes
+    (full, --summary, --stale N, --by-topic). T9 proxy thresholds (14d flag,
+    30d remove). Current state: all 40 entries fresh.
+
+- **TODO.md updated:** Both consumer items marked complete.
+
+- **Artifacts created/modified:**
+  - `scripts/agent_communication.py` — NEW
+  - `scripts/memory_staleness.py` — NEW
+  - `TODO.md` — 2 items marked complete
+  - `memory/cogarch.md` — T14 added to quick-ref
+  - `MEMORY.md` — Active Thread refreshed
+
+⚑ EPISTEMIC FLAGS: none identified.
