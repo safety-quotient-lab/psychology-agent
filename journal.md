@@ -61,6 +61,7 @@ partner, and Socratic interlocutor
 41. [Filesystem as Protocol: Plan 9 and the Cross-Repo Transport Decision](#41-filesystem-as-protocol)
 42. [The Gate That Keeps the Budget: Blocking Semantics in a Poll-Based Mesh](#42-the-gate-that-keeps-the-budget)
 43. [The First Autonomous Exchange: What Three Bugs Reveal About Agent Infrastructure](#43-the-first-autonomous-exchange)
+44. [From Ping to Knowledge: The First Substantive Autonomous Exchange](#44-from-ping-to-knowledge)
 
 ---
 
@@ -1633,6 +1634,36 @@ The answer came after fixing three bugs, each revealing a distinct category of i
 - Single observation: one successful autonomous exchange does not establish reliability or quality parity with human-mediated sessions
 - The three bugs were discovered sequentially through manual testing, not through automated verification. A production system would need integration tests covering the full autonomous path.
 - Cross-repo script synchronization remains manual (scp). Every fix requires propagation to both repos — a maintenance burden that scales linearly with agent count.
+
+---
+
+
+## §44. From Ping to Knowledge: The First Substantive Autonomous Exchange {#44-from-ping-to-knowledge}
+
+*Session 62c (2026-03-10). Continued from §43.*
+
+§43 documented the first autonomous exchange — a health ping. We noted: "Whether the autonomous path produces equivalent quality for substantive exchanges (scoring requests, calibration decisions) remains open." This section reports on the test that addressed that question.
+
+We sent `from-psychology-agent-028.json` (turn 51): a structured request asking psq-agent for a comprehensive model readiness assessment covering model version and lineage, all 10 scoring dimensions with calibration status, known issues from the B3-B5 analysis series, and a production readiness determination. This represents a qualitatively different challenge from the health ping — the agent must locate and synthesize information from multiple sources (held-out results, calibration configs, research documents, memory files) and structure it as a coherent assessment.
+
+The response (`from-psq-sub-agent-027.json`, turn 52) arrived within 5 minutes of triggering. It covered all four requested areas with specific version numbers (v37), dimension-level metrics (held-out r ranging from 0.437 for CO to 0.767 for ED), calibration methods (isotonic-quantile-binned-20 across all dimensions), B-series findings (TE dead zone, bipolar structure, bifactor M5), and a tiered readiness determination.
+
+Three aspects of the response merit attention for what they reveal about autonomous agent capability:
+
+**Cross-document synthesis.** The response correctly identified the DA paradox — weakest factor loading (0.332) yet strongest criterion predictor across all four validity studies. This finding spans at minimum `psychometric-evaluation.md` (factor loadings), the four criterion validity study outputs, and `distillation-research.md` (bifactor results). Retrieving and correctly connecting these findings demonstrates that the autonomous path can handle multi-source synthesis, not merely single-file lookups.
+
+**Appropriate epistemic flagging.** The response carried six epistemic flags covering WEIRD distribution limitations, the CO rubric change date boundary, RMSEA borderline interpretation, expert validation status, held-out n variation, and MAE estimation method. These flags were not requested — the `expected_response` field asked only for the four report areas. The agent volunteered limitations that a consumer would need to interpret the data correctly. This suggests the cogarch's epistemic discipline (T3 substance gate, T15 PSQ receiver protocol) transfers through the autonomous path, at least when the /sync skill's response generation explicitly invokes the system prompt.
+
+**The bootstrap failure as validation prerequisite.** The first attempt at this substantive exchange failed because `orientation-payload.py` crashed on a missing `session_log` table. The state.db on chromabook had been bootstrapped from an older schema (5 tables) that predated schema v10 (13 tables). Applying the full `schema.sql` fixed it — but the failure exposed a gap in the bootstrap contract: `autonomous-sync.sh` used inline DDL for only two tables instead of applying the canonical schema. The fix makes `ensure_db()` apply `schema.sql` idempotently on every startup. Since all DDL uses `CREATE TABLE IF NOT EXISTS` and all seed data uses `INSERT OR IGNORE`, applying the full schema to an existing database safely adds missing tables without destroying data. This converts a class of "missing table" failures into a no-op at startup — a pattern that will prevent recurrence as the schema continues to evolve.
+
+What this exchange validates, taken together with §43: the autonomous mesh handles both structural queries (health status — schema compliance) and substantive queries (domain knowledge — multi-source synthesis). The mesh serves as a reliable transport and invocation layer; the response quality depends on the invoked agent's access to its own knowledge base, not on the transport mechanism.
+
+What remains unvalidated: consistency across repeated queries (would the same question produce equivalent-quality responses on Tuesday?), response quality under degraded conditions (what if some source files were stale or missing?), and response quality for *novel* questions (ones that don't map cleanly to existing documentation). The autonomous mesh now works; whether it works reliably enough for unsupervised production operation requires observation across a larger sample.
+
+⚑ EPISTEMIC FLAGS
+- Quality assessment based on a single substantive exchange — no repeated-measure validation
+- The response quality may partly reflect the SQ agent's /sync skill having been recently updated (Session 62) — a stale skill might produce different results
+- Cross-document synthesis success could reflect the specific question aligning well with existing memory file structure rather than a general capability
 
 ---
 

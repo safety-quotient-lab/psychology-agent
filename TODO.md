@@ -225,6 +225,18 @@ semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
   Three bugs fixed: permission bypass, unpushed commit detection, /sync skill
   cross-repo-fetch support. Full loop validated end-to-end.
 
+- [x] **First substantive autonomous exchange** — COMPLETE (Session 62c).
+  psq-agent autonomously generated PSQ model readiness assessment (turn 52).
+  Domain-knowledge retrieval validated — cross-document synthesis of B-series
+  findings, dimension metrics, readiness tiers.
+
+- [ ] **Multi-agent instance locking** — current PID lock prevents same-agent
+  overlap but not multi-agent concurrent access to the same repo working tree.
+  If two agents share a repo (e.g., chromabook), git operations will collide.
+  Options: repo-level lock file, git worktrees, or sequential scheduling.
+  *Precondition: second agent added to chromabook (not yet planned)*
+  *Constraint: no worktrees for now (user directive, Session 62c)*
+
 ---
 
 ## Cross-Repo Transport (Safety-Quotient Agent)
@@ -257,10 +269,10 @@ Plan 9-inspired split-outbox model — no shared writable directories.
   5-step setup executed on peer machine via SSH. Identity, remote, state.db,
   hooks, cron all verified. Bidirectional transport confirmed.
 
-- [ ] **Update /sync skill for cross-repo-fetch inbound** — the existing
-  /sync uses PR-based transport. Add cross-repo-fetch path to Phase 1
-  (use cross_repo_fetch.py from PR #2). S effort.
-  *Precondition: PR #2 merged.*
+- [x] **Update /sync skill for cross-repo-fetch inbound** — COMPLETE (Session 62).
+  Phase 1c (state.db unprocessed query) + Phase 3b (git show + response generation)
+  added to SQ /sync skill. Validated: psq-agent autonomously responded to both
+  gated ping (turn 50) and substantive request (turn 52).
 
 ---
 

@@ -99,6 +99,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Cross-repo transport (SQ side) | ✓ PR #2 merged + chromabook setup complete — autonomous sync validated (Session 60, 62) |
 | Gated autonomous chains       | ✓ COMPLETE — full end-to-end: gated message → autonomous response → gate resolution (Session 61-62) |
 | First autonomous response      | ✓ psq-agent (chromabook) autonomously responded to gated ping (turn 50), committed + pushed (Session 62) |
+| Substantive autonomous exchange | ✓ psq-agent autonomously generated PSQ model readiness assessment (turn 52) — domain-knowledge retrieval validated (Session 62c) |
+| Bootstrap schema propagation   | ✓ ensure_db() applies schema.sql idempotently + column migrations — fixes missing-table class of failures (Session 62c) |
 | Autonomous-sync directory arg | ✓ `autonomous-sync.sh` accepts $1 or PROJECT_ROOT env — multi-repo capable (Session 60) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
@@ -4229,3 +4231,35 @@ gaps discovered during live testing on the chromabook.
   content.subject or payload.subject, but gated test message uses top-level subject
 - SQ /sync skill updated via scp — not yet verified that cron-triggered /sync
   produces the same quality response as the manual test (single observation)
+
+
+## 2026-03-10T11:04 CDT — Session 62c (Substantive autonomous exchange + bootstrap fix)
+
+- **Substantive exchange validated:** psq-agent autonomously generated
+  `from-psq-sub-agent-027.json` (turn 52) — comprehensive PSQ model readiness
+  assessment with all 10 dimensions, B3-B5 findings, calibration status,
+  `READY_WITH_CAVEATS` determination, 5 claims with confidence basis, 6 epistemic
+  flags. SETL 0.04. First domain-knowledge exchange through the mesh — the agent
+  retrieved and synthesized cross-document findings (DA paradox, CC diffuseness,
+  bifactor M5 fit metrics) autonomously.
+
+- **Bootstrap fix (ensure_db):** Replaced inline DDL snapshot (trust_budget +
+  autonomous_actions only) with idempotent `schema.sql` application. All 13 tables
+  now created on first run. Column migrations handle ALTER TABLE for v3-v10
+  additions. Root cause: the SQ repo's state.db was created from an older schema
+  that predated v10, causing `orientation-payload.py` crash on missing `session_log`
+  table.
+
+- **Instance locking concern raised:** User flagged multi-agent overlap risk on
+  chromabook repo. Current PID lock prevents same-agent overlap but not multi-agent
+  collision on shared working tree. Known constraint — no worktrees or concurrent
+  agent support yet. Single-agent-per-repo assumption documented.
+
+- **Commits:** `6db24b4` (bootstrap fix + turn 52 response), synced to chromabook
+  via scp.
+
+⚑ EPISTEMIC FLAGS
+- Single-instance enforcement covers same-agent overlap only — multi-agent
+  concurrent access to same repo requires worktree or lock coordination (not built)
+- Substantive response quality based on single observation — no repeated-measure
+  validation of autonomous domain-knowledge retrieval consistency
