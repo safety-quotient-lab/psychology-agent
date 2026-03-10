@@ -208,25 +208,18 @@ Plan 9-inspired split-outbox model — no shared writable directories.
 
 ### Safety-quotient agent side
 
-- [ ] **Create transport/ directory structure** — `transport/mail/outbox/`,
-  `transport/MANIFEST.json`, `transport/agent-registry.json` (defines
-  psychology-agent as peer with `cross-repo-fetch` transport). XS effort.
+- [ ] **Merge PR #2 + post-merge setup** — PR delivers: transport/ structure,
+  agent-registry, MANIFEST, .githooks/pre-commit, schema_transport.sql,
+  bootstrap_transport_db.py, autonomous-sync.sh, ensure-cron.sh,
+  cross_repo_fetch.py, orientation-payload.py, .agent-identity.json.example.
+  Post-merge: cp identity example, add git remote, bootstrap DB, configure
+  hooks, install cron. XS effort (5 commands).
+  *PR: safety-quotient-lab/safety-quotient#2*
 
-- [ ] **Create .agent-identity.json** — agent_id, platform, capabilities
-  for the chromabook. XS effort.
-
-- [ ] **Add transport schema to data/schema.sql** — transport_messages,
-  trust_budget, autonomous_actions tables (copy from psychology-agent
-  schema.sql). S effort.
-
-- [ ] **Create /sync skill (cross-repo adapted)** — reads psychology-agent's
-  MANIFEST via `git show psychology-agent/main:transport/MANIFEST.json`,
-  pulls messages, processes, writes responses to local outbox. M effort.
-  *Precondition: transport directory + schema exist.*
-
-- [ ] **Wire autonomous-sync.sh** — copy or symlink from psychology-agent,
-  use `ensure-cron.sh --target` to install cron entry. Pre-commit hook
-  travels with `.githooks/`. XS effort.
+- [ ] **Update /sync skill for cross-repo-fetch inbound** — the existing
+  /sync uses PR-based transport. Add cross-repo-fetch path to Phase 1
+  (use cross_repo_fetch.py from PR #2). S effort.
+  *Precondition: PR #2 merged.*
 
 ---
 
