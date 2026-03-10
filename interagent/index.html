@@ -308,7 +308,7 @@ function renderAgentCard(agent, data, error) {
                 <tr><td>Schema</td><td>v${schemaVer}</td></tr>
                 <tr><td>Peers</td><td>${peers.map(p => p.from_agent || "?").join(", ") || "none"}</td></tr>
                 <tr><td>Collected</td><td>${data.collected_at || "?"}</td></tr>
-                ${schedule.cron_expression ? `<tr><td>Sync schedule</td><td>${schedule.cron_expression}</td></tr>` : ""}
+                ${schedule.cron_entry ? `<tr><td>Sync schedule</td><td>${schedule.cron_entry}</td></tr>` : ""}
                 ${heartbeat.timestamp ? `<tr><td>Last heartbeat</td><td>${heartbeat.timestamp}</td></tr>` : ""}
             </table>
         </div>
