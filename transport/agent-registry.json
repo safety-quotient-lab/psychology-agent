@@ -1,7 +1,7 @@
 {
   "schema": "agent-registry/v1",
   "description": "Known agents in the psychology-agent mesh. /sync reads this to determine who to check for activity and who to consider for outbound messages.",
-  "updated": "2026-03-09",
+  "updated": "2026-03-10",
 
   "agents": {
     "psq-agent": {
@@ -24,15 +24,31 @@
     "unratified-agent": {
       "role": "peer",
       "description": "Blog platform operator, consumer of PSQ scores, content publisher — operates safety-quotient-lab/unratified",
-      "transport": "cross-repo-pr",
+      "transport": "cross-repo-fetch",
       "repo": "safety-quotient-lab/unratified",
+      "remote_name": "unratified",
       "sessions_path": "transport/sessions/",
       "message_prefix": "from-unratified-agent-",
-      "active_sessions": ["blog-publication"],
-      "always_consider": false,
+      "active_sessions": ["blog-publication", "content-quality-loop", "psq-scoring", "site-defensibility-review"],
+      "always_consider": true,
       "autonomous": false,
       "discovery_url": "https://unratified.org/.well-known/agent-card.json",
-      "notes": "Separate repo. PRs to our repo for inbound; we write to our transport for them to fetch. Blog posts, content quality, PSQ display — content-facing topics SHOULD be surfaced."
+      "notes": "Peer agent. Cross-repo transport via git remote fetch. Blog posts, content quality, PSQ display, persuasion audits — content-facing topics SHOULD be surfaced. 15 transport sessions, 47 messages addressed to psychology-agent."
+    },
+
+    "observatory-agent": {
+      "role": "peer",
+      "description": "Data observatory — psychoemotional safety research data, ICESCR framing, methodology validation",
+      "transport": "cross-repo-fetch",
+      "repo": "safety-quotient-lab/observatory",
+      "remote_name": "observatory",
+      "sessions_path": "transport/sessions/",
+      "message_prefix": "from-observatory-agent-",
+      "active_sessions": ["psq-scoring", "dignity-instrument"],
+      "always_consider": false,
+      "autonomous": false,
+      "discovery_url": "https://observatory.unratified.org/.well-known/agent-card.json",
+      "notes": "Peer agent. Cross-repo transport via git remote fetch. Research data, methodology, ICESCR framing. 10 transport sessions. Communicates with unratified-agent directly; messages to psychology-agent typically route through shared sessions (psq-scoring, dignity-instrument)."
     },
 
     "claude-control": {
@@ -76,6 +92,18 @@
         "keywords": ["state layer", "schema", "bootstrap", "deployment", "Hetzner"],
         "route_to": ["psq-agent"],
         "action": "notify if infrastructure changes affect shared resources"
+      },
+      {
+        "domain": "methodology",
+        "keywords": ["ICESCR", "observatory", "methodology", "data collection", "research design", "measurement"],
+        "route_to": ["observatory-agent"],
+        "action": "flag for user review — substance decision"
+      },
+      {
+        "domain": "consensus",
+        "keywords": ["consensus", "vote", "proposal", "schema migration", "protocol upgrade", "vocabulary update"],
+        "route_to": ["psq-agent", "unratified-agent", "observatory-agent"],
+        "action": "broadcast to all peers — consensus domain"
       }
     ]
   }

@@ -263,8 +263,17 @@ def scan_agent(agent_id: str, agent_config: dict, index: bool = False,
         if not files:
             continue
 
-        # Filter to messages from this agent (using message_prefix)
-        inbound_files = [f for f in files if f.startswith(message_prefix)]
+        # Filter to inbound messages — two naming conventions:
+        #   Convention A (psq-agent): files named from-{sender}-NNN.json
+        #   Convention B (unratified/observatory): files named to-{recipient}-NNN.json
+        # On the remote, "from-{peer}-*" = messages the peer authored (Convention A).
+        # On the remote, "to-psychology-agent-*" = messages addressed to us (Convention B).
+        our_agent_id = "psychology-agent"  # from .agent-identity.json
+        inbound_prefix = f"to-{our_agent_id}-"
+        inbound_files = [
+            f for f in files
+            if f.startswith(message_prefix) or f.startswith(inbound_prefix)
+        ]
 
         # Compare against indexed filenames
         indexed = get_indexed_filenames(DB_PATH, session_name)
