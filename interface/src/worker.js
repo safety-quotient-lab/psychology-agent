@@ -42,7 +42,7 @@ export default {
           protocolVersion: "0.3.0",
           name: "Psychology Agent",
           description: "General-purpose psychology agent (collegial mentor) with PSQ sub-agent. Psychoemotional safety scoring across 10 dimensions via DistilBERT model. Cognitive architecture with 15 triggers and 10-order knock-on analysis. Part of safety-quotient-lab inter-agent mesh.",
-          url: "https://psychology-interface.kashifshah.workers.dev",
+          url: "https://api.safety-quotient.dev",
           preferredTransport: "HTTP+JSON",
           provider: {
             organization: "Safety Quotient Lab",

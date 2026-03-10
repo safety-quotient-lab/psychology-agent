@@ -400,7 +400,7 @@ the polythematic facet system.
 | Sub-agent layer | **Proven** | interagent/v1 protocol, schema v3, 6 derivation findings, PSQ binding — 20+ turns exchanged |
 | Peer layer | **Confirmed** | Role declaration, divergence detection, SETL thresholds — one live exchange with observatory-agent; not yet stress-tested across multiple peers |
 | Adversarial evaluator | **Confirmed** | 7-procedure ranked set, tiered activation spec, Tier 1 proxy implemented — Tier 2/3 await runtime |
-| Psychology interface | **Deployed** | CF Worker at psychology-interface.kashifshah.workers.dev — PSQ scoring, agent card, D1 + KV |
+| Psychology interface | **Deployed** | CF Worker at api.safety-quotient.dev — PSQ scoring, agent card, D1 + KV |
 | SQLite state layer | **Proven** | Schema v8, 12 tables, dual-write protocol, 4-tier visibility model, bootstrap + incremental + export scripts |
 | Core governance (EF-1) | **Explored** | 7 invariants, 3 disciplinary lenses, BCP 14 keywords, trust budget — spec complete, not yet exercised in autonomous operation |
 
