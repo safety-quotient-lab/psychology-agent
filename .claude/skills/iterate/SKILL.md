@@ -127,6 +127,11 @@ maintenance) proceed autonomously.
 Do the work. The winner from Phase 2 becomes the active task.
 
 **Execution rules:**
+- **Board status update:** Mark the selected item In Progress on the GitHub
+  Projects board before beginning work:
+  ```bash
+  python3 scripts/sync_project_board.py --mark-in-progress "{item title}"
+  ```
 - Follow all cogarch triggers (T1-T16) during execution
 - Use /doc if the work produces decisions or findings worth persisting
 - If execution reveals that the item is larger than estimated (S estimated

@@ -342,6 +342,13 @@ After presenting results (and completing Phase 5 decision refinement if needed):
 **If Phase 5 was run:** Lead with winning option or ask user to confirm, then offer
 to execute. Don't re-list items Phase 5 already resolved.
 
+**Board status update:** When the user selects an item to work on, mark it
+In Progress on the GitHub Projects board:
+```bash
+python3 scripts/sync_project_board.py --mark-in-progress "{item title}"
+```
+This runs silently — no need to report the status change to the user.
+
 **If Phase 5 was skipped** (straightforward tasks), offer:
 - "Want me to tackle #1–3 (quick wins)?"
 - "Want me to draft the [spec] for architecture item 1?"
