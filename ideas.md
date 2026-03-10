@@ -239,6 +239,44 @@ sub-agents disagree, preserve the shape of the disagreement rather than averagin
 
 ---
 
+## Web Exposure & Interagent Auth
+
+Agents will need web exposure for interagent commands — the current git-transport
+model (fetch, PR, local-coordination) handles asynchronous exchange, but real-time
+interagent commands (gate resolution, wake-up, health checks) require HTTP endpoints.
+
+- **Agent HTTP surface** — each agent exposes a minimal HTTP API (CF Worker or
+  direct) for receiving commands, health checks, and gate notifications. The
+  `.well-known/agent-card.json` already declares `http_discovery` — this becomes
+  the live endpoint, not just a metadata reference.
+  *Precondition: gated chain protocol validated end-to-end over git transport first.*
+
+- **Auth model (critical)** — how agents authenticate to each other determines the
+  security boundary of the entire mesh. Candidate approaches:
+  - **Mutual TLS (mTLS)** — each agent holds a client cert; peers validate against
+    a shared CA. Strong identity, complex certificate management.
+  - **Signed JWTs with agent identity** — agents mint short-lived tokens signed by
+    their private key; peers validate against published public keys (in agent-card
+    or `.well-known/jwks.json`). Lighter than mTLS, familiar tooling.
+  - **API keys with scope limits** — simplest; each agent pair shares a secret.
+    Does not scale past 3–4 agents without a registry.
+  - **OAuth 2.0 machine-to-machine (client credentials)** — standard flow with an
+    auth server issuing scoped tokens. Scales well, adds infrastructure dependency.
+  ⚡ Auth must handle the asymmetry: psychology-agent issues commands to sub-agents
+  (authority hierarchy) but peers (unratified-agent) exchange as equals. The auth
+  model needs to encode this distinction — not just "can this agent talk to me" but
+  "what actions can this agent request."
+  *Precondition: web exposure implemented. No auth decision needed before then.*
+
+- **Command authorization (T3 gate)** — even authenticated agents must pass through
+  the T3 substance gate for commands that change state. Auth proves identity;
+  authorization proves permission; T3 proves the action merits execution.
+  *Precondition: auth model selected.*
+
+*Noted: Session 62 (2026-03-10)*
+
+---
+
 ## Meta
 
 - This agent system is itself a case study in PJE — it embodies Psycho Safety

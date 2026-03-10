@@ -428,6 +428,13 @@ main() {
     # Emit heartbeat (mesh presence announcement)
     python3 "${PROJECT_ROOT}/scripts/heartbeat.py" emit >&2 || true
 
+    # Export operational state snapshot for cross-machine visibility
+    if [ -f "${PROJECT_ROOT}/scripts/mesh-state-export.py" ]; then
+        python3 "${PROJECT_ROOT}/scripts/mesh-state-export.py" >&2 || {
+            log "WARNING: mesh-state-export.py failed — continuing without state export"
+        }
+    fi
+
     # Verify shared scripts (warning only — non-blocking)
     if [ -f "${PROJECT_ROOT}/scripts/verify_shared_scripts.py" ]; then
         python3 "${PROJECT_ROOT}/scripts/verify_shared_scripts.py" --quiet 2>/dev/null || {
