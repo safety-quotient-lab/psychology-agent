@@ -718,6 +718,29 @@
                                 pipeline feeds anti-patterns.md. Designed
                                 Session 65, implementation deferred.
                                 Decided: 2026-03-10
+
+ 4-agent mesh topology         4 agents: psychology-agent (orchestrator,
+ (mesh-topology)               gray-box), psq-agent (sub-agent, chromabook),
+                                unratified-agent (peer, chromabook),
+                                observatory-agent (peer, chromabook). All
+                                serve dynamic /api/status from state.db.
+                                Transport: cross-repo-fetch (git remote).
+                                Compositor: interagent.safety-quotient.dev.
+                                Agent DNS: psychology-agent.safety-quotient.dev,
+                                psq-agent.safety-quotient.dev,
+                                unratified-agent.unratified.org,
+                                observatory-agent.unratified.org.
+                                Derives from: cross-repo transport, dns-naming.
+                                Decided: 2026-03-10
+
+ Peer status endpoint pattern  Lightweight status_server.py reads state.db +
+ (peer-status-server)          .agent-identity.json, serves /api/status on
+                                configurable port. CF tunnel routes multiple
+                                agent hostnames to different local ports.
+                                Replaces CF Pages edge functions (which lack
+                                filesystem access) for dynamic agent state.
+                                Derives from: mesh-topology, lab-domain.
+                                Decided: 2026-03-10
 ────────────────────────────────────────────────────────────────────────
 ```
 

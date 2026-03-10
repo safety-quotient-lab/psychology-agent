@@ -123,7 +123,11 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | JSON-LD structured data        | ✓ Both dashboards serve JSON-LD (SoftwareApplication + mesh topology) (Session 66) |
 | CORS origin lockdown            | ✓ Allowlist replaces wildcard on both dashboards (Session 66) |
 | Agent-card dashboard route      | ✓ /.well-known/agent-card.json served from both dashboards (Session 66) |
-| interagent.safety-quotient.dev  | ✓ CF Worker (interagent-mesh) — static compositor, fetches /api/status from both agents (Session 66) |
+| interagent.safety-quotient.dev  | ✓ CF Worker — 3-tab compositor (Agents/Messages/Health), /api/health mesh endpoint, all 4 agents (Session 66-67) |
+| 4-agent mesh live               | ✓ All 4 agents serve dynamic /api/status from state.db — psychology-agent, psq-agent, unratified-agent, observatory-agent (Session 67) |
+| Dynamic peer status             | ✓ status_server.py on chromabook — unratified :8078, observatory :8079, tunneled via unratified.org subdomains (Session 67) |
+| Inbox triage (unratified)       | ✓ 23 messages processed, 5 say/do gaps cataloged in transport/deferred-outbound.md (Session 67) |
+| Cross-repo dual naming fix      | ✓ cross_repo_fetch.py handles both from-{sender} and to-{recipient} naming conventions (Session 67) |
 | SQ shared scripts sync          | ✓ PRs #9 (JSON-LD), #10 (schema v14 + dual_write) merged; chromabook at parity (Session 66) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
@@ -4545,3 +4549,63 @@ principles.
 ▶ scripts/schema.sql (v14), scripts/dual_write.py, .claude/hooks/engineering-incident-detect.sh,
   .claude/settings.json, scripts/mesh-status.py, interagent/{worker.js,index.html,wrangler.toml},
   ideas.md, TODO.md
+
+---
+
+## 2026-03-10T18:33 CDT — Session 67 (4-agent mesh live, dynamic status, inbox triage)
+
+- **4-agent mesh activation** — upgraded agent-registry.json: unratified-agent
+  switched from cross-repo-pr to cross-repo-fetch (remote: unratified),
+  observatory-agent added as new peer entry. Added consensus + methodology
+  outbound routing rules. Local registry overrides for chromabook LAN details.
+- **cross_repo_fetch.py dual naming convention** — fixed bug where script only
+  looked for `from-{sender}-*` files. Unratified/observatory use
+  `to-{recipient}-*` convention. Now matches both patterns.
+- **Chromabook peer bootstrap** — unratified-agent and observatory-agent repos
+  received: `.agent-identity.json`, `transport/agent-registry.json`,
+  `scripts/{cross_repo_fetch.py, schema.sql, bootstrap_state_db.py,
+  dual_write.py, generate_manifest.py}`, git remotes (psychology-agent,
+  observatory/unratified, safety-quotient). state.db bootstrapped
+  (32 messages unratified, 11 observatory).
+- **CF Pages /api/status stubs** — created static status endpoints:
+  `functions/api/status.ts` (unratified, CF Pages Function) and
+  `site/src/pages/api/status.ts` (observatory, Astro SSR route).
+  Replaced by dynamic status_server.py same session.
+- **Compositor upgrade (interagent.safety-quotient.dev)** — three-tab UI
+  (Agents, Messages, Health). Messages tab: flow summary, per-agent counts,
+  recent timeline, unprocessed queue, cross-mesh trace. Health tab:
+  sqm:MeshHealth overview, per-agent health, connectivity matrix.
+  Worker `/api/health` endpoint aggregates all 4 agents.
+- **Inbox triage** — processed 23 unread messages from unratified-agent across
+  4 sessions (blog-publication, content-quality-loop, psq-scoring,
+  site-defensibility-review). Identified 5 say/do gaps and 2 consensus
+  proposals. Cataloged in `transport/deferred-outbound.md`.
+- **Deferred outbound catalog** — 7 items: AR rubric retrieval (to unratified),
+  phase 2 trigger status, breadth diagnostic check-in, F9 confidence intervals
+  (to observatory), F11 FW/SETL definitions, Plan9 directory consensus (all
+  peers), PSH vocabulary consensus (all peers).
+- **Dynamic status_server.py** — lightweight Python HTTP server reads state.db +
+  .agent-identity.json, serves /api/status. Deployed on chromabook: unratified
+  :8078, observatory :8079. Systemd services created. CF tunnel ingress rules
+  added to psq-agent tunnel. DNS CNAMEs: unratified-agent.unratified.org,
+  observatory-agent.unratified.org.
+- **Mesh health verified** — compositor /api/health reports 4/4 agents online,
+  mesh healthy. All endpoints return dynamic state.db data (messages, peers,
+  gates, schema version, epistemic flags).
+- **/knock analysis: BFT Praxis-style consensus** — 10-order trace for adding
+  multi-round consensus protocol. Recommend-against finding: test basic transport
+  first before encoding consensus protocol. Budget pressure (10 of 20 credits
+  per round), non-autonomous agent participation unresolved, evaluator-consensus
+  circularity risk identified.
+- **Interagent auth spec** — committed previously-uncommitted zero-trust JWT
+  auth spec (docs/interagent-auth-spec.md).
+
+⚑ EPISTEMIC FLAGS
+- Static status stubs remain on CF Pages (unratified.org/api/status, observatory.unratified.org/api/status) — compositor no longer uses them but they still serve stale data to direct visitors
+- Wrong DNS records created on unratified.org zone (unratified-agent.safety-quotient.dev.unratified.org) — harmless but should clean up via CF dashboard
+- Peer state.db data reflects bootstrap snapshot, not live sync — autonomous sync not yet running on unratified/observatory repos
+- BFT consensus /knock analysis speculative at orders 5+ — no empirical consensus round data exists
+
+▶ transport/agent-registry.json, scripts/cross_repo_fetch.py,
+  interagent/{worker.js, index.html}, scripts/status_server.py,
+  transport/deferred-outbound.md, docs/interagent-auth-spec.md
