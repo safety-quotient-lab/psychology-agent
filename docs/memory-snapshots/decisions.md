@@ -49,10 +49,10 @@
                               No artifacts fitted on soon-to-be-replaced models.
                               2026-03-08
  SQLite state layer           Phase 1/1.5: markdown SOT for prose docs,
-                              DB SOT for structured non-prose state
-                              (MANIFEST). Schema v6. SL-2 dual-write
+                              DB SOT for structured non-prose state.
+                              Schema v8. 12 tables. SL-2 dual-write
                               live. Polythematic facets. Deterministic
-                              keys. 2026-03-09
+                              keys. 4-tier visibility. 2026-03-09
  MANIFEST generated artifact  MANIFEST.json auto-generated from state.db.
                               Pending only (793→21 lines). Completed
                               history in DB + git history. Phase 1.5:
@@ -64,7 +64,8 @@
                               override (DDD). 2026-03-09
  SL-2 dual-write             /sync + /cycle write to state.db alongside
                               markdown in real time. Markdown first, then DB.
-                              dual_write.py: 6 subcommands. 2026-03-09
+                              dual_write.py: 7 subcommands (incl. lesson).
+                              2026-03-09
  Optional ACK protocol        ack_required flag (default false). state.db
                               processed column replaces mandatory ACKs.
                               Schema v5: ack_required + ack_received cols.
@@ -127,6 +128,15 @@
                               Precedent: infrastructure never assumes
                               a specific data profile. Derives from DDD
                               (DOF gradient). 2026-03-09
+ Lessons-to-DB                 Frontmatter → queryable columns; prose
+                              stays in markdown. Promotion scan via SQL
+                              GROUP BY. bootstrap_lessons.py seeds,
+                              dual_write lesson upserts. 2026-03-09
+ 4-tier state visibility       public/shared/commercial/private.
+                              Private-by-default. table_visibility
+                              table (v8). Export profiles: seed/release/
+                              licensed/full. Observe before promoting.
+                              2026-03-09
 ```
 
 ## Authority Hierarchy

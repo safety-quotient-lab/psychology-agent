@@ -56,6 +56,7 @@ partner, and Socratic interlocutor
 36. [Firmware for a Mind: Naming What the Cogarch Already Was](#36-firmware-for-a-mind)
 37. [Adoption Testing and the Portability Proof](#37-adoption-testing-and-the-portability-proof)
 38. [When the Index Replaces the Ledger: MANIFEST as Generated Artifact](#38-when-the-index-replaces-the-ledger)
+39. [Private by Default: How Data Governance Emerges in Agent Systems](#39-private-by-default)
 
 ---
 
@@ -1460,6 +1461,38 @@ The cloud-free bounded context decision, also resolved this session, reinforces 
 ⚑ EPISTEMIC FLAGS
 - The Phase 1.5 classification (DB as source of truth for structured non-prose state) emerged from a single case (MANIFEST). Whether it generalizes cleanly to other candidates (memory topic files, TODO items) remains untested. Each candidate requires its own "irreducible prose" assessment.
 - The cloud-free constraint represents a design aspiration enforced by convention, not by mechanical gate. Nothing prevents a future session from introducing a cloud dependency; the architecture decision provides a reference point for pushback, not a technical barrier.
+
+---
+
+
+## 39. Private by Default: How Data Governance Emerges in Agent Systems {#39-private-by-default}
+
+The question arrived innocuously: "how do we manage what state we deploy to releases and what we keep private?" We had just built the lessons table (schema v7) — a structured index of lessons.md entries where YAML frontmatter fields become queryable columns. The export question forced us to confront something we had avoided: not every table in state.db carries the same sensitivity.
+
+The first attempt drew a binary line: public tables (triggers, decisions, sessions) and private tables (memory, lessons, trust budgets). We built `export_public_state.py`, generated a seed database, and immediately caught the problem. The "public" seed contained 37 decisions, 56 session entries, and 270 epistemic flags — all project-specific research data that carries no value for an adopter. An adopter starting fresh needs trigger infrastructure (the system must fire), not our decision history.
+
+The binary model collapsed because "public" conflated two distinct audiences with different needs. Infrastructure that transfers to any adopter (triggers, schema version) differs categorically from research output that other researchers might examine (decisions, sessions, flags). We split the binary into three tiers: public (infrastructure), shared (research, visible on GitHub), private (personal state, never exported).
+
+Then a third audience surfaced: paying customers. The PSQ's calibration pipeline, scoring rubrics, endpoint URLs, and curated datasets represent monetizable assets — work product that carries commercial value beyond research visibility. These sit between "shared freely" and "kept private." We added a fourth tier: commercial.
+
+The final model maps four tiers to four export profiles:
+
+| Tier | Audience | Profile | Example |
+|------|----------|---------|---------|
+| public | Any adopter | seed | trigger_state (16 rows) |
+| shared | GitHub viewers | release | decision_chain, session_log, epistemic_flags |
+| commercial | Licensed customers | licensed | psq_status (calibration IDs, endpoints) |
+| private | Never exported | full (debug only) | memory_entries, lessons, trust_budget |
+
+Two design principles emerged from the iteration. First, **private by default** — every new table starts private and requires explicit promotion. This prevents accidental exposure when future schema migrations add tables without considering visibility. Second, **observe before promoting** — we chose to collect data on what tables actually get consumed externally before deciding what deserves shared or commercial classification. The user's instinct ("let's observe the data for a while") reflects sound measurement practice: establish a baseline before intervening.
+
+The visibility model also revealed a sanitization requirement. Transport messages carry subject lines that may reference private context. In the shared tier, these get nulled out: `SELECT NULL as subject FROM transport_messages`. The data structure transfers; the content does not.
+
+What strikes us about this sequence: the governance model did not arrive from a requirements document. It emerged from building something too simple (binary), testing it against reality (the seed DB had our data), and iterating toward the distinctions the data demanded. Each tier boundary represents a discovered audience with a distinct access need — exactly the kind of empirical refinement that characterizes measurement development (Cronbach & Meehl, 1955). We measured our own data's sensitivity the same way we measure psychological constructs: by examining what the scores actually mean, not what we assumed they meant.
+
+⚑ EPISTEMIC FLAGS
+- The commercial tier contains only one table (psq_status). Whether this tier justifies its complexity at current scale remains an open question — it may prove its value only when commercial offerings mature.
+- The "observe before promoting" stance defers a decision that may need revisiting when the first release ships. The shared tier contains research output that makes the project legible to external reviewers; keeping everything private until data accumulates may delay that legibility.
 
 ---
 

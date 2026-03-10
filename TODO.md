@@ -211,7 +211,10 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   FK in decision_chain to trace any decision backward through its full evidence
   chain. A `/provenance <decision-key>` command. Answers "why did we decide
   this?" with a recursive chain, not a markdown search. S effort.
-  *Precondition: ✓ MET — decision_chain populated (35 rows, derives_from links).*
+  *Precondition: ⚑ PARTIAL — decision_chain populated (39 rows) but derives_from
+  column has 0 non-NULL values. Bootstrap and dual_write do not populate the FK.
+  Requires either: (a) backfill script parsing "Derives from:" lines in
+  architecture.md, or (b) dual_write --derives-from flag. Grounding audit Session 59b.*
   *Tables: decision_chain (recursive CTE on derives_from)*
 
 - [ ] **Session velocity and pattern analysis** — compute session duration
@@ -267,6 +270,19 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
 ---
 
 ## Public Release Preparation
+
+- [ ] **Document state layer extensions in README + wiki** — README, GitHub wiki,
+  and developer-facing docs need updating to reflect: (1) state.db schema v8 with
+  12 tables, (2) 4-tier visibility model and export profiles, (3) how collaborators
+  can query state.db and contribute, (4) commercial tier as future licensing surface.
+  Scope: README project structure section, wiki "State Layer" page (new), architecture
+  doc state layer section. Sets up the narrative for commercial licensing when ready.
+  *Precondition: ✓ MET — schema v8 committed, export_public_state.py tested.*
+
+- [ ] **Backfill 17 lessons without YAML frontmatter** — bootstrap_lessons.py found
+  17/24 entries lacking pattern_type, domain, severity classification. Need manual
+  review to assign correct values. Enables promotion scan via SQL GROUP BY.
+  *Precondition: ✓ MET — lessons table populated, dual_write lesson subcommand live.*
 
 - [x] **Cogarch portability (systems thinking framed)** — COMPLETE (Session 52-54).
   Config layer (`cogarch.config.json`, 13 sections), adaptation guide (7-step

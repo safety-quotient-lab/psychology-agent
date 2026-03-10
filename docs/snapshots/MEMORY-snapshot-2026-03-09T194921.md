@@ -17,22 +17,22 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 59b. Lessons table (schema v7) and 4-tier visibility
-model (schema v8) landed. Export profiles tested (seed/release/licensed/full).
-Decision: observe data before promoting any table to shared — no auto-promotion.
-TODO added: document state layer extensions in README + wiki + architecture.
+**Where we stopped:** Session 59. Autonomous mesh infrastructure built (orientation
+payload, heartbeat, agent identity). MANIFEST.json migrated to state.db-generated
+artifact (793→21 lines, Phase 1.5). /turn route deprecated. Cloud-free bounded
+context decision. Socratic gate (T2#8b) added. Blog-publication session opened.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - Cogarch portability: ✓ COMPLETE `[cold: done]`
 - CLAUDE.md: ✓ 186 lines `[hot: healthy]`
 - PSQ scoring: quiescent `[hot: no action needed]`
-- SQLite state layer: schema v8, 12 tables, 4-tier visibility `[warm]`
+- SQLite state layer: schema v6, MANIFEST now generated from DB `[warm]`
 - Autonomous mesh: orientation payload + heartbeat + agent identity `[warm]`
 - DI Phase A Pass 2: pending (inter-rater reliability) `[cold]`
 
-**Next:** Document state layer in README/wiki (new TODO). Backfill 17 lessons
-without frontmatter. Stale doc cleanup (MANIFEST refs). First autonomous sync
-cycle. Awesome-claude-code submission. DI Phase A Pass 2.
+**Next:** First autonomous sync cycle (cron test). Awesome-claude-code submission.
+DI Phase A Pass 2 (fresh session). Stale doc cleanup (MANIFEST refs in
+ef1-trust-model, constraints, adaptation-guide, T16).
 
 
 ## Memory Hygiene
