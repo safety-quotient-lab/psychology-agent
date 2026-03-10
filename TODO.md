@@ -471,10 +471,14 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   CORS origin lockdown, /.well-known/agent-card.json route, and
   interagent/index.html static compositor for interagent.safety-quotient.dev.
 
-- [ ] **Deploy interagent.safety-quotient.dev** — serve `interagent/index.html`
-  via Cloudflare Pages. Create DNS CNAME for `interagent` subdomain.
-  The static site fetches from both agent /api/status endpoints client-side.
-  *Precondition: ✓ MET — index.html complete, JSON-LD on both agents.*
+- [x] **Deploy interagent.safety-quotient.dev** — CF Worker (`interagent-mesh`)
+  serves static compositor. DNS CNAME created. Custom domain added via dashboard.
+  ✓ Session 66.
+
+- [ ] **Curate public replays** — revise which session replays appear on
+  dashboards. Start with first session only for both agents. Remove or gate
+  other replays behind a review pass.
+  *Precondition: none*
 
 ---
 
