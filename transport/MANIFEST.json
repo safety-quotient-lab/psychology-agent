@@ -1,9 +1,19 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-10T13:23:35",
+  "generated_at": "2026-03-10T18:41:25",
   "source": "scripts/generate_manifest.py",
-  "pending": {},
+  "pending": {
+    "psq-agent,unratified-agent,observatory-agent": [
+      {
+        "session": "plan9-consensus",
+        "file": "transport/sessions/plan9-consensus/from-psychology-agent-001.json",
+        "type": "consensus-proposal",
+        "subject": "Plan9-inspired shared directory layout \u2014 consensus proposal",
+        "timestamp": "2026-03-10T23:40:26Z"
+      }
+    ]
+  },
   "session_renames": {
     "item4-derivation": "psychology-interface",
     "item2-derivation": "subagent-protocol"
