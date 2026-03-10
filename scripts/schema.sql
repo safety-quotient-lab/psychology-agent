@@ -226,3 +226,35 @@ VALUES (5, 'Add ack_required + ack_received to transport_messages (optional ACK 
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (6, 'MANIFEST.json now auto-generated from transport_messages (generate_manifest.py). Completed history dropped from MANIFEST — lives in state.db and git history.');
+
+
+-- ── Schema v7: Lessons index ────────────────────────────────────────
+
+-- Structured index of lessons.md entries (gitignored, like lessons.md itself).
+-- Frontmatter fields become queryable columns; narrative prose stays in markdown.
+CREATE TABLE IF NOT EXISTS lessons (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    title               TEXT NOT NULL UNIQUE,
+    lesson_date         TEXT NOT NULL,
+    pattern_type        TEXT,
+    domain              TEXT,
+    severity            TEXT,
+    recurrence          INTEGER DEFAULT 1,
+    first_seen          TEXT,
+    last_seen           TEXT,
+    trigger_relevant    TEXT,
+    promotion_status    TEXT,
+    graduated_to        TEXT,
+    graduated_date      TEXT,
+    lesson_text         TEXT,
+    created_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_lessons_promotion
+    ON lessons (promotion_status) WHERE promotion_status IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_lessons_pattern_domain
+    ON lessons (pattern_type, domain);
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (7, 'Add lessons table — structured index of lessons.md entries for promotion scan and recurrence tracking');
