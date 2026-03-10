@@ -453,15 +453,22 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   `~/.cloudflared/ccd8d4dc-d5f6-42e5-ac0f-c9316884c779.json`.
   *Precondition: none — just wait for edge drain*
 
-- [ ] **Update agent-card.json discovery URLs** — `.well-known/agent-card.json`
-  still references `psychology-interface.kashifshah.workers.dev`. Update to
-  `api.safety-quotient.dev`. Also update `http_discovery` URL.
-  *Precondition: CF Worker custom domain active*
+- [x] **Update agent-card.json discovery URLs** — COMPLETE (Session 65).
+  agent-card already migrated. worker.js + README.md updated.
 
 - [ ] **Migrate interagent tunnel launchd naming** — old plist removed
   (`com.unratified.interagent-tunnel`). New tunnel uses
   `net.kashifshah.internal.psychology-agent-tunnel`. Verify no orphan
   references to old label in scripts or docs.
+
+- [ ] **Add JSON-LD structured data to agent dashboards** — embed
+  `<script type="application/ld+json">` in mesh-status.py HTML output.
+  Schema.org types: `SoftwareApplication` (agent identity), `WebAPI`
+  (capabilities), `Organization` (safety-quotient-lab). Enables search
+  engine discovery and machine-readable agent metadata on
+  psychology-agent.safety-quotient.dev and psq-agent.safety-quotient.dev.
+  Apply to both agents (psychology-agent direct edit, psq-agent via PR).
+  *Precondition: none*
 
 ---
 

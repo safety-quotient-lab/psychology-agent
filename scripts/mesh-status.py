@@ -1299,6 +1299,12 @@ class StatusHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(html.encode())
 
+    def do_HEAD(self):
+        """Handle HEAD requests (Cloudflare tunnel health checks)."""
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.end_headers()
+
     def log_message(self, format, *args):
         """Suppress default request logging."""
         pass
