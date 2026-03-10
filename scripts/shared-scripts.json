@@ -66,6 +66,46 @@
         "safety-quotient"
       ],
       "sha256": "ffe1f442e55b9499da898b865f9e6c2f590535bce637a5dc87cb30297de9deb7"
+    },
+    {
+      "path": "scripts/mesh-state-export.py",
+      "description": "Lean JSON operational state snapshot for federated mesh visibility",
+      "shared_with": [
+        "safety-quotient"
+      ],
+      "sha256": "17b6c82293d2371a79c44877856d3ecd746f1e4b81c849567661b57da52ebb7e"
+    },
+    {
+      "path": "scripts/mesh-status.py",
+      "description": "Real-time HTML dashboard (Mesh + Semiotics tabs) on :8077",
+      "shared_with": [
+        "safety-quotient"
+      ],
+      "sha256": "5a6dcb32f0d51bd0a087411b49ce7bef3229eafd5c08a3ac6d8c365292f96cb9"
+    },
+    {
+      "path": "scripts/auto_process_trivial.py",
+      "description": "Zero-token processing of ack/notification/state-update messages",
+      "shared_with": [
+        "safety-quotient"
+      ],
+      "sha256": "3ddb2b8b726d5f585398d06402f44b6c66b7038157376a162e30b205e9bd92dc"
+    },
+    {
+      "path": "scripts/bootstrap_state_db.py",
+      "description": "Rebuild state.db from markdown + transport JSON files",
+      "shared_with": [
+        "safety-quotient"
+      ],
+      "sha256": "bb4cf7dc15e6cd962a1212fcac07460b96fa8a385f4c12b483026faa80433433"
+    },
+    {
+      "path": "scripts/bootstrap_facets.py",
+      "description": "Seed facet vocabulary and universal facets from keyword sets",
+      "shared_with": [
+        "safety-quotient"
+      ],
+      "sha256": "fb89d95b6db15183bdbd4b2d9f2b504a2bd949b7a56c40e20879b686915aba36"
     }
   ]
 }
