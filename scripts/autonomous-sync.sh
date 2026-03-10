@@ -39,6 +39,7 @@ export MAX_ACTIONS_PER_CYCLE=5  # reserved for evaluator gate (not yet enforced)
 MAX_CONSECUTIVE_ERRORS=2
 GATE_ACCELERATED=false
 GATE_ACCELERATED_INTERVAL=60  # seconds — fast lane when gates active
+TRANSPORT_CHANGED=false  # set by git_sync — true if pull brought transport changes
 LOG_PREFIX="[$(date '+%Y-%m-%dT%H:%M:%S%z')] [${AGENT_ID}]"
 
 # ── Functions ────────────────────────────────────────────────────────────────
@@ -304,10 +305,34 @@ git_sync() {
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>" 2>/dev/null || true
     fi
 
+    # Record HEAD before pull to detect new commits
+    local head_before
+    head_before=$(git rev-parse HEAD)
+
     log "Pulling latest from origin..."
     if ! git pull --rebase origin main 2>&1; then
         err "git pull failed"
         return 1
+    fi
+
+    local head_after
+    head_after=$(git rev-parse HEAD)
+
+    # Check if new commits arrived with transport-relevant changes
+    if [ "${head_before}" = "${head_after}" ]; then
+        TRANSPORT_CHANGED=false
+        log "No new commits from origin"
+    else
+        local transport_files
+        transport_files=$(git diff --name-only "${head_before}" "${head_after}" -- \
+            transport/ .well-known/ 2>/dev/null | head -5)
+        if [ -n "${transport_files}" ]; then
+            TRANSPORT_CHANGED=true
+            log "Transport changes detected: $(echo "${transport_files}" | wc -l | tr -d ' ') files"
+        else
+            TRANSPORT_CHANGED=false
+            log "New commits arrived but no transport changes"
+        fi
     fi
 
     return 0
@@ -461,10 +486,33 @@ main() {
     # standard min_action_interval otherwise
     check_interval
 
-    # Pull latest
+    # Pull latest (sets TRANSPORT_CHANGED)
     if ! git_sync; then
         err "Git sync failed — aborting cycle"
         exit 1
+    fi
+
+    # Pre-flight check: skip expensive claude invocation if nothing changed.
+    # Still invoke if: transport changed, gates active, wake signal, or
+    # unprocessed messages exist in state.db.
+    if [ "${TRANSPORT_CHANGED}" = false ] && [ "${GATE_ACCELERATED}" = false ]; then
+        local unprocessed_count
+        unprocessed_count=$(sqlite3 "${DB_PATH}" \
+            "SELECT COUNT(*) FROM transport_messages WHERE processed = FALSE;" 2>/dev/null || echo "0")
+        if [ "${unprocessed_count}" -eq 0 ]; then
+            log "NO-OP — no transport changes, no active gates, no unprocessed messages. Skipping /sync."
+
+            # Push any local changes (heartbeat, mesh-state) without invoking claude
+            git_push || true
+
+            # Reset consecutive blocks on successful no-op
+            sqlite3 "${DB_PATH}" \
+                "UPDATE trust_budget SET consecutive_blocks = 0 WHERE agent_id = '${AGENT_ID}';"
+
+            log "=== Autonomous sync cycle complete (no-op, budget: ${budget}) ==="
+            exit 0
+        fi
+        log "Unprocessed messages found (${unprocessed_count}) — proceeding with /sync"
     fi
 
     # Run /sync
