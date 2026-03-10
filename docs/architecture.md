@@ -688,6 +688,18 @@
                                 AND no active gates. Gate-accelerated
                                 cycles bypass the check.
                                 Decided: 2026-03-10
+
+ Lab domain                   safety-quotient.dev (Cloudflare). Subdomains:
+ (lab-domain)                 psychology-agent, psq, api. HTTPS enforced
+                                (.dev HSTS preload). Replaces *.unratified.org
+                                for agent discovery. unratified.org stays for
+                                blog platform (unratified-agent).
+                                Decided: 2026-03-10
+
+ Cross-machine code policy    PRs only for cross-machine code changes.
+ (cross-machine-code-policy)  No direct SSH file edits. PRs provide audit
+                                trail, review gate, and rollback capability.
+                                Decided: 2026-03-10
 ────────────────────────────────────────────────────────────────────────
 ```
 
