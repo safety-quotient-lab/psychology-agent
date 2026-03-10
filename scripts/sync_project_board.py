@@ -154,6 +154,7 @@ def fetch_board_items(project_number: int, owner: str) -> list[BoardItem]:
         "project", "item-list", str(project_number),
         "--owner", owner,
         "--format", "json",
+        "--limit", "200",
     ])
     data = json.loads(result.stdout)
     items: list[BoardItem] = []
@@ -567,6 +568,52 @@ def print_report(report: SyncReport, dry_run: bool) -> None:
 # MAIN
 # ──────────────────────────────────────────────────────────────────────────────
 
+def mark_item_in_progress(title: str, config: dict) -> bool:
+    """Mark a board item as In Progress by fuzzy-matching its title.
+
+    Returns True on success, False on failure.
+    """
+    project_number = config["project_number"]
+    owner = config["owner"]
+    status_map = config.get("status_map", {})
+    in_progress_status = status_map.get("in_progress", "In Progress")
+
+    try:
+        board_items = fetch_board_items(project_number, owner)
+    except RuntimeError as error:
+        print(f"ERROR: Could not fetch board items: {error}", file=sys.stderr)
+        return False
+
+    matched = find_best_match(title, board_items)
+    if not matched:
+        print(f"No board match found for: {title}", file=sys.stderr)
+        return False
+
+    if matched.status == in_progress_status:
+        print(f"Already In Progress: {matched.title}")
+        return True
+
+    try:
+        project_id = fetch_project_id(project_number, owner)
+        field_id, status_options = fetch_status_field(project_id)
+    except RuntimeError as error:
+        print(f"ERROR: Could not fetch project metadata: {error}", file=sys.stderr)
+        return False
+
+    option_id = status_options.get(in_progress_status)
+    if not option_id:
+        print(f"ERROR: '{in_progress_status}' status not found on board", file=sys.stderr)
+        return False
+
+    try:
+        update_item_status(project_id, matched.item_id, field_id, option_id)
+        print(f"✓ Marked In Progress: {matched.title}")
+        return True
+    except RuntimeError as error:
+        print(f"ERROR: Failed to update status: {error}", file=sys.stderr)
+        return False
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Reconcile TODO.md against a GitHub Projects board.",
@@ -576,11 +623,22 @@ def main() -> None:
         action="store_true",
         help="Execute changes (default: dry-run, print what would change)",
     )
+    parser.add_argument(
+        "--mark-in-progress",
+        metavar="TITLE",
+        help="Mark a specific board item as In Progress (by fuzzy title match)",
+    )
     args = parser.parse_args()
-    dry_run = not args.apply
 
     # Load configuration
     config = load_config()
+
+    # Handle --mark-in-progress as a standalone operation
+    if args.mark_in_progress:
+        success = mark_item_in_progress(args.mark_in_progress, config)
+        sys.exit(0 if success else 1)
+
+    dry_run = not args.apply
     project_number = config["project_number"]
     owner = config["owner"]
     status_map = config.get("status_map", {})
