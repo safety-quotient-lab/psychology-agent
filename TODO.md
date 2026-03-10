@@ -182,6 +182,57 @@ human-mediated Claude Code sessions to autonomous operation.
 
 ---
 
+## Cross-Repo Transport (Safety-Quotient Agent)
+
+Design decision (Session 60): cross-repo transport via git remote fetch.
+Each agent writes to its own repo's outbox; reads the peer's outbox via
+`git fetch {remote} && git show {remote}/main:transport/MANIFEST.json`.
+Plan 9-inspired split-outbox model — no shared writable directories.
+
+### Psychology-agent side
+
+- [ ] **Add safety-quotient git remote** — `git remote add safety-quotient
+  https://github.com/safety-quotient-lab/safety-quotient.git`. XS effort.
+  *Precondition: safety-quotient repo has transport/ directory.*
+
+- [ ] **Update /sync Phase 1 for cross-repo-fetch** — when agent-registry
+  entry has `transport: "cross-repo-fetch"`, fetch the remote and read
+  `git show {remote}/main:{manifest_path}` to discover pending messages.
+  Pull message files via `git show` and index inbound in state.db. S effort.
+  *Precondition: safety-quotient transport directory exists.*
+
+- [ ] **Orientation payload inbound pull** — before generating orientation,
+  fetch peer MANIFESTs and index new inbound messages. Ensures autonomous
+  sessions see what the peer sent. S effort.
+  *Precondition: /sync cross-repo-fetch working.*
+
+- [ ] **Parameterize bootstrap validation** — `bootstrap_state_db.py`
+  hardcodes `from_agent='psq-sub-agent'` in validation thresholds. Replace
+  with agent_id derived from `.agent-identity.json`. XS effort.
+
+### Safety-quotient agent side
+
+- [ ] **Create transport/ directory structure** — `transport/mail/outbox/`,
+  `transport/MANIFEST.json`, `transport/agent-registry.json` (defines
+  psychology-agent as peer with `cross-repo-fetch` transport). XS effort.
+
+- [ ] **Create .agent-identity.json** — agent_id, platform, capabilities
+  for the chromabook. XS effort.
+
+- [ ] **Add transport schema to data/schema.sql** — transport_messages,
+  trust_budget, autonomous_actions tables (copy from psychology-agent
+  schema.sql). S effort.
+
+- [ ] **Create /sync skill (cross-repo adapted)** — reads psychology-agent's
+  MANIFEST via `git show psychology-agent/main:transport/MANIFEST.json`,
+  pulls messages, processes, writes responses to local outbox. M effort.
+  *Precondition: transport directory + schema exist.*
+
+- [ ] **Wire autonomous-sync.sh** — copy or symlink from psychology-agent,
+  create cron entry. Pre-commit hook travels with `.githooks/`. XS effort.
+
+---
+
 ## State Layer Consumers (state.db)
 
 Items that consume the existing state.db index to enable new capabilities.
