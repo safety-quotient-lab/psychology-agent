@@ -459,6 +459,45 @@ INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, d
     ('schema_type', 'schema:SuspendAction',    NULL, 'schema.org', 'Active gates — blocking operations',          'active_gates'),
     ('schema_type', 'schema:Comment',          NULL, 'schema.org', 'Epistemic flags — quality concerns',          'epistemic_flags');
 
+-- Seed inactive PSH categories (the remaining 33 of 44) — available for
+-- intelligent discovery: --discover matches unclassified entity clusters
+-- against these descriptions to recommend activations.
+INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, description, active) VALUES
+    ('psh', 'anthropology',          'PSH1',     'PSH', 'Human cultures, ethnography, cultural practices',            0),
+    ('psh', 'architecture',          'PSH116',   'PSH', 'Building design, city planning, urban development',          0),
+    ('psh', 'astronomy',             'PSH320',   'PSH', 'Celestial objects, space, cosmic phenomena',                 0),
+    ('psh', 'biology',               'PSH573',   'PSH', 'Life sciences, organisms, ecology, evolution',               0),
+    ('psh', 'chemistry',             'PSH5450',  'PSH', 'Chemical compounds, reactions, molecular science',           0),
+    ('psh', 'transport',             'PSH1038',  'PSH', 'Transportation systems, logistics, vehicles',                0),
+    ('psh', 'economic-sciences',     'PSH1217',  'PSH', 'Economics, finance, trade, business',                        0),
+    ('psh', 'electronics',           'PSH1781',  'PSH', 'Electronic components, devices, circuits',                   0),
+    ('psh', 'electrical-engineering','PSH2086',  'PSH', 'Electrical systems, power distribution',                     0),
+    ('psh', 'energy',                'PSH2395',  'PSH', 'Energy sources, power generation, energy systems',           0),
+    ('psh', 'physics',               'PSH2910',  'PSH', 'Mechanics, thermodynamics, quantum physics',                 0),
+    ('psh', 'geophysics',            'PSH3768',  'PSH', 'Earth physics, seismology, planetary physics',               0),
+    ('psh', 'geography',             'PSH4231',  'PSH', 'Physical and human geography, regional studies',             0),
+    ('psh', 'geology',               'PSH4439',  'PSH', 'Rock formations, mineralogy, earth structure',               0),
+    ('psh', 'history',               'PSH5042',  'PSH', 'Historical events, periods, civilizations',                  0),
+    ('psh', 'metallurgy',            'PSH5176',  'PSH', 'Metal production, alloys, metal processing',                 0),
+    ('psh', 'computer-science',      'PSH6548',  'PSH', 'Computing, algorithms, software, information technology',    0),
+    ('psh', 'linguistics',           'PSH6641',  'PSH', 'Language structure, grammar, philology',                     0),
+    ('psh', 'literature',            'PSH6914',  'PSH', 'Books, poetry, literary works, criticism',                   0),
+    ('psh', 'religion',              'PSH7769',  'PSH', 'Theology, spirituality, faith traditions',                   0),
+    ('psh', 'general',               'PSH7979',  'PSH', 'Cross-disciplinary, general topics, miscellaneous',          0),
+    ('psh', 'political-science',     'PSH8308',  'PSH', 'Government, politics, political theory',                     0),
+    ('psh', 'food-industry',         'PSH8613',  'PSH', 'Food production, processing, nutrition',                     0),
+    ('psh', 'sports',                'PSH9899',  'PSH', 'Athletic activities, physical education, recreation',         0),
+    ('psh', 'consumer-industry',     'PSH10067', 'PSH', 'Consumer goods, retail, manufacturing',                      0),
+    ('psh', 'construction',          'PSH10355', 'PSH', 'Building construction, civil works',                         0),
+    ('psh', 'mechanical-engineering','PSH10652', 'PSH', 'Machinery, mechanical systems, engineering design',          0),
+    ('psh', 'mining',                'PSH11453', 'PSH', 'Mining, mineral extraction, mining technology',              0),
+    ('psh', 'art',                   'PSH11591', 'PSH', 'Visual arts, fine arts, aesthetics',                         0),
+    ('psh', 'water-management',      'PSH12008', 'PSH', 'Water systems, hydrology, water resources',                 0),
+    ('psh', 'military-affairs',      'PSH12156', 'PSH', 'Military science, warfare, defense',                        0),
+    ('psh', 'science-technology',    'PSH11939', 'PSH', 'General science, technology, applied research',              0),
+    ('psh', 'health-services',       'PSH12577', 'PSH', 'Medicine, healthcare, medical services, public health',      0),
+    ('psh', 'agriculture',           'PSH13220', 'PSH', 'Farming, crop production, livestock',                        0);
+
 -- Retire PJE vocabulary entries (historical record)
 INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, description, active) VALUES
     ('pje_domain', 'psychology',    NULL, 'project-local', 'RETIRED 2026-03-10 — replaced by PSH facets', 0),
