@@ -17,12 +17,19 @@ import os
 import sqlite3
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 REGISTRY_PATH = PROJECT_ROOT / "transport" / "agent-registry.json"
 DB_PATH = PROJECT_ROOT / "state.db"
+
+# Adaptive sync frequency — peers classified by recency of last exchange.
+# Active: unprocessed messages or exchange within WARM_THRESHOLD → always fetch.
+# Warm: exchange within COLD_THRESHOLD → fetch (default cron handles this).
+# Cold: no exchange beyond COLD_THRESHOLD → skip fetch unless --force.
+WARM_THRESHOLD_HOURS = 1
+COLD_THRESHOLD_HOURS = 24
 
 
 def run_git(*args: str) -> tuple[int, str]:
@@ -82,30 +89,128 @@ def get_indexed_filenames(db_path: Path, session_name: str) -> set[str]:
         return set()
 
 
+def classify_peer_activity(agent_id: str, agent_config: dict) -> str:
+    """Classify a peer as 'active', 'warm', or 'cold' based on state.db.
+
+    Active: unprocessed inbound messages exist, or active gates involve this agent.
+    Warm: last exchange within COLD_THRESHOLD_HOURS.
+    Cold: no exchange beyond COLD_THRESHOLD_HOURS (or no exchange at all).
+    """
+    if not DB_PATH.exists():
+        return "active"  # No DB = can't classify, assume active
+
+    # Build list of agent ID patterns to match (agent may appear as
+    # psq-agent, psq-sub-agent, etc. in from_agent/to_agent columns)
+    agent_patterns = [agent_id]
+    message_prefix = agent_config.get("message_prefix", "")
+    # Extract the agent name from message_prefix (strip leading "from-" and trailing "-")
+    if message_prefix.startswith("from-"):
+        extracted = message_prefix[5:].rstrip("-")
+        if extracted and extracted != agent_id:
+            agent_patterns.append(extracted)
+
+    try:
+        conn = sqlite3.connect(str(DB_PATH))
+
+        # Check for unprocessed messages from this agent
+        for pattern in agent_patterns:
+            unprocessed = conn.execute(
+                "SELECT COUNT(*) FROM transport_messages "
+                "WHERE from_agent = ? AND processed = FALSE",
+                (pattern,)
+            ).fetchone()[0]
+            if unprocessed > 0:
+                conn.close()
+                return "active"
+
+        # Check for active gates involving this agent
+        try:
+            for pattern in agent_patterns:
+                active_gates = conn.execute(
+                    "SELECT COUNT(*) FROM active_gates "
+                    "WHERE status = 'waiting' "
+                    "AND (sending_agent = ? OR receiving_agent = ?)",
+                    (pattern, pattern)
+                ).fetchone()[0]
+                if active_gates > 0:
+                    conn.close()
+                    return "active"
+        except sqlite3.OperationalError:
+            pass  # active_gates table may not exist
+
+        # Check recency of last exchange — match any agent pattern
+        placeholders = " OR ".join(
+            ["from_agent = ? OR to_agent = ?"] * len(agent_patterns)
+        )
+        params = []
+        for p in agent_patterns:
+            params.extend([p, p])
+        row = conn.execute(
+            f"SELECT MAX(timestamp) FROM transport_messages WHERE {placeholders}",
+            params
+        ).fetchone()
+        conn.close()
+
+        if row[0] is None:
+            return "cold"
+
+        # Parse the timestamp — handle various ISO 8601 formats
+        last_ts = row[0]
+        try:
+            # Try with timezone offset (e.g., 2026-03-10T10:52:35-05:00)
+            last_dt = datetime.fromisoformat(last_ts)
+            now = datetime.now(last_dt.tzinfo) if last_dt.tzinfo else datetime.now()
+        except (ValueError, TypeError):
+            return "warm"  # Can't parse = assume warm (don't skip)
+
+        elapsed = now - last_dt
+        if elapsed < timedelta(hours=COLD_THRESHOLD_HOURS):
+            return "warm"
+        return "cold"
+
+    except sqlite3.OperationalError:
+        return "active"  # DB error = can't classify, assume active
+
+
 def load_registry() -> dict:
     """Load agent-registry.json."""
     with open(REGISTRY_PATH) as f:
         return json.load(f)
 
 
-def scan_agent(agent_id: str, agent_config: dict, index: bool = False) -> dict:
+def scan_agent(agent_id: str, agent_config: dict, index: bool = False,
+               force: bool = False) -> dict:
     """Scan a cross-repo-fetch agent for new messages.
 
-    Returns a dict with scan results.
+    Returns a dict with scan results. Skips cold peers unless force=True.
     """
     remote_name = agent_config.get("remote_name")
     if not remote_name:
         return {"agent_id": agent_id, "error": "no remote_name configured"}
 
+    message_prefix = agent_config.get("message_prefix", "")
+
+    # Adaptive sync: classify peer activity and skip cold peers
+    activity_tier = classify_peer_activity(agent_id, agent_config)
+
     result = {
         "agent_id": agent_id,
         "remote_name": remote_name,
+        "activity_tier": activity_tier,
         "fetch_ok": False,
         "manifest_found": False,
         "sessions_scanned": [],
         "new_messages": [],
         "errors": [],
     }
+
+    if activity_tier == "cold" and not force:
+        result["skipped"] = True
+        result["skip_reason"] = (
+            f"cold peer — no exchange within {COLD_THRESHOLD_HOURS}h, "
+            "no unprocessed messages, no active gates"
+        )
+        return result
 
     # Fetch the remote
     if not fetch_remote(remote_name):
@@ -233,6 +338,8 @@ def main():
                         help="Index new messages in state.db")
     parser.add_argument("--json", action="store_true",
                         help="Output as JSON")
+    parser.add_argument("--force", action="store_true",
+                        help="Fetch all peers regardless of activity tier")
     args = parser.parse_args()
 
     registry = load_registry()
@@ -244,7 +351,8 @@ def main():
             continue
         if args.agent and agent_id != args.agent:
             continue
-        result = scan_agent(agent_id, config, index=args.index)
+        result = scan_agent(agent_id, config, index=args.index,
+                            force=args.force)
         results.append(result)
 
     if args.json:
@@ -254,7 +362,14 @@ def main():
     # Human-readable output
     for r in results:
         print(f"\n{'─' * 60}")
-        print(f"Agent: {r['agent_id']} (remote: {r.get('remote_name', '?')})")
+        tier = r.get('activity_tier', '?')
+        tier_label = {"active": "ACTIVE", "warm": "warm", "cold": "cold"}.get(tier, tier)
+        print(f"Agent: {r['agent_id']} (remote: {r.get('remote_name', '?')}) [{tier_label}]")
+
+        if r.get("skipped"):
+            print(f"  SKIPPED: {r.get('skip_reason', 'cold peer')}")
+            continue
+
         print(f"  Fetch: {'✓' if r.get('fetch_ok') else '✗'}")
         print(f"  MANIFEST: {'✓ found' if r.get('manifest_found') else '✗ not found'}")
 

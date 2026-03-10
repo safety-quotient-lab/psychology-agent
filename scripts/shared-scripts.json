@@ -17,7 +17,7 @@
       "shared_with": [
         "safety-quotient"
       ],
-      "sha256": "a522279b9a20c88472a2dd5bafe3682c28ffa62f6234f3dbe035f5a91e3e6785"
+      "sha256": "17c07c007a3c24e05f96b2316bce5dbdd33eedba4b6d50f7e44bcf71201bf459"
     },
     {
       "path": "scripts/dual_write.py",

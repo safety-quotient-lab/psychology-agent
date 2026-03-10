@@ -237,6 +237,23 @@ semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
   *Precondition: second agent added to chromabook (not yet planned)*
   *Constraint: no worktrees for now (user directive, Session 62c)*
 
+- [x] **Adaptive sync frequency (simple)** — COMPLETE (Session 62c).
+  `cross_repo_fetch.py` classifies peers as active/warm/cold based on state.db
+  (unprocessed messages, active gates, last exchange recency). Cold peers
+  (no exchange >24h) skip `git fetch` entirely. `--force` overrides.
+
+- [ ] **Adaptive sync frequency (full scheduler)** — replace fixed cron with
+  self-rescheduling loop that adapts per-peer poll intervals:
+  active peers (unprocessed messages, open gates, exchange <1h) → 5 min;
+  warm peers (exchange 1-24h, registered with active sessions) → 30 min;
+  cold peers (exchange >24h, no active sessions) → 2 hr.
+  Implementation: daemon process with `MIN(next_poll_time)` sleep, crash
+  recovery via PID file, systemd unit or launchd plist for supervision.
+  Data sources already exist in state.db (transport_messages.timestamp,
+  active_gates.status, trust_budget.last_action).
+  *Precondition: simple tier classification complete (Session 62c)*
+  *Constraint: requires process supervision — cron can't self-reschedule*
+
 ---
 
 ## Cross-Repo Transport (Safety-Quotient Agent)
