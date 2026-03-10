@@ -216,6 +216,14 @@ run_sync() {
 
     log "Running /sync --autonomous..." >&2
 
+    # Pull cross-repo inbound messages into state.db before orientation
+    if [ -f "${PROJECT_ROOT}/scripts/cross_repo_fetch.py" ]; then
+        log "Fetching cross-repo transport..." >&2
+        python3 "${PROJECT_ROOT}/scripts/cross_repo_fetch.py" --index 2>/dev/null || {
+            err "cross_repo_fetch.py failed — continuing without cross-repo inbound"
+        }
+    fi
+
     # Generate orientation payload from state.db
     local orientation
     orientation=$(python3 "${PROJECT_ROOT}/scripts/orientation-payload.py" \

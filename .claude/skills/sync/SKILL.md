@@ -47,7 +47,7 @@ information in this skill — the registry is the single source of truth.
 
 | Field | Purpose |
 |-------|---------|
-| `agents.{id}.transport` | `same-repo` or `cross-repo-pr` — determines scan method |
+| `agents.{id}.transport` | `same-repo`, `cross-repo-pr`, or `cross-repo-fetch` — determines scan method |
 | `agents.{id}.message_prefix` | Pattern for identifying inbound messages |
 | `agents.{id}.active_sessions` | Which sessions to check for new turns |
 | `agents.{id}.always_consider` | If true, MUST check for outbound content every cycle |
@@ -73,7 +73,7 @@ peer table below and flag the registry issue in the output:
 
 | Agent | Role | Repo | Transport |
 |-------|------|------|-----------|
-| psq-agent | Sub-agent (PSQ scoring) | Same repo | `transport/sessions/` |
+| psq-agent | Sub-agent (PSQ scoring) | safety-quotient-lab/safety-quotient | Cross-repo fetch (`git show safety-quotient/main:...`) |
 | unratified-agent | Peer (blog platform) | safety-quotient-lab/unratified | PRs + cross-repo fetch |
 
 ### Phase 1: Inbound Scan
@@ -100,7 +100,26 @@ SELECT filename FROM transport_messages
 WHERE session_name = '{session}' AND processed = FALSE;
 ```
 
-**1b. Cross-repo agents:**
+**1b. Cross-repo-fetch agents:**
+
+For each agent where `transport == "cross-repo-fetch"`:
+
+```bash
+# Fetch and scan using cross_repo_fetch.py
+python3 scripts/cross_repo_fetch.py --agent {agent_id} --json
+```
+
+The script handles: `git fetch {remote_name} main`, reads MANIFEST.json
+(if present) and session directories via `git show`, compares against
+state.db to identify new/unprocessed messages, and returns structured
+results. Use `--index` flag to also write new messages to state.db.
+
+For each new message found, read the full content via:
+```bash
+git show {remote_name}/main:transport/sessions/{session}/{filename}
+```
+
+**1c. Cross-repo-pr agents:**
 
 For each agent where `transport == "cross-repo-pr"`:
 
@@ -113,7 +132,7 @@ gh api repos/{repo}/commits \
   --jq '.[0:5] | .[] | {sha: .sha[0:7], message: .commit.message[0:72]}'
 ```
 
-**1c. Local-coordination check (parallel instances):**
+**1d. Local-coordination check (parallel instances):**
 
 ```bash
 ls transport/sessions/local-coordination/
