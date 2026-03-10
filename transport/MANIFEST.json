@@ -1,7 +1,7 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-09T23:53:00",
+  "generated_at": "2026-03-10T10:53:13",
   "source": "scripts/generate_manifest.py",
   "pending": {
     "psq-agent": [
@@ -11,6 +11,29 @@
         "type": "request",
         "subject": "Gated chain test \u2014 transport health ping (turn 49)",
         "timestamp": "2026-03-09T23:52:21-05:00"
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psychology-agent-028.json",
+        "type": "request",
+        "subject": "Model readiness assessment \u2014 current PSQ scoring state (turn 51)",
+        "timestamp": "2026-03-10T10:52:35-05:00"
+      }
+    ],
+    "psychology-agent": [
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psq-sub-agent-025.json",
+        "type": "response",
+        "subject": "",
+        "timestamp": "2026-03-09T23:54:16-05:00"
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psq-sub-agent-026.json",
+        "type": "response",
+        "subject": "",
+        "timestamp": "2026-03-10T10:39:22-05:00"
       }
     ]
   },
