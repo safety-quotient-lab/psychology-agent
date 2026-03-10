@@ -6,11 +6,15 @@
     <title>Interagent Mesh — Safety Quotient Lab</title>
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
+        "@context": [
+            "https://schema.org",
+            {"sqm": "https://interagent.safety-quotient.dev/vocab#"}
+        ],
         "@type": "SoftwareApplication",
+        "@id": "https://interagent.safety-quotient.dev",
         "name": "safety-quotient-mesh",
         "url": "https://interagent.safety-quotient.dev",
-        "description": "Federated inter-agent mesh for psychoemotional safety research. Aggregates live state from autonomous agents without a backend.",
+        "description": "Federated inter-agent mesh for psychoemotional safety research. BFT consensus among autonomous peers. No backend — client-side composition.",
         "applicationCategory": "Research Infrastructure",
         "provider": {
             "@type": "Organization",
@@ -19,14 +23,26 @@
         },
         "hasPart": [
             {
-                "@type": "SoftwareApplication",
+                "@type": ["SoftwareApplication", "sqm:Agent"],
                 "name": "psychology-agent",
                 "url": "https://psychology-agent.safety-quotient.dev"
             },
             {
-                "@type": "SoftwareApplication",
+                "@type": ["SoftwareApplication", "sqm:Agent"],
                 "name": "psq-agent",
                 "url": "https://psq-agent.safety-quotient.dev"
+            }
+        ],
+        "additionalProperty": [
+            {
+                "@type": "PropertyValue",
+                "name": "sqm:ConsensusTier",
+                "value": "C1/C2/C3"
+            },
+            {
+                "@type": "PropertyValue",
+                "name": "vocabularyUrl",
+                "value": "https://interagent.safety-quotient.dev/vocab"
             }
         ]
     }
