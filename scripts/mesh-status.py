@@ -162,6 +162,57 @@ def _collect_schedule(agent_id: str) -> dict:
     return schedule
 
 
+def _collect_remote_states(registry_agents: dict) -> list[dict]:
+    """Read mesh-state JSON snapshots from remote repos via git show."""
+    import subprocess
+
+    results = []
+
+    # Also check local-coordination for local mesh-state files
+    local_dir = PROJECT_ROOT / "transport" / "sessions" / "local-coordination"
+    if local_dir.exists():
+        for f in local_dir.glob("mesh-state-*.json"):
+            try:
+                data = json.loads(f.read_text())
+                data["_source"] = f"local ({f.name})"
+                results.append(data)
+            except (json.JSONDecodeError, OSError):
+                pass
+
+    # Read from registered remotes with cross-repo-fetch transport
+    if not REGISTRY_PATH.exists():
+        return results
+
+    try:
+        reg = json.loads(REGISTRY_PATH.read_text())
+    except (json.JSONDecodeError, OSError):
+        return results
+
+    for agent_id, cfg in reg.get("agents", {}).items():
+        if cfg.get("transport") != "cross-repo-fetch":
+            continue
+        remote_name = cfg.get("remote_name")
+        if not remote_name:
+            continue
+
+        # Try git show for the mesh-state file on the remote
+        mesh_path = f"transport/sessions/local-coordination/mesh-state-{agent_id}.json"
+        try:
+            result = subprocess.run(
+                ["git", "-C", str(PROJECT_ROOT), "show",
+                 f"{remote_name}/main:{mesh_path}"],
+                capture_output=True, text=True, timeout=10
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                data = json.loads(result.stdout)
+                data["_source"] = f"git show {remote_name}/main"
+                results.append(data)
+        except (subprocess.TimeoutExpired, json.JSONDecodeError, OSError):
+            pass
+
+    return results
+
+
 def collect_status() -> dict:
     """Collect all mesh status data from state.db."""
     agent_id = get_agent_id()
@@ -292,6 +343,9 @@ def collect_status() -> dict:
         "AND facet_value != 'unclassified'"
     )
 
+    # Remote peer state (via git show on mesh-state exports)
+    remote_states = _collect_remote_states(registry_agents)
+
     return {
         "agent_id": agent_id,
         "collected_at": now_iso,
@@ -306,6 +360,7 @@ def collect_status() -> dict:
         "peers": peers,
         "message_counts": msg_counts,
         "registry_agents": registry_agents,
+        "remote_states": remote_states,
         "totals": {
             "messages": total_messages,
             "sessions": total_sessions,
@@ -503,6 +558,43 @@ def render_html(status: dict) -> str:
 
     if not actions_html:
         actions_html = '<tr><td colspan="6" class="empty">No autonomous actions recorded</td></tr>'
+
+    # ── Remote peer states ─────────────────────────────────────────────
+    remote_html = ""
+    for rs in status.get("remote_states", []):
+        agent = rs.get("agent_id", "unknown")
+        ts = rs.get("timestamp", "?")
+        source = rs.get("_source", "?")
+        trust = rs.get("trust_budget", {})
+        transport = rs.get("transport", {})
+        budget_str = f"{trust.get('budget_current', '?')}/{trust.get('budget_max', '?')}" if trust else "—"
+        unprocessed = transport.get("unprocessed", 0)
+        active_gates = transport.get("active_gates", 0)
+        total_msgs = transport.get("total_messages", 0)
+        schema_ver = rs.get("schema_version", "?")
+        epi_flags = rs.get("epistemic_flags_unresolved", 0)
+
+        # PSH summary
+        psh = rs.get("psh_facets", {})
+        psh_str = ", ".join(f"{k}: {v}" for k, v in list(psh.items())[:5]) if psh else "—"
+
+        remote_html += f"""
+        <tr>
+            <td>{agent}</td>
+            <td>{budget_str}</td>
+            <td>{unprocessed}</td>
+            <td>{active_gates}</td>
+            <td>{total_msgs}</td>
+            <td>{epi_flags}</td>
+            <td>v{schema_ver}</td>
+            <td>{ts}</td>
+        </tr>
+        <tr><td colspan="8" style="font-size:0.8em; color:#8b949e; padding:2px 12px 8px">
+            Source: {source} · PSH: {psh_str}
+        </td></tr>"""
+
+    if not remote_html:
+        remote_html = '<tr><td colspan="8" class="empty">No remote state snapshots available</td></tr>'
 
     # ── Semiotics tab ──────────────────────────────────────────────────
     semiotics = status.get("semiotics", {})
@@ -823,6 +915,12 @@ def render_html(status: dict) -> str:
     <table>
         <tr><th></th><th>Type</th><th>Result</th><th>Tier</th><th>Cost</th><th>Time</th></tr>
         {actions_html}
+    </table>
+
+    <h2>Remote Peer State</h2>
+    <table>
+        <tr><th>Agent</th><th>Budget</th><th>Unprocessed</th><th>Gates</th><th>Messages</th><th>Epi Flags</th><th>Schema</th><th>Snapshot</th></tr>
+        {remote_html}
     </table>
 
     </div><!-- end tab-mesh -->
