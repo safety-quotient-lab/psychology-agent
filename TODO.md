@@ -447,6 +447,33 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
 - [x] **Chromabook tunnel (psq-agent)** — COMPLETE (Session 65). Tunnel
   aec6e3ef, systemd psq-agent-tunnel.service, CNAME created. Live.
 
+- [x] **Dynamic /api/status for all 4 agents** — COMPLETE (Session 67).
+  status_server.py deployed on chromabook for unratified (:8078) and
+  observatory (:8079). Tunnel routes added, DNS CNAMEs created:
+  unratified-agent.unratified.org, observatory-agent.unratified.org.
+
+- [ ] **Clean up wrong DNS records** — cloudflared created CNAME
+  `unratified-agent.safety-quotient.dev.unratified.org` and
+  `observatory-agent.safety-quotient.dev.unratified.org` on the unratified.org
+  zone. Harmless but should delete via CF dashboard.
+  *Precondition: none — dashboard access only*
+
+- [ ] **Plan9 directory tree consensus (C2)** — first consensus test for the
+  4-agent mesh. Psychology-agent drafts proposal, sends via transport, each
+  peer responds with reasoning, user mediates. Tests transport round-trip
+  and surfaces failure modes.
+  *Precondition: ✓ MET — 4-agent mesh live, transport verified (Session 67)*
+
+- [ ] **PSH vocabulary consensus (C2)** — second consensus test. Each agent
+  develops internal understanding of PSH vocabulary, then mesh negotiates
+  shared definitions.
+  *Precondition: Plan9 directory consensus resolved*
+
+- [ ] **Enable autonomous sync on peer repos** — unratified and observatory
+  state.db data reflects bootstrap snapshot. Wire autonomous-sync.sh + cron
+  on chromabook for both repos to enable live transport processing.
+  *Precondition: ✓ MET — scripts deployed, state.db bootstrapped (Session 67)*
+
 - [ ] **Delete old interagent tunnel** — `cloudflared tunnel delete interagent`
   (ID ccd8d4dc). Edge connections were draining at Session 65; retry after
   a few minutes. Credentials file also deletable:

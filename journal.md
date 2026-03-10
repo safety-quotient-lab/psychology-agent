@@ -65,6 +65,7 @@ partner, and Socratic interlocutor
 45. [When the Vocabulary Outlives Its Authority: Replacing PJE with Literary Warrant](#45-when-the-vocabulary-outlives-its-authority)
 46. [Specification Without Instantiation: Separating Cogarch from Infrastructure](#46-specification-without-instantiation)
 47. [When the Agent Learns Its Own Mistakes: Engineering Incident Detection as Cogarch Extension](#47-when-the-agent-learns-its-own-mistakes)
+48. [Four Agents, One Mesh: What Going Live Reveals About Consensus Readiness](#48-four-agents-one-mesh)
 
 ---
 
@@ -1745,3 +1746,65 @@ Implementation deferred. The design stands as approved architecture.
 - Tier 2 (cognitive self-detection) has no empirical validation — the assumption that an agent can reliably classify its own reasoning failures in real-time remains untested
 - The graduation pipeline assumes incident categories stabilize within ~10 sessions; if categories keep shifting, cross-session pattern matching degrades
 - The 3-occurrence threshold inherits from T10's lesson promotion without independent calibration for engineering incidents
+
+
+---
+
+## §48. Four Agents, One Mesh: What Going Live Reveals About Consensus Readiness {#48-four-agents-one-mesh}
+
+*(Session 67, 2026-03-10)*
+
+We activated the full 4-agent mesh this session: psychology-agent, psq-agent,
+unratified-agent, and observatory-agent. Each serves dynamic `/api/status`
+from its own `state.db`. The interagent compositor at
+`interagent.safety-quotient.dev` aggregates mesh health in real time — 4/4
+online, all budgets at 100% (except psq-agent at 65%, reflecting its
+autonomous activity).
+
+The activation exposed a naming convention mismatch that had gone undetected.
+psq-agent names outbound messages `from-{sender}-NNN.json` (Convention A),
+while unratified-agent and observatory-agent name them
+`to-{recipient}-NNN.json` (Convention B). `cross_repo_fetch.py` only matched
+Convention A, silently reporting zero inbound messages from peers that had 23
+waiting. The fix required matching both patterns — a reminder that protocol
+assumptions embedded in code persist longer than the conversations that
+established them.
+
+Triaging the 23 backlogged messages revealed five say/do gaps — commitments
+acknowledged as received but never executed. Three examples: an adversarial
+register rubric that unratified-agent committed to pulling but never did (the
+`docs/` directory does not exist on that repo), confidence intervals for
+low-sample provisions that observatory-agent acknowledged but never added to
+its methodology page, and formal definitions of FW Ratio and SETL that remain
+absent from observatory despite both terms appearing in the shared vocabulary.
+
+These gaps illustrate a structural property of multi-agent communication:
+acknowledgment does not equal completion. An ACK confirms message receipt, not
+action fulfillment. Our optional-ACK protocol (adopted Session 51) explicitly
+separates these — `ack_required` controls receipt confirmation, while claim
+verification (EF-2) tracks action completion. The gap between the two
+represents epistemic debt that accumulates silently until someone reads the
+actual state.
+
+The session also produced a 10-order knock-on analysis for adding a BFT
+Praxis-style consensus protocol to the mesh. The recommend-against finding
+proved instructive: the 4-agent mesh had just gone live with no peer-to-peer
+message exchange tested end-to-end. Adding a consensus protocol before
+validating basic transport reliability would stack an untested layer on an
+untested foundation. The analysis surfaced specific risks: a single 4-agent
+consensus round would consume half the trust budget (10 of 20 credits),
+non-autonomous agents (unratified, observatory) would need a new autonomy
+tier just to participate in voting, and the evaluator's consensus procedure
+(Procedure 1) could create circularity with mesh consensus rounds if the
+distinction between local evaluation and transport voting remained implicit.
+
+The decision: test basic transport through manual C2 consensus exercises first.
+The Plan9-inspired directory tree consensus (deferred-outbound item 6) serves
+as the first test case — a substantive proposal requiring all four agents to
+reason about their own directory structures and converge on a shared layout.
+User mediation provides the safety net while we observe actual failure modes.
+
+⚑ EPISTEMIC FLAGS
+- Peer state.db data reflects bootstrap snapshots, not live sync — unratified/observatory autonomous sync not yet operational
+- The 5 say/do gaps identified through message reading, not systematic verification — additional gaps may exist in messages not yet triaged
+- BFT consensus /knock analysis speculative at orders 5+, with no empirical consensus round data

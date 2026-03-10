@@ -17,20 +17,20 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 67. 4-agent mesh live — all agents serve dynamic
-/api/status from state.db. Compositor aggregates mesh health (4/4 online).
-Inbox triaged (23 messages, 5 say/do gaps cataloged). /knock analysis on BFT
-consensus completed (recommend: test transport first).
+**Where we stopped:** Session 66. Engineering incidents Tier 1 implemented.
+Federated mesh live at interagent.safety-quotient.dev. SQ repo at parity.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- 4-agent mesh: ✓ All agents live with dynamic /api/status `[warm]`
-- Compositor: ✓ 3-tab UI (Agents/Messages/Health) + /api/health `[warm]`
-- Deferred outbound: 7 items cataloged in transport/deferred-outbound.md `[warm]`
-- Autonomous mesh: ✓ psychology + psq running; unratified + observatory pending `[warm]`
+- Dashboard: ✓ Both agents + interagent mesh live `[warm]`
+- Domain: ✓ DNS + tunnels + CF Worker (interagent-mesh) `[warm]`
+- Engineering incidents: ✓ Tier 1 complete (schema v14 + hook); Tier 2 deferred `[warm]`
+- JSON-LD + CORS: ✓ Both dashboards serve structured data, origin-locked `[warm]`
+- Autonomous mesh: ✓ full pipeline `[warm]`
 - DI Phase A Pass 2: pending (fresh session) `[cold]`
 
-**Next:** Plan9 directory consensus (first C2 test). Enable autonomous sync on
-peer repos. PSH vocabulary consensus (after Plan9). DI Phase A Pass 2.
+**Next:** Curate public replays. Delete old interagent tunnel. Naming audit
+(safety-quotient agent → psq-agent). Apex redirect + CF Worker custom domain.
+DI Phase A Pass 2. Category theory exploration (★ PRIORITY in ideas.md).
 
 
 ## Memory Hygiene
