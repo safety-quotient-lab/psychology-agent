@@ -4199,6 +4199,11 @@ gaps discovered during live testing on the chromabook.
 
 ▶ journal.md §42 covers the gated chains design rationale (Session 61)
 
+- **Post-cycle bugfix (heartbeat dirty-state loop):** Cron logs revealed 129 cycles
+  with 249 errors — `heartbeat.py emit` modifies a tracked file every cycle, blocking
+  `git pull --rebase`. Fix: `git_sync()` auto-commits dirty transport/ and .well-known/
+  files before pulling. Applied to both repos (psychology-agent `f9245a4`, SQ `033bc4a`).
+
 ⚑ EPISTEMIC FLAGS
 - Cross-repo script synchronization lacks a mechanism — scp-and-commit works for now
   but divergence will recur with every fix applied to only one repo
