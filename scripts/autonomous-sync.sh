@@ -361,6 +361,7 @@ run_sync() {
     local sync_output
     sync_output=$(claude -p "${prompt}" \
         --allowedTools "Read,Write,Edit,Glob,Grep,Bash" \
+        --permission-mode "bypassPermissions" \
         --max-turns 30 \
         2>&1) || {
         err "claude CLI exited with error"
