@@ -57,6 +57,7 @@ partner, and Socratic interlocutor
 37. [Adoption Testing and the Portability Proof](#37-adoption-testing-and-the-portability-proof)
 38. [When the Index Replaces the Ledger: MANIFEST as Generated Artifact](#38-when-the-index-replaces-the-ledger)
 39. [Private by Default: How Data Governance Emerges in Agent Systems](#39-private-by-default)
+40. [When Lessons Graduate: The Emergence of Mechanical Conventions from Pattern Recognition](#40-when-lessons-graduate)
 
 ---
 
@@ -1493,6 +1494,32 @@ What strikes us about this sequence: the governance model did not arrive from a 
 ⚑ EPISTEMIC FLAGS
 - The commercial tier contains only one table (psq_status). Whether this tier justifies its complexity at current scale remains an open question — it may prove its value only when commercial offerings mature.
 - The "observe before promoting" stance defers a decision that may need revisiting when the first release ships. The shared tier contains research output that makes the project legible to external reviewers; keeping everything private until data accumulates may delay that legibility.
+
+---
+
+## 40. When Lessons Graduate: The Emergence of Mechanical Conventions from Pattern Recognition {#40-when-lessons-graduate}
+
+Across 59 sessions we accumulated 25 lessons in lessons.md — each documenting a pattern error, an architecture insight, or a tooling discovery. Each entry followed the same structure: the lesson, the tell (how to recognize it early), the diagnostic (what to ask yourself), where it appeared, and where it recurs. For 8 sessions those entries carried YAML frontmatter with machine-readable classification. The other 17 sat unclassified — valuable prose without queryable structure.
+
+The backfill revealed something we did not anticipate. Once all 25 entries carried `pattern_type` and `domain` tags, a SQL GROUP BY produced immediate signal: `reasoning-error` appeared 7 times, `architecture-insight` 7 times, `tooling-discovery` 4 times. The `evaluation` domain held 6 entries; `workflow` held 6. These clusters did not surface from reading lessons.md sequentially — they emerged from structured query over classified data. The index made visible what the narrative obscured.
+
+The promotion analysis asked a specific question for each cluster: does this recurring pattern warrant mechanical enforcement, or does it inform thinking without needing a gate? The distinction matters. A `reasoning-error` about conflating confidence with accuracy teaches something valuable, but adding a trigger that fires "check whether confidence equals accuracy" on every response would add overhead without proportional value. The same lesson, when it belongs to the `evaluation` domain and shares that domain with 5 siblings, warrants a glob-scoped rules file that fires automatically when editing measurement-related code.
+
+The graduation ceremony produced three kinds of outputs:
+
+1. **New enforcement surface** — `.claude/rules/evaluation.md` consolidated 6 evaluation methodology lessons into 6 one-line conventions. These fire automatically when editing PSQ, dignity, or evaluation files. The rules encode what the lessons teach: score independently, distinguish internal coherence from external validity, never collapse profiles without validating unidimensionality, audit position changes after pushback.
+
+2. **Expanded existing enforcement** — `anti-patterns.md` gained 2 entries from the `tooling-discovery` cluster. These had already been discovered and documented as anti-patterns — the graduation ceremony recognized that the enforcement already existed and simply marked the lessons as graduated rather than creating redundant rules.
+
+3. **Convention addendum** — 3 `process-failure` lessons compressed into a single sentence added to CLAUDE.md §Problem-Solving Discipline: persist at confirmation, verify at every location, defer documentation until work completes.
+
+The remaining 7 lessons stayed ungraduated — not because they lack value, but because they either belong to pattern types below the 3+ threshold or inform reasoning without lending themselves to mechanical gates. "Constraint Inversion: Turning Deficiencies Into Methods" teaches a powerful reframe, but no trigger can mechanically enforce "ask whether this constraint enables something valuable." Some lessons remain lessons.
+
+What this sequence demonstrates: the lifecycle from observation (T10 fires, lesson gets written) through classification (YAML frontmatter, SQL query) to graduation (convention or rules file) operates as an empirical pipeline. The agent observes its own errors, classifies them structurally, detects clusters via query, and promotes recurring patterns into enforcement. The lessons.md file functions as a training set for the agent's own conventions — a self-modifying system where experience produces rules (Simon, 1996).
+
+⚑ EPISTEMIC FLAGS
+- The graduation decisions relied on one analyst's judgment about which lessons "already have adequate coverage." A second reviewer might classify differently — particularly the 4 entries marked "already operationalized in cogarch/hooks" where the connection between lesson and enforcement mechanism requires inference.
+- The 3+ threshold for promotion candidacy lacks theoretical grounding. Three occurrences may represent a genuine pattern or may represent three instances of the same project-specific concern. The threshold trades sensitivity (catching real patterns) against specificity (avoiding false promotions).
 
 ---
 

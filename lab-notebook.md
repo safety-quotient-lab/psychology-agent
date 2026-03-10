@@ -86,8 +86,10 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | MANIFEST auto-generation      | ✓ `scripts/generate_manifest.py` — state.db → thin MANIFEST (pending only, 793→21 lines) (Session 59) |
 | Cloud-free bounded context    | ✓ Architecture decision — zero cloud runtime dependency; CF Worker = separate context (Session 59) |
 | Socratic gate (T2#8b)         | ✓ Cogarch — AskUserQuestion bias on direction-setting questions (Session 59) |
-| Lessons table (schema v7)     | ✓ Structured index of lessons.md — frontmatter as queryable columns, bootstrap_lessons.py (24 entries), dual_write lesson subcommand (Session 59) |
+| Lessons table (schema v7)     | ✓ Structured index of lessons.md — 25/25 frontmatter, bootstrap_lessons.py, dual_write lesson subcommand (Session 59, backfill 59d) |
+| Lesson promotion lifecycle    | ✓ 17/25 graduated: evaluation.md (6), anti-patterns.md (+2), CLAUDE.md (+2 lines), cogarch/hooks (4). 1 candidate, 7 below threshold (Session 59d) |
 | 4-tier visibility (schema v8) | ✓ table_visibility (public/shared/commercial/private), export_public_state.py (4 profiles: seed/release/licensed/full), private-by-default (Session 59) |
+| Epistemic debt dashboard      | ✓ `scripts/epistemic_debt.py` — 4 modes (full, --summary, --by-source, --by-session), wired into /hunt Phase 1 + /cycle Step 11c (Session 59d) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -3904,3 +3906,62 @@ Continuation — documenting schema v8 state layer for external collaborators.
 ▶ journal.md §39 (4-tier visibility narrative — written earlier in Session 59b)
 
 ⚑ EPISTEMIC FLAGS: none identified.
+
+
+## 2026-03-09T20:53 CDT — Session 59e (Lessons backfill, promotion lifecycle, epistemic debt dashboard)
+
+Continuation — lessons infrastructure and epistemic debt visibility.
+
+- **Lessons frontmatter backfill (#108):**
+  - 25/25 entries now have YAML frontmatter (pattern_type, domain, severity,
+    recurrence, first_seen, last_seen, trigger_relevant, promotion_status)
+  - Fixed 2 malformatted entries (frontmatter before heading: Protocol Failure,
+    SDK Features). Removed 1 duplicate frontmatter block (Script Architecture)
+  - bootstrap_lessons.py --apply: all 25 parsed and indexed in state.db
+
+- **Lesson promotion analysis + graduation:**
+  - Analyzed 6 clusters (4 pattern_type × 2 domain at 3+ threshold)
+  - Graduated 17/25 lessons to enforcement targets:
+    - NEW: `.claude/rules/evaluation.md` — 6 measurement methodology conventions
+      (independent scoring, profile > aggregate, confidence ≠ accuracy,
+      evaluator independence, circular evaluation, sycophancy audit)
+    - UPDATED: `.claude/rules/anti-patterns.md` — +2 entries (settings.local.json
+      allow list, parry ML false positives on trusted files)
+    - UPDATED: `CLAUDE.md §Problem-Solving Discipline` — boundary verification
+      convention (persist at confirmation, verify reverts, defer /cycle)
+    - Already operationalized: 4 entries (cogarch T1-T16, /cycle Step 10,
+      TODO Discipline, subproject-boundary hook)
+  - Remaining: 1 candidate (Protocol Failure), 7 below threshold
+
+- **Epistemic debt dashboard (#99):**
+  - `scripts/epistemic_debt.py` — 4 modes: full dashboard, --summary, --by-source,
+    --by-session
+  - Two data sources: transport message flags (270 rows, state.db) + lab-notebook
+    ⚑ blocks (56 sessions)
+  - Agent attribution, session grouping, staleness detection
+  - Initial findings: psq-scoring holds 43% of debt (116/270 flags),
+    blog-adversarial-review 23% (63), 0% resolution rate
+
+- **Wired dashboard into skills:**
+  - /hunt Phase 1 step 6: runs --summary during context establishment
+  - /cycle Step 11c: runs --summary, reports in Step 13
+  - Skills need restart to pick up changes (reloaded this session)
+
+- **Grounding audit (carried from earlier /cycle):**
+  - Awesome-claude-code submission (#52): stale NC license concern corrected
+    to Apache 2.0 (relicensed Session 32c)
+
+- **Artifacts created/modified:**
+  - `scripts/epistemic_debt.py` — NEW (epistemic debt dashboard)
+  - `.claude/rules/evaluation.md` — NEW (6 evaluation conventions)
+  - `.claude/rules/anti-patterns.md` — +2 entries
+  - `CLAUDE.md` — +3 lines (boundary verification + evaluation.md in rules list)
+  - `.claude/skills/hunt/SKILL.md` — Phase 1 step 6
+  - `.claude/skills/cycle/SKILL.md` — Step 11c + Step 13 template
+
+▶ journal.md §40 (lesson promotion lifecycle narrative)
+
+⚑ EPISTEMIC FLAGS
+- 270 transport flags at 0% resolution — no flags have ever been marked resolved.
+  Likely a tooling gap: no mechanism currently marks flags resolved. The dual_write
+  pipeline and bootstrap both set resolved=FALSE; nothing sets resolved=TRUE.
