@@ -95,37 +95,50 @@ cannot enforce polymorphic FKs; integrity by application convention).
 Plan 9 insight: disciplines are namespaces composed at query time, not directories
 navigated at storage time.
 
+Two vocabularies classify every entity:
+
 | Facet type | Values | Derivation |
 |-----------|--------|------------|
-| `pje_domain` | `psychology`, `jurisprudence`, `engineering`, `cross-cutting` | Keyword heuristic via `bootstrap_pje_facets.py` |
+| `psh` | 11 L1 categories: `psychology`, `law`, `computer-technology`, `information-science`, `systems-theory`, `philosophy`, `sociology`, `mathematics`, `communications`, `pedagogy`, `ai-systems` (PL-001) | Keyword heuristic via `bootstrap_facets.py` |
+| `schema_type` | `schema:Message`, `schema:Claim`, `schema:ChooseAction`, `schema:Event`, `schema:DefinedTerm`, `schema:LearningResource`, `schema:HowToStep`, `schema:Action`, `schema:SuspendAction` | Static per entity table |
 | `domain` | `psychometrics`, `cognitive-architecture`, `design`, `operations` | Topic filename (migrated from `entry_facets`) |
 | `work_stream` | `psq-scoring/b3`, `psq-scoring/b5`, etc. | Entry key prefix |
 | `agent` | `psychology-agent`, `psq-sub-agent`, `unratified-agent` | Producer/owner |
+
+PSH categories use standard codes where available (PSH9194, PSH8808, etc.).
+Project-local extensions use `PL-NNN` codes for domains PSH cannot cover
+(PSH last updated ~2015, predates multi-agent AI). L2 sub-categories use
+slash-separated values (e.g., `psychology/psychometrics`) and earn inclusion
+through literary warrant — `--discover` mode surfaces candidates.
 
 **Write pattern:**
 ```bash
 python scripts/dual_write.py facet \
   --entity-type transport_messages --entity-id 42 \
-  --facet-type pje_domain --facet-value psychology
+  --facet-type psh --facet-value psychology
 ```
 
 **Query pattern:**
 ```sql
--- All jurisprudence decisions
+-- All law-related decisions
 SELECT dc.* FROM decision_chain dc
   JOIN universal_facets uf ON uf.entity_type = 'decision_chain'
     AND uf.entity_id = dc.id
-  WHERE uf.facet_type = 'pje_domain' AND uf.facet_value = 'jurisprudence';
+  WHERE uf.facet_type = 'psh' AND uf.facet_value = 'law';
+
+-- All claims (by schema.org type)
+SELECT * FROM universal_facets
+  WHERE facet_type = 'schema_type' AND facet_value = 'schema:Claim';
 ```
 
-**Domain discovery:** `bootstrap_pje_facets.py` classifies entities using keyword
-heuristics. Unmatched entities receive `cross-cutting`. The keyword sets live in
-the script and expand as new domain vocabulary emerges. Re-run the bootstrap
+**Domain discovery:** `bootstrap_facets.py --discover` surfaces candidate L1/L2
+terms from unclassified entities via literary warrant (Hulme, 1911). Also runs
+a PSH staleness analysis — identifies domains where PSH vocabulary gaps prevent
+classification (e.g., AI/ML systems, distributed systems). Re-run the bootstrap
 after adding keywords to reclassify.
 
-**Legacy compatibility:** `entry_facets` table retained for backward compatibility.
-New code should use `universal_facets`. Migration: existing `entry_facets` data
-auto-migrated on schema v12 application.
+**Legacy:** `entry_facets` table retained for backward compatibility. `pje_domain`
+facets retired (replaced by `psh`). New code should use `universal_facets`.
 
 ## Topic-Specific Tables
 

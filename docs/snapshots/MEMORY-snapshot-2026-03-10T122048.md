@@ -17,19 +17,20 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 62e. PJE → PSH + schema.org facet migration
-complete. Universal facets now carry confidence scores, keyword hit logs,
-computed_at timestamps, and keyword_set_version for intelligent discovery.
+**Where we stopped:** Session 62d. Schema v11 (transport dedup), adaptive sync
+(cold-peer skip), mesh-status dashboard. All committed + pushed.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- Universal facets (PSH + schema.org): ✓ v2 keyword set, 11 L1 + 9 types `[warm]`
-- SQLite state layer: schema v12, universal_facets + metadata columns `[warm]`
-- Autonomous mesh: ✓ substantive exchange + monitoring dashboard `[warm]`
+- Autonomous mesh: ✓ SUBSTANTIVE EXCHANGE + monitoring dashboard `[warm]`
+- SQLite state layer: schema v11, 13 tables + dedup index `[warm]`
+- Adaptive sync: ✓ simple (cold-skip) complete; full scheduler TODO `[warm]`
+- Mesh dashboard: ✓ scripts/mesh-status.py (port 8077, --json) `[warm]`
 - Lesson lifecycle: ✓ 17/25 graduated `[warm]`
 - DI Phase A Pass 2: pending (fresh session) `[cold]`
 
-**Next:** Co-occurrence tracking (L2 refinement signals). Refine confidence
-formula (hits/total penalizes large categories). DI Phase A Pass 2.
+**Next:** DI Phase A Pass 2. Full adaptive scheduler (daemon with per-peer
+intervals). Chromabook script sync (scp updated files). Historical turn
+collision cleanup.
 
 
 ## Memory Hygiene

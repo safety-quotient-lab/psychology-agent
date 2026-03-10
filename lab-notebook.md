@@ -69,9 +69,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Opus remediation + v37        | ✓ COMPLETE — v37 deployed, calibration-v4 live (Session 46-47) |
 | B3 recalibration (steps 5-6)  | ✓ COMPLETE — calibration-v4 deployed, 9/10 dims MAE ≤ v3 (turn 33) |
 | B4 partial correlations       | ✓ COMPLETE — mean |partial r|=0.205, bipolar confirmed, DA isolated (turn 40-41) |
-| SQLite state layer (schema)   | ✓ scripts/schema.sql v11 committed — 13 tables + unique index on (session_name, from_agent, turn) + next-turn subcommand (Session 48-51, 59-62) |
+| SQLite state layer (schema)   | ✓ scripts/schema.sql v12 committed — 13 tables + universal_facets (PSH + schema.org dual vocabulary) (Session 48-51, 59-62e) |
 | SQLite state layer (bootstrap)| ✓ SL-1 COMPLETE — PR #90 merged, all 9 validation checks pass (Session 50) |
-| SQLite dual-write (SL-2)     | ✓ COMPLETE — scripts/dual_write.py (12 subcommands incl. lesson + 4 gate cmds + next-turn), /sync + /cycle skills updated (Session 51, 59, 61-62) |
+| SQLite dual-write (SL-2)     | ✓ COMPLETE — scripts/dual_write.py (14 subcommands incl. facet + facet-query + lesson + 4 gate cmds + next-turn), /sync + /cycle skills updated (Session 51, 59, 61-62) |
 | Optional ACK protocol         | ✓ ack_required flag (sender-controlled, default false); state.db processed column replaces mandatory ACKs (Session 51) |
 | README quickstart             | ✓ Zero-to-demo with 5 accordion demos (conversational, PSQ, /knock, /iterate, SPSS) (Session 51) |
 | Synrix-inspired improvements  | ✓ 6 items: tiered access, scope boundaries, postmortem template, deterministic keys, psq_status table, entry_facets polythematic (Session 48) |
@@ -105,6 +105,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Substantive autonomous exchange | ✓ psq-agent autonomously generated PSQ model readiness assessment (turn 52) — domain-knowledge retrieval validated (Session 62c) |
 | Bootstrap schema propagation   | ✓ ensure_db() applies schema.sql idempotently + column migrations — fixes missing-table class of failures (Session 62c) |
 | Autonomous-sync directory arg | ✓ `autonomous-sync.sh` accepts $1 or PROJECT_ROOT env — multi-repo capable (Session 60) |
+| Universal facets (PSH + schema.org) | ✓ bootstrap_facets.py — 11 L1 categories (10 PSH + PL-001 ai-systems), 9 schema.org types, literary warrant discovery with PSH staleness analysis. Replaces bootstrap_pje_facets.py (Session 62e) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -4315,3 +4316,50 @@ Continuation of Session 62 after context compaction.
   observed in current dataset)
 - mesh-status.py HTTP mode untested in this session (JSON/CLI mode validated)
   validation of autonomous domain-knowledge retrieval consistency
+
+
+## 2026-03-10T12:13 CDT — Session 62e (PJE → PSH + schema.org facet migration)
+
+Continuation of Session 62d — taxonomy overhaul.
+
+- **PJE → PSH migration:** Retired project-specific PJE taxonomy (psychology/
+  jurisprudence/engineering/cross-cutting) in favor of PSH (Polythematic
+  Structured Subject Headings, Czech National Library) — a standardized
+  44-category controlled vocabulary. 10 active PSH categories carry warrant
+  in our data + 1 project-local extension (PL-001: ai-systems).
+
+- **bootstrap_facets.py:** Complete rewrite replacing bootstrap_pje_facets.py.
+  Dual-vocabulary classification: PSH subjects (keyword heuristic, 11 L1
+  categories) + schema.org types (static per entity table, 9 mappings).
+  Agent-ID noise stripping prevents false-positive keyword matches (e.g.,
+  "psychology-agent" no longer triggers the psychology keyword set).
+
+- **PSH staleness analysis:** Discovery mode (`--discover`) now surfaces gaps
+  where PSH vocabulary lacks precision. Two gaps found: AI/ML systems (320+
+  "agent" hits — PSH has no category for this, predating multi-agent AI) and
+  distributed systems (mesh/consensus — PSH12314 too broad). Project-local
+  categories (PL-NNN) fill these gaps via literary warrant.
+
+- **Facet results:** 1580 facets bootstrapped (1127 PSH subjects + 453
+  schema.org types). 681 legacy pje_domain facets cleaned. 24 entities
+  remain unclassified (down from 68 under PJE).
+
+- **Schema/docs updates:** schema.sql v12 comments rewritten for PSH +
+  schema.org. `.claude/rules/sqlite.md` Universal Facets section overhauled.
+  New partial indexes: `idx_uf_psh`, `idx_uf_schema_type`.
+
+- **Design decision:** PSH serves as a living vocabulary — `--discover`
+  surfaces terms that earn L1 expansion (unclassified entities, freq >= 5)
+  and L2 refinement (sub-categories, freq >= 10). PSH staleness analysis
+  recommends project-local extensions when the canonical vocabulary cannot
+  provide precision. Literary warrant (Hulme, 1911) governs vocabulary growth.
+
+▶ journal.md §45
+
+⚑ EPISTEMIC FLAGS
+- PSH keyword matching uses substring containment, not word boundaries — short
+  keywords like "rule" or "gate" may over-match
+- 24 unclassified entities remain — some may need additional keywords rather
+  than new categories
+- L2 sub-categories not yet populated (schema ready, no warrant-meeting
+  candidates identified)

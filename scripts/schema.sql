@@ -351,28 +351,34 @@ INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (11, 'Unique index on (session_name, from_agent, turn) + next-turn subcommand — prevents same-agent turn collisions going forward');
 
 
--- ── Schema v12: Universal facets (PJE domain taxonomy) ──────────────
+-- ── Schema v12: Universal facets (dual-vocabulary classification) ─────
 --
--- Plan 9 insight: disciplines are namespaces, not directories. Instead of
--- pje-framework/psychology/ and pje-framework/jurisprudence/, every entity
--- in the state layer gains a facet. Query composes the view.
+-- Plan 9 insight: disciplines are namespaces, not directories. Every entity
+-- in the state layer gains facets. Query composes the view.
 --
 -- Universal facets decouple from memory_entries — any entity type (transport
 -- messages, decisions, lessons, sessions, memory entries) can carry facets.
 -- No FK constraint (SQLite cannot enforce polymorphic FKs); integrity by
 -- application convention.
 --
--- PJE domain vocabulary:
---   psychology    — empirical, measurement, constructs, calibration, human factors
---   jurisprudence — governance, obligations, precedent, rights, due process
---   engineering   — systems, specs, architecture, transport, reliability
---   cross-cutting — spans multiple disciplines (default for operational items)
+-- Two vocabularies:
+--   psh         — PSH subject categories (Czech National Library, L1 + project-local)
+--                 10 active PSH categories + PL-001 (ai-systems). L2-ready via
+--                 slash-separated values (e.g., 'psychology/psychometrics').
+--   schema_type — schema.org type per entity table (Message, Claim, Event, etc.)
+--
+-- Bootstrap: scripts/bootstrap_facets.py (replaces bootstrap_pje_facets.py)
+-- Discovery: --discover mode surfaces vocabulary gaps via literary warrant.
 
 CREATE TABLE IF NOT EXISTS universal_facets (
     entity_type TEXT NOT NULL,       -- table name: 'transport_messages', 'decision_chain', etc.
     entity_id   INTEGER NOT NULL,    -- row id in the source table
-    facet_type  TEXT NOT NULL,        -- 'pje_domain', 'domain', 'agent', 'work_stream', etc.
+    facet_type  TEXT NOT NULL,        -- 'psh', 'schema_type', 'domain', 'agent', 'work_stream', etc.
     facet_value TEXT NOT NULL,
+    confidence          REAL DEFAULT 1.0,    -- keyword match strength (0.0–1.0)
+    keyword_hits        TEXT,                -- JSON array of matched keywords (nullable)
+    computed_at         TEXT,                -- when this facet was last computed
+    keyword_set_version INTEGER DEFAULT 1,   -- which keyword set version produced this facet
     created_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
     PRIMARY KEY (entity_type, entity_id, facet_type, facet_value)
 );
@@ -383,15 +389,18 @@ CREATE INDEX IF NOT EXISTS idx_uf_facet_lookup
 CREATE INDEX IF NOT EXISTS idx_uf_entity
     ON universal_facets (entity_type, entity_id);
 
-CREATE INDEX IF NOT EXISTS idx_uf_pje
-    ON universal_facets (facet_value) WHERE facet_type = 'pje_domain';
+CREATE INDEX IF NOT EXISTS idx_uf_psh
+    ON universal_facets (facet_value) WHERE facet_type = 'psh';
+
+CREATE INDEX IF NOT EXISTS idx_uf_schema_type
+    ON universal_facets (facet_value) WHERE facet_type = 'schema_type';
 
 -- Migrate existing entry_facets into universal_facets
 INSERT OR IGNORE INTO universal_facets (entity_type, entity_id, facet_type, facet_value)
     SELECT 'memory_entries', entry_id, facet_type, facet_value FROM entry_facets;
 
 INSERT OR IGNORE INTO table_visibility (table_name, default_visibility, description)
-VALUES ('universal_facets', 'shared', 'Cross-entity facets — PJE domains, agents, work streams. Shared because facet types and values are public vocabulary.');
+VALUES ('universal_facets', 'shared', 'Cross-entity facets — PSH subjects, schema.org types, agents, work streams. Shared because facet types and values are public vocabulary.');
 
 INSERT OR IGNORE INTO schema_version (version, description)
-VALUES (12, 'Universal facets — polymorphic entity tagging. PJE domain taxonomy (psychology/jurisprudence/engineering/cross-cutting). Replaces entry_facets FK-bound pattern.');
+VALUES (12, 'Universal facets — polymorphic entity tagging. Dual vocabulary: PSH subjects (11 L1 categories incl. PL-001 ai-systems) + schema.org types. Replaces PJE taxonomy and entry_facets FK-bound pattern.');
