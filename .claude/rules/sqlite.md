@@ -86,29 +86,46 @@ querying, compute the key from the same rule — never search by free text when
 a deterministic key exists. If a new entity type lacks an obvious deterministic
 key, define one in this table before creating the schema.
 
-## Polythematic Facets
+## Universal Facets (Schema v12)
 
-Memory entries carry multi-faceted classification via the `entry_facets` join
-table. Three facet types, mechanically derivable — no manual tagging:
+`universal_facets` replaces the `entry_facets` FK-bound pattern with polymorphic
+entity tagging. Any table row can carry any facet — no FK constraint (SQLite
+cannot enforce polymorphic FKs; integrity by application convention).
 
-| Facet type | Derivation | Values |
-|-----------|-----------|--------|
-| `domain` | Topic filename | `psychometrics`, `cognitive-architecture`, `design`, `operations` |
-| `work_stream` | Entry key prefix | `psq-scoring/b3`, `psq-scoring/b5`, `dignity/phase-a`, `state-layer/sl-1` |
-| `agent` | Producer/owner | `psychology-agent`, `psq-sub-agent`, `unratified-agent` |
+Plan 9 insight: disciplines are namespaces composed at query time, not directories
+navigated at storage time.
+
+| Facet type | Values | Derivation |
+|-----------|--------|------------|
+| `pje_domain` | `psychology`, `jurisprudence`, `engineering`, `cross-cutting` | Keyword heuristic via `bootstrap_pje_facets.py` |
+| `domain` | `psychometrics`, `cognitive-architecture`, `design`, `operations` | Topic filename (migrated from `entry_facets`) |
+| `work_stream` | `psq-scoring/b3`, `psq-scoring/b5`, etc. | Entry key prefix |
+| `agent` | `psychology-agent`, `psq-sub-agent`, `unratified-agent` | Producer/owner |
+
+**Write pattern:**
+```bash
+python scripts/dual_write.py facet \
+  --entity-type transport_messages --entity-id 42 \
+  --facet-type pje_domain --facet-value psychology
+```
 
 **Query pattern:**
 ```sql
--- Cross-cut: all psychometrics entries owned by psq-sub-agent
-SELECT me.* FROM memory_entries me
-  JOIN entry_facets ef1 ON me.id = ef1.entry_id
-  JOIN entry_facets ef2 ON me.id = ef2.entry_id
-  WHERE ef1.facet_type = 'domain' AND ef1.facet_value = 'psychometrics'
-    AND ef2.facet_type = 'agent' AND ef2.facet_value = 'psq-sub-agent';
+-- All jurisprudence decisions
+SELECT dc.* FROM decision_chain dc
+  JOIN universal_facets uf ON uf.entity_type = 'decision_chain'
+    AND uf.entity_id = dc.id
+  WHERE uf.facet_type = 'pje_domain' AND uf.facet_value = 'jurisprudence';
 ```
 
-Expand the vocabulary only when a query pattern demands it. New facet types
-require a convention entry in this table before populating.
+**Domain discovery:** `bootstrap_pje_facets.py` classifies entities using keyword
+heuristics. Unmatched entities receive `cross-cutting`. The keyword sets live in
+the script and expand as new domain vocabulary emerges. Re-run the bootstrap
+after adding keywords to reclassify.
+
+**Legacy compatibility:** `entry_facets` table retained for backward compatibility.
+New code should use `universal_facets`. Migration: existing `entry_facets` data
+auto-migrated on schema v12 application.
 
 ## Topic-Specific Tables
 
