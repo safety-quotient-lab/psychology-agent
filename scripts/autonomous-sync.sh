@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
-# autonomous-sync.sh — Cron-driven autonomous /sync for psychology-agent mesh
+# autonomous-sync.sh — Cron-driven autonomous /sync for the agent mesh
 #
-# Runs on both psychology-agent (macOS) and psq-agent (Hetzner).
-# Each invocation: git pull → check budget → claude /sync → git push.
+# Each invocation: git pull → check budget → check interval → claude /sync → git push.
 #
 # Usage:
-#   AGENT_ID=psychology-agent ./scripts/autonomous-sync.sh
-#   AGENT_ID=psq-sub-agent  ./scripts/autonomous-sync.sh
+#   ./scripts/autonomous-sync.sh                          # runs in script's parent dir
+#   ./scripts/autonomous-sync.sh /path/to/agent/repo      # runs in specified dir
+#   PROJECT_ROOT=/path/to/repo ./scripts/autonomous-sync.sh  # env var override
 #
-# Cron example (every 10 minutes):
-#   */10 * * * * AGENT_ID=psychology-agent /path/to/scripts/autonomous-sync.sh >> /tmp/sync.log 2>&1
+# Cron examples:
+#   */5 * * * * /path/to/scripts/autonomous-sync.sh >> /tmp/sync.log 2>&1
+#   */5 * * * * /path/to/scripts/autonomous-sync.sh /home/kashif/psq-agent >> /tmp/psq-sync.log 2>&1
 #
 # Requires: claude CLI, git, sqlite3, python3
 
@@ -17,7 +18,12 @@ set -euo pipefail
 
 # ── Configuration ────────────────────────────────────────────────────────────
 
-PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# Project root: $1 argument > PROJECT_ROOT env var > script's parent dir
+if [ -n "${1:-}" ] && [ -d "${1:-}" ]; then
+    PROJECT_ROOT="$(cd "$1" && pwd)"
+elif [ -z "${PROJECT_ROOT:-}" ]; then
+    PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+fi
 IDENTITY_FILE="${PROJECT_ROOT}/.agent-identity.json"
 
 # Agent identity: .agent-identity.json > AGENT_ID env var > default
