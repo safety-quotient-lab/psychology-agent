@@ -395,6 +395,21 @@ python3 "${PROJECT_ROOT}/scripts/sync_project_board.py" --apply
 **Skip if:** `project_tracking.enabled` evaluates to `false`, the section
 does not exist in `cogarch.config.json`, or `gh` CLI authentication fails.
 
+### 11c. Epistemic Debt Check
+
+Run the epistemic debt summary and include it in the Step 13 output:
+
+```bash
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+python3 "${PROJECT_ROOT}/scripts/epistemic_debt.py" --summary
+```
+
+**Report:** Include the one-line summary in Step 13. If transport flag count
+has increased since last session, note the delta. No action required — this
+step surfaces the debt level, not resolves it.
+
+**Skip if:** `state.db` does not exist or `scripts/epistemic_debt.py` is missing.
+
 ### 12. Git Commit and Push
 
 Commit and push all documentation changes made this session.
@@ -438,6 +453,7 @@ Report:
 - **Skills created mid-session** that need restart to load (list them)
 - **Next session**: what's first, what's blocked
 - **MEMORY.md line count**: current / 200
+- **Epistemic debt**: one-line summary from Step 11c
 
 ---
 

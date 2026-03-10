@@ -57,6 +57,9 @@ Before hunting, understand what's currently in-flight:
 4. **Read `MEMORY.md`** at `~/.claude/projects/-home-kashif-projects-psychology/memory/MEMORY.md`
    — active thread, cogarch quick-reference, working principles
 5. **Glob `.claude/plans/*.md`** — existing plans (may have unfinished work)
+6. **Epistemic debt summary** — run `python3 scripts/epistemic_debt.py --summary`
+   to get the current unresolved uncertainty count. High debt sessions or agents
+   may warrant targeted resolution work.
 
 Build a mental model of: **what's active, what's done, what's blocked, what's untouched**.
 
