@@ -17,19 +17,25 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 62. First autonomous end-to-end exchange completed.
-psq-agent responded to gated ping (turn 50). Three bugs fixed. Cron hourly.
+**Where we stopped:** Session 62. First autonomous sync test — infrastructure
+layer validated (4/6 steps), cross-repo script gap resolved, gated message
+sent and timeout fallback confirmed.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- Autonomous mesh: ✓ END-TO-END VALIDATED — first autonomous response `[warm]`
-- Gated chains: ✓ COMPLETE — full lifecycle (send → respond → resolve) `[warm]`
-- Cross-repo transport: ✓ COMPLETE both sides `[warm]`
-- SQLite state layer: schema v10, 13 tables `[warm]`
-- Lesson lifecycle: ✓ 17/25 graduated `[warm]`
-- Epistemic debt: 272 flags, 0% resolved `[warm]`
-- DI Phase A Pass 2: pending (fresh session) `[cold]`
+- Cogarch portability: ✓ COMPLETE `[cold: done]`
+- CLAUDE.md: ✓ 186 lines `[hot: healthy]`
+- PSQ scoring: quiescent `[hot: no action needed]`
+- SQLite state layer: schema v10, 13 tables, active_gates table `[warm]`
+- Autonomous mesh: ✓ infrastructure validated — sync + trust + gates + wake-up `[warm]`
+- Gated chains: ✓ infrastructure tested — L2 acceleration + timeout confirmed `[warm]`
+- Cross-repo transport (psych side): ✓ COMPLETE `[warm]`
+- Cross-repo transport (SQ side): ✓ COMPLETE — setup done, autonomous sync validated `[warm]`
+- Lesson lifecycle: ✓ 17/25 graduated, 1 candidate, 7 below threshold `[warm]`
+- Epistemic debt: 270 flags, 0% resolved — no resolution mechanism yet `[warm]`
+- DI Phase A Pass 2: pending (inter-rater reliability, fresh session) `[cold]`
 
-**Next:** DI Phase A Pass 2. Cross-repo script sync. Subject field fix.
+**Next:** First autonomous Claude CLI response (psq-agent responds via cron).
+DI Phase A Pass 2 (fresh session). Cross-repo script sync mechanism (ideas.md).
 
 
 ## Memory Hygiene

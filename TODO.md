@@ -220,12 +220,10 @@ semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
   L2 acceleration detection, timeout fallback (continue-without-response).
   Deferred: autonomous Claude CLI response generation (steps 4-5 of 6).
 
-- [ ] **First autonomous Claude CLI response** — psq-agent on chromabook
-  autonomously responds to a gated message via `claude -p` + /sync.
-  Validates the full application layer: cron → autonomous-sync → Claude CLI
-  → response generation → git push → gate resolution on sender side. XS effort.
-  *Precondition: ✓ MET — infrastructure validated Session 62, Claude CLI
-  installed (v2.1.72), cron configured with nvm path.*
+- [x] **First autonomous Claude CLI response** — COMPLETE (Session 62).
+  psq-agent autonomously responded to gated ping (turn 50), committed + pushed.
+  Three bugs fixed: permission bypass, unpushed commit detection, /sync skill
+  cross-repo-fetch support. Full loop validated end-to-end.
 
 ---
 

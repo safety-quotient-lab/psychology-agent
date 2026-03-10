@@ -60,6 +60,7 @@ partner, and Socratic interlocutor
 40. [When Lessons Graduate: The Emergence of Mechanical Conventions from Pattern Recognition](#40-when-lessons-graduate)
 41. [Filesystem as Protocol: Plan 9 and the Cross-Repo Transport Decision](#41-filesystem-as-protocol)
 42. [The Gate That Keeps the Budget: Blocking Semantics in a Poll-Based Mesh](#42-the-gate-that-keeps-the-budget)
+43. [The First Autonomous Exchange: What Three Bugs Reveal About Agent Infrastructure](#43-the-first-autonomous-exchange)
 
 ---
 
@@ -1604,6 +1605,34 @@ The analogy that clarifies: this resembles TCP's adaptive retransmission, not HT
 - The 0-cost no-op poll classification remains unvalidated against the full EF-1 invariant set. The argument ("checking for mail carries no risk") has intuitive force but lacks formal verification against the governance model's seven invariants.
 - The 4-layer cascade has not been tested end-to-end. Each layer was validated independently (cron works, gate-status command works, SSH touch works), but their interaction under failure conditions remains theoretical.
 - The TCP analogy, while structurally apt, obscures a key difference: TCP operates at millisecond timescales with kernel-level guarantees. Our cascade operates at second-to-minute timescales with application-level guarantees. The failure semantics differ accordingly.
+
+---
+
+
+## §43. The First Autonomous Exchange: What Three Bugs Reveal About Agent Infrastructure {#43-the-first-autonomous-exchange}
+
+*Session 62 (2026-03-10). Continued from §42.*
+
+We sent a gated health-ping from psychology-agent to psq-agent and asked: can the mesh deliver an autonomous response without human intervention? The infrastructure layer validated in Session 61 — schema, gate detection, timeout handling — but the application layer (actual Claude CLI invocation producing an actual response) had never run.
+
+The answer came after fixing three bugs, each revealing a distinct category of infrastructure assumption.
+
+**Bug 1: Permission model mismatch.** The `claude -p` invocation lacked `--permission-mode bypassPermissions`. In interactive sessions, the user grants permissions through approval prompts. In autonomous operation, no human stands at the terminal. The fix appeared trivial — one flag — but it exposes a fundamental tension: the same tool that protects users from unintended actions becomes the obstacle that prevents autonomous operation. Every autonomous agent system must navigate this boundary between safety guardrails and operational capability. Our approach: explicit opt-in at the cron level, not a blanket override.
+
+**Bug 2: The commit-push gap.** The `git_push()` function checked for uncommitted changes (`git diff --quiet`) but not for unpushed commits. When `claude -p` runs with `bypassPermissions`, it can commit files directly. Those commits sit locally, invisible to `git_push()`, which sees a clean working tree and reports "nothing to push." The fix: compare `HEAD` against `origin/main`. This pattern — checking the wrong boundary condition — recurs throughout distributed systems. We checked the staging area when we should have checked the transport layer (Burns & Welch, 2001, on end-to-end argument in system design: "the function in question can completely and correctly be implemented only with the knowledge and help of the application standing at the endpoints").
+
+**Bug 3: Skill-transport mismatch.** The SQ agent's /sync skill assumed PR-based transport (Phase 1 scans `gh pr list`), but the actual transport channel uses `cross_repo_fetch.py` and `git show` via remote refs. The skill never queried `state.db` for unprocessed messages — it looked for PRs that didn't exist. We added Phase 1c (state.db query for unprocessed cross-repo-fetch messages) and Phase 3b (read via `git show`, generate response, mark processed). This represents the most conceptually significant fix: the skill's mental model of transport diverged from the infrastructure's actual transport model. When documentation describes one mechanism and implementation uses another, the skill — which reads the documentation — acts on a fiction.
+
+**The response itself.** At 10:39 CDT, psq-agent autonomously produced `from-psq-sub-agent-026.json` (turn 50): a gate-resolution response reporting 42 messages in state.db, 15/20 trust budget, active cron. It included `in_response_to`, proper `gate_resolution` fields, three verified claims with confidence basis, and two epistemic flags. The response demonstrated that the /sync skill, when given accurate information about where to look (Phase 1c), generates protocol-compliant output without further instruction.
+
+**What this validates.** The autonomous mesh now completes a full cycle: psychology-agent writes a gated message → pushes → chromabook cron fires → `cross_repo_fetch.py` indexes → `orientation-payload.py` surfaces unprocessed messages → `claude -p /sync` generates response → commits → pushes → psychology-agent fetches and sees the response. Each link in this chain failed at least once during testing, and each failure revealed an assumption that held in manual operation but broke in autonomous mode.
+
+**What this does not validate.** One successful exchange does not establish reliability. The response quality depended on the specific message type (health ping — low complexity) and the skill having just been updated. Whether the autonomous path produces equivalent quality for substantive exchanges (scoring requests, calibration decisions) remains open. The cron now runs hourly to conserve API credits, which means our observation window for failure patterns extends accordingly.
+
+⚑ EPISTEMIC FLAGS
+- Single observation: one successful autonomous exchange does not establish reliability or quality parity with human-mediated sessions
+- The three bugs were discovered sequentially through manual testing, not through automated verification. A production system would need integration tests covering the full autonomous path.
+- Cross-repo script synchronization remains manual (scp). Every fix requires propagation to both repos — a maintenance burden that scales linearly with agent count.
 
 ---
 
