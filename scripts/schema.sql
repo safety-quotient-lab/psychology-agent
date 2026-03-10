@@ -329,3 +329,23 @@ VALUES ('active_gates', 'private', 'Gate state — machine-specific operational 
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (10, 'Add active_gates table — gated autonomous chain tracking with timeout and fallback cascade');
+
+
+-- ── Schema v11: Transport duplicate prevention ──────────────────────
+
+-- Turn numbers are per-agent within a session, not globally unique per session.
+-- Two agents in the same session legitimately share turn numbers (concurrent
+-- assignment without a shared counter). The correct uniqueness constraint:
+-- no agent writes the same turn twice in the same session.
+--
+-- NOTE: Historical data contains same-agent turn collisions (pre-v11 data
+-- assigned turns from filenames, not state.db). The unique index cannot be
+-- created if collisions exist. Use bootstrap_state_db.py --force to rebuild
+-- from source files with corrected turns, or fix collisions manually before
+-- applying. The index creation will silently fail on DBs with collisions —
+-- future writes still benefit from the next-turn subcommand in dual_write.py.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_transport_agent_turn_unique
+    ON transport_messages (session_name, from_agent, turn);
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (11, 'Unique index on (session_name, from_agent, turn) + next-turn subcommand — prevents same-agent turn collisions going forward');

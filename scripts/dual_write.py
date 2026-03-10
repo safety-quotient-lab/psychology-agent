@@ -40,6 +40,8 @@ Usage:
 
     python scripts/dual_write.py gate-status [--agent-id AID]
 
+    python scripts/dual_write.py next-turn --session SESSION
+
 Requires: Python 3.10+ (stdlib only)
 """
 import argparse
@@ -337,6 +339,28 @@ def cmd_gate_status(args: argparse.Namespace) -> None:
     conn.close()
 
 
+# ── next-turn ────────────────────────────────────────────────────────────
+
+def cmd_next_turn(args: argparse.Namespace) -> None:
+    """Print the next available turn number for a session.
+
+    Computes MAX(turn) + 1 from transport_messages for the given session,
+    across ALL agents (turns are session-scoped, not agent-scoped, even
+    though two agents may have historically shared turn numbers). All
+    transport-writing skills should use this instead of parsing filenames
+    or directory listings.
+    """
+    conn = get_connection()
+    row = conn.execute(
+        "SELECT MAX(turn) FROM transport_messages WHERE session_name = ?",
+        (args.session,)
+    ).fetchone()
+    max_turn = row[0] if row and row[0] is not None else 0
+    next_turn = max_turn + 1
+    print(next_turn)
+    conn.close()
+
+
 # ── main ─────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -428,6 +452,11 @@ def main() -> None:
     gs = sub.add_parser("gate-status", help="Show active gates (JSON)")
     gs.add_argument("--agent-id")
 
+    # next-turn
+    nt = sub.add_parser("next-turn",
+                        help="Print the next available turn number for a session")
+    nt.add_argument("--session", required=True)
+
     args = parser.parse_args()
 
     dispatch = {
@@ -442,6 +471,7 @@ def main() -> None:
         "gate-resolve": cmd_gate_resolve,
         "gate-timeout": cmd_gate_timeout,
         "gate-status": cmd_gate_status,
+        "next-turn": cmd_next_turn,
     }
     dispatch[args.command](args)
 

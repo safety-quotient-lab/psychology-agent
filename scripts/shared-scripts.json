@@ -21,11 +21,11 @@
     },
     {
       "path": "scripts/dual_write.py",
-      "description": "Incremental state.db upserts (11 subcommands)",
+      "description": "Incremental state.db upserts (12 subcommands incl. next-turn)",
       "shared_with": [
         "safety-quotient"
       ],
-      "sha256": "f969dc09baee7666c1e82b29b754e883923a261b0dcd7d38c14a088cf5e57911"
+      "sha256": "44170e06febcaa125596d0774bd837afed0b9289cf4356e8bc00b123aa138303"
     },
     {
       "path": "scripts/heartbeat.py",
@@ -61,11 +61,11 @@
     },
     {
       "path": "scripts/schema.sql",
-      "description": "Full state.db schema (v10, 13 tables)",
+      "description": "Full state.db schema (v11, 13 tables + dedup index)",
       "shared_with": [
         "safety-quotient"
       ],
-      "sha256": "00966bbf589c7551e54858fd04ee8235b1ed583cf92c2ab931f4bd6a62d5939b"
+      "sha256": "ffe1f442e55b9499da898b865f9e6c2f590535bce637a5dc87cb30297de9deb7"
     }
   ]
 }
