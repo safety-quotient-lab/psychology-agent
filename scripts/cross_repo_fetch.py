@@ -22,6 +22,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 REGISTRY_PATH = PROJECT_ROOT / "transport" / "agent-registry.json"
+REGISTRY_LOCAL_PATH = PROJECT_ROOT / "transport" / "agent-registry.local.json"
 DB_PATH = PROJECT_ROOT / "state.db"
 
 # Adaptive sync frequency — peers classified by recency of last exchange.
@@ -172,10 +173,29 @@ def classify_peer_activity(agent_id: str, agent_config: dict) -> str:
         return "active"  # DB error = can't classify, assume active
 
 
+def _deep_merge(base: dict, override: dict) -> dict:
+    """Recursively merge override into base (override wins on conflicts)."""
+    merged = base.copy()
+    for key, value in override.items():
+        if key in merged and isinstance(merged[key], dict) and isinstance(value, dict):
+            merged[key] = _deep_merge(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
+
+
 def load_registry() -> dict:
-    """Load agent-registry.json."""
+    """Load agent registry, merging local overrides if present."""
     with open(REGISTRY_PATH) as f:
-        return json.load(f)
+        registry = json.load(f)
+    if REGISTRY_LOCAL_PATH.exists():
+        try:
+            with open(REGISTRY_LOCAL_PATH) as f:
+                local = json.load(f)
+            registry = _deep_merge(registry, local)
+        except (json.JSONDecodeError, OSError):
+            pass
+    return registry
 
 
 def scan_agent(agent_id: str, agent_config: dict, index: bool = False,

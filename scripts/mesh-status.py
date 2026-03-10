@@ -24,9 +24,38 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = PROJECT_ROOT / "state.db"
 REGISTRY_PATH = PROJECT_ROOT / "transport" / "agent-registry.json"
+REGISTRY_LOCAL_PATH = PROJECT_ROOT / "transport" / "agent-registry.local.json"
 IDENTITY_PATH = PROJECT_ROOT / ".agent-identity.json"
 
 COLD_THRESHOLD_HOURS = 24
+
+
+def _deep_merge(base: dict, override: dict) -> dict:
+    """Recursively merge override into base (override wins on conflicts)."""
+    merged = base.copy()
+    for key, value in override.items():
+        if key in merged and isinstance(merged[key], dict) and isinstance(value, dict):
+            merged[key] = _deep_merge(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
+
+
+def _load_registry() -> dict:
+    """Load agent registry, merging local overrides if present."""
+    if not REGISTRY_PATH.exists():
+        return {}
+    try:
+        reg = json.loads(REGISTRY_PATH.read_text())
+    except (json.JSONDecodeError, OSError):
+        return {}
+    if REGISTRY_LOCAL_PATH.exists():
+        try:
+            local = json.loads(REGISTRY_LOCAL_PATH.read_text())
+            reg = _deep_merge(reg, local)
+        except (json.JSONDecodeError, OSError):
+            pass
+    return reg
 
 
 def get_agent_id() -> str:
@@ -180,12 +209,8 @@ def _collect_remote_states(registry_agents: dict) -> list[dict]:
                 pass
 
     # Read from registered remotes with cross-repo-fetch transport
-    if not REGISTRY_PATH.exists():
-        return results
-
-    try:
-        reg = json.loads(REGISTRY_PATH.read_text())
-    except (json.JSONDecodeError, OSError):
+    reg = _load_registry()
+    if not reg:
         return results
 
     for agent_id, cfg in reg.get("agents", {}).items():
@@ -288,18 +313,14 @@ def collect_status() -> dict:
 
     # Registry info
     registry_agents = {}
-    if REGISTRY_PATH.exists():
-        try:
-            reg = json.loads(REGISTRY_PATH.read_text())
-            for aid, cfg in reg.get("agents", {}).items():
-                registry_agents[aid] = {
-                    "role": cfg.get("role"),
-                    "transport": cfg.get("transport"),
-                    "autonomous": cfg.get("autonomous", False),
-                    "always_consider": cfg.get("always_consider", False),
-                }
-        except (json.JSONDecodeError, OSError):
-            pass
+    reg = _load_registry()
+    for aid, cfg in reg.get("agents", {}).items():
+        registry_agents[aid] = {
+            "role": cfg.get("role"),
+            "transport": cfg.get("transport"),
+            "autonomous": cfg.get("autonomous", False),
+            "always_consider": cfg.get("always_consider", False),
+        }
 
     # Sync schedule — cron entry + last/next sync times
     schedule = _collect_schedule(agent_id)

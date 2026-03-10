@@ -22,6 +22,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 MANIFEST_PATH = PROJECT_ROOT / "scripts" / "shared-scripts.json"
 REGISTRY_PATH = PROJECT_ROOT / "transport" / "agent-registry.json"
+REGISTRY_LOCAL_PATH = PROJECT_ROOT / "transport" / "agent-registry.local.json"
 
 
 def sha256_file(path: Path) -> str:
@@ -51,11 +52,29 @@ def load_manifest() -> dict:
     return json.loads(MANIFEST_PATH.read_text())
 
 
+def _deep_merge(base: dict, override: dict) -> dict:
+    """Recursively merge override into base (override wins on conflicts)."""
+    merged = base.copy()
+    for key, value in override.items():
+        if key in merged and isinstance(merged[key], dict) and isinstance(value, dict):
+            merged[key] = _deep_merge(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
+
+
 def load_registry() -> dict:
-    """Load agent registry to map agent IDs to git remote names."""
+    """Load agent registry, merging local overrides if present."""
     if not REGISTRY_PATH.exists():
         return {}
-    return json.loads(REGISTRY_PATH.read_text())
+    registry = json.loads(REGISTRY_PATH.read_text())
+    if REGISTRY_LOCAL_PATH.exists():
+        try:
+            local = json.loads(REGISTRY_LOCAL_PATH.read_text())
+            registry = _deep_merge(registry, local)
+        except (json.JSONDecodeError, OSError):
+            pass
+    return registry
 
 
 def get_remote_name(agent_id: str, registry: dict) -> str | None:
@@ -147,20 +166,23 @@ def update_manifest():
 
 
 def print_fix_commands(peer: str, divergences: list[dict]):
-    """Print scp commands to fix divergences."""
+    """Print scp commands to fix divergences (requires agent-registry.local.json)."""
     registry = load_registry()
     agent_config = registry.get("agents", {}).get(peer, {})
-    lan_host = agent_config.get("lan_host", f"{peer}.local")
-    lan_user = agent_config.get("lan_user", "kashif")
+    lan_host = agent_config.get("lan_host")
+    lan_user = agent_config.get("lan_user")
+    remote_root = agent_config.get("remote_project_root")
 
-    # Try to determine remote project root from registry
-    # Default: assume same relative path
-    remote_root = f"/home/{lan_user}/projects/psychology/safety-quotient"
+    if not lan_host or not remote_root:
+        print(f"Cannot generate fix commands for {peer}:")
+        print(f"  Missing lan_host or remote_project_root in agent-registry.local.json")
+        print(f"  Create transport/agent-registry.local.json with LAN details.")
+        return
 
     for d in divergences:
         if d.get("peer") == peer or peer in d.get("peers", []):
             local = PROJECT_ROOT / d["script"]
-            remote = f"{lan_host}:{remote_root}/{d['script']}"
+            remote = f"{lan_user}@{lan_host}:{remote_root}/{d['script']}"
             print(f"scp {local} {remote}")
 
 
