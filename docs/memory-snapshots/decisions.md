@@ -50,9 +50,10 @@
                               2026-03-08
  SQLite state layer           Phase 1/1.5: markdown SOT for prose docs,
                               DB SOT for structured non-prose state.
-                              Schema v8. 12 tables. SL-2 dual-write
+                              Schema v9. 12 tables. SL-2 dual-write
                               live. Polythematic facets. Deterministic
-                              keys. 4-tier visibility. 2026-03-09
+                              keys. 4-tier visibility. min_action_interval.
+                              2026-03-09
  MANIFEST generated artifact  MANIFEST.json auto-generated from state.db.
                               Pending only (793→21 lines). Completed
                               history in DB + git history. Phase 1.5:
@@ -136,6 +137,17 @@
                               Private-by-default. table_visibility
                               table (v8). Export profiles: seed/release/
                               licensed/full. Observe before promoting.
+                              2026-03-09
+ Cross-repo transport          Git remote fetch between agents in
+ (safety-quotient agent)      separate repos. Each agent adds the
+                              other as git remote, reads MANIFEST via
+                              `git show {remote}/main:transport/
+                              MANIFEST.json`. Split outbox (mail/
+                              agent-id/). Pre-commit hook for
+                              autonomous secret scanning. Self-healing
+                              cron (ensure-cron.sh). Trust model
+                              min_action_interval (300s) decouples
+                              temporal spacing from trigger mechanism.
                               2026-03-09
 ```
 

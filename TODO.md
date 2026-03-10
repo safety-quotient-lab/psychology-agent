@@ -229,7 +229,8 @@ Plan 9-inspired split-outbox model — no shared writable directories.
   *Precondition: transport directory + schema exist.*
 
 - [ ] **Wire autonomous-sync.sh** — copy or symlink from psychology-agent,
-  create cron entry. Pre-commit hook travels with `.githooks/`. XS effort.
+  use `ensure-cron.sh --target` to install cron entry. Pre-commit hook
+  travels with `.githooks/`. XS effort.
 
 ---
 

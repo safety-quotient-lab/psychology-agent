@@ -58,6 +58,7 @@ partner, and Socratic interlocutor
 38. [When the Index Replaces the Ledger: MANIFEST as Generated Artifact](#38-when-the-index-replaces-the-ledger)
 39. [Private by Default: How Data Governance Emerges in Agent Systems](#39-private-by-default)
 40. [When Lessons Graduate: The Emergence of Mechanical Conventions from Pattern Recognition](#40-when-lessons-graduate)
+41. [Filesystem as Protocol: Plan 9 and the Cross-Repo Transport Decision](#41-filesystem-as-protocol)
 
 ---
 
@@ -1520,6 +1521,42 @@ What this sequence demonstrates: the lifecycle from observation (T10 fires, less
 ⚑ EPISTEMIC FLAGS
 - The graduation decisions relied on one analyst's judgment about which lessons "already have adequate coverage." A second reviewer might classify differently — particularly the 4 entries marked "already operationalized in cogarch/hooks" where the connection between lesson and enforcement mechanism requires inference.
 - The 3+ threshold for promotion candidacy lacks theoretical grounding. Three occurrences may represent a genuine pattern or may represent three instances of the same project-specific concern. The threshold trades sensitivity (catching real patterns) against specificity (avoiding false promotions).
+
+---
+
+
+## 41. Filesystem as Protocol: Plan 9 and the Cross-Repo Transport Decision {#41-filesystem-as-protocol}
+
+The question arose naturally: the safety-quotient agent operates in a separate repository on a separate machine (chromabook). How do two agents exchange messages when they share no filesystem?
+
+We explored the problem through Plan 9's lens — Bell Labs' successor to Unix, where everything presents as a filesystem and network resources mount as local directories (Pike et al., 1995). The split mailbox model (mail/agent-id/ with exclusive write per agent) mirrors Plan 9's per-user mail directories. The proc/ control plane (ctl, status, log, budget) mirrors /proc. The insight: Plan 9 did not invent a messaging protocol — it made the filesystem the protocol.
+
+Three transport mechanisms emerged as candidates:
+
+1. **Network filesystem (NFS/SSHFS)** — mount the remote repo's transport/ directory locally. Maximum Plan 9 fidelity. But the implementation adds mount infrastructure, introduces availability coupling (if the remote machine sleeps, the mount breaks), and creates lock contention when both agents write concurrently. For two agents on a LAN, this brings more ceremony than value.
+
+2. **GitHub API** — `GET /repos/{owner}/{repo}/contents/transport/MANIFEST.json`. Clean REST semantics, no local state. But it adds an API dependency, enforces rate limits (60/hour unauthenticated, 5000 authenticated), requires token management, and routes LAN traffic through an external service. The dependency violates the cloud-free bounded context decision.
+
+3. **Git remote fetch** — each agent adds the other as a git remote. Reading MANIFEST becomes `git show {remote}/main:transport/MANIFEST.json`. No API dependency, no mount infrastructure, no network filesystem. Authentication uses existing SSH keys (already configured). The fetch operation pulls only refs, not full clones.
+
+We chose option 3. The reasoning decomposed into three layers:
+
+**Dependency minimization.** The git remote fetch adds no dependencies beyond git itself. Both agents already use git for version control. SSH authentication already exists. No tokens to rotate, no mounts to maintain, no API rate limits to track.
+
+**Failure mode analysis.** If the remote machine goes offline, `git fetch` fails gracefully — the sync script logs the failure, records it in state.db, and retries next cycle. The consecutive_blocks counter halts after 2 failures, requiring human review. Compare with NFS: an unavailable mount can hang processes, corrupt in-flight writes, or produce silent read failures depending on mount options.
+
+**Temporal spacing guarantee.** A 10-order knock-on analysis surfaced a feedback loop at Order 9: if both agents use post-receive hooks to trigger syncs, a push by Agent A triggers Agent B, whose push triggers Agent A, creating a ping-pong cycle. Budget exhaustion eventually terminates the loop, but wastes credits. The mitigation: decouple the temporal spacing guarantee from the trigger mechanism entirely. The `min_action_interval` parameter (300 seconds default) enforces minimum spacing between actions regardless of what triggers them — cron, post-receive, manual invocation. Budget gates total actions; interval gates rate. Both must pass before a sync executes.
+
+The self-healing cron installer (`scripts/ensure-cron.sh`) completes the autonomous infrastructure. Idempotent by design — it checks whether the cron entry exists and installs only if missing, so bootstrap, health checks, and manual runs all converge to the same state.
+
+The pre-commit hook (`.githooks/pre-commit`) addresses the other side of autonomous operation: preventing secret leaks when an agent commits without human review. Three scanning layers — forbidden file patterns, content pattern detection, and an autonomous agent allowlist — catch credentials, private keys, and out-of-scope file changes before they reach the repository. The hook travels with the repo (committed to `.githooks/`) and auto-activates via `ensure_hooks()` in the sync script.
+
+What this design reveals: the Plan 9 philosophy does not require Plan 9's implementation. The split outbox model, the proc-like control plane, the filesystem-as-protocol principle — these transfer to git transport without network filesystems, without 9P, without mount points. The abstraction survives transplantation because it operates at the right level: not "make remote files appear local" (NFS/SSHFS) but "give each resource a name and let agents read by name" (git show). The naming convention carries the semantics; the transport mechanism becomes interchangeable.
+
+⚑ EPISTEMIC FLAGS
+- The cross-repo transport design remains untested. No safety-quotient transport infrastructure exists yet. First autonomous sync test will validate the git remote fetch path.
+- The Plan 9 analogy, while architecturally productive, should not obscure the gap between a kernel-level namespace protocol and application-level git commands. The design borrows Plan 9's naming philosophy, not its performance characteristics or failure semantics.
+- The ping-pong feedback loop (Order 9 of the knock-on analysis) was identified analytically. Empirical validation requires running both agents with post-receive triggers — which we have intentionally deferred in favor of cron-only MVP.
 
 ---
 

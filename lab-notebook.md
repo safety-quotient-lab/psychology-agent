@@ -69,7 +69,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Opus remediation + v37        | ✓ COMPLETE — v37 deployed, calibration-v4 live (Session 46-47) |
 | B3 recalibration (steps 5-6)  | ✓ COMPLETE — calibration-v4 deployed, 9/10 dims MAE ≤ v3 (turn 33) |
 | B4 partial correlations       | ✓ COMPLETE — mean |partial r|=0.205, bipolar confirmed, DA isolated (turn 40-41) |
-| SQLite state layer (schema)   | ✓ scripts/schema.sql v8 committed — 12 tables + trust budget + ACK columns + MANIFEST migration + lessons + table_visibility (Session 48-51, 59) |
+| SQLite state layer (schema)   | ✓ scripts/schema.sql v9 committed — 12 tables + trust budget + min_action_interval + ACK columns + MANIFEST migration + lessons + table_visibility (Session 48-51, 59-60) |
 | SQLite state layer (bootstrap)| ✓ SL-1 COMPLETE — PR #90 merged, all 9 validation checks pass (Session 50) |
 | SQLite dual-write (SL-2)     | ✓ COMPLETE — scripts/dual_write.py (7 subcommands incl. lesson), /sync + /cycle skills updated (Session 51, 59) |
 | Optional ACK protocol         | ✓ ack_required flag (sender-controlled, default false); state.db processed column replaces mandatory ACKs (Session 51) |
@@ -92,6 +92,10 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Epistemic debt dashboard      | ✓ `scripts/epistemic_debt.py` — 4 modes (full, --summary, --by-source, --by-session), wired into /hunt Phase 1 + /cycle Step 11c (Session 59d) |
 | Agent communication asymmetry | ✓ `scripts/agent_communication.py` — mesh imbalance detection, direction asymmetry, quiet pairs (Session 60) |
 | Memory staleness heatmap      | ✓ `scripts/memory_staleness.py` — T9 proxy thresholds, per-topic aggregation, 4 modes (Session 60) |
+| Trust model temporal spacing  | ✓ min_action_interval (300s default), trigger-agnostic enforcement, budget→interval→sync ordering (Session 60) |
+| Pre-commit secret scanning    | ✓ `.githooks/pre-commit` — 3-layer scan (forbidden files, content patterns, autonomous allowlist) (Session 60) |
+| Cross-repo transport design   | ✓ Git remote fetch for safety-quotient agent — architecture decision, agent-registry updated, TODO items tracked (Session 60) |
+| Autonomous-sync directory arg | ✓ `autonomous-sync.sh` accepts $1 or PROJECT_ROOT env — multi-repo capable (Session 60) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -4001,4 +4005,55 @@ Short session — /hunt quick wins, then execute.
   - `memory/cogarch.md` — T14 added to quick-ref
   - `MEMORY.md` — Active Thread refreshed
 
-⚑ EPISTEMIC FLAGS: none identified.
+### Session 60 continued (2026-03-09T22:42 CDT)
+
+Extended session — autonomous infrastructure deep dive and cross-repo design.
+
+- **Trust model extended (EF-1):** Added `min_action_interval` parameter (300s
+  default) to decouple temporal spacing from trigger mechanism. Budget gates total
+  actions, interval gates rate — both must pass. Enforcement ordering:
+  budget check → interval check → /sync. Schema v9.
+
+- **Autonomous-sync.sh hardened:**
+  - Directory argument (`$1` or `PROJECT_ROOT` env) for multi-repo operation
+  - `check_interval()` function enforces min_action_interval via state.db
+  - `ensure_hooks()` auto-configures core.hooksPath to `.githooks/`
+  - `AUTONOMOUS_AGENT` env var signals pre-commit hook
+
+- **Pre-commit hook** (`.githooks/pre-commit`): Three-layer secret scanning.
+  Forbidden file patterns, content pattern detection, autonomous agent allowlist.
+  Self-excludes from scan via `-- ':!.githooks/pre-commit'`.
+
+- **PSQ agent → safety-quotient agent naming:** Updated CLAUDE.md, agent-registry,
+  architecture.md. ~36 prose references remain across docs.
+
+- **Cross-repo transport design** (architecture decision):
+  Safety-quotient agent operates in separate repo (`safety-quotient-lab/safety-quotient`)
+  on chromabook. Transport via `git remote fetch` — each agent reads the other's
+  MANIFEST via `git show {remote}/main:transport/MANIFEST.json`. Split outbox
+  model with exclusive-write directories. Alternatives evaluated: GitHub API
+  (rejected: API dependency), NFS/SSHFS (rejected: mount infrastructure),
+  shared bare repo (viable enhancement, not required for MVP).
+
+- **10-order knock-on analysis** of git-push + post-receive hook approach.
+  Key finding at Order 9: ping-pong feedback loop between agents (not a deadlock,
+  budget exhaustion self-terminates). Mitigation: min_action_interval.
+
+- **Artifacts created/modified:**
+  - `docs/ef1-trust-model.md` — min_action_interval, triggering mechanisms table
+  - `scripts/autonomous-sync.sh` — directory arg, check_interval, ensure_hooks
+  - `scripts/schema.sql` — v9 (min_action_interval column)
+  - `.githooks/pre-commit` — NEW (secret scanning hook)
+  - `transport/agent-registry.json` — cross-repo-fetch transport fields
+  - `docs/architecture.md` — cross-repo transport decision entry
+  - `TODO.md` — cross-repo transport section (~10 items)
+  - `CLAUDE.md` — safety-quotient agent naming
+
+▶ journal.md §41 (cross-repo transport design narrative)
+
+⚑ EPISTEMIC FLAGS
+- Cross-repo transport design remains untested — no safety-quotient transport
+  infrastructure exists yet. The design assumes git remote fetch works cleanly
+  across repos; first autonomous sync test will validate.
+- ~36 prose references to "PSQ sub-agent" remain unrenamed across docs — cosmetic
+  debt, no functional impact.

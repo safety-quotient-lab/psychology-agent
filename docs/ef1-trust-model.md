@@ -360,6 +360,30 @@ The script accepts an optional directory argument. When omitted, it runs
 in its parent directory. When provided, it operates on the specified repo.
 Agent identity comes from `.agent-identity.json` in the target directory.
 
+### Self-Healing Cron (`scripts/ensure-cron.sh`)
+
+Idempotent installer — safe to run repeatedly. Checks whether the cron entry
+exists and installs it if missing. Supports verification, removal, custom
+intervals, and multi-repo targets.
+
+```bash
+# Install for this repo (default: */5)
+./scripts/ensure-cron.sh
+
+# Verify only (exit 0 if present, 1 if missing)
+./scripts/ensure-cron.sh --check
+
+# Install for safety-quotient agent on a different machine
+./scripts/ensure-cron.sh --target /home/kashif/safety-quotient --interval 10
+
+# Remove the entry
+./scripts/ensure-cron.sh --remove
+```
+
+Each repo gets a tagged marker comment in crontab, so multiple entries coexist
+without collision. Bootstrap and health checks can call `--check` to verify
+the cron entry survived machine reimaging or crontab edits.
+
 
 ---
 

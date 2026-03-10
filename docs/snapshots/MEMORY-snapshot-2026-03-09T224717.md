@@ -17,24 +17,24 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 60. Cross-repo transport designed (git remote
-fetch for safety-quotient agent). Trust model extended with min_action_interval.
-Pre-commit hook for autonomous secret scanning. Consumer scripts delivered.
+**Where we stopped:** Session 59e. Lessons backfill complete (25/25 frontmatter),
+17/25 graduated to enforcement targets, epistemic debt dashboard wired into
+/hunt + /cycle.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - Cogarch portability: ✓ COMPLETE `[cold: done]`
 - CLAUDE.md: ✓ 186 lines `[hot: healthy]`
 - PSQ scoring: quiescent `[hot: no action needed]`
-- SQLite state layer: schema v9, 12 tables, min_action_interval column `[warm]`
-- Autonomous mesh: sync script + trust model + pre-commit hook + agent registry `[warm]`
-- Cross-repo transport: design decided, TODO items tracked, safety-quotient side pending `[warm]`
+- SQLite state layer: schema v8, 12 tables, 4-tier visibility, documented `[warm]`
+- Autonomous mesh: orientation payload + heartbeat + agent identity `[warm]`
+- Project board: ✓ full coverage — all TODO items have issues + board items `[warm]`
 - Lesson lifecycle: ✓ 17/25 graduated, 1 candidate, 7 below threshold `[warm]`
 - Epistemic debt: 270 flags, 0% resolved — no resolution mechanism yet `[warm]`
-- DI Phase A Pass 2: pending (inter-rater reliability, fresh session) `[cold]`
+- DI Phase A Pass 2: pending (inter-rater reliability) `[cold]`
 
-**Next:** First autonomous sync test (Tier 1 dry run). Cross-repo transport
-implementation (psychology-agent side: git remote, /sync updates). DI Phase A
-Pass 2 (fresh session, needs credits). Awesome-claude-code submission (#52).
+**Next:** Awesome-claude-code submission (#52). State layer consumer scripts
+(agent communication asymmetry, memory staleness heatmap — both XS).
+First autonomous sync cycle. DI Phase A Pass 2 (fresh session).
 
 
 ## Memory Hygiene
