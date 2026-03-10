@@ -109,6 +109,11 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Mesh-state export              | ✓ `mesh-state-export.py` — mesh-state/v1 JSON snapshot, wired into autonomous-sync.sh, dashboard remote peer view (Session 63) |
 | Registry spec/instantiation split | ✓ agent-registry.json (public) + agent-registry.local.json (gitignored) — `_deep_merge` pattern in 3 consuming scripts (Session 63) |
 | Pre-flight transport diff      | ✓ autonomous-sync.sh skips claude invocation when no transport changes + no unprocessed messages + no active gates (Session 63) |
+| claude-replay integration      | ✓ Replays tab on dashboard, static serving at /replays/, batch generation via generate-replays.sh, 5 replays generated (Session 64) |
+| Dashboard nav header           | ✓ Sticky nav with agent identity, status dots (budget/queue/gates), 3-tab navigation (Session 64) |
+| Launchd dashboard service      | ✓ net.kashifshah.internal.mesh-dashboard — auto-start, KeepAlive, port 8077 (Session 64) |
+| safety-quotient.dev domain     | ✓ Purchased (Cloudflare). Discovery URLs migrated: psychology-agent, psq, api subdomains (Session 64) |
+| Cross-machine code policy      | ✓ PRs only — no direct SSH edits to remote files (Session 64) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -4401,3 +4406,38 @@ visibility and operational security.
   already expired, scrubbing would break audit trail
 - agent-registry.local.json must be created manually on each machine — no
   auto-generation mechanism yet
+
+## 2026-03-10T14:15 CDT — Session 64 (Federated dashboard, claude-replay, safety-quotient.dev)
+
+Continuation of Session 63. Dashboard maturation, domain acquisition, engineering
+principles.
+
+- **claude-replay integration** — `generate-replays.sh` batch-generates HTML from
+  JSONL session transcripts via `claude-replay` (es617/claude-replay, MIT, npm).
+  New Replays tab on mesh dashboard lists local + remote peer replays. Static
+  serving at `/replays/{file}`. Remote replays via `git show`. 5 sessions generated
+  (18, 28, 35, 47, 61). Replays gitignored (contain full transcripts).
+- **Dashboard nav header** — sticky header with agent identity, status dot indicators
+  (budget/queue/gates), 3-tab navigation (Mesh, Semiotics, Replays). Replaces flat
+  title + inline tabs.
+- **Launchd service** — `net.kashifshah.internal.mesh-dashboard` plist. KeepAlive,
+  RunAtLoad, port 8077. Naming convention: `net.kashifshah.internal.*` for local
+  services, `net.kashifshah.*` reserved for public.
+- **safety-quotient.dev** — domain purchased (Cloudflare). Discovery URLs migrated
+  across 5 files: agent-card, registry, cogarch.config, /sync skill, /scan-peer
+  skill. Subdomains: psychology-agent, psq, api. unratified.org unchanged (blog).
+  ▶ decisions.md (lab-domain)
+- **PRs to safety-quotient** — PR #5 (dashboard scripts), PR #6 (domain migration).
+  Both open, pending merge.
+- **Engineering principle** — cross-machine code changes via PRs only. No direct
+  SSH edits. Recorded in MEMORY.md + decisions.md.
+- **Ideas** — public/private dual-repo model (private-primary, public-downstream).
+- **shared-scripts.json** — 5 new entries (mesh-state-export, mesh-status,
+  auto_process_trivial, bootstrap_state_db, bootstrap_facets) with SHA256 hashes.
+- **TODO** — Federated Dashboard section added (claude-replay integration, chromabook
+  deploy, naming audit for psq-agent disambiguation).
+
+⚑ EPISTEMIC FLAGS
+- DNS for safety-quotient.dev not yet resolving — Cloudflare propagation pending
+- Subdomains (psq, api, psychology-agent) need DNS records configured manually
+- PR #5 ships older mesh-status.py without Replays tab — needs update or follow-up PR

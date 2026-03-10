@@ -22,6 +22,9 @@ psychology-handoff*
 # Write provenance log (session-local audit trail)
 .claude/write-log.jsonl
 
+# Agent worktrees (temporary clones used by sub-agents)
+.claude/worktrees/
+
 # Pushback counter (session-scoped, reset at start)
 .pushback-count.tmp
 

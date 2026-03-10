@@ -17,20 +17,19 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 64. Federated dashboard with claude-replay,
-safety-quotient.dev domain, cross-machine code policy (PRs only).
+**Where we stopped:** Session 63. Mesh-state export, registry spec/instantiation
+split, pre-flight transport diff, federated dashboard remote peer view.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- Dashboard: ✓ 3 tabs (Mesh/Semiotics/Replays), launchd service, nav header `[warm]`
-- Domain: ✓ safety-quotient.dev purchased, discovery URLs migrated `[warm]`
-- Autonomous mesh: ✓ full pipeline (fetch→index→auto-process→pre-flight→sync) `[warm]`
-- PRs pending: #4 (autonomous-sync), #5 (dashboard), #6 (domain) to safety-quotient `[warm]`
+- Universal facets (PSH + schema.org): ✓ v2 keyword set, 11 L1 + 9 types `[warm]`
+- SQLite state layer: schema v13, facet_vocabulary reference table `[warm]`
+- Autonomous mesh: ✓ mesh-state export + pre-flight diff + federated dashboard `[warm]`
+- Registry: ✓ spec/instantiation split (public + gitignored local) `[warm]`
 - Lesson lifecycle: ✓ 17/25 graduated `[warm]`
 - DI Phase A Pass 2: pending (fresh session) `[cold]`
 
-**Next:** Configure DNS records (psq, api, psychology-agent subdomains).
-Merge PRs #4/#5/#6 on safety-quotient. Naming audit (safety-quotient agent →
-psq-agent). DI Phase A Pass 2.
+**Next:** Sync updated scripts to chromabook (schema.sql v13, bootstrap_facets.py,
+mesh-state-export.py). Process 2 pending PSQ transport messages. DI Phase A Pass 2.
 
 
 ## Memory Hygiene
@@ -64,6 +63,3 @@ psq-agent). DI Phase A Pass 2.
   first visible action. Hook enforces this mechanically.
 - **AskUserQuestion tool:** Always use the `AskUserQuestion` tool when seeking
   clarification or asking questions — never ask inline as plain text.
-- **No direct remote edits:** Never SSH into remote machines to edit files directly.
-  Use PRs to communicate code changes to other agents/machines. PRs provide audit
-  trail, review opportunity, and rollback capability.

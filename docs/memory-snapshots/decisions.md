@@ -166,6 +166,18 @@
                               no transport changes, no unprocessed msgs,
                               no active gates. Gate-accelerated bypasses.
                               2026-03-10
+ Cross-machine code changes   PRs only — never SSH-edit remote files.
+                              PRs provide audit trail, review gate, and
+                              rollback. Applies to all agent-to-agent and
+                              machine-to-machine code propagation.
+                              2026-03-10
+ Lab domain                   safety-quotient.dev (Cloudflare). Subdomains:
+                              psychology-agent.safety-quotient.dev,
+                              psq.safety-quotient.dev,
+                              api.safety-quotient.dev. Replaces
+                              *.unratified.org for agent discovery.
+                              unratified.org stays for blog platform.
+                              2026-03-10
 ```
 
 ## Authority Hierarchy
