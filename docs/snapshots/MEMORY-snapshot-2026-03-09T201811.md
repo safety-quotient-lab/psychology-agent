@@ -17,9 +17,10 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 59c. Project board --mark-in-progress wired into
-/hunt + /iterate. All 20 open TODO items tracked as GitHub issues (#94–#108).
-Pagination bug fixed, 9 duplicate board items cleaned.
+**Where we stopped:** Session 59b. Lessons table (schema v7) and 4-tier visibility
+model (schema v8) landed. Export profiles tested (seed/release/licensed/full).
+Decision: observe data before promoting any table to shared — no auto-promotion.
+TODO added: document state layer extensions in README + wiki + architecture.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - Cogarch portability: ✓ COMPLETE `[cold: done]`
@@ -27,11 +28,11 @@ Pagination bug fixed, 9 duplicate board items cleaned.
 - PSQ scoring: quiescent `[hot: no action needed]`
 - SQLite state layer: schema v8, 12 tables, 4-tier visibility `[warm]`
 - Autonomous mesh: orientation payload + heartbeat + agent identity `[warm]`
-- Project board: ✓ full coverage — all TODO items have issues + board items `[warm]`
 - DI Phase A Pass 2: pending (inter-rater reliability) `[cold]`
 
-**Next:** Document state layer in README/wiki (#107). Backfill 17 lessons (#108).
-Stale doc cleanup (MANIFEST refs). First autonomous sync cycle. DI Phase A Pass 2.
+**Next:** Document state layer in README/wiki (new TODO). Backfill 17 lessons
+without frontmatter. Stale doc cleanup (MANIFEST refs). First autonomous sync
+cycle. Awesome-claude-code submission. DI Phase A Pass 2.
 
 
 ## Memory Hygiene
