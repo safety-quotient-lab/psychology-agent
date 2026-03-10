@@ -77,6 +77,31 @@
         }
         header p { color: #8b949e; font-size: 0.85em; }
 
+        /* Tab navigation */
+        .tab-bar {
+            display: flex; gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #21262d;
+        }
+        .tab-bar button {
+            background: transparent; border: none; border-bottom: 2px solid transparent;
+            color: #8b949e; padding: 8px 16px;
+            cursor: pointer; font-family: inherit; font-size: 0.85em;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .tab-bar button:hover { color: #c9d1d9; }
+        .tab-bar button.active {
+            color: #58a6ff; border-bottom-color: #58a6ff;
+        }
+        .tab-bar .tab-badge {
+            background: #f85149; color: #0d1117;
+            border-radius: 8px; padding: 0 5px;
+            font-size: 0.7em; margin-left: 4px;
+            font-weight: bold;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         .mesh-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
@@ -153,40 +178,66 @@
         }
         .agent-links a:hover { text-decoration: underline; }
 
-        .mesh-topology {
+        .mesh-topology, .mesh-section {
             background: #161b22;
             border: 1px solid #21262d;
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 32px;
         }
-        .mesh-topology h2 {
+        .mesh-topology h2, .mesh-section h2 {
             color: #58a6ff; font-size: 1em; margin-bottom: 12px;
         }
-        .topology-visual {
-            font-family: 'SF Mono', 'Fira Code', monospace;
-            font-size: 0.85em;
-            white-space: pre;
-            color: #8b949e;
-            text-align: center;
-            padding: 16px;
+        .mesh-section h3 {
+            color: #c9d1d9; font-size: 0.9em; margin: 16px 0 8px 0;
         }
-        .topology-visual .active { color: #3fb950; }
-        .topology-visual .label { color: #58a6ff; }
 
-        .peers-table {
+        .peers-table, .msg-table {
             width: 100%; border-collapse: collapse;
             font-size: 0.8em;
         }
-        .peers-table th {
+        .peers-table th, .msg-table th {
             text-align: left; padding: 6px 8px;
             border-bottom: 2px solid #30363d;
             color: #8b949e; text-transform: uppercase; font-size: 0.85em;
         }
-        .peers-table td {
+        .peers-table td, .msg-table td {
             padding: 6px 8px;
             border-bottom: 1px solid #21262d;
         }
+        .msg-table td.truncate {
+            max-width: 300px;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        /* Health indicators */
+        .health-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .health-card {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            padding: 16px;
+            text-align: center;
+        }
+        .health-card.healthy { border-color: #3fb950; }
+        .health-card.degraded { border-color: #d29922; }
+        .health-card.critical { border-color: #f85149; }
+        .health-value {
+            font-size: 1.5em; font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .health-label {
+            font-size: 0.75em; color: #8b949e;
+            text-transform: uppercase;
+        }
+        .health-value.healthy { color: #3fb950; }
+        .health-value.degraded { color: #d29922; }
+        .health-value.critical { color: #f85149; }
 
         footer {
             text-align: center;
@@ -208,6 +259,7 @@
         .refresh-bar button:hover { background: #30363d; }
 
         .error-msg { color: #f85149; font-size: 0.8em; margin-top: 8px; }
+        .no-data { color: #484f58; font-size: 0.85em; padding: 16px; text-align: center; }
     </style>
 </head>
 <body>
@@ -222,18 +274,71 @@
     <button onclick="refreshAll()">Refresh</button>
 </div>
 
-<div class="mesh-grid" id="agent-grid">
-    <!-- Agent cards injected by JavaScript -->
+<div class="tab-bar" id="tab-bar">
+    <button class="active" onclick="switchTab('agents')">Agents</button>
+    <button onclick="switchTab('messages')">Messages <span class="tab-badge" id="msg-badge" style="display:none">0</span></button>
+    <button onclick="switchTab('health')">Health</button>
 </div>
 
-<div class="mesh-topology" id="topology-section" style="display:none">
-    <h2>Mesh Topology</h2>
-    <div id="topology-content"></div>
+<!-- Agents tab -->
+<div class="tab-content active" id="tab-agents">
+    <div class="mesh-grid" id="agent-grid"></div>
+    <div class="mesh-topology" id="topology-section" style="display:none">
+        <h2>Mesh Topology</h2>
+        <div id="topology-content"></div>
+    </div>
+</div>
+
+<!-- Messages tab -->
+<div class="tab-content" id="tab-messages">
+    <div class="mesh-section">
+        <h2>Message Flow</h2>
+        <div class="health-grid" id="msg-summary"></div>
+    </div>
+    <div class="mesh-section">
+        <h2>Per-Agent Message Counts</h2>
+        <div id="msg-counts-content"></div>
+    </div>
+    <div class="mesh-section">
+        <h2>Recent Messages</h2>
+        <div id="msg-recent-content"></div>
+    </div>
+    <div class="mesh-section">
+        <h2>Unprocessed Messages</h2>
+        <div id="msg-unprocessed-content"></div>
+    </div>
+    <div class="mesh-section">
+        <h2>Cross-Mesh Trace</h2>
+        <p style="font-size:0.8em;color:#8b949e;margin-bottom:12px">
+            Messages seen by multiple agents — verifies routing across the mesh.
+        </p>
+        <div id="msg-trace-content"></div>
+    </div>
+</div>
+
+<!-- Health tab -->
+<div class="tab-content" id="tab-health">
+    <div class="mesh-section">
+        <h2>Mesh Health</h2>
+        <div class="health-grid" id="health-overview"></div>
+    </div>
+    <div class="mesh-section">
+        <h2>Agent Health</h2>
+        <div id="health-agents"></div>
+    </div>
+    <div class="mesh-section">
+        <h2>Connectivity Matrix</h2>
+        <p style="font-size:0.8em;color:#8b949e;margin-bottom:12px">
+            Each cell shows whether agent A can reach agent B (based on peer lists and registry data).
+        </p>
+        <div id="health-matrix"></div>
+    </div>
 </div>
 
 <footer>
     <p>Client-side composition — no backend. Data fetched from agent /api/status endpoints.</p>
     <p>
+        <a href="/vocab" style="color:#58a6ff;text-decoration:none">vocabulary</a> ·
         <a href="https://github.com/safety-quotient-lab" style="color:#58a6ff;text-decoration:none">
             Safety Quotient Lab
         </a>
@@ -266,6 +371,26 @@ const AGENTS = [
 
 const REFRESH_INTERVAL_MS = 30000;
 let agentData = {};
+
+function switchTab(tabName) {
+    document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab-bar button").forEach(b => b.classList.remove("active"));
+    document.getElementById(`tab-${tabName}`).classList.add("active");
+    document.querySelector(`.tab-bar button[onclick="switchTab('${tabName}')"]`).classList.add("active");
+}
+
+function timeAgo(isoStr) {
+    if (!isoStr) return "?";
+    const diff = Date.now() - new Date(isoStr).getTime();
+    if (diff < 0) return "just now";
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+}
 
 function renderAgentCard(agent, data, error) {
     const card = document.createElement("div");
@@ -368,7 +493,6 @@ function renderTopology() {
 
     section.style.display = "block";
 
-    // Build peer connection table from registry data
     let rows = "";
     for (const agentId of onlineAgents) {
         const data = agentData[agentId].data;
@@ -393,6 +517,287 @@ function renderTopology() {
         </table>`;
 }
 
+function renderMessages() {
+    const onlineAgents = Object.keys(agentData).filter(id => agentData[id].data);
+
+    // Summary cards
+    let totalMsgs = 0, totalPending = 0, totalSessions = 0, agentsReporting = 0;
+    for (const id of onlineAgents) {
+        const d = agentData[id].data;
+        const t = d.totals || {};
+        totalMsgs += t.messages || 0;
+        totalPending += t.unprocessed || 0;
+        totalSessions += t.sessions || 0;
+        agentsReporting++;
+    }
+
+    document.getElementById("msg-summary").innerHTML = `
+        <div class="health-card">
+            <div class="health-value" style="color:#e6edf3">${totalMsgs}</div>
+            <div class="health-label">Total Messages (mesh)</div>
+        </div>
+        <div class="health-card ${totalPending > 0 ? 'degraded' : 'healthy'}">
+            <div class="health-value ${totalPending > 0 ? 'degraded' : 'healthy'}">${totalPending}</div>
+            <div class="health-label">Unprocessed (mesh)</div>
+        </div>
+        <div class="health-card">
+            <div class="health-value" style="color:#e6edf3">${totalSessions}</div>
+            <div class="health-label">Sessions (mesh)</div>
+        </div>
+        <div class="health-card">
+            <div class="health-value" style="color:#e6edf3">${agentsReporting}/${AGENTS.length}</div>
+            <div class="health-label">Agents Reporting</div>
+        </div>`;
+
+    // Badge
+    const badge = document.getElementById("msg-badge");
+    if (totalPending > 0) {
+        badge.textContent = totalPending;
+        badge.style.display = "inline";
+    } else {
+        badge.style.display = "none";
+    }
+
+    // Per-agent message counts
+    let countRows = "";
+    for (const id of onlineAgents) {
+        const d = agentData[id].data;
+        const counts = d.message_counts || [];
+        if (counts.length === 0) {
+            countRows += `<tr><td>${id}</td><td colspan="3" style="color:#484f58">no message data</td></tr>`;
+            continue;
+        }
+        for (const c of counts) {
+            const pending = c.pending || 0;
+            const pendingStyle = pending > 0 ? 'color:#d29922;font-weight:bold' : '';
+            countRows += `<tr>
+                <td>${id}</td>
+                <td>${c.from_agent || "?"}</td>
+                <td>${c.sent || 0}</td>
+                <td style="${pendingStyle}">${pending}</td>
+            </tr>`;
+        }
+    }
+    document.getElementById("msg-counts-content").innerHTML = countRows
+        ? `<table class="msg-table">
+            <tr><th>Reporting Agent</th><th>From</th><th>Total</th><th>Pending</th></tr>
+            ${countRows}</table>`
+        : '<div class="no-data">No message count data available</div>';
+
+    // Recent messages (aggregate from all agents)
+    let allRecent = [];
+    for (const id of onlineAgents) {
+        const d = agentData[id].data;
+        const recent = d.recent_messages || [];
+        for (const m of recent) {
+            allRecent.push({ reporting_agent: id, ...m });
+        }
+    }
+    allRecent.sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
+    allRecent = allRecent.slice(0, 30);
+
+    let recentRows = "";
+    for (const m of allRecent) {
+        const processed = m.processed ? "✓" : "✗";
+        const processedStyle = m.processed ? "color:#3fb950" : "color:#f85149;font-weight:bold";
+        recentRows += `<tr>
+            <td>${timeAgo(m.timestamp)}</td>
+            <td>${m.from_agent || "?"}</td>
+            <td>${m.to_agent || "?"}</td>
+            <td>${m.session_name || "?"}</td>
+            <td>${m.message_type || "?"}</td>
+            <td class="truncate">${m.subject || ""}</td>
+            <td style="${processedStyle}">${processed}</td>
+        </tr>`;
+    }
+    document.getElementById("msg-recent-content").innerHTML = recentRows
+        ? `<table class="msg-table">
+            <tr><th>When</th><th>From</th><th>To</th><th>Session</th><th>Type</th><th>Subject</th><th>Processed</th></tr>
+            ${recentRows}</table>`
+        : '<div class="no-data">No recent message data available</div>';
+
+    // Unprocessed messages
+    let allUnprocessed = [];
+    for (const id of onlineAgents) {
+        const d = agentData[id].data;
+        const unproc = d.unprocessed_messages || [];
+        for (const m of unproc) {
+            allUnprocessed.push({ reporting_agent: id, ...m });
+        }
+    }
+
+    let unprocRows = "";
+    for (const m of allUnprocessed) {
+        unprocRows += `<tr>
+            <td>${m.reporting_agent}</td>
+            <td>${m.from_agent || "?"}</td>
+            <td>${m.session_name || "?"}</td>
+            <td>${m.message_type || "?"}</td>
+            <td class="truncate">${m.subject || ""}</td>
+            <td>${timeAgo(m.timestamp)}</td>
+        </tr>`;
+    }
+    document.getElementById("msg-unprocessed-content").innerHTML = unprocRows
+        ? `<table class="msg-table">
+            <tr><th>Seen By</th><th>From</th><th>Session</th><th>Type</th><th>Subject</th><th>When</th></tr>
+            ${unprocRows}</table>`
+        : '<div class="no-data" style="color:#3fb950">All messages processed across the mesh</div>';
+
+    // Cross-mesh trace — find messages that appear on multiple agents
+    const msgIndex = {};
+    for (const id of onlineAgents) {
+        const d = agentData[id].data;
+        const recent = d.recent_messages || [];
+        for (const m of recent) {
+            const key = `${m.session_name}/${m.filename || `t${m.turn}`}`;
+            if (!msgIndex[key]) msgIndex[key] = { agents: [], msg: m };
+            msgIndex[key].agents.push(id);
+        }
+    }
+
+    let traceRows = "";
+    for (const [key, val] of Object.entries(msgIndex)) {
+        if (val.agents.length < 2) continue;
+        traceRows += `<tr>
+            <td>${key}</td>
+            <td>${val.msg.from_agent || "?"} → ${val.msg.to_agent || "?"}</td>
+            <td>${val.agents.join(", ")}</td>
+            <td style="color:#3fb950">✓ verified</td>
+        </tr>`;
+    }
+    document.getElementById("msg-trace-content").innerHTML = traceRows
+        ? `<table class="msg-table">
+            <tr><th>Message</th><th>Route</th><th>Seen By</th><th>Status</th></tr>
+            ${traceRows}</table>`
+        : '<div class="no-data">No cross-mesh message traces detected (messages only reported by one agent each)</div>';
+}
+
+function renderHealth() {
+    const onlineAgents = Object.keys(agentData).filter(id => agentData[id].data);
+    const offlineAgents = AGENTS.filter(a => !agentData[a.id]?.data).map(a => a.id);
+
+    // Compute mesh health per sqm:MeshHealth definition
+    let worstBudgetPct = 100;
+    let agentHealthRows = "";
+    const agentHealthData = [];
+
+    for (const agent of AGENTS) {
+        const state = agentData[agent.id];
+        if (!state?.data) {
+            agentHealthData.push({ id: agent.id, status: "unreachable", health: "critical", budgetPct: 0 });
+            continue;
+        }
+        const d = state.data;
+        const budget = d.trust_budget || {};
+        const cur = budget.budget_current ?? 20;
+        const max = budget.budget_max ?? 20;
+        const pct = max > 0 ? Math.round((cur / max) * 100) : 0;
+        if (pct < worstBudgetPct) worstBudgetPct = pct;
+
+        const gates = d.active_gates || [];
+        const pending = (d.totals || {}).unprocessed || 0;
+        const heartbeat = d.heartbeat || {};
+
+        let health = "healthy";
+        if (pct < 10 || !state.data) health = "critical";
+        else if (pct < 50 || pending > 5 || gates.length > 3) health = "degraded";
+
+        agentHealthData.push({
+            id: agent.id, status: "online", health, budgetPct: pct,
+            budget: `${cur}/${max}`, pending, gates: gates.length,
+            heartbeat: heartbeat.timestamp, schema: d.schema_version,
+        });
+    }
+
+    let meshHealth = "healthy";
+    if (offlineAgents.length > 0 || worstBudgetPct < 10) meshHealth = "critical";
+    else if (worstBudgetPct < 50) meshHealth = "degraded";
+
+    document.getElementById("health-overview").innerHTML = `
+        <div class="health-card ${meshHealth}">
+            <div class="health-value ${meshHealth}">${meshHealth.toUpperCase()}</div>
+            <div class="health-label">Mesh Health (sqm:MeshHealth)</div>
+        </div>
+        <div class="health-card ${offlineAgents.length > 0 ? 'critical' : 'healthy'}">
+            <div class="health-value ${offlineAgents.length > 0 ? 'critical' : 'healthy'}">${onlineAgents.length}/${AGENTS.length}</div>
+            <div class="health-label">Agents Reachable</div>
+        </div>
+        <div class="health-card ${worstBudgetPct < 50 ? (worstBudgetPct < 10 ? 'critical' : 'degraded') : 'healthy'}">
+            <div class="health-value" style="color:#e6edf3">${worstBudgetPct}%</div>
+            <div class="health-label">Weakest Trust Budget</div>
+        </div>
+        <div class="health-card">
+            <div class="health-value" style="color:#e6edf3">${new Date().toLocaleTimeString()}</div>
+            <div class="health-label">Last Check</div>
+        </div>`;
+
+    // Per-agent health table
+    let healthRows = "";
+    for (const a of agentHealthData) {
+        const statusDot = a.status === "online"
+            ? '<span class="dot dot-green"></span>'
+            : '<span class="dot dot-red"></span>';
+        const healthColor = a.health === "healthy" ? "#3fb950" : a.health === "degraded" ? "#d29922" : "#f85149";
+        healthRows += `<tr>
+            <td>${statusDot} ${a.id}</td>
+            <td style="color:${healthColor}">${a.health}</td>
+            <td>${a.budget || "?"}</td>
+            <td>${a.pending ?? "?"}</td>
+            <td>${a.gates ?? "?"}</td>
+            <td>${a.schema ? `v${a.schema}` : "?"}</td>
+            <td>${a.heartbeat ? timeAgo(a.heartbeat) : "?"}</td>
+        </tr>`;
+    }
+    document.getElementById("health-agents").innerHTML = `
+        <table class="msg-table">
+            <tr><th>Agent</th><th>Health</th><th>Trust Budget</th><th>Pending</th><th>Gates</th><th>Schema</th><th>Heartbeat</th></tr>
+            ${healthRows}
+        </table>`;
+
+    // Connectivity matrix
+    const allIds = AGENTS.map(a => a.id);
+    let matrixHeader = "<th></th>" + allIds.map(id => `<th style="font-size:0.7em">${id.replace("-agent","")}</th>`).join("");
+    let matrixRows = "";
+    for (const fromId of allIds) {
+        let cells = `<td style="color:#c9d1d9">${fromId.replace("-agent","")}</td>`;
+        for (const toId of allIds) {
+            if (fromId === toId) {
+                cells += '<td style="color:#484f58">—</td>';
+                continue;
+            }
+            const fromData = agentData[fromId]?.data;
+            if (!fromData) {
+                cells += '<td style="color:#484f58">?</td>';
+                continue;
+            }
+            const registry = fromData.registry_agents || {};
+            const peers = fromData.peers || [];
+            const inRegistry = toId in registry;
+            const hasPeerData = peers.some(p => p.from_agent === toId);
+            const toOnline = !!agentData[toId]?.data;
+
+            if (inRegistry && toOnline) {
+                cells += '<td style="color:#3fb950">✓</td>';
+            } else if (inRegistry && !toOnline) {
+                cells += '<td style="color:#d29922">reg</td>';
+            } else if (hasPeerData) {
+                cells += '<td style="color:#58a6ff">peer</td>';
+            } else {
+                cells += '<td style="color:#484f58">—</td>';
+            }
+        }
+        matrixRows += `<tr>${cells}</tr>`;
+    }
+    document.getElementById("health-matrix").innerHTML = `
+        <table class="msg-table">
+            <tr>${matrixHeader}</tr>
+            ${matrixRows}
+        </table>
+        <p style="font-size:0.7em;color:#484f58;margin-top:8px">
+            ✓ = registered + reachable · reg = registered, unreachable · peer = seen in message data · — = no connection
+        </p>`;
+}
+
 async function fetchAgent(agent) {
     try {
         const response = await fetch(agent.apiUrl, { mode: "cors" });
@@ -415,6 +820,8 @@ async function refreshAll() {
     }
 
     renderTopology();
+    renderMessages();
+    renderHealth();
 
     const now = new Date().toLocaleTimeString();
     document.getElementById("last-update").textContent = `Last update: ${now} (auto-refresh 30s)`;
