@@ -9,7 +9,7 @@
       "shared_with": [
         "safety-quotient"
       ],
-      "sha256": "15acc63a438330fe838604166c15c2725c3c39410f0f951bcc0fe149d0fc1ae8"
+      "sha256": "6625b244ad1a7f290f8b600b8d2a763013b44cbe4d8851ac16fb09e7c18241cb"
     },
     {
       "path": "scripts/cross_repo_fetch.py",

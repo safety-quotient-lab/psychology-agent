@@ -82,35 +82,35 @@ ensure_db() {
         python3 "${PROJECT_ROOT}/scripts/bootstrap_state_db.py" --force
     fi
 
-    # Ensure trust_budget table exists (migration-safe)
-    sqlite3 "${DB_PATH}" <<'SQL'
-CREATE TABLE IF NOT EXISTS trust_budget (
-    agent_id        TEXT PRIMARY KEY,
-    budget_max      INTEGER NOT NULL DEFAULT 20,
-    budget_current  INTEGER NOT NULL DEFAULT 20,
-    last_audit      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
-    last_action     TEXT,
-    consecutive_blocks INTEGER DEFAULT 0,
-    updated_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
-);
+    # Apply full schema idempotently — CREATE TABLE IF NOT EXISTS + INSERT OR IGNORE
+    # ensures new tables/rows appear without destroying existing data.
+    # Single source of truth: scripts/schema.sql (shared across agent repos).
+    local schema_file="${PROJECT_ROOT}/scripts/schema.sql"
+    if [ -f "${schema_file}" ]; then
+        sqlite3 "${DB_PATH}" < "${schema_file}" 2>/dev/null || {
+            log "WARNING: schema.sql apply returned non-zero (may need column migration)"
+        }
+    else
+        log "WARNING: scripts/schema.sql not found — schema may be incomplete"
+    fi
 
-CREATE TABLE IF NOT EXISTS autonomous_actions (
-    id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    agent_id        TEXT NOT NULL,
-    action_type     TEXT NOT NULL,
-    action_class    TEXT NOT NULL,
-    evaluator_tier  INTEGER NOT NULL,
-    evaluator_result TEXT NOT NULL,
-    description     TEXT NOT NULL,
-    budget_before   INTEGER NOT NULL,
-    budget_after    INTEGER NOT NULL,
-    created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
-);
-SQL
-
-    # Add min_action_interval column if absent (migration-safe)
+    # Column migrations — safe to re-run (ALTER fails silently if column exists)
     sqlite3 "${DB_PATH}" \
         "ALTER TABLE trust_budget ADD COLUMN min_action_interval INTEGER NOT NULL DEFAULT 300;" 2>/dev/null || true
+    sqlite3 "${DB_PATH}" \
+        "ALTER TABLE trust_budget ADD COLUMN shadow_mode INTEGER NOT NULL DEFAULT 1;" 2>/dev/null || true
+    sqlite3 "${DB_PATH}" \
+        "ALTER TABLE autonomous_actions ADD COLUMN adversarial_reason TEXT;" 2>/dev/null || true
+    sqlite3 "${DB_PATH}" \
+        "ALTER TABLE autonomous_actions ADD COLUMN peer_reviewed_by TEXT;" 2>/dev/null || true
+    sqlite3 "${DB_PATH}" \
+        "ALTER TABLE autonomous_actions ADD COLUMN knock_on_depth INTEGER DEFAULT 0;" 2>/dev/null || true
+    sqlite3 "${DB_PATH}" \
+        "ALTER TABLE autonomous_actions ADD COLUMN resolution_level TEXT;" 2>/dev/null || true
+    sqlite3 "${DB_PATH}" \
+        "ALTER TABLE transport_messages ADD COLUMN ack_required INTEGER DEFAULT 0;" 2>/dev/null || true
+    sqlite3 "${DB_PATH}" \
+        "ALTER TABLE transport_messages ADD COLUMN ack_received INTEGER DEFAULT 0;" 2>/dev/null || true
 
     # Initialize budget row if absent
     sqlite3 "${DB_PATH}" \
