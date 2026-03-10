@@ -17,20 +17,20 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 62d. Schema v11 (transport dedup), adaptive sync
-(cold-peer skip), mesh-status dashboard. All committed + pushed.
+**Where we stopped:** Session 62c. Substantive autonomous exchange validated —
+psq-agent generated model readiness assessment (turn 52). Bootstrap fix landed.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- Autonomous mesh: ✓ SUBSTANTIVE EXCHANGE + monitoring dashboard `[warm]`
-- SQLite state layer: schema v11, 13 tables + dedup index `[warm]`
-- Adaptive sync: ✓ simple (cold-skip) complete; full scheduler TODO `[warm]`
-- Mesh dashboard: ✓ scripts/mesh-status.py (port 8077, --json) `[warm]`
+- Autonomous mesh: ✓ SUBSTANTIVE EXCHANGE VALIDATED (health + domain knowledge) `[warm]`
+- Gated chains: ✓ COMPLETE — full lifecycle `[warm]`
+- Cross-repo transport: ✓ COMPLETE both sides `[warm]`
+- Bootstrap: ✓ ensure_db() applies schema.sql idempotently `[warm]`
+- SQLite state layer: schema v10, 13 tables `[warm]`
 - Lesson lifecycle: ✓ 17/25 graduated `[warm]`
 - DI Phase A Pass 2: pending (fresh session) `[cold]`
 
-**Next:** DI Phase A Pass 2. Full adaptive scheduler (daemon with per-peer
-intervals). Chromabook script sync (scp updated files). Historical turn
-collision cleanup.
+**Next:** DI Phase A Pass 2. Multi-agent instance locking (when needed).
+Subject field extraction fix. Repeated-measure autonomous quality validation.
 
 
 ## Memory Hygiene
