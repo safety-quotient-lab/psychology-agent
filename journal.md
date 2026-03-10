@@ -64,6 +64,7 @@ partner, and Socratic interlocutor
 44. [From Ping to Knowledge: The First Substantive Autonomous Exchange](#44-from-ping-to-knowledge)
 45. [When the Vocabulary Outlives Its Authority: Replacing PJE with Literary Warrant](#45-when-the-vocabulary-outlives-its-authority)
 46. [Specification Without Instantiation: Separating Cogarch from Infrastructure](#46-specification-without-instantiation)
+47. [When the Agent Learns Its Own Mistakes: Engineering Incident Detection as Cogarch Extension](#47-when-the-agent-learns-its-own-mistakes)
 
 ---
 
@@ -1720,3 +1721,27 @@ Together, these changes reveal a maturation pattern: as the agent mesh grows fro
 ⚑ EPISTEMIC FLAGS
 - The specification/instantiation split handles the two-layer case (public template + private override). A third layer (per-agent within the same machine) might emerge if multiple agents share a host
 - Pre-flight diff checks git log for transport changes but does not detect changes made by other processes between pull and check — a narrow race window exists
+
+
+## §47. When the Agent Learns Its Own Mistakes: Engineering Incident Detection as Cogarch Extension {#47-when-the-agent-learns-its-own-mistakes}
+
+*Session 65, 2026-03-10*
+
+A session of infrastructure work — setting up DNS records, Cloudflare tunnels, systemd services — produced five engineering anti-patterns in a single sitting: credentials exposed in bash output, DNS records created before the naming scheme settled (three iterations), a `cloudflared` command that wrote to the wrong Cloudflare zone, a Python HTTP server that returned 501 on HEAD requests, and a dashboard process that served stale code after a restart. None caused data loss. All proved avoidable.
+
+The retrospective surfaced a gap in the existing cogarch. We have T10 (lesson capture) for transferable pattern errors, T12 (positive pattern recognition) for defensive catches, and `lessons.md` with YAML frontmatter and a promotion pipeline that graduates recurring patterns into CLAUDE.md conventions. But all of these fire manually — someone must notice the mistake, classify it, and write it down. No mechanism detects engineering anti-patterns as they happen, and no structured storage enables cross-session pattern matching.
+
+A 10-order knock-on analysis traced the effects of adding automatic detection. The design splits into two tiers based on detection confidence. Tier 1 (mechanical) uses PostToolUse hooks to scan tool output for concrete patterns: credentials in bash arguments, repeated create/delete cycles on the same resource type, error-retry loops. These patterns exhibit high confidence and low false-positive rates because they match against structural features of tool output, not reasoning quality. Tier 2 (cognitive) uses a new trigger (T17) for the agent to self-assess reasoning patterns: executing before deciding, grounding failures, premature optimization. These carry lower confidence because the agent must judge its own reasoning chain — a fundamentally harder problem.
+
+Both tiers write to the same `engineering_incidents` table in state.db, but carry distinct confidence tiers so the graduation pipeline can weight them differently. When an incident type accumulates three or more occurrences (matching the lesson promotion velocity gate from T10), the system drafts a candidate entry for `anti-patterns.md` and surfaces it to the user.
+
+The most consequential finding from the knock-on analysis appears at Order 10 (theory-revising): the current cogarch operates reactively — triggers fire on conditions but do not predict. Adding incident detection keeps detection reactive (post-hoc classification), but the graduation pipeline introduces a weak form of prediction: "you have done this before, you will do it again, here exists a rule to prevent it." If graduated rules actually prevent recurrence, the cogarch crosses from pure reaction into learned prevention. That modifies what "cognitive architecture" means for this project — the trigger system transforms from a quality gate into a learning system.
+
+The cross-domain analogy holds: this echoes post-incident review in SRE practice (Beyer et al., 2016) — structured incident classification with blameless retrospectives that feed prevention rules. Also statistical process control (Shewhart, 1931) — detecting out-of-control conditions and feeding them back into process design.
+
+Implementation deferred. The design stands as approved architecture.
+
+⚑ EPISTEMIC FLAGS
+- Tier 2 (cognitive self-detection) has no empirical validation — the assumption that an agent can reliably classify its own reasoning failures in real-time remains untested
+- The graduation pipeline assumes incident categories stabilize within ~10 sessions; if categories keep shifting, cross-session pattern matching degrades
+- The 3-occurrence threshold inherits from T10's lesson promotion without independent calibration for engineering incidents

@@ -112,8 +112,14 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | claude-replay integration      | ✓ Replays tab on dashboard, static serving at /replays/, batch generation via generate-replays.sh, 5 replays generated (Session 64) |
 | Dashboard nav header           | ✓ Sticky nav with agent identity, status dots (budget/queue/gates), 3-tab navigation (Session 64) |
 | Launchd dashboard service      | ✓ net.kashifshah.internal.mesh-dashboard — auto-start, KeepAlive, port 8077 (Session 64) |
-| safety-quotient.dev domain     | ✓ Purchased (Cloudflare). Discovery URLs migrated: psychology-agent, psq, api subdomains (Session 64) |
+| safety-quotient.dev domain     | ✓ Purchased + DNS configured. Tunnels live: psychology-agent (gray-box), psq-agent (chromabook) (Session 64-65) |
 | Cross-machine code policy      | ✓ PRs only — no direct SSH edits to remote files (Session 64) |
+| DNS naming scheme (Scheme 1)   | ✓ Agent IDs as subdomains: psychology-agent, psq-agent, api (Session 65) |
+| CF Tunnel (psychology-agent)   | ✓ net.kashifshah.internal.psychology-agent-tunnel — launchd, gray-box :8077 (Session 65) |
+| CF Tunnel (psq-agent)          | ✓ psq-agent-tunnel.service — systemd, chromabook :8077 (Session 65) |
+| URL hash tab persistence       | ✓ Both dashboards preserve active tab via URL #fragment (Session 65) |
+| Chromabook PRs merged          | ✓ #4 (autonomous-sync), #5 (dashboard), #6 (domain), #7 (hash tabs) all merged (Session 65) |
+| Engineering incident detection | ✗ Designed (/knock 10-order trace), implementation deferred (Session 65) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -4441,3 +4447,48 @@ principles.
 - DNS for safety-quotient.dev not yet resolving — Cloudflare propagation pending
 - Subdomains (psq, api, psychology-agent) need DNS records configured manually
 - PR #5 ships older mesh-status.py without Replays tab — needs update or follow-up PR
+
+
+## 2026-03-10T16:03 CDT — Session 65 (DNS setup, tunnels, chromabook deploy, engineering incidents design)
+
+- **DNS naming decision (Scheme 1)** — resolved: agent IDs as subdomains.
+  `psychology-agent.safety-quotient.dev`, `psq-agent.safety-quotient.dev`,
+  `api.safety-quotient.dev`. Consistency with protocol identifiers wins over brevity.
+  ▶ decisions.md (dns-naming-scheme)
+- **DNS records created** — zone c6d07ff5 (safety-quotient.dev). Records:
+  psychology-agent CNAME → tunnel, psq-agent CNAME → tunnel, api CNAME → workers.dev,
+  apex A → 192.0.2.1 (placeholder for redirect rule). Token sourced from .dev.vars
+  (`CLOUDFLARE_DNS_TOKEN`).
+- **Cloudflare tunnel (psychology-agent)** — new tunnel replacing old `interagent`
+  tunnel. Config: `~/.cloudflared/config-psychology-agent.yml`. Launchd:
+  `net.kashifshah.internal.psychology-agent-tunnel`. Old interagent tunnel stopped,
+  plist removed, config deleted. Tunnel deletion deferred (edge connections draining).
+- **Cloudflare tunnel (psq-agent)** — created from gray-box, credentials copied to
+  chromabook via scp. Config: `~/.cloudflared/config-psq-agent.yml`. Systemd:
+  `psq-agent-tunnel.service` + `psq-agent-dashboard.service`. Both enabled + running.
+- **Chromabook PRs merged** — #4 (autonomous-sync), #5 (dashboard scripts),
+  #6 (domain migration), #7 (URL hash tabs). All merged via `gh pr merge` on
+  chromabook. Dashboard restarted to pick up latest code.
+- **URL hash tab persistence** — `switchTab()` now sets `window.location.hash`;
+  IIFE on page load reads hash and restores active tab. Applied to both psychology-agent
+  (direct edit) and psq-agent (PR #7).
+- **Dashboard stale code bug** — `launchctl kickstart -kp` did not fully reload
+  mesh-status.py. Required hard `pkill` to pick up new code with nav header + tabs.
+- **Engineering retrospective** — identified 5 anti-patterns from this session:
+  (1) token in bash logs, (2) DNS churn (3 iterations before settling naming),
+  (3) stray DNS record in wrong Cloudflare zone, (4) HEAD returns 501 from
+  BaseHTTPRequestHandler, (5) dashboard serving stale code after restart.
+- **/knock: engineering incident detection** — full 10-order trace of adding automatic
+  anti-pattern detection to cogarch. Two-tier design: Tier 1 (mechanical, hook-based)
+  for credential exposure, resource churn; Tier 2 (cognitive, trigger-based) for
+  premature execution, decision-before-grounding. Schema: `engineering_incidents`
+  table in state.db. Graduation pipeline feeds anti-patterns.md. Approved, deferred.
+- **TODO updates** — 6 new items in DNS & Infrastructure section (apex redirect,
+  CF Worker custom domain, chromabook tunnel, delete interagent tunnel, update
+  agent-card URLs, launchd naming audit).
+
+⚑ EPISTEMIC FLAGS
+- Cloudflare DNS token was exposed in bash tool output before sourcing from .dev.vars — rotate token recommended
+- Old interagent tunnel not yet deleted (edge connection drain) — cleanup deferred
+- iPhone TLS certificate issue for psychology-agent.safety-quotient.dev unresolved — may need cache clear or time
+- Engineering incident detection designed but not implemented — no guarantee tier 2 (cognitive self-detection) achieves sufficient accuracy
