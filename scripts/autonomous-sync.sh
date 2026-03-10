@@ -390,15 +390,29 @@ run_sync() {
     fi
 
     local sync_output
+    local claude_exit
     sync_output=$(claude -p "${prompt}" \
         --allowedTools "Read,Write,Edit,Glob,Grep,Bash" \
         --permission-mode "bypassPermissions" \
-        --max-turns 30 \
-        2>&1) || {
-        err "claude CLI exited with error"
-        echo "${sync_output}" | tail -20
-        return 1
-    }
+        --max-turns 80 \
+        2>&1)
+    claude_exit=$?
+
+    if [ "${claude_exit}" -ne 0 ]; then
+        # Distinguish max-turns (partial success) from real failures
+        if echo "${sync_output}" | grep -qi "max turns\|Reached max"; then
+            log "WARNING: claude CLI hit max-turns limit — partial sync completed"
+            # Partial success — don't treat as failure
+        elif echo "${sync_output}" | grep -qi "usage\|credit\|limit\|billing\|exceeded"; then
+            err "HALT — API usage limit reached. Check billing/extra usage settings."
+            echo "${sync_output}" | tail -5
+            return 1
+        else
+            err "claude CLI exited with error (code ${claude_exit})"
+            echo "${sync_output}" | tail -20
+            return 1
+        fi
+    fi
 
     echo "${sync_output}"
     return 0
