@@ -349,3 +349,49 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_transport_agent_turn_unique
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (11, 'Unique index on (session_name, from_agent, turn) + next-turn subcommand — prevents same-agent turn collisions going forward');
+
+
+-- ── Schema v12: Universal facets (PJE domain taxonomy) ──────────────
+--
+-- Plan 9 insight: disciplines are namespaces, not directories. Instead of
+-- pje-framework/psychology/ and pje-framework/jurisprudence/, every entity
+-- in the state layer gains a facet. Query composes the view.
+--
+-- Universal facets decouple from memory_entries — any entity type (transport
+-- messages, decisions, lessons, sessions, memory entries) can carry facets.
+-- No FK constraint (SQLite cannot enforce polymorphic FKs); integrity by
+-- application convention.
+--
+-- PJE domain vocabulary:
+--   psychology    — empirical, measurement, constructs, calibration, human factors
+--   jurisprudence — governance, obligations, precedent, rights, due process
+--   engineering   — systems, specs, architecture, transport, reliability
+--   cross-cutting — spans multiple disciplines (default for operational items)
+
+CREATE TABLE IF NOT EXISTS universal_facets (
+    entity_type TEXT NOT NULL,       -- table name: 'transport_messages', 'decision_chain', etc.
+    entity_id   INTEGER NOT NULL,    -- row id in the source table
+    facet_type  TEXT NOT NULL,        -- 'pje_domain', 'domain', 'agent', 'work_stream', etc.
+    facet_value TEXT NOT NULL,
+    created_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
+    PRIMARY KEY (entity_type, entity_id, facet_type, facet_value)
+);
+
+CREATE INDEX IF NOT EXISTS idx_uf_facet_lookup
+    ON universal_facets (facet_type, facet_value);
+
+CREATE INDEX IF NOT EXISTS idx_uf_entity
+    ON universal_facets (entity_type, entity_id);
+
+CREATE INDEX IF NOT EXISTS idx_uf_pje
+    ON universal_facets (facet_value) WHERE facet_type = 'pje_domain';
+
+-- Migrate existing entry_facets into universal_facets
+INSERT OR IGNORE INTO universal_facets (entity_type, entity_id, facet_type, facet_value)
+    SELECT 'memory_entries', entry_id, facet_type, facet_value FROM entry_facets;
+
+INSERT OR IGNORE INTO table_visibility (table_name, default_visibility, description)
+VALUES ('universal_facets', 'shared', 'Cross-entity facets — PJE domains, agents, work streams. Shared because facet types and values are public vocabulary.');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (12, 'Universal facets — polymorphic entity tagging. PJE domain taxonomy (psychology/jurisprudence/engineering/cross-cutting). Replaces entry_facets FK-bound pattern.');

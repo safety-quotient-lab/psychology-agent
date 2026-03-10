@@ -42,6 +42,11 @@ Usage:
 
     python scripts/dual_write.py next-turn --session SESSION
 
+    python scripts/dual_write.py facet --entity-type TABLE --entity-id N \
+        --facet-type TYPE --facet-value VALUE
+
+    python scripts/dual_write.py facet-query --facet-type TYPE --facet-value VALUE
+
 Requires: Python 3.10+ (stdlib only)
 """
 import argparse
@@ -361,6 +366,39 @@ def cmd_next_turn(args: argparse.Namespace) -> None:
     conn.close()
 
 
+def cmd_facet(args: argparse.Namespace) -> None:
+    """Add a universal facet to any entity."""
+    conn = get_connection()
+    conn.execute(
+        "INSERT OR IGNORE INTO universal_facets "
+        "(entity_type, entity_id, facet_type, facet_value) "
+        "VALUES (?, ?, ?, ?)",
+        (args.entity_type, args.entity_id, args.facet_type, args.facet_value),
+    )
+    conn.commit()
+    conn.close()
+    print(f"facet: {args.entity_type}/{args.entity_id} "
+          f"+{args.facet_type}={args.facet_value}")
+
+
+def cmd_facet_query(args: argparse.Namespace) -> None:
+    """Query entities by facet type and value. Returns JSON."""
+    conn = get_connection()
+    rows = conn.execute(
+        "SELECT entity_type, entity_id, facet_type, facet_value "
+        "FROM universal_facets WHERE facet_type = ? AND facet_value = ? "
+        "ORDER BY entity_type, entity_id",
+        (args.facet_type, args.facet_value),
+    ).fetchall()
+    conn.close()
+    results = [
+        {"entity_type": r[0], "entity_id": r[1],
+         "facet_type": r[2], "facet_value": r[3]}
+        for r in rows
+    ]
+    print(json.dumps(results, indent=2))
+
+
 # ── main ─────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -457,6 +495,23 @@ def main() -> None:
                         help="Print the next available turn number for a session")
     nt.add_argument("--session", required=True)
 
+    # facet
+    fa = sub.add_parser("facet", help="Add a universal facet to any entity")
+    fa.add_argument("--entity-type", required=True,
+                    help="Table name (e.g., transport_messages, decision_chain)")
+    fa.add_argument("--entity-id", required=True, type=int,
+                    help="Row id in the source table")
+    fa.add_argument("--facet-type", required=True,
+                    help="Facet type (e.g., pje_domain, domain, agent)")
+    fa.add_argument("--facet-value", required=True,
+                    help="Facet value (e.g., psychology, jurisprudence)")
+
+    # facet-query
+    fq = sub.add_parser("facet-query",
+                        help="Query entities by facet type and value (JSON)")
+    fq.add_argument("--facet-type", required=True)
+    fq.add_argument("--facet-value", required=True)
+
     args = parser.parse_args()
 
     dispatch = {
@@ -472,6 +527,8 @@ def main() -> None:
         "gate-timeout": cmd_gate_timeout,
         "gate-status": cmd_gate_status,
         "next-turn": cmd_next_turn,
+        "facet": cmd_facet,
+        "facet-query": cmd_facet_query,
     }
     dispatch[args.command](args)
 
