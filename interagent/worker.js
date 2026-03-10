@@ -18,8 +18,8 @@ import VOCAB from "./vocab.json";
 const AGENT_ENDPOINTS = [
   { id: "psychology-agent", url: "https://psychology-agent.safety-quotient.dev/api/status" },
   { id: "psq-agent", url: "https://psq-agent.safety-quotient.dev/api/status" },
-  { id: "unratified-agent", url: "https://unratified.org/api/status" },
-  { id: "observatory-agent", url: "https://observatory.unratified.org/api/status" },
+  { id: "unratified-agent", url: "https://unratified-agent.unratified.org/api/status" },
+  { id: "observatory-agent", url: "https://observatory-agent.unratified.org/api/status" },
 ];
 
 async function fetchMeshHealth() {
