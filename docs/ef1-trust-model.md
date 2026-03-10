@@ -349,15 +349,16 @@ the interval check defers 4 out of 5 invocations silently.
 ### Example: Cron (recommended for initial deployment)
 
 ```cron
-# psychology-agent (macOS)
-*/5 * * * * $PROJECT_ROOT/scripts/autonomous-sync.sh >> /tmp/psychology-agent-sync.log 2>&1
+# psychology-agent (macOS) — script lives in this repo
+*/5 * * * * /Users/kashif/Projects/psychology-agent/scripts/autonomous-sync.sh >> /tmp/psychology-agent-sync.log 2>&1
 
-# psq-agent (LAN machine)
-*/5 * * * * /home/kashif/psq-agent/scripts/autonomous-sync.sh >> /tmp/psq-agent-sync.log 2>&1
+# psq-agent (LAN machine) — same script, pointed at a different repo
+*/5 * * * * /home/kashif/psychology-agent/scripts/autonomous-sync.sh /home/kashif/psq-agent >> /tmp/psq-agent-sync.log 2>&1
 ```
 
-Both use the same script. The script detects which agent it runs as from
-`.agent-identity.json` or the `AGENT_ID` environment variable.
+The script accepts an optional directory argument. When omitted, it runs
+in its parent directory. When provided, it operates on the specified repo.
+Agent identity comes from `.agent-identity.json` in the target directory.
 
 
 ---
