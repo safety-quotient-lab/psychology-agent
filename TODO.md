@@ -215,11 +215,17 @@ semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
   active gates, auto-resolves via `dual_write.py gate-resolve`. Phase 4
   documents gate field for outbound messages. Output format includes gate status.
 
-- [ ] **First gated chain test** — send a real gated message from
-  psychology-agent to psq-agent, verify accelerated polling, resolution,
-  and timeout fallback. M effort.
-  *Precondition: /sync gate detection ✓ + peer machine setup ✓ (Session 61).
-  Grounding audit: Session 61.*
+- [x] **First gated chain test (infrastructure)** — COMPLETE (Session 62).
+  Sent gated message (turn 49, gate-transport-health-001). Validated:
+  L2 acceleration detection, timeout fallback (continue-without-response).
+  Deferred: autonomous Claude CLI response generation (steps 4-5 of 6).
+
+- [ ] **First autonomous Claude CLI response** — psq-agent on chromabook
+  autonomously responds to a gated message via `claude -p` + /sync.
+  Validates the full application layer: cron → autonomous-sync → Claude CLI
+  → response generation → git push → gate resolution on sender side. XS effort.
+  *Precondition: ✓ MET — infrastructure validated Session 62, Claude CLI
+  installed (v2.1.72), cron configured with nvm path.*
 
 ---
 

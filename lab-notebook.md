@@ -96,8 +96,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Pre-commit secret scanning    | ✓ `.githooks/pre-commit` — 3-layer scan (forbidden files, content patterns, autonomous allowlist) (Session 60) |
 | Cross-repo transport design   | ✓ Git remote fetch for safety-quotient agent — architecture decision, agent-registry updated, TODO items tracked (Session 60) |
 | Cross-repo transport (psych side) | ✓ `cross_repo_fetch.py` + /sync Phase 1b + orientation wiring + bootstrap parameterized — all 4 items complete (Session 60) |
-| Cross-repo transport (SQ side) | ✓ PR #2 merged — 5-step chromabook setup remaining (Session 60) |
-| Gated autonomous chains       | ✓ Design spec + 4-layer fallback cascade + schema v10 + dual_write gate cmds + autonomous-sync gate-aware acceleration + /sync wired (Session 61) |
+| Cross-repo transport (SQ side) | ✓ PR #2 merged + chromabook setup complete — autonomous sync validated (Session 60, 62) |
+| Gated autonomous chains       | ✓ Design + implementation + first test — L2 acceleration validated, timeout fallback validated, gated message sent (Session 61-62) |
 | Autonomous-sync directory arg | ✓ `autonomous-sync.sh` accepts $1 or PROJECT_ROOT env — multi-repo capable (Session 60) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
@@ -4159,3 +4159,50 @@ Cross-repo transport implementation — psychology-agent side complete, PR sent.
   silently to L1/L2
 - Maximum practical chain depth untested — 5+ sequential gates could consume
   significant calendar time even with acceleration
+
+
+## 2026-03-10T00:02 CDT — Session 62 (First autonomous sync test + cross-repo script gap)
+
+Continuation of Session 61 — executed the sync test plan and resolved infrastructure
+gaps discovered during live testing on the chromabook.
+
+- **Autonomous sync dry run (step 1):** Validated `autonomous-sync.sh` on chromabook.
+  `cross_repo_fetch.py` ran successfully after fix (scp'd from psychology-agent,
+  commit `1128087` on SQ repo). 40 messages indexed, budget 20→16 over 4 cycles.
+
+- **Cross-repo script gap:** Discovered 4 scripts missing from SQ repo that PR #2
+  did not include: `dual_write.py`, `heartbeat.py`, `generate_manifest.py`, `schema.sql`.
+  Copied via scp and committed (commit `e0ad025`). Created `active_gates` table on
+  chromabook state.db. This reveals a maintenance concern: shared scripts across repos
+  diverge silently after initial setup.
+
+- **Gated message test (step 2):** Sent `from-psychology-agent-027.json` (turn 49)
+  with gate `gate-transport-health-001` — 15-minute timeout, `continue-without-response`
+  fallback. Committed `a3c8982`, pushed, fetched on chromabook. Message indexed with
+  `processed=0`.
+
+- **L2 acceleration validation (step 3):** Confirmed gate detection fires on sender
+  side — `check_active_gates()` detected 1 waiting gate, logged
+  "GATE-ACCELERATED — 1 active gate(s), using 60s interval".
+
+- **Timeout fallback validation (step 6):** Forced gate expiry, timeout handler fired
+  correctly — gate transitioned to `timed-out` status, `continue-without-response`
+  fallback executed cleanly.
+
+- **Steps 4-5 deferred:** Autonomous Claude CLI invocation (psq-agent responding to
+  gated message) requires a full `/sync` session with Claude CLI on chromabook — validated
+  that `claude` CLI installs and runs (v2.1.72) but deferred real autonomous response
+  generation.
+
+- **Sync test plan results:** 4/6 steps validated (infrastructure layer complete),
+  2/6 deferred (application layer — require autonomous Claude session).
+
+▶ journal.md §42 covers the gated chains design rationale (Session 61)
+
+⚑ EPISTEMIC FLAGS
+- Cross-repo script synchronization lacks a mechanism — scp-and-commit works for now
+  but divergence will recur with every fix applied to only one repo
+- Autonomous Claude CLI invocation untested end-to-end — cron + claude -p + /sync
+  response generation path not yet exercised
+- Subject field extraction inconsistency: cross_repo_fetch.py reads subject from
+  content.subject or payload.subject, but gated test message uses top-level subject
