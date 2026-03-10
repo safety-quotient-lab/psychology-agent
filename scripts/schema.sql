@@ -510,3 +510,46 @@ VALUES ('facet_vocabulary', 'shared', 'Vocabulary definitions for PSH categories
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (13, 'Facet vocabulary reference table — queryable source of truth for PSH categories and schema.org types. Shared visibility. Retired PJE entries preserved with active=0.');
+
+
+-- ── Schema v14: Engineering incident detection ───────────────────────
+--
+-- Structured log of engineering anti-patterns detected during sessions.
+-- Two detection tiers:
+--   Tier 1 (mechanical): PostToolUse hook scans tool output for concrete
+--     patterns (credentials in arguments, resource churn, error loops).
+--   Tier 2 (cognitive): T17 trigger for agent self-assessment of reasoning
+--     patterns (premature execution, decision-before-grounding). Deferred.
+--
+-- Graduation pipeline: when incident_type accumulates ≥3 occurrences,
+-- draft anti-patterns.md entry for user review.
+--
+-- Deterministic key: (session_id, incident_type, tool_context) — same
+-- incident type from the same tool call in the same session won't duplicate.
+
+CREATE TABLE IF NOT EXISTS engineering_incidents (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id      INTEGER,
+    incident_type   TEXT NOT NULL,
+    detection_tier  INTEGER NOT NULL DEFAULT 1,
+    severity        TEXT NOT NULL DEFAULT 'moderate',
+    description     TEXT NOT NULL,
+    tool_name       TEXT,
+    tool_context    TEXT,
+    recurrence      INTEGER NOT NULL DEFAULT 1,
+    graduated       INTEGER NOT NULL DEFAULT 0,
+    graduated_to    TEXT,
+    created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_incidents_type
+    ON engineering_incidents (incident_type);
+
+CREATE INDEX IF NOT EXISTS idx_incidents_ungraduated
+    ON engineering_incidents (graduated) WHERE graduated = 0;
+
+INSERT OR IGNORE INTO table_visibility (table_name, default_visibility, description)
+VALUES ('engineering_incidents', 'private', 'Engineering anti-pattern log — machine-specific learning data');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (14, 'Engineering incidents table — two-tier anti-pattern detection (mechanical hooks + cognitive triggers). Graduation pipeline to anti-patterns.md.');

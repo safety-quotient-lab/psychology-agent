@@ -70,6 +70,16 @@
             "timeout": 1000
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/engineering-incident-detect.sh",
+            "timeout": 3000
+          }
+        ]
       }
     ],
     "PostToolUseFailure": [
