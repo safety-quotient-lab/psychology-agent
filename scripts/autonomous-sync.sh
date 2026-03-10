@@ -31,6 +31,7 @@ if [ -f "${IDENTITY_FILE}" ]; then
     AGENT_ID=$(python3 -c "import json; print(json.load(open('${IDENTITY_FILE}'))['agent_id'])" 2>/dev/null)
 fi
 AGENT_ID="${AGENT_ID:-psychology-agent}"
+export AUTONOMOUS_AGENT="${AGENT_ID}"  # signals pre-commit hook to enforce allowlist
 DB_PATH="${PROJECT_ROOT}/state.db"
 LOCK_FILE="/tmp/autonomous-sync-${AGENT_ID}.lock"
 export MAX_ACTIONS_PER_CYCLE=5  # reserved for evaluator gate (not yet enforced)
@@ -59,6 +60,17 @@ check_lock() {
         rm -f "${LOCK_FILE}"
     fi
     echo $$ > "${LOCK_FILE}"
+}
+
+ensure_hooks() {
+    # Ensure pre-commit hook is active (travels with repo in .githooks/)
+    cd "${PROJECT_ROOT}"
+    local current_hooks
+    current_hooks=$(git config core.hooksPath 2>/dev/null || echo "")
+    if [ "${current_hooks}" != ".githooks" ] && [ -d "${PROJECT_ROOT}/.githooks" ]; then
+        git config core.hooksPath .githooks
+        log "Set core.hooksPath to .githooks (pre-commit secret scanning active)"
+    fi
 }
 
 ensure_db() {
@@ -276,6 +288,7 @@ main() {
     log "=== Autonomous sync cycle starting ==="
 
     check_lock
+    ensure_hooks
     ensure_db
 
     # Emit heartbeat (mesh presence announcement)
