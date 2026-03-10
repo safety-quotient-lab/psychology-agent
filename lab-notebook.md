@@ -95,6 +95,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Trust model temporal spacing  | ✓ min_action_interval (300s default), trigger-agnostic enforcement, budget→interval→sync ordering (Session 60) |
 | Pre-commit secret scanning    | ✓ `.githooks/pre-commit` — 3-layer scan (forbidden files, content patterns, autonomous allowlist) (Session 60) |
 | Cross-repo transport design   | ✓ Git remote fetch for safety-quotient agent — architecture decision, agent-registry updated, TODO items tracked (Session 60) |
+| Cross-repo transport (psych side) | ✓ `cross_repo_fetch.py` + /sync Phase 1b + orientation wiring + bootstrap parameterized — all 4 items complete (Session 60) |
+| Cross-repo transport (SQ side) | ⚑ PR #2 open on safety-quotient-lab/safety-quotient — 11 files, 5-step setup after merge (Session 60) |
 | Autonomous-sync directory arg | ✓ `autonomous-sync.sh` accepts $1 or PROJECT_ROOT env — multi-repo capable (Session 60) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
@@ -4057,3 +4059,45 @@ Extended session — autonomous infrastructure deep dive and cross-repo design.
   across repos; first autonomous sync test will validate.
 - ~36 prose references to "PSQ sub-agent" remain unrenamed across docs — cosmetic
   debt, no functional impact.
+
+
+### Session 60 implementation (2026-03-09T22:59 CDT)
+
+Cross-repo transport implementation — psychology-agent side complete, PR sent.
+
+- **`scripts/cross_repo_fetch.py`** — NEW. Git remote fetch scanner with 3 modes
+  (human, `--json`, `--index`). Fetches remote, scans sessions via `git show`,
+  compares against state.db, indexes new messages. Live test: 4 new inbound
+  messages detected from safety-quotient agent (turns 15, 31, 45 + 1 parse error).
+
+- **`/sync` skill updated** — Phase 1b added for `cross-repo-fetch` transport.
+  Uses `cross_repo_fetch.py` for automated scanning. Phase labels renumbered
+  (1b → cross-repo-fetch, 1c → cross-repo-pr, 1d → local-coordination).
+
+- **Orientation payload wired** — `autonomous-sync.sh` calls
+  `cross_repo_fetch.py --index` before orientation generation. Inbound messages
+  from cross-repo peers appear in autonomous session context automatically.
+
+- **Bootstrap parameterized** — `bootstrap_state_db.py` now matches both
+  `psq-sub-agent` and `psq-agent`/`safety-quotient` in validation thresholds
+  and facet detection. No longer hardcoded to a single agent name.
+
+- **Safety-quotient PR** — PR #2 on safety-quotient-lab/safety-quotient.
+  11 files (1549 lines): transport MANIFEST, agent-registry, .githooks/pre-commit,
+  schema_transport.sql, bootstrap_transport_db.py, autonomous-sync.sh,
+  ensure-cron.sh, cross_repo_fetch.py, orientation-payload.py (with safe_query
+  for missing tables), .agent-identity.json.example. 5-step post-merge setup.
+
+- **TODO.md** — all 4 psychology-agent-side items marked complete.
+
+- **Artifacts created/modified:**
+  - `scripts/cross_repo_fetch.py` — NEW
+  - `.claude/skills/sync/SKILL.md` — Phase 1b cross-repo-fetch
+  - `scripts/autonomous-sync.sh` — cross-repo pre-fetch + bootstrap fallback
+  - `scripts/bootstrap_state_db.py` — parameterized agent matching
+  - `TODO.md` — 4 items marked complete
+
+⚑ EPISTEMIC FLAGS
+- PR #2 awaits merge + 5-step setup on chromabook before cross-repo transport
+  functions end-to-end. The design validated via `git show` reads, but full
+  autonomous cycle remains untested.
