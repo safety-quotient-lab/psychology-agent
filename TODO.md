@@ -191,24 +191,20 @@ Plan 9-inspired split-outbox model — no shared writable directories.
 
 ### Psychology-agent side
 
-- [ ] **Add safety-quotient git remote** — `git remote add safety-quotient
-  https://github.com/safety-quotient-lab/safety-quotient.git`. XS effort.
-  *Precondition: safety-quotient repo has transport/ directory.*
+- [x] **Add safety-quotient git remote** — COMPLETE (Session 60).
+  `git remote add safety-quotient`. Verified: `git show` reads transport files.
 
-- [ ] **Update /sync Phase 1 for cross-repo-fetch** — when agent-registry
-  entry has `transport: "cross-repo-fetch"`, fetch the remote and read
-  `git show {remote}/main:{manifest_path}` to discover pending messages.
-  Pull message files via `git show` and index inbound in state.db. S effort.
-  *Precondition: safety-quotient transport directory exists.*
+- [x] **Update /sync Phase 1 for cross-repo-fetch** — COMPLETE (Session 60).
+  `scripts/cross_repo_fetch.py` handles fetch + scan + indexing.
+  /sync skill Phase 1b updated for cross-repo-fetch transport type.
 
-- [ ] **Orientation payload inbound pull** — before generating orientation,
-  fetch peer MANIFESTs and index new inbound messages. Ensures autonomous
-  sessions see what the peer sent. S effort.
-  *Precondition: /sync cross-repo-fetch working.*
+- [x] **Orientation payload inbound pull** — COMPLETE (Session 60).
+  `autonomous-sync.sh` calls `cross_repo_fetch.py --index` before orientation
+  generation, so inbound messages appear in autonomous session context.
 
-- [ ] **Parameterize bootstrap validation** — `bootstrap_state_db.py`
-  hardcodes `from_agent='psq-sub-agent'` in validation thresholds. Replace
-  with agent_id derived from `.agent-identity.json`. XS effort.
+- [x] **Parameterize bootstrap validation** — COMPLETE (Session 60).
+  `bootstrap_state_db.py` now matches both `psq-sub-agent` and `psq-agent`
+  in validation and facet detection. Also recognizes `safety-quotient`.
 
 ### Safety-quotient agent side
 
