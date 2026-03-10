@@ -273,3 +273,14 @@ sub-agents disagree, preserve the shape of the disagreement rather than averagin
   requires sub-10-second message delivery latency — no current use case demands
   this. *Precondition: gated chain protocol requires delivery latency < 10 seconds.*
   *Noted: Session 61 (2026-03-09)*
+
+- **Cross-repo shared script registry** — Session 62 discovered 4 scripts missing
+  from SQ repo that autonomous-sync depends on (dual_write.py, heartbeat.py,
+  generate_manifest.py, schema.sql). Current approach: scp + commit. This diverges
+  silently after every fix. Possible solutions: (a) git submodule for shared
+  infrastructure scripts, (b) a `scripts/shared/` directory with a sync manifest
+  listing files + SHA256 checksums (bootstrap script verifies on startup),
+  (c) symlinks to a shared checkout. ⚡ Submodules add complexity; the project
+  has only 2 repos — may not warrant the overhead yet.
+  *Precondition: third agent repo or second script divergence incident.*
+  *Noted: Session 62 (2026-03-10)*

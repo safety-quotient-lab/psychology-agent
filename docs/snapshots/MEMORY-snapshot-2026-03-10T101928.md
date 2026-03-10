@@ -12,30 +12,30 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 | `memory/psq-status.md` | PSQ sub-agent calibration, deploy status, open issues | PSQ work in this context (rare) |
 | `memory/cognitive-triggers.md` | Legacy — full trigger descriptions (canonical: `docs/cognitive-triggers.md`) | Superseded; read canonical instead |
 
-## Active Thread (2026-03-10)
+## Active Thread (2026-03-09)
 
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 62. First autonomous sync test — infrastructure
-layer validated (4/6 steps), cross-repo script gap resolved, gated message
-sent and timeout fallback confirmed.
+**Where we stopped:** Session 61. Gated autonomous chains designed and
+implemented — 4-layer fallback cascade, schema v10, dual_write gate commands,
+autonomous-sync gate-aware acceleration, /sync skill wired.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - Cogarch portability: ✓ COMPLETE `[cold: done]`
 - CLAUDE.md: ✓ 186 lines `[hot: healthy]`
 - PSQ scoring: quiescent `[hot: no action needed]`
 - SQLite state layer: schema v10, 13 tables, active_gates table `[warm]`
-- Autonomous mesh: ✓ infrastructure validated — sync + trust + gates + wake-up `[warm]`
-- Gated chains: ✓ infrastructure tested — L2 acceleration + timeout confirmed `[warm]`
+- Autonomous mesh: sync + trust model + gate-aware acceleration + wake-up `[warm]`
+- Gated chains: ✓ spec + schema + scripts + /sync wired `[warm]`
 - Cross-repo transport (psych side): ✓ COMPLETE `[warm]`
-- Cross-repo transport (SQ side): ✓ COMPLETE — setup done, autonomous sync validated `[warm]`
+- Cross-repo transport (SQ side): ✓ PR #2 merged — 5-step chromabook setup remaining `[warm]`
 - Lesson lifecycle: ✓ 17/25 graduated, 1 candidate, 7 below threshold `[warm]`
 - Epistemic debt: 270 flags, 0% resolved — no resolution mechanism yet `[warm]`
 - DI Phase A Pass 2: pending (inter-rater reliability, fresh session) `[cold]`
 
-**Next:** First autonomous Claude CLI response (psq-agent responds via cron).
-DI Phase A Pass 2 (fresh session). Cross-repo script sync mechanism (ideas.md).
+**Next:** Chromabook 5-step setup. First gated chain test (psych→psq).
+First autonomous sync test. DI Phase A Pass 2 (fresh session).
 
 
 ## Memory Hygiene
