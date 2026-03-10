@@ -1,0 +1,108 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "sqm": "https://interagent.safety-quotient.dev/vocab#"
+  },
+  "@id": "https://interagent.safety-quotient.dev/vocab",
+  "@type": "DefinedTermSet",
+  "name": "Safety Quotient Mesh Vocabulary",
+  "description": "Shared vocabulary for the safety-quotient federated agent mesh. Schema.org base with project-specific extensions under the sqm: namespace.",
+  "version": "1.0.0",
+  "dateModified": "2026-03-10",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Safety Quotient Lab",
+    "url": "https://github.com/safety-quotient-lab"
+  },
+
+  "hasDefinedTerm": [
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:Agent",
+      "name": "Agent",
+      "description": "An autonomous participant in the safety-quotient mesh. Each agent runs its own cognitive architecture, maintains local state, and communicates via the interagent/v1 protocol.",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:Agent"
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:TrustBudget",
+      "name": "Trust Budget",
+      "description": "Integer count of remaining trust credits for autonomous operation. Decrements per autonomous action; human audit resets to maximum. When zero, agent halts autonomous operation.",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:TrustBudget"
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:EpistemicDebt",
+      "name": "Epistemic Debt",
+      "description": "Count of unresolved epistemic flags across transport messages and session summaries. Flags mark uncertainty, scope limitation, or validity threat.",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:EpistemicDebt"
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:GateStatus",
+      "name": "Gate Status",
+      "description": "State of a gated autonomous chain. Values: open (action proceeds), blocked (waiting for peer response), resolved (response received). Part of the gated-chains protocol extension.",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:GateStatus"
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:TransportMethod",
+      "name": "Transport Method",
+      "description": "How an agent sends and receives interagent messages. Values: git-pr (pull request delivery), cross-repo-fetch (git remote read), http (direct HTTP API).",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:TransportMethod"
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:SetlScore",
+      "name": "SETL Score",
+      "description": "Subjective Expected Truth Loss — a float [0, 1] measuring the editorial-to-structural inferential distance of a message. Lower values indicate more direct observation; higher values indicate more interpretation.",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:SetlScore"
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:SchemaVersion",
+      "name": "Schema Version",
+      "description": "Integer version of the state.db schema (scripts/schema.sql). Increments on every migration. Consensus domain — changes require peer agreement.",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:SchemaVersion"
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:MeshHealth",
+      "name": "Mesh Health",
+      "description": "Aggregate health indicator for the federated mesh, derived from the weakest-link trust budget across all peers. Values: healthy (all budgets above 50%), degraded (any budget 10-50%), critical (any budget below 10% or agent unreachable).",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:MeshHealth"
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:ConsensusRound",
+      "name": "Consensus Round",
+      "description": "A multi-phase agreement process among mesh peers. Three tiers: C1 (HTTP mechanical, zero cost), C2 (claude -p reasoning, 2 credits/agent), C3 (human escalation). Follows PBFT 3-phase pattern: propose, vote, commit.",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:ConsensusRound"
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:ConsensusVote",
+      "name": "Consensus Vote",
+      "description": "A peer's structured response to a consensus proposal. Values: agree, disagree, abstain, escalate. Disagree votes MAY include a counter-proposal.",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:ConsensusVote"
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:ConsensusTier",
+      "name": "Consensus Tier",
+      "description": "Which consensus mechanism handles a shared state change. C1: HTTP mechanical (additive, deterministic). C2: claude -p reasoning (substantive). C3: human escalation (deadlock, security).",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:ConsensusTier"
+    }
+  ]
+}
