@@ -294,6 +294,16 @@ check_interval() {
 git_sync() {
     cd "${PROJECT_ROOT}"
 
+    # Auto-commit dirty transport files before pulling to prevent rebase conflicts.
+    # The heartbeat emits before git_sync, modifying a tracked file every cycle.
+    # Without this, git pull --rebase fails on "unstaged changes" indefinitely.
+    if ! git diff --quiet -- transport/ .well-known/; then
+        git add transport/ .well-known/ 2>/dev/null
+        git commit -m "autonomous: ${AGENT_ID} transport state update
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>" 2>/dev/null || true
+    fi
+
     log "Pulling latest from origin..."
     if ! git pull --rebase origin main 2>&1; then
         err "git pull failed"
