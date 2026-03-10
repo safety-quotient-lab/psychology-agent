@@ -581,6 +581,35 @@
                                 Derives from: State layer dual-write
                                   (SL-2, Session 51).
                                 Decided: 2026-03-09
+
+ Lessons-to-DB                  Lessons.md frontmatter fields become
+                                queryable columns in state.db `lessons`
+                                table (schema v7). Prose stays in
+                                markdown; structured metadata (pattern_type,
+                                domain, severity, recurrence, promotion
+                                status) moves to SQL. Promotion scan
+                                becomes GROUP BY instead of markdown parsing.
+                                `bootstrap_lessons.py` seeds from existing
+                                entries; `dual_write.py lesson` handles
+                                incremental upserts.
+                                Derives from: State layer dual-write
+                                  (SL-2, Session 51); schema-validated
+                                  lessons (Session 12).
+                                Decided: 2026-03-09
+
+ 4-tier state visibility         Per-table visibility classification:
+                                public (infrastructure — transfers to any
+                                adopter), shared (research output — visible
+                                on GitHub), commercial (monetizable assets
+                                — licensed access), private (personal state
+                                — never exported). Private by default;
+                                explicit promotion required. Export profiles:
+                                seed/release/licensed/full. `table_visibility`
+                                table (schema v8) + `export_public_state.py`.
+                                Derives from: Cogarch portability (Session
+                                  52-54); Phase 1.5 state migration
+                                  (Session 59).
+                                Decided: 2026-03-09
 ────────────────────────────────────────────────────────────────────────
 ```
 
