@@ -17,20 +17,20 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 66. Engineering incidents Tier 1 implemented.
-Federated mesh live at interagent.safety-quotient.dev. SQ repo at parity.
+**Where we stopped:** Session 65. DNS + tunnels live for both agents.
+Engineering incident detection designed (journal §47), implementation deferred.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- Dashboard: ✓ Both agents + interagent mesh live `[warm]`
-- Domain: ✓ DNS + tunnels + CF Worker (interagent-mesh) `[warm]`
-- Engineering incidents: ✓ Tier 1 complete (schema v14 + hook); Tier 2 deferred `[warm]`
-- JSON-LD + CORS: ✓ Both dashboards serve structured data, origin-locked `[warm]`
+- Dashboard: ✓ Both agents live (psychology-agent + psq-agent.safety-quotient.dev) `[warm]`
+- Domain: ✓ DNS configured, tunnels running, URL hash tabs `[warm]`
 - Autonomous mesh: ✓ full pipeline `[warm]`
+- PRs: ✓ All merged (#4-7 on safety-quotient) `[warm]`
+- Engineering incidents: designed, implementation deferred (schema v14 + hook + T17) `[cold]`
 - DI Phase A Pass 2: pending (fresh session) `[cold]`
 
-**Next:** Curate public replays. Delete old interagent tunnel. Naming audit
-(safety-quotient agent → psq-agent). Apex redirect + CF Worker custom domain.
-DI Phase A Pass 2. Category theory exploration (★ PRIORITY in ideas.md).
+**Next:** Implement engineering incident detection (Tier 1 first). Apex
+redirect rule + CF Worker custom domain (dashboard UI). Delete old interagent
+tunnel. Naming audit (safety-quotient agent → psq-agent). DI Phase A Pass 2.
 
 
 ## Memory Hygiene

@@ -49,3 +49,4 @@ state-public.db
 # Local infrastructure overrides (hostnames, SSH users, paths — machine-specific)
 transport/agent-registry.local.json
 __pycache__/
+interagent/.wrangler/

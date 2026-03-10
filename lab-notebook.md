@@ -119,7 +119,12 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | CF Tunnel (psq-agent)          | ✓ psq-agent-tunnel.service — systemd, chromabook :8077 (Session 65) |
 | URL hash tab persistence       | ✓ Both dashboards preserve active tab via URL #fragment (Session 65) |
 | Chromabook PRs merged          | ✓ #4 (autonomous-sync), #5 (dashboard), #6 (domain), #7 (hash tabs) all merged (Session 65) |
-| Engineering incident detection | ✗ Designed (/knock 10-order trace), implementation deferred (Session 65) |
+| Engineering incident detection | ✓ Tier 1 complete — schema v14, dual_write subcommand, PostToolUse hook (Session 66). Tier 2 (T17 trigger) deferred |
+| JSON-LD structured data        | ✓ Both dashboards serve JSON-LD (SoftwareApplication + mesh topology) (Session 66) |
+| CORS origin lockdown            | ✓ Allowlist replaces wildcard on both dashboards (Session 66) |
+| Agent-card dashboard route      | ✓ /.well-known/agent-card.json served from both dashboards (Session 66) |
+| interagent.safety-quotient.dev  | ✓ CF Worker (interagent-mesh) — static compositor, fetches /api/status from both agents (Session 66) |
+| SQ shared scripts sync          | ✓ PRs #9 (JSON-LD), #10 (schema v14 + dual_write) merged; chromabook at parity (Session 66) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -4492,3 +4497,51 @@ principles.
 - Old interagent tunnel not yet deleted (edge connection drain) — cleanup deferred
 - iPhone TLS certificate issue for psychology-agent.safety-quotient.dev unresolved — may need cache clear or time
 - Engineering incident detection designed but not implemented — no guarantee tier 2 (cognitive self-detection) achieves sufficient accuracy
+
+
+## 2026-03-10T16:58 CDT — Session 66 (Engineering incidents Tier 1, JSON-LD mesh, interagent Worker)
+
+- **Engineering incident detection (Tier 1)** — implemented end-to-end: schema v14
+  (`engineering_incidents` table), `dual_write.py` `engineering-incident` subcommand
+  (15th total, recurrence increment on duplicate type), PostToolUse hook
+  (`.claude/hooks/engineering-incident-detect.sh`) detecting 3 anti-patterns:
+  credential-exposure (high), error-loop (moderate), resource-churn (moderate).
+  Advisory only — prints `[INCIDENT]` warning, records to state.db. Tier 2
+  (cognitive T17 trigger) deferred pending Tier 1 value evidence.
+- **Abstract algebra × psychology bridges** — evaluated pai agent (qwen-0.5b)
+  output. 7 bridges identified: lattice theory (PSQ factor hierarchy),
+  homomorphisms (Full→Lite mapping), category theory (interagent protocol),
+  group theory (calibration transforms), Galois connections (observation-inference),
+  ring theory (composite scoring), formal concept analysis. Category theory
+  marked ★ PRIORITY per user directive. Added to ideas.md only.
+- **JSON-LD structured data** — `_build_jsonld()` in mesh-status.py generates
+  Schema.org `SoftwareApplication` with mesh topology, peer references
+  (`isPartOf`, `hasPart`), operational metrics (`additionalProperty`), and
+  active gates (`potentialAction`). Both dashboards serve JSON-LD in `<head>`.
+- **CORS origin lockdown** — replaced `Access-Control-Allow-Origin: *` with
+  allowlist of 7 origins (3 production subdomains, api, 3 localhost ports).
+  `_cors_origin()` helper returns requesting origin if allowed, empty string
+  otherwise. Applied to both dashboards.
+- **Agent-card dashboard route** — `/.well-known/agent-card.json` served from
+  both dashboard HTTP servers. Reads the in-repo agent-card file.
+- **interagent.safety-quotient.dev** — CF Worker (`interagent-mesh`) deployed.
+  Static HTML compositor fetches `/api/status` from both agent dashboards
+  client-side, renders agent cards with 6 metrics each, mesh topology table,
+  auto-refresh 30s. Custom domain added via Cloudflare dashboard (after
+  resolving CNAME conflict from previous DNS record). Embedded JSON-LD for
+  the mesh itself.
+- **SQ repo parity** — PRs #9 (JSON-LD + CORS + agent-card) and #10
+  (schema v14 + dual_write + shared scripts) merged. Chromabook schema
+  migrated to v14 (with `DEFAULT CURRENT_TIMESTAMP` workaround for older
+  SQLite). Dashboard restarted.
+- **Public replay curation** — TODO item added: revise which replays made
+  public, start with first session only for both agents.
+
+⚑ EPISTEMIC FLAGS
+- JSON-LD structured data not yet consumed by any search engine or aggregator — value speculative until crawled
+- CORS allowlist hardcoded in mesh-status.py — no config file; adding new origins requires code change on both machines
+- Interagent compositor relies on both agent dashboards having CORS enabled — single point of failure per agent
+
+▶ scripts/schema.sql (v14), scripts/dual_write.py, .claude/hooks/engineering-incident-detect.sh,
+  .claude/settings.json, scripts/mesh-status.py, interagent/{worker.js,index.html,wrangler.toml},
+  ideas.md, TODO.md
