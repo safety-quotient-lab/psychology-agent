@@ -2,29 +2,26 @@
 """
 export_public_state.py — Generate a public seed DB from state.db.
 
-Reads table_visibility to determine which tables are public or adopter-safe,
-copies qualifying rows into a fresh SQLite database. Private tables are
-excluded entirely. Adopter-safe tables get structure + sanitized content.
+Three-tier visibility model:
+  public  — infrastructure that transfers to any adopter (triggers, schema, config)
+  shared  — research output (decisions, sessions, flags — visible on GitHub,
+            not seeded into adopter DBs)
+  private — personal state (lessons, memory, trust — never exported)
 
-The seed DB gives adopters a pre-populated starting point instead of an
-empty database. It also serves as the public-safe state snapshot for
-releases.
+Profiles control which tiers get included:
+  seed    — public only (adopter starter kit: empty DB + triggers)
+  release — public + shared (GitHub release: our research data included)
+  full    — all tiers (debug only, includes private)
 
 Usage:
-    python scripts/export_public_state.py                    # → state-public.db
-    python scripts/export_public_state.py --output path.db   # custom output
-    python scripts/export_public_state.py --profile adopter  # include adopter-safe
-    python scripts/export_public_state.py --dry-run           # print plan only
-
-Profiles:
-    public   — only tables with visibility = 'public' (default)
-    adopter  — tables with visibility IN ('public', 'adopter-safe')
-    full     — all tables (debug only, includes private)
+    python scripts/export_public_state.py                         # seed (default)
+    python scripts/export_public_state.py --profile release       # include shared
+    python scripts/export_public_state.py --output path.db        # custom output
+    python scripts/export_public_state.py --dry-run               # print plan only
 
 Requires: Python 3.10+ (stdlib only)
 """
 import argparse
-import shutil
 import sqlite3
 import sys
 from pathlib import Path
@@ -34,9 +31,9 @@ DB_PATH = PROJECT_ROOT / "state.db"
 SCHEMA_PATH = PROJECT_ROOT / "scripts" / "schema.sql"
 DEFAULT_OUTPUT = PROJECT_ROOT / "state-public.db"
 
-# Columns to strip from adopter-safe exports (contain session-specific content)
+# Columns to null out in shared-tier exports (may contain private details)
 SANITIZE_COLUMNS = {
-    "transport_messages": ["subject"],  # subjects may contain private details
+    "transport_messages": ["subject"],
 }
 
 
@@ -44,9 +41,9 @@ def get_visible_tables(conn: sqlite3.Connection, profile: str) -> list[dict]:
     """Get tables that match the requested visibility profile."""
     if profile == "full":
         where = "1=1"
-    elif profile == "adopter":
-        where = "default_visibility IN ('public', 'adopter-safe')"
-    else:
+    elif profile == "release":
+        where = "default_visibility IN ('public', 'shared')"
+    else:  # seed
         where = "default_visibility = 'public'"
 
     rows = conn.execute(f"""
@@ -69,10 +66,10 @@ def copy_table(source: sqlite3.Connection, dest: sqlite3.Connection,
     if not columns:
         return 0
 
-    # For adopter-safe tables, null out sensitive columns
+    # For shared tables, null out sensitive columns
     select_cols = []
     for col in columns:
-        if (visibility == "adopter-safe"
+        if (visibility == "shared"
                 and col in SANITIZE_COLUMNS.get(table_name, [])):
             select_cols.append(f"NULL as {col}")
         else:
@@ -95,9 +92,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Export public state seed DB")
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT),
                         help="Output database path")
-    parser.add_argument("--profile", default="public",
-                        choices=["public", "adopter", "full"],
-                        help="Visibility profile (default: public)")
+    parser.add_argument("--profile", default="seed",
+                        choices=["seed", "release", "full"],
+                        help="Visibility profile: seed (public infra only), release (+ shared research), full (debug)")
     parser.add_argument("--dry-run", action="store_true",
                         help="Print plan without writing")
     args = parser.parse_args()
@@ -130,7 +127,7 @@ def main() -> None:
         row_count = source.execute(
             f"SELECT COUNT(*) FROM {table['name']}"
         ).fetchone()[0]
-        marker = {"public": "●", "adopter-safe": "◐", "private": "○"}
+        marker = {"public": "●", "shared": "◐", "private": "○"}
         print(f"  {marker.get(table['visibility'], '?')} {table['name']}: "
               f"{row_count} rows ({table['visibility']})")
         if table["name"] in SANITIZE_COLUMNS:

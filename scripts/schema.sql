@@ -271,19 +271,24 @@ CREATE TABLE IF NOT EXISTS table_visibility (
     description         TEXT
 );
 
+-- Three-tier visibility:
+--   public  = infrastructure that transfers to any adopter (triggers, schema, config)
+--   shared  = our research output (decisions, sessions, flags — visible on GitHub,
+--             not seeded into adopter DBs; included in release exports)
+--   private = personal state (lessons, memory, trust budget — never exported)
 INSERT OR IGNORE INTO table_visibility (table_name, default_visibility, description) VALUES
-    ('decision_chain',      'public',       'Design decisions — shared research output'),
-    ('session_log',         'public',       'Session history — shared research timeline'),
-    ('trigger_state',       'public',       'Cogarch trigger metadata — shared infrastructure'),
-    ('transport_messages',  'adopter-safe', 'Transport index — infrastructure, strip subjects'),
-    ('epistemic_flags',     'public',       'Epistemic audit trail — shared transparency'),
-    ('claims',              'adopter-safe', 'Verified claims — infrastructure'),
-    ('psq_status',          'public',       'PSQ operational status — shared'),
-    ('memory_entries',      'private',      'Personal memory — not shared'),
-    ('lessons',             'private',      'Personal learning log — not shared'),
+    ('trigger_state',       'public',       'Cogarch infrastructure — triggers must exist for system to fire'),
+    ('decision_chain',      'shared',       'Research output — our design decisions, visible but not seeded'),
+    ('session_log',         'shared',       'Research output — our session history'),
+    ('epistemic_flags',     'shared',       'Research output — our epistemic audit trail'),
+    ('psq_status',          'shared',       'Research output — our PSQ operational status'),
+    ('transport_messages',  'shared',       'Research output — transport index, strip subjects in export'),
+    ('claims',              'shared',       'Research output — verified claims from transport'),
+    ('memory_entries',      'private',      'Personal memory — not exported'),
+    ('lessons',             'private',      'Personal learning log — not exported'),
     ('trust_budget',        'private',      'Operational budget — machine-specific'),
     ('autonomous_actions',  'private',      'Autonomous audit trail — machine-specific'),
     ('entry_facets',        'private',      'Derived from memory_entries — inherits private');
 
 INSERT OR IGNORE INTO schema_version (version, description)
-VALUES (8, 'State lifecycle — table_visibility (per-table public/private/adopter-safe defaults, private by default). Foundation for export_public_state.py seed DB generation.');
+VALUES (8, 'State lifecycle — table_visibility with 3-tier model (public/shared/private). Public = transferable infrastructure. Shared = research output (visible, not seeded). Private = personal.');
