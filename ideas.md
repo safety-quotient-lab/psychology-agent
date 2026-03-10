@@ -421,6 +421,71 @@ federated dashboard architecture.
 
 ---
 
+## Interagent Agentic Capabilities (mesh compositor)
+
+Ideas for evolving interagent.safety-quotient.dev from a passive status display
+into an active mesh coordination layer.
+
+- **Live gate status aggregation** — poll `active_gates` from both agents'
+  `/api/status`, display a unified gate timeline (blocking agent, timeout
+  countdown, fallback action). Currently each dashboard shows its own gates only.
+  *Precondition: gates operational on both agents.*
+
+- **Cross-agent claim verification dashboard** — display claims from transport
+  messages alongside verification status. The interagent site sits at the
+  intersection of both agents' claim flows — natural location for surfacing
+  unverified claims and tracking verification velocity.
+  *Precondition: claims table populated on both agents.*
+
+- **Mesh-initiated sync indicator** — when the compositor detects one agent
+  has unprocessed messages for the other, display a "sync recommended" visual
+  indicator. Currently sync runs on cron; visual mesh status could inform when
+  manual intervention matters.
+  *Precondition: `/api/status` includes unprocessed message counts (already does).*
+
+- **Agent-card auto-discovery** — parse `/.well-known/agent-card.json` to
+  auto-discover new agents joining the mesh. New agents added to `AGENTS[]`
+  when a new agent-card appears at a registered domain. Evolves from a static
+  agent list to a dynamic mesh.
+  *Precondition: ≥3 agents with agent-cards deployed.*
+
+- **Category-theoretic mesh visualization** ★ PRIORITY — model the interagent
+  transport protocol as a category: agents as objects, messages as morphisms,
+  session composition as functorial mapping. Visualize as commutative diagrams
+  rather than flat topology tables. See Abstract Algebra section above.
+  *Precondition: shared ontology + 3+ agents with operational transport.*
+
+- **Epistemic debt mesh view** — aggregate both agents' epistemic flag counts,
+  display debt trends over time. The compositor already has the data path
+  (flags appear in `/api/status`).
+  *Precondition: epistemic_flags in /api/status response (already present).*
+
+- **Trust budget federation** — display combined trust budget state across
+  agents, with a mesh-level "health" indicator based on the lowest-budget
+  agent (weakest-link model).
+  *Precondition: trust_budget in /api/status response (already present).*
+
+---
+
+## Shared Ontology (interagent vocabulary)
+
+Machine-readable dictionary that all three sites (psychology-agent, psq-agent,
+interagent) reference. Two layers:
+
+- **Human-facing terminology unification** — audit and align field names,
+  metric labels, dashboard headings across all sites. Currently each dashboard
+  names things independently (e.g., "Trust Budget" vs "Budget" vs "trust_budget").
+  *Precondition: none — prose cleanup.*
+
+- **Machine-readable vocabulary** — Schema.org base + project-specific extensions.
+  Publish as a JSON-LD `@context` document at a well-known URL. Each agent's
+  JSON-LD references this shared context rather than defining terms inline.
+  *Precondition: JSON-LD deployed on both dashboards (✓ Session 66).*
+
+*Noted: Session 66 (2026-03-10). Source: /cycle Step 13 ideas preparation.*
+
+---
+
 ## Meta
 
 - This agent system is itself a case study in PJE — it embodies Psycho Safety
