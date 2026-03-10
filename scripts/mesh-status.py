@@ -253,6 +253,45 @@ def collect_status() -> dict:
     # Sync schedule — cron entry + last/next sync times
     schedule = _collect_schedule(agent_id)
 
+    # Facet vocabulary (semiotics tab)
+    facet_vocab = query_db(
+        "SELECT facet_type, facet_value, code, source, description, "
+        "entity_scope, active, keyword_count FROM facet_vocabulary "
+        "ORDER BY facet_type, active DESC, facet_value"
+    )
+
+    # Facet distribution: entity counts per PSH category
+    psh_dist = query_db(
+        "SELECT facet_value, COUNT(*) as entity_count, "
+        "ROUND(AVG(confidence), 3) as avg_confidence, "
+        "MIN(confidence) as min_confidence, "
+        "MAX(confidence) as max_confidence "
+        "FROM universal_facets WHERE facet_type = 'psh' "
+        "GROUP BY facet_value ORDER BY entity_count DESC"
+    )
+
+    # Schema.org type distribution
+    schema_dist = query_db(
+        "SELECT facet_value, COUNT(*) as entity_count "
+        "FROM universal_facets WHERE facet_type = 'schema_type' "
+        "GROUP BY facet_value ORDER BY entity_count DESC"
+    )
+
+    # Keyword set version info
+    version_dist = query_db(
+        "SELECT keyword_set_version, COUNT(*) as facet_count, "
+        "MIN(computed_at) as oldest, MAX(computed_at) as newest "
+        "FROM universal_facets WHERE facet_type = 'psh' "
+        "GROUP BY keyword_set_version ORDER BY keyword_set_version"
+    )
+
+    # Low confidence facets (potential misclassifications)
+    low_conf_count = scalar(
+        "SELECT COUNT(*) FROM universal_facets "
+        "WHERE facet_type = 'psh' AND confidence < 0.05 "
+        "AND facet_value != 'unclassified'"
+    )
+
     return {
         "agent_id": agent_id,
         "collected_at": now_iso,
@@ -276,6 +315,13 @@ def collect_status() -> dict:
         },
         "heartbeat": heartbeat_info,
         "schedule": schedule,
+        "semiotics": {
+            "vocabulary": facet_vocab,
+            "psh_distribution": psh_dist,
+            "schema_distribution": schema_dist,
+            "version_distribution": version_dist,
+            "low_confidence_count": low_conf_count,
+        },
     }
 
 
@@ -458,6 +504,107 @@ def render_html(status: dict) -> str:
     if not actions_html:
         actions_html = '<tr><td colspan="6" class="empty">No autonomous actions recorded</td></tr>'
 
+    # ── Semiotics tab ──────────────────────────────────────────────────
+    semiotics = status.get("semiotics", {})
+    psh_dist = semiotics.get("psh_distribution", [])
+    schema_dist = semiotics.get("schema_distribution", [])
+    vocab = semiotics.get("vocabulary", [])
+    version_dist = semiotics.get("version_distribution", [])
+    low_conf = semiotics.get("low_confidence_count", 0)
+
+    # Max entity count for bar scaling
+    max_psh_count = max((d.get("entity_count", 0) for d in psh_dist), default=1)
+
+    # PSH distribution with bars
+    psh_rows = ""
+    for d in psh_dist:
+        cat = d.get("facet_value", "?")
+        count = d.get("entity_count", 0)
+        avg_conf = d.get("avg_confidence", 0) or 0
+        bar_pct = int((count / max_psh_count) * 100) if max_psh_count else 0
+
+        # Confidence color
+        if avg_conf < 0.05:
+            conf_class = "conf-low"
+        elif avg_conf < 0.12:
+            conf_class = "conf-mid"
+        else:
+            conf_class = "conf-high"
+
+        # Find code from vocab
+        code = ""
+        for v in vocab:
+            if v.get("facet_value") == cat and v.get("facet_type") == "psh":
+                code = v.get("code", "")
+                break
+
+        psh_rows += f"""
+        <tr>
+            <td>{cat}</td>
+            <td style="color:#6e7681">{code}</td>
+            <td style="text-align:right">{count}</td>
+            <td class="{conf_class}" style="text-align:right">{avg_conf:.3f}</td>
+            <td style="width:30%"><div class="psh-bar"><div class="psh-fill" style="width:{bar_pct}%;background:#58a6ff"></div></div></td>
+        </tr>"""
+
+    # Schema.org distribution
+    schema_rows = ""
+    for d in schema_dist:
+        schema_rows += f"""
+        <tr>
+            <td>{d.get('facet_value', '?')}</td>
+            <td style="text-align:right">{d.get('entity_count', 0)}</td>
+        </tr>"""
+
+    # Vocabulary registry — active then inactive
+    active_vocab = [v for v in vocab if v.get("active")]
+    inactive_vocab = [v for v in vocab if not v.get("active") and v.get("facet_type") == "psh"]
+
+    active_rows = ""
+    for v in active_vocab:
+        ft = v.get("facet_type", "?")
+        fv = v.get("facet_value", "?")
+        code = v.get("code", "—")
+        source = v.get("source", "?")
+        desc = v.get("description", "")
+        scope = v.get("entity_scope", "")
+        src_class = "source-psh" if source == "PSH" else "source-local" if source == "project-local" else "source-schema"
+        active_rows += f"""
+        <tr>
+            <td>{fv}</td>
+            <td>{ft}</td>
+            <td style="color:#6e7681">{code}</td>
+            <td class="{src_class}">{source}</td>
+            <td style="color:#6e7681;font-size:0.85em">{desc[:60]}</td>
+        </tr>"""
+
+    inactive_rows = ""
+    for v in inactive_vocab:
+        fv = v.get("facet_value", "?")
+        code = v.get("code", "—")
+        desc = v.get("description", "")
+        inactive_rows += f"""
+        <tr style="color:#484f58">
+            <td>{fv}</td>
+            <td style="color:#6e7681">{code}</td>
+            <td>{desc}</td>
+        </tr>"""
+
+    # Version distribution
+    version_rows = ""
+    for v in version_dist:
+        ver = v.get("keyword_set_version", "?")
+        version_rows += f"""
+        <tr>
+            <td>v{ver if ver else 'legacy'}</td>
+            <td style="text-align:right">{v.get('facet_count', 0)}</td>
+            <td style="color:#6e7681">{v.get('oldest', '—')}</td>
+            <td style="color:#6e7681">{v.get('newest', '—')}</td>
+        </tr>"""
+
+    total_facets = sum(d.get("entity_count", 0) for d in psh_dist) + sum(d.get("entity_count", 0) for d in schema_dist)
+    active_categories = len([d for d in psh_dist if d.get("facet_value") != "unclassified"])
+
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -535,6 +682,39 @@ def render_html(status: dict) -> str:
             border-top: 1px solid #21262d;
             color: #484f58; font-size: 0.75em;
         }}
+        .tabs {{
+            display: flex; gap: 0; margin-bottom: 20px;
+            border-bottom: 2px solid #21262d;
+        }}
+        .tab {{
+            padding: 8px 20px; cursor: pointer;
+            color: #8b949e; font-size: 0.9em;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }}
+        .tab:hover {{ color: #c9d1d9; }}
+        .tab.active {{
+            color: #58a6ff; border-bottom-color: #58a6ff;
+            font-weight: bold;
+        }}
+        .tab-content {{ display: none; }}
+        .tab-content.active {{ display: block; }}
+        .psh-bar {{
+            height: 16px; border-radius: 3px;
+            background: #21262d; overflow: hidden;
+            margin-top: 2px;
+        }}
+        .psh-fill {{
+            height: 100%; border-radius: 3px;
+        }}
+        .source-psh {{ color: #58a6ff; }}
+        .source-local {{ color: #d29922; }}
+        .source-schema {{ color: #a371f7; }}
+        .active-badge {{ color: #3fb950; font-size: 0.8em; }}
+        .inactive-badge {{ color: #484f58; font-size: 0.8em; }}
+        .conf-low {{ color: #f85149; }}
+        .conf-mid {{ color: #d29922; }}
+        .conf-high {{ color: #3fb950; }}
     </style>
 </head>
 <body>
@@ -542,6 +722,13 @@ def render_html(status: dict) -> str:
     <div class="subtitle">
         {status['collected_at']} · schema v{status['schema_version']} · auto-refresh 30s
     </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('mesh')">Mesh</div>
+        <div class="tab" onclick="switchTab('semiotics')">Semiotics</div>
+    </div>
+
+    <div id="tab-mesh" class="tab-content active">
 
     <div class="grid">
         <div class="card">
@@ -638,7 +825,72 @@ def render_html(status: dict) -> str:
         {actions_html}
     </table>
 
+    </div><!-- end tab-mesh -->
+
+    <div id="tab-semiotics" class="tab-content">
+
+    <div class="grid">
+        <div class="card">
+            <div class="card-label">Total Facets</div>
+            <div class="card-value">{total_facets}</div>
+            <div class="card-detail">PSH + schema.org</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Active PSH Categories</div>
+            <div class="card-value">{active_categories}</div>
+            <div class="card-detail">of 44 PSH + project-local</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Inactive PSH Available</div>
+            <div class="card-value">{len(inactive_vocab)}</div>
+            <div class="card-detail">awaiting literary warrant</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Low Confidence</div>
+            <div class="card-value{' alert' if low_conf > 50 else ''}">{low_conf}</div>
+            <div class="card-detail">facets with conf &lt; 0.05</div>
+        </div>
+    </div>
+
+    <h2>PSH Subject Distribution</h2>
+    <table>
+        <tr><th>Category</th><th>Code</th><th style="text-align:right">Entities</th><th style="text-align:right">Avg Conf</th><th>Distribution</th></tr>
+        {psh_rows or '<tr><td colspan="5" class="empty">No PSH facets found</td></tr>'}
+    </table>
+
+    <h2>Schema.org Type Distribution</h2>
+    <table>
+        <tr><th>Type</th><th style="text-align:right">Entities</th></tr>
+        {schema_rows or '<tr><td colspan="2" class="empty">No schema.org facets found</td></tr>'}
+    </table>
+
+    <h2>Active Vocabulary Registry</h2>
+    <table>
+        <tr><th>Value</th><th>Type</th><th>Code</th><th>Source</th><th>Description</th></tr>
+        {active_rows or '<tr><td colspan="5" class="empty">No vocabulary entries</td></tr>'}
+    </table>
+
+    <h2>Inactive PSH Categories (Available for Activation)</h2>
+    <table>
+        <tr><th>Category</th><th>Code</th><th>Description</th></tr>
+        {inactive_rows or '<tr><td colspan="3" class="empty">All categories active</td></tr>'}
+    </table>
+
+    <h2>Keyword Set Versions</h2>
+    <table>
+        <tr><th>Version</th><th style="text-align:right">Facets</th><th>Oldest</th><th>Newest</th></tr>
+        {version_rows or '<tr><td colspan="4" class="empty">No version data</td></tr>'}
+    </table>
+
+    </div><!-- end tab-semiotics -->
+
     <script>
+    function switchTab(tabName) {{
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + tabName).classList.add('active');
+        document.querySelector('.tab[onclick*="' + tabName + '"]').classList.add('active');
+    }}
     function toggleRow(id) {{
         const row = document.getElementById(id);
         const header = row.previousElementSibling;

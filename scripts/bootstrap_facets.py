@@ -446,12 +446,25 @@ def discover(conn: sqlite3.Connection) -> None:
         code = PSH_CATEGORIES.get(cat, {}).get("code", "—")
         print(f"  {count:>4}  {cat:<25} {code}")
 
+    # Match unclassified clusters against inactive PSH categories
+    inactive_matches = _match_inactive_categories(conn, unclassified_text, words_unc)
+
     if l1_candidates:
         print(f"\nL1 expansion candidates (from unclassified, freq >= 3):")
         print("─" * 50)
         for bg, count in sorted(l1_candidates.items(), key=lambda x: -x[1])[:15]:
             print(f"  {count:>3}x  {bg}")
-        print("  → Map to inactive PSH categories or add keywords to active ones")
+
+    if inactive_matches:
+        print(f"\nInactive PSH categories with potential warrant:")
+        print("─" * 50)
+        for cat_name, code, desc, score, matched_words in inactive_matches:
+            print(f"  ⚑ {cat_name} ({code}) — score {score}")
+            print(f"    {desc}")
+            print(f"    Matched: {', '.join(matched_words[:8])}")
+        print("  → Activate by adding keywords to PSH_CATEGORIES + setting active=1")
+    elif l1_candidates:
+        print("  → No inactive PSH categories match — consider project-local (PL-NNN)")
 
     if l2_candidates:
         print(f"\nL2 refinement candidates (all text, freq >= 5):")
@@ -505,6 +518,46 @@ def discover(conn: sqlite3.Connection) -> None:
     print("Literary warrant threshold: L1 = 5+ unclassified entities,")
     print("L2 = 10+ entities that would benefit from sub-classification.")
     print("PSH gap threshold: 3+ entity hits on terms absent from PSH.")
+
+
+def _match_inactive_categories(
+    conn: sqlite3.Connection,
+    unclassified_texts: list[str],
+    unclassified_words: list[str],
+) -> list[tuple]:
+    """Match unclassified entity text against inactive PSH category descriptions.
+
+    Returns list of (category_name, code, description, score, matched_words)
+    sorted by score descending. Only categories with score >= 2 returned.
+    """
+    inactive = conn.execute(
+        "SELECT facet_value, code, description FROM facet_vocabulary "
+        "WHERE facet_type = 'psh' AND active = 0"
+    ).fetchall()
+    if not inactive:
+        return []
+
+    combined = " ".join(unclassified_texts).lower()
+    word_freq = Counter(unclassified_words)
+    results = []
+
+    for cat_name, code, description in inactive:
+        # Extract keywords from the category description
+        desc_words = re.findall(r"[a-z][a-z0-9-]+", description.lower())
+        desc_words = [w for w in desc_words if len(w) > 3]
+
+        # Score: how many description words appear in unclassified text?
+        matched = [w for w in desc_words if w in combined and word_freq.get(w, 0) >= 2]
+        # Also check the category name itself
+        if cat_name.replace("-", " ") in combined:
+            matched.append(cat_name)
+
+        score = len(matched)
+        if score >= 2:
+            results.append((cat_name, code, description, score, matched))
+
+    results.sort(key=lambda x: -x[3])
+    return results[:10]
 
 
 # ── Stats ──────────────────────────────────────────────────────────────
