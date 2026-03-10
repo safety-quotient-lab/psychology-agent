@@ -230,17 +230,13 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   *Precondition: ✓ MET — trigger_state populated (16 rows).*
   *Tables: trigger_state JOIN epistemic_flags (fire_count vs flag accumulation)*
 
-- [ ] **Agent communication asymmetry** — detect conversation imbalances
-  across the mesh. Which agent dominates communication, whether uncertainty
-  differs by direction, whether some agent pairs have gone quiet. XS effort.
-  *Precondition: ✓ MET — transport_messages populated (88 rows).*
-  *Tables: transport_messages (from_agent, to_agent, setl, COUNT)*
+- [x] **Agent communication asymmetry** — COMPLETE (Session 60).
+  `scripts/agent_communication.py` — 3 modes (full, --summary, --pairs).
+  Direction asymmetry detection, quiet pair scanning, per-agent SETL.
 
-- [ ] **Memory staleness heatmap** — automated T9 freshness enforcement via
-  SQL instead of reading every topic file. Feed into `/hunt` to prioritize
-  stale memory entries alongside TODO items. XS effort.
-  *Precondition: ✓ MET — memory_entries populated (38 rows, last_confirmed).*
-  *Tables: memory_entries (julianday staleness calculation)*
+- [x] **Memory staleness heatmap** — COMPLETE (Session 60).
+  `scripts/memory_staleness.py` — 4 modes (full, --summary, --stale N, --by-topic).
+  T9 proxy thresholds (14d flag, 30d remove), per-topic aggregation.
 
 ---
 
