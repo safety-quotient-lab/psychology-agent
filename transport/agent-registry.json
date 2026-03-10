@@ -6,7 +6,7 @@
   "agents": {
     "psq-agent": {
       "role": "sub-agent",
-      "description": "PSQ (Psychoemotional Safety Quotient) scoring sub-agent — psychometric model training, calibration, structural analysis",
+      "description": "Safety-quotient agent — psychometric model training, calibration, structural analysis (PSQ scoring)",
       "transport": "same-repo",
       "repo": "safety-quotient-lab/psychology-agent",
       "sessions_path": "transport/sessions/",
@@ -15,7 +15,7 @@
       "always_consider": true,
       "autonomous": true,
       "discovery_url": null,
-      "notes": "Shares this repo. Communicates via transport/sessions/ with separate session dirs. Always considered for outbound — any psychometric, scoring, or model-related content SHOULD be surfaced to psq-agent."
+      "notes": "Safety-quotient agent. Communicates via transport/sessions/ (same-repo transport). Always considered for outbound — any psychometric, scoring, or model-related content SHOULD be surfaced."
     },
 
     "unratified-agent": {

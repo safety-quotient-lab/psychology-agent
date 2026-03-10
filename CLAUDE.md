@@ -55,7 +55,7 @@ stale data, conclusions exceeding evidence.
 
 ## Sub-Projects
 
-- `safety-quotient/` — PSQ agent (has its own CLAUDE.md and skills: /hunt, /cycle)
+- `safety-quotient/` — Safety-quotient agent (has its own CLAUDE.md and skills: /hunt, /cycle)
 - `pje-framework/` — PJE taxonomy framework (has its own CLAUDE.md)
 
 Do not mix sub-project work into the psychology agent context unless explicitly integrating.
