@@ -168,7 +168,7 @@ def scan_agent(agent_id: str, agent_config: dict, index: bool = False) -> dict:
                         "turn": msg.get("turn"),
                         "message_type": msg.get("message_type"),
                         "timestamp": msg.get("timestamp"),
-                        "subject": msg.get("content", {}).get("subject", ""),
+                        "subject": (msg.get("payload", msg.get("content", {})) or {}).get("subject", ""),
                     }
                     result["new_messages"].append(msg_summary)
 
@@ -184,10 +184,20 @@ def scan_agent(agent_id: str, agent_config: dict, index: bool = False) -> dict:
 
 def _index_message(msg: dict, filename: str, session_name: str) -> None:
     """Index a transport message in state.db via dual_write.py."""
-    from_agent = msg.get("from", {}).get("agent_id", "unknown")
-    to_agent = msg.get("to", {}).get("agent_id", "unknown")
+    from_block = msg.get("from", {})
+    from_agent = (from_block.get("agent_id", "unknown")
+                  if isinstance(from_block, dict) else str(from_block))
+    to_block = msg.get("to", {})
+    if isinstance(to_block, list):
+        to_agent = to_block[0].get("agent_id", "unknown") if to_block else "unknown"
+    elif isinstance(to_block, dict):
+        to_agent = to_block.get("agent_id", "unknown")
+    else:
+        to_agent = str(to_block)
     timestamp = msg.get("timestamp", datetime.now().isoformat())
-    subject = msg.get("content", {}).get("subject", "")
+    payload = msg.get("payload", msg.get("content", {}))
+    subject = (payload.get("subject", "")
+               if isinstance(payload, dict) else "")
     message_type = msg.get("message_type", "unknown")
     turn = msg.get("turn", 0)
     claims_count = len(msg.get("claims", []))
