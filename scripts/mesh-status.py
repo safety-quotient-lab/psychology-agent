@@ -30,8 +30,26 @@ DB_PATH = PROJECT_ROOT / "state.db"
 REGISTRY_PATH = PROJECT_ROOT / "transport" / "agent-registry.json"
 REGISTRY_LOCAL_PATH = PROJECT_ROOT / "transport" / "agent-registry.local.json"
 IDENTITY_PATH = PROJECT_ROOT / ".agent-identity.json"
+AGENT_CARD_PATH = PROJECT_ROOT / ".well-known" / "agent-card.json"
 
 COLD_THRESHOLD_HOURS = 24
+
+ALLOWED_ORIGINS = {
+    "https://interagent.safety-quotient.dev",
+    "https://psychology-agent.safety-quotient.dev",
+    "https://psq-agent.safety-quotient.dev",
+    "https://api.safety-quotient.dev",
+    "http://localhost:8077",
+    "http://localhost:8078",
+    "http://localhost:9000",
+}
+
+
+def _cors_origin(request_origin: str | None) -> str:
+    """Return the CORS origin header value. Allowlist-based, not wildcard."""
+    if request_origin and request_origin in ALLOWED_ORIGINS:
+        return request_origin
+    return ""
 
 
 def _deep_merge(base: dict, override: dict) -> dict:
@@ -473,6 +491,97 @@ def collect_status() -> dict:
     }
 
 
+# ── JSON-LD Structured Data ──────────────────────────────────────────────
+
+def _build_jsonld(status: dict) -> dict:
+    """Build Schema.org JSON-LD from mesh status data.
+
+    Embeds agent identity, capabilities, mesh topology, and live operational
+    state as machine-readable structured data. Enables client-side mesh
+    composition at interagent.safety-quotient.dev without a backend.
+    """
+    agent_id = status.get("agent_id", "unknown")
+    totals = status.get("totals", {})
+    budget = status.get("trust_budget", {})
+    heartbeat = status.get("heartbeat", {})
+    registry = status.get("registry_agents", {})
+    collected_at = status.get("collected_at", "")
+
+    # Peer agents as related applications
+    peers = []
+    for peer_id, peer_cfg in registry.items():
+        if peer_id == agent_id:
+            continue
+        peer_entry = {
+            "@type": "SoftwareApplication",
+            "name": peer_id,
+            "applicationCategory": peer_cfg.get("role", "agent"),
+            "additionalProperty": [
+                {
+                    "@type": "PropertyValue",
+                    "name": "transport",
+                    "value": peer_cfg.get("transport", "unknown"),
+                },
+                {
+                    "@type": "PropertyValue",
+                    "name": "autonomous",
+                    "value": peer_cfg.get("autonomous", False),
+                },
+            ],
+        }
+        peers.append(peer_entry)
+
+    # Active gates as pending actions
+    gate_actions = []
+    for gate in status.get("active_gates", []):
+        gate_actions.append({
+            "@type": "Action",
+            "name": f"gate:{gate.get('gate_id', '?')}",
+            "actionStatus": "PotentialActionStatus",
+            "agent": {"@type": "SoftwareApplication", "name": gate.get("sending_agent", "?")},
+            "target": {"@type": "SoftwareApplication", "name": gate.get("receiving_agent", "?")},
+            "startTime": gate.get("created_at", ""),
+        })
+
+    return {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "@id": f"https://{agent_id}.safety-quotient.dev",
+        "name": agent_id,
+        "description": f"Autonomous mesh agent — {agent_id}",
+        "applicationCategory": "Agent",
+        "operatingSystem": "Linux/macOS",
+        "url": f"https://{agent_id}.safety-quotient.dev",
+        "provider": {
+            "@type": "Organization",
+            "name": "Safety Quotient Lab",
+            "url": "https://github.com/safety-quotient-lab",
+        },
+        "isPartOf": {
+            "@type": "SoftwareApplication",
+            "name": "safety-quotient-mesh",
+            "url": "https://interagent.safety-quotient.dev",
+            "description": "Federated inter-agent mesh for psychoemotional safety research",
+        },
+        "potentialAction": gate_actions if gate_actions else [],
+        "additionalProperty": [
+            {"@type": "PropertyValue", "name": "schema_version", "value": status.get("schema_version", "?")},
+            {"@type": "PropertyValue", "name": "total_messages", "value": totals.get("messages", 0)},
+            {"@type": "PropertyValue", "name": "total_sessions", "value": totals.get("sessions", 0)},
+            {"@type": "PropertyValue", "name": "unprocessed_messages", "value": totals.get("unprocessed", 0)},
+            {"@type": "PropertyValue", "name": "active_gates", "value": totals.get("active_gates", 0)},
+            {"@type": "PropertyValue", "name": "epistemic_flags_unresolved", "value": totals.get("epistemic_flags_unresolved", 0)},
+            {"@type": "PropertyValue", "name": "trust_budget_current", "value": budget.get("budget_current", "?")},
+            {"@type": "PropertyValue", "name": "trust_budget_max", "value": budget.get("budget_max", "?")},
+            {"@type": "PropertyValue", "name": "collected_at", "value": collected_at},
+        ],
+        "relatedLink": [
+            f"https://{agent_id}.safety-quotient.dev/api/status",
+        ],
+        "hasPart": peers,
+    }
+
+
 # ── HTML Template ────────────────────────────────────────────────────────
 
 def render_html(status: dict) -> str:
@@ -823,12 +932,17 @@ def render_html(status: dict) -> str:
     if not remote_replay_rows:
         remote_replay_rows = '<tr><td colspan="4" class="empty">No remote replays found</td></tr>'
 
+    # Build JSON-LD structured data
+    jsonld = _build_jsonld(status)
+    jsonld_block = f'<script type="application/ld+json">\n{json.dumps(jsonld, indent=2)}\n    </script>'
+
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="refresh" content="30">
     <title>Mesh Status — {status['agent_id']}</title>
+    {jsonld_block}
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         body {{
@@ -1284,11 +1398,29 @@ class StatusHandler(BaseHTTPRequestHandler):
             self.send_error(404)
             return
 
+        origin = self.headers.get("Origin", "")
+        cors = _cors_origin(origin)
+
+        # /.well-known/agent-card.json — agent discovery
+        if path == "/.well-known/agent-card.json":
+            if AGENT_CARD_PATH.exists():
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Cache-Control", "public, max-age=3600")
+                if cors:
+                    self.send_header("Access-Control-Allow-Origin", cors)
+                self.end_headers()
+                self.wfile.write(AGENT_CARD_PATH.read_bytes())
+            else:
+                self.send_error(404)
+            return
+
         if path == "/api/status":
             status = collect_status()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
-            self.send_header("Access-Control-Allow-Origin", "*")
+            if cors:
+                self.send_header("Access-Control-Allow-Origin", cors)
             self.end_headers()
             self.wfile.write(json.dumps(status, indent=2).encode())
         else:
@@ -1296,6 +1428,8 @@ class StatusHandler(BaseHTTPRequestHandler):
             html = render_html(status)
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
+            if cors:
+                self.send_header("Access-Control-Allow-Origin", cors)
             self.end_headers()
             self.wfile.write(html.encode())
 
