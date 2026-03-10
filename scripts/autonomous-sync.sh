@@ -428,6 +428,13 @@ main() {
     # Emit heartbeat (mesh presence announcement)
     python3 "${PROJECT_ROOT}/scripts/heartbeat.py" emit >&2 || true
 
+    # Verify shared scripts (warning only — non-blocking)
+    if [ -f "${PROJECT_ROOT}/scripts/verify_shared_scripts.py" ]; then
+        python3 "${PROJECT_ROOT}/scripts/verify_shared_scripts.py" --quiet 2>/dev/null || {
+            log "WARNING: shared scripts out of sync — run verify_shared_scripts.py --fix"
+        }
+    fi
+
     # L3: Check for wake-up signal from peer (SSH touch)
     check_wake_signal
 

@@ -1,0 +1,71 @@
+{
+  "description": "Shared scripts that must stay synchronized across agent repos. Source of truth: psychology-agent. Consumers verify checksums at autonomous-sync startup.",
+  "source_repo": "safety-quotient-lab/psychology-agent",
+  "last_updated": "2026-03-10",
+  "scripts": [
+    {
+      "path": "scripts/autonomous-sync.sh",
+      "description": "Cron-driven autonomous sync driver",
+      "shared_with": [
+        "safety-quotient"
+      ],
+      "sha256": "15acc63a438330fe838604166c15c2725c3c39410f0f951bcc0fe149d0fc1ae8"
+    },
+    {
+      "path": "scripts/cross_repo_fetch.py",
+      "description": "Git remote fetch scanner + state.db indexer",
+      "shared_with": [
+        "safety-quotient"
+      ],
+      "sha256": "a522279b9a20c88472a2dd5bafe3682c28ffa62f6234f3dbe035f5a91e3e6785"
+    },
+    {
+      "path": "scripts/dual_write.py",
+      "description": "Incremental state.db upserts (11 subcommands)",
+      "shared_with": [
+        "safety-quotient"
+      ],
+      "sha256": "f969dc09baee7666c1e82b29b754e883923a261b0dcd7d38c14a088cf5e57911"
+    },
+    {
+      "path": "scripts/heartbeat.py",
+      "description": "Mesh presence heartbeat emitter/scanner",
+      "shared_with": [
+        "safety-quotient"
+      ],
+      "sha256": "87e2b9b62b391095a6bb4b12811b5a60c493969ee81bef7b97a22db0f9d37dee"
+    },
+    {
+      "path": "scripts/generate_manifest.py",
+      "description": "MANIFEST.json regeneration from state.db",
+      "shared_with": [
+        "safety-quotient"
+      ],
+      "sha256": "faf959ea9ded5598ecde5a75fe2911ca6b04352f257694c2a352a7fc118a5f48"
+    },
+    {
+      "path": "scripts/orientation-payload.py",
+      "description": "State.db context extraction for autonomous sessions",
+      "shared_with": [
+        "safety-quotient"
+      ],
+      "sha256": "ebe2bf5c9f7f674efb20fb2549d6a700ec552d79583435c38b01b9c5b63cbb5b"
+    },
+    {
+      "path": "scripts/ensure-cron.sh",
+      "description": "Idempotent cron installer",
+      "shared_with": [
+        "safety-quotient"
+      ],
+      "sha256": "f8e4f796f238746b695e8fa0a29210754525878f4a64beee99a4c128affc1975"
+    },
+    {
+      "path": "scripts/schema.sql",
+      "description": "Full state.db schema (v10, 13 tables)",
+      "shared_with": [
+        "safety-quotient"
+      ],
+      "sha256": "00966bbf589c7551e54858fd04ee8235b1ed583cf92c2ab931f4bd6a62d5939b"
+    }
+  ]
+}
