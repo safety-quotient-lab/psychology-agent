@@ -91,7 +91,9 @@
                               other agents
 
  PJE role                    Case study — first real-world application,
-                              not a sub-agent or specification
+                              not a sub-agent or specification.
+                              Retired 2026-03-10 → replaced by
+                              psh-facet-vocabulary
 
  Evaluator trigger           Tiered (lightweight default, escalate on
                               disagreement or uncertainty)
@@ -666,6 +668,12 @@
                                    (Session 60); EF-1 trust model;
                                    /knock analysis of push-notification.
                                  Decided: 2026-03-09
+
+ PSH facet vocabulary          PSH L1 + project-local extensions
+ (psh-facet-vocabulary)        (PL-NNN) replace PJE; schema.org types
+                                as second vocabulary; literary warrant
+                                governs vocabulary growth.
+                                Decided: 2026-03-10
 ────────────────────────────────────────────────────────────────────────
 ```
 

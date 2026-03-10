@@ -62,6 +62,7 @@ partner, and Socratic interlocutor
 42. [The Gate That Keeps the Budget: Blocking Semantics in a Poll-Based Mesh](#42-the-gate-that-keeps-the-budget)
 43. [The First Autonomous Exchange: What Three Bugs Reveal About Agent Infrastructure](#43-the-first-autonomous-exchange)
 44. [From Ping to Knowledge: The First Substantive Autonomous Exchange](#44-from-ping-to-knowledge)
+45. [When the Vocabulary Outlives Its Authority: Replacing PJE with Literary Warrant](#45-when-the-vocabulary-outlives-its-authority)
 
 ---
 
@@ -1667,3 +1668,33 @@ What remains unvalidated: consistency across repeated queries (would the same qu
 
 ---
 
+
+
+## §45. When the Vocabulary Outlives Its Authority: Replacing PJE with Literary Warrant {#45-when-the-vocabulary-outlives-its-authority}
+
+*Session 62e (2026-03-10). Continued from §44.*
+
+From the project's earliest sessions, we organized work under PJE — Psychology, Jurisprudence, Engineering — treating these three disciplines as the natural partitioning of our domain. §4 already documented the insight that "PJE was a case study, not a specification." This session made good on that insight by replacing PJE with a standardized vocabulary and a mechanism for vocabulary growth.
+
+The catalyst came from attempting to classify entities in state.db. The PJE taxonomy produced 681 facets across 453 entities, but 68 entities landed in "cross-cutting" — a catch-all that masked genuine classification failures. Worse, "engineering" had become a bin for everything from SQLite schemas to cron jobs to distributed systems to AI/ML tooling. A category that contains everything contains nothing.
+
+We turned to PSH (Polythematic Structured Subject Headings), the Czech National Library's 44-category controlled vocabulary based on UDC (Universal Decimal Classification) principles. PSH offered two properties PJE lacked: standardized category definitions (no more "what counts as jurisprudence?") and a complete vocabulary tree (13,900+ terms with 6-7 level hierarchies). Psychology maps cleanly to PSH9194. Law maps to PSH8808. "Engineering" fragments across at least seven PSH categories — computer technology (PSH12314), information science (PSH6445), systems theory (PSH11322), communications (PSH9759), mathematics (PSH7093), and more. This fragmentation does not represent a problem; it represents accuracy that PJE's coarse binning concealed.
+
+But PSH carries its own limitation: staleness. The vocabulary last received substantial updates around 2015. It predates multi-agent AI systems entirely — no category covers agents, large language models, tool use, alignment, or autonomous operation. Our entity text contains 320+ occurrences of "agent," 93 of "model," 30 of "Claude," yet PSH has nowhere to put them.
+
+The solution draws from Hulme's (1911) literary warrant principle: vocabulary terms earn inclusion when enough resources cluster around them. Rather than waiting for PSH to update, we established project-local extensions with PL-NNN codes. PL-001 (ai-systems) earned immediate inclusion — 29 entities classified, with specific keywords like "multi-agent," "system prompt," "agent card," and "evaluator-as-arbiter." The `--discover` mode in `bootstrap_facets.py` now runs a staleness analysis alongside standard literary warrant detection, surfacing domains where PSH vocabulary gaps prevent classification.
+
+We paired PSH subjects with schema.org types — a second orthogonal vocabulary. Where PSH answers "what subject does this entity concern?", schema.org answers "what kind of thing does this entity represent?" Transport messages carry `schema:Message`. Decisions carry `schema:ChooseAction`. Claims carry `schema:Claim`. These type assignments hold regardless of subject — a psychology claim and an engineering claim both carry `schema:Claim`. The two vocabularies compose: `SELECT * FROM universal_facets WHERE facet_type = 'psh' AND facet_value = 'psychology'` returns subject-classified entities; `WHERE facet_type = 'schema_type' AND facet_value = 'schema:Claim'` returns type-classified entities; joined, they return psychology claims specifically.
+
+An implementation detail that proved conceptually significant: agent IDs in entity text triggered false-positive keyword matches. "psychology-agent" contains "psycholog" — a psychology keyword — causing every transport message between agents to classify as psychology regardless of content. We strip known agent IDs from classification text before keyword matching. This principle extends: any classification system operating on textual features must account for metadata tokens that coincidentally match content tokens.
+
+The Plan 9 insight from earlier sessions (§41) now operates at full strength. PSH categories function as namespaces composed at query time, not directories navigated at storage time. An entity simultaneously inhabits `psh:psychology`, `psh:mathematics`, and `schema_type:schema:Claim` without residing in any particular "directory." The filesystem analogy: instead of `pje-framework/psychology/claims/`, every entity lives at its own address and queries bind the relevant namespace at read time.
+
+What this validates: project-specific taxonomies serve as bootstrapping aids — they provide initial orientation until the data accumulates enough for empirical classification. PJE helped us think about the project's three main threads. PSH helps us classify what we actually produced. The transition from invented vocabulary to warranted vocabulary mirrors the maturation pattern in any classification system: start with expert intuition, replace with empirical evidence as the collection grows (Svenonius, 2000).
+
+What remains open: L2 sub-categories (e.g., `psychology/psychometrics`) have not yet earned warrant. The `--discover` mode identifies candidates but the threshold (10+ entities benefiting from sub-classification) has not been met for any category. As state.db grows, L2 refinement should emerge naturally.
+
+⚑ EPISTEMIC FLAGS
+- PSH keyword matching uses substring containment, not word boundaries — short keywords like "rule" or "gate" may produce false positives at scale
+- Literary warrant thresholds (L1: 5+ entities, L2: 10+ entities) were chosen pragmatically, not from any established standard
+- The agent-ID noise fix handles known agent names but would miss novel agent names introduced without updating the exclusion list
