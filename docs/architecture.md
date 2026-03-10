@@ -674,6 +674,20 @@
                                 as second vocabulary; literary warrant
                                 governs vocabulary growth.
                                 Decided: 2026-03-10
+
+ Registry spec/instantiation   agent-registry.json (public template)
+ (registry-spec-split)         + agent-registry.local.json (gitignored
+                                instantiation). _deep_merge at runtime.
+                                Separates transport specification from
+                                infrastructure topology.
+                                Decided: 2026-03-10
+
+ Pre-flight transport diff     autonomous-sync.sh skips claude /sync
+ (preflight-transport-diff)    when git pull brings no transport changes
+                                AND no unprocessed messages in state.db
+                                AND no active gates. Gate-accelerated
+                                cycles bypass the check.
+                                Decided: 2026-03-10
 ────────────────────────────────────────────────────────────────────────
 ```
 

@@ -158,6 +158,14 @@
                               v10 (active_gates). Trust model preserved.
                               Spec: docs/gated-chains-spec.md.
                               2026-03-09
+ Registry spec/instantiation  agent-registry.json (public) + .local.json
+                              (gitignored). _deep_merge at runtime.
+                              Separates transport specification from
+                              infrastructure topology. 2026-03-10
+ Pre-flight transport diff    autonomous-sync.sh skips claude /sync when
+                              no transport changes, no unprocessed msgs,
+                              no active gates. Gate-accelerated bypasses.
+                              2026-03-10
 ```
 
 ## Authority Hierarchy
