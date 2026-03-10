@@ -121,6 +121,23 @@ def trigger_summary(conn: sqlite3.Connection) -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def waiting_gates(conn: sqlite3.Connection, agent_id: str) -> list[dict]:
+    try:
+        rows = conn.execute(
+            "SELECT gate_id, sending_agent, receiving_agent, session_name, "
+            "blocks_until, timeout_minutes, fallback_action, "
+            "created_at, timeout_at "
+            "FROM active_gates "
+            "WHERE status = 'waiting' "
+            "AND (sending_agent = ? OR receiving_agent = ?) "
+            "ORDER BY created_at",
+            (agent_id, agent_id),
+        ).fetchall()
+        return [dict(r) for r in rows]
+    except sqlite3.OperationalError:
+        return []
+
+
 def format_payload(
     identity: dict,
     sessions: list,
@@ -130,6 +147,7 @@ def format_payload(
     decisions: list,
     budget: dict | None,
     stale: list,
+    gates: list | None = None,
 ) -> str:
     lines = []
     now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
@@ -157,6 +175,25 @@ def format_payload(
     else:
         lines.append("  No budget entry — first run will initialize.")
     lines.append("")
+
+    # Active gates (gated autonomous chains)
+    if gates:
+        lines.append(f"## Active Gates ({len(gates)}) — ACCELERATED POLLING")
+        for gate in gates:
+            role = "SENDER" if gate["sending_agent"] == identity["agent_id"] else "RECEIVER"
+            peer = gate["receiving_agent"] if role == "SENDER" else gate["sending_agent"]
+            lines.append(
+                f"  [{role}] {gate['gate_id']} → {peer}"
+            )
+            lines.append(
+                f"    Session: {gate['session_name']}, "
+                f"blocks_until: {gate['blocks_until']}, "
+                f"timeout: {gate['timeout_at']}"
+            )
+            lines.append(
+                f"    Fallback: {gate['fallback_action']}"
+            )
+        lines.append("")
 
     # Recent sessions
     lines.append(f"## Recent Sessions (last {len(sessions)})")
@@ -249,6 +286,7 @@ def main() -> None:
         decisions=active_decisions(conn),
         budget=trust_budget_status(conn, agent_id),
         stale=stale_memory(conn),
+        gates=waiting_gates(conn, agent_id),
     )
 
     print(payload)

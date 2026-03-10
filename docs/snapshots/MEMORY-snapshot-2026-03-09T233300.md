@@ -17,25 +17,24 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 61. Gated autonomous chains designed and
-implemented — 4-layer fallback cascade, schema v10, dual_write gate commands,
-autonomous-sync gate-aware acceleration, /sync skill wired.
+**Where we stopped:** Session 60. Cross-repo transport fully implemented
+(psychology-agent side complete, PR #2 sent to safety-quotient). Trust model
+extended with min_action_interval. Pre-commit hook + self-healing cron.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - Cogarch portability: ✓ COMPLETE `[cold: done]`
 - CLAUDE.md: ✓ 186 lines `[hot: healthy]`
 - PSQ scoring: quiescent `[hot: no action needed]`
-- SQLite state layer: schema v10, 13 tables, active_gates table `[warm]`
-- Autonomous mesh: sync + trust model + gate-aware acceleration + wake-up `[warm]`
-- Gated chains: ✓ spec + schema + scripts + /sync wired `[warm]`
-- Cross-repo transport (psych side): ✓ COMPLETE `[warm]`
-- Cross-repo transport (SQ side): ✓ PR #2 merged — 5-step chromabook setup remaining `[warm]`
+- SQLite state layer: schema v9, 12 tables, min_action_interval column `[warm]`
+- Autonomous mesh: sync script + trust model + pre-commit hook + agent registry `[warm]`
+- Cross-repo transport (psych side): ✓ COMPLETE — remote, fetch script, /sync, orientation `[warm]`
+- Cross-repo transport (SQ side): ⚑ PR #2 open — merge + 5-step setup on chromabook `[warm]`
 - Lesson lifecycle: ✓ 17/25 graduated, 1 candidate, 7 below threshold `[warm]`
 - Epistemic debt: 270 flags, 0% resolved — no resolution mechanism yet `[warm]`
 - DI Phase A Pass 2: pending (inter-rater reliability, fresh session) `[cold]`
 
-**Next:** Chromabook 5-step setup. First gated chain test (psych→psq).
-First autonomous sync test. DI Phase A Pass 2 (fresh session).
+**Next:** Merge PR #2 + chromabook setup. First autonomous sync test (Tier 1
+dry run). DI Phase A Pass 2 (fresh session). Awesome-claude-code (#52).
 
 
 ## Memory Hygiene

@@ -28,6 +28,18 @@ Usage:
         [--recurrence N] [--trigger-relevant TID] \
         [--promotion-status STATUS] [--lesson-text TEXT]
 
+    python scripts/dual_write.py gate-open --gate-id GID \
+        --sending-agent FROM --receiving-agent TO \
+        --session SESSION --filename FILE \
+        [--blocks-until response|ack|specific-turn] \
+        [--timeout-minutes N] [--fallback-action ACTION]
+
+    python scripts/dual_write.py gate-resolve --gate-id GID --resolved-by FILE
+
+    python scripts/dual_write.py gate-timeout --gate-id GID
+
+    python scripts/dual_write.py gate-status [--agent-id AID]
+
 Requires: Python 3.10+ (stdlib only)
 """
 import argparse
@@ -206,6 +218,125 @@ def cmd_lesson(args: argparse.Namespace) -> None:
     print(f"upserted: lessons/{args.title}")
 
 
+# ── gate-open ─────────────────────────────────────────────────────────────
+
+def cmd_gate_open(args: argparse.Namespace) -> None:
+    conn = get_connection()
+    # Ensure table exists (schema v10 migration-safe)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS active_gates (
+            gate_id             TEXT PRIMARY KEY,
+            sending_agent       TEXT NOT NULL,
+            receiving_agent     TEXT NOT NULL,
+            session_name        TEXT NOT NULL,
+            outbound_filename   TEXT NOT NULL,
+            blocks_until        TEXT NOT NULL DEFAULT 'response',
+            timeout_minutes     INTEGER NOT NULL DEFAULT 60,
+            fallback_action     TEXT NOT NULL DEFAULT 'continue-without-response',
+            status              TEXT NOT NULL DEFAULT 'waiting',
+            created_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
+            resolved_at         TEXT,
+            resolved_by         TEXT,
+            timeout_at          TEXT NOT NULL
+        )
+    """)
+    timeout_minutes = min(args.timeout_minutes or 60, 1440)  # cap at 24h
+    conn.execute("""
+        INSERT OR REPLACE INTO active_gates
+            (gate_id, sending_agent, receiving_agent, session_name,
+             outbound_filename, blocks_until, timeout_minutes,
+             fallback_action, status, timeout_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?,
+                ?, 'waiting',
+                strftime('%Y-%m-%dT%H:%M:%S',
+                         datetime('now', 'localtime', '+' || ? || ' minutes')))
+    """, (
+        args.gate_id, args.sending_agent, args.receiving_agent,
+        args.session, args.filename, args.blocks_until or "response",
+        timeout_minutes, args.fallback_action or "continue-without-response",
+        str(timeout_minutes),
+    ))
+    conn.commit()
+    conn.close()
+    print(f"gate opened: {args.gate_id} "
+          f"({args.sending_agent} → {args.receiving_agent}, "
+          f"timeout {timeout_minutes}min)")
+
+
+# ── gate-resolve ──────────────────────────────────────────────────────────
+
+def cmd_gate_resolve(args: argparse.Namespace) -> None:
+    conn = get_connection()
+    cursor = conn.execute("""
+        UPDATE active_gates
+        SET status = 'resolved',
+            resolved_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
+            resolved_by = ?
+        WHERE gate_id = ? AND status = 'waiting'
+    """, (args.resolved_by, args.gate_id))
+    conn.commit()
+    if cursor.rowcount == 0:
+        print(f"warning: no waiting gate found for gate_id={args.gate_id}",
+              file=sys.stderr)
+    else:
+        print(f"gate resolved: {args.gate_id} by {args.resolved_by}")
+    conn.close()
+
+
+# ── gate-timeout ──────────────────────────────────────────────────────────
+
+def cmd_gate_timeout(args: argparse.Namespace) -> None:
+    conn = get_connection()
+    cursor = conn.execute("""
+        UPDATE active_gates
+        SET status = 'timed-out',
+            resolved_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
+        WHERE gate_id = ? AND status = 'waiting'
+    """, (args.gate_id,))
+    conn.commit()
+    if cursor.rowcount == 0:
+        print(f"warning: no waiting gate found for gate_id={args.gate_id}",
+              file=sys.stderr)
+    else:
+        print(f"gate timed out: {args.gate_id}")
+    conn.close()
+
+
+# ── gate-status ───────────────────────────────────────────────────────────
+
+def cmd_gate_status(args: argparse.Namespace) -> None:
+    conn = get_connection()
+    conn.row_factory = sqlite3.Row
+    # Check table exists
+    tables = [r[0] for r in conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='active_gates'"
+    ).fetchall()]
+    if "active_gates" not in tables:
+        print(json.dumps({"active_gates": 0, "gates": []}))
+        conn.close()
+        return
+
+    query = """
+        SELECT gate_id, sending_agent, receiving_agent, session_name,
+               outbound_filename, blocks_until, timeout_minutes,
+               fallback_action, status, created_at, timeout_at,
+               resolved_at, resolved_by
+        FROM active_gates
+        WHERE status = 'waiting'
+    """
+    params: tuple = ()
+    if args.agent_id:
+        query += " AND (sending_agent = ? OR receiving_agent = ?)"
+        params = (args.agent_id, args.agent_id)
+    query += " ORDER BY created_at"
+
+    rows = conn.execute(query, params).fetchall()
+    gates = [dict(r) for r in rows]
+    result = {"active_gates": len(gates), "gates": gates}
+    print(json.dumps(result, indent=2))
+    conn.close()
+
+
 # ── main ─────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -270,6 +401,33 @@ def main() -> None:
     ls.add_argument("--promotion-status")
     ls.add_argument("--lesson-text")
 
+    # gate-open
+    go = sub.add_parser("gate-open", help="Open a gated chain")
+    go.add_argument("--gate-id", required=True)
+    go.add_argument("--sending-agent", required=True)
+    go.add_argument("--receiving-agent", required=True)
+    go.add_argument("--session", required=True)
+    go.add_argument("--filename", required=True)
+    go.add_argument("--blocks-until", default="response",
+                    choices=["response", "ack", "specific-turn"])
+    go.add_argument("--timeout-minutes", type=int, default=60)
+    go.add_argument("--fallback-action", default="continue-without-response",
+                    choices=["continue-without-response", "retry-once",
+                             "halt-and-escalate"])
+
+    # gate-resolve
+    gr = sub.add_parser("gate-resolve", help="Resolve a waiting gate")
+    gr.add_argument("--gate-id", required=True)
+    gr.add_argument("--resolved-by", required=True)
+
+    # gate-timeout
+    gt = sub.add_parser("gate-timeout", help="Mark a gate as timed out")
+    gt.add_argument("--gate-id", required=True)
+
+    # gate-status
+    gs = sub.add_parser("gate-status", help="Show active gates (JSON)")
+    gs.add_argument("--agent-id")
+
     args = parser.parse_args()
 
     dispatch = {
@@ -280,6 +438,10 @@ def main() -> None:
         "decision": cmd_decision,
         "trigger-fired": cmd_trigger_fired,
         "lesson": cmd_lesson,
+        "gate-open": cmd_gate_open,
+        "gate-resolve": cmd_gate_resolve,
+        "gate-timeout": cmd_gate_timeout,
+        "gate-status": cmd_gate_status,
     }
     dispatch[args.command](args)
 

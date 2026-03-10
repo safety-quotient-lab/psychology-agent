@@ -59,6 +59,7 @@ partner, and Socratic interlocutor
 39. [Private by Default: How Data Governance Emerges in Agent Systems](#39-private-by-default)
 40. [When Lessons Graduate: The Emergence of Mechanical Conventions from Pattern Recognition](#40-when-lessons-graduate)
 41. [Filesystem as Protocol: Plan 9 and the Cross-Repo Transport Decision](#41-filesystem-as-protocol)
+42. [The Gate That Keeps the Budget: Blocking Semantics in a Poll-Based Mesh](#42-the-gate-that-keeps-the-budget)
 
 ---
 
@@ -1557,6 +1558,52 @@ What this design reveals: the Plan 9 philosophy does not require Plan 9's implem
 - The cross-repo transport design remains untested. No safety-quotient transport infrastructure exists yet. First autonomous sync test will validate the git remote fetch path.
 - The Plan 9 analogy, while architecturally productive, should not obscure the gap between a kernel-level namespace protocol and application-level git commands. The design borrows Plan 9's naming philosophy, not its performance characteristics or failure semantics.
 - The ping-pong feedback loop (Order 9 of the knock-on analysis) was identified analytically. Empirical validation requires running both agents with post-receive triggers — which we have intentionally deferred in favor of cron-only MVP.
+
+---
+
+
+## §42. The Gate That Keeps the Budget: Blocking Semantics in a Poll-Based Mesh {#42-the-gate-that-keeps-the-budget}
+
+*(Session 61, 2026-03-09)*
+
+The cross-repo transport design from §41 solved the addressing problem — agents read each other's outboxes via `git show` — but left a latency problem. With both agents polling on 5-minute cron intervals, a round-trip message exchange takes 10-20 minutes. For most interagent communication, that latency carries no cost. Status updates, ACKs, and notifications tolerate minute-scale delays. But one use case breaks the tolerance assumption: gated autonomous chains, where Agent A sends a message and cannot proceed until Agent B responds.
+
+We arrived at gated chains through a knock-on analysis of push-notification infrastructure. The 10-order trace began with the obvious: git-push + post-receive hooks on a LAN bare repo would reduce delivery latency from minutes to seconds. But the cascade surfaced three structural problems:
+
+**Shared infrastructure contradiction.** The Session 60 design specifically adopted the Plan 9 split-outbox model to eliminate shared writable directories. A bare repo with post-receive hooks reintroduces shared infrastructure — a component both agents depend on that neither owns. The design invariant ("no shared writable directories") weakened to "split write paths, shared notification path."
+
+**Failure mode multiplication.** The existing cron-poll model has one failure mode: cron stops running. Push-notification adds four: bare repo corruption, post-receive hook failure, network partition affecting SSH but not git, and wake-up signal delivery failure. Each failure mode needs its own recovery path, and the existing cron poll becomes the fallback — meaning we maintain two transport triggers for one logical operation.
+
+**Emergent trust budget pressure.** Order 9 of the knock-on analysis identified an interaction effect: if push-notification delivers messages in seconds, the `min_action_interval` (300s) becomes the bottleneck. Agents receive messages instantly but can't act for 5 minutes. This creates visible latency that pressures reducing the interval, which directly increases budget burn rate. The trust model's temporal spacing guarantee — designed to prevent runaway autonomous action — comes into tension with the notification system's speed.
+
+The resolution emerged from reframing the question. Instead of asking "how do we notify agents faster?" we asked "how do we make agents wait efficiently?" The answer: a 4-layer fallback cascade where each layer operates independently.
+
+**L1 (Standard cron poll, always on).** The existing 5-minute cron — never disabled, no changes needed. Guarantees delivery even if every other mechanism fails. Reliability: maximum — cron and git represent the most battle-tested infrastructure in the stack.
+
+**L2 (Gate-aware acceleration).** When an agent has an active gate — a message it sent with a `blocks_until` declaration — `autonomous-sync.sh` overrides `min_action_interval` from 300s to 60s for that cycle only. The override applies exclusively to the sending agent, exclusively while gates remain open. The critical design choice: no-op polls (those that check for responses and find none) cost zero trust budget credits and clear `last_action` to allow immediate re-polling. This prevents gated chains from exhausting budget through waiting.
+
+**L3 (LAN wake-up signal).** After pushing a gated message, the sending agent executes `ssh peer-host "touch /tmp/sync-wake-{agent-id}"`. The receiving agent's next sync cycle checks for the wake-up file, removes it, and enters accelerated mode. This reduces first-delivery latency from 5 minutes to the receiver's current poll interval — typically seconds if the receiver also has an active gate. No daemon, no server, no persistent process — just SSH and a file existence check.
+
+**L4 (Push-notification hook, deferred).** The original bare-repo approach, shelved until L1-L3 prove insufficient. The /knock analysis established the conditions under which L4 would become necessary: a protocol that requires sub-minute delivery latency and cannot tolerate the L2/L3 path (approximately 2-3 minutes worst case).
+
+The gate protocol itself extends interagent/v1 with sender-side blocking semantics. A new `gate` field declares `blocks_until` (what clears the gate), `timeout_minutes` (how long to wait), and `fallback_action` (what happens on timeout — continue, retry, or halt-and-escalate). The key backward-compatibility property: agents that don't understand the `gate` field still process the message normally via the existing `ack_required` mechanism. The gate adds blocking behavior on the sender side without requiring receiver-side changes.
+
+The timeout handling reveals how trust model constraints interact with blocking semantics. Three fallback actions produce different trust model effects:
+
+- **continue-without-response** — the gentlest option. The gate expires, the sender resumes normal operation, and the unresolved exchange gets logged. No budget consumed beyond standard sync costs.
+- **retry-once** — the sender re-transmits the original message with a new turn number and a fresh timeout. If the retry also times out, it escalates to halt-and-escalate. A retry cycle consumes one additional Tier 1 credit.
+- **halt-and-escalate** — the most conservative. The gate expiration halts autonomous operation entirely by writing a halt marker to local-coordination and exhausting the trust budget. Human review required to resume. This makes sense for gated chains where proceeding without the response would produce incorrect outcomes.
+
+The 0-cost no-op poll represents the design's most novel — and least validated — trust model interaction. The EF-1 governance model states "no action without evaluation." A no-op poll technically constitutes an action (the sync script runs, checks for responses, finds none, exits). We classify this as a non-action on the theory that checking for mail and finding none produces no state change and carries no risk. The classification holds if — and only if — the sync script genuinely performs no side effects during a no-op check. The implementation enforces this by clearing `last_action` after a no-op, allowing the next poll to fire immediately without consuming the standard 300-second spacing guarantee.
+
+What emerges from this design: the fallback cascade converts a hard infrastructure problem (reliable push-notification) into a soft scheduling problem (adaptive polling intervals). L1 provides the reliability floor — it always works. L2 provides the latency improvement — it reduces round-trip from minutes to about a minute. L3 provides an optional speed boost — it reduces first-delivery to seconds when both machines share a LAN. Each layer degrades independently. If L3 fails (no LAN), L2 still accelerates. If L2 fails (gate table corrupted), L1 still delivers within 5 minutes. No single layer's failure blocks message delivery.
+
+The analogy that clarifies: this resembles TCP's adaptive retransmission, not HTTP's request-response. TCP adjusts its retry timing based on observed network conditions while maintaining a base timeout. Our gated chains adjust poll frequency based on active gate state while maintaining a base interval. Both systems optimize for the common case (fast delivery when conditions allow) without sacrificing reliability guarantees (delivery even when conditions degrade).
+
+⚑ EPISTEMIC FLAGS
+- The 0-cost no-op poll classification remains unvalidated against the full EF-1 invariant set. The argument ("checking for mail carries no risk") has intuitive force but lacks formal verification against the governance model's seven invariants.
+- The 4-layer cascade has not been tested end-to-end. Each layer was validated independently (cron works, gate-status command works, SSH touch works), but their interaction under failure conditions remains theoretical.
+- The TCP analogy, while structurally apt, obscures a key difference: TCP operates at millisecond timescales with kernel-level guarantees. Our cascade operates at second-to-minute timescales with application-level guarantees. The failure semantics differ accordingly.
 
 ---
 

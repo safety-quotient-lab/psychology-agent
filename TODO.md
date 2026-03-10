@@ -182,6 +182,47 @@ human-mediated Claude Code sessions to autonomous operation.
 
 ---
 
+## Gated Autonomous Chains
+
+Design decision (Session 61): 4-layer fallback cascade for gated message
+exchanges. Gate protocol extends interagent/v1 with sender-side blocking
+semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
+
+- [x] **Schema v10 migration (active_gates table)** — COMPLETE (Session 61).
+  Table tracks gate_id, sending/receiving agents, timeout, fallback action.
+
+- [x] **dual_write.py gate commands** — COMPLETE (Session 61). Four new
+  subcommands: gate-open, gate-resolve, gate-timeout, gate-status.
+
+- [x] **autonomous-sync.sh gate-aware acceleration (L2)** — COMPLETE (Session 61).
+  Checks active_gates before interval check. When gates exist, overrides
+  min_action_interval to 60s. No-op polls cost 0 budget credits.
+
+- [x] **autonomous-sync.sh wake-up file check (L3)** — COMPLETE (Session 61).
+  Checks /tmp/sync-wake-{agent-id} at startup. Peer agents can SSH-touch
+  the file to trigger immediate acceleration.
+
+- [x] **autonomous-sync.sh timeout handler** — COMPLETE (Session 61).
+  Three fallback actions: continue-without-response, retry-once,
+  halt-and-escalate. Timeout events write to autonomous_actions audit trail.
+
+- [x] **orientation-payload.py gate section** — COMPLETE (Session 61).
+  Active gates appear in orientation payload with SENDER/RECEIVER role,
+  timeout time, and fallback action.
+
+- [x] **/sync skill update — gate detection on inbound + resolve on response**
+  — COMPLETE (Session 61). Phase 3 step 7 checks `in_response_to` against
+  active gates, auto-resolves via `dual_write.py gate-resolve`. Phase 4
+  documents gate field for outbound messages. Output format includes gate status.
+
+- [ ] **First gated chain test** — send a real gated message from
+  psychology-agent to psq-agent, verify accelerated polling, resolution,
+  and timeout fallback. M effort.
+  *Precondition: /sync gate detection ✓ + chromabook setup ⚑ PARTIAL
+  (PR #2 merged, 5-step setup not yet executed). Grounding audit: Session 61.*
+
+---
+
 ## Cross-Repo Transport (Safety-Quotient Agent)
 
 Design decision (Session 60): cross-repo transport via git remote fetch.
@@ -208,13 +249,9 @@ Plan 9-inspired split-outbox model — no shared writable directories.
 
 ### Safety-quotient agent side
 
-- [ ] **Merge PR #2 + post-merge setup** — PR delivers: transport/ structure,
-  agent-registry, MANIFEST, .githooks/pre-commit, schema_transport.sql,
-  bootstrap_transport_db.py, autonomous-sync.sh, ensure-cron.sh,
-  cross_repo_fetch.py, orientation-payload.py, .agent-identity.json.example.
-  Post-merge: cp identity example, add git remote, bootstrap DB, configure
-  hooks, install cron. XS effort (5 commands).
-  *PR: safety-quotient-lab/safety-quotient#2*
+- [x] **Merge PR #2 + post-merge setup** — COMPLETE (Session 60). PR merged.
+  Remaining: 5-step chromabook setup (cp identity, git remote, bootstrap DB,
+  hooks, cron). Execute on chromabook via SSH.
 
 - [ ] **Update /sync skill for cross-repo-fetch inbound** — the existing
   /sync uses PR-based transport. Add cross-repo-fetch path to Phase 1

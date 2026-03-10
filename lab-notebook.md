@@ -69,9 +69,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Opus remediation + v37        | ✓ COMPLETE — v37 deployed, calibration-v4 live (Session 46-47) |
 | B3 recalibration (steps 5-6)  | ✓ COMPLETE — calibration-v4 deployed, 9/10 dims MAE ≤ v3 (turn 33) |
 | B4 partial correlations       | ✓ COMPLETE — mean |partial r|=0.205, bipolar confirmed, DA isolated (turn 40-41) |
-| SQLite state layer (schema)   | ✓ scripts/schema.sql v9 committed — 12 tables + trust budget + min_action_interval + ACK columns + MANIFEST migration + lessons + table_visibility (Session 48-51, 59-60) |
+| SQLite state layer (schema)   | ✓ scripts/schema.sql v10 committed — 13 tables incl. active_gates + trust budget + min_action_interval + ACK columns + MANIFEST migration + lessons + table_visibility (Session 48-51, 59-61) |
 | SQLite state layer (bootstrap)| ✓ SL-1 COMPLETE — PR #90 merged, all 9 validation checks pass (Session 50) |
-| SQLite dual-write (SL-2)     | ✓ COMPLETE — scripts/dual_write.py (7 subcommands incl. lesson), /sync + /cycle skills updated (Session 51, 59) |
+| SQLite dual-write (SL-2)     | ✓ COMPLETE — scripts/dual_write.py (11 subcommands incl. lesson + 4 gate cmds), /sync + /cycle skills updated (Session 51, 59, 61) |
 | Optional ACK protocol         | ✓ ack_required flag (sender-controlled, default false); state.db processed column replaces mandatory ACKs (Session 51) |
 | README quickstart             | ✓ Zero-to-demo with 5 accordion demos (conversational, PSQ, /knock, /iterate, SPSS) (Session 51) |
 | Synrix-inspired improvements  | ✓ 6 items: tiered access, scope boundaries, postmortem template, deterministic keys, psq_status table, entry_facets polythematic (Session 48) |
@@ -96,7 +96,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Pre-commit secret scanning    | ✓ `.githooks/pre-commit` — 3-layer scan (forbidden files, content patterns, autonomous allowlist) (Session 60) |
 | Cross-repo transport design   | ✓ Git remote fetch for safety-quotient agent — architecture decision, agent-registry updated, TODO items tracked (Session 60) |
 | Cross-repo transport (psych side) | ✓ `cross_repo_fetch.py` + /sync Phase 1b + orientation wiring + bootstrap parameterized — all 4 items complete (Session 60) |
-| Cross-repo transport (SQ side) | ⚑ PR #2 open on safety-quotient-lab/safety-quotient — 11 files, 5-step setup after merge (Session 60) |
+| Cross-repo transport (SQ side) | ✓ PR #2 merged — 5-step chromabook setup remaining (Session 60) |
+| Gated autonomous chains       | ✓ Design spec + 4-layer fallback cascade + schema v10 + dual_write gate cmds + autonomous-sync gate-aware acceleration + /sync wired (Session 61) |
 | Autonomous-sync directory arg | ✓ `autonomous-sync.sh` accepts $1 or PROJECT_ROOT env — multi-repo capable (Session 60) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
@@ -4101,3 +4102,60 @@ Cross-repo transport implementation — psychology-agent side complete, PR sent.
 - PR #2 awaits merge + 5-step setup on chromabook before cross-repo transport
   functions end-to-end. The design validated via `git show` reads, but full
   autonomous cycle remains untested.
+
+
+## 2026-03-09T23:28 CDT — Session 61 (Gated autonomous chains — design + implementation)
+
+- **Design decision:** Gated autonomous chains with 4-layer fallback cascade.
+  /knock analysis evaluated git-push + post-receive hook; recommended deferring
+  L4 (push-notification) in favor of L1-L3 (standard poll + gate-aware acceleration
+  + LAN wake-up signal). No shared infrastructure required.
+  ▶ docs/gated-chains-spec.md (full spec)
+
+- **Gate protocol:** New `gate` field on interagent/v1 messages. Sender declares
+  `blocks_until` (response/ack/specific-turn), `timeout_minutes`, and
+  `fallback_action` (continue-without-response / retry-once / halt-and-escalate).
+  Backward compatible — old receivers ignore the field.
+
+- **Schema v10:** `active_gates` table — gate_id (deterministic key), sending/receiving
+  agents, session, timeout_at (computed), status (waiting/resolved/timed-out/fallback-executed).
+
+- **dual_write.py:** 4 new gate subcommands (gate-open, gate-resolve, gate-timeout,
+  gate-status). Total: 11 subcommands. Validated end-to-end: open → status → resolve.
+
+- **autonomous-sync.sh:** Three additions:
+  1. L2 gate-aware acceleration — checks `active_gates WHERE status='waiting'`;
+     overrides `min_action_interval` to 60s for this cycle only. Trust model
+     preserved: no-op gate polls cost 0 budget credits, `last_action` cleared
+     to allow immediate re-poll.
+  2. L3 wake-up file — checks `/tmp/sync-wake-{agent-id}` (SSH touch from peer).
+  3. Timeout handler — processes expired gates, executes fallback actions,
+     writes halt markers for halt-and-escalate.
+
+- **orientation-payload.py:** Active gates section shows SENDER/RECEIVER role,
+  peer agent, timeout time, and fallback action.
+
+- **/sync skill update:** Phase 3 step 7 (gate resolution — auto-resolve on
+  inbound response matching active gate). Phase 4 documents gate field for
+  outbound messages. Output format includes gate status line.
+
+- **Agent registry:** Added `lan_host` / `lan_user` fields for psq-agent
+  (L3 SSH wake-up targeting).
+
+- **Artifacts created/modified:**
+  - `docs/gated-chains-spec.md` — NEW (design spec)
+  - `scripts/schema.sql` — v10 migration
+  - `scripts/dual_write.py` — 4 gate commands
+  - `scripts/autonomous-sync.sh` — L2/L3 acceleration + timeout handler
+  - `scripts/orientation-payload.py` — gate section
+  - `.claude/skills/sync/SKILL.md` — gate detection + resolution + outbound
+  - `transport/agent-registry.json` — lan_host/lan_user
+  - `TODO.md` — gated chains section
+
+⚑ EPISTEMIC FLAGS
+- Gate-accelerated 0-cost polls not yet validated against EF-1 "no action without
+  evaluation" invariant — the 0-cost classification assumes no-op polls carry no risk
+- L3 SSH wake-up assumes stable LAN DNS (chromabook.local); mDNS failure degrades
+  silently to L1/L2
+- Maximum practical chain depth untested — 5+ sequential gates could consume
+  significant calendar time even with acceleration

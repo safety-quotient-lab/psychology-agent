@@ -298,3 +298,34 @@ VALUES (8, 'State lifecycle — table_visibility with 4-tier model (public/share
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (9, 'Add min_action_interval to trust_budget — temporal spacing guarantee decoupled from triggering mechanism (EF-1 trust model update)');
+
+
+-- ── Schema v10: Gated autonomous chains ─────────────────────────────
+
+-- Active gates — tracks gated message exchanges where the sender blocks
+-- until the receiver responds. Gate-aware polling accelerates delivery;
+-- timeout handling prevents indefinite blocking.
+CREATE TABLE IF NOT EXISTS active_gates (
+    gate_id             TEXT PRIMARY KEY,
+    sending_agent       TEXT NOT NULL,
+    receiving_agent     TEXT NOT NULL,
+    session_name        TEXT NOT NULL,
+    outbound_filename   TEXT NOT NULL,
+    blocks_until        TEXT NOT NULL DEFAULT 'response',
+    timeout_minutes     INTEGER NOT NULL DEFAULT 60,
+    fallback_action     TEXT NOT NULL DEFAULT 'continue-without-response',
+    status              TEXT NOT NULL DEFAULT 'waiting',
+    created_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
+    resolved_at         TEXT,
+    resolved_by         TEXT,
+    timeout_at          TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_gates_status
+    ON active_gates (status) WHERE status = 'waiting';
+
+INSERT OR IGNORE INTO table_visibility (table_name, default_visibility, description)
+VALUES ('active_gates', 'private', 'Gate state — machine-specific operational state');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (10, 'Add active_gates table — gated autonomous chain tracking with timeout and fallback cascade');

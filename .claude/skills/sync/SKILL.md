@@ -200,7 +200,18 @@ message for psq-agent and surfaces it to the user.
 5. If substantive response needed: draft it (but MUST NOT send without user
    confirmation for substance decisions; process decisions MAY proceed autonomously)
 6. If `ack_required: true` and no substantive response: write a minimal ACK
-7. **Dual-write (SL-2):** After processing, mark as processed:
+7. **Gate resolution check:** If this inbound message responds to a gated
+   outbound message (check `in_response_to` against active gates):
+   ```bash
+   # Check if the response resolves a waiting gate
+   python scripts/dual_write.py gate-status --agent-id psychology-agent
+   # If match found (same session + responding agent matches gate's receiving_agent):
+   python scripts/dual_write.py gate-resolve \
+     --gate-id "{matching_gate_id}" --resolved-by "{inbound_filename}"
+   ```
+   The gate resolution check runs automatically — no user confirmation needed
+   (process decision, not substance).
+8. **Dual-write (SL-2):** After processing, mark as processed:
    ```bash
    python scripts/dual_write.py mark-processed --filename "{filename}"
    ```
@@ -253,6 +264,42 @@ Template — adapt per message:
 - 0.03–0.07: Minor inference, high confidence
 - 0.08–0.15: Moderate inference or domain boundary
 - 0.16+: Significant interpretation required
+
+**Gate field (gated autonomous chains):**
+
+When drafting an outbound message that blocks on the receiver's response,
+add the `gate` field to the message JSON:
+
+```json
+"gate": {
+  "gate_id": "{topic}-gate-{YYYYMMDD}",
+  "blocks_until": "response",
+  "timeout_minutes": 60,
+  "fallback_action": "continue-without-response",
+  "priority": "gated"
+}
+```
+
+After writing the message file, register the gate in state.db:
+```bash
+python scripts/dual_write.py gate-open \
+  --gate-id "{gate_id}" \
+  --sending-agent psychology-agent \
+  --receiving-agent "{peer-agent-id}" \
+  --session "{session}" \
+  --filename "{outbound_filename}" \
+  --blocks-until response \
+  --timeout-minutes 60 \
+  --fallback-action continue-without-response
+```
+
+`blocks_until` values: `response` (any reply clears), `ack` (ACK clears),
+`specific-turn` (named turn clears). `fallback_action` values:
+`continue-without-response`, `retry-once`, `halt-and-escalate`.
+
+Gate-aware polling (L2) activates automatically when active gates exist in
+state.db — `autonomous-sync.sh` accelerates to 60-second intervals. No-op
+polls cost 0 trust budget credits. Full spec: `docs/gated-chains-spec.md`.
 
 ### Phase 5: Update State
 
@@ -315,6 +362,7 @@ git push
   MANIFEST regenerated: {yes — N pending | no changes}
   Sessions opened/closed: {session-id} | none
   Dual-write: {N indexed, M marked processed | skipped (no state.db)}
+  Gates: {N active (gate-ids) | N resolved this cycle | none}
   No new activity: true/false
   Next expected: {what we await from each peer}
 ```
