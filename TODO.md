@@ -194,11 +194,12 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   files at autonomous session start.
   *Precondition: ✓ MET — SL-2 dual-write populates all queried tables.*
 
-- [ ] **Epistemic debt dashboard** — query unresolved epistemic flags across
-  sessions. Surface which sessions left the most unresolved uncertainty.
-  Turns invisible accumulation into a visible backlog. XS effort.
-  *Precondition: ✓ MET — epistemic_flags table populated (270 rows).*
-  *Tables: epistemic_flags (resolved = FALSE, grouped by session_id)*
+- [x] **Epistemic debt dashboard** — COMPLETE (Session 59d).
+  `scripts/epistemic_debt.py` — 4 modes: full dashboard, `--summary` (one-liner
+  for /hunt), `--by-source`, `--by-session`. Two data sources: transport message
+  flags (270 rows, state.db) + lab-notebook ⚑ blocks (56 sessions). Agent
+  attribution, session grouping, staleness detection.
+  *Tables: epistemic_flags JOIN transport_messages; lab-notebook.md regex*
 
 - [ ] **Claim verification velocity** — track how quickly claims get verified,
   which agents produce the highest-confidence claims, and whether SETL scores
