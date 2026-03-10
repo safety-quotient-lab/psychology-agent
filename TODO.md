@@ -168,7 +168,7 @@ human-mediated Claude Code sessions to autonomous operation.
   command-request (`query-facets` action, S effort) → MCP wrapper when runtime
   supports it. **Grounding notes:** state.db must exist, dual-protocol concern
   remains — transport command avoids the second-channel problem.
-  *Precondition: SL-2 populated + first autonomous sync cycle planned*
+  *Precondition: ✓ MET — SL-2 populated + autonomous sync operational (Session 62). Grounding audit Session 62d.*
 
 - [x] **PSQ sub-agent cogarch mirror (Phase 2)** — COMPLETE (Session 52). PR #91 merged.
   T1-T16 mirrored, T15 adapted as producer self-check. Phase 3 (cross-agent faceted

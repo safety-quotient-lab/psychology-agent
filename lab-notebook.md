@@ -69,9 +69,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Opus remediation + v37        | ✓ COMPLETE — v37 deployed, calibration-v4 live (Session 46-47) |
 | B3 recalibration (steps 5-6)  | ✓ COMPLETE — calibration-v4 deployed, 9/10 dims MAE ≤ v3 (turn 33) |
 | B4 partial correlations       | ✓ COMPLETE — mean |partial r|=0.205, bipolar confirmed, DA isolated (turn 40-41) |
-| SQLite state layer (schema)   | ✓ scripts/schema.sql v10 committed — 13 tables incl. active_gates + trust budget + min_action_interval + ACK columns + MANIFEST migration + lessons + table_visibility (Session 48-51, 59-61) |
+| SQLite state layer (schema)   | ✓ scripts/schema.sql v11 committed — 13 tables + unique index on (session_name, from_agent, turn) + next-turn subcommand (Session 48-51, 59-62) |
 | SQLite state layer (bootstrap)| ✓ SL-1 COMPLETE — PR #90 merged, all 9 validation checks pass (Session 50) |
-| SQLite dual-write (SL-2)     | ✓ COMPLETE — scripts/dual_write.py (11 subcommands incl. lesson + 4 gate cmds), /sync + /cycle skills updated (Session 51, 59, 61) |
+| SQLite dual-write (SL-2)     | ✓ COMPLETE — scripts/dual_write.py (12 subcommands incl. lesson + 4 gate cmds + next-turn), /sync + /cycle skills updated (Session 51, 59, 61-62) |
 | Optional ACK protocol         | ✓ ack_required flag (sender-controlled, default false); state.db processed column replaces mandatory ACKs (Session 51) |
 | README quickstart             | ✓ Zero-to-demo with 5 accordion demos (conversational, PSQ, /knock, /iterate, SPSS) (Session 51) |
 | Synrix-inspired improvements  | ✓ 6 items: tiered access, scope boundaries, postmortem template, deterministic keys, psq_status table, entry_facets polythematic (Session 48) |
@@ -90,6 +90,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Lesson promotion lifecycle    | ✓ 17/25 graduated: evaluation.md (6), anti-patterns.md (+2), CLAUDE.md (+2 lines), cogarch/hooks (4). 1 candidate, 7 below threshold (Session 59d) |
 | 4-tier visibility (schema v8) | ✓ table_visibility (public/shared/commercial/private), export_public_state.py (4 profiles: seed/release/licensed/full), private-by-default (Session 59) |
 | Epistemic debt dashboard      | ✓ `scripts/epistemic_debt.py` — 4 modes (full, --summary, --by-source, --by-session), wired into /hunt Phase 1 + /cycle Step 11c (Session 59d) |
+| Mesh status dashboard         | ✓ `scripts/mesh-status.py` — HTTP server (port 8077) + --json CLI, auto-refresh 30s, trust budget / peers / queue / gates / actions / debt (Session 62d) |
+| Adaptive sync (simple)        | ✓ `cross_repo_fetch.py` classifies peers as active/warm/cold, skips cold peers (>24h no exchange), --force override (Session 62d) |
+| Transport dedup (schema v11)  | ✓ UNIQUE index on (session_name, from_agent, turn) + `next-turn` subcommand — canonical turn derivation (Session 62d) |
 | Agent communication asymmetry | ✓ `scripts/agent_communication.py` — mesh imbalance detection, direction asymmetry, quiet pairs (Session 60) |
 | Memory staleness heatmap      | ✓ `scripts/memory_staleness.py` — T9 proxy thresholds, per-topic aggregation, 4 modes (Session 60) |
 | Trust model temporal spacing  | ✓ min_action_interval (300s default), trigger-agnostic enforcement, budget→interval→sync ordering (Session 60) |
@@ -4262,4 +4265,53 @@ gaps discovered during live testing on the chromabook.
 - Single-instance enforcement covers same-agent overlap only — multi-agent
   concurrent access to same repo requires worktree or lock coordination (not built)
 - Substantive response quality based on single observation — no repeated-measure
+
+
+## 2026-03-10T11:36 CDT — Session 62d (Schema v11, adaptive sync, mesh-status dashboard)
+
+Continuation of Session 62 after context compaction.
+
+- **Schema v11 — transport duplicate prevention:** Added UNIQUE index on
+  `(session_name, from_agent, turn)` to prevent same-agent turn collisions.
+  Initial attempt used `(session_name, turn)` — failed with 16 cross-agent
+  collisions (legitimate: two agents independently assign turn numbers in the
+  same session). The `(session_name, from_agent, turn)` scope still found 7
+  historical same-agent collisions from pre-v11 filename-based turn assignment.
+  Index creation fails gracefully on existing DBs; new writes use `next-turn`
+  subcommand to prevent recurrence.
+
+- **`next-turn` subcommand (dual_write.py):** 12th subcommand. Computes
+  `MAX(turn)+1` from state.db across all agents in a session. Canonical source
+  for turn numbers — replaces filename parsing. Transport write contract added
+  to `memory/cogarch.md`.
+
+- **Adaptive sync frequency (simple):** `cross_repo_fetch.py` classifies peers
+  as active (unprocessed messages or active gates), warm (exchange within 24h),
+  or cold (no exchange >24h). Cold peers skip `git fetch` entirely. `--force`
+  overrides. Bug found and fixed: `classify_peer_activity()` used LIKE pattern
+  matching on `message_prefix` (e.g., `%from-psq-sub-agent%`) but `from_agent`
+  column stores `psq-sub-agent` — never matched. Fixed by using agent_id
+  directly + stripping `from-` prefix from message_prefix.
+
+- **mesh-status.py dashboard:** Stdlib-only HTTP server on port 8077 with
+  auto-refreshing dark-theme dashboard. Displays: trust budget (with progress
+  bar), peer activity tiers, unprocessed message queue, active gates, recent
+  messages (last 15), autonomous actions (last 10), epistemic debt. JSON API
+  at `/api/status`. CLI mode: `--json` for scriptable output.
+
+- **shared-scripts.json checksums updated:** autonomous-sync.sh, dual_write.py,
+  schema.sql, cross_repo_fetch.py — all 4 checksums refreshed after modifications.
+
+- **Commits:** `0f2c3e2` (schema v11 + next-turn), `b7f30eb` (adaptive sync +
+  dedup), `9af2960` (mesh-status dashboard)
+
+▶ journal.md §44 covers the substantive exchange narrative (Session 62c)
+
+⚑ EPISTEMIC FLAGS
+- Historical turn collisions (7 rows) prevent v11 unique index creation on
+  existing DBs — index drops and recreates, but legacy data must tolerate
+  collisions or get cleaned up
+- Peer tier classification untested with warm-tier peers (only active and cold
+  observed in current dataset)
+- mesh-status.py HTTP mode untested in this session (JSON/CLI mode validated)
   validation of autonomous domain-knowledge retrieval consistency

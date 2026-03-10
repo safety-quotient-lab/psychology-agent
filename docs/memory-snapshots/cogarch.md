@@ -54,3 +54,9 @@ can instruct the agent to invoke another. Target skill must allow model invocati
 when: (a) a transferable pattern error is identified, (b) the user says they
 want to grok or internalize something, or (c) a moment of genuine conceptual
 shift occurs. Format: see `lessons.md.example`. [confirmed 2026-03-09]
+
+**Transport write contract:** When writing any transport message, derive the
+turn number from `python3 scripts/dual_write.py next-turn --session SESSION`
+(MAX(turn)+1 from state.db across all agents). Never parse filenames or
+directory listings. Follow the read-diff-write-verify pattern from
+`.claude/rules/transport.md` (T16 Check 5). [confirmed 2026-03-10]
