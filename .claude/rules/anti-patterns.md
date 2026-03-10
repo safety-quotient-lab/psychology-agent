@@ -15,3 +15,10 @@ globs: ["**/*.sh", "**/*.js", "**/*.py", "**/*.md"]
 - **Shell state across Bash calls** — env vars, `cd`, and shell functions do not persist.
   Chain commands in a single call (`export FOO=bar && use $FOO`) or write to a file
   and source it.
+- **`settings.local.json` partial allow list** — a `permissions.allow` array in
+  `.claude/settings.local.json` acts as a whitelist. Any tool not listed requires
+  explicit approval, even with `--dangerously-skip-permissions`. Either list all
+  needed tools or remove the allow array entirely.
+- **Parry ML false positives on trusted files** — parry's ML scanner flags
+  CLAUDE.md and cogarch files as prompt injection. When re-adding parry, implement
+  a wrapper-level path exclusion for trusted instruction files.

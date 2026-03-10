@@ -128,7 +128,9 @@ alone without requiring prior sections in working memory.
 Before implementing a fix or new approach, write a 2-sentence plan explaining WHY
 the approach should work. If an approach fails twice, stop and list 3 alternative
 approaches before trying again. Do not brute-force system-level tasks through
-dozens of failing attempts.
+dozens of failing attempts. Verify at the boundary, not after: persist state as
+each piece confirms, verify reverts at every modified location, and defer
+documentation cycles until all session work completes.
 
 ---
 
@@ -160,6 +162,7 @@ File-type-specific conventions live in `.claude/rules/` with glob patterns:
 - `javascript.md` (`**/*.js`) — CF Worker patterns, Agent SDK, PSQ client
 - `transport.md` (`transport/**/*.json`) — interagent protocol, naming, urgency field
 - `anti-patterns.md` (`**/*.{sh,js,py,md}`) — known-failing approaches
+- `evaluation.md` (`docs/dignity-*.md`, `safety-quotient/**/*.md`, `**/*psq*`) — measurement methodology
 
 These load automatically when editing matching files. CLAUDE.md retains universal conventions.
 
