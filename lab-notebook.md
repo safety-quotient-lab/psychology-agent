@@ -77,7 +77,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Synrix-inspired improvements  | ✓ 6 items: tiered access, scope boundaries, postmortem template, deterministic keys, psq_status table, entry_facets polythematic (Session 48) |
 | B5 bifactor CFA               | ✓ COMPLETE — omega_h=0.942, 5-item bipolar confirmed (turns 34-36) |
 | B5-S structural comparison    | ✓ COMPLETE — M5 accepted as final model (RMSEA=0.129, turn 38-39) |
-| Project board sync            | ✓ `sync_project_board.py` — TODO.md ↔ GitHub Projects reconciliation, /cycle Step 11b, cogarch.config.json `project_tracking` (Session 58) |
+| Project board sync            | ✓ `sync_project_board.py` — TODO.md ↔ GitHub Projects reconciliation, --mark-in-progress flag, /cycle Step 11b, /hunt Phase 6, /iterate Phase 3 (Session 58, 59c) |
+| GitHub issues (full coverage) | ✓ All 20 open TODO items tracked as issues (#94–#108 created Session 59c); #46 closed (deprecated) |
 | GitHub release v0.6.0         | ✓ Sessions 50-57: autonomous infra, SL-2, cogarch portability, hooks, interagent, DX (Session 58) |
 | Orientation payload           | ✓ `scripts/orientation-payload.py` — state.db → compact context for autonomous sessions (Session 59) |
 | Heartbeat mesh                | ✓ `scripts/heartbeat.py` — emit/scan/negotiate, 30-min stale threshold, registry-filtered (Session 59) |
@@ -3845,3 +3846,28 @@ Continuation of Session 59 — state layer extensions after midcycle.
   contains only psq_status — more tables may qualify as commercial offerings mature
 - Export profiles tested with --dry-run only; no full DB export tested against
   a fresh adopter scenario
+
+
+## 2026-03-09T20:17 CDT — Session 59c (Project board In Progress, full issue coverage)
+
+Continuation — project management infrastructure.
+
+- **`sync_project_board.py --mark-in-progress`:**
+  - New CLI flag: fuzzy-matches board item by title, sets status to "In Progress"
+  - Wired into /hunt Phase 6 (user selects item) and /iterate Phase 3 (begins work)
+  - Fixed pagination bug: added `--limit 200` to `fetch_board_items` — previous
+    default returned only 30 items, causing duplicates on re-sync
+  - Cleaned 9 duplicate board items from prior pagination-limited syncs
+
+- **GitHub issues (full coverage):**
+  - Created 14 new issues (#94–#108) covering all open TODO items
+  - Created `research` label for DI Phase A/B/C issues
+  - Closed #46 (/turn route — deprecated Session 59)
+  - All 20 open TODO items now have corresponding GitHub issues
+
+- **Artifacts modified:**
+  - `scripts/sync_project_board.py` — `mark_item_in_progress()`, `--mark-in-progress` flag, `--limit 200`
+  - `.claude/skills/hunt/SKILL.md` — Phase 6 board status update instruction
+  - `.claude/skills/iterate/SKILL.md` — Phase 3 board status update instruction
+
+⚑ EPISTEMIC FLAGS: none identified.
