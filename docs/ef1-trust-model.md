@@ -75,6 +75,37 @@ architecture.md § S4 tradeoff).
 | `budget_current` | 20 (at reset) | `state.db` → `trust_budget` table |
 | `last_audit` | ISO timestamp | `state.db` → `trust_budget` table |
 | `last_action` | ISO timestamp | `state.db` → `trust_budget` table |
+| `min_action_interval` | 300 (seconds) | `state.db` → `trust_budget` table |
+
+**Temporal spacing guarantee:**
+
+The trust budget gates *total* actions; `min_action_interval` gates action
+*rate*. Both MUST pass before an agent executes. This decouples the temporal
+spacing guarantee from the triggering mechanism — whether cron, post-receive
+hook, filesystem watcher, or event-driven notification, the agent MUST NOT
+act until `min_action_interval` seconds have elapsed since `last_action`.
+
+At default values (budget=20, interval=300s), full budget drain takes
+≥100 minutes (20 actions × 5 minutes minimum spacing). This provides the
+human ~1.5 hours of observable activity before halt — sufficient to
+intervene if the exchange heads somewhere unproductive.
+
+**Enforcement point:** The sync script checks `min_action_interval` after
+the budget check and before running `/sync`. If elapsed time since
+`last_action` falls below the interval, the cycle exits with status 0
+(not an error — deferred, not blocked). The trigger mechanism (cron,
+hook, etc.) retries on its next natural cycle.
+
+```
+budget check   →  interval check  →  /sync execution
+(halt if ≤ 0)     (defer if too       (proceed)
+                   soon)
+```
+
+This ordering matters: budget exhaustion writes a halt marker (permanent
+until human reset). Interval deferral produces no side effects (transient
+skip). Checking budget first prevents a halted agent from silently
+deferring instead of writing its halt marker.
 
 **Cost schedule:**
 
@@ -284,8 +315,10 @@ sections. `git pull --rebase` before push handles ordering.
 safeguards:
 - Maximum actions per cycle: 5 (configurable). More than 5 actions in one
   /sync SHOULD trigger a halt and flag for review.
-- Maximum cycles per hour: 6 (one per 10 minutes). Agents MUST NOT poll
-  faster than the configured interval.
+- Minimum action interval: `min_action_interval` seconds MUST elapse
+  between consecutive actions, regardless of triggering mechanism. This
+  replaces the cron-coupled "maximum cycles per hour" constraint with a
+  trigger-agnostic guarantee. Default: 300 seconds (5 minutes).
 - Consecutive error threshold: 2. Two git push failures or Claude CLI
   errors MUST trigger halt and log.
 
@@ -293,22 +326,38 @@ safeguards:
 ---
 
 
-## Cron Setup
+## Triggering Mechanisms
 
-### psychology-agent (macOS)
+The trust model's temporal spacing guarantee (`min_action_interval`) makes
+the triggering mechanism a deployment choice, not a safety-critical design
+decision. Any mechanism that invokes `autonomous-sync.sh` works — the
+script enforces budget and interval checks before acting.
+
+| Mechanism | How it works | Tradeoff |
+|-----------|-------------|----------|
+| **Cron** (default) | `*/5 * * * *` invokes sync script | Simplest; wastes cycles polling when nothing changed |
+| **Git post-receive** | Bare repo hook fires on push | Event-driven; requires bare repo on receiving machine |
+| **Filesystem watch** | `fswatch` on transport directory | Event-driven; requires shared mount (NFS/SSHFS) |
+| **Manual** | Human runs script directly | Full control; no automation |
+
+All mechanisms converge on the same script. The `min_action_interval`
+check inside the script guarantees temporal spacing regardless of how
+often the trigger fires. A cron at `*/1` (every minute) with a 300-second
+`min_action_interval` produces the same action rate as a cron at `*/5` —
+the interval check defers 4 out of 5 invocations silently.
+
+### Example: Cron (recommended for initial deployment)
 
 ```cron
-*/10 * * * * $PROJECT_ROOT/scripts/autonomous-sync.sh >> /tmp/psychology-agent-sync.log 2>&1
-```
+# psychology-agent (macOS)
+*/5 * * * * $PROJECT_ROOT/scripts/autonomous-sync.sh >> /tmp/psychology-agent-sync.log 2>&1
 
-### psq-agent (Hetzner, Debian)
-
-```cron
-*/10 * * * * /home/kashif/psychology-agent/scripts/autonomous-sync.sh >> /tmp/psq-agent-sync.log 2>&1
+# psq-agent (LAN machine)
+*/5 * * * * /home/kashif/psq-agent/scripts/autonomous-sync.sh >> /tmp/psq-agent-sync.log 2>&1
 ```
 
 Both use the same script. The script detects which agent it runs as from
-the git config or an environment variable (`AGENT_ID`).
+`.agent-identity.json` or the `AGENT_ID` environment variable.
 
 
 ---
@@ -318,13 +367,14 @@ the git config or an environment variable (`AGENT_ID`).
 
 ```sql
 CREATE TABLE IF NOT EXISTS trust_budget (
-    agent_id        TEXT PRIMARY KEY,
-    budget_max      INTEGER NOT NULL DEFAULT 20,
-    budget_current  INTEGER NOT NULL DEFAULT 20,
-    last_audit      TEXT NOT NULL,
-    last_action     TEXT,
-    consecutive_blocks INTEGER DEFAULT 0,
-    updated_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
+    agent_id             TEXT PRIMARY KEY,
+    budget_max           INTEGER NOT NULL DEFAULT 20,
+    budget_current       INTEGER NOT NULL DEFAULT 20,
+    min_action_interval  INTEGER NOT NULL DEFAULT 300,
+    last_audit           TEXT NOT NULL,
+    last_action          TEXT,
+    consecutive_blocks   INTEGER DEFAULT 0,
+    updated_at           TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
 );
 
 CREATE TABLE IF NOT EXISTS autonomous_actions (
