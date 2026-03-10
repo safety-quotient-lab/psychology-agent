@@ -218,8 +218,8 @@ semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
 - [ ] **First gated chain test** — send a real gated message from
   psychology-agent to psq-agent, verify accelerated polling, resolution,
   and timeout fallback. M effort.
-  *Precondition: /sync gate detection ✓ + chromabook setup ⚑ PARTIAL
-  (PR #2 merged, 5-step setup not yet executed). Grounding audit: Session 61.*
+  *Precondition: /sync gate detection ✓ + peer machine setup ✓ (Session 61).
+  Grounding audit: Session 61.*
 
 ---
 
@@ -249,9 +249,9 @@ Plan 9-inspired split-outbox model — no shared writable directories.
 
 ### Safety-quotient agent side
 
-- [x] **Merge PR #2 + post-merge setup** — COMPLETE (Session 60). PR merged.
-  Remaining: 5-step chromabook setup (cp identity, git remote, bootstrap DB,
-  hooks, cron). Execute on chromabook via SSH.
+- [x] **Merge PR #2 + post-merge setup** — COMPLETE (Session 60-61). PR merged,
+  5-step setup executed on peer machine via SSH. Identity, remote, state.db,
+  hooks, cron all verified. Bidirectional transport confirmed.
 
 - [ ] **Update /sync skill for cross-repo-fetch inbound** — the existing
   /sync uses PR-based transport. Add cross-repo-fetch path to Phase 1
