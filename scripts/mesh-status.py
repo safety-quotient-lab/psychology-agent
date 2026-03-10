@@ -17,7 +17,7 @@ import argparse
 import json
 import sqlite3
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 
@@ -67,6 +67,101 @@ def scalar(sql: str, params: tuple = (), default=0):
         return default
 
 
+def _collect_schedule(agent_id: str) -> dict:
+    """Collect sync schedule from cron, log file, and state.db."""
+    import re
+    import subprocess
+
+    schedule = {
+        "cron_entry": None,
+        "cron_interval_min": None,
+        "last_sync": None,
+        "next_expected": None,
+        "min_action_interval_sec": None,
+        "lock_file": None,
+        "lock_active": False,
+    }
+
+    # Parse cron for autonomous-sync entries
+    try:
+        result = subprocess.run(
+            ["crontab", "-l"], capture_output=True, text=True, timeout=5
+        )
+        if result.returncode == 0:
+            for line in result.stdout.splitlines():
+                if "autonomous-sync" in line and not line.startswith("#"):
+                    schedule["cron_entry"] = line.strip()
+                    # Extract interval from */N pattern
+                    m = re.match(r"\*/(\d+)", line.strip())
+                    if m:
+                        schedule["cron_interval_min"] = int(m.group(1))
+                    # Check for hourly pattern "0 * * * *"
+                    elif line.strip().startswith("0 "):
+                        schedule["cron_interval_min"] = 60
+                    break
+    except (subprocess.TimeoutExpired, OSError):
+        pass
+
+    # min_action_interval from trust_budget
+    row = query_db(
+        "SELECT min_action_interval FROM trust_budget WHERE agent_id = ?",
+        (agent_id,)
+    )
+    if row:
+        schedule["min_action_interval_sec"] = row[0].get("min_action_interval")
+
+    # Last autonomous action timestamp
+    last = query_db(
+        "SELECT MAX(created_at) as last_action FROM autonomous_actions"
+    )
+    if last and last[0].get("last_action"):
+        schedule["last_sync"] = last[0]["last_action"]
+
+    # Last sync from log file (most recent line with timestamp)
+    log_path = Path("/tmp") / f"autonomous-sync-{agent_id}.log"
+    if log_path.exists():
+        try:
+            # Read last 20 lines for recency
+            lines = log_path.read_text().splitlines()[-20:]
+            for line in reversed(lines):
+                m = re.match(r"\[(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2})", line)
+                if m:
+                    schedule["last_sync"] = m.group(1)
+                    break
+        except OSError:
+            pass
+
+    # Compute next expected from last_sync + cron interval
+    if schedule["last_sync"] and schedule["cron_interval_min"]:
+        try:
+            last_dt = datetime.fromisoformat(schedule["last_sync"])
+            next_dt = last_dt + timedelta(minutes=schedule["cron_interval_min"])
+            schedule["next_expected"] = next_dt.strftime("%Y-%m-%dT%H:%M:%S")
+        except (ValueError, TypeError):
+            pass
+
+    # Check lock file
+    lock_path = Path("/tmp") / f"autonomous-sync-{agent_id}.lock"
+    schedule["lock_file"] = str(lock_path)
+    if lock_path.exists():
+        try:
+            pid = int(lock_path.read_text().strip())
+            # Check if PID is alive
+            import os
+            try:
+                os.kill(pid, 0)
+                schedule["lock_active"] = True
+                schedule["lock_pid"] = pid
+            except OSError:
+                schedule["lock_active"] = False
+                schedule["lock_pid"] = pid
+                schedule["lock_stale"] = True
+        except (ValueError, OSError):
+            pass
+
+    return schedule
+
+
 def collect_status() -> dict:
     """Collect all mesh status data from state.db."""
     agent_id = get_agent_id()
@@ -90,11 +185,11 @@ def collect_status() -> dict:
         "WHERE processed = FALSE ORDER BY timestamp DESC"
     )
 
-    # Recent messages (last 15)
+    # Recent messages (last 20)
     recent = query_db(
         "SELECT session_name, filename, turn, from_agent, to_agent, "
         "message_type, timestamp, processed, subject "
-        "FROM transport_messages ORDER BY timestamp DESC LIMIT 15"
+        "FROM transport_messages ORDER BY timestamp DESC LIMIT 20"
     )
 
     # Recent autonomous actions (last 10)
@@ -155,6 +250,9 @@ def collect_status() -> dict:
         except (json.JSONDecodeError, OSError):
             pass
 
+    # Sync schedule — cron entry + last/next sync times
+    schedule = _collect_schedule(agent_id)
+
     return {
         "agent_id": agent_id,
         "collected_at": now_iso,
@@ -177,6 +275,7 @@ def collect_status() -> dict:
             "epistemic_flags_unresolved": total_flags,
         },
         "heartbeat": heartbeat_info,
+        "schedule": schedule,
     }
 
 
@@ -186,6 +285,7 @@ def render_html(status: dict) -> str:
     """Render status data as an HTML dashboard."""
     budget = status.get("trust_budget", {})
     totals = status.get("totals", {})
+    schedule = status.get("schedule", {})
 
     budget_current = budget.get("budget_current", "?")
     budget_max = budget.get("budget_max", "?")
@@ -243,17 +343,32 @@ def render_html(status: dict) -> str:
             <td>{peer['total_messages']}</td>
         </tr>"""
 
-    # Unprocessed messages HTML
+    # Unprocessed messages HTML — accordion with full details
     unprocessed_html = ""
-    for msg in status.get("unprocessed_messages", []):
+    for idx, msg in enumerate(status.get("unprocessed_messages", [])):
+        uid = f"unproc-{idx}"
+        subject = msg.get('subject', '') or '(no subject)'
         unprocessed_html += f"""
-        <tr>
+        <tr class="accordion-header" onclick="toggleRow('{uid}')">
+            <td>▸</td>
             <td>{msg.get('from_agent', '?')}</td>
             <td>{msg.get('session_name', '?')}</td>
             <td>{msg.get('turn', '?')}</td>
             <td>{msg.get('message_type', '?')}</td>
-            <td title="{msg.get('subject', '')}">{(msg.get('subject', '') or '')[:50]}</td>
             <td>{msg.get('timestamp', '?')}</td>
+        </tr>
+        <tr id="{uid}" class="accordion-detail" style="display:none">
+            <td colspan="6">
+                <div class="detail-grid">
+                    <div><span class="detail-label">Subject:</span> {subject}</div>
+                    <div><span class="detail-label">Filename:</span> {msg.get('filename', '?')}</div>
+                    <div><span class="detail-label">Session:</span> {msg.get('session_name', '?')}</div>
+                    <div><span class="detail-label">Turn:</span> {msg.get('turn', '?')}</div>
+                    <div><span class="detail-label">From:</span> {msg.get('from_agent', '?')}</div>
+                    <div><span class="detail-label">Type:</span> {msg.get('message_type', '?')}</div>
+                    <div><span class="detail-label">Timestamp:</span> {msg.get('timestamp', '?')}</div>
+                </div>
+            </td>
         </tr>"""
 
     if not unprocessed_html:
@@ -274,36 +389,70 @@ def render_html(status: dict) -> str:
     if not gates_html:
         gates_html = '<tr><td colspan="5" class="empty">No active gates</td></tr>'
 
-    # Recent messages HTML
+    # Recent messages HTML — accordion with full details
     recent_html = ""
-    for msg in status.get("recent_messages", []):
+    for idx, msg in enumerate(status.get("recent_messages", [])):
+        rid = f"recent-{idx}"
         processed_icon = "✓" if msg.get("processed") else "○"
         processed_class = "processed" if msg.get("processed") else "pending"
+        subject = msg.get('subject', '') or '(no subject)'
         recent_html += f"""
-        <tr class="{processed_class}">
+        <tr class="{processed_class} accordion-header" onclick="toggleRow('{rid}')">
+            <td>▸</td>
             <td>{processed_icon}</td>
             <td>{msg.get('from_agent', '?')}</td>
             <td>{msg.get('to_agent', '?')}</td>
             <td>{msg.get('session_name', '?')}</td>
             <td>{msg.get('turn', '?')}</td>
             <td>{msg.get('message_type', '?')}</td>
-            <td>{msg.get('timestamp', '?')}</td>
+        </tr>
+        <tr id="{rid}" class="accordion-detail" style="display:none">
+            <td colspan="7">
+                <div class="detail-grid">
+                    <div><span class="detail-label">Subject:</span> {subject}</div>
+                    <div><span class="detail-label">Filename:</span> {msg.get('filename', '?')}</div>
+                    <div><span class="detail-label">From:</span> {msg.get('from_agent', '?')}</div>
+                    <div><span class="detail-label">To:</span> {msg.get('to_agent', '?')}</div>
+                    <div><span class="detail-label">Session:</span> {msg.get('session_name', '?')}</div>
+                    <div><span class="detail-label">Turn:</span> {msg.get('turn', '?')}</div>
+                    <div><span class="detail-label">Type:</span> {msg.get('message_type', '?')}</div>
+                    <div><span class="detail-label">Timestamp:</span> {msg.get('timestamp', '?')}</div>
+                    <div><span class="detail-label">Processed:</span> {'Yes' if msg.get('processed') else 'No'}</div>
+                </div>
+            </td>
         </tr>"""
 
-    # Recent actions HTML
+    # Recent actions HTML — accordion with full details
     actions_html = ""
-    for action in status.get("recent_actions", []):
+    for idx, action in enumerate(status.get("recent_actions", [])):
+        aid = f"action-{idx}"
         result = action.get("evaluator_result", "?")
         result_class = "result-approved" if result == "approved" else "result-blocked"
         cost = action.get("budget_before", 0) - action.get("budget_after", 0)
+        description = action.get('description', '') or ''
         actions_html += f"""
-        <tr>
+        <tr class="accordion-header" onclick="toggleRow('{aid}')">
+            <td>▸</td>
             <td>{action.get('action_type', '?')}</td>
             <td><span class="{result_class}">{result}</span></td>
             <td>T{action.get('evaluator_tier', '?')}</td>
             <td>{cost}</td>
-            <td title="{action.get('description', '')}">{(action.get('description', '') or '')[:60]}</td>
             <td>{action.get('created_at', '?')}</td>
+        </tr>
+        <tr id="{aid}" class="accordion-detail" style="display:none">
+            <td colspan="6">
+                <div class="detail-grid">
+                    <div><span class="detail-label">Description:</span> {description}</div>
+                    <div><span class="detail-label">Action type:</span> {action.get('action_type', '?')}</div>
+                    <div><span class="detail-label">Action class:</span> {action.get('action_class', '?')}</div>
+                    <div><span class="detail-label">Evaluator tier:</span> T{action.get('evaluator_tier', '?')}</div>
+                    <div><span class="detail-label">Result:</span> {result}</div>
+                    <div><span class="detail-label">Budget before:</span> {action.get('budget_before', '?')}</div>
+                    <div><span class="detail-label">Budget after:</span> {action.get('budget_after', '?')}</div>
+                    <div><span class="detail-label">Cost:</span> {cost}</div>
+                    <div><span class="detail-label">Time:</span> {action.get('created_at', '?')}</div>
+                </div>
+            </td>
         </tr>"""
 
     if not actions_html:
@@ -367,6 +516,20 @@ def render_html(status: dict) -> str:
         .result-blocked {{ color: #f85149; }}
         .alert {{ color: #f85149; font-weight: bold; }}
         .ok {{ color: #3fb950; }}
+        .accordion-header {{ cursor: pointer; }}
+        .accordion-header:hover td {{ background: #1c2128; }}
+        .accordion-detail td {{ background: #0d1117 !important; padding: 12px 16px; }}
+        .detail-grid {{
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 6px 24px; font-size: 0.9em;
+        }}
+        .detail-label {{ color: #8b949e; }}
+        .schedule-row {{ display: flex; gap: 24px; flex-wrap: wrap; }}
+        .schedule-item {{ flex: 1; min-width: 180px; }}
+        .schedule-label {{ color: #8b949e; font-size: 0.75em; text-transform: uppercase; }}
+        .schedule-value {{ color: #c9d1d9; font-size: 0.95em; margin-top: 2px; }}
+        .lock-active {{ color: #d29922; }}
+        .lock-stale {{ color: #f85149; }}
         footer {{
             margin-top: 32px; padding-top: 12px;
             border-top: 1px solid #21262d;
@@ -414,6 +577,37 @@ def render_html(status: dict) -> str:
         </div>
     </div>
 
+    <h2>Sync Schedule</h2>
+    <div class="card" style="margin-bottom: 16px">
+        <div class="schedule-row">
+            <div class="schedule-item">
+                <div class="schedule-label">Cron interval</div>
+                <div class="schedule-value">{f"{schedule.get('cron_interval_min')} min" if schedule.get('cron_interval_min') else 'not configured'}</div>
+            </div>
+            <div class="schedule-item">
+                <div class="schedule-label">Min action interval</div>
+                <div class="schedule-value">{f"{schedule.get('min_action_interval_sec')}s" if schedule.get('min_action_interval_sec') else '?'}</div>
+            </div>
+            <div class="schedule-item">
+                <div class="schedule-label">Last sync</div>
+                <div class="schedule-value">{schedule.get('last_sync') or 'never'}</div>
+            </div>
+            <div class="schedule-item">
+                <div class="schedule-label">Next expected</div>
+                <div class="schedule-value">{schedule.get('next_expected') or '—'}</div>
+            </div>
+            <div class="schedule-item">
+                <div class="schedule-label">Lock</div>
+                <div class="schedule-value {'lock-active' if schedule.get('lock_active') else 'lock-stale' if schedule.get('lock_stale') else ''}">{
+                    f"PID {schedule.get('lock_pid')} (running)" if schedule.get('lock_active')
+                    else f"PID {schedule.get('lock_pid')} (stale)" if schedule.get('lock_stale')
+                    else 'none'
+                }</div>
+            </div>
+        </div>
+        {f'<div style="margin-top:8px; font-size:0.8em; color:#6e7681">{schedule.get("cron_entry", "")}</div>' if schedule.get('cron_entry') else ''}
+    </div>
+
     <h2>Peers</h2>
     <table>
         <tr><th>Agent</th><th>Role</th><th>Tier</th><th>Last Exchange</th><th>Messages</th></tr>
@@ -422,7 +616,7 @@ def render_html(status: dict) -> str:
 
     <h2>Unprocessed Queue</h2>
     <table>
-        <tr><th>From</th><th>Session</th><th>Turn</th><th>Type</th><th>Subject</th><th>Timestamp</th></tr>
+        <tr><th></th><th>From</th><th>Session</th><th>Turn</th><th>Type</th><th>Timestamp</th></tr>
         {unprocessed_html}
     </table>
 
@@ -434,15 +628,30 @@ def render_html(status: dict) -> str:
 
     <h2>Recent Messages</h2>
     <table>
-        <tr><th></th><th>From</th><th>To</th><th>Session</th><th>Turn</th><th>Type</th><th>Timestamp</th></tr>
+        <tr><th></th><th></th><th>From</th><th>To</th><th>Session</th><th>Turn</th><th>Type</th></tr>
         {recent_html}
     </table>
 
     <h2>Autonomous Actions</h2>
     <table>
-        <tr><th>Type</th><th>Result</th><th>Tier</th><th>Cost</th><th>Description</th><th>Time</th></tr>
+        <tr><th></th><th>Type</th><th>Result</th><th>Tier</th><th>Cost</th><th>Time</th></tr>
         {actions_html}
     </table>
+
+    <script>
+    function toggleRow(id) {{
+        const row = document.getElementById(id);
+        const header = row.previousElementSibling;
+        const arrow = header.querySelector('td:first-child');
+        if (row.style.display === 'none') {{
+            row.style.display = 'table-row';
+            arrow.textContent = '▾';
+        }} else {{
+            row.style.display = 'none';
+            arrow.textContent = '▸';
+        }}
+    }}
+    </script>
 
     <footer>
         {status['db_path']} · {'db exists' if status['db_exists'] else 'DB MISSING'}
