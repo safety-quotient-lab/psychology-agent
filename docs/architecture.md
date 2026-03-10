@@ -700,6 +700,24 @@
  (cross-machine-code-policy)  No direct SSH file edits. PRs provide audit
                                 trail, review gate, and rollback capability.
                                 Decided: 2026-03-10
+
+ DNS naming scheme            Scheme 1: agent IDs as subdomains.
+ (dns-naming-scheme)          psychology-agent.safety-quotient.dev,
+                                psq-agent.safety-quotient.dev,
+                                api.safety-quotient.dev. DNS names match
+                                protocol agent_id fields — one name per
+                                entity everywhere. Consistency over brevity.
+                                Decided: 2026-03-10
+
+ Engineering incident          Two-tier detection: Tier 1 (mechanical,
+ detection                     hook-based) for credential exposure, resource
+ (engineering-incidents)       churn, error loops. Tier 2 (cognitive,
+                                trigger-based) for premature execution,
+                                decision-before-grounding. Stores to
+                                engineering_incidents table. Graduation
+                                pipeline feeds anti-patterns.md. Designed
+                                Session 65, implementation deferred.
+                                Decided: 2026-03-10
 ────────────────────────────────────────────────────────────────────────
 ```
 

@@ -166,6 +166,17 @@
                               no transport changes, no unprocessed msgs,
                               no active gates. Gate-accelerated bypasses.
                               2026-03-10
+ DNS naming scheme            Scheme 1: agent IDs as subdomains.
+ (dns-naming-scheme)          psychology-agent.safety-quotient.dev,
+                              psq-agent.safety-quotient.dev,
+                              api.safety-quotient.dev. DNS = protocol
+                              agent_id. Consistency over brevity.
+                              2026-03-10
+ Engineering incident          Two-tier detection: mechanical (hooks)
+ detection                     + cognitive (T17). engineering_incidents
+                              table in state.db. Graduation pipeline
+                              to anti-patterns.md. Designed Session 65.
+                              2026-03-10
  Cross-machine code changes   PRs only — never SSH-edit remote files.
                               PRs provide audit trail, review gate, and
                               rollback. Applies to all agent-to-agent and

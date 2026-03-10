@@ -17,20 +17,20 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 65. DNS + tunnels live for both agents.
-Engineering incident detection designed (journal §47), implementation deferred.
+**Where we stopped:** Session 64. Federated dashboard with claude-replay,
+safety-quotient.dev domain, cross-machine code policy (PRs only).
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- Dashboard: ✓ Both agents live (psychology-agent + psq-agent.safety-quotient.dev) `[warm]`
-- Domain: ✓ DNS configured, tunnels running, URL hash tabs `[warm]`
-- Autonomous mesh: ✓ full pipeline `[warm]`
-- PRs: ✓ All merged (#4-7 on safety-quotient) `[warm]`
-- Engineering incidents: designed, implementation deferred (schema v14 + hook + T17) `[cold]`
+- Dashboard: ✓ 3 tabs (Mesh/Semiotics/Replays), launchd service, nav header `[warm]`
+- Domain: ✓ safety-quotient.dev purchased, discovery URLs migrated `[warm]`
+- Autonomous mesh: ✓ full pipeline (fetch→index→auto-process→pre-flight→sync) `[warm]`
+- PRs pending: #4 (autonomous-sync), #5 (dashboard), #6 (domain) to safety-quotient `[warm]`
+- Lesson lifecycle: ✓ 17/25 graduated `[warm]`
 - DI Phase A Pass 2: pending (fresh session) `[cold]`
 
-**Next:** Implement engineering incident detection (Tier 1 first). Apex
-redirect rule + CF Worker custom domain (dashboard UI). Delete old interagent
-tunnel. Naming audit (safety-quotient agent → psq-agent). DI Phase A Pass 2.
+**Next:** Configure DNS records (psq, api, psychology-agent subdomains).
+Merge PRs #4/#5/#6 on safety-quotient. Naming audit (safety-quotient agent →
+psq-agent). DI Phase A Pass 2.
 
 
 ## Memory Hygiene
