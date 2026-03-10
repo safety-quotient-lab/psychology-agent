@@ -610,6 +610,43 @@
                                   52-54); Phase 1.5 state migration
                                   (Session 59).
                                 Decided: 2026-03-09
+
+ Cross-repo transport            Safety-quotient agent operates in a
+  (safety-quotient agent)        separate repo (safety-quotient-lab/
+                                 safety-quotient) on a different machine
+                                 (chromabook). Transport uses git remote
+                                 fetch: each agent adds the other as a
+                                 git remote and reads MANIFEST.json via
+                                 `git show {remote}/main:transport/
+                                 MANIFEST.json`. No GitHub API dependency,
+                                 no network filesystem, no UDP notify.
+                                 Each agent writes to its own transport/
+                                 outbox; the other fetches and reads.
+                                 Split outbox model: mail/{agent-id}/
+                                 directories with exclusive-write per
+                                 agent. Pre-commit hook (.githooks/)
+                                 prevents secret leaks in autonomous
+                                 commits. Trust model min_action_interval
+                                 (300s) ensures temporal spacing regardless
+                                 of trigger mechanism (cron, post-receive,
+                                 manual).
+                                 Alternatives considered:
+                                   A. GitHub API (GET contents) — adds
+                                      API dependency, rate limits, token
+                                      management. Rejected.
+                                   B. Network filesystem (NFS/SSHFS) —
+                                      adds mount infrastructure, lock
+                                      contention, availability coupling.
+                                      Rejected.
+                                   C. Shared bare repo with post-receive
+                                      — viable enhancement but not
+                                      required; cron + min_action_interval
+                                      suffices for MVP.
+                                 Derives from: Plan 9 design philosophy
+                                   (everything-as-file, split mailboxes);
+                                   EF-1 trust model (temporal spacing);
+                                   agent mesh architecture (Session 57).
+                                 Decided: 2026-03-09
 ────────────────────────────────────────────────────────────────────────
 ```
 
