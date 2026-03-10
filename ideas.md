@@ -336,6 +336,90 @@ Not urgent — current repo handles both roles adequately for now.*
 
 ---
 
+## Abstract Algebra × Psychology (from pai agent session)
+
+Source: pai (psychology-agent-interface, qwen-0.5b) surfaced the direction;
+psychology-agent elaborated concrete bridges. The 0.5B model identified the
+territory but lacked capacity to articulate specifics — the applications below
+come from disciplined synthesis, not from pai's raw output.
+
+**Directly applicable to project infrastructure:**
+
+- **Lattice theory → PSQ factor hierarchy** — g_psq → factors_2/3/5 → 10
+  dimensions already forms an implicit lattice. Formalizing would clarify which
+  dimension aggregations preserve meaning and which destroy information. Connects
+  to the "profile predicts, average does not" finding.
+  *Precondition: PSQ structural model validated (DI Phase A complete).*
+
+- **Homomorphisms → PSQ-Full to PSQ-Lite mapping** — the 10-dim → 3-dim mapping
+  (confidence: 0.70, semantic inference) directly asks whether this mapping
+  preserves algebraic structure. A verified homomorphism raises confidence; a
+  demonstrated non-homomorphism explains the 0.70 ceiling and constrains valid
+  aggregation operations.
+  *Precondition: PSQ-Full and PSQ-Lite scoring both operational.*
+
+- **Category theory → interagent protocol** — agents as objects, messages as
+  morphisms, session composition as functor. Formalizes "protocol-compatible":
+  two agents compose iff their message categories admit a natural transformation.
+  Highest structural payoff, highest implementation cost.
+  *Precondition: 3+ agents with operational transport.*
+
+- **Group theory → score calibration transforms** — raw → calibrated PSQ
+  transforms should form a group (invertible, composable, identity-preserving).
+  If they don't, the calibration pipeline has a structural defect.
+  *Precondition: calibration pipeline operational.*
+
+**Applicable to the psychology discipline:**
+
+- **Formal Concept Analysis** (Ganter & Wille, 1999) — maps objects × attributes
+  into concept lattices. Could structure PSQ dimensions × text features into a
+  formal concept hierarchy, revealing which dimension clusters emerge from data
+  rather than theory. Published applications in cognitive science (Poelmans et al.,
+  2013).
+
+- **Symmetry groups → measurement invariances** — which transformations of stimulus
+  text leave PSQ scores unchanged? The answer defines what PSQ actually measures
+  vs. what it confounds with surface features.
+
+- **Galois connections → observation-inference mapping** — the pair (observe, infer)
+  forms a Galois connection when inference preserves ordering. Directly relevant
+  to the fair witness discipline (T2 Check 5).
+
+⚡ All applications carry LOW evidence quality (GRADE) — theoretical plausibility
+without empirical demonstration in our system. The lattice formalization has the
+most immediate connection to existing open work (PSQ structural validation). The
+category-theoretic framing carries the most long-term value but requires scale
+the mesh has not yet reached.
+
+*Noted: Session 66 (2026-03-10). Source: pai qwen-0.5b session + psychology-agent
+synthesis.*
+
+---
+
+## JSON-LD Federated Mesh (interagent.safety-quotient.dev)
+
+Client-side mesh compositor: a static site at `interagent.safety-quotient.dev`
+that `fetch()`-es `/api/status` from both `psychology-agent.safety-quotient.dev`
+and `psq-agent.safety-quotient.dev`, composes agent state client-side, renders
+unified dashboard. No backend needed — CORS already permits cross-origin requests.
+
+**JSON-LD role:** Embedded `<script type="application/ld+json">` in mesh-status.py
+`<head>` provides machine-readable agent identity (`SoftwareApplication`),
+capabilities (`WebAPI`), and mesh relationships (`isPartOf`). Enables search
+engine discovery alongside programmatic composition.
+
+**Injection points identified:**
+- `scripts/mesh-status.py` lines 828–831 (HTML head)
+- `interface/src/worker.js` agent-card endpoint (Link headers to JSON-LD)
+
+Directly unblocks the JSON-LD TODO item (TODO.md:464) and extends it into a
+federated dashboard architecture.
+
+*Precondition: JSON-LD added to both agent dashboards (TODO item pending).*
+*Noted: Session 66 (2026-03-10).*
+
+---
+
 ## Meta
 
 - This agent system is itself a case study in PJE — it embodies Psycho Safety
