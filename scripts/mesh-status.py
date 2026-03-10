@@ -834,14 +834,59 @@ def render_html(status: dict) -> str:
         body {{
             font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
             background: #0d1117; color: #c9d1d9;
-            padding: 20px; line-height: 1.5;
+            padding: 0; line-height: 1.5;
+            padding-top: 100px;
         }}
+        .nav-header {{
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: #161b22;
+            border-bottom: 1px solid #21262d;
+            padding: 0;
+        }}
+        .nav-top {{
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 24px 0 24px;
+        }}
+        .nav-title {{
+            color: #58a6ff; font-size: 1.2em; font-weight: bold;
+            display: flex; align-items: center; gap: 8px;
+        }}
+        .nav-status {{
+            display: flex; gap: 16px; align-items: center;
+            font-size: 0.8em; color: #8b949e;
+        }}
+        .nav-status .indicator {{
+            display: flex; align-items: center; gap: 4px;
+        }}
+        .nav-status .dot {{
+            width: 8px; height: 8px; border-radius: 50%;
+            display: inline-block;
+        }}
+        .dot-green {{ background: #3fb950; }}
+        .dot-yellow {{ background: #d29922; }}
+        .dot-red {{ background: #f85149; }}
+        .dot-gray {{ background: #484f58; }}
+        .nav-tabs {{
+            display: flex; gap: 0; padding: 0 24px;
+            margin-top: 8px;
+        }}
+        .nav-tabs .tab {{
+            padding: 8px 20px; cursor: pointer;
+            color: #8b949e; font-size: 0.9em;
+            border-bottom: 2px solid transparent;
+            transition: color 0.15s, border-color 0.15s;
+        }}
+        .nav-tabs .tab:hover {{ color: #c9d1d9; }}
+        .nav-tabs .tab.active {{
+            color: #58a6ff; border-bottom-color: #58a6ff;
+            font-weight: bold;
+        }}
+        .main-content {{ padding: 20px 24px; }}
         h1 {{ color: #58a6ff; font-size: 1.4em; margin-bottom: 4px; }}
         h2 {{
             color: #8b949e; font-size: 1.0em; margin: 24px 0 8px 0;
             border-bottom: 1px solid #21262d; padding-bottom: 4px;
         }}
-        .subtitle {{ color: #8b949e; font-size: 0.85em; margin-bottom: 20px; }}
         .grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }}
         .card {{
             background: #161b22; border: 1px solid #21262d;
@@ -900,21 +945,6 @@ def render_html(status: dict) -> str:
             border-top: 1px solid #21262d;
             color: #484f58; font-size: 0.75em;
         }}
-        .tabs {{
-            display: flex; gap: 0; margin-bottom: 20px;
-            border-bottom: 2px solid #21262d;
-        }}
-        .tab {{
-            padding: 8px 20px; cursor: pointer;
-            color: #8b949e; font-size: 0.9em;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
-        }}
-        .tab:hover {{ color: #c9d1d9; }}
-        .tab.active {{
-            color: #58a6ff; border-bottom-color: #58a6ff;
-            font-weight: bold;
-        }}
         .tab-content {{ display: none; }}
         .tab-content.active {{ display: block; }}
         .psh-bar {{
@@ -936,16 +966,33 @@ def render_html(status: dict) -> str:
     </style>
 </head>
 <body>
-    <h1>⬡ Mesh Status — {status['agent_id']}</h1>
-    <div class="subtitle">
-        {status['collected_at']} · schema v{status['schema_version']} · auto-refresh 30s
-    </div>
+    <nav class="nav-header">
+        <div class="nav-top">
+            <div class="nav-title">⬡ {status['agent_id']}</div>
+            <div class="nav-status">
+                <div class="indicator">
+                    <span class="dot {'dot-green' if isinstance(budget_current, (int, float)) and budget_current > 10 else 'dot-yellow' if isinstance(budget_current, (int, float)) and budget_current > 5 else 'dot-red'}"></span>
+                    budget {budget_current}/{budget_max}
+                </div>
+                <div class="indicator">
+                    <span class="dot {'dot-red' if totals.get('unprocessed', 0) > 0 else 'dot-green'}"></span>
+                    {totals.get('unprocessed', 0)} queued
+                </div>
+                <div class="indicator">
+                    <span class="dot {'dot-yellow' if totals.get('active_gates', 0) > 0 else 'dot-gray'}"></span>
+                    {totals.get('active_gates', 0)} gates
+                </div>
+                <div style="color:#484f58">v{status['schema_version']} · {status['collected_at']}</div>
+            </div>
+        </div>
+        <div class="nav-tabs">
+            <div class="tab active" onclick="switchTab('mesh')">Mesh</div>
+            <div class="tab" onclick="switchTab('semiotics')">Semiotics</div>
+            <div class="tab" onclick="switchTab('replays')">Replays</div>
+        </div>
+    </nav>
 
-    <div class="tabs">
-        <div class="tab active" onclick="switchTab('mesh')">Mesh</div>
-        <div class="tab" onclick="switchTab('semiotics')">Semiotics</div>
-        <div class="tab" onclick="switchTab('replays')">Replays</div>
-    </div>
+    <div class="main-content">
 
     <div id="tab-mesh" class="tab-content active">
 
@@ -1148,9 +1195,9 @@ def render_html(status: dict) -> str:
     <script>
     function switchTab(tabName) {{
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-tabs .tab').forEach(el => el.classList.remove('active'));
         document.getElementById('tab-' + tabName).classList.add('active');
-        document.querySelector('.tab[onclick*="' + tabName + '"]').classList.add('active');
+        document.querySelector('.nav-tabs .tab[onclick*="' + tabName + '"]').classList.add('active');
     }}
     function toggleRow(id) {{
         const row = document.getElementById(id);
@@ -1165,6 +1212,8 @@ def render_html(status: dict) -> str:
         }}
     }}
     </script>
+
+    </div><!-- end main-content -->
 
     <footer>
         {status['db_path']} · {'db exists' if status['db_exists'] else 'DB MISSING'}
