@@ -6,7 +6,7 @@
   "schemas_supported": ["interagent/v1", "command-request/v1", "local-coordination/v1"],
 
   "transport": {
-    "method": "git-PR",
+    "method": "git-pr",
     "repo": "https://github.com/safety-quotient-lab/psychology-agent",
     "sessions_path": "transport/sessions/",
     "manifest_path": "transport/MANIFEST.json",
