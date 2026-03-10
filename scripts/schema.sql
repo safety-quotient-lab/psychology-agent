@@ -258,3 +258,32 @@ CREATE INDEX IF NOT EXISTS idx_lessons_pattern_domain
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (7, 'Add lessons table — structured index of lessons.md entries for promotion scan and recurrence tracking');
+
+
+-- ── Schema v8: State lifecycle + visibility ─────────────────────────
+
+-- Per-table visibility defaults. Private by default — explicit promotion
+-- to public or adopter-safe required. Used by export_public_state.py to
+-- generate a seed DB for releases and adopters.
+CREATE TABLE IF NOT EXISTS table_visibility (
+    table_name          TEXT PRIMARY KEY,
+    default_visibility  TEXT NOT NULL DEFAULT 'private',
+    description         TEXT
+);
+
+INSERT OR IGNORE INTO table_visibility (table_name, default_visibility, description) VALUES
+    ('decision_chain',      'public',       'Design decisions — shared research output'),
+    ('session_log',         'public',       'Session history — shared research timeline'),
+    ('trigger_state',       'public',       'Cogarch trigger metadata — shared infrastructure'),
+    ('transport_messages',  'adopter-safe', 'Transport index — infrastructure, strip subjects'),
+    ('epistemic_flags',     'public',       'Epistemic audit trail — shared transparency'),
+    ('claims',              'adopter-safe', 'Verified claims — infrastructure'),
+    ('psq_status',          'public',       'PSQ operational status — shared'),
+    ('memory_entries',      'private',      'Personal memory — not shared'),
+    ('lessons',             'private',      'Personal learning log — not shared'),
+    ('trust_budget',        'private',      'Operational budget — machine-specific'),
+    ('autonomous_actions',  'private',      'Autonomous audit trail — machine-specific'),
+    ('entry_facets',        'private',      'Derived from memory_entries — inherits private');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (8, 'State lifecycle — table_visibility (per-table public/private/adopter-safe defaults, private by default). Foundation for export_public_state.py seed DB generation.');
