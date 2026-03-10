@@ -3871,3 +3871,36 @@ Continuation — project management infrastructure.
   - `.claude/skills/iterate/SKILL.md` — Phase 3 board status update instruction
 
 ⚑ EPISTEMIC FLAGS: none identified.
+
+
+## 2026-03-09T20:24 CDT — Session 59d (State layer documentation — README + wiki)
+
+Continuation — documenting schema v8 state layer for external collaborators.
+
+- **README state layer section (#107):**
+  - Added "State Layer (SQLite)" section with architecture overview, 12-table summary
+    (with row counts), 4-tier visibility model table, export profiles with bash examples,
+    5 SQL query examples
+  - Updated project structure: expanded scripts/ from 3 to 8 entries (export_public_state.py,
+    generate_manifest.py, bootstrap_lessons.py, orientation-payload.py, sync_project_board.py)
+  - Updated status table: SQLite state layer → "Schema v8, 12 tables, dual-write protocol,
+    4-tier visibility model"
+  - Added state layer to "Interesting Parts" deep dives with links to schema.sql,
+    export_public_state.py, sqlite.md rules, journal §39
+  - Added wiki State Layer link to Documentation table
+
+- **Wiki State-Layer.md page (NEW):**
+  - ~180 lines: architecture (dual-write, Phase 1/1.5), 12-table reference with
+    visibility tiers, visibility model explanation, export profiles, 8-script table,
+    6 SQL query examples, deterministic keys table, conventions summary
+  - Home.md updated with State Layer entry; mirror date updated
+
+- **TODO.md:** Marked #107 complete (f9de766)
+
+- **Artifacts modified:**
+  - `README.md` — state layer section, project structure, status table, interesting parts
+  - Wiki: `State-Layer.md` (new), `Home.md` (updated)
+
+▶ journal.md §39 (4-tier visibility narrative — written earlier in Session 59b)
+
+⚑ EPISTEMIC FLAGS: none identified.

@@ -62,9 +62,9 @@ Forward-looking task list only. Completed and emergent work goes to
 - [ ] **Submit to awesome-claude-code** — file issue via web form at
   `https://github.com/hesreallyhim/awesome-claude-code/issues/new?template=recommend-resource.yml`.
   Category: Workflows & Knowledge Guides. Draft submission details in
-  lab-notebook Session 12. Note: NC license may face scrutiny under their
-  open-source compliance requirement — flag proactively.
-  *Precondition: ✓ MET — README recalibrated Session 57, v0.6.0 released Session 58. Grounding audit Session 58.*
+  lab-notebook Session 12. License: Apache 2.0 (relicensed Session 32c) —
+  no open-source compliance concern.
+  *Precondition: ✓ MET — README recalibrated Session 57, v0.6.0 released Session 58. Grounding audit Session 59d: NC license concern stale (Apache 2.0 since Session 32c).*
 
 ---
 
