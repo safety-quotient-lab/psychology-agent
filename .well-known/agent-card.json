@@ -19,8 +19,8 @@
   },
 
   "http_discovery": {
-    "url": "https://psychology-interface.kashifshah.workers.dev/.well-known/agent-card.json",
-    "note": "HTTP agent-card served by CF Worker (interface/src/worker.js). Describes HTTP API surface, skills, and capabilities. Complementary to this git-transport card."
+    "url": "https://api.safety-quotient.dev/.well-known/agent-card.json",
+    "note": "HTTP agent-card served by CF Worker. Describes HTTP API surface, skills, and capabilities. Complementary to this git-transport card. Legacy URL: psychology-interface.kashifshah.workers.dev"
   },
 
   "active_sessions": [
