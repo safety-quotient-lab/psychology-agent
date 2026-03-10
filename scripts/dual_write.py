@@ -23,6 +23,11 @@ Usage:
 
     python scripts/dual_write.py trigger-fired --trigger-id TID
 
+    python scripts/dual_write.py lesson --title TITLE --date DATE \
+        [--pattern-type TYPE] [--domain DOM] [--severity SEV] \
+        [--recurrence N] [--trigger-relevant TID] \
+        [--promotion-status STATUS] [--lesson-text TEXT]
+
 Requires: Python 3.10+ (stdlib only)
 """
 import argparse
@@ -152,6 +157,55 @@ def cmd_trigger_fired(args: argparse.Namespace) -> None:
     print(f"fired: trigger_state/{args.trigger_id}")
 
 
+# ── lesson ──────────────────────────────────────────────────────────────
+
+def cmd_lesson(args: argparse.Namespace) -> None:
+    conn = get_connection()
+    # Ensure table exists (schema v7 migration-safe)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS lessons (
+            id               INTEGER PRIMARY KEY AUTOINCREMENT,
+            title            TEXT NOT NULL UNIQUE,
+            lesson_date      TEXT NOT NULL,
+            pattern_type     TEXT,
+            domain           TEXT,
+            severity         TEXT,
+            recurrence       INTEGER DEFAULT 1,
+            first_seen       TEXT,
+            last_seen        TEXT,
+            trigger_relevant TEXT,
+            promotion_status TEXT,
+            graduated_to     TEXT,
+            graduated_date   TEXT,
+            lesson_text      TEXT,
+            created_at       TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
+        )
+    """)
+    conn.execute("""
+        INSERT INTO lessons
+            (title, lesson_date, pattern_type, domain, severity, recurrence,
+             first_seen, last_seen, trigger_relevant, promotion_status, lesson_text)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(title) DO UPDATE SET
+            pattern_type = COALESCE(excluded.pattern_type, pattern_type),
+            domain = COALESCE(excluded.domain, domain),
+            severity = COALESCE(excluded.severity, severity),
+            recurrence = COALESCE(excluded.recurrence, recurrence),
+            last_seen = COALESCE(excluded.last_seen, last_seen),
+            trigger_relevant = COALESCE(excluded.trigger_relevant, trigger_relevant),
+            promotion_status = COALESCE(excluded.promotion_status, promotion_status),
+            lesson_text = COALESCE(excluded.lesson_text, lesson_text)
+    """, (
+        args.title, args.date, args.pattern_type, args.domain,
+        args.severity, args.recurrence or 1,
+        args.date, args.date,  # first_seen = last_seen on initial insert
+        args.trigger_relevant, args.promotion_status, args.lesson_text
+    ))
+    conn.commit()
+    conn.close()
+    print(f"upserted: lessons/{args.title}")
+
+
 # ── main ─────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -204,6 +258,18 @@ def main() -> None:
     tf = sub.add_parser("trigger-fired", help="Record a trigger firing")
     tf.add_argument("--trigger-id", required=True)
 
+    # lesson
+    ls = sub.add_parser("lesson", help="Upsert a lesson entry")
+    ls.add_argument("--title", required=True)
+    ls.add_argument("--date", required=True)
+    ls.add_argument("--pattern-type")
+    ls.add_argument("--domain")
+    ls.add_argument("--severity")
+    ls.add_argument("--recurrence", type=int)
+    ls.add_argument("--trigger-relevant")
+    ls.add_argument("--promotion-status")
+    ls.add_argument("--lesson-text")
+
     args = parser.parse_args()
 
     dispatch = {
@@ -213,6 +279,7 @@ def main() -> None:
         "session-entry": cmd_session_entry,
         "decision": cmd_decision,
         "trigger-fired": cmd_trigger_fired,
+        "lesson": cmd_lesson,
     }
     dispatch[args.command](args)
 
