@@ -455,7 +455,194 @@
             height: 200px;
         }
 
-        /* ── Knowledge Tab (Phase 2 stub) ────────────────────────────── */
+        /* ── Knowledge Tab ───────────────────────────────────────────── */
+
+        /* Knowledge vitals row */
+        .kb-vitals {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .kb-vital {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+        }
+        .kb-vital-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--c-knowledge);
+        }
+        .kb-vital-label {
+            font-size: 0.6em;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+
+        /* Sortable data tables */
+        .kb-table-wrap {
+            overflow-x: auto;
+            margin-bottom: 0;
+        }
+        .kb-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78em;
+        }
+        .kb-table th {
+            text-align: left;
+            padding: 8px 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-size: 0.85em;
+            border-bottom: 2px solid var(--border);
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .kb-table th:hover { color: var(--text-primary); }
+        .kb-table th .sort-arrow { margin-left: 4px; font-size: 0.8em; }
+        .kb-table td {
+            padding: 6px 10px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+        .kb-table tr:last-child td { border-bottom: none; }
+        .kb-table tr:hover td { background: var(--bg-inset); }
+
+        /* Agent color dot in tables */
+        .agent-dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .agent-dot[data-agent="psychology-agent"] { background: var(--c-psychology); }
+        .agent-dot[data-agent="psq-agent"] { background: var(--c-psq); }
+        .agent-dot[data-agent="unratified-agent"] { background: var(--c-unratified); }
+        .agent-dot[data-agent="observatory-agent"] { background: var(--c-observatory); }
+
+        /* Confidence badge */
+        .confidence-badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        .confidence-high { background: rgba(106,171,142,0.15); color: var(--c-health); }
+        .confidence-mid { background: rgba(196,149,106,0.15); color: var(--c-knowledge); }
+        .confidence-low { background: rgba(196,112,112,0.15); color: var(--c-alert); }
+
+        /* Dictionary cards */
+        .dict-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+        }
+        .dict-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .dict-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: var(--c-catalog);
+        }
+        .dict-term {
+            font-weight: bold;
+            color: var(--c-catalog);
+            font-size: 0.9em;
+            margin-bottom: 4px;
+        }
+        .dict-desc {
+            font-size: 0.78em;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            margin-bottom: 6px;
+        }
+        .dict-meta {
+            font-size: 0.65em;
+            color: var(--text-dim);
+        }
+        .dict-meta span { margin-right: 10px; }
+        .dict-source {
+            display: inline-block;
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 0 4px;
+            font-size: 0.9em;
+        }
+
+        /* Catalog distribution bars */
+        .catalog-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 0.78em;
+        }
+        .catalog-bar-label {
+            width: 160px;
+            text-align: right;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .catalog-bar-track {
+            flex: 1;
+            height: 14px;
+            background: var(--bg-inset);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .catalog-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: var(--c-catalog);
+            transition: width 0.4s ease;
+            min-width: 2px;
+        }
+        .catalog-bar-value {
+            width: 40px;
+            text-align: right;
+            color: var(--text-dim);
+            font-size: 0.9em;
+            flex-shrink: 0;
+        }
+
+        /* Memory topic table freshness */
+        .freshness-dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+        }
+        .freshness-fresh { background: var(--c-health); }
+        .freshness-aging { background: var(--c-knowledge); }
+        .freshness-stale { background: var(--c-alert); }
+
+        /* Section spacing within Knowledge tab */
+        .kb-section {
+            margin-bottom: 28px;
+        }
+
+        /* ── Operations Tab (Phase 3 stub) ──────────────────────────────── */
         .phase-stub {
             text-align: center;
             padding: 48px 20px;
@@ -477,6 +664,10 @@
             .lcars-tab { padding: 8px 12px; font-size: 0.75em; }
             .agents-grid { grid-template-columns: 1fr; }
             .vitals-grid { grid-template-columns: repeat(3, 1fr); }
+            .kb-vitals { grid-template-columns: repeat(3, 1fr); }
+            .dict-grid { grid-template-columns: 1fr; }
+            .catalog-bar-label { width: 100px; font-size: 0.75em; }
+            .kb-table { font-size: 0.7em; }
         }
 
         @media (max-width: 480px) {
@@ -582,12 +773,78 @@
 
         <!-- Knowledge Tab (Phase 2) -->
         <div class="tab-pane" id="pane-knowledge">
-            <div class="phase-stub">
-                <div class="phase-stub-icon">&#x1F4DA;</div>
-                <div class="phase-stub-text">
-                    Knowledge tab renders decisions, triggers, vocabulary, and catalog distributions
-                    from /api/kb and /kb/dictionary endpoints.<br>
-                    <span style="color: var(--text-dim)">Phase 2 — data sources connected</span>
+            <!-- KB vitals -->
+            <div class="kb-vitals" id="kb-vitals">
+                <div class="kb-vital">
+                    <div class="kb-vital-value" id="kb-decisions-count">—</div>
+                    <div class="kb-vital-label">Decisions</div>
+                </div>
+                <div class="kb-vital">
+                    <div class="kb-vital-value" id="kb-triggers-count">—</div>
+                    <div class="kb-vital-label">Triggers</div>
+                </div>
+                <div class="kb-vital">
+                    <div class="kb-vital-value" id="kb-catalog-count">—</div>
+                    <div class="kb-vital-label">Catalog Entries</div>
+                </div>
+                <div class="kb-vital">
+                    <div class="kb-vital-value" id="kb-memory-count">—</div>
+                    <div class="kb-vital-label">Memory Entries</div>
+                </div>
+                <div class="kb-vital">
+                    <div class="kb-vital-value" id="kb-stale-count">—</div>
+                    <div class="kb-vital-label">Stale Entries</div>
+                </div>
+            </div>
+
+            <!-- Decisions -->
+            <div class="lcars-panel kb-section" style="--panel-accent: var(--c-knowledge)">
+                <div class="lcars-panel-header">Decisions</div>
+                <div class="lcars-panel-body">
+                    <div class="kb-table-wrap" id="kb-decisions">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cognitive Triggers -->
+            <div class="lcars-panel kb-section" style="--panel-accent: var(--c-epistemic)">
+                <div class="lcars-panel-header">Cognitive Triggers</div>
+                <div class="lcars-panel-body">
+                    <div class="kb-table-wrap" id="kb-triggers">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dictionary -->
+            <div class="lcars-panel kb-section" style="--panel-accent: var(--c-catalog)">
+                <div class="lcars-panel-header">
+                    Vocabulary
+                    <a href="/vocab" style="float:right; font-size:0.85em; color:var(--text-dim); text-decoration:none; font-weight:normal">JSON-LD &#x2192;</a>
+                </div>
+                <div class="lcars-panel-body">
+                    <div class="dict-grid" id="kb-dictionary">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Catalog Distributions -->
+            <div class="lcars-panel kb-section" style="--panel-accent: var(--c-transport)">
+                <div class="lcars-panel-header">Catalog Distribution (PSH Categories)</div>
+                <div class="lcars-panel-body" id="kb-catalog">
+                    <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                </div>
+            </div>
+
+            <!-- Memory by Topic -->
+            <div class="lcars-panel kb-section" style="--panel-accent: var(--c-health)">
+                <div class="lcars-panel-header">Memory by Topic</div>
+                <div class="lcars-panel-body">
+                    <div class="kb-table-wrap" id="kb-memory">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -625,6 +882,8 @@
     ];
 
     let agentData = {};
+    let kbData = {};
+    let dictData = {};
     let refreshTimer = null;
 
     // ── Theme ──────────────────────────────────────────────────────
@@ -639,10 +898,19 @@
     }
 
     // ── Tabs ───────────────────────────────────────────────────────
-    function switchTab(tabId) {
+    const VALID_TABS = ["pulse", "knowledge", "operations"];
+
+    function switchTab(tabId, updateHash = true) {
+        if (!VALID_TABS.includes(tabId)) tabId = "pulse";
         document.querySelectorAll(".lcars-tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tabId));
         document.querySelectorAll(".tab-pane").forEach(p => p.classList.toggle("active", p.id === `pane-${tabId}`));
+        if (updateHash) history.replaceState(null, "", `#${tabId}`);
     }
+
+    window.addEventListener("hashchange", () => {
+        const tab = location.hash.replace("#", "") || "pulse";
+        switchTab(tab, false);
+    });
 
     // ── Data Fetching ──────────────────────────────────────────────
     async function fetchAgentStatus(agent) {
@@ -661,6 +929,10 @@
             agentData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "unreachable" };
         });
         renderPulse();
+
+        // Fetch KB data (non-blocking — renders when ready)
+        refreshKnowledge();
+
         document.getElementById("footer-status").textContent =
             `Updated ${new Date().toLocaleTimeString()}`;
     }
@@ -877,11 +1149,344 @@
         renderActivity();
     }
 
+    // ── Knowledge Tab ────────────────────────────────────────────
+
+    async function fetchAgentKB(agent) {
+        try {
+            const resp = await fetch(`${agent.url}/api/kb`, { signal: AbortSignal.timeout(10000) });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            return { id: agent.id, status: "ok", data: await resp.json() };
+        } catch (err) {
+            return { id: agent.id, status: "error", error: err.message };
+        }
+    }
+
+    async function fetchAgentDict(agent) {
+        try {
+            const resp = await fetch(`${agent.url}/kb/dictionary`, { signal: AbortSignal.timeout(10000) });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            return { id: agent.id, status: "ok", data: await resp.json() };
+        } catch (err) {
+            return { id: agent.id, status: "error", error: err.message };
+        }
+    }
+
+    async function refreshKnowledge() {
+        const [kbResults, dictResults] = await Promise.all([
+            Promise.allSettled(AGENTS.map(fetchAgentKB)),
+            Promise.allSettled(AGENTS.map(fetchAgentDict)),
+        ]);
+
+        kbResults.forEach((r, i) => {
+            kbData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "error" };
+        });
+        dictResults.forEach((r, i) => {
+            dictData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "error" };
+        });
+
+        renderKnowledge();
+    }
+
+    function renderKnowledge() {
+        renderKBVitals();
+        renderDecisions();
+        renderTriggers();
+        renderDictionary();
+        renderCatalog();
+        renderMemoryTopics();
+    }
+
+    // ── KB Vitals ────────────────────────────────────────────────
+    function renderKBVitals() {
+        let decisions = 0, triggers = 0, catalog = 0, memory = 0, stale = 0;
+        for (const agent of AGENTS) {
+            const kb = kbData[agent.id];
+            if (kb?.status !== "ok") continue;
+            const t = kb.data?.totals || {};
+            decisions += t.decisions || 0;
+            triggers += t.triggers || 0;
+            catalog += t.catalog_entries || 0;
+            memory += t.memory_entries || 0;
+            stale += t.stale_entries || 0;
+        }
+        document.getElementById("kb-decisions-count").textContent = decisions;
+        document.getElementById("kb-triggers-count").textContent = triggers;
+        document.getElementById("kb-catalog-count").textContent = catalog;
+        document.getElementById("kb-memory-count").textContent = memory;
+        const staleEl = document.getElementById("kb-stale-count");
+        staleEl.textContent = stale;
+        staleEl.style.color = stale > 10 ? "var(--c-alert)" : stale > 0 ? "var(--c-knowledge)" : "";
+    }
+
+    // ── Decisions Table ──────────────────────────────────────────
+    function renderDecisions() {
+        const container = document.getElementById("kb-decisions");
+        const allDecisions = [];
+
+        for (const agent of AGENTS) {
+            const kb = kbData[agent.id];
+            if (kb?.status !== "ok") continue;
+            (kb.data?.decisions || []).forEach(d => {
+                allDecisions.push({ ...d, _agent: agent.id });
+            });
+        }
+
+        if (allDecisions.length === 0) {
+            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No decisions available</div>`;
+            return;
+        }
+
+        // Sort by date descending
+        allDecisions.sort((a, b) => (b.decided_date || "").localeCompare(a.decided_date || ""));
+
+        // Show most recent 30
+        const display = allDecisions.slice(0, 30);
+
+        container.innerHTML = `
+            <table class="kb-table">
+                <thead><tr>
+                    <th>Agent</th>
+                    <th>Key</th>
+                    <th>Decision</th>
+                    <th>Date</th>
+                    <th>Conf</th>
+                </tr></thead>
+                <tbody>${display.map(d => {
+                    const conf = d.confidence != null ? parseFloat(d.confidence) : null;
+                    const confClass = conf != null ? (conf >= 0.8 ? "confidence-high" : conf >= 0.5 ? "confidence-mid" : "confidence-low") : "";
+                    const confText = conf != null ? conf.toFixed(2) : "—";
+                    const dateShort = (d.decided_date || "—").substring(0, 10);
+                    const text = (d.decision_text || "").length > 120
+                        ? d.decision_text.substring(0, 120) + "…"
+                        : (d.decision_text || "—");
+                    return `<tr>
+                        <td><span class="agent-dot" data-agent="${d._agent}"></span>${d._agent.replace("-agent","")}</td>
+                        <td style="color:var(--c-knowledge);white-space:nowrap">${d.decision_key || "—"}</td>
+                        <td>${escapeHtml(text)}</td>
+                        <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
+                        <td><span class="confidence-badge ${confClass}">${confText}</span></td>
+                    </tr>`;
+                }).join("")}</tbody>
+            </table>
+            ${allDecisions.length > 30 ? `<div style="color:var(--text-dim);font-size:0.75em;padding:8px 10px">Showing 30 of ${allDecisions.length} decisions</div>` : ""}
+        `;
+    }
+
+    // ── Triggers Table ───────────────────────────────────────────
+    function renderTriggers() {
+        const container = document.getElementById("kb-triggers");
+        const allTriggers = [];
+
+        for (const agent of AGENTS) {
+            const kb = kbData[agent.id];
+            if (kb?.status !== "ok") continue;
+            (kb.data?.triggers || []).forEach(t => {
+                allTriggers.push({ ...t, _agent: agent.id });
+            });
+        }
+
+        if (allTriggers.length === 0) {
+            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No triggers available</div>`;
+            return;
+        }
+
+        // Sort by fire_count descending
+        allTriggers.sort((a, b) => (b.fire_count || 0) - (a.fire_count || 0));
+
+        container.innerHTML = `
+            <table class="kb-table">
+                <thead><tr>
+                    <th>Agent</th>
+                    <th>Trigger</th>
+                    <th>Description</th>
+                    <th>Fires</th>
+                    <th>Last Fired</th>
+                    <th>Relevance</th>
+                </tr></thead>
+                <tbody>${allTriggers.map(t => {
+                    const lastFired = t.last_fired ? t.last_fired.substring(0, 10) : "never";
+                    const rel = t.relevance_score != null ? parseFloat(t.relevance_score).toFixed(2) : "—";
+                    const desc = (t.description || "").length > 80
+                        ? t.description.substring(0, 80) + "…"
+                        : (t.description || "—");
+                    return `<tr>
+                        <td><span class="agent-dot" data-agent="${t._agent}"></span>${t._agent.replace("-agent","")}</td>
+                        <td style="color:var(--c-epistemic);white-space:nowrap">${t.trigger_id || "—"}</td>
+                        <td>${escapeHtml(desc)}</td>
+                        <td style="text-align:center">${t.fire_count || 0}</td>
+                        <td style="white-space:nowrap;color:var(--text-secondary)">${lastFired}</td>
+                        <td style="text-align:center">${rel}</td>
+                    </tr>`;
+                }).join("")}</tbody>
+            </table>
+        `;
+    }
+
+    // ── Dictionary Cards ─────────────────────────────────────────
+    function renderDictionary() {
+        const container = document.getElementById("kb-dictionary");
+        const allTerms = [];
+
+        for (const agent of AGENTS) {
+            const dd = dictData[agent.id];
+            if (dd?.status !== "ok") continue;
+            const vocab = dd.data || {};
+            // JSON-LD dictionary: look for @graph or hasDefinedTerm
+            const terms = vocab["@graph"] || vocab.hasDefinedTerm || [];
+            terms.forEach(term => {
+                // Deduplicate by term name
+                const existing = allTerms.find(t => t.name === term.name);
+                if (existing) {
+                    if (!existing._agents.includes(agent.id)) existing._agents.push(agent.id);
+                    return;
+                }
+                allTerms.push({
+                    name: term.name || term.termCode || "—",
+                    description: term.description || "",
+                    termCode: term.termCode || "",
+                    inDefinedTermSet: term.inDefinedTermSet || "",
+                    _agents: [agent.id],
+                });
+            });
+        }
+
+        if (allTerms.length === 0) {
+            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No vocabulary terms available</div>`;
+            return;
+        }
+
+        // Sort alphabetically
+        allTerms.sort((a, b) => a.name.localeCompare(b.name));
+
+        // Show first 24
+        const display = allTerms.slice(0, 24);
+
+        container.innerHTML = display.map(t => {
+            const desc = t.description.length > 140
+                ? t.description.substring(0, 140) + "…"
+                : t.description;
+            const source = t.inDefinedTermSet || "project";
+            const agentDots = t._agents.map(a =>
+                `<span class="agent-dot" data-agent="${a}" title="${a}"></span>`
+            ).join("");
+            return `<div class="dict-card">
+                <div class="dict-term">${escapeHtml(t.name)}</div>
+                <div class="dict-desc">${escapeHtml(desc)}</div>
+                <div class="dict-meta">
+                    ${t.termCode ? `<span class="dict-source">${escapeHtml(t.termCode)}</span>` : ""}
+                    <span class="dict-source">${escapeHtml(source)}</span>
+                    <span>${agentDots}</span>
+                </div>
+            </div>`;
+        }).join("") +
+        (allTerms.length > 24 ? `<div style="color:var(--text-dim);font-size:0.75em;padding:12px;grid-column:1/-1">${allTerms.length - 24} more terms — <a href="/vocab" style="color:var(--c-catalog)">view full vocabulary</a></div>` : "");
+    }
+
+    // ── Catalog Distributions ────────────────────────────────────
+    function renderCatalog() {
+        const container = document.getElementById("kb-catalog");
+        const categoryMap = {};
+
+        for (const agent of AGENTS) {
+            const kb = kbData[agent.id];
+            if (kb?.status !== "ok") continue;
+            const active = kb.data?.catalog?.active || [];
+            active.forEach(entry => {
+                if (entry.facet_type !== "psh") return;
+                const label = entry.facet_value || "unknown";
+                if (!categoryMap[label]) categoryMap[label] = 0;
+                categoryMap[label] += entry.entity_count || 1;
+            });
+        }
+
+        const categories = Object.entries(categoryMap)
+            .sort((a, b) => b[1] - a[1]);
+
+        if (categories.length === 0) {
+            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No catalog data available</div>`;
+            return;
+        }
+
+        const maxCount = categories[0][1];
+
+        container.innerHTML = categories.map(([label, count]) => {
+            const pct = maxCount > 0 ? Math.round((count / maxCount) * 100) : 0;
+            return `<div class="catalog-bar-row">
+                <span class="catalog-bar-label" title="${escapeHtml(label)}">${escapeHtml(label)}</span>
+                <div class="catalog-bar-track">
+                    <div class="catalog-bar-fill" style="width:${pct}%"></div>
+                </div>
+                <span class="catalog-bar-value">${count}</span>
+            </div>`;
+        }).join("");
+    }
+
+    // ── Memory by Topic ──────────────────────────────────────────
+    function renderMemoryTopics() {
+        const container = document.getElementById("kb-memory");
+        const allTopics = [];
+
+        for (const agent of AGENTS) {
+            const kb = kbData[agent.id];
+            if (kb?.status !== "ok") continue;
+            (kb.data?.memory?.by_topic || []).forEach(t => {
+                allTopics.push({ ...t, _agent: agent.id });
+            });
+        }
+
+        if (allTopics.length === 0) {
+            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No memory data available</div>`;
+            return;
+        }
+
+        // Sort by stale_count desc, then entry_count desc
+        allTopics.sort((a, b) => (b.stale_count || 0) - (a.stale_count || 0) || (b.entry_count || 0) - (a.entry_count || 0));
+
+        container.innerHTML = `
+            <table class="kb-table">
+                <thead><tr>
+                    <th>Agent</th>
+                    <th>Topic</th>
+                    <th>Entries</th>
+                    <th>Stale</th>
+                    <th>Freshness</th>
+                    <th>Newest</th>
+                </tr></thead>
+                <tbody>${allTopics.map(t => {
+                    const stale = t.stale_count || 0;
+                    const total = t.entry_count || 0;
+                    const staleRatio = total > 0 ? stale / total : 0;
+                    const freshClass = staleRatio > 0.5 ? "freshness-stale" : staleRatio > 0 ? "freshness-aging" : "freshness-fresh";
+                    const newest = t.newest ? t.newest.substring(0, 10) : "—";
+                    return `<tr>
+                        <td><span class="agent-dot" data-agent="${t._agent}"></span>${t._agent.replace("-agent","")}</td>
+                        <td>${escapeHtml(t.topic || "—")}</td>
+                        <td style="text-align:center">${total}</td>
+                        <td style="text-align:center;${stale > 0 ? "color:var(--c-alert)" : ""}">${stale}</td>
+                        <td style="text-align:center"><span class="freshness-dot ${freshClass}"></span></td>
+                        <td style="white-space:nowrap;color:var(--text-secondary)">${newest}</td>
+                    </tr>`;
+                }).join("")}</tbody>
+            </table>
+        `;
+    }
+
+    // ── Utility ──────────────────────────────────────────────────
+    function escapeHtml(str) {
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
     // ── Init ───────────────────────────────────────────────────────
     (async function init() {
         // Restore preferences
         const savedTheme = localStorage.getItem("theme");
         if (savedTheme && savedTheme !== "dark") setTheme(savedTheme);
+
+        // Restore tab from URL fragment
+        const hashTab = location.hash.replace("#", "");
+        if (hashTab && VALID_TABS.includes(hashTab)) switchTab(hashTab, false);
 
         await refreshAll();
 
