@@ -40,6 +40,14 @@
             --c-catalog: #c48a9e;
             --c-alert: #c47070;
             --c-inactive: #6b7280;
+            --c-warning: #d4944a;
+
+            /* Tab identity — semantic color per tab */
+            --c-tab-pulse: #6aab8e;       /* green — operational health */
+            --c-tab-meta: #9b8ec4;        /* purple — thought, reflection */
+            --c-tab-kb: #c4956a;          /* amber — structured knowledge */
+            --c-tab-wisdom: #b8956a;      /* warm bronze — accumulated insight */
+            --c-tab-ops: #6b8aaf;         /* blue — transport, operations */
 
             /* Agent identity palette — subtle, distinguishable */
             --c-psychology: #6b8aaf;
@@ -72,6 +80,13 @@
             --c-catalog: #ff9966;
             --c-alert: #cc6666;
             --c-inactive: #666688;
+            --c-warning: #ff9944;
+
+            --c-tab-pulse: #9999ff;
+            --c-tab-meta: #cc6699;
+            --c-tab-kb: #cc99cc;
+            --c-tab-wisdom: #ffcc66;
+            --c-tab-ops: #ff9900;
 
             --c-psychology: #ff9900;
             --c-psq: #cc99cc;
@@ -133,8 +148,26 @@
         }
         .lcars-spine-segment {
             flex: 1;
-            min-height: 40px;
+            min-height: 30px;
             transition: flex 0.4s ease, background 0.4s ease;
+            cursor: default;
+            position: relative;
+        }
+        .lcars-spine-segment:hover::after {
+            content: attr(title);
+            position: absolute;
+            left: calc(100% + 8px);
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--bg-panel);
+            color: var(--text-primary);
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.65em;
+            white-space: nowrap;
+            z-index: 10;
+            border: 1px solid var(--border);
+            pointer-events: none;
         }
         .lcars-spine-segment:first-child {
             border-radius: var(--elbow-radius) 0 0 0;
@@ -151,13 +184,13 @@
             align-items: center;
             justify-content: space-between;
             padding: 12px 20px;
-            border-bottom: var(--band-height) solid var(--c-transport);
+            border-bottom: var(--band-height) solid var(--active-tab-color, var(--c-transport));
         }
 
         .lcars-title {
             font-size: 1.3em;
             font-weight: bold;
-            color: var(--c-transport);
+            color: var(--active-tab-color, var(--c-transport));
             letter-spacing: 0.05em;
         }
         .lcars-subtitle {
@@ -220,10 +253,12 @@
             transition: all 0.2s;
         }
         .lcars-tab:hover { color: var(--text-primary); }
-        .lcars-tab.active {
-            color: var(--c-transport);
-            border-bottom-color: var(--c-transport);
-        }
+        .lcars-tab.active { color: var(--c-tab-pulse); border-bottom-color: var(--c-tab-pulse); }
+        .lcars-tab[data-tab="pulse"].active  { color: var(--c-tab-pulse); border-bottom-color: var(--c-tab-pulse); }
+        .lcars-tab[data-tab="meta"].active   { color: var(--c-tab-meta);  border-bottom-color: var(--c-tab-meta); }
+        .lcars-tab[data-tab="kb"].active     { color: var(--c-tab-kb);    border-bottom-color: var(--c-tab-kb); }
+        .lcars-tab[data-tab="wisdom"].active { color: var(--c-tab-wisdom); border-bottom-color: var(--c-tab-wisdom); }
+        .lcars-tab[data-tab="operations"].active { color: var(--c-tab-ops); border-bottom-color: var(--c-tab-ops); }
         .tab-badge {
             background: var(--c-alert);
             color: var(--bg-primary);
@@ -1261,11 +1296,59 @@
     // ── Tabs ───────────────────────────────────────────────────────
     const VALID_TABS = ["pulse", "meta", "kb", "wisdom", "operations"];
 
+    // ── LCARS Spine Content Tracking ─────────────────────────────
+    // Each tab maps to a set of spine segments reflecting its content sections.
+    const SPINE_CONFIG = {
+        pulse: [
+            { label: "Transport", color: "var(--c-transport)", flex: 2 },
+            { label: "Health",    color: "var(--c-tab-pulse)", flex: 3 },
+            { label: "Topology",  color: "var(--c-epistemic)", flex: 1 },
+        ],
+        meta: [
+            { label: "Decisions", color: "var(--c-tab-meta)",  flex: 3 },
+            { label: "Triggers",  color: "var(--c-epistemic)", flex: 2 },
+            { label: "Memory",    color: "var(--c-tab-pulse)", flex: 2 },
+            { label: "Messages",  color: "var(--c-transport)", flex: 3 },
+        ],
+        kb: [
+            { label: "Claims",     color: "var(--c-tab-kb)",    flex: 4 },
+            { label: "Chains",     color: "var(--c-epistemic)", flex: 2 },
+            { label: "Facts",      color: "var(--c-tab-pulse)", flex: 2 },
+            { label: "Vocabulary", color: "var(--c-catalog)",   flex: 1 },
+            { label: "Catalog",    color: "var(--c-transport)", flex: 1 },
+        ],
+        wisdom: [
+            { label: "Lessons",    color: "var(--c-tab-wisdom)", flex: 4 },
+            { label: "Graduated",  color: "var(--c-tab-pulse)", flex: 2 },
+        ],
+        operations: [
+            { label: "Status",     color: "var(--c-tab-ops)", flex: 1 },
+        ],
+    };
+
+    function updateSpine(tabId) {
+        const spine = document.getElementById("lcars-spine");
+        if (!spine) return;
+        const segments = SPINE_CONFIG[tabId] || SPINE_CONFIG.pulse;
+        spine.innerHTML = segments.map((seg, i) => {
+            const radius = i === 0 ? "border-radius: var(--elbow-radius) 0 0 0;"
+                         : i === segments.length - 1 ? "border-radius: 0 0 0 var(--elbow-radius);"
+                         : "";
+            return `<div class="lcars-spine-segment" title="${seg.label}" style="background:${seg.color};flex:${seg.flex};${radius}"></div>`;
+        }).join("");
+    }
+
+    const TAB_COLORS = { pulse: "--c-tab-pulse", meta: "--c-tab-meta", kb: "--c-tab-kb", wisdom: "--c-tab-wisdom", operations: "--c-tab-ops" };
+
     function switchTab(tabId, updateHash = true) {
         if (tabId === "knowledge") tabId = "meta"; // backward compat
         if (!VALID_TABS.includes(tabId)) tabId = "pulse";
         document.querySelectorAll(".lcars-tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tabId));
         document.querySelectorAll(".tab-pane").forEach(p => p.classList.toggle("active", p.id === `pane-${tabId}`));
+        // Update header band + title color to match active tab
+        const colorVar = TAB_COLORS[tabId] || "--c-tab-pulse";
+        document.documentElement.style.setProperty("--active-tab-color", `var(${colorVar})`);
+        updateSpine(tabId);
         if (updateHash) history.replaceState(null, "", `#${tabId}`);
     }
 
