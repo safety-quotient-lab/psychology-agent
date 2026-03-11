@@ -138,6 +138,14 @@
         .dot-yellow { background: #d29922; }
         .dot-red { background: #f85149; }
         .dot-gray { background: #484f58; }
+        .dot-pulse {
+            background: #3fb950;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(63,185,80,0.5); }
+            50% { opacity: 0.8; box-shadow: 0 0 8px 2px rgba(63,185,80,0.4); }
+        }
 
         .agent-metrics {
             display: grid;
@@ -260,6 +268,20 @@
 
         .error-msg { color: #f85149; font-size: 0.8em; margin-top: 8px; }
         .no-data { color: #484f58; font-size: 0.85em; padding: 16px; text-align: center; }
+
+        /* Clickable message rows */
+        .msg-table tr.msg-row { cursor: pointer; transition: background 0.15s; }
+        .msg-table tr.msg-row:hover { background: #1c2128; }
+        .msg-table tr.msg-detail { display: none; }
+        .msg-table tr.msg-detail.open { display: table-row; }
+        .msg-detail-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 6px 16px; padding: 8px 0;
+        }
+        .msg-detail-grid dt { color: #8b949e; font-size: 0.8em; }
+        .msg-detail-grid dd { color: #e6edf3; font-size: 0.85em; margin: 0 0 4px 0; }
+        .msg-expand { color: #484f58; font-size: 0.75em; transition: transform 0.2s; display: inline-block; }
+        .msg-expand.open { transform: rotate(90deg); }
     </style>
 </head>
 <body>
@@ -296,16 +318,11 @@
         <div class="health-grid" id="msg-summary"></div>
     </div>
     <div class="mesh-section">
-        <h2>Per-Agent Message Counts</h2>
-        <div id="msg-counts-content"></div>
-    </div>
-    <div class="mesh-section">
-        <h2>Recent Messages</h2>
-        <div id="msg-recent-content"></div>
-    </div>
-    <div class="mesh-section">
-        <h2>Unprocessed Messages</h2>
-        <div id="msg-unprocessed-content"></div>
+        <h2>All Messages</h2>
+        <p style="font-size:0.8em;color:#8b949e;margin-bottom:12px">
+            Merged timeline from all agents. Click a row to expand details.
+        </p>
+        <div id="msg-timeline-content"></div>
     </div>
     <div class="mesh-section">
         <h2>Cross-Mesh Trace</h2>
@@ -433,10 +450,18 @@ function renderAgentCard(agent, data, error) {
     const budgetMax = budget.budget_max != null ? budget.budget_max : "?";
     const schemaVer = data.schema_version || "?";
 
+    // Semantic status: syncing (pulse green), autonomous idle (solid green), manual (yellow)
+    const isSyncing = schedule.lock_active;
+    const isAutonomous = schedule.autonomous;
+    const dotClass = isSyncing ? "dot-pulse" : isAutonomous ? "dot-green" : "dot-yellow";
+    const statusLabel = isSyncing ? "syncing" : isAutonomous ? "autonomous" : "manual";
+    const statusColor = isSyncing ? "#3fb950" : isAutonomous ? "#3fb950" : "#d29922";
+    if (isSyncing) card.style.borderColor = "#3fb950";
+
     card.innerHTML = `
         <div class="agent-header">
             <span class="agent-name">${data.agent_id || agent.id}</span>
-            <span class="agent-status"><span class="dot dot-green"></span> online</span>
+            <span class="agent-status"><span class="dot ${dotClass}"></span> <span style="color:${statusColor}">${statusLabel}</span></span>
         </div>
         <div class="agent-metrics">
             <div class="metric">
@@ -519,6 +544,15 @@ function renderTopology() {
         </table>`;
 }
 
+function toggleMsgDetail(rowId) {
+    const detail = document.getElementById(`detail-${rowId}`);
+    const arrow = document.getElementById(`arrow-${rowId}`);
+    if (detail) {
+        detail.classList.toggle("open");
+        if (arrow) arrow.classList.toggle("open");
+    }
+}
+
 function renderMessages() {
     const onlineAgents = Object.keys(agentData).filter(id => agentData[id].data);
 
@@ -560,90 +594,66 @@ function renderMessages() {
         badge.style.display = "none";
     }
 
-    // Per-agent message counts
-    let countRows = "";
-    for (const id of onlineAgents) {
-        const d = agentData[id].data;
-        const counts = d.message_counts || [];
-        if (counts.length === 0) {
-            countRows += `<tr><td>${id}</td><td colspan="3" style="color:#484f58">no message data</td></tr>`;
-            continue;
-        }
-        for (const c of counts) {
-            const pending = c.pending || 0;
-            const pendingStyle = pending > 0 ? 'color:#d29922;font-weight:bold' : '';
-            countRows += `<tr>
-                <td>${id}</td>
-                <td>${c.from_agent || "?"}</td>
-                <td>${c.sent || 0}</td>
-                <td style="${pendingStyle}">${pending}</td>
-            </tr>`;
-        }
-    }
-    document.getElementById("msg-counts-content").innerHTML = countRows
-        ? `<table class="msg-table">
-            <tr><th>Reporting Agent</th><th>From</th><th>Total</th><th>Pending</th></tr>
-            ${countRows}</table>`
-        : '<div class="no-data">No message count data available</div>';
-
-    // Recent messages (aggregate from all agents)
-    let allRecent = [];
+    // Unified timeline — dedupe by session+filename, merge across agents
+    const msgMap = {};
     for (const id of onlineAgents) {
         const d = agentData[id].data;
         const recent = d.recent_messages || [];
         for (const m of recent) {
-            allRecent.push({ reporting_agent: id, ...m });
+            const key = `${m.session_name || "?"}/${m.filename || `t${m.turn}`}`;
+            if (!msgMap[key]) {
+                msgMap[key] = { ...m, seen_by: [id] };
+            } else {
+                if (!msgMap[key].seen_by.includes(id)) msgMap[key].seen_by.push(id);
+                // Prefer processed=true if any agent reports it
+                if (m.processed) msgMap[key].processed = true;
+            }
         }
     }
-    allRecent.sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
-    allRecent = allRecent.slice(0, 30);
 
-    let recentRows = "";
-    for (const m of allRecent) {
+    const allMsgs = Object.values(msgMap);
+    allMsgs.sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
+
+    let timelineRows = "";
+    allMsgs.forEach((m, i) => {
         const processed = m.processed ? "✓" : "✗";
         const processedStyle = m.processed ? "color:#3fb950" : "color:#f85149;font-weight:bold";
-        recentRows += `<tr>
+        const pendingBg = !m.processed ? "background:#1a1205;" : "";
+        const seenCount = m.seen_by.length;
+        const meshIcon = seenCount > 1 ? ' <span style="color:#3fb950;font-size:0.75em" title="Seen by multiple agents">⬡</span>' : '';
+
+        timelineRows += `<tr class="msg-row" style="${pendingBg}" onclick="toggleMsgDetail(${i})">
+            <td><span class="msg-expand" id="arrow-${i}">▶</span></td>
             <td>${timeAgo(m.timestamp)}</td>
             <td>${m.from_agent || "?"}</td>
             <td>${m.to_agent || "?"}</td>
-            <td>${m.session_name || "?"}</td>
             <td>${m.message_type || "?"}</td>
-            <td class="truncate">${m.subject || ""}</td>
+            <td class="truncate">${m.subject || ""}${meshIcon}</td>
             <td style="${processedStyle}">${processed}</td>
+        </tr>
+        <tr class="msg-detail" id="detail-${i}">
+            <td colspan="7" style="padding:12px 16px;background:#0d1117;border-left:2px solid #30363d">
+                <dl class="msg-detail-grid">
+                    <dt>Session</dt><dd>${m.session_name || "?"}</dd>
+                    <dt>Filename</dt><dd>${m.filename || "?"}</dd>
+                    <dt>Turn</dt><dd>${m.turn ?? "?"}</dd>
+                    <dt>Timestamp</dt><dd>${m.timestamp || "?"}</dd>
+                    <dt>From</dt><dd>${m.from_agent || "?"}</dd>
+                    <dt>To</dt><dd>${m.to_agent || "?"}</dd>
+                    <dt>Type</dt><dd>${m.message_type || "?"}</dd>
+                    <dt>Subject</dt><dd>${m.subject || "(none)"}</dd>
+                    <dt>Processed</dt><dd style="${processedStyle}">${m.processed ? "Yes" : "No"}</dd>
+                    <dt>Seen by</dt><dd>${m.seen_by.join(", ")}</dd>
+                </dl>
+            </td>
         </tr>`;
-    }
-    document.getElementById("msg-recent-content").innerHTML = recentRows
-        ? `<table class="msg-table">
-            <tr><th>When</th><th>From</th><th>To</th><th>Session</th><th>Type</th><th>Subject</th><th>Processed</th></tr>
-            ${recentRows}</table>`
-        : '<div class="no-data">No recent message data available</div>';
+    });
 
-    // Unprocessed messages
-    let allUnprocessed = [];
-    for (const id of onlineAgents) {
-        const d = agentData[id].data;
-        const unproc = d.unprocessed_messages || [];
-        for (const m of unproc) {
-            allUnprocessed.push({ reporting_agent: id, ...m });
-        }
-    }
-
-    let unprocRows = "";
-    for (const m of allUnprocessed) {
-        unprocRows += `<tr>
-            <td>${m.reporting_agent}</td>
-            <td>${m.from_agent || "?"}</td>
-            <td>${m.session_name || "?"}</td>
-            <td>${m.message_type || "?"}</td>
-            <td class="truncate">${m.subject || ""}</td>
-            <td>${timeAgo(m.timestamp)}</td>
-        </tr>`;
-    }
-    document.getElementById("msg-unprocessed-content").innerHTML = unprocRows
+    document.getElementById("msg-timeline-content").innerHTML = timelineRows
         ? `<table class="msg-table">
-            <tr><th>Seen By</th><th>From</th><th>Session</th><th>Type</th><th>Subject</th><th>When</th></tr>
-            ${unprocRows}</table>`
-        : '<div class="no-data" style="color:#3fb950">All messages processed across the mesh</div>';
+            <tr><th></th><th>When</th><th>From</th><th>To</th><th>Type</th><th>Subject</th><th>Status</th></tr>
+            ${timelineRows}</table>`
+        : '<div class="no-data">No message data available</div>';
 
     // Cross-mesh trace — find messages that appear on multiple agents
     const msgIndex = {};
