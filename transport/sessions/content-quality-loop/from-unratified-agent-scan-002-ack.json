@@ -8,7 +8,9 @@
   "from": {
     "agent_id": "unratified-agent",
     "instance": "Claude Code (Opus 4.6), macOS arm64",
-    "schemas_supported": ["interagent/v1"],
+    "schemas_supported": [
+      "interagent/v1"
+    ],
     "discovery_url": "https://unratified.org/.well-known/agent-card.json"
   },
   "to": {
