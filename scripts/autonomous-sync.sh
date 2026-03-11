@@ -47,6 +47,53 @@ LOG_PREFIX="[$(date '+%Y-%m-%dT%H:%M:%S%z')] [${AGENT_ID}]"
 log() { echo "${LOG_PREFIX} $1"; }
 err() { echo "${LOG_PREFIX} ERROR: $1" >&2; }
 
+get_repo() {
+    # Derive GitHub repo slug from git remote origin URL
+    local url
+    url=$(cd "${PROJECT_ROOT}" && git remote get-url origin 2>/dev/null || echo "")
+    # Handle SSH (git@github.com:org/repo.git) and HTTPS (https://github.com/org/repo.git)
+    echo "${url}" | sed -E 's|.*github\.com[:/]||; s|\.git$||'
+}
+
+escalate() {
+    # File a for-human-review issue via the mesh bot.
+    # Usage: escalate "severity" "category" "summary" ["context"] ["suggested-action"]
+    local severity="$1"
+    local category="$2"
+    local summary="$3"
+    local context="${4:-}"
+    local suggested_action="${5:-}"
+    local repo
+    repo=$(get_repo)
+
+    if [ -z "${repo}" ]; then
+        err "Cannot escalate — no git remote origin found"
+        return 1
+    fi
+
+    local escalate_script="${PROJECT_ROOT}/scripts/escalate.py"
+    if [ ! -f "${escalate_script}" ]; then
+        err "Cannot escalate — scripts/escalate.py not found"
+        return 1
+    fi
+
+    local args=(
+        python3 "${escalate_script}"
+        --agent "${AGENT_ID}"
+        --severity "${severity}"
+        --category "${category}"
+        --summary "${summary}"
+        --repo "${repo}"
+    )
+    [ -n "${context}" ] && args+=(--context "${context}")
+    [ -n "${suggested_action}" ] && args+=(--suggested-action "${suggested_action}")
+
+    "${args[@]}" 2>&1 || {
+        err "escalate.py failed — notification not sent"
+        return 1
+    }
+}
+
 cleanup() {
     rm -f "${LOCK_FILE}"
 }
@@ -151,6 +198,11 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"; then
             git push origin main || true
         fi
 
+        escalate "critical" "budget-halt" \
+            "Trust budget exhausted (0/${budget:-0} credits)" \
+            "Autonomous sync halted. No credits remaining." \
+            "Run: python3 scripts/trust-budget.py reset" || true
+
         exit 1
     fi
 
@@ -243,6 +295,10 @@ handle_gate_timeouts() {
   }
 }
 GATE_HALT_JSON
+                escalate "critical" "gate-timeout" \
+                    "Gate ${gate_id} timed out (halt-and-escalate)" \
+                    "Gated chain timed out and requires human review." \
+                    "Check gate status and either extend timeout or manually resolve." || true
                 ;;
         esac
     done
@@ -400,6 +456,10 @@ run_sync() {
         elif echo "${sync_output}" | grep -qi "usage\|credit\|limit\|billing\|exceeded"; then
             err "HALT — API usage limit reached. Check billing/extra usage settings."
             echo "${sync_output}" | tail -5
+            escalate "critical" "api-usage-limit" \
+                "API usage limit reached — autonomous sync halted" \
+                "Claude CLI reported a billing/credit/usage limit error." \
+                "Check Anthropic billing dashboard and adjust usage limits." || true
             return 1
         else
             err "claude CLI exited with error (code ${claude_exit})"
@@ -597,6 +657,10 @@ main() {
 
         if [ "${blocks}" -ge "${MAX_CONSECUTIVE_ERRORS}" ]; then
             err "HALT — ${blocks} consecutive errors. Human review required."
+            escalate "warning" "consecutive-errors" \
+                "${blocks} consecutive sync errors — autonomous sync halted" \
+                "Sync execution failed ${blocks} times in a row." \
+                "Check logs at /tmp/sync.log and restart after fixing the issue." || true
             exit 1
         fi
     fi
