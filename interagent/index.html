@@ -1696,7 +1696,7 @@
             seen.add(key);
             return true;
         });
-        unique.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+        unique.sort((a, b) => parseTS(b.timestamp) - parseTS(a.timestamp));
         const display = unique.slice(0, 8);
 
         if (display.length === 0) {
@@ -1705,7 +1705,7 @@
         }
 
         container.innerHTML = display.map(m => {
-            const time = m.timestamp.split("T")[1]?.substring(0, 8) || m.timestamp;
+            const time = formatTS(m.timestamp);
             return `<div class="activity-item">
                 <span class="activity-time">${time}</span>
                 <span class="activity-route">
@@ -1840,7 +1840,7 @@
         }
 
         const { display, page, totalPages, filtered, total } = getFilteredSorted("decisions", allRows, {
-            decided_date: r => r.decided_date || "",
+            decided_date: r => parseTS(r.created_at || r.decided_date),
             confidence: r => r.confidence != null ? parseFloat(r.confidence) : -1,
             decision_key: r => r.decision_key || "",
             _agent: r => r._agent || "",
@@ -1861,7 +1861,7 @@
                     const conf = d.confidence != null ? parseFloat(d.confidence) : null;
                     const confClass = conf != null ? (conf >= 0.8 ? "confidence-high" : conf >= 0.5 ? "confidence-mid" : "confidence-low") : "";
                     const confText = conf != null ? conf.toFixed(2) : "—";
-                    const dateShort = (d.decided_date || "—").substring(0, 10);
+                    const dateShort = formatTS(d.created_at || d.decided_date);
                     const fullText = d.decision_text || "—";
                     const truncated = fullText.length > 120;
                     const text = truncated ? fullText.substring(0, 120) + "…" : fullText;
@@ -1903,7 +1903,7 @@
             fire_count: r => r.fire_count || 0,
             relevance_score: r => r.relevance_score != null ? parseFloat(r.relevance_score) : -1,
             trigger_id: r => r.trigger_id || "",
-            last_fired: r => r.last_fired || "",
+            last_fired: r => parseTS(r.last_fired),
             _agent: r => r._agent || "",
         });
 
@@ -1920,7 +1920,7 @@
                     ${sortHeader("triggers", "relevance_score", "Relevance")}
                 </tr></thead>
                 <tbody>${display.map(t => {
-                    const lastFired = t.last_fired ? t.last_fired.substring(0, 10) : "never";
+                    const lastFired = t.last_fired ? formatTS(t.last_fired) : "never";
                     const rel = t.relevance_score != null ? parseFloat(t.relevance_score).toFixed(2) : "—";
                     const desc = (t.description || "").length > 80
                         ? t.description.substring(0, 80) + "…"
@@ -2168,7 +2168,7 @@
                     const staleRatio = total > 0 ? stale / total : 0;
                     const freshClass = staleRatio > 0.5 ? "freshness-stale" : staleRatio > 0 ? "freshness-aging" : "freshness-fresh";
                     const freshLabel = staleRatio > 0.5 ? "stale" : staleRatio > 0 ? "aging" : "fresh";
-                    const newest = t.newest ? t.newest.substring(0, 10) : "—";
+                    const newest = t.newest ? formatTS(t.newest) : "—";
                     return `<tr>
                         <td><span class="agent-dot" data-agent="${t._agent}"></span>${t._agent.replace("-agent","")}</td>
                         <td>${escapeHtml(t.topic || "—")}</td>
@@ -2314,7 +2314,7 @@
         }
 
         const { display, page, totalPages, filtered, total } = getFilteredSorted("messages", allRows, {
-            timestamp: r => r.timestamp || "",
+            timestamp: r => parseTS(r.timestamp),
             from_agent: r => r.from_agent || "",
             to_agent: r => r.to_agent || "",
             session_name: r => r.session_name || "",
@@ -2339,7 +2339,7 @@
                     ${sortHeader("messages", "timestamp", "Date")}
                 </tr></thead>
                 <tbody>${display.map(m => {
-                    const dateShort = (m.timestamp || "—").substring(0, 10);
+                    const dateShort = formatTS(m.timestamp);
                     const subject = (m.subject || "").length > 60
                         ? m.subject.substring(0, 60) + "…"
                         : (m.subject || "—");
@@ -2384,7 +2384,7 @@
         }
 
         const { display, page, totalPages, filtered, total } = getFilteredSorted("claims", allRows, {
-            created_at: r => r.created_at || "",
+            created_at: r => parseTS(r.created_at),
             confidence: r => r.confidence != null ? parseFloat(r.confidence) : -1,
             claim_text: r => r.claim_text || "",
             verified: r => r.verified || 0,
@@ -2418,7 +2418,7 @@
                     const basis = (c.confidence_basis || "—").length > 60
                         ? c.confidence_basis.substring(0, 60) + "…"
                         : (c.confidence_basis || "—");
-                    const dateShort = (c.created_at || "—").substring(0, 10);
+                    const dateShort = formatTS(c.created_at);
                     const fromAgent = c.from_agent || c._agent.replace("-agent", "");
                     return `<tr class="${truncated ? "expandable-row" : ""}" ${truncated ? `onclick="toggleDecisionRow('${rowId}')"` : ""}>
                         <td><span class="agent-dot" data-agent="${c._agent}"></span>${escapeHtml(fromAgent)}</td>
@@ -2460,7 +2460,7 @@
         allRows.forEach(d => { if (d.id) keyById[d.id] = d.decision_key; });
 
         const { display, page, totalPages, filtered, total } = getFilteredSorted("chains", allRows, {
-            decided_date: r => r.decided_date || "",
+            decided_date: r => parseTS(r.created_at || r.decided_date),
             confidence: r => r.confidence != null ? parseFloat(r.confidence) : -1,
             decision_key: r => r.decision_key || "",
             _agent: r => r._agent || "",
@@ -2482,7 +2482,7 @@
                     const conf = d.confidence != null ? parseFloat(d.confidence) : null;
                     const confClass = conf != null ? (conf >= 0.8 ? "confidence-high" : conf >= 0.5 ? "confidence-mid" : "confidence-low") : "";
                     const confText = conf != null ? conf.toFixed(2) : "—";
-                    const dateShort = (d.decided_date || "—").substring(0, 10);
+                    const dateShort = formatTS(d.created_at || d.decided_date);
                     const text = (d.decision_text || "").length > 80
                         ? d.decision_text.substring(0, 80) + "…"
                         : (d.decision_text || "—");
@@ -2522,7 +2522,7 @@
         }
 
         const { display, page, totalPages, filtered, total } = getFilteredSorted("facts", allRows, {
-            last_confirmed: r => r.last_confirmed || "",
+            last_confirmed: r => parseTS(r.last_confirmed),
             topic: r => r.topic || "",
             entry_key: r => r.entry_key || "",
             status: r => r.status || "",
@@ -2545,7 +2545,7 @@
                     const val = (e.value || "").length > 80
                         ? e.value.substring(0, 80) + "…"
                         : (e.value || "—");
-                    const confirmed = e.last_confirmed ? e.last_confirmed.substring(0, 10) : "—";
+                    const confirmed = formatTS(e.last_confirmed);
                     const statusIcon = e.status === "✓" ? "✓" : "—";
                     const statusColor = e.status === "✓" ? "var(--c-health)" : "var(--text-dim)";
                     return `<tr>
@@ -2583,7 +2583,7 @@
         }
 
         const { display, page, totalPages, filtered, total } = getFilteredSorted("lessons", allRows, {
-            lesson_date: r => r.lesson_date || "",
+            lesson_date: r => parseTS(r.lesson_date || r.created_at),
             title: r => r.title || "",
             domain: r => r.domain || "",
             severity: r => r.severity || "",
@@ -2609,7 +2609,7 @@
                     const title = (l.title || "").length > 80
                         ? l.title.substring(0, 80) + "…"
                         : (l.title || "—");
-                    const dateShort = (l.lesson_date || "—").substring(0, 10);
+                    const dateShort = formatTS(l.lesson_date || l.created_at);
                     const graduated = l.promotion_status === "graduated";
                     const statusColor = graduated ? "var(--c-health)" : "var(--text-dim)";
                     return `<tr>
@@ -2666,7 +2666,7 @@
     const PAGE_SIZE = 15;
     const tableState = {
         decisions: { sort: "decided_date", sortDir: -1, filter: "", page: 0, data: [] },
-        triggers: { sort: "fire_count", sortDir: -1, filter: "", page: 0, data: [] },
+        triggers: { sort: "last_fired", sortDir: -1, filter: "", page: 0, data: [] },
         catalog: { sort: "keyword_count", sortDir: -1, filter: "", page: 0, data: [] },
         schema: { sort: "entity_count", sortDir: -1, filter: "", page: 0, data: [] },
         messages: { sort: "timestamp", sortDir: -1, filter: "", page: 0, data: [] },
@@ -2838,6 +2838,34 @@
     }
 
     // ── Utility ──────────────────────────────────────────────────
+    // ── Timestamp Helpers ──────────────────────────────────────────
+    function parseTS(ts) {
+        // Normalize ISO timestamps (with or without timezone) to epoch ms.
+        // Handles "2026-03-10T10:57:33-05:00", "2026-03-10T00:01:41", "2026-03-10"
+        if (!ts) return 0;
+        const d = new Date(ts);
+        return isNaN(d.getTime()) ? 0 : d.getTime();
+    }
+
+    function formatTS(ts) {
+        // Show compact timestamp: "Mar 10, 14:57" or "2026-03-10" for date-only
+        if (!ts) return "—";
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return ts.substring(0, 10) || "—";
+        // If date-only (no T), show date
+        if (typeof ts === "string" && !ts.includes("T")) {
+            return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        }
+        const now = new Date();
+        const diffMs = now - d;
+        const diffH = diffMs / 3600000;
+        if (diffH < 1) return Math.max(1, Math.floor(diffMs / 60000)) + "m ago";
+        if (diffH < 24) return Math.floor(diffH) + "h ago";
+        if (diffH < 48) return "yesterday " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+        return d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+            + " " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+    }
+
     function escapeHtml(str) {
         const div = document.createElement("div");
         div.textContent = str;
