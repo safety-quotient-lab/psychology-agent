@@ -17,20 +17,20 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 70. meshd Phase A deployed, operational fixes
-landed (Python respawn, schedule collector, gate_poll budget drain). JSONL
-parser complete. Truthiness research → autonomy_budget rename + C2 test queued.
+**Where we stopped:** Session 69. Mesh self-healing and cold-peer discovery
+fixes deployed. All 4 agents running autonomously (verified). Dashboard
+shows semantic status colors + clickable message timeline.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- meshd Phase A: ✓ Deployed to chromabook, Python dashboards disabled `[warm]`
-- JSONL parser: ✓ scripts/parse-jsonl.py — all 8 types, dedup, tokens, turns `[warm]`
-- 4-agent mesh: ✓ Autonomous, schedule collector fixed per-agent `[warm]`
-- Compositor: ✓ Working with meshd, SSE rebuild queued for post-Phase B `[warm]`
-- Plan9 consensus: ⚑ Awaiting peer votes `[warm]`
-- DI Phase A Pass 2: pending `[cold]`
+- 4-agent mesh: ✓ Autonomous, staggered cron, self-healing git_sync `[warm]`
+- Compositor: ✓ Semantic colors, clickable timeline, CF Worker deployed `[warm]`
+- Cold-peer discovery: ✓ MANIFEST check before skip + trailing slash fix `[warm]`
+- Plan9 consensus: ⚑ Proposal now discoverable, awaiting peer votes `[warm]`
+- DI Phase A Pass 2: pending (fresh session) `[cold]`
 
-**Next:** meshd Phase B (Knowledge Base /kb/* routes). Schema v15 migration
-(autonomy_budget rename + auth_events + consensus tables). DI Phase A Pass 2.
+**Next:** Plan9 consensus votes (should arrive next autonomous cycles). PSH
+vocabulary consensus (after Plan9). Smart self-healing (TODO). Autonomous
+session replay on web (TODO). DI Phase A Pass 2.
 
 
 ## Memory Hygiene

@@ -1914,3 +1914,48 @@ that would have revealed the trailing-slash parse failure.
 ⚑ EPISTEMIC FLAGS
 - Cached MANIFEST check introduces bounded staleness — messages pushed between the last fetch and the current cycle remain invisible until a warm/active cycle triggers a fresh fetch
 - The trailing-slash bug may affect other scripts that call list_remote_dir — not audited beyond cross_repo_fetch.py
+
+
+---
+
+## §25 — Truthiness and the Naming of Trust (Session 70)
+
+Session 70 produced an infrastructure milestone — the Go meshd binary replacing
+Python dashboards — but the conceptually significant finding emerged from a naming
+challenge. The user asked why the `trust_budget` table carries the word "trust"
+when the mechanism functions as a credit counter.
+
+Investigating the question led to Newman and Schwarz's truthiness research
+(Newman et al., 2012; Newman, Jalbert, Schwarz, & Ly, 2020). Their core finding:
+non-probative information that increases processing fluency — the subjective ease
+of understanding a claim — inflates perceived truth. People use "this feels easy"
+as a heuristic for "this must be true," and the effect resists individual
+differences in analytical disposition.
+
+The mapping to multi-agent systems proved direct. An agent that produces fluent,
+well-formatted, confident claims creates a processing-fluency bias toward
+believing those claims. The BFT design note's Principle 1 (evidence-bearing
+responses) and Principle 6 (evaluator as verification layer) already target
+this failure mode, but without naming the psychological mechanism that makes
+it dangerous.
+
+The analysis revealed a naming collision: "trust" in `trust_budget` refers to
+action-rate credits (permission to act), while "trust" in the BFT/consensus
+layer refers to claim reliability (whether an agent's assertions correspond to
+reality). The rename — `trust_budget` → `autonomy_budget` — frees the trust
+concept for its proper BFT home, where a future `trust_score` measures the gap
+between claim fluency and evidential warrant.
+
+A truthiness measure for the observatory-agent was queued as the first C2 command
+test case. The observatory already displays PSQ scores and mesh health; a
+truthiness indicator would operationalize the Newman-Schwarz gap: how much
+should a consumer discount an agent's claims based on presentation quality
+exceeding verification history? The design task exercises the command protocol
+end-to-end while producing a psychometrically grounded deliverable.
+
+⚑ EPISTEMIC FLAGS
+- The truthiness measure remains conceptual — operationalization requires
+  collaboration with observatory-agent (C2 not yet built)
+- The fluency-as-truth heuristic was demonstrated with human subjects; its
+  applicability to agent-to-agent evaluation (where the "reader" lacks human
+  metacognition) constitutes an analogical extension, not a direct application
