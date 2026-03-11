@@ -113,19 +113,35 @@ func Collect(d *db.DB, projectRoot string) *Status {
 	unprocessed, _ := d.QueryRows(
 		`SELECT session_name, filename, turn, from_agent, message_type,
 		 timestamp, subject FROM transport_messages
-		 WHERE processed = FALSE ORDER BY timestamp DESC`)
+		 WHERE processed = FALSE AND filename != 'MANIFEST.json'
+		 ORDER BY CASE
+		   WHEN timestamp LIKE '%+%' THEN substr(timestamp, 1, instr(timestamp, '+') - 1)
+		   WHEN length(timestamp) > 20 AND substr(timestamp, length(timestamp)-5, 1) = '-'
+		     THEN substr(timestamp, 1, length(timestamp) - 6)
+		   WHEN timestamp LIKE '%Z' THEN replace(timestamp, 'Z', '')
+		   ELSE timestamp
+		 END DESC`)
 	if unprocessed == nil {
 		unprocessed = []map[string]any{}
 	}
 
 	// Recent messages (include all fields compositor expects)
+	// Normalize mixed-format timestamps (offset/UTC/naive) for proper sorting.
 	recent, _ := d.QueryRows(
 		`SELECT session_name, filename, turn, from_agent, to_agent,
 		 message_type, timestamp, processed, subject,
 		 COALESCE(setl, 0) as setl,
 		 COALESCE(claims_count, 0) as claims_count,
 		 COALESCE(urgency, 'normal') as urgency
-		 FROM transport_messages ORDER BY timestamp DESC LIMIT 20`)
+		 FROM transport_messages
+		 WHERE filename != 'MANIFEST.json'
+		 ORDER BY CASE
+		   WHEN timestamp LIKE '%+%' THEN substr(timestamp, 1, instr(timestamp, '+') - 1)
+		   WHEN length(timestamp) > 20 AND substr(timestamp, length(timestamp)-5, 1) = '-'
+		     THEN substr(timestamp, 1, length(timestamp) - 6)
+		   WHEN timestamp LIKE '%Z' THEN replace(timestamp, 'Z', '')
+		   ELSE timestamp
+		 END DESC LIMIT 20`)
 	if recent == nil {
 		recent = []map[string]any{}
 	}
