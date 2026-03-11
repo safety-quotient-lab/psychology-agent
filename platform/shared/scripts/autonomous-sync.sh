@@ -616,10 +616,11 @@ run_sync() {
 
     # cross_repo_fetch already ran before pre-flight — skip here.
 
-    # Generate orientation payload from state.db
+    # Generate orientation payload from state.db (--no-cache: cross_repo_fetch
+    # may have updated state.db since the last cached orientation)
     local orientation
     orientation=$(python3 "${PROJECT_ROOT}/scripts/orientation-payload.py" \
-        --agent-id "${AGENT_ID}" 2>/dev/null) || {
+        --agent-id "${AGENT_ID}" --no-cache 2>/dev/null) || {
         err "orientation-payload.py failed — proceeding with bare /sync"
         orientation=""
     }
