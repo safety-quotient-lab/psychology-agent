@@ -8,6 +8,8 @@ import (
 type KnowledgeBase struct {
 	Decisions  []map[string]any `json:"decisions"`
 	Triggers   []map[string]any `json:"triggers"`
+	Claims     []map[string]any `json:"claims"`
+	Lessons    []map[string]any `json:"lessons"`
 	Catalog    CatalogData      `json:"catalog"`
 	Memory     MemoryData       `json:"memory"`
 	Totals     KBTotals         `json:"totals"`
@@ -32,6 +34,9 @@ type MemoryData struct {
 type KBTotals struct {
 	Decisions       int `json:"decisions"`
 	Triggers        int `json:"triggers"`
+	Claims          int `json:"claims"`
+	ClaimsVerified  int `json:"claims_verified"`
+	Lessons         int `json:"lessons"`
 	CatalogEntries  int `json:"catalog_entries"`
 	MemoryEntries   int `json:"memory_entries"`
 	StaleEntries    int `json:"stale_entries"`
@@ -62,6 +67,8 @@ type Dictionary struct {
 func CollectKnowledgeBase(d *db.DB) *KnowledgeBase {
 	decisions := collectDecisions(d)
 	triggers := collectTriggers(d)
+	claims := collectClaims(d)
+	lessons := collectLessons(d)
 	catalog := collectCatalog(d)
 	memory := collectMemory(d)
 
@@ -73,11 +80,16 @@ func CollectKnowledgeBase(d *db.DB) *KnowledgeBase {
 	return &KnowledgeBase{
 		Decisions: decisions,
 		Triggers:  triggers,
+		Claims:    claims,
+		Lessons:   lessons,
 		Catalog:   catalog,
 		Memory:    memory,
 		Totals: KBTotals{
 			Decisions:      len(decisions),
 			Triggers:       len(triggers),
+			Claims:         len(claims),
+			ClaimsVerified: d.ScalarInt("SELECT COUNT(*) FROM claims WHERE verified = 1"),
+			Lessons:        len(lessons),
 			CatalogEntries: len(catalog.Active),
 			MemoryEntries:  d.ScalarInt("SELECT COUNT(*) FROM memory_entries"),
 			StaleEntries:   staleCount,
@@ -96,6 +108,44 @@ func collectDecisions(d *db.DB) []map[string]any {
 		 derives_from, decided_date, confidence, created_at
 		 FROM decision_chain
 		 ORDER BY decided_date DESC`)
+	if rows == nil {
+		return []map[string]any{}
+	}
+	return rows
+}
+
+// CollectClaims returns structured claims with transport provenance.
+func CollectClaims(d *db.DB) []map[string]any {
+	return collectClaims(d)
+}
+
+func collectClaims(d *db.DB) []map[string]any {
+	rows, _ := d.QueryRows(
+		`SELECT c.id, c.claim_text, c.confidence, c.confidence_basis,
+		 c.verified, c.verified_at, c.created_at, c.transport_msg,
+		 tm.session_name, tm.from_agent, tm.timestamp as msg_timestamp
+		 FROM claims c
+		 LEFT JOIN transport_messages tm ON c.transport_msg = tm.id
+		 ORDER BY c.created_at DESC`)
+	if rows == nil {
+		return []map[string]any{}
+	}
+	return rows
+}
+
+// CollectLessons returns transferable patterns and accumulated wisdom.
+func CollectLessons(d *db.DB) []map[string]any {
+	return collectLessons(d)
+}
+
+func collectLessons(d *db.DB) []map[string]any {
+	rows, _ := d.QueryRows(
+		`SELECT id, title, lesson_date, pattern_type, domain, severity,
+		 recurrence, first_seen, last_seen, trigger_relevant,
+		 promotion_status, graduated_to, graduated_date,
+		 lesson_text, created_at
+		 FROM lessons
+		 ORDER BY lesson_date DESC`)
 	if rows == nil {
 		return []map[string]any{}
 	}

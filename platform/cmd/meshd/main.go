@@ -72,6 +72,8 @@ func main() {
 	// Knowledge Base routes
 	mux.HandleFunc("/kb/decisions", handlers.APIKBDecisions(cache))
 	mux.HandleFunc("/kb/triggers", handlers.APIKBTriggers(cache))
+	mux.HandleFunc("/kb/claims", handlers.APIKBClaims(cache))
+	mux.HandleFunc("/kb/lessons", handlers.APIKBLessons(cache))
 	mux.HandleFunc("/kb/catalog", handlers.APIKBCatalog(cache))
 	mux.HandleFunc("/kb/memory", handlers.APIKBMemory(cache))
 	mux.HandleFunc("/kb/dictionary", handlers.APIKBDictionary(cache))
@@ -110,6 +112,7 @@ func main() {
 		fmt.Printf("meshd serving on http://localhost:%d\n", *port)
 		fmt.Printf("  API:        http://localhost:%d/api/status\n", *port)
 		fmt.Printf("  KB:         http://localhost:%d/api/kb\n", *port)
+		fmt.Printf("  Claims:     http://localhost:%d/kb/claims\n", *port)
 		fmt.Printf("  Dictionary: http://localhost:%d/kb/dictionary\n", *port)
 		fmt.Printf("  Dashboard:  http://localhost:%d/\n", *port)
 		fmt.Printf("  Cache TTL:  %s\n", *cacheTTL)
