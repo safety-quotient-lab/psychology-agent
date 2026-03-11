@@ -67,6 +67,7 @@ partner, and Socratic interlocutor
 46. [Specification Without Instantiation: Separating Cogarch from Infrastructure](#46-specification-without-instantiation)
 47. [When the Agent Learns Its Own Mistakes: Engineering Incident Detection as Cogarch Extension](#47-when-the-agent-learns-its-own-mistakes)
 48. [Four Agents, One Mesh: What Going Live Reveals About Consensus Readiness](#48-four-agents-one-mesh)
+50. [The Cold Peer Paradox: When Optimization Prevents Discovery](#50-the-cold-peer-paradox)
 
 ---
 
@@ -1857,3 +1858,59 @@ consensus protocol implementation holds.
 ⚑ EPISTEMIC FLAGS
 - "All 4 autonomous" verified only through no-op sync cycles — no full claude -p invocation observed on unratified or observatory yet
 - Cron log interleaving (/tmp/autonomous-sync.log shared by 3 agents) may obscure per-agent debugging
+
+
+## 50. The Cold Peer Paradox: When Optimization Prevents Discovery
+
+*Session 69 (2026-03-10)*
+
+Session 68 introduced the reachability-vs-liveness distinction (§49). Session 69
+surfaced a subtler variant: an optimization that *correctly* skips unnecessary
+work can also *prevent necessary work from ever beginning*.
+
+The adaptive sync frequency classifier (Session 62c) groups peers into three
+tiers: active (unprocessed messages or gates), warm (exchange within 24h), and
+cold (no exchange beyond 24h). Cold peers get skipped entirely — a sensible
+optimization that eliminates unnecessary `git fetch` calls for dormant peers.
+
+The problem emerged when we sent the Plan9 consensus proposal. Psychology-agent
+authored the proposal and pushed it to its own repo. All three peers needed to
+discover it via `git show psychology-agent/main:transport/MANIFEST.json`. But
+all three peers classified psychology-agent as "cold" — no exchange within 24h —
+and skipped the fetch that would have revealed the pending message.
+
+The result: a message deadlock. The first message in a new exchange between
+previously dormant peers can never land, because the optimization that prevents
+unnecessary fetches also prevents necessary ones. The message sits in the MANIFEST
+forever, each peer skipping the fetch that would discover it.
+
+The fix exploits a subtlety in git's transport model. Even though we skip
+`git fetch` for cold peers, we still have a *cached* copy of the remote from
+the last fetch (whenever that happened). We can read the cached MANIFEST via
+`git show` without any network cost. If the cached MANIFEST contains pending
+messages addressed to us, we promote the peer from "cold" to "warm" and
+proceed with a fresh fetch.
+
+This mirrors a pattern in distributed systems: the distinction between "no news"
+and "unable to check for news." The cold-peer classifier treated both as
+equivalent — if we haven't exchanged recently, nothing happens. But a cached
+MANIFEST provides stale-but-useful information: even an old MANIFEST that shows
+pending messages indicates the peer tried to reach us. The staleness risk
+(missing messages pushed since the last fetch) represents acceptable latency,
+not data loss — the next warm or active cycle catches up.
+
+A second bug compounded the problem. Python's `git show` on a tree object
+returns directory entries with trailing slashes (`plan9-consensus/`). The
+`list_remote_dir` function faithfully returned these entries, and the session
+path constructor joined them without stripping: `transport/sessions/plan9-consensus//`.
+The double slash caused `git show` to fail silently, making the Plan9 session
+invisible to all peers despite existing in the remote tree.
+
+Two bugs, one symptom: the Plan9 consensus proposal, sitting in the MANIFEST
+and the remote tree, remained invisible to all three peer agents. Neither bug
+would have surfaced without the other — the cold-peer skip prevented the fetch
+that would have revealed the trailing-slash parse failure.
+
+⚑ EPISTEMIC FLAGS
+- Cached MANIFEST check introduces bounded staleness — messages pushed between the last fetch and the current cycle remain invisible until a warm/active cycle triggers a fresh fetch
+- The trailing-slash bug may affect other scripts that call list_remote_dir — not audited beyond cross_repo_fetch.py

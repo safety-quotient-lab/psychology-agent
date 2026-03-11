@@ -254,6 +254,29 @@ semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
   *Precondition: simple tier classification complete (Session 62c)*
   *Constraint: requires process supervision — cron can't self-reschedule*
 
+- [ ] **Smart self-healing in git_sync** — current git_sync auto-commits all
+  dirty tracked files (`git add -u`) before pulling to prevent rebase failures.
+  This works but operates blindly. Upgrade to a diagnostic-first approach:
+  (1) detect the specific failure class (unstaged changes, merge conflict,
+  diverged history, lock file, permission error), (2) attempt the minimal
+  targeted fix (commit dirty files, resolve trivial conflicts, retry after
+  lock release), (3) log the diagnosis and fix to autonomous_actions for
+  audit trail, (4) escalate via `escalate.py` if the diagnosis indicates
+  a problem beyond auto-fix (diverged history, non-trivial merge conflict).
+  Current blanket `git add -u` should become one strategy among several.
+  *Precondition: ✓ MET — basic self-healing operational (Session 68)*
+
+- [ ] **Autonomous session replay on web** — generate claude-replay HTML for
+  every autonomous sync session and serve them on agent dashboards. Approach:
+  (1) autonomous-sync.sh captures session transcript (claude -p already writes
+  to stdout/stderr — capture to a per-session JSONL or text file),
+  (2) post-session hook runs `claude-replay` to convert transcript → HTML,
+  (3) HTML served statically from the dashboard (mesh-status.py already serves
+  /replays/), (4) interagent compositor links to per-agent autonomous replays.
+  Enables observability into what each autonomous session decided and why.
+  *Precondition: ✓ MET — claude-replay integrated (Session 64-65), dashboard
+  replay tab exists, autonomous sync operational*
+
 ---
 
 ## Cross-Repo Transport (Safety-Quotient Agent)

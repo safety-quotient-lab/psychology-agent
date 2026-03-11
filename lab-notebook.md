@@ -130,8 +130,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Cross-repo dual naming fix      | ✓ cross_repo_fetch.py handles both from-{sender} and to-{recipient} naming conventions (Session 67) |
 | SQ shared scripts sync          | ✓ PRs #9 (JSON-LD), #10 (schema v14 + dual_write) merged; chromabook at parity (Session 66) |
 | Escalation pipeline             | ✓ escalate.py + 4 autonomous-sync.sh wiring points (budget-halt, gate-timeout, api-limit, consecutive-errors) — GitHub App bot identity (Session 68) |
-| All-agent autonomous sync       | ✓ All 4 agents run autonomous-sync.sh via cron — psq-agent hourly, unratified + observatory */5 (Session 68) |
-| Dashboard sync status           | ✓ status_server.py reports schedule (cron, lock, last_sync); compositor shows Sync column + agent card sync mode (Session 68) |
+| All-agent autonomous sync       | ✓ All 4 agents run autonomous-sync.sh via cron — staggered offsets, NVM bootstrap, self-healing git_sync (Session 68-69) |
+| Dashboard sync status           | ✓ status_server.py reports schedule (cron, lock, last_sync); compositor shows semantic status colors + clickable message timeline (Session 68-69) |
+| Cold-peer MANIFEST discovery    | ✓ cross_repo_fetch.py checks cached MANIFEST before skipping cold peers — prevents message deadlock (Session 69) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -4646,3 +4647,53 @@ principles.
 
 ▶ scripts/escalate.py, scripts/autonomous-sync.sh, scripts/status_server.py,
   interagent/index.html, transport/agent-registry.json
+
+
+## 2026-03-10T20:41 CDT — Session 69 (Mesh self-healing, cold-peer fix, dashboard UX)
+
+Continuation of Session 68 context. Focused on making the 4-agent autonomous mesh
+actually function: fixing runtime failures, fixing discovery failures, and improving
+dashboard observability.
+
+- **Self-healing git_sync** — observatory-agent failed on `git pull --rebase` because
+  SCP-deployed scripts left unstaged changes. Widened auto-commit scope from
+  `transport/ .well-known/` to all tracked modified files (`git add -u`). Deployed
+  to all 3 chromabook agents. Commit `10ea8f6`.
+- **NVM PATH bootstrap for cron** — PSQ and unratified agents got exit code 127
+  (command not found) because cron's minimal PATH excluded NVM-managed `claude`.
+  Added `source ~/.nvm/nvm.sh` at script top. All agents now resolve `claude`
+  successfully. Commit `9c233c8`.
+- **Shellcheck CI fixes** — removed unused `hostname` variable (SC2034), added
+  `shellcheck source=/dev/null` directive for NVM (SC1091). Full suite passes
+  clean. Commit `6ea3efd`.
+- **Cold-peer MANIFEST deadlock** — `cross_repo_fetch.py` skipped cold peers
+  entirely, preventing discovery of new messages (including Plan9 consensus
+  proposal). Root cause: chicken-and-egg — first message to cold peer never
+  lands because fetch never happens. Fix: check cached MANIFEST for pending
+  messages before skipping. Promotes to warm if messages found. Commit `cfccc94`.
+- **Trailing slash in list_remote_dir** — `git show` returns directory entries
+  with trailing `/`, causing double-slash in session path construction. Plan9
+  consensus session was invisible to all peer agents. Commit `0c15360`.
+- **Dashboard semantic status colors** — agents tab now shows pulsing green dot
+  for syncing agents, solid green for autonomous idle, yellow for manual. Border
+  highlights active sync. Commit `81ce663`.
+- **Unified clickable message timeline** — replaced 3 separate message sections
+  (counts, recent, unprocessed) with a single deduplicated timeline. Click any
+  row to expand full details (session, filename, turn, timestamp, seen-by).
+  Mesh icon (⬡) marks messages seen by multiple agents. Deployed to CF Worker.
+  Commit `81ce663`.
+- **TODO items added** — smart self-healing (diagnostic-first git_sync),
+  autonomous session replay on web (transcript capture + claude-replay + dashboard).
+- **Mesh verified operational** — all 4 agents running autonomously. PSQ processed
+  28 inbound messages (budget 12/20). Unratified completed sync (budget 19/20).
+  Observatory healthy (budget 20/20). Plan9 consensus proposal now discoverable.
+- **Staggered cron timing** — verified: psq `0,10,20,...`, unratified `1,6,11,...`,
+  observatory `3,8,13,...`. Per-agent log files at `/tmp/autonomous-sync-{name}.log`.
+
+⚑ EPISTEMIC FLAGS
+- Cold-peer MANIFEST check uses cached ref (last git fetch) — if the remote pushed new messages since last fetch, they remain invisible until a warm/active cycle triggers a fresh fetch
+- Plan9 consensus proposal now discoverable but not yet picked up by any autonomous cycle — verification pending next session
+- `from-` filename prefix partially redundant with MANIFEST-based routing — naming cleanup deferred
+
+▶ scripts/autonomous-sync.sh, scripts/cross_repo_fetch.py, scripts/ensure-cron.sh,
+  interagent/index.html, TODO.md
