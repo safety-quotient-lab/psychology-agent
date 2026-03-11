@@ -31,6 +31,22 @@ func APIKBTriggers(cache *collector.Cache) http.HandlerFunc {
 	}
 }
 
+// APIKBClaims serves GET /kb/claims — structured claims with provenance JSON.
+func APIKBClaims(cache *collector.Cache) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		setAPIHeaders(w, r)
+		json.NewEncoder(w).Encode(cache.KnowledgeBase().Claims)
+	}
+}
+
+// APIKBLessons serves GET /kb/lessons — transferable patterns and wisdom JSON.
+func APIKBLessons(cache *collector.Cache) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		setAPIHeaders(w, r)
+		json.NewEncoder(w).Encode(cache.KnowledgeBase().Lessons)
+	}
+}
+
 // APIKBCatalog serves GET /kb/catalog — classification catalog JSON.
 func APIKBCatalog(cache *collector.Cache) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
