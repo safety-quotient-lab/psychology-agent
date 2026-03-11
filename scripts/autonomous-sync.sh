@@ -414,7 +414,35 @@ git_push() {
         return 1
     fi
 
+    # L3 wake-up: after a successful push, touch wake files for peer agents
+    # on the same machine so they poll immediately instead of waiting for cron.
+    wake_peers
+
     return 0
+}
+
+wake_peers() {
+    # Touch /tmp/sync-wake-{peer-id} for each peer agent on this machine.
+    # Reads agent-registry.local.json to discover co-located peers.
+    local local_registry="${PROJECT_ROOT}/transport/agent-registry.local.json"
+    [ -f "${local_registry}" ] || return 0
+
+    local hostname
+    hostname=$(hostname -s 2>/dev/null || hostname)
+
+    # Extract peer agent IDs that share this machine (same lan_host)
+    python3 -c "
+import json, os, socket
+reg = json.load(open('${local_registry}'))
+my_host = socket.gethostname().split('.')[0]
+my_agent = '${AGENT_ID}'
+for agent_id, info in reg.get('agents', {}).items():
+    peer_host = info.get('lan_host', '')
+    if agent_id != my_agent and (peer_host == my_host or peer_host in ('localhost', '127.0.0.1')):
+        wake_file = f'/tmp/sync-wake-{agent_id}'
+        open(wake_file, 'w').close()
+        print(f'  wake: {agent_id}')
+" 2>/dev/null || true
 }
 
 run_sync() {
