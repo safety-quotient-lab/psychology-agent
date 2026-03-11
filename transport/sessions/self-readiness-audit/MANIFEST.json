@@ -2,13 +2,34 @@
   "session_id": "self-readiness-audit",
   "created": "2026-03-11T18:10:13-05:00",
   "purpose": "Full mesh consensus test: each agent self-assesses for stale, broken, misconfigured, or insecure state",
-  "participants": ["human", "all-agents"],
+  "participants": ["human", "psq-agent", "unratified-agent", "observatory-agent"],
   "messages": [
     {
       "filename": "from-human-001.json",
       "turn": 1,
       "from": "human",
       "subject": "Consensus request: self-readiness audit — evaluate yourself for stale, broken, misconfigured, or insecure state"
+    },
+    {
+      "filename": "to-psq-agent-001.json",
+      "turn": 1,
+      "from": "human",
+      "to": "psq-agent",
+      "subject": "Consensus request: self-readiness audit (addressed copy)"
+    },
+    {
+      "filename": "to-unratified-agent-001.json",
+      "turn": 1,
+      "from": "human",
+      "to": "unratified-agent",
+      "subject": "Consensus request: self-readiness audit (addressed copy)"
+    },
+    {
+      "filename": "to-observatory-agent-001.json",
+      "turn": 1,
+      "from": "human",
+      "to": "observatory-agent",
+      "subject": "Consensus request: self-readiness audit (addressed copy)"
     }
   ],
   "status": "open"
