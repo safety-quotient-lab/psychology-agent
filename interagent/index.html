@@ -673,6 +673,38 @@
         }
         .verified-yes { background: rgba(106,171,142,0.15); color: var(--c-health); }
         .verified-no { background: rgba(107,130,175,0.08); color: var(--text-dim); }
+
+        /* Acronym tooltips — render-time annotation */
+        .acronym-tip {
+            border-bottom: 1px dotted var(--c-knowledge);
+            cursor: help;
+            text-decoration: none;
+            position: relative;
+            color: inherit;
+        }
+        .acronym-tip:hover {
+            color: var(--c-knowledge);
+        }
+        .acronym-tip:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-panel);
+            border: 1px solid var(--border-accent);
+            color: var(--text-primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            max-width: 350px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 1000;
+            pointer-events: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
         .derivation-ref {
             color: var(--c-knowledge);
             font-size: 0.85em;
@@ -1725,6 +1757,7 @@
             dictData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "error" };
         });
 
+        buildAcronymMap();
         renderKnowledge();
     }
 
@@ -1833,10 +1866,10 @@
                     return `<tr class="${truncated ? "expandable-row" : ""}" ${truncated ? `onclick="toggleDecisionRow('${rowId}')"` : ""}>
                         <td><span class="agent-dot" data-agent="${d._agent}"></span>${d._agent.replace("-agent","")}</td>
                         <td style="color:var(--c-knowledge);white-space:nowrap">${d.decision_key || "—"}</td>
-                        <td>${escapeHtml(text)}</td>
+                        <td>${annotateAcronyms(escapeHtml(text))}</td>
                         <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
                         <td><span class="confidence-badge ${confClass}">${confText}</span></td>
-                    </tr>${truncated ? `<tr id="${rowId}" class="expanded-detail-row" style="display:none"><td colspan="5"><div class="expanded-detail">${escapeHtml(fullText)}</div></td></tr>` : ""}`;
+                    </tr>${truncated ? `<tr id="${rowId}" class="expanded-detail-row" style="display:none"><td colspan="5"><div class="expanded-detail">${annotateAcronyms(escapeHtml(fullText))}</div></td></tr>` : ""}`;
                 }).join("")}</tbody>
             </table>
         `;
@@ -1892,7 +1925,7 @@
                     return `<tr>
                         <td><span class="agent-dot" data-agent="${t._agent}"></span>${t._agent.replace("-agent","")}</td>
                         <td style="color:var(--c-epistemic);white-space:nowrap">${t.trigger_id || "—"}</td>
-                        <td>${escapeHtml(desc)}</td>
+                        <td>${annotateAcronyms(escapeHtml(desc))}</td>
                         <td style="text-align:center">${t.fire_count || 0}</td>
                         <td style="white-space:nowrap;color:var(--text-secondary)">${lastFired}</td>
                         <td style="text-align:center">${rel}</td>
@@ -2386,13 +2419,13 @@
                     const fromAgent = c.from_agent || c._agent.replace("-agent", "");
                     return `<tr class="${truncated ? "expandable-row" : ""}" ${truncated ? `onclick="toggleDecisionRow('${rowId}')"` : ""}>
                         <td><span class="agent-dot" data-agent="${c._agent}"></span>${escapeHtml(fromAgent)}</td>
-                        <td>${escapeHtml(text)}</td>
+                        <td>${annotateAcronyms(escapeHtml(text))}</td>
                         <td><span class="confidence-badge ${confClass}">${confText}</span></td>
-                        <td style="font-size:0.85em;color:var(--text-secondary)">${escapeHtml(basis)}</td>
+                        <td style="font-size:0.85em;color:var(--text-secondary)">${annotateAcronyms(escapeHtml(basis))}</td>
                         <td><span class="verified-badge ${verClass}">${verified}</span></td>
                         <td style="font-size:0.85em;white-space:nowrap"><a href="#meta" onclick="switchTab('meta');document.getElementById('filter-messages').value='${escapeHtml(c.session_name || "")}';filterTable('messages');return false;" style="color:var(--c-transport)">${escapeHtml(c.session_name || "—")}</a></td>
                         <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
-                    </tr>${truncated ? `<tr id="${rowId}" class="expanded-detail-row" style="display:none"><td colspan="7"><div class="expanded-detail">${escapeHtml(fullText)}</div></td></tr>` : ""}`;
+                    </tr>${truncated ? `<tr id="${rowId}" class="expanded-detail-row" style="display:none"><td colspan="7"><div class="expanded-detail">${annotateAcronyms(escapeHtml(fullText))}</div></td></tr>` : ""}`;
                 }).join("")}</tbody>
             </table>
         `;
@@ -2454,7 +2487,7 @@
                     return `<tr>
                         <td><span class="agent-dot" data-agent="${d._agent}"></span>${d._agent.replace("-agent","")}</td>
                         <td style="color:var(--c-knowledge);white-space:nowrap">${d.decision_key || "—"}</td>
-                        <td>${escapeHtml(text)}</td>
+                        <td>${annotateAcronyms(escapeHtml(text))}</td>
                         <td>${d.derives_from ? `<span class="derivation-ref">${escapeHtml(parentKey)}</span>` : `<span style="color:var(--text-dim)">—</span>`}</td>
                         <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
                         <td><span class="confidence-badge ${confClass}">${confText}</span></td>
@@ -2578,7 +2611,7 @@
                     const statusColor = graduated ? "var(--c-health)" : "var(--text-dim)";
                     return `<tr>
                         <td><span class="agent-dot" data-agent="${l._agent}"></span>${l._agent.replace("-agent","")}</td>
-                        <td>${escapeHtml(title)}</td>
+                        <td>${annotateAcronyms(escapeHtml(title))}</td>
                         <td style="color:var(--c-epistemic);font-size:0.85em">${escapeHtml(l.domain || "—")}</td>
                         <td style="font-size:0.85em">${escapeHtml(l.severity || "—")}</td>
                         <td style="text-align:center">${l.recurrence || 0}</td>
@@ -2640,6 +2673,43 @@
         lessons: { sort: "lesson_date", sortDir: -1, filter: "", page: 0, data: [] },
     };
     let allDictTerms = [];
+    let acronymMap = {};   // { "PSQ": "Psychoemotional Safety Quotient — ...", ... }
+    let acronymRegex = null;
+
+    // Build acronym lookup from dictionary data after fetch
+    function buildAcronymMap() {
+        acronymMap = {};
+        for (const agent of AGENTS) {
+            const dd = dictData[agent.id];
+            if (dd?.status !== "ok") continue;
+            const vocab = dd.data || {};
+            const terms = vocab["@graph"] || vocab.hasDefinedTerm || [];
+            terms.forEach(term => {
+                if (term.inDefinedTermSet !== "Project Acronyms") return;
+                const name = term.name || "";
+                if (!name || acronymMap[name]) return;
+                acronymMap[name] = term.description || name;
+            });
+        }
+        // Build regex from acronym keys, longest first to avoid partial matches
+        const keys = Object.keys(acronymMap).sort((a, b) => b.length - a.length);
+        if (keys.length === 0) { acronymRegex = null; return; }
+        // Escape regex special chars in keys (for JSON-LD, EF-1, etc.)
+        const escaped = keys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+        acronymRegex = new RegExp("\\b(" + escaped.join("|") + ")\\b", "g");
+    }
+
+    // Annotate escaped HTML text with acronym tooltips
+    // Returns HTML string with <abbr> wrappers — safe because input was already escaped
+    function annotateAcronyms(escapedText) {
+        if (!acronymRegex || !escapedText) return escapedText;
+        return escapedText.replace(acronymRegex, (match) => {
+            const desc = acronymMap[match];
+            if (!desc) return match;
+            const safeDesc = desc.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+            return `<abbr class="acronym-tip" title="${safeDesc}" onclick="event.stopPropagation();switchTab('kb');setTimeout(()=>{const f=document.getElementById('filter-dictionary');if(f){f.value='${match}';filterDictionary();}},100)">${match}</abbr>`;
+        });
+    }
 
     function sortTable(tableId, column) {
         const state = tableState[tableId];
