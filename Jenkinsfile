@@ -118,14 +118,32 @@ pipeline {
                             platform/meshd-linux \
                             ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_MESHD_PATH}
 
-                        echo "Setting permissions and restarting..."
-                        ${SSH_CMD} ${DEPLOY_USER}@${DEPLOY_HOST} \
-                            "chmod +x ${DEPLOY_MESHD_PATH} && nohup ${DEPLOY_MESHD_PATH} > /dev/null 2>&1 &"
+                        echo "Setting permissions and restarting meshd instances..."
+                        ${SSH_CMD} ${DEPLOY_USER}@${DEPLOY_HOST} "chmod +x ${DEPLOY_MESHD_PATH}"
+
+                        # Restart all meshd instances. Each instance serves one agent
+                        # on a dedicated port with its own project root.
+                        # MESHD_PORTS and DEPLOY_PROJECT_DIRS are parallel lists:
+                        #   8076=psychology, 8077=psychology-sqlab, 8078=unratified, 8079=observatory
+                        ${SSH_CMD} ${DEPLOY_USER}@${DEPLOY_HOST} "
+                            PORTS='${MESHD_PORTS}'
+                            DIRS='${DEPLOY_PROJECT_DIRS}'
+                            set -- \$(echo \$PORTS | tr ',' ' ')
+                            PORTS_LIST=\"\$@\"
+                            set -- \$(echo \$DIRS | tr ',' ' ')
+                            DIRS_LIST=\"\$@\"
+                            i=1
+                            for port in \$PORTS_LIST; do
+                                dir=\$(echo \$DIRS_LIST | cut -d' ' -f\$i)
+                                nohup ${DEPLOY_MESHD_PATH} --port \$port --project-root ~/projects/\$dir > /tmp/meshd-\$port.log 2>&1 &
+                                echo \"  Started meshd on :\$port (project: \$dir)\"
+                                i=\$((i + 1))
+                            done
+                        "
 
                         sleep 3
                         echo "Verifying meshd endpoints..."
-                        IFS=',' read -ra PORTS <<< "${MESHD_PORTS:-8076,8077,8078,8079}"
-                        for port in "${PORTS[@]}"; do
+                        for port in $(echo "${MESHD_PORTS}" | tr ',' ' '); do
                             STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
                                 "http://${DEPLOY_HOST}:${port}/api/status" || echo "000")
                             if [ "${STATUS}" = "200" ]; then

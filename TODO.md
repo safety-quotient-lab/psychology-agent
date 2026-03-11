@@ -632,6 +632,35 @@ auto-restart loops. None had monitoring — all required manual discovery.
   Jenkins env vars: HETZNER_HOST, HETZNER_REMOTE_DIR, PSQ_HEALTH_URL,
   PSQ_SCORE_URL, PSQ_SERVICE_NAME.
 
+- [ ] **DevOps/IT installation guide** — comprehensive guide covering the full
+  infrastructure colophon, requirements, and setup procedure for the psychology
+  agent system. Target audience: a new maintainer or contributor who needs to
+  reproduce the environment from scratch. Should cover:
+  - **Machines:** cabinet (Jenkins host, Linux amd64, Go 1.24.4), chromabook
+    (runtime host, Linux amd64, meshd + 4 agents + cloudflared tunnel + cron),
+    Hetzner CX (PSQ scoring server, Node.js + onnxruntime-node)
+  - **Three-tier deploy strategy:** Tier 1 (GH Actions → CF Workers/Pages),
+    Tier 2 (Jenkins → SSH deploy), Tier 3 (cron autonomous sync)
+  - **Jenkins setup:** install, CF Access tunnel, GH Actions relay pattern
+    (why webhooks can't inject CF Access headers), job creation (4 repos),
+    credential setup (deploy-ssh-key, hetzner-ssh-key — dedicated ED25519
+    keypair for jenkins@cabinet), global env vars (DEPLOY_HOST, DEPLOY_PORT,
+    DEPLOY_USER, DEPLOY_MESHD_PATH, etc.), SCM polling as fallback
+  - **Chromabook setup:** meshd binary, shared scripts symlinks, 4 agent
+    project dirs, cloudflared tunnel config (4 routes), cron entries
+    (ensure-cron.sh), state.db bootstrap, agent-registry.json
+  - **Hetzner setup:** PSQ scoring server (Node.js, systemd psq-server.service),
+    ONNX model deployment procedure (critical: do NOT run npm install — onnxruntime
+    conflict), SSH key authorization
+  - **Cloudflare:** Workers (compositor, AP, monitor, cron), Pages (blog, observatory),
+    tunnel (4 agent routes), DNS records, Access service token
+  - **GitHub:** repo secrets (CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN, JENKINS_URL,
+    JENKINS_USER, JENKINS_API_TOKEN, FORGE_ACCESS_CLIENT_ID/SECRET), relay workflow
+  - **Known gotchas:** mDNS doesn't resolve across machines (use /etc/hosts),
+    `branch 'main'` breaks regular Pipeline jobs (MultiBranch only), Groovy `:-`
+    syntax conflicts, meshd binary locked while running (pkill before SCP)
+  *Precondition: meshd deploy pipeline verified end-to-end (in progress)*
+
 - [x] **Surface epistemic debt detail on compositor** — COMPLETE (Session 73).
   /kb/epistemic route + detail table in Meta tab (flag text, source, agent, age).
   Summary panel now includes transport flags count + per-agent breakdown.
