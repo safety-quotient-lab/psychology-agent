@@ -12,11 +12,17 @@
 // to machines on a private network. Jenkins runs on a host with LAN access
 // to the deploy target, making it the natural home for infrastructure deploys.
 //
-// WHY CHANGESET GUARDS?
+// WHY CHANGESET GUARDS (and no `branch` guard)?
 // Each deploy stage gates on the `changeset` directive — it only runs when
 // files in its source path actually changed. A documentation-only commit
 // does not trigger a meshd rebuild. This prevents unnecessary deployments
 // and keeps builds fast (ShellCheck runs on every push as a quality gate).
+//
+// We intentionally omit `branch 'main'` from when-blocks. The `branch`
+// directive requires BRANCH_NAME, which Jenkins only sets for MultiBranch
+// Pipeline jobs. Our jobs are regular Pipeline jobs tracking a single branch,
+// so `branch 'main'` always evaluates false, silently skipping all guarded
+// stages. The SCM config already restricts builds to main.
 //
 // CONFIGURATION
 // All infrastructure-specific values live in Jenkins, not in this file.
@@ -71,7 +77,6 @@ pipeline {
         // the Jenkins host may differ from the deploy target architecture.
         stage('Build meshd') {
             when {
-                branch 'main'
                 changeset 'platform/**'
             }
             steps {
@@ -94,7 +99,6 @@ pipeline {
         // The health check verifies all meshd ports respond with HTTP 200.
         stage('Deploy meshd') {
             when {
-                branch 'main'
                 changeset 'platform/**'
             }
             steps {
@@ -143,7 +147,6 @@ pipeline {
         // still point to the shared location after sync.
         stage('Sync Shared Scripts') {
             when {
-                branch 'main'
                 changeset 'platform/shared/**'
             }
             steps {
@@ -181,7 +184,6 @@ pipeline {
         // only triggers on platform/** or interagent/** changes, not both.
         stage('Deploy Compositor') {
             when {
-                branch 'main'
                 changeset 'interagent/**'
             }
             steps {

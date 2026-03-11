@@ -474,6 +474,11 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   staleness vitals, agent switcher, sort/filter/pagination. Deployed to CF Worker.
   SSE live updates still queued as enhancement.
 
+- [ ] **Jenkins build notifications** — configure notification channel for build
+  success/failure. Options: email (emailext plugin + SMTP), Slack webhook, or
+  GitHub commit status. Defer to IT session for SMTP/plugin config.
+  *Precondition: Jenkins pipeline stages validated (complete)*
+
 - [ ] **Mesh topology lines too thin on mobile** — the mesh topology visualization
   on the interagent dashboard uses line widths that render practically invisible on
   mobile devices. Increase stroke width for connection lines.
