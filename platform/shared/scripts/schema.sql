@@ -15,7 +15,7 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS transport_messages (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     session_name    TEXT NOT NULL,
-    filename        TEXT NOT NULL UNIQUE,
+    filename        TEXT NOT NULL,
     turn            INTEGER NOT NULL,
     message_type    TEXT,
     from_agent      TEXT NOT NULL,
@@ -31,6 +31,9 @@ CREATE TABLE IF NOT EXISTS transport_messages (
     processed_at    TEXT,
     created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_transport_session_filename
+    ON transport_messages (session_name, filename);
 
 CREATE INDEX IF NOT EXISTS idx_transport_unprocessed
     ON transport_messages (processed) WHERE processed = FALSE;
@@ -339,16 +342,15 @@ VALUES (10, 'Add active_gates table — gated autonomous chain tracking with tim
 -- no agent writes the same turn twice in the same session.
 --
 -- NOTE: Historical data contains same-agent turn collisions (pre-v11 data
--- assigned turns from filenames, not state.db). The unique index cannot be
--- created if collisions exist. Use bootstrap_state_db.py --force to rebuild
--- from source files with corrected turns, or fix collisions manually before
--- applying. The index creation will silently fail on DBs with collisions —
--- future writes still benefit from the next-turn subcommand in dual_write.py.
-CREATE UNIQUE INDEX IF NOT EXISTS idx_transport_agent_turn_unique
+-- assigned turns from filenames, not state.db). A UNIQUE index here causes
+-- INSERT OR IGNORE to silently drop legitimate historical messages. The
+-- non-unique index still accelerates lookups; dual_write.py next-turn
+-- subcommand prevents future collisions at write time.
+CREATE INDEX IF NOT EXISTS idx_transport_agent_turn
     ON transport_messages (session_name, from_agent, turn);
 
 INSERT OR IGNORE INTO schema_version (version, description)
-VALUES (11, 'Unique index on (session_name, from_agent, turn) + next-turn subcommand — prevents same-agent turn collisions going forward');
+VALUES (11, 'Index on (session_name, from_agent, turn) — non-unique to accommodate historical turn collisions; dual_write.py next-turn enforces going forward');
 
 
 -- ── Schema v12: Universal facets (dual-vocabulary classification) ─────
@@ -684,3 +686,23 @@ INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, d
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (16, 'Acronym vocabulary — 65 acronyms across 9 categories seeded into facet_vocabulary. Render-time tooltips in compositor. Ambiguous terms (ICC) stored with disambiguation.');
+
+
+-- ── Schema v17: Fix filename uniqueness — session-scoped, not global ─────
+--
+-- The filename column had a table-level UNIQUE constraint, but filenames
+-- repeat across sessions (e.g., from-psychology-agent-001.json appears in
+-- 9 different session directories). INSERT OR IGNORE silently dropped ~57
+-- messages. Fix: UNIQUE on (session_name, filename) instead.
+--
+-- For existing DBs, migration drops the old unique index on filename alone
+-- and creates the composite unique index. The table definition above already
+-- reflects the corrected schema for fresh builds.
+
+-- Drop the implicit unique index SQLite created for the old UNIQUE column constraint.
+-- In existing DBs this index name varies; the new composite index enforces uniqueness.
+-- SQLite cannot DROP INDEX IF EXISTS on auto-generated constraint indexes, so
+-- migration for existing DBs requires bootstrap_state_db.py --force rebuild.
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (17, 'Fix filename uniqueness — UNIQUE(session_name, filename) replaces UNIQUE(filename). Prevents silent message loss from cross-session filename collisions.');

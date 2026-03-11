@@ -10,7 +10,7 @@ Usage:
         --turn N --type TYPE --from-agent FROM --to-agent TO --timestamp TS \
         [--subject SUBJ] [--claims-count N] [--setl F] [--urgency URG]
 
-    python scripts/dual_write.py mark-processed --filename FILE
+    python scripts/dual_write.py mark-processed --session SESSION --filename FILE
 
     python scripts/dual_write.py memory-entry --topic TOPIC --key KEY --value VAL \
         [--status S] [--session-id N]
@@ -102,11 +102,18 @@ def cmd_transport_message(args: argparse.Namespace) -> None:
 
 def cmd_mark_processed(args: argparse.Namespace) -> None:
     conn = get_connection()
-    cursor = conn.execute("""
-        UPDATE transport_messages
-        SET processed = TRUE, processed_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
-        WHERE filename = ?
-    """, (args.filename,))
+    if args.session:
+        cursor = conn.execute("""
+            UPDATE transport_messages
+            SET processed = TRUE, processed_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
+            WHERE session_name = ? AND filename = ?
+        """, (args.session, args.filename))
+    else:
+        cursor = conn.execute("""
+            UPDATE transport_messages
+            SET processed = TRUE, processed_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
+            WHERE filename = ?
+        """, (args.filename,))
     conn.commit()
     if cursor.rowcount == 0:
         print(f"warning: no row found for filename={args.filename}", file=sys.stderr)
@@ -464,6 +471,7 @@ def main() -> None:
 
     # mark-processed
     mp = sub.add_parser("mark-processed", help="Mark a transport message as processed")
+    mp.add_argument("--session", help="Session name (recommended — disambiguates duplicate filenames)")
     mp.add_argument("--filename", required=True)
 
     # memory-entry
