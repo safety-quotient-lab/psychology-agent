@@ -54,3 +54,11 @@ interagent/.wrangler/
 # meshd compiled binaries
 platform/meshd
 platform/meshd-*
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
+.agent-identity.json

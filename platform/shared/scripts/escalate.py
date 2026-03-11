@@ -39,7 +39,7 @@ from pathlib import Path
 APP_ID = "3060729"
 INSTALLATION_ID = "115481120"
 DEFAULT_PEM = Path.home() / ".config/safety-quotient/mesh-bot.pem"
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).parent.parent
 
 SEVERITY_LABELS = {
     "critical": "for-human-review:critical",

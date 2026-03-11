@@ -543,6 +543,32 @@
             margin-top: 2px;
         }
 
+        /* Agent switcher */
+        .agent-switcher {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .agent-switch-btn {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 5px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+        .agent-switch-btn:hover { border-color: var(--text-dim); }
+        .agent-switch-btn.active {
+            background: var(--c-knowledge);
+            color: var(--bg);
+            border-color: var(--c-knowledge);
+            font-weight: bold;
+        }
+
         /* Sortable data tables */
         .kb-table-wrap {
             overflow-x: auto;
@@ -859,6 +885,11 @@
                 </div>
             </div>
 
+            <!-- Agent Switcher -->
+            <div class="agent-switcher" id="agent-switcher">
+                <button class="agent-switch-btn active" data-agent="all" onclick="switchAgent('all')">All</button>
+            </div>
+
             <!-- Decisions -->
             <div class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-knowledge)">
                 <div class="lcars-panel-header">Decisions</div>
@@ -908,9 +939,31 @@
 
             <!-- Catalog Distributions -->
             <div class="lcars-panel kb-section" data-section="transport" style="--panel-accent: var(--c-transport)">
-                <div class="lcars-panel-header">Catalog Distribution (PSH Categories)</div>
-                <div class="lcars-panel-body scrollable" id="kb-catalog">
-                    <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                <div class="lcars-panel-header">Discipline Catalog (PSH)</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-catalog" placeholder="Filter disciplines..." oninput="filterTable('catalog')">
+                    <div class="table-page-info" id="page-info-catalog"></div>
+                    <div class="table-page-btns" id="page-btns-catalog"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="kb-catalog">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schema.org Entity Types -->
+            <div class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-catalog)">
+                <div class="lcars-panel-header">Entity Schema (schema.org)</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-schema" placeholder="Filter types..." oninput="filterTable('schema')">
+                    <div class="table-page-info" id="page-info-schema"></div>
+                    <div class="table-page-btns" id="page-btns-schema"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="kb-schema">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
                 </div>
             </div>
 
@@ -961,6 +1014,7 @@
     let kbData = {};
     let dictData = {};
     let refreshTimer = null;
+    let activeAgentFilter = "all";
 
     // ── Theme ──────────────────────────────────────────────────────
     function setTheme(mode) {
@@ -980,7 +1034,6 @@
         if (!VALID_TABS.includes(tabId)) tabId = "pulse";
         document.querySelectorAll(".lcars-tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tabId));
         document.querySelectorAll(".tab-pane").forEach(p => p.classList.toggle("active", p.id === `pane-${tabId}`));
-        updateSpine(tabId);
         if (updateHash) history.replaceState(null, "", `#${tabId}`);
     }
 
@@ -988,6 +1041,35 @@
         const tab = location.hash.replace("#", "") || "pulse";
         switchTab(tab, false);
     });
+
+    function switchAgent(agentId) {
+        activeAgentFilter = agentId;
+        document.querySelectorAll(".agent-switch-btn").forEach(btn =>
+            btn.classList.toggle("active", btn.dataset.agent === agentId)
+        );
+        // Reset all table pages and re-render
+        for (const key of Object.keys(tableState)) {
+            tableState[key].page = 0;
+        }
+        renderKBVitals();
+        renderDecisions();
+        renderTriggers();
+        renderCatalog();
+        renderSchema();
+        renderMemoryTopics();
+        renderDictionaryFiltered(document.getElementById("filter-dictionary")?.value || "");
+    }
+
+    function buildAgentSwitcher() {
+        const container = document.getElementById("agent-switcher");
+        if (!container) return;
+        let html = '<button class="agent-switch-btn active" data-agent="all" onclick="switchAgent(\'all\')">All</button>';
+        for (const agent of AGENTS) {
+            const label = agent.id.replace("-agent", "");
+            html += `<button class="agent-switch-btn" data-agent="${agent.id}" onclick="switchAgent('${agent.id}')" style="--dot-color:${agent.color}">${label}</button>`;
+        }
+        container.innerHTML = html;
+    }
 
     // ── Data Fetching ──────────────────────────────────────────────
     async function fetchAgentStatus(agent) {
@@ -1269,18 +1351,22 @@
         // Clear cached data so re-fetches pick up fresh data
         tableState.decisions.data = [];
         tableState.triggers.data = [];
+        tableState.catalog.data = [];
+        tableState.schema.data = [];
         renderKBVitals();
         renderDecisions();
         renderTriggers();
         renderDictionary();
         renderCatalog();
+        renderSchema();
         renderMemoryTopics();
     }
 
     // ── KB Vitals ────────────────────────────────────────────────
     function renderKBVitals() {
         let decisions = 0, triggers = 0, catalog = 0, memory = 0, stale = 0;
-        for (const agent of AGENTS) {
+        const agents = activeAgentFilter === "all" ? AGENTS : AGENTS.filter(a => a.id === activeAgentFilter);
+        for (const agent of agents) {
             const kb = kbData[agent.id];
             if (kb?.status !== "ok") continue;
             const t = kb.data?.totals || {};
@@ -1458,15 +1544,19 @@
             return;
         }
 
+        let pool = allDictTerms;
+        if (activeAgentFilter !== "all") {
+            pool = pool.filter(t => t._agents.includes(activeAgentFilter));
+        }
         const filtered = filter
-            ? allDictTerms.filter(t =>
+            ? pool.filter(t =>
                 t.name.toLowerCase().includes(filter) ||
                 t.description.toLowerCase().includes(filter) ||
                 t.termCode.toLowerCase().includes(filter))
-            : allDictTerms;
+            : pool;
 
         if (infoEl) {
-            infoEl.textContent = filter
+            infoEl.textContent = filter || activeAgentFilter !== "all"
                 ? `${filtered.length} of ${allDictTerms.length} terms`
                 : `${allDictTerms.length} terms`;
         }
@@ -1491,51 +1581,129 @@
         }).join("") || `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No matches</div>`;
     }
 
-    // ── Catalog Distributions ────────────────────────────────────
+    // ── Discipline Catalog (PSH) ──────────────────────────────────
     function renderCatalog() {
         const container = document.getElementById("kb-catalog");
-        const categoryMap = {};
 
-        for (const agent of AGENTS) {
-            const kb = kbData[agent.id];
-            if (kb?.status !== "ok") continue;
-            const active = kb.data?.catalog?.active || [];
-            active.forEach(entry => {
-                if (entry.facet_type !== "psh") return;
-                const label = entry.facet_value || "unknown";
-                if (!categoryMap[label]) categoryMap[label] = 0;
-                categoryMap[label] += entry.entity_count || 1;
-            });
+        if (tableState.catalog.data.length === 0) {
+            for (const agent of AGENTS) {
+                const kb = kbData[agent.id];
+                if (kb?.status !== "ok") continue;
+                (kb.data?.catalog?.active || []).forEach(entry => {
+                    if (entry.facet_type === "psh") {
+                        tableState.catalog.data.push({ ...entry, _agent: agent.id });
+                    }
+                });
+            }
         }
 
-        const categories = Object.entries(categoryMap)
-            .sort((a, b) => b[1] - a[1]);
-
-        if (categories.length === 0) {
+        const allRows = tableState.catalog.data;
+        if (allRows.length === 0) {
             container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No catalog data available</div>`;
+            renderPageControls("catalog", 0, 1, 0, 0);
             return;
         }
 
-        const maxCount = categories[0][1];
+        const { display, page, totalPages, filtered, total } = getFilteredSorted("catalog", allRows, {
+            keyword_count: r => r.keyword_count || 0,
+            entity_count: r => r.entity_count || 0,
+            facet_value: r => r.facet_value || "",
+            code: r => r.code || "",
+            _agent: r => r._agent || "",
+        });
 
-        container.innerHTML = categories.map(([label, count]) => {
-            const pct = maxCount > 0 ? Math.round((count / maxCount) * 100) : 0;
-            return `<div class="catalog-bar-row">
-                <span class="catalog-bar-label" title="${escapeHtml(label)}">${escapeHtml(label)}</span>
-                <div class="catalog-bar-track">
-                    <div class="catalog-bar-fill" style="width:${pct}%"></div>
-                </div>
-                <span class="catalog-bar-value">${count}</span>
-            </div>`;
-        }).join("");
+        renderPageControls("catalog", page, totalPages, filtered.length, total);
+
+        const maxKeywords = Math.max(...allRows.map(r => r.keyword_count || 0), 1);
+
+        container.innerHTML = `
+            <table class="kb-table">
+                <thead><tr>
+                    ${sortHeader("catalog", "_agent", "Agent")}
+                    ${sortHeader("catalog", "facet_value", "Discipline")}
+                    ${sortHeader("catalog", "code", "Code")}
+                    <th>Description</th>
+                    ${sortHeader("catalog", "keyword_count", "Keywords")}
+                    <th style="min-width:100px">Distribution</th>
+                </tr></thead>
+                <tbody>${display.map(entry => {
+                    const pct = maxKeywords > 0 ? Math.round(((entry.keyword_count || 0) / maxKeywords) * 100) : 0;
+                    const desc = (entry.description || "").length > 60
+                        ? entry.description.substring(0, 60) + "…"
+                        : (entry.description || "—");
+                    return `<tr>
+                        <td><span class="agent-dot" data-agent="${entry._agent}"></span>${entry._agent.replace("-agent","")}</td>
+                        <td style="color:var(--c-transport);white-space:nowrap">${escapeHtml(entry.facet_value || "—")}</td>
+                        <td style="color:var(--text-dim);font-size:0.85em">${escapeHtml(entry.code || "—")}</td>
+                        <td style="font-size:0.85em">${escapeHtml(desc)}</td>
+                        <td style="text-align:center">${entry.keyword_count || 0}</td>
+                        <td><div class="catalog-bar-track"><div class="catalog-bar-fill" style="width:${pct}%"></div></div></td>
+                    </tr>`;
+                }).join("")}</tbody>
+            </table>
+        `;
+    }
+
+    // ── Entity Schema (schema.org) ─────────────────────────────────
+    function renderSchema() {
+        const container = document.getElementById("kb-schema");
+
+        if (tableState.schema.data.length === 0) {
+            for (const agent of AGENTS) {
+                const kb = kbData[agent.id];
+                if (kb?.status !== "ok") continue;
+                (kb.data?.catalog?.active || []).forEach(entry => {
+                    if (entry.facet_type === "schema_type") {
+                        tableState.schema.data.push({ ...entry, _agent: agent.id });
+                    }
+                });
+            }
+        }
+
+        const allRows = tableState.schema.data;
+        if (allRows.length === 0) {
+            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No schema data available</div>`;
+            renderPageControls("schema", 0, 1, 0, 0);
+            return;
+        }
+
+        const { display, page, totalPages, filtered, total } = getFilteredSorted("schema", allRows, {
+            entity_count: r => r.entity_count || 0,
+            facet_value: r => r.facet_value || "",
+            _agent: r => r._agent || "",
+        });
+
+        renderPageControls("schema", page, totalPages, filtered.length, total);
+
+        container.innerHTML = `
+            <table class="kb-table">
+                <thead><tr>
+                    ${sortHeader("schema", "_agent", "Agent")}
+                    ${sortHeader("schema", "facet_value", "Type")}
+                    <th>Reference</th>
+                    ${sortHeader("schema", "entity_count", "Entities")}
+                </tr></thead>
+                <tbody>${display.map(entry => {
+                    const typeName = (entry.facet_value || "").replace("schema:", "");
+                    const schemaUrl = "https://schema.org/" + typeName;
+                    return `<tr>
+                        <td><span class="agent-dot" data-agent="${entry._agent}"></span>${entry._agent.replace("-agent","")}</td>
+                        <td style="color:var(--c-catalog);white-space:nowrap">${escapeHtml(entry.facet_value || "—")}</td>
+                        <td><a href="${schemaUrl}" target="_blank" rel="noopener" style="color:var(--text-dim);font-size:0.85em">${typeName} &#x2192;</a></td>
+                        <td style="text-align:center">${entry.entity_count || 0}</td>
+                    </tr>`;
+                }).join("")}</tbody>
+            </table>
+        `;
     }
 
     // ── Memory by Topic ──────────────────────────────────────────
     function renderMemoryTopics() {
         const container = document.getElementById("kb-memory");
         const allTopics = [];
+        const agents = activeAgentFilter === "all" ? AGENTS : AGENTS.filter(a => a.id === activeAgentFilter);
 
-        for (const agent of AGENTS) {
+        for (const agent of agents) {
             const kb = kbData[agent.id];
             if (kb?.status !== "ok") continue;
             (kb.data?.memory?.by_topic || []).forEach(t => {
@@ -1586,6 +1754,8 @@
     const tableState = {
         decisions: { sort: "decided_date", sortDir: -1, filter: "", page: 0, data: [] },
         triggers: { sort: "fire_count", sortDir: -1, filter: "", page: 0, data: [] },
+        catalog: { sort: "keyword_count", sortDir: -1, filter: "", page: 0, data: [] },
+        schema: { sort: "entity_count", sortDir: -1, filter: "", page: 0, data: [] },
     };
     let allDictTerms = [];
 
@@ -1600,6 +1770,8 @@
         state.page = 0;
         if (tableId === "decisions") renderDecisions();
         if (tableId === "triggers") renderTriggers();
+        if (tableId === "catalog") renderCatalog();
+        if (tableId === "schema") renderSchema();
     }
 
     function filterTable(tableId) {
@@ -1608,12 +1780,16 @@
         tableState[tableId].page = 0;
         if (tableId === "decisions") renderDecisions();
         if (tableId === "triggers") renderTriggers();
+        if (tableId === "catalog") renderCatalog();
+        if (tableId === "schema") renderSchema();
     }
 
     function goToPage(tableId, page) {
         tableState[tableId].page = page;
         if (tableId === "decisions") renderDecisions();
         if (tableId === "triggers") renderTriggers();
+        if (tableId === "catalog") renderCatalog();
+        if (tableId === "schema") renderSchema();
     }
 
     function filterDictionary() {
@@ -1625,10 +1801,15 @@
     function getFilteredSorted(tableId, allRows, sortAccessors) {
         const state = tableState[tableId];
 
-        // Filter
+        // Agent filter
         let filtered = allRows;
+        if (activeAgentFilter !== "all") {
+            filtered = filtered.filter(row => row._agent === activeAgentFilter);
+        }
+
+        // Text filter
         if (state.filter) {
-            filtered = allRows.filter(row =>
+            filtered = filtered.filter(row =>
                 Object.values(row).some(v =>
                     String(v || "").toLowerCase().includes(state.filter)
                 )
@@ -1686,47 +1867,6 @@
         return div.innerHTML;
     }
 
-    // ── Spine Sync ───────────────────────────────────────────────
-    // Map spine segments to tab content proportions
-    const SPINE_MAP = {
-        pulse: [
-            { category: "transport", flex: 2 },  // vitals + activity
-            { category: "health",    flex: 3 },  // agents + topology
-            { category: "knowledge", flex: 1 },  // (minor)
-            { category: "epistemic", flex: 1 },  // debt
-        ],
-        knowledge: [
-            { category: "knowledge", flex: 3 },  // decisions + dictionary
-            { category: "epistemic", flex: 2 },  // triggers
-            { category: "transport", flex: 1 },  // catalog
-            { category: "health",    flex: 1 },  // memory
-        ],
-        operations: [
-            { category: "transport", flex: 3 },  // sessions + sync
-            { category: "health",    flex: 2 },  // schedule
-            { category: "epistemic", flex: 2 },  // debt + audit
-            { category: "knowledge", flex: 1 },  // (minor)
-        ],
-    };
-
-    function updateSpine(tabId) {
-        const segments = document.querySelectorAll(".lcars-spine-segment");
-        const map = SPINE_MAP[tabId] || SPINE_MAP.pulse;
-        const colors = {
-            transport: "var(--c-transport)",
-            health: "var(--c-health)",
-            knowledge: "var(--c-knowledge)",
-            epistemic: "var(--c-epistemic)",
-        };
-        segments.forEach((seg, i) => {
-            if (map[i]) {
-                seg.style.background = colors[map[i].category];
-                seg.style.flex = map[i].flex;
-                seg.dataset.category = map[i].category;
-            }
-        });
-    }
-
     // ── Init ───────────────────────────────────────────────────────
     (async function init() {
         // Restore preferences
@@ -1737,6 +1877,7 @@
         const hashTab = location.hash.replace("#", "");
         if (hashTab && VALID_TABS.includes(hashTab)) switchTab(hashTab, false);
 
+        buildAgentSwitcher();
         await refreshAll();
 
         // Auto-refresh every 30s (targeted DOM updates, not full page reload)
