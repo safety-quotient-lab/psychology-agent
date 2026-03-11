@@ -39,6 +39,14 @@ func APIKBClaims(cache *collector.Cache) http.HandlerFunc {
 	}
 }
 
+// APIKBMessages serves GET /kb/messages — transport messages audit trail JSON.
+func APIKBMessages(cache *collector.Cache) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		setAPIHeaders(w, r)
+		json.NewEncoder(w).Encode(cache.KnowledgeBase().Messages)
+	}
+}
+
 // APIKBLessons serves GET /kb/lessons — transferable patterns and wisdom JSON.
 func APIKBLessons(cache *collector.Cache) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
