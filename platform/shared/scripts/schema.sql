@@ -576,3 +576,111 @@ UPDATE table_visibility SET table_name = 'autonomy_budget'
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (15, 'Rename trust_budget → autonomy_budget — reserve "trust" for BFT consensus layer (claim verification, truthiness). Table tracks action credits, not epistemic trust.');
+
+
+-- ── Schema v16: Acronym vocabulary ──────────────────────────────────
+--
+-- 65 acronyms from 9 categories seeded into facet_vocabulary as
+-- facet_type = 'acronym'. Expansion in description field. Source
+-- attribution distinguishes project-coined, PSQ dimensions, standards
+-- bodies, psychometric terms, corpus names, and infrastructure.
+--
+-- Compositor renders these as <abbr> tooltips at display time —
+-- any recognized acronym in claims, decisions, or lessons gets
+-- hover-expandable and deep-linkable to the KB vocabulary section.
+--
+-- Ambiguity: ICC carries two meanings (Intraclass Correlation and
+-- International Chamber of Commerce). Both stored; context disambiguates.
+
+-- Project-coined acronyms
+INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, description) VALUES
+    ('acronym', 'PSQ',    NULL, 'project-local', 'Psychoemotional Safety Quotient — composite measure of conversational safety'),
+    ('acronym', 'SETL',   NULL, 'project-local', 'Structural-Editorial Tension Level — content quality metric for transport messages'),
+    ('acronym', 'SRT',    NULL, 'project-local', 'Semiotic-Reflexive Transformer — interpretive analysis framework for agent outputs'),
+    ('acronym', 'PJE',    NULL, 'project-local', 'Psychology-Juris-Engineering — tridisciplinary framework founding this project'),
+    ('acronym', 'HRCB',   NULL, 'project-local', 'Human Rights Compatibility Bias — systematic over-scoring of rights-aligned content'),
+    ('acronym', 'DI',     NULL, 'project-local', 'Dignity Index — complement measure to PSQ based on Hicks dignity model'),
+    ('acronym', 'AR',     NULL, 'project-local', 'Adversarial Register — rubric for evaluating adversarial rhetorical techniques');
+
+-- PSQ dimension abbreviations
+INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, description) VALUES
+    ('acronym', 'TE',  NULL, 'PSQ', 'Threat Exposure — perceived external threat level in conversation'),
+    ('acronym', 'HI',  NULL, 'PSQ', 'Hostility Index — overt antagonism or aggression markers'),
+    ('acronym', 'AD',  NULL, 'PSQ', 'Authority Dynamics — power differential and compliance pressure'),
+    ('acronym', 'ED',  NULL, 'PSQ', 'Energy Dissipation — emotional labor and cognitive drain indicators'),
+    ('acronym', 'RC',  NULL, 'PSQ', 'Regulatory Capacity — ability to maintain emotional regulation'),
+    ('acronym', 'RB',  NULL, 'PSQ', 'Resilience Baseline — stable capacity to recover from disruption'),
+    ('acronym', 'TC',  NULL, 'PSQ', 'Trust Conditions — environmental trust and psychological safety'),
+    ('acronym', 'CC',  NULL, 'PSQ', 'Cooling Capacity — de-escalation potential and conflict resolution'),
+    ('acronym', 'DA',  NULL, 'PSQ', 'Defensive Architecture — self-protective behavioral patterns'),
+    ('acronym', 'CO',  NULL, 'PSQ', 'Contractual Clarity — explicitness of behavioral expectations');
+
+-- Cognitive architecture and trust model
+INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, description) VALUES
+    ('acronym', 'cogarch', NULL, 'project-local', 'Cognitive Architecture — the trigger, hook, memory, and identity system'),
+    ('acronym', 'EF-1',   NULL, 'project-local', 'Evaluator Framework 1 — evaluator-as-arbiter autonomous trust model'),
+    ('acronym', 'EF-3',   NULL, 'project-local', 'Evaluator Framework 3 — evaluator instantiation gate for sub-agents'),
+    ('acronym', 'BFT',    NULL, 'project-local', 'Byzantine Fault Tolerance — consensus protocol for multi-agent mesh'),
+    ('acronym', 'TTP',    NULL, 'project-local', 'Trusted Third Party — BFT role for claim verification arbitration'),
+    ('acronym', 'BAS',    NULL, 'psychology',     'Behavioral Activation System — approach-motivation neural circuit (Gray, 1982)'),
+    ('acronym', 'BIS',    NULL, 'psychology',     'Behavioral Inhibition System — avoidance-motivation neural circuit (Gray, 1982)'),
+    ('acronym', 'DOF',    NULL, 'project-local', 'Degrees of Freedom — configurable parameters in cogarch.config.json'),
+    ('acronym', 'SL-1',   NULL, 'project-local', 'State Layer Phase 1 — SQLite bootstrap from markdown source of truth'),
+    ('acronym', 'SL-2',   NULL, 'project-local', 'State Layer Phase 2 — dual-write integration for /sync and /cycle');
+
+-- Interagent protocol
+INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, description) VALUES
+    ('acronym', 'A2A',   NULL, 'standards',      'Agent-to-Agent — Google open protocol for agent interoperability'),
+    ('acronym', 'ACK',   NULL, 'standards',      'Acknowledgement — transport protocol confirmation message'),
+    ('acronym', 'SSE',   NULL, 'standards',      'Server-Sent Events — HTTP streaming for real-time dashboard updates'),
+    ('acronym', 'KB',    NULL, 'project-local',  'Knowledge Base — structured claims, decisions, and memory entries'),
+    ('acronym', 'meshd', NULL, 'project-local',  'Mesh Daemon — Go service aggregating multi-agent state for the compositor'),
+    ('acronym', 'TTL',   NULL, 'standards',      'Time to Live — cache expiration duration for meshd data');
+
+-- Standards and external bodies
+INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, description) VALUES
+    ('acronym', 'SWEBOK', NULL, 'standards',     'Software Engineering Body of Knowledge — IEEE/ISO reference vocabulary'),
+    ('acronym', 'PMBOK',  NULL, 'standards',     'Project Management Body of Knowledge — PMI reference vocabulary'),
+    ('acronym', 'PSH',    NULL, 'standards',     'Polythematic Structured Subject Headings — Czech National Library classification'),
+    ('acronym', 'BCP',    NULL, 'standards',     'Best Current Practice — IETF document category (e.g., BCP 14 = RFC 2119)'),
+    ('acronym', 'INCOSE', NULL, 'standards',     'International Council on Systems Engineering — SE Handbook publisher'),
+    ('acronym', 'CMMI',   NULL, 'standards',     'Capability Maturity Model Integration — process maturity framework'),
+    ('acronym', 'UDC',    NULL, 'standards',     'Universal Decimal Classification — library classification scheme'),
+    ('acronym', 'WEIRD',  NULL, 'psychology',    'Western, Educated, Industrialized, Rich, Democratic — sampling bias descriptor (Henrich et al., 2010)'),
+    ('acronym', 'UDHR',   NULL, 'law',           'Universal Declaration of Human Rights — UN General Assembly Resolution 217A (1948)'),
+    ('acronym', 'ICESCR', NULL, 'law',           'International Covenant on Economic, Social and Cultural Rights — UN treaty (1966)'),
+    ('acronym', 'FTC',    NULL, 'law',           'Federal Trade Commission — US consumer protection agency'),
+    ('acronym', 'ICC',    NULL, 'standards',     'International Chamber of Commerce — marketing code publisher'),
+    ('acronym', 'NAD',    NULL, 'law',           'National Advertising Division — US advertising self-regulation body');
+
+-- Psychometric and statistical
+INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, description) VALUES
+    ('acronym', 'CFA',    NULL, 'psychometrics', 'Confirmatory Factor Analysis — structural equation model for construct validation'),
+    ('acronym', 'RMSEA',  NULL, 'psychometrics', 'Root Mean Square Error of Approximation — SEM model fit index (Steiger, 1990)'),
+    ('acronym', 'MAE',    NULL, 'psychometrics', 'Mean Absolute Error — calibration accuracy metric'),
+    ('acronym', 'AUC',    NULL, 'psychometrics', 'Area Under the Curve — classification performance metric'),
+    ('acronym', 'MAD',    NULL, 'psychometrics', 'Mean Absolute Deviation — robust dispersion measure'),
+    ('acronym', 'ICC (psychometric)', NULL, 'psychometrics', 'Intraclass Correlation — inter-rater reliability coefficient (Shrout & Fleiss, 1979)');
+
+-- Corpus and dataset names
+INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, description) VALUES
+    ('acronym', 'CaSiNo',   NULL, 'corpus', 'Camp Sincerity — negotiation dialogue corpus'),
+    ('acronym', 'CGA-Wiki', NULL, 'corpus', 'Conversation Gone Awry (Wikipedia) — conversational derailment dataset'),
+    ('acronym', 'CMV',      NULL, 'corpus', 'Change My View — Reddit persuasion corpus'),
+    ('acronym', 'DonD',     NULL, 'corpus', 'Deal or No Deal — negotiation task corpus');
+
+-- Infrastructure (non-trivial acronyms only — skip universally known CSS, JS, HTML, etc.)
+INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, description) VALUES
+    ('acronym', 'CF',      NULL, 'infrastructure', 'Cloudflare — edge compute and CDN platform'),
+    ('acronym', 'KV',      NULL, 'infrastructure', 'Key-Value store — Cloudflare Workers KV'),
+    ('acronym', 'D1',      NULL, 'infrastructure', 'Distributed SQLite — Cloudflare D1 database'),
+    ('acronym', 'R2',      NULL, 'infrastructure', 'Object storage — Cloudflare R2 (S3-compatible)'),
+    ('acronym', 'LLM',     NULL, 'ai-systems',     'Large Language Model — neural language generation system'),
+    ('acronym', 'MCP',     NULL, 'ai-systems',     'Model Context Protocol — Anthropic tool integration standard'),
+    ('acronym', 'CORS',    NULL, 'standards',       'Cross-Origin Resource Sharing — browser security policy for HTTP requests'),
+    ('acronym', 'JSON-LD', NULL, 'standards',       'JSON for Linked Data — W3C standard for structured data on the web'),
+    ('acronym', 'LCARS',   NULL, 'project-local',   'Library Computer Access/Retrieval System — Star Trek TNG-inspired UI theme'),
+    ('acronym', 'DETL',    NULL, 'project-local',   'Dignity-Emotion Tension Level — composite DI + PSQ interaction metric');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (16, 'Acronym vocabulary — 65 acronyms across 9 categories seeded into facet_vocabulary. Render-time tooltips in compositor. Ambiguous terms (ICC) stored with disambiguation.');

@@ -312,8 +312,11 @@ func CollectDictionary(d *db.DB) *Dictionary {
 	for _, row := range rows {
 		facetType := getString(row, "facet_type")
 		termSet := "PSH Subject Headings"
-		if facetType == "schema_type" {
+		switch facetType {
+		case "schema_type":
 			termSet = "schema.org Types"
+		case "acronym":
+			termSet = "Project Acronyms"
 		}
 
 		terms = append(terms, DictionaryEntry{
