@@ -33,6 +33,18 @@ WARM_THRESHOLD_HOURS = 1
 COLD_THRESHOLD_HOURS = 24
 
 
+def _get_my_agent_id() -> str:
+    """Read this agent's ID from .agent-identity.json, fallback to default."""
+    identity_file = PROJECT_ROOT / ".agent-identity.json"
+    if identity_file.exists():
+        try:
+            with open(identity_file) as f:
+                return json.load(f).get("agent_id", "psychology-agent")
+        except (json.JSONDecodeError, OSError):
+            pass
+    return "psychology-agent"
+
+
 def run_git(*args: str) -> tuple[int, str]:
     """Run a git command and return (returncode, stdout)."""
     result = subprocess.run(
@@ -225,12 +237,38 @@ def scan_agent(agent_id: str, agent_config: dict, index: bool = False,
     }
 
     if activity_tier == "cold" and not force:
-        result["skipped"] = True
-        result["skip_reason"] = (
-            f"cold peer — no exchange within {COLD_THRESHOLD_HOURS}h, "
-            "no unprocessed messages, no active gates"
+        # Before skipping a cold peer, check their cached MANIFEST for
+        # messages addressed to us. A cold peer may have sent us a new
+        # message (e.g., consensus proposal) that we haven't indexed yet.
+        # Use git show on the already-fetched ref — no network cost.
+        manifest_path = agent_config.get(
+            "manifest_path", "transport/MANIFEST.json"
         )
-        return result
+        cached_manifest = read_remote_file(remote_name, manifest_path)
+        has_pending_for_us = False
+        if cached_manifest:
+            try:
+                manifest = json.loads(cached_manifest)
+                my_id = _get_my_agent_id()
+                for recipients, msgs in manifest.get("pending", {}).items():
+                    if my_id in recipients.split(","):
+                        has_pending_for_us = True
+                        break
+            except (json.JSONDecodeError, KeyError):
+                pass
+
+        if has_pending_for_us:
+            # Promote to warm — there are pending messages for us
+            activity_tier = "warm"
+            result["activity_tier"] = "warm"
+            result["promoted_from_cold"] = True
+        else:
+            result["skipped"] = True
+            result["skip_reason"] = (
+                f"cold peer — no exchange within {COLD_THRESHOLD_HOURS}h, "
+                "no unprocessed messages, no active gates"
+            )
+            return result
 
     # Fetch the remote
     if not fetch_remote(remote_name):
@@ -268,7 +306,7 @@ def scan_agent(agent_id: str, agent_config: dict, index: bool = False,
         #   Convention B (unratified/observatory): files named to-{recipient}-NNN.json
         # On the remote, "from-{peer}-*" = messages the peer authored (Convention A).
         # On the remote, "to-psychology-agent-*" = messages addressed to us (Convention B).
-        our_agent_id = "psychology-agent"  # from .agent-identity.json
+        our_agent_id = _get_my_agent_id()
         inbound_prefix = f"to-{our_agent_id}-"
         inbound_files = [
             f for f in files
