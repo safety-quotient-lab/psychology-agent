@@ -20,6 +20,7 @@ set -euo pipefail
 # Cron runs with a minimal PATH that excludes NVM-managed Node (and claude).
 # Source NVM if present so that `claude`, `node`, and `npm` resolve.
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+# shellcheck source=/dev/null
 [ -s "${NVM_DIR}/nvm.sh" ] && source "${NVM_DIR}/nvm.sh" 2>/dev/null
 
 # ── Configuration ────────────────────────────────────────────────────────────
@@ -432,9 +433,6 @@ wake_peers() {
     # Reads agent-registry.local.json to discover co-located peers.
     local local_registry="${PROJECT_ROOT}/transport/agent-registry.local.json"
     [ -f "${local_registry}" ] || return 0
-
-    local hostname
-    hostname=$(hostname -s 2>/dev/null || hostname)
 
     # Extract peer agent IDs that share this machine (same lan_host)
     python3 -c "
