@@ -68,6 +68,7 @@ partner, and Socratic interlocutor
 47. [When the Agent Learns Its Own Mistakes: Engineering Incident Detection as Cogarch Extension](#47-when-the-agent-learns-its-own-mistakes)
 48. [Four Agents, One Mesh: What Going Live Reveals About Consensus Readiness](#48-four-agents-one-mesh)
 50. [The Cold Peer Paradox: When Optimization Prevents Discovery](#50-the-cold-peer-paradox)
+51. [What Twelve Builds Teach About Integration Testing: The Meshd Deploy Pipeline](#51-what-twelve-builds-teach-about-integration-testing)
 
 ---
 
@@ -1992,3 +1993,50 @@ read as prose. A developer encountering `trigger-forge.yml` for the first time w
 find the architectural decision, its alternatives, and its rationale without consulting
 external documentation. This approach costs a few dozen comment lines; it saves every
 future reader from reconstructing the reasoning independently.
+
+
+## 51. What Twelve Builds Teach About Integration Testing: The Meshd Deploy Pipeline
+
+Session 75 attempted what Session 74 intentionally deferred: exercising the meshd deploy
+pipeline end-to-end — not just verifying that Jenkins accepted the Jenkinsfile syntax, but
+that a Go binary could flow from cabinet through SSH to chromabook, replace a running process,
+and respond on all four ports.
+
+The result proved illuminating. Twelve builds, four distinct failure classes, each invisible
+to the previous testing tier. The `branch 'main'` directive — correct for MultiBranch
+Pipeline jobs — silently evaluated `false` in regular Pipeline jobs because Jenkins only
+populates `BRANCH_NAME` for the MultiBranch type. The stages appeared to succeed; they
+simply never ran. This failure mode — silent skip — represents the most pernicious category
+of CI/CD defect: the pipeline reports green because the dangerous code path never executes.
+
+The second failure exposed an assumption about network topology. Cabinet and chromabook sit
+on the same LAN but mDNS (`chromabook.local`) relies on Bonjour/Avahi, which cabinet's
+minimal Linux installation lacked. The fix (`/etc/hosts`) belongs to infrastructure
+configuration, not application code — exactly the kind of operational detail that
+Jenkinsfile literate documentation cannot capture because it lives on the deployment host,
+not in the repo.
+
+The third failure revealed a credential isolation problem. The `deploy-ssh-key` Jenkins
+credential held a key that had never been authorized on chromabook. Earlier SSH tests
+succeeded only through SSH agent forwarding from the development machine — an environmental
+dependency invisible in CI. The resolution — a dedicated ED25519 keypair for
+`jenkins@cabinet`, authorized on both deploy targets — follows the principle of
+least privilege (Saltzer & Schroeder, 1975): each service identity holds exactly the
+credentials it needs, no more.
+
+The fourth failure — POSIX shell incompatibility — caught bash-specific constructs
+(`<<<` here-strings, `read -ra` arrays) in a Jenkins `sh` step that runs `/bin/sh`.
+The fix, rewriting to POSIX-compatible `tr`/`cut`, has been committed but not yet
+verified in the pipeline (the changeset guard requires a `platform/` file change to
+trigger the deploy stage). This gap constitutes an acknowledged epistemic debt: we know
+the code compiles and runs manually, but we cannot yet confirm it runs in the Jenkins
+shell environment.
+
+The session concluded with a full-chain verification: a transport message pushed through
+git to chromabook, bootstrapped into state.db, served by meshd, and visible on the
+compositor. One subtlety emerged — `bootstrap_state_db.py --force` recreates the database
+file (new inode), but a running meshd process retains its file handle to the old inode.
+The database updates; meshd continues reading stale data until restarted. This WAL-mode
+file handle behavior represents a known SQLite characteristic, not a bug, but it creates
+operational coupling between bootstrap and restart sequencing that the DevOps guide must
+document.
