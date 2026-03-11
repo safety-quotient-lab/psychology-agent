@@ -37,8 +37,10 @@ type KBTotals struct {
 	Triggers        int `json:"triggers"`
 	Claims          int `json:"claims"`
 	ClaimsVerified  int `json:"claims_verified"`
+	ClaimsStale     int `json:"claims_stale"`
 	Messages        int `json:"messages"`
 	Lessons         int `json:"lessons"`
+	LessonsStale    int `json:"lessons_stale"`
 	CatalogEntries  int `json:"catalog_entries"`
 	MemoryEntries   int `json:"memory_entries"`
 	StaleEntries    int `json:"stale_entries"`
@@ -93,8 +95,16 @@ func CollectKnowledgeBase(d *db.DB) *KnowledgeBase {
 			Triggers:       len(triggers),
 			Claims:         len(claims),
 			ClaimsVerified: d.ScalarInt("SELECT COUNT(*) FROM claims WHERE verified = 1"),
+			ClaimsStale: d.ScalarInt(
+				`SELECT COUNT(*) FROM claims
+				 WHERE verified = 0
+				 OR (verified = 1 AND verified_at < date('now', '-30 days'))`),
 			Messages:       len(messages),
 			Lessons:        len(lessons),
+			LessonsStale: d.ScalarInt(
+				`SELECT COUNT(*) FROM lessons
+				 WHERE last_seen IS NULL
+				 OR last_seen < date('now', '-30 days')`),
 			CatalogEntries: len(catalog.Active),
 			MemoryEntries:  d.ScalarInt("SELECT COUNT(*) FROM memory_entries"),
 			StaleEntries:   staleCount,
