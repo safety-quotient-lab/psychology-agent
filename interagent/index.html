@@ -333,9 +333,9 @@
         .table-page-btn:disabled { opacity: 0.3; cursor: default; }
         .table-page-btn.active { background: var(--c-transport); color: var(--bg-primary); border-color: var(--c-transport); }
 
-        /* Sort indicators */
-        .sort-active { color: var(--c-transport) !important; }
-        .sort-arrow { opacity: 0.3; }
+        /* Sort indicators — prominent active state (T18 Check 3) */
+        .sort-active { color: var(--c-transport) !important; border-bottom: 2px solid var(--c-transport); }
+        .sort-arrow { opacity: 0.3; font-size: 0.9em; }
         .sort-active .sort-arrow { opacity: 1; }
 
         /* ── Pulse Tab ───────────────────────────────────────────────── */
@@ -712,7 +712,13 @@
             flex-shrink: 0;
         }
 
-        /* Memory topic table freshness */
+        /* Memory topic table freshness — color + text redundancy (T18 Check 6) */
+        .freshness-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.85em;
+        }
         .freshness-dot {
             display: inline-block;
             width: 8px; height: 8px;
@@ -721,6 +727,59 @@
         .freshness-fresh { background: var(--c-health); }
         .freshness-aging { background: var(--c-knowledge); }
         .freshness-stale { background: var(--c-alert); }
+        .freshness-label { color: var(--text-secondary); font-size: 0.9em; }
+
+        /* Expandable table rows (T18 Check 1) */
+        .expandable-row { cursor: pointer; }
+        .expandable-row:hover td { background: var(--bg-inset); }
+        .expanded-detail {
+            padding: 8px 10px;
+            background: var(--bg-inset);
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            border-bottom: 1px solid var(--border);
+        }
+        .expand-icon {
+            display: inline-block;
+            width: 14px;
+            font-size: 0.8em;
+            color: var(--text-dim);
+            transition: transform 0.15s;
+        }
+        .expand-icon.open { transform: rotate(90deg); }
+
+        /* Section jump nav (T18 Check 7) */
+        .section-jump-nav {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .section-jump-btn {
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 3px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.7em;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+        .section-jump-btn:hover { color: var(--text-primary); border-color: var(--text-secondary); }
+
+        /* Vitals + switcher grouping (T18 Check 2) */
+        .kb-controls-group {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        .kb-controls-group .kb-vitals { margin-bottom: 12px; }
+        .kb-controls-group .agent-switcher { margin-bottom: 0; }
 
         /* Section spacing within Knowledge tab */
         .kb-section {
@@ -861,37 +920,47 @@
 
         <!-- Knowledge Tab (Phase 2) -->
         <div class="tab-pane" id="pane-knowledge">
-            <!-- KB vitals -->
-            <div class="kb-vitals" id="kb-vitals">
-                <div class="kb-vital">
-                    <div class="kb-vital-value" id="kb-decisions-count">—</div>
-                    <div class="kb-vital-label">Decisions</div>
+            <!-- KB controls group — vitals + agent switcher (T18 Check 2) -->
+            <div class="kb-controls-group">
+                <div class="kb-vitals" id="kb-vitals">
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="kb-decisions-count">—</div>
+                        <div class="kb-vital-label">Decisions</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="kb-triggers-count">—</div>
+                        <div class="kb-vital-label">Triggers</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="kb-catalog-count">—</div>
+                        <div class="kb-vital-label">Catalog Entries</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="kb-memory-count">—</div>
+                        <div class="kb-vital-label">Memory Entries</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="kb-stale-count">—</div>
+                        <div class="kb-vital-label">Stale Entries</div>
+                    </div>
                 </div>
-                <div class="kb-vital">
-                    <div class="kb-vital-value" id="kb-triggers-count">—</div>
-                    <div class="kb-vital-label">Triggers</div>
-                </div>
-                <div class="kb-vital">
-                    <div class="kb-vital-value" id="kb-catalog-count">—</div>
-                    <div class="kb-vital-label">Catalog Entries</div>
-                </div>
-                <div class="kb-vital">
-                    <div class="kb-vital-value" id="kb-memory-count">—</div>
-                    <div class="kb-vital-label">Memory Entries</div>
-                </div>
-                <div class="kb-vital">
-                    <div class="kb-vital-value" id="kb-stale-count">—</div>
-                    <div class="kb-vital-label">Stale Entries</div>
+                <div class="agent-switcher" id="agent-switcher">
+                    <button class="agent-switch-btn active" data-agent="all" onclick="switchAgent('all')">All</button>
                 </div>
             </div>
 
-            <!-- Agent Switcher -->
-            <div class="agent-switcher" id="agent-switcher">
-                <button class="agent-switch-btn active" data-agent="all" onclick="switchAgent('all')">All</button>
-            </div>
+            <!-- Section jump nav (T18 Check 7) -->
+            <nav class="section-jump-nav" aria-label="Knowledge sections">
+                <a class="section-jump-btn" href="#kb-sec-decisions">Decisions</a>
+                <a class="section-jump-btn" href="#kb-sec-triggers">Triggers</a>
+                <a class="section-jump-btn" href="#kb-sec-vocab">Vocabulary</a>
+                <a class="section-jump-btn" href="#kb-sec-catalog">Catalog</a>
+                <a class="section-jump-btn" href="#kb-sec-schema">Schema</a>
+                <a class="section-jump-btn" href="#kb-sec-memory">Memory</a>
+            </nav>
 
             <!-- Decisions -->
-            <div class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-knowledge)">
+            <div id="kb-sec-decisions" class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-knowledge)">
                 <div class="lcars-panel-header">Decisions</div>
                 <div class="table-toolbar">
                     <input class="table-filter" id="filter-decisions" placeholder="Filter decisions..." oninput="filterTable('decisions')">
@@ -906,7 +975,7 @@
             </div>
 
             <!-- Cognitive Triggers -->
-            <div class="lcars-panel kb-section" data-section="epistemic" style="--panel-accent: var(--c-epistemic)">
+            <div id="kb-sec-triggers" class="lcars-panel kb-section" data-section="epistemic" style="--panel-accent: var(--c-epistemic)">
                 <div class="lcars-panel-header">Cognitive Triggers</div>
                 <div class="table-toolbar">
                     <input class="table-filter" id="filter-triggers" placeholder="Filter triggers..." oninput="filterTable('triggers')">
@@ -921,7 +990,7 @@
             </div>
 
             <!-- Dictionary -->
-            <div class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-catalog)">
+            <div id="kb-sec-vocab" class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-catalog)">
                 <div class="lcars-panel-header">
                     Vocabulary
                     <a href="/vocab" style="float:right; font-size:0.85em; color:var(--text-dim); text-decoration:none; font-weight:normal">JSON-LD &#x2192;</a>
@@ -938,7 +1007,7 @@
             </div>
 
             <!-- Catalog Distributions -->
-            <div class="lcars-panel kb-section" data-section="transport" style="--panel-accent: var(--c-transport)">
+            <div id="kb-sec-catalog" class="lcars-panel kb-section" data-section="transport" style="--panel-accent: var(--c-transport)">
                 <div class="lcars-panel-header">Discipline Catalog (PSH)</div>
                 <div class="table-toolbar">
                     <input class="table-filter" id="filter-catalog" placeholder="Filter disciplines..." oninput="filterTable('catalog')">
@@ -953,7 +1022,7 @@
             </div>
 
             <!-- Schema.org Entity Types -->
-            <div class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-catalog)">
+            <div id="kb-sec-schema" class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-catalog)">
                 <div class="lcars-panel-header">Entity Schema (schema.org)</div>
                 <div class="table-toolbar">
                     <input class="table-filter" id="filter-schema" placeholder="Filter types..." oninput="filterTable('schema')">
@@ -968,7 +1037,7 @@
             </div>
 
             <!-- Memory by Topic -->
-            <div class="lcars-panel kb-section" data-section="health" style="--panel-accent: var(--c-health)">
+            <div id="kb-sec-memory" class="lcars-panel kb-section" data-section="health" style="--panel-accent: var(--c-health)">
                 <div class="lcars-panel-header">Memory by Topic</div>
                 <div class="lcars-panel-body scrollable">
                     <div class="kb-table-wrap" id="kb-memory">
@@ -1147,7 +1216,8 @@
                     <div class="lcars-panel-body">
                         <div class="agent-identity">
                             <span class="agent-name">${agent.id}</span>
-                            <span class="agent-status-dot offline"></span>
+                            <span class="agent-status-dot offline" aria-label="offline"></span>
+                            <span style="font-size:0.7em;color:var(--c-alert);margin-left:4px">offline</span>
                         </div>
                         <div style="color: var(--c-alert); font-size: 0.8em; margin-top: 8px">
                             Unreachable${state.error ? ` — ${state.error}` : ""}
@@ -1175,7 +1245,8 @@
                 <div class="lcars-panel-body">
                     <div class="agent-identity">
                         <span class="agent-name">${agent.id}</span>
-                        <span class="agent-status-dot online"></span>
+                        <span class="agent-status-dot online" aria-label="online"></span>
+                        <span style="font-size:0.7em;color:var(--c-health);margin-left:4px">online</span>
                     </div>
                     <div class="agent-metrics">
                         <div class="agent-metric">
@@ -1402,7 +1473,7 @@
 
         const allRows = tableState.decisions.data;
         if (allRows.length === 0) {
-            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No decisions available</div>`;
+            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No decisions available. Decisions populate when agents resolve architecture questions via their decision chain.</div>`;
             renderPageControls("decisions", 0, 1, 0, 0);
             return;
         }
@@ -1430,16 +1501,17 @@
                     const confClass = conf != null ? (conf >= 0.8 ? "confidence-high" : conf >= 0.5 ? "confidence-mid" : "confidence-low") : "";
                     const confText = conf != null ? conf.toFixed(2) : "—";
                     const dateShort = (d.decided_date || "—").substring(0, 10);
-                    const text = (d.decision_text || "").length > 120
-                        ? d.decision_text.substring(0, 120) + "…"
-                        : (d.decision_text || "—");
-                    return `<tr>
+                    const fullText = d.decision_text || "—";
+                    const truncated = fullText.length > 120;
+                    const text = truncated ? fullText.substring(0, 120) + "…" : fullText;
+                    const rowId = "dec-" + (d.decision_key || "").replace(/[^a-z0-9-]/gi, "") + "-" + d._agent;
+                    return `<tr class="${truncated ? "expandable-row" : ""}" ${truncated ? `onclick="toggleDecisionRow('${rowId}')"` : ""}>
                         <td><span class="agent-dot" data-agent="${d._agent}"></span>${d._agent.replace("-agent","")}</td>
                         <td style="color:var(--c-knowledge);white-space:nowrap">${d.decision_key || "—"}</td>
                         <td>${escapeHtml(text)}</td>
                         <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
                         <td><span class="confidence-badge ${confClass}">${confText}</span></td>
-                    </tr>`;
+                    </tr>${truncated ? `<tr id="${rowId}" class="expanded-detail-row" style="display:none"><td colspan="5"><div class="expanded-detail">${escapeHtml(fullText)}</div></td></tr>` : ""}`;
                 }).join("")}</tbody>
             </table>
         `;
@@ -1461,7 +1533,7 @@
 
         const allRows = tableState.triggers.data;
         if (allRows.length === 0) {
-            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No triggers available</div>`;
+            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No triggers available. Each agent's cognitive triggers appear after bootstrap_state_db.py populates the trigger_state table.</div>`;
             renderPageControls("triggers", 0, 1, 0, 0);
             return;
         }
@@ -1539,7 +1611,7 @@
         const infoEl = document.getElementById("page-info-dictionary");
 
         if (allDictTerms.length === 0) {
-            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No vocabulary terms available</div>`;
+            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No vocabulary terms available. Dictionary terms come from each agent's defined_terms table.</div>`;
             if (infoEl) infoEl.textContent = "";
             return;
         }
@@ -1599,7 +1671,7 @@
 
         const allRows = tableState.catalog.data;
         if (allRows.length === 0) {
-            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No catalog data available</div>`;
+            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No catalog data available. Run bootstrap_facets.py to classify entities by PSH discipline.</div>`;
             renderPageControls("catalog", 0, 1, 0, 0);
             return;
         }
@@ -1662,7 +1734,7 @@
 
         const allRows = tableState.schema.data;
         if (allRows.length === 0) {
-            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No schema data available</div>`;
+            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No schema data available. Run bootstrap_facets.py to classify entities by schema.org type.</div>`;
             renderPageControls("schema", 0, 1, 0, 0);
             return;
         }
@@ -1712,7 +1784,7 @@
         }
 
         if (allTopics.length === 0) {
-            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No memory data available</div>`;
+            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No memory data available. Memory topics populate from each agent's memory_entries table.</div>`;
             return;
         }
 
@@ -1734,13 +1806,14 @@
                     const total = t.entry_count || 0;
                     const staleRatio = total > 0 ? stale / total : 0;
                     const freshClass = staleRatio > 0.5 ? "freshness-stale" : staleRatio > 0 ? "freshness-aging" : "freshness-fresh";
+                    const freshLabel = staleRatio > 0.5 ? "stale" : staleRatio > 0 ? "aging" : "fresh";
                     const newest = t.newest ? t.newest.substring(0, 10) : "—";
                     return `<tr>
                         <td><span class="agent-dot" data-agent="${t._agent}"></span>${t._agent.replace("-agent","")}</td>
                         <td>${escapeHtml(t.topic || "—")}</td>
                         <td style="text-align:center">${total}</td>
                         <td style="text-align:center;${stale > 0 ? "color:var(--c-alert)" : ""}">${stale}</td>
-                        <td style="text-align:center"><span class="freshness-dot ${freshClass}"></span></td>
+                        <td style="text-align:center"><span class="freshness-indicator"><span class="freshness-dot ${freshClass}"></span><span class="freshness-label">${freshLabel}</span></span></td>
                         <td style="white-space:nowrap;color:var(--text-secondary)">${newest}</td>
                     </tr>`;
                 }).join("")}</tbody>
@@ -1845,8 +1918,8 @@
         }
         if (btns && totalPages > 1) {
             btns.innerHTML = `
-                <button class="table-page-btn" ${page === 0 ? "disabled" : ""} onclick="goToPage('${tableId}',${page - 1})">&#x25C0;</button>
-                <button class="table-page-btn" ${page >= totalPages - 1 ? "disabled" : ""} onclick="goToPage('${tableId}',${page + 1})">&#x25B6;</button>
+                <button class="table-page-btn" aria-label="Previous page" ${page === 0 ? "disabled" : ""} onclick="goToPage('${tableId}',${page - 1})">&#x25C0;</button>
+                <button class="table-page-btn" aria-label="Next page" ${page >= totalPages - 1 ? "disabled" : ""} onclick="goToPage('${tableId}',${page + 1})">&#x25B6;</button>
             `;
         } else if (btns) {
             btns.innerHTML = "";
@@ -1857,7 +1930,14 @@
         const state = tableState[tableId];
         const active = state.sort === column;
         const arrow = active ? (state.sortDir > 0 ? "&#x25B2;" : "&#x25BC;") : "&#x25B4;";
-        return `<th class="${active ? "sort-active" : ""}" onclick="sortTable('${tableId}','${column}')">${label}<span class="sort-arrow">${arrow}</span></th>`;
+        const ariaSort = active ? (state.sortDir > 0 ? "ascending" : "descending") : "none";
+        return `<th class="${active ? "sort-active" : ""}" role="columnheader" aria-sort="${ariaSort}" onclick="sortTable('${tableId}','${column}')" style="cursor:pointer" tabindex="0" onkeydown="if(event.key==='Enter')sortTable('${tableId}','${column}')">${label}<span class="sort-arrow">${arrow}</span></th>`;
+    }
+
+    // ── Row Expansion ─────────────────────────────────────────────
+    function toggleDecisionRow(rowId) {
+        const row = document.getElementById(rowId);
+        if (row) row.style.display = row.style.display === "none" ? "table-row" : "none";
     }
 
     // ── Utility ──────────────────────────────────────────────────
