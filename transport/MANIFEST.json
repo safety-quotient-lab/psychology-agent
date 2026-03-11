@@ -16,7 +16,7 @@
     "unratified-agent": [
       {
         "session": "site-pricing-update",
-        "file": "transport/sessions/site-pricing-update/from-psychology-agent-001.json",
+        "file": "transport/sessions/site-pricing-update/from-human-001.json",
         "type": "command-request",
         "subject": "Blog post request: How much would it cost to ratify ICESCR and fill the gaps in the safety net?",
         "timestamp": "2026-03-11T01:14:04-05:00"
