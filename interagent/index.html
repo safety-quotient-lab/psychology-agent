@@ -467,9 +467,11 @@ function renderAgentCard(agent, data, error) {
         <div class="agent-details">
             <table>
                 <tr><td>Schema</td><td>v${schemaVer}</td></tr>
+                <tr><td>Sync</td><td style="color:${schedule.autonomous ? '#3fb950' : '#d29922'}">${schedule.autonomous ? 'autonomous' : 'manual'}${schedule.lock_active ? ' (syncing)' : ''}</td></tr>
                 <tr><td>Peers</td><td>${peers.map(p => p.from_agent || "?").join(", ") || "none"}</td></tr>
                 <tr><td>Collected</td><td>${data.collected_at || "?"}</td></tr>
-                ${schedule.cron_entry ? `<tr><td>Sync schedule</td><td>${schedule.cron_entry}</td></tr>` : ""}
+                ${schedule.cron_entry ? `<tr><td>Cron</td><td>${schedule.cron_entry}</td></tr>` : ""}
+                ${schedule.last_sync ? `<tr><td>Last sync</td><td>${schedule.last_sync}</td></tr>` : ""}
                 ${heartbeat.timestamp ? `<tr><td>Last heartbeat</td><td>${heartbeat.timestamp}</td></tr>` : ""}
             </table>
         </div>
@@ -702,10 +704,14 @@ function renderHealth() {
         if (pct < 10 || !state.data) health = "critical";
         else if (pct < 50 || pending > 5 || gates.length > 3) health = "degraded";
 
+        const sched = d.schedule || {};
         agentHealthData.push({
             id: agent.id, status: "online", health, budgetPct: pct,
             budget: `${cur}/${max}`, pending, gates: gates.length,
             heartbeat: heartbeat.timestamp, schema: d.schema_version,
+            autonomous: sched.autonomous || false,
+            syncLock: sched.lock_active || false,
+            lastSync: sched.last_sync || null,
         });
     }
 
@@ -738,9 +744,14 @@ function renderHealth() {
             ? '<span class="dot dot-green"></span>'
             : '<span class="dot dot-red"></span>';
         const healthColor = a.health === "healthy" ? "#3fb950" : a.health === "degraded" ? "#d29922" : "#f85149";
+        const syncLabel = a.status !== "online" ? "?"
+            : a.autonomous ? (a.syncLock ? "syncing" : "idle")
+            : "manual";
+        const syncColor = a.autonomous ? "#3fb950" : "#d29922";
         healthRows += `<tr>
             <td>${statusDot} ${a.id}</td>
             <td style="color:${healthColor}">${a.health}</td>
+            <td style="color:${syncColor}">${syncLabel}</td>
             <td>${a.budget || "?"}</td>
             <td>${a.pending ?? "?"}</td>
             <td>${a.gates ?? "?"}</td>
@@ -750,7 +761,7 @@ function renderHealth() {
     }
     document.getElementById("health-agents").innerHTML = `
         <table class="msg-table">
-            <tr><th>Agent</th><th>Health</th><th>Trust Budget</th><th>Pending</th><th>Gates</th><th>Schema</th><th>Heartbeat</th></tr>
+            <tr><th>Agent</th><th>Health</th><th>Sync</th><th>Trust Budget</th><th>Pending</th><th>Gates</th><th>Schema</th><th>Heartbeat</th></tr>
             ${healthRows}
         </table>`;
 
