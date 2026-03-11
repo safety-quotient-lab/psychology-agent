@@ -30,7 +30,7 @@ Last updated: 2026-03-11
 │                                                             │
 │  ✓ meshd build+deploy     — platform/** changes             │
 │  ✓ shared scripts sync    — platform/shared/** changes      │
-│  ○ PSQ model deploy       — manual trigger only             │
+│  ✓ PSQ model deploy       — manual trigger only             │
 │  ○ tunnel health check    — periodic                        │
 └─────────────────────────────────────────────────────────────┘
 

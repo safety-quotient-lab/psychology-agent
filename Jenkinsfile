@@ -77,8 +77,11 @@ pipeline {
             steps {
                 dir('platform') {
                     sh '''
-                        echo "Building meshd for linux/amd64..."
-                        GOOS=linux GOARCH=amd64 go build -o meshd-linux ./cmd/meshd/
+                        BUILD_VERSION="$(git rev-parse --short HEAD)"
+                        echo "Building meshd for linux/amd64 (${BUILD_VERSION})..."
+                        GOOS=linux GOARCH=amd64 go build \
+                            -ldflags "-X github.com/safety-quotient-lab/psychology-agent/platform.Version=${BUILD_VERSION}" \
+                            -o meshd-linux ./cmd/meshd/
                         ls -lh meshd-linux
                         sha256sum meshd-linux
                     '''

@@ -7,12 +7,14 @@ import (
 	"path/filepath"
 	"time"
 
+	platform "github.com/safety-quotient-lab/psychology-agent/platform"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/db"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/registry"
 )
 
 // Status holds the complete mesh status snapshot.
 type Status struct {
+	Version        string                    `json:"version"`
 	AgentID        string                    `json:"agent_id"`
 	CollectedAt    string                    `json:"collected_at"`
 	DBPath         string                    `json:"db_path"`
@@ -236,6 +238,7 @@ func Collect(d *db.DB, projectRoot string) *Status {
 	knowledge := CollectKnowledgeBase(d)
 
 	return &Status{
+		Version:        platform.Version,
 		AgentID:        agentID,
 		CollectedAt:    now,
 		DBPath:         dbPath,
