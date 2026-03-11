@@ -29,7 +29,7 @@
       "remote_name": "unratified",
       "sessions_path": "transport/sessions/",
       "message_prefix": "from-unratified-agent-",
-      "active_sessions": ["blog-publication", "content-quality-loop", "psq-scoring", "site-defensibility-review"],
+      "active_sessions": ["blog-publication", "content-quality-loop", "psq-scoring", "site-defensibility-review", "site-pricing-update"],
       "always_consider": true,
       "autonomous": true,
       "discovery_url": "https://unratified.org/.well-known/agent-card.json",
