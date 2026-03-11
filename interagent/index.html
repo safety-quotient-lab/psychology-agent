@@ -535,6 +535,9 @@
             font-weight: bold;
             color: var(--c-knowledge);
         }
+        .kb-vital-value.stale-warning {
+            color: var(--c-warning, #ff9944);
+        }
         .kb-vital-label {
             font-size: 0.6em;
             color: var(--text-secondary);
@@ -1047,6 +1050,10 @@
                         <div class="kb-vital-label">Verified</div>
                     </div>
                     <div class="kb-vital">
+                        <div class="kb-vital-value stale-warning" id="kb-stale-count">—</div>
+                        <div class="kb-vital-label">Stale</div>
+                    </div>
+                    <div class="kb-vital">
                         <div class="kb-vital-value" id="kb-chains-count">—</div>
                         <div class="kb-vital-label">Decisions</div>
                     </div>
@@ -1173,6 +1180,10 @@
                     <div class="kb-vital">
                         <div class="kb-vital-value" id="wisdom-graduated-count">—</div>
                         <div class="kb-vital-label">Graduated</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value stale-warning" id="wisdom-stale-count">—</div>
+                        <div class="kb-vital-label">Stale</div>
                     </div>
                     <div class="kb-vital">
                         <div class="kb-vital-value" id="wisdom-domains-count">—</div>
@@ -2335,7 +2346,8 @@
     // ── KB + Wisdom Vitals ────────────────────────────────────────
     function renderKBTabVitals() {
         const agents = activeAgentFilter === "all" ? AGENTS : AGENTS.filter(a => a.id === activeAgentFilter);
-        let claims = 0, verified = 0, decisions = 0, facts = 0, lessons = 0, graduated = 0, domains = new Set();
+        let claims = 0, verified = 0, staleClaims = 0, decisions = 0, facts = 0;
+        let lessons = 0, staleLessons = 0, graduated = 0, domains = new Set();
 
         for (const agent of agents) {
             const kb = kbData[agent.id];
@@ -2343,9 +2355,11 @@
             const t = kb.data?.totals || {};
             claims += t.claims || 0;
             verified += t.claims_verified || 0;
+            staleClaims += t.claims_stale || 0;
             decisions += t.decisions || 0;
             facts += t.memory_entries || 0;
             lessons += t.lessons || 0;
+            staleLessons += t.lessons_stale || 0;
             (kb.data?.lessons || []).forEach(l => {
                 if (l.promotion_status === "graduated") graduated++;
                 if (l.domain) domains.add(l.domain);
@@ -2355,10 +2369,12 @@
         const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
         el("kb-claims-count", claims);
         el("kb-verified-count", verified);
+        el("kb-stale-count", staleClaims);
         el("kb-chains-count", decisions);
         el("kb-facts-count", facts);
         el("wisdom-lessons-count", lessons);
         el("wisdom-graduated-count", graduated);
+        el("wisdom-stale-count", staleLessons);
         el("wisdom-domains-count", domains.size);
     }
 
