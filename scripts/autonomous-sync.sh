@@ -801,7 +801,8 @@ main() {
         if [ "${GATE_ACCELERATED}" = true ]; then
             # Check if any messages were actually processed this cycle
             local new_processed
-            new_processed=$(echo "${sync_output}" | grep -c "marked processed\|ACKs written" 2>/dev/null || echo "0")
+            new_processed=$(echo "${sync_output}" | grep -c "marked processed\|ACKs written" 2>/dev/null || true)
+            new_processed=${new_processed:-0}
             if [ "${new_processed}" -eq 0 ]; then
                 # No-op gate poll — 0 cost, no budget deduction
                 record_action "gate_poll" "reversible" 1 "approved" \
