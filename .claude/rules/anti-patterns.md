@@ -22,3 +22,9 @@ globs: ["**/*.sh", "**/*.js", "**/*.py", "**/*.md"]
 - **Parry ML false positives on trusted files** — parry's ML scanner flags
   CLAUDE.md and cogarch files as prompt injection. When re-adding parry, implement
   a wrapper-level path exclusion for trusted instruction files.
+- **`Path(__file__).resolve()` in symlinked shared scripts** — when a Python script
+  lives in a shared directory (e.g., `platform/shared/scripts/`) and is symlinked into
+  agent repos, `Path(__file__).resolve()` follows the symlink to the shared location,
+  making `parent.parent` point to the shared directory rather than the agent repo.
+  Fix: honor a `PROJECT_ROOT` env var override first. Callers (shell scripts) must
+  export `PROJECT_ROOT` before invoking symlinked Python scripts.
