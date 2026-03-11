@@ -472,12 +472,12 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   merged. systemd services: psq-agent-dashboard + psq-agent-tunnel. Live at
   psq-agent.safety-quotient.dev.
 
-- [ ] **Interagent compositor rebuild** — radical rebuild of `interagent/` CF Worker.
-  Aggregate both `/kb/*` and `/obs/*` data across all 4 agents. Replace full-page
-  autoreload with EventSource/SSE for live updates. Composite knowledge (vocabulary,
-  decisions, triggers) + observability (trust, messages, health) into a unified
-  cross-mesh portal. CF Worker remains the deployment vehicle. Mobile-first design.
-  *Precondition: ✓ MET — meshd Phase B deployed (Session 71).*
+- [x] **Interagent compositor rebuild** — COMPLETE (Session 71). 5-tab architecture:
+  Pulse (health), Meta (decisions/triggers/memory/messages), Knowledge (claims/chains/
+  facts/vocabulary/catalog/schema), Wisdom (lessons), Operations (stub). LCARS sidebar
+  content-tracking, semantic tab colors, bidirectional deep links (Messages↔Claims),
+  staleness vitals, agent switcher, sort/filter/pagination. Deployed to CF Worker.
+  SSE live updates still queued as enhancement.
 
 ---
 
