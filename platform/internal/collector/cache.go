@@ -23,6 +23,7 @@ type Cache struct {
 	dictionary  *Dictionary
 	lastCollect time.Time
 	ttl         time.Duration
+	generation  int64
 	d           *db.DB
 	projectRoot string
 }
@@ -60,6 +61,7 @@ func (c *Cache) Status() *Status {
 	c.kb = c.status.Knowledge
 	c.dictionary = CollectDictionary(c.d)
 	c.lastCollect = time.Now()
+	c.generation++
 	return c.status
 }
 
@@ -69,6 +71,14 @@ func (c *Cache) KnowledgeBase() *KnowledgeBase {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.kb
+}
+
+// Generation returns the cache generation counter. Increments on each
+// cache refresh, enabling SSE clients to detect data changes.
+func (c *Cache) Generation() int64 {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.generation
 }
 
 // Dict returns the cached JSON-LD dictionary.

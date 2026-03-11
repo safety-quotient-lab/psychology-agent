@@ -79,6 +79,9 @@ func main() {
 	mux.HandleFunc("/kb/memory", handlers.APIKBMemory(cache))
 	mux.HandleFunc("/kb/dictionary", handlers.APIKBDictionary(cache))
 
+	// SSE stream
+	mux.HandleFunc("/events", handlers.Events(cache))
+
 	// Replay serving
 	mux.HandleFunc("/replays/remote/", handlers.RemoteReplay(absRoot))
 	mux.HandleFunc("/replays/", handlers.LocalReplay(absRoot))
@@ -101,8 +104,8 @@ func main() {
 		Addr:         fmt.Sprintf("0.0.0.0:%d", *port),
 		Handler:      mux,
 		ReadTimeout:  15 * time.Second,
-		WriteTimeout: 30 * time.Second,
-		IdleTimeout:  60 * time.Second,
+		WriteTimeout: 0, // disabled — SSE requires long-lived connections
+		IdleTimeout:  120 * time.Second,
 	}
 
 	// Graceful shutdown
