@@ -12,6 +12,7 @@ Recovery: re-run this script to rebuild DB from files if state.db is
 missing or corrupt.
 """
 import argparse
+import datetime as _dt
 import json
 import re
 import sqlite3
@@ -71,77 +72,278 @@ def setup_db(force: bool) -> sqlite3.Connection:
 # 1. TRANSPORT MESSAGES
 # ──────────────────────────────────────────────────────────────────────────────
 
-def load_transport_messages(conn: sqlite3.Connection) -> int:
+FILENAME_TURN_RE = re.compile(r"-(\d{3})\.json$")
+FILENAME_AGENT_RE = re.compile(r"^(?:from|to)-(.+?)(?:-\d{3})?\.json$")
+
+
+def _extract_agent_id(field) -> str:
+    """Extract agent_id from a from/to field that may hold a dict, list, or string."""
+    if isinstance(field, dict):
+        return field.get("agent_id", "unknown")
+    if isinstance(field, list) and field and isinstance(field[0], dict):
+        return field[0].get("agent_id", "unknown")
+    if isinstance(field, str) and field:
+        # Strip parenthetical qualifiers: "psychology-agent (orchestrator)" → "psychology-agent"
+        return field.split("(")[0].strip() or "unknown"
+    return "unknown"
+
+
+def _extract_subject(data: dict) -> str:
+    """Pull a subject string from whichever payload shape the message uses."""
+    # interagent/v1 standard location
+    payload_subject = (data.get("payload") or {}).get("subject", "")
+    if payload_subject:
+        return payload_subject
+    # command-request/v1 location
+    content_subject = (data.get("content") or {}).get("subject", "")
+    if content_subject:
+        return content_subject
+    # local-coordination/v1 — first item's subject
+    items = data.get("items") or []
+    if items and isinstance(items[0], dict):
+        return items[0].get("subject", "")
+    # machine-request/v2 — request.type as a stand-in
+    request_type = (data.get("request") or {}).get("type", "")
+    if request_type:
+        return request_type
+    return ""
+
+
+def _turn_from_field(raw_turn) -> int:
+    """Coerce a turn field (int, string like 'response-1', or missing) to int."""
+    if isinstance(raw_turn, int):
+        return raw_turn
+    if isinstance(raw_turn, str):
+        digits = re.sub(r"[^0-9]", "", raw_turn)
+        return int(digits) if digits else 0
+    return 0
+
+
+def _parse_legacy_transport(json_file: Path) -> dict | None:
+    """
+    Extract transport_messages metadata from a non-interagent/v1 file.
+
+    Returns a dict with all required columns, or None when the file
+    cannot yield even minimal metadata (should not happen — filename
+    alone provides enough).
+    """
+    session_name = json_file.parent.name
+    filename = json_file.name
+
+    # Fallback turn from filename pattern (e.g., "-007.json" → 7)
+    turn_match = FILENAME_TURN_RE.search(filename)
+    fallback_turn = int(turn_match.group(1)) if turn_match else 0
+
+    # Fallback agent from filename pattern (e.g., "from-psq-sub-agent-007" → "psq-sub-agent")
+    agent_match = FILENAME_AGENT_RE.match(filename)
+    fallback_from = agent_match.group(1) if agent_match else "unknown"
+
+    # Fallback timestamp from file modification time
+    mtime = json_file.stat().st_mtime
+    fallback_timestamp = _dt.datetime.fromtimestamp(mtime).isoformat()
+
+    # Attempt to parse JSON content
+    try:
+        raw = json_file.read_text(encoding="utf-8")
+        data = json.loads(raw)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        # Unparseable — index from filename metadata only
+        return dict(
+            session_name=session_name,
+            filename=filename,
+            turn=fallback_turn,
+            message_type="legacy",
+            from_agent=fallback_from,
+            to_agent="unknown",
+            timestamp=fallback_timestamp,
+            subject="",
+            claims_count=0,
+            setl=None,
+            urgency="normal",
+            claims_list=[],
+            epistemic_flags=[],
+        )
+
+    # Top-level array (e.g., batch review files) — no interagent envelope
+    if isinstance(data, list):
+        return dict(
+            session_name=session_name,
+            filename=filename,
+            turn=fallback_turn,
+            message_type="legacy",
+            from_agent=fallback_from if fallback_from != "unknown" else "psychology-agent",
+            to_agent="unknown",
+            timestamp=fallback_timestamp,
+            subject="",
+            claims_count=0,
+            setl=None,
+            urgency="normal",
+            claims_list=[],
+            epistemic_flags=[],
+        )
+
+    # Dict with a non-interagent/v1 schema — extract what fields exist
+    schema = data.get("schema", "")
+    turn = _turn_from_field(data.get("turn")) or fallback_turn
+    from_agent = _extract_agent_id(data.get("from")) or fallback_from
+    to_agent = _extract_agent_id(data.get("to"))
+    timestamp = data.get("timestamp") or fallback_timestamp
+    subject = _extract_subject(data)
+    message_type = data.get("message_type", schema or "legacy")
+    claims_list = data.get("claims") or []
+    epistemic_flags = data.get("epistemic_flags") or []
+
+    return dict(
+        session_name=session_name,
+        filename=filename,
+        turn=turn,
+        message_type=message_type,
+        from_agent=from_agent if from_agent != "unknown" else fallback_from,
+        to_agent=to_agent,
+        timestamp=timestamp,
+        subject=subject[:500],
+        claims_count=len(claims_list),
+        setl=data.get("setl"),
+        urgency=data.get("urgency", "normal"),
+        claims_list=claims_list,
+        epistemic_flags=epistemic_flags,
+    )
+
+
+def load_transport_messages(conn: sqlite3.Connection) -> tuple[int, int]:
+    """Load transport messages. Returns (modern_count, legacy_count)."""
     transport_root = PROJECT_ROOT / "transport" / "sessions"
     if not transport_root.exists():
         warn("transport/sessions/ not found — skipping transport_messages")
-        return 0
+        return 0, 0
 
-    count = 0
+    modern_count = 0
+    legacy_count = 0
+
     for json_file in sorted(transport_root.glob("**/*.json")):
         try:
             raw = json_file.read_text(encoding="utf-8")
             data = json.loads(raw)
+            schema_match = isinstance(data, dict) and data.get("schema") == "interagent/v1"
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            schema_match = False
+            data = None
 
-            # Only index interagent/v1 protocol messages
-            if data.get("schema") != "interagent/v1":
-                continue
+        if schema_match:
+            # ── Modern interagent/v1 path (unchanged) ──
+            try:
+                session_name = json_file.parent.name
+                filename = json_file.name
+                turn = data.get("turn", 0)
+                message_type = data.get("message_type", "")
+                from_agent = _extract_agent_id(data.get("from"))
+                to_agent = _extract_agent_id(data.get("to"))
+                timestamp = data.get("timestamp", "")
+                subject = (data.get("payload") or {}).get("subject", "")
+                claims_list = data.get("claims") or []
+                claims_count = len(claims_list)
+                setl = data.get("setl")
+                urgency = data.get("urgency", "normal")
 
-            session_name = json_file.parent.name
-            filename = json_file.name
-            turn = data.get("turn", 0)
-            message_type = data.get("message_type", "")
-            from_agent = (data.get("from") or {}).get("agent_id", "unknown")
-            to_agent = (data.get("to") or {}).get("agent_id", "unknown")
-            timestamp = data.get("timestamp", "")
-            subject = (data.get("payload") or {}).get("subject", "")
-            claims_list = data.get("claims") or []
-            claims_count = len(claims_list)
-            setl = data.get("setl")
-            urgency = data.get("urgency", "normal")
-
-            conn.execute("""
-                INSERT OR IGNORE INTO transport_messages
-                    (session_name, filename, turn, message_type, from_agent, to_agent,
-                     timestamp, subject, claims_count, setl, urgency,
-                     processed, processed_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, ?)
-            """, (session_name, filename, turn, message_type, from_agent, to_agent,
-                  timestamp, subject, claims_count, setl, urgency, today_iso()))
-
-            msg_row = conn.execute(
-                "SELECT id FROM transport_messages WHERE filename = ?", (filename,)
-            ).fetchone()
-            if msg_row is None:
-                continue
-            msg_id = msg_row[0]
-
-            # Index claims
-            for claim in claims_list:
                 conn.execute("""
-                    INSERT OR IGNORE INTO claims
-                        (transport_msg, claim_id, claim_text, confidence, confidence_basis, verified)
-                    VALUES (?, ?, ?, ?, ?, FALSE)
-                """, (msg_id,
-                      claim.get("claim_id", ""),
-                      claim.get("text", "")[:2000],
-                      claim.get("confidence"),
-                      (claim.get("confidence_basis") or "")[:500]))
+                    INSERT OR IGNORE INTO transport_messages
+                        (session_name, filename, turn, message_type, from_agent, to_agent,
+                         timestamp, subject, claims_count, setl, urgency,
+                         processed, processed_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, ?)
+                """, (session_name, filename, turn, message_type, from_agent, to_agent,
+                      timestamp, subject, claims_count, setl, urgency, today_iso()))
 
-            # Index epistemic flags
-            for flag in (data.get("epistemic_flags") or []):
+                msg_row = conn.execute(
+                    "SELECT id FROM transport_messages WHERE filename = ?", (filename,)
+                ).fetchone()
+                if msg_row is None:
+                    continue
+                msg_id = msg_row[0]
+
+                for idx, claim in enumerate(claims_list):
+                    if isinstance(claim, str):
+                        # Legacy format: claims as plain strings
+                        conn.execute("""
+                            INSERT OR IGNORE INTO claims
+                                (transport_msg, claim_id, claim_text, confidence,
+                                 confidence_basis, verified)
+                            VALUES (?, ?, ?, NULL, '', FALSE)
+                        """, (msg_id, f"c{idx + 1}", claim[:2000]))
+                        continue
+                    conn.execute("""
+                        INSERT OR IGNORE INTO claims
+                            (transport_msg, claim_id, claim_text, confidence, confidence_basis, verified)
+                        VALUES (?, ?, ?, ?, ?, FALSE)
+                    """, (msg_id,
+                          claim.get("claim_id", ""),
+                          claim.get("text", "")[:2000],
+                          claim.get("confidence"),
+                          (claim.get("confidence_basis") or "")[:500]))
+
+                for flag in (data.get("epistemic_flags") or []):
+                    conn.execute("""
+                        INSERT INTO epistemic_flags (source, flag_text, resolved)
+                        VALUES (?, ?, FALSE)
+                    """, (filename, str(flag)[:2000]))
+
+                modern_count += 1
+
+            except Exception as exc:
+                warn(f"transport {json_file.name}: {exc}")
+
+        else:
+            # ── Legacy / non-interagent/v1 path ──
+            try:
+                parsed = _parse_legacy_transport(json_file)
+                if parsed is None:
+                    continue
+
                 conn.execute("""
-                    INSERT INTO epistemic_flags (source, flag_text, resolved)
-                    VALUES (?, ?, FALSE)
-                """, (filename, str(flag)[:2000]))
+                    INSERT OR IGNORE INTO transport_messages
+                        (session_name, filename, turn, message_type, from_agent, to_agent,
+                         timestamp, subject, claims_count, setl, urgency,
+                         processed, processed_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, ?)
+                """, (parsed["session_name"], parsed["filename"], parsed["turn"],
+                      parsed["message_type"], parsed["from_agent"], parsed["to_agent"],
+                      parsed["timestamp"], parsed["subject"], parsed["claims_count"],
+                      parsed["setl"], parsed["urgency"], today_iso()))
 
-            count += 1
+                # Index claims when present in legacy messages
+                msg_row = conn.execute(
+                    "SELECT id FROM transport_messages WHERE filename = ?",
+                    (parsed["filename"],)
+                ).fetchone()
+                if msg_row and parsed["claims_list"]:
+                    msg_id = msg_row[0]
+                    for claim in parsed["claims_list"]:
+                        conn.execute("""
+                            INSERT OR IGNORE INTO claims
+                                (transport_msg, claim_id, claim_text, confidence,
+                                 confidence_basis, verified)
+                            VALUES (?, ?, ?, ?, ?, FALSE)
+                        """, (msg_id,
+                              claim.get("claim_id", ""),
+                              (claim.get("text") or claim.get("claim", ""))[:2000],
+                              claim.get("confidence"),
+                              (claim.get("confidence_basis") or claim.get("basis", ""))[:500]))
 
-        except Exception as exc:
-            warn(f"transport {json_file.name}: {exc}")
+                # Index epistemic flags from legacy messages
+                if msg_row and parsed["epistemic_flags"]:
+                    for flag in parsed["epistemic_flags"]:
+                        conn.execute("""
+                            INSERT INTO epistemic_flags (source, flag_text, resolved)
+                            VALUES (?, ?, FALSE)
+                        """, (parsed["filename"], str(flag)[:2000]))
+
+                legacy_count += 1
+
+            except Exception as exc:
+                warn(f"transport legacy {json_file.name}: {exc}")
 
     conn.commit()
-    return count
+    return modern_count, legacy_count
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -691,8 +893,9 @@ def main() -> None:
     conn = setup_db(args.force)
 
     print("1. Transport messages (transport/sessions/**/*.json) ...")
-    n_transport = load_transport_messages(conn)
-    print(f"   → {n_transport} messages indexed")
+    n_modern, n_legacy = load_transport_messages(conn)
+    n_transport = n_modern + n_legacy
+    print(f"   → {n_modern} modern (interagent/v1) + {n_legacy} legacy = {n_transport} messages indexed")
 
     print("2. Design decisions (docs/architecture.md) ...")
     n_decisions = load_decisions(conn)
