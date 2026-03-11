@@ -18,23 +18,23 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 73. Epistemic debt detail panel shipped (full
-pipeline: collector → handler → /kb/epistemic → compositor). Shared scripts
-moved to platform/shared/scripts/. Observatory consolidated on chromabook.
-CI/CD Phase 1 complete. DevOps pipeline documented.
+**Where we stopped:** Session 73. Full DevOps pipeline Phase 1 complete. All pending
+operational tasks resolved. Blog authorship model redesigned. Schema v17 pending
+propagation via autonomous sync.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- Compositor: ✓ 5 tabs, epistemic flags detail table, LCARS spine, deep links `[warm]`
-- meshd: ✓ All 4 running, /kb/epistemic route added (Session 73) `[warm]`
-- CI/CD Phase 1: ✓ 3 GitHub Actions workflows (compositor, unratified, observatory) `[warm]`
-- Shared scripts: ✓ Canonical at platform/shared/scripts/, symlinked into agents `[warm]`
-- Observatory: ✓ Consolidated — only ~/projects/observatory on chromabook `[warm]`
+- CI/CD Phase 1: ✓ GitHub Actions for all 6 CF Workers/Pages, secrets configured `[warm]`
+- Compositor: ✓ Timestamps fixed, deployed via CF Worker `interagent-mesh` `[warm]`
+- meshd: ✓ All 4 running (psychology:8076, psq:8077, unratified:8078, observatory:8079) `[warm]`
 - Schema v17: ⚑ Committed, awaits chromabook propagation via autonomous sync `[warm]`
-- Plan9 consensus: ⚑ Awaiting peer votes `[warm]`
-- DI Phase A Pass 2: pending `[cold]`
+- Bootstrap: ✓ Fixed 3 critical bugs (UNIQUE scope, turn index, MANIFEST skip) `[warm]`
+- Rate limit: ✓ 15-min backoff + 3-strike escalation in autonomous-sync `[warm]`
+- /sync detection: ✓ Phase 2c incomplete work detection + pre_sync_check.py `[warm]`
+- Issue lifecycle: ✓ issue_lifecycle.py (create/update/close/close-resolved) `[warm]`
 
-**Next:** Jenkins Phase 2 (blocked on forge.safety-quotient.dev service accounts).
-DI Phase A Pass 2. Schema v15 migration. vnext passes (bizdev, marketing, self-review).
+**Next:** Jenkins Phase 2 (meshd binary deploy, shared scripts, PSQ model).
+Meta + Knowledge Base tab split (plan file exists). Observatory-sqlab vs
+observatory directory consolidation on chromabook.
 
 
 ## Memory Hygiene

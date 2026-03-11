@@ -151,6 +151,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Issue lifecycle management      | ✓ issue_lifecycle.py — create/update/close/close-resolved/list via mesh-bot App (Session 73) |
 | DevOps pipeline documentation   | ✓ docs/devops-pipeline.md — 3-tier architecture, 16 artifacts, secrets, endpoints (Session 73) |
 | Transport message recovery      | ✓ content-quality-loop (16 files renumbered), psq-scoring (8 files recovered) (Session 73) |
+| Epistemic debt detail panel     | ✓ Full pipeline: collector → handler → /kb/epistemic → compositor flags table (Session 73) |
+| Shared scripts placement        | ✓ pre_sync_check.py + issue_lifecycle.py → platform/shared/scripts/, symlinks in scripts/ (Session 73) |
+| Observatory consolidation       | ✓ observatory-sqlab removed from chromabook; only ~/projects/observatory remains (Session 73) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -4853,14 +4856,32 @@ dashboard observability.
   fix?") and reinforced automated systems ("we are building an automated system, here,
   now"). Pivoted from manual deploys to CI/CD-first workflow.
 
+**Post-cycle continuation (same session):**
+- **Epistemic debt detail panel** — full data pipeline: `collectEpistemicFlags()` in
+  collector/knowledge.go → `APIKBEpistemic` handler → `/kb/epistemic` route → compositor
+  `renderEpistemicFlags()` with sortable/filterable/paginated table (agent, flag text,
+  age color-coding, source, session, date). Transport flag count added to debt breakdown.
+- **Shared scripts placement** — moved `pre_sync_check.py` and `issue_lifecycle.py` to
+  `platform/shared/scripts/`. Replaced originals with symlinks. Fixed `_find_project_root()`
+  in both to walk up from apparent location (avoids symlink resolution anti-pattern).
+- **Observatory consolidation** — confirmed `~/projects/observatory-sqlab` on chromabook
+  contained no unique data. Removed via SSH. Only `~/projects/observatory` remains
+  (state.db, cron, meshd :8079).
+- **Plan retirement** — `.claude/plans/golden-noodling-snowglobe.md` (Meta + Knowledge
+  Base tab split) found ~90% already implemented in Session 71. Retired.
+- **Jenkins/forge recon** — checked all repos and chromabook for forge artifacts. Nothing
+  landed yet. Infrastructure hardening in progress by another agent; service accounts
+  pending. Documented in `memory/infrastructure.md`.
+
 ⚑ EPISTEMIC FLAGS
 - Schema v17 committed but not yet propagated to chromabook — awaits autonomous sync pull
 - Sessions 71-72 lab-notebook entries written retroactively from TODO/MEMORY references,
   not from live session context — timestamps approximate
-- observatory-sqlab vs observatory directory consolidation on chromabook remains unresolved
-- Jenkins Phase 2 (meshd binary deploy, shared scripts, PSQ model) documented but not implemented
+- Jenkins Phase 2 blocked on external dependency (forge.safety-quotient.dev service accounts)
 
 ▶ docs/devops-pipeline.md, .github/workflows/deploy-compositor.yml, scripts/pre_sync_check.py,
   scripts/issue_lifecycle.py, platform/internal/collector/status.go,
   scripts/bootstrap_state_db.py, platform/shared/scripts/autonomous-sync.sh,
-  platform/shared/scripts/schema.sql, .claude/skills/sync/SKILL.md, TODO.md
+  platform/shared/scripts/schema.sql, .claude/skills/sync/SKILL.md, TODO.md,
+  platform/internal/collector/knowledge.go, platform/internal/handlers/kb.go,
+  platform/cmd/meshd/main.go, interagent/index.html

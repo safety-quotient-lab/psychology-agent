@@ -5,8 +5,7 @@
 - **Architecture:** x86_64 (NOT ARM64). Cross-compile with `GOOS=linux GOARCH=amd64`.
 - **SSH host:** `chromabook` (chromabook.local:2535, key: ~/.ssh/github-sqlab)
 - **Project dirs:** `~/projects/psychology`, `~/projects/psychology-sqlab`,
-  `~/projects/unratified`, `~/projects/observatory` (canonical),
-  `~/projects/observatory-sqlab` (stale duplicate — consolidate)
+  `~/projects/unratified`, `~/projects/observatory`
 - **Shared scripts:** `~/platform/shared/scripts/` — agents symlink to this
 - **meshd binary:** `~/platform/meshd` — single binary serving all 4 agents
 - **meshd ports:** psychology:8076, psq:8077, unratified:8078, observatory:8079
@@ -25,7 +24,10 @@
 
 - **Tier 1 (GitHub Actions):** All CF Workers/Pages auto-deploy on push.
   Secrets configured on: unratified, psychology-agent, observatory.
-- **Tier 2 (Jenkins):** Documented but not implemented. For meshd, shared scripts, PSQ model.
+- **Tier 2 (Jenkins):** forge.safety-quotient.dev — being set up by another agent.
+  For meshd binary deploy, shared scripts sync, PSQ model pipeline.
+  Status: infra hardening in progress; service accounts pending. No Jenkinsfiles
+  or forge config have landed in any repo yet. Block until service accounts arrive.
 - **Tier 3 (Cron):** Autonomous sync — self-managing, budget-gated.
 
 ## Known Gotchas
@@ -38,5 +40,5 @@
   older messages use `payload`. Bootstrap checks both.
 - **meshd binary locked while running** — must pkill before SCP replacement.
 - **Bootstrap needs `--force` flag** for non-interactive (SSH/cron) contexts.
-- **Observatory canonical dir:** `~/projects/observatory` (has state.db, cron).
-  `~/projects/observatory-sqlab` is stale — should be consolidated or removed.
+- **Observatory dir consolidated** — `~/projects/observatory-sqlab` removed (Session 73).
+  Only `~/projects/observatory` remains (state.db, cron, meshd all point here).
