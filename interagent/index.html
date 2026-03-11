@@ -22,841 +22,872 @@
             "url": "https://github.com/safety-quotient-lab"
         },
         "hasPart": [
-            {
-                "@type": ["SoftwareApplication", "sqm:Agent"],
-                "name": "psychology-agent",
-                "url": "https://psychology-agent.safety-quotient.dev"
-            },
-            {
-                "@type": ["SoftwareApplication", "sqm:Agent"],
-                "name": "psq-agent",
-                "url": "https://psq-agent.safety-quotient.dev"
-            },
-            {
-                "@type": ["SoftwareApplication", "sqm:Agent"],
-                "name": "unratified-agent",
-                "url": "https://unratified.org"
-            },
-            {
-                "@type": ["SoftwareApplication", "sqm:Agent"],
-                "name": "observatory-agent",
-                "url": "https://observatory.unratified.org"
-            }
-        ],
-        "additionalProperty": [
-            {
-                "@type": "PropertyValue",
-                "name": "sqm:ConsensusTier",
-                "value": "C1/C2/C3"
-            },
-            {
-                "@type": "PropertyValue",
-                "name": "vocabularyUrl",
-                "value": "https://interagent.safety-quotient.dev/vocab"
-            }
+            { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "psychology-agent", "url": "https://psychology-agent.safety-quotient.dev" },
+            { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "psq-agent", "url": "https://psq-agent.safety-quotient.dev" },
+            { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "unratified-agent", "url": "https://unratified.org" },
+            { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "observatory-agent", "url": "https://observatory.unratified.org" }
         ]
     }
     </script>
     <style>
+        /* ── Design System ────────────────────────────────────────────── */
+        :root {
+            /* Modern palette (default) — muted, desaturated, pleasing */
+            --c-transport: #6b8aaf;
+            --c-knowledge: #c4956a;
+            --c-health: #6aab8e;
+            --c-epistemic: #9b8ec4;
+            --c-catalog: #c48a9e;
+            --c-alert: #c47070;
+            --c-inactive: #6b7280;
+
+            /* Agent identity palette — subtle, distinguishable */
+            --c-psychology: #6b8aaf;
+            --c-psq: #5da8a0;
+            --c-unratified: #c4956a;
+            --c-observatory: #9b8ec4;
+
+            /* Surface */
+            --bg-primary: #0f1318;
+            --bg-panel: #181d25;
+            --bg-inset: #0f1318;
+            --border: #252b35;
+            --border-accent: #333c49;
+            --text-primary: #dce1e8;
+            --text-secondary: #7d8694;
+            --text-dim: #4a5261;
+
+            /* Geometry */
+            --elbow-width: 20px;
+            --elbow-radius: 16px;
+            --band-height: 4px;
+        }
+
+        /* LCARS classic mode — saturated Trek colors */
+        .theme-lcars {
+            --c-transport: #ff9900;
+            --c-knowledge: #cc99cc;
+            --c-health: #9999ff;
+            --c-epistemic: #cc6699;
+            --c-catalog: #ff9966;
+            --c-alert: #cc6666;
+            --c-inactive: #666688;
+
+            --c-psychology: #ff9900;
+            --c-psq: #cc99cc;
+            --c-unratified: #9999ff;
+            --c-observatory: #cc6699;
+
+            --bg-primary: #000000;
+            --bg-panel: #111122;
+            --bg-inset: #000011;
+            --border: #333355;
+            --border-accent: #444466;
+            --text-primary: #ffcc99;
+            --text-secondary: #9999aa;
+            --text-dim: #666677;
+
+            --band-height: 8px;
+            --elbow-width: 28px;
+            --elbow-radius: 20px;
+        }
+
+        /* Light mode */
+        .theme-light {
+            --bg-primary: #f2f4f7;
+            --bg-panel: #ffffff;
+            --bg-inset: #f7f9fb;
+            --border: #d4dae3;
+            --border-accent: #b8c1cc;
+            --text-primary: #1a2030;
+            --text-secondary: #5a6577;
+            --text-dim: #8893a4;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-            background: #0d1117; color: #c9d1d9;
-            padding: 24px; line-height: 1.5;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 32px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #21262d;
+        /* ── LCARS Frame ─────────────────────────────────────────────── */
+        .lcars-frame {
+            display: grid;
+            grid-template-columns: var(--elbow-width) 1fr;
+            grid-template-rows: auto auto 1fr auto;
+            min-height: 100vh;
+            gap: 0;
         }
-        header h1 {
-            color: #58a6ff; font-size: 1.5em; font-weight: bold;
-            margin-bottom: 4px;
-        }
-        header p { color: #8b949e; font-size: 0.85em; }
 
-        /* Tab navigation */
-        .tab-bar {
-            display: flex; gap: 0;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #21262d;
+        /* Left spine */
+        .lcars-spine {
+            grid-column: 1;
+            grid-row: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
         }
-        .tab-bar button {
-            background: transparent; border: none; border-bottom: 2px solid transparent;
-            color: #8b949e; padding: 8px 16px;
-            cursor: pointer; font-family: inherit; font-size: 0.85em;
-            transition: color 0.2s, border-color 0.2s;
+        .lcars-spine-segment {
+            flex: 1;
+            min-height: 40px;
         }
-        .tab-bar button:hover { color: #c9d1d9; }
-        .tab-bar button.active {
-            color: #58a6ff; border-bottom-color: #58a6ff;
+        .lcars-spine-segment:first-child {
+            border-radius: var(--elbow-radius) 0 0 0;
         }
-        .tab-bar .tab-badge {
-            background: #f85149; color: #0d1117;
-            border-radius: 8px; padding: 0 5px;
-            font-size: 0.7em; margin-left: 4px;
+        .lcars-spine-segment:last-child {
+            border-radius: 0 0 0 var(--elbow-radius);
+        }
+
+        /* Header band */
+        .lcars-header {
+            grid-column: 2;
+            grid-row: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            border-bottom: var(--band-height) solid var(--c-transport);
+        }
+
+        .lcars-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--c-transport);
+            letter-spacing: 0.05em;
+        }
+        .lcars-subtitle {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            margin-left: 12px;
+        }
+
+        .lcars-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Toggle switches */
+        .toggle-group {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .toggle-btn {
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.7em;
+            transition: all 0.2s;
+        }
+        .toggle-btn:hover { border-color: var(--text-secondary); }
+        .toggle-btn.active {
+            background: var(--c-transport);
+            color: var(--bg-primary);
+            border-color: var(--c-transport);
+        }
+
+        /* Tab bar */
+        .lcars-tabs {
+            grid-column: 2;
+            grid-row: 2;
+            display: flex;
+            gap: 0;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .lcars-tab {
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-secondary);
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85em;
+            font-weight: bold;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .lcars-tab:hover { color: var(--text-primary); }
+        .lcars-tab.active {
+            color: var(--c-transport);
+            border-bottom-color: var(--c-transport);
+        }
+        .tab-badge {
+            background: var(--c-alert);
+            color: var(--bg-primary);
+            border-radius: 8px;
+            padding: 1px 6px;
+            font-size: 0.75em;
+            margin-left: 6px;
             font-weight: bold;
         }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
 
-        .mesh-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-            gap: 20px;
-            margin-bottom: 32px;
-        }
-
-        .agent-card {
-            background: #161b22;
-            border: 1px solid #21262d;
-            border-radius: 8px;
+        /* Content area */
+        .lcars-content {
+            grid-column: 2;
+            grid-row: 3;
             padding: 20px;
+            overflow-y: auto;
         }
-        .agent-card.loading { opacity: 0.5; }
-        .agent-card.error { border-color: #f85149; }
-        .agent-card.online { border-color: #3fb950; }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
 
-        .agent-header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 12px;
+        /* Footer */
+        .lcars-footer {
+            grid-column: 2;
+            grid-row: 4;
+            padding: 8px 20px;
+            border-top: var(--band-height) solid var(--c-transport);
+            font-size: 0.7em;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* ── LCARS Panels ────────────────────────────────────────────── */
+        .lcars-panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 0 8px 8px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .lcars-panel::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            background: var(--panel-accent, var(--c-transport));
+        }
+        .lcars-panel-header {
+            padding: 10px 16px 8px 16px;
+            font-size: 0.75em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--panel-accent, var(--c-transport));
+            border-bottom: 1px solid var(--border);
+        }
+        .lcars-panel-body {
+            padding: 12px 16px;
+        }
+
+        /* ── Pulse Tab ───────────────────────────────────────────────── */
+
+        /* Mesh vitals row */
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .vital-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 14px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .vital-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--vital-color, var(--c-transport));
+        }
+        .vital-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            line-height: 1.1;
+        }
+        .vital-label {
+            font-size: 0.65em;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 4px;
+        }
+        .vital-value.healthy { color: var(--c-health); }
+        .vital-value.degraded { color: var(--c-knowledge); }
+        .vital-value.critical { color: var(--c-alert); }
+
+        /* Agent cards grid */
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .agent-card {
+            --panel-accent: var(--c-transport);
+        }
+        .agent-card[data-agent="psychology-agent"] { --panel-accent: var(--c-psychology); }
+        .agent-card[data-agent="psq-agent"] { --panel-accent: var(--c-psq); }
+        .agent-card[data-agent="unratified-agent"] { --panel-accent: var(--c-unratified); }
+        .agent-card[data-agent="observatory-agent"] { --panel-accent: var(--c-observatory); }
+
+        .agent-identity {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         .agent-name {
-            color: #58a6ff; font-size: 1.1em; font-weight: bold;
+            font-weight: bold;
+            color: var(--panel-accent);
+            font-size: 0.95em;
         }
-        .agent-status {
-            display: flex; align-items: center; gap: 6px;
-            font-size: 0.8em;
-        }
-        .dot {
-            width: 8px; height: 8px; border-radius: 50%;
+        .agent-status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
             display: inline-block;
         }
-        .dot-green { background: #3fb950; }
-        .dot-yellow { background: #d29922; }
-        .dot-red { background: #f85149; }
-        .dot-gray { background: #484f58; }
-        .dot-pulse {
-            background: #3fb950;
-            animation: pulse 1.5s ease-in-out infinite;
+        .agent-status-dot.online {
+            background: var(--c-health);
+            animation: pulse 2s ease-in-out infinite;
         }
+        .agent-status-dot.offline { background: var(--c-alert); }
         @keyframes pulse {
-            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(63,185,80,0.5); }
-            50% { opacity: 0.8; box-shadow: 0 0 8px 2px rgba(63,185,80,0.4); }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(76,206,127,0.4); }
+            50% { box-shadow: 0 0 6px 2px rgba(76,206,127,0.3); }
         }
 
         .agent-metrics {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 6px;
+            margin-top: 10px;
         }
-        .metric {
-            background: #0d1117;
-            border: 1px solid #21262d;
+        .agent-metric {
+            background: var(--bg-inset);
             border-radius: 4px;
-            padding: 8px;
+            padding: 6px;
             text-align: center;
         }
-        .metric-value {
-            font-size: 1.3em; font-weight: bold;
-            color: #e6edf3;
+        .agent-metric-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--text-primary);
         }
-        .metric-label {
-            font-size: 0.7em; color: #8b949e;
+        .agent-metric-label {
+            font-size: 0.6em;
+            color: var(--text-secondary);
             text-transform: uppercase;
         }
 
-        .agent-details { font-size: 0.8em; color: #8b949e; }
-        .agent-details table { width: 100%; border-collapse: collapse; }
-        .agent-details td {
-            padding: 3px 8px;
-            border-bottom: 1px solid #21262d;
+        /* Budget bar */
+        .budget-bar-track {
+            height: 4px;
+            background: var(--bg-inset);
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
         }
-        .agent-details td:first-child { color: #c9d1d9; }
+        .budget-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+        .budget-bar-fill.high { background: var(--c-health); }
+        .budget-bar-fill.mid { background: var(--c-knowledge); }
+        .budget-bar-fill.low { background: var(--c-alert); }
 
-        .agent-links {
-            margin-top: 12px;
-            display: flex; gap: 12px;
-        }
-        .agent-links a {
-            color: #58a6ff; text-decoration: none; font-size: 0.8em;
-        }
-        .agent-links a:hover { text-decoration: underline; }
-
-        .mesh-topology, .mesh-section {
-            background: #161b22;
-            border: 1px solid #21262d;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 32px;
-        }
-        .mesh-topology h2, .mesh-section h2 {
-            color: #58a6ff; font-size: 1em; margin-bottom: 12px;
-        }
-        .mesh-section h3 {
-            color: #c9d1d9; font-size: 0.9em; margin: 16px 0 8px 0;
+        .agent-detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            margin-top: 6px;
         }
 
-        .peers-table, .msg-table {
-            width: 100%; border-collapse: collapse;
-            font-size: 0.8em;
+        /* Activity stream */
+        .activity-stream {
+            --panel-accent: var(--c-transport);
         }
-        .peers-table th, .msg-table th {
-            text-align: left; padding: 6px 8px;
-            border-bottom: 2px solid #30363d;
-            color: #8b949e; text-transform: uppercase; font-size: 0.85em;
-        }
-        .peers-table td, .msg-table td {
-            padding: 6px 8px;
-            border-bottom: 1px solid #21262d;
-        }
-        .msg-table td.truncate {
-            max-width: 300px;
-            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-        }
-
-        /* Health indicators */
-        .health-grid {
+        .activity-item {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-            margin-bottom: 20px;
+            grid-template-columns: auto 1fr auto;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8em;
+            align-items: center;
         }
-        .health-card {
-            background: #0d1117;
-            border: 1px solid #21262d;
-            border-radius: 6px;
-            padding: 16px;
+        .activity-item:last-child { border-bottom: none; }
+        .activity-time { color: var(--text-dim); font-size: 0.85em; }
+        .activity-route { color: var(--text-secondary); }
+        .activity-route .from { color: var(--c-transport); }
+        .activity-route .to { color: var(--c-knowledge); }
+        .activity-subject {
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .activity-type {
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 1px 6px;
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+
+        /* Topology placeholder */
+        .topology-container {
+            --panel-accent: var(--c-health);
+            min-height: 220px;
+        }
+        .topology-svg {
+            width: 100%;
+            height: 200px;
+        }
+
+        /* ── Knowledge Tab (Phase 2 stub) ────────────────────────────── */
+        .phase-stub {
             text-align: center;
+            padding: 48px 20px;
+            color: var(--text-dim);
         }
-        .health-card.healthy { border-color: #3fb950; }
-        .health-card.degraded { border-color: #d29922; }
-        .health-card.critical { border-color: #f85149; }
-        .health-value {
-            font-size: 1.5em; font-weight: bold;
-            margin-bottom: 4px;
-        }
-        .health-label {
-            font-size: 0.75em; color: #8b949e;
-            text-transform: uppercase;
-        }
-        .health-value.healthy { color: #3fb950; }
-        .health-value.degraded { color: #d29922; }
-        .health-value.critical { color: #f85149; }
+        .phase-stub-icon { font-size: 2em; margin-bottom: 8px; }
+        .phase-stub-text { font-size: 0.85em; }
 
-        footer {
-            text-align: center;
-            color: #484f58; font-size: 0.75em;
-            margin-top: 32px;
-            padding-top: 16px;
-            border-top: 1px solid #21262d;
+        /* ── Responsive ──────────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .lcars-frame {
+                grid-template-columns: 12px 1fr;
+            }
+            :root { --elbow-width: 12px; }
+            .lcars-header { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
+            .lcars-title { font-size: 1.1em; }
+            .lcars-subtitle { display: none; }
+            .lcars-content { padding: 12px; }
+            .lcars-tab { padding: 8px 12px; font-size: 0.75em; }
+            .agents-grid { grid-template-columns: 1fr; }
+            .vitals-grid { grid-template-columns: repeat(3, 1fr); }
         }
 
-        .refresh-bar {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; font-size: 0.8em; color: #8b949e;
+        @media (max-width: 480px) {
+            .vitals-grid { grid-template-columns: repeat(2, 1fr); }
+            .toggle-group { display: none; }
         }
-        .refresh-bar button {
-            background: #21262d; border: 1px solid #30363d;
-            color: #c9d1d9; padding: 4px 12px; border-radius: 4px;
-            cursor: pointer; font-family: inherit; font-size: 0.9em;
-        }
-        .refresh-bar button:hover { background: #30363d; }
 
-        .error-msg { color: #f85149; font-size: 0.8em; margin-top: 8px; }
-        .no-data { color: #484f58; font-size: 0.85em; padding: 16px; text-align: center; }
-
-        /* Clickable message rows */
-        .msg-table tr.msg-row { cursor: pointer; transition: background 0.15s; }
-        .msg-table tr.msg-row:hover { background: #1c2128; }
-        .msg-table tr.msg-detail { display: none; }
-        .msg-table tr.msg-detail.open { display: table-row; }
-        .msg-detail-grid {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 6px 16px; padding: 8px 0;
+        /* Loading state */
+        .loading-shimmer {
+            background: linear-gradient(90deg, var(--bg-panel) 25%, var(--border) 50%, var(--bg-panel) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
         }
-        .msg-detail-grid dt { color: #8b949e; font-size: 0.8em; }
-        .msg-detail-grid dd { color: #e6edf3; font-size: 0.85em; margin: 0 0 4px 0; }
-        .msg-expand { color: #484f58; font-size: 0.75em; transition: transform 0.2s; display: inline-block; }
-        .msg-expand.open { transform: rotate(90deg); }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>Interagent Mesh</h1>
-    <p>Safety Quotient Lab — Federated Agent Status</p>
-</header>
+<div class="lcars-frame">
+    <!-- Left spine -->
+    <div class="lcars-spine">
+        <div class="lcars-spine-segment" style="background: var(--c-transport)"></div>
+        <div class="lcars-spine-segment" style="background: var(--c-knowledge)"></div>
+        <div class="lcars-spine-segment" style="background: var(--c-health)"></div>
+        <div class="lcars-spine-segment" style="background: var(--c-epistemic)"></div>
+    </div>
 
-<div class="refresh-bar">
-    <span id="last-update">Loading...</span>
-    <button onclick="refreshAll()">Refresh</button>
+    <!-- Header -->
+    <div class="lcars-header">
+        <div>
+            <span class="lcars-title">&#x2B21; Interagent Mesh</span>
+            <span class="lcars-subtitle">Safety Quotient Lab</span>
+        </div>
+        <div class="lcars-controls">
+            <div class="toggle-group">
+                <button class="toggle-btn active" id="btn-dark" onclick="setTheme('dark')">Dark</button>
+                <button class="toggle-btn" id="btn-light" onclick="setTheme('light')">Light</button>
+                <button class="toggle-btn" id="btn-lcars" onclick="setTheme('lcars')">LCARS</button>
+            </div>
+            <button class="toggle-btn" onclick="refreshAll()" title="Refresh">&#x21BB;</button>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="lcars-tabs">
+        <button class="lcars-tab active" data-tab="pulse" onclick="switchTab('pulse')">Pulse</button>
+        <button class="lcars-tab" data-tab="knowledge" onclick="switchTab('knowledge')">Knowledge</button>
+        <button class="lcars-tab" data-tab="operations" onclick="switchTab('operations')">
+            Operations<span class="tab-badge" id="ops-badge" style="display:none">0</span>
+        </button>
+    </div>
+
+    <!-- Content -->
+    <div class="lcars-content">
+        <!-- Pulse Tab -->
+        <div class="tab-pane active" id="pane-pulse">
+            <!-- Mesh vitals -->
+            <div class="vitals-grid" id="vitals-grid">
+                <div class="vital-card" style="--vital-color: var(--c-health)">
+                    <div class="vital-value" id="vital-agents">—</div>
+                    <div class="vital-label">Agents Online</div>
+                </div>
+                <div class="vital-card" style="--vital-color: var(--c-knowledge)">
+                    <div class="vital-value" id="vital-budget">—</div>
+                    <div class="vital-label">Autonomy Credits</div>
+                </div>
+                <div class="vital-card" style="--vital-color: var(--c-transport)">
+                    <div class="vital-value" id="vital-pending">—</div>
+                    <div class="vital-label">Pending Messages</div>
+                </div>
+                <div class="vital-card" style="--vital-color: var(--c-catalog)">
+                    <div class="vital-value" id="vital-gates">—</div>
+                    <div class="vital-label">Active Gates</div>
+                </div>
+                <div class="vital-card" style="--vital-color: var(--c-epistemic)">
+                    <div class="vital-value" id="vital-debt">—</div>
+                    <div class="vital-label">Epistemic Debt</div>
+                </div>
+            </div>
+
+            <!-- Topology graph -->
+            <div class="lcars-panel topology-container" style="margin-bottom: 24px">
+                <div class="lcars-panel-header">Mesh Topology</div>
+                <div class="lcars-panel-body">
+                    <svg class="topology-svg" id="topology-svg" viewBox="0 0 600 200"></svg>
+                </div>
+            </div>
+
+            <!-- Agent health cards -->
+            <div class="agents-grid" id="agents-grid"></div>
+
+            <!-- Activity stream -->
+            <div class="lcars-panel activity-stream">
+                <div class="lcars-panel-header">Recent Activity</div>
+                <div class="lcars-panel-body" id="activity-stream">
+                    <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Knowledge Tab (Phase 2) -->
+        <div class="tab-pane" id="pane-knowledge">
+            <div class="phase-stub">
+                <div class="phase-stub-icon">&#x1F4DA;</div>
+                <div class="phase-stub-text">
+                    Knowledge tab renders decisions, triggers, vocabulary, and catalog distributions
+                    from /api/kb and /kb/dictionary endpoints.<br>
+                    <span style="color: var(--text-dim)">Phase 2 — data sources connected</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operations Tab (Phase 3) -->
+        <div class="tab-pane" id="pane-operations">
+            <div class="phase-stub">
+                <div class="phase-stub-icon">&#x2699;</div>
+                <div class="phase-stub-text">
+                    Operations tab renders session threads, sync schedules, epistemic debt,
+                    and the autonomous actions audit trail.<br>
+                    <span style="color: var(--text-dim)">Phase 3 — operational view</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="lcars-footer">
+        <span id="footer-status">Connecting...</span>
+        <span>
+            <a href="/vocab" style="color: var(--text-dim); text-decoration: none">Vocabulary</a>
+            &middot;
+            <a href="https://github.com/safety-quotient-lab" style="color: var(--text-dim); text-decoration: none">GitHub</a>
+        </span>
+    </div>
 </div>
-
-<div class="tab-bar" id="tab-bar">
-    <button class="active" onclick="switchTab('agents')">Agents</button>
-    <button onclick="switchTab('messages')">Messages <span class="tab-badge" id="msg-badge" style="display:none">0</span></button>
-    <button onclick="switchTab('health')">Health</button>
-</div>
-
-<!-- Agents tab -->
-<div class="tab-content active" id="tab-agents">
-    <div class="mesh-grid" id="agent-grid"></div>
-    <div class="mesh-topology" id="topology-section" style="display:none">
-        <h2>Mesh Topology</h2>
-        <div id="topology-content"></div>
-    </div>
-</div>
-
-<!-- Messages tab -->
-<div class="tab-content" id="tab-messages">
-    <div class="mesh-section">
-        <h2>Message Flow</h2>
-        <div class="health-grid" id="msg-summary"></div>
-    </div>
-    <div class="mesh-section">
-        <h2>All Messages</h2>
-        <p style="font-size:0.8em;color:#8b949e;margin-bottom:12px">
-            Merged timeline from all agents. Click a row to expand details.
-        </p>
-        <div id="msg-timeline-content"></div>
-    </div>
-    <div class="mesh-section">
-        <h2>Cross-Mesh Trace</h2>
-        <p style="font-size:0.8em;color:#8b949e;margin-bottom:12px">
-            Messages seen by multiple agents — verifies routing across the mesh.
-        </p>
-        <div id="msg-trace-content"></div>
-    </div>
-</div>
-
-<!-- Health tab -->
-<div class="tab-content" id="tab-health">
-    <div class="mesh-section">
-        <h2>Mesh Health</h2>
-        <div class="health-grid" id="health-overview"></div>
-    </div>
-    <div class="mesh-section">
-        <h2>Agent Health</h2>
-        <div id="health-agents"></div>
-    </div>
-    <div class="mesh-section">
-        <h2>Connectivity Matrix</h2>
-        <p style="font-size:0.8em;color:#8b949e;margin-bottom:12px">
-            Each cell shows whether agent A can reach agent B (based on peer lists and registry data).
-        </p>
-        <div id="health-matrix"></div>
-    </div>
-</div>
-
-<footer>
-    <p>Client-side composition — no backend. Data fetched from agent /api/status endpoints.</p>
-    <p>
-        <a href="/vocab" style="color:#58a6ff;text-decoration:none">vocabulary</a> ·
-        <a href="https://github.com/safety-quotient-lab" style="color:#58a6ff;text-decoration:none">
-            Safety Quotient Lab
-        </a>
-    </p>
-</footer>
 
 <script>
-const AGENTS = [
-    {
-        id: "psychology-agent",
-        url: "https://psychology-agent.safety-quotient.dev",
-        apiUrl: "https://psychology-agent.safety-quotient.dev/api/status",
-    },
-    {
-        id: "psq-agent",
-        url: "https://psq-agent.safety-quotient.dev",
-        apiUrl: "https://psq-agent.safety-quotient.dev/api/status",
-    },
-    {
-        id: "unratified-agent",
-        url: "https://unratified.org",
-        apiUrl: "https://unratified-agent.unratified.org/api/status",
-    },
-    {
-        id: "observatory-agent",
-        url: "https://observatory.unratified.org",
-        apiUrl: "https://observatory-agent.unratified.org/api/status",
-    },
-];
+    const AGENTS = [
+        { id: "psychology-agent", url: "https://psychology-agent.safety-quotient.dev", color: "#5b9cf6" },
+        { id: "psq-agent", url: "https://psq-agent.safety-quotient.dev", color: "#4ecdc4" },
+        { id: "unratified-agent", url: "https://unratified-agent.unratified.org", color: "#e5a735" },
+        { id: "observatory-agent", url: "https://observatory-agent.unratified.org", color: "#a78bfa" },
+    ];
 
-const REFRESH_INTERVAL_MS = 30000;
-let agentData = {};
+    let agentData = {};
+    let refreshTimer = null;
 
-function switchTab(tabName) {
-    document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
-    document.querySelectorAll(".tab-bar button").forEach(b => b.classList.remove("active"));
-    document.getElementById(`tab-${tabName}`).classList.add("active");
-    document.querySelector(`.tab-bar button[onclick="switchTab('${tabName}')"]`).classList.add("active");
-}
-
-function timeAgo(isoStr) {
-    if (!isoStr) return "?";
-    const diff = Date.now() - new Date(isoStr).getTime();
-    if (diff < 0) return "just now";
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "just now";
-    if (mins < 60) return `${mins}m ago`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    return `${days}d ago`;
-}
-
-function renderAgentCard(agent, data, error) {
-    const card = document.createElement("div");
-    card.className = "agent-card";
-
-    if (error) {
-        card.classList.add("error");
-        card.innerHTML = `
-            <div class="agent-header">
-                <span class="agent-name">${agent.id}</span>
-                <span class="agent-status"><span class="dot dot-red"></span> offline</span>
-            </div>
-            <div class="error-msg">${error}</div>
-            <div class="agent-links">
-                <a href="${agent.url}" target="_blank">dashboard</a>
-                <a href="${agent.url}/.well-known/agent-card.json" target="_blank">agent-card</a>
-            </div>`;
-        return card;
+    // ── Theme ──────────────────────────────────────────────────────
+    function setTheme(mode) {
+        document.body.classList.remove("theme-light", "theme-lcars");
+        if (mode === "light") document.body.classList.add("theme-light");
+        if (mode === "lcars") document.body.classList.add("theme-lcars");
+        document.getElementById("btn-dark").classList.toggle("active", mode === "dark");
+        document.getElementById("btn-light").classList.toggle("active", mode === "light");
+        document.getElementById("btn-lcars").classList.toggle("active", mode === "lcars");
+        localStorage.setItem("theme", mode);
     }
 
-    if (!data) {
-        card.classList.add("loading");
-        card.innerHTML = `
-            <div class="agent-header">
-                <span class="agent-name">${agent.id}</span>
-                <span class="agent-status"><span class="dot dot-gray"></span> loading</span>
-            </div>`;
-        return card;
+    // ── Tabs ───────────────────────────────────────────────────────
+    function switchTab(tabId) {
+        document.querySelectorAll(".lcars-tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tabId));
+        document.querySelectorAll(".tab-pane").forEach(p => p.classList.toggle("active", p.id === `pane-${tabId}`));
     }
 
-    card.classList.add("online");
-    const totals = data.totals || {};
-    const budget = data.autonomy_budget || {};
-    const heartbeat = data.heartbeat || {};
-    const schedule = data.schedule || {};
-    const peers = data.peers || [];
-    const gates = data.active_gates || [];
-
-    const budgetCurrent = budget.budget_current != null ? budget.budget_current : "?";
-    const budgetMax = budget.budget_max != null ? budget.budget_max : "?";
-    const schemaVer = data.schema_version || "?";
-
-    // Semantic status: syncing (pulse green), autonomous idle (solid green), manual (yellow)
-    const isSyncing = schedule.lock_active;
-    const isAutonomous = schedule.autonomous;
-    const dotClass = isSyncing ? "dot-pulse" : isAutonomous ? "dot-green" : "dot-yellow";
-    const statusLabel = isSyncing ? "syncing" : isAutonomous ? "autonomous" : "manual";
-    const statusColor = isSyncing ? "#3fb950" : isAutonomous ? "#3fb950" : "#d29922";
-    if (isSyncing) card.style.borderColor = "#3fb950";
-
-    card.innerHTML = `
-        <div class="agent-header">
-            <span class="agent-name">${data.agent_id || agent.id}</span>
-            <span class="agent-status"><span class="dot ${dotClass}"></span> <span style="color:${statusColor}">${statusLabel}</span></span>
-        </div>
-        <div class="agent-metrics">
-            <div class="metric">
-                <div class="metric-value">${totals.messages || 0}</div>
-                <div class="metric-label">Messages</div>
-            </div>
-            <div class="metric">
-                <div class="metric-value">${totals.sessions || 0}</div>
-                <div class="metric-label">Sessions</div>
-            </div>
-            <div class="metric">
-                <div class="metric-value">${budgetCurrent}/${budgetMax}</div>
-                <div class="metric-label">Autonomy Budget</div>
-            </div>
-            <div class="metric">
-                <div class="metric-value">${totals.unprocessed || 0}</div>
-                <div class="metric-label">Pending</div>
-            </div>
-            <div class="metric">
-                <div class="metric-value">${gates.length}</div>
-                <div class="metric-label">Active Gates</div>
-            </div>
-            <div class="metric">
-                <div class="metric-value">${totals.epistemic_flags_unresolved || 0}</div>
-                <div class="metric-label">Epistemic Debt</div>
-            </div>
-        </div>
-        <div class="agent-details">
-            <table>
-                <tr><td>Schema</td><td>v${schemaVer}</td></tr>
-                <tr><td>Sync</td><td style="color:${schedule.autonomous ? '#3fb950' : '#d29922'}">${schedule.autonomous ? 'autonomous' : 'manual'}${schedule.lock_active ? ' (syncing)' : ''}</td></tr>
-                <tr><td>Peers</td><td>${peers.map(p => p.from_agent || "?").join(", ") || "none"}</td></tr>
-                <tr><td>Collected</td><td>${data.collected_at || "?"}</td></tr>
-                ${schedule.next_run ? `<tr><td>Next run</td><td style="color:#58a6ff">${timeAgo(schedule.next_run).replace(' ago','').replace('just now','now')} (${new Date(schedule.next_run).toLocaleTimeString()})</td></tr>` : ""}
-                ${schedule.last_sync ? `<tr><td>Last sync</td><td>${timeAgo(schedule.last_sync)}</td></tr>` : ""}
-                ${heartbeat.timestamp ? `<tr><td>Heartbeat</td><td>${timeAgo(heartbeat.timestamp)}</td></tr>` : ""}
-            </table>
-        </div>
-        <div class="agent-links">
-            <a href="${agent.url}" target="_blank">dashboard</a>
-            <a href="${agent.apiUrl}" target="_blank">api/status</a>
-            <a href="${agent.url}/.well-known/agent-card.json" target="_blank">agent-card</a>
-        </div>`;
-    return card;
-}
-
-function renderTopology() {
-    const section = document.getElementById("topology-section");
-    const content = document.getElementById("topology-content");
-    const onlineAgents = Object.keys(agentData).filter(id => agentData[id].data);
-
-    if (onlineAgents.length < 1) {
-        section.style.display = "none";
-        return;
-    }
-
-    section.style.display = "block";
-
-    let rows = "";
-    for (const agentId of onlineAgents) {
-        const data = agentData[agentId].data;
-        const registry = data.registry_agents || {};
-        for (const [peerId, peerCfg] of Object.entries(registry)) {
-            if (peerId === agentId) continue;
-            const peerOnline = onlineAgents.includes(peerId);
-            rows += `<tr>
-                <td>${agentId}</td>
-                <td style="color:${peerOnline ? "#3fb950" : "#484f58"}">${peerOnline ? "connected" : "unknown"}</td>
-                <td>${peerId}</td>
-                <td>${peerCfg.transport || "?"}</td>
-                <td>${peerCfg.role || "?"}</td>
-            </tr>`;
+    // ── Data Fetching ──────────────────────────────────────────────
+    async function fetchAgentStatus(agent) {
+        try {
+            const resp = await fetch(`${agent.url}/api/status`, { signal: AbortSignal.timeout(8000) });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            return { id: agent.id, status: "online", data: await resp.json() };
+        } catch (err) {
+            return { id: agent.id, status: "unreachable", error: err.message };
         }
     }
 
-    content.innerHTML = `
-        <table class="peers-table">
-            <tr><th>From</th><th>Status</th><th>To</th><th>Transport</th><th>Role</th></tr>
-            ${rows || "<tr><td colspan='5' style='color:#484f58'>No peer connections found</td></tr>"}
-        </table>`;
-}
-
-function toggleMsgDetail(rowId) {
-    const detail = document.getElementById(`detail-${rowId}`);
-    const arrow = document.getElementById(`arrow-${rowId}`);
-    if (detail) {
-        detail.classList.toggle("open");
-        if (arrow) arrow.classList.toggle("open");
-    }
-}
-
-function renderMessages() {
-    const onlineAgents = Object.keys(agentData).filter(id => agentData[id].data);
-
-    // Summary cards
-    let totalMsgs = 0, totalPending = 0, totalSessions = 0, agentsReporting = 0;
-    for (const id of onlineAgents) {
-        const d = agentData[id].data;
-        const t = d.totals || {};
-        totalMsgs += t.messages || 0;
-        totalPending += t.unprocessed || 0;
-        totalSessions += t.sessions || 0;
-        agentsReporting++;
-    }
-
-    document.getElementById("msg-summary").innerHTML = `
-        <div class="health-card">
-            <div class="health-value" style="color:#e6edf3">${totalMsgs}</div>
-            <div class="health-label">Total Messages (mesh)</div>
-        </div>
-        <div class="health-card ${totalPending > 0 ? 'degraded' : 'healthy'}">
-            <div class="health-value ${totalPending > 0 ? 'degraded' : 'healthy'}">${totalPending}</div>
-            <div class="health-label">Unprocessed (mesh)</div>
-        </div>
-        <div class="health-card">
-            <div class="health-value" style="color:#e6edf3">${totalSessions}</div>
-            <div class="health-label">Sessions (mesh)</div>
-        </div>
-        <div class="health-card">
-            <div class="health-value" style="color:#e6edf3">${agentsReporting}/${AGENTS.length}</div>
-            <div class="health-label">Agents Reporting</div>
-        </div>`;
-
-    // Badge
-    const badge = document.getElementById("msg-badge");
-    if (totalPending > 0) {
-        badge.textContent = totalPending;
-        badge.style.display = "inline";
-    } else {
-        badge.style.display = "none";
-    }
-
-    // Unified timeline — dedupe by session+filename, merge across agents
-    const msgMap = {};
-    for (const id of onlineAgents) {
-        const d = agentData[id].data;
-        const recent = d.recent_messages || [];
-        for (const m of recent) {
-            const key = `${m.session_name || "?"}/${m.filename || `t${m.turn}`}`;
-            if (!msgMap[key]) {
-                msgMap[key] = { ...m, seen_by: [id] };
-            } else {
-                if (!msgMap[key].seen_by.includes(id)) msgMap[key].seen_by.push(id);
-                // Prefer processed=true if any agent reports it
-                if (m.processed) msgMap[key].processed = true;
-            }
-        }
-    }
-
-    const allMsgs = Object.values(msgMap);
-    allMsgs.sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
-
-    let timelineRows = "";
-    allMsgs.forEach((m, i) => {
-        const processed = m.processed ? "✓" : "✗";
-        const processedStyle = m.processed ? "color:#3fb950" : "color:#f85149;font-weight:bold";
-        const pendingBg = !m.processed ? "background:#1a1205;" : "";
-        const seenCount = m.seen_by.length;
-        const meshIcon = seenCount > 1 ? ' <span style="color:#3fb950;font-size:0.75em" title="Seen by multiple agents">⬡</span>' : '';
-
-        timelineRows += `<tr class="msg-row" style="${pendingBg}" onclick="toggleMsgDetail(${i})">
-            <td><span class="msg-expand" id="arrow-${i}">▶</span></td>
-            <td>${timeAgo(m.timestamp)}</td>
-            <td>${m.from_agent || "?"}</td>
-            <td>${m.to_agent || "?"}</td>
-            <td>${m.message_type || "?"}</td>
-            <td class="truncate">${m.subject || ""}${meshIcon}</td>
-            <td style="${processedStyle}">${processed}</td>
-        </tr>
-        <tr class="msg-detail" id="detail-${i}">
-            <td colspan="7" style="padding:12px 16px;background:#0d1117;border-left:2px solid #30363d">
-                <dl class="msg-detail-grid">
-                    <dt>Subject</dt><dd style="grid-column:1/-1;color:#e6edf3">${m.subject || "(no subject)"}</dd>
-                    <dt>Session</dt><dd>${m.session_name || "?"}</dd>
-                    <dt>Filename</dt><dd>${m.filename || "?"}</dd>
-                    <dt>Turn</dt><dd>${m.turn ?? "?"}</dd>
-                    <dt>Timestamp</dt><dd>${m.timestamp || "?"}</dd>
-                    <dt>From</dt><dd>${m.from_agent || "?"}</dd>
-                    <dt>To</dt><dd>${m.to_agent || "?"}</dd>
-                    <dt>Type</dt><dd>${m.message_type || "?"}</dd>
-                    <dt>SETL</dt><dd>${m.setl != null ? m.setl.toFixed(2) : "—"}</dd>
-                    <dt>Claims</dt><dd>${m.claims_count || 0}</dd>
-                    <dt>Urgency</dt><dd style="color:${m.urgency === 'immediate' ? '#f85149' : m.urgency === 'high' ? '#d29922' : '#8b949e'}">${m.urgency || "normal"}</dd>
-                    <dt>Processed</dt><dd style="${processedStyle}">${m.processed ? "Yes" : "No"}</dd>
-                    <dt>Seen by</dt><dd>${m.seen_by.join(", ")}</dd>
-                </dl>
-            </td>
-        </tr>`;
-    });
-
-    document.getElementById("msg-timeline-content").innerHTML = timelineRows
-        ? `<table class="msg-table">
-            <tr><th></th><th>When</th><th>From</th><th>To</th><th>Type</th><th>Subject</th><th>Status</th></tr>
-            ${timelineRows}</table>`
-        : '<div class="no-data">No message data available</div>';
-
-    // Cross-mesh trace — find messages that appear on multiple agents
-    const msgIndex = {};
-    for (const id of onlineAgents) {
-        const d = agentData[id].data;
-        const recent = d.recent_messages || [];
-        for (const m of recent) {
-            const key = `${m.session_name}/${m.filename || `t${m.turn}`}`;
-            if (!msgIndex[key]) msgIndex[key] = { agents: [], msg: m };
-            msgIndex[key].agents.push(id);
-        }
-    }
-
-    let traceRows = "";
-    for (const [key, val] of Object.entries(msgIndex)) {
-        if (val.agents.length < 2) continue;
-        traceRows += `<tr>
-            <td>${key}</td>
-            <td>${val.msg.from_agent || "?"} → ${val.msg.to_agent || "?"}</td>
-            <td>${val.agents.join(", ")}</td>
-            <td style="color:#3fb950">✓ verified</td>
-        </tr>`;
-    }
-    document.getElementById("msg-trace-content").innerHTML = traceRows
-        ? `<table class="msg-table">
-            <tr><th>Message</th><th>Route</th><th>Seen By</th><th>Status</th></tr>
-            ${traceRows}</table>`
-        : '<div class="no-data">No cross-mesh message traces detected (messages only reported by one agent each)</div>';
-}
-
-function renderHealth() {
-    const onlineAgents = Object.keys(agentData).filter(id => agentData[id].data);
-    const offlineAgents = AGENTS.filter(a => !agentData[a.id]?.data).map(a => a.id);
-
-    // Compute mesh health per sqm:MeshHealth definition
-    let worstBudgetPct = 100;
-    let agentHealthRows = "";
-    const agentHealthData = [];
-
-    for (const agent of AGENTS) {
-        const state = agentData[agent.id];
-        if (!state?.data) {
-            agentHealthData.push({ id: agent.id, status: "unreachable", health: "critical", budgetPct: 0 });
-            continue;
-        }
-        const d = state.data;
-        const budget = d.autonomy_budget || {};
-        const cur = budget.budget_current ?? 20;
-        const max = budget.budget_max ?? 20;
-        const pct = max > 0 ? Math.round((cur / max) * 100) : 0;
-        if (pct < worstBudgetPct) worstBudgetPct = pct;
-
-        const gates = d.active_gates || [];
-        const pending = (d.totals || {}).unprocessed || 0;
-        const heartbeat = d.heartbeat || {};
-
-        let health = "healthy";
-        if (pct < 10 || !state.data) health = "critical";
-        else if (pct < 50 || pending > 5 || gates.length > 3) health = "degraded";
-
-        const sched = d.schedule || {};
-        agentHealthData.push({
-            id: agent.id, status: "online", health, budgetPct: pct,
-            budget: `${cur}/${max}`, pending, gates: gates.length,
-            heartbeat: heartbeat.timestamp, schema: d.schema_version,
-            autonomous: sched.autonomous || false,
-            syncLock: sched.lock_active || false,
-            lastSync: sched.last_sync || null,
-            nextRun: sched.next_run || null,
+    async function refreshAll() {
+        const results = await Promise.allSettled(AGENTS.map(fetchAgentStatus));
+        results.forEach((r, i) => {
+            agentData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "unreachable" };
         });
+        renderPulse();
+        document.getElementById("footer-status").textContent =
+            `Updated ${new Date().toLocaleTimeString()}`;
     }
 
-    let meshHealth = "healthy";
-    if (offlineAgents.length > 0 || worstBudgetPct < 10) meshHealth = "critical";
-    else if (worstBudgetPct < 50) meshHealth = "degraded";
+    // ── Render: Vitals ─────────────────────────────────────────────
+    function renderVitals() {
+        const online = Object.values(agentData).filter(a => a.status === "online");
+        const total = AGENTS.length;
 
-    document.getElementById("health-overview").innerHTML = `
-        <div class="health-card ${meshHealth}">
-            <div class="health-value ${meshHealth}">${meshHealth.toUpperCase()}</div>
-            <div class="health-label">Mesh Health (sqm:MeshHealth)</div>
-        </div>
-        <div class="health-card ${offlineAgents.length > 0 ? 'critical' : 'healthy'}">
-            <div class="health-value ${offlineAgents.length > 0 ? 'critical' : 'healthy'}">${onlineAgents.length}/${AGENTS.length}</div>
-            <div class="health-label">Agents Reachable</div>
-        </div>
-        <div class="health-card ${worstBudgetPct < 50 ? (worstBudgetPct < 10 ? 'critical' : 'degraded') : 'healthy'}">
-            <div class="health-value" style="color:#e6edf3">${worstBudgetPct}%</div>
-            <div class="health-label">Weakest Autonomy Budget</div>
-        </div>
-        <div class="health-card">
-            <div class="health-value" style="color:#e6edf3">${new Date().toLocaleTimeString()}</div>
-            <div class="health-label">Last Check</div>
-        </div>`;
+        const totalBudget = online.reduce((sum, a) => {
+            const b = a.data?.autonomy_budget || {};
+            return sum + (b.budget_current ?? 0);
+        }, 0);
+        const maxBudget = online.reduce((sum, a) => {
+            const b = a.data?.autonomy_budget || {};
+            return sum + (b.budget_max ?? 20);
+        }, 0);
+        const pending = online.reduce((sum, a) => sum + ((a.data?.totals || {}).unprocessed || 0), 0);
+        const gates = online.reduce((sum, a) => sum + (a.data?.active_gates || []).length, 0);
+        const debt = online.reduce((sum, a) => sum + ((a.data?.totals || {}).epistemic_flags_unresolved || 0), 0);
 
-    // Per-agent health table
-    let healthRows = "";
-    for (const a of agentHealthData) {
-        const statusDot = a.status === "online"
-            ? '<span class="dot dot-green"></span>'
-            : '<span class="dot dot-red"></span>';
-        const healthColor = a.health === "healthy" ? "#3fb950" : a.health === "degraded" ? "#d29922" : "#f85149";
-        const syncLabel = a.status !== "online" ? "?"
-            : a.autonomous ? (a.syncLock ? "syncing" : "idle")
-            : "manual";
-        const syncColor = a.autonomous ? "#3fb950" : "#d29922";
-        const nextRunLabel = a.nextRun ? timeAgo(a.nextRun).replace(' ago','') : "—";
-        const nextRunIsNow = a.nextRun && (new Date(a.nextRun) - Date.now()) < 120000;
-        healthRows += `<tr>
-            <td>${statusDot} ${a.id}</td>
-            <td style="color:${healthColor}">${a.health}</td>
-            <td style="color:${syncColor}">${syncLabel}</td>
-            <td>${a.budget || "?"}</td>
-            <td>${a.pending ?? "?"}</td>
-            <td>${a.gates ?? "?"}</td>
-            <td style="color:${nextRunIsNow ? '#3fb950' : '#8b949e'}">${a.syncLock ? "now" : nextRunLabel}</td>
-            <td>${a.heartbeat ? timeAgo(a.heartbeat) : "?"}</td>
-        </tr>`;
+        const agentsEl = document.getElementById("vital-agents");
+        agentsEl.textContent = `${online.length}/${total}`;
+        agentsEl.className = "vital-value " + (online.length === total ? "healthy" : online.length > 0 ? "degraded" : "critical");
+
+        document.getElementById("vital-budget").textContent = `${totalBudget}/${maxBudget}`;
+        document.getElementById("vital-pending").textContent = pending;
+        document.getElementById("vital-gates").textContent = gates;
+        document.getElementById("vital-debt").textContent = debt;
+
+        // Update ops badge
+        if (pending > 0) {
+            const badge = document.getElementById("ops-badge");
+            badge.textContent = pending;
+            badge.style.display = "inline";
+        }
     }
-    document.getElementById("health-agents").innerHTML = `
-        <table class="msg-table">
-            <tr><th>Agent</th><th>Health</th><th>Sync</th><th>Autonomy Budget</th><th>Pending</th><th>Gates</th><th>Next Run</th><th>Heartbeat</th></tr>
-            ${healthRows}
-        </table>`;
 
-    // Connectivity matrix
-    const allIds = AGENTS.map(a => a.id);
-    let matrixHeader = "<th></th>" + allIds.map(id => `<th style="font-size:0.7em">${id.replace("-agent","")}</th>`).join("");
-    let matrixRows = "";
-    for (const fromId of allIds) {
-        let cells = `<td style="color:#c9d1d9">${fromId.replace("-agent","")}</td>`;
-        for (const toId of allIds) {
-            if (fromId === toId) {
-                cells += '<td style="color:#484f58">—</td>';
+    // ── Render: Agent Cards ────────────────────────────────────────
+    function renderAgentCards() {
+        const grid = document.getElementById("agents-grid");
+        grid.innerHTML = "";
+
+        for (const agent of AGENTS) {
+            const state = agentData[agent.id] || { status: "unreachable" };
+            const card = document.createElement("div");
+            card.className = "lcars-panel agent-card";
+            card.dataset.agent = agent.id;
+
+            if (state.status !== "online") {
+                card.innerHTML = `
+                    <div class="lcars-panel-header">${agent.id}</div>
+                    <div class="lcars-panel-body">
+                        <div class="agent-identity">
+                            <span class="agent-name">${agent.id}</span>
+                            <span class="agent-status-dot offline"></span>
+                        </div>
+                        <div style="color: var(--c-alert); font-size: 0.8em; margin-top: 8px">
+                            Unreachable${state.error ? ` — ${state.error}` : ""}
+                        </div>
+                    </div>`;
+                grid.appendChild(card);
                 continue;
             }
-            const fromData = agentData[fromId]?.data;
-            if (!fromData) {
-                cells += '<td style="color:#484f58">?</td>';
-                continue;
-            }
-            const registry = fromData.registry_agents || {};
-            const peers = fromData.peers || [];
-            const inRegistry = toId in registry;
-            const hasPeerData = peers.some(p => p.from_agent === toId);
-            const toOnline = !!agentData[toId]?.data;
 
-            if (inRegistry && toOnline) {
-                cells += '<td style="color:#3fb950">✓</td>';
-            } else if (inRegistry && !toOnline) {
-                cells += '<td style="color:#d29922">reg</td>';
-            } else if (hasPeerData) {
-                cells += '<td style="color:#58a6ff">peer</td>';
-            } else {
-                cells += '<td style="color:#484f58">—</td>';
+            const d = state.data;
+            const budget = d.autonomy_budget || {};
+            const cur = budget.budget_current ?? 0;
+            const max = budget.budget_max ?? 20;
+            const pct = max > 0 ? Math.round((cur / max) * 100) : 0;
+            const budgetClass = pct > 50 ? "high" : pct > 20 ? "mid" : "low";
+            const unprocessed = (d.totals || {}).unprocessed || 0;
+            const gateCount = (d.active_gates || []).length;
+            const schema = d.schema_version || "?";
+            const schedule = d.schedule || {};
+            const lastSync = schedule.last_sync_time || d.collected_at || "—";
+            const syncShort = lastSync !== "—" ? lastSync.split("T")[1]?.substring(0, 8) || lastSync : "—";
+
+            card.innerHTML = `
+                <div class="lcars-panel-header">${agent.id}</div>
+                <div class="lcars-panel-body">
+                    <div class="agent-identity">
+                        <span class="agent-name">${agent.id}</span>
+                        <span class="agent-status-dot online"></span>
+                    </div>
+                    <div class="agent-metrics">
+                        <div class="agent-metric">
+                            <div class="agent-metric-value">${cur}/${max}</div>
+                            <div class="agent-metric-label">Budget</div>
+                        </div>
+                        <div class="agent-metric">
+                            <div class="agent-metric-value">${unprocessed}</div>
+                            <div class="agent-metric-label">Pending</div>
+                        </div>
+                        <div class="agent-metric">
+                            <div class="agent-metric-value">${gateCount}</div>
+                            <div class="agent-metric-label">Gates</div>
+                        </div>
+                    </div>
+                    <div class="budget-bar-track">
+                        <div class="budget-bar-fill ${budgetClass}" style="width: ${pct}%"></div>
+                    </div>
+                    <div class="agent-detail-row">
+                        <span>Schema v${schema}</span>
+                        <span>Last sync: ${syncShort}</span>
+                    </div>
+                </div>`;
+
+            grid.appendChild(card);
+        }
+    }
+
+    // ── Render: Topology ───────────────────────────────────────────
+    function renderTopology() {
+        const svg = document.getElementById("topology-svg");
+        const positions = [
+            { x: 300, y: 30 },   // top
+            { x: 520, y: 100 },  // right
+            { x: 300, y: 170 },  // bottom
+            { x: 80, y: 100 },   // left
+        ];
+
+        let html = "";
+
+        // Draw edges between all pairs
+        for (let i = 0; i < AGENTS.length; i++) {
+            for (let j = i + 1; j < AGENTS.length; j++) {
+                const a = positions[i], b = positions[j];
+                html += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"
+                    stroke="var(--border-accent)" stroke-width="1" opacity="0.4"/>`;
             }
         }
-        matrixRows += `<tr>${cells}</tr>`;
-    }
-    document.getElementById("health-matrix").innerHTML = `
-        <table class="msg-table">
-            <tr>${matrixHeader}</tr>
-            ${matrixRows}
-        </table>
-        <p style="font-size:0.7em;color:#484f58;margin-top:8px">
-            ✓ = registered + reachable · reg = registered, unreachable · peer = seen in message data · — = no connection
-        </p>`;
-}
 
-async function fetchAgent(agent) {
-    try {
-        const response = await fetch(agent.apiUrl, { mode: "cors" });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
-        agentData[agent.id] = { data, error: null };
-    } catch (err) {
-        agentData[agent.id] = { data: null, error: err.message };
-    }
-}
+        // Draw nodes
+        for (let i = 0; i < AGENTS.length; i++) {
+            const agent = AGENTS[i];
+            const pos = positions[i];
+            const state = agentData[agent.id];
+            const online = state?.status === "online";
+            const fill = online ? agent.color : "var(--c-inactive)";
 
-async function refreshAll() {
-    await Promise.all(AGENTS.map(fetchAgent));
+            html += `
+                <circle cx="${pos.x}" cy="${pos.y}" r="18"
+                    fill="${fill}" opacity="${online ? 0.15 : 0.05}"
+                    stroke="${fill}" stroke-width="2"/>
+                <circle cx="${pos.x}" cy="${pos.y}" r="6" fill="${fill}"
+                    opacity="${online ? 1 : 0.3}">
+                    ${online ? `<animate attributeName="r" values="5;7;5" dur="3s" repeatCount="indefinite"/>` : ""}
+                </circle>
+                <text x="${pos.x}" y="${pos.y + 32}" text-anchor="middle"
+                    fill="var(--text-secondary)" font-size="10" font-family="inherit">
+                    ${agent.id.replace("-agent", "")}
+                </text>`;
+        }
 
-    const grid = document.getElementById("agent-grid");
-    grid.innerHTML = "";
-    for (const agent of AGENTS) {
-        const state = agentData[agent.id] || {};
-        grid.appendChild(renderAgentCard(agent, state.data, state.error));
+        svg.innerHTML = html;
     }
 
-    renderTopology();
-    renderMessages();
-    renderHealth();
+    // ── Render: Activity Stream ────────────────────────────────────
+    function renderActivity() {
+        const container = document.getElementById("activity-stream");
+        const allMessages = [];
 
-    const now = new Date().toLocaleTimeString();
-    document.getElementById("last-update").textContent = `Last update: ${now} (auto-refresh 30s)`;
-}
+        for (const agent of AGENTS) {
+            const state = agentData[agent.id];
+            if (state?.status !== "online") continue;
+            const messages = state.data?.recent_messages || [];
+            messages.forEach(m => {
+                allMessages.push({
+                    timestamp: m.timestamp || "",
+                    from: m.from_agent || "?",
+                    to: m.to_agent || "?",
+                    type: m.message_type || "—",
+                    subject: m.subject || "",
+                    session: m.session_name || "",
+                });
+            });
+        }
 
-// Initial load
-refreshAll();
-setInterval(refreshAll, REFRESH_INTERVAL_MS);
+        // Deduplicate by session+turn, sort by timestamp desc, take 8
+        const seen = new Set();
+        const unique = allMessages.filter(m => {
+            const key = `${m.session}-${m.from}-${m.timestamp}`;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+        unique.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+        const display = unique.slice(0, 8);
+
+        if (display.length === 0) {
+            container.innerHTML = `<div style="color: var(--text-dim); font-size: 0.85em; padding: 8px">No recent messages</div>`;
+            return;
+        }
+
+        container.innerHTML = display.map(m => {
+            const time = m.timestamp.split("T")[1]?.substring(0, 8) || m.timestamp;
+            return `<div class="activity-item">
+                <span class="activity-time">${time}</span>
+                <span class="activity-route">
+                    <span class="from">${m.from.replace("-agent", "")}</span>
+                    &rarr; <span class="to">${m.to.replace("-agent", "")}</span>
+                </span>
+                <span class="activity-type">${m.type}</span>
+            </div>`;
+        }).join("");
+    }
+
+    // ── Render: Combined ───────────────────────────────────────────
+    function renderPulse() {
+        renderVitals();
+        renderAgentCards();
+        renderTopology();
+        renderActivity();
+    }
+
+    // ── Init ───────────────────────────────────────────────────────
+    (async function init() {
+        // Restore preferences
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme && savedTheme !== "dark") setTheme(savedTheme);
+
+        await refreshAll();
+
+        // Auto-refresh every 30s (targeted DOM updates, not full page reload)
+        refreshTimer = setInterval(refreshAll, 30000);
+    })();
 </script>
 
 </body>

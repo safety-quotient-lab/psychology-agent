@@ -10,6 +10,7 @@
  *   GET /vocab.json    → alias for /vocab
  *   GET /health        → worker health check (local only)
  *   GET /api/health    → mesh health (aggregates all agent /api/status endpoints)
+ *   GET /api/kb        → merged knowledge base from all agents (Phase 2)
  */
 
 import HTML from "./index.html";
