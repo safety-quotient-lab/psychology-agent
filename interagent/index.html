@@ -495,9 +495,9 @@ function renderAgentCard(agent, data, error) {
                 <tr><td>Sync</td><td style="color:${schedule.autonomous ? '#3fb950' : '#d29922'}">${schedule.autonomous ? 'autonomous' : 'manual'}${schedule.lock_active ? ' (syncing)' : ''}</td></tr>
                 <tr><td>Peers</td><td>${peers.map(p => p.from_agent || "?").join(", ") || "none"}</td></tr>
                 <tr><td>Collected</td><td>${data.collected_at || "?"}</td></tr>
-                ${schedule.cron_entry ? `<tr><td>Cron</td><td>${schedule.cron_entry}</td></tr>` : ""}
-                ${schedule.last_sync ? `<tr><td>Last sync</td><td>${schedule.last_sync}</td></tr>` : ""}
-                ${heartbeat.timestamp ? `<tr><td>Last heartbeat</td><td>${heartbeat.timestamp}</td></tr>` : ""}
+                ${schedule.next_run ? `<tr><td>Next run</td><td style="color:#58a6ff">${timeAgo(schedule.next_run).replace(' ago','').replace('just now','now')} (${new Date(schedule.next_run).toLocaleTimeString()})</td></tr>` : ""}
+                ${schedule.last_sync ? `<tr><td>Last sync</td><td>${timeAgo(schedule.last_sync)}</td></tr>` : ""}
+                ${heartbeat.timestamp ? `<tr><td>Heartbeat</td><td>${timeAgo(heartbeat.timestamp)}</td></tr>` : ""}
             </table>
         </div>
         <div class="agent-links">
@@ -634,6 +634,7 @@ function renderMessages() {
         <tr class="msg-detail" id="detail-${i}">
             <td colspan="7" style="padding:12px 16px;background:#0d1117;border-left:2px solid #30363d">
                 <dl class="msg-detail-grid">
+                    <dt>Subject</dt><dd style="grid-column:1/-1;color:#e6edf3">${m.subject || "(no subject)"}</dd>
                     <dt>Session</dt><dd>${m.session_name || "?"}</dd>
                     <dt>Filename</dt><dd>${m.filename || "?"}</dd>
                     <dt>Turn</dt><dd>${m.turn ?? "?"}</dd>
@@ -641,7 +642,9 @@ function renderMessages() {
                     <dt>From</dt><dd>${m.from_agent || "?"}</dd>
                     <dt>To</dt><dd>${m.to_agent || "?"}</dd>
                     <dt>Type</dt><dd>${m.message_type || "?"}</dd>
-                    <dt>Subject</dt><dd>${m.subject || "(none)"}</dd>
+                    <dt>SETL</dt><dd>${m.setl != null ? m.setl.toFixed(2) : "—"}</dd>
+                    <dt>Claims</dt><dd>${m.claims_count || 0}</dd>
+                    <dt>Urgency</dt><dd style="color:${m.urgency === 'immediate' ? '#f85149' : m.urgency === 'high' ? '#d29922' : '#8b949e'}">${m.urgency || "normal"}</dd>
                     <dt>Processed</dt><dd style="${processedStyle}">${m.processed ? "Yes" : "No"}</dd>
                     <dt>Seen by</dt><dd>${m.seen_by.join(", ")}</dd>
                 </dl>
@@ -722,6 +725,7 @@ function renderHealth() {
             autonomous: sched.autonomous || false,
             syncLock: sched.lock_active || false,
             lastSync: sched.last_sync || null,
+            nextRun: sched.next_run || null,
         });
     }
 
@@ -758,6 +762,8 @@ function renderHealth() {
             : a.autonomous ? (a.syncLock ? "syncing" : "idle")
             : "manual";
         const syncColor = a.autonomous ? "#3fb950" : "#d29922";
+        const nextRunLabel = a.nextRun ? timeAgo(a.nextRun).replace(' ago','') : "—";
+        const nextRunIsNow = a.nextRun && (new Date(a.nextRun) - Date.now()) < 120000;
         healthRows += `<tr>
             <td>${statusDot} ${a.id}</td>
             <td style="color:${healthColor}">${a.health}</td>
@@ -765,13 +771,13 @@ function renderHealth() {
             <td>${a.budget || "?"}</td>
             <td>${a.pending ?? "?"}</td>
             <td>${a.gates ?? "?"}</td>
-            <td>${a.schema ? `v${a.schema}` : "?"}</td>
+            <td style="color:${nextRunIsNow ? '#3fb950' : '#8b949e'}">${a.syncLock ? "now" : nextRunLabel}</td>
             <td>${a.heartbeat ? timeAgo(a.heartbeat) : "?"}</td>
         </tr>`;
     }
     document.getElementById("health-agents").innerHTML = `
         <table class="msg-table">
-            <tr><th>Agent</th><th>Health</th><th>Sync</th><th>Trust Budget</th><th>Pending</th><th>Gates</th><th>Schema</th><th>Heartbeat</th></tr>
+            <tr><th>Agent</th><th>Health</th><th>Sync</th><th>Trust Budget</th><th>Pending</th><th>Gates</th><th>Next Run</th><th>Heartbeat</th></tr>
             ${healthRows}
         </table>`;
 

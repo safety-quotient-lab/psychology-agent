@@ -17,7 +17,7 @@ import os
 import sqlite3
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 
@@ -53,6 +53,45 @@ def _scalar(db: sqlite3.Connection, sql: str, params: tuple = ()):
     return row[0] if row else 0
 
 
+def _next_cron_run(minute_spec: str) -> str | None:
+    """Compute the next cron run time from a minute spec like '*/5' or '1,6,11,...'.
+
+    Returns ISO 8601 timestamp of the next matching minute, or None on parse failure.
+    """
+    try:
+        now = datetime.now().astimezone()
+        current_minute = now.minute
+
+        # Parse minute spec into a sorted list of valid minutes
+        if minute_spec.startswith("*/"):
+            interval = int(minute_spec[2:])
+            minutes = list(range(0, 60, interval))
+        elif "," in minute_spec:
+            minutes = sorted(int(m) for m in minute_spec.split(","))
+        elif minute_spec == "*":
+            # Every minute — next run is the next minute
+            next_dt = now.replace(second=0, microsecond=0)
+            from datetime import timedelta
+            next_dt += timedelta(minutes=1)
+            return next_dt.isoformat()
+        else:
+            minutes = [int(minute_spec)]
+
+        # Find the next minute >= current_minute in this hour
+        from datetime import timedelta
+        for m in minutes:
+            if m > current_minute:
+                next_dt = now.replace(minute=m, second=0, microsecond=0)
+                return next_dt.isoformat()
+
+        # Wrap to next hour, first minute in the list
+        next_dt = now.replace(minute=minutes[0], second=0, microsecond=0)
+        next_dt += timedelta(hours=1)
+        return next_dt.isoformat()
+    except (ValueError, IndexError):
+        return None
+
+
 def _collect_schedule(agent_id: str, last_action_ts: str | None) -> dict:
     """Collect autonomous-sync schedule from cron, lock file, and last action."""
     schedule = {"autonomous": False}
@@ -69,14 +108,18 @@ def _collect_schedule(agent_id: str, last_action_ts: str | None) -> dict:
                         and project_dir in line:
                     schedule["autonomous"] = True
                     schedule["cron_entry"] = line.strip()
-                    # Extract interval from */N pattern
+                    # Extract interval and compute next run
                     parts = line.strip().split()
-                    if parts and parts[0].startswith("*/"):
-                        try:
-                            schedule["cron_interval_min"] = int(
-                                parts[0].replace("*/", ""))
-                        except ValueError:
-                            pass
+                    if parts:
+                        minute_spec = parts[0]
+                        if minute_spec.startswith("*/"):
+                            try:
+                                schedule["cron_interval_min"] = int(
+                                    minute_spec.replace("*/", ""))
+                            except ValueError:
+                                pass
+                        # Compute next run from minute spec
+                        schedule["next_run"] = _next_cron_run(minute_spec)
                     break
     except (subprocess.TimeoutExpired, OSError):
         pass
@@ -179,13 +222,14 @@ def collect_status() -> dict:
     except sqlite3.OperationalError:
         peer_rows = []
 
-    # Recent messages (last 10)
+    # Recent messages (last 30 for merged timeline)
     try:
         recent = _query(db,
             "SELECT session_name, filename, turn, from_agent, to_agent, "
-            "message_type, timestamp, processed, subject "
+            "message_type, timestamp, processed, subject, "
+            "claims_count, setl, urgency "
             "FROM transport_messages "
-            "ORDER BY timestamp DESC LIMIT 10")
+            "ORDER BY timestamp DESC LIMIT 30")
     except sqlite3.OperationalError:
         recent = []
 
