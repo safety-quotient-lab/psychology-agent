@@ -1,5 +1,5 @@
 package platform
 
-// Version identifies the meshd build. Set at compile time via ldflags
-// or defaults to "dev" for local builds.
+// Version identifies the meshd build. Jenkins injects the git short-hash
+// at compile time via -ldflags. Local builds default to "dev".
 var Version = "dev"
