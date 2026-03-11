@@ -39,6 +39,35 @@ PROJECT_ROOT = _find_project_root()
 DB_PATH = PROJECT_ROOT / "state.db"
 
 
+def _get_agent_identities() -> list[str]:
+    """Return all identities this agent might use in transport messages.
+
+    Checks both .agent-identity.json (workstation identity, e.g., 'human')
+    and .well-known/agent-card.json (repo canonical identity, e.g.,
+    'psychology-agent'). Returns deduplicated list for SQL IN clauses.
+    """
+    identities = set()
+    identity_file = PROJECT_ROOT / ".agent-identity.json"
+    if identity_file.exists():
+        try:
+            with open(identity_file) as f:
+                identities.add(json.load(f).get("agent_id", "psychology-agent"))
+        except (json.JSONDecodeError, OSError):
+            pass
+    agent_card = PROJECT_ROOT / ".well-known" / "agent-card.json"
+    if agent_card.exists():
+        try:
+            with open(agent_card) as f:
+                identities.add(json.load(f).get("agent_id", "psychology-agent"))
+        except (json.JSONDecodeError, OSError):
+            pass
+    # Fallback: derive from directory name
+    dirname = PROJECT_ROOT.name
+    if dirname.endswith("-agent"):
+        identities.add(dirname)
+    return list(identities) if identities else ["psychology-agent"]
+
+
 def _check_orphaned_gates(conn: sqlite3.Connection) -> list[dict]:
     """Find gates that timed out without resolution."""
     rows = conn.execute(
@@ -63,20 +92,24 @@ def _check_orphaned_gates(conn: sqlite3.Connection) -> list[dict]:
 
 
 def _check_unanswered_requests(conn: sqlite3.Connection) -> list[dict]:
-    """Find peer requests with no subsequent psychology-agent response."""
+    """Find peer requests with no subsequent response from this agent."""
+    my_ids = _get_agent_identities()
+    # Build parameterized NOT IN / IN clauses for agent identities
+    placeholders = ",".join("?" * len(my_ids))
     rows = conn.execute(
         "SELECT tm.session_name, tm.filename, tm.turn, tm.subject, "
         "       tm.from_agent, tm.timestamp "
         "FROM transport_messages tm "
         "WHERE tm.message_type = 'request' "
-        "  AND tm.from_agent != 'psychology-agent' "
+        f"  AND tm.from_agent NOT IN ({placeholders}) "
         "  AND tm.processed = TRUE "
         "  AND NOT EXISTS ( "
         "    SELECT 1 FROM transport_messages tm2 "
         "    WHERE tm2.session_name = tm.session_name "
-        "      AND tm2.from_agent = 'psychology-agent' "
+        f"      AND tm2.from_agent IN ({placeholders}) "
         "      AND tm2.turn > tm.turn "
-        "  )"
+        "  )",
+        (*my_ids, *my_ids),
     ).fetchall()
     return [
         {
