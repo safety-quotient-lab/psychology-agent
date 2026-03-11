@@ -10,31 +10,27 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 | `memory/decisions.md` | Design decisions table + authority hierarchy | T1 session start; decision-making |
 | `memory/cogarch.md` | Trigger quick-ref, knock-on depth, adjudication, working principles | T1 session start; before recommending |
 | `memory/psq-status.md` | PSQ sub-agent calibration, deploy status, open issues | PSQ work in this context (rare) |
-| `memory/infrastructure.md` | Chromabook, Cloudflare, CI/CD, known gotchas | Infrastructure/deploy work |
 | `memory/cognitive-triggers.md` | Legacy — full trigger descriptions (canonical: `docs/cognitive-triggers.md`) | Superseded; read canonical instead |
 
-## Active Thread (2026-03-11)
+## Active Thread (2026-03-10)
 
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 73. Full DevOps pipeline Phase 1 complete. All pending
-operational tasks resolved. Blog authorship model redesigned. Schema v17 pending
-propagation via autonomous sync.
+**Where we stopped:** Session 70. meshd Phase A deployed, operational fixes
+landed (Python respawn, schedule collector, gate_poll budget drain). JSONL
+parser complete. Truthiness research → autonomy_budget rename + C2 test queued.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- CI/CD Phase 1: ✓ GitHub Actions for all 6 CF Workers/Pages, secrets configured `[warm]`
-- Compositor: ✓ Timestamps fixed, deployed via CF Worker `interagent-mesh` `[warm]`
-- meshd: ✓ All 4 running (psychology:8076, psq:8077, unratified:8078, observatory:8079) `[warm]`
-- Schema v17: ⚑ Committed, awaits chromabook propagation via autonomous sync `[warm]`
-- Bootstrap: ✓ Fixed 3 critical bugs (UNIQUE scope, turn index, MANIFEST skip) `[warm]`
-- Rate limit: ✓ 15-min backoff + 3-strike escalation in autonomous-sync `[warm]`
-- /sync detection: ✓ Phase 2c incomplete work detection + pre_sync_check.py `[warm]`
-- Issue lifecycle: ✓ issue_lifecycle.py (create/update/close/close-resolved) `[warm]`
+- meshd Phase A: ✓ Deployed to chromabook, Python dashboards disabled `[warm]`
+- JSONL parser: ✓ scripts/parse-jsonl.py — all 8 types, dedup, tokens, turns `[warm]`
+- 4-agent mesh: ✓ Autonomous, schedule collector fixed per-agent `[warm]`
+- Compositor: ✓ Working with meshd, SSE rebuild queued for post-Phase B `[warm]`
+- Plan9 consensus: ⚑ Awaiting peer votes `[warm]`
+- DI Phase A Pass 2: pending `[cold]`
 
-**Next:** Jenkins Phase 2 (meshd binary deploy, shared scripts, PSQ model).
-Meta + Knowledge Base tab split (plan file exists). Observatory-sqlab vs
-observatory directory consolidation on chromabook.
+**Next:** meshd Phase B (Knowledge Base /kb/* routes). Schema v15 migration
+(autonomy_budget rename + auth_events + consensus tables). DI Phase A Pass 2.
 
 
 ## Memory Hygiene

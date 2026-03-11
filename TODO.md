@@ -609,3 +609,32 @@ auto-restart loops. None had monitoring — all required manual discovery.
   - Schema version: state.db matches scripts/schema.sql
   - Git remotes: all registry peers have configured remotes
   - Tunnel health: CF tunnel processes alive for tunneled agents
+
+---
+
+## DevOps Pipeline (Session 73)
+
+- [ ] **Jenkins Phase 2 (Tier 2 CI/CD)** — automated deploy of meshd binary,
+  shared scripts, and PSQ model pipeline to chromabook. Documented in
+  `docs/devops-pipeline.md` but not implemented. Three pipeline candidates:
+  (1) meshd binary: cross-compile → SCP → restart, (2) shared scripts:
+  rsync to ~/platform/shared/scripts/, (3) PSQ model: train → validate → deploy.
+  *Precondition: Jenkins instance provisioned on chromabook or separate host*
+
+- [ ] **Surface epistemic debt detail on compositor** — add detail table showing
+  WHAT the epistemic debt contains (flag text, source, age) below the existing
+  summary table. Currently only shows counts; the actual content matters as much
+  as the quantity.
+  *Precondition: meshd serves flag detail (may need new /kb/epistemic route)*
+
+- [ ] **Observatory directory consolidation** — `~/projects/observatory` (canonical,
+  has state.db, cron) vs `~/projects/observatory-sqlab` (stale duplicate) on
+  chromabook. Consolidate to one directory. Verify cron, systemd, and meshd all
+  point to the canonical location before removing the stale copy.
+  *Precondition: SSH access to chromabook*
+
+- [ ] **Move pre_sync_check.py + issue_lifecycle.py to shared scripts** — both
+  scripts serve all agents, not just psychology-agent. Determine if they belong
+  in `platform/shared/scripts/` (symlinked pattern) or remain agent-local with
+  per-agent copies.
+  *Precondition: design decision on script placement*

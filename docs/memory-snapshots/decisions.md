@@ -139,7 +139,7 @@
                               licensed/full. Observe before promoting.
                               2026-03-09
  Cross-repo transport          Git remote fetch between agents in
- (safety-quotient agent)      separate repos. Each agent adds the
+ (psq-agent)                  separate repos. Each agent adds the
                               other as git remote, reads MANIFEST via
                               `git show {remote}/main:transport/
                               MANIFEST.json`. Split outbox (mail/
