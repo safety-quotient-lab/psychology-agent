@@ -92,9 +92,9 @@ def active_decisions(conn: sqlite3.Connection, limit: int = 10) -> list[dict]:
     return [dict(r) for r in rows]
 
 
-def trust_budget_status(conn: sqlite3.Connection, agent_id: str) -> dict | None:
+def autonomy_budget_status(conn: sqlite3.Connection, agent_id: str) -> dict | None:
     row = conn.execute(
-        "SELECT * FROM trust_budget WHERE agent_id = ?", (agent_id,)
+        "SELECT * FROM autonomy_budget WHERE agent_id = ?", (agent_id,)
     ).fetchone()
     return dict(row) if row else None
 
@@ -160,7 +160,7 @@ def format_payload(
     lines.append("")
 
     # Trust budget
-    lines.append("## Trust Budget")
+    lines.append("## Autonomy Budget")
     if budget:
         status = "ACTIVE" if budget["budget_current"] > 0 else "HALTED"
         lines.append(
@@ -316,7 +316,7 @@ def main() -> None:
         claims=open_claims(conn),
         flags=unresolved_flags(conn),
         decisions=active_decisions(conn),
-        budget=trust_budget_status(conn, agent_id),
+        budget=autonomy_budget_status(conn, agent_id),
         stale=stale_memory(conn),
         gates=waiting_gates(conn, agent_id),
     )

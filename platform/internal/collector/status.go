@@ -18,7 +18,7 @@ type Status struct {
 	DBPath         string                    `json:"db_path"`
 	DBExists       bool                      `json:"db_exists"`
 	SchemaVersion  int                       `json:"schema_version"`
-	TrustBudget    map[string]any            `json:"trust_budget"`
+	AutonomyBudget map[string]any            `json:"autonomy_budget"`
 	ActiveGates    []map[string]any          `json:"active_gates"`
 	Unprocessed    []map[string]any          `json:"unprocessed_messages"`
 	RecentMessages []map[string]any          `json:"recent_messages"`
@@ -94,9 +94,9 @@ func Collect(d *db.DB, projectRoot string) *Status {
 		}
 	}
 
-	// Trust budget
+	// Autonomy budget
 	budgetRows, _ := d.QueryRows(
-		"SELECT * FROM trust_budget WHERE agent_id = ?", agentID)
+		"SELECT * FROM autonomy_budget WHERE agent_id = ?", agentID)
 	budgetRow := map[string]any{}
 	if len(budgetRows) > 0 {
 		budgetRow = budgetRows[0]
@@ -225,7 +225,7 @@ func Collect(d *db.DB, projectRoot string) *Status {
 		DBPath:         dbPath,
 		DBExists:       true,
 		SchemaVersion:  schemaVer,
-		TrustBudget:    budgetRow,
+		AutonomyBudget: budgetRow,
 		ActiveGates:    gates,
 		Unprocessed:    unprocessed,
 		RecentMessages: recent,

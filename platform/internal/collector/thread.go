@@ -95,7 +95,7 @@ func CollectPeerSyncRecency(remoteStates []map[string]any) []PeerSyncInfo {
 
 		snapshotAt := getString(state, "timestamp")
 		schedule, _ := state["schedule"].(map[string]any)
-		budget, _ := state["trust_budget"].(map[string]any)
+		budget, _ := state["autonomy_budget"].(map[string]any)
 
 		nextDue := ""
 		if schedule != nil {

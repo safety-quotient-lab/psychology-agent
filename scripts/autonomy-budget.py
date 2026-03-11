@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-trust-budget.py — Trust budget management for autonomous agent operation.
+autonomy-budget.py — Autonomy budget management for autonomous agent operation.
 
 Commands:
     status              Show current budget for all agents
@@ -8,9 +8,9 @@ Commands:
     history [agent_id]  Show recent autonomous actions
 
 Usage:
-    python3 scripts/trust-budget.py status
-    python3 scripts/trust-budget.py reset psychology-agent
-    python3 scripts/trust-budget.py history psq-sub-agent
+    python3 scripts/autonomy-budget.py status
+    python3 scripts/autonomy-budget.py reset psychology-agent
+    python3 scripts/autonomy-budget.py history psq-sub-agent
 """
 import sqlite3
 import sys
@@ -32,13 +32,13 @@ def get_conn() -> sqlite3.Connection:
 
 def cmd_status() -> None:
     conn = get_conn()
-    rows = conn.execute("SELECT * FROM trust_budget ORDER BY agent_id").fetchall()
+    rows = conn.execute("SELECT * FROM autonomy_budget ORDER BY agent_id").fetchall()
     if not rows:
-        print("No trust budget entries found.")
+        print("No autonomy budget entries found.")
         print("Budget entries are created on first autonomous sync run.")
         return
 
-    print("Trust Budget Status")
+    print("Autonomy Budget Status")
     print("─" * 60)
     for row in rows:
         status = "ACTIVE" if row["budget_current"] > 0 else "HALTED"
@@ -56,7 +56,7 @@ def cmd_reset(agent_id: str) -> None:
     conn = get_conn()
 
     row = conn.execute(
-        "SELECT * FROM trust_budget WHERE agent_id = ?", (agent_id,)
+        "SELECT * FROM autonomy_budget WHERE agent_id = ?", (agent_id,)
     ).fetchone()
     if not row:
         print(f"No budget entry for '{agent_id}'.", file=sys.stderr)
@@ -92,7 +92,7 @@ def cmd_reset(agent_id: str) -> None:
         return
 
     conn.execute("""
-        UPDATE trust_budget
+        UPDATE autonomy_budget
         SET budget_current = budget_max,
             consecutive_blocks = 0,
             last_audit = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
@@ -102,7 +102,7 @@ def cmd_reset(agent_id: str) -> None:
     conn.commit()
 
     new_row = conn.execute(
-        "SELECT * FROM trust_budget WHERE agent_id = ?", (agent_id,)
+        "SELECT * FROM autonomy_budget WHERE agent_id = ?", (agent_id,)
     ).fetchone()
     print(f"Budget reset: {new_row['budget_current']} / {new_row['budget_max']}")
     print(f"Last audit updated: {new_row['last_audit']}")
@@ -144,12 +144,12 @@ def main() -> None:
         cmd_status()
     elif command == "reset":
         if len(sys.argv) < 3:
-            print("Usage: trust-budget.py reset <agent_id>", file=sys.stderr)
+            print("Usage: autonomy-budget.py reset <agent_id>", file=sys.stderr)
             sys.exit(1)
         cmd_reset(sys.argv[2])
     elif command == "history":
         if len(sys.argv) < 3:
-            print("Usage: trust-budget.py history <agent_id>", file=sys.stderr)
+            print("Usage: autonomy-budget.py history <agent_id>", file=sys.stderr)
             sys.exit(1)
         cmd_history(sys.argv[2])
     else:

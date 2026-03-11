@@ -83,11 +83,11 @@ cd $AGENT_REPO
 python3 scripts/bootstrap_transport_db.py --force
 ```
 
-Expected output: schema applied, trust budget initialized, transport messages
+Expected output: schema applied, autonomy budget initialized, transport messages
 indexed. Verify:
 
 ```bash
-sqlite3 state.db "SELECT COUNT(*) FROM transport_messages; SELECT budget_current FROM trust_budget;"
+sqlite3 state.db "SELECT COUNT(*) FROM transport_messages; SELECT budget_current FROM autonomy_budget;"
 ```
 
 Should show message count > 0 and budget = 20.
@@ -166,7 +166,7 @@ echo "=== Remotes ==="
 git remote -v
 
 echo "=== state.db ==="
-sqlite3 state.db "SELECT COUNT(*) || ' messages' FROM transport_messages; SELECT 'budget: ' || budget_current FROM trust_budget WHERE agent_id='$AGENT_ID';"
+sqlite3 state.db "SELECT COUNT(*) || ' messages' FROM transport_messages; SELECT 'budget: ' || budget_current FROM autonomy_budget WHERE agent_id='$AGENT_ID';"
 
 echo "=== Hooks ==="
 git config core.hooksPath
@@ -234,7 +234,7 @@ If this requires a password, configure SSH keys first.
 | `git fetch` fails | SSH key not configured for peer repo | Add deploy key or personal SSH key |
 | `bootstrap_transport_db.py` errors | Missing schema file | Verify `scripts/schema_transport.sql` exists |
 | Cron doesn't fire | `claude` not in cron PATH | Use full path in cron entry |
-| Trust budget shows 0 | Budget exhausted from prior runs | `python3 scripts/trust-budget.py reset` |
+| Autonomy budget shows 0 | Budget exhausted from prior runs | `python3 scripts/autonomy-budget.py reset` |
 | No messages indexed | No transport session files | Check `transport/sessions/` directory |
 
 

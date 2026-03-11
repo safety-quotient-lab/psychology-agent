@@ -440,7 +440,7 @@ function renderAgentCard(agent, data, error) {
 
     card.classList.add("online");
     const totals = data.totals || {};
-    const budget = data.trust_budget || {};
+    const budget = data.autonomy_budget || {};
     const heartbeat = data.heartbeat || {};
     const schedule = data.schedule || {};
     const peers = data.peers || [];
@@ -474,7 +474,7 @@ function renderAgentCard(agent, data, error) {
             </div>
             <div class="metric">
                 <div class="metric-value">${budgetCurrent}/${budgetMax}</div>
-                <div class="metric-label">Trust Budget</div>
+                <div class="metric-label">Autonomy Budget</div>
             </div>
             <div class="metric">
                 <div class="metric-value">${totals.unprocessed || 0}</div>
@@ -703,7 +703,7 @@ function renderHealth() {
             continue;
         }
         const d = state.data;
-        const budget = d.trust_budget || {};
+        const budget = d.autonomy_budget || {};
         const cur = budget.budget_current ?? 20;
         const max = budget.budget_max ?? 20;
         const pct = max > 0 ? Math.round((cur / max) * 100) : 0;
@@ -744,7 +744,7 @@ function renderHealth() {
         </div>
         <div class="health-card ${worstBudgetPct < 50 ? (worstBudgetPct < 10 ? 'critical' : 'degraded') : 'healthy'}">
             <div class="health-value" style="color:#e6edf3">${worstBudgetPct}%</div>
-            <div class="health-label">Weakest Trust Budget</div>
+            <div class="health-label">Weakest Autonomy Budget</div>
         </div>
         <div class="health-card">
             <div class="health-value" style="color:#e6edf3">${new Date().toLocaleTimeString()}</div>
@@ -777,7 +777,7 @@ function renderHealth() {
     }
     document.getElementById("health-agents").innerHTML = `
         <table class="msg-table">
-            <tr><th>Agent</th><th>Health</th><th>Sync</th><th>Trust Budget</th><th>Pending</th><th>Gates</th><th>Next Run</th><th>Heartbeat</th></tr>
+            <tr><th>Agent</th><th>Health</th><th>Sync</th><th>Autonomy Budget</th><th>Pending</th><th>Gates</th><th>Next Run</th><th>Heartbeat</th></tr>
             ${healthRows}
         </table>`;
 

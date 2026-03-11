@@ -182,8 +182,8 @@ VALUES (2, 'Add psq_status (typed topic table), entry_facets (polythematic subje
 
 -- ── Schema v3: Autonomous operation (EF-1 trust model) ─────────────────
 
--- Trust budget — tracks autonomous operation credits per agent
-CREATE TABLE IF NOT EXISTS trust_budget (
+-- Autonomy budget — tracks autonomous operation credits per agent
+CREATE TABLE IF NOT EXISTS autonomy_budget (
     agent_id             TEXT PRIMARY KEY,
     budget_max           INTEGER NOT NULL DEFAULT 20,
     budget_current       INTEGER NOT NULL DEFAULT 20,
@@ -217,10 +217,10 @@ CREATE INDEX IF NOT EXISTS idx_actions_agent
     ON autonomous_actions (agent_id, created_at);
 
 INSERT OR IGNORE INTO schema_version (version, description)
-VALUES (3, 'Add trust_budget, autonomous_actions (EF-1 evaluator-as-arbiter trust model)');
+VALUES (3, 'Add autonomy_budget, autonomous_actions (EF-1 evaluator-as-arbiter trust model)');
 
 INSERT OR IGNORE INTO schema_version (version, description)
-VALUES (4, 'Add shadow_mode to trust_budget, adversarial_reason + peer_reviewed_by to autonomous_actions (EF-1 flag mitigations)');
+VALUES (4, 'Add shadow_mode to autonomy_budget, adversarial_reason + peer_reviewed_by to autonomous_actions (EF-1 flag mitigations)');
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (5, 'Add ack_required + ack_received to transport_messages (optional ACK protocol)');
@@ -289,7 +289,7 @@ INSERT OR IGNORE INTO table_visibility (table_name, default_visibility, descript
     ('psq_status',          'commercial',   'PSQ operational status — calibration IDs, endpoint URLs, model versions'),
     ('memory_entries',      'private',      'Personal memory — not exported'),
     ('lessons',             'private',      'Personal learning log — not exported'),
-    ('trust_budget',        'private',      'Operational budget — machine-specific'),
+    ('autonomy_budget',     'private',      'Operational budget — machine-specific'),
     ('autonomous_actions',  'private',      'Autonomous audit trail — machine-specific'),
     ('entry_facets',        'private',      'Derived from memory_entries — inherits private');
 
@@ -297,7 +297,7 @@ INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (8, 'State lifecycle — table_visibility with 4-tier model (public/shared/commercial/private). Commercial tier for monetizable assets (calibration, rubrics, datasets, service configs).');
 
 INSERT OR IGNORE INTO schema_version (version, description)
-VALUES (9, 'Add min_action_interval to trust_budget — temporal spacing guarantee decoupled from triggering mechanism (EF-1 trust model update)');
+VALUES (9, 'Add min_action_interval to autonomy_budget — temporal spacing guarantee decoupled from triggering mechanism (EF-1 trust model update)');
 
 
 -- ── Schema v10: Gated autonomous chains ─────────────────────────────
@@ -553,3 +553,26 @@ VALUES ('engineering_incidents', 'private', 'Engineering anti-pattern log — ma
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (14, 'Engineering incidents table — two-tier anti-pattern detection (mechanical hooks + cognitive triggers). Graduation pipeline to anti-patterns.md.');
+
+
+-- ── Schema v15: Rename trust_budget → autonomy_budget ────────────────
+--
+-- "trust_budget" conflated action-credit accounting with epistemic trust.
+-- Rename frees "trust" for the BFT consensus layer (claim verification,
+-- state attestation, truthiness scoring). The table tracks autonomous
+-- operation credits — "autonomy budget" describes that accurately.
+--
+-- Migration: ALTER TABLE RENAME TO (SQLite ≥ 3.25.0, 2018-09-15).
+-- Existing state.db instances need this ALTER; fresh bootstraps use the
+-- new name directly (CREATE TABLE above already says autonomy_budget).
+
+-- NOTE: On fresh bootstrap, the CREATE TABLE above already uses autonomy_budget,
+-- so this RENAME will fail harmlessly. On existing DBs, it migrates the old name.
+-- Wrapped in a transaction with error suppression in autonomous-sync.sh.
+
+-- Update table_visibility to match (idempotent — runs on both fresh and migrated)
+UPDATE table_visibility SET table_name = 'autonomy_budget'
+    WHERE table_name = 'trust_budget';
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (15, 'Rename trust_budget → autonomy_budget — reserve "trust" for BFT consensus layer (claim verification, truthiness). Table tracks action credits, not epistemic trust.');

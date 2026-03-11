@@ -155,7 +155,7 @@ def collect_status() -> dict:
             "agent_id": agent_id,
             "collected_at": now_iso,
             "schema_version": 0,
-            "trust_budget": {"budget_current": 20, "budget_max": 20},
+            "autonomy_budget": {"budget_current": 20, "budget_max": 20},
             "active_gates": [],
             "totals": {"sessions": 0, "messages": 0, "unprocessed": 0,
                         "epistemic_flags_unresolved": 0},
@@ -173,9 +173,9 @@ def collect_status() -> dict:
     except sqlite3.OperationalError:
         schema_ver = 0
 
-    # Trust budget
+    # Autonomy budget
     try:
-        rows = _query(db, "SELECT * FROM trust_budget WHERE agent_id = ?",
+        rows = _query(db, "SELECT * FROM autonomy_budget WHERE agent_id = ?",
                        (agent_id,))
         budget = rows[0] if rows else {"budget_current": 20, "budget_max": 20}
     except sqlite3.OperationalError:
@@ -249,7 +249,7 @@ def collect_status() -> dict:
         "agent_id": agent_id,
         "collected_at": now_iso,
         "schema_version": schema_ver,
-        "trust_budget": budget,
+        "autonomy_budget": budget,
         "active_gates": gates,
         "totals": {
             "sessions": total_sessions,

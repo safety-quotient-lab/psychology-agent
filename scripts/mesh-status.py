@@ -2,7 +2,7 @@
 """mesh-status.py — Real-time autonomous mesh status dashboard.
 
 Serves a single HTML page that auto-refreshes every 30 seconds, showing
-the current state of the agent mesh: trust budget, peer activity, transport
+the current state of the agent mesh: autonomy budget, peer activity, transport
 queue, active gates, recent actions, and sync health.
 
 Usage:
@@ -221,7 +221,7 @@ def _collect_peer_sync_recency(registry_agents: dict, remote_states: list) -> li
 
         snapshot_at = state.get("snapshot_at", "")
         schedule = state.get("schedule", {})
-        budget = state.get("trust_budget", {})
+        budget = state.get("autonomy_budget", {})
 
         last_ran = snapshot_at
         next_due = schedule.get("next_expected", "")
@@ -308,9 +308,9 @@ def _collect_schedule(agent_id: str) -> dict:
     except (subprocess.TimeoutExpired, OSError):
         pass
 
-    # min_action_interval from trust_budget
+    # min_action_interval from autonomy_budget
     row = query_db(
-        "SELECT min_action_interval FROM trust_budget WHERE agent_id = ?",
+        "SELECT min_action_interval FROM autonomy_budget WHERE agent_id = ?",
         (agent_id,)
     )
     if row:
@@ -480,9 +480,9 @@ def collect_status() -> dict:
     agent_id = get_agent_id()
     now_iso = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
-    # Trust budget
+    # Autonomy budget
     budget = query_db(
-        "SELECT * FROM trust_budget WHERE agent_id = ?", (agent_id,)
+        "SELECT * FROM autonomy_budget WHERE agent_id = ?", (agent_id,)
     )
     budget_row = budget[0] if budget else {}
 
@@ -644,7 +644,7 @@ def collect_status() -> dict:
         "db_path": str(DB_PATH),
         "db_exists": DB_PATH.exists(),
         "schema_version": schema_ver,
-        "trust_budget": budget_row,
+        "autonomy_budget": budget_row,
         "active_gates": gates,
         "unprocessed_messages": unprocessed,
         "recent_messages": recent,
@@ -690,7 +690,7 @@ def _build_jsonld(status: dict) -> dict:
     """
     agent_id = status.get("agent_id", "unknown")
     totals = status.get("totals", {})
-    budget = status.get("trust_budget", {})
+    budget = status.get("autonomy_budget", {})
     heartbeat = status.get("heartbeat", {})
     registry = status.get("registry_agents", {})
     collected_at = status.get("collected_at", "")
@@ -759,8 +759,8 @@ def _build_jsonld(status: dict) -> dict:
             {"@type": "PropertyValue", "name": "unprocessed_messages", "value": totals.get("unprocessed", 0)},
             {"@type": "PropertyValue", "name": "active_gates", "value": totals.get("active_gates", 0)},
             {"@type": "PropertyValue", "name": "epistemic_flags_unresolved", "value": totals.get("epistemic_flags_unresolved", 0)},
-            {"@type": "PropertyValue", "name": "trust_budget_current", "value": budget.get("budget_current", "?")},
-            {"@type": "PropertyValue", "name": "trust_budget_max", "value": budget.get("budget_max", "?")},
+            {"@type": "PropertyValue", "name": "autonomy_budget_current", "value": budget.get("budget_current", "?")},
+            {"@type": "PropertyValue", "name": "autonomy_budget_max", "value": budget.get("budget_max", "?")},
             {"@type": "PropertyValue", "name": "collected_at", "value": collected_at},
         ],
         "relatedLink": [
@@ -1120,7 +1120,7 @@ def _render_replays_tab(status: dict) -> str:
 
 def render_html(status: dict) -> str:
     """Render status data as an HTML dashboard."""
-    budget = status.get("trust_budget", {})
+    budget = status.get("autonomy_budget", {})
     totals = status.get("totals", {})
     schedule = status.get("schedule", {})
 
@@ -1237,7 +1237,7 @@ def render_html(status: dict) -> str:
         agent = rs.get("agent_id", "unknown")
         ts = rs.get("timestamp", "?")
         source = rs.get("_source", "?")
-        trust = rs.get("trust_budget", {})
+        trust = rs.get("autonomy_budget", {})
         transport = rs.get("transport", {})
         budget_str = f"{trust.get('budget_current', '?')}/{trust.get('budget_max', '?')}" if trust else "—"
         unprocessed = transport.get("unprocessed", 0)
@@ -1608,7 +1608,7 @@ def render_html(status: dict) -> str:
 
     <div class="grid">
         <div class="card">
-            <div class="card-label">Trust Budget</div>
+            <div class="card-label">Autonomy Budget</div>
             <div class="card-value" style="color: {budget_color}">{budget_current} / {budget_max}</div>
             <div class="budget-bar"><div class="budget-fill" style="width: {budget_pct}%; background: {budget_color}"></div></div>
             <div class="card-detail">Last action: {last_action or 'never'}</div>

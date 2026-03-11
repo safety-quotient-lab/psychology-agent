@@ -1,11 +1,11 @@
 {{define "mesh"}}
-{{$budget := .TrustBudget}}
+{{$budget := .AutonomyBudget}}
 {{$totals := .Totals}}
 {{$schedule := .Schedule}}
 
 <div class="grid">
     <div class="card">
-        <div class="card-label">Trust Budget</div>
+        <div class="card-label">Autonomy Budget</div>
         <div class="card-value" style="color: {{budgetColor $budget}}">{{getStr $budget "budget_current"}} / {{getStr $budget "budget_max"}}</div>
         <div class="budget-bar"><div class="budget-fill" style="width: {{budgetPct $budget}}%; background: {{budgetColor $budget}}"></div></div>
         <div class="card-detail">Last action: {{if getStr $budget "last_action"}}{{getStr $budget "last_action"}}{{else}}never{{end}}</div>
@@ -148,7 +148,7 @@
     <tr><th>Agent</th><th>Budget</th><th>Unprocessed</th><th>Gates</th><th>Messages</th><th>Epi Flags</th><th>Schema</th><th>Snapshot</th></tr>
     {{if .RemoteStates}}
         {{range .RemoteStates}}
-        {{$trust := getMap . "trust_budget"}}
+        {{$trust := getMap . "autonomy_budget"}}
         {{$transport := getMap . "transport"}}
         <tr>
             <td>{{getStr . "agent_id"}}</td>

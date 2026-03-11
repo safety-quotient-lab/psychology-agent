@@ -357,9 +357,9 @@ the system has reached a genuine competence boundary.
 ---
 
 
-## Trust Budget: Psychological Interpretation
+## Autonomy Budget: Psychological Interpretation
 
-The trust budget maps to **ego depletion** (Baumeister et al., 1998) and
+The autonomy budget maps to **ego depletion** (Baumeister et al., 1998) and
 **decision fatigue** (Vohs et al., 2008). Each evaluative decision
 consumes cognitive resources. The budget provides a mechanical analog:
 

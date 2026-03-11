@@ -336,7 +336,7 @@ keeps the database in sync during normal operation.
 | `trigger_state` | 16 | Cognitive trigger metadata (fire count, decay, relevance) |
 | `psq_status` | 29 | PSQ operational status (calibration, endpoints, models) |
 | `lessons` | 24 | Structured index of lessons.md entries |
-| `trust_budget` | 1 | Autonomous operation credits per agent |
+| `autonomy_budget` | 1 | Autonomous operation credits per agent |
 | `autonomous_actions` | 0 | Audit trail for actions taken without human mediation |
 | `entry_facets` | 81 | Polythematic classification (domain, work_stream, agent) |
 

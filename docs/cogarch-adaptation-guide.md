@@ -145,7 +145,7 @@ commands. The *skill logic* stays the same — only the identity values change:
 | File | What to change |
 |---|---|
 | `scripts/autonomous-sync.sh` | Agent ID default, repo URL, cron target |
-| `scripts/trust-budget.py` | Agent ID references |
+| `scripts/autonomy-budget.py` | Agent ID references |
 | `transport/hooks/transport-scan.sh` | Default `AGENT_ID` fallback value |
 
 **Organization name:** In addition to the agent ID replacement above, find-and-replace
