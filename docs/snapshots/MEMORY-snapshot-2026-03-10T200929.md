@@ -17,19 +17,20 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 68. All 4 agents autonomous. Escalation pipeline
-wired. Dashboard surfaces sync status (autonomous/manual). /knock BFT analysis
-complete — recommend-against resolved by enabling remaining agents.
+**Where we stopped:** Session 67. 4-agent mesh live — all agents serve dynamic
+/api/status from state.db. Compositor aggregates mesh health (4/4 online).
+Inbox triaged (23 messages, 5 say/do gaps cataloged). /knock analysis on BFT
+consensus completed (recommend: test transport first).
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- 4-agent mesh: ✓ All agents autonomous with cron sync `[warm]`
-- Compositor: ✓ Sync column + agent card sync mode `[warm]`
-- Escalation: ✓ escalate.py + 4 autonomous-sync wiring points `[warm]`
-- Plan9 consensus: ⚑ Proposal sent (turn 1), awaiting peer votes `[warm]`
+- 4-agent mesh: ✓ All agents live with dynamic /api/status `[warm]`
+- Compositor: ✓ 3-tab UI (Agents/Messages/Health) + /api/health `[warm]`
+- Deferred outbound: 7 items cataloged in transport/deferred-outbound.md `[warm]`
+- Autonomous mesh: ✓ psychology + psq running; unratified + observatory pending `[warm]`
 - DI Phase A Pass 2: pending (fresh session) `[cold]`
 
-**Next:** Plan9 consensus votes (arrive autonomously). PSH vocabulary consensus
-(after Plan9). First gated chain test (psych→psq). DI Phase A Pass 2.
+**Next:** Plan9 directory consensus (first C2 test). Enable autonomous sync on
+peer repos. PSH vocabulary consensus (after Plan9). DI Phase A Pass 2.
 
 
 ## Memory Hygiene
@@ -63,7 +64,6 @@ complete — recommend-against resolved by enabling remaining agents.
   first visible action. Hook enforces this mechanically.
 - **AskUserQuestion tool:** Always use the `AskUserQuestion` tool when seeking
   clarification or asking questions — never ask inline as plain text.
-- **Remote deployment via SSH/SCP:** SSH into chromabook for operational tasks
-  (deploy scripts, install cron, restart services). PRs preferred for code changes
-  that benefit from review; SCP acceptable for deploying shared scripts that
-  originate from psychology-agent canonical source.
+- **No direct remote edits:** Never SSH into remote machines to edit files directly.
+  Use PRs to communicate code changes to other agents/machines. PRs provide audit
+  trail, review opportunity, and rollback capability.

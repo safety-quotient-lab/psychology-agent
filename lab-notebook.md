@@ -129,6 +129,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Inbox triage (unratified)       | ✓ 23 messages processed, 5 say/do gaps cataloged in transport/deferred-outbound.md (Session 67) |
 | Cross-repo dual naming fix      | ✓ cross_repo_fetch.py handles both from-{sender} and to-{recipient} naming conventions (Session 67) |
 | SQ shared scripts sync          | ✓ PRs #9 (JSON-LD), #10 (schema v14 + dual_write) merged; chromabook at parity (Session 66) |
+| Escalation pipeline             | ✓ escalate.py + 4 autonomous-sync.sh wiring points (budget-halt, gate-timeout, api-limit, consecutive-errors) — GitHub App bot identity (Session 68) |
+| All-agent autonomous sync       | ✓ All 4 agents run autonomous-sync.sh via cron — psq-agent hourly, unratified + observatory */5 (Session 68) |
+| Dashboard sync status           | ✓ status_server.py reports schedule (cron, lock, last_sync); compositor shows Sync column + agent card sync mode (Session 68) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -4609,3 +4612,37 @@ principles.
 ▶ transport/agent-registry.json, scripts/cross_repo_fetch.py,
   interagent/{worker.js, index.html}, scripts/status_server.py,
   transport/deferred-outbound.md, docs/interagent-auth-spec.md
+
+
+## 2026-03-10T20:06 CDT — Session 68 (Escalation pipeline, all-agent autonomous sync, dashboard sync status)
+
+- **Escalate.py wired into autonomous-sync.sh** — 4 escalation points: budget-halt (critical),
+  gate-timeout (critical), api-usage-limit (critical), consecutive-errors (warning). GitHub App
+  bot (safety-quotient-mesh-bot, App ID 3060729) files for-human-review issues. Duplicate
+  prevention, transport audit trail, state.db indexing. Commit `fbecc02`.
+- **/knock full analysis on BFT consensus** — 10-order trace. Key findings: gate-consensus
+  interaction at Order 9 (two parallel blocking mechanisms), theory-revising at Order 10
+  (hierarchy may prove more efficient than peer consensus for domain-asymmetric decisions).
+  Recommend-against: consensus before 4 autonomous peers. Finding subsequently resolved
+  by enabling autonomous sync on remaining agents.
+- **Autonomous sync enabled for unratified + observatory** — 8 scripts deployed to each repo
+  via SCP from psq-agent. Cron installed (*/5). Trust budgets initialized (20 credits).
+  State.db verified (107 messages each). Commits pushed to both repos. Smoke test passed
+  (clean no-op cycle on unratified-agent).
+- **Dashboard sync status gap fixed** — Root cause: compositor showed "online" based on HTTP
+  reachability, never checked whether autonomous sync ran. Fix: status_server.py now reports
+  schedule field (cron_entry, cron_interval_min, lock_active, last_sync). Compositor health
+  table adds Sync column. Agent cards display autonomous/manual in details.
+- **Bug found and fixed** — status_server.py cron detection matched first autonomous-sync entry
+  regardless of repo. On multi-agent chromabook, all agents reported psq-agent's cron. Fixed
+  by filtering on PROJECT_ROOT path. Commit `05185d4`.
+- **Agent registry updated** — unratified-agent and observatory-agent set `autonomous: true`.
+  All 4 agents now operate autonomously. Commit `3b56e66`.
+
+⚑ EPISTEMIC FLAGS
+- Autonomous sync on unratified/observatory not yet observed completing a full claude -p cycle — only no-op cycles verified
+- Scripts copied from psq-agent, not from psychology-agent canonical — shared-scripts.json checksums may diverge
+- Cron log file shared (/tmp/autonomous-sync.log) across all 3 chromabook agents — log interleaving possible
+
+▶ scripts/escalate.py, scripts/autonomous-sync.sh, scripts/status_server.py,
+  interagent/index.html, transport/agent-registry.json
