@@ -110,8 +110,18 @@ pipeline {
                         PORT="${DEPLOY_PORT:-22}"
                         SSH_CMD="ssh -i ${SSH_KEY} -o StrictHostKeyChecking=accept-new -p ${PORT}"
 
+                        echo "Testing SSH connectivity..."
+                        ${SSH_CMD} ${DEPLOY_USER}@${DEPLOY_HOST} "echo 'SSH connected to $(hostname)'" || {
+                            echo "SSH connection failed — debugging:"
+                            echo "  DEPLOY_HOST=${DEPLOY_HOST}"
+                            echo "  DEPLOY_USER=${DEPLOY_USER}"
+                            echo "  DEPLOY_PORT=${PORT}"
+                            ssh -v -i ${SSH_KEY} -o StrictHostKeyChecking=accept-new -p ${PORT} ${DEPLOY_USER}@${DEPLOY_HOST} "echo test" 2>&1 || true
+                            exit 1
+                        }
+
                         echo "Stopping meshd on deploy target..."
-                        ${SSH_CMD} ${DEPLOY_USER}@${DEPLOY_HOST} "pkill -f meshd || true"
+                        ${SSH_CMD} ${DEPLOY_USER}@${DEPLOY_HOST} "pkill -f meshd" || true
 
                         echo "Deploying meshd binary..."
                         scp -i ${SSH_KEY} -P ${PORT} \
