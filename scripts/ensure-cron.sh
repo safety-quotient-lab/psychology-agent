@@ -20,10 +20,11 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 SYNC_SCRIPT="${SCRIPT_DIR}/autonomous-sync.sh"
 INTERVAL=5
+OFFSET=""
 TARGET_DIR=""
 CHECK_ONLY=false
 REMOVE=false
-LOG_FILE="/tmp/autonomous-sync.log"
+LOG_FILE=""
 
 # ── Parse arguments ─────────────────────────────────────────────────────
 
@@ -32,6 +33,7 @@ while [ $# -gt 0 ]; do
         --check)     CHECK_ONLY=true; shift ;;
         --remove)    REMOVE=true; shift ;;
         --interval)  INTERVAL="$2"; shift 2 ;;
+        --offset)    OFFSET="$2"; shift 2 ;;
         --target)    TARGET_DIR="$2"; shift 2 ;;
         --log)       LOG_FILE="$2"; shift 2 ;;
         *)           echo "Unknown option: $1" >&2; exit 1 ;;
@@ -47,10 +49,32 @@ else
     SYNC_CMD="${SYNC_SCRIPT}"
 fi
 
-CRON_LINE="*/${INTERVAL} * * * * ${SYNC_CMD} >> ${LOG_FILE} 2>&1"
+# Derive agent name for per-agent log file
+AGENT_NAME=$(basename "${TARGET_DIR:-${PROJECT_ROOT}}")
+
+# Default log file: per-agent to prevent interleaving
+if [ -z "${LOG_FILE}" ]; then
+    LOG_FILE="/tmp/autonomous-sync-${AGENT_NAME}.log"
+fi
+
+# Build cron minute spec: stagger with offset if provided
+# e.g., --interval 5 --offset 2 → "2,7,12,17,22,27,32,37,42,47,52,57"
+if [ -n "${OFFSET}" ]; then
+    MINUTE_SPEC=""
+    m="${OFFSET}"
+    while [ "${m}" -lt 60 ]; do
+        [ -n "${MINUTE_SPEC}" ] && MINUTE_SPEC="${MINUTE_SPEC},"
+        MINUTE_SPEC="${MINUTE_SPEC}${m}"
+        m=$((m + INTERVAL))
+    done
+else
+    MINUTE_SPEC="*/${INTERVAL}"
+fi
+
+CRON_LINE="${MINUTE_SPEC} * * * * ${SYNC_CMD} >> ${LOG_FILE} 2>&1"
 
 # Marker comment for identification (allows multiple entries for different repos)
-MARKER="# autonomous-sync: $(basename "${TARGET_DIR:-${PROJECT_ROOT}}")"
+MARKER="# autonomous-sync: ${AGENT_NAME}"
 
 # ── Functions ───────────────────────────────────────────────────────────
 
