@@ -70,11 +70,9 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ## Tooling
 
-- [ ] **JSONL transcript parser** — lightweight tool to extract readable content
-  from Claude Code JSONL outputs (task results, session transcripts). Currently
-  these files require manual parsing; agent subprocesses produce JSONL that
-  gets abandoned when too complex to read inline. Target: `scripts/parse-jsonl.py`
-  or a Go subcommand in meshd.
+- [x] **JSONL transcript parser** — `scripts/parse-jsonl.py`. Modes: `--summary`
+  (stats), `--compact` (truncated), `--type assistant|user|tool_result` (filter),
+  `--json` (structured output), `--last N` (tail). Session 70.
 
 - [ ] **Investigate alternative Claude Code client ("psychology interface")** —
   explore building a custom client tailored to the psychology agent use case:
