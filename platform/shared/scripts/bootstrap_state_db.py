@@ -106,6 +106,22 @@ def _extract_subject(data: dict) -> str:
     request_type = (data.get("request") or {}).get("type", "")
     if request_type:
         return request_type
+    # observatory-agent/machine-response/v1 — status field as stand-in
+    status = data.get("status")
+    if isinstance(status, str) and status:
+        return status
+    # interagent/v1-attachment — batch identifier as stand-in
+    batch = data.get("batch")
+    if isinstance(batch, str) and batch:
+        return f"batch {batch}"
+    # machine-response/v2 — in_response_to as last resort
+    in_reply = data.get("in_response_to") or data.get("in_reply_to")
+    if isinstance(in_reply, str) and in_reply:
+        return in_reply[:200]
+    # Top-level subject field (some schemas place it at root)
+    top_subject = data.get("subject")
+    if isinstance(top_subject, str) and top_subject:
+        return top_subject
     return ""
 
 
@@ -221,6 +237,9 @@ def load_transport_messages(conn: sqlite3.Connection) -> tuple[int, int]:
     legacy_count = 0
 
     for json_file in sorted(transport_root.glob("**/*.json")):
+        # Skip MANIFEST files — session metadata, not transport messages
+        if json_file.name == "MANIFEST.json":
+            continue
         try:
             raw = json_file.read_text(encoding="utf-8")
             data = json.loads(raw)
@@ -239,7 +258,10 @@ def load_transport_messages(conn: sqlite3.Connection) -> tuple[int, int]:
                 from_agent = _extract_agent_id(data.get("from"))
                 to_agent = _extract_agent_id(data.get("to"))
                 timestamp = data.get("timestamp", "")
-                subject = (data.get("payload") or {}).get("subject", "")
+                subject = (
+                    (data.get("content") or {}).get("subject", "")
+                    or (data.get("payload") or {}).get("subject", "")
+                )
                 claims_list = data.get("claims") or []
                 claims_count = len(claims_list)
                 setl = data.get("setl")
@@ -255,7 +277,8 @@ def load_transport_messages(conn: sqlite3.Connection) -> tuple[int, int]:
                       timestamp, subject, claims_count, setl, urgency, today_iso()))
 
                 msg_row = conn.execute(
-                    "SELECT id FROM transport_messages WHERE filename = ?", (filename,)
+                    "SELECT id FROM transport_messages WHERE session_name = ? AND filename = ?",
+                    (session_name, filename)
                 ).fetchone()
                 if msg_row is None:
                     continue
@@ -312,12 +335,20 @@ def load_transport_messages(conn: sqlite3.Connection) -> tuple[int, int]:
 
                 # Index claims when present in legacy messages
                 msg_row = conn.execute(
-                    "SELECT id FROM transport_messages WHERE filename = ?",
-                    (parsed["filename"],)
+                    "SELECT id FROM transport_messages WHERE session_name = ? AND filename = ?",
+                    (parsed["session_name"], parsed["filename"])
                 ).fetchone()
                 if msg_row and parsed["claims_list"]:
                     msg_id = msg_row[0]
-                    for claim in parsed["claims_list"]:
+                    for idx, claim in enumerate(parsed["claims_list"]):
+                        if isinstance(claim, str):
+                            conn.execute("""
+                                INSERT OR IGNORE INTO claims
+                                    (transport_msg, claim_id, claim_text, confidence,
+                                     confidence_basis, verified)
+                                VALUES (?, ?, ?, NULL, '', FALSE)
+                            """, (msg_id, f"c{idx + 1}", claim[:2000]))
+                            continue
                         conn.execute("""
                             INSERT OR IGNORE INTO claims
                                 (transport_msg, claim_id, claim_text, confidence,
