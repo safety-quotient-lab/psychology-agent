@@ -1,0 +1,121 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "self-readiness-audit",
+  "turn": 2,
+  "timestamp": "2026-03-11T18:41:19-05:00",
+  "message_type": "ack",
+  "in_response_to": "to-psychology-agent-001.json",
+  "from": {
+    "agent_id": "psychology-agent",
+    "role": "psychology-agent",
+    "instance": "Claude Code (Sonnet 4.6), linux-x86_64",
+    "schemas_supported": ["interagent/v1", "command-request/v1", "local-coordination/v1"],
+    "discovery_url": "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json"
+  },
+  "to": {
+    "agent_id": "human",
+    "discovery_url": null
+  },
+  "content": {
+    "subject": "Self-readiness audit response — psychology-agent",
+    "vote": "READY-WITH-CAVEATS",
+    "vote_reasoning": "Psychology-agent operates normally for all core functions. Primary caveat: git remotes for unratified-agent and observatory-agent are not configured, breaking cross-repo-fetch for those agents. All scripts, hooks, cron, Plan9 contract, and state layer are healthy.",
+    "findings": [
+      {
+        "category": "stale-state",
+        "severity": "LOW",
+        "description": "MEMORY.md Active Thread references v34 PSQ eval as next work (from 2026-03-07). Four sessions have passed without an update from PSQ sub-agent. This is within the 5-session flag threshold and is expected — PSQ runs in its own context.",
+        "remediation": "No action required. PSQ thread updates when PSQ agent runs /cycle."
+      },
+      {
+        "category": "stale-state",
+        "severity": "INFO",
+        "description": "mesh-state-psychology-agent.json shows epistemic_flags_unresolved: 448. This is a cumulative counter, not a per-session backlog. Not actionable as a staleness item.",
+        "remediation": "None needed. Counter reflects historical accumulation, not open flags requiring resolution."
+      },
+      {
+        "category": "broken-state",
+        "severity": "NONE",
+        "description": "All core scripts invoke without error: cross_repo_fetch.py, dual_write.py, generate_manifest.py, bootstrap_state_db.py, bootstrap_facets.py. state.db at schema v17 with all expected tables present. All Plan9 required files exist. All cron scripts are present and executable.",
+        "remediation": null
+      },
+      {
+        "category": "misconfigured-state",
+        "severity": "HIGH",
+        "description": "git remote 'unratified' is not configured in .git/config. agent-registry.json specifies transport: cross-repo-fetch with remote_name: 'unratified' for unratified-agent, but 'git fetch unratified' fails fatally. /sync cannot scan unratified-agent's transport sessions.",
+        "remediation": "Add unratified git remote pointing to the unratified repo. Requires user action: git remote add unratified <URL>. The repo URL should come from agent-registry.json or the user. This remote should also be documented in a gitignore-covered local config to avoid exposing internal repo topology."
+      },
+      {
+        "category": "misconfigured-state",
+        "severity": "MODERATE",
+        "description": "git remote 'observatory' is not configured in .git/config. Same failure mode as unratified. observatory-agent has always_consider: false, so impact is lower, but /sync cannot scan observatory transport sessions.",
+        "remediation": "Add observatory git remote. Same pattern as unratified remediation."
+      },
+      {
+        "category": "misconfigured-state",
+        "severity": "INFO",
+        "description": "git remote 'safety-quotient' (psq-agent) works via local directory path — the safety-quotient/ subdirectory is PSQ's git repo. 'git fetch safety-quotient' resolves to a local path rather than a named remote in .git/config. This is functional but implicit — a fresh clone of psychology-agent would not have this working.",
+        "remediation": "Document this behavior in BOOTSTRAP.md or agent-registry notes. Consider adding an explicit named remote for clarity, or confirm local-path resolution is the intended mechanism."
+      },
+      {
+        "category": "insecure-state",
+        "severity": "NONE",
+        "description": "No hardcoded secrets found in committed files. git grep for Anthropic API key, password=, api_key=, token=, secret= patterns matched only legitimate env-var reference patterns in scripts (os.environ.get() style) and transport messages discussing settings concepts — not hardcoded values. .gitignore covers .env* files. psychology-agent root has no .env file.",
+        "remediation": null
+      },
+      {
+        "category": "contract-compliance",
+        "severity": "NONE",
+        "description": "All Plan9 directory contract v1 required files present: CLAUDE.md, README.md, TODO.md, docs/architecture.md, lab-notebook.md, transport/MANIFEST.json, .well-known/agent-card.json, .agent-identity.json. Cogarch loaded (T1-T16 + T18). Hook script paths verified. Lab-notebook last entry matches Session 76 (2026-03-11T18:15). TODO.md is forward-looking only. Transport session naming follows semantic conventions.",
+        "remediation": null
+      }
+    ],
+    "cross_agent_coordination": [
+      {
+        "item": "unratified and observatory git remotes missing",
+        "requires": "User or platform operator to configure git remotes (git remote add) on this machine, or document that these agents are accessed via alternative mechanism (LAN agent-registry.local.json).",
+        "agents_affected": ["unratified-agent", "observatory-agent"]
+      }
+    ],
+    "overall_readiness": "READY-WITH-CAVEATS",
+    "summary": "Psychology-agent is healthy. Core infrastructure (scripts, hooks, cron, state layer, transport protocol, Plan9 contract) all pass. Primary gap: cross-repo-fetch for unratified-agent and observatory-agent is broken due to missing git remotes — this degrades /sync to psq-agent-only for cross-repo scanning. No security issues found."
+  },
+  "claims": [
+    {
+      "claim_id": "c1",
+      "claim_text": "All core scripts invoke without error",
+      "verified": true,
+      "evidence": "Direct invocation with --help flag confirmed each script parses args and initializes without exception"
+    },
+    {
+      "claim_id": "c2",
+      "claim_text": "unratified git remote is not configured",
+      "verified": true,
+      "evidence": "git fetch unratified returned fatal: not a git repository; git remote -v shows only origin"
+    },
+    {
+      "claim_id": "c3",
+      "claim_text": "observatory git remote is not configured",
+      "verified": true,
+      "evidence": "git fetch observatory returned fatal: not a git repository"
+    },
+    {
+      "claim_id": "c4",
+      "claim_text": "No hardcoded secrets in committed files",
+      "verified": true,
+      "evidence": "git grep pattern scan found only env-var reference patterns, not hardcoded credential values"
+    }
+  ],
+  "action_gate": {
+    "gate_condition": "none",
+    "gate_status": "open"
+  },
+  "ack_required": false,
+  "urgency": "normal",
+  "setl": 0.04,
+  "epistemic_flags": [
+    "Self-assessment is inherently blind-spot-limited — findings represent what can be checked from repo context and script invocation",
+    "git remote safety-quotient behavior (local path resolution) is inferred from directory structure, not confirmed from explicit documentation",
+    "Cron script existence and executability verified, but runtime success (network access, LAN tunnels) not verifiable from this context"
+  ]
+}

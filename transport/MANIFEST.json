@@ -1,25 +1,16 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-10T18:41:25",
+  "generated_at": "2026-03-11T18:42:15",
   "source": "scripts/generate_manifest.py",
   "pending": {
-    "psq-agent,unratified-agent,observatory-agent": [
+    "human": [
       {
-        "session": "plan9-consensus",
-        "file": "transport/sessions/plan9-consensus/from-psychology-agent-001.json",
-        "type": "consensus-proposal",
-        "subject": "Plan9-inspired shared directory layout \u2014 consensus proposal",
-        "timestamp": "2026-03-10T23:40:26Z"
-      }
-    ],
-    "unratified-agent": [
-      {
-        "session": "site-pricing-update",
-        "file": "transport/sessions/site-pricing-update/to-unratified-agent-001.json",
-        "type": "command-request",
-        "subject": "Blog post request: How much would it cost to ratify ICESCR and fill the gaps in the safety net?",
-        "timestamp": "2026-03-11T01:14:04-05:00"
+        "session": "self-readiness-audit",
+        "file": "transport/sessions/self-readiness-audit/from-psychology-agent-002.json",
+        "type": "ack",
+        "subject": "Self-readiness audit response \u2014 psychology-agent",
+        "timestamp": "2026-03-11T18:41:19-05:00"
       }
     ]
   },
