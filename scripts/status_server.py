@@ -57,13 +57,16 @@ def _collect_schedule(agent_id: str, last_action_ts: str | None) -> dict:
     """Collect autonomous-sync schedule from cron, lock file, and last action."""
     schedule = {"autonomous": False}
 
-    # Check cron for autonomous-sync entry
+    # Check cron for autonomous-sync entry matching THIS repo
+    project_dir = str(PROJECT_ROOT)
     try:
         cron_output = subprocess.run(
             ["crontab", "-l"], capture_output=True, text=True, timeout=5)
         if cron_output.returncode == 0:
             for line in cron_output.stdout.splitlines():
-                if "autonomous-sync" in line and not line.strip().startswith("#"):
+                if "autonomous-sync" in line \
+                        and not line.strip().startswith("#") \
+                        and project_dir in line:
                     schedule["autonomous"] = True
                     schedule["cron_entry"] = line.strip()
                     # Extract interval from */N pattern
