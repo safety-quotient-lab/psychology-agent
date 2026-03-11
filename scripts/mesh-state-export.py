@@ -16,9 +16,11 @@ Usage:
 
 import argparse
 import json
+import re
 import sqlite3
+import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -48,6 +50,58 @@ def scalar(conn: sqlite3.Connection, sql: str, params: tuple = (), default=0):
     """Run a query and return a single scalar."""
     row = conn.execute(sql, params).fetchone()
     return row[0] if row else default
+
+
+def _collect_schedule(agent_id: str) -> dict:
+    """Collect sync schedule from cron and log files."""
+    schedule = {
+        "autonomous": False,
+        "cron_interval_min": None,
+        "last_sync": None,
+        "next_expected": None,
+    }
+
+    # Parse cron for autonomous-sync entries
+    try:
+        result = subprocess.run(
+            ["crontab", "-l"], capture_output=True, text=True, timeout=5
+        )
+        if result.returncode == 0:
+            for line in result.stdout.splitlines():
+                if "autonomous-sync" in line and not line.startswith("#"):
+                    schedule["autonomous"] = True
+                    m = re.match(r"\*/(\d+)", line.strip())
+                    if m:
+                        schedule["cron_interval_min"] = int(m.group(1))
+                    elif line.strip().startswith("0 "):
+                        schedule["cron_interval_min"] = 60
+                    break
+    except (subprocess.TimeoutExpired, OSError):
+        pass
+
+    # Last sync from log file
+    log_path = Path("/tmp") / f"autonomous-sync-{agent_id}.log"
+    if log_path.exists():
+        try:
+            lines = log_path.read_text().splitlines()[-20:]
+            for line in reversed(lines):
+                m = re.match(r"\[(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2})", line)
+                if m:
+                    schedule["last_sync"] = m.group(1)
+                    break
+        except OSError:
+            pass
+
+    # Compute next expected
+    if schedule["last_sync"] and schedule["cron_interval_min"]:
+        try:
+            last_dt = datetime.fromisoformat(schedule["last_sync"])
+            next_dt = last_dt + timedelta(minutes=schedule["cron_interval_min"])
+            schedule["next_expected"] = next_dt.strftime("%Y-%m-%dT%H:%M:%S")
+        except (ValueError, TypeError):
+            pass
+
+    return schedule
 
 
 def export_state(conn: sqlite3.Connection, agent_id: str) -> dict:
@@ -102,6 +156,9 @@ def export_state(conn: sqlite3.Connection, agent_id: str) -> dict:
         conn, "SELECT COUNT(*) FROM epistemic_flags WHERE resolved = FALSE"
     )
 
+    # Schedule info (cron interval, last sync, next expected)
+    schedule = _collect_schedule(agent_id)
+
     return {
         "schema": "mesh-state/v1",
         "timestamp": now,
@@ -113,6 +170,7 @@ def export_state(conn: sqlite3.Connection, agent_id: str) -> dict:
             "unprocessed": unprocessed,
             "active_gates": active_gates,
         },
+        "schedule": schedule,
         "psh_facets": psh_summary,
         "schema_version": schema_ver,
         "epistemic_flags_unresolved": epistemic_flags,
