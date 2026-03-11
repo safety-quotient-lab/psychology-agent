@@ -666,7 +666,7 @@ record_action() {
     local budget_before="$6"
 
     local cost=0
-    if [ "${result}" = "approved" ]; then
+    if [ "${result}" = "approved" ] && [ "${action_type}" != "gate_poll" ]; then
         case "${tier}" in
             1) cost=1 ;;
             2) cost=3 ;;
