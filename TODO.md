@@ -260,6 +260,15 @@ semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
   per class, audit trail via autonomous_actions, escalation via escalate.py.
   *Precondition: ✓ MET — basic self-healing operational (Session 68)*
 
+- [ ] **Batch message triage in autonomous sync** — instead of processing one
+  message per cycle, read all pending message headers (subject, type, turn) at
+  session start, build a priority plan, then process the highest-value batch.
+  Context budget guard: cap at 5 substantive messages per session. Acks already
+  batch-process (`Auto-processed: N trivial`); extend triage to substantive
+  message types (request, review, consensus-proposal). Reduces backlog clearing
+  from hours to minutes.
+  *Precondition: ✓ MET — autonomous sync operational, /sync skill has auto-process logic*
+
 - [ ] **Autonomous session replay on web** — generate claude-replay HTML for
   every autonomous sync session and serve them on agent dashboards. Approach:
   (1) autonomous-sync.sh captures session transcript (claude -p already writes
