@@ -178,6 +178,96 @@ to that agent using the `outbound_routing.rules`:
 has a cogarch mirror directive active. /sync drafts a notification
 message for psq-agent and surfaces it to the user.
 
+### Phase 2c: Incomplete Work Detection
+
+Before processing new messages, check whether any active session contains
+incomplete work that a previous sync cycle started but did not finish.
+Incomplete work left undetected compounds — the next cycle may duplicate
+effort or send contradictory messages.
+
+**Detection heuristics:**
+
+1. **Orphaned gates:** Query `active_gates` for gates where `timeout_at`
+   has passed but no resolution or fallback executed:
+   ```sql
+   SELECT * FROM active_gates
+   WHERE resolved_at IS NULL
+     AND timeout_at < datetime('now');
+   ```
+   Action: execute the gate's `fallback_action` or escalate.
+
+2. **Dangling outbound drafts:** Check for uncommitted transport files
+   (files in `transport/sessions/` that exist on disk but have no
+   `transport_messages` row in state.db):
+   ```bash
+   # Compare filesystem to index
+   for f in transport/sessions/*/from-psychology-agent-*.json; do
+     python3 -c "
+   import sqlite3, sys
+   db = sqlite3.connect('state.db')
+   r = db.execute('SELECT 1 FROM transport_messages WHERE filename=?',
+                  (sys.argv[1],)).fetchone()
+   if not r: print(f'UNINDEXED: {sys.argv[1]}')
+   " "$(basename "$f")"
+   done
+   ```
+   Action: index the file via dual_write, or delete if it represents
+   an abandoned draft (check git status — unstaged = abandoned).
+
+3. **Request-without-response:** For each active session, check if the
+   most recent message from a peer agent contains `message_type: "request"`
+   and no subsequent `from-psychology-agent` message exists:
+   ```sql
+   SELECT tm.session_name, tm.filename, tm.turn, tm.subject
+   FROM transport_messages tm
+   WHERE tm.message_type = 'request'
+     AND tm.from_agent != 'psychology-agent'
+     AND tm.processed = TRUE
+     AND NOT EXISTS (
+       SELECT 1 FROM transport_messages tm2
+       WHERE tm2.session_name = tm.session_name
+         AND tm2.from_agent = 'psychology-agent'
+         AND tm2.turn > tm.turn
+     );
+   ```
+   Action: flag in output as "pending response needed" — do NOT auto-draft
+   unless the request carries `urgency: "immediate"`.
+
+4. **Partial deliverable chains:** When a message references a multi-step
+   deliverable (e.g., "5 blog posts" or "review + revise + publish"),
+   check if all steps completed:
+   ```sql
+   -- Check claims linked to the request message
+   SELECT c.claim_text, c.verified
+   FROM claims c
+   WHERE c.transport_msg IN (
+     SELECT id FROM transport_messages
+     WHERE session_name = '{session}' AND message_type = 'request'
+   );
+   ```
+   Action: if unverified claims remain, flag the deliverable as incomplete.
+
+**Output addition:**
+
+Add to the /sync output block:
+```
+  Incomplete work detected: {count} items
+    - {session}: orphaned gate {gate_id} (timed out {when})
+    - {session}: unanswered request from {agent} (turn {N})
+    - {session}: {M}/{total} deliverables incomplete
+```
+
+If no incomplete work: `Incomplete work detected: none`
+
+**Autonomous mode behavior:**
+
+When running under `autonomous-sync.sh`, incomplete work detection MUST
+run before the claude invocation's orientation payload. The pre-sync
+script (`scripts/pre_sync_check.py`) should surface incomplete items
+so the LLM context includes them. If incomplete work exceeds 3 items,
+the orientation payload should prioritize resolution over new inbound
+processing.
+
 ### Phase 3: Process Each Item
 
 #### For a new transport message:
@@ -213,7 +303,7 @@ message for psq-agent and surfaces it to the user.
    (process decision, not substance).
 8. **Dual-write (SL-2):** After processing, mark as processed:
    ```bash
-   python scripts/dual_write.py mark-processed --filename "{filename}"
+   python scripts/dual_write.py mark-processed --session "{session_name}" --filename "{filename}"
    ```
 
 #### For an inbound PR:
