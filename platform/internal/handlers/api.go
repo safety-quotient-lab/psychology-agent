@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/collector"
-	"github.com/safety-quotient-lab/psychology-agent/platform/internal/db"
 )
 
 // allowedOrigins defines CORS allowlisted origins.
@@ -35,12 +34,19 @@ func setCORS(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// setAPIHeaders sets CORS + Cache-Control for JSON API responses.
+// max-age matches the meshd cache TTL so CF edge caching stays coherent.
+func setAPIHeaders(w http.ResponseWriter, r *http.Request) {
+	setCORS(w, r)
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "public, max-age=10")
+}
+
 // APIStatus serves GET /api/status — backward-compatible JSON.
-func APIStatus(d *db.DB, projectRoot string) http.HandlerFunc {
+func APIStatus(cache *collector.Cache) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		setCORS(w, r)
-		status := collector.Collect(d, projectRoot)
-		w.Header().Set("Content-Type", "application/json")
+		setAPIHeaders(w, r)
+		status := cache.Status()
 		json.NewEncoder(w).Encode(status)
 	}
 }

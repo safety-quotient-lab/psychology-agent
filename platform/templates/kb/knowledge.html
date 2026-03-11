@@ -1,0 +1,145 @@
+{{define "knowledge"}}
+{{$kb := .Knowledge}}
+
+<div class="grid">
+    <div class="card">
+        <div class="card-label">Decisions</div>
+        <div class="card-value">{{$kb.Totals.Decisions}}</div>
+        <div class="card-detail">architecture decisions</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Triggers</div>
+        <div class="card-value">{{$kb.Totals.Triggers}}</div>
+        <div class="card-detail">cognitive triggers</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Catalog</div>
+        <div class="card-value">{{$kb.Totals.CatalogEntries}}</div>
+        <div class="card-detail">active classifications</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Memory</div>
+        <div class="card-value">{{$kb.Totals.MemoryEntries}}</div>
+        <div class="card-detail">{{if gt $kb.Totals.StaleEntries 0}}<span class="alert">{{$kb.Totals.StaleEntries}} stale</span>{{else}}all current{{end}}</div>
+    </div>
+</div>
+
+<div class="kb-links">
+    <strong>API:</strong>
+    <a href="/api/kb">/api/kb</a> &middot;
+    <a href="/kb/decisions">/kb/decisions</a> &middot;
+    <a href="/kb/triggers">/kb/triggers</a> &middot;
+    <a href="/kb/catalog">/kb/catalog</a> &middot;
+    <a href="/kb/memory">/kb/memory</a> &middot;
+    <a href="/kb/dictionary">/kb/dictionary</a> <span style="color:#484f58">(JSON-LD)</span>
+</div>
+
+<!-- ── Cognitive Triggers ── -->
+<h2>Cognitive Triggers</h2>
+<table>
+    <tr><th>ID</th><th>Description</th><th>Fire count</th><th>Last fired</th><th>Relevance</th></tr>
+    {{if $kb.Triggers}}
+        {{range $kb.Triggers}}
+        <tr>
+            <td><strong>{{getStr . "trigger_id"}}</strong></td>
+            <td>{{truncate (getStr . "description") 60}}</td>
+            <td>{{getStr . "fire_count"}}</td>
+            <td>{{if getStr . "last_fired"}}{{getStr . "last_fired"}}{{else}}<span style="color:#484f58">never</span>{{end}}</td>
+            <td>{{floatFmt (getFloat . "relevance_score") 2}}</td>
+        </tr>
+        {{end}}
+    {{else}}
+        <tr><td colspan="5" class="empty">No trigger state data</td></tr>
+    {{end}}
+</table>
+
+<!-- ── Architecture Decisions ── -->
+<h2>Architecture Decisions <span style="color:#484f58;font-size:0.85em">(recent 20)</span></h2>
+<table>
+    <tr><th>Key</th><th>Decision</th><th>Date</th><th>Confidence</th><th>Evidence</th></tr>
+    {{if $kb.Decisions}}
+        {{range $kb.Decisions}}
+        <tr>
+            <td><strong>{{getStr . "decision_key"}}</strong></td>
+            <td>{{truncate (getStr . "decision_text") 80}}</td>
+            <td>{{getStr . "decided_date"}}</td>
+            <td>{{if getFloat . "confidence"}}{{floatFmt (getFloat . "confidence") 2}}{{else}}<span style="color:#484f58">—</span>{{end}}</td>
+            <td>{{truncate (getStr . "evidence_source") 40}}</td>
+        </tr>
+        {{end}}
+    {{else}}
+        <tr><td colspan="5" class="empty">No decisions recorded</td></tr>
+    {{end}}
+</table>
+
+<!-- ── Classification Catalog ── -->
+<h2>Classification Catalog</h2>
+<h3>Active categories</h3>
+<table>
+    <tr><th>Type</th><th>Value</th><th>Code</th><th>Source</th><th>Entities</th><th>Avg conf</th></tr>
+    {{if $kb.Catalog.Active}}
+        {{range $kb.Catalog.Active}}
+        <tr>
+            <td>{{getStr . "facet_type"}}</td>
+            <td><strong>{{getStr . "facet_value"}}</strong></td>
+            <td>{{getStr . "code"}}</td>
+            <td class="{{sourceClass (getStr . "source")}}">{{getStr . "source"}}</td>
+            <td>{{getStr . "entity_count"}}</td>
+            <td>{{if getFloat . "avg_confidence"}}{{floatFmt (getFloat . "avg_confidence") 3}}{{else}}—{{end}}</td>
+        </tr>
+        {{end}}
+    {{else}}
+        <tr><td colspan="6" class="empty">No active catalog entries</td></tr>
+    {{end}}
+</table>
+
+{{if $kb.Catalog.EntityDist}}
+<h3>Entity distribution</h3>
+<table>
+    <tr><th>Entity type</th><th>Facet count</th><th>Distinct values</th></tr>
+    {{range $kb.Catalog.EntityDist}}
+    <tr>
+        <td>{{getStr . "entity_type"}}</td>
+        <td>{{getStr . "facet_count"}}</td>
+        <td>{{getStr . "distinct_values"}}</td>
+    </tr>
+    {{end}}
+</table>
+{{end}}
+
+<!-- ── Memory ── -->
+<h2>Memory by Topic</h2>
+<table>
+    <tr><th>Topic</th><th>Entries</th><th>Stale</th><th>Newest</th><th>Oldest</th></tr>
+    {{if $kb.Memory.ByTopic}}
+        {{range $kb.Memory.ByTopic}}
+        <tr>
+            <td><strong>{{getStr . "topic"}}</strong></td>
+            <td>{{getStr . "entry_count"}}</td>
+            <td class="{{if getInt . "stale_count"}}alert{{end}}">{{getStr . "stale_count"}}</td>
+            <td>{{getStr . "newest"}}</td>
+            <td>{{getStr . "oldest"}}</td>
+        </tr>
+        {{end}}
+    {{else}}
+        <tr><td colspan="5" class="empty">No memory entries</td></tr>
+    {{end}}
+</table>
+
+{{if $kb.Memory.PSQStatus}}
+<h3>PSQ Status</h3>
+<table>
+    <tr><th>Key</th><th>Value</th><th>Status</th><th>Model</th><th>Confirmed</th></tr>
+    {{range $kb.Memory.PSQStatus}}
+    <tr>
+        <td><strong>{{getStr . "entry_key"}}</strong></td>
+        <td>{{truncate (getStr . "value") 60}}</td>
+        <td>{{getStr . "status_marker"}}</td>
+        <td>{{getStr . "model_version"}}</td>
+        <td>{{getStr . "last_confirmed"}}</td>
+    </tr>
+    {{end}}
+</table>
+{{end}}
+
+{{end}}
