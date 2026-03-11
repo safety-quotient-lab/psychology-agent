@@ -133,6 +133,11 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | All-agent autonomous sync       | ✓ All 4 agents run autonomous-sync.sh via cron — staggered offsets, NVM bootstrap, self-healing git_sync (Session 68-69) |
 | Dashboard sync status           | ✓ status_server.py reports schedule (cron, lock, last_sync); compositor shows semantic status colors + clickable message timeline (Session 68-69) |
 | Cold-peer MANIFEST discovery    | ✓ cross_repo_fetch.py checks cached MANIFEST before skipping cold peers — prevents message deadlock (Session 69) |
+| meshd Phase A                   | ✓ Go binary replaces mesh-status.py + status_server.py — 3 systemd services on chromabook (Session 70) |
+| Python dashboard respawn fix    | ✓ System-level systemd units (psq-agent-dashboard, unratified/observatory-agent-status) stopped + disabled (Session 70) |
+| JSONL transcript parser         | ✓ scripts/parse-jsonl.py — all 8 entry types, dedup, tokens, turns (Session 70) |
+| Schedule collector fix          | ✓ Cron entry matched to project root; lock/log paths use filepath.Base (Session 70) |
+| Gate poll budget drain fix      | ✓ gate_poll actions no longer deduct autonomy credits (Session 70) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -4697,3 +4702,48 @@ dashboard observability.
 
 ▶ scripts/autonomous-sync.sh, scripts/cross_repo_fetch.py, scripts/ensure-cron.sh,
   interagent/index.html, TODO.md
+
+---
+
+## 2026-03-10T22:22 CDT — Session 70 (meshd Phase A deploy, JSONL parser, operational fixes, truthiness research)
+
+- **meshd Phase A deployed** — Go binary (`platform/cmd/meshd/`) replaces mesh-status.py
+  and status_server.py across 3 agents on chromabook. Systemd user services: meshd-psq
+  (:8077), meshd-unratified (:8078), meshd-observatory (:8079). Compositor verified
+  working through Cloudflare tunnels. 17MB darwin / 12MB linux stripped binary. One
+  external dep: `modernc.org/sqlite` (pure-Go, BSD).
+- **Python dashboard respawn root cause** — three system-level systemd services in
+  `/etc/systemd/system/` with `Restart=always` (psq-agent-dashboard, unratified-agent-status,
+  observatory-agent-status) kept grabbing ports before user-level meshd services. Found
+  via `/proc/{pid}/cgroup` → `system.slice/psq-agent-dashboard.service`. Stopped + disabled.
+- **JSONL transcript parser** — `scripts/parse-jsonl.py`. Handles all 8 Claude Code JSONL
+  entry types (assistant, user, system, progress, file-history-snapshot, queue-operation,
+  last-prompt, pr-link). Modes: `--summary`, `--tokens`, `--turns`, `--dedupe` (merge
+  streaming chunks), `--type` (11 filter targets incl. thinking/tool_use/tool_result),
+  `--no-progress`, `--compact`, `--first`/`--last`, `--json`.
+- **Schedule collector bug fixed** — meshd cron parsing matched first `autonomous-sync`
+  line for all agents. Fix: match against projectRoot. Lock/log paths used agentID
+  (`psq-agent`) but scripts use `basename(projectRoot)` (`safety-quotient`). Fix:
+  `filepath.Base(projectRoot)`.
+- **Gate poll budget drain fixed** — `record_action` deducted tier-1 cost (1 credit)
+  for `gate_poll` actions despite intent of zero cost. Fix: skip cost calculation when
+  `action_type == "gate_poll"`.
+- **Truthiness research** — Newman & Schwarz (2012): non-probative information that
+  increases processing fluency inflates perceived truth ("truthiness"). Mapped to
+  agent system: fluent, confident agent claims create bias toward believability beyond
+  evidential warrant. Three TODO items queued:
+  (1) Rename `trust_budget` → `autonomy_budget` (reserve "trust" for BFT consensus layer)
+  (2) Truthiness measure for observatory-agent as first C2 command test case
+  (3) Interagent compositor rebuild with SSE (no autoreload) after Phase B
+- **Sync duration tracking** — `$SECONDS` bash built-in captures wall-clock sync and
+  total cycle time in autonomous-sync.sh. Deployed to all 4 agents.
+
+⚑ EPISTEMIC FLAGS
+- meshd Phase A achieves data parity with mesh-status.py based on visual comparison
+  and compositor verification — no automated regression test exists yet
+- Truthiness measure design remains speculative — operationalization requires
+  observatory-agent collaboration via C2 (not yet built)
+- `autonomy_budget` rename queued but not executed — schema v15 migration pending
+
+▶ platform/ (entire directory), scripts/parse-jsonl.py, scripts/autonomous-sync.sh,
+  TODO.md, MEMORY.md
