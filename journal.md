@@ -1959,3 +1959,36 @@ end-to-end while producing a psychometrically grounded deliverable.
 - The fluency-as-truth heuristic was demonstrated with human subjects; its
   applicability to agent-to-agent evaluation (where the "reader" lacks human
   metacognition) constitutes an analogical extension, not a direct application
+
+
+## §26 — Public Pipelines, Private Infrastructure: Literate CI/CD (Session 74)
+
+Session 74 resolved a tension that emerges whenever open-source projects depend on
+private infrastructure: how to make deployment pipelines readable and reusable without
+exposing internal hostnames, ports, credentials, and network topology.
+
+The principle we applied mirrors Parnas's (1972) information hiding — the Jenkinsfile
+declares *what* happens (build meshd, deploy via SSH, health-check ports) while Jenkins
+environment variables hold *where* it happens (chromabook.local:2535, specific paths).
+A contributor can read the pipeline and understand the deployment model without learning
+our LAN layout. More importantly, a fork can reconfigure the same pipeline for different
+infrastructure by changing Jenkins variables, not Groovy code.
+
+The GH Actions relay pattern deserves documentation because its existence seems
+redundant on first reading. GitHub Actions already deploys to Cloudflare (Tier 1).
+Jenkins already builds and deploys to self-hosted infrastructure (Tier 2). Why add a
+third piece — a GH Action that calls Jenkins? The answer lies in the authentication
+topology: forge sits behind Cloudflare Access, which requires `CF-Access-Client-Id` and
+`CF-Access-Client-Secret` headers on every request. GitHub's native webhook mechanism
+sends a fixed header set and cannot inject custom headers. The relay translates between
+two authentication systems that cannot speak to each other directly. Without it, the
+only option would be either polling (wasteful) or opening an IP-based bypass in
+Cloudflare Access (fragile — GitHub's webhook IPs change, and the bypass widens the
+attack surface).
+
+We chose to document this reasoning directly in the workflow file and Jenkinsfile as
+literate comments, following Knuth's (1984) principle that program artifacts should
+read as prose. A developer encountering `trigger-forge.yml` for the first time will
+find the architectural decision, its alternatives, and its rationale without consulting
+external documentation. This approach costs a few dozen comment lines; it saves every
+future reader from reconstructing the reasoning independently.

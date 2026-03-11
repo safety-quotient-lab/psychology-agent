@@ -20,15 +20,30 @@
 - **API token name:** CLOUDFLARE_GITHUB_ACTIONS_SECRET (in psychology-agent/.dev.vars)
 - **Tunnel ID:** 4db92fc5-7725-4554-a0d3-89259d8dabae (routes agent subdomains to meshd)
 
+## Cabinet (Jenkins host)
+
+- **Hostname:** cabinet (separate machine from chromabook, same OS: Linux amd64)
+- **Jenkins URL:** forge.safety-quotient.dev (behind Cloudflare Access)
+- **Go version:** 1.24.4 (installed on cabinet, builds meshd locally)
+- **Auth:** CF Access service token (FORGE_ACCESS_CLIENT_ID/SECRET) + Jenkins API token
+- **Credentials in Jenkins:** `cloudflare-workers-token`, `cloudflare-account-id`,
+  `deploy-ssh-key` (SSH to chromabook)
+- **Global env vars:** DEPLOY_HOST, DEPLOY_PORT, DEPLOY_USER, DEPLOY_MESHD_PATH,
+  DEPLOY_SCRIPTS_PATH, DEPLOY_PROJECT_DIRS, MESHD_PORTS
+
 ## CI/CD Pipeline (docs/devops-pipeline.md)
 
 - **Tier 1 (GitHub Actions):** All CF Workers/Pages auto-deploy on push.
-  Secrets configured on: unratified, psychology-agent, observatory.
-- **Tier 2 (Jenkins):** forge.safety-quotient.dev — being set up by another agent.
-  For meshd binary deploy, shared scripts sync, PSQ model pipeline.
-  Status: infra hardening in progress; service accounts pending. No Jenkinsfiles
-  or forge config have landed in any repo yet. Block until service accounts arrive.
+  Secrets configured on: unratified, psychology-agent, observatory, safety-quotient.
+- **Tier 2 (Jenkins):** forge.safety-quotient.dev (cabinet). OPERATIONAL (Session 74).
+  Pipelines: meshd build+deploy, shared scripts sync, compositor (fallback),
+  unratified blog+workers, PSQ health check.
+  Trigger: GH Actions relay (trigger-forge.yml) through CF Access. Hourly SCM fallback.
+  PSQ model deploy: documented but not yet automated (manual trigger).
 - **Tier 3 (Cron):** Autonomous sync — self-managing, budget-gated.
+- **Why a relay?** GitHub webhooks cannot inject custom headers (CF-Access-Client-Id/Secret).
+  The GH Actions relay authenticates to CF Access using service-token credentials
+  stored as GitHub secrets, then calls the Jenkins Remote Build API.
 
 ## Known Gotchas
 

@@ -741,6 +741,24 @@
                                 filesystem access) for dynamic agent state.
                                 Derives from: mesh-topology, lab-domain.
                                 Decided: 2026-03-10
+
+ Three-tier deployment          Tier 1: GitHub Actions → Cloudflare
+ (deployment-strategy)          Workers/Pages (cloud-to-cloud, no SSH).
+                                Tier 2: Jenkins (forge.safety-quotient.dev)
+                                → self-hosted infrastructure via SSH.
+                                Tier 3: Cron autonomous sync (self-managing,
+                                budget-gated). Jenkins triggered via GH
+                                Actions relay — GitHub webhooks cannot inject
+                                CF Access headers, so a lightweight GH Action
+                                authenticates to CF Access and calls the
+                                Jenkins Remote Build API. Jenkinsfiles use
+                                semantic credential IDs and environment
+                                variables (no infrastructure details in
+                                public repos). Hourly SCM polling as
+                                fallback.
+                                Derives from: mesh-topology,
+                                cross-machine-code-policy.
+                                Decided: 2026-03-11
 ────────────────────────────────────────────────────────────────────────
 ```
 

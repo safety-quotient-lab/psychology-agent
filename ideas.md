@@ -486,6 +486,25 @@ interagent) reference. Two layers:
 
 ---
 
+## Infrastructure Modularization
+
+- **Extract meshd into a standalone repository** — meshd serves all 4 agents
+  equally from a single Go binary, but currently lives inside psychology-agent's
+  `platform/` directory. This creates an implicit ownership claim that doesn't
+  reflect reality: changes to observatory or unratified routes require committing
+  to the psychology-agent repo. A dedicated `meshd` repository would provide
+  independent CI/CD, cleaner Go module boundaries, and contributor-friendly
+  separation of concerns. Current size (~15 Go files, 3 packages) makes the
+  overhead marginal.
+  *Precondition: a second maintainer or developer user begins contributing.
+  The project has GitHub stars — if external interest converts to PRs, the
+  monorepo structure becomes a barrier to contribution. Until then, the
+  `platform/` directory boundary + changeset guards in Jenkinsfile provide
+  sufficient logical separation without repo overhead.*
+  *Noted: Session 74 (2026-03-11)*
+
+---
+
 ## Meta
 
 - This agent system is itself a case study in PJE — it embodies Psycho Safety
