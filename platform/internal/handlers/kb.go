@@ -55,6 +55,14 @@ func APIKBLessons(cache *collector.Cache) http.HandlerFunc {
 	}
 }
 
+// APIKBEpistemic serves GET /kb/epistemic — unresolved epistemic flags JSON.
+func APIKBEpistemic(cache *collector.Cache) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		setAPIHeaders(w, r)
+		json.NewEncoder(w).Encode(cache.KnowledgeBase().EpistemicFlags)
+	}
+}
+
 // APIKBCatalog serves GET /kb/catalog — classification catalog JSON.
 func APIKBCatalog(cache *collector.Cache) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

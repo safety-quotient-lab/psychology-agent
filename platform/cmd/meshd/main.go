@@ -75,6 +75,7 @@ func main() {
 	mux.HandleFunc("/kb/claims", handlers.APIKBClaims(cache))
 	mux.HandleFunc("/kb/messages", handlers.APIKBMessages(cache))
 	mux.HandleFunc("/kb/lessons", handlers.APIKBLessons(cache))
+	mux.HandleFunc("/kb/epistemic", handlers.APIKBEpistemic(cache))
 	mux.HandleFunc("/kb/catalog", handlers.APIKBCatalog(cache))
 	mux.HandleFunc("/kb/memory", handlers.APIKBMemory(cache))
 	mux.HandleFunc("/kb/dictionary", handlers.APIKBDictionary(cache))

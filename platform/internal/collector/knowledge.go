@@ -6,14 +6,15 @@ import (
 
 // KnowledgeBase holds the complete knowledge base snapshot.
 type KnowledgeBase struct {
-	Decisions  []map[string]any `json:"decisions"`
-	Triggers   []map[string]any `json:"triggers"`
-	Claims     []map[string]any `json:"claims"`
-	Messages   []map[string]any `json:"messages"`
-	Lessons    []map[string]any `json:"lessons"`
-	Catalog    CatalogData      `json:"catalog"`
-	Memory     MemoryData       `json:"memory"`
-	Totals     KBTotals         `json:"totals"`
+	Decisions      []map[string]any `json:"decisions"`
+	Triggers       []map[string]any `json:"triggers"`
+	Claims         []map[string]any `json:"claims"`
+	Messages       []map[string]any `json:"messages"`
+	Lessons        []map[string]any `json:"lessons"`
+	EpistemicFlags []map[string]any `json:"epistemic_flags"`
+	Catalog        CatalogData      `json:"catalog"`
+	Memory         MemoryData       `json:"memory"`
+	Totals         KBTotals         `json:"totals"`
 }
 
 // CatalogData holds the classification catalog — PSH categories, schema.org
@@ -41,9 +42,10 @@ type KBTotals struct {
 	Messages        int `json:"messages"`
 	Lessons         int `json:"lessons"`
 	LessonsStale    int `json:"lessons_stale"`
-	CatalogEntries  int `json:"catalog_entries"`
-	MemoryEntries   int `json:"memory_entries"`
-	StaleEntries    int `json:"stale_entries"`
+	EpistemicUnresolved int `json:"epistemic_unresolved"`
+	CatalogEntries     int `json:"catalog_entries"`
+	MemoryEntries      int `json:"memory_entries"`
+	StaleEntries       int `json:"stale_entries"`
 }
 
 // DictionaryEntry represents a single term in JSON-LD format (schema:DefinedTerm).
@@ -74,6 +76,7 @@ func CollectKnowledgeBase(d *db.DB) *KnowledgeBase {
 	claims := collectClaims(d)
 	messages := collectMessages(d)
 	lessons := collectLessons(d)
+	epistemicFlags := collectEpistemicFlags(d)
 	catalog := collectCatalog(d)
 	memory := collectMemory(d)
 
@@ -83,13 +86,14 @@ func CollectKnowledgeBase(d *db.DB) *KnowledgeBase {
 		 OR last_confirmed IS NULL`)
 
 	return &KnowledgeBase{
-		Decisions: decisions,
-		Triggers:  triggers,
-		Claims:    claims,
-		Messages:  messages,
-		Lessons:   lessons,
-		Catalog:   catalog,
-		Memory:    memory,
+		Decisions:      decisions,
+		Triggers:       triggers,
+		Claims:         claims,
+		Messages:       messages,
+		Lessons:        lessons,
+		EpistemicFlags: epistemicFlags,
+		Catalog:        catalog,
+		Memory:         memory,
 		Totals: KBTotals{
 			Decisions:      len(decisions),
 			Triggers:       len(triggers),
@@ -105,7 +109,8 @@ func CollectKnowledgeBase(d *db.DB) *KnowledgeBase {
 				`SELECT COUNT(*) FROM lessons
 				 WHERE last_seen IS NULL
 				 OR last_seen < date('now', '-30 days')`),
-			CatalogEntries: len(catalog.Active),
+			EpistemicUnresolved: d.ScalarInt("SELECT COUNT(*) FROM epistemic_flags WHERE resolved = FALSE"),
+			CatalogEntries:     len(catalog.Active),
 			MemoryEntries:  d.ScalarInt("SELECT COUNT(*) FROM memory_entries"),
 			StaleEntries:   staleCount,
 		},
@@ -180,6 +185,28 @@ func collectLessons(d *db.DB) []map[string]any {
 		 lesson_text, created_at
 		 FROM lessons
 		 ORDER BY lesson_date DESC`)
+	if rows == nil {
+		return []map[string]any{}
+	}
+	return rows
+}
+
+// CollectEpistemicFlags returns unresolved epistemic flags with source attribution.
+func CollectEpistemicFlags(d *db.DB) []map[string]any {
+	return collectEpistemicFlags(d)
+}
+
+func collectEpistemicFlags(d *db.DB) []map[string]any {
+	rows, _ := d.QueryRows(
+		`SELECT ef.id, ef.source, ef.flag_text, ef.resolved,
+		 ef.resolved_at, ef.created_at, ef.session_id,
+		 COALESCE(tm.from_agent, '') as from_agent,
+		 COALESCE(tm.session_name, '') as session_name,
+		 ROUND(julianday('now') - julianday(ef.created_at)) as age_days
+		 FROM epistemic_flags ef
+		 LEFT JOIN transport_messages tm ON ef.source = tm.filename
+		 WHERE ef.resolved = FALSE
+		 ORDER BY ef.created_at DESC`)
 	if rows == nil {
 		return []map[string]any{}
 	}
