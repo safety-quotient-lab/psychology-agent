@@ -26,10 +26,15 @@
 - **Jenkins URL:** forge.safety-quotient.dev (behind Cloudflare Access)
 - **Go version:** 1.24.4 (installed on cabinet, builds meshd locally)
 - **Auth:** CF Access service token (FORGE_ACCESS_CLIENT_ID/SECRET) + Jenkins API token
+- **SSH key:** `/var/lib/jenkins/.ssh/id_ed25519` (jenkins@cabinet, ED25519)
+  Authorized on chromabook (kashif@chromabook:~/.ssh/authorized_keys) and
+  Hetzner (root@178.156.229.103:~/.ssh/authorized_keys)
 - **Credentials in Jenkins:** `cloudflare-workers-token`, `cloudflare-account-id`,
-  `deploy-ssh-key` (SSH to chromabook)
-- **Global env vars:** DEPLOY_HOST, DEPLOY_PORT, DEPLOY_USER, DEPLOY_MESHD_PATH,
-  DEPLOY_SCRIPTS_PATH, DEPLOY_PROJECT_DIRS, MESHD_PORTS
+  `deploy-ssh-key` (SSH to chromabook), `hetzner-ssh-key` (SSH to Hetzner)
+  Both SSH credentials use the same jenkins@cabinet ED25519 key.
+- **Global env vars:** DEPLOY_HOST (chromabook), DEPLOY_PORT (2535), DEPLOY_USER (kashif),
+  DEPLOY_MESHD_PATH, DEPLOY_SCRIPTS_PATH, DEPLOY_PROJECT_DIRS, MESHD_PORTS,
+  HETZNER_HOST, HETZNER_REMOTE_DIR, PSQ_HEALTH_URL, PSQ_SCORE_URL, PSQ_SERVICE_NAME
 
 ## CI/CD Pipeline (docs/devops-pipeline.md)
 
@@ -39,7 +44,7 @@
   Pipelines: meshd build+deploy, shared scripts sync, compositor (fallback),
   unratified blog+workers, PSQ health check.
   Trigger: GH Actions relay (trigger-forge.yml) through CF Access. Hourly SCM fallback.
-  PSQ model deploy: documented but not yet automated (manual trigger).
+  PSQ model deploy: parameterized Jenkinsfile (manual trigger, Session 75).
 - **Tier 3 (Cron):** Autonomous sync — self-managing, budget-gated.
 - **Why a relay?** GitHub webhooks cannot inject custom headers (CF-Access-Client-Id/Secret).
   The GH Actions relay authenticates to CF Access using service-token credentials

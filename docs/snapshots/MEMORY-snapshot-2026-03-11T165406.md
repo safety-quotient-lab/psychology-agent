@@ -18,21 +18,22 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 75. PSQ model deploy pipeline complete (parameterized
-Jenkinsfile). meshd deploy pipeline tested end-to-end — version injection confirmed
-(`7a2e3ae` on all 4 agents). Dedicated jenkins@cabinet ED25519 keypair for SSH deploys.
-Multiple Jenkinsfile fixes: branch guard removal, Groovy `:-` parse error, POSIX shell.
+**Where we stopped:** Session 74. Jenkins Phase 2 complete — Tier 2 CI/CD
+operational across all 4 repos. GH Actions relay bridges push events to forge
+through CF Access. All builds verified. meshd modularization evaluated, deferred
+to ideas.md. Observatory local dir consolidated to ~/Projects/observatory.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- CI/CD: ✓ Tier 1 + Tier 2 operational. PSQ model deploy parameterized `[warm]`
-- meshd: ✓ All 4 running, version `7a2e3ae`, /api/status exposes version `[warm]`
-- Compositor: ✓ 5 tabs, LCARS spine, deep links `[warm]`
-- Plan9 consensus: ✓ UNANIMOUSLY ADOPTED (2026-03-10). Contract v1. `[warm]`
-- psychology-interface: Active Go project at ~/Projects/psychology-agent-interface `[cold]`
+- CI/CD: ✓ Tier 1 (GH Actions) + Tier 2 (Jenkins/forge) operational, all 4 repos `[warm]`
+- Compositor: ✓ 5 tabs, epistemic flags detail, LCARS spine, deep links `[warm]`
+- meshd: ✓ All 4 running, /kb/epistemic route (Session 73) `[warm]`
+- Observatory: ✓ Consolidated locally + chromabook, Jenkins job created `[warm]`
+- Schema v17: ⚑ Committed, awaits chromabook propagation via autonomous sync `[warm]`
+- Plan9 consensus: ⚑ Awaiting peer votes `[warm]`
 - DI Phase A Pass 2: pending `[cold]`
 
-**Next:** DevOps/IT installation guide. Jenkinsfile POSIX restart verification.
-DI Phase A Pass 2. vnext passes.
+**Next:** DI Phase A Pass 2. PSQ model deploy pipeline (Jenkins, manual trigger).
+vnext passes (bizdev, marketing, self-review).
 
 
 ## Memory Hygiene

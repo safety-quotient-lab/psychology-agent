@@ -510,16 +510,15 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   zone. Harmless but should delete via CF dashboard.
   *Precondition: none — dashboard access only*
 
-- [ ] **Plan9 directory tree consensus (C2)** — first consensus test for the
-  4-agent mesh. Psychology-agent drafts proposal, sends via transport, each
-  peer responds with reasoning, user mediates. Tests transport round-trip
-  and surfaces failure modes.
-  *Precondition: ✓ MET — 4-agent mesh live, transport verified (Session 67)*
+- [x] **Plan9 directory tree consensus (C2)** — COMPLETE (Session 72, confirmed
+  Session 75). Unanimously adopted 2026-03-10. All 3 peers voted AGREE. Contract v1
+  in effect. Implementation gaps: psq-agent `.claude/settings.json`, unratified
+  `.well-known/agent-card.json` + `CLAUDE.md`, observatory `.well-known/agent-card.json`.
 
 - [ ] **PSH vocabulary consensus (C2)** — second consensus test. Each agent
   develops internal understanding of PSH vocabulary, then mesh negotiates
   shared definitions.
-  *Precondition: Plan9 directory consensus resolved*
+  *Precondition: ✓ MET — Plan9 directory consensus resolved (2026-03-10)*
 
 - [x] **Enable autonomous sync on peer repos** — COMPLETE (Session 68).
   Scripts deployed, cron installed (*/5), trust budgets initialized, smoke

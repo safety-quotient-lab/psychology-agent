@@ -4878,7 +4878,7 @@ dashboard observability.
 - Schema v17 committed but not yet propagated to chromabook — awaits autonomous sync pull
 - Sessions 71-72 lab-notebook entries written retroactively from TODO/MEMORY references,
   not from live session context — timestamps approximate
-- Jenkins Phase 2 blocked on external dependency (forge.safety-quotient.dev service accounts)
+- ~~Jenkins Phase 2 blocked on external dependency (forge.safety-quotient.dev service accounts)~~ **RESOLVED:** Session 74-75. All pipelines operational, end-to-end verified.
 
 ▶ docs/devops-pipeline.md, .github/workflows/deploy-compositor.yml, scripts/pre_sync_check.py,
   scripts/issue_lifecycle.py, platform/internal/collector/status.go,
@@ -4928,10 +4928,55 @@ dashboard observability.
   observatory #1 ✓. Relay triggers confirmed working on push.
 
 ⚑ EPISTEMIC FLAGS
-- Jenkins `withCredentials` + `sshUserPrivateKey` approach untested end-to-end (no
-  platform/** changeset in test builds — deploy stages skipped by changeset guard)
-- Cabinet ≠ chromabook (separate machines, same OS) — SSH connectivity from cabinet to
-  chromabook via deploy-ssh-key credential not yet exercised in a real deploy
+- ~~Jenkins `withCredentials` + `sshUserPrivateKey` approach untested end-to-end~~ **RESOLVED:** Session 75 — 12 builds, deploy stage exercised, binary deployed, health checks pass.
+- ~~Cabinet ≠ chromabook SSH connectivity untested~~ **RESOLVED:** Session 75 — dedicated jenkins@cabinet ED25519 keypair, authorized on chromabook + Hetzner. Verified via builds 4-12.
 
 ▶ Jenkinsfile, .github/workflows/trigger-forge.yml, docs/devops-pipeline.md, TODO.md,
   ideas.md, memory/infrastructure.md
+
+
+## 2026-03-11T16:51 CDT — Session 75 (Tier 2 CI/CD end-to-end: meshd deploy, version injection, SSH keys, mesh verification)
+
+- **meshd deploy pipeline verified end-to-end** — 12 Jenkins builds, 4 separate issues
+  discovered and fixed iteratively: (1) `branch 'main'` silently skips stages in regular
+  Pipeline jobs (MultiBranch only), (2) `chromabook.local` mDNS fails from cabinet (added
+  `/etc/hosts`), (3) SSH key never authorized (created dedicated keypair), (4) POSIX shell
+  incompatibility (`<<<` and `-ra` are bash-only). Final build: meshd binary deployed
+  (18MB, x86-64), version `7a2e3ae` confirmed on all 4 agents.
+- **meshd version injection** — `platform/version.go` provides `Version` variable set via
+  `-ldflags` at compile time. `collector/status.go` exposes it in `/api/status` JSON.
+  All 4 meshd instances report `7a2e3ae`.
+- **Dedicated jenkins@cabinet SSH keypair** — ED25519 key at
+  `/var/lib/jenkins/.ssh/id_ed25519`. Authorized on chromabook and Hetzner. Both Jenkins
+  credentials (`deploy-ssh-key`, `hetzner-ssh-key`) point to this key. Replaces shared
+  personal keys.
+- **PSQ model deploy pipeline** — parameterized Jenkinsfile (safety-quotient repo) with
+  dual-mode: CI (default, `validateOnly=true`) runs model validation only; deploy (manual
+  trigger, `validateOnly=false`) runs full 11-step sequence: calibrate, ONNX export,
+  held-out eval, SHA256 verify, rsync to Hetzner, restart, health check, smoke test.
+  Groovy `:-` syntax conflict fixed (Groovy interprets colon in `"""` strings).
+- **Jenkinsfile fixes across all 4 repos** — removed `branch 'main'` guard (psychology-agent,
+  unratified, observatory), fixed POSIX shell compatibility in meshd restart (replaced
+  `IFS=',' read -ra` with `tr`/`cut`). Restart logic handles all 4 meshd instances with
+  parallel port/project-root lists.
+- **Plan9 consensus confirmed** — unanimous adoption (2026-03-10). All 3 peers voted AGREE.
+  Contract v1 in effect. Implementation gaps identified: psq-agent needs
+  `.claude/settings.json`, unratified needs `.well-known/agent-card.json` + `CLAUDE.md`,
+  observatory needs `.well-known/agent-card.json`.
+- **End-to-end mesh verification** — transport test message (`infrastructure-verification`
+  session) traced through full chain: git push → chromabook `git pull` →
+  `bootstrap_state_db.py` → state.db (184 messages) → meshd collector → compositor API.
+  meshd restart required after bootstrap (new DB inode, old file handle).
+- **TODO additions** — DevOps/IT installation guide (comprehensive context captured),
+  mesh topology line width on mobile, Jenkins build notifications (deferred to IT).
+  Psychology-interface marked complete (active Go project discovered).
+
+⚑ EPISTEMIC FLAGS
+- Jenkinsfile POSIX restart logic committed but NOT tested in Jenkins pipeline (manual
+  restart verified; needs a `platform/` change to trigger changeset guard)
+- Jenkins notification system not configured — build failures require manual monitoring
+- meshd POSIX restart script untested in Jenkins pipeline context
+
+▶ Jenkinsfile, platform/version.go, platform/internal/collector/status.go, TODO.md,
+  transport/sessions/infrastructure-verification/, docs/devops-pipeline.md,
+  memory/infrastructure.md
