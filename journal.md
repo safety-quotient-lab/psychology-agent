@@ -69,6 +69,7 @@ partner, and Socratic interlocutor
 48. [Four Agents, One Mesh: What Going Live Reveals About Consensus Readiness](#48-four-agents-one-mesh)
 50. [The Cold Peer Paradox: When Optimization Prevents Discovery](#50-the-cold-peer-paradox)
 51. [What Twelve Builds Teach About Integration Testing: The Meshd Deploy Pipeline](#51-what-twelve-builds-teach-about-integration-testing)
+52. [The Nohup Trap: Why Background Processes Need Supervision](#52-the-nohup-trap)
 
 ---
 
@@ -2040,3 +2041,36 @@ The database updates; meshd continues reading stale data until restarted. This W
 file handle behavior represents a known SQLite characteristic, not a bug, but it creates
 operational coupling between bootstrap and restart sequencing that the DevOps guide must
 document.
+
+
+## 52. The Nohup Trap: Why Background Processes Need Supervision {#52-the-nohup-trap}
+
+Session 76 discovered that three of four meshd instances had silently stopped running.
+The psychology-agent instance on port 8076 survived — the other three (psq, unratified,
+observatory) were gone. No monitoring fired; no dashboard flagged the outage. The
+compositor continued reporting "4 agents online" because it checks HTTP reachability
+from Cloudflare tunnels, not process liveness from the host machine.
+
+The root cause revealed a class error in infrastructure thinking: treating `nohup command &`
+as a deployment strategy. The `nohup` utility prevents SIGHUP from terminating a process
+when the launching terminal closes — and nothing more. It provides no restart-on-crash,
+no boot persistence, no structured logging, no dependency ordering, no health checking.
+For development or one-shot tasks, this suffices. For services that need "always-on"
+reliability, it creates exactly the failure mode we encountered: silent disappearance
+with no recovery path.
+
+The fix migrated all four meshd instances to systemd user units with three properties:
+`Restart=always` (crash recovery in 3 seconds), `WantedBy=default.target` (boot
+persistence), and `loginctl enable-linger` (services survive logout). These compose to
+produce the availability semantics the mesh requires.
+
+A secondary finding: the PSQ meshd instance pointed to a nonexistent path
+(`/home/kashif/projects/safety-quotient`) instead of the correct repo directory
+(`psychology-sqlab`). The mismatch existed since the initial multi-agent deployment
+(Session 67) but went undetected because the bare `nohup` launch failure produced no
+alert — the process simply exited with a log line to `/tmp` that nobody read.
+
+This episode illustrates a broader pattern: **deployment mode determines failure mode.**
+`nohup` fails silently and permanently. systemd fails visibly and recovers automatically.
+cron fails on schedule and retries. The choice of deployment mechanism shapes not just
+whether a service runs, but how it breaks and whether anyone notices.

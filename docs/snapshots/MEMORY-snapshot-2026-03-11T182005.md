@@ -18,20 +18,22 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 76. meshd systemd supervision deployed — all 4 instances
-under `Restart=always` + `enable-linger`. Self-readiness audit consensus message created
-(`from-human-001.json`), needs commit/push/deploy. PSQ meshd path corrected
-(`psychology-sqlab`, not `safety-quotient`).
+**Where we stopped:** Session 75. Transport materialization fix deployed — 37 peer
+responses materialized across 15 sessions. Dual-identity bug fixed (workstation
+"human" vs repo "psychology-agent"). End-to-end verified: 208 messages, 17 sessions,
+version `69c7dea` on all 4 meshd instances. Jenkins pipeline triggered by platform/
+changes (POSIX restart verification pending build completion).
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- meshd: ✓ All 4 running under systemd, version `69c7dea` `[warm]`
 - CI/CD: ✓ Tier 1 + Tier 2 operational. PSQ model deploy parameterized `[warm]`
+- meshd: ✓ All 4 running, version `69c7dea`, 208 msgs visible `[warm]`
 - Transport: ✓ Materialization operational (--index implies --materialize) `[warm]`
-- Self-readiness audit: ⚑ Message created, not yet deployed `[cold]`
+- Plan9 consensus: ✓ ADOPTED (2026-03-10). 3/3 AGREE. Votes materialized locally. `[warm]`
 - Compositor: ✓ 5 tabs, LCARS spine, deep links `[warm]`
+- psychology-interface: Active Go project at ~/Projects/psychology-agent-interface `[cold]`
 - DI Phase A Pass 2: pending `[cold]`
 
-**Next:** Deploy self-readiness audit + realtime monitoring. DevOps/IT installation guide.
+**Next:** Self-readiness audit consensus (full mesh test). DevOps/IT installation guide.
 DI Phase A Pass 2.
 
 

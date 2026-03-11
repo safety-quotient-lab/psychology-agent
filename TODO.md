@@ -251,7 +251,7 @@ semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
   Data sources already exist in state.db (transport_messages.timestamp,
   active_gates.status, autonomy_budget.last_action).
   *Precondition: simple tier classification complete (Session 62c)*
-  *Constraint: requires process supervision — cron can't self-reschedule*
+  *Constraint: ✓ RESOLVED — systemd user units deployed (Session 76). Process supervision available.*
 
 - [x] **Smart self-healing in git_sync** — COMPLETE (Session 69). Diagnostic-first:
   classifies dirty files (transport/scripts/mixed), classifies pull failures
@@ -604,8 +604,9 @@ auto-restart loops. None had monitoring — all required manual discovery.
   (a) per-agent self-check in autonomous-sync.sh, (b) centralized in meshd
   /obs/health, or (c) separate audit tool. Likely answer: (a) for detection,
   (b) for display.
-  *Precondition: schema v15 migration (new table)*
+  *Precondition: schema migration (new table) — originally targeted v15, now requires v18+*
   *Source: Session 70 — 5 infrastructure debt items discovered manually*
+  *Grounding audit Session 76: schema v17 current. v15 used for autonomy_budget rename. Table still needed.*
 
 - [ ] **Assertion candidates (initial set):**
   - systemd units: declared services match running services (no orphans)
@@ -663,7 +664,7 @@ auto-restart loops. None had monitoring — all required manual discovery.
   - **Known gotchas:** mDNS doesn't resolve across machines (use /etc/hosts),
     `branch 'main'` breaks regular Pipeline jobs (MultiBranch only), Groovy `:-`
     syntax conflicts, meshd binary locked while running (pkill before SCP)
-  *Precondition: meshd deploy pipeline verified end-to-end (in progress)*
+  *Precondition: ✓ MET — meshd deploy pipeline verified (Session 75), systemd supervision deployed (Session 76)*
 
 - [x] **Surface epistemic debt detail on compositor** — COMPLETE (Session 73).
   /kb/epistemic route + detail table in Meta tab (flag text, source, agent, age).

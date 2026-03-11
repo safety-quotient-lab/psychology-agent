@@ -9,6 +9,10 @@
 - **Shared scripts:** `~/platform/shared/scripts/` — agents symlink to this
 - **meshd binary:** `~/platform/meshd` — single binary serving all 4 agents
 - **meshd ports:** psychology:8076, psq:8077, unratified:8078, observatory:8079
+- **meshd supervision:** systemd user units (`~/.config/systemd/user/meshd-*.service`)
+  with `Restart=always`, `RestartSec=3`. `loginctl enable-linger` for boot persistence.
+  Replaced bare `nohup &` (Session 76). Manage: `systemctl --user {start|stop|status} meshd-psychology`
+- **PSQ project dir:** `~/projects/psychology-sqlab` (NOT `safety-quotient`)
 - **Cron:** 4 autonomous-sync jobs at 5-min intervals, offset by 1 min each
 - **unudhr does NOT exist** as a separate directory on chromabook
 

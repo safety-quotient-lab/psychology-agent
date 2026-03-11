@@ -155,6 +155,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Shared scripts placement        | ✓ pre_sync_check.py + issue_lifecycle.py → platform/shared/scripts/, symlinks in scripts/ (Session 73) |
 | Observatory consolidation       | ✓ observatory-sqlab removed from chromabook; only ~/projects/observatory remains (Session 73) |
 | Jenkins Phase 2 (Tier 2 CI/CD) | ✓ Literate Jenkinsfiles (3 repos), meshd build+deploy, shared scripts sync, GH Actions relay (Session 74) |
+| meshd systemd supervision      | ✓ 4 user units with Restart=always + enable-linger — replaces bare nohup (Session 76) |
+| Self-readiness audit            | ⚑ Consensus message created, not yet deployed (Session 76) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -4980,3 +4982,30 @@ dashboard observability.
 ▶ Jenkinsfile, platform/version.go, platform/internal/collector/status.go, TODO.md,
   transport/sessions/infrastructure-verification/, docs/devops-pipeline.md,
   memory/infrastructure.md
+
+
+## 2026-03-11T18:15 CDT — Session 76 (meshd systemd supervision + self-readiness audit transport)
+
+- **meshd outage discovered** — only 1 of 4 meshd instances running (psychology-agent :8076).
+  PSQ (:8077), unratified (:8078), and observatory (:8079) all down. Root cause: bare
+  `nohup &` processes with zero process supervision — no restart on crash, no boot persistence.
+- **PSQ meshd path corrected** — was pointed at `/home/kashif/projects/safety-quotient`
+  (nonexistent). Correct path: `/home/kashif/projects/psychology-sqlab` (contains
+  `.agent-identity.json` with `agent_id: "psq-sub-agent"`).
+- **systemd user units deployed** — created 4 unit files at
+  `~/.config/systemd/user/meshd-{psychology,psq,unratified,observatory}.service` with
+  `Restart=always`, `RestartSec=3`, `WantedBy=default.target`. `loginctl enable-linger`
+  ensures services survive logout and start on boot. All 4 instances verified responding.
+- **Self-readiness audit consensus message created** — `transport/sessions/self-readiness-audit/`
+  with `from-human-001.json` (turn 1, from human, to all-agents) and `MANIFEST.json`.
+  Requests each agent self-assess across 5 categories: stale, broken, misconfigured,
+  insecure, contract compliance. Vote options: READY, READY-WITH-CAVEATS, NOT-READY.
+  `ack_required: true`, `gate_status: blocked`. Not yet committed/pushed.
+
+⚑ EPISTEMIC FLAGS
+- systemd units deployed via SSH — not version-controlled; if chromabook reimaged, units
+  must be recreated manually (candidate for infrastructure-as-code in DevOps guide)
+- Self-readiness audit responses depend on autonomous sync delivering message to peers —
+  delivery latency varies by peer sync schedule (5-min cron)
+
+▶ transport/sessions/self-readiness-audit/, TODO.md, memory/decisions.md

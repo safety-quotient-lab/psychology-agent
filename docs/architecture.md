@@ -759,6 +759,18 @@
                                 Derives from: mesh-topology,
                                 cross-machine-code-policy.
                                 Decided: 2026-03-11
+
+ meshd process supervision    systemd user units with Restart=always +
+                                enable-linger. Replaces bare nohup &
+                                for all 4 meshd instances on chromabook.
+                                4 unit files: meshd-psychology (:8076),
+                                meshd-psq (:8077), meshd-unratified
+                                (:8078), meshd-observatory (:8079).
+                                Provides: crash recovery (3s), boot
+                                persistence, structured logging via
+                                journalctl.
+                                Derives from: mesh-topology, tier-2-cicd.
+                                Decided: 2026-03-11
 ────────────────────────────────────────────────────────────────────────
 ```
 

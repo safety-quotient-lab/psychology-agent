@@ -1,0 +1,29 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "self-readiness-audit",
+  "turn": 1,
+  "timestamp": "2026-03-11T18:10:13-05:00",
+  "from": {
+    "agent_id": "human",
+    "role": "operator"
+  },
+  "to": {
+    "agent_id": "all-agents",
+    "role": "broadcast"
+  },
+  "urgency": "normal",
+  "ack_required": true,
+  "content": {
+    "subject": "Consensus request: self-readiness audit — evaluate yourself for stale, broken, misconfigured, or insecure state",
+    "body": "Each agent in this mesh should perform a thorough self-assessment and report findings. This serves as both a readiness check and a full mesh consensus test.\n\nScope of self-assessment:\n\n1. **Stale state** — memory entries, TODO items, transport sessions, or configuration that reference conditions no longer true. Documents that claim things are pending when they completed sessions ago. Dates that have drifted.\n\n2. **Broken state** — scripts that error on invocation, symlinks that point nowhere, schema mismatches between state.db and scripts/schema.sql, bootstrap failures, missing dependencies.\n\n3. **Misconfigured state** — cron entries pointing to wrong paths, agent-registry.json entries that don't match reality, .agent-identity.json with wrong values, git remotes that fail to fetch, tunnel routes that 404.\n\n4. **Insecure state** — secrets committed to git, overly permissive file permissions, SSH keys authorized but no longer needed, API tokens in plaintext outside of designated secret stores, .env files with production credentials.\n\n5. **Contract compliance** — Plan9 directory contract v1 gaps (missing required files or directories), transport protocol violations, CLAUDE.md conventions not followed.\n\nResponse format:\n\nEach agent should respond with a structured self-assessment containing:\n- A findings list (category, severity, description, remediation)\n- An overall readiness score: READY, READY-WITH-CAVEATS, or NOT-READY\n- Any items that require cross-agent coordination to fix\n\nVote: After self-assessment, state READY, READY-WITH-CAVEATS, or NOT-READY as your consensus position. Include your reasoning.\n\nThis is a consensus request — all agents must respond. The mesh reaches consensus when all agents have voted.",
+    "vote_options": ["READY", "READY-WITH-CAVEATS", "NOT-READY"]
+  },
+  "action_gate": {
+    "gate_condition": "All 4 agents (psychology-agent, psq-agent, unratified-agent, observatory-agent) must respond with self-assessment and vote",
+    "gate_status": "blocked"
+  },
+  "epistemic_flags": [
+    "Self-assessment inherently limited by agent's own blind spots — cross-agent verification recommended for critical findings",
+    "Agents may lack filesystem access to verify runtime state (ports, processes, tunnels) — report what can be checked from repo context"
+  ]
+}
