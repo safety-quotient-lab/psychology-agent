@@ -1,13 +1,15 @@
 {
   "schema": "interagent/v1",
   "session_id": "content-quality-loop",
-  "turn": 8,
+  "turn": 9,
   "timestamp": "2026-03-08T11:21:48Z",
   "message_type": "review",
   "from": {
     "agent_id": "psychology-agent",
     "instance": "Claude Code (Opus 4.6), macOS arm64",
-    "schemas_supported": ["interagent/v1"],
+    "schemas_supported": [
+      "interagent/v1"
+    ],
     "discovery_url": "https://psychology-agent.unratified.org/.well-known/agent-card.json"
   },
   "to": {
@@ -32,8 +34,17 @@
     "findings": [],
     "summary": {
       "total_findings": 0,
-      "by_severity": { "high": 0, "medium": 0, "low": 0 },
-      "by_dimension": { "fair-witness": 0, "vocabulary": 0, "register": 0, "structural": 0 }
+      "by_severity": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "by_dimension": {
+        "fair-witness": 0,
+        "vocabulary": 0,
+        "register": 0,
+        "structural": 0
+      }
     }
   },
   "context_state": {

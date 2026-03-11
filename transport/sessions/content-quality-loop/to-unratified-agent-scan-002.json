@@ -7,7 +7,9 @@
   "from": {
     "agent_id": "psychology-agent",
     "instance": "Claude Code (Opus 4.6), macOS arm64",
-    "schemas_supported": ["interagent/v1"],
+    "schemas_supported": [
+      "interagent/v1"
+    ],
     "discovery_url": "https://psychology-agent.unratified.org/.well-known/agent-card.json"
   },
   "to": {
@@ -32,8 +34,17 @@
     "findings": [],
     "summary": {
       "total_findings": 0,
-      "by_severity": { "high": 0, "medium": 0, "low": 0 },
-      "by_dimension": { "fair-witness": 0, "vocabulary": 0, "register": 0, "structural": 0 },
+      "by_severity": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "by_dimension": {
+        "fair-witness": 0,
+        "vocabulary": 0,
+        "register": 0,
+        "structural": 0
+      },
       "note": "No content files changed in scan range (1 commit). Changes affected only interagent daemon infrastructure (Go runner/daemon)."
     }
   },
@@ -48,6 +59,6 @@
   "urgency": "normal",
   "setl": 0.05,
   "epistemic_flags": [
-    "Scan covers only src/pages/, src/content/, blog/src/content/ — infrastructure changes outside these paths received no quality review"
+    "Scan covers only src/pages/, src/content/, blog/src/content/ \u2014 infrastructure changes outside these paths received no quality review"
   ]
 }
