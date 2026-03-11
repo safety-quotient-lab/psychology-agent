@@ -16,6 +16,12 @@
 
 set -euo pipefail
 
+# ── NVM / PATH bootstrap ────────────────────────────────────────────────────
+# Cron runs with a minimal PATH that excludes NVM-managed Node (and claude).
+# Source NVM if present so that `claude`, `node`, and `npm` resolve.
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+[ -s "${NVM_DIR}/nvm.sh" ] && source "${NVM_DIR}/nvm.sh" 2>/dev/null
+
 # ── Configuration ────────────────────────────────────────────────────────────
 
 # Project root: $1 argument > PROJECT_ROOT env var > script's parent dir
