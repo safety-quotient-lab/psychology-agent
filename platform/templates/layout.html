@@ -33,6 +33,7 @@
             <div class="tab" onclick="switchTab('messages')">Messages</div>
             <div class="tab" onclick="switchTab('semiotics')">Semiotics</div>
             <div class="tab" onclick="switchTab('replays')">Replays</div>
+            <div class="tab" onclick="switchTab('knowledge')">Knowledge</div>
         </div>
     </nav>
 
@@ -61,6 +62,11 @@
     <!-- ══ REPLAYS ══ -->
     <div id="tab-replays" class="tab-content">
         {{template "replays" .}}
+    </div>
+
+    <!-- ══ KNOWLEDGE ══ -->
+    <div id="tab-knowledge" class="tab-content">
+        {{template "knowledge" .}}
     </div>
 
     </div><!-- main-content -->

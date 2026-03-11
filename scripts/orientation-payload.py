@@ -259,6 +259,30 @@ def format_payload(
     return "\n".join(lines)
 
 
+def cache_path(agent_id: str) -> Path:
+    """Return the path to the cached orientation payload for this agent."""
+    import tempfile
+    return Path(tempfile.gettempdir()) / f"orientation-{agent_id}.cache"
+
+
+def cache_valid(agent_id: str) -> bool:
+    """Check if the cached payload remains fresh.
+
+    Fresh means: cache file exists AND state.db has not changed since
+    the cache was written. This avoids redundant SQL queries when
+    autonomous-sync.sh calls the script on a quiescent mesh.
+    """
+    cached = cache_path(agent_id)
+    if not cached.exists():
+        return False
+    try:
+        cache_mtime = cached.stat().st_mtime
+        db_mtime = DB_PATH.stat().st_mtime
+        return db_mtime < cache_mtime
+    except OSError:
+        return False
+
+
 def main() -> None:
     agent_id = "psychology-agent"
 
@@ -268,12 +292,20 @@ def main() -> None:
         if idx + 1 < len(sys.argv):
             agent_id = sys.argv[idx + 1]
 
+    # --no-cache flag bypasses the mtime guard
+    use_cache = "--no-cache" not in sys.argv
+
     # Identity file overrides default, CLI flag overrides identity file
     identity = load_identity()
     if "--agent-id" in sys.argv:
         identity["agent_id"] = agent_id
     else:
         agent_id = identity.get("agent_id", agent_id)
+
+    # Serve from cache if state.db unchanged since last generation
+    if use_cache and cache_valid(agent_id):
+        print(cache_path(agent_id).read_text(), end="")
+        return
 
     conn = get_conn()
 
@@ -291,6 +323,10 @@ def main() -> None:
 
     print(payload)
     conn.close()
+
+    # Write cache for next invocation
+    if use_cache:
+        cache_path(agent_id).write_text(payload)
 
 
 if __name__ == "__main__":

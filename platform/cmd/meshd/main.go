@@ -16,6 +16,7 @@ import (
 	"time"
 
 	platform "github.com/safety-quotient-lab/psychology-agent/platform"
+	"github.com/safety-quotient-lab/psychology-agent/platform/internal/collector"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/db"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/handlers"
 )
@@ -23,6 +24,7 @@ import (
 func main() {
 	port := flag.Int("port", 8077, "HTTP port")
 	projectRoot := flag.String("project-root", ".", "Path to the agent project root")
+	cacheTTL := flag.Duration("cache-ttl", 10*time.Second, "Cache TTL for collector results")
 	flag.Parse()
 
 	// Resolve project root to absolute path
@@ -48,6 +50,9 @@ func main() {
 		log.Fatalf("parse templates: %v", err)
 	}
 
+	// Cache — single source of truth for all handler data
+	cache := collector.NewCache(database, absRoot, *cacheTTL)
+
 	// Routes
 	mux := http.NewServeMux()
 
@@ -59,16 +64,24 @@ func main() {
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticSub))))
 
 	// API endpoints
-	mux.HandleFunc("/api/status", handlers.APIStatus(database, absRoot))
+	mux.HandleFunc("/api/status", handlers.APIStatus(cache))
+	mux.HandleFunc("/api/kb", handlers.APIKB(cache))
 	mux.HandleFunc("/.well-known/agent-card.json", handlers.AgentCard(absRoot))
 	mux.HandleFunc("/health", handlers.HealthCheck())
+
+	// Knowledge Base routes
+	mux.HandleFunc("/kb/decisions", handlers.APIKBDecisions(cache))
+	mux.HandleFunc("/kb/triggers", handlers.APIKBTriggers(cache))
+	mux.HandleFunc("/kb/catalog", handlers.APIKBCatalog(cache))
+	mux.HandleFunc("/kb/memory", handlers.APIKBMemory(cache))
+	mux.HandleFunc("/kb/dictionary", handlers.APIKBDictionary(cache))
 
 	// Replay serving
 	mux.HandleFunc("/replays/remote/", handlers.RemoteReplay(absRoot))
 	mux.HandleFunc("/replays/", handlers.LocalReplay(absRoot))
 
 	// Dashboard (root + /obs)
-	dashboard := handlers.ObsDashboard(database, absRoot, tmpl)
+	dashboard := handlers.ObsDashboard(cache, tmpl)
 	mux.HandleFunc("/obs", dashboard)
 	mux.HandleFunc("/obs/", dashboard)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -96,7 +109,10 @@ func main() {
 	go func() {
 		fmt.Printf("meshd serving on http://localhost:%d\n", *port)
 		fmt.Printf("  API:        http://localhost:%d/api/status\n", *port)
+		fmt.Printf("  KB:         http://localhost:%d/api/kb\n", *port)
+		fmt.Printf("  Dictionary: http://localhost:%d/kb/dictionary\n", *port)
 		fmt.Printf("  Dashboard:  http://localhost:%d/\n", *port)
+		fmt.Printf("  Cache TTL:  %s\n", *cacheTTL)
 		fmt.Printf("  Project:    %s\n", absRoot)
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 			log.Fatalf("server error: %v", err)

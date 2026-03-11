@@ -35,6 +35,7 @@ type Status struct {
 	SessionMsgs    map[string][]map[string]any `json:"session_messages"`
 	StateOfPlay    StateOfPlay               `json:"state_of_play"`
 	Replays        ReplayData                `json:"replays"`
+	Knowledge      *KnowledgeBase            `json:"knowledge,omitempty"`
 }
 
 // RegistryInfo holds summary registry data for each peer.
@@ -215,6 +216,9 @@ func Collect(d *db.DB, projectRoot string) *Status {
 	localReplays := CollectReplays(projectRoot)
 	remoteReplays := CollectRemoteReplays(reg, projectRoot)
 
+	// Knowledge base
+	knowledge := CollectKnowledgeBase(d)
+
 	return &Status{
 		AgentID:        agentID,
 		CollectedAt:    now,
@@ -247,6 +251,7 @@ func Collect(d *db.DB, projectRoot string) *Status {
 			Local:  localReplays,
 			Remote: remoteReplays,
 		},
+		Knowledge: knowledge,
 	}
 }
 
