@@ -351,12 +351,12 @@ check_interval() {
 git_sync() {
     cd "${PROJECT_ROOT}"
 
-    # Auto-commit dirty transport files before pulling to prevent rebase conflicts.
-    # The heartbeat emits before git_sync, modifying a tracked file every cycle.
-    # Without this, git pull --rebase fails on "unstaged changes" indefinitely.
-    if ! git diff --quiet -- transport/ .well-known/; then
-        git add transport/ .well-known/ 2>/dev/null
-        git commit -m "autonomous: ${AGENT_ID} transport state update
+    # Auto-commit ALL dirty tracked files before pulling to prevent rebase conflicts.
+    # Heartbeat, mesh-state-export, and script deployments can leave modified files
+    # that block git pull --rebase indefinitely if not committed first.
+    if ! git diff --quiet; then
+        git add -u 2>/dev/null
+        git commit -m "autonomous: ${AGENT_ID} pre-pull state commit
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>" 2>/dev/null || true
     fi
