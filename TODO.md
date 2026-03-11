@@ -156,10 +156,11 @@ human-mediated Claude Code sessions to autonomous operation.
   layer adopted. Schema v2 committed (scripts/schema.sql, 9 tables). Conventions at
   .claude/rules/sqlite.md. Phase 1: markdown = source of truth, DB = queryable index.
 
-- [x] **SL-1: Bootstrap state DB script** — COMPLETE (Session 50). PR #90 merged.
+- [x] **SL-1: Bootstrap state DB script** — COMPLETE (Session 50, updated Session 72).
   `scripts/bootstrap_state_db.py` seeds 9 tables from transport JSON, architecture.md,
   memory snapshots, lab-notebook, cognitive-triggers. All 9 validation checks pass.
-  29 pre-interagent/v1 legacy files skipped (expected).
+  Session 72: legacy transport parsing added — 169 files indexed (14 legacy + 155 modern),
+  polymorphic from/to extraction, string-claim tolerance.
 
 - [x] **SL-2: /sync + /cycle dual-write integration** — COMPLETE (Session 51).
   `scripts/dual_write.py` (6 subcommands). /sync Phase 3+5 index transport messages.

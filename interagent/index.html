@@ -1365,6 +1365,8 @@
     let dictData = {};
     let refreshTimer = null;
     let activeAgentFilter = "all";
+    let sseConnections = [];
+    let sseActive = false;
 
     // ── Theme ──────────────────────────────────────────────────────
     function setTheme(mode) {
@@ -1503,8 +1505,9 @@
         // Fetch KB data (non-blocking — renders when ready)
         refreshKnowledge();
 
+        const mode = sseActive ? "● SSE live" : "○ polling 30s";
         document.getElementById("footer-status").textContent =
-            `Updated ${new Date().toLocaleTimeString()}`;
+            `Updated ${new Date().toLocaleTimeString()} · ${mode}`;
     }
 
     // ── Render: Vitals ─────────────────────────────────────────────
@@ -2841,6 +2844,67 @@
         return div.innerHTML;
     }
 
+    // ── SSE Live Updates ─────────────────────────────────────────
+    function connectSSE() {
+        sseConnections.forEach(es => es.close());
+        sseConnections = [];
+        let connectedCount = 0;
+
+        for (const agent of AGENTS) {
+            const es = new EventSource(`${agent.url}/events`);
+
+            es.addEventListener("connected", (e) => {
+                connectedCount++;
+                if (connectedCount >= 1 && !sseActive) {
+                    sseActive = true;
+                    // SSE working — switch from polling to event-driven
+                    if (refreshTimer) {
+                        clearInterval(refreshTimer);
+                        refreshTimer = null;
+                    }
+                    updateSSEIndicator(true);
+                }
+            });
+
+            es.addEventListener("refresh", (e) => {
+                // Agent data changed — refresh just that agent
+                refreshAll();
+            });
+
+            es.onerror = () => {
+                // SSE failed for this agent — fall back to polling if no SSE active
+                es.close();
+                sseConnections = sseConnections.filter(c => c !== es);
+                if (sseConnections.every(c => c.readyState === EventSource.CLOSED)) {
+                    sseActive = false;
+                    updateSSEIndicator(false);
+                    if (!refreshTimer) {
+                        refreshTimer = setInterval(refreshAll, 30000);
+                    }
+                }
+            };
+
+            sseConnections.push(es);
+        }
+
+        // Timeout — if no SSE connects within 10s, fall back to polling
+        setTimeout(() => {
+            if (!sseActive && !refreshTimer) {
+                refreshTimer = setInterval(refreshAll, 30000);
+                updateSSEIndicator(false);
+            }
+        }, 10000);
+    }
+
+    function updateSSEIndicator(live) {
+        const el = document.getElementById("footer-status");
+        if (!el) return;
+        const dot = live ? "●" : "○";
+        const label = live ? "SSE live" : "polling 30s";
+        el.dataset.sseMode = live ? "live" : "poll";
+        // Update will happen on next refresh cycle
+    }
+
     // ── Init ───────────────────────────────────────────────────────
     (async function init() {
         // Restore preferences
@@ -2854,7 +2918,9 @@
         buildAgentSwitcher();
         await refreshAll();
 
-        // Auto-refresh every 30s (targeted DOM updates, not full page reload)
+        // Try SSE first, fall back to polling
+        connectSSE();
+        // Safety net — always have polling as backup until SSE connects
         refreshTimer = setInterval(refreshAll, 30000);
     })();
 </script>
