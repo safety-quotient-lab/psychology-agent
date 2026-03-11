@@ -613,8 +613,8 @@
                                   (Session 59).
                                 Decided: 2026-03-09
 
- Cross-repo transport            Safety-quotient agent operates in a
-  (safety-quotient agent)        separate repo (safety-quotient-lab/
+ Cross-repo transport            PSQ agent operates in a
+  (psq-agent)                    separate repo (safety-quotient-lab/
                                  safety-quotient) on a different machine
                                  (chromabook). Transport uses git remote
                                  fetch: each agent adds the other as a
