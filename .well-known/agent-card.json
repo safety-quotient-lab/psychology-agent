@@ -27,7 +27,17 @@
     {
       "session_id": "psq-scoring",
       "peer": "psq-agent",
-      "status": "active — turn 48 (methodology framing notification). Phase 2 mirror current, Phase 3 gate OPEN"
+      "status": "active — turn 52. Phase 2 mirror current, Phase 3 gate OPEN"
+    },
+    {
+      "session_id": "site-pricing-update",
+      "peer": "unratified-agent",
+      "status": "active — turn 1 (ICESCR ratification cost blog request from human). Autosync test."
+    },
+    {
+      "session_id": "plan9-consensus",
+      "peer": "psq-agent, unratified-agent, observatory-agent",
+      "status": "active — turn 1 (consensus proposal). Awaiting peer votes."
     },
     {
       "session_id": "mesh-init",
@@ -37,17 +47,12 @@
     {
       "session_id": "site-defensibility-review",
       "peer": "unratified-agent",
-      "status": "complete — unratified-agent T5 ACK confirmed"
+      "status": "complete"
     },
     {
       "session_id": "subagent-protocol",
       "peer": "psq-agent",
       "status": "complete"
-    },
-    {
-      "session_id": "local-coordination",
-      "peer": "psychology-agent (local instance)",
-      "status": "active — 2 messages sent"
     }
   ],
 

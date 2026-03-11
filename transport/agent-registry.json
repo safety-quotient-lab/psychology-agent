@@ -1,9 +1,24 @@
 {
   "schema": "agent-registry/v1",
   "description": "Known agents in the psychology-agent mesh. /sync reads this to determine who to check for activity and who to consider for outbound messages.",
-  "updated": "2026-03-10",
+  "updated": "2026-03-11",
 
   "agents": {
+    "human": {
+      "role": "operator",
+      "description": "Human operator + Claude Code workstation — directs work, sends requests, reviews deliverables",
+      "transport": "local",
+      "repo": "safety-quotient-lab/psychology-agent",
+      "remote_name": null,
+      "sessions_path": "transport/sessions/",
+      "message_prefix": "from-human-",
+      "active_sessions": ["site-pricing-update"],
+      "always_consider": false,
+      "autonomous": false,
+      "discovery_url": null,
+      "notes": "Local operator. Psychology-agent meshd runs on chromabook; this workstation sends human-authored requests and reviews agent deliverables. Uses agent_id 'human' per .agent-identity.json."
+    },
+
     "psq-agent": {
       "role": "sub-agent",
       "description": "PSQ agent — psychometric model training, calibration, structural analysis (PSQ scoring)",
