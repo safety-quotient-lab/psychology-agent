@@ -57,6 +57,7 @@ partner, and Socratic interlocutor
 37. [Adoption Testing and the Portability Proof](#37-adoption-testing-and-the-portability-proof)
 38. [When the Index Replaces the Ledger: MANIFEST as Generated Artifact](#38-when-the-index-replaces-the-ledger)
 39. [Private by Default: How Data Governance Emerges in Agent Systems](#39-private-by-default)
+49. [The Dashboard That Didn't Know: When Reachability Masquerades as Liveness](#49-the-dashboard-that-didnt-know)
 40. [When Lessons Graduate: The Emergence of Mechanical Conventions from Pattern Recognition](#40-when-lessons-graduate)
 41. [Filesystem as Protocol: Plan 9 and the Cross-Repo Transport Decision](#41-filesystem-as-protocol)
 42. [The Gate That Keeps the Budget: Blocking Semantics in a Poll-Based Mesh](#42-the-gate-that-keeps-the-budget)
@@ -1808,3 +1809,51 @@ User mediation provides the safety net while we observe actual failure modes.
 - Peer state.db data reflects bootstrap snapshots, not live sync — unratified/observatory autonomous sync not yet operational
 - The 5 say/do gaps identified through message reading, not systematic verification — additional gaps may exist in messages not yet triaged
 - BFT consensus /knock analysis speculative at orders 5+, with no empirical consensus round data
+
+
+## §49. The Dashboard That Didn't Know: When Reachability Masquerades as Liveness {#49-the-dashboard-that-didnt-know}
+
+*(Session 68, 2026-03-10)*
+
+We discovered this session that the interagent mesh compositor had reported two
+agents — unratified-agent and observatory-agent — as "online" for the entire
+duration they lacked autonomous sync. The compositor determined agent status by
+fetching `/api/status` and checking for HTTP 200. Both agents served that
+endpoint via `status_server.py` running as systemd services on the chromabook.
+HTTP responded; the agents appeared healthy.
+
+The distinction between *reachable* and *alive* matters. A status endpoint that
+responds with HTTP 200 reports that the server process runs — it says nothing
+about whether the agent performs its primary function (autonomous sync via
+`claude -p`). The dashboard conflated the two, and neither the health
+classification logic (budget thresholds, pending message counts) nor the
+heartbeat system caught the gap. Heartbeats relied on file modification times
+in `transport/sessions/local-coordination/`, but without autonomous-sync.sh
+running, no heartbeat files existed to go stale.
+
+The fix required changes at two layers. First, `status_server.py` gained a
+`_collect_schedule()` function that inspects the local crontab (filtering by
+`PROJECT_ROOT` to distinguish agents sharing a machine), checks the lock file
+for an active sync process, and queries `autonomous_actions` for last sync
+timestamp. Second, the compositor added a Sync column to the health table and
+a sync mode indicator to agent cards — green for autonomous, amber for manual.
+
+The deeper lesson echoes a well-known distributed systems insight (Chandra &
+Toueg, 1996): failure detection requires assumptions about the processes under
+observation, not just the communication channels to them. Our compositor
+assumed HTTP reachability implied operational liveness — the weakest possible
+failure detector. Adding cron and lock-file inspection approaches an
+eventually-accurate failure detector, though still imperfect (a cron entry
+could exist for a script that crashes on launch).
+
+This also resolved the `/knock` recommend-against finding from the BFT
+consensus analysis. The analysis flagged that only 2 of 4 agents operated
+autonomously — but the dashboard showed all 4 "online," masking the actual
+readiness gap. Once the dashboard surfaced the distinction, we wired cron for
+the remaining two agents, deployed scripts, initialized trust budgets, and ran
+a smoke test. All 4 agents now operate autonomously. The precondition for
+consensus protocol implementation holds.
+
+⚑ EPISTEMIC FLAGS
+- "All 4 autonomous" verified only through no-op sync cycles — no full claude -p invocation observed on unratified or observatory yet
+- Cron log interleaving (/tmp/autonomous-sync.log shared by 3 agents) may obscure per-agent debugging

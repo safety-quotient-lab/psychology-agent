@@ -469,10 +469,9 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   shared definitions.
   *Precondition: Plan9 directory consensus resolved*
 
-- [ ] **Enable autonomous sync on peer repos** — unratified and observatory
-  state.db data reflects bootstrap snapshot. Wire autonomous-sync.sh + cron
-  on chromabook for both repos to enable live transport processing.
-  *Precondition: ✓ MET — scripts deployed, state.db bootstrapped (Session 67)*
+- [x] **Enable autonomous sync on peer repos** — COMPLETE (Session 68).
+  Scripts deployed, cron installed (*/5), trust budgets initialized, smoke
+  tested. All 4 agents autonomous. agent-registry.json updated.
 
 - [ ] **Delete old interagent tunnel** — `cloudflared tunnel delete interagent`
   (ID ccd8d4dc). Edge connections were draining at Session 65; retry after
