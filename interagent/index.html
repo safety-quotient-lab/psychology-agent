@@ -503,11 +503,11 @@
         /* Topology placeholder */
         .topology-container {
             --panel-accent: var(--c-health);
-            min-height: 300px;
+            min-height: 360px;
         }
         .topology-svg {
             width: 100%;
-            height: 280px;
+            height: 340px;
         }
         .topology-svg a { cursor: pointer; }
         .topology-svg a:hover circle { opacity: 0.3; }
@@ -817,7 +817,7 @@
             <div class="lcars-panel topology-container" style="margin-bottom: 24px">
                 <div class="lcars-panel-header">Mesh Topology</div>
                 <div class="lcars-panel-body">
-                    <svg class="topology-svg" id="topology-svg" viewBox="0 0 600 280"></svg>
+                    <svg class="topology-svg" id="topology-svg" viewBox="0 0 600 340"></svg>
                 </div>
             </div>
 
@@ -1126,10 +1126,10 @@
     function renderTopology() {
         const svg = document.getElementById("topology-svg");
         const positions = [
-            { x: 300, y: 50 },   // top
-            { x: 520, y: 140 },  // right
-            { x: 300, y: 230 },  // bottom
-            { x: 80, y: 140 },   // left
+            { x: 300, y: 55 },   // top
+            { x: 520, y: 160 },  // right
+            { x: 300, y: 265 },  // bottom
+            { x: 80, y: 160 },   // left
         ];
 
         let html = "";
@@ -1152,15 +1152,15 @@
             const fill = online ? agent.color : "var(--c-inactive)";
 
             html += `<a href="${agent.url}" target="_blank" rel="noopener">
-                <circle cx="${pos.x}" cy="${pos.y}" r="28"
+                <circle cx="${pos.x}" cy="${pos.y}" r="45"
                     fill="${fill}" opacity="${online ? 0.12 : 0.05}"
-                    stroke="${fill}" stroke-width="2.5"/>
-                <circle cx="${pos.x}" cy="${pos.y}" r="10" fill="${fill}"
+                    stroke="${fill}" stroke-width="3"/>
+                <circle cx="${pos.x}" cy="${pos.y}" r="16" fill="${fill}"
                     opacity="${online ? 1 : 0.3}">
-                    ${online ? `<animate attributeName="r" values="9;12;9" dur="3s" repeatCount="indefinite"/>` : ""}
+                    ${online ? `<animate attributeName="r" values="15;19;15" dur="3s" repeatCount="indefinite"/>` : ""}
                 </circle>
-                <text x="${pos.x}" y="${pos.y + 44}" text-anchor="middle"
-                    font-size="13" font-family="inherit" font-weight="bold">
+                <text x="${pos.x}" y="${pos.y + 62}" text-anchor="middle"
+                    font-size="21" font-family="inherit" font-weight="bold">
                     ${agent.id.replace("-agent", "")}
                 </text>
             </a>`;
