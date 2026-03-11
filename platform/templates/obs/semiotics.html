@@ -1,0 +1,128 @@
+{{define "semiotics"}}
+{{$sem := .Semiotics}}
+{{$pshDist := $sem.PSHDist}}
+{{$schemaDist := $sem.SchemaDist}}
+{{$vocab := $sem.Vocabulary}}
+{{$versionDist := $sem.VersionDist}}
+{{$lowConf := $sem.LowConfCount}}
+
+{{$totalFacets := 0}}
+{{range $pshDist}}{{$totalFacets = add $totalFacets (getInt . "entity_count")}}{{end}}
+{{range $schemaDist}}{{$totalFacets = add $totalFacets (getInt . "entity_count")}}{{end}}
+{{$activeCategories := 0}}
+{{range $pshDist}}{{if ne (getStr . "facet_value") "unclassified"}}{{$activeCategories = add $activeCategories 1}}{{end}}{{end}}
+{{$activeV := activeVocab $vocab}}
+{{$inactiveV := inactiveVocab $vocab}}
+{{$maxPSH := maxCount $pshDist}}
+
+<div class="grid">
+    <div class="card">
+        <div class="card-label">Total Facets</div>
+        <div class="card-value">{{$totalFacets}}</div>
+        <div class="card-detail">PSH + schema.org</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Active PSH Categories</div>
+        <div class="card-value">{{$activeCategories}}</div>
+        <div class="card-detail">of 44 PSH + project-local</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Inactive PSH Available</div>
+        <div class="card-value">{{len $inactiveV}}</div>
+        <div class="card-detail">awaiting literary warrant</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Low Confidence</div>
+        <div class="card-value{{if gt $lowConf 50}} alert{{end}}">{{$lowConf}}</div>
+        <div class="card-detail">facets with conf &lt; 0.05</div>
+    </div>
+</div>
+
+<h2>PSH Subject Distribution</h2>
+<table>
+    <tr><th>Category</th><th>Code</th><th style="text-align:right">Entities</th><th style="text-align:right">Avg Conf</th><th>Distribution</th></tr>
+    {{if $pshDist}}
+        {{range $pshDist}}
+        {{$cat := getStr . "facet_value"}}
+        {{$count := getInt . "entity_count"}}
+        {{$avgConf := getFloat . "avg_confidence"}}
+        {{$code := vocabCode $vocab $cat "psh"}}
+        <tr>
+            <td>{{$cat}}</td>
+            <td style="color:#6e7681">{{$code}}</td>
+            <td style="text-align:right">{{$count}}</td>
+            <td class="{{confClass $avgConf}}" style="text-align:right">{{floatFmt $avgConf 3}}</td>
+            <td style="width:30%"><div class="psh-bar"><div class="psh-fill" style="width:{{barPct $count $maxPSH}}%;background:#58a6ff"></div></div></td>
+        </tr>
+        {{end}}
+    {{else}}
+        <tr><td colspan="5" class="empty">No PSH facets found</td></tr>
+    {{end}}
+</table>
+
+<h2>Schema.org Type Distribution</h2>
+<table>
+    <tr><th>Type</th><th style="text-align:right">Entities</th></tr>
+    {{if $schemaDist}}
+        {{range $schemaDist}}
+        <tr>
+            <td>{{getStr . "facet_value"}}</td>
+            <td style="text-align:right">{{getStr . "entity_count"}}</td>
+        </tr>
+        {{end}}
+    {{else}}
+        <tr><td colspan="2" class="empty">No schema.org facets found</td></tr>
+    {{end}}
+</table>
+
+<h2>Active Vocabulary Registry</h2>
+<table>
+    <tr><th>Value</th><th>Type</th><th>Code</th><th>Source</th><th>Description</th></tr>
+    {{if $activeV}}
+        {{range $activeV}}
+        <tr>
+            <td>{{getStr . "facet_value"}}</td>
+            <td>{{getStr . "facet_type"}}</td>
+            <td style="color:#6e7681">{{getStr . "code"}}</td>
+            <td class="{{sourceClass (getStr . "source")}}">{{getStr . "source"}}</td>
+            <td style="color:#6e7681;font-size:0.85em">{{truncate (getStr . "description") 60}}</td>
+        </tr>
+        {{end}}
+    {{else}}
+        <tr><td colspan="5" class="empty">No vocabulary entries</td></tr>
+    {{end}}
+</table>
+
+<h2>Inactive PSH Categories (Available for Activation)</h2>
+<table>
+    <tr><th>Category</th><th>Code</th><th>Description</th></tr>
+    {{if $inactiveV}}
+        {{range $inactiveV}}
+        <tr style="color:#484f58">
+            <td>{{getStr . "facet_value"}}</td>
+            <td style="color:#6e7681">{{getStr . "code"}}</td>
+            <td>{{getStr . "description"}}</td>
+        </tr>
+        {{end}}
+    {{else}}
+        <tr><td colspan="3" class="empty">All categories active</td></tr>
+    {{end}}
+</table>
+
+<h2>Keyword Set Versions</h2>
+<table>
+    <tr><th>Version</th><th style="text-align:right">Facets</th><th>Oldest</th><th>Newest</th></tr>
+    {{if $versionDist}}
+        {{range $versionDist}}
+        <tr>
+            <td>v{{if getStr . "keyword_set_version"}}{{getStr . "keyword_set_version"}}{{else}}legacy{{end}}</td>
+            <td style="text-align:right">{{getStr . "facet_count"}}</td>
+            <td style="color:#6e7681">{{if getStr . "oldest"}}{{getStr . "oldest"}}{{else}}&mdash;{{end}}</td>
+            <td style="color:#6e7681">{{if getStr . "newest"}}{{getStr . "newest"}}{{else}}&mdash;{{end}}</td>
+        </tr>
+        {{end}}
+    {{else}}
+        <tr><td colspan="4" class="empty">No version data</td></tr>
+    {{end}}
+</table>
+{{end}}

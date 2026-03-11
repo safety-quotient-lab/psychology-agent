@@ -1,0 +1,77 @@
+{{define "state-of-play"}}
+<div class="sop-thread">
+    <h2>Active Thread</h2>
+    <div class="card" style="margin-bottom:16px">
+        <div class="sop-label">Where we stopped</div>
+        <div class="sop-value">{{.StateOfPlay.ActiveThread.LastSession}}</div>
+        <div class="sop-label" style="margin-top:12px">Next</div>
+        <div class="sop-value">{{.StateOfPlay.ActiveThread.Next}}</div>
+    </div>
+    {{if .StateOfPlay.ActiveThread.StatusLines}}
+    <h3>Status by tier</h3>
+    <div class="card" style="margin-bottom:16px">
+        {{range .StateOfPlay.ActiveThread.StatusLines}}
+        <div class="status-line">
+            <span class="dot {{dotClass .}}"></span> {{.}}
+        </div>
+        {{end}}
+    </div>
+    {{end}}
+</div>
+
+<h2>Gated Exchanges</h2>
+<table>
+    <tr><th>Gate</th><th>Waiting on</th><th>Session</th><th>Time left</th><th>Fallback</th></tr>
+    {{if .ActiveGates}}
+        {{range .ActiveGates}}
+        <tr>
+            <td><strong>{{getStr . "gate_id"}}</strong></td>
+            <td>{{getStr . "receiving_agent"}}</td>
+            <td>{{getStr . "session_name"}}</td>
+            {{$tl := timeLeft (getStr . "timeout_at")}}
+            <td class="{{if eq $tl "EXPIRED"}}alert{{end}}">{{$tl}}</td>
+            <td>{{getStr . "fallback_action"}}</td>
+        </tr>
+        {{end}}
+    {{else}}
+        <tr><td colspan="5" class="empty">No active gates</td></tr>
+    {{end}}
+</table>
+
+<h2>TODO Backlog <span class="todo-summary">{{.StateOfPlay.TODO.TotalOpen}} open / {{.StateOfPlay.TODO.TotalComplete}} complete</span></h2>
+<div class="todo-grid">
+    {{if .StateOfPlay.TODO.Sections}}
+        {{range .StateOfPlay.TODO.Sections}}
+        <div class="todo-section">
+            <div class="todo-section-header">
+                <span class="todo-section-name">{{.Name}}</span>
+                <span class="todo-count">{{.Open}} open</span>
+            </div>
+            {{range .Items}}
+                {{if not .Done}}
+                <div class="todo-item">&#x2610; {{.Label}}</div>
+                {{end}}
+            {{end}}
+        </div>
+        {{end}}
+    {{else}}
+        <div class="empty">No open TODO items</div>
+    {{end}}
+</div>
+
+<h2>Peer Sync Recency</h2>
+<table>
+    <tr><th>Agent</th><th>Last snapshot</th><th>Budget</th></tr>
+    {{if .StateOfPlay.PeerSync}}
+        {{range .StateOfPlay.PeerSync}}
+        <tr>
+            <td>{{.AgentID}}</td>
+            <td>{{.LastRan}}</td>
+            <td>{{.BudgetCurrent}}/{{.BudgetMax}}</td>
+        </tr>
+        {{end}}
+    {{else}}
+        <tr><td colspan="3" class="empty">No peer state snapshots available</td></tr>
+    {{end}}
+</table>
+{{end}}

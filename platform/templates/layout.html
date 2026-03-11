@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="refresh" content="30">
+    <title>Mesh Status — {{.AgentID}}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="nav-header">
+        <div class="nav-top">
+            <div class="nav-title">&#x2B21; {{.AgentID}}</div>
+            <div class="nav-status">
+                <div class="indicator">
+                    {{$bc := getFloat .TrustBudget "budget_current"}}
+                    <span class="dot {{if gt $bc 10.0}}dot-green{{else if gt $bc 5.0}}dot-yellow{{else}}dot-red{{end}}"></span>
+                    budget {{getStr .TrustBudget "budget_current"}}/{{getStr .TrustBudget "budget_max"}}
+                </div>
+                <div class="indicator">
+                    <span class="dot {{if gt .Totals.Unprocessed 0}}dot-red{{else}}dot-green{{end}}"></span>
+                    {{.Totals.Unprocessed}} queued
+                </div>
+                <div class="indicator">
+                    <span class="dot {{if gt .Totals.ActiveGates 0}}dot-yellow{{else}}dot-gray{{end}}"></span>
+                    {{.Totals.ActiveGates}} gates
+                </div>
+                <div style="color:#484f58">v{{.SchemaVersion}} &middot; {{.CollectedAt}}</div>
+            </div>
+        </div>
+        <div class="nav-tabs">
+            <div class="tab" onclick="switchTab('state-of-play')">State of Play</div>
+            <div class="tab active" onclick="switchTab('mesh')">Mesh</div>
+            <div class="tab" onclick="switchTab('messages')">Messages</div>
+            <div class="tab" onclick="switchTab('semiotics')">Semiotics</div>
+            <div class="tab" onclick="switchTab('replays')">Replays</div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+
+    <!-- ══ STATE OF PLAY ══ -->
+    <div id="tab-state-of-play" class="tab-content">
+        {{template "state-of-play" .}}
+    </div>
+
+    <!-- ══ MESH ══ -->
+    <div id="tab-mesh" class="tab-content active">
+        {{template "mesh" .}}
+    </div>
+
+    <!-- ══ MESSAGES ══ -->
+    <div id="tab-messages" class="tab-content">
+        {{template "messages" .}}
+    </div>
+
+    <!-- ══ SEMIOTICS ══ -->
+    <div id="tab-semiotics" class="tab-content">
+        {{template "semiotics" .}}
+    </div>
+
+    <!-- ══ REPLAYS ══ -->
+    <div id="tab-replays" class="tab-content">
+        {{template "replays" .}}
+    </div>
+
+    </div><!-- main-content -->
+
+    <footer>
+        {{.DBPath}} &middot; {{if .DBExists}}db exists{{else}}DB MISSING{{end}}
+    </footer>
+
+    <script src="/static/mesh.js"></script>
+</body>
+</html>

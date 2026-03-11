@@ -1,0 +1,171 @@
+{{define "mesh"}}
+{{$budget := .TrustBudget}}
+{{$totals := .Totals}}
+{{$schedule := .Schedule}}
+
+<div class="grid">
+    <div class="card">
+        <div class="card-label">Trust Budget</div>
+        <div class="card-value" style="color: {{budgetColor $budget}}">{{getStr $budget "budget_current"}} / {{getStr $budget "budget_max"}}</div>
+        <div class="budget-bar"><div class="budget-fill" style="width: {{budgetPct $budget}}%; background: {{budgetColor $budget}}"></div></div>
+        <div class="card-detail">Last action: {{if getStr $budget "last_action"}}{{getStr $budget "last_action"}}{{else}}never{{end}}</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Unprocessed</div>
+        <div class="card-value{{if gt $totals.Unprocessed 0}} alert{{end}}">{{$totals.Unprocessed}}</div>
+        <div class="card-detail">messages awaiting processing</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Active Gates</div>
+        <div class="card-value{{if gt $totals.ActiveGates 0}} alert{{end}}">{{$totals.ActiveGates}}</div>
+        <div class="card-detail">blocking exchanges</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Total Messages</div>
+        <div class="card-value">{{$totals.Messages}}</div>
+        <div class="card-detail">across {{$totals.Sessions}} sessions</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Epistemic Debt</div>
+        <div class="card-value">{{$totals.EpistemicUnresolved}}</div>
+        <div class="card-detail">unresolved flags</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Consecutive Errors</div>
+        {{$blocks := getInt $budget "consecutive_blocks"}}
+        <div class="card-value{{if gt $blocks 0}} alert{{else}} ok{{end}}">{{$blocks}}</div>
+        <div class="card-detail">{{if getBool $budget "shadow_mode"}}shadow mode ON{{else}}live mode{{end}}</div>
+    </div>
+</div>
+
+<h2>Sync Schedule</h2>
+<div class="card" style="margin-bottom: 16px">
+    <div class="schedule-row">
+        <div class="schedule-item">
+            <div class="schedule-label">Cron interval</div>
+            <div class="schedule-value">{{if $schedule.CronIntervalMin}}{{$schedule.CronIntervalMin}} min{{else}}not configured{{end}}</div>
+        </div>
+        <div class="schedule-item">
+            <div class="schedule-label">Min action interval</div>
+            <div class="schedule-value">{{if $schedule.MinActionIntervalSec}}{{$schedule.MinActionIntervalSec}}s{{else}}?{{end}}</div>
+        </div>
+        <div class="schedule-item">
+            <div class="schedule-label">Last sync</div>
+            <div class="schedule-value">{{if $schedule.LastSync}}{{$schedule.LastSync}}{{else}}never{{end}}</div>
+        </div>
+        <div class="schedule-item">
+            <div class="schedule-label">Next expected</div>
+            <div class="schedule-value">{{if $schedule.NextExpected}}{{$schedule.NextExpected}}{{else}}&mdash;{{end}}</div>
+        </div>
+        <div class="schedule-item">
+            <div class="schedule-label">Lock</div>
+            <div class="schedule-value {{if $schedule.LockActive}}lock-active{{else if $schedule.LockStale}}lock-stale{{end}}">
+                {{if $schedule.LockActive}}PID {{$schedule.LockPID}} (running){{else if $schedule.LockStale}}PID {{$schedule.LockPID}} (stale){{else}}none{{end}}
+            </div>
+        </div>
+    </div>
+    {{if $schedule.CronEntry}}
+    <div style="margin-top:8px; font-size:0.8em; color:#6e7681">{{$schedule.CronEntry}}</div>
+    {{end}}
+</div>
+
+<h2>Peers</h2>
+<table>
+    <tr><th>Agent</th><th>Role</th><th>Tier</th><th>Last Exchange</th><th>Messages</th></tr>
+    {{if .Peers}}
+        {{range .Peers}}
+        {{$agent := getStr . "from_agent"}}
+        {{$lastSeen := getStr . "last_seen"}}
+        <tr>
+            <td>{{$agent}}</td>
+            <td></td>
+            <td><span class="{{tierClass $lastSeen}}">{{tierLabel $lastSeen}}</span></td>
+            <td>{{peerAge $lastSeen}}</td>
+            <td>{{getStr . "total_messages"}}</td>
+        </tr>
+        {{end}}
+    {{else}}
+        <tr><td colspan="5" class="empty">No peer activity recorded</td></tr>
+    {{end}}
+</table>
+
+<h2>Active Gates</h2>
+<table>
+    <tr><th>Gate ID</th><th>Receiving Agent</th><th>Session</th><th>Timeout At</th><th>Fallback</th></tr>
+    {{if .ActiveGates}}
+        {{range .ActiveGates}}
+        <tr>
+            <td>{{getStr . "gate_id"}}</td>
+            <td>{{getStr . "receiving_agent"}}</td>
+            <td>{{getStr . "session_name"}}</td>
+            <td>{{getStr . "timeout_at"}}</td>
+            <td>{{getStr . "fallback_action"}}</td>
+        </tr>
+        {{end}}
+    {{else}}
+        <tr><td colspan="5" class="empty">No active gates</td></tr>
+    {{end}}
+</table>
+
+<h2>Autonomous Actions</h2>
+<table>
+    <tr><th></th><th>Type</th><th>Result</th><th>Tier</th><th>Cost</th><th>Time</th></tr>
+    {{if .RecentActions}}
+        {{range $idx, $action := .RecentActions}}
+        {{$result := getStr $action "evaluator_result"}}
+        {{$cost := sub (getInt $action "budget_before") (getInt $action "budget_after")}}
+        <tr class="accordion-header" onclick="toggleRow('action-{{$idx}}')">
+            <td>&#x25B8;</td>
+            <td>{{getStr $action "action_type"}}</td>
+            <td><span class="{{if eq $result "approved"}}result-approved{{else}}result-blocked{{end}}">{{$result}}</span></td>
+            <td>T{{getStr $action "evaluator_tier"}}</td>
+            <td>{{$cost}}</td>
+            <td>{{getStr $action "created_at"}}</td>
+        </tr>
+        <tr id="action-{{$idx}}" class="accordion-detail" style="display:none">
+            <td colspan="6">
+                <div class="detail-grid">
+                    <div><span class="detail-label">Description:</span> {{getStr $action "description"}}</div>
+                    <div><span class="detail-label">Action type:</span> {{getStr $action "action_type"}}</div>
+                    <div><span class="detail-label">Action class:</span> {{getStr $action "action_class"}}</div>
+                    <div><span class="detail-label">Evaluator tier:</span> T{{getStr $action "evaluator_tier"}}</div>
+                    <div><span class="detail-label">Result:</span> {{$result}}</div>
+                    <div><span class="detail-label">Budget before:</span> {{getStr $action "budget_before"}}</div>
+                    <div><span class="detail-label">Budget after:</span> {{getStr $action "budget_after"}}</div>
+                    <div><span class="detail-label">Cost:</span> {{$cost}}</div>
+                    <div><span class="detail-label">Time:</span> {{getStr $action "created_at"}}</div>
+                </div>
+            </td>
+        </tr>
+        {{end}}
+    {{else}}
+        <tr><td colspan="6" class="empty">No autonomous actions recorded</td></tr>
+    {{end}}
+</table>
+
+<h2>Remote Peer State</h2>
+<table>
+    <tr><th>Agent</th><th>Budget</th><th>Unprocessed</th><th>Gates</th><th>Messages</th><th>Epi Flags</th><th>Schema</th><th>Snapshot</th></tr>
+    {{if .RemoteStates}}
+        {{range .RemoteStates}}
+        {{$trust := getMap . "trust_budget"}}
+        {{$transport := getMap . "transport"}}
+        <tr>
+            <td>{{getStr . "agent_id"}}</td>
+            <td>{{if $trust}}{{getStr $trust "budget_current"}}/{{getStr $trust "budget_max"}}{{else}}&mdash;{{end}}</td>
+            <td>{{if $transport}}{{getStr $transport "unprocessed"}}{{else}}0{{end}}</td>
+            <td>{{if $transport}}{{getStr $transport "active_gates"}}{{else}}0{{end}}</td>
+            <td>{{if $transport}}{{getStr $transport "total_messages"}}{{else}}0{{end}}</td>
+            <td>{{getStr . "epistemic_flags_unresolved"}}</td>
+            <td>v{{getStr . "schema_version"}}</td>
+            <td>{{getStr . "timestamp"}}</td>
+        </tr>
+        <tr><td colspan="8" style="font-size:0.8em; color:#8b949e; padding:2px 12px 8px">
+            Source: {{getStr . "_source"}}
+        </td></tr>
+        {{end}}
+    {{else}}
+        <tr><td colspan="8" class="empty">No remote state snapshots available</td></tr>
+    {{end}}
+</table>
+{{end}}
