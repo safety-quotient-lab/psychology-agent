@@ -678,6 +678,47 @@
             font-size: 0.85em;
             font-style: italic;
         }
+
+        /* Epistemic Debt Panel */
+        .debt-summary { margin-bottom: 16px; }
+        .debt-headline {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .debt-headline-number { font-size: 2em; font-weight: bold; }
+        .debt-headline-label { font-size: 0.85em; color: var(--text-secondary); }
+        .debt-breakdown {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .debt-item { display: flex; align-items: baseline; gap: 6px; }
+        .debt-item-count { font-size: 1.2em; font-weight: bold; }
+        .debt-item-label { font-size: 0.8em; color: var(--text-secondary); }
+        .debt-sections { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 16px; }
+        .debt-section { flex: 1; min-width: 240px; }
+        .debt-section-title {
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .debt-histogram { display: flex; flex-direction: column; gap: 4px; }
+        .debt-hist-row { display: flex; align-items: center; gap: 8px; }
+        .debt-hist-label { width: 55px; font-size: 0.75em; color: var(--text-secondary); text-align: right; }
+        .debt-hist-bar-bg {
+            flex: 1;
+            height: 14px;
+            background: var(--bg-inset);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .debt-hist-bar { height: 100%; border-radius: 2px; transition: width 0.3s; }
+        .debt-hist-count { width: 30px; font-size: 0.75em; color: var(--text-secondary); }
+
         @media (max-width: 600px) {
             .lcars-tab { font-size: 0.75em; padding: 6px 8px; }
         }
@@ -1013,6 +1054,7 @@
                 <a class="section-jump-btn" href="#kb-sec-triggers">Triggers</a>
                 <a class="section-jump-btn" href="#kb-sec-memory">Memory</a>
                 <a class="section-jump-btn" href="#kb-sec-messages">Messages</a>
+                <a class="section-jump-btn" href="#kb-sec-debt">Epistemic Debt</a>
             </nav>
 
             <!-- Decisions -->
@@ -1065,6 +1107,16 @@
                 <div class="lcars-panel-header">Memory by Topic</div>
                 <div class="lcars-panel-body scrollable">
                     <div class="kb-table-wrap" id="kb-memory">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Epistemic Debt -->
+            <div id="kb-sec-debt" class="lcars-panel kb-section" data-section="epistemic" style="--panel-accent: var(--c-epistemic)">
+                <div class="lcars-panel-header">Epistemic Debt</div>
+                <div class="lcars-panel-body">
+                    <div id="epistemic-debt-panel">
                         <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
                     </div>
                 </div>
@@ -1309,6 +1361,7 @@
             { label: "Triggers",  color: "var(--c-epistemic)", flex: 2 },
             { label: "Memory",    color: "var(--c-tab-pulse)", flex: 2 },
             { label: "Messages",  color: "var(--c-transport)", flex: 3 },
+            { label: "Debt",      color: "var(--c-alert)",     flex: 1 },
         ],
         kb: [
             { label: "Claims",     color: "var(--c-tab-kb)",    flex: 4 },
@@ -1372,6 +1425,7 @@
         renderCatalog();
         renderSchema();
         renderMemoryTopics();
+        renderEpistemicDebt();
         renderDictionaryFiltered(document.getElementById("filter-dictionary")?.value || "");
         renderMessages();
         renderKBTabVitals();
@@ -1691,6 +1745,7 @@
         renderTriggers();
         renderMemoryTopics();
         renderMessages();
+        renderEpistemicDebt();
         // Knowledge tab
         renderKBTabVitals();
         renderClaims();
@@ -2088,6 +2143,115 @@
                     </tr>`;
                 }).join("")}</tbody>
             </table>
+        `;
+    }
+
+    // ── Meta Tab: Epistemic Debt ─────────────────────────────────
+    function renderEpistemicDebt() {
+        const container = document.getElementById("epistemic-debt-panel");
+        if (!container) return;
+        const agents = activeAgentFilter === "all" ? AGENTS : AGENTS.filter(a => a.id === activeAgentFilter);
+
+        let totalClaims = 0, unverified = 0, staleClaims = 0;
+        let totalMemory = 0, staleMemory = 0;
+        let totalLessons = 0, staleLessons = 0;
+        const confBuckets = { "< 0.7": 0, "0.7–0.8": 0, "0.8–0.9": 0, "0.9–1.0": 0 };
+        const agentDebt = [];
+
+        for (const agent of agents) {
+            const kb = kbData[agent.id];
+            if (kb?.status !== "ok") continue;
+            const t = kb.data?.totals || {};
+            const ac = t.claims || 0;
+            const av = t.claims_verified || 0;
+            const as = t.claims_stale || 0;
+            const am = t.memory_entries || 0;
+            const asm = t.stale_entries || 0;
+            const al = t.lessons || 0;
+            const asl = t.lessons_stale || 0;
+            totalClaims += ac; unverified += (ac - av); staleClaims += as;
+            totalMemory += am; staleMemory += asm;
+            totalLessons += al; staleLessons += asl;
+
+            // Confidence distribution from claims data
+            (kb.data?.claims || []).forEach(c => {
+                const conf = parseFloat(c.confidence);
+                if (isNaN(conf)) return;
+                if (conf < 0.7) confBuckets["< 0.7"]++;
+                else if (conf < 0.8) confBuckets["0.7–0.8"]++;
+                else if (conf < 0.9) confBuckets["0.8–0.9"]++;
+                else confBuckets["0.9–1.0"]++;
+            });
+
+            // Per-agent debt score (higher = more debt)
+            const debtScore = (ac - av) + asm + asl;
+            if (debtScore > 0) {
+                agentDebt.push({ agent: agent.id, claims: ac - av, memory: asm, lessons: asl, total: debtScore });
+            }
+        }
+
+        const totalDebt = unverified + staleMemory + staleLessons;
+        const debtLevel = totalDebt > 100 ? "high" : totalDebt > 30 ? "moderate" : totalDebt > 0 ? "low" : "none";
+        const debtColor = debtLevel === "high" ? "var(--c-alert)" : debtLevel === "moderate" ? "var(--c-warning, #d4944a)" : debtLevel === "low" ? "var(--c-tab-kb)" : "var(--c-tab-pulse)";
+
+        // Confidence histogram bars
+        const maxBucket = Math.max(...Object.values(confBuckets), 1);
+        const histBars = Object.entries(confBuckets).map(([label, count]) => {
+            const pct = Math.round((count / maxBucket) * 100);
+            const barColor = label === "< 0.7" ? "var(--c-alert)" : label === "0.7–0.8" ? "var(--c-warning, #d4944a)" : "var(--c-tab-kb)";
+            return `<div class="debt-hist-row">
+                <span class="debt-hist-label">${label}</span>
+                <div class="debt-hist-bar-bg"><div class="debt-hist-bar" style="width:${pct}%;background:${barColor}"></div></div>
+                <span class="debt-hist-count">${count}</span>
+            </div>`;
+        }).join("");
+
+        // Per-agent breakdown
+        agentDebt.sort((a, b) => b.total - a.total);
+        const agentRows = agentDebt.map(a =>
+            `<tr>
+                <td><span class="agent-dot" data-agent="${a.agent}"></span>${a.agent.replace("-agent","")}</td>
+                <td style="text-align:center;${a.claims > 0 ? "color:var(--c-alert)" : ""}">${a.claims}</td>
+                <td style="text-align:center;${a.memory > 0 ? "color:var(--c-warning,#d4944a)" : ""}">${a.memory}</td>
+                <td style="text-align:center;${a.lessons > 0 ? "color:var(--c-warning,#d4944a)" : ""}">${a.lessons}</td>
+                <td style="text-align:center;font-weight:bold">${a.total}</td>
+            </tr>`
+        ).join("");
+
+        container.innerHTML = `
+            <div class="debt-summary">
+                <div class="debt-headline" style="color:${debtColor}">
+                    <span class="debt-headline-number">${totalDebt}</span>
+                    <span class="debt-headline-label">total epistemic debt items</span>
+                </div>
+                <div class="debt-breakdown">
+                    <div class="debt-item">
+                        <span class="debt-item-count" style="color:var(--c-alert)">${unverified}</span>
+                        <span class="debt-item-label">unverified claims</span>
+                    </div>
+                    <div class="debt-item">
+                        <span class="debt-item-count">${staleMemory}</span>
+                        <span class="debt-item-label">stale memory</span>
+                    </div>
+                    <div class="debt-item">
+                        <span class="debt-item-count">${staleLessons}</span>
+                        <span class="debt-item-label">stale lessons</span>
+                    </div>
+                </div>
+            </div>
+            <div class="debt-sections">
+                <div class="debt-section">
+                    <div class="debt-section-title">Confidence Distribution</div>
+                    <div class="debt-histogram">${histBars}</div>
+                </div>
+                ${agentRows.length > 0 ? `<div class="debt-section">
+                    <div class="debt-section-title">Debt by Agent</div>
+                    <table class="kb-table">
+                        <thead><tr><th>Agent</th><th>Claims</th><th>Memory</th><th>Lessons</th><th>Total</th></tr></thead>
+                        <tbody>${agentRows}</tbody>
+                    </table>
+                </div>` : ""}
+            </div>
         `;
     }
 
