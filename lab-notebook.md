@@ -134,10 +134,23 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Dashboard sync status           | ✓ status_server.py reports schedule (cron, lock, last_sync); compositor shows semantic status colors + clickable message timeline (Session 68-69) |
 | Cold-peer MANIFEST discovery    | ✓ cross_repo_fetch.py checks cached MANIFEST before skipping cold peers — prevents message deadlock (Session 69) |
 | meshd Phase A                   | ✓ Go binary replaces mesh-status.py + status_server.py — 3 systemd services on chromabook (Session 70) |
+| meshd Phase B                   | ✓ /kb/claims, /kb/messages, /kb/lessons routes deployed (Session 71) |
 | Python dashboard respawn fix    | ✓ System-level systemd units (psq-agent-dashboard, unratified/observatory-agent-status) stopped + disabled (Session 70) |
 | JSONL transcript parser         | ✓ scripts/parse-jsonl.py — all 8 entry types, dedup, tokens, turns (Session 70) |
 | Schedule collector fix          | ✓ Cron entry matched to project root; lock/log paths use filepath.Base (Session 70) |
 | Gate poll budget drain fix      | ✓ gate_poll actions no longer deduct autonomy credits (Session 70) |
+| Compositor 5-tab architecture   | ✓ Pulse/Meta/Knowledge/Wisdom/Operations, LCARS sidebar, semantic colors, deep links (Session 71) |
+| Naming audit (psq-agent)        | ✓ "safety-quotient agent" → "psq-agent" across all docs (Session 71) |
+| Autonomy budget rename          | ✓ trust_budget → autonomy_budget — schema v15, 28 files (Session 71) |
+| Bootstrap legacy transport      | ✓ 169 files indexed (14 legacy + 155 modern), polymorphic from/to extraction (Session 72) |
+| CI/CD Phase 1 (GitHub Actions)  | ✓ 3 workflows: compositor, unratified Workers, observatory Pages+cron (Session 73) |
+| Schema v17                      | ✓ UNIQUE(session_name, filename), non-unique turn index, MANIFEST skip (Session 73) |
+| Timestamp normalization (meshd) | ✓ CASE expression for mixed offset/UTC/naive formats in ORDER BY (Session 73) |
+| Rate limit backoff              | ✓ autonomous-sync.sh check_ratelimit_cooldown() wired into main() (Session 73) |
+| /sync Phase 2c                  | ✓ Incomplete work detection — 4 heuristics, pre_sync_check.py (Session 73) |
+| Issue lifecycle management      | ✓ issue_lifecycle.py — create/update/close/close-resolved/list via mesh-bot App (Session 73) |
+| DevOps pipeline documentation   | ✓ docs/devops-pipeline.md — 3-tier architecture, 16 artifacts, secrets, endpoints (Session 73) |
+| Transport message recovery      | ✓ content-quality-loop (16 files renumbered), psq-scoring (8 files recovered) (Session 73) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -4747,3 +4760,107 @@ dashboard observability.
 
 ▶ platform/ (entire directory), scripts/parse-jsonl.py, scripts/autonomous-sync.sh,
   TODO.md, MEMORY.md
+
+---
+
+## 2026-03-10T23:30 CDT — Session 71 (Compositor 5-tab rebuild, meshd Phase B, autonomy budget rename)
+
+- **Interagent compositor rebuilt** — 5-tab architecture: Pulse (health vitals),
+  Meta (decisions/triggers/memory/messages), Knowledge (claims/chains/facts/vocabulary/
+  catalog/schema), Wisdom (lessons), Operations (stub). LCARS sidebar content-tracking,
+  semantic tab colors, bidirectional deep links (Messages↔Claims), staleness vitals,
+  agent switcher, sort/filter/pagination. Deployed to CF Worker `interagent-mesh`.
+- **meshd Phase B deployed** — `/kb/claims`, `/kb/messages`, `/kb/lessons` routes added
+  to Go binary. Claims query joins transport_messages for provenance. Rebuilt and
+  deployed to chromabook (all 4 agents).
+- **`trust_budget` → `autonomy_budget` rename** — schema v15 migration. Table, script
+  (`autonomy-budget.py`), all SQL queries, Go struct, JSON properties, HTML labels,
+  and documentation updated across 28 files. Historical records preserved.
+- **Naming audit** — replaced informal "safety-quotient agent" with "psq-agent" across
+  CLAUDE.md, TODO.md, architecture.md, agent-registry.json, ef1-trust-model.md,
+  bootstrap_state_db.py, memory/decisions.md.
+- **Apex redirect** — Cloudflare Redirect Rule: safety-quotient.dev → GitHub org (302).
+- **Old interagent tunnel deleted** — edge connections cleaned, credentials removed.
+- **SSE live updates** shipped for compositor — EventSource streaming from meshd.
+- **Autosync test** — ICESCR blog request delivered to unratified-agent via Convention B
+  naming. Message discovered by unratified autonomous sync.
+
+⚑ EPISTEMIC FLAGS
+- Compositor content coverage verified visually — no automated content parity test
+- autonomy_budget rename touches 28 files — grep-based verification, not type-checked
+
+▶ interagent/index.html, platform/ (meshd Phase B), scripts/autonomy-budget.py,
+  docs/architecture.md, CLAUDE.md, TODO.md
+
+---
+
+## 2026-03-11T10:00 CDT — Session 72 (Bootstrap legacy transport, acronym vocabulary)
+
+- **Bootstrap state DB legacy transport** — `bootstrap_state_db.py` updated to parse
+  legacy transport schemas (pre-interagent/v1). 169 files indexed (14 legacy + 155
+  modern). Polymorphic from/to extraction handles both object and string formats.
+  String claim tolerance added. Session 72 updates build on PR #90 (Session 50).
+- **Acronym vocabulary system** — 66 terms with render-time tooltips for the compositor.
+  Acronyms defined in vocabulary lookup, rendered as `<abbr>` elements on hover.
+- **Epistemic Debt panel** — Meta tab gains confidence histogram and per-agent breakdown
+  of epistemic flags. Surfaces debt distribution, not just total count.
+
+⚑ EPISTEMIC FLAGS
+- Legacy transport parsing relies on heuristic field detection — some edge-case
+  schemas may not parse correctly
+- Acronym vocabulary hand-curated — no automated discovery of undefined acronyms
+
+▶ scripts/bootstrap_state_db.py, interagent/index.html
+
+---
+
+## 2026-03-11T14:20 CDT — Session 73 (DevOps pipeline, CI/CD Phase 1, bootstrap fixes, operational hardening)
+
+- **Full DevOps pipeline audit** — mapped 16 deployable artifacts across 6 CF
+  Workers/Pages, 3 self-hosted services, 4 autonomous agent loops, 3 CI pipelines.
+  Created `docs/devops-pipeline.md` as infrastructure reference: 3-tier architecture
+  diagram, artifact inventory, secrets table, endpoints, tunnel config.
+- **CI/CD Phase 1 (GitHub Actions)** — three workflows created:
+  (1) `.github/workflows/deploy-compositor.yml` — auto-deploys interagent Worker on
+  push to `interagent/**`
+  (2) unratified `deploy-workers.yml` — parallel AP + Monitor Worker deploys
+  (3) observatory `deploy.yml` — site Pages + cron Worker deploys
+  GitHub secrets (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`) configured on all
+  three repos via `gh secret set`.
+- **Bootstrap subject extraction fix** — `content.subject` checked before `payload.subject`
+  for interagent/v1 messages. Also fixed: UNIQUE(filename) → UNIQUE(session_name,
+  filename) in schema v17 to prevent silent data loss (~57 messages recovered).
+- **meshd timestamp normalization** — CASE expression strips timezone offsets, UTC `Z`
+  markers, and negative UTC offsets for consistent SQLite ORDER BY sorting. Applied to
+  both `unprocessed` and `recent_messages` queries. MANIFEST.json entries filtered out.
+- **Rate limit backoff** — `check_ratelimit_cooldown()` existed in autonomous-sync.sh
+  but was never called from `main()`. Wired in after pre-flight check.
+- **/sync Phase 2c: Incomplete Work Detection** — new phase between Proactive Outbound
+  and Process. Four heuristics: orphaned gates, dangling outbound drafts,
+  request-without-response, partial deliverable chains. `scripts/pre_sync_check.py`
+  created (4 check functions, 3 output modes). Tested: 24 items detected.
+- **Issue lifecycle management** — `scripts/issue_lifecycle.py` created. 5 subcommands
+  (create/update/close/close-resolved/list) using mesh-bot GitHub App. `close-resolved`
+  auto-closes budget-halt and gate-timeout issues when conditions clear. Indexes issues
+  in state.db `github_issues` table.
+- **Transport message recovery** — content-quality-loop (16 files, turns renumbered 1-16
+  sequentially), psq-scoring (8 recovered files + MANIFEST.json created).
+- **Cross-cutting gap audit** — 8 gaps identified across all agents. 3 fixed inline
+  (identity file, observatory meshd, direction resolved). Remaining deferred: schema v17
+  propagation (automatic via sync), pre_sync/issue scripts shared placement, observatory
+  directory consolidation.
+- **User corrections** — challenged manual SCP approach ("the simplest fix... the correct
+  fix?") and reinforced automated systems ("we are building an automated system, here,
+  now"). Pivoted from manual deploys to CI/CD-first workflow.
+
+⚑ EPISTEMIC FLAGS
+- Schema v17 committed but not yet propagated to chromabook — awaits autonomous sync pull
+- Sessions 71-72 lab-notebook entries written retroactively from TODO/MEMORY references,
+  not from live session context — timestamps approximate
+- observatory-sqlab vs observatory directory consolidation on chromabook remains unresolved
+- Jenkins Phase 2 (meshd binary deploy, shared scripts, PSQ model) documented but not implemented
+
+▶ docs/devops-pipeline.md, .github/workflows/deploy-compositor.yml, scripts/pre_sync_check.py,
+  scripts/issue_lifecycle.py, platform/internal/collector/status.go,
+  scripts/bootstrap_state_db.py, platform/shared/scripts/autonomous-sync.sh,
+  platform/shared/scripts/schema.sql, .claude/skills/sync/SKILL.md, TODO.md
