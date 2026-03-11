@@ -697,6 +697,7 @@ record_action() {
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 main() {
+    local cycle_start=${SECONDS}
     log "=== Autonomous sync cycle starting ==="
 
     check_lock
@@ -784,16 +785,19 @@ main() {
             sqlite3 "${DB_PATH}" \
                 "UPDATE trust_budget SET consecutive_blocks = 0 WHERE agent_id = '${AGENT_ID}';"
 
-            log "=== Autonomous sync cycle complete (no-op, budget: ${budget}) ==="
+            local cycle_duration=$(( SECONDS - cycle_start ))
+            log "=== Autonomous sync cycle complete (no-op, budget: ${budget}, ${cycle_duration}s total) ==="
             exit 0
         fi
         log "Unprocessed messages found (${unprocessed_count}) — proceeding with /sync"
     fi
 
     # Run /sync
+    local sync_start=${SECONDS}
     local sync_output
     if sync_output=$(run_sync); then
-        log "Sync completed successfully"
+        local sync_duration=$(( SECONDS - sync_start ))
+        log "Sync completed successfully (${sync_duration}s)"
 
         # Record the sync action (Tier 1 — reversible)
         # Gate-accelerated no-op polls: if /sync found no new messages and
@@ -806,7 +810,7 @@ main() {
             if [ "${new_processed}" -eq 0 ]; then
                 # No-op gate poll — 0 cost, no budget deduction
                 record_action "gate_poll" "reversible" 1 "approved" \
-                    "Gate-accelerated poll — no new messages (0 cost)" "${budget}" > /dev/null
+                    "Gate-accelerated poll — no new messages (0 cost, ${sync_duration}s)" "${budget}" > /dev/null
                 # Don't update last_action for no-op polls — allows immediate re-poll
                 sqlite3 "${DB_PATH}" "UPDATE trust_budget
                     SET last_action = NULL
@@ -814,11 +818,11 @@ main() {
                 log "Gate-accelerated no-op poll — 0 budget cost, immediate re-poll enabled"
             else
                 budget=$(record_action "sync" "reversible" 1 "approved" \
-                    "Gate-accelerated /sync — processed ${new_processed} items" "${budget}")
+                    "Gate-accelerated /sync — processed ${new_processed} items (${sync_duration}s)" "${budget}")
             fi
         else
             budget=$(record_action "sync" "reversible" 1 "approved" \
-                "Autonomous /sync cycle completed" "${budget}")
+                "Autonomous /sync cycle completed (${sync_duration}s)" "${budget}")
         fi
 
         # Push any changes
@@ -829,9 +833,10 @@ main() {
                 "Git push failed after sync" "${budget}" > /dev/null
         fi
     else
-        err "Sync execution failed"
+        local sync_duration=$(( SECONDS - sync_start ))
+        err "Sync execution failed (${sync_duration}s)"
         record_action "sync" "reversible" 1 "blocked" \
-            "Sync execution failed" "${budget}" > /dev/null
+            "Sync execution failed (${sync_duration}s)" "${budget}" > /dev/null
 
         # Check consecutive error count
         local blocks
@@ -855,7 +860,8 @@ main() {
     sqlite3 "${DB_PATH}" \
         "UPDATE trust_budget SET consecutive_blocks = 0 WHERE agent_id = '${AGENT_ID}';"
 
-    log "=== Autonomous sync cycle complete (budget: ${budget}) ==="
+    local cycle_duration=$(( SECONDS - cycle_start ))
+    log "=== Autonomous sync cycle complete (budget: ${budget}, ${cycle_duration}s total) ==="
 }
 
 main "$@"
