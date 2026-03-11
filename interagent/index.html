@@ -503,12 +503,16 @@
         /* Topology placeholder */
         .topology-container {
             --panel-accent: var(--c-health);
-            min-height: 220px;
+            min-height: 300px;
         }
         .topology-svg {
             width: 100%;
-            height: 200px;
+            height: 280px;
         }
+        .topology-svg a { cursor: pointer; }
+        .topology-svg a:hover circle { opacity: 0.3; }
+        .topology-svg a text { fill: var(--text-secondary); }
+        .topology-svg a:hover text { fill: var(--text-primary); }
 
         /* ── Knowledge Tab ───────────────────────────────────────────── */
 
@@ -813,7 +817,7 @@
             <div class="lcars-panel topology-container" style="margin-bottom: 24px">
                 <div class="lcars-panel-header">Mesh Topology</div>
                 <div class="lcars-panel-body">
-                    <svg class="topology-svg" id="topology-svg" viewBox="0 0 600 200"></svg>
+                    <svg class="topology-svg" id="topology-svg" viewBox="0 0 600 280"></svg>
                 </div>
             </div>
 
@@ -1122,10 +1126,10 @@
     function renderTopology() {
         const svg = document.getElementById("topology-svg");
         const positions = [
-            { x: 300, y: 30 },   // top
-            { x: 520, y: 100 },  // right
-            { x: 300, y: 170 },  // bottom
-            { x: 80, y: 100 },   // left
+            { x: 300, y: 50 },   // top
+            { x: 520, y: 140 },  // right
+            { x: 300, y: 230 },  // bottom
+            { x: 80, y: 140 },   // left
         ];
 
         let html = "";
@@ -1135,11 +1139,11 @@
             for (let j = i + 1; j < AGENTS.length; j++) {
                 const a = positions[i], b = positions[j];
                 html += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"
-                    stroke="var(--border-accent)" stroke-width="1" opacity="0.4"/>`;
+                    stroke="var(--border-accent)" stroke-width="1.5" opacity="0.3"/>`;
             }
         }
 
-        // Draw nodes
+        // Draw nodes — linked to agent dashboards
         for (let i = 0; i < AGENTS.length; i++) {
             const agent = AGENTS[i];
             const pos = positions[i];
@@ -1147,18 +1151,19 @@
             const online = state?.status === "online";
             const fill = online ? agent.color : "var(--c-inactive)";
 
-            html += `
-                <circle cx="${pos.x}" cy="${pos.y}" r="18"
-                    fill="${fill}" opacity="${online ? 0.15 : 0.05}"
-                    stroke="${fill}" stroke-width="2"/>
-                <circle cx="${pos.x}" cy="${pos.y}" r="6" fill="${fill}"
+            html += `<a href="${agent.url}" target="_blank" rel="noopener">
+                <circle cx="${pos.x}" cy="${pos.y}" r="28"
+                    fill="${fill}" opacity="${online ? 0.12 : 0.05}"
+                    stroke="${fill}" stroke-width="2.5"/>
+                <circle cx="${pos.x}" cy="${pos.y}" r="10" fill="${fill}"
                     opacity="${online ? 1 : 0.3}">
-                    ${online ? `<animate attributeName="r" values="5;7;5" dur="3s" repeatCount="indefinite"/>` : ""}
+                    ${online ? `<animate attributeName="r" values="9;12;9" dur="3s" repeatCount="indefinite"/>` : ""}
                 </circle>
-                <text x="${pos.x}" y="${pos.y + 32}" text-anchor="middle"
-                    fill="var(--text-secondary)" font-size="10" font-family="inherit">
+                <text x="${pos.x}" y="${pos.y + 44}" text-anchor="middle"
+                    font-size="13" font-family="inherit" font-weight="bold">
                     ${agent.id.replace("-agent", "")}
-                </text>`;
+                </text>
+            </a>`;
         }
 
         svg.innerHTML = html;
