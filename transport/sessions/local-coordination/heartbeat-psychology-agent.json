@@ -1,22 +1,20 @@
 {
   "schema": "local-coordination/v1",
-  "timestamp": "2026-03-10T00:01:41",
+  "timestamp": "2026-03-11T18:37:01",
   "message_type": "heartbeat",
   "from": {
     "agent_id": "psychology-agent",
-    "hostname": "kashifs-macbook",
-    "platform": "darwin-arm64",
+    "hostname": "chromabook",
+    "platform": "linux-x86_64",
     "capabilities": [
+      "transport",
       "sync",
-      "cycle",
-      "hunt",
-      "knock",
-      "scan-peer"
+      "meshd"
     ]
   },
   "payload": {
     "status": "alive",
-    "uptime_indicator": "2026-03-10T00:01",
+    "uptime_indicator": "2026-03-11T18:37",
     "sync_ready": true
   }
 }
