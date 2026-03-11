@@ -397,6 +397,25 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   evidence requirements for `verification`-type commands.
   *Created: Session 38 (2026-03-08). Next review: exchange #10.*
 
+- [ ] **Rename `trust_budget` → `autonomy_budget`** — current table/column/scripts use
+  "trust_budget" but the mechanism measures action credits, not trust. Rename to
+  `autonomy_budget` across: `scripts/schema.sql`, `scripts/autonomous-sync.sh`,
+  `scripts/dual_write.py`, `scripts/bootstrap_state_db.py`, `platform/internal/collector/`,
+  `docs/ef1-trust-model.md`, `interagent/vocab.json`, compositor.
+  Reserve "trust" for the BFT consensus layer (claim verification, state attestation,
+  truthiness scoring). Bundle with schema v15 migration (Phase C auth).
+  *Source: Session 70 — Newman & Schwarz truthiness analysis revealed naming collision.*
+
+- [ ] **Truthiness measure for observatory-agent (C2 test case)** — send a
+  `command-request/v1` to observatory-agent: "design a truthiness measure for agent
+  claims." Observatory coordinates with psychology-agent on psychometric design.
+  Operationalizes Newman & Schwarz (2012) processing-fluency-as-truth-heuristic for
+  multi-agent context. Measures gap between claim fluency (presentation quality) and
+  evidential warrant (verification rate, attestation freshness). Deliverable: scoring
+  component in observatory display layer. Exercises C2 command protocol end-to-end.
+  *Precondition: meshd Phase C (auth + C2 routes) deployed.*
+  *References: Newman et al. (2012), Zhang, Newman, & Schwarz (2021).*
+
 ---
 
 ## GitHub README Quickstart
@@ -457,6 +476,13 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
 - [x] **Deploy dashboard to chromabook** — COMPLETE (Session 65). PRs #4-7
   merged. systemd services: psq-agent-dashboard + psq-agent-tunnel. Live at
   psq-agent.safety-quotient.dev.
+
+- [ ] **Interagent compositor rebuild** — radical rebuild of `interagent/` CF Worker
+  after meshd Phase B (KB) completes. Aggregate both `/kb/*` and `/obs/*` data across
+  all 4 agents. Replace full-page autoreload with EventSource/SSE for live updates.
+  Composite knowledge (vocabulary, decisions, triggers) + observability (trust, messages,
+  health) into a unified cross-mesh portal. CF Worker remains the deployment vehicle.
+  *Precondition: meshd Phase B (Knowledge Base routes) deployed.*
 
 ---
 
