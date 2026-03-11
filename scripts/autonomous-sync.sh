@@ -358,14 +358,75 @@ check_interval() {
 git_sync() {
     cd "${PROJECT_ROOT}"
 
-    # Auto-commit ALL dirty tracked files before pulling to prevent rebase conflicts.
-    # Heartbeat, mesh-state-export, and script deployments can leave modified files
-    # that block git pull --rebase indefinitely if not committed first.
-    if ! git diff --quiet; then
+    # ── Diagnose working tree state before pulling ────────────────────────
+    # Instead of blindly committing everything, identify what's dirty and why,
+    # then apply the minimal targeted fix.
+
+    local dirty_tracked=false
+    local dirty_untracked=false
+    local dirty_staged=false
+    local dirty_files=""
+
+    # Check each class of dirt separately
+    if ! git diff --quiet 2>/dev/null; then
+        dirty_tracked=true
+        dirty_files=$(git diff --name-only 2>/dev/null | head -20)
+    fi
+    if ! git diff --cached --quiet 2>/dev/null; then
+        dirty_staged=true
+    fi
+    if [ -n "$(git ls-files --others --exclude-standard 2>/dev/null | head -1)" ]; then
+        dirty_untracked=true
+    fi
+
+    if [ "${dirty_tracked}" = true ] || [ "${dirty_staged}" = true ]; then
+        # Classify the dirty files to choose the right strategy
+        local transport_dirty=false
+        local script_dirty=false
+        local other_dirty=false
+        local diagnosis=""
+
+        while IFS= read -r file; do
+            [ -z "${file}" ] && continue
+            case "${file}" in
+                transport/*|.well-known/*)
+                    transport_dirty=true ;;
+                scripts/*|.claude/hooks/*)
+                    script_dirty=true ;;
+                *)
+                    other_dirty=true ;;
+            esac
+        done <<< "${dirty_files}"
+
+        # Build human-readable diagnosis
+        if [ "${transport_dirty}" = true ] && [ "${script_dirty}" = false ] && [ "${other_dirty}" = false ]; then
+            diagnosis="transport-only (heartbeat/mesh-state/messages)"
+        elif [ "${script_dirty}" = true ] && [ "${transport_dirty}" = false ] && [ "${other_dirty}" = false ]; then
+            diagnosis="scripts-only (likely SCP deployment)"
+        elif [ "${script_dirty}" = true ] && [ "${transport_dirty}" = true ]; then
+            diagnosis="transport+scripts (normal autonomous cycle + deployment)"
+        else
+            diagnosis="mixed ($(echo "${dirty_files}" | head -3 | tr '\n' ' '))"
+        fi
+
+        log "Pre-pull diagnosis: ${diagnosis}"
+        log "  dirty tracked: ${dirty_tracked}, staged: ${dirty_staged}, untracked: ${dirty_untracked}"
+
+        # Commit tracked changes to unblock pull
         git add -u 2>/dev/null
-        git commit -m "autonomous: ${AGENT_ID} pre-pull state commit
+        git commit -m "autonomous: ${AGENT_ID} pre-pull commit (${diagnosis})
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>" 2>/dev/null || true
+
+        # Log to autonomous_actions audit trail
+        if [ -f "${PROJECT_ROOT}/state.db" ]; then
+            sqlite3 "${PROJECT_ROOT}/state.db" \
+                "INSERT OR IGNORE INTO autonomous_actions
+                 (agent_id, action_type, details, timestamp)
+                 VALUES ('${AGENT_ID}', 'git-self-heal',
+                 'Pre-pull auto-commit: ${diagnosis}',
+                 datetime('now'));" 2>/dev/null || true
+        fi
     fi
 
     # Record HEAD before pull to detect new commits
@@ -373,10 +434,102 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>" 2>/dev/null || true
     head_before=$(git rev-parse HEAD)
 
     log "Pulling latest from origin..."
-    if ! git pull --rebase origin main 2>&1; then
-        err "git pull failed"
-        return 1
+    local pull_output
+    pull_output=$(git pull --rebase origin main 2>&1)
+    local pull_exit=$?
+
+    if [ ${pull_exit} -ne 0 ]; then
+        # ── Diagnose pull failure and attempt recovery ────────────────────
+        local failure_class="unknown"
+
+        if echo "${pull_output}" | grep -qi "unstaged changes"; then
+            failure_class="unstaged-changes"
+        elif echo "${pull_output}" | grep -qi "merge conflict\|CONFLICT"; then
+            failure_class="merge-conflict"
+        elif echo "${pull_output}" | grep -qi "diverged\|cannot rebase"; then
+            failure_class="diverged-history"
+        elif echo "${pull_output}" | grep -qi "lock\|index.lock"; then
+            failure_class="lock-file"
+        elif echo "${pull_output}" | grep -qi "permission denied\|not permitted"; then
+            failure_class="permission-error"
+        elif echo "${pull_output}" | grep -qi "could not resolve\|Connection refused\|fatal: unable to access"; then
+            failure_class="network-error"
+        fi
+
+        err "git pull failed (class: ${failure_class})"
+        log "  pull output: $(echo "${pull_output}" | head -5)"
+
+        # Attempt recovery based on failure class
+        case "${failure_class}" in
+            unstaged-changes)
+                # Shouldn't happen after our pre-commit, but handle anyway
+                log "  recovery: committing remaining unstaged changes"
+                git add -u 2>/dev/null
+                git commit -m "autonomous: ${AGENT_ID} recovery commit (unstaged)
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>" 2>/dev/null || true
+                if git pull --rebase origin main 2>&1; then
+                    log "  recovery: pull succeeded after committing"
+                    # Fall through to success path below
+                    pull_exit=0
+                fi
+                ;;
+            lock-file)
+                # Check if the lock is stale (no process holds it)
+                local lock_file="${PROJECT_ROOT}/.git/index.lock"
+                if [ -f "${lock_file}" ]; then
+                    local lock_age
+                    lock_age=$(( $(date +%s) - $(stat -c %Y "${lock_file}" 2>/dev/null || stat -f %m "${lock_file}" 2>/dev/null || echo "0") ))
+                    if [ "${lock_age}" -gt 300 ]; then
+                        log "  recovery: removing stale lock file (${lock_age}s old)"
+                        rm -f "${lock_file}"
+                        if git pull --rebase origin main 2>&1; then
+                            log "  recovery: pull succeeded after removing stale lock"
+                            pull_exit=0
+                        fi
+                    else
+                        log "  lock file exists but only ${lock_age}s old — likely active process"
+                    fi
+                fi
+                ;;
+            merge-conflict)
+                # Abort the rebase and report — don't try to resolve conflicts
+                log "  recovery: aborting rebase (merge conflicts require human review)"
+                git rebase --abort 2>/dev/null || true
+                ;;
+            network-error)
+                log "  recovery: network error — will retry next cycle"
+                # Network errors are transient; don't escalate on first occurrence
+                ;;
+            *)
+                # Unknown or unrecoverable — log and fall through to escalation
+                log "  no automatic recovery for class: ${failure_class}"
+                ;;
+        esac
+
+        # Log the failure to audit trail
+        if [ -f "${PROJECT_ROOT}/state.db" ]; then
+            sqlite3 "${PROJECT_ROOT}/state.db" \
+                "INSERT OR IGNORE INTO autonomous_actions
+                 (agent_id, action_type, details, timestamp)
+                 VALUES ('${AGENT_ID}', 'git-sync-failure',
+                 'Pull failed (${failure_class}): $(echo "${pull_output}" | head -1 | sed "s/'/''/g")',
+                 datetime('now'));" 2>/dev/null || true
+        fi
+
+        if [ ${pull_exit} -ne 0 ]; then
+            # Recovery failed — escalate non-transient failures
+            if [ "${failure_class}" != "network-error" ]; then
+                escalate "warning" "git-sync-failure" \
+                    "git pull failed (${failure_class}) — recovery unsuccessful" \
+                    "Agent: ${AGENT_ID}. Output: $(echo "${pull_output}" | head -3)" \
+                    "Check the repo working tree on the agent's machine and resolve manually." || true
+            fi
+            return 1
+        fi
     fi
+
+    echo "${pull_output}"
 
     local head_after
     head_after=$(git rev-parse HEAD)
