@@ -319,7 +319,7 @@
                                queryable index. Phase 2 (autonomous): DB
                                = source of truth, markdown = derived view.
                                Schema: scripts/schema.sql (v5, 9 tables +
-                               trust_budget + autonomous_actions + ACK cols).
+                               autonomy_budget + autonomous_actions + ACK cols).
                                Conventions: .claude/rules/sqlite.md.
                                DB: state.db in project root (gitignored).
                                Bootstrap: scripts/bootstrap_state_db.py
@@ -354,7 +354,7 @@
                                 3 (Tier 2). Budget exhaustion → halt.
                                 Execution: cron + Claude CLI, 10-min
                                 interval, multi-agent tandem sync.
-                                Schema additions: trust_budget,
+                                Schema additions: autonomy_budget,
                                 autonomous_actions tables in state.db.
                                 BFT open question #1 resolved.
                                 Full spec: docs/ef1-trust-model.md.

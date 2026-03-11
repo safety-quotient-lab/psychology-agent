@@ -122,7 +122,7 @@ def export_state(conn: sqlite3.Connection, agent_id: str) -> dict:
         conn,
         "SELECT agent_id, budget_max, budget_current, shadow_mode, "
         "consecutive_blocks, last_action, min_action_interval "
-        "FROM trust_budget WHERE agent_id = ?",
+        "FROM autonomy_budget WHERE agent_id = ?",
         (agent_id,)
     )
     budget = budget_rows[0] if budget_rows else {}
@@ -172,7 +172,7 @@ def export_state(conn: sqlite3.Connection, agent_id: str) -> dict:
         "schema": "mesh-state/v1",
         "timestamp": now,
         "agent_id": agent_id,
-        "trust_budget": budget,
+        "autonomy_budget": budget,
         "recent_actions": actions,
         "transport": {
             "total_messages": total_messages,

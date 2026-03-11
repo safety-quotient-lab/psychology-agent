@@ -181,7 +181,7 @@ human-mediated Claude Code sessions to autonomous operation.
 - [x] **Autonomous operation trust model** — RESOLVED (Session 50). Evaluator-as-arbiter
   with 10-order knock-on analysis and 4-level resolution fallback (consensus → parsimony
   → pragmatism → ask). Trust budget (20 credits, decrement per action, human audit resets).
-  Full spec: `docs/ef1-trust-model.md`. Scripts: `autonomous-sync.sh`, `trust-budget.py`.
+  Full spec: `docs/ef1-trust-model.md`. Scripts: `autonomous-sync.sh`, `autonomy-budget.py`.
   *Unblocks: autonomous multi-agent tandem /sync via cron + Claude CLI.*
 
 ---
@@ -254,7 +254,7 @@ semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
   Implementation: daemon process with `MIN(next_poll_time)` sleep, crash
   recovery via PID file, systemd unit or launchd plist for supervision.
   Data sources already exist in state.db (transport_messages.timestamp,
-  active_gates.status, trust_budget.last_action).
+  active_gates.status, autonomy_budget.last_action).
   *Precondition: simple tier classification complete (Session 62c)*
   *Constraint: requires process supervision — cron can't self-reschedule*
 
@@ -397,13 +397,10 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   evidence requirements for `verification`-type commands.
   *Created: Session 38 (2026-03-08). Next review: exchange #10.*
 
-- [ ] **Rename `trust_budget` → `autonomy_budget`** — current table/column/scripts use
-  "trust_budget" but the mechanism measures action credits, not trust. Rename to
-  `autonomy_budget` across: `scripts/schema.sql`, `scripts/autonomous-sync.sh`,
-  `scripts/dual_write.py`, `scripts/bootstrap_state_db.py`, `platform/internal/collector/`,
-  `docs/ef1-trust-model.md`, `interagent/vocab.json`, compositor.
-  Reserve "trust" for the BFT consensus layer (claim verification, state attestation,
-  truthiness scoring). Bundle with schema v15 migration (Phase C auth).
+- [x] **Rename `trust_budget` → `autonomy_budget`** — COMPLETE (Session 71). Schema v15
+  migration. Table, script (`autonomy-budget.py`), all SQL queries, Go struct, JSON
+  properties, HTML labels, and documentation updated across 28 files. Historical
+  records (journal, lab-notebook, snapshots) preserved as-was.
   *Source: Session 70 — Newman & Schwarz truthiness analysis revealed naming collision.*
 
 - [ ] **Truthiness measure for observatory-agent (C2 test case)** — send a
@@ -488,11 +485,8 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
 
 ## DNS & Infrastructure (safety-quotient.dev)
 
-- [ ] **Apex redirect rule** — create Cloudflare Redirect Rule in dashboard:
-  safety-quotient.dev → https://github.com/safety-quotient-lab (302).
-  DNS A record (192.0.2.1 proxied) already exists. DNS token lacks rulesets
-  permission — must use dashboard UI.
-  *Precondition: none — dashboard access only*
+- [x] **Apex redirect rule** — COMPLETE (Session 71). Cloudflare Redirect Rule
+  created via dashboard: safety-quotient.dev → https://github.com/safety-quotient-lab (302).
 
 - [ ] **CF Worker custom domain** — add `api.safety-quotient.dev` as custom
   domain in Workers settings (Cloudflare dashboard → Workers → psychology-interface

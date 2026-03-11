@@ -60,7 +60,7 @@ state changes.
 ---
 
 
-## Trust Budget
+## Autonomy Budget
 
 Trust budget provides a mechanical halt condition. Without it, agents
 could loop indefinitely under Tier 1 self-evaluation — structurally
@@ -71,15 +71,15 @@ architecture.md § S4 tradeoff).
 
 | Parameter | Default | Stored in |
 |---|---|---|
-| `budget_max` | 20 | `state.db` → `trust_budget` table |
-| `budget_current` | 20 (at reset) | `state.db` → `trust_budget` table |
-| `last_audit` | ISO timestamp | `state.db` → `trust_budget` table |
-| `last_action` | ISO timestamp | `state.db` → `trust_budget` table |
-| `min_action_interval` | 300 (seconds) | `state.db` → `trust_budget` table |
+| `budget_max` | 20 | `state.db` → `autonomy_budget` table |
+| `budget_current` | 20 (at reset) | `state.db` → `autonomy_budget` table |
+| `last_audit` | ISO timestamp | `state.db` → `autonomy_budget` table |
+| `last_action` | ISO timestamp | `state.db` → `autonomy_budget` table |
+| `min_action_interval` | 300 (seconds) | `state.db` → `autonomy_budget` table |
 
 **Temporal spacing guarantee:**
 
-The trust budget gates *total* actions; `min_action_interval` gates action
+The autonomy budget gates *total* actions; `min_action_interval` gates action
 *rate*. Both MUST pass before an agent executes. This decouples the temporal
 spacing guarantee from the triggering mechanism — whether cron, post-receive
 hook, filesystem watcher, or event-driven notification, the agent MUST NOT
@@ -120,7 +120,7 @@ deferring instead of writing its halt marker.
 Resume REQUIRES human audit (direct observation of actions since
 `last_audit`) and explicit budget reset.
 
-**Budget reset:** Human runs `python3 scripts/trust-budget.py reset`
+**Budget reset:** Human runs `python3 scripts/autonomy-budget.py reset`
 after reviewing the audit trail. The reset command:
 1. Displays all actions since `last_audit`
 2. Requires interactive confirmation
@@ -391,7 +391,7 @@ the cron entry survived machine reimaging or crontab edits.
 ## Schema Addition (state.db)
 
 ```sql
-CREATE TABLE IF NOT EXISTS trust_budget (
+CREATE TABLE IF NOT EXISTS autonomy_budget (
     agent_id             TEXT PRIMARY KEY,
     budget_max           INTEGER NOT NULL DEFAULT 20,
     budget_current       INTEGER NOT NULL DEFAULT 20,
@@ -499,7 +499,7 @@ via the existing Phase 1 mediation. After one week, compare:
 - Tier distribution (what fraction Tier 1 vs. Tier 2)
 
 Adjust `budget_max` based on observed rates before enabling enforced mode.
-Shadow mode uses a `shadow_mode` boolean in `trust_budget` (default TRUE
+Shadow mode uses a `shadow_mode` boolean in `autonomy_budget` (default TRUE
 for new agents; human sets FALSE after calibration review).
 
 

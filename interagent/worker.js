@@ -28,7 +28,7 @@ async function fetchMeshHealth() {
       const resp = await fetch(agent.url, { cf: { cacheTtl: 30 } });
       if (!resp.ok) return { id: agent.id, status: "unreachable", error: `HTTP ${resp.status}` };
       const data = await resp.json();
-      const budget = data.trust_budget || {};
+      const budget = data.autonomy_budget || {};
       const cur = budget.budget_current ?? 20;
       const max = budget.budget_max ?? 20;
       const pct = max > 0 ? Math.round((cur / max) * 100) : 0;

@@ -26,11 +26,11 @@
     },
     {
       "@type": "DefinedTerm",
-      "@id": "sqm:TrustBudget",
-      "name": "Trust Budget",
-      "description": "Integer count of remaining trust credits for autonomous operation. Decrements per autonomous action; human audit resets to maximum. When zero, agent halts autonomous operation.",
+      "@id": "sqm:AutonomyBudget",
+      "name": "Autonomy Budget",
+      "description": "Integer count of remaining autonomy credits for autonomous operation. Decrements per autonomous action; human audit resets to maximum. When zero, agent halts autonomous operation.",
       "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
-      "termCode": "sqm:TrustBudget"
+      "termCode": "sqm:AutonomyBudget"
     },
     {
       "@type": "DefinedTerm",

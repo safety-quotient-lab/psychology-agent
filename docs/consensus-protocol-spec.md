@@ -237,7 +237,7 @@ under the `sqm:` namespace prefix.
 |------|------|------------|
 | `sqm:Agent` | Class | An autonomous participant in the safety-quotient mesh. Subclass of `schema:SoftwareApplication` |
 | `sqm:ConsensusRound` | Class | A multi-phase agreement process among mesh peers |
-| `sqm:TrustBudget` | Property | Current trust budget credits for autonomous operation. Range: integer |
+| `sqm:AutonomyBudget` | Property | Current autonomy budget credits for autonomous operation. Range: integer |
 | `sqm:EpistemicDebt` | Property | Count of unresolved epistemic flags. Range: integer |
 | `sqm:GateStatus` | Property | Current gate state (open/blocked/resolved). Range: enum |
 | `sqm:TransportMethod` | Property | How this agent sends/receives messages. Range: enum (git-pr, cross-repo-fetch, http) |
@@ -266,7 +266,7 @@ Alongside machine-readable vocabulary, unify display labels across all sites:
 | Messages exchanged | Messages | `totals.messages` | `sqm:totalMessages` |
 | Active sessions | Sessions | `totals.sessions` | `sqm:totalSessions` |
 | Unprocessed queue | Pending | `totals.unprocessed` | `sqm:pendingMessages` |
-| Trust budget remaining | Trust Budget | `trust_budget.budget_current` | `sqm:TrustBudget` |
+| Autonomy budget remaining | Autonomy Budget | `autonomy_budget.budget_current` | `sqm:AutonomyBudget` |
 | Open gates | Active Gates | `totals.active_gates` | `sqm:activeGates` |
 | Unresolved flags | Epistemic Debt | `totals.epistemic_flags_unresolved` | `sqm:EpistemicDebt` |
 | Sync schedule | Sync Schedule | `schedule.cron_entry` | `sqm:syncSchedule` |

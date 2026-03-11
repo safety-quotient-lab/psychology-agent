@@ -92,7 +92,7 @@ Status values: `waiting`, `resolved`, `timed-out`, `fallback-executed`.
 
 ### Visibility
 
-`active_gates` → `private` (machine-specific operational state, like trust_budget).
+`active_gates` → `private` (machine-specific operational state, like autonomy_budget).
 
 
 ---

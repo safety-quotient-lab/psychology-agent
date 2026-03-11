@@ -463,7 +463,7 @@ into an active mesh coordination layer.
 - **Trust budget federation** — display combined trust budget state across
   agents, with a mesh-level "health" indicator based on the lowest-budget
   agent (weakest-link model).
-  *Precondition: trust_budget in /api/status response (already present).*
+  *Precondition: autonomy_budget in /api/status response (already present).*
 
 ---
 
@@ -474,7 +474,7 @@ interagent) reference. Two layers:
 
 - **Human-facing terminology unification** — audit and align field names,
   metric labels, dashboard headings across all sites. Currently each dashboard
-  names things independently (e.g., "Trust Budget" vs "Budget" vs "trust_budget").
+  names things independently (e.g., "Trust Budget" vs "Budget" vs "autonomy_budget").
   *Precondition: none — prose cleanup.*
 
 - **Machine-readable vocabulary** — Schema.org base + project-specific extensions.

@@ -53,8 +53,8 @@ func CollectSchedule(d *db.DB, agentID, projectRoot string) Schedule {
 		}
 	}
 
-	// min_action_interval from trust_budget
-	rows, _ := d.QueryRows("SELECT min_action_interval FROM trust_budget WHERE agent_id = ?", agentID)
+	// min_action_interval from autonomy_budget
+	rows, _ := d.QueryRows("SELECT min_action_interval FROM autonomy_budget WHERE agent_id = ?", agentID)
 	if len(rows) > 0 {
 		if v := getInt(rows[0], "min_action_interval"); v > 0 {
 			sched.MinActionIntervalSec = &v
