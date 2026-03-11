@@ -42,6 +42,9 @@ export AUTONOMOUS_AGENT="${AGENT_ID}"  # signals pre-commit hook to enforce allo
 DB_PATH="${PROJECT_ROOT}/state.db"
 LOCK_FILE="/tmp/autonomous-sync-${AGENT_ID}.lock"
 WAKE_FILE="/tmp/sync-wake-${AGENT_ID}"
+RATELIMIT_MARKER="/tmp/sync-ratelimit-${AGENT_ID}"
+RATELIMIT_COOLDOWN=900  # 15 minutes in seconds
+MAX_CONSECUTIVE_RATELIMITS=3
 export MAX_ACTIONS_PER_CYCLE=5  # reserved for evaluator gate (not yet enforced)
 MAX_CONSECUTIVE_ERRORS=2
 GATE_ACCELERATED=false
@@ -231,6 +234,31 @@ check_wake_signal() {
         log "WAKE-UP signal received — accelerating cycle"
         GATE_ACCELERATED=true
     fi
+}
+
+check_ratelimit_cooldown() {
+    # If a rate-limit marker exists and remains fresh (< RATELIMIT_COOLDOWN old),
+    # skip the claude invocation this cycle. Git pull/push still proceed.
+    if [ ! -f "${RATELIMIT_MARKER}" ]; then
+        return 0  # no marker — proceed normally
+    fi
+
+    local marker_time
+    marker_time=$(cat "${RATELIMIT_MARKER}" 2>/dev/null | head -1)
+    local now
+    now=$(date +%s)
+    local age=$(( now - ${marker_time:-0} ))
+
+    if [ "${age}" -lt "${RATELIMIT_COOLDOWN}" ]; then
+        local remaining=$(( RATELIMIT_COOLDOWN - age ))
+        log "RATELIMIT-COOLDOWN — marker ${age}s old, ${remaining}s remaining. Skipping claude invocation."
+        return 1  # still in cooldown
+    fi
+
+    # Marker expired — remove and proceed
+    log "Rate-limit cooldown expired (${age}s >= ${RATELIMIT_COOLDOWN}s). Resuming normal operation."
+    rm -f "${RATELIMIT_MARKER}"
+    return 0
 }
 
 check_active_gates() {
@@ -646,13 +674,42 @@ run_sync() {
         if echo "${sync_output}" | grep -qi "max turns\|Reached max"; then
             log "WARNING: claude CLI hit max-turns limit — partial sync completed"
             # Partial success — don't treat as failure
-        elif echo "${sync_output}" | grep -qi "usage\|credit\|limit\|billing\|exceeded"; then
-            err "HALT — API usage limit reached. Check billing/extra usage settings."
+        elif echo "${sync_output}" | grep -qi "rate limit\|usage limit\|You've hit your limit\|429\|overloaded\|credit\|billing\|exceeded"; then
+            log "RATELIMIT — detected rate/usage limit (exit code ${claude_exit})"
             echo "${sync_output}" | tail -5
-            escalate "critical" "api-usage-limit" \
-                "API usage limit reached — autonomous sync halted" \
-                "Claude CLI reported a billing/credit/usage limit error." \
-                "Check Anthropic billing dashboard and adjust usage limits." || true
+
+            # Write marker file with current timestamp
+            date +%s > "${RATELIMIT_MARKER}"
+
+            # Track consecutive rate limits
+            local consecutive_ratelimits=0
+            if [ -f "${PROJECT_ROOT}/state.db" ]; then
+                consecutive_ratelimits=$(sqlite3 "${PROJECT_ROOT}/state.db" \
+                    "SELECT COUNT(*) FROM autonomous_actions
+                     WHERE agent_id = '${AGENT_ID}'
+                       AND action_type = 'ratelimit'
+                       AND timestamp > datetime('now', '-1 hour')
+                     ORDER BY timestamp DESC;" 2>/dev/null || echo "0")
+            fi
+            consecutive_ratelimits=$((consecutive_ratelimits + 1))
+
+            # Log to audit trail
+            sqlite3 "${PROJECT_ROOT}/state.db" \
+                "INSERT INTO autonomous_actions
+                 (agent_id, action_type, details, timestamp)
+                 VALUES ('${AGENT_ID}', 'ratelimit',
+                 'Rate limit detected (consecutive: ${consecutive_ratelimits}). Cooldown ${RATELIMIT_COOLDOWN}s.',
+                 datetime('now'));" 2>/dev/null || true
+
+            if [ "${consecutive_ratelimits}" -ge "${MAX_CONSECUTIVE_RATELIMITS}" ]; then
+                err "HALT — ${consecutive_ratelimits} consecutive rate limits in the last hour."
+                escalate "critical" "api-usage-limit" \
+                    "${consecutive_ratelimits} consecutive rate limits — autonomous sync backing off" \
+                    "Claude CLI hit rate/usage limits ${consecutive_ratelimits} times within one hour." \
+                    "Check Anthropic billing dashboard and adjust usage limits or increase cooldown." || true
+            else
+                log "Rate limit cooldown active — will skip claude invocation for ${RATELIMIT_COOLDOWN}s"
+            fi
             return 1
         else
             err "claude CLI exited with error (code ${claude_exit})"
@@ -798,6 +855,15 @@ main() {
             exit 0
         fi
         log "Unprocessed messages found (${unprocessed_count}) — proceeding with /sync"
+    fi
+
+    # Rate-limit cooldown gate: skip claude invocation if cooling down,
+    # but still push local changes (heartbeat, mesh-state, pre-pull commits).
+    if ! check_ratelimit_cooldown; then
+        git_push || true
+        local cycle_duration=$(( SECONDS - cycle_start ))
+        log "=== Autonomous sync cycle complete (ratelimit-cooldown, budget: ${budget}, ${cycle_duration}s total) ==="
+        exit 0
     fi
 
     # Run /sync
