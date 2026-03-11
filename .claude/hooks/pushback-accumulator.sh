@@ -24,6 +24,13 @@ if echo "$PROMPT" | grep -qiE "$PUSHBACK_PATTERNS"; then
   COUNT=$((COUNT + 1))
   echo "$COUNT" > "$COUNTER_FILE"
 
+  # Record T6 trigger firing
+  PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+  DUAL_WRITE="${PROJECT_ROOT}/scripts/dual_write.py"
+  if [ -f "$DUAL_WRITE" ] && [ -f "${PROJECT_ROOT}/state.db" ]; then
+    python3 "$DUAL_WRITE" trigger-fired --trigger-id T6 2>/dev/null
+  fi
+
   if [ "$COUNT" -ge 3 ]; then
     echo "[PUSHBACK] Structural disagreement pattern detected (${COUNT} pushback signals this session). T6: verify position stability — has the position shifted without new evidence?"
     # Bridge to T10 lesson pipeline: generate a lesson candidate stub

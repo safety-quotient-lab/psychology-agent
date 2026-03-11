@@ -19,7 +19,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).parent.parent
 MANIFEST_PATH = PROJECT_ROOT / "scripts" / "shared-scripts.json"
 REGISTRY_PATH = PROJECT_ROOT / "transport" / "agent-registry.json"
 REGISTRY_LOCAL_PATH = PROJECT_ROOT / "transport" / "agent-registry.local.json"

@@ -24,7 +24,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import unquote
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).parent.parent
 REPLAYS_DIR = PROJECT_ROOT / "docs" / "replays"
 DB_PATH = PROJECT_ROOT / "state.db"
 REGISTRY_PATH = PROJECT_ROOT / "transport" / "agent-registry.json"

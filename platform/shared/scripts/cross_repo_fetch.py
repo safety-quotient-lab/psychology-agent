@@ -20,7 +20,7 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).parent.parent
 REGISTRY_PATH = PROJECT_ROOT / "transport" / "agent-registry.json"
 REGISTRY_LOCAL_PATH = PROJECT_ROOT / "transport" / "agent-registry.local.json"
 DB_PATH = PROJECT_ROOT / "state.db"

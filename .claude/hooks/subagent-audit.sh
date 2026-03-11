@@ -18,10 +18,17 @@ fi
 COUNT=$(cat "$BUDGET_FILE")
 MAX_SUBAGENTS=15
 
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+DUAL_WRITE="${PROJECT_ROOT}/scripts/dual_write.py"
+
 if [ "$EVENT" = "SubagentStart" ]; then
   COUNT=$((COUNT + 1))
   echo "$COUNT" > "$BUDGET_FILE"
   echo "{\"event\":\"start\",\"timestamp\":\"${TIMESTAMP}\",\"type\":\"${SUBAGENT_TYPE}\",\"description\":\"${DESCRIPTION}\",\"active_count\":${COUNT}}" >> "$AUDIT_FILE"
+  # Record T14 trigger firing (sub-agent oversight)
+  if [ -f "$DUAL_WRITE" ] && [ -f "${PROJECT_ROOT}/state.db" ]; then
+    python3 "$DUAL_WRITE" trigger-fired --trigger-id T14 2>/dev/null
+  fi
   if [ "$COUNT" -ge "$MAX_SUBAGENTS" ]; then
     echo "[HOOK] ⚠ Sub-agent budget: ${COUNT}/${MAX_SUBAGENTS} invocations this session. Consider whether additional sub-agents add value."
   fi

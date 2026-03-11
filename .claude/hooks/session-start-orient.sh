@@ -23,6 +23,12 @@ if [ ! -s "$MEMORY_LIVE" ]; then
   fi
 fi
 
+# Record T1 trigger firing
+DUAL_WRITE="${PROJECT_ROOT}/scripts/dual_write.py"
+if [ -f "$DUAL_WRITE" ] && [ -f "${PROJECT_ROOT}/state.db" ]; then
+  python3 "$DUAL_WRITE" trigger-fired --trigger-id T1 2>/dev/null
+fi
+
 # Remind of trigger system
 echo "[SESSION-START] Cognitive triggers T1-T16 active. Read docs/cognitive-triggers.md for full system."
 echo "[SESSION-START] Skills: /doc /hunt /cycle /knock /sync /iterate"

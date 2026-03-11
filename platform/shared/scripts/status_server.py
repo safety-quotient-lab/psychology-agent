@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).parent.parent
 DB_PATH = PROJECT_ROOT / "state.db"
 IDENTITY_PATH = PROJECT_ROOT / ".agent-identity.json"
 

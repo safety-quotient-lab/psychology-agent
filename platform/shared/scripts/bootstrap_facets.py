@@ -29,7 +29,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).parent.parent
 DB_PATH = PROJECT_ROOT / "state.db"
 
 

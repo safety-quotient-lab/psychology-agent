@@ -23,7 +23,7 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).parent.parent
 DB_PATH = PROJECT_ROOT / "state.db"
 IDENTITY_PATH = PROJECT_ROOT / ".agent-identity.json"
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "transport" / "sessions" / "local-coordination"

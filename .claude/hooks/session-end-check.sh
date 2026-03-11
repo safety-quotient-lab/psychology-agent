@@ -19,6 +19,12 @@ if [ -n "$UNCOMMITTED" ]; then
   echo "[HOOK] Consider committing before ending or noting in MEMORY.md Active Thread."
 fi
 
+# Record T1 trigger firing (session boundary)
+DUAL_WRITE="${PROJECT_ROOT}/scripts/dual_write.py"
+if [ -f "$DUAL_WRITE" ] && [ -f "${PROJECT_ROOT}/state.db" ]; then
+  python3 "$DUAL_WRITE" trigger-fired --trigger-id T1 2>/dev/null
+fi
+
 # Log session end
 SESSION_LOG="/tmp/psychology-agent-session-log.jsonl"
 TIMESTAMP=$(date -Iseconds)

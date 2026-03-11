@@ -593,6 +593,60 @@ T4 scope kept narrow (disk writes only) to maintain hook-scope honesty.
 
 ---
 
+## T18: UX Design Grounding
+
+**Fires**: Before creating or modifying any user-facing interface — compositor
+pages, dashboards, agent output formats, CLI displays, report layouts, any
+artifact where a human reads or interacts with system output
+
+**Checks**:
+1. **Cognitive load audit** (Miller, 1956; Sweller, 1988) — does the design
+   stay within working memory limits? Chunk information into 4±1 groups.
+   Progressive disclosure: show summary first, detail on demand. If a view
+   requires holding more than 4 independent concepts simultaneously, restructure
+2. **Perceptual grouping** (Wertheimer, 1923 — Gestalt principles) — do
+   spatial proximity, similarity, enclosure, and connectedness communicate
+   the intended relationships? Elements that belong together MUST look
+   together. Unrelated elements MUST have visual separation
+3. **Feedback and visibility** (Norman, 1988 — design of everyday things) —
+   every user action produces visible system response. Current state remains
+   observable without requiring the user to remember previous states. No
+   silent failures; no invisible mode changes
+4. **Error prevention over error handling** (Nielsen, 1994) — constrain
+   inputs to valid ranges. Offer confirmation for destructive actions.
+   Make undo available. Design interfaces that prevent mistakes rather
+   than merely reporting them after the fact
+5. **Information hierarchy** (Tufte, 1990) — data-to-ink ratio stays high.
+   Decorative elements do not compete with informational elements. The most
+   important information occupies the most prominent position. Consistent
+   visual encoding (color, size, position) across views
+6. **Accessibility as default** (WCAG 2.1; inherits CLAUDE.md cognitive
+   accessibility policy) — color carries meaning only when paired with a
+   redundant channel (shape, text, position). Contrast ratios meet AA
+   standard. Interactive elements have adequate touch/click targets. Screen
+   reader compatibility considered from initial design, not retrofitted
+7. **Task-action mapping** (Fitts, 1954; Hick, 1952) — frequently used
+   actions require fewer steps. Related actions group together. Navigation
+   depth stays shallow (3 clicks max to any content). Decision time scales
+   logarithmically with option count — fewer, clearer choices outperform
+   exhaustive menus
+8. **Empirical backing check** — does this design decision follow from
+   evidence (user research, established heuristic, cited principle), or
+   from convention without examination? If the latter, flag as assumption
+   and note what evidence would validate or invalidate the choice
+
+**Action**: If creating a new interface, run the full checklist before
+implementation. If modifying an existing interface, run checks relevant
+to the changed elements. Document which principles drove the design
+decisions in commit messages or inline comments.
+
+**Provenance**: Session 71 (2026-03-11). Psychology-agent applies its
+discipline — human factors (Norman, 1988), I/O psychology (Spector, 2021),
+information design (Tufte, 1990), perceptual psychology (Wertheimer, 1923)
+— to its own interfaces. The discipline comes first; engineering serves it.
+
+---
+
 ## Postmortem Template (Cogarch Failure Analysis)
 
 When a cogarch trigger fails to prevent an error it should have caught, or when

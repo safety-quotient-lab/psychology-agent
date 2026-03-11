@@ -9,6 +9,12 @@ COMMAND="${TOOL_INPUT_command:-}"
 
 # Match gh write operations (issue/pr/api create/comment/edit/close/merge/review)
 if echo "$COMMAND" | grep -qE 'gh\s+(issue|pr|api)\s+(create|comment|edit|close|merge|review)'; then
+  # Record T16 trigger firing (irreversibility gate)
+  PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+  DUAL_WRITE="${PROJECT_ROOT}/scripts/dual_write.py"
+  if [ -f "$DUAL_WRITE" ] && [ -f "${PROJECT_ROOT}/state.db" ]; then
+    python3 "$DUAL_WRITE" trigger-fired --trigger-id T16 2>/dev/null
+  fi
   echo "[T16] External-facing action detected. Before proceeding:"
   echo "  1. Scope + substance: Does this serve the current task? Substance decisions need user confirmation."
   echo "  2. Obligation + irreversibility: Does this create obligations? Issues can be closed but not deleted."
