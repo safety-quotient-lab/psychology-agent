@@ -31,7 +31,7 @@
       "message_prefix": "from-unratified-agent-",
       "active_sessions": ["blog-publication", "content-quality-loop", "psq-scoring", "site-defensibility-review"],
       "always_consider": true,
-      "autonomous": false,
+      "autonomous": true,
       "discovery_url": "https://unratified.org/.well-known/agent-card.json",
       "notes": "Peer agent. Cross-repo transport via git remote fetch. Blog posts, content quality, PSQ display, persuasion audits — content-facing topics SHOULD be surfaced. 15 transport sessions, 47 messages addressed to psychology-agent."
     },
@@ -46,7 +46,7 @@
       "message_prefix": "from-observatory-agent-",
       "active_sessions": ["psq-scoring", "dignity-instrument"],
       "always_consider": false,
-      "autonomous": false,
+      "autonomous": true,
       "discovery_url": "https://observatory.unratified.org/.well-known/agent-card.json",
       "notes": "Peer agent. Cross-repo transport via git remote fetch. Research data, methodology, ICESCR framing. 10 transport sessions. Communicates with unratified-agent directly; messages to psychology-agent typically route through shared sessions (psq-scoring, dignity-instrument)."
     },
