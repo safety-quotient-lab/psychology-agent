@@ -17,20 +17,19 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 69. Mesh self-healing and cold-peer discovery
-fixes deployed. All 4 agents running autonomously (verified). Dashboard
-shows semantic status colors + clickable message timeline.
+**Where we stopped:** Session 68. All 4 agents autonomous. Escalation pipeline
+wired. Dashboard surfaces sync status (autonomous/manual). /knock BFT analysis
+complete — recommend-against resolved by enabling remaining agents.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- 4-agent mesh: ✓ Autonomous, staggered cron, self-healing git_sync `[warm]`
-- Compositor: ✓ Semantic colors, clickable timeline, CF Worker deployed `[warm]`
-- Cold-peer discovery: ✓ MANIFEST check before skip + trailing slash fix `[warm]`
-- Plan9 consensus: ⚑ Proposal now discoverable, awaiting peer votes `[warm]`
+- 4-agent mesh: ✓ All agents autonomous with cron sync `[warm]`
+- Compositor: ✓ Sync column + agent card sync mode `[warm]`
+- Escalation: ✓ escalate.py + 4 autonomous-sync wiring points `[warm]`
+- Plan9 consensus: ⚑ Proposal sent (turn 1), awaiting peer votes `[warm]`
 - DI Phase A Pass 2: pending (fresh session) `[cold]`
 
-**Next:** Plan9 consensus votes (should arrive next autonomous cycles). PSH
-vocabulary consensus (after Plan9). Smart self-healing (TODO). Autonomous
-session replay on web (TODO). DI Phase A Pass 2.
+**Next:** Plan9 consensus votes (arrive autonomously). PSH vocabulary consensus
+(after Plan9). First gated chain test (psych→psq). DI Phase A Pass 2.
 
 
 ## Memory Hygiene
