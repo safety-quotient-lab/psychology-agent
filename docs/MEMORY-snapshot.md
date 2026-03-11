@@ -18,21 +18,23 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 75. PSQ model deploy pipeline complete (parameterized
-Jenkinsfile). meshd deploy pipeline tested end-to-end — version injection confirmed
-(`7a2e3ae` on all 4 agents). Dedicated jenkins@cabinet ED25519 keypair for SSH deploys.
-Multiple Jenkinsfile fixes: branch guard removal, Groovy `:-` parse error, POSIX shell.
+**Where we stopped:** Session 75. Transport materialization fix deployed — 37 peer
+responses materialized across 15 sessions. Dual-identity bug fixed (workstation
+"human" vs repo "psychology-agent"). End-to-end verified: 208 messages, 17 sessions,
+version `69c7dea` on all 4 meshd instances. Jenkins pipeline triggered by platform/
+changes (POSIX restart verification pending build completion).
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - CI/CD: ✓ Tier 1 + Tier 2 operational. PSQ model deploy parameterized `[warm]`
-- meshd: ✓ All 4 running, version `7a2e3ae`, /api/status exposes version `[warm]`
+- meshd: ✓ All 4 running, version `69c7dea`, 208 msgs visible `[warm]`
+- Transport: ✓ Materialization operational (--index implies --materialize) `[warm]`
+- Plan9 consensus: ✓ ADOPTED (2026-03-10). 3/3 AGREE. Votes materialized locally. `[warm]`
 - Compositor: ✓ 5 tabs, LCARS spine, deep links `[warm]`
-- Plan9 consensus: ✓ UNANIMOUSLY ADOPTED (2026-03-10). Contract v1. `[warm]`
 - psychology-interface: Active Go project at ~/Projects/psychology-agent-interface `[cold]`
 - DI Phase A Pass 2: pending `[cold]`
 
-**Next:** DevOps/IT installation guide. Jenkinsfile POSIX restart verification.
-DI Phase A Pass 2. vnext passes.
+**Next:** Self-readiness audit consensus (full mesh test). DevOps/IT installation guide.
+DI Phase A Pass 2.
 
 
 ## Memory Hygiene
