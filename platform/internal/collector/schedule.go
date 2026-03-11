@@ -19,8 +19,9 @@ type Schedule struct {
 	Autonomous          bool   `json:"autonomous"`
 	CronEntry           string `json:"cron_entry,omitempty"`
 	CronIntervalMin     *int   `json:"cron_interval_min,omitempty"`
-	LastSync            string `json:"last_sync,omitempty"`
-	NextExpected        string `json:"next_expected,omitempty"`
+	LastSync            string `json:"last_sync"`
+	NextExpected        string `json:"next_expected"`
+	NextRun             string `json:"next_run"`
 	MinActionIntervalSec *int  `json:"min_action_interval_sec,omitempty"`
 	LockFile            string `json:"lock_file"`
 	LockActive          bool   `json:"lock_active"`
@@ -74,6 +75,9 @@ func CollectSchedule(d *db.DB, agentID, projectRoot string) Schedule {
 			sched.NextExpected = next.Format("2006-01-02T15:04:05")
 		}
 	}
+
+	// Compositor compatibility alias
+	sched.NextRun = sched.NextExpected
 
 	// Check lock file
 	checkLockFile(&sched)

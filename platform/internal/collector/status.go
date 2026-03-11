@@ -117,10 +117,13 @@ func Collect(d *db.DB, projectRoot string) *Status {
 		unprocessed = []map[string]any{}
 	}
 
-	// Recent messages
+	// Recent messages (include all fields compositor expects)
 	recent, _ := d.QueryRows(
 		`SELECT session_name, filename, turn, from_agent, to_agent,
-		 message_type, timestamp, processed, subject
+		 message_type, timestamp, processed, subject,
+		 COALESCE(setl, 0) as setl,
+		 COALESCE(claims_count, 0) as claims_count,
+		 COALESCE(urgency, 'normal') as urgency
 		 FROM transport_messages ORDER BY timestamp DESC LIMIT 20`)
 	if recent == nil {
 		recent = []map[string]any{}
