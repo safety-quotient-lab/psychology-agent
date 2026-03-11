@@ -18,22 +18,23 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 74. Jenkins Phase 2 complete — Tier 2 CI/CD
-operational across all 4 repos. GH Actions relay bridges push events to forge
-through CF Access. All builds verified. meshd modularization evaluated, deferred
-to ideas.md. Observatory local dir consolidated to ~/Projects/observatory.
+**Where we stopped:** Session 73. Epistemic debt detail panel shipped (full
+pipeline: collector → handler → /kb/epistemic → compositor). Shared scripts
+moved to platform/shared/scripts/. Observatory consolidated on chromabook.
+CI/CD Phase 1 complete. DevOps pipeline documented.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- CI/CD: ✓ Tier 1 (GH Actions) + Tier 2 (Jenkins/forge) operational, all 4 repos `[warm]`
-- Compositor: ✓ 5 tabs, epistemic flags detail, LCARS spine, deep links `[warm]`
-- meshd: ✓ All 4 running, /kb/epistemic route (Session 73) `[warm]`
-- Observatory: ✓ Consolidated locally + chromabook, Jenkins job created `[warm]`
+- Compositor: ✓ 5 tabs, epistemic flags detail table, LCARS spine, deep links `[warm]`
+- meshd: ✓ All 4 running, /kb/epistemic route added (Session 73) `[warm]`
+- CI/CD Phase 1: ✓ 3 GitHub Actions workflows (compositor, unratified, observatory) `[warm]`
+- Shared scripts: ✓ Canonical at platform/shared/scripts/, symlinked into agents `[warm]`
+- Observatory: ✓ Consolidated — only ~/projects/observatory on chromabook `[warm]`
 - Schema v17: ⚑ Committed, awaits chromabook propagation via autonomous sync `[warm]`
 - Plan9 consensus: ⚑ Awaiting peer votes `[warm]`
 - DI Phase A Pass 2: pending `[cold]`
 
-**Next:** DI Phase A Pass 2. PSQ model deploy pipeline (Jenkins, manual trigger).
-vnext passes (bizdev, marketing, self-review).
+**Next:** Jenkins Phase 2 (blocked on forge.safety-quotient.dev service accounts).
+DI Phase A Pass 2. Schema v15 migration. vnext passes (bizdev, marketing, self-review).
 
 
 ## Memory Hygiene

@@ -154,6 +154,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Epistemic debt detail panel     | ✓ Full pipeline: collector → handler → /kb/epistemic → compositor flags table (Session 73) |
 | Shared scripts placement        | ✓ pre_sync_check.py + issue_lifecycle.py → platform/shared/scripts/, symlinks in scripts/ (Session 73) |
 | Observatory consolidation       | ✓ observatory-sqlab removed from chromabook; only ~/projects/observatory remains (Session 73) |
+| Jenkins Phase 2 (Tier 2 CI/CD) | ✓ Literate Jenkinsfiles (3 repos), meshd build+deploy, shared scripts sync, GH Actions relay (Session 74) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -4885,3 +4886,52 @@ dashboard observability.
   platform/shared/scripts/schema.sql, .claude/skills/sync/SKILL.md, TODO.md,
   platform/internal/collector/knowledge.go, platform/internal/handlers/kb.go,
   platform/cmd/meshd/main.go, interagent/index.html
+
+
+## 2026-03-11T15:55 CDT — Session 74 (Jenkins Phase 2: Tier 2 CI/CD pipelines across all 4 repos)
+
+- **Forge infrastructure confirmed operational** — forge.safety-quotient.dev (cabinet,
+  Linux amd64) responds to API calls. Go 1.24.4 installed. 3 credentials pre-configured
+  by forge agent (CF tokens + SSH key). 3 pipeline jobs pre-created (psychology-agent,
+  unratified, safety-quotient).
+- **Jenkinsfiles rewritten with literate documentation** — all 4 repos (psychology-agent,
+  unratified, safety-quotient, observatory). Each file explains the three-tier deployment
+  strategy, why Jenkins handles Tier 2 (SSH/LAN access), and why configuration lives in
+  Jenkins environment variables (not in the public repo). Infrastructure-specific values
+  (hostnames, ports, paths, credential UUIDs) removed from Jenkinsfiles.
+- **Psychology-agent Jenkinsfile** — 5 stages: ShellCheck (quality gate), Build meshd
+  (Go cross-compile linux/amd64), Deploy meshd (SSH stop → SCP → restart → 4-port
+  health check), Sync Shared Scripts (rsync + symlink verification), Deploy Compositor
+  (CF Worker fallback). All deploy stages gated on `changeset` directives.
+- **GH Actions relay** (`.github/workflows/trigger-forge.yml`) — bridges GitHub push
+  events to forge through Cloudflare Access authentication. GitHub webhooks cannot inject
+  custom headers (CF-Access-Client-Id/Secret); the relay authenticates with service-token
+  credentials stored as GitHub secrets. Deployed to all 4 repos.
+- **Jenkins configuration via API** — 7 global environment variables (DEPLOY_HOST,
+  DEPLOY_PORT, DEPLOY_USER, paths, ports), `deploy-ssh-key` credential (semantic ID
+  aliasing the SSH key), hourly SCM polling as relay fallback.
+- **Observatory Jenkins job created** — new pipeline job on forge, SCM polling configured,
+  Jenkinsfile + relay workflow committed and pushed.
+- **Observatory local directory consolidated** — `~/Projects/observatory-sqlab` renamed to
+  `~/Projects/observatory` on development machine, matching chromabook layout.
+- **GH secrets propagated** — forge credentials (JENKINS_URL, USER, API_TOKEN, CF Access
+  pair) set on safety-quotient repo (other 3 repos already had them from forge agent).
+- **Design decision: GH Actions relay over CF Access IP bypass** — relay keeps the Access
+  policy strict (service-token only) while providing instant push-triggered builds.
+  Alternative (IP allowlist bypass) rejected: maintenance burden, wider attack surface.
+- **devops-pipeline.md fixes** — GOARCH=arm64 → amd64 (chromabook runs x86_64), meshd
+  and shared scripts pipelines marked ✓.
+- **meshd modularization evaluated** — assessed extracting meshd to standalone repo.
+  Not yet warranted (single maintainer, ~15 files). Captured in ideas.md with precondition:
+  second maintainer or developer user begins contributing.
+- **All builds verified** — psychology-agent #2 ✓, unratified #2 ✓, safety-quotient #2 ✓,
+  observatory #1 ✓. Relay triggers confirmed working on push.
+
+⚑ EPISTEMIC FLAGS
+- Jenkins `withCredentials` + `sshUserPrivateKey` approach untested end-to-end (no
+  platform/** changeset in test builds — deploy stages skipped by changeset guard)
+- Cabinet ≠ chromabook (separate machines, same OS) — SSH connectivity from cabinet to
+  chromabook via deploy-ssh-key credential not yet exercised in a real deploy
+
+▶ Jenkinsfile, .github/workflows/trigger-forge.yml, docs/devops-pipeline.md, TODO.md,
+  ideas.md, memory/infrastructure.md
