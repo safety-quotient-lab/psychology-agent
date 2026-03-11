@@ -70,17 +70,26 @@ def _collect_schedule(agent_id: str) -> dict:
             for line in result.stdout.splitlines():
                 if "autonomous-sync" in line and not line.startswith("#"):
                     schedule["autonomous"] = True
-                    m = re.match(r"\*/(\d+)", line.strip())
+                    minute_field = line.strip().split()[0]
+                    m = re.match(r"\*/(\d+)", minute_field)
                     if m:
                         schedule["cron_interval_min"] = int(m.group(1))
-                    elif line.strip().startswith("0 "):
+                    elif "," in minute_field:
+                        # Comma-separated: compute interval from first two values
+                        parts = [int(x) for x in minute_field.split(",")[:2]]
+                        if len(parts) >= 2:
+                            schedule["cron_interval_min"] = parts[1] - parts[0]
+                    elif minute_field == "0":
                         schedule["cron_interval_min"] = 60
                     break
     except (subprocess.TimeoutExpired, OSError):
         pass
 
-    # Last sync from log file
+    # Last sync from log file (check agent_id and repo-name variants)
+    repo_name = PROJECT_ROOT.name
     log_path = Path("/tmp") / f"autonomous-sync-{agent_id}.log"
+    if not log_path.exists():
+        log_path = Path("/tmp") / f"autonomous-sync-{repo_name}.log"
     if log_path.exists():
         try:
             lines = log_path.read_text().splitlines()[-20:]
