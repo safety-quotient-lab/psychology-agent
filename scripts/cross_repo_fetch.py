@@ -81,7 +81,7 @@ def list_remote_dir(remote_name: str, path: str) -> list[str]:
     # git show on a tree prints "tree {ref}:{path}\n\nfile1\nfile2\n..."
     lines = output.split("\n")
     # Skip the "tree ..." header line
-    files = [line.strip() for line in lines if line.strip() and not line.startswith("tree ")]
+    files = [line.strip().rstrip("/") for line in lines if line.strip() and not line.startswith("tree ")]
     return files
 
 
