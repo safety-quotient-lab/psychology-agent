@@ -1,0 +1,64 @@
+# Trigger Forge Build — GitHub Actions → Jenkins relay
+#
+# WHY A RELAY?
+# Forge (our Jenkins instance at forge.safety-quotient.dev) sits behind
+# Cloudflare Access, which requires service-token headers on every request:
+#   CF-Access-Client-Id / CF-Access-Client-Secret
+#
+# GitHub's native webhook mechanism sends a fixed set of headers
+# (X-Hub-Signature, X-GitHub-Event, etc.) and does not support injecting
+# custom headers. This means GitHub cannot authenticate directly to a
+# Cloudflare Access-protected endpoint.
+#
+# This workflow bridges that gap: GitHub fires the Action on push,
+# the Action authenticates to Cloudflare Access using service-token
+# credentials stored as GitHub secrets, and triggers the Jenkins build
+# via the Jenkins Remote Build API.
+#
+# The alternative — opening a Cloudflare Access bypass for GitHub's
+# webhook IP ranges — requires maintaining an IP allowlist that GitHub
+# updates periodically, introducing a maintenance burden and a wider
+# attack surface. The relay approach keeps the Access policy strict
+# (service-token only) while providing instant push-triggered builds.
+#
+# REQUIRED SECRETS (set via gh secret set):
+#   JENKINS_URL              — e.g., https://forge.example.com
+#   JENKINS_USER             — Jenkins service account username
+#   JENKINS_API_TOKEN        — Jenkins API token for the service account
+#   FORGE_ACCESS_CLIENT_ID   — Cloudflare Access service token client ID
+#   FORGE_ACCESS_CLIENT_SECRET — Cloudflare Access service token client secret
+#
+# JENKINS JOB NAMING CONVENTION:
+#   The Jenkins job name must match the GitHub repository name.
+#   e.g., repository "psychology-agent" → Jenkins job "psychology-agent"
+
+name: Trigger Forge Build
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Jenkins build via Cloudflare Access relay
+        env:
+          JENKINS_URL: ${{ secrets.JENKINS_URL }}
+          JENKINS_USER: ${{ secrets.JENKINS_USER }}
+          JENKINS_API_TOKEN: ${{ secrets.JENKINS_API_TOKEN }}
+          FORGE_CLIENT_ID: ${{ secrets.FORGE_ACCESS_CLIENT_ID }}
+          FORGE_CLIENT_SECRET: ${{ secrets.FORGE_ACCESS_CLIENT_SECRET }}
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          echo "Triggering forge build for ${REPO_NAME}..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            -u "${JENKINS_USER}:${JENKINS_API_TOKEN}" \
+            -H "CF-Access-Client-Id: ${FORGE_CLIENT_ID}" \
+            -H "CF-Access-Client-Secret: ${FORGE_CLIENT_SECRET}" \
+            "${JENKINS_URL}/job/${REPO_NAME}/build")
+          if [ "${STATUS}" = "201" ]; then
+            echo "Build queued successfully (HTTP 201)"
+          else
+            echo "::warning::Forge trigger returned HTTP ${STATUS}"
+          fi

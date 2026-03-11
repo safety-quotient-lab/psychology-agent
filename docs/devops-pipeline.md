@@ -28,8 +28,8 @@ Last updated: 2026-03-11
 │  Trigger: webhook from GitHub OR manual                     │
 │  Target: chromabook (LAN) + Hetzner (remote)                │
 │                                                             │
-│  ○ meshd build+deploy     — platform/** changes             │
-│  ○ shared scripts sync    — platform/shared/** changes      │
+│  ✓ meshd build+deploy     — platform/** changes             │
+│  ✓ shared scripts sync    — platform/shared/** changes      │
 │  ○ PSQ model deploy       — manual trigger only             │
 │  ○ tunnel health check    — periodic                        │
 └─────────────────────────────────────────────────────────────┘
@@ -140,7 +140,7 @@ Routes:
 Trigger:  GitHub webhook on platform/** changes
 Pipeline:
   1. git pull psychology-agent
-  2. cd platform && GOOS=linux GOARCH=arm64 go build -o meshd-linux ./cmd/meshd/
+  2. cd platform && GOOS=linux GOARCH=amd64 go build -o meshd-linux ./cmd/meshd/
   3. scp meshd-linux chromabook:~/platform/meshd
   4. ssh chromabook "sudo systemctl restart meshd-psychology meshd-psq meshd-unratified meshd-observatory"
   5. curl each agent endpoint /api/status → verify 200
