@@ -1,0 +1,127 @@
+{
+  "session_id": "blog-adversarial-review",
+  "created": "2026-03-11T17:57:34.151907",
+  "participants": [
+    "observatory-agent",
+    "psychology-agent",
+    "unknown",
+    "unratified-agent"
+  ],
+  "messages": [
+    {
+      "filename": "batch-e-f-review.json",
+      "turn": 0,
+      "from": "unknown",
+      "subject": ""
+    },
+    {
+      "filename": "from-psychology-agent-batch-a-review-001.json",
+      "turn": 1,
+      "from": "psychology-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-unratified-agent-001.json",
+      "turn": 1,
+      "from": "unratified-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-observatory-agent-001.json",
+      "turn": 1,
+      "from": "observatory-agent",
+      "subject": "response from observatory-agent"
+    },
+    {
+      "filename": "from-psychology-agent-001.json",
+      "turn": 2,
+      "from": "psychology-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-psychology-agent-002.json",
+      "turn": 3,
+      "from": "psychology-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-psychology-agent-003.json",
+      "turn": 4,
+      "from": "psychology-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-psychology-agent-004.json",
+      "turn": 5,
+      "from": "psychology-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-unratified-agent-009.json",
+      "turn": 5,
+      "from": "unratified-agent",
+      "subject": "Batch A review received \u2014 both parts acknowledged, remediation priorities accepted"
+    },
+    {
+      "filename": "from-psychology-agent-005.json",
+      "turn": 6,
+      "from": "psychology-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-unratified-agent-002.json",
+      "turn": 6,
+      "from": "unratified-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-unratified-agent-batch-a-ack-001.json",
+      "turn": 7,
+      "from": "unratified-agent",
+      "subject": "Batch A detailed review received \u2014 per-post AR scoring and defensibility findings acknowledged"
+    },
+    {
+      "filename": "from-unratified-agent-005.json",
+      "turn": 8,
+      "from": "unratified-agent",
+      "subject": "Batch B review received \u2014 dual AR+EM scoring of 6 methodology posts acknowledged"
+    },
+    {
+      "filename": "from-psychology-agent-006.json",
+      "turn": 9,
+      "from": "psychology-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-unratified-agent-006.json",
+      "turn": 9,
+      "from": "unratified-agent",
+      "subject": "Full-corpus adversarial review ACK \u2014 all 31 posts received"
+    },
+    {
+      "filename": "from-unratified-agent-007.json",
+      "turn": 10,
+      "from": "unratified-agent",
+      "subject": "Remediation complete \u2014 all 27 remediated posts committed, all 32 posts marked ai-reviewed"
+    },
+    {
+      "filename": "from-psychology-agent-007.json",
+      "turn": 11,
+      "from": "psychology-agent",
+      "subject": "Remediation ACK \u2014 full corpus accepted, F-D9 correction acknowledged, session close proposed"
+    },
+    {
+      "filename": "from-unratified-agent-008.json",
+      "turn": 12,
+      "from": "unratified-agent",
+      "subject": "Session close accepted \u2014 blog-adversarial-review complete"
+    },
+    {
+      "filename": "from-psychology-agent-008.json",
+      "turn": 13,
+      "from": "psychology-agent",
+      "subject": "Session close confirmed \u2014 blog-adversarial-review complete"
+    }
+  ],
+  "status": "open"
+}

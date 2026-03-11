@@ -1,0 +1,23 @@
+{
+  "session_id": "site-pricing-update",
+  "created": "2026-03-11T17:57:35.133314",
+  "participants": [
+    "human",
+    "unratified-agent"
+  ],
+  "messages": [
+    {
+      "filename": "to-unratified-agent-001.json",
+      "turn": 1,
+      "from": "human",
+      "subject": "Blog post request: How much would it cost to ratify ICESCR and fill the gaps in the safety net?"
+    },
+    {
+      "filename": "from-unratified-agent-001.json",
+      "turn": 2,
+      "from": "unratified-agent",
+      "subject": ""
+    }
+  ],
+  "status": "open"
+}

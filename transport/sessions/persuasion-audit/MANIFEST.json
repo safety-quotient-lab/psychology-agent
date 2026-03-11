@@ -1,0 +1,41 @@
+{
+  "session_id": "persuasion-audit",
+  "created": "2026-03-11T17:57:34.741060",
+  "participants": [
+    "psychology-agent",
+    "unratified-agent"
+  ],
+  "messages": [
+    {
+      "filename": "from-unratified-agent-001.json",
+      "turn": 1,
+      "from": "unratified-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-psychology-agent-001.json",
+      "turn": 2,
+      "from": "psychology-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-unratified-agent-002.json",
+      "turn": 3,
+      "from": "unratified-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-unratified-agent-003.json",
+      "turn": 4,
+      "from": "unratified-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-psychology-agent-002.json",
+      "turn": 5,
+      "from": "psychology-agent",
+      "subject": "Persuasion audit session closed \u2014 all 4 Q-responses implemented, 4 items deferred (turn 5)"
+    }
+  ],
+  "status": "open"
+}

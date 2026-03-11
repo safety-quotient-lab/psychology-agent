@@ -510,10 +510,15 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   zone. Harmless but should delete via CF dashboard.
   *Precondition: none — dashboard access only*
 
-- [x] **Plan9 directory tree consensus (C2)** — COMPLETE (Session 72, confirmed
-  Session 75). Unanimously adopted 2026-03-10. All 3 peers voted AGREE. Contract v1
-  in effect. Implementation gaps: psq-agent `.claude/settings.json`, unratified
-  `.well-known/agent-card.json` + `CLAUDE.md`, observatory `.well-known/agent-card.json`.
+- [x] **Plan9 directory tree consensus (C2)** — COMPLETE. 3/3 AGREE votes,
+  session-close confirms unanimous adoption (2026-03-10). Peer responses existed
+  in remote repos but were not materialized locally until Session 75 (cross-repo
+  fetch gap — see systemic issue below). Implementation gaps remain: psq-agent
+  `.claude/settings.json`, unratified `.well-known/agent-card.json` + `CLAUDE.md`,
+  observatory `.well-known/agent-card.json`.
+  *Grounding audit Session 75: initial "no evidence" finding was itself wrong —
+  responses existed in peer repos. Root cause: cross_repo_fetch.py reads but
+  does not copy inbound response messages to local session directories.*
 
 - [ ] **PSH vocabulary consensus (C2)** — second consensus test. Each agent
   develops internal understanding of PSH vocabulary, then mesh negotiates
