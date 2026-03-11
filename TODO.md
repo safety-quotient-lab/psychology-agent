@@ -614,12 +614,18 @@ auto-restart loops. None had monitoring — all required manual discovery.
 
 ## DevOps Pipeline (Session 73)
 
-- [ ] **Jenkins Phase 2 (Tier 2 CI/CD)** — automated deploy of meshd binary,
-  shared scripts, and PSQ model pipeline to chromabook. Documented in
-  `docs/devops-pipeline.md` but not implemented. Three pipeline candidates:
-  (1) meshd binary: cross-compile → SCP → restart, (2) shared scripts:
-  rsync to ~/platform/shared/scripts/, (3) PSQ model: train → validate → deploy.
-  *Precondition: Jenkins instance provisioned on chromabook or separate host*
+- [x] **Jenkins Phase 2 (Tier 2 CI/CD)** — COMPLETE (Session 74). Jenkinsfiles
+  with literate documentation across all 3 repos. Pipelines: meshd build+deploy
+  (Go cross-compile, SSH deploy, 4-port health check), shared scripts sync
+  (rsync + symlink verification), compositor deploy (fallback). GH Actions relay
+  bridges push events to forge through CF Access. Hourly SCM polling as fallback.
+  Jenkins configured: global env vars, `deploy-ssh-key` credential, hourly SCM.
+  PSQ model deploy pipeline remains manual-trigger (documented, not yet automated).
+
+- [ ] **PSQ model deploy pipeline** — Jenkins pipeline for train → validate →
+  export → deploy to Hetzner. 11-step sequence documented in `docs/devops-pipeline.md`.
+  Manual trigger only (parameterized build with model path).
+  *Precondition: PSQ model retraining cycle occurs*
 
 - [x] **Surface epistemic debt detail on compositor** — COMPLETE (Session 73).
   /kb/epistemic route + detail table in Meta tab (flag text, source, agent, age).
