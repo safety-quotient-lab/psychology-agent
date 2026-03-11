@@ -391,6 +391,11 @@
             position: relative;
             overflow: hidden;
         }
+        .vital-link:hover {
+            border-color: var(--vital-color, var(--c-transport));
+            transform: translateY(-1px);
+            transition: border-color 0.15s, transform 0.15s;
+        }
         .vital-card::before {
             content: '';
             position: absolute;
@@ -428,6 +433,11 @@
         .agent-card[data-agent="psq-agent"] { --panel-accent: var(--c-psq); }
         .agent-card[data-agent="unratified-agent"] { --panel-accent: var(--c-unratified); }
         .agent-card[data-agent="observatory-agent"] { --panel-accent: var(--c-observatory); }
+        .agent-card:hover {
+            border-color: var(--panel-accent);
+            transform: translateY(-1px);
+            transition: border-color 0.15s, transform 0.15s;
+        }
 
         .agent-identity {
             display: flex;
@@ -516,6 +526,18 @@
             align-items: center;
         }
         .activity-item:last-child { border-bottom: none; }
+        a.activity-link {
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            border-radius: 3px;
+            margin: 0 -4px;
+            padding: 6px 4px;
+            transition: background 0.15s;
+        }
+        a.activity-link:hover {
+            background: rgba(255,255,255,0.04);
+        }
         .activity-time { color: var(--text-dim); font-size: 0.85em; }
         .activity-route { color: var(--text-secondary); }
         .activity-route .from { color: var(--c-transport); }
@@ -1015,15 +1037,15 @@
                     <div class="vital-value" id="vital-budget">—</div>
                     <div class="vital-label">Autonomy Credits</div>
                 </div>
-                <div class="vital-card" style="--vital-color: var(--c-transport)">
+                <div class="vital-card vital-link" style="--vital-color: var(--c-transport); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('filter-messages').value='';filterTable('messages');document.getElementById('kb-sec-messages').scrollIntoView({behavior:'smooth'})},120)">
                     <div class="vital-value" id="vital-pending">—</div>
                     <div class="vital-label">Pending Messages</div>
                 </div>
-                <div class="vital-card" style="--vital-color: var(--c-catalog)">
+                <div class="vital-card vital-link" style="--vital-color: var(--c-catalog); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('kb-sec-messages').scrollIntoView({behavior:'smooth'})},120)">
                     <div class="vital-value" id="vital-gates">—</div>
                     <div class="vital-label">Active Gates</div>
                 </div>
-                <div class="vital-card" style="--vital-color: var(--c-epistemic)">
+                <div class="vital-card vital-link" style="--vital-color: var(--c-epistemic); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('kb-sec-debt').scrollIntoView({behavior:'smooth'})},120)">
                     <div class="vital-value" id="vital-debt">—</div>
                     <div class="vital-label">Epistemic Debt</div>
                 </div>
@@ -1568,6 +1590,8 @@
             const card = document.createElement("div");
             card.className = "lcars-panel agent-card";
             card.dataset.agent = agent.id;
+            card.style.cursor = "pointer";
+            card.onclick = () => { switchAgent(agent.id); switchTab('meta'); };
 
             if (state.status !== "online") {
                 card.innerHTML = `
@@ -1663,7 +1687,7 @@
             const online = state?.status === "online";
             const fill = online ? agent.color : "var(--c-inactive)";
 
-            html += `<a href="${agent.url}" target="_blank" rel="noopener">
+            html += `<g style="cursor:pointer" onclick="switchAgent('${agent.id}');switchTab('meta')">
                 <circle cx="${pos.x}" cy="${pos.y}" r="45"
                     fill="${fill}" opacity="${online ? 0.12 : 0.05}"
                     stroke="${fill}" stroke-width="3"/>
@@ -1675,7 +1699,7 @@
                     font-size="21" font-family="inherit" font-weight="bold">
                     ${agent.id.replace("-agent", "")}
                 </text>
-            </a>`;
+            </g>`;
         }
 
         svg.innerHTML = html;
@@ -1720,14 +1744,15 @@
 
         container.innerHTML = display.map(m => {
             const time = formatTS(m.timestamp);
-            return `<div class="activity-item">
+            const sess = escapeHtml(m.session || '');
+            return `<a href="#meta" class="activity-item activity-link" onclick="switchTab('meta');document.getElementById('filter-messages').value='${sess}';filterTable('messages');return false;">
                 <span class="activity-time">${time}</span>
                 <span class="activity-route">
                     <span class="from">${m.from.replace("-agent", "")}</span>
                     &rarr; <span class="to">${m.to.replace("-agent", "")}</span>
                 </span>
                 <span class="activity-type">${m.type}</span>
-            </div>`;
+            </a>`;
         }).join("");
     }
 
