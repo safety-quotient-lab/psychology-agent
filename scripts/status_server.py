@@ -13,7 +13,9 @@ Usage:
 
 import argparse
 import json
+import os
 import sqlite3
+import subprocess
 import sys
 from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -49,6 +51,53 @@ def _query(db: sqlite3.Connection, sql: str, params: tuple = ()) -> list[dict]:
 def _scalar(db: sqlite3.Connection, sql: str, params: tuple = ()):
     row = db.execute(sql, params).fetchone()
     return row[0] if row else 0
+
+
+def _collect_schedule(agent_id: str, last_action_ts: str | None) -> dict:
+    """Collect autonomous-sync schedule from cron, lock file, and last action."""
+    schedule = {"autonomous": False}
+
+    # Check cron for autonomous-sync entry
+    try:
+        cron_output = subprocess.run(
+            ["crontab", "-l"], capture_output=True, text=True, timeout=5)
+        if cron_output.returncode == 0:
+            for line in cron_output.stdout.splitlines():
+                if "autonomous-sync" in line and not line.strip().startswith("#"):
+                    schedule["autonomous"] = True
+                    schedule["cron_entry"] = line.strip()
+                    # Extract interval from */N pattern
+                    parts = line.strip().split()
+                    if parts and parts[0].startswith("*/"):
+                        try:
+                            schedule["cron_interval_min"] = int(
+                                parts[0].replace("*/", ""))
+                        except ValueError:
+                            pass
+                    break
+    except (subprocess.TimeoutExpired, OSError):
+        pass
+
+    # Check lock file
+    lock_file = Path(f"/tmp/autonomous-sync-{agent_id}.lock")
+    if lock_file.exists():
+        try:
+            pid_str = lock_file.read_text().strip()
+            pid = int(pid_str)
+            os.kill(pid, 0)  # check if process alive
+            schedule["lock_active"] = True
+            schedule["lock_pid"] = pid
+        except (ValueError, ProcessLookupError, PermissionError):
+            schedule["lock_active"] = False
+            schedule["lock_stale"] = True
+    else:
+        schedule["lock_active"] = False
+
+    # Last sync from autonomous_actions
+    if last_action_ts and last_action_ts != 0:
+        schedule["last_sync"] = last_action_ts
+
+    return schedule
 
 
 def collect_status() -> dict:
@@ -137,7 +186,17 @@ def collect_status() -> dict:
     except sqlite3.OperationalError:
         recent = []
 
+    # Last autonomous action timestamp
+    try:
+        last_action_ts = _scalar(
+            db, "SELECT MAX(created_at) FROM autonomous_actions "
+                "WHERE agent_id = ?", (agent_id,))
+    except sqlite3.OperationalError:
+        last_action_ts = None
+
     db.close()
+
+    schedule = _collect_schedule(agent_id, last_action_ts)
 
     return {
         "agent_id": agent_id,
@@ -157,7 +216,7 @@ def collect_status() -> dict:
                    for p in peer_rows],
         "recent_messages": recent,
         "heartbeat": {"timestamp": now_iso},
-        "schedule": {},
+        "schedule": schedule,
     }
 
 
