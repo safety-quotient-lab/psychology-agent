@@ -589,3 +589,33 @@ Design approved (Session 65). 10-order knock-on trace in journal §47.
   draft anti-patterns.md entry and surface to user. Velocity gate: recurrence
   ≥2 within 10 sessions (matches T10 lesson promotion). User approval required.
   *Precondition: Tier 1 operational*
+
+---
+
+## Infrastructure Debt Tracking
+
+Silent drift between declared topology and actual runtime state. Session 70
+surfaced 5 examples in one sitting: orphaned system-level systemd units grabbing
+ports, lock/log paths using wrong naming convention, all agents reporting wrong
+cron entry, gate polls silently draining credits, meshd services stuck in
+auto-restart loops. None had monitoring — all required manual discovery.
+
+- [ ] **Infrastructure assertions framework** — runtime checks that compare
+  declared state (agent-registry.json, cron entries, systemd units, schema.sql)
+  against actual state (running processes, bound ports, file paths, DB contents).
+  Record drift to state.db (`infrastructure_checks` table). Design questions:
+  (a) per-agent self-check in autonomous-sync.sh, (b) centralized in meshd
+  /obs/health, or (c) separate audit tool. Likely answer: (a) for detection,
+  (b) for display.
+  *Precondition: schema v15 migration (new table)*
+  *Source: Session 70 — 5 infrastructure debt items discovered manually*
+
+- [ ] **Assertion candidates (initial set):**
+  - systemd units: declared services match running services (no orphans)
+  - Port bindings: expected process holds expected port
+  - Cron entries: one entry per agent, matches project root
+  - Lock files: naming convention matches autonomous-sync.sh AGENT_TAG
+  - Log files: exist, recent (< 2x cron interval), growing
+  - Schema version: state.db matches scripts/schema.sql
+  - Git remotes: all registry peers have configured remotes
+  - Tunnel health: CF tunnel processes alive for tunneled agents
