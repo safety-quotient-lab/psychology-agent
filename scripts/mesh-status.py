@@ -118,12 +118,161 @@ def scalar(sql: str, params: tuple = (), default=0):
         return default
 
 
+def _parse_todo() -> dict:
+    """Parse TODO.md for open/complete counts by section."""
+    todo_path = PROJECT_ROOT / "TODO.md"
+    if not todo_path.exists():
+        return {"sections": [], "total_open": 0, "total_complete": 0}
+
+    sections = []
+    current_section = None
+    open_count = 0
+    complete_count = 0
+
+    for line in todo_path.read_text().splitlines():
+        # Section headers: ## Name
+        if line.startswith("## "):
+            if current_section:
+                sections.append(current_section)
+            current_section = {
+                "name": line.lstrip("# ").strip(),
+                "open": 0,
+                "complete": 0,
+                "items": [],
+            }
+        elif current_section:
+            stripped = line.strip()
+            if stripped.startswith("- [ ] "):
+                current_section["open"] += 1
+                open_count += 1
+                # Extract bold item name
+                m = re.match(r"- \[ \] \*\*(.+?)\*\*", stripped)
+                label = m.group(1) if m else stripped[6:60]
+                current_section["items"].append({"label": label, "done": False})
+            elif stripped.startswith("- [x] "):
+                current_section["complete"] += 1
+                complete_count += 1
+
+    if current_section:
+        sections.append(current_section)
+
+    # Filter to sections with open items
+    active_sections = [s for s in sections if s["open"] > 0]
+
+    return {
+        "sections": active_sections,
+        "total_open": open_count,
+        "total_complete": complete_count,
+    }
+
+
+def _parse_active_thread() -> dict:
+    """Extract active thread from MEMORY.md."""
+    # Check both committed snapshot and auto-memory location
+    memory_path = PROJECT_ROOT / "MEMORY.md"
+    if not memory_path.exists():
+        # Auto-memory path (Claude Code stores outside repo)
+        auto_memory = Path.home() / ".claude" / "projects" / (
+            "-" + str(PROJECT_ROOT).replace("/", "-").lstrip("-")
+        ) / "memory" / "MEMORY.md"
+        if auto_memory.exists():
+            memory_path = auto_memory
+        else:
+            return {"last_session": "", "next": "", "status_lines": []}
+
+    text = memory_path.read_text()
+    result = {"last_session": "", "next": "", "status_lines": []}
+
+    # Find Active Thread section
+    in_thread = False
+    in_status = False
+    for line in text.splitlines():
+        if "## Active Thread" in line:
+            in_thread = True
+            continue
+        if in_thread and line.startswith("## "):
+            break
+        if not in_thread:
+            continue
+
+        stripped = line.strip()
+        if "Where we stopped" in stripped or "where we stopped" in stripped:
+            # Extract after the colon, strip markdown bold markers
+            colon_idx = stripped.find(":")
+            if colon_idx >= 0:
+                val = stripped[colon_idx + 1:].strip().strip("*").strip()
+                result["last_session"] = val
+        elif stripped.startswith("**Next:**") or stripped.startswith("**Next:"):
+            result["next"] = stripped.replace("**Next:**", "").replace("**Next:", "").strip().rstrip("*")
+        elif stripped.startswith("- ") and ":" in stripped:
+            result["status_lines"].append(stripped[2:])
+
+    return result
+
+
+def _collect_peer_sync_recency(registry_agents: dict, remote_states: list) -> list:
+    """Build peer sync recency from remote state snapshots and registry."""
+    peers = []
+
+    for state in remote_states:
+        agent_id = state.get("agent_id", "")
+        if not agent_id:
+            continue
+
+        snapshot_at = state.get("snapshot_at", "")
+        schedule = state.get("schedule", {})
+        budget = state.get("trust_budget", {})
+
+        last_ran = snapshot_at
+        next_due = schedule.get("next_expected", "")
+
+        # Compute relative time
+        age_str = "unknown"
+        if last_ran:
+            try:
+                dt = datetime.fromisoformat(last_ran.replace("Z", "+00:00"))
+                now = datetime.now(dt.tzinfo) if dt.tzinfo else datetime.now()
+                delta = now - dt
+                mins = delta.total_seconds() / 60
+                if mins < 1:
+                    age_str = "just now"
+                elif mins < 60:
+                    age_str = f"{int(mins)}m ago"
+                elif mins < 1440:
+                    age_str = f"{mins / 60:.1f}h ago"
+                else:
+                    age_str = f"{mins / 1440:.1f}d ago"
+            except (ValueError, TypeError):
+                age_str = last_ran
+
+        peers.append({
+            "agent_id": agent_id,
+            "last_ran": age_str,
+            "last_ran_raw": last_ran,
+            "next_due": next_due,
+            "budget_current": budget.get("budget_current", "?"),
+            "budget_max": budget.get("budget_max", "?"),
+        })
+
+    return peers
+
+
+def _collect_state_of_play(remote_states: list, registry_agents: dict) -> dict:
+    """Collect all data for the State of Play tab."""
+    return {
+        "active_thread": _parse_active_thread(),
+        "todo": _parse_todo(),
+        "peer_sync": _collect_peer_sync_recency(registry_agents, remote_states),
+    }
+
+
 def _collect_schedule(agent_id: str) -> dict:
     """Collect sync schedule from cron, log file, and state.db."""
     import re
     import subprocess
 
     schedule = {
+        "autonomous": False,
         "cron_entry": None,
         "cron_interval_min": None,
         "last_sync": None,
@@ -141,6 +290,7 @@ def _collect_schedule(agent_id: str) -> dict:
         if result.returncode == 0:
             for line in result.stdout.splitlines():
                 if "autonomous-sync" in line and not line.startswith("#"):
+                    schedule["autonomous"] = True
                     schedule["cron_entry"] = line.strip()
                     # Extract interval from */N pattern
                     m = re.match(r"\*/(\d+)", line.strip())
@@ -449,6 +599,36 @@ def collect_status() -> dict:
     # Remote peer state (via git show on mesh-state exports)
     remote_states = _collect_remote_states(registry_agents)
 
+    # Session-level message summaries (for Messages tab)
+    session_summaries = query_db(
+        "SELECT session_name, "
+        "COUNT(*) as total_messages, "
+        "GROUP_CONCAT(DISTINCT from_agent) as participants, "
+        "MIN(timestamp) as started, "
+        "MAX(timestamp) as latest, "
+        "MAX(turn) as last_turn, "
+        "SUM(CASE WHEN processed = 0 THEN 1 ELSE 0 END) as unprocessed "
+        "FROM transport_messages "
+        "GROUP BY session_name "
+        "ORDER BY latest DESC"
+    )
+
+    # Per-session message details (for expandable threads)
+    session_messages = {}
+    all_msgs = query_db(
+        "SELECT session_name, filename, turn, from_agent, to_agent, "
+        "message_type, timestamp, processed, subject "
+        "FROM transport_messages ORDER BY session_name, turn"
+    )
+    for msg in all_msgs:
+        sn = msg.get("session_name", "")
+        if sn not in session_messages:
+            session_messages[sn] = []
+        session_messages[sn].append(msg)
+
+    # State of Play
+    state_of_play = _collect_state_of_play(remote_states, registry_agents)
+
     # Session replays
     local_replays = _collect_replays()
     remote_replays = _collect_remote_replays(registry_agents)
@@ -484,6 +664,9 @@ def collect_status() -> dict:
             "version_distribution": version_dist,
             "low_confidence_count": low_conf_count,
         },
+        "session_summaries": session_summaries,
+        "session_messages": session_messages,
+        "state_of_play": state_of_play,
         "replays": {
             "local": local_replays,
             "remote": remote_replays,
@@ -582,6 +765,352 @@ def _build_jsonld(status: dict) -> dict:
     }
 
 
+# ── State of Play Renderer ────────────────────────────────────────────────
+
+def _render_state_of_play(status: dict) -> str:
+    """Render the State of Play tab content."""
+    sop = status.get("state_of_play", {})
+    thread = sop.get("active_thread", {})
+    todo = sop.get("todo", {})
+    peer_sync = sop.get("peer_sync", [])
+    gates = status.get("active_gates", [])
+
+    # Active Thread section
+    last_session = thread.get("last_session", "unknown")
+    next_work = thread.get("next", "none specified")
+    status_lines = thread.get("status_lines", [])
+
+    status_html = ""
+    for line in status_lines:
+        # Parse status markers: ✓ = green, ⚑ = yellow, other = gray
+        if line.strip().startswith("✓") or "✓" in line[:30]:
+            dot_class = "dot-green"
+        elif "⚑" in line[:30]:
+            dot_class = "dot-yellow"
+        else:
+            dot_class = "dot-gray"
+        status_html += f'<div class="status-line"><span class="dot {dot_class}"></span> {line}</div>\n'
+
+    # Gates section — enriched with response tracking
+    gates_html = ""
+    if gates:
+        for gate in gates:
+            gate_id = gate.get("gate_id", "?")
+            receiving = gate.get("receiving_agent", "?")
+            session = gate.get("session_name", "?")
+            timeout_at = gate.get("timeout_at", "?")
+            fallback = gate.get("fallback_action", "?")
+
+            # Compute time remaining
+            time_remaining = ""
+            try:
+                timeout_dt = datetime.fromisoformat(timeout_at)
+                now = datetime.now(timeout_dt.tzinfo) if timeout_dt.tzinfo else datetime.now()
+                remaining = timeout_dt - now
+                hours_left = remaining.total_seconds() / 3600
+                if hours_left > 0:
+                    if hours_left >= 1:
+                        time_remaining = f"{hours_left:.1f}h left"
+                    else:
+                        time_remaining = f"{int(remaining.total_seconds() / 60)}m left"
+                else:
+                    time_remaining = "EXPIRED"
+            except (ValueError, TypeError):
+                time_remaining = "?"
+
+            timeout_class = "alert" if time_remaining == "EXPIRED" else ""
+
+            gates_html += f"""
+            <tr>
+                <td><strong>{gate_id}</strong></td>
+                <td>{receiving}</td>
+                <td>{session}</td>
+                <td class="{timeout_class}">{time_remaining}</td>
+                <td>{fallback}</td>
+            </tr>"""
+    else:
+        gates_html = '<tr><td colspan="5" class="empty">No active gates</td></tr>'
+
+    # TODO backlog section
+    todo_sections_html = ""
+    active_sections = todo.get("sections", [])
+    for section in active_sections:
+        items_html = ""
+        for item in section.get("items", []):
+            if not item["done"]:
+                items_html += f'<div class="todo-item">&#x2610; {item["label"]}</div>\n'
+        todo_sections_html += f"""
+        <div class="todo-section">
+            <div class="todo-section-header">
+                <span class="todo-section-name">{section['name']}</span>
+                <span class="todo-count">{section['open']} open</span>
+            </div>
+            {items_html}
+        </div>"""
+
+    total_open = todo.get("total_open", 0)
+    total_complete = todo.get("total_complete", 0)
+
+    # Peer sync recency
+    peer_rows_html = ""
+    if peer_sync:
+        for peer in peer_sync:
+            budget_str = f"{peer.get('budget_current', '?')}/{peer.get('budget_max', '?')}"
+            peer_rows_html += f"""
+            <tr>
+                <td>{peer['agent_id']}</td>
+                <td>{peer['last_ran']}</td>
+                <td>{budget_str}</td>
+            </tr>"""
+    else:
+        peer_rows_html = '<tr><td colspan="3" class="empty">No peer state snapshots available</td></tr>'
+
+    return f"""
+    <div class="sop-thread">
+        <h2>Active Thread</h2>
+        <div class="card" style="margin-bottom:16px">
+            <div class="sop-label">Where we stopped</div>
+            <div class="sop-value">{last_session}</div>
+            <div class="sop-label" style="margin-top:12px">Next</div>
+            <div class="sop-value">{next_work}</div>
+        </div>
+        {"<h3>Status by tier</h3><div class='card' style='margin-bottom:16px'>" + status_html + "</div>" if status_html else ""}
+    </div>
+
+    <h2>Gated Exchanges</h2>
+    <table>
+        <tr><th>Gate</th><th>Waiting on</th><th>Session</th><th>Time left</th><th>Fallback</th></tr>
+        {gates_html}
+    </table>
+
+    <h2>TODO Backlog <span class="todo-summary">{total_open} open / {total_complete} complete</span></h2>
+    <div class="todo-grid">
+        {todo_sections_html or '<div class="empty">No open TODO items</div>'}
+    </div>
+
+    <h2>Peer Sync Recency</h2>
+    <table>
+        <tr><th>Agent</th><th>Last snapshot</th><th>Budget</th></tr>
+        {peer_rows_html}
+    </table>
+    """
+
+
+# ── Messages Tab Renderer ─────────────────────────────────────────────────
+
+def _render_messages_tab(status: dict) -> str:
+    """Render session-threaded message view."""
+    summaries = status.get("session_summaries", [])
+    session_msgs = status.get("session_messages", {})
+    gates = status.get("active_gates", [])
+    gate_sessions = {g.get("session_name") for g in gates}
+
+    if not summaries:
+        return '<div class="empty">No transport messages</div>'
+
+    # Summary cards
+    total_msgs = sum(s.get("total_messages", 0) for s in summaries)
+    total_unproc = sum(s.get("unprocessed", 0) for s in summaries)
+    active_sessions = sum(1 for s in summaries if s.get("unprocessed", 0) > 0
+                          or s.get("session_name") in gate_sessions)
+
+    cards_html = f"""
+    <div class="grid">
+        <div class="card">
+            <div class="card-label">Total Messages</div>
+            <div class="card-value">{total_msgs}</div>
+            <div class="card-detail">across {len(summaries)} sessions</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Unprocessed</div>
+            <div class="card-value{' alert' if total_unproc > 0 else ''}">{total_unproc}</div>
+            <div class="card-detail">awaiting processing</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Active Sessions</div>
+            <div class="card-value{' alert' if active_sessions > 0 else ''}">{active_sessions}</div>
+            <div class="card-detail">with pending work or gates</div>
+        </div>
+    </div>
+    """
+
+    # Session threads
+    sessions_html = ""
+    for idx, summary in enumerate(summaries):
+        sn = summary.get("session_name", "?")
+        total = summary.get("total_messages", 0)
+        unproc = summary.get("unprocessed", 0)
+        participants = summary.get("participants", "").split(",")
+        started = summary.get("started", "?")
+        latest = summary.get("latest", "?")
+        last_turn = summary.get("last_turn", 0)
+        has_gate = sn in gate_sessions
+
+        # Session status
+        if unproc > 0:
+            status_class = "session-active"
+            status_icon = "&#x25CF;"  # filled circle
+            status_label = f"{unproc} unprocessed"
+        elif has_gate:
+            status_class = "session-gated"
+            status_icon = "&#x29D6;"  # hourglass
+            status_label = "gated"
+        else:
+            status_class = "session-complete"
+            status_icon = "&#x2713;"  # checkmark
+            status_label = "complete"
+
+        # Participant badges
+        badges = " ".join(
+            f'<span class="participant-badge">{p.strip()}</span>'
+            for p in participants if p.strip()
+        )
+
+        # Message thread within session
+        msgs = session_msgs.get(sn, [])
+        thread_html = ""
+        for msg in msgs:
+            turn = msg.get("turn", "?")
+            from_agent = msg.get("from_agent", "?")
+            msg_type = msg.get("message_type", "?")
+            subject = msg.get("subject", "") or ""
+            processed = msg.get("processed")
+            timestamp = msg.get("timestamp", "")
+
+            proc_class = "msg-processed" if processed else "msg-pending"
+            type_class = f"type-{msg_type}" if msg_type in (
+                "request", "response", "review", "ack", "notification",
+                "consensus-proposal", "session-close", "advisory",
+                "gate-resolution"
+            ) else "type-default"
+
+            # Truncate subject for display
+            display_subject = subject[:80] + ("..." if len(subject) > 80 else "")
+
+            thread_html += f"""
+            <div class="msg-row {proc_class}">
+                <div class="msg-turn">T{turn}</div>
+                <div class="msg-type {type_class}">{msg_type}</div>
+                <div class="msg-from">{from_agent}</div>
+                <div class="msg-subject">{display_subject}</div>
+            </div>"""
+
+        sid = f"session-thread-{idx}"
+        sessions_html += f"""
+        <div class="session-card {status_class}">
+            <div class="session-header" onclick="toggleSession('{sid}')">
+                <div class="session-title">
+                    <span class="session-status-icon">{status_icon}</span>
+                    <span class="session-name">{sn}</span>
+                    <span class="session-status-label">{status_label}</span>
+                </div>
+                <div class="session-meta">
+                    {badges}
+                    <span class="session-count">{total} msgs · T{last_turn}</span>
+                </div>
+            </div>
+            <div id="{sid}" class="session-thread" style="display:none">
+                {thread_html}
+            </div>
+        </div>
+        """
+
+    return cards_html + "<h2>Sessions</h2>" + sessions_html
+
+
+# ── Replays Tab Renderer ─────────────────────────────────────────────────
+
+def _render_replays_tab(status: dict) -> str:
+    """Render replays organized by agent with preview context."""
+    local_replays = status.get("replays", {}).get("local", [])
+    remote_replays = status.get("replays", {}).get("remote", [])
+
+    total = len(local_replays) + len(remote_replays)
+    if total == 0:
+        return '<div class="empty">No session replays available</div>'
+
+    cards_html = f"""
+    <div class="grid">
+        <div class="card">
+            <div class="card-label">Local Replays</div>
+            <div class="card-value">{len(local_replays)}</div>
+            <div class="card-detail">from this agent</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Peer Replays</div>
+            <div class="card-value">{len(remote_replays)}</div>
+            <div class="card-detail">from remote agents</div>
+        </div>
+    </div>
+    """
+
+    # Local replays — grouped as cards with direct links
+    local_html = ""
+    if local_replays:
+        sorted_replays = sorted(local_replays, key=lambda r: r.get("session", 0) or 0, reverse=True)
+        for replay in sorted_replays:
+            fname = replay.get("filename", "")
+            session = replay.get("session")
+            size_kb = replay.get("size_kb", 0)
+            modified = replay.get("modified", "")
+            session_label = f"Session {session}" if session else fname
+
+            local_html += f"""
+            <a href="/replays/{fname}" class="replay-card" target="_blank">
+                <div class="replay-session">{session_label}</div>
+                <div class="replay-meta">{size_kb} KB · {modified}</div>
+            </a>"""
+    else:
+        local_html = '<div class="empty">No local replays</div>'
+
+    # Remote replays — grouped by agent
+    remote_html = ""
+    if remote_replays:
+        by_agent = {}
+        for r in remote_replays:
+            aid = r.get("agent_id", "unknown")
+            if aid not in by_agent:
+                by_agent[aid] = []
+            by_agent[aid].append(r)
+
+        for agent_id, replays in by_agent.items():
+            agent_cards = ""
+            for replay in sorted(replays, key=lambda r: r.get("filename", "")):
+                fname = replay.get("filename", "")
+                remote = replay.get("remote", "")
+                # Extract session number
+                m = re.match(r"session-(\d+)", fname)
+                session_label = f"Session {m.group(1)}" if m else fname
+
+                agent_cards += f"""
+                <a href="/replays/remote/{remote}/{fname}" class="replay-card" target="_blank">
+                    <div class="replay-session">{session_label}</div>
+                    <div class="replay-meta">{agent_id}</div>
+                </a>"""
+
+            remote_html += f"""
+            <h3>{agent_id}</h3>
+            <div class="replay-grid">{agent_cards}</div>
+            """
+    else:
+        remote_html = '<div class="empty">No peer replays available</div>'
+
+    gen_hint = """
+    <div style="margin-top:16px; padding:12px; background:#161b22; border:1px solid #21262d; border-radius:6px; font-size:0.85em; color:#8b949e">
+        <strong>Generate:</strong>
+        <code style="color:#c9d1d9">scripts/generate-replays.sh</code>
+    </div>
+    """
+
+    return (
+        cards_html
+        + "<h2>This Agent</h2><div class='replay-grid'>"
+        + local_html + "</div>"
+        + "<h2>Peer Agents</h2>" + remote_html
+        + gen_hint
+    )
+
+
 # ── HTML Template ────────────────────────────────────────────────────────
 
 def render_html(status: dict) -> str:
@@ -646,37 +1175,6 @@ def render_html(status: dict) -> str:
             <td>{peer['total_messages']}</td>
         </tr>"""
 
-    # Unprocessed messages HTML — accordion with full details
-    unprocessed_html = ""
-    for idx, msg in enumerate(status.get("unprocessed_messages", [])):
-        uid = f"unproc-{idx}"
-        subject = msg.get('subject', '') or '(no subject)'
-        unprocessed_html += f"""
-        <tr class="accordion-header" onclick="toggleRow('{uid}')">
-            <td>▸</td>
-            <td>{msg.get('from_agent', '?')}</td>
-            <td>{msg.get('session_name', '?')}</td>
-            <td>{msg.get('turn', '?')}</td>
-            <td>{msg.get('message_type', '?')}</td>
-            <td>{msg.get('timestamp', '?')}</td>
-        </tr>
-        <tr id="{uid}" class="accordion-detail" style="display:none">
-            <td colspan="6">
-                <div class="detail-grid">
-                    <div><span class="detail-label">Subject:</span> {subject}</div>
-                    <div><span class="detail-label">Filename:</span> {msg.get('filename', '?')}</div>
-                    <div><span class="detail-label">Session:</span> {msg.get('session_name', '?')}</div>
-                    <div><span class="detail-label">Turn:</span> {msg.get('turn', '?')}</div>
-                    <div><span class="detail-label">From:</span> {msg.get('from_agent', '?')}</div>
-                    <div><span class="detail-label">Type:</span> {msg.get('message_type', '?')}</div>
-                    <div><span class="detail-label">Timestamp:</span> {msg.get('timestamp', '?')}</div>
-                </div>
-            </td>
-        </tr>"""
-
-    if not unprocessed_html:
-        unprocessed_html = '<tr><td colspan="6" class="empty">No unprocessed messages</td></tr>'
-
     # Active gates HTML
     gates_html = ""
     for gate in status.get("active_gates", []):
@@ -691,39 +1189,6 @@ def render_html(status: dict) -> str:
 
     if not gates_html:
         gates_html = '<tr><td colspan="5" class="empty">No active gates</td></tr>'
-
-    # Recent messages HTML — accordion with full details
-    recent_html = ""
-    for idx, msg in enumerate(status.get("recent_messages", [])):
-        rid = f"recent-{idx}"
-        processed_icon = "✓" if msg.get("processed") else "○"
-        processed_class = "processed" if msg.get("processed") else "pending"
-        subject = msg.get('subject', '') or '(no subject)'
-        recent_html += f"""
-        <tr class="{processed_class} accordion-header" onclick="toggleRow('{rid}')">
-            <td>▸</td>
-            <td>{processed_icon}</td>
-            <td>{msg.get('from_agent', '?')}</td>
-            <td>{msg.get('to_agent', '?')}</td>
-            <td>{msg.get('session_name', '?')}</td>
-            <td>{msg.get('turn', '?')}</td>
-            <td>{msg.get('message_type', '?')}</td>
-        </tr>
-        <tr id="{rid}" class="accordion-detail" style="display:none">
-            <td colspan="7">
-                <div class="detail-grid">
-                    <div><span class="detail-label">Subject:</span> {subject}</div>
-                    <div><span class="detail-label">Filename:</span> {msg.get('filename', '?')}</div>
-                    <div><span class="detail-label">From:</span> {msg.get('from_agent', '?')}</div>
-                    <div><span class="detail-label">To:</span> {msg.get('to_agent', '?')}</div>
-                    <div><span class="detail-label">Session:</span> {msg.get('session_name', '?')}</div>
-                    <div><span class="detail-label">Turn:</span> {msg.get('turn', '?')}</div>
-                    <div><span class="detail-label">Type:</span> {msg.get('message_type', '?')}</div>
-                    <div><span class="detail-label">Timestamp:</span> {msg.get('timestamp', '?')}</div>
-                    <div><span class="detail-label">Processed:</span> {'Yes' if msg.get('processed') else 'No'}</div>
-                </div>
-            </td>
-        </tr>"""
 
     # Recent actions HTML — accordion with full details
     actions_html = ""
@@ -900,38 +1365,6 @@ def render_html(status: dict) -> str:
     active_categories = len([d for d in psh_dist if d.get("facet_value") != "unclassified"])
 
     # ── Replays tab ──────────────────────────────────────────────────────
-    replay_data = status.get("replays", {})
-    local_replays = replay_data.get("local", [])
-    remote_replays = replay_data.get("remote", [])
-
-    local_replay_rows = ""
-    for r in local_replays:
-        session_num = r.get("session", "?")
-        local_replay_rows += f"""
-        <tr>
-            <td><a href="/replays/{r['filename']}" target="_blank" style="color:#58a6ff;text-decoration:none">Session {session_num}</a></td>
-            <td>{r['filename']}</td>
-            <td style="text-align:right">{r['size_kb']} KB</td>
-            <td style="color:#6e7681">{r['modified']}</td>
-            <td><a href="/replays/{r['filename']}" target="_blank" style="color:#58a6ff;text-decoration:none">open ↗</a></td>
-        </tr>"""
-
-    if not local_replay_rows:
-        local_replay_rows = '<tr><td colspan="5" class="empty">No replays generated yet. Run: claude-replay &lt;session.jsonl&gt; -o docs/replays/session-N.html</td></tr>'
-
-    remote_replay_rows = ""
-    for r in remote_replays:
-        remote_replay_rows += f"""
-        <tr>
-            <td>{r.get('agent_id', '?')}</td>
-            <td><a href="/replays/remote/{r.get('remote', '?')}/{r['filename']}" target="_blank" style="color:#58a6ff;text-decoration:none">{r['filename']}</a></td>
-            <td style="color:#6e7681">{r.get('remote', '?')}/main</td>
-            <td><a href="/replays/remote/{r.get('remote', '?')}/{r['filename']}" target="_blank" style="color:#58a6ff;text-decoration:none">open ↗</a></td>
-        </tr>"""
-
-    if not remote_replay_rows:
-        remote_replay_rows = '<tr><td colspan="4" class="empty">No remote replays found</td></tr>'
-
     # Build JSON-LD structured data
     jsonld = _build_jsonld(status)
     jsonld_block = f'<script type="application/ld+json">\n{json.dumps(jsonld, indent=2)}\n    </script>'
@@ -1077,6 +1510,58 @@ def render_html(status: dict) -> str:
         .conf-low {{ color: #f85149; }}
         .conf-mid {{ color: #d29922; }}
         .conf-high {{ color: #3fb950; }}
+        /* State of Play tab */
+        .sop-label {{ color: #8b949e; font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }}
+        .sop-value {{ color: #e6edf3; font-size: 0.95em; line-height: 1.5; }}
+        .status-line {{ padding: 4px 0; font-size: 0.9em; color: #c9d1d9; display: flex; align-items: center; gap: 8px; }}
+        .todo-grid {{ display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }}
+        .todo-section {{ background: #161b22; border: 1px solid #21262d; border-radius: 6px; padding: 12px; min-width: 250px; flex: 1; }}
+        .todo-section-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #21262d; padding-bottom: 6px; }}
+        .todo-section-name {{ font-weight: 600; color: #e6edf3; font-size: 0.9em; }}
+        .todo-count {{ color: #8b949e; font-size: 0.8em; }}
+        .todo-item {{ padding: 3px 0; font-size: 0.85em; color: #c9d1d9; }}
+        .todo-summary {{ color: #8b949e; font-size: 0.6em; font-weight: normal; margin-left: 8px; }}
+        /* Messages tab — session threads */
+        .session-card {{ background: #161b22; border: 1px solid #21262d; border-radius: 6px; margin-bottom: 8px; overflow: hidden; }}
+        .session-card.session-active {{ border-left: 3px solid #f85149; }}
+        .session-card.session-gated {{ border-left: 3px solid #d29922; }}
+        .session-card.session-complete {{ border-left: 3px solid #21262d; }}
+        .session-header {{ display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; cursor: pointer; }}
+        .session-header:hover {{ background: #1c2128; }}
+        .session-title {{ display: flex; align-items: center; gap: 8px; }}
+        .session-name {{ font-weight: 600; color: #e6edf3; }}
+        .session-status-icon {{ font-size: 0.9em; }}
+        .session-active .session-status-icon {{ color: #f85149; }}
+        .session-gated .session-status-icon {{ color: #d29922; }}
+        .session-complete .session-status-icon {{ color: #3fb950; }}
+        .session-status-label {{ font-size: 0.75em; color: #8b949e; }}
+        .session-meta {{ display: flex; align-items: center; gap: 8px; }}
+        .session-count {{ font-size: 0.8em; color: #8b949e; }}
+        .participant-badge {{ font-size: 0.7em; padding: 2px 6px; background: #21262d; border-radius: 10px; color: #8b949e; }}
+        .session-thread {{ border-top: 1px solid #21262d; padding: 8px 0; }}
+        .msg-row {{ display: grid; grid-template-columns: 40px 120px 140px 1fr; gap: 8px; padding: 4px 14px; font-size: 0.85em; align-items: center; }}
+        .msg-row.msg-pending {{ color: #e6edf3; }}
+        .msg-row.msg-processed {{ color: #6e7681; }}
+        .msg-turn {{ color: #8b949e; font-family: monospace; font-size: 0.85em; }}
+        .msg-type {{ font-size: 0.8em; padding: 1px 6px; border-radius: 3px; background: #21262d; text-align: center; }}
+        .type-request {{ background: #1f3a5f; color: #58a6ff; }}
+        .type-response {{ background: #1a3d2e; color: #3fb950; }}
+        .type-review {{ background: #3d2b1a; color: #d29922; }}
+        .type-ack {{ background: #21262d; color: #8b949e; }}
+        .type-notification {{ background: #2d1f3d; color: #a371f7; }}
+        .type-consensus-proposal {{ background: #3d1a2b; color: #f778ba; }}
+        .type-session-close {{ background: #21262d; color: #484f58; }}
+        .type-advisory {{ background: #3d2b1a; color: #d29922; }}
+        .type-gate-resolution {{ background: #1a3d2e; color: #3fb950; }}
+        .type-default {{ background: #21262d; color: #8b949e; }}
+        .msg-from {{ color: #8b949e; font-size: 0.85em; }}
+        .msg-subject {{ color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
+        /* Replays tab */
+        .replay-grid {{ display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }}
+        .replay-card {{ display: block; background: #161b22; border: 1px solid #21262d; border-radius: 6px; padding: 12px 16px; min-width: 160px; text-decoration: none; transition: border-color 0.2s; }}
+        .replay-card:hover {{ border-color: #58a6ff; }}
+        .replay-session {{ color: #58a6ff; font-weight: 600; font-size: 0.95em; }}
+        .replay-meta {{ color: #8b949e; font-size: 0.8em; margin-top: 4px; }}
     </style>
 </head>
 <body>
@@ -1100,13 +1585,19 @@ def render_html(status: dict) -> str:
             </div>
         </div>
         <div class="nav-tabs">
+            <div class="tab" onclick="switchTab('state-of-play')">State of Play</div>
             <div class="tab active" onclick="switchTab('mesh')">Mesh</div>
+            <div class="tab" onclick="switchTab('messages')">Messages</div>
             <div class="tab" onclick="switchTab('semiotics')">Semiotics</div>
             <div class="tab" onclick="switchTab('replays')">Replays</div>
         </div>
     </nav>
 
     <div class="main-content">
+
+    <div id="tab-state-of-play" class="tab-content">
+    {_render_state_of_play(status)}
+    </div><!-- end tab-state-of-play -->
 
     <div id="tab-mesh" class="tab-content active">
 
@@ -1181,22 +1672,10 @@ def render_html(status: dict) -> str:
         {peers_html or '<tr><td colspan="5" class="empty">No peer activity recorded</td></tr>'}
     </table>
 
-    <h2>Unprocessed Queue</h2>
-    <table>
-        <tr><th></th><th>From</th><th>Session</th><th>Turn</th><th>Type</th><th>Timestamp</th></tr>
-        {unprocessed_html}
-    </table>
-
     <h2>Active Gates</h2>
     <table>
         <tr><th>Gate ID</th><th>Receiving Agent</th><th>Session</th><th>Timeout At</th><th>Fallback</th></tr>
         {gates_html}
-    </table>
-
-    <h2>Recent Messages</h2>
-    <table>
-        <tr><th></th><th></th><th>From</th><th>To</th><th>Session</th><th>Turn</th><th>Type</th></tr>
-        {recent_html}
     </table>
 
     <h2>Autonomous Actions</h2>
@@ -1212,6 +1691,10 @@ def render_html(status: dict) -> str:
     </table>
 
     </div><!-- end tab-mesh -->
+
+    <div id="tab-messages" class="tab-content">
+    {_render_messages_tab(status)}
+    </div><!-- end tab-messages -->
 
     <div id="tab-semiotics" class="tab-content">
 
@@ -1271,39 +1754,7 @@ def render_html(status: dict) -> str:
     </div><!-- end tab-semiotics -->
 
     <div id="tab-replays" class="tab-content">
-
-    <div class="grid">
-        <div class="card">
-            <div class="card-label">Local Replays</div>
-            <div class="card-value">{len(local_replays)}</div>
-            <div class="card-detail">session transcripts</div>
-        </div>
-        <div class="card">
-            <div class="card-label">Remote Replays</div>
-            <div class="card-value">{len(remote_replays)}</div>
-            <div class="card-detail">from peer agents</div>
-        </div>
-    </div>
-
-    <h2>Local Session Replays</h2>
-    <table>
-        <tr><th>Session</th><th>File</th><th style="text-align:right">Size</th><th>Generated</th><th></th></tr>
-        {local_replay_rows}
-    </table>
-
-    <h2>Remote Peer Replays</h2>
-    <table>
-        <tr><th>Agent</th><th>File</th><th>Source</th><th></th></tr>
-        {remote_replay_rows}
-    </table>
-
-    <div style="margin-top:16px; padding:12px; background:#161b22; border:1px solid #21262d; border-radius:6px; font-size:0.85em; color:#8b949e">
-        <strong>Generate replays:</strong>
-        <code style="color:#c9d1d9">claude-replay &lt;session.jsonl&gt; -o docs/replays/session-N.html --theme tokyo-night</code><br>
-        <strong>Batch generate:</strong>
-        <code style="color:#c9d1d9">scripts/generate-replays.sh</code>
-    </div>
-
+    {_render_replays_tab(status)}
     </div><!-- end tab-replays -->
 
     <script>
@@ -1331,6 +1782,10 @@ def render_html(status: dict) -> str:
             row.style.display = 'none';
             arrow.textContent = '▸';
         }}
+    }}
+    function toggleSession(id) {{
+        const thread = document.getElementById(id);
+        thread.style.display = thread.style.display === 'none' ? 'block' : 'none';
     }}
     </script>
 
