@@ -9,6 +9,7 @@ type KnowledgeBase struct {
 	Decisions  []map[string]any `json:"decisions"`
 	Triggers   []map[string]any `json:"triggers"`
 	Claims     []map[string]any `json:"claims"`
+	Messages   []map[string]any `json:"messages"`
 	Lessons    []map[string]any `json:"lessons"`
 	Catalog    CatalogData      `json:"catalog"`
 	Memory     MemoryData       `json:"memory"`
@@ -36,6 +37,7 @@ type KBTotals struct {
 	Triggers        int `json:"triggers"`
 	Claims          int `json:"claims"`
 	ClaimsVerified  int `json:"claims_verified"`
+	Messages        int `json:"messages"`
 	Lessons         int `json:"lessons"`
 	CatalogEntries  int `json:"catalog_entries"`
 	MemoryEntries   int `json:"memory_entries"`
@@ -68,6 +70,7 @@ func CollectKnowledgeBase(d *db.DB) *KnowledgeBase {
 	decisions := collectDecisions(d)
 	triggers := collectTriggers(d)
 	claims := collectClaims(d)
+	messages := collectMessages(d)
 	lessons := collectLessons(d)
 	catalog := collectCatalog(d)
 	memory := collectMemory(d)
@@ -81,6 +84,7 @@ func CollectKnowledgeBase(d *db.DB) *KnowledgeBase {
 		Decisions: decisions,
 		Triggers:  triggers,
 		Claims:    claims,
+		Messages:  messages,
 		Lessons:   lessons,
 		Catalog:   catalog,
 		Memory:    memory,
@@ -89,6 +93,7 @@ func CollectKnowledgeBase(d *db.DB) *KnowledgeBase {
 			Triggers:       len(triggers),
 			Claims:         len(claims),
 			ClaimsVerified: d.ScalarInt("SELECT COUNT(*) FROM claims WHERE verified = 1"),
+			Messages:       len(messages),
 			Lessons:        len(lessons),
 			CatalogEntries: len(catalog.Active),
 			MemoryEntries:  d.ScalarInt("SELECT COUNT(*) FROM memory_entries"),
@@ -127,6 +132,25 @@ func collectClaims(d *db.DB) []map[string]any {
 		 FROM claims c
 		 LEFT JOIN transport_messages tm ON c.transport_msg = tm.id
 		 ORDER BY c.created_at DESC`)
+	if rows == nil {
+		return []map[string]any{}
+	}
+	return rows
+}
+
+// CollectMessages returns all transport messages with claims count for audit trail.
+func CollectMessages(d *db.DB) []map[string]any {
+	return collectMessages(d)
+}
+
+func collectMessages(d *db.DB) []map[string]any {
+	rows, _ := d.QueryRows(
+		`SELECT id, filename, session_name, turn,
+		 from_agent, to_agent, message_type, subject,
+		 timestamp, urgency, setl, processed,
+		 processed_at, claims_count
+		 FROM transport_messages
+		 ORDER BY timestamp DESC`)
 	if rows == nil {
 		return []map[string]any{}
 	}

@@ -640,9 +640,8 @@
             font-size: 0.85em;
             font-style: italic;
         }
-        @media (max-width: 480px) {
-            [data-tab="kb"] { font-size: 0; }
-            [data-tab="kb"]::after { content: "KB"; font-size: 0.85rem; }
+        @media (max-width: 600px) {
+            .lcars-tab { font-size: 0.75em; padding: 6px 8px; }
         }
 
         /* Dictionary cards */
@@ -971,13 +970,11 @@
             </div>
 
             <!-- Section jump nav (T18 Check 7) -->
-            <nav class="section-jump-nav" aria-label="Knowledge sections">
+            <nav class="section-jump-nav" aria-label="Meta sections">
                 <a class="section-jump-btn" href="#kb-sec-decisions">Decisions</a>
                 <a class="section-jump-btn" href="#kb-sec-triggers">Triggers</a>
-                <a class="section-jump-btn" href="#kb-sec-vocab">Vocabulary</a>
-                <a class="section-jump-btn" href="#kb-sec-catalog">Catalog</a>
-                <a class="section-jump-btn" href="#kb-sec-schema">Schema</a>
                 <a class="section-jump-btn" href="#kb-sec-memory">Memory</a>
+                <a class="section-jump-btn" href="#kb-sec-messages">Messages</a>
             </nav>
 
             <!-- Decisions -->
@@ -1010,48 +1007,16 @@
                 </div>
             </div>
 
-            <!-- Dictionary -->
-            <div id="kb-sec-vocab" class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-catalog)">
-                <div class="lcars-panel-header">
-                    Vocabulary
-                    <a href="/vocab" style="float:right; font-size:0.85em; color:var(--text-dim); text-decoration:none; font-weight:normal">JSON-LD &#x2192;</a>
-                </div>
+            <!-- Messages (audit trail) -->
+            <div id="kb-sec-messages" class="lcars-panel kb-section" data-section="transport" style="--panel-accent: var(--c-transport)">
+                <div class="lcars-panel-header">Messages</div>
                 <div class="table-toolbar">
-                    <input class="table-filter" id="filter-dictionary" placeholder="Filter terms..." oninput="filterDictionary()">
-                    <div class="table-page-info" id="page-info-dictionary"></div>
+                    <input class="table-filter" id="filter-messages" placeholder="Filter messages..." oninput="filterTable('messages')">
+                    <div class="table-page-info" id="page-info-messages"></div>
+                    <div class="table-page-btns" id="page-btns-messages"></div>
                 </div>
                 <div class="lcars-panel-body scrollable">
-                    <div class="dict-grid" id="kb-dictionary">
-                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Catalog Distributions -->
-            <div id="kb-sec-catalog" class="lcars-panel kb-section" data-section="transport" style="--panel-accent: var(--c-transport)">
-                <div class="lcars-panel-header">Discipline Catalog (PSH)</div>
-                <div class="table-toolbar">
-                    <input class="table-filter" id="filter-catalog" placeholder="Filter disciplines..." oninput="filterTable('catalog')">
-                    <div class="table-page-info" id="page-info-catalog"></div>
-                    <div class="table-page-btns" id="page-btns-catalog"></div>
-                </div>
-                <div class="lcars-panel-body scrollable">
-                    <div class="kb-table-wrap" id="kb-catalog">
-                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Schema.org Entity Types -->
-            <div id="kb-sec-schema" class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-catalog)">
-                <div class="lcars-panel-header">Entity Schema (schema.org)</div>
-                <div class="table-toolbar">
-                    <input class="table-filter" id="filter-schema" placeholder="Filter types..." oninput="filterTable('schema')">
-                    <div class="table-page-info" id="page-info-schema"></div>
-                    <div class="table-page-btns" id="page-btns-schema"></div>
-                </div>
-                <div class="lcars-panel-body scrollable">
-                    <div class="kb-table-wrap" id="kb-schema">
+                    <div class="kb-table-wrap" id="kb-messages">
                         <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
                     </div>
                 </div>
@@ -1098,6 +1063,9 @@
                 <a class="section-jump-btn" href="#kb-sec-claims">Claims</a>
                 <a class="section-jump-btn" href="#kb-sec-chains">Decision Chains</a>
                 <a class="section-jump-btn" href="#kb-sec-facts">Memory Facts</a>
+                <a class="section-jump-btn" href="#kb-sec-vocab">Vocabulary</a>
+                <a class="section-jump-btn" href="#kb-sec-catalog">Disciplines</a>
+                <a class="section-jump-btn" href="#kb-sec-schema">Schema</a>
             </div>
 
             <!-- Claims -->
@@ -1140,6 +1108,53 @@
                 </div>
                 <div class="lcars-panel-body scrollable">
                     <div class="kb-table-wrap" id="kb-facts">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vocabulary (moved from Meta) -->
+            <div id="kb-sec-vocab" class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-catalog)">
+                <div class="lcars-panel-header">
+                    Vocabulary
+                    <a href="/vocab" style="float:right; font-size:0.85em; color:var(--text-dim); text-decoration:none; font-weight:normal">JSON-LD &#x2192;</a>
+                </div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-dictionary" placeholder="Filter terms..." oninput="filterDictionary()">
+                    <div class="table-page-info" id="page-info-dictionary"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="dict-grid" id="kb-dictionary">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discipline Catalog (moved from Meta) -->
+            <div id="kb-sec-catalog" class="lcars-panel kb-section" data-section="transport" style="--panel-accent: var(--c-transport)">
+                <div class="lcars-panel-header">Discipline Catalog (PSH)</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-catalog" placeholder="Filter disciplines..." oninput="filterTable('catalog')">
+                    <div class="table-page-info" id="page-info-catalog"></div>
+                    <div class="table-page-btns" id="page-btns-catalog"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="kb-catalog">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schema.org Entity Types (moved from Meta) -->
+            <div id="kb-sec-schema" class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-catalog)">
+                <div class="lcars-panel-header">Entity Schema (schema.org)</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-schema" placeholder="Filter types..." oninput="filterTable('schema')">
+                    <div class="table-page-info" id="page-info-schema"></div>
+                    <div class="table-page-btns" id="page-btns-schema"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="kb-schema">
                         <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
                     </div>
                 </div>
@@ -1264,10 +1279,14 @@
         renderSchema();
         renderMemoryTopics();
         renderDictionaryFiltered(document.getElementById("filter-dictionary")?.value || "");
+        renderMessages();
         renderKBTabVitals();
         renderClaims();
         renderChains();
         renderFacts();
+        renderDictionary();
+        renderCatalog();
+        renderSchema();
         renderLessons();
     }
 
@@ -1567,6 +1586,7 @@
         tableState.triggers.data = [];
         tableState.catalog.data = [];
         tableState.schema.data = [];
+        tableState.messages.data = [];
         tableState.claims.data = [];
         tableState.chains.data = [];
         tableState.facts.data = [];
@@ -1575,15 +1595,16 @@
         renderKBVitals();
         renderDecisions();
         renderTriggers();
-        renderDictionary();
-        renderCatalog();
-        renderSchema();
         renderMemoryTopics();
+        renderMessages();
         // Knowledge tab
         renderKBTabVitals();
         renderClaims();
         renderChains();
         renderFacts();
+        renderDictionary();
+        renderCatalog();
+        renderSchema();
         // Wisdom tab
         renderLessons();
     }
@@ -1976,6 +1997,77 @@
         `;
     }
 
+    // ── Meta Tab: Messages (audit trail) ────────────────────────
+    function renderMessages() {
+        const container = document.getElementById("kb-messages");
+        if (!container) return;
+
+        if (tableState.messages.data.length === 0) {
+            for (const agent of AGENTS) {
+                const kb = kbData[agent.id];
+                if (kb?.status !== "ok") continue;
+                (kb.data?.messages || []).forEach(m => {
+                    tableState.messages.data.push({ ...m, _agent: agent.id });
+                });
+            }
+        }
+
+        const allRows = tableState.messages.data;
+        if (allRows.length === 0) {
+            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No messages indexed. Messages populate when bootstrap_state_db.py processes transport JSON files.</div>`;
+            renderPageControls("messages", 0, 1, 0, 0);
+            return;
+        }
+
+        const { display, page, totalPages, filtered, total } = getFilteredSorted("messages", allRows, {
+            timestamp: r => r.timestamp || "",
+            from_agent: r => r.from_agent || "",
+            to_agent: r => r.to_agent || "",
+            session_name: r => r.session_name || "",
+            message_type: r => r.message_type || "",
+            turn: r => r.turn || 0,
+            claims_count: r => r.claims_count || 0,
+            _agent: r => r._agent || "",
+        });
+
+        renderPageControls("messages", page, totalPages, filtered.length, total);
+
+        container.innerHTML = `
+            <table class="kb-table">
+                <thead><tr>
+                    ${sortHeader("messages", "from_agent", "From")}
+                    ${sortHeader("messages", "to_agent", "To")}
+                    ${sortHeader("messages", "session_name", "Session")}
+                    ${sortHeader("messages", "turn", "Turn")}
+                    ${sortHeader("messages", "message_type", "Type")}
+                    <th>Subject</th>
+                    ${sortHeader("messages", "claims_count", "Claims")}
+                    ${sortHeader("messages", "timestamp", "Date")}
+                </tr></thead>
+                <tbody>${display.map(m => {
+                    const dateShort = (m.timestamp || "—").substring(0, 10);
+                    const subject = (m.subject || "").length > 60
+                        ? m.subject.substring(0, 60) + "…"
+                        : (m.subject || "—");
+                    const claimsCount = m.claims_count || 0;
+                    const claimsLink = claimsCount > 0
+                        ? `<a href="#kb" onclick="switchTab('kb');document.getElementById('filter-claims').value='${escapeHtml(m.session_name || "")}';filterTable('claims');return false;" style="color:var(--c-knowledge)">${claimsCount}</a>`
+                        : `<span style="color:var(--text-dim)">0</span>`;
+                    return `<tr>
+                        <td><span class="agent-dot" data-agent="${m._agent}"></span>${escapeHtml(m.from_agent || "—")}</td>
+                        <td style="font-size:0.85em">${escapeHtml(m.to_agent || "—")}</td>
+                        <td style="color:var(--c-transport);font-size:0.85em;white-space:nowrap">${escapeHtml(m.session_name || "—")}</td>
+                        <td style="text-align:center">${m.turn || "—"}</td>
+                        <td style="font-size:0.85em">${escapeHtml(m.message_type || "—")}</td>
+                        <td style="font-size:0.85em">${escapeHtml(subject)}</td>
+                        <td style="text-align:center">${claimsLink}</td>
+                        <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
+                    </tr>`;
+                }).join("")}</tbody>
+            </table>
+        `;
+    }
+
     // ── KB Tab: Claims ──────────────────────────────────────────
     function renderClaims() {
         const container = document.getElementById("kb-claims");
@@ -2040,7 +2132,7 @@
                         <td><span class="confidence-badge ${confClass}">${confText}</span></td>
                         <td style="font-size:0.85em;color:var(--text-secondary)">${escapeHtml(basis)}</td>
                         <td><span class="verified-badge ${verClass}">${verified}</span></td>
-                        <td style="color:var(--c-transport);font-size:0.85em;white-space:nowrap">${escapeHtml(c.session_name || "—")}</td>
+                        <td style="font-size:0.85em;white-space:nowrap"><a href="#meta" onclick="switchTab('meta');document.getElementById('filter-messages').value='${escapeHtml(c.session_name || "")}';filterTable('messages');return false;" style="color:var(--c-transport)">${escapeHtml(c.session_name || "—")}</a></td>
                         <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
                     </tr>${truncated ? `<tr id="${rowId}" class="expanded-detail-row" style="display:none"><td colspan="7"><div class="expanded-detail">${escapeHtml(fullText)}</div></td></tr>` : ""}`;
                 }).join("")}</tbody>
@@ -2278,6 +2370,7 @@
         triggers: { sort: "fire_count", sortDir: -1, filter: "", page: 0, data: [] },
         catalog: { sort: "keyword_count", sortDir: -1, filter: "", page: 0, data: [] },
         schema: { sort: "entity_count", sortDir: -1, filter: "", page: 0, data: [] },
+        messages: { sort: "timestamp", sortDir: -1, filter: "", page: 0, data: [] },
         claims: { sort: "created_at", sortDir: -1, filter: "", page: 0, data: [] },
         chains: { sort: "decided_date", sortDir: -1, filter: "", page: 0, data: [] },
         facts: { sort: "last_confirmed", sortDir: -1, filter: "", page: 0, data: [] },
@@ -2298,6 +2391,7 @@
         if (tableId === "triggers") renderTriggers();
         if (tableId === "catalog") renderCatalog();
         if (tableId === "schema") renderSchema();
+        if (tableId === "messages") renderMessages();
         if (tableId === "claims") renderClaims();
         if (tableId === "chains") renderChains();
         if (tableId === "facts") renderFacts();
@@ -2312,6 +2406,7 @@
         if (tableId === "triggers") renderTriggers();
         if (tableId === "catalog") renderCatalog();
         if (tableId === "schema") renderSchema();
+        if (tableId === "messages") renderMessages();
         if (tableId === "claims") renderClaims();
         if (tableId === "chains") renderChains();
         if (tableId === "facts") renderFacts();
@@ -2324,6 +2419,7 @@
         if (tableId === "triggers") renderTriggers();
         if (tableId === "catalog") renderCatalog();
         if (tableId === "schema") renderSchema();
+        if (tableId === "messages") renderMessages();
         if (tableId === "claims") renderClaims();
         if (tableId === "chains") renderChains();
         if (tableId === "facts") renderFacts();
