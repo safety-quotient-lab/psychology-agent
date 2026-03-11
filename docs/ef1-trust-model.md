@@ -373,7 +373,7 @@ intervals, and multi-repo targets.
 # Verify only (exit 0 if present, 1 if missing)
 ./scripts/ensure-cron.sh --check
 
-# Install for safety-quotient agent on a different machine
+# Install for psq-agent on a different machine
 ./scripts/ensure-cron.sh --target /home/kashif/safety-quotient --interval 10
 
 # Remove the entry

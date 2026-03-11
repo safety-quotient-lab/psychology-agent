@@ -286,7 +286,7 @@ semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
 
 ---
 
-## Cross-Repo Transport (Safety-Quotient Agent)
+## Cross-Repo Transport (PSQ Agent)
 
 Design decision (Session 60): cross-repo transport via git remote fetch.
 Each agent writes to its own repo's outbox; reads the peer's outbox via
@@ -310,7 +310,7 @@ Plan 9-inspired split-outbox model — no shared writable directories.
   `bootstrap_state_db.py` now matches both `psq-sub-agent` and `psq-agent`
   in validation and facet detection. Also recognizes `safety-quotient`.
 
-### Safety-quotient agent side
+### PSQ agent side
 
 - [x] **Merge PR #2 + post-merge setup** — COMPLETE (Session 60-61). PR merged,
   5-step setup executed on peer machine via SSH. Identity, remote, state.db,
@@ -463,12 +463,10 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   Replays tab, static serving at /replays/, batch generation via generate-replays.sh,
   remote peer replays via git show. 5 sessions generated.
 
-- [ ] **Naming audit: "safety-quotient agent" → "psq-agent"** — now that
-  safety-quotient.dev represents the whole lab, "safety-quotient agent" creates
-  ambiguity. Audit docs, registries, transport messages, skills, and memory
-  files. Replace informal "safety-quotient agent" with "psq-agent" where it
-  refers to the scoring sub-agent. Keep "safety-quotient-lab" for the org.
-  *Precondition: none — prose cleanup only*
+- [x] **Naming audit: "safety-quotient agent" → "psq-agent"** — COMPLETE (Session 71).
+  Replaced informal "safety-quotient agent" with "psq-agent" across CLAUDE.md,
+  TODO.md, architecture.md, agent-registry.json, ef1-trust-model.md,
+  bootstrap_state_db.py, memory/decisions.md. Historical records preserved.
 
 - [x] **Deploy dashboard to chromabook** — COMPLETE (Session 65). PRs #4-7
   merged. systemd services: psq-agent-dashboard + psq-agent-tunnel. Live at
@@ -523,11 +521,8 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   Scripts deployed, cron installed (*/5), trust budgets initialized, smoke
   tested. All 4 agents autonomous. agent-registry.json updated.
 
-- [ ] **Delete old interagent tunnel** — `cloudflared tunnel delete interagent`
-  (ID ccd8d4dc). Edge connections were draining at Session 65; retry after
-  a few minutes. Credentials file also deletable:
-  `~/.cloudflared/ccd8d4dc-d5f6-42e5-ac0f-c9316884c779.json`.
-  *Precondition: none — just wait for edge drain*
+- [x] **Delete old interagent tunnel** — COMPLETE (Session 71). Edge connections
+  cleaned up, tunnel deleted, credentials file removed.
 
 - [x] **Update agent-card.json discovery URLs** — COMPLETE (Session 65).
   agent-card already migrated. worker.js + README.md updated.

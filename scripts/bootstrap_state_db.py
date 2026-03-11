@@ -620,7 +620,7 @@ def validate(conn: sqlite3.Connection) -> list[str]:
     checks: list[tuple[str, str, int, int]] = [
         # (SQL fragment, label, min_with_history, min_fresh)
         ("transport_messages WHERE from_agent IN ('psq-sub-agent', 'psq-agent')",
-         "safety-quotient agent outbound messages indexed", 15, 0),
+         "psq-agent outbound messages indexed", 15, 0),
         ("transport_messages",
          "total transport messages indexed", 40, 0),
         ("psq_status WHERE model_version IS NOT NULL",
