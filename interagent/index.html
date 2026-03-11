@@ -134,6 +134,7 @@
         .lcars-spine-segment {
             flex: 1;
             min-height: 40px;
+            transition: flex 0.4s ease, background 0.4s ease;
         }
         .lcars-spine-segment:first-child {
             border-radius: var(--elbow-radius) 0 0 0;
@@ -282,6 +283,60 @@
         .lcars-panel-body {
             padding: 12px 16px;
         }
+        /* Capped panel height with internal scroll */
+        .lcars-panel-body.scrollable {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* Table toolbar — filter + pagination */
+        .table-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .table-filter {
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.75em;
+            min-width: 160px;
+        }
+        .table-filter::placeholder { color: var(--text-dim); }
+        .table-filter:focus { outline: none; border-color: var(--text-secondary); }
+        .table-page-info {
+            font-size: 0.7em;
+            color: var(--text-dim);
+        }
+        .table-page-btns {
+            display: flex;
+            gap: 4px;
+        }
+        .table-page-btn {
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 2px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.7em;
+        }
+        .table-page-btn:hover { border-color: var(--text-secondary); }
+        .table-page-btn:disabled { opacity: 0.3; cursor: default; }
+        .table-page-btn.active { background: var(--c-transport); color: var(--bg-primary); border-color: var(--c-transport); }
+
+        /* Sort indicators */
+        .sort-active { color: var(--c-transport) !important; }
+        .sort-arrow { opacity: 0.3; }
+        .sort-active .sort-arrow { opacity: 1; }
 
         /* ── Pulse Tab ───────────────────────────────────────────────── */
 
@@ -668,6 +723,9 @@
             .dict-grid { grid-template-columns: 1fr; }
             .catalog-bar-label { width: 100px; font-size: 0.75em; }
             .kb-table { font-size: 0.7em; }
+            .table-toolbar { padding: 6px 12px; }
+            .table-filter { min-width: 120px; }
+            .lcars-panel-body.scrollable { max-height: 300px; }
         }
 
         @media (max-width: 480px) {
@@ -690,12 +748,12 @@
 <body>
 
 <div class="lcars-frame">
-    <!-- Left spine -->
-    <div class="lcars-spine">
-        <div class="lcars-spine-segment" style="background: var(--c-transport)"></div>
-        <div class="lcars-spine-segment" style="background: var(--c-knowledge)"></div>
-        <div class="lcars-spine-segment" style="background: var(--c-health)"></div>
-        <div class="lcars-spine-segment" style="background: var(--c-epistemic)"></div>
+    <!-- Left spine — segments map to content categories -->
+    <div class="lcars-spine" id="lcars-spine">
+        <div class="lcars-spine-segment" data-category="transport" style="background: var(--c-transport); flex: 2"></div>
+        <div class="lcars-spine-segment" data-category="health" style="background: var(--c-health); flex: 3"></div>
+        <div class="lcars-spine-segment" data-category="knowledge" style="background: var(--c-knowledge); flex: 2"></div>
+        <div class="lcars-spine-segment" data-category="epistemic" style="background: var(--c-epistemic); flex: 1"></div>
     </div>
 
     <!-- Header -->
@@ -798,9 +856,14 @@
             </div>
 
             <!-- Decisions -->
-            <div class="lcars-panel kb-section" style="--panel-accent: var(--c-knowledge)">
+            <div class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-knowledge)">
                 <div class="lcars-panel-header">Decisions</div>
-                <div class="lcars-panel-body">
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-decisions" placeholder="Filter decisions..." oninput="filterTable('decisions')">
+                    <div class="table-page-info" id="page-info-decisions"></div>
+                    <div class="table-page-btns" id="page-btns-decisions"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
                     <div class="kb-table-wrap" id="kb-decisions">
                         <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
                     </div>
@@ -808,9 +871,14 @@
             </div>
 
             <!-- Cognitive Triggers -->
-            <div class="lcars-panel kb-section" style="--panel-accent: var(--c-epistemic)">
+            <div class="lcars-panel kb-section" data-section="epistemic" style="--panel-accent: var(--c-epistemic)">
                 <div class="lcars-panel-header">Cognitive Triggers</div>
-                <div class="lcars-panel-body">
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-triggers" placeholder="Filter triggers..." oninput="filterTable('triggers')">
+                    <div class="table-page-info" id="page-info-triggers"></div>
+                    <div class="table-page-btns" id="page-btns-triggers"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
                     <div class="kb-table-wrap" id="kb-triggers">
                         <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
                     </div>
@@ -818,12 +886,16 @@
             </div>
 
             <!-- Dictionary -->
-            <div class="lcars-panel kb-section" style="--panel-accent: var(--c-catalog)">
+            <div class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-catalog)">
                 <div class="lcars-panel-header">
                     Vocabulary
                     <a href="/vocab" style="float:right; font-size:0.85em; color:var(--text-dim); text-decoration:none; font-weight:normal">JSON-LD &#x2192;</a>
                 </div>
-                <div class="lcars-panel-body">
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-dictionary" placeholder="Filter terms..." oninput="filterDictionary()">
+                    <div class="table-page-info" id="page-info-dictionary"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
                     <div class="dict-grid" id="kb-dictionary">
                         <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
                     </div>
@@ -831,17 +903,17 @@
             </div>
 
             <!-- Catalog Distributions -->
-            <div class="lcars-panel kb-section" style="--panel-accent: var(--c-transport)">
+            <div class="lcars-panel kb-section" data-section="transport" style="--panel-accent: var(--c-transport)">
                 <div class="lcars-panel-header">Catalog Distribution (PSH Categories)</div>
-                <div class="lcars-panel-body" id="kb-catalog">
+                <div class="lcars-panel-body scrollable" id="kb-catalog">
                     <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
                 </div>
             </div>
 
             <!-- Memory by Topic -->
-            <div class="lcars-panel kb-section" style="--panel-accent: var(--c-health)">
+            <div class="lcars-panel kb-section" data-section="health" style="--panel-accent: var(--c-health)">
                 <div class="lcars-panel-header">Memory by Topic</div>
-                <div class="lcars-panel-body">
+                <div class="lcars-panel-body scrollable">
                     <div class="kb-table-wrap" id="kb-memory">
                         <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
                     </div>
@@ -904,6 +976,7 @@
         if (!VALID_TABS.includes(tabId)) tabId = "pulse";
         document.querySelectorAll(".lcars-tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tabId));
         document.querySelectorAll(".tab-pane").forEach(p => p.classList.toggle("active", p.id === `pane-${tabId}`));
+        updateSpine(tabId);
         if (updateHash) history.replaceState(null, "", `#${tabId}`);
     }
 
@@ -1188,6 +1261,9 @@
     }
 
     function renderKnowledge() {
+        // Clear cached data so re-fetches pick up fresh data
+        tableState.decisions.data = [];
+        tableState.triggers.data = [];
         renderKBVitals();
         renderDecisions();
         renderTriggers();
@@ -1221,35 +1297,42 @@
     // ── Decisions Table ──────────────────────────────────────────
     function renderDecisions() {
         const container = document.getElementById("kb-decisions");
-        const allDecisions = [];
 
-        for (const agent of AGENTS) {
-            const kb = kbData[agent.id];
-            if (kb?.status !== "ok") continue;
-            (kb.data?.decisions || []).forEach(d => {
-                allDecisions.push({ ...d, _agent: agent.id });
-            });
+        // Collect data (only on first render or refresh)
+        if (tableState.decisions.data.length === 0) {
+            for (const agent of AGENTS) {
+                const kb = kbData[agent.id];
+                if (kb?.status !== "ok") continue;
+                (kb.data?.decisions || []).forEach(d => {
+                    tableState.decisions.data.push({ ...d, _agent: agent.id });
+                });
+            }
         }
 
-        if (allDecisions.length === 0) {
+        const allRows = tableState.decisions.data;
+        if (allRows.length === 0) {
             container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No decisions available</div>`;
+            renderPageControls("decisions", 0, 1, 0, 0);
             return;
         }
 
-        // Sort by date descending
-        allDecisions.sort((a, b) => (b.decided_date || "").localeCompare(a.decided_date || ""));
+        const { display, page, totalPages, filtered, total } = getFilteredSorted("decisions", allRows, {
+            decided_date: r => r.decided_date || "",
+            confidence: r => r.confidence != null ? parseFloat(r.confidence) : -1,
+            decision_key: r => r.decision_key || "",
+            _agent: r => r._agent || "",
+        });
 
-        // Show most recent 30
-        const display = allDecisions.slice(0, 30);
+        renderPageControls("decisions", page, totalPages, filtered.length, total);
 
         container.innerHTML = `
             <table class="kb-table">
                 <thead><tr>
-                    <th>Agent</th>
-                    <th>Key</th>
+                    ${sortHeader("decisions", "_agent", "Agent")}
+                    ${sortHeader("decisions", "decision_key", "Key")}
                     <th>Decision</th>
-                    <th>Date</th>
-                    <th>Conf</th>
+                    ${sortHeader("decisions", "decided_date", "Date")}
+                    ${sortHeader("decisions", "confidence", "Conf")}
                 </tr></thead>
                 <tbody>${display.map(d => {
                     const conf = d.confidence != null ? parseFloat(d.confidence) : null;
@@ -1268,42 +1351,51 @@
                     </tr>`;
                 }).join("")}</tbody>
             </table>
-            ${allDecisions.length > 30 ? `<div style="color:var(--text-dim);font-size:0.75em;padding:8px 10px">Showing 30 of ${allDecisions.length} decisions</div>` : ""}
         `;
     }
 
     // ── Triggers Table ───────────────────────────────────────────
     function renderTriggers() {
         const container = document.getElementById("kb-triggers");
-        const allTriggers = [];
 
-        for (const agent of AGENTS) {
-            const kb = kbData[agent.id];
-            if (kb?.status !== "ok") continue;
-            (kb.data?.triggers || []).forEach(t => {
-                allTriggers.push({ ...t, _agent: agent.id });
-            });
+        if (tableState.triggers.data.length === 0) {
+            for (const agent of AGENTS) {
+                const kb = kbData[agent.id];
+                if (kb?.status !== "ok") continue;
+                (kb.data?.triggers || []).forEach(t => {
+                    tableState.triggers.data.push({ ...t, _agent: agent.id });
+                });
+            }
         }
 
-        if (allTriggers.length === 0) {
+        const allRows = tableState.triggers.data;
+        if (allRows.length === 0) {
             container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No triggers available</div>`;
+            renderPageControls("triggers", 0, 1, 0, 0);
             return;
         }
 
-        // Sort by fire_count descending
-        allTriggers.sort((a, b) => (b.fire_count || 0) - (a.fire_count || 0));
+        const { display, page, totalPages, filtered, total } = getFilteredSorted("triggers", allRows, {
+            fire_count: r => r.fire_count || 0,
+            relevance_score: r => r.relevance_score != null ? parseFloat(r.relevance_score) : -1,
+            trigger_id: r => r.trigger_id || "",
+            last_fired: r => r.last_fired || "",
+            _agent: r => r._agent || "",
+        });
+
+        renderPageControls("triggers", page, totalPages, filtered.length, total);
 
         container.innerHTML = `
             <table class="kb-table">
                 <thead><tr>
-                    <th>Agent</th>
-                    <th>Trigger</th>
+                    ${sortHeader("triggers", "_agent", "Agent")}
+                    ${sortHeader("triggers", "trigger_id", "Trigger")}
                     <th>Description</th>
-                    <th>Fires</th>
-                    <th>Last Fired</th>
-                    <th>Relevance</th>
+                    ${sortHeader("triggers", "fire_count", "Fires")}
+                    ${sortHeader("triggers", "last_fired", "Last Fired")}
+                    ${sortHeader("triggers", "relevance_score", "Relevance")}
                 </tr></thead>
-                <tbody>${allTriggers.map(t => {
+                <tbody>${display.map(t => {
                     const lastFired = t.last_fired ? t.last_fired.substring(0, 10) : "never";
                     const rel = t.relevance_score != null ? parseFloat(t.relevance_score).toFixed(2) : "—";
                     const desc = (t.description || "").length > 80
@@ -1324,23 +1416,20 @@
 
     // ── Dictionary Cards ─────────────────────────────────────────
     function renderDictionary() {
-        const container = document.getElementById("kb-dictionary");
-        const allTerms = [];
+        allDictTerms = [];
 
         for (const agent of AGENTS) {
             const dd = dictData[agent.id];
             if (dd?.status !== "ok") continue;
             const vocab = dd.data || {};
-            // JSON-LD dictionary: look for @graph or hasDefinedTerm
             const terms = vocab["@graph"] || vocab.hasDefinedTerm || [];
             terms.forEach(term => {
-                // Deduplicate by term name
-                const existing = allTerms.find(t => t.name === term.name);
+                const existing = allDictTerms.find(t => t.name === term.name);
                 if (existing) {
                     if (!existing._agents.includes(agent.id)) existing._agents.push(agent.id);
                     return;
                 }
-                allTerms.push({
+                allDictTerms.push({
                     name: term.name || term.termCode || "—",
                     description: term.description || "",
                     termCode: term.termCode || "",
@@ -1350,18 +1439,34 @@
             });
         }
 
-        if (allTerms.length === 0) {
+        allDictTerms.sort((a, b) => a.name.localeCompare(b.name));
+        renderDictionaryFiltered("");
+    }
+
+    function renderDictionaryFiltered(filter) {
+        const container = document.getElementById("kb-dictionary");
+        const infoEl = document.getElementById("page-info-dictionary");
+
+        if (allDictTerms.length === 0) {
             container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No vocabulary terms available</div>`;
+            if (infoEl) infoEl.textContent = "";
             return;
         }
 
-        // Sort alphabetically
-        allTerms.sort((a, b) => a.name.localeCompare(b.name));
+        const filtered = filter
+            ? allDictTerms.filter(t =>
+                t.name.toLowerCase().includes(filter) ||
+                t.description.toLowerCase().includes(filter) ||
+                t.termCode.toLowerCase().includes(filter))
+            : allDictTerms;
 
-        // Show first 24
-        const display = allTerms.slice(0, 24);
+        if (infoEl) {
+            infoEl.textContent = filter
+                ? `${filtered.length} of ${allDictTerms.length} terms`
+                : `${allDictTerms.length} terms`;
+        }
 
-        container.innerHTML = display.map(t => {
+        container.innerHTML = filtered.map(t => {
             const desc = t.description.length > 140
                 ? t.description.substring(0, 140) + "…"
                 : t.description;
@@ -1378,8 +1483,7 @@
                     <span>${agentDots}</span>
                 </div>
             </div>`;
-        }).join("") +
-        (allTerms.length > 24 ? `<div style="color:var(--text-dim);font-size:0.75em;padding:12px;grid-column:1/-1">${allTerms.length - 24} more terms — <a href="/vocab" style="color:var(--c-catalog)">view full vocabulary</a></div>` : "");
+        }).join("") || `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No matches</div>`;
     }
 
     // ── Catalog Distributions ────────────────────────────────────
@@ -1471,11 +1575,151 @@
         `;
     }
 
+    // ── Table State (sort, filter, pagination) ─────────────────
+
+    const PAGE_SIZE = 15;
+    const tableState = {
+        decisions: { sort: "decided_date", sortDir: -1, filter: "", page: 0, data: [] },
+        triggers: { sort: "fire_count", sortDir: -1, filter: "", page: 0, data: [] },
+    };
+    let allDictTerms = [];
+
+    function sortTable(tableId, column) {
+        const state = tableState[tableId];
+        if (state.sort === column) {
+            state.sortDir *= -1;
+        } else {
+            state.sort = column;
+            state.sortDir = -1;
+        }
+        state.page = 0;
+        if (tableId === "decisions") renderDecisions();
+        if (tableId === "triggers") renderTriggers();
+    }
+
+    function filterTable(tableId) {
+        const input = document.getElementById(`filter-${tableId}`);
+        tableState[tableId].filter = (input?.value || "").toLowerCase();
+        tableState[tableId].page = 0;
+        if (tableId === "decisions") renderDecisions();
+        if (tableId === "triggers") renderTriggers();
+    }
+
+    function goToPage(tableId, page) {
+        tableState[tableId].page = page;
+        if (tableId === "decisions") renderDecisions();
+        if (tableId === "triggers") renderTriggers();
+    }
+
+    function filterDictionary() {
+        const input = document.getElementById("filter-dictionary");
+        const filter = (input?.value || "").toLowerCase();
+        renderDictionaryFiltered(filter);
+    }
+
+    function getFilteredSorted(tableId, allRows, sortAccessors) {
+        const state = tableState[tableId];
+
+        // Filter
+        let filtered = allRows;
+        if (state.filter) {
+            filtered = allRows.filter(row =>
+                Object.values(row).some(v =>
+                    String(v || "").toLowerCase().includes(state.filter)
+                )
+            );
+        }
+
+        // Sort
+        const accessor = sortAccessors[state.sort] || (r => r[state.sort]);
+        filtered.sort((a, b) => {
+            const va = accessor(a), vb = accessor(b);
+            if (va == null && vb == null) return 0;
+            if (va == null) return 1;
+            if (vb == null) return -1;
+            if (typeof va === "number") return (va - vb) * state.sortDir;
+            return String(va).localeCompare(String(vb)) * state.sortDir;
+        });
+
+        // Paginate
+        const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+        const page = Math.min(state.page, totalPages - 1);
+        const display = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
+        return { filtered, display, page, totalPages, total: allRows.length };
+    }
+
+    function renderPageControls(tableId, page, totalPages, filteredCount, totalCount) {
+        const info = document.getElementById(`page-info-${tableId}`);
+        const btns = document.getElementById(`page-btns-${tableId}`);
+        if (info) {
+            info.textContent = filteredCount < totalCount
+                ? `${filteredCount} of ${totalCount} (filtered) · Page ${page + 1}/${totalPages}`
+                : `${totalCount} total · Page ${page + 1}/${totalPages}`;
+        }
+        if (btns && totalPages > 1) {
+            btns.innerHTML = `
+                <button class="table-page-btn" ${page === 0 ? "disabled" : ""} onclick="goToPage('${tableId}',${page - 1})">&#x25C0;</button>
+                <button class="table-page-btn" ${page >= totalPages - 1 ? "disabled" : ""} onclick="goToPage('${tableId}',${page + 1})">&#x25B6;</button>
+            `;
+        } else if (btns) {
+            btns.innerHTML = "";
+        }
+    }
+
+    function sortHeader(tableId, column, label) {
+        const state = tableState[tableId];
+        const active = state.sort === column;
+        const arrow = active ? (state.sortDir > 0 ? "&#x25B2;" : "&#x25BC;") : "&#x25B4;";
+        return `<th class="${active ? "sort-active" : ""}" onclick="sortTable('${tableId}','${column}')">${label}<span class="sort-arrow">${arrow}</span></th>`;
+    }
+
     // ── Utility ──────────────────────────────────────────────────
     function escapeHtml(str) {
         const div = document.createElement("div");
         div.textContent = str;
         return div.innerHTML;
+    }
+
+    // ── Spine Sync ───────────────────────────────────────────────
+    // Map spine segments to tab content proportions
+    const SPINE_MAP = {
+        pulse: [
+            { category: "transport", flex: 2 },  // vitals + activity
+            { category: "health",    flex: 3 },  // agents + topology
+            { category: "knowledge", flex: 1 },  // (minor)
+            { category: "epistemic", flex: 1 },  // debt
+        ],
+        knowledge: [
+            { category: "knowledge", flex: 3 },  // decisions + dictionary
+            { category: "epistemic", flex: 2 },  // triggers
+            { category: "transport", flex: 1 },  // catalog
+            { category: "health",    flex: 1 },  // memory
+        ],
+        operations: [
+            { category: "transport", flex: 3 },  // sessions + sync
+            { category: "health",    flex: 2 },  // schedule
+            { category: "epistemic", flex: 2 },  // debt + audit
+            { category: "knowledge", flex: 1 },  // (minor)
+        ],
+    };
+
+    function updateSpine(tabId) {
+        const segments = document.querySelectorAll(".lcars-spine-segment");
+        const map = SPINE_MAP[tabId] || SPINE_MAP.pulse;
+        const colors = {
+            transport: "var(--c-transport)",
+            health: "var(--c-health)",
+            knowledge: "var(--c-knowledge)",
+            epistemic: "var(--c-epistemic)",
+        };
+        segments.forEach((seg, i) => {
+            if (map[i]) {
+                seg.style.background = colors[map[i].category];
+                seg.style.flex = map[i].flex;
+                seg.dataset.category = map[i].category;
+            }
+        });
     }
 
     // ── Init ───────────────────────────────────────────────────────
