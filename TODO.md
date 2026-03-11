@@ -621,20 +621,14 @@ auto-restart loops. None had monitoring — all required manual discovery.
   rsync to ~/platform/shared/scripts/, (3) PSQ model: train → validate → deploy.
   *Precondition: Jenkins instance provisioned on chromabook or separate host*
 
-- [ ] **Surface epistemic debt detail on compositor** — add detail table showing
-  WHAT the epistemic debt contains (flag text, source, age) below the existing
-  summary table. Currently only shows counts; the actual content matters as much
-  as the quantity.
-  *Precondition: meshd serves flag detail (may need new /kb/epistemic route)*
+- [x] **Surface epistemic debt detail on compositor** — COMPLETE (Session 73).
+  /kb/epistemic route + detail table in Meta tab (flag text, source, agent, age).
+  Summary panel now includes transport flags count + per-agent breakdown.
 
-- [ ] **Observatory directory consolidation** — `~/projects/observatory` (canonical,
-  has state.db, cron) vs `~/projects/observatory-sqlab` (stale duplicate) on
-  chromabook. Consolidate to one directory. Verify cron, systemd, and meshd all
-  point to the canonical location before removing the stale copy.
-  *Precondition: SSH access to chromabook*
+- [x] **Observatory directory consolidation** — COMPLETE (Session 73).
+  `~/projects/observatory-sqlab` removed from chromabook. Only
+  `~/projects/observatory` remains (state.db, cron, meshd verified).
 
-- [ ] **Move pre_sync_check.py + issue_lifecycle.py to shared scripts** — both
-  scripts serve all agents, not just psychology-agent. Determine if they belong
-  in `platform/shared/scripts/` (symlinked pattern) or remain agent-local with
-  per-agent copies.
-  *Precondition: design decision on script placement*
+- [x] **Move pre_sync_check.py + issue_lifecycle.py to shared scripts** —
+  COMPLETE (Session 73). Moved to `platform/shared/scripts/` with symlinks from
+  `scripts/`. Safe project root resolution added (walks up from apparent location).
