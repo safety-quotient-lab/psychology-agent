@@ -50,3 +50,7 @@ state-public.db
 transport/agent-registry.local.json
 __pycache__/
 interagent/.wrangler/
+
+# meshd compiled binaries
+platform/meshd
+platform/meshd-*

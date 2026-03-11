@@ -1,0 +1,58 @@
+{{define "replays"}}
+{{$local := .Replays.Local}}
+{{$remote := .Replays.Remote}}
+{{$total := add (len $local) (len $remote)}}
+
+{{if eq $total 0}}
+<div class="empty">No session replays available</div>
+{{else}}
+
+<div class="grid">
+    <div class="card">
+        <div class="card-label">Local Replays</div>
+        <div class="card-value">{{len $local}}</div>
+        <div class="card-detail">from this agent</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Peer Replays</div>
+        <div class="card-value">{{len $remote}}</div>
+        <div class="card-detail">from remote agents</div>
+    </div>
+</div>
+
+<h2>This Agent</h2>
+<div class="replay-grid">
+    {{if $local}}
+        {{range $local}}
+        <a href="/replays/{{.Filename}}" class="replay-card" target="_blank">
+            <div class="replay-session">{{if .Session}}Session {{.Session}}{{else}}{{.Filename}}{{end}}</div>
+            <div class="replay-meta">{{.SizeKB}} KB &middot; {{.Modified}}</div>
+        </a>
+        {{end}}
+    {{else}}
+        <div class="empty">No local replays</div>
+    {{end}}
+</div>
+
+<h2>Peer Agents</h2>
+{{if $remote}}
+    {{/* Group by agent - simplified: just list all */}}
+    <div class="replay-grid">
+    {{range $remote}}
+        <a href="/replays/remote/{{.Remote}}/{{.Filename}}" class="replay-card" target="_blank">
+            <div class="replay-session">{{.Filename}}</div>
+            <div class="replay-meta">{{.AgentID}}</div>
+        </a>
+    {{end}}
+    </div>
+{{else}}
+    <div class="empty">No peer replays available</div>
+{{end}}
+
+<div style="margin-top:16px; padding:12px; background:#161b22; border:1px solid #21262d; border-radius:6px; font-size:0.85em; color:#8b949e">
+    <strong>Generate:</strong>
+    <code style="color:#c9d1d9">scripts/generate-replays.sh</code>
+</div>
+
+{{end}}
+{{end}}

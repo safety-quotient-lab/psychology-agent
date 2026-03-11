@@ -1,0 +1,78 @@
+{{define "messages"}}
+{{if not .SessionSumms}}
+<div class="empty">No transport messages</div>
+{{else}}
+
+{{$sessionMsgs := .SessionMsgs}}
+{{$gates := .ActiveGates}}
+
+{{/* Build gate sessions set */}}
+{{$totalMsgs := 0}}
+{{$totalUnproc := 0}}
+{{$activeSessions := 0}}
+{{range .SessionSumms}}
+    {{$totalMsgs = add $totalMsgs (getInt . "total_messages")}}
+    {{$totalUnproc = add $totalUnproc (getInt . "unprocessed")}}
+{{end}}
+
+<div class="grid">
+    <div class="card">
+        <div class="card-label">Total Messages</div>
+        <div class="card-value">{{$totalMsgs}}</div>
+        <div class="card-detail">across {{len .SessionSumms}} sessions</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Unprocessed</div>
+        <div class="card-value{{if gt $totalUnproc 0}} alert{{end}}">{{$totalUnproc}}</div>
+        <div class="card-detail">awaiting processing</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Active Sessions</div>
+        <div class="card-value">{{.Totals.ActiveGates}}</div>
+        <div class="card-detail">with pending work or gates</div>
+    </div>
+</div>
+
+<h2>Sessions</h2>
+{{range $idx, $summary := .SessionSumms}}
+    {{$sn := getStr $summary "session_name"}}
+    {{$total := getInt $summary "total_messages"}}
+    {{$unproc := getInt $summary "unprocessed"}}
+    {{$participants := getStr $summary "participants"}}
+    {{$lastTurn := getStr $summary "last_turn"}}
+    {{$hasGate := false}}
+    {{$sid := printf "session-thread-%d" $idx}}
+
+    <div class="session-card {{sessionClass $unproc $hasGate}}">
+        <div class="session-header" onclick="toggleSession('{{$sid}}')">
+            <div class="session-title">
+                <span class="session-status-icon">{{sessionIcon $unproc $hasGate}}</span>
+                <span class="session-name">{{$sn}}</span>
+                <span class="session-status-label">{{sessionLabel $unproc $hasGate}}</span>
+            </div>
+            <div class="session-meta">
+                {{range split $participants ","}}
+                    {{$p := trimSpace .}}
+                    {{if $p}}<span class="participant-badge">{{$p}}</span>{{end}}
+                {{end}}
+                <span class="session-count">{{$total}} msgs &middot; T{{$lastTurn}}</span>
+            </div>
+        </div>
+        <div id="{{$sid}}" class="session-thread" style="display:none">
+            {{$msgs := index $sessionMsgs $sn}}
+            {{range $msgs}}
+                {{$msgType := getStr . "message_type"}}
+                {{$subject := getStr . "subject"}}
+                <div class="msg-row {{procClass (get . "processed")}}">
+                    <div class="msg-turn">T{{getStr . "turn"}}</div>
+                    <div class="msg-type {{typeClass $msgType}}">{{$msgType}}</div>
+                    <div class="msg-from">{{getStr . "from_agent"}}</div>
+                    <div class="msg-subject">{{truncate $subject 80}}</div>
+                </div>
+            {{end}}
+        </div>
+    </div>
+{{end}}
+
+{{end}}
+{{end}}
