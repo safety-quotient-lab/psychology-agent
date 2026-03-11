@@ -1,0 +1,53 @@
+{
+  "session_id": "mesh-init",
+  "created": "2026-03-11T17:57:34.669459",
+  "participants": [
+    "psychology-agent",
+    "unratified-agent"
+  ],
+  "messages": [
+    {
+      "filename": "from-unratified-agent-001.json",
+      "turn": 1,
+      "from": "unratified-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-unratified-agent-004.json",
+      "turn": 2,
+      "from": "unratified-agent",
+      "subject": ""
+    },
+    {
+      "filename": "to-unratified-agent-001.json",
+      "turn": 2,
+      "from": "psychology-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-unratified-agent-002.json",
+      "turn": 3,
+      "from": "unratified-agent",
+      "subject": ""
+    },
+    {
+      "filename": "to-unratified-agent-002.json",
+      "turn": 4,
+      "from": "psychology-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-unratified-agent-003.json",
+      "turn": 5,
+      "from": "unratified-agent",
+      "subject": "mesh-init complete \u2014 PSQ endpoint live, ready for psq-scoring session"
+    },
+    {
+      "filename": "to-unratified-agent-003.json",
+      "turn": 5,
+      "from": "psychology-agent",
+      "subject": "PSQ scoring endpoint is live \u2014 ready for integration"
+    }
+  ],
+  "status": "open"
+}

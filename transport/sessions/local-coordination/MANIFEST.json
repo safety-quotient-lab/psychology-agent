@@ -1,0 +1,28 @@
+{
+  "session_id": "local-coordination",
+  "created": "2026-03-11T17:57:33.376526",
+  "participants": [
+    "psychology-agent"
+  ],
+  "messages": [
+    {
+      "filename": "heartbeat-psychology-agent.json",
+      "turn": 0,
+      "from": "psychology-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-opus-session-23b-001.json",
+      "turn": 1,
+      "from": "psychology-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-opus-session-23c-002.json",
+      "turn": 2,
+      "from": "psychology-agent",
+      "subject": ""
+    }
+  ],
+  "status": "open"
+}

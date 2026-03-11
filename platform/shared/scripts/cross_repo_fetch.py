@@ -4,10 +4,18 @@
 Fetches the remote, reads MANIFEST.json (if present) and session directories
 via `git show`, and reports new/unprocessed messages compared to local state.db.
 
+When --materialize is passed (or implied by --index), inbound messages from
+peer repos are copied into the local transport/sessions/ directory with
+deterministic filenames (from-{sender}-{NNN}.json). This ensures the local
+repo has a complete record of every session exchange, not just the messages
+this agent authored. Without materialization, peer responses remain invisible
+to filesystem-based checks (MANIFEST audits, grounding reviews, /sync Phase 1).
+
 Usage:
     python3 scripts/cross_repo_fetch.py                    # all cross-repo-fetch agents
     python3 scripts/cross_repo_fetch.py --agent psq-agent  # single agent
-    python3 scripts/cross_repo_fetch.py --index             # also index new messages in state.db
+    python3 scripts/cross_repo_fetch.py --index             # index + materialize new messages
+    python3 scripts/cross_repo_fetch.py --materialize       # materialize without indexing
     python3 scripts/cross_repo_fetch.py --json              # JSON output (for orientation payload)
 """
 
@@ -43,6 +51,26 @@ def _get_my_agent_id() -> str:
         except (json.JSONDecodeError, OSError):
             pass
     return "psychology-agent"
+
+
+def _get_repo_agent_id() -> str:
+    """Derive the canonical agent ID for this repo from agent-card or repo name.
+
+    The workstation .agent-identity.json may identify the operator (e.g., 'human'),
+    not the repo's agent. The agent-card provides the repo's canonical identity.
+    Falls back to parsing the repo directory name.
+    """
+    agent_card = PROJECT_ROOT / ".well-known" / "agent-card.json"
+    if agent_card.exists():
+        try:
+            with open(agent_card) as f:
+                return json.load(f).get("agent_id", "psychology-agent")
+        except (json.JSONDecodeError, OSError):
+            pass
+    # Fallback: derive from directory name
+    dirname = PROJECT_ROOT.name
+    # Common pattern: "psychology-agent" repo name
+    return dirname if dirname.endswith("-agent") else "psychology-agent"
 
 
 def run_git(*args: str) -> tuple[int, str]:
@@ -211,10 +239,11 @@ def load_registry() -> dict:
 
 
 def scan_agent(agent_id: str, agent_config: dict, index: bool = False,
-               force: bool = False) -> dict:
+               materialize: bool = False, force: bool = False) -> dict:
     """Scan a cross-repo-fetch agent for new messages.
 
     Returns a dict with scan results. Skips cold peers unless force=True.
+    When materialize=True, copies inbound messages to local session dirs.
     """
     remote_name = agent_config.get("remote_name")
     if not remote_name:
@@ -305,12 +334,20 @@ def scan_agent(agent_id: str, agent_config: dict, index: bool = False,
         #   Convention A (psq-agent): files named from-{sender}-NNN.json
         #   Convention B (unratified/observatory): files named to-{recipient}-NNN.json
         # On the remote, "from-{peer}-*" = messages the peer authored (Convention A).
-        # On the remote, "to-psychology-agent-*" = messages addressed to us (Convention B).
+        # On the remote, "to-{us}-*" = messages addressed to us (Convention B).
+        #
+        # The workstation .agent-identity.json may say "human" (operator identity)
+        # while the repo represents "psychology-agent". Check both identities
+        # to catch all inbound messages regardless of which name the sender used.
         our_agent_id = _get_my_agent_id()
-        inbound_prefix = f"to-{our_agent_id}-"
+        repo_agent_id = _get_repo_agent_id()
+        inbound_prefixes = {f"to-{our_agent_id}-"}
+        if repo_agent_id != our_agent_id:
+            inbound_prefixes.add(f"to-{repo_agent_id}-")
         inbound_files = [
             f for f in files
-            if f.startswith(message_prefix) or f.startswith(inbound_prefix)
+            if f.startswith(message_prefix)
+            or any(f.startswith(p) for p in inbound_prefixes)
         ]
 
         # Compare against indexed filenames
@@ -342,16 +379,214 @@ def scan_agent(agent_id: str, agent_config: dict, index: bool = False,
                         "timestamp": msg.get("timestamp"),
                         "subject": (msg.get("payload", msg.get("content", {})) or {}).get("subject", ""),
                     }
+
+                    # Materialize: copy inbound message to local session dir
+                    if materialize or index:
+                        local_name = _materialize_message(
+                            msg, content, filename, session_name
+                        )
+                        if local_name:
+                            msg_summary["materialized_as"] = local_name
+
                     result["new_messages"].append(msg_summary)
 
-                    # Index in state.db if requested
+                    # Index in state.db if requested — use local filename
+                    # if materialized, original filename otherwise
                     if index and DB_PATH.exists():
-                        _index_message(msg, filename, session_name)
+                        idx_filename = msg_summary.get(
+                            "materialized_as", filename
+                        )
+                        _index_message(msg, idx_filename, session_name)
 
                 except json.JSONDecodeError:
                     result["errors"].append(f"parse error: {filename}")
 
+        # Ensure MANIFEST exists for sessions where we materialized files
+        if materialize or index:
+            manifest_path = (
+                PROJECT_ROOT / "transport" / "sessions" / session_name
+                / "MANIFEST.json"
+            )
+            session_dir = manifest_path.parent
+            if session_dir.exists() and not manifest_path.exists():
+                # Bootstrap MANIFEST from existing files
+                _update_manifest(session_name, "__bootstrap__", {
+                    "from": {"agent_id": "__bootstrap__"},
+                    "turn": -1,
+                })
+                # Remove the bootstrap sentinel entry
+                try:
+                    with open(manifest_path) as f:
+                        manifest = json.load(f)
+                    manifest["messages"] = [
+                        m for m in manifest.get("messages", [])
+                        if m.get("filename") != "__bootstrap__"
+                    ]
+                    manifest["participants"] = [
+                        p for p in manifest.get("participants", [])
+                        if p != "__bootstrap__"
+                    ]
+                    with open(manifest_path, "w") as f:
+                        json.dump(manifest, f, indent=2)
+                        f.write("\n")
+                except (json.JSONDecodeError, OSError):
+                    pass
+
     return result
+
+
+def _materialize_message(
+    msg: dict,
+    raw_content: str,
+    remote_filename: str,
+    session_name: str,
+) -> str | None:
+    """Copy an inbound message into the local transport/sessions/ directory.
+
+    Uses deterministic naming: from-{sender_agent_id}-{NNN}.json where NNN
+    is a zero-padded sequence derived from existing files in the session dir.
+
+    Returns the local filename if materialized, None if skipped (already exists).
+    """
+    session_dir = PROJECT_ROOT / "transport" / "sessions" / session_name
+    session_dir.mkdir(parents=True, exist_ok=True)
+
+    # Derive sender from message content
+    from_block = msg.get("from", {})
+    sender = (from_block.get("agent_id", "unknown")
+              if isinstance(from_block, dict) else str(from_block))
+
+    # Check if this exact file already exists (by content match on turn + sender)
+    turn = msg.get("turn", 0)
+    for existing in session_dir.glob("*.json"):
+        if existing.name == "MANIFEST.json":
+            continue
+        try:
+            with open(existing) as f:
+                existing_msg = json.load(f)
+            if not isinstance(existing_msg, dict):
+                continue
+            existing_from = existing_msg.get("from", {})
+            existing_sender = (existing_from.get("agent_id", "")
+                               if isinstance(existing_from, dict) else "")
+            if existing_msg.get("turn") == turn and existing_sender == sender:
+                return None  # Already materialized
+        except (json.JSONDecodeError, OSError):
+            continue
+
+    # Determine next sequence number for this sender
+    prefix = f"from-{sender}-"
+    existing_seqs = []
+    for existing in session_dir.glob(f"{prefix}*.json"):
+        stem = existing.stem  # e.g., "from-psq-sub-agent-001"
+        seq_part = stem[len(f"from-{sender}-"):]
+        try:
+            existing_seqs.append(int(seq_part))
+        except ValueError:
+            continue
+    next_seq = max(existing_seqs, default=0) + 1
+    local_filename = f"{prefix}{next_seq:03d}.json"
+
+    # Write the file
+    local_path = session_dir / local_filename
+    with open(local_path, "w") as f:
+        f.write(raw_content)
+
+    # Update MANIFEST.json
+    _update_manifest(session_name, local_filename, msg)
+
+    return local_filename
+
+
+def _update_manifest(session_name: str, filename: str, msg: dict) -> None:
+    """Add a message entry to the local session MANIFEST.json."""
+    manifest_path = (
+        PROJECT_ROOT / "transport" / "sessions" / session_name / "MANIFEST.json"
+    )
+
+    if manifest_path.exists():
+        try:
+            with open(manifest_path) as f:
+                manifest = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            manifest = {}
+    else:
+        # Bootstrap MANIFEST from existing files in the session directory
+        manifest = {
+            "session_id": session_name,
+            "created": datetime.now().isoformat(),
+            "participants": [],
+            "messages": [],
+            "status": "open",
+        }
+        session_dir = manifest_path.parent
+        for existing_file in sorted(session_dir.glob("*.json")):
+            if existing_file.name == "MANIFEST.json":
+                continue
+            try:
+                with open(existing_file) as f:
+                    existing_msg = json.load(f)
+                if not isinstance(existing_msg, dict):
+                    continue
+                efrom = existing_msg.get("from", {})
+                esender = (efrom.get("agent_id", "unknown")
+                           if isinstance(efrom, dict) else str(efrom))
+                epayload = existing_msg.get("payload", existing_msg.get("content", {}))
+                esubject = (epayload.get("subject", "")
+                            if isinstance(epayload, dict) else "")
+                manifest["messages"].append({
+                    "filename": existing_file.name,
+                    "turn": existing_msg.get("turn", 0),
+                    "from": esender,
+                    "subject": esubject,
+                })
+                manifest["participants"].append(esender)
+            except (json.JSONDecodeError, OSError):
+                continue
+        manifest["participants"] = sorted(set(manifest["participants"]))
+
+    messages = manifest.get("messages", [])
+
+    # Avoid duplicate entries
+    if any(m.get("filename") == filename for m in messages):
+        return
+
+    from_block = msg.get("from", {})
+    sender = (from_block.get("agent_id", "unknown")
+              if isinstance(from_block, dict) else str(from_block))
+    payload = msg.get("payload", msg.get("content", {}))
+    subject = (payload.get("subject", "")
+               if isinstance(payload, dict) else "")
+
+    # Extract vote if consensus message
+    vote = (payload.get("vote", "")
+            if isinstance(payload, dict) else "")
+    display_subject = subject
+    if not display_subject and vote:
+        display_subject = f"Consensus vote: {vote}"
+    if not display_subject:
+        msg_type = msg.get("message_type", "")
+        display_subject = f"{msg_type} from {sender}" if msg_type else f"Message from {sender}"
+
+    messages.append({
+        "filename": filename,
+        "turn": msg.get("turn", 0),
+        "from": sender,
+        "subject": display_subject,
+    })
+
+    # Sort by turn
+    messages.sort(key=lambda m: m.get("turn", 0))
+    manifest["messages"] = messages
+
+    # Update participants
+    participants = set(manifest.get("participants", []))
+    participants.add(sender)
+    manifest["participants"] = sorted(participants)
+
+    with open(manifest_path, "w") as f:
+        json.dump(manifest, f, indent=2)
+        f.write("\n")
 
 
 def _index_message(msg: dict, filename: str, session_name: str) -> None:
@@ -402,7 +637,9 @@ def main():
     parser = argparse.ArgumentParser(description="Cross-repo transport fetch")
     parser.add_argument("--agent", help="Scan a specific agent only")
     parser.add_argument("--index", action="store_true",
-                        help="Index new messages in state.db")
+                        help="Index new messages in state.db (implies --materialize)")
+    parser.add_argument("--materialize", action="store_true",
+                        help="Copy inbound messages to local session directories")
     parser.add_argument("--json", action="store_true",
                         help="Output as JSON")
     parser.add_argument("--force", action="store_true",
@@ -419,6 +656,7 @@ def main():
         if args.agent and agent_id != args.agent:
             continue
         result = scan_agent(agent_id, config, index=args.index,
+                            materialize=args.materialize,
                             force=args.force)
         results.append(result)
 
@@ -448,9 +686,11 @@ def main():
                   f"{s['inbound_files']} inbound{marker}")
 
         for msg in r.get("new_messages", []):
+            materialized = msg.get("materialized_as")
+            mat_label = f" → {materialized}" if materialized else ""
             print(f"    NEW: {msg['filename']} "
                   f"(turn {msg.get('turn')}, {msg.get('message_type')})"
-                  f" — {msg.get('subject', '(no subject)')}")
+                  f" — {msg.get('subject', '(no subject)')}{mat_label}")
 
         if r.get("errors"):
             for err in r["errors"]:
