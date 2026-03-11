@@ -74,16 +74,10 @@ Forward-looking task list only. Completed and emergent work goes to
   (stats), `--compact` (truncated), `--type assistant|user|tool_result` (filter),
   `--json` (structured output), `--last N` (tail). Session 70.
 
-- [ ] **Investigate alternative Claude Code client ("psychology interface")** —
-  explore building a custom client tailored to the psychology agent use case:
-  a purpose-built interface for psychological analysis, research, and consultation
-  rather than a generic coding assistant shell. Questions to investigate:
-  (1) What does the Claude Code SDK / extension API expose to alternative clients?
-  (2) What session, context, and memory management primitives would carry over?
-  (3) What does a psychology-specific UI need that the CLI does not provide
-      (structured output display, PSQ score visualization, session continuity
-      across consultations, IRB-safe data handling)?
-  Start with the SDK surface before committing to scope.
+- [x] **Psychology interface client** — ACTIVE DEVELOPMENT. Go project at
+  `~/Projects/psychology-agent-interface` (repo: safety-quotient-lab/psychology-agent-interface).
+  Features: turn counter with context pressure, no_repeat_ngram_size, context window
+  hardening. Originally scoped as investigation; promoted to standalone project.
 
 ---
 
@@ -480,6 +474,10 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   staleness vitals, agent switcher, sort/filter/pagination. Deployed to CF Worker.
   SSE live updates still queued as enhancement.
 
+- [ ] **Mesh topology lines too thin on mobile** — the mesh topology visualization
+  on the interagent dashboard uses line widths that render practically invisible on
+  mobile devices. Increase stroke width for connection lines.
+
 ---
 
 ## DNS & Infrastructure (safety-quotient.dev)
@@ -622,10 +620,12 @@ auto-restart loops. None had monitoring — all required manual discovery.
   Jenkins configured: global env vars, `deploy-ssh-key` credential, hourly SCM.
   PSQ model deploy pipeline remains manual-trigger (documented, not yet automated).
 
-- [ ] **PSQ model deploy pipeline** — Jenkins pipeline for train → validate →
-  export → deploy to Hetzner. 11-step sequence documented in `docs/devops-pipeline.md`.
-  Manual trigger only (parameterized build with model path).
-  *Precondition: PSQ model retraining cycle occurs*
+- [x] **PSQ model deploy pipeline** — COMPLETE (Session 75). Parameterized
+  Jenkinsfile with 11-step deploy: calibrate, ONNX export, held-out eval, SHA256
+  verify, rsync to Hetzner, restart, health check, smoke test. Dedicated
+  `hetzner-ssh-key` credential (ED25519, cabinet-jenkins@safety-quotient-lab).
+  Jenkins env vars: HETZNER_HOST, HETZNER_REMOTE_DIR, PSQ_HEALTH_URL,
+  PSQ_SCORE_URL, PSQ_SERVICE_NAME.
 
 - [x] **Surface epistemic debt detail on compositor** — COMPLETE (Session 73).
   /kb/epistemic route + detail table in Meta tab (flag text, source, agent, age).
