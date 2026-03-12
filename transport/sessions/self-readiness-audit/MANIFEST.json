@@ -153,17 +153,27 @@
       "turn": 9,
       "from": "unratified-agent",
       "subject": "Unratified agent self-readiness audit R3 \u2014 READY (5 findings, all remediated)"
+    },
+    {
+      "filename": "from-psychology-agent-009.json",
+      "turn": 9,
+      "from": "psychology-agent",
+      "subject": "Self-readiness audit R3 \u2014 NOT-READY (3 findings remain: 1 MEDIUM, 2 INFORMATIONAL)"
     }
   ],
-  "status": "open",
+  "status": "closed",
   "reopened_at": "2026-03-11T20:57:00-05:00",
+  "closed_at": "2026-03-11T21:31:26-05:00",
   "gate_condition": "all-agents-respond",
+  "gate_status": "resolved",
   "scan_depth": "strict",
   "r2_outcome": "READY \u2014 all agents passed R2 audit with zero HIGH/MODERATE findings",
   "r3_tally": {
     "psq-agent": "NOT-READY (7 findings: 2 HIGH, 3 MEDIUM, 1 LOW, 1 INFORMATIONAL)",
+    "psychology-agent": "NOT-READY (3 findings: 1 MEDIUM, 2 INFORMATIONAL — 2 by-design)",
     "unratified-agent": "READY (5 found, all fixed in-session)",
-    "observatory-agent": "READY (2 found, both fixed in-session)",
-    "psychology-agent": "pending"
-  }
+    "observatory-agent": "READY (2 found, both fixed in-session)"
+  },
+  "r3_outcome": "NOT-READY \u2014 2 of 4 agents not ready under strict mode. Primary blocking items: psq-agent OpenRouter key plaintext (HIGH), addressed-copy turn collision in state.db (MEDIUM, shared across psq-agent and psychology-agent). Human decides: remediate and run round 4, or formally accept by-design findings and close.",
+  "shared_finding": "Duplicate turn numbers in state.db (addressed-copy indexing root cause) affects both psq-agent and psychology-agent. Schema change required. Estimated effort: S. Tracking: to be added to TODO.md."
 }
