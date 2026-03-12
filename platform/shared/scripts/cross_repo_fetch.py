@@ -486,20 +486,25 @@ def _materialize_message(
 ) -> str | None:
     """Copy an inbound message into the local transport/sessions/ directory.
 
-    Uses deterministic naming: from-{sender_agent_id}-{NNN}.json where NNN
-    is a zero-padded sequence derived from existing files in the session dir.
+    Convention B files (to-{agent}-NNN.json, from-{agent}-NNN.json) preserve
+    their original filename — the naming convention carries semantic meaning
+    (who it's addressed to, who sent it). Only files with non-standard names
+    get renamed to from-{sender}-NNN.json.
 
     Returns the local filename if materialized, None if skipped (already exists).
     """
     session_dir = PROJECT_ROOT / "transport" / "sessions" / session_name
     session_dir.mkdir(parents=True, exist_ok=True)
 
-    # Derive sender from message content
+    # Check if this exact file already exists by name
+    local_path = session_dir / remote_filename
+    if local_path.exists():
+        return None  # Already materialized with same name
+
+    # Also check by content match (turn + sender) to catch renamed copies
     from_block = msg.get("from", {})
     sender = (from_block.get("agent_id", "unknown")
               if isinstance(from_block, dict) else str(from_block))
-
-    # Check if this exact file already exists (by content match on turn + sender)
     turn = msg.get("turn", 0)
     for existing in session_dir.glob("*.json"):
         if existing.name == "MANIFEST.json":
@@ -513,26 +518,33 @@ def _materialize_message(
             existing_sender = (existing_from.get("agent_id", "")
                                if isinstance(existing_from, dict) else "")
             if existing_msg.get("turn") == turn and existing_sender == sender:
-                return None  # Already materialized
+                return None  # Already materialized under a different name
         except (json.JSONDecodeError, OSError):
             continue
 
-    # Determine next sequence number for this sender
-    prefix = f"from-{sender}-"
-    existing_seqs = []
-    for existing in session_dir.glob(f"{prefix}*.json"):
-        stem = existing.stem  # e.g., "from-psq-sub-agent-001"
-        seq_part = stem[len(f"from-{sender}-"):]
-        try:
-            existing_seqs.append(int(seq_part))
-        except ValueError:
-            continue
-    next_seq = max(existing_seqs, default=0) + 1
-    local_filename = f"{prefix}{next_seq:03d}.json"
+    # Determine local filename — preserve Convention B names, rename others
+    import re
+    convention_b = re.match(r'^(to|from)-[\w-]+-\d+\.json$', remote_filename)
+    if convention_b:
+        # Convention B: preserve the original filename
+        local_filename = remote_filename
+    else:
+        # Non-standard name: use from-{sender}-NNN.json
+        prefix = f"from-{sender}-"
+        existing_seqs = []
+        for existing in session_dir.glob(f"{prefix}*.json"):
+            stem = existing.stem
+            seq_part = stem[len(f"from-{sender}-"):]
+            try:
+                existing_seqs.append(int(seq_part))
+            except ValueError:
+                continue
+        next_seq = max(existing_seqs, default=0) + 1
+        local_filename = f"{prefix}{next_seq:03d}.json"
 
     # Write the file
-    local_path = session_dir / local_filename
-    with open(local_path, "w") as f:
+    out_path = session_dir / local_filename
+    with open(out_path, "w") as f:
         f.write(raw_content)
 
     # Update MANIFEST.json
