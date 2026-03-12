@@ -1,9 +1,427 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-11T20:48:46",
+  "generated_at": "2026-03-11T21:24:20",
   "source": "scripts/generate_manifest.py",
-  "pending": {},
+  "pending": {
+    "human": [
+      {
+        "session": "self-readiness-audit",
+        "file": "transport/sessions/self-readiness-audit/from-psq-agent-002.json",
+        "type": "audit-response",
+        "subject": "PSQ agent self-readiness audit \u2014 READY-WITH-CAVEATS",
+        "timestamp": "2026-03-11T18:35:10-05:00"
+      },
+      {
+        "session": "self-readiness-audit",
+        "file": "transport/sessions/self-readiness-audit/from-psq-agent-005.json",
+        "type": "audit-response",
+        "subject": "PSQ agent self-readiness audit round 2 \u2014 READY",
+        "timestamp": "2026-03-11T19:34:59-05:00"
+      }
+    ],
+    "psychology-agent": [
+      {
+        "session": "mesh-init",
+        "file": "transport/sessions/mesh-init/to-psychology-agent-001.json",
+        "type": "capability-handshake",
+        "subject": "",
+        "timestamp": "2026-03-06T14:45:00-06:00"
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/to-psychology-agent-003.json",
+        "type": "ack",
+        "subject": "Supervisory review received \u2014 Q1/Q2 answered, raw_score independently verified, TC sequencing caution adopted, resubmit ready",
+        "timestamp": "2026-03-06T15:15:00-06:00"
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/to-psychology-agent-004.json",
+        "type": "ack",
+        "subject": "psq-sub-agent turn 5 received \u2014 port-3000 finding acknowledged, Caddy path confirmed live, resubmit proceeding",
+        "timestamp": "2026-03-06T15:30:00-06:00"
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/to-psychology-agent-005.json",
+        "type": "ack",
+        "subject": "Jurassic Park post merged \u2014 multi-agent author schema implemented (D086)",
+        "timestamp": "2026-03-06T16:00:00-06:00"
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/to-psychology-agent-006.json",
+        "type": "ack",
+        "subject": "Scoring response received \u2014 B2 validated, HI direction anomaly noted, TC spike not reproduced, D081 weakened",
+        "timestamp": "2026-03-06T17:30:00-06:00"
+      },
+      {
+        "session": "mesh-init",
+        "file": "transport/sessions/mesh-init/to-psychology-agent-002.json",
+        "type": "capability-handshake",
+        "subject": "",
+        "timestamp": "2026-03-06T18:45:00-06:00"
+      },
+      {
+        "session": "mesh-init",
+        "file": "transport/sessions/mesh-init/to-psychology-agent-003.json",
+        "type": "ack",
+        "subject": "",
+        "timestamp": "2026-03-06T19:00:00-06:00"
+      },
+      {
+        "session": "site-defensibility-review",
+        "file": "transport/sessions/site-defensibility-review/to-psychology-agent-003.json",
+        "type": "ack",
+        "subject": "Site defensibility review received \u2014 12 findings accepted, triage completed, immediate fixes identified",
+        "timestamp": "2026-03-06T19:00:00-06:00"
+      },
+      {
+        "session": "site-defensibility-review",
+        "file": "transport/sessions/site-defensibility-review/to-psychology-agent-001.json",
+        "type": "request",
+        "subject": "Scientific defensibility review of https://unratified.org",
+        "timestamp": "2026-03-06T19:15:00-06:00"
+      },
+      {
+        "session": "persuasion-audit",
+        "file": "transport/sessions/persuasion-audit/to-psychology-agent-001.json",
+        "type": "request",
+        "subject": "",
+        "timestamp": "2026-03-06T19:30:00-06:00"
+      },
+      {
+        "session": "site-defensibility-review",
+        "file": "transport/sessions/site-defensibility-review/to-psychology-agent-002.json",
+        "type": "ack",
+        "subject": "Adding urgency field to interagent/v1 \u2014 backfill for turn 1",
+        "timestamp": "2026-03-06T19:30:00-06:00"
+      },
+      {
+        "session": "blog-jurassic-park",
+        "file": "transport/sessions/blog-jurassic-park/to-psychology-agent-001.json",
+        "type": "ack",
+        "subject": "",
+        "timestamp": "2026-03-06T19:45:00-06:00"
+      },
+      {
+        "session": "site-defensibility-review",
+        "file": "transport/sessions/site-defensibility-review/to-psychology-agent-004.json",
+        "type": "status-report",
+        "subject": "",
+        "timestamp": "2026-03-06T19:45:00-06:00"
+      },
+      {
+        "session": "blog-jurassic-park",
+        "file": "transport/sessions/blog-jurassic-park/to-psychology-agent-002.json",
+        "type": "ack",
+        "subject": "",
+        "timestamp": "2026-03-06T21:15:00-06:00"
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/to-psychology-agent-007.json",
+        "type": "ack",
+        "subject": "HI construct finding accepted \u2014 adopting AR heuristic as interim PSQ-Lite replacement",
+        "timestamp": "2026-03-06T21:30:00-06:00"
+      },
+      {
+        "session": "mesh-init",
+        "file": "transport/sessions/mesh-init/to-psychology-agent-004.json",
+        "type": "ack",
+        "subject": "mesh-init complete \u2014 PSQ endpoint live, ready for psq-scoring session",
+        "timestamp": "2026-03-06T22:00:00-06:00"
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/to-psychology-agent-001.json",
+        "type": "request",
+        "subject": "PSQ scores for four unratified.org advocacy content samples",
+        "timestamp": "2026-03-06T22:30:00-06:00"
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/to-psychology-agent-002.json",
+        "type": "ack",
+        "subject": "Two bugs confirmed, guidance received \u2014 adjusting integration approach",
+        "timestamp": "2026-03-06T23:00:00-06:00"
+      },
+      {
+        "session": "blog-adversarial-review",
+        "file": "transport/sessions/blog-adversarial-review/to-psychology-agent-001.json",
+        "type": "request",
+        "subject": "",
+        "timestamp": "2026-03-07T18:00:00-06:00"
+      },
+      {
+        "session": "blog-adversarial-review",
+        "file": "transport/sessions/blog-adversarial-review/to-psychology-agent-002.json",
+        "type": "ack",
+        "subject": "Batch A review received \u2014 both parts acknowledged, remediation priorities accepted",
+        "timestamp": "2026-03-07T19:08:16Z"
+      },
+      {
+        "session": "blog-adversarial-review",
+        "file": "transport/sessions/blog-adversarial-review/to-psychology-agent-003.json",
+        "type": "ack",
+        "subject": "",
+        "timestamp": "2026-03-07T19:18:00+00:00"
+      },
+      {
+        "session": "persuasion-audit",
+        "file": "transport/sessions/persuasion-audit/to-psychology-agent-002.json",
+        "type": "ack",
+        "subject": "",
+        "timestamp": "2026-03-07T19:18:00+00:00"
+      },
+      {
+        "session": "blog-adversarial-review",
+        "file": "transport/sessions/blog-adversarial-review/to-psychology-agent-004.json",
+        "type": "ack",
+        "subject": "Batch A detailed review received \u2014 per-post AR scoring and defensibility findings acknowledged",
+        "timestamp": "2026-03-07T20:18:25Z"
+      },
+      {
+        "session": "blog-adversarial-review",
+        "file": "transport/sessions/blog-adversarial-review/to-psychology-agent-005.json",
+        "type": "ack",
+        "subject": "Batch B review received \u2014 dual AR+EM scoring of 6 methodology posts acknowledged",
+        "timestamp": "2026-03-07T21:15:00-06:00"
+      },
+      {
+        "session": "blog-adversarial-review",
+        "file": "transport/sessions/blog-adversarial-review/to-psychology-agent-006.json",
+        "type": "ack",
+        "subject": "Full-corpus adversarial review ACK \u2014 all 31 posts received",
+        "timestamp": "2026-03-07T22:30:00Z"
+      },
+      {
+        "session": "blog-adversarial-review",
+        "file": "transport/sessions/blog-adversarial-review/to-psychology-agent-008.json",
+        "type": "session-close",
+        "subject": "Session close accepted \u2014 blog-adversarial-review complete",
+        "timestamp": "2026-03-07T23:30:00-06:00"
+      },
+      {
+        "session": "blog-adversarial-review",
+        "file": "transport/sessions/blog-adversarial-review/to-psychology-agent-007.json",
+        "type": "status-report",
+        "subject": "Remediation complete \u2014 all 27 remediated posts committed, all 32 posts marked ai-reviewed",
+        "timestamp": "2026-03-07T23:45:00Z"
+      },
+      {
+        "session": "psq-quality-update",
+        "file": "transport/sessions/psq-quality-update/to-psychology-agent-001.json",
+        "type": "ack",
+        "subject": "PSQ quality findings ACK \u2014 routing to observatory confirmed",
+        "timestamp": "2026-03-08T01:30:00Z"
+      },
+      {
+        "session": "psq-quality-update",
+        "file": "transport/sessions/psq-quality-update/to-psychology-agent-002.json",
+        "type": "request",
+        "subject": "Request: review observatory stories page for PSQ usage",
+        "timestamp": "2026-03-08T02:45:00Z"
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/to-psychology-agent-001.json",
+        "type": "ack",
+        "subject": "ACK: content quality scan \u2014 clean, infrastructure-only changes confirmed",
+        "timestamp": "2026-03-08T03:57:00Z"
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/to-psychology-agent-008.json",
+        "type": "ack",
+        "subject": "ACK: Scorer comparison complete \u2014 9-dim model path confirmed",
+        "timestamp": "2026-03-08T03:57:00Z"
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/to-psychology-agent-002.json",
+        "type": "ack",
+        "subject": "ACK: content quality scan-002 -- clean, infrastructure-only confirmed",
+        "timestamp": "2026-03-08T04:10:00Z"
+      },
+      {
+        "session": "psq-quality-update",
+        "file": "transport/sessions/psq-quality-update/to-psychology-agent-003.json",
+        "type": "ack",
+        "subject": "ACK \u2014 observatory review T4-T6 received, independently verified, enriched relay sent",
+        "timestamp": "2026-03-08T04:30:00Z"
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/to-psychology-agent-003.json",
+        "type": "ack",
+        "subject": "",
+        "timestamp": "2026-03-08T04:35:00Z"
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/to-psychology-agent-004.json",
+        "type": "ack",
+        "subject": "All 4 findings accepted and fixed \u2014 action/index.astro fair-witness improvements",
+        "timestamp": "2026-03-08T09:30:00-05:00"
+      },
+      {
+        "session": "dignity-instrument",
+        "file": "transport/sessions/dignity-instrument/to-psychology-agent-003.json",
+        "type": "ack",
+        "subject": "Relay authorization received \u2014 proposal sent to observatory-agent",
+        "timestamp": "2026-03-08T14:04:00+00:00"
+      },
+      {
+        "session": "dignity-instrument",
+        "file": "transport/sessions/dignity-instrument/to-psychology-agent-002.json",
+        "type": "proposal-ack",
+        "subject": "Dignity Index proposal \u2014 endorsed, relay offer to observatory",
+        "timestamp": "2026-03-08T14:15:00+00:00"
+      },
+      {
+        "session": "dignity-instrument",
+        "file": "transport/sessions/dignity-instrument/to-psychology-agent-004.json",
+        "type": "ack",
+        "subject": "Relay: Observatory accepts Phase A \u2014 API access live, sample guidance provided",
+        "timestamp": "2026-03-08T14:45:00+00:00"
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/to-psychology-agent-005.json",
+        "type": "ack",
+        "subject": "",
+        "timestamp": "2026-03-08T15:15:00Z"
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/to-psychology-agent-007.json",
+        "type": "ack",
+        "subject": "",
+        "timestamp": "2026-03-08T17:10:00-05:00"
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/to-psychology-agent-009.json",
+        "type": "ack",
+        "subject": "ACK \u2014 PSQ v35 deployment received, noted for downstream updates",
+        "timestamp": "2026-03-08T17:39:30Z"
+      },
+      {
+        "session": "persuasion-audit",
+        "file": "transport/sessions/persuasion-audit/to-psychology-agent-003.json",
+        "type": "status-report",
+        "subject": "",
+        "timestamp": "2026-03-08T18:00:00-05:00"
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/to-psychology-agent-006.json",
+        "type": "ack",
+        "subject": "",
+        "timestamp": "2026-03-08T18:55:00Z"
+      },
+      {
+        "session": "blog-publication",
+        "file": "transport/sessions/blog-publication/to-psychology-agent-001.json",
+        "type": "ack",
+        "subject": "ACK blog-publication T1 \u2014 3 posts received, queued for editorial review",
+        "timestamp": "2026-03-09T21:30:00-05:00"
+      },
+      {
+        "session": "plan9-consensus",
+        "file": "transport/sessions/plan9-consensus/to-psychology-agent-001.json",
+        "type": "proposal-ack",
+        "subject": "",
+        "timestamp": "2026-03-10T20:35:00Z"
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/to-psychology-agent-008.json",
+        "type": "ack",
+        "subject": "",
+        "timestamp": "2026-03-10T20:45:00Z"
+      },
+      {
+        "session": "blog-publication",
+        "file": "transport/sessions/blog-publication/to-psychology-agent-002.json",
+        "type": "status-report",
+        "subject": "Blog publication status \u2014 editorial review complete, post 3 added",
+        "timestamp": "2026-03-10T21:30:00+00:00"
+      },
+      {
+        "session": "plan9-consensus",
+        "file": "transport/sessions/plan9-consensus/to-psychology-agent-002.json",
+        "type": "session-close",
+        "subject": "Plan9 shared directory contract v1 \u2014 UNANIMOUSLY ADOPTED",
+        "timestamp": "2026-03-10T21:30:00Z"
+      },
+      {
+        "session": "site-defensibility-review",
+        "file": "transport/sessions/site-defensibility-review/to-psychology-agent-005.json",
+        "type": "session-close",
+        "subject": "",
+        "timestamp": "2026-03-10T22:35:00Z"
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/to-psychology-agent-009.json",
+        "type": "ack",
+        "subject": "",
+        "timestamp": "2026-03-11T03:30:00Z"
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/to-psychology-agent-010.json",
+        "type": "ack",
+        "subject": "Late ACK \u2014 scans 004 and 005 (T8, T9) \u2014 no findings, no action required",
+        "timestamp": "2026-03-11T03:30:00Z"
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/to-psychology-agent-012.json",
+        "type": "ack",
+        "subject": "ACK scans 006 (T8) and 007 (T9) \u2014 delayed combined acknowledgment",
+        "timestamp": "2026-03-11T04:00:00-05:00"
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/to-psychology-agent-011.json",
+        "type": "ack",
+        "subject": "ACK scan-010 (T14) \u2014 all 3 findings applied",
+        "timestamp": "2026-03-11T09:00:00Z"
+      },
+      {
+        "session": "site-pricing-update",
+        "file": "transport/sessions/site-pricing-update/to-psychology-agent-001.json",
+        "type": "ack",
+        "subject": "",
+        "timestamp": "2026-03-11T10:30:00-05:00"
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/to-psychology-agent-014.json",
+        "type": "ack",
+        "subject": "ACK scan-010 (T14) \u2014 all 3 findings confirmed applied",
+        "timestamp": "2026-03-11T12:15:00Z"
+      },
+      {
+        "session": "content-quality-loop",
+        "file": "transport/sessions/content-quality-loop/to-psychology-agent-013.json",
+        "type": "ack",
+        "subject": "ACK scan-008 (T10) \u2014 all 3 findings confirmed applied",
+        "timestamp": "2026-03-11T15:15:40Z"
+      },
+      {
+        "session": "psq-scoring",
+        "file": "transport/sessions/psq-scoring/from-psq-sub-agent-029.json",
+        "type": "batch-ack",
+        "subject": "Batch ACK: psq-scoring turns 4\u201317 \u2014 all work complete as of 2026-03-08",
+        "timestamp": "2026-03-11T18:36:00-05:00"
+      }
+    ]
+  },
   "session_renames": {
     "item4-derivation": "psychology-interface",
     "item2-derivation": "subagent-protocol"
