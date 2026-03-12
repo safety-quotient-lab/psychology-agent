@@ -31,6 +31,7 @@ if [ -n "${1:-}" ] && [ -d "${1:-}" ]; then
 elif [ -z "${PROJECT_ROOT:-}" ]; then
     PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 fi
+export PROJECT_ROOT
 IDENTITY_FILE="${PROJECT_ROOT}/.agent-identity.json"
 
 # Agent identity: .agent-identity.json > AGENT_ID env var > default
@@ -153,7 +154,7 @@ ensure_db() {
         fi
         # Python bootstrap populates from files (agentdb creates empty schemas)
         if [ -f "${PROJECT_ROOT}/scripts/bootstrap_state_db.py" ]; then
-            PROJECT_ROOT="${PROJECT_ROOT}" python3 "${PROJECT_ROOT}/scripts/bootstrap_state_db.py" --force
+            python3 "${PROJECT_ROOT}/scripts/bootstrap_state_db.py" --force
         fi
     fi
 
