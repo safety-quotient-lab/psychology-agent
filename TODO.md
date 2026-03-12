@@ -680,7 +680,7 @@ auto-restart loops. None had monitoring — all required manual discovery.
 
 ---
 
-## Pipeline Gap Remediation (Session 78)
+## Pipeline Gap Remediation (Session 78–79)
 
 Systemic diagnostic revealed 5 monitoring mechanisms that collect data but
 never consume it. Schema and write paths exist; consumption/action paths missing.
@@ -695,40 +695,52 @@ never consume it. Schema and write paths exist; consumption/action paths missing
   a flag's concern becomes moot (design decision supersedes it), mark resolved.
   *Precondition: ✓ MET — epistemic_flags table populated*
 
-- [ ] **Trigger telemetry to state.db** — all 17 triggers show fire_count=0. Hook scripts
-  fire triggers in-context but don't write to state.db. Add `dual_write.py trigger-fire
-  --trigger-id T{N}` and call from the session-start hook (T1 fires every session).
-  *Precondition: ✓ MET — trigger_state table populated, dual_write.py exists*
+- [x] **Trigger telemetry to state.db** — session-start hook writes T1 fire via
+  `dual_write.py trigger-fired`. Other triggers (T2-T16) fire behaviorally during
+  conversation — mechanical enforcement would add friction for marginal telemetry
+  value. Partial fix: T1 tracked, others remain behavioral. Session 78–79.
 
-- [ ] **Run bootstrap_facets.py** — 0 universal facets in state.db. The script exists and
-  was tested (Session 62e) but never run against the current database.
-  *Precondition: ✓ MET — bootstrap_facets.py exists, state.db rebuilt*
+- [x] **Run bootstrap_facets.py** — 3,759 universal facets populated. Session 78.
 
-- [ ] **Create lessons.md** — file missing entirely. /cycle Step 8b references it. T10
-  and T12 write to it. Create with initial structure and YAML frontmatter template.
-  *Precondition: none*
+- [x] **Index lessons.md** — 26 lessons indexed via `bootstrap_lessons.py --apply`.
+  File exists at project root (1,357 lines). Session 79.
 
 ---
 
-## Standards Alignment (Session 78)
+## Standards Alignment (Session 78–79)
 
 Adopt-now items from standards landscape survey (13 protocols evaluated).
 
-- [ ] **A2A Agent Card alignment** — update `.well-known/agent-card.json` to include
-  structured `skills` array, `securitySchemes`, and match A2A schema conventions.
-  Low cost, high interoperability value.
-  *Precondition: none*
-  *Reference: a2a-protocol.org/latest/specification/*
+- [x] **A2A Agent Card alignment** — upgraded to `agent-card/v2` with A2A-compatible
+  fields: `name`, `version`, `provider`, `skills[]`, `capabilities{}`, `authentication`,
+  `defaultInputModes`/`defaultOutputModes`. Session 79.
 
-- [ ] **DIDComm threading model** — replace linear turn numbers with `thread_id` +
-  `parent_thread_id` in transport messages. Multi-party consensus rounds use parent
-  thread; each agent's response gets its own thread. Eliminates same-turn collisions.
-  Schema migration needed (transport_messages table). M effort.
-  *Precondition: transport-exempt-session-types decision resolved (✓ Session 78)*
+- [x] **DIDComm threading model** — `thread_id` + `parent_thread_id` added to
+  transport schema (v19). Defaults to `session_name` for backward compat. 204/204
+  messages backfilled. Session 79.
 
-- [ ] **Content-addressable message IDs** — SHA-256 hash of canonical JSON as message
-  CID. MANIFEST tracks CIDs for dedup and integrity verification. S effort.
-  *Precondition: none*
+- [x] **Content-addressable message IDs** — `message_cid` (SHA-256 of canonical JSON)
+  added to transport schema (v19). 203/204 messages backfilled. Unique index for
+  dedup. Session 79.
+
+- [x] **DIDComm problem reports** — `problem_type` column (`error`/`warning`/`info`)
+  and `message_type: "problem-report"` convention documented. Session 79.
+
+- [x] **A2A task state lifecycle** — 7-state enum (`pending`/`working`/`input-required`/
+  `completed`/`failed`/`canceled`/`rejected`) replaces binary `processed` flag.
+  Schema v20. Session 79.
+
+- [x] **Message expiration** — `expires_at` field for time-sensitive requests. Schema
+  v20. Session 79.
+
+- [x] **Implicit ACK convention** — substantive `in_response_to` references count as
+  implicit acknowledgment (DIDComm-inspired). Documented in transport.md. Session 79.
+
+- [ ] **JSON-RPC method vocabulary for meshd** — map meshd HTTP routes to A2A standard
+  method names (`SendMessage`, `GetTask`, `ListTasks`, `CancelTask`). Add JSON-RPC
+  envelope support for dual-protocol serving alongside existing REST routes. M effort.
+  *Precondition: v19+v20 schema deployed to chromabook meshd*
+  *Reference: a2a-protocol.org/latest/specification/ — JSON-RPC methods section*
 
 ---
 

@@ -8,7 +8,9 @@ markdown = source of truth, DB = queryable index).
 Usage:
     python scripts/dual_write.py transport-message --session SESSION --filename FILE \
         --turn N --type TYPE --from-agent FROM --to-agent TO --timestamp TS \
-        [--subject SUBJ] [--claims-count N] [--setl F] [--urgency URG]
+        [--subject SUBJ] [--claims-count N] [--setl F] [--urgency URG] \
+        [--thread-id TID] [--parent-thread-id PTID] [--message-cid CID] \
+        [--problem-type error|warning|info]
 
     python scripts/dual_write.py mark-processed --session SESSION --filename FILE
 
@@ -54,6 +56,7 @@ Usage:
 Requires: Python 3.10+ (stdlib only)
 """
 import argparse
+import hashlib
 import json
 import sqlite3
 import sys
@@ -62,6 +65,23 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent
 DB_PATH = PROJECT_ROOT / "state.db"
 SCHEMA_PATH = PROJECT_ROOT / "scripts" / "schema.sql"
+
+
+def _compute_cid_from_file(session_name: str, filename: str) -> str | None:
+    """Compute SHA-256 content-addressable ID from a transport JSON file.
+
+    Returns the hex digest, or None if the file cannot be read.
+    Canonical form: sorted-keys JSON with no trailing whitespace.
+    """
+    filepath = PROJECT_ROOT / "transport" / "sessions" / session_name / filename
+    if not filepath.exists():
+        return None
+    try:
+        raw = json.loads(filepath.read_text())
+        canonical = json.dumps(raw, sort_keys=True, separators=(",", ":"))
+        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    except (json.JSONDecodeError, OSError):
+        return None
 
 
 def get_connection() -> sqlite3.Connection:
@@ -82,11 +102,17 @@ def get_connection() -> sqlite3.Connection:
 
 def cmd_transport_message(args: argparse.Namespace) -> None:
     conn = get_connection()
-    # Ensure issue columns exist (v18 migration for existing DBs)
+    # Ensure v18+ columns exist (migration safety for existing DBs)
     for col, col_type, default in [
         ("issue_url", "TEXT", "NULL"),
         ("issue_number", "INTEGER", "NULL"),
         ("issue_pending", "INTEGER", "0"),
+        ("thread_id", "TEXT", "NULL"),
+        ("parent_thread_id", "TEXT", "NULL"),
+        ("message_cid", "TEXT", "NULL"),
+        ("problem_type", "TEXT", "NULL"),
+        ("task_state", "TEXT", "'pending'"),
+        ("expires_at", "TEXT", "NULL"),
     ]:
         try:
             conn.execute(
@@ -94,12 +120,31 @@ def cmd_transport_message(args: argparse.Namespace) -> None:
             )
         except sqlite3.OperationalError:
             pass  # column already exists
+
+    # Compute content-addressable ID from the source JSON file if available
+    message_cid = getattr(args, "message_cid", None)
+    if not message_cid:
+        message_cid = _compute_cid_from_file(args.session, args.filename)
+
+    # Default thread_id to session_name (backward compatible)
+    thread_id = getattr(args, "thread_id", None) or args.session
+    parent_thread_id = getattr(args, "parent_thread_id", None)
+    problem_type = getattr(args, "problem_type", None)
+
+    # Task state: outbound messages start completed; inbound start pending
+    task_state = getattr(args, "task_state", None) or "pending"
+    expires_at = getattr(args, "expires_at", None)
+
     conn.execute("""
         INSERT OR REPLACE INTO transport_messages
             (session_name, filename, turn, message_type, from_agent, to_agent,
              timestamp, subject, claims_count, setl, urgency, processed, processed_at,
-             issue_url, issue_number, issue_pending)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE, NULL, ?, ?, ?)
+             issue_url, issue_number, issue_pending,
+             thread_id, parent_thread_id, message_cid, problem_type,
+             task_state, expires_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE, NULL, ?, ?, ?,
+                ?, ?, ?, ?,
+                ?, ?)
     """, (
         args.session, args.filename, args.turn, args.type,
         args.from_agent, args.to_agent, args.timestamp,
@@ -108,10 +153,13 @@ def cmd_transport_message(args: argparse.Namespace) -> None:
         getattr(args, "issue_url", None),
         getattr(args, "issue_number", None),
         1 if getattr(args, "issue_pending", False) else 0,
+        thread_id, parent_thread_id, message_cid, problem_type,
+        task_state, expires_at,
     ))
     conn.commit()
     conn.close()
-    print(f"indexed: transport_messages/{args.filename}")
+    print(f"indexed: transport_messages/{args.filename}"
+          + (f" [cid:{message_cid[:12]}]" if message_cid else ""))
 
 
 # ── mark-processed ───────────────────────────────────────────────────────
@@ -121,13 +169,17 @@ def cmd_mark_processed(args: argparse.Namespace) -> None:
     if args.session:
         cursor = conn.execute("""
             UPDATE transport_messages
-            SET processed = TRUE, processed_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
+            SET processed = TRUE,
+                processed_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
+                task_state = 'completed'
             WHERE session_name = ? AND filename = ?
         """, (args.session, args.filename))
     else:
         cursor = conn.execute("""
             UPDATE transport_messages
-            SET processed = TRUE, processed_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
+            SET processed = TRUE,
+                processed_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
+                task_state = 'completed'
             WHERE filename = ?
         """, (args.filename,))
     conn.commit()
@@ -488,6 +540,16 @@ def main() -> None:
     tp.add_argument("--issue-number", type=int, help="GitHub issue number")
     tp.add_argument("--issue-pending", action="store_true",
                     help="Flag for backfill sweep if issue creation failed")
+    tp.add_argument("--thread-id", help="Thread ID (defaults to session name)")
+    tp.add_argument("--parent-thread-id", help="Parent thread ID for nested threads")
+    tp.add_argument("--message-cid", help="Content-addressable ID (auto-computed if omitted)")
+    tp.add_argument("--problem-type", choices=["error", "warning", "info"],
+                    help="Problem report type (DIDComm-inspired)")
+    tp.add_argument("--task-state",
+                    choices=["pending", "working", "input-required",
+                             "completed", "failed", "canceled", "rejected"],
+                    help="Task lifecycle state (A2A-inspired)")
+    tp.add_argument("--expires-at", help="ISO 8601 expiration timestamp")
 
     # mark-processed
     mp = sub.add_parser("mark-processed", help="Mark a transport message as processed")

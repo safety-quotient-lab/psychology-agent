@@ -73,6 +73,7 @@ cross-table references by convention.
 | Table | Key column | Derivation rule | Example |
 |-------|-----------|-----------------|---------|
 | `transport_messages` | `filename` | File basename (unique per session dir) | `from-psq-agent-021.json` |
+| `transport_messages` | `message_cid` | SHA-256 of canonical JSON (v19) | `a3f2b8c1d4e5...` |
 | `decision_chain` | `decision_key` | Kebab-case of decision name from architecture.md | `psq-structural-model` |
 | `memory_entries` | `(topic, entry_key)` | Topic from filename; entry_key from bold-prefix or table row key | `('psq-status', 'model-version')` |
 | `psq_status` | `entry_key` | Kebab-case of bold-prefix key from psq-status.md | `'model-version'` |

@@ -2,7 +2,7 @@
 
 A collegial mentor for psychological analysis, research, and applied consultation —
 built on the PJE (Psychology-Juris-Engineering) framework with specialized
-sub-agents and a ranked-procedure adversarial evaluator.
+peer agents and a ranked-procedure adversarial evaluator.
 
 ---
 
@@ -113,13 +113,13 @@ cognitive accessibility, and offers stopping points rather than monologuing.
 
 The Psychological Safety Quotient (PSQ) scores text across 10 dimensions using
 a fine-tuned DistilBERT model. The psychology agent can request a score from
-the PSQ sub-agent:
+the PSQ agent:
 
 ```
 You: Score this for psychological safety: "If you can't handle the
 pressure, maybe this isn't the right team for you."
 
-Agent: I'll request a PSQ score from the sub-agent.
+Agent: I'll request a PSQ score from the PSQ agent.
 
 PSQ Score — 10 Dimensions (0.0–1.0 scale, higher = safer):
 
@@ -274,29 +274,60 @@ and descriptive statistics all function correctly.
 
 ## What This Project Does
 
-A three-layer agent system with a live peer-to-peer interagent protocol:
+A multi-agent mesh with live peer-to-peer transport, standards-aligned discovery,
+and an adversarial evaluator:
 
 ```
-Psychology Agent  <---- interagent/v1 ----> Unratified Agent
-  (this instance)    (git-PR transport,         (peer instance,
-                      schema-versioned,           equal authority)
-                      SETL + epistemic flags)
-        |
-        v
-  Sub-agents
-  +-- PSQ Agent (DistilBERT v23, 11-dim, calibrated)
-  +-- Future sub-agents (plug-in, none pre-committed)
-        |
-        v
-  Adversarial Evaluator
-  +-- 7-procedure ranked resolution (consensus -> parsimony -> ... -> escalate)
+  Clients (submitters)
+  ┌──────────────────────────────────────────┐
+  │  Public          Human Operator          │
+  │  (HTTP API,      (privileged client —    │
+  │   website)        directs work,          │
+  │                   configures replicas)   │
+  └──────────┬───────────────┬───────────────┘
+             │               │
+             ▼               ▼
+  Replicas (peer agents — BFT consensus)
+  ┌──────────────────────────────────────────┐
+  │          PSQ Agent                       │
+  │        (psychometrics)                   │
+  │           ╱    ╲                         │
+  │          ╱      ╲                        │
+  │ Psychology◆──────◆Observatory            │
+  │   Agent   ╲      ╱  Agent               │
+  │ (this repo)╲    ╱(research data)         │
+  │             ╲  ╱                         │
+  │          Unratified                      │
+  │            Agent                         │
+  │       (blog platform)                    │
+  └──────────────────────────────────────────┘
+
+  ◆ = peer agent (equal authority)
+  ─ = interagent/v1 transport
+
+  Protocol:
+    DIDComm-inspired threading (thread_id / parent_thread_id)
+    Content-addressable IDs (SHA-256 CID)
+    A2A-compatible agent card (v2)
+    A2A task state lifecycle (7 states)
+    SETL + epistemic flags
+    Git-PR + cross-repo fetch transport
 ```
 
-The psychology agent maintains a Socratic stance — guiding users toward discovery
-rather than delivering verdicts. Two psychology-agent peers run in separate sessions
-and communicate via a schema-versioned protocol derived from live exchange failures
-(Protocol Failure as Specification Method). The adversarial evaluator resolves
-peer disagreements rather than averaging them away.
+Four peer agents (replicas) communicate via a schema-versioned protocol derived from
+live exchange failures (Protocol Failure as Specification Method). Clients submit
+requests and receive consensus results. The human operator functions as a privileged
+client — able to configure replicas, approve substance decisions, and override
+consensus. The public interacts via HTTP API (PSQ scoring, agent discovery) and the
+compositor dashboard. The adversarial evaluator resolves replica disagreements rather
+than averaging them away.
+
+**Mesh Dashboard:** The compositor at [psychology-agent.safety-quotient.dev](https://psychology-agent.safety-quotient.dev)
+provides real-time visibility into the mesh — message flow, claims, epistemic debt,
+session state, and agent health across 5 tabs (Pulse, Meta, Knowledge, Wisdom,
+Operations) with SSE live updates and LCARS-inspired design.
+
+<!-- TODO: Add compositor screenshot (docs/images/compositor-dashboard.png) -->
 
 ---
 
@@ -304,7 +335,7 @@ peer disagreements rather than averaging them away.
 
 | Directory         | What it holds                                       |
 |-------------------|-----------------------------------------------------|
-| `safety-quotient/`| PSQ agent — DistilBERT v23, held-out r=0.684, 11-dim text-level safety scoring |
+| `safety-quotient/`| PSQ agent — DistilBERT v23, held-out r=0.684, 11-dim text-level safety scoring. Peer agent with its own CLAUDE.md and cogarch. |
 | `pje-framework/`  | PJE taxonomy — first case study application         |
 
 Each sub-project has its own `CLAUDE.md` and conventions. Read those before
@@ -319,7 +350,7 @@ its markdown documentation. Markdown remains the source of truth for prose-heavy
 documents; the database provides structured queries over transport messages, design
 decisions, memory entries, session history, and more.
 
-**Schema:** `scripts/schema.sql` (v8, 12 tables). **Bootstrap:** `scripts/bootstrap_state_db.py`
+**Schema:** `scripts/schema.sql` (v20, 19 tables). **Bootstrap:** `scripts/bootstrap_state_db.py`
 rebuilds the entire database from source files. **Incremental writes:** `scripts/dual_write.py`
 keeps the database in sync during normal operation.
 
@@ -327,18 +358,22 @@ keeps the database in sync during normal operation.
 
 | Table | Rows | Purpose |
 |-------|------|---------|
-| `transport_messages` | 88 | Interagent message index (metadata — full JSON on disk) |
-| `decision_chain` | 39 | Design decisions with `derives_from` provenance links |
-| `memory_entries` | 38 | Structured index of memory topic file contents |
-| `session_log` | 56 | Session history with summaries and epistemic flags |
-| `claims` | 190 | Verified claims extracted from transport messages |
-| `epistemic_flags` | 270 | Uncertainty and validity threats across sessions |
-| `trigger_state` | 16 | Cognitive trigger metadata (fire count, decay, relevance) |
+| `transport_messages` | 204 | Interagent message index with threading, CID, task state |
+| `decision_chain` | 57 | Design decisions with `derives_from` provenance links |
+| `memory_entries` | 39 | Structured index of memory topic file contents |
+| `session_log` | 78 | Session history with summaries and epistemic flags |
+| `claims` | 371 | Claims extracted from transport messages (verification pending) |
+| `epistemic_flags` | 435 | Uncertainty and validity threats across sessions |
+| `trigger_state` | 17 | Cognitive trigger metadata (fire count, decay, relevance) |
+| `universal_facets` | 3,759 | Polythematic classification (PSH, schema.org, domain, agent) |
 | `psq_status` | 29 | PSQ operational status (calibration, endpoints, models) |
-| `lessons` | 24 | Structured index of lessons.md entries |
-| `autonomy_budget` | 1 | Autonomous operation credits per agent |
-| `autonomous_actions` | 0 | Audit trail for actions taken without human mediation |
-| `entry_facets` | 81 | Polythematic classification (domain, work_stream, agent) |
+| `lessons` | 26 | Structured index of lessons.md entries |
+| `autonomy_budget` | — | Autonomous operation credits per agent |
+| `autonomous_actions` | — | Audit trail for actions taken without human mediation |
+| `active_gates` | — | Gated autonomous action chains (timeout + fallback) |
+| `engineering_incidents` | — | Incident tracking (tool failures, hook issues) |
+| `entry_facets` | 83 | Legacy polythematic classification (superseded by universal_facets) |
+| `schema_version` | 20 | Migration history |
 
 ### Visibility Model
 
@@ -368,15 +403,20 @@ Collaborators can query state.db directly for structured lookups that would othe
 require scanning multiple markdown files:
 
 ```sql
--- Unprocessed transport messages awaiting action
-SELECT filename, subject, from_agent FROM transport_messages WHERE processed = FALSE;
+-- Messages by task state (A2A lifecycle)
+SELECT task_state, COUNT(*) FROM transport_messages GROUP BY task_state;
+
+-- Thread-based message lookup (DIDComm threading)
+SELECT filename, turn, from_agent, subject FROM transport_messages
+WHERE thread_id = 'psq-scoring' ORDER BY turn;
 
 -- Decisions and their evidence chains
 SELECT decision_key, decision_text, decided_date FROM decision_chain ORDER BY decided_date;
 
--- Unresolved epistemic flags by session
-SELECT session_id, COUNT(*) as open_flags FROM epistemic_flags
-WHERE resolved = FALSE GROUP BY session_id ORDER BY open_flags DESC;
+-- Cross-domain query via universal facets (PSH vocabulary)
+SELECT dc.decision_key, uf.facet_value FROM decision_chain dc
+  JOIN universal_facets uf ON uf.entity_type = 'decision_chain' AND uf.entity_id = dc.id
+  WHERE uf.facet_type = 'psh' AND uf.facet_value = 'psychology';
 
 -- Lessons by pattern type (promotion scan)
 SELECT pattern_type, COUNT(*) FROM lessons
@@ -390,34 +430,36 @@ the polythematic facet system.
 
 ## Current Status
 
-**Architecture complete. PSQ scoring live. Implementation phase active.**
+**Architecture complete. PSQ scoring live. Mesh operational with 5 agents.
+Standards alignment in progress (A2A, DIDComm).**
 
 ### Architecture Items
 
 | Component | Maturity | Detail |
 |-----------|----------|--------|
 | Psychology agent identity | **Proven** | Routing spec, Socratic protocol, dynamic calibration — in daily use |
-| Sub-agent layer | **Proven** | interagent/v1 protocol, schema v3, 6 derivation findings, PSQ binding — 20+ turns exchanged |
-| Peer layer | **Confirmed** | Role declaration, divergence detection, SETL thresholds — one live exchange with observatory-agent; not yet stress-tested across multiple peers |
+| Peer mesh | **Proven** | 4 peer agents (PSQ, unratified, observatory, claude-control), 204 messages across 18 sessions, self-readiness audit completed |
 | Adversarial evaluator | **Confirmed** | 7-procedure ranked set, tiered activation spec, Tier 1 proxy implemented — Tier 2/3 await runtime |
 | Psychology interface | **Deployed** | CF Worker at api.safety-quotient.dev — PSQ scoring, agent card, D1 + KV |
-| SQLite state layer | **Proven** | Schema v8, 12 tables, dual-write protocol, 4-tier visibility model, bootstrap + incremental + export scripts |
-| Core governance (EF-1) | **Explored** | 7 invariants, 3 disciplinary lenses, BCP 14 keywords, trust budget — spec complete, not yet exercised in autonomous operation |
+| SQLite state layer | **Proven** | Schema v20, 19 tables, dual-write protocol, 4-tier visibility model, universal facets (PSH vocabulary), threading + CID |
+| Core governance (EF-1) | **Confirmed** | 7 invariants, trust budget, circuit breaker (3 mechanisms), autonomous sync operational on Hetzner |
+| Agent discovery | **Confirmed** | A2A-compatible agent card (v2), `.well-known/` path, agent registry with routing rules |
+| Autonomous mesh | **Confirmed** | meshd daemon, autonomous-sync.sh cron, compositor (5-tab LCARS UI), SSE live updates |
 
 ### Capability Inventory
 
 | Capability | Maturity | Notes |
 |------------|----------|-------|
-| Cognitive triggers (T1-T16) | **Proven** | 16 triggers, 14 hook events (17 scripts), SRT extensions with calibrated gates |
-| Skills (/doc, /hunt, /cycle, /knock, /sync, /iterate, /scan-peer) | **Proven** | 7 skills, daily use, tested across 50+ sessions |
+| Cognitive triggers (T1-T16) | **Proven** | 17 triggers, 14 hook events (20 scripts), SRT extensions with calibrated gates |
+| Skills (/doc, /hunt, /cycle, /knock, /sync, /iterate, /scan-peer, /diagnose) | **Proven** | 8 skills, daily use, tested across 78 sessions |
 | Commands (/adjudicate, /capacity) | **Proven** | On-demand, verified |
 | Memory architecture (5-layer) | **Proven** | Auto-memory, snapshots, archives, self-healing bootstrap |
-| PSQ sub-agent scoring | **Proven** | DistilBERT v23, isotonic calibration, r-based confidence proxy, live at psq.unratified.org |
-| Interagent transport | **Confirmed** | Git-PR transport, MANIFEST routing, 3 agents have exchanged messages — transport works but volume remains low (dozens of messages, not hundreds) |
-| Local coordination protocol | **Confirmed** | Spec written, used informally between parallel instances — not yet stress-tested |
-| Adversarial evaluator (Tier 1 proxy) | **Confirmed** | Self-check with audit trail + random escalation — structural independence deferred |
+| PSQ agent scoring | **Proven** | DistilBERT v23, isotonic calibration, r-based confidence proxy, live at psq.unratified.org |
+| Interagent transport | **Proven** | Git-PR + cross-repo fetch, MANIFEST routing, DIDComm-inspired threading, content-addressable IDs, A2A task state lifecycle, 5 agents exchanging messages |
+| Local coordination protocol | **Confirmed** | Spec written, cron-generated heartbeat/mesh-state files, exempt from turn numbering |
+| Circuit breaker | **Confirmed** | 3 mechanisms: pause file, budget zeroing, mesh-stop/start scripts |
+| Systemic diagnostics | **Confirmed** | /diagnose skill — 11 subsystem health checks with severity classification |
 | Adversarial evaluator (Tier 2/3) | **Explored** | Spec defined, requires runtime implementation |
-| Sub-agent discovery | **Identified** | Agent-card convention documented, no automated discovery |
 
 **Maturity levels:** Proven (validated, tested, in daily use) . Confirmed (works, lacks full integration or stress testing) . Explored (feasibility established, spec exists) . Identified (on radar, not yet tried) . Deferred (deliberately postponed with rationale)
 
@@ -428,22 +470,24 @@ See `docs/architecture.md` for the full design record and `docs/subagent-layer-s
 <details>
 <summary><strong>Interesting Parts of the Codebase</strong> (expand for deep dives)</summary>
 
-**Interagent sync — three Claude Code instances talking to each other** —
-Three independent Claude Code sessions (psychology-agent on macOS, observatory-agent
-on Debian, psq-agent on Hetzner) communicate via GitHub PRs using a schema-versioned
-JSON protocol derived entirely from live exchange failures. No upfront schema design:
-each field in the spec exists because a receiver needed it and the absence caused a
-detectable gap. Both peer agents independently derived identical primitives (SETL,
-Fair Witness discipline) without prior coordination — convergent rediscovery from
-different theoretical starting points.
+**Interagent mesh — five agents talking to each other** —
+Five independent Claude Code sessions (psychology-agent on macOS, psq-agent on
+Hetzner, unratified-agent and observatory-agent on Debian, claude-control) communicate
+via git-based transport using a schema-versioned JSON protocol derived entirely from
+live exchange failures. The transport layer now includes DIDComm-inspired threading
+(`thread_id`/`parent_thread_id`), content-addressable message IDs (SHA-256 CID),
+A2A-compatible agent cards, and a 7-state task lifecycle. 204 messages across 18
+sessions. Peer agents independently derived identical primitives (SETL, Fair Witness
+discipline) without prior coordination — convergent rediscovery from different
+theoretical starting points.
 - [docs/subagent-layer-spec.md](docs/subagent-layer-spec.md) — sub-agent layer protocol (6 findings)
 - [docs/peer-layer-spec.md](docs/peer-layer-spec.md) — peer layer protocol (divergence detection, SETL thresholds)
-- [transport/sessions/subagent-protocol/](transport/sessions/subagent-protocol/) — the actual message exchange
+- [transport/sessions/](transport/sessions/) — 18 session directories with message exchanges
 - [journal.md #15](journal.md) — Protocol Failure as Specification Method
 
 
 **Cognitive architecture (trigger system)** — The agent governs itself through
-16 mechanical triggers (T1-T16) that fire at specific moments: session start,
+17 mechanical triggers (T1-T17) that fire at specific moments: session start,
 before responding, before recommending, before writing to disk, at phase
 boundaries, on user pushback, when external content enters context, and more.
 Principles without firing conditions remain aspirations; principles with
@@ -452,7 +496,6 @@ provide mechanical enforcement for triggers that can be verified by shell
 commands (SessionStart, PreCompact, Stop, PreToolUse, PostToolUse).
 - [docs/cognitive-triggers.md](docs/cognitive-triggers.md) — the full trigger system
 - [docs/architecture.md](docs/architecture.md) — capabilities inventory with interaction map
-- [docs/capabilities.yaml](docs/capabilities.yaml) — machine-readable capabilities manifest
 - [journal.md #6](journal.md) — the design narrative explaining why triggers exist
 
 **Self-healing memory** — Auto-memory lives outside the git repo and can silently
@@ -480,7 +523,7 @@ through 10-order knock-on analysis (certain -> emergent -> theory-revising), sev
 depth, 2-pass iterative refinement, and consensus-or-parsimony binding.
 - [journal.md #11](journal.md) — licensing decision as a worked example of the method
 
-**Adversarial evaluator reasoning procedures** — When sub-agents conflict, the
+**Adversarial evaluator reasoning procedures** — When peer agents conflict, the
 evaluator applies a ranked 7-procedure set rather than averaging: consensus,
 parsimony (Occam), pragmatism (what's actionable given stakes), coherence
 (fits validated findings), falsifiability (prefer testable claims), convergence
@@ -502,12 +545,12 @@ claude-replay ~/.claude/projects/<project>/<session>.jsonl \
 ```
 
 **Queryable state layer with 4-tier visibility** — A SQLite database (state.db)
-indexes 12 tables of structured state alongside the markdown documentation.
+indexes 19 tables of structured state alongside the markdown documentation.
 A 4-tier visibility model (public/shared/commercial/private) controls what
-ships in exports — from adopter starter kits (triggers only) through commercial
-licensed access (calibration data, endpoint URLs) to full debug backups.
-Private by default; explicit promotion required.
-- [scripts/schema.sql](scripts/schema.sql) — the full schema (v8, 12 tables)
+ships in exports. The universal facets system provides polythematic classification
+using PSH (Polythematic Structured Subject Heading) vocabulary — 3,759 facets
+across 11 L1 disciplines. Private by default; explicit promotion required.
+- [scripts/schema.sql](scripts/schema.sql) — the full schema (v20, 19 tables)
 - [scripts/export_public_state.py](scripts/export_public_state.py) — filtered exports by visibility tier
 - [.claude/rules/sqlite.md](.claude/rules/sqlite.md) — conventions, deterministic keys, facet system
 - [journal.md #39](journal.md) — Private by Default: How Data Governance Emerges in Agent Systems
@@ -515,8 +558,8 @@ Private by default; explicit promotion required.
 **Research journal** — A methods-and-findings narrative covering the full arc from
 initial framing through architecture design, cognitive infrastructure, cross-context
 integrity, reconstruction methodology, semiotic theory, Byzantine fault tolerance,
-and construct validity analysis.
-- [journal.md](journal.md) — 39 sections
+construct validity analysis, monitoring gaps, and standards alignment.
+- [journal.md](journal.md) — 60 sections
 
 </details>
 
@@ -531,37 +574,53 @@ psychology-agent/
 +-- CLAUDE.md                       # Stable conventions (auto-loaded)
 +-- README.md                       # This file
 +-- TODO.md                         # Forward-looking task backlog
-+-- lab-notebook.md                 # Session log (50+ sessions)
-+-- journal.md                      # Research narrative (34 sections)
++-- lab-notebook.md                 # Session log (78 sessions)
++-- journal.md                      # Research narrative (60 sections)
++-- lessons.md                      # Transferable pattern errors and insights
 +-- ideas.md                        # Speculative directions
 +-- scripts/
-|   +-- schema.sql                  # SQLite state layer schema (v8, 12 tables)
+|   +-- schema.sql                  # SQLite state layer schema (v20, 19 tables)
+|   +-- migrate_v*.sql              # Schema migrations
 |   +-- bootstrap_state_db.py       # Rebuild state.db from source files
 |   +-- dual_write.py               # Incremental state.db writes (/sync, /cycle)
 |   +-- export_public_state.py      # Export filtered DB by visibility tier
 |   +-- generate_manifest.py        # Auto-generate MANIFEST.json from state.db
 |   +-- bootstrap_lessons.py        # Index lessons.md entries into state.db
+|   +-- bootstrap_facets.py         # Populate universal_facets (PSH vocabulary)
 |   +-- orientation-payload.py      # State.db → compact context for autonomous sessions
+|   +-- epistemic_debt.py           # Epistemic debt summary (unresolved flags)
+|   +-- autonomy-budget.py          # Trust budget management (pause-all/resume-all)
+|   +-- cross_repo_fetch.py         # Cross-repo transport message discovery
 |   +-- sync_project_board.py       # TODO.md ↔ GitHub Projects board reconciliation
++-- platform/shared/scripts/
+|   +-- autonomous-sync.sh          # Cron-driven autonomous sync (circuit breaker)
+|   +-- mesh-stop.sh                # Mesh-wide or per-agent circuit breaker (on)
+|   +-- mesh-start.sh               # Mesh-wide or per-agent circuit breaker (off)
 +-- .claude/
-|   +-- hooks/                      # 17 hook scripts + _debug.sh shared helper
-|   +-- settings.json               # Platform hooks configuration
-|   +-- skills/                     # /doc /hunt /cycle /knock /sync /iterate /scan-peer
-|   +-- rules/                      # Glob-scoped rules (markdown, js, transport, sqlite)
+|   +-- hooks/                      # 19 hook scripts + _debug.sh shared helper
+|   +-- settings.json               # 14 hook events, 20 entries
+|   +-- skills/                     # /doc /hunt /cycle /knock /sync /iterate /scan-peer /diagnose
+|   +-- rules/                      # Glob-scoped rules (markdown, js, transport, sqlite, anti-patterns, evaluation)
++-- .well-known/
+|   +-- agent-card.json             # A2A-compatible agent card (v2)
 +-- docs/
 |   +-- architecture.md             # Design decisions, system spec, capabilities
-|   +-- cognitive-triggers.md       # Cognitive trigger system T1-T16 (canonical)
+|   +-- cognitive-triggers.md       # Cognitive trigger system T1-T17 (canonical)
 |   +-- ef1-governance.md           # Core governance trust model (7 invariants)
 |   +-- ef1-trust-model.md          # Autonomous operation trust model
 |   +-- subagent-layer-spec.md      # Sub-agent protocol spec (6 findings, schema v3)
 |   +-- peer-layer-spec.md          # Peer layer protocol spec
+|   +-- hooks-reference.md          # Full hook event × script reference table
 |   +-- constraints.md              # 66 constraints, 5 categories (E/M/P/I/D)
-|   +-- dictionary.md               # Source dictionary (15 entries, 7 categories)
-|   +-- glossary.md                 # Project terminology (36 entries)
+|   +-- dictionary.md               # Source dictionary
+|   +-- glossary.md                 # Project terminology
 |   +-- MEMORY-snapshot.md          # Committed recovery source for MEMORY.md
+|   +-- memory-snapshots/           # Committed topic file snapshots
 |   +-- snapshots/                  # Versioned MEMORY archives
-+-- transport/                      # Interagent message exchange sessions
-|   +-- agent-registry.json         # Formal agent registry (routing rules)
+|   +-- decisions/                  # Persisted adjudication records
++-- transport/                      # Interagent message exchange (18 sessions)
+|   +-- agent-registry.json         # 5-agent registry with routing rules
+|   +-- MANIFEST.json               # Auto-generated pending message index
 +-- reconstruction/                 # Git history reconstruction tools
 +-- safety-quotient/                # PSQ sub-project (separate CLAUDE.md)
 +-- pje-framework/                  # PJE sub-project
@@ -580,6 +639,7 @@ psychology-agent/
 | `/sync`       | Skill   | Coordination  | Inter-agent mesh scan, ACKs, MANIFEST update  |
 | `/iterate`    | Skill   | Autonomous    | Hunt -> discriminate -> execute next work     |
 | `/scan-peer`  | Skill   | Quality       | Peer content scan for safety + drift issues   |
+| `/diagnose`   | Skill   | Housekeeping  | Systemic self-diagnostic across all subsystems|
 | `/adjudicate` | Command | Decisions     | Multi-option knock-on comparison, resolution  |
 | `/capacity`   | Command | Housekeeping  | Assess cognitive architecture capacity        |
 

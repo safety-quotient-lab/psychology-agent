@@ -13,6 +13,7 @@ missing or corrupt.
 """
 import argparse
 import datetime as _dt
+import hashlib
 import json
 import os
 import re
@@ -44,6 +45,12 @@ def kebab(text: str) -> str:
     text = re.sub(r"[\s/]+", "-", text)
     text = re.sub(r"-{2,}", "-", text)
     return text.strip("-")[:80]
+
+
+def compute_cid(data: dict) -> str:
+    """Compute SHA-256 content-addressable ID from parsed JSON."""
+    canonical = json.dumps(data, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -302,15 +309,31 @@ def load_transport_messages(conn: sqlite3.Connection) -> tuple[int, int]:
                 processed = is_outbound
                 processed_at = today_iso() if processed else None
 
+                # v19: threading + content-addressable ID
+                thread_id = data.get("thread_id", session_name)
+                parent_thread_id = data.get("parent_thread_id")
+                message_cid = compute_cid(data)
+                problem_type = data.get("problem_type")
+
+                # v20: task state + expiration
+                task_state = "completed" if processed else "pending"
+                expires_at = data.get("expires_at")
+
                 conn.execute("""
                     INSERT OR IGNORE INTO transport_messages
                         (session_name, filename, turn, message_type, from_agent, to_agent,
                          timestamp, subject, claims_count, setl, urgency,
-                         processed, processed_at, issue_url, issue_number)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                         processed, processed_at, issue_url, issue_number,
+                         thread_id, parent_thread_id, message_cid, problem_type,
+                         task_state, expires_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                            ?, ?, ?, ?,
+                            ?, ?)
                 """, (session_name, filename, turn, message_type, from_agent, to_agent,
                       timestamp, subject, claims_count, setl, urgency, processed,
-                      processed_at, issue_url, issue_number))
+                      processed_at, issue_url, issue_number,
+                      thread_id, parent_thread_id, message_cid, problem_type,
+                      task_state, expires_at))
 
                 msg_row = conn.execute(
                     "SELECT id FROM transport_messages WHERE session_name = ? AND filename = ?",
@@ -366,16 +389,22 @@ def load_transport_messages(conn: sqlite3.Connection) -> tuple[int, int]:
                 processed = is_outbound
                 processed_at = today_iso() if processed else None
 
+                # v19: threading + CID for legacy messages
+                legacy_cid = compute_cid(data) if data else None
+                legacy_task_state = "completed" if processed else "pending"
                 conn.execute("""
                     INSERT OR IGNORE INTO transport_messages
                         (session_name, filename, turn, message_type, from_agent, to_agent,
                          timestamp, subject, claims_count, setl, urgency,
-                         processed, processed_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                         processed, processed_at,
+                         thread_id, message_cid, task_state)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                            ?, ?, ?)
                 """, (parsed["session_name"], parsed["filename"], parsed["turn"],
                       parsed["message_type"], parsed["from_agent"], parsed["to_agent"],
                       parsed["timestamp"], parsed["subject"], parsed["claims_count"],
-                      parsed["setl"], parsed["urgency"], processed, processed_at))
+                      parsed["setl"], parsed["urgency"], processed, processed_at,
+                      parsed["session_name"], legacy_cid, legacy_task_state))
 
                 # Index claims when present in legacy messages
                 msg_row = conn.execute(
