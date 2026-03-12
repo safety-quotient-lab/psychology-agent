@@ -55,6 +55,8 @@ func main() {
 		nextTurnCmd(),
 		inboxCmd(),
 		manifestCmd(),
+		triageCmd(),
+		ackCmd(),
 		// Gates
 		gateCmd(),
 		// Knowledge
@@ -283,6 +285,102 @@ func manifestCmd() *cobra.Command {
 	return cmd
 }
 
+// ── Triage + ACK (crystallized sync) ──────────────────────────────
+
+func triageCmd() *cobra.Command {
+	var agentID string
+	var scan, dryRun, status bool
+	cmd := &cobra.Command{
+		Use:   "triage",
+		Short: "Deterministic message classification (crystallized sync)",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if status {
+				result, err := transport.TriageStatus(mgr.Shared())
+				if err != nil {
+					return err
+				}
+				transport.PrintTriageJSON(result)
+				return nil
+			}
+			if !scan {
+				return fmt.Errorf("use --scan to triage unprocessed messages, or --status to view results")
+			}
+			selfID := agentID
+			if selfID == "" {
+				selfID = loadSelfAgentID(mgr.Root())
+			}
+			result, err := transport.TriageScan(mgr.Shared(), mgr.Local(), selfID, dryRun)
+			if err != nil {
+				return err
+			}
+			transport.PrintTriageJSON(result)
+			return nil
+		},
+	}
+	cmd.Flags().BoolVar(&scan, "scan", false, "Score all unprocessed messages")
+	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Score without writing dispositions")
+	cmd.Flags().BoolVar(&status, "status", false, "Show current triage state")
+	cmd.Flags().StringVar(&agentID, "agent-id", "", "Self agent ID (default: from .agent-identity.json)")
+	return cmd
+}
+
+func ackCmd() *cobra.Command {
+	var session, filename, agentID string
+	var auto, dryRun bool
+	cmd := &cobra.Command{
+		Use:   "ack",
+		Short: "Generate template ACK messages (crystallized sync)",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			selfID := agentID
+			if selfID == "" {
+				selfID = loadSelfAgentID(mgr.Root())
+			}
+			if auto {
+				result, err := transport.AutoACK(mgr.Shared(), mgr.Root(), selfID, dryRun)
+				if err != nil {
+					return err
+				}
+				transport.PrintACKJSON(result)
+				return nil
+			}
+			if session == "" || filename == "" {
+				return fmt.Errorf("use --auto for batch, or --session + --message for single ACK")
+			}
+			result, err := transport.ACKSingle(mgr.Shared(), mgr.Root(), selfID, session, filename, dryRun)
+			if err != nil {
+				return err
+			}
+			transport.PrintACKJSON(result)
+			return nil
+		},
+	}
+	cmd.Flags().BoolVar(&auto, "auto", false, "Generate ACKs for all auto-ack messages")
+	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Show what would be generated")
+	cmd.Flags().StringVar(&session, "session", "", "Session name (for single ACK)")
+	cmd.Flags().StringVar(&filename, "message", "", "Message filename (for single ACK)")
+	cmd.Flags().StringVar(&agentID, "agent-id", "", "Self agent ID (default: from .agent-identity.json)")
+	return cmd
+}
+
+// loadSelfAgentID reads .agent-identity.json for the agent_id field.
+func loadSelfAgentID(projectRoot string) string {
+	data, err := os.ReadFile(projectRoot + "/.agent-identity.json")
+	if err != nil {
+		hostname, _ := os.Hostname()
+		return hostname
+	}
+	var raw map[string]any
+	if err := json.Unmarshal(data, &raw); err != nil {
+		hostname, _ := os.Hostname()
+		return hostname
+	}
+	if id, ok := raw["agent_id"].(string); ok && id != "" {
+		return id
+	}
+	hostname, _ := os.Hostname()
+	return hostname
+}
+
 // ── Gates ─────────────────────────────────────────────────────────────
 
 func gateCmd() *cobra.Command {
@@ -320,19 +418,39 @@ func gateOpenCmd() *cobra.Command {
 }
 
 func gateResolveCmd() *cobra.Command {
-	var gateID, resolvedBy string
+	var gateID, resolvedBy, agentID string
+	var scan, dryRun bool
 	cmd := &cobra.Command{
 		Use:   "resolve",
-		Short: "Resolve a waiting gate",
+		Short: "Resolve a waiting gate (by ID or --scan for auto-resolution)",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if scan {
+				selfID := agentID
+				if selfID == "" {
+					selfID = loadSelfAgentID(mgr.Root())
+				}
+				result, err := gates.ScanAndResolve(mgr.Shared(), mgr.Local(), selfID, dryRun)
+				if err != nil {
+					return err
+				}
+				gates.PrintScanResolveJSON(result)
+				return nil
+			}
+			if gateID == "" {
+				return fmt.Errorf("--gate-id required (or use --scan)")
+			}
+			if resolvedBy == "" {
+				return fmt.Errorf("--resolved-by required")
+			}
 			_, err := gates.Resolve(mgr.Local(), gateID, resolvedBy)
 			return err
 		},
 	}
-	cmd.Flags().StringVar(&gateID, "gate-id", "", "Gate identifier (required)")
-	cmd.Flags().StringVar(&resolvedBy, "resolved-by", "", "Resolution source (required)")
-	cmd.MarkFlagRequired("gate-id")
-	cmd.MarkFlagRequired("resolved-by")
+	cmd.Flags().StringVar(&gateID, "gate-id", "", "Gate identifier")
+	cmd.Flags().StringVar(&resolvedBy, "resolved-by", "", "Resolution source")
+	cmd.Flags().BoolVar(&scan, "scan", false, "Scan unprocessed messages and auto-resolve matching gates")
+	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Show what would be resolved without acting")
+	cmd.Flags().StringVar(&agentID, "agent-id", "", "Self agent ID (default: from .agent-identity.json)")
 	return cmd
 }
 
