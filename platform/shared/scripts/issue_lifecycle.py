@@ -297,8 +297,11 @@ def _index_issue(number: int, repo: str, title: str, state: str):
         conn = sqlite3.connect(str(DB_PATH))
         conn.execute(
             "CREATE TABLE IF NOT EXISTS github_issues ("
-            "  number INTEGER, repo TEXT, title TEXT, state TEXT, "
-            "  updated_at TEXT, "
+            "  number INTEGER NOT NULL, repo TEXT NOT NULL, title TEXT, "
+            "  state TEXT NOT NULL DEFAULT 'open', "
+            "  transport_session TEXT, transport_filename TEXT, labels TEXT, "
+            "  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')), "
+            "  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')), "
             "  PRIMARY KEY (repo, number))"
         )
         conn.execute(

@@ -29,6 +29,9 @@ CREATE TABLE IF NOT EXISTS transport_messages (
     ack_received    INTEGER DEFAULT 0,
     processed       BOOLEAN DEFAULT FALSE,
     processed_at    TEXT,
+    issue_url       TEXT,
+    issue_number    INTEGER,
+    issue_pending   INTEGER DEFAULT 0,
     created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
 );
 
@@ -40,6 +43,9 @@ CREATE INDEX IF NOT EXISTS idx_transport_unprocessed
 
 CREATE INDEX IF NOT EXISTS idx_transport_session_turn
     ON transport_messages (session_name, turn);
+
+CREATE INDEX IF NOT EXISTS idx_transport_issue_pending
+    ON transport_messages (issue_pending) WHERE issue_pending = 1;
 
 
 -- Memory entries (structured index of topic file contents)
@@ -706,3 +712,49 @@ VALUES (16, 'Acronym vocabulary — 65 acronyms across 9 categories seeded into 
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (17, 'Fix filename uniqueness — UNIQUE(session_name, filename) replaces UNIQUE(filename). Prevents silent message loss from cross-session filename collisions.');
+
+
+-- ── Schema v18: Triple-write — GitHub Issue cross-references ─────────
+--
+-- Every interagent message produces three artifacts in lockstep:
+--   1. Transport JSON file (9P filesystem layer — source of truth)
+--   2. state.db row (queryable index — this table)
+--   3. GitHub Issue (human visibility + discussion layer)
+--
+-- New columns on transport_messages track the issue cross-reference.
+-- github_issues table promoted from inline CREATE in issue_lifecycle.py
+-- to canonical schema with transport-aware columns.
+--
+-- Write order: JSON first → DB second → Issue third.
+-- If issue creation fails, issue_pending=1 flags for backfill sweep.
+
+-- Add issue cross-reference columns to transport_messages
+-- (ALTER TABLE for existing DBs; fresh builds get these from CREATE above
+--  once the CREATE TABLE statement is updated)
+
+-- github_issues — canonical table (promoted from issue_lifecycle.py inline CREATE)
+CREATE TABLE IF NOT EXISTS github_issues (
+    number              INTEGER NOT NULL,
+    repo                TEXT NOT NULL,
+    title               TEXT,
+    state               TEXT NOT NULL DEFAULT 'open',
+    transport_session   TEXT,
+    transport_filename  TEXT,
+    labels              TEXT,
+    updated_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
+    created_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
+    PRIMARY KEY (repo, number)
+);
+
+CREATE INDEX IF NOT EXISTS idx_issues_transport
+    ON github_issues (transport_session, transport_filename)
+    WHERE transport_session IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_issues_state
+    ON github_issues (state) WHERE state = 'open';
+
+INSERT OR IGNORE INTO table_visibility (table_name, default_visibility, description)
+VALUES ('github_issues', 'shared', 'GitHub issue index — human visibility layer for transport messages');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (18, 'Triple-write protocol — issue_url + issue_number on transport_messages, github_issues table promoted to canonical schema. Three layers: JSON file + state.db + GitHub Issue.');

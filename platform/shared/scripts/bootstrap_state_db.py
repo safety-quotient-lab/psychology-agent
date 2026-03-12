@@ -266,15 +266,19 @@ def load_transport_messages(conn: sqlite3.Connection) -> tuple[int, int]:
                 claims_count = len(claims_list)
                 setl = data.get("setl")
                 urgency = data.get("urgency", "normal")
+                issue_block = data.get("issue", {})
+                issue_url = issue_block.get("url")
+                issue_number = issue_block.get("number")
 
                 conn.execute("""
                     INSERT OR IGNORE INTO transport_messages
                         (session_name, filename, turn, message_type, from_agent, to_agent,
                          timestamp, subject, claims_count, setl, urgency,
-                         processed, processed_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, ?)
+                         processed, processed_at, issue_url, issue_number)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, ?, ?, ?)
                 """, (session_name, filename, turn, message_type, from_agent, to_agent,
-                      timestamp, subject, claims_count, setl, urgency, today_iso()))
+                      timestamp, subject, claims_count, setl, urgency, today_iso(),
+                      issue_url, issue_number))
 
                 msg_row = conn.execute(
                     "SELECT id FROM transport_messages WHERE session_name = ? AND filename = ?",
