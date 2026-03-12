@@ -12,7 +12,7 @@
 #   */5 * * * * /path/to/scripts/autonomous-sync.sh >> /tmp/sync.log 2>&1
 #   */5 * * * * /path/to/scripts/autonomous-sync.sh /home/kashif/psq-agent >> /tmp/psq-sync.log 2>&1
 #
-# Requires: claude CLI, git, sqlite3, python3
+# Requires: claude CLI, git, sqlite3, agentdb (fallback: python3 + dual_write.py)
 
 set -euo pipefail
 
@@ -417,11 +417,13 @@ handle_gate_timeouts() {
                      AND agent_id = '${AGENT_ID}';" 2>/dev/null || echo "0")
                 if [ "${retry_count}" -gt 0 ]; then
                     log "GATE TIMEOUT: ${gate_id} already retried — escalating to halt"
-                    python3 "${PROJECT_ROOT}/scripts/dual_write.py" gate-timeout \
-                        --gate-id "${gate_id}" 2>/dev/null || true
                 else
                     log "GATE TIMEOUT: ${gate_id} — will retry once"
                     # Mark timed-out (caller can re-send and open a new gate)
+                fi
+                if [ -x "${AGENTDB}" ]; then
+                    "${AGENTDB}" gate timeout --gate-id "${gate_id}" 2>/dev/null || true
+                else
                     python3 "${PROJECT_ROOT}/scripts/dual_write.py" gate-timeout \
                         --gate-id "${gate_id}" 2>/dev/null || true
                 fi
