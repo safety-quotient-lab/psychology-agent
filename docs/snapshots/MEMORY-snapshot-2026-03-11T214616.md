@@ -18,23 +18,21 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 78. Circuit breaker implemented (3 mechanisms). Transport
-hygiene fixes landed (addressed-copy skip, exempt sessions, WAL disambig). R3 audit
-processed and closed (2 READY, 2 NOT-READY). /diagnose skill created. Standards research
-complete (A2A + DIDComm threading recommended). 5 pipeline gaps identified.
+**Where we stopped:** Session 77. psq-sub-agent → psq-agent identity migration complete.
+Observatory hybrid architecture resolved (SQLite transport + D1 monitoring). D1
+aggregation pipeline scoped and delegated to claude-control (cabinet-infrastructure
+session). Triple-write backfill + session-close integrated into autonomous-sync.sh.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - meshd: ✓ All 4 running under systemd `[warm]`
 - CI/CD: ✓ Tier 1 + Tier 2 operational `[warm]`
-- Circuit breaker: ✓ mesh-stop/start + budget pause-all + autonomous-sync pause file `[warm]`
-- Self-readiness audit: ✓ R3 closed — 2 READY, 2 NOT-READY `[warm]`
-- Pipeline gaps: ⚑ Claims, flags, triggers, facets, lessons all broken `[warm]`
-- Standards: ✓ A2A + DIDComm threading adopted (design decision) `[cold]`
+- Transport: ✓ cross_repo_fetch inbound filter fixed (from-{agent_id}-) `[warm]`
+- Self-readiness audit: ⚑ Deployed, awaiting round 2 peer responses `[warm]`
 - D1 optimization: ⚑ Blocked on claude-control activation `[cold]`
+- Compositor: ✓ 5 tabs + GH issue links in Messages table `[warm]`
 - DI Phase A Pass 2: pending `[cold]`
 
-**Next:** Fix pipeline gaps (claims verification, flag resolution, trigger telemetry,
-facets, lessons.md). A2A agent card alignment. DIDComm threading model migration.
+**Next:** Await round 2 audit responses. DevOps/IT installation guide. DI Phase A Pass 2.
 
 
 ## Memory Hygiene

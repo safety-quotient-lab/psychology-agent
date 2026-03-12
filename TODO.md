@@ -680,6 +680,58 @@ auto-restart loops. None had monitoring — all required manual discovery.
 
 ---
 
+## Pipeline Gap Remediation (Session 78)
+
+Systemic diagnostic revealed 5 monitoring mechanisms that collect data but
+never consume it. Schema and write paths exist; consumption/action paths missing.
+
+- [ ] **Claims verification pipeline** — 371 claims, 0 verified. Need a mechanism
+  (periodic pass or at /sync processing time) that checks claim assertions against
+  available evidence and sets `verified=1`. Start with high-confidence (≥0.9) claims.
+  *Precondition: ✓ MET — claims table populated, dual_write.py indexes claims*
+
+- [ ] **Epistemic flag resolution** — 435 flags, 0 resolved. Add resolution logic to
+  /cycle or /diagnose: when a flag's source session completes, the flag resolves. When
+  a flag's concern becomes moot (design decision supersedes it), mark resolved.
+  *Precondition: ✓ MET — epistemic_flags table populated*
+
+- [ ] **Trigger telemetry to state.db** — all 17 triggers show fire_count=0. Hook scripts
+  fire triggers in-context but don't write to state.db. Add `dual_write.py trigger-fire
+  --trigger-id T{N}` and call from the session-start hook (T1 fires every session).
+  *Precondition: ✓ MET — trigger_state table populated, dual_write.py exists*
+
+- [ ] **Run bootstrap_facets.py** — 0 universal facets in state.db. The script exists and
+  was tested (Session 62e) but never run against the current database.
+  *Precondition: ✓ MET — bootstrap_facets.py exists, state.db rebuilt*
+
+- [ ] **Create lessons.md** — file missing entirely. /cycle Step 8b references it. T10
+  and T12 write to it. Create with initial structure and YAML frontmatter template.
+  *Precondition: none*
+
+---
+
+## Standards Alignment (Session 78)
+
+Adopt-now items from standards landscape survey (13 protocols evaluated).
+
+- [ ] **A2A Agent Card alignment** — update `.well-known/agent-card.json` to include
+  structured `skills` array, `securitySchemes`, and match A2A schema conventions.
+  Low cost, high interoperability value.
+  *Precondition: none*
+  *Reference: a2a-protocol.org/latest/specification/*
+
+- [ ] **DIDComm threading model** — replace linear turn numbers with `thread_id` +
+  `parent_thread_id` in transport messages. Multi-party consensus rounds use parent
+  thread; each agent's response gets its own thread. Eliminates same-turn collisions.
+  Schema migration needed (transport_messages table). M effort.
+  *Precondition: transport-exempt-session-types decision resolved (✓ Session 78)*
+
+- [ ] **Content-addressable message IDs** — SHA-256 hash of canonical JSON as message
+  CID. MANIFEST tracks CIDs for dedup and integrity verification. S effort.
+  *Precondition: none*
+
+---
+
 ## D1 Cost Optimization
 
 - [ ] **D1 aggregation pipeline on cabinet** — pull-aggregate-purge cycle: D1 raw

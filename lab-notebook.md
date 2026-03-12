@@ -156,13 +156,18 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Observatory consolidation       | ✓ observatory-sqlab removed from chromabook; only ~/projects/observatory remains (Session 73) |
 | Jenkins Phase 2 (Tier 2 CI/CD) | ✓ Literate Jenkinsfiles (3 repos), meshd build+deploy, shared scripts sync, GH Actions relay (Session 74) |
 | meshd systemd supervision      | ✓ 4 user units with Restart=always + enable-linger — replaces bare nohup (Session 76) |
-| Self-readiness audit            | ⚑ Deployed + round 2 responses pending from peers (Session 76-77) |
+| Self-readiness audit            | ✓ R3 complete: 2 READY (unratified, observatory), 2 NOT-READY (psq, psychology). Session closed. (Session 78) |
 | psq-sub-agent → psq-agent rename | ✓ Identity migration across config, rules, scripts, docs (Session 77) |
 | Observatory hybrid architecture | ✓ Resolved — SQLite transport + D1 monitoring (Session 77) |
 | D1 aggregation pipeline         | ⚑ Scoped via transport to claude-control — blocked on claude-control activation (Session 77) |
 | Triple-write + session-close    | ✓ Integrated into autonomous-sync.sh pipeline (Session 77) |
 | cross_repo_fetch inbound fix    | ✓ from-{agent_id}- prefix added to inbound filter (Session 77) |
 | Compositor GH issue links       | ✓ issue_url/issue_number in Messages table (Session 77) |
+| Circuit breaker (mesh control)  | ✓ 3 mechanisms: pause file, budget zero-all, mesh-stop/start scripts (Session 78) |
+| Transport hygiene fixes         | ✓ Skip addressed-copy indexing, exempt local-coordination, WAL disambiguation (Session 78) |
+| /diagnose skill                 | ✓ Created — systemic self-diagnostic for all monitoring mechanisms (Session 78, needs restart) |
+| Standards research              | ✓ 13 protocols evaluated — A2A Agent Cards + DIDComm threading recommended (Session 78) |
+| Pipeline gaps identified        | ⚑ Claims (0 verified), flags (0 resolved), triggers (0 fire-counted), facets (0), lessons.md missing (Session 78) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -5063,3 +5068,52 @@ dashboard observability.
 - psq-agent identity migration not deployed to peer repos (chromabook configs unchanged)
 
 ▶ docs/architecture.md (observatory-hybrid-data decision), transport/sessions/cabinet-infrastructure/
+
+
+## 2026-03-11T21:42 CDT — Session 78 (Circuit breaker, transport hygiene, standards research, /diagnose skill)
+
+- **Circuit breaker — 3 complementary mechanisms:**
+  (1) Pause file check at top of `autonomous-sync.sh main()` — `/tmp/mesh-pause` halts
+  all agents, `/tmp/sync-pause-{agent-id}` halts one agent. (2) `autonomy-budget.py
+  pause-all / resume-all` — zeroes/restores all agent budgets in state.db. (3) Convenience
+  scripts: `mesh-stop.sh` and `mesh-start.sh` in platform/shared/scripts/ — one-liner for
+  operators. All three mechanisms complement each other (file-based = fast, budget-based =
+  defense in depth).
+- **Self-readiness audit R3 processed** — PRs #139-141 merged. Tally: psq-agent NOT-READY
+  (7 findings, 2 HIGH, 3 MED, 1 LOW, 1 INFO; 4 fixed in-session), unratified-agent READY
+  (5 found, all fixed), observatory-agent READY (2 found, both fixed). psychology-agent
+  self-audited autonomously (NOT-READY, 3 findings). Session closed by autonomous sync.
+- **Transport hygiene fixes (resolves PSQ R3 findings 8A, 8B/C/D, 2A):**
+  (1) bootstrap_state_db.py now skips `to-{agent}-NNN.json` files — Convention B addressed
+  copies are routing artifacts, not distinct messages. Eliminates duplicate-turn collisions.
+  (2) Transport spec updated: `local-coordination` declared as exempt session type — heartbeat/
+  mesh-state/halt files use turn=0 sentinel, not monotonic sequencing. (3) Anti-patterns doc:
+  disambiguated stale WAL (crashed process) from active daemon WAL (meshd). (4) bootstrap now
+  honors PROJECT_ROOT env var (symlink anti-pattern fix).
+- **Post-rebuild verification** — state.db rebuilt with fixes: 204 messages (0 addressed copies),
+  54 decisions, 39 memory entries, 77 sessions, 17 triggers. Multi-party same-turn collisions
+  (e.g., 3 agents at turn 9 in consensus round) confirmed as legitimate behavior.
+- **/diagnose skill created** — systemic self-diagnostic covering: claims pipeline, transport
+  indexing, epistemic flags, decision chain, memory entries, trigger state, universal facets,
+  lessons, session log, autonomy budget, active gates. Needs restart to load.
+- **Standards landscape research** — 13 protocols evaluated against 6 mesh pain points.
+  Recommendations: **Adopt now:** A2A Agent Card schema (discovery), A2A task lifecycle states
+  (sessions), content-addressable message IDs (integrity+dedup). **Borrow concepts:** DIDComm
+  threading model (replaces turn numbers with thread_id/parent_thread_id), DIDComm problem
+  reports (circuit breaker formalization), FIPA performatives (message intent vocabulary).
+  **Track:** NIST AI Agent Standards Initiative (comment period Apr 2026), IETF Agent Networks
+  Framework draft. **Skip:** ActivityPub (replicates addressed-copy problem), MLS (wrong layer),
+  AEA (blockchain deps).
+- **Systemic diagnostic findings** — 5 broken pipelines identified: (1) 371 claims, 0 verified
+  — verification mechanism never invoked. (2) 435 epistemic flags, 0 resolved — no resolution
+  mechanism. (3) All 17 triggers show fire_count=0 — hooks fire in-context but don't write
+  telemetry to state.db. (4) 0 universal facets — bootstrap_facets.py not run against current
+  state.db. (5) lessons.md missing — file never created at project root.
+
+⚑ EPISTEMIC FLAGS
+- Standards research conducted by subagent — findings not independently verified against primary sources
+- /diagnose skill created mid-session — needs restart to load; untested in skill invocation context
+- Pipeline gap root cause analysis inferred from data patterns — actual wiring not traced through every hook
+- bootstrap --force reset processed flags on 201 messages — may need selective re-processing
+
+▶ journal.md §54, docs/architecture.md (transport exempt sessions, addressed-copy policy)
