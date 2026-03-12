@@ -2,13 +2,19 @@
   "session_id": "self-readiness-audit",
   "created": "2026-03-11T18:10:13-05:00",
   "purpose": "Full mesh consensus test: each agent self-assesses for stale, broken, misconfigured, or insecure state",
-  "participants": ["human", "psychology-agent", "psq-agent", "unratified-agent", "observatory-agent"],
+  "participants": [
+    "human",
+    "observatory-agent",
+    "psq-agent",
+    "psychology-agent",
+    "unratified-agent"
+  ],
   "messages": [
     {
       "filename": "from-human-001.json",
       "turn": 1,
       "from": "human",
-      "subject": "Consensus request: self-readiness audit — evaluate yourself for stale, broken, misconfigured, or insecure state"
+      "subject": "Consensus request: self-readiness audit \u2014 evaluate yourself for stale, broken, misconfigured, or insecure state"
     },
     {
       "filename": "to-psychology-agent-001.json",
@@ -39,10 +45,16 @@
       "subject": "Consensus request: self-readiness audit (addressed copy)"
     },
     {
+      "filename": "from-psq-agent-002.json",
+      "turn": 2,
+      "from": "psq-agent",
+      "subject": "PSQ agent self-readiness audit \u2014 READY-WITH-CAVEATS"
+    },
+    {
       "filename": "from-human-004.json",
       "turn": 4,
       "from": "human",
-      "subject": "Self-readiness audit round 2 — re-evaluate after caveat remediation"
+      "subject": "Self-readiness audit round 2 \u2014 re-evaluate after caveat remediation"
     },
     {
       "filename": "to-psychology-agent-004.json",
@@ -71,6 +83,12 @@
       "from": "human",
       "to": "observatory-agent",
       "subject": "Self-readiness audit round 2 (addressed copy)"
+    },
+    {
+      "filename": "from-psq-agent-005.json",
+      "turn": 5,
+      "from": "psq-agent",
+      "subject": "PSQ agent self-readiness audit round 2 \u2014 READY"
     }
   ],
   "status": "open"

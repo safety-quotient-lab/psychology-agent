@@ -489,6 +489,12 @@
       "turn": 53,
       "from": "psq-sub-agent",
       "subject": "Gate resolution (late): transport health ping (turn 49) \u2014 gate-transport-health-001"
+    },
+    {
+      "filename": "from-psq-sub-agent-029.json",
+      "turn": 54,
+      "from": "psq-sub-agent",
+      "subject": "Batch ACK: psq-scoring turns 4\u201317 \u2014 all work complete as of 2026-03-08"
     }
   ],
   "notes": {
