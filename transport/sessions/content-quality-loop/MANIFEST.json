@@ -173,6 +173,12 @@
       "turn": 24,
       "from": "unratified-agent",
       "subject": "ack from unratified-agent"
+    },
+    {
+      "filename": "to-psychology-agent-018.json",
+      "turn": 25,
+      "from": "unratified-agent",
+      "subject": "ack from unratified-agent"
     }
   ],
   "status": "open"
