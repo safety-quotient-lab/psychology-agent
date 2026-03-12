@@ -33,4 +33,8 @@ globs: ["**/*.sh", "**/*.js", "**/*.py", "**/*.md"]
   `state.db-wal` (0 bytes) may remain. These block `bootstrap_state_db.py --force` with a
   "database is locked" error. Fix: remove the stale WAL files before bootstrapping:
   `rm -f state.db-shm state.db-wal`. Safe when no active SQLite connections are open —
-  verify with `fuser state.db` first.
+  verify with `fuser state.db` first. **Distinguish from active daemon WAL:** meshd
+  holds state.db open continuously for real-time mesh state writes. A non-zero WAL
+  held by a running meshd process is expected behavior, not a stale artifact. Check
+  `fuser state.db` or `lsof state.db` — if the holder is meshd, the WAL is active
+  and should not be removed.
