@@ -517,6 +517,14 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   staleness vitals, agent switcher, sort/filter/pagination. Deployed to CF Worker.
   SSE live updates still queued as enhancement.
 
+- [ ] **Replace auto-refresh with SSE on agent dashboards** — HIGH PRIORITY.
+  mesh-status.py currently uses 30s full-page auto-refresh, which causes disruptive
+  page reloads while reading. Replace with Server-Sent Events (SSE) or EventSource
+  for incremental live updates. Align with the approach chosen for the interagent
+  compositor dashboard. The individual agent dashboards should share the same
+  real-time update mechanism.
+  *Precondition: mesh-status.py dashboard exists (complete)*
+
 - [ ] **Jenkins build notifications** — configure notification channel for build
   success/failure. Options: email (emailext plugin + SMTP), Slack webhook, or
   GitHub commit status. Defer to IT session for SMTP/plugin config.

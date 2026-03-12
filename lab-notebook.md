@@ -168,7 +168,9 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | /diagnose skill                 | ✓ Created — systemic self-diagnostic for all monitoring mechanisms (Session 78, needs restart) |
 | Standards research              | ✓ 13 protocols evaluated — A2A Agent Cards + DIDComm threading recommended (Session 78) |
 | Pipeline gaps identified        | ✓ Claims + flags closed; triggers partial (T1 only); facets populated; lessons indexed (Session 78-79) |
-| agentdb Go binary               | ✓ Phases 1-4 COMPLETE — 22 subcommands, DB split (state.db + state.local.db), 6 hooks updated. Deploy pending (Session 80) |
+| agentdb Go binary               | ✓ Phases 1-5 COMPLETE — 22+ subcommands, DB split, deployed to chromabook (4 repos). Phase 6 (cleanup) pending (Session 80, 83) |
+| Crystallized sync               | ✓ Steps 1-7 COMPLETE — triage, auto-ACK, gate resolve, autonomous-sync.sh integration, orientation-payload --post-triage, mesh-status crystallization metric. 52% rate on 123 msgs. Deployed to chromabook (Session 83) |
+| Operations-agent standup        | ✓ Turns 1-6 complete. Operations-agent bootstrapped, meshd on port 8081, cogarch adaptation pending (Session 82-83) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -5289,3 +5291,66 @@ self-readiness audit R3 gate. Run /cycle for Sessions 81-82.
 - Cogarch template untested — operations-agent will be the first consumer
 
 ▶ platform/shared/cogarch/, transport/sessions/self-readiness-audit/
+
+
+## 2026-03-12T16:55 CDT — Session 83 (crystallized sync implementation + deploy)
+
+**Scope:** Implement crystallized sync spec (Steps 1-7), deploy to chromabook,
+advance operations-agent standup, wire into autonomous pipeline.
+
+- **Crystallized sync — Steps 1-4 (Go implementation):**
+  - `internal/transport/triage.go` (~290 lines) — scoring engine: base scores map,
+    urgency/ack/gate/age/content modifiers, 4 dispositions (auto-skip/auto-ack/
+    auto-record/needs-llm). Edge cases: self-messages, expired, exempt sessions.
+  - `internal/transport/ack.go` (~250 lines) — template ACK generation: reads
+    `.agent-identity.json`, computes CID, filesystem turn collision check.
+  - `internal/gates/gates.go` — added `ScanAndResolve()` for deterministic gate
+    matching across shared + local DBs.
+  - `cmd/agentdb/main.go` — wired `triage`, `ack`, and enhanced `gate resolve --scan`.
+  - `scripts/migrate_v22.sql` — triage columns + index for production migration.
+- **Crystallized sync — Step 5 (autonomous-sync.sh):**
+  Inserted crystallized pre-processing block between auto_process_trivial and
+  pre-flight skip check. 4-step pipeline: triage → auto-ack → gate resolve →
+  manifest regen. Pre-flight now uses `needs_llm_count` with legacy fallback.
+- **Crystallized sync — Step 6 (orientation-payload.py):**
+  Added `--post-triage` flag and `triage_summary()` function. Renders split view:
+  pre-processed summary + substance queue with scores. Fixed NULL confidence bug.
+- **Crystallized sync — Step 7 (mesh-status.py):**
+  Crystallization rate card in dashboard grid + header bar indicator + JSON-LD
+  PropertyValue entries.
+- **Operations-agent standup — turns 4-6:**
+  Materialized claude-control turn 4 (ACK, all 6 decisions confirmed, port 8081
+  allocated). Sent turn 5 (cogarch template inventory, compositor handoff scope,
+  FR-001 session continuation toggle, FR-002 bidirectional transport). Materialized
+  turn 6 (operations-agent bootstrapped, meshd running on chromabook:8081).
+- **Deployment to chromabook:**
+  Cross-compiled agentdb linux/amd64. Deployed to 4 repos (psychology, psychology-sqlab,
+  observatory, unratified). Schema v22 migrated on all 4 databases. Shared scripts
+  deployed (autonomous-sync.sh, orientation-payload.py, mesh-status.py).
+  Smoke test: 52% crystallization rate on 123 production messages.
+- **Architecture decision added:** crystallized-sync in docs/architecture.md.
+- **TODO added:** Replace auto-refresh with SSE on agent dashboards (user request).
+
+**Files created:**
+- `internal/transport/triage.go`, `internal/transport/ack.go`
+- `scripts/migrate_v22.sql`
+- `transport/sessions/operations-agent-standup/from-psychology-agent-005.json`
+- `docs/crystallized-sync-spec.md` (committed from prior draft)
+
+**Files modified:**
+- `internal/gates/gates.go` — ScanAndResolve(), isTimedOut(), parseTimestamp()
+- `internal/db/schema_shared.sql` — v22 triage columns
+- `cmd/agentdb/main.go` — triageCmd(), ackCmd(), enhanced gateResolveCmd()
+- `platform/shared/scripts/autonomous-sync.sh` — crystallized pre-processing block
+- `platform/shared/scripts/orientation-payload.py` — --post-triage, NULL confidence fix
+- `platform/shared/scripts/mesh-status.py` — crystallization metric
+- `docs/architecture.md` — crystallized-sync decision
+- `TODO.md` — crystallized sync complete, SSE dashboard TODO
+
+⚑ EPISTEMIC FLAGS
+- 52% crystallization rate measured on dry-run — live rate may differ as triage writes dispositions
+- orientation-payload.py pre-processed counts show 0 on first --post-triage run because prior messages lack triage_disposition; populates after first live triage scan
+- psq-agent 4A remediation still blocks R4 closure — no new activity detected
+- Operations-agent cogarch template not yet adapted — placeholders remain
+
+▶ docs/crystallized-sync-spec.md, internal/transport/, platform/shared/scripts/

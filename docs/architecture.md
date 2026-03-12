@@ -884,6 +884,25 @@
                                 rejected to avoid normalizing HIGH
                                 security findings.
                                 Decided: 2026-03-12
+
+ Crystallized sync            Deterministic pre-processing moves
+ (crystallized-sync)             rule-based work out of LLM /sync
+                                invocations into agentdb commands.
+                                Cattell (1971) crystallized vs fluid
+                                intelligence framing. Triage (0-100
+                                scoring, 4 dispositions), template ACK
+                                generation, deterministic gate resolve.
+                                autonomous-sync.sh calls agentdb before
+                                the pre-flight skip check; orientation-
+                                payload.py gains --post-triage for LLM
+                                context injection; mesh-status.py shows
+                                crystallization rate. 52% crystallization
+                                on 123 production messages (first run).
+                                Spec: docs/crystallized-sync-spec.md.
+                                Derives from: agentdb binary (Go CLI),
+                                  SQLite state layer (triage columns v22),
+                                  EF-1 trust model (reduce LLM turns).
+                                Decided: 2026-03-12
 ────────────────────────────────────────────────────────────────────────
 ```
 
