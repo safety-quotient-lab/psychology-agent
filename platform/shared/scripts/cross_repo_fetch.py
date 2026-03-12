@@ -266,28 +266,70 @@ def scan_agent(agent_id: str, agent_config: dict, index: bool = False,
     }
 
     if activity_tier == "cold" and not force:
-        # Before skipping a cold peer, check their cached MANIFEST for
-        # messages addressed to us. A cold peer may have sent us a new
-        # message (e.g., consensus proposal) that we haven't indexed yet.
+        # Before skipping a cold peer, do a lightweight git-fetch and check
+        # for new messages addressed TO us or FROM the peer. A cold peer may
+        # have responded to a consensus request or sent a new proposal.
         # Use git show on the already-fetched ref — no network cost.
-        manifest_path = agent_config.get(
-            "manifest_path", "transport/MANIFEST.json"
-        )
-        cached_manifest = read_remote_file(remote_name, manifest_path)
-        has_pending_for_us = False
-        if cached_manifest:
-            try:
-                manifest = json.loads(cached_manifest)
-                my_id = _get_my_agent_id()
-                for recipients, msgs in manifest.get("pending", {}).items():
-                    if my_id in recipients.split(","):
-                        has_pending_for_us = True
-                        break
-            except (json.JSONDecodeError, KeyError):
-                pass
+        #
+        # Check strategy: scan each session's remote directory for files
+        # matching our inbound filter (to-{my_id}-*) or FROM the peer
+        # (from-{agent_id}-*) that we don't have locally.
+        try:
+            fetch_result = subprocess.run(
+                ["git", "fetch", remote_name, "--quiet"],
+                capture_output=True, text=True, timeout=30,
+                cwd=str(PROJECT_ROOT)
+            )
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            pass
 
-        if has_pending_for_us:
-            # Promote to warm — there are pending messages for us
+        my_id = _get_my_agent_id()
+        has_new_messages = False
+
+        # Quick scan: list transport session dirs on the remote
+        try:
+            ls_result = subprocess.run(
+                ["git", "ls-tree", "--name-only",
+                 f"{remote_name}/main", "transport/sessions/"],
+                capture_output=True, text=True, timeout=10,
+                cwd=str(PROJECT_ROOT)
+            )
+            for session_path in ls_result.stdout.strip().split("\n"):
+                if not session_path:
+                    continue
+                session_name = session_path.rstrip("/").split("/")[-1]
+                # List files in this session on the remote
+                files_result = subprocess.run(
+                    ["git", "ls-tree", "--name-only",
+                     f"{remote_name}/main", f"{session_path}/"],
+                    capture_output=True, text=True, timeout=10,
+                    cwd=str(PROJECT_ROOT)
+                )
+                remote_files = set(
+                    f.split("/")[-1] for f in files_result.stdout.strip().split("\n")
+                    if f.strip()
+                )
+                # Check for inbound files we don't have locally
+                local_dir = PROJECT_ROOT / "transport" / "sessions" / session_name
+                local_files = set(
+                    f.name for f in local_dir.glob("*.json")
+                ) if local_dir.exists() else set()
+
+                inbound_prefix = f"to-{my_id}-"
+                from_prefix = f"from-{agent_id}-"
+                for rf in remote_files:
+                    if rf in local_files or rf == "MANIFEST.json":
+                        continue
+                    if rf.startswith(inbound_prefix) or rf.startswith(from_prefix):
+                        has_new_messages = True
+                        break
+                if has_new_messages:
+                    break
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            pass
+
+        if has_new_messages:
+            # Promote to warm — there are new messages for us
             activity_tier = "warm"
             result["activity_tier"] = "warm"
             result["promoted_from_cold"] = True
@@ -295,7 +337,8 @@ def scan_agent(agent_id: str, agent_config: dict, index: bool = False,
             result["skipped"] = True
             result["skip_reason"] = (
                 f"cold peer — no exchange within {COLD_THRESHOLD_HOURS}h, "
-                "no unprocessed messages, no active gates"
+                "no unprocessed messages, no active gates, "
+                "no new inbound files on remote"
             )
             return result
 
