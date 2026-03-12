@@ -387,6 +387,10 @@ def scan_agent(agent_id: str, agent_config: dict, index: bool = False,
         inbound_prefixes = {f"to-{our_agent_id}-"}
         if repo_agent_id != our_agent_id:
             inbound_prefixes.add(f"to-{repo_agent_id}-")
+        # Also match from-{agent_id}- (peer's own authored messages).
+        # message_prefix covers custom naming (e.g., from-psq-sub-agent-),
+        # but the agent may also author files as from-{agent_id}- directly.
+        inbound_prefixes.add(f"from-{agent_id}-")
         inbound_files = [
             f for f in files
             if f.startswith(message_prefix)
