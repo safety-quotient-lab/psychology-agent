@@ -5211,3 +5211,81 @@ with a single Go binary. Addresses two converging problems: budget bypass bug
 - Hook fallback pattern means dual_write.py still required until agentdb deployed everywhere
 
 ▶ cmd/agentdb/, internal/*, .claude/hooks/
+
+
+## 2026-03-12T14:06 CDT — Session 81 (lessons split + operations-agent standup decisions)
+
+**Scope:** Split lessons between discipline-specific and shared platform entries.
+Respond to claude-control's operations-agent standup proposal. Add WAL checkpoint
+to bootstrap_lessons.py.
+
+- **Lessons split** — 12 discipline-specific entries remain in `lessons.md` (psychology,
+  evaluation, cogarch domains). 15 transferable entries moved to
+  `platform/shared/lessons.md` (workflow, security, tooling, documentation domains).
+  Split criterion: would a non-psychology agent benefit from this lesson?
+- **Operations-agent standup response (turn 2)** — psychology-agent positions on all
+  6 open questions from claude-control's proposal. Key positions: compositor to shared
+  repo (not psychology-agent repo), no Worker split needed, vocabulary governance shared
+  across mesh. Protocol compliance notes flagged missing v19 fields.
+- **Human arbiter decisions (turn 3)** — all 6 questions resolved. Operations-agent
+  owns compositor. .well-known discovery replaces hardcoded AGENTS array. Shared vocab
+  governed by operations-agent. Port delegated to claude-control. Repo starts private.
+  Emerging: dual-channel transport, Web Component decomposition, Jenkins deploys compositor.
+- **WAL checkpoint** — `bootstrap_lessons.py` now runs `PRAGMA wal_checkpoint(TRUNCATE)`
+  after writing, so meshd sees data without restart.
+
+**Files modified:**
+- `lessons.md` — pruned to 12 entries
+- `platform/shared/lessons.md` — 15 shared entries
+- `scripts/bootstrap_lessons.py` — WAL checkpoint
+- `transport/sessions/operations-agent-standup/` — turns 2-3
+
+⚑ EPISTEMIC FLAGS
+- Operations-agent does not yet exist — decisions describe intent, not implemented state
+- /cycle NOT run during Session 81 (deferred to Session 82)
+
+▶ transport/sessions/operations-agent-standup/, platform/shared/lessons.md
+
+
+## 2026-03-12T14:56 CDT — Session 82 (cogarch template + R3 gate resolution + /cycle)
+
+**Scope:** Prepare cogarch standup kit for operations-agent. Evaluate and resolve
+self-readiness audit R3 gate. Run /cycle for Sessions 81-82.
+
+- **Cogarch template (platform/shared/cogarch/)** — 6 template files for new agent
+  standup: `cogarch.config.template.json` (skeleton config with {PLACEHOLDER} values),
+  `CLAUDE.md.template` (starter project instructions), `hooks-manifest.md` (hook
+  classification: 11 infrastructure + 7 application, identity replacement guide),
+  `lessons.md.example` (format stub), T15 converted from PSQ-specific to domain-agnostic
+  slot in shared `cognitive-triggers.md`. README updated with standup procedure.
+- **R3 gate resolved — Option A selected** — human arbiter decision (turn 17).
+  F4/8B-8D (duplicate turns from addressed-copy indexing) verified ALREADY RESOLVED —
+  `bootstrap_state_db.py` line 269 skips `to-*` files since Session 78. Confirmed:
+  0 addressed-copy files in state.db. Remaining turn duplicates represent legitimate
+  multi-party exchanges (different agents at same turn), handled by threading model.
+- **Psychology-agent R4 vote: READY** (turn 18) — 0 findings remaining. All 3 prior
+  findings closed (F3 by-design, F4 resolved, F5 by-design).
+- **Sole remaining R4 blocker: psq-agent 4A** (HIGH) — OpenRouter API key in plaintext
+  `.env` on chromabook. Requires psq-agent remediation before R4 can close.
+- **Claude-control status** — operations-agent-standup turns 1-3 all on origin/main.
+  Claude-control has not responded (no turn 4). Gate open: "ACK + begin repo creation."
+
+**Files created:**
+- `platform/shared/cogarch/cogarch.config.template.json`
+- `platform/shared/cogarch/CLAUDE.md.template`
+- `platform/shared/cogarch/hooks-manifest.md`
+- `platform/shared/cogarch/lessons.md.example`
+- `transport/sessions/self-readiness-audit/from-human-017.json`
+- `transport/sessions/self-readiness-audit/from-psychology-agent-018.json`
+
+**Files modified:**
+- `platform/shared/cogarch/cognitive-triggers.md` — T15 → domain slot
+- `platform/shared/README.md` — standup procedure + updated tree
+- `transport/sessions/self-readiness-audit/MANIFEST.json` — turns 15-18, reopened for R4
+
+⚑ EPISTEMIC FLAGS
+- F4/8B-8D resolution verified against psychology-agent state.db only — psq-agent should re-bootstrap to confirm
+- R4 cannot close until psq-agent remediates 4A and votes
+- Cogarch template untested — operations-agent will be the first consumer
+
+▶ platform/shared/cogarch/, transport/sessions/self-readiness-audit/

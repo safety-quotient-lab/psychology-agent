@@ -13,28 +13,27 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 | `memory/infrastructure.md` | Chromabook, Cloudflare, CI/CD, known gotchas | Infrastructure/deploy work |
 | `memory/cognitive-triggers.md` | Legacy — full trigger descriptions (canonical: `docs/cognitive-triggers.md`) | Superseded; read canonical instead |
 | `memory/feedback_chromabook_not_hetzner.md` | Chromabook = local laptop, Hetzner = separate VPS — never conflate | Infrastructure planning |
-| `memory/feedback_cabinet_port.md` | Cabinet SSH on port 2535, not default 22 | SSH to cabinet |
 
 ## Active Thread (2026-03-12)
 
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 82. Cogarch template done. R3 gate resolved (Option A).
-Psychology-agent R4 vote: READY. /cycle complete.
+**Where we stopped:** Session 80. agentdb Go binary Phases 1-4 complete — 22
+subcommands, DB split (state.db + state.local.db), 6 hooks updated. Binary builds
+and bootstraps locally. Deploy to chromabook pending.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- agentdb: ✓ Phases 1-4 complete. Phase 5 (deploy) + Phase 6 (cleanup) pending `[warm]`
-- Cogarch template: ✓ 6 files in platform/shared/cogarch/ — ready for operations-agent `[warm]`
-- Operations-agent: ✓ All 6 questions resolved. Awaiting claude-control ACK (no turn 4 yet) `[hot]`
-- Self-readiness audit: ⚑ R4 in progress — psychology-agent READY, psq-agent 4A pending `[hot]`
-- Messaging layer: ⚑ Deferred — candidates MQTT/ZeroMQ, blocked on cabinet `[cold]`
+- agentdb: ✓ Phases 1-4 complete; Phase 5 (deploy) + Phase 6 (cleanup) pending `[hot]`
 - meshd: ✓ All 4 running under systemd `[warm]`
+- CI/CD: ✓ Tier 1 + Tier 2 operational `[warm]`
+- Pipeline gaps: ✓ Claims + flags closed; triggers partial (T1 only) `[warm]`
+- Standards: ✓ A2A + DIDComm threading adopted and implemented `[warm]`
+- Budget bypass: ⚑ Root cause identified — fix deployed when agentdb lands `[hot]`
+- Auth design: ✓ Solid-OIDC direction-set — Phase 0 current `[cold]`
 
-**Next session priorities:**
-1. agentdb Phase 5 deploy (cross-compile, SCP, update autonomous-sync.sh)
-2. Monitor claude-control response to operations-agent standup
-3. Monitor psq-agent 4A remediation for R4 closure
+**Next:** Deploy agentdb to chromabook (Phase 5). Update autonomous-sync.sh.
+Untrack state.db from git across all 4 repos.
 
 
 ## Memory Hygiene
@@ -53,11 +52,19 @@ Psychology-agent R4 vote: READY. /cycle complete.
 - **Identity: psychology agent first** — this agent operates as a psychology agent,
   not a coding assistant that happens to know psychology. The discipline comes first;
   engineering serves it. Frame responses through a psychological lens by default.
-- **Blog posts require five personas** — voter (8th grade), politician (staff-briefing),
-  educator (pedagogical), researcher (methods+citations), developer (architecture).
-  All from safety-quotient-lab's perspective, routed through unratified-agent.
-- **Trigger naming:** plain-language label first, T-numbers in parenthetical position only.
-- **Cogarch baseline summary:** every session start — hook enforces mechanically.
+- **Blog posts require five personas** — every topic produces posts for: voter,
+  politician, educator, researcher, developer. All from safety-quotient-lab's
+  perspective, routed through unratified-agent. Reading levels by persona:
+  voter (8th grade, plain language, concrete analogies), politician (professional
+  staff-briefing level, actionable), educator (pedagogical framing with discussion
+  prompts), researcher (methods-and-findings, citations, epistemic flags),
+  developer (architecture deep-dive, implementation detail, code references).
+- **Trigger naming in conversation:** Always refer to triggers by their firing condition
+  ("Before recommending," "Session starts") as the primary label. T-numbers go in
+  parenthetical position only.
+- **Cogarch baseline summary (every session):** At session start, read
+  `docs/cognitive-triggers.md` and output the compact cogarch baseline summary as the
+  first visible action. Hook enforces this mechanically.
 - **AskUserQuestion tool:** Always use the `AskUserQuestion` tool when seeking
   clarification or asking questions — never ask inline as plain text.
 - **Remote deployment via SSH/SCP:** SSH into chromabook for operational tasks

@@ -823,6 +823,67 @@
                                   git-immune storage), DDD (bounded context
                                   modules map to Go packages).
                                 Decided: 2026-03-12
+
+ Compositor ownership        Operations-agent owns the interagent
+                                dashboard (index.html + worker.js).
+                                Other agents contribute via PRs or
+                                by serving data at /api/* endpoints.
+                                Rejects: shared repo (coordination
+                                overhead), psychology-agent repo
+                                (historical accident).
+                                Derives from: operations-agent standup
+                                  (3-party transport negotiation).
+                                Decided: 2026-03-12
+
+ Agent endpoint discovery    .well-known/agent-card.json replaces
+                                hardcoded AGENTS array. Compositor
+                                reads agent-cards at startup for
+                                dynamic discovery. A new agent joins
+                                the mesh by deploying an agent-card.
+                                Rejects: hardcoded array (doesn't
+                                scale), KV-backed registry (adds
+                                runtime dependency for marginal
+                                benefit at 5-6 agents).
+                                Decided: 2026-03-12
+
+ Vocabulary governance       Operations-agent governs shared
+                                vocabulary (terms in agent-cards,
+                                dashboard, cross-agent contracts).
+                                Domain-specific vocabulary stays
+                                local to each agent. When a domain
+                                term becomes shared, owning agent
+                                proposes it to operations-agent.
+                                Decided: 2026-03-12
+
+ Transport architecture      Dual-channel: git-PR (durable, human
+                                review, public transparency) +
+                                real-time messaging layer (sub-second
+                                signaling, event notification). Git-PR
+                                not replaced — messaging handles cases
+                                where git-PR latency blocks.
+                                Candidates: MQTT, ZeroMQ. Redis
+                                pending cabinet availability.
+                                Constraint: one daemon acceptable,
+                                not a full broker cluster.
+                                Decided: 2026-03-12
+
+ Compositor decomposition    Web Components (vanilla custom elements,
+                                no framework). Each tab becomes a
+                                custom element. Agent-cards include
+                                tab contribution manifests.
+                                Operations-agent governs visual
+                                consistency; agents own tab content.
+                                Decided: 2026-03-12
+
+ R3 self-readiness gate      Option A: remediate genuine blockers,
+                                proceed to Round 4. F4/8B-8D
+                                (duplicate turns) verified already
+                                resolved (Session 78 fix). 4A (API
+                                key on disk) requires psq-agent
+                                remediation. READY-WITH-EXEMPTIONS
+                                rejected to avoid normalizing HIGH
+                                security findings.
+                                Decided: 2026-03-12
 ────────────────────────────────────────────────────────────────────────
 ```
 
