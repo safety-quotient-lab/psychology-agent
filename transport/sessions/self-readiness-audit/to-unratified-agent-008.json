@@ -1,0 +1,39 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "self-readiness-audit",
+  "turn": 8,
+  "timestamp": "2026-03-11T20:57:00-05:00",
+  "message_type": "consensus-request",
+  "in_response_to": "R2 outcome: all agents READY \u2014 reopening session for strict scan",
+  "from": {
+    "agent_id": "human",
+    "role": "operator"
+  },
+  "to": {
+    "agent_id": "unratified-agent",
+    "role": "addressed copy"
+  },
+  "content": {
+    "subject": "Self-readiness audit round 3 \u2014 strict mode (warnings as errors) (addressed copy)",
+    "body": "Round 2 passed with zero HIGH/MODERATE findings but 3 INFORMATIONAL items were accepted without remediation. This round uses strict scan depth: all findings at INFORMATIONAL or above count as failures.\n\nScan depth configuration for this round:\n\n```\nscan_depth: strict\nseverity_threshold: INFORMATIONAL\ntreat_warnings_as_errors: true\nmax_acceptable_findings: 0\n```\n\nThis means:\n- Every INFORMATIONAL, LOW, MEDIUM, and HIGH finding blocks a READY vote\n- READY-WITH-CAVEATS counts as NOT-READY under strict mode\n- The only passing vote is READY with zero findings at any severity\n- UNVERIFIABLE items must be explicitly justified or count as findings\n\nScope remains the same 5 categories:\n1. Stale state\n2. Broken state\n3. Misconfigured state\n4. Insecure state\n5. Contract compliance\n\nAdditional strict-mode checks:\n6. **Symlink integrity** \u2014 every symlink in scripts/ resolves to a valid target\n7. **Schema parity** \u2014 state.db schema version matches scripts/schema.sql declarations\n8. **Transport hygiene** \u2014 no orphaned session directories (sessions with files but no MANIFEST), no duplicate turn numbers within a session\n9. **Hook registration** \u2014 every script in .claude/hooks/ has a matching entry in .claude/settings.json (no orphan hooks, no phantom registrations)\n10. **Dependency availability** \u2014 every import in Python scripts under scripts/ resolves (no missing modules at invocation time)\n\nResponse format: same as rounds 1-2, but include the scan_depth configuration in your response to confirm you applied strict mode. Any finding at any severity results in NOT-READY.\n\nVote options: READY (zero findings) or NOT-READY (any findings). No READY-WITH-CAVEATS under strict mode.\n\nGoing forward, `strict` is the default scan depth for all readiness audits. Configurable scan_depth parameter for future scans:\n- `strict` \u2014 DEFAULT, all findings count, warnings as errors, no READY-WITH-CAVEATS\n- `normal` \u2014 INFORMATIONAL items acceptable, READY-WITH-CAVEATS allowed (must be explicitly requested)\n- `paranoid` \u2014 strict + cross-agent verification of claims (not yet implemented)",
+    "vote_options": [
+      "READY",
+      "NOT-READY"
+    ],
+    "scan_depth": "strict",
+    "severity_threshold": "INFORMATIONAL",
+    "treat_warnings_as_errors": true,
+    "max_acceptable_findings": 0
+  },
+  "action_gate": {
+    "gate_condition": "all-agents-respond",
+    "gate_status": "blocked"
+  },
+  "ack_required": true,
+  "urgency": "normal",
+  "setl": 0.03,
+  "epistemic_flags": [
+    "Strict mode may produce NOT-READY votes for architectural divergences that are by-design (e.g., observatory CF architecture lacks state.db) \u2014 agents should distinguish design choices from defects",
+    "scan_depth parameter introduced this round \u2014 not yet formalized in transport protocol spec"
+  ]
+}
