@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"html/template"
@@ -19,12 +20,15 @@ import (
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/collector"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/db"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/handlers"
+	"github.com/safety-quotient-lab/psychology-agent/platform/internal/zmqbus"
 )
 
 func main() {
 	port := flag.Int("port", 8077, "HTTP port")
 	projectRoot := flag.String("project-root", ".", "Path to the agent project root")
 	cacheTTL := flag.Duration("cache-ttl", 10*time.Second, "Cache TTL for collector results")
+	zmqPub := flag.String("zmq-pub", "", "ZMQ PUB bind address (e.g. tcp://*:9001). Empty disables ZMQ.")
+	zmqPeers := flag.String("zmq-peers", "", "Comma-separated list of peer ZMQ PUB addresses to connect (e.g. agent-id=tcp://host:9001)")
 	flag.Parse()
 
 	// Resolve project root to absolute path
@@ -109,6 +113,44 @@ func main() {
 		IdleTimeout:  120 * time.Second,
 	}
 
+	// ZMQ transport (optional)
+	var bus *zmqbus.Bus
+	if *zmqPub != "" {
+		agentID := filepath.Base(absRoot)
+		bus = zmqbus.New(agentID, *zmqPub)
+		if err := bus.Start(); err != nil {
+			log.Fatalf("zmq start: %v", err)
+		}
+
+		// Connect to initial peers
+		if *zmqPeers != "" {
+			for _, entry := range strings.Split(*zmqPeers, ",") {
+				parts := strings.SplitN(strings.TrimSpace(entry), "=", 2)
+				if len(parts) != 2 {
+					log.Printf("[zmq] skipping malformed peer entry: %s", entry)
+					continue
+				}
+				bus.ConnectPeer(zmqbus.PeerInfo{
+					AgentID: parts[0],
+					ZMQPub:  parts[1],
+				})
+			}
+		}
+
+		// Log incoming messages
+		bus.OnMessage(func(m zmqbus.Message) {
+			log.Printf("[zmq] %s/%s from %s", m.Topic, m.From, m.Timestamp.Format(time.RFC3339))
+		})
+
+		// Expose ZMQ peers via API
+		mux.HandleFunc("/api/zmq/peers", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(bus.KnownPeers())
+		})
+
+		fmt.Printf("  ZMQ PUB:    %s\n", *zmqPub)
+	}
+
 	// Graceful shutdown
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
@@ -129,6 +171,10 @@ func main() {
 
 	<-stop
 	fmt.Println("\nshutting down...")
+
+	if bus != nil {
+		bus.Stop()
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
