@@ -771,6 +771,24 @@
                                 journalctl.
                                 Derives from: mesh-topology, tier-2-cicd.
                                 Decided: 2026-03-11
+
+ Observatory hybrid data       Hybrid architecture: local SQLite state.db
+ architecture                  for mesh transport (shared scripts work
+ (observatory-hybrid-data)     identically to other agents) and Cloudflare
+                                D1 for monitoring (health checks, content
+                                checks, analytics snapshots). Local state.db
+                                preserves bounded-context symmetry — every
+                                agent runs the same dual-write scripts,
+                                bootstrap, and autonomous-sync pipeline.
+                                D1 handles monitoring-specific workloads
+                                that benefit from edge-queryable persistence
+                                and do not belong in the mesh transport
+                                layer.
+                                Evidence: Round 2 self-readiness audit.
+                                Derives from: mesh-topology, cloud-free
+                                  bounded context (local state.db preserves
+                                  the pattern), SQLite state layer.
+                                Decided: 2026-03-12
 ────────────────────────────────────────────────────────────────────────
 ```
 

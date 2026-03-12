@@ -10,7 +10,7 @@ Commands:
 Usage:
     python3 scripts/autonomy-budget.py status
     python3 scripts/autonomy-budget.py reset psychology-agent
-    python3 scripts/autonomy-budget.py history psq-sub-agent
+    python3 scripts/autonomy-budget.py history psq-agent
 """
 import sqlite3
 import sys
