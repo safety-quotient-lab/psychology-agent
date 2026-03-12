@@ -775,3 +775,22 @@ VALUES ('github_issues', 'shared', 'GitHub issue index — human visibility laye
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (18, 'Triple-write protocol — issue_url + issue_number on transport_messages, github_issues table promoted to canonical schema. Three layers: JSON file + state.db + GitHub Issue.');
+
+
+-- ── Schema v21: Claims verification + epistemic flag resolution ──────
+--
+-- Closes two pipeline gaps identified in Session 78 diagnostic:
+--   1. Claims: 371 indexed, 0 verified — no UPDATE pathway existed
+--   2. Flags: 435 indexed, 0 resolved — no UPDATE pathway existed
+--
+-- Claims table already has verified + verified_at columns. This migration
+-- adds resolved_by to epistemic_flags for tracking resolution provenance.
+--
+-- Both tables gain dual_write.py subcommands: verify-claim, resolve-flag.
+
+-- Add resolution provenance to epistemic_flags
+-- (ALTER TABLE for existing DBs; fresh builds should add to CREATE above
+--  once stable)
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (21, 'Claims verification + epistemic flag resolution pipelines — resolved_by column on epistemic_flags, dual_write subcommands for verify-claim and resolve-flag');
