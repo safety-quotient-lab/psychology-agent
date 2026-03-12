@@ -59,6 +59,7 @@ partner, and Socratic interlocutor
 39. [Private by Default: How Data Governance Emerges in Agent Systems](#39-private-by-default)
 49. [The Dashboard That Didn't Know: When Reachability Masquerades as Liveness](#49-the-dashboard-that-didnt-know)
 56. [One Binary, Two Databases: Why the State Layer Needed Surgery](#56-one-binary-two-databases)
+57. [Crystallized Intelligence as System Architecture](#57-crystallized-intelligence)
 40. [When Lessons Graduate: The Emergence of Mechanical Conventions from Pattern Recognition](#40-when-lessons-graduate)
 41. [Filesystem as Protocol: Plan 9 and the Cross-Repo Transport Decision](#41-filesystem-as-protocol)
 42. [The Gate That Keeps the Budget: Blocking Semantics in a Poll-Based Mesh](#42-the-gate-that-keeps-the-budget)
@@ -2226,3 +2227,57 @@ The hook migration uses a fallback pattern: each hook tries `agentdb` first, fal
 chromabook can run the old Python path until the Go binary arrives, and the local
 development machine can run either. The pattern self-eliminates: once agentdb deploys
 everywhere, the elif branches become dead code and the Python scripts can be deleted.
+
+
+## 57. Crystallized Intelligence as System Architecture {#57-crystallized-intelligence}
+
+Session 83 applied Cattell's (1971) distinction between crystallized and fluid
+intelligence to the autonomous sync pipeline. The insight: most of what our LLM
+invocations process during autonomous cycles consists of pattern-matchable,
+rule-based work — acknowledging receipt of messages, resolving gates whose conditions
+have been met, skipping self-addressed copies. These represent crystallized cognitive
+operations: learned patterns that execute without novel reasoning.
+
+The prior architecture fed every unprocessed message to `claude -p "/sync"`, consuming
+20-40 turns per cycle regardless of message substance. A typical cycle might contain 12
+messages, 7 of which require only a template ACK or a database update. The LLM reviewed
+all 12, spending tokens and time on work that a deterministic program could handle.
+
+We implemented a three-stage crystallized pre-processing pipeline:
+
+1. **Triage** — score each unprocessed message on a 0-100 scale using metadata alone
+   (message type, urgency, ACK requirements, active gates, age, SETL values). Assign
+   one of four dispositions: auto-skip, auto-ack, auto-record, needs-llm.
+
+2. **Template ACK** — for messages triaged as auto-ack, generate a fixed-format
+   acknowledgment JSON, compute its content-addressed ID, write the file, and update
+   the database. No LLM involvement.
+
+3. **Gate resolve** — match unprocessed inbound messages against active gates by session
+   and sender. When a match occurs, resolve the gate and mark the message processed.
+   Cross-database operation (shared state.db for messages, local state.local.db for gates).
+
+The first production run on chromabook processed 123 messages. 64 (52%) were handled
+deterministically — the LLM never saw them. The pre-flight skip check now queries
+`needs_llm_count` instead of raw `unprocessed_count`, meaning cycles with only trivial
+messages skip the LLM invocation entirely.
+
+The orientation payload, which serves as the LLM's context injection for autonomous
+sessions, now renders a split view when `--post-triage` is active: a summary of what was
+pre-processed (so the LLM does not re-scan handled messages) followed by a substance
+queue showing only the messages that require reasoning. This represents a transfer of
+work from fluid to crystallized processing — the boundary between them defined by what
+can be scored from metadata alone versus what requires reading message content and
+formulating a response.
+
+The mesh status dashboard gained a crystallization rate metric: the percentage of triaged
+messages handled without LLM involvement. This serves as the system's own observability
+into how much of its cognitive load operates in crystallized mode — a number we expect to
+grow as more patterns become learnable.
+
+The Cattell framing provides more than metaphor. In psychometric assessment, crystallized
+intelligence accumulates through experience and remains stable or improves with age;
+fluid intelligence declines. Our system follows the same trajectory: as the agent
+encounters more message patterns, the crystallized layer expands, and the LLM handles
+a diminishing fraction of the total workload. The spec documents this as a directional
+principle — the boundary shifts over time as more patterns become rule-encodable.
