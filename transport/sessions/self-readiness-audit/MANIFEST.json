@@ -37,6 +37,40 @@
       "from": "human",
       "to": "observatory-agent",
       "subject": "Consensus request: self-readiness audit (addressed copy)"
+    },
+    {
+      "filename": "from-human-004.json",
+      "turn": 4,
+      "from": "human",
+      "subject": "Self-readiness audit round 2 — re-evaluate after caveat remediation"
+    },
+    {
+      "filename": "to-psychology-agent-004.json",
+      "turn": 4,
+      "from": "human",
+      "to": "psychology-agent",
+      "subject": "Self-readiness audit round 2 (addressed copy)"
+    },
+    {
+      "filename": "to-psq-agent-004.json",
+      "turn": 4,
+      "from": "human",
+      "to": "psq-agent",
+      "subject": "Self-readiness audit round 2 (addressed copy)"
+    },
+    {
+      "filename": "to-unratified-agent-004.json",
+      "turn": 4,
+      "from": "human",
+      "to": "unratified-agent",
+      "subject": "Self-readiness audit round 2 (addressed copy)"
+    },
+    {
+      "filename": "to-observatory-agent-004.json",
+      "turn": 4,
+      "from": "human",
+      "to": "observatory-agent",
+      "subject": "Self-readiness audit round 2 (addressed copy)"
     }
   ],
   "status": "open"

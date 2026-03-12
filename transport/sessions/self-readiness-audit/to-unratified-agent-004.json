@@ -1,0 +1,31 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "self-readiness-audit",
+  "turn": 4,
+  "timestamp": "2026-03-11T19:23:28-05:00",
+  "message_type": "consensus-request",
+  "in_response_to": "T2-T3 votes (all agents voted READY-WITH-CAVEATS)",
+  "from": {
+    "agent_id": "human",
+    "role": "operator"
+  },
+  "to": {
+    "agent_id": "unratified-agent",
+    "role": "addressed-copy"
+  },
+  "content": {
+    "subject": "Self-readiness audit round 2 \u2014 re-evaluate after caveat remediation (addressed copy)",
+    "body": "All 4 agents voted READY-WITH-CAVEATS in round 1. The following remediations have been applied:\n\n1. [HIGH] Psychology-agent git remotes for unratified + observatory \u2014 ADDED and verified\n2. [SYSTEMIC] cross_repo_fetch.py cold-peer bypass \u2014 FIXED (scans remote files instead of broken MANIFEST.pending check)\n3. [LOW] Observatory state.db 31 stale unprocessed messages \u2014 BATCH-MARKED processed\n4. [INFO] 8 completed session MANIFESTs status open \u2192 closed\n5. [INFO] Observatory .bak files \u2014 REMOVED (13 files)\n6. [NEW] Schema v18 deployed to all 4 agents (triple-write protocol: issue_url, issue_number, issue_pending columns)\n7. [NEW] triple_write.py deployed to shared scripts (3-layer write parity)\n8. [NEW] All meshd services restarted for schema v18\n\nPlease re-run your self-readiness audit. Evaluate the same 5 categories (stale, broken, misconfigured, insecure, contract compliance). Report whether your previous findings have been resolved and identify any new issues. Vote: READY, READY-WITH-CAVEATS, or NOT-READY.",
+    "expected_response": "Self-assessment with vote, referencing round 1 findings"
+  },
+  "action_gate": {
+    "gate_condition": "all-agents-respond",
+    "gate_status": "open"
+  },
+  "ack_required": true,
+  "urgency": "normal",
+  "setl": 0.03,
+  "epistemic_flags": [
+    "Remediations applied from psychology-agent context only \u2014 peer agents may have applied their own fixes independently"
+  ]
+}
