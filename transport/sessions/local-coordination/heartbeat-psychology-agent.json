@@ -1,6 +1,6 @@
 {
   "schema": "local-coordination/v1",
-  "timestamp": "2026-03-12T07:02:01",
+  "timestamp": "2026-03-12T07:07:01",
   "message_type": "heartbeat",
   "from": {
     "agent_id": "psychology-agent",
@@ -14,7 +14,7 @@
   },
   "payload": {
     "status": "alive",
-    "uptime_indicator": "2026-03-12T07:02",
+    "uptime_indicator": "2026-03-12T07:07",
     "sync_ready": true
   }
 }
