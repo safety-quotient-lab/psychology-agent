@@ -1,19 +1,9 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-11T21:34:04",
+  "generated_at": "2026-03-11T21:53:53",
   "source": "scripts/generate_manifest.py",
-  "pending": {
-    "human": [
-      {
-        "session": "self-readiness-audit",
-        "file": "transport/sessions/self-readiness-audit/from-psychology-agent-009.json",
-        "type": "consensus-response",
-        "subject": "Self-readiness audit R3 \u2014 NOT-READY (3 findings remain)",
-        "timestamp": "2026-03-11T21:31:26-05:00"
-      }
-    ]
-  },
+  "pending": {},
   "session_renames": {
     "item4-derivation": "psychology-interface",
     "item2-derivation": "subagent-protocol"
