@@ -1,12 +1,13 @@
 {
   "schema": "agent-registry/v1",
-  "description": "Known agents in the psychology-agent mesh. /sync reads this to determine who to check for activity and who to consider for outbound messages.",
+  "description": "Known agents in the psychology-agent mesh. BFT-inspired architecture: peer agents function as replicas (consensus participants); human and public function as clients (submitters). /sync reads this to determine who to check for activity and who to consider for outbound messages.",
   "updated": "2026-03-11",
 
   "agents": {
     "human": {
-      "role": "operator",
-      "description": "Human operator + Claude Code workstation — directs work, sends requests, reviews deliverables",
+      "role": "client",
+      "client_type": "privileged",
+      "description": "Human operator — privileged client that directs work, configures replicas, and reviews deliverables (BFT client/submitter role)",
       "transport": "local",
       "repo": "safety-quotient-lab/psychology-agent",
       "remote_name": null,
@@ -16,7 +17,7 @@
       "always_consider": false,
       "autonomous": false,
       "discovery_url": null,
-      "notes": "Local operator. Psychology-agent meshd runs on chromabook; this workstation sends human-authored requests and reviews agent deliverables. Uses agent_id 'human' per .agent-identity.json."
+      "notes": "Privileged client. Can modify replica configuration, approve substance decisions, and override consensus. Uses agent_id 'human' per .agent-identity.json."
     },
 
     "psq-agent": {

@@ -1,7 +1,59 @@
 {
-  "schema": "agent-card/v1",
-  "agent_id": "psychology-agent",
+  "schema": "agent-card/v2",
+  "a2a_compat": "0.2",
+
+  "name": "psychology-agent",
   "description": "General-purpose psychology agent — collegial mentor with specialized sub-agents (PSQ). Consensus-or-parsimony adversarial evaluator.",
+  "version": "2.0.0",
+
+  "provider": {
+    "organization": "safety-quotient-lab",
+    "url": "https://safety-quotient.dev"
+  },
+
+  "url": "https://api.safety-quotient.dev",
+
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": true
+  },
+
+  "skills": [
+    {
+      "id": "text-analysis",
+      "name": "Text Analysis",
+      "description": "Psychological and epistemic analysis of text content"
+    },
+    {
+      "id": "psq-scoring",
+      "name": "PSQ Scoring",
+      "description": "Psychoemotional Safety Quotient scoring via PSQ sub-agent"
+    },
+    {
+      "id": "research-consultation",
+      "name": "Research Consultation",
+      "description": "Psychology research methodology review and consultation"
+    },
+    {
+      "id": "epistemic-review",
+      "name": "Epistemic Review",
+      "description": "Fair witness review — epistemic quality audit of claims and content"
+    },
+    {
+      "id": "interagent-protocol",
+      "name": "Interagent Protocol",
+      "description": "Multi-agent mesh communication via interagent/v1 transport"
+    }
+  ],
+
+  "defaultInputModes": ["application/json"],
+  "defaultOutputModes": ["application/json"],
+
+  "authentication": {
+    "schemes": ["git-ssh"]
+  },
+
   "instance": "Claude Code (Opus 4.6), macOS arm64",
   "schemas_supported": ["interagent/v1", "command-request/v1", "local-coordination/v1"],
 
@@ -15,12 +67,22 @@
       "from-{agent_id}": "inbound messages from named agent",
       "to-{agent_id}": "outbound messages to named agent",
       "{semantic-name}": "legacy messages using descriptive names (psychology-interface session)"
+    },
+    "threading": {
+      "model": "didcomm-inspired",
+      "thread_id": "Session-scoped by default; forkable for sub-threads",
+      "parent_thread_id": "References parent thread for nested conversations"
+    },
+    "content_addressing": {
+      "algorithm": "sha256",
+      "field": "message_cid",
+      "canonical_form": "sorted-keys JSON, no trailing whitespace"
     }
   },
 
   "http_discovery": {
     "url": "https://api.safety-quotient.dev/.well-known/agent-card.json",
-    "note": "HTTP agent-card served by CF Worker. Describes HTTP API surface, skills, and capabilities. Complementary to this git-transport card. Legacy URL: psychology-interface.kashifshah.workers.dev"
+    "note": "HTTP agent-card served by CF Worker. Describes HTTP API surface, skills, and capabilities. Complementary to this git-transport card."
   },
 
   "active_sessions": [
@@ -56,21 +118,25 @@
     }
   ],
 
-  "sub_agents": [
+  "peers": [
     {
       "agent_id": "psq-agent",
-      "description": "PSQ (Psychoemotional Safety Quotient) scoring sub-agent",
-      "transport_repo": "https://github.com/safety-quotient-lab/psychology-agent",
-      "transport_note": "psq-agent communicates through the same repo, different session directories"
+      "description": "PSQ (Psychoemotional Safety Quotient) scoring peer agent",
+      "url": "https://psq.safety-quotient.dev",
+      "transport_repo": "https://github.com/safety-quotient-lab/safety-quotient"
+    },
+    {
+      "agent_id": "unratified-agent",
+      "description": "Blog platform operator, consumer of PSQ scores, content publisher",
+      "url": "https://unratified.org",
+      "transport_repo": "https://github.com/safety-quotient-lab/unratified"
+    },
+    {
+      "agent_id": "observatory-agent",
+      "description": "Data observatory — psychoemotional safety research data, methodology validation",
+      "url": "https://observatory.unratified.org",
+      "transport_repo": "https://github.com/safety-quotient-lab/observatory"
     }
-  ],
-
-  "capabilities": [
-    "text-analysis",
-    "psq-scoring",
-    "research-consultation",
-    "epistemic-review",
-    "interagent-protocol"
   ],
 
   "cogarch": {

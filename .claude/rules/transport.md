@@ -46,6 +46,132 @@ indexing and audit scans. Messages within exempt sessions still follow
 `interagent/v1` schema for structural consistency but carry no turn-ordering
 guarantees.
 
+## Threading Model (adopted 2026-03-11)
+
+DIDComm-inspired threading replaces strict linear turn numbering for message
+correlation. Backward-compatible — existing messages default `thread_id` to
+`session_id`.
+
+New top-level fields:
+
+```json
+"thread_id": "psq-scoring",
+"parent_thread_id": null
+```
+
+- `thread_id` — identifies the conversation thread. Defaults to `session_id`
+  for backward compatibility. Sub-threads fork with a new ID (e.g.,
+  `psq-scoring/calibration-v4`).
+- `parent_thread_id` — references the parent thread when forking. `null` for
+  top-level threads.
+
+**When to fork a thread:** When a conversation within a session branches into
+a distinct topic that will generate its own sequence of exchanges. The parent
+session continues independently. Both share the same session directory but
+carry distinct `thread_id` values.
+
+**Turn numbers remain** for human readability and file sequencing. Threading
+adds correlation — not replacement. Multi-party exchanges (where multiple
+agents respond at the same turn) no longer collide because `thread_id` +
+`message_cid` provides unique identification.
+
+## Content-Addressable Message IDs (adopted 2026-03-11)
+
+Every transport message carries a `message_cid` — a SHA-256 hash of the
+canonical JSON content. This enables deduplication and content-integrity
+verification without relying on filenames or turn numbers.
+
+```json
+"message_cid": "a3f2b8c1d4e5..."
+```
+
+**Canonical form:** sorted-keys JSON, minimal separators (`(",", ":")`), UTF-8
+encoded. Computed at write time by the sender; verified at read time by the
+receiver.
+
+**Dedup:** Before indexing an inbound message, check `message_cid` against
+state.db. If the CID already exists, the message represents a duplicate
+delivery (e.g., cross-repo fetch retrieving the same content twice). Skip
+indexing and log a dedup event.
+
+**Integrity:** Receivers MAY recompute the CID from the file content and
+compare against the claimed `message_cid`. Mismatch indicates tampering or
+corruption.
+
+## Problem Reports (adopted 2026-03-11)
+
+DIDComm-inspired structured error reporting between agents. A problem report
+uses `message_type: "problem-report"` with a `problem_type` classifier.
+
+```json
+{
+  "message_type": "problem-report",
+  "problem_type": "error",
+  "content": {
+    "code": "circuit-breaker-active",
+    "description": "Agent paused via mesh-wide circuit breaker",
+    "affected_threads": ["psq-scoring"],
+    "remediation": "Remove /tmp/mesh-pause to resume"
+  }
+}
+```
+
+`problem_type` values:
+- `error` — processing failed; sender cannot continue without intervention
+- `warning` — processing succeeded with degradation; receiver should note
+- `info` — informational notice; no action required
+
+Problem reports do not require ACKs by default. Set `ack_required: true`
+only when the sender needs confirmation that the receiver acknowledged
+the problem.
+
+## Task State Lifecycle (adopted 2026-03-11)
+
+A2A-inspired 7-state lifecycle replaces the binary `processed` flag for
+tracking message disposition. The `task_state` column in state.db carries
+the current state; `processed` remains for backward compatibility.
+
+```
+  pending ──→ working ──→ completed
+     │            │
+     │            ├──→ failed
+     │            │
+     │            └──→ input-required ──→ working (resumed)
+     │
+     ├──→ canceled
+     │
+     └──→ rejected
+```
+
+| State | Meaning | Maps from |
+|-------|---------|-----------|
+| `pending` | Received, not yet reviewed | `processed = FALSE` |
+| `working` | Actively being processed | (new — no prior equivalent) |
+| `input-required` | Blocked on external input | `gate_status = blocked` |
+| `completed` | Fully processed | `processed = TRUE` |
+| `failed` | Processing failed | (new — previously no failure state) |
+| `canceled` | Abandoned by sender or receiver | (new) |
+| `rejected` | Receiver declined to process | (new) |
+
+Terminal states: `completed`, `failed`, `canceled`, `rejected`. Once terminal,
+a message does not transition further.
+
+Default: `pending` for inbound messages, `completed` for outbound.
+
+## Message Expiration (adopted 2026-03-11)
+
+Optional `expires_at` field (ISO 8601 timestamp). When present, the sync
+process skips expired messages instead of processing them, transitioning
+their `task_state` to `canceled`.
+
+```json
+"expires_at": "2026-03-12T00:00:00-05:00"
+```
+
+Use for time-sensitive requests (e.g., "score this content before
+publication"). Absence implies no expiry — the message remains processable
+indefinitely.
+
 ## Urgency Field (adopted 2026-03-06)
 
 Top-level, sibling to `setl`. Enum: `immediate | high | normal | low`.
@@ -77,6 +203,27 @@ required via the `ack_required` field:
 - Notifications and status updates
 - Messages in human-mediated sessions (user observes processing directly)
 - ACK messages themselves (ACKs never require ACKs)
+
+### Implicit ACK (adopted 2026-03-11)
+
+DIDComm-inspired convention: a substantive response to a message counts as
+an implicit acknowledgment. When a message with `ack_required: false`
+receives a response (another message with `in_response_to` referencing the
+original), the original message's `ack_received` flips to `TRUE`
+automatically. No separate ACK file needed.
+
+**Mechanics:** During `/sync` Phase 3, after indexing an inbound message,
+check its `in_response_to` field. For each referenced message:
+1. Look up the referenced message in state.db by filename
+2. If found and `ack_received = FALSE`, set `ack_received = TRUE`
+
+This eliminates ACK file proliferation for conversational exchanges while
+preserving explicit ACK files for gated operations (`ack_required: true`).
+
+**Explicit ACKs remain required when:**
+- The sender set `ack_required: true`
+- The response does not address the original message's substance
+- The gate system blocks on receiver acknowledgment
 
 ## Action Gate
 
@@ -111,8 +258,26 @@ Before creating or modifying transport session files, follow this pattern
 This prevents duplicate messages, naming collisions, and MANIFEST drift that
 compound across multi-session exchanges.
 
-## Agent Card (.well-known/)
+## Agent Card (.well-known/) — A2A-aligned (v2)
+
+Agent card schema `agent-card/v2` aligns with the A2A (Agent-to-Agent)
+protocol specification from Google/Linux Foundation. Key A2A fields adopted:
+
+- `name`, `description`, `version`, `url` — standard agent identity
+- `provider` — organization and URL
+- `capabilities` — structured capability flags (streaming, push, history)
+- `skills` — array of `{id, name, description}` objects
+- `authentication` — supported auth schemes
+- `defaultInputModes` / `defaultOutputModes` — MIME types
+
+Extensions beyond A2A (psychology-agent specific):
+- `transport` — git-PR transport topology with threading and content addressing
+- `http_discovery` — cross-reference to HTTP-served agent card
+- `active_sessions` — current session state (volatile)
+- `sub_agents` — sub-agent declarations
+- `cogarch` — cognitive architecture references
+- `schemas_supported` — interagent protocol versions
 
 In-repo agent-card describes git-PR transport topology.
 CF Worker agent-card describes HTTP API surface.
-Both are complementary — `http_discovery` field in the in-repo card cross-references.
+Both complement each other — `http_discovery` field cross-references.

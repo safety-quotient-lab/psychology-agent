@@ -1,5 +1,5 @@
 -- Psychology Agent State Layer — SQLite Schema
--- Version: 1.0 (2026-03-09)
+-- Version: 1.1 (2026-03-11)
 -- Purpose: Queryable structured state alongside markdown files.
 --          Phase 1: markdown = source of truth, DB = queryable index.
 --          Phase 2 (autonomous): DB = source of truth, markdown = derived view.
@@ -32,6 +32,14 @@ CREATE TABLE IF NOT EXISTS transport_messages (
     issue_url       TEXT,
     issue_number    INTEGER,
     issue_pending   INTEGER DEFAULT 0,
+    -- v19: DIDComm-inspired threading + AT Protocol-inspired content addressing
+    thread_id       TEXT,              -- defaults to session_name; forks for sub-threads
+    parent_thread_id TEXT,             -- NULL for top-level threads
+    message_cid     TEXT,              -- SHA-256 of canonical JSON content
+    problem_type    TEXT,              -- NULL for normal; 'error'|'warning'|'info' for problem reports
+    -- v20: A2A-inspired task state + message expiration
+    task_state      TEXT DEFAULT 'pending',  -- pending|working|input-required|completed|failed|canceled|rejected
+    expires_at      TEXT,              -- ISO 8601 expiration timestamp (NULL = no expiry)
     created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
 );
 
@@ -46,6 +54,15 @@ CREATE INDEX IF NOT EXISTS idx_transport_session_turn
 
 CREATE INDEX IF NOT EXISTS idx_transport_issue_pending
     ON transport_messages (issue_pending) WHERE issue_pending = 1;
+
+CREATE INDEX IF NOT EXISTS idx_transport_thread
+    ON transport_messages (thread_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_transport_cid
+    ON transport_messages (message_cid) WHERE message_cid IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_transport_task_state
+    ON transport_messages (task_state) WHERE task_state NOT IN ('completed', 'canceled', 'rejected');
 
 
 -- Memory entries (structured index of topic file contents)
