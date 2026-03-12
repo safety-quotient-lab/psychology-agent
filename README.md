@@ -4,6 +4,16 @@ A collegial mentor for psychological analysis, research, and applied consultatio
 built on the PJE (Psychology-Juris-Engineering) framework with specialized
 peer agents and a ranked-procedure adversarial evaluator.
 
+> **Alpha software.** This system runs with `dangerouslySkipPermissions` enabled
+> by default and operates autonomously via cron-driven sync loops. The cognitive
+> architecture (triggers, hooks, skills) modifies files, sends interagent
+> messages, and manages infrastructure without per-action confirmation prompts.
+> The auth layer (API keys, rate limiting) launched in Session 79 — prior to
+> that, all API endpoints accepted unauthenticated requests. Evaluate the
+> permission model, hook scripts, and autonomous-sync configuration before
+> running in any environment where unattended file writes or network calls
+> carry risk. No warranty expressed or implied.
+
 ---
 
 ## Zero to Demo
