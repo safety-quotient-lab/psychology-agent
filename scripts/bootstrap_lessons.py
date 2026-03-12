@@ -143,6 +143,15 @@ def main() -> None:
 
     print(f"\nDone. {len(entries)} lessons indexed.")
 
+    # Flush WAL so meshd and other readers see the new data immediately
+    import sqlite3
+    db_path = PROJECT_ROOT / "state.db"
+    if db_path.exists():
+        conn = sqlite3.connect(str(db_path))
+        conn.execute("PRAGMA wal_checkpoint(PASSIVE);")
+        conn.close()
+        print("WAL checkpoint complete — changes visible to all readers.")
+
 
 if __name__ == "__main__":
     main()
