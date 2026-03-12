@@ -193,6 +193,12 @@
                               (shared scripts), D1 for monitoring (health,
                               content, analytics). Historical aggregation
                               on cabinet via claude-control. 2026-03-11
+ agentdb Go binary            Single Go binary replaces all Python state
+                              scripts. DB split: state.db (14 shared) +
+                              state.local.db (5 local). Budget bypass fix:
+                              autonomy_budget in state.local.db (never
+                              git-tracked). 22 subcommands, pure-Go SQLite,
+                              cross-compiles. Phases 1-4 complete. 2026-03-12
 ```
 
 ## Authority Hierarchy

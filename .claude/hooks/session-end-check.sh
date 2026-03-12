@@ -20,9 +20,11 @@ if [ -n "$UNCOMMITTED" ]; then
 fi
 
 # Record T1 trigger firing (session boundary)
-DUAL_WRITE="${PROJECT_ROOT}/scripts/dual_write.py"
-if [ -f "$DUAL_WRITE" ] && [ -f "${PROJECT_ROOT}/state.db" ]; then
-  python3 "$DUAL_WRITE" trigger-fired --trigger-id T1 2>/dev/null
+AGENTDB="${PROJECT_ROOT}/agentdb"
+if [ -x "$AGENTDB" ]; then
+  "$AGENTDB" trigger-fired --trigger-id T1 2>/dev/null
+elif [ -f "${PROJECT_ROOT}/scripts/dual_write.py" ] && [ -f "${PROJECT_ROOT}/state.db" ]; then
+  python3 "${PROJECT_ROOT}/scripts/dual_write.py" trigger-fired --trigger-id T1 2>/dev/null
 fi
 
 # Log session end

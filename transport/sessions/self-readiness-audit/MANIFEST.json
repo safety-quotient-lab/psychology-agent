@@ -182,7 +182,7 @@
   "r2_outcome": "READY \u2014 all agents passed R2 audit with zero HIGH/MODERATE findings",
   "r3_tally": {
     "psq-agent": "NOT-READY (7 findings: 2 HIGH, 3 MEDIUM, 1 LOW, 1 INFORMATIONAL)",
-    "psychology-agent": "NOT-READY (3 findings: 1 MEDIUM, 2 INFORMATIONAL — 2 by-design)",
+    "psychology-agent": "NOT-READY (3 findings: 1 MEDIUM, 2 INFORMATIONAL \u2014 2 by-design)",
     "unratified-agent": "READY (5 found, all fixed in-session)",
     "observatory-agent": "READY (2 found, both fixed in-session)"
   },

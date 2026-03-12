@@ -14,26 +14,27 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 | `memory/cognitive-triggers.md` | Legacy — full trigger descriptions (canonical: `docs/cognitive-triggers.md`) | Superseded; read canonical instead |
 | `memory/feedback_chromabook_not_hetzner.md` | Chromabook = local laptop, Hetzner = separate VPS — never conflate | Infrastructure planning |
 
-## Active Thread (2026-03-12)
+## Active Thread (2026-03-11)
 
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 80. agentdb Go binary Phases 1-4 complete — 22
-subcommands, DB split (state.db + state.local.db), 6 hooks updated. Binary builds
-and bootstraps locally. Deploy to chromabook pending.
+**Where we stopped:** Session 79. Pipeline gaps closed (claims 270/371 verified, flags
+435/435 resolved, triggers partial, facets populated, lessons indexed). Solid-OIDC auth
+design landed (direction-set). Operations tab built for compositor. /sync clean — no
+pending messages, 0 active gates.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- agentdb: ✓ Phases 1-4 complete; Phase 5 (deploy) + Phase 6 (cleanup) pending `[hot]`
 - meshd: ✓ All 4 running under systemd `[warm]`
 - CI/CD: ✓ Tier 1 + Tier 2 operational `[warm]`
 - Pipeline gaps: ✓ Claims + flags closed; triggers partial (T1 only) `[warm]`
 - Standards: ✓ A2A + DIDComm threading adopted and implemented `[warm]`
-- Budget bypass: ⚑ Root cause identified — fix deployed when agentdb lands `[hot]`
-- Auth design: ✓ Solid-OIDC direction-set — Phase 0 current `[cold]`
+- Auth design: ✓ Solid-OIDC direction-set — Phase 0 current, Phase 1-3 planned `[cold]`
+- D1 optimization: ⚑ Blocked on claude-control activation `[cold]`
+- DI Phase A Pass 2: pending `[cold]`
 
-**Next:** Deploy agentdb to chromabook (Phase 5). Update autonomous-sync.sh.
-Untrack state.db from git across all 4 repos.
+**Next:** Implement public client authentication (Solid-OIDC). Start with /adjudicate
+to resolve implementation sequencing. Deploy current version first.
 
 
 ## Memory Hygiene

@@ -40,10 +40,13 @@ docs/replays/
 # Agent identity (machine-specific, not shared across hosts)
 .agent-identity.json
 
-# SQLite state layer (rebuilt from scripts/schema.sql + bootstrap_state_db.py)
+# SQLite state layer (rebuilt from agentdb bootstrap)
 state.db
 state.db-wal
 state.db-shm
+state.local.db
+state.local.db-wal
+state.local.db-shm
 state-public.db
 
 # Local infrastructure overrides (hostnames, SSH users, paths — machine-specific)
@@ -51,9 +54,11 @@ transport/agent-registry.local.json
 __pycache__/
 interagent/.wrangler/
 
-# meshd compiled binaries
+# Compiled binaries
 platform/meshd
 platform/meshd-*
+/agentdb
+/agentdb-*
 
 # wrangler files
 .wrangler

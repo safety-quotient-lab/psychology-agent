@@ -24,9 +24,11 @@ if [ ! -s "$MEMORY_LIVE" ]; then
 fi
 
 # Record T1 trigger firing
-DUAL_WRITE="${PROJECT_ROOT}/scripts/dual_write.py"
-if [ -f "$DUAL_WRITE" ] && [ -f "${PROJECT_ROOT}/state.db" ]; then
-  python3 "$DUAL_WRITE" trigger-fired --trigger-id T1 2>/dev/null
+AGENTDB="${PROJECT_ROOT}/agentdb"
+if [ -x "$AGENTDB" ]; then
+  "$AGENTDB" trigger-fired --trigger-id T1 2>/dev/null
+elif [ -f "${PROJECT_ROOT}/scripts/dual_write.py" ] && [ -f "${PROJECT_ROOT}/state.db" ]; then
+  python3 "${PROJECT_ROOT}/scripts/dual_write.py" trigger-fired --trigger-id T1 2>/dev/null
 fi
 
 # Remind of trigger system
@@ -52,16 +54,22 @@ if [ -f "${PROJECT_ROOT}/.claude/hunt-at-startup" ]; then
   echo "[SESSION-START] AUTO-HUNT: Run /hunt ${HUNT_SCOPE} after T1 orientation completes. To disable: rm .claude/hunt-at-startup"
 fi
 
-# Auto-bootstrap state.db if missing
+# Auto-bootstrap state DBs if missing
 STATE_DB="${PROJECT_ROOT}/state.db"
 if [ ! -f "$STATE_DB" ]; then
-  BOOTSTRAP_SCRIPT="${PROJECT_ROOT}/scripts/bootstrap_state_db.py"
-  if [ -f "$BOOTSTRAP_SCRIPT" ]; then
-    python3 "$BOOTSTRAP_SCRIPT" 2>/dev/null
+  if [ -x "${PROJECT_ROOT}/agentdb" ]; then
+    "${PROJECT_ROOT}/agentdb" bootstrap 2>/dev/null
+    if [ -f "$STATE_DB" ]; then
+      echo "[SESSION-START] state.db + state.local.db bootstrapped via agentdb."
+    else
+      echo "[SESSION-START] WARNING: agentdb bootstrap failed. Run manually: ./agentdb bootstrap --force"
+    fi
+  elif [ -f "${PROJECT_ROOT}/scripts/bootstrap_state_db.py" ]; then
+    python3 "${PROJECT_ROOT}/scripts/bootstrap_state_db.py" 2>/dev/null
     if [ -f "$STATE_DB" ]; then
       echo "[SESSION-START] state.db bootstrapped from source files."
     else
-      echo "[SESSION-START] WARNING: state.db bootstrap failed. Run manually: python3 scripts/bootstrap_state_db.py"
+      echo "[SESSION-START] WARNING: state.db bootstrap failed."
     fi
   fi
 fi
