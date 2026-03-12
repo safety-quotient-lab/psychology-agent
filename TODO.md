@@ -315,6 +315,15 @@ semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
   its own repo, identity, and transport path.
   *Precondition: domain registration (fairwitness.bot), agent mesh operational*
 
+- [ ] **Fair-witness-bot news awareness** — extend the fair-witness-bot design to
+  include news monitoring and analysis capabilities. The bot should track news feeds,
+  provide fair-witness-grounded analysis of current events (separating observation from
+  inference), surface alerts when news coverage exhibits common epistemic failures
+  (conflation, unsupported claims, narrative framing as fact), and provide feedback on
+  news article quality. Deliverables: news ingestion pipeline, analysis scoring model,
+  alert/notification system, feedback interface.
+  *Precondition: fair-witness-bot base design complete*
+
 ---
 
 ## Cross-Repo Transport (PSQ Agent)
