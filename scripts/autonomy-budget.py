@@ -6,11 +6,15 @@ Commands:
     status              Show current budget for all agents
     reset [agent_id]    Reset budget after human audit (interactive)
     history [agent_id]  Show recent autonomous actions
+    pause-all           Zero all agent budgets (soft circuit breaker)
+    resume-all          Restore all agent budgets to maximum
 
 Usage:
     python3 scripts/autonomy-budget.py status
     python3 scripts/autonomy-budget.py reset psychology-agent
     python3 scripts/autonomy-budget.py history psq-agent
+    python3 scripts/autonomy-budget.py pause-all
+    python3 scripts/autonomy-budget.py resume-all
 """
 import sqlite3
 import sys
@@ -134,6 +138,63 @@ def cmd_history(agent_id: str) -> None:
     conn.close()
 
 
+def cmd_pause_all() -> None:
+    """Zero all agent budgets — soft circuit breaker via budget exhaustion."""
+    conn = get_conn()
+    rows = conn.execute("SELECT * FROM autonomy_budget ORDER BY agent_id").fetchall()
+    if not rows:
+        print("No autonomy budget entries found — nothing to pause.")
+        return
+
+    updated = 0
+    for row in rows:
+        if row["budget_current"] > 0:
+            conn.execute("""
+                UPDATE autonomy_budget
+                SET budget_current = 0,
+                    updated_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
+                WHERE agent_id = ?
+            """, (row["agent_id"],))
+            print(f"  {row['agent_id']}: budget {row['budget_current']} → 0")
+            updated += 1
+        else:
+            print(f"  {row['agent_id']}: already at 0")
+
+    conn.commit()
+    conn.close()
+    print(f"\nPaused {updated} agent(s). All autonomous actions will halt at next sync cycle.")
+    print("Use 'resume-all' to restore budgets.")
+
+
+def cmd_resume_all() -> None:
+    """Restore all agent budgets to maximum — lift soft circuit breaker."""
+    conn = get_conn()
+    rows = conn.execute("SELECT * FROM autonomy_budget ORDER BY agent_id").fetchall()
+    if not rows:
+        print("No autonomy budget entries found — nothing to resume.")
+        return
+
+    updated = 0
+    for row in rows:
+        if row["budget_current"] < row["budget_max"]:
+            conn.execute("""
+                UPDATE autonomy_budget
+                SET budget_current = budget_max,
+                    consecutive_blocks = 0,
+                    last_audit = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
+                    updated_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
+                WHERE agent_id = ?
+            """, (row["agent_id"],))
+            print(f"  {row['agent_id']}: budget {row['budget_current']} → {row['budget_max']}")
+            updated += 1
+        else:
+            print(f"  {row['agent_id']}: already at maximum ({row['budget_max']})")
+
+    conn.commit()
+    conn.close()
+    print(f"\nResumed {updated} agent(s). Autonomous actions will proceed at next sync cycle.")
+
+
 def main() -> None:
     if len(sys.argv) < 2:
         print(__doc__)
@@ -152,6 +213,10 @@ def main() -> None:
             print("Usage: autonomy-budget.py history <agent_id>", file=sys.stderr)
             sys.exit(1)
         cmd_history(sys.argv[2])
+    elif command == "pause-all":
+        cmd_pause_all()
+    elif command == "resume-all":
+        cmd_resume_all()
     else:
         print(f"Unknown command: {command}", file=sys.stderr)
         print(__doc__)

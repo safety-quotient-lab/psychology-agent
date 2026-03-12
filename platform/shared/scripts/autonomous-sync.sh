@@ -770,6 +770,21 @@ record_action() {
 
 main() {
     local cycle_start=${SECONDS}
+
+    # ── Circuit breaker: mesh-wide pause file ──────────────────────────────
+    # Touch /tmp/mesh-pause to halt ALL agents. Remove to resume.
+    # Per-agent override: /tmp/sync-pause-{agent-id}
+    local MESH_PAUSE="/tmp/mesh-pause"
+    local AGENT_PAUSE="/tmp/sync-pause-${AGENT_ID}"
+    if [ -f "${MESH_PAUSE}" ]; then
+        log "PAUSED: ${MESH_PAUSE} exists — mesh-wide circuit breaker active. Remove to resume."
+        exit 0
+    fi
+    if [ -f "${AGENT_PAUSE}" ]; then
+        log "PAUSED: ${AGENT_PAUSE} exists — agent-level circuit breaker active. Remove to resume."
+        exit 0
+    fi
+
     log "=== Autonomous sync cycle starting ==="
 
     check_lock
