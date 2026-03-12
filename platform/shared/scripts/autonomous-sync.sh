@@ -176,6 +176,13 @@ ensure_db() {
         "ALTER TABLE transport_messages ADD COLUMN ack_required INTEGER DEFAULT 0;" 2>/dev/null || true
     sqlite3 "${DB_PATH}" \
         "ALTER TABLE transport_messages ADD COLUMN ack_received INTEGER DEFAULT 0;" 2>/dev/null || true
+    # v18: triple-write cross-reference columns
+    sqlite3 "${DB_PATH}" \
+        "ALTER TABLE transport_messages ADD COLUMN issue_url TEXT;" 2>/dev/null || true
+    sqlite3 "${DB_PATH}" \
+        "ALTER TABLE transport_messages ADD COLUMN issue_number INTEGER;" 2>/dev/null || true
+    sqlite3 "${DB_PATH}" \
+        "ALTER TABLE transport_messages ADD COLUMN issue_pending INTEGER DEFAULT 0;" 2>/dev/null || true
 
     # Initialize budget row if absent
     sqlite3 "${DB_PATH}" \
@@ -830,6 +837,32 @@ main() {
         auto_result=$(python3 "${PROJECT_ROOT}/scripts/auto_process_trivial.py" 2>/dev/null) || true
         if [ -n "${auto_result}" ]; then
             log "Auto-processed: ${auto_result}"
+        fi
+    fi
+
+    # Triple-write backfill: create GitHub Issues for messages with issue_pending=1.
+    # Runs after cross_repo_fetch + auto_process, before the /sync invocation.
+    # Capped at 5 per cycle for rate limit protection.
+    if [ -f "${PROJECT_ROOT}/scripts/triple_write.py" ]; then
+        local repo
+        repo=$(get_repo)
+        if [ -n "${repo}" ]; then
+            local backfill_result
+            backfill_result=$(python3 "${PROJECT_ROOT}/scripts/triple_write.py" backfill \
+                --repo "${repo}" --limit 5 2>/dev/null) || true
+            if [ -n "${backfill_result}" ] && ! echo "${backfill_result}" | grep -q "No pending"; then
+                log "Triple-write backfill: ${backfill_result}"
+            fi
+        fi
+    fi
+
+    # Session-close sweep: auto-close sessions where all expected responses arrived.
+    # Updates MANIFEST status from "open" to "closed" — no LLM needed.
+    if [ -f "${PROJECT_ROOT}/scripts/session_close.py" ]; then
+        local close_result
+        close_result=$(python3 "${PROJECT_ROOT}/scripts/session_close.py" 2>/dev/null) || true
+        if echo "${close_result}" | grep -q "CLOSED"; then
+            log "Session close: ${close_result}"
         fi
     fi
 
