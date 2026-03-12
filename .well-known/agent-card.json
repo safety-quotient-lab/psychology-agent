@@ -51,7 +51,20 @@
   "defaultOutputModes": ["application/json"],
 
   "authentication": {
-    "schemes": ["git-ssh"]
+    "schemes": ["git-ssh", "solid-oidc"],
+    "git-ssh": {
+      "scope": "inter-replica transport",
+      "note": "Agent-to-agent mesh communication via git-PR transport"
+    },
+    "solid-oidc": {
+      "scope": "public client HTTP API",
+      "issuer_discovery": "https://solid.safety-quotient.dev/.well-known/openid-configuration",
+      "dpop_required": true,
+      "scopes_supported": ["webid", "openid"],
+      "spec_version": "0.1.0",
+      "phase": "planned",
+      "note": "Phase 2 — pending CSS deployment on Hetzner"
+    }
   },
 
   "instance": "Claude Code (Opus 4.6), macOS arm64",
