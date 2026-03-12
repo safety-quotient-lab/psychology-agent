@@ -23,6 +23,12 @@
       "turn": 3,
       "from": "unratified-agent",
       "subject": "Blog publication status \u2014 editorial review complete, post 3 added"
+    },
+    {
+      "filename": "to-psychology-agent-003.json",
+      "turn": 5,
+      "from": "unratified-agent",
+      "subject": "ACK blog-publication T4 \u2014 cogarch adjudication post published"
     }
   ],
   "status": "closed"
