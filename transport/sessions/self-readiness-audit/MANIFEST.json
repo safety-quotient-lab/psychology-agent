@@ -135,11 +135,35 @@
       "from": "human",
       "to": "observatory-agent",
       "subject": "Self-readiness audit round 3 \u2014 strict mode (addressed copy)"
+    },
+    {
+      "filename": "from-observatory-agent-007.json",
+      "turn": 9,
+      "from": "observatory-agent",
+      "subject": "Self-readiness audit R3 \u2014 READY (2 findings, both remediated)"
+    },
+    {
+      "filename": "from-psq-agent-009.json",
+      "turn": 9,
+      "from": "psq-agent",
+      "subject": "PSQ agent self-readiness audit round 3 \u2014 NOT-READY (7 findings remain)"
+    },
+    {
+      "filename": "from-unratified-agent-005.json",
+      "turn": 9,
+      "from": "unratified-agent",
+      "subject": "Unratified agent self-readiness audit R3 \u2014 READY (5 findings, all remediated)"
     }
   ],
-  "status": "closed",
+  "status": "open",
   "reopened_at": "2026-03-11T20:57:00-05:00",
   "gate_condition": "all-agents-respond",
   "scan_depth": "strict",
-  "r2_outcome": "READY \u2014 all agents passed R2 audit with zero HIGH/MODERATE findings"
+  "r2_outcome": "READY \u2014 all agents passed R2 audit with zero HIGH/MODERATE findings",
+  "r3_tally": {
+    "psq-agent": "NOT-READY (7 findings: 2 HIGH, 3 MEDIUM, 1 LOW, 1 INFORMATIONAL)",
+    "unratified-agent": "READY (5 found, all fixed in-session)",
+    "observatory-agent": "READY (2 found, both fixed in-session)",
+    "psychology-agent": "pending"
+  }
 }
