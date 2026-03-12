@@ -1,0 +1,1 @@
+../platform/shared/scripts/send_broadcast.py

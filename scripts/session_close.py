@@ -1,0 +1,1 @@
+../platform/shared/scripts/session_close.py
