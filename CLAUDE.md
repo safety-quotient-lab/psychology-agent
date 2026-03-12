@@ -47,6 +47,7 @@ stale data, conclusions exceeding evidence.
 - `/sync` — inter-agent mesh synchronization (transport scan, ACKs, MANIFEST)
 - `/iterate` — unified loop: sync → hunt → discriminate → execute → cycle
 - `/scan-peer` — peer content quality scan (PSQ safety, vocabulary, fair witness)
+- `/diagnose` — systemic self-diagnostic (claims, transport, memory, triggers, facets, lessons, decisions)
 
 ## Commands (load on demand)
 
