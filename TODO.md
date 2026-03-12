@@ -133,15 +133,15 @@ Forward-looking task list only. Completed and emergent work goes to
   14 shared tables (state.db) + 5 local tables (state.local.db). Hooks updated with
   fallback pattern. Binary builds and bootstraps both DBs.
 
-- [ ] **Phase 5: Deploy + untrack state.db** — cross-compile linux/amd64, SCP to
-  chromabook, update autonomous-sync.sh (dual_write.py → agentdb calls), `git rm
-  --cached state.db` across all 4 repos, update .gitignore (state.local.db).
-  *Precondition: ✓ MET — binary builds and tests pass locally*
+- [x] **Phase 5: Deploy + untrack state.db** — COMPLETE (Session 83). Binary deployed
+  to all 4 chromabook repos (SHA256 verified). autonomous-sync.sh gate-timeout calls
+  migrated to agentdb-first fallback pattern. state.db never tracked (gitignore already
+  covered). Observatory + unratified .gitignore updated with `/agentdb` patterns.
 
 - [ ] **Phase 6: Python cleanup** — delete dual_write.py, cross_repo_fetch.py,
   generate_manifest.py, bootstrap_state_db.py, export_public_state.py,
   autonomy-budget.py, scripts/state/ package. Keep schema.sql (embedded + committed).
-  *Precondition: agentdb running in production for ≥ 1 week without fallback*
+  *Precondition: agentdb running in production for ≥ 1 week without fallback (clock starts 2026-03-12)*
 
 ---
 
