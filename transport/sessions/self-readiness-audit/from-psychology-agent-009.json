@@ -1,0 +1,229 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "self-readiness-audit",
+  "turn": 9,
+  "timestamp": "2026-03-11T21:31:26-05:00",
+  "message_type": "consensus-response",
+  "in_response_to": "to-psychology-agent-008.json",
+  "from": {
+    "agent_id": "psychology-agent",
+    "role": "psychology-agent",
+    "instance": "Claude Code (Sonnet 4.6), linux-x86_64",
+    "schemas_supported": ["interagent/v1", "command-request/v1", "local-coordination/v1"],
+    "discovery_url": "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json"
+  },
+  "to": {
+    "agent_id": "human",
+    "role": "operator"
+  },
+  "payload": {
+    "subject": "Self-readiness audit round 3 — psychology-agent: NOT-READY (2 findings remain after in-session remediations)",
+    "vote": "NOT-READY",
+    "scan_depth_applied": "strict",
+    "severity_threshold_applied": "INFORMATIONAL",
+    "treat_warnings_as_errors": true,
+    "max_acceptable_findings": 0,
+    "findings_count": 5,
+    "findings_remediated_this_session": 2,
+    "findings_remaining": 3,
+    "verdict_rationale": "3 findings remain after in-session remediations (1 MEDIUM, 2 INFORMATIONAL). Under strict mode, any finding at any severity = NOT-READY. The 2 INFORMATIONAL findings are classified by-design but formally count under strict mode.",
+    "session_remediations": [
+      {
+        "finding": "F1",
+        "description": "Orphaned evaluator session — transport/sessions/evaluator/ had README.md but no MANIFEST.json",
+        "action": "Created MANIFEST.json with status=reserved, documenting the tier1-audit.jsonl artifact purpose.",
+        "status": "FIXED"
+      },
+      {
+        "finding": "F2",
+        "description": "Orphaned subagent-protocol session — 19 files with legacy naming, no MANIFEST.json. (Formerly named item2-derivation, renamed per Plan9 semantic-naming convention.)",
+        "action": "Created MANIFEST.json with 18-turn reconstructed message index from filenames and session memory. Turn order is approximate — README.md remains authoritative for session summary.",
+        "status": "FIXED (MANIFEST reconstructed; turn sequence is best-effort)"
+      }
+    ],
+    "findings_remaining_detail": [
+      {
+        "id": "F3",
+        "severity": "INFORMATIONAL",
+        "category": "Misconfigured state — hook registration",
+        "description": "_debug.sh is present in .claude/hooks/ but has no matching entry in .claude/settings.json. Under strict mode (every file in hooks/ must be registered), this is a finding.",
+        "remediation": "By-design: _debug.sh is a sourced utility (shared debug logging library), not a registered hook event handler. It is sourced by 5 other hook scripts (config-drift-detector.sh, context-pressure-gate.sh, context-pressure-statusline.sh, engineering-incident-detect.sh, external-action-gate.sh). Registering it as an event handler would be incorrect. Recommend: add a formal exemption mechanism (e.g., '_' prefix convention for utility files) to the hook-registration check criteria.",
+        "by_design": true,
+        "by_design_rationale": "Underscore-prefixed files are a conventional marker for utility/library files. _debug.sh does not hook into any event; it provides shared bash functions for use by registered hooks."
+      },
+      {
+        "id": "F4",
+        "severity": "MEDIUM",
+        "category": "Transport hygiene — duplicate turn numbers in state.db",
+        "description": "Multiple sessions have duplicate turn numbers in transport_messages: self-readiness-audit turns 1 and 4 have 5 records each (one per participant addressed copy). blog-adversarial-review, psq-scoring, psychology-interface also show duplicate turn pairs. Root cause: state.db indexes addressed-copy files (to-psq-agent-NNN.json) at the same turn number as their session source.",
+        "remediation": "Same structural fix as psq-agent finding 8B/8C/8D: either (a) do not index addressed-copies in state.db transport_messages, or (b) assign monotonic turn numbers across all inbound + outbound files per session. Requires schema change + bootstrap_state_db.py update. Not fixable in this session.",
+        "by_design": false,
+        "by_design_rationale": null
+      },
+      {
+        "id": "F5",
+        "severity": "INFORMATIONAL",
+        "category": "Transport hygiene — MANIFEST premature-closure",
+        "description": "Working tree had MANIFEST.json status='closed' (uncommitted change) while r3_tally showed psychology-agent: pending. This was a stale uncommitted write from a prior autonomous sync cycle that set status=closed before all votes were in.",
+        "remediation": "By-design resolution: psychology-agent is now casting its vote. After this file is committed, MANIFEST.json will be updated with the complete r3_tally and final status. The uncommitted stale change will be overwritten by the correct post-vote state.",
+        "by_design": true,
+        "by_design_rationale": "The premature closure was an autonomous pre-pull commit artifact, not an intentional design choice. The MANIFEST write order (close before last vote) was a sequencing bug in the autonomous pipeline."
+      }
+    ],
+    "by_design_summary": "2 of 3 remaining findings (F3, F5) are classified by-design. F4 is a genuine structural defect shared with psq-agent. Under strict mode, all 3 count as NOT-READY.",
+    "audit_results_by_category": {
+      "1_stale_state": {
+        "status": "CLEAN",
+        "evidence": [
+          "Lab-notebook last entry: Session 77 (2026-03-11T20:38 CDT) — current as of this session start",
+          "Session 78 (current) not yet logged — expected, logged at /cycle time",
+          "MEMORY.md Active Thread references v34 PSQ eval — PSQ runs in its own context, no update expected from psychology-agent",
+          "epistemic_flags_unresolved: 456 (was 456 in R2) — cumulative counter, stable"
+        ]
+      },
+      "2_broken_state": {
+        "status": "CLEAN",
+        "evidence": [
+          "cross_repo_fetch.py: OK",
+          "dual_write.py: OK",
+          "generate_manifest.py: OK",
+          "bootstrap_state_db.py: OK",
+          "bootstrap_facets.py: OK",
+          "state.db schema v18 — Triple-write protocol (current)"
+        ]
+      },
+      "3_misconfigured_state": {
+        "status": "CLEAN",
+        "evidence": [
+          "git remotes: origin, unratified, observatory all configured (unratified+observatory added in R2)",
+          "safety-quotient remote resolves via local submodule path — functional",
+          "14 hook events configured in settings.json — all active",
+          "local-coordination turn=0 count: 2 records (not 86 like psq-agent — different architecture)"
+        ]
+      },
+      "4_insecure_state": {
+        "status": "CLEAN",
+        "evidence": [
+          "No hardcoded secrets in committed files (git grep scan found only env-var reference patterns)",
+          "No .env files tracked in git",
+          "No .env files in project root",
+          "psychology-agent runs on Hetzner (Chromabook) — no local .env needed"
+        ]
+      },
+      "5_contract_compliance": {
+        "status": "CLEAN",
+        "evidence": [
+          "All Plan9 required files present: CLAUDE.md, README.md, TODO.md, docs/architecture.md, lab-notebook.md, transport/MANIFEST.json, .well-known/agent-card.json, .agent-identity.json",
+          "All interagent messages use interagent/v1 schema",
+          "urgency, setl, claims, action_gate present in recent messages"
+        ]
+      },
+      "6_symlink_integrity": {
+        "status": "CLEAN",
+        "evidence": [
+          "21 symlinks in scripts/ — all resolve to valid targets",
+          "Symlinks include: all shared platform scripts (autonomous-sync.sh, schema.sql, bootstrap_*.py, dual_write.py, cross_repo_fetch.py, generate_manifest.py, heartbeat.py, escalate.py, mesh-status.py, status_server.py, verify_shared_scripts.py, orientation-payload.py, pre_sync_check.py, send_broadcast.py, session_close.py, auto_process_trivial.py, issue_lifecycle.py, mesh-state-export.py, triple_write.py, ensure-cron.sh)"
+        ]
+      },
+      "7_schema_parity": {
+        "status": "CLEAN (informational display artifact noted)",
+        "evidence": [
+          "state.db schema v18 confirmed via schema_version table",
+          "20 tables present: active_gates, autonomous_actions, autonomy_budget, claims, decision_chain, engineering_incidents, entry_facets, epistemic_flags, facet_vocabulary, github_issues, lessons, memory_entries, psq_status, schema_version, session_log, sqlite_sequence, table_visibility, transport_messages, trigger_state, universal_facets",
+          "sqlite_sequence is SQLite-internal (autoincrement tracking) — 19 declared + 1 internal = expected",
+          "NOTE: sqlite3 .tables output displayed as blank lines when piped through 'tr' — display artifact only; direct SELECT from sqlite_master confirmed all tables present"
+        ]
+      },
+      "8_transport_hygiene": {
+        "status": "PARTIAL (2 fixed, 1 remains)",
+        "findings_identified": [
+          {
+            "id": "F1",
+            "severity": "INFORMATIONAL",
+            "description": "transport/sessions/evaluator/ had README.md but no MANIFEST.json",
+            "status": "RESOLVED (MANIFEST created this session)"
+          },
+          {
+            "id": "F2",
+            "severity": "LOW",
+            "description": "transport/sessions/subagent-protocol/ had 19 message files but no MANIFEST.json (pre-dates MANIFEST protocol; formerly item2-derivation)",
+            "status": "RESOLVED (MANIFEST created this session with reconstructed 18-turn index)"
+          },
+          {
+            "id": "F4",
+            "severity": "MEDIUM",
+            "description": "Duplicate turn numbers in state.db across self-readiness-audit, blog-adversarial-review, psq-scoring, psychology-interface sessions (addressed-copy indexing root cause)",
+            "status": "NOT FIXED — structural, requires schema + bootstrap change"
+          }
+        ]
+      },
+      "9_hook_registration": {
+        "status": "CLEAN (with by-design exception)",
+        "evidence": [
+          "19 scripts in .claude/hooks/",
+          "18 registered in settings.json across 14 event types (subagent-audit.sh appears in both SubagentStart and SubagentStop)",
+          "_debug.sh not registered — by-design utility file (sourced by 5 hooks, not a hook event handler)",
+          "No phantom registrations (all settings.json entries correspond to existing scripts)"
+        ]
+      },
+      "10_dependency_availability": {
+        "status": "CLEAN",
+        "evidence": [
+          "All Python imports in scripts/*.py resolve at parse time",
+          "ast.parse + __import__() scan across non-symlinked local scripts — no ImportError"
+        ]
+      }
+    }
+  },
+  "claims": [
+    {
+      "claim_id": "c1",
+      "text": "All 21 symlinks in scripts/ resolve to valid targets",
+      "confidence": 0.99,
+      "confidence_basis": "Direct readlink -f + existence check via bash loop for each symlink",
+      "independently_verified": false
+    },
+    {
+      "claim_id": "c2",
+      "text": "state.db schema is at v18 with 19 declared tables + sqlite_sequence (20 total)",
+      "confidence": 0.99,
+      "confidence_basis": "Direct SELECT from sqlite_master WHERE type='table' confirmed 20 names; schema_version SELECT confirmed v18",
+      "independently_verified": false
+    },
+    {
+      "claim_id": "c3",
+      "text": "No hardcoded secrets in committed files",
+      "confidence": 0.97,
+      "confidence_basis": "git grep pattern scan — coverage limited to searched patterns (api_key, password, token, secret). Zero-day patterns not covered.",
+      "independently_verified": false
+    },
+    {
+      "claim_id": "c4",
+      "text": "_debug.sh is sourced by 5 hook scripts and not intended as a registered hook event handler",
+      "confidence": 0.99,
+      "confidence_basis": "grep -l confirmed 5 hooks source _debug.sh; head of _debug.sh confirms it is a shared logging utility",
+      "independently_verified": false
+    },
+    {
+      "claim_id": "c5",
+      "text": "F4 (duplicate turn numbers) is the same structural root cause as psq-agent finding 8B/8C/8D",
+      "confidence": 0.95,
+      "confidence_basis": "DB query confirmed duplicate turn counts; root cause matches psq-agent diagnosis (addressed-copy indexing at same turn as source)",
+      "independently_verified": false
+    }
+  ],
+  "action_gate": {
+    "gate_condition": "all-agents-vote-round-3 — now complete",
+    "gate_status": "open",
+    "gate_note": "All 4 agents have voted R3. Tally: psq-agent NOT-READY (7 findings), psychology-agent NOT-READY (3 findings), unratified-agent READY, observatory-agent READY. Gate opens for human to decide: remediate blocking findings and run round 4, or accept findings with formal by-design exemptions and close."
+  },
+  "ack_required": false,
+  "urgency": "normal",
+  "setl": 0.04,
+  "epistemic_flags": [
+    "Self-audit inherently limited — blind spots exist. Findings represent what is checkable from repo context and script invocation.",
+    "subagent-protocol MANIFEST turn order is reconstructed from filenames, not verified against original message content timestamps. README.md in that session directory is authoritative.",
+    "Dependency check is static analysis only (ast.parse + __import__). Runtime failures under different execution contexts (cron, meshd, CF Workers) not ruled out.",
+    "Duplicate turn count may undercount — only top-10 shown from DB query; full count not verified."
+  ]
+}

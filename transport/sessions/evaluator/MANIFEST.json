@@ -1,0 +1,9 @@
+{
+  "session_id": "evaluator",
+  "created": "2026-03-06",
+  "purpose": "Internal evaluator session — Tier 1/2/3 adversarial evaluation framework (EF-1). Reserved session directory for evaluator output. Audit log at transport/sessions/evaluator/tier1-audit.jsonl when Tier 1 checks are logged.",
+  "participants": ["psychology-agent"],
+  "messages": [],
+  "status": "reserved",
+  "notes": "No active message exchange. tier1-audit.jsonl (append-only JSONL) is the primary output artifact for this session. MANIFEST created 2026-03-11 during self-readiness-audit R3 (F1 remediation: orphaned session lacked MANIFEST)."
+}
