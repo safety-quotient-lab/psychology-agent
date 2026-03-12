@@ -937,7 +937,7 @@
             margin-bottom: 28px;
         }
 
-        /* ── Operations Tab (Phase 3 stub) ──────────────────────────────── */
+        /* ── Operations Tab ──────────────────────────────────────────────── */
         .phase-stub {
             text-align: center;
             padding: 48px 20px;
@@ -945,6 +945,100 @@
         }
         .phase-stub-icon { font-size: 2em; margin-bottom: 8px; }
         .phase-stub-text { font-size: 0.85em; }
+
+        .ops-budget-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .ops-budget-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 0 8px 8px 0;
+            padding: 16px;
+            position: relative;
+        }
+        .ops-budget-card::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            border-radius: 4px 0 0 4px;
+            background: var(--card-accent, var(--c-tab-ops));
+        }
+        .ops-budget-agent {
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .ops-budget-bar {
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .ops-budget-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+        .ops-budget-values {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78em;
+            color: var(--text-secondary);
+        }
+        .ops-budget-credit {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .ops-action-tier {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 0.72em;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+        }
+        .ops-tier-1 { background: rgba(106,171,142,0.15); color: #6aab8e; }
+        .ops-tier-2 { background: rgba(107,138,175,0.15); color: #6b8aaf; }
+        .ops-tier-3 { background: rgba(196,149,106,0.15); color: #c4956a; }
+        .ops-tier-4 { background: rgba(196,112,112,0.15); color: #c47070; }
+        .ops-result-approved { color: #6aab8e; }
+        .ops-result-blocked { color: #c47070; }
+        .ops-result-rejected { color: #c47070; }
+        .ops-schedule-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.78em;
+        }
+        .ops-schedule-row:last-child { border-bottom: none; }
+        .ops-schedule-agent {
+            min-width: 120px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .ops-schedule-detail {
+            color: var(--text-secondary);
+            flex: 1;
+        }
+        .ops-schedule-status {
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .ops-schedule-active { background: rgba(106,171,142,0.15); color: #6aab8e; }
+        .ops-schedule-stale { background: rgba(212,149,74,0.15); color: #d4944a; }
+        .ops-schedule-offline { background: rgba(196,112,112,0.15); color: #c47070; }
 
         /* ── Responsive ──────────────────────────────────────────────── */
         @media (max-width: 768px) {
@@ -1364,15 +1458,57 @@
             </div>
         </div>
 
-        <!-- Operations Tab (Phase 3) -->
+        <!-- Operations Tab -->
         <div class="tab-pane" id="pane-operations">
-            <div class="phase-stub">
-                <div class="phase-stub-icon">&#x2699;</div>
-                <div class="phase-stub-text">
-                    Operations tab renders session threads, sync schedules, epistemic debt,
-                    and the autonomous actions audit trail.<br>
-                    <span style="color: var(--text-dim)">Phase 3 — operational view</span>
+            <!-- Operations vitals -->
+            <div class="kb-controls-group">
+                <div class="kb-vitals" id="ops-vitals">
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="ops-total-credits">—</div>
+                        <div class="kb-vital-label">Credits</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="ops-total-actions">—</div>
+                        <div class="kb-vital-label">Actions</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="ops-active-gates">—</div>
+                        <div class="kb-vital-label">Gates</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="ops-agents-syncing">—</div>
+                        <div class="kb-vital-label">Syncing</div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Autonomy Budget per agent -->
+            <div class="lcars-panel kb-section" data-section="operations">
+                <div class="lcars-panel-header">Autonomy Budget</div>
+                <div class="lcars-panel-body">
+                    <div class="ops-budget-grid" id="ops-budget-grid"></div>
+                </div>
+            </div>
+
+            <!-- Autonomous Actions Audit Trail -->
+            <div class="lcars-panel kb-section" data-section="operations">
+                <div class="lcars-panel-header">Autonomous Actions</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-actions" placeholder="Filter actions..." oninput="filterTable('actions')">
+                    <div class="table-page-info" id="page-info-actions"></div>
+                    <div class="table-page-btns" id="page-btns-actions"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="ops-actions-table">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sync Schedule -->
+            <div class="lcars-panel kb-section" data-section="operations">
+                <div class="lcars-panel-header">Sync Schedule</div>
+                <div class="lcars-panel-body" id="ops-schedule"></div>
             </div>
         </div>
     </div>
@@ -1445,7 +1581,9 @@
             { label: "Graduated",  color: "var(--c-tab-pulse)", flex: 2 },
         ],
         operations: [
-            { label: "Status",     color: "var(--c-tab-ops)", flex: 1 },
+            { label: "Budget",    color: "var(--c-tab-ops)",   flex: 2 },
+            { label: "Actions",   color: "var(--c-health)",    flex: 3 },
+            { label: "Schedule",  color: "var(--c-epistemic)", flex: 1 },
         ],
     };
 
@@ -1506,6 +1644,7 @@
         renderCatalog();
         renderSchema();
         renderLessons();
+        renderOperations();
     }
 
     function buildAgentSwitcher() {
@@ -1537,6 +1676,7 @@
             agentData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "unreachable" };
         });
         renderPulse();
+        renderOperations();
 
         // Fetch KB data (non-blocking — renders when ready)
         refreshKnowledge();
@@ -2794,6 +2934,7 @@
         facts: { sort: "last_confirmed", sortDir: -1, filter: "", page: 0, data: [] },
         lessons: { sort: "lesson_date", sortDir: -1, filter: "", page: 0, data: [] },
         flags: { sort: "created_at", sortDir: -1, filter: "", page: 0, data: [] },
+        actions: { sort: "created_at", sortDir: -1, filter: "", page: 0, data: [] },
     };
     let allDictTerms = [];
     let acronymMap = {};   // { "PSQ": "Psychoemotional Safety Quotient — ...", ... }
@@ -2853,6 +2994,7 @@
         if (tableId === "facts") renderFacts();
         if (tableId === "lessons") renderLessons();
         if (tableId === "flags") renderEpistemicFlags();
+        if (tableId === "actions") renderActionsTable();
     }
 
     function filterTable(tableId) {
@@ -2869,6 +3011,7 @@
         if (tableId === "facts") renderFacts();
         if (tableId === "lessons") renderLessons();
         if (tableId === "flags") renderEpistemicFlags();
+        if (tableId === "actions") renderActionsTable();
     }
 
     function goToPage(tableId, page) {
@@ -2883,6 +3026,7 @@
         if (tableId === "facts") renderFacts();
         if (tableId === "lessons") renderLessons();
         if (tableId === "flags") renderEpistemicFlags();
+        if (tableId === "actions") renderActionsTable();
     }
 
     function filterDictionary() {
@@ -3054,6 +3198,206 @@
         const label = live ? "SSE live" : "polling 30s";
         el.dataset.sseMode = live ? "live" : "poll";
         // Update will happen on next refresh cycle
+    }
+
+    // ── Render: Operations ──────────────────────────────────────────
+
+    function renderOperations() {
+        renderOpsBudget();
+        renderOpsActions();
+        renderOpsSchedule();
+        renderOpsVitals();
+    }
+
+    function renderOpsVitals() {
+        const online = Object.values(agentData).filter(a => a.status === "online");
+
+        const totalCredits = online.reduce((sum, a) => {
+            const b = a.data?.autonomy_budget || {};
+            return sum + (b.budget_current ?? 0);
+        }, 0);
+        const maxCredits = online.reduce((sum, a) => {
+            const b = a.data?.autonomy_budget || {};
+            return sum + (b.budget_max ?? 20);
+        }, 0);
+        const totalActions = online.reduce((sum, a) =>
+            sum + (a.data?.recent_actions || []).length, 0);
+        const gates = online.reduce((sum, a) =>
+            sum + (a.data?.active_gates || []).length, 0);
+        const syncing = online.filter(a => {
+            const sched = a.data?.schedule || {};
+            return sched.cron_entry || sched.last_sync;
+        }).length;
+
+        document.getElementById("ops-total-credits").textContent = `${totalCredits}/${maxCredits}`;
+        document.getElementById("ops-total-actions").textContent = totalActions;
+        document.getElementById("ops-active-gates").textContent = gates;
+        document.getElementById("ops-agents-syncing").textContent = `${syncing}/${AGENTS.length}`;
+    }
+
+    function renderOpsBudget() {
+        const grid = document.getElementById("ops-budget-grid");
+        if (!grid) return;
+        grid.innerHTML = "";
+
+        for (const agent of AGENTS) {
+            const d = agentData[agent.id];
+            if (!d || d.status !== "online") {
+                grid.innerHTML += `
+                    <div class="ops-budget-card" style="--card-accent: ${agent.color}; opacity: 0.4">
+                        <div class="ops-budget-agent">${agent.id.replace("-agent", "")}</div>
+                        <div class="ops-budget-credit" style="font-size:1em; color:var(--text-dim)">OFFLINE</div>
+                    </div>`;
+                continue;
+            }
+            const b = d.data?.autonomy_budget || {};
+            const current = b.budget_current ?? 0;
+            const max = b.budget_max ?? 20;
+            const pct = max > 0 ? Math.round((current / max) * 100) : 0;
+            const barColor = pct > 50 ? "#6aab8e" : pct > 20 ? "#d4944a" : "#c47070";
+            const lastAction = b.last_action || "—";
+            const interval = b.min_action_interval ?? 300;
+
+            grid.innerHTML += `
+                <div class="ops-budget-card" style="--card-accent: ${agent.color}">
+                    <div class="ops-budget-agent">${agent.id.replace("-agent", "")}</div>
+                    <div class="ops-budget-credit">${current}<span style="font-size:0.4em;color:var(--text-secondary)">/${max}</span></div>
+                    <div class="ops-budget-bar">
+                        <div class="ops-budget-fill" style="width:${pct}%;background:${barColor}"></div>
+                    </div>
+                    <div class="ops-budget-values">
+                        <span>Interval: ${Math.round(interval/60)}min</span>
+                        <span>${lastAction !== "—" ? lastAction.substring(11, 16) : "—"}</span>
+                    </div>
+                </div>`;
+        }
+    }
+
+    function renderOpsActions() {
+        // Collect all actions from all agents
+        const allActions = [];
+        for (const agent of AGENTS) {
+            const d = agentData[agent.id];
+            if (!d || d.status !== "online") continue;
+            const actions = d.data?.recent_actions || [];
+            actions.forEach(a => allActions.push({ ...a, agent_id: agent.id, agent_color: agent.color }));
+        }
+        allActions.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
+
+        tableState.actions.data = allActions;
+        renderActionsTable();
+    }
+
+    function renderActionsTable() {
+        const wrap = document.getElementById("ops-actions-table");
+        if (!wrap) return;
+
+        const st = tableState.actions;
+        let rows = st.data;
+        if (st.filter) {
+            const f = st.filter.toLowerCase();
+            rows = rows.filter(r =>
+                (r.action_type || "").toLowerCase().includes(f) ||
+                (r.description || "").toLowerCase().includes(f) ||
+                (r.agent_id || "").toLowerCase().includes(f) ||
+                (r.evaluator_result || "").toLowerCase().includes(f)
+            );
+        }
+        rows.sort((a, b) => {
+            const av = a[st.sort] ?? "", bv = b[st.sort] ?? "";
+            return (av < bv ? -1 : av > bv ? 1 : 0) * st.sortDir;
+        });
+
+        const PAGE_SIZE = 15;
+        const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+        st.page = Math.min(st.page, totalPages - 1);
+        const start = st.page * PAGE_SIZE;
+        const pageRows = rows.slice(start, start + PAGE_SIZE);
+
+        const th = (label, key) => {
+            const arrow = st.sort === key ? (st.sortDir === 1 ? " ↑" : " ↓") : "";
+            return `<th onclick="sortTable('actions','${key}')" style="cursor:pointer">${label}${arrow}</th>`;
+        };
+
+        if (rows.length === 0) {
+            wrap.innerHTML = `<div class="phase-stub"><div class="phase-stub-text">No autonomous actions recorded</div></div>`;
+        } else {
+            wrap.innerHTML = `<table class="kb-table"><thead><tr>
+                ${th("Time", "created_at")}
+                ${th("Agent", "agent_id")}
+                ${th("Tier", "evaluator_tier")}
+                ${th("Result", "evaluator_result")}
+                ${th("Type", "action_type")}
+                ${th("Description", "description")}
+                ${th("Budget", "budget_after")}
+            </tr></thead><tbody>${pageRows.map(r => {
+                const tier = r.evaluator_tier || 1;
+                const tierClass = `ops-tier-${Math.min(tier, 4)}`;
+                const resultClass = r.evaluator_result === "approved" ? "ops-result-approved"
+                    : "ops-result-blocked";
+                const time = (r.created_at || "").substring(5, 16).replace("T", " ");
+                const agentLabel = (r.agent_id || "").replace("-agent", "");
+                const budgetDelta = r.budget_before != null && r.budget_after != null
+                    ? `${r.budget_after} (${r.budget_after - r.budget_before >= 0 ? "+" : ""}${r.budget_after - r.budget_before})`
+                    : "—";
+                return `<tr>
+                    <td>${time}</td>
+                    <td>${agentLabel}</td>
+                    <td><span class="ops-action-tier ${tierClass}">T${tier}</span></td>
+                    <td class="${resultClass}">${r.evaluator_result || "—"}</td>
+                    <td>${r.action_type || "—"}</td>
+                    <td title="${(r.description || "").replace(/"/g, "&quot;")}">${(r.description || "").substring(0, 60)}${(r.description || "").length > 60 ? "…" : ""}</td>
+                    <td>${budgetDelta}</td>
+                </tr>`;
+            }).join("")}</tbody></table>`;
+        }
+
+        // Pagination
+        const info = document.getElementById("page-info-actions");
+        const btns = document.getElementById("page-btns-actions");
+        if (info) info.textContent = rows.length > 0 ? `${start+1}–${Math.min(start+PAGE_SIZE, rows.length)} of ${rows.length}` : "";
+        if (btns) btns.innerHTML = totalPages > 1 ? `
+            <button onclick="pageTable('actions',-1)" ${st.page === 0 ? "disabled" : ""}>◀</button>
+            <button onclick="pageTable('actions',1)" ${st.page >= totalPages-1 ? "disabled" : ""}>▶</button>` : "";
+    }
+
+    function renderOpsSchedule() {
+        const el = document.getElementById("ops-schedule");
+        if (!el) return;
+
+        let html = "";
+        for (const agent of AGENTS) {
+            const d = agentData[agent.id];
+            const sched = d?.data?.schedule || {};
+            const isOnline = d?.status === "online";
+
+            let statusClass, statusLabel;
+            if (!isOnline) {
+                statusClass = "ops-schedule-offline";
+                statusLabel = "OFFLINE";
+            } else if (sched.cron_entry) {
+                statusClass = "ops-schedule-active";
+                statusLabel = "ACTIVE";
+            } else {
+                statusClass = "ops-schedule-stale";
+                statusLabel = "NO CRON";
+            }
+
+            const cronText = sched.cron_entry || "—";
+            const lastSync = sched.last_sync ? sched.last_sync.substring(5, 16).replace("T", " ") : "—";
+            const agentLabel = agent.id.replace("-agent", "");
+
+            html += `<div class="ops-schedule-row">
+                <div class="ops-schedule-agent" style="color:${agent.color}">${agentLabel}</div>
+                <div class="ops-schedule-detail">
+                    <span style="color:var(--text-dim)">cron:</span> ${cronText}
+                    &nbsp;&nbsp;
+                    <span style="color:var(--text-dim)">last:</span> ${lastSync}
+                </div>
+                <span class="ops-schedule-status ${statusClass}">${statusLabel}</span>
+            </div>`;
+        }
+        el.innerHTML = html || `<div class="phase-stub"><div class="phase-stub-text">No schedule data</div></div>`;
     }
 
     // ── Init ───────────────────────────────────────────────────────
