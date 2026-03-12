@@ -1,17 +1,16 @@
 {
-  "schema": "agent-card/v2",
-  "a2a_compat": "0.2",
-
+  "protocolVersion": "0.3.0",
   "name": "psychology-agent",
   "description": "General-purpose psychology agent — collegial mentor with specialized sub-agents (PSQ). Consensus-or-parsimony adversarial evaluator.",
   "version": "2.0.0",
 
   "provider": {
-    "organization": "safety-quotient-lab",
+    "organization": "Safety Quotient Lab",
     "url": "https://safety-quotient.dev"
   },
 
   "url": "https://api.safety-quotient.dev",
+  "preferredTransport": "git-PR",
 
   "capabilities": {
     "streaming": false,
@@ -19,49 +18,22 @@
     "stateTransitionHistory": true
   },
 
-  "skills": [
-    {
-      "id": "text-analysis",
-      "name": "Text Analysis",
-      "description": "Psychological and epistemic analysis of text content"
-    },
-    {
-      "id": "psq-scoring",
-      "name": "PSQ Scoring",
-      "description": "Psychoemotional Safety Quotient scoring via PSQ sub-agent"
-    },
-    {
-      "id": "research-consultation",
-      "name": "Research Consultation",
-      "description": "Psychology research methodology review and consultation"
-    },
-    {
-      "id": "epistemic-review",
-      "name": "Epistemic Review",
-      "description": "Fair witness review — epistemic quality audit of claims and content"
-    },
-    {
-      "id": "interagent-protocol",
-      "name": "Interagent Protocol",
-      "description": "Multi-agent mesh communication via interagent/v1 transport"
-    }
-  ],
-
   "defaultInputModes": ["application/json"],
   "defaultOutputModes": ["application/json"],
 
-  "authentication": {
-    "schemes": ["git-ssh", "solid-oidc"],
-    "git-ssh": {
-      "scope": "inter-replica transport",
-      "note": "Agent-to-agent mesh communication via git-PR transport"
+  "security": {
+    "agents": {
+      "scheme": "transport",
+      "transport": "git-PR",
+      "repo": "https://github.com/safety-quotient-lab/psychology-agent",
+      "requirement": "GitHub org membership — safety-quotient-lab",
+      "description": "Agent-to-agent mesh communication via git-PR transport"
     },
     "solid-oidc": {
-      "scope": "public client HTTP API",
+      "scheme": "openIdConnect",
       "issuer_discovery": "https://solid.safety-quotient.dev/.well-known/openid-configuration",
       "dpop_required": true,
       "scopes_supported": ["webid", "openid"],
-      "spec_version": "0.1.0",
       "phase": "planned",
       "note": "Phase 2 — pending CSS deployment on Hetzner"
     }
@@ -79,94 +51,119 @@
     }
   },
 
-  "instance": "Claude Code (Opus 4.6), macOS arm64",
-  "schemas_supported": ["interagent/v1", "command-request/v1", "local-coordination/v1"],
-
-  "transport": {
-    "method": "git-pr",
-    "repo": "https://github.com/safety-quotient-lab/psychology-agent",
-    "sessions_path": "transport/sessions/",
-    "manifest_path": "transport/MANIFEST.json",
-    "naming_convention": "transport/sessions/{session-name}/{direction}-{descriptor}-{sequence}.json",
-    "direction_values": {
-      "from-{agent_id}": "inbound messages from named agent",
-      "to-{agent_id}": "outbound messages to named agent",
-      "{semantic-name}": "legacy messages using descriptive names (psychology-interface session)"
-    },
-    "threading": {
-      "model": "didcomm-inspired",
-      "thread_id": "Session-scoped by default; forkable for sub-threads",
-      "parent_thread_id": "References parent thread for nested conversations"
-    },
-    "content_addressing": {
-      "algorithm": "sha256",
-      "field": "message_cid",
-      "canonical_form": "sorted-keys JSON, no trailing whitespace"
-    }
-  },
-
-  "http_discovery": {
-    "url": "https://api.safety-quotient.dev/.well-known/agent-card.json",
-    "note": "HTTP agent-card served by CF Worker. Describes HTTP API surface, skills, and capabilities. Complementary to this git-transport card."
-  },
-
-  "active_sessions": [
+  "extensions": [
     {
-      "session_id": "psq-scoring",
-      "peer": "psq-agent",
-      "status": "active — turn 52. Phase 2 mirror current, Phase 3 gate OPEN"
+      "uri": "https://github.com/safety-quotient-lab/interagent-epistemic/v1",
+      "required": false,
+      "description": "Epistemic flags, action gates, SETL classification, structured proposals"
     },
     {
-      "session_id": "site-pricing-update",
-      "peer": "unratified-agent",
-      "status": "active — turn 1 (ICESCR ratification cost blog request from human). Autosync test."
-    },
-    {
-      "session_id": "plan9-consensus",
-      "peer": "psq-agent, unratified-agent, observatory-agent",
-      "status": "active — turn 1 (consensus proposal). Awaiting peer votes."
-    },
-    {
-      "session_id": "mesh-init",
-      "peer": "unratified-agent",
-      "status": "complete"
-    },
-    {
-      "session_id": "site-defensibility-review",
-      "peer": "unratified-agent",
-      "status": "complete"
-    },
-    {
-      "session_id": "subagent-protocol",
-      "peer": "psq-agent",
-      "status": "complete"
+      "uri": "https://safety-quotient.dev/mesh/v1",
+      "required": false,
+      "description": "Mesh-specific fields: cogarch, active_sessions, transport threading"
     }
   ],
 
+  "skills": [
+    {
+      "id": "text-analysis",
+      "name": "Text Analysis",
+      "description": "Psychological and epistemic analysis of text content",
+      "tags": ["psychology", "analysis", "epistemic", "text"]
+    },
+    {
+      "id": "psq-scoring",
+      "name": "PSQ Scoring",
+      "description": "Psychoemotional Safety Quotient scoring via PSQ sub-agent",
+      "tags": ["psq", "safety", "psychoemotional", "scoring"]
+    },
+    {
+      "id": "research-consultation",
+      "name": "Research Consultation",
+      "description": "Psychology research methodology review and consultation",
+      "tags": ["psychology", "research", "methodology", "consultation"]
+    },
+    {
+      "id": "epistemic-review",
+      "name": "Epistemic Review",
+      "description": "Fair witness review — epistemic quality audit of claims and content",
+      "tags": ["epistemic", "fair-witness", "audit", "claims"]
+    },
+    {
+      "id": "interagent-protocol",
+      "name": "Interagent Protocol",
+      "description": "Multi-agent mesh communication via interagent/v1 transport",
+      "tags": ["interagent", "mesh", "transport", "protocol"]
+    },
+    {
+      "id": "cogarch-template",
+      "name": "Cognitive Architecture Template",
+      "description": "Provides cognitive architecture templates for new mesh agents — triggers, hooks, identity, transport, lessons schema",
+      "tags": ["cogarch", "template", "onboarding", "mesh"]
+    }
+  ],
+
+  "mesh": {
+    "role": "domain-knowledge-provider",
+    "instance": "Claude Code (Opus 4.6), macOS arm64",
+    "schemas_supported": ["interagent/v1", "command-request/v1", "local-coordination/v1"],
+    "transport": {
+      "method": "git-PR",
+      "repo": "https://github.com/safety-quotient-lab/psychology-agent",
+      "sessions_path": "transport/sessions/",
+      "manifest_path": "transport/MANIFEST.json",
+      "threading": {
+        "model": "didcomm-inspired",
+        "thread_id": "session-scoped, forkable",
+        "parent_thread_id": "references parent for nested conversations"
+      },
+      "content_addressing": {
+        "algorithm": "sha256",
+        "field": "message_cid"
+      },
+      "zmq": null
+    },
+    "http_discovery": {
+      "url": "https://api.safety-quotient.dev/.well-known/agent-card.json",
+      "note": "HTTP agent-card served by CF Worker. Describes HTTP API surface. Complementary to this git-transport card."
+    },
+    "cogarch": {
+      "triggers": "docs/cognitive-triggers.md",
+      "architecture": "docs/architecture.md",
+      "knock_on_depth": 10
+    }
+  },
+
   "peers": [
+    {
+      "agent_id": "claude-control",
+      "description": "Infrastructure agent — fleet management, health monitoring, service orchestration",
+      "discovery_url": "https://infrastructure.safety-quotient.dev/.well-known/agent-card.json",
+      "repo": "kashfshah/claude-control"
+    },
+    {
+      "agent_id": "operations-agent",
+      "description": "Operations agent — compositor ownership, shared vocabulary governance",
+      "discovery_url": "https://operations.safety-quotient.dev/.well-known/agent-card.json",
+      "repo": "safety-quotient-lab/operations-agent"
+    },
     {
       "agent_id": "psq-agent",
       "description": "PSQ (Psychoemotional Safety Quotient) scoring peer agent",
-      "url": "https://psq.safety-quotient.dev",
-      "transport_repo": "https://github.com/safety-quotient-lab/safety-quotient"
+      "discovery_url": "https://psq.safety-quotient.dev/.well-known/agent-card.json",
+      "repo": "safety-quotient-lab/safety-quotient"
     },
     {
       "agent_id": "unratified-agent",
       "description": "Blog platform operator, consumer of PSQ scores, content publisher",
-      "url": "https://unratified.org",
-      "transport_repo": "https://github.com/safety-quotient-lab/unratified"
+      "discovery_url": "https://unratified.org/.well-known/agent-card.json",
+      "repo": "safety-quotient-lab/unratified"
     },
     {
       "agent_id": "observatory-agent",
       "description": "Data observatory — psychoemotional safety research data, methodology validation",
-      "url": "https://observatory.unratified.org",
-      "transport_repo": "https://github.com/safety-quotient-lab/observatory"
+      "discovery_url": "https://observatory.unratified.org/.well-known/agent-card.json",
+      "repo": "safety-quotient-lab/observatory"
     }
-  ],
-
-  "cogarch": {
-    "triggers": "docs/cognitive-triggers.md",
-    "architecture": "docs/architecture.md",
-    "knock_on_depth": 10
-  }
+  ]
 }
