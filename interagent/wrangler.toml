@@ -6,3 +6,11 @@ compatibility_date = "2026-03-06"
 type = "Text"
 globs = ["**/*.html", "**/*.json"]
 fallthrough = false
+
+# API key storage + JTI nonce tracking + rate limit counters
+[[kv_namespaces]]
+binding = "AUTH_KV"
+id = "2ab25ca0bcd34ffeb6d95d33138896c8"
+
+# Set via: wrangler secret put OPERATOR_SECRET
+# Required for POST /api/keys and DELETE /api/keys/:identity

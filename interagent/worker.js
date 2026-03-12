@@ -1,20 +1,28 @@
 /**
  * worker.js — Cloudflare Worker for interagent.safety-quotient.dev
  *
- * Serves the static interagent mesh compositor page and the shared
- * vocabulary for the federated agent mesh.
+ * Serves the interagent mesh compositor, shared vocabulary, mesh health
+ * aggregation, and authenticated API endpoints.
  *
  * Routes:
- *   GET /              → interagent mesh compositor (index.html)
- *   GET /vocab         → shared JSON-LD vocabulary (@context + defined terms)
- *   GET /vocab.json    → alias for /vocab
- *   GET /health        → worker health check (local only)
- *   GET /api/health    → mesh health (aggregates all agent /api/status endpoints)
- *   GET /api/kb        → merged knowledge base from all agents (Phase 2)
+ *   GET  /                    → interagent mesh compositor (index.html)
+ *   GET  /vocab[.json]        → shared JSON-LD vocabulary
+ *   GET  /health              → worker health check (local only)
+ *   GET  /api/health          → mesh health (aggregates all agent /api/status)
+ *   POST /api/keys            → create API key (operator-only)
+ *   DELETE /api/keys/:identity → revoke API key (operator-only)
+ *   *    /api/*               → authenticated API routes (rate-limited)
  */
 
 import HTML from "./index.html";
 import VOCAB from "./vocab.json";
+import { resolveAuth, checkRateLimit, handleKeyCreate, handleKeyRevoke } from "./auth.js";
+
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Operator-Secret",
+};
 
 const AGENT_ENDPOINTS = [
   { id: "psychology-agent", url: "https://psychology-agent.safety-quotient.dev/api/status" },
@@ -69,21 +77,19 @@ async function fetchMeshHealth() {
 }
 
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     const url = new URL(request.url);
+    const method = request.method;
+
+    // CORS preflight
+    if (method === "OPTIONS") {
+      return new Response(null, { headers: CORS_HEADERS });
+    }
+
+    // ── Unauthenticated routes ──────────────────────────────────────
 
     if (url.pathname === "/health") {
       return Response.json({ status: "ok", timestamp: Date.now() });
-    }
-
-    if (url.pathname === "/api/health") {
-      const health = await fetchMeshHealth();
-      return Response.json(health, {
-        headers: {
-          "Cache-Control": "public, max-age=30",
-          "Access-Control-Allow-Origin": "*",
-        },
-      });
     }
 
     if (url.pathname === "/vocab" || url.pathname === "/vocab.json") {
@@ -91,10 +97,85 @@ export default {
         headers: {
           "Content-Type": "application/ld+json; charset=utf-8",
           "Cache-Control": "public, max-age=3600",
-          "Access-Control-Allow-Origin": "*",
+          ...CORS_HEADERS,
         },
       });
     }
+
+    // ── Authenticated API routes ────────────────────────────────────
+
+    if (url.pathname.startsWith("/api/")) {
+      const auth = await resolveAuth(request, env);
+
+      // Key management (operator-only, no rate limit)
+      if (url.pathname === "/api/keys" && method === "POST") {
+        return handleKeyCreate(request, env);
+      }
+
+      const keyRevokeMatch = url.pathname.match(/^\/api\/keys\/([^/]+)$/);
+      if (keyRevokeMatch && method === "DELETE") {
+        return handleKeyRevoke(keyRevokeMatch[1], request, env);
+      }
+
+      // Rate limiting for all other API routes
+      const clientId = auth.identity || request.headers.get("CF-Connecting-IP") || "unknown";
+      const rateCheck = await checkRateLimit(clientId, auth.rateLimit, env);
+
+      if (!rateCheck.allowed) {
+        return Response.json(
+          {
+            error: "Rate limit exceeded",
+            tier: auth.tier,
+            limit: auth.rateLimit,
+            reset_at: rateCheck.resetAt,
+          },
+          {
+            status: 429,
+            headers: {
+              ...CORS_HEADERS,
+              "Retry-After": "3600",
+              "X-RateLimit-Limit": String(auth.rateLimit),
+              "X-RateLimit-Remaining": "0",
+              "X-RateLimit-Reset": rateCheck.resetAt,
+            },
+          }
+        );
+      }
+
+      const rateLimitHeaders = {
+        ...CORS_HEADERS,
+        "X-RateLimit-Limit": String(auth.rateLimit),
+        "X-RateLimit-Remaining": String(rateCheck.remaining),
+        "X-Auth-Tier": auth.tier,
+      };
+
+      // Mesh health
+      if (url.pathname === "/api/health") {
+        const health = await fetchMeshHealth();
+        return Response.json(health, {
+          headers: { "Cache-Control": "public, max-age=30", ...rateLimitHeaders },
+        });
+      }
+
+      // Auth info (returns the caller's resolved identity)
+      if (url.pathname === "/api/whoami") {
+        return Response.json({
+          identity: auth.identity,
+          tier: auth.tier,
+          rate_limit: auth.rateLimit,
+          rate_remaining: rateCheck.remaining,
+          rate_reset_at: rateCheck.resetAt,
+        }, { headers: rateLimitHeaders });
+      }
+
+      // Unknown API route
+      return Response.json(
+        { error: "Not found", path: url.pathname },
+        { status: 404, headers: rateLimitHeaders }
+      );
+    }
+
+    // ── Static compositor ───────────────────────────────────────────
 
     return new Response(HTML, {
       headers: {
