@@ -28,10 +28,15 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).parent.parent
+_SCRIPTS_DIR = str(Path(__file__).parent)
+if _SCRIPTS_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPTS_DIR)
+
+from state.connection import PROJECT_ROOT, DB_PATH
+from state.transport import get_indexed_filenames as _get_indexed_db
+
 REGISTRY_PATH = PROJECT_ROOT / "transport" / "agent-registry.json"
 REGISTRY_LOCAL_PATH = PROJECT_ROOT / "transport" / "agent-registry.local.json"
-DB_PATH = PROJECT_ROOT / "state.db"
 
 # Adaptive sync frequency — peers classified by recency of last exchange.
 # Active: unprocessed messages or exchange within WARM_THRESHOLD → always fetch.
@@ -114,20 +119,11 @@ def list_remote_dir(remote_name: str, path: str) -> list[str]:
 
 
 def get_indexed_filenames(db_path: Path, session_name: str) -> set[str]:
-    """Get filenames already indexed in state.db for a session."""
-    if not db_path.exists():
-        return set()
-    try:
-        conn = sqlite3.connect(str(db_path))
-        cursor = conn.execute(
-            "SELECT filename FROM transport_messages WHERE session_name = ?",
-            (session_name,),
-        )
-        filenames = {row[0] for row in cursor.fetchall()}
-        conn.close()
-        return filenames
-    except sqlite3.OperationalError:
-        return set()
+    """Get filenames already indexed in state.db for a session.
+
+    Delegates to state.transport for the actual query.
+    """
+    return _get_indexed_db(session_name)
 
 
 def classify_peer_activity(agent_id: str, agent_config: dict) -> str:
@@ -649,7 +645,9 @@ def _update_manifest(session_name: str, filename: str, msg: dict) -> None:
 
 
 def _index_message(msg: dict, filename: str, session_name: str) -> None:
-    """Index a transport message in state.db via dual_write.py."""
+    """Index a transport message in state.db via state.transport domain module."""
+    from state.transport import index_message
+
     from_block = msg.get("from", {})
     from_agent = (from_block.get("agent_id", "unknown")
                   if isinstance(from_block, dict) else str(from_block))
@@ -670,26 +668,19 @@ def _index_message(msg: dict, filename: str, session_name: str) -> None:
     setl = msg.get("setl", 0.0)
     urgency = msg.get("urgency", "normal")
 
-    dual_write = PROJECT_ROOT / "scripts" / "dual_write.py"
-    if dual_write.exists():
-        subprocess.run(
-            [
-                sys.executable, str(dual_write), "transport-message",
-                "--session", session_name,
-                "--filename", filename,
-                "--turn", str(turn),
-                "--type", message_type,
-                "--from-agent", from_agent,
-                "--to-agent", to_agent,
-                "--timestamp", timestamp,
-                "--subject", subject,
-                "--claims-count", str(claims_count),
-                "--setl", str(setl),
-                "--urgency", urgency,
-            ],
-            cwd=PROJECT_ROOT,
-            capture_output=True,
-        )
+    index_message(
+        session=session_name,
+        filename=filename,
+        turn=turn,
+        message_type=message_type,
+        from_agent=from_agent,
+        to_agent=to_agent,
+        timestamp=timestamp,
+        subject=subject,
+        claims_count=claims_count,
+        setl=setl,
+        urgency=urgency,
+    )
 
 
 def main():
