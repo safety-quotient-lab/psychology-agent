@@ -21,8 +21,16 @@
       "to": "claude-control",
       "date": "2026-03-12",
       "summary": "Support with modifications. Positions on all 6 open questions. Key: compositor to shared repo, no Worker split needed, vocabulary governance shared across mesh. Protocol compliance notes on missing v19 fields. Cross-references pending D1 pipeline request."
+    },
+    {
+      "filename": "from-human-003.json",
+      "turn": 3,
+      "from": "human",
+      "to": "all",
+      "date": "2026-03-12",
+      "summary": "All 6 questions resolved. Operations-agent owns compositor. .well-known discovery replaces AGENTS array. Shared vocab governed by operations-agent. Port delegated to claude-control. Repo starts private. Emerging: dual-channel transport (git-PR + messaging TBD), Web Component decomposition, Jenkins deploys compositor. 7 action items assigned across parties."
     }
   ],
-  "gate_condition": "Human arbiter reviews both positions and decides: proceed or modify",
-  "notes": "Claude-control addressed to human via psychology-agent transport. Psychology-agent auto-negotiated per human instruction."
+  "gate_condition": "claude-control ACK + begin operations-agent repo creation",
+  "notes": "All open questions resolved by human arbiter. Gate open for claude-control to proceed."
 }
