@@ -2,7 +2,7 @@
 decision: "Public Client Authentication Model"
 date: "2026-03-11"
 scale: "M"
-resolution: "pending"
+resolution: "direction-set"
 session: "79"
 ---
 
@@ -20,82 +20,155 @@ Two client types identified:
   Currently: unauthenticated PSQ scoring at api.safety-quotient.dev, read-only
   compositor dashboard at psychology-agent.safety-quotient.dev.
 
-## Design Questions (to resolve next session)
+## Direction: Solid-OIDC Alignment (Session 79)
 
-### 1. What does the public client need to authenticate FOR?
+Full alignment with the Solid ecosystem for public client authentication and
+user-controlled data storage. Solid-OIDC (OpenID Connect profile with DPoP
+token binding) provides decentralized identity. Solid pods provide user-owned
+data storage for scoring results and session history.
 
-Current public-facing surfaces (all unauthenticated):
-- PSQ scoring endpoint (`POST /score`) — accepts text, returns safety scores
-- Agent card discovery (`GET /.well-known/agent-card.json`) — public by design
-- Compositor dashboard — read-only mesh observability
-- Future: submit requests that enter the mesh for multi-replica consensus
+### Authentication Stack (bottom to top)
 
-Authentication becomes necessary when:
-- Rate limiting beyond IP-based throttling
-- Personalized scoring history or saved analyses
-- Submitting requests that consume replica compute budget
-- Accessing non-public mesh state (e.g., session details, claim evidence)
+| Layer | Standard | Function | Implementation surface |
+|-------|----------|----------|----------------------|
+| OAuth 2.0 | RFC 6749 | Authorization framework | CF Worker validates grants |
+| OpenID Connect | OIDC Core 1.0 | Identity layer (ID tokens) | WebID claim in ID token |
+| DPoP | RFC 9449 | Binds tokens to client key pair | CF Worker verifies proof JWTs via Web Crypto API |
+| Solid-OIDC | v0.1.0 (draft) | Solid profile of OIDC — adds `webid` scope, `cnf` binding | CF Worker middleware + agent card |
+| WebID | Solid WebID Profile | Decentralized identity document at a URI | User profile documents on pod |
 
-### 2. Authentication scheme options
+### Identity Provider
 
-| Scheme | Complexity | Fits | Notes |
-|--------|-----------|------|-------|
-| API key (bearer token) | Low | Rate limiting, usage tracking | Standard for API consumers. CF Worker can validate via KV lookup. |
-| OAuth 2.0 (PKCE) | Medium | Web app users, third-party integrations | Standard for browser-based auth. Requires auth provider. |
-| JWT (self-issued) | Medium | Stateless validation, cross-service | CF Worker validates signature without DB lookup. |
-| Passkeys / WebAuthn | Medium-High | Password-free public accounts | Modern, phishing-resistant. Requires registration flow. |
-| Anonymous + rate limit | Trivial | Current state, adequate for now | IP-based throttle via CF WAF rules. |
+Community Solid Server (CSS v7.x, MIT license) serves dual role:
+- **OIDC identity provider** — issues Solid-OIDC tokens with `webid` scope and DPoP `cnf` binding
+- **Pod storage server** — hosts user data containers (scoring results, sessions, preferences)
 
-### 3. A2A authentication alignment
+Standard OIDC providers (Google, Auth0) lack native Solid-OIDC support — no
+`webid` scope, no DPoP `cnf` binding. CSS bundles both capabilities, avoiding
+custom wrapper development.
 
-The A2A spec defines an `authentication` field in the agent card:
+### Pod Storage Model
+
+Solid pods accept arbitrary JSON via `PUT` with `Content-Type: application/json`.
+No RDF conversion required. Scoring results (machine-response/v3) store as
+plain JSON. WAC (Web Access Control) governs access — users control their
+`.acl` files.
+
+```
+pod://user-webid/
+├── profile/                          # WebID document (RDF, public)
+├── psq-scores/                       # Scoring results container
+│   ├── 2026-03-11-score-001.json     # machine-response/v3 output
+│   └── 2026-03-11-score-002.json
+├── sessions/                         # Saved analysis sessions
+│   └── session-abc123.json
+└── preferences/                      # Private settings (owner-only)
+    └── scoring-preferences.json
+```
+
+### Infrastructure Mapping
+
+| Host | Role | Network posture |
+|------|------|----------------|
+| **Hetzner** (178.156.229.103) | Community Solid Server — IdP + pod storage. Reverse-proxied via nginx. | Public-facing, persistent uptime |
+| **Cloudflare Workers** | DPoP validation middleware, API routing, KV for JTI nonce tracking | Edge, serverless |
+| **chromabook** (local laptop) | meshd, agent repos, cron — no public-facing Solid role | Local only |
+| **cabinet** (Jenkins host) | CI/CD — deploys CSS updates to Hetzner via SSH | Internal only |
+
+### CF Worker Validation Flow
+
+```
+Client request
+  → CF Worker receives request
+  → Extract DPoP proof from header
+  → Verify JWT signature (crypto.subtle.importKey + crypto.subtle.verify)
+  → Validate DPoP claims (htm, htu, iat, jti)
+  → Check jti against KV for replay prevention
+  → Verify ID token cnf thumbprint matches DPoP public key
+  → Dereference WebID URI → confirm solid:oidcIssuer matches token issuer
+  → Route to handler (score, session, etc.)
+  → Write results to user's pod (authenticated fetch with scoped grant)
+```
+
+DPoP validation runs entirely in the Worker via Web Crypto API. JTI replay
+prevention requires Cloudflare KV or Durable Objects for nonce tracking.
+
+### Phased Rollout
+
+| Phase | Auth model | Data storage | Dependency |
+|-------|-----------|-------------|-----------|
+| **0** (current) | Anonymous, CF WAF rate limiting | Ephemeral (no persistence) | None |
+| **1** | API keys for programmatic consumers (bearer token, KV-backed) | D1 (our infrastructure) | CF Worker middleware |
+| **2** | Solid-OIDC for web users (Auth Code + PKCE + DPoP) | User's Solid pod | CSS on Hetzner |
+| **3** | Tiered access: anonymous → API key → Solid-OIDC | Hybrid: D1 for anonymous, pods for authenticated | Phases 1 + 2 |
+
+Phase 1 remains simple API keys for immediate rate limiting. Phase 2
+introduces Solid-OIDC as the authenticated user path, with pod storage
+replacing D1 for user-owned data.
+
+### Client Trust Budget
+
+| Client type | Auth mechanism | Trust tier | Rate budget | Pod access |
+|------------|---------------|-----------|------------|-----------|
+| Anonymous | None (IP rate limit) | Untrusted | 10 req/hr | None — results ephemeral |
+| API key holder | Bearer token | Standard client | 100 req/hr | None — results in D1 |
+| Solid-OIDC user | DPoP-bound ID token | Authenticated client | 1000 req/hr | Full — results in user's pod |
+| Privileged (operator) | git-SSH | Source-of-truth agent | Unlimited | N/A — uses git transport |
+
+### Agent Card Authentication Update
+
+Agent card `authentication` section expands to declare both transport surfaces:
+
 ```json
 "authentication": {
-  "schemes": ["apiKey", "oauth2", "bearer"]
+  "schemes": ["git-ssh", "solid-oidc"],
+  "solid-oidc": {
+    "issuer_discovery": "https://solid.safety-quotient.dev/.well-known/openid-configuration",
+    "dpop_required": true,
+    "scopes_supported": ["webid", "openid"]
+  }
 }
 ```
 
-Our agent card currently declares `"schemes": ["git-ssh"]` — appropriate for
-inter-replica (agent-to-agent) auth. Public client auth would add a second
-scheme for the HTTP surface.
+### Risks and Caveats
 
-### 4. Trust model implications
+- **Solid-OIDC remains draft (v0.1.0)** — not a W3C standard; spec may change.
+  Mitigation: lock to snapshot, track spec repo for breaking changes.
+- **CSS production readiness** — adequate for our volumes (~100-1000 req/sec),
+  not battle-tested at scale. Mitigation: monitor, fallback to D1 if needed.
+- **Pod latency** — 10–100ms reads, 20–200ms writes (estimated, not benchmarked).
+  Adequate for scoring, not suitable for real-time streaming.
+- **WebID bootstrapping** — users need a WebID before authenticating. CSS handles
+  registration, but onboarding UX needs design.
+- **No SPARQL on JSON** — whole-file fetch only for non-RDF resources. Acceptable
+  for per-user score volumes.
 
-Public client requests enter the mesh at a lower trust level than human
-operator requests:
-- Public requests MUST NOT modify replica configuration
-- Public requests MUST NOT override consensus
-- Public requests consume trust budget credits (rate-limited pool, separate
-  from the operator's budget)
-- Public request results carry the same epistemic quality guarantees as
-  inter-replica results (SETL, epistemic flags, confidence scores)
-
-The EF-1 trust model (`docs/ef1-trust-model.md`) currently defines trust
-budgets for autonomous agent actions. Public client requests would need a
-parallel "client trust budget" — credits consumed per request, replenished
-on a time basis, with different tiers (anonymous, authenticated, premium).
-
-### 5. Phased rollout
-
-- **Phase 0 (current):** Anonymous access, CF WAF rate limiting, no auth
-- **Phase 1:** API keys for programmatic consumers (KV-backed, CF Worker validates)
-- **Phase 2:** OAuth 2.0 / JWT for web app users (if/when a web app exists)
-- **Phase 3:** Tiered access (anonymous → authenticated → premium) with
-  differentiated rate limits and mesh access levels
-
-### 6. Dependencies
+### Dependencies
 
 - CF Worker already handles routing and can validate tokens
-- D1 database exists for storing API key metadata
-- KV namespace exists for fast token lookups
-- The JSON-RPC meshd vocabulary (TODO item) would serve as the bridge
-  between authenticated public HTTP requests and the git-based inter-replica
-  transport
+- D1 database exists for API key metadata (Phase 1)
+- KV namespace exists for fast token lookups and JTI replay prevention
+- Hetzner VPS exists with Jenkins SSH access for deployment
+- CSS requires Node 18+ on Hetzner (verify current Node version)
+- JSON-RPC meshd vocabulary (TODO item) bridges authenticated public HTTP
+  requests to git-based inter-replica transport
 
-## Next Steps
+### Next Steps
 
-- Resolve Phase 1 scope: API key generation, storage (D1 vs KV), validation
-  middleware in CF Worker
-- Update agent-card.json `authentication.schemes` to include the public scheme
-- Define client trust budget model (parallel to agent autonomy budget)
-- Wire public request path: CF Worker → meshd JSON-RPC → transport session → replicas
+1. **Phase 1 (immediate):** API key generation, KV storage, bearer token
+   validation middleware in CF Worker
+2. **Phase 2 prep:** Install CSS on Hetzner, configure nginx reverse proxy,
+   verify OIDC discovery endpoint
+3. **Agent card update:** Add `solid-oidc` to authentication schemes
+4. **Client trust budget:** Formalize credit system in ef1-trust-model.md
+5. **Onboarding UX:** Design WebID registration flow for new users
+6. **Pod write integration:** CF Worker writes scoring results to user's pod
+   after authenticated request
+
+### References
+
+- Solid-OIDC spec: https://solidproject.org/TR/oidc (v0.1.0 draft)
+- DPoP: RFC 9449
+- Community Solid Server: https://github.com/CommunitySolidServer/CommunitySolidServer
+- Web Access Control: https://solid.github.io/web-access-control-spec/
+- A2A agent card spec: agent-card/v2 (see .well-known/agent-card.json)
