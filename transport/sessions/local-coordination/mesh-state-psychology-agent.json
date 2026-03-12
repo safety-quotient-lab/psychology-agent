@@ -1,17 +1,25 @@
 {
   "schema": "mesh-state/v1",
-  "timestamp": "2026-03-11T20:27:01",
+  "timestamp": "2026-03-11T20:37:02",
   "agent_id": "psychology-agent",
   "autonomy_budget": {
     "agent_id": "psychology-agent",
     "budget_max": 20,
-    "budget_current": 18,
+    "budget_current": 17,
     "shadow_mode": 1,
     "consecutive_blocks": 0,
-    "last_action": "2026-03-11T19:50:44",
+    "last_action": "2026-03-11T20:30:50",
     "min_action_interval": 300
   },
   "recent_actions": [
+    {
+      "action_type": "sync",
+      "evaluator_result": "approved",
+      "evaluator_tier": 1,
+      "budget_before": 18,
+      "budget_after": 17,
+      "created_at": "2026-03-11T20:30:50"
+    },
     {
       "action_type": "sync",
       "evaluator_result": "approved",
@@ -30,15 +38,15 @@
     }
   ],
   "transport": {
-    "total_messages": 278,
+    "total_messages": 280,
     "unprocessed": 0,
     "active_gates": 0
   },
   "schedule": {
     "autonomous": true,
     "cron_interval_min": 10,
-    "last_sync": "2026-03-11T20:27:01",
-    "next_expected": "2026-03-11T20:37:01"
+    "last_sync": "2026-03-11T20:37:02",
+    "next_expected": "2026-03-11T20:47:02"
   },
   "psh_facets": {},
   "schema_version": 18,
