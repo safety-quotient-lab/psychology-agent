@@ -736,6 +736,13 @@ Adopt-now items from standards landscape survey (13 protocols evaluated).
 - [x] **Implicit ACK convention** — substantive `in_response_to` references count as
   implicit acknowledgment (DIDComm-inspired). Documented in transport.md. Session 79.
 
+- [ ] **Solid-OIDC spec tracking** — spec at v0.1.0 (draft, June 2024). Check
+  https://github.com/solid/solid-oidc for breaking changes quarterly. Our
+  implementation locks to the v0.1.0 snapshot; document any delta if the spec
+  evolves. Also monitor CSS releases (v7.x) for OIDC-related changes.
+  *Review cadence: quarterly (next: 2026-06-11)*
+  *Reference: docs/decisions/2026-03-11-public-client-authentication.md*
+
 - [ ] **JSON-RPC method vocabulary for meshd** — map meshd HTTP routes to A2A standard
   method names (`SendMessage`, `GetTask`, `ListTasks`, `CancelTask`). Add JSON-RPC
   envelope support for dual-protocol serving alongside existing REST routes. M effort.
