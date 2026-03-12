@@ -2453,6 +2453,7 @@
                     ${sortHeader("messages", "message_type", "Type")}
                     <th>Subject</th>
                     ${sortHeader("messages", "claims_count", "Claims")}
+                    <th style="width:2em">GH</th>
                     ${sortHeader("messages", "timestamp", "Date")}
                 </tr></thead>
                 <tbody>${display.map(m => {
@@ -2472,6 +2473,7 @@
                         <td style="font-size:0.85em">${escapeHtml(m.message_type || "—")}</td>
                         <td style="font-size:0.85em">${escapeHtml(subject)}</td>
                         <td style="text-align:center">${claimsLink}</td>
+                        <td style="text-align:center">${m.issue_url ? `<a href="${escapeHtml(m.issue_url)}" target="_blank" rel="noopener" title="GitHub Issue #${m.issue_number || ''}" style="color:var(--text-secondary);text-decoration:none">&#x1F517;</a>` : ''}</td>
                         <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
                     </tr>`;
                 }).join("")}</tbody>

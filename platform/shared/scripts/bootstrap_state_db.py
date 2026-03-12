@@ -226,6 +226,17 @@ def _parse_legacy_transport(json_file: Path) -> dict | None:
     )
 
 
+def _get_local_agent_id() -> str:
+    """Read local agent identity for bootstrap processed-status logic."""
+    identity_path = PROJECT_ROOT / ".agent-identity.json"
+    if identity_path.exists():
+        try:
+            return json.loads(identity_path.read_text()).get("agent_id", "")
+        except (json.JSONDecodeError, OSError):
+            pass
+    return ""
+
+
 def load_transport_messages(conn: sqlite3.Connection) -> tuple[int, int]:
     """Load transport messages. Returns (modern_count, legacy_count)."""
     transport_root = PROJECT_ROOT / "transport" / "sessions"
@@ -235,6 +246,7 @@ def load_transport_messages(conn: sqlite3.Connection) -> tuple[int, int]:
 
     modern_count = 0
     legacy_count = 0
+    local_agent_id = _get_local_agent_id()
 
     for json_file in sorted(transport_root.glob("**/*.json")):
         # Skip MANIFEST files — session metadata, not transport messages
@@ -270,15 +282,26 @@ def load_transport_messages(conn: sqlite3.Connection) -> tuple[int, int]:
                 issue_url = issue_block.get("url")
                 issue_number = issue_block.get("number")
 
+                # Outbound messages (authored by us) and addressed copies
+                # (to-{other}-*) mark processed=TRUE. Inbound messages from
+                # peers mark processed=FALSE so autonomous sync can review them.
+                is_outbound = (
+                    from_agent == local_agent_id
+                    or from_agent == "human"
+                    or filename.startswith("to-")
+                )
+                processed = is_outbound
+                processed_at = today_iso() if processed else None
+
                 conn.execute("""
                     INSERT OR IGNORE INTO transport_messages
                         (session_name, filename, turn, message_type, from_agent, to_agent,
                          timestamp, subject, claims_count, setl, urgency,
                          processed, processed_at, issue_url, issue_number)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (session_name, filename, turn, message_type, from_agent, to_agent,
-                      timestamp, subject, claims_count, setl, urgency, today_iso(),
-                      issue_url, issue_number))
+                      timestamp, subject, claims_count, setl, urgency, processed,
+                      processed_at, issue_url, issue_number))
 
                 msg_row = conn.execute(
                     "SELECT id FROM transport_messages WHERE session_name = ? AND filename = ?",
@@ -326,16 +349,24 @@ def load_transport_messages(conn: sqlite3.Connection) -> tuple[int, int]:
                 if parsed is None:
                     continue
 
+                is_outbound = (
+                    parsed["from_agent"] == local_agent_id
+                    or parsed["from_agent"] == "human"
+                    or parsed["filename"].startswith("to-")
+                )
+                processed = is_outbound
+                processed_at = today_iso() if processed else None
+
                 conn.execute("""
                     INSERT OR IGNORE INTO transport_messages
                         (session_name, filename, turn, message_type, from_agent, to_agent,
                          timestamp, subject, claims_count, setl, urgency,
                          processed, processed_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (parsed["session_name"], parsed["filename"], parsed["turn"],
                       parsed["message_type"], parsed["from_agent"], parsed["to_agent"],
                       parsed["timestamp"], parsed["subject"], parsed["claims_count"],
-                      parsed["setl"], parsed["urgency"], today_iso()))
+                      parsed["setl"], parsed["urgency"], processed, processed_at))
 
                 # Index claims when present in legacy messages
                 msg_row = conn.execute(

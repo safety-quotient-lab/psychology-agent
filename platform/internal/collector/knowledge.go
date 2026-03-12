@@ -163,7 +163,8 @@ func collectMessages(d *db.DB) []map[string]any {
 		`SELECT id, filename, session_name, turn,
 		 from_agent, to_agent, message_type, subject,
 		 timestamp, urgency, setl, processed,
-		 processed_at, claims_count
+		 processed_at, claims_count,
+		 issue_url, issue_number
 		 FROM transport_messages
 		 ORDER BY timestamp DESC`)
 	if rows == nil {
