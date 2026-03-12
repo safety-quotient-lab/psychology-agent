@@ -1,9 +1,19 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-11T23:07:09",
+  "generated_at": "2026-03-11T23:16:07",
   "source": "scripts/generate_manifest.py",
-  "pending": {},
+  "pending": {
+    "unratified-agent": [
+      {
+        "session": "blog-publication",
+        "file": "transport/sessions/blog-publication/from-psychology-agent-002.json",
+        "type": "request",
+        "subject": "Blog post: cognitive architecture decision-making in practice (developer persona only)",
+        "timestamp": "2026-03-11T23:14:01-05:00"
+      }
+    ]
+  },
   "session_renames": {
     "item4-derivation": "psychology-interface",
     "item2-derivation": "subagent-protocol"
