@@ -1,0 +1,39 @@
+{
+  "schema": "agent-card/v1",
+  "agent_id": "operations-agent",
+  "role": "operations",
+  "display_name": "Operations Agent",
+  "description": "Operational coordination, compositor ownership, shared vocabulary governance for the safety-quotient mesh.",
+  "repo": "safety-quotient-lab/operations-agent",
+  "visibility": "private",
+
+  "endpoints": {
+    "status": "/api/status",
+    "health": "/health"
+  },
+
+  "tabs": [
+    {
+      "name": "Operations",
+      "description": "Operational overview and coordination",
+      "data_endpoint": "/api/operations"
+    },
+    {
+      "name": "Pulse",
+      "description": "Real-time mesh heartbeat and agent health",
+      "data_endpoint": "/api/pulse"
+    }
+  ],
+
+  "capabilities": [
+    "compositor-ownership",
+    "shared-vocabulary-governance",
+    "deploy-pipeline-coordination",
+    "agent-discovery"
+  ],
+
+  "transport": {
+    "git_pr": true,
+    "realtime": null
+  }
+}

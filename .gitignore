@@ -1,0 +1,44 @@
+# Environment variables (credentials)
+.env
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+
+# SQLite state layer (rebuilt from bootstrap)
+state.db
+state.db-wal
+state.db-shm
+state.local.db
+state.local.db-wal
+state.local.db-shm
+
+# Personal notes (not version-controlled)
+lessons.md
+
+# Local Claude Code session config
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/write-log.jsonl
+.claude/worktrees/
+
+# Agent identity (machine-specific)
+.agent-identity.json
+
+# Pushback counter (session-scoped)
+.pushback-count.tmp
+
+# OS artifacts
+.DS_Store
+
+# Python cache
+__pycache__/
+
+# Wrangler local state
+.wrangler/
+
+# Compiled binaries
+/meshd
+/meshd-*
+
+# Transport registry overrides (machine-specific)
+transport/agent-registry.local.json

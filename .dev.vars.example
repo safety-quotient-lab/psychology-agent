@@ -1,0 +1,22 @@
+# operations-agent environment configuration
+# Copy to .dev.vars and fill in actual values.
+# .dev.vars is gitignored — never commit credentials.
+
+# Meshd port (assigned by infrastructure-agent)
+MESHD_PORT=8081
+
+# Infrastructure agent endpoint (for health checks, status)
+INFRA_AGENT_URL=http://localhost:7700
+
+# Compositor deploy target (Cloudflare Worker)
+CF_ACCOUNT_ID=
+CF_API_TOKEN=
+
+# Zulip notifications (optional)
+ZULIP_URL=
+ZULIP_EMAIL=
+ZULIP_API_KEY=
+
+# SSH host for this agent's machine (configure per deployment)
+AGENT_HOST=localhost
+AGENT_SSH_PORT=22

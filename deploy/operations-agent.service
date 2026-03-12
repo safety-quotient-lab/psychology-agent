@@ -1,0 +1,22 @@
+[Unit]
+Description=Operations Agent meshd (safety-quotient mesh)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=%i
+WorkingDirectory=/home/%i/operations-agent
+ExecStart=/home/%i/operations-agent/meshd
+Restart=always
+RestartSec=5
+EnvironmentFile=/home/%i/operations-agent/.dev.vars
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/%i/operations-agent
+
+[Install]
+WantedBy=multi-user.target
