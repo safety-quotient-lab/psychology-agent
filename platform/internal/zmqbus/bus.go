@@ -9,10 +9,12 @@
 package zmqbus
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"strings"
 	"sync"
 	"time"
@@ -32,6 +34,7 @@ type Message struct {
 type PeerInfo struct {
 	AgentID  string `json:"agent_id"`
 	ZMQPub   string `json:"zmq_pub"`
+	HTTPURL  string `json:"http_url,omitempty"`
 	CardURL  string `json:"card_url,omitempty"`
 	SeenAt   string `json:"seen_at,omitempty"`
 }
@@ -40,6 +43,7 @@ type PeerInfo struct {
 type Bus struct {
 	agentID  string
 	pubAddr  string
+	httpURL  string // our HTTP base URL for reverse-registration
 	pub      zmq4.Socket
 	peers    map[string]*peerConn
 	mu       sync.RWMutex
@@ -53,25 +57,44 @@ type peerConn struct {
 	sub  zmq4.Socket
 }
 
-// New creates a ZMQ bus. pubAddr is the PUB socket bind address (e.g. "tcp://*:9001").
-func New(agentID, pubAddr string) *Bus {
+// New creates a ZMQ bus. pubAddr is the PUB socket bind address (e.g. "tcp://127.0.0.1:9001").
+// httpURL is our own HTTP base URL (e.g. "http://localhost:8076") for reverse-registration.
+func New(agentID, pubAddr, httpURL string) *Bus {
 	ctx, cancel := context.WithCancel(context.Background())
 	return &Bus{
 		agentID: agentID,
 		pubAddr: pubAddr,
+		httpURL: httpURL,
 		peers:   make(map[string]*peerConn),
 		ctx:     ctx,
 		cancel:  cancel,
 	}
 }
 
-// Start binds the PUB socket and begins listening.
+// Start binds the PUB socket and begins periodic gossip heartbeat.
 func (b *Bus) Start() error {
 	b.pub = zmq4.NewPub(b.ctx)
 	if err := b.pub.Listen(b.pubAddr); err != nil {
 		return fmt.Errorf("zmq pub listen %s: %w", b.pubAddr, err)
 	}
 	log.Printf("[zmq] PUB listening on %s", b.pubAddr)
+
+	// Periodic gossip heartbeat — ensures bidirectional discovery.
+	// When B connects to A and subscribes, A's heartbeat reaches B,
+	// and B's heartbeat reaches A (once A subscribes back via gossip).
+	go func() {
+		ticker := time.NewTicker(30 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-b.ctx.Done():
+				return
+			case <-ticker.C:
+				b.gossipAnnounce()
+			}
+		}
+	}()
+
 	return nil
 }
 
@@ -139,8 +162,20 @@ func (b *Bus) ConnectPeer(info PeerInfo) error {
 	// Start receiving in background
 	go b.recvLoop(pc)
 
-	// Gossip: announce our known peers to the new peer
-	go b.gossipAnnounce()
+	// Gossip: announce our known peers after SUB handshake settles.
+	// ZMQ SUB connections need a brief moment to establish before
+	// published messages reach the subscriber ("slow joiner" problem).
+	go func() {
+		time.Sleep(500 * time.Millisecond)
+		b.gossipAnnounce()
+	}()
+
+	// Reverse-register: tell the peer about ourselves via their HTTP API.
+	// PUB/SUB only goes publisher→subscriber, so the peer can't detect our
+	// subscription. This HTTP call completes the bidirectional handshake.
+	if info.HTTPURL != "" {
+		go b.reverseRegister(info)
+	}
 
 	return nil
 }
@@ -207,6 +242,63 @@ func (b *Bus) gossipAnnounce() {
 	}
 	peers = append(peers, self)
 	b.Publish("peer", peers)
+}
+
+// SelfInfo returns this node's PeerInfo for registration with peers.
+func (b *Bus) SelfInfo() PeerInfo {
+	return PeerInfo{
+		AgentID: b.agentID,
+		ZMQPub:  b.pubAddr,
+		HTTPURL: b.httpURL,
+		SeenAt:  time.Now().UTC().Format(time.RFC3339),
+	}
+}
+
+// RegisterPeer handles an inbound peer registration (called from HTTP handler).
+// Returns true if a new peer was discovered and connected.
+func (b *Bus) RegisterPeer(info PeerInfo) bool {
+	if info.AgentID == b.agentID || info.ZMQPub == "" {
+		return false
+	}
+
+	b.mu.RLock()
+	_, known := b.peers[info.AgentID]
+	b.mu.RUnlock()
+
+	if known {
+		return false
+	}
+
+	log.Printf("[zmq] register: new peer %s at %s (via HTTP)", info.AgentID, info.ZMQPub)
+	go b.ConnectPeer(info)
+	return true
+}
+
+// reverseRegister announces ourselves to a peer via their HTTP API.
+func (b *Bus) reverseRegister(peer PeerInfo) {
+	self := b.SelfInfo()
+	body, err := json.Marshal(self)
+	if err != nil {
+		return
+	}
+
+	url := strings.TrimSuffix(peer.HTTPURL, "/") + "/api/zmq/register"
+	ctx, cancel := context.WithTimeout(b.ctx, 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("[zmq] reverse-register to %s failed: %v", peer.AgentID, err)
+		return
+	}
+	resp.Body.Close()
+	log.Printf("[zmq] reverse-registered with %s", peer.AgentID)
 }
 
 // handleGossip processes a peer announcement and connects to unknown peers.
