@@ -1,0 +1,111 @@
+{
+  "$schema": "cogarch-config/v1",
+  "_description": "Template cogarch config for new agents. Replace all {PLACEHOLDER} values with your agent's identity, organization, and domain content. See docs/cogarch-adaptation-guide.md for the full replacement path.",
+
+  "system_classification": "embedded cognitive system",
+  "methodology": {
+    "name": "systems thinking",
+    "references": ["von Bertalanffy, 1968", "Meadows, 2008"],
+    "principles": {
+      "structural": "Domain-Driven Design (Evans, 2003)",
+      "expression": "Literate programming (Knuth, 1984, adapted: A+C)",
+      "deployment": "Embedded system principles"
+    },
+    "degrees_of_freedom": {
+      "_description": "Each DDD layer exposes a distinct gradient of independent configurable parameters. High DOF = adopters replace; low DOF = adopters inherit (leverage points — Meadows, 1999).",
+      "domain_layer": "high — identity, org, peers, scoring, domain content (cogarch.config.json)",
+      "application_layer": "medium — skills, evaluator, trust model (behavioral parameters)",
+      "infrastructure_layer": "low — triggers, hooks, memory, dual-write (leverage points)"
+    }
+  },
+
+  "identity": {
+    "agent_id": "{AGENT_ID}",
+    "display_name": "{DISPLAY_NAME}",
+    "role": "{ROLE_DESCRIPTION}",
+    "description": "{AGENT_DESCRIPTION}",
+    "model": "claude-opus-4-6",
+    "instance_label": "Claude Code (Opus 4.6), Linux amd64",
+    "stance": "socratic",
+    "schemas_supported": ["interagent/v1", "command-request/v1", "local-coordination/v1"],
+    "capabilities": [
+      "{CAPABILITY_1}",
+      "{CAPABILITY_2}"
+    ],
+    "inspirations": {
+      "_description": "Creative and philosophical influences that shape communication style, narrative approach, and epistemological stance. Replace with the agent's own influences, or remove entirely.",
+      "authors": [],
+      "principles": []
+    }
+  },
+
+  "organization": {
+    "name": "Safety Quotient Lab",
+    "github_handle": "safety-quotient-lab",
+    "url": "https://github.com/safety-quotient-lab",
+    "primary_repo": "{AGENT_ID}",
+    "documentation_url": "https://github.com/safety-quotient-lab/{AGENT_ID}"
+  },
+
+  "infrastructure": {
+    "worker_url": null,
+    "worker_agent_card_path": "/.well-known/agent-card.json",
+    "production_endpoint": null,
+    "hosting": {
+      "provider": null,
+      "note": "Set when the agent deploys a runtime service"
+    }
+  },
+
+  "scoring_subsystem": {
+    "enabled": false,
+    "_note": "Set enabled=true and fill in routes/dimensions if this agent runs a scoring or inference service. Most agents leave this disabled."
+  },
+
+  "peers": {
+    "_description": "Registered agents in the mesh. Add entries for each peer this agent communicates with.",
+    "agents": {},
+    "outbound_routing_domains": []
+  },
+
+  "sub_projects": [],
+
+  "facets": {
+    "_description": "Vocabulary for the polythematic facet system. Replace with domain-appropriate values.",
+    "topic_domain_map": {
+      "decisions": "design",
+      "cogarch": "cognitive-architecture"
+    },
+    "default_domain": "operations",
+    "work_stream_prefixes": {},
+    "agent_detection_patterns": {
+      "_description": "Substring patterns matched against entry_key + value to assign agent facets. Order matters — first match wins.",
+      "patterns": [],
+      "default_agent": "{AGENT_ID}"
+    }
+  },
+
+  "transport": {
+    "method": "git-PR",
+    "repo_url": "https://github.com/safety-quotient-lab/{AGENT_ID}",
+    "sessions_path": "transport/sessions/",
+    "manifest_path": "transport/MANIFEST.json",
+    "naming_convention": "transport/sessions/{session-name}/{direction}-{descriptor}-{sequence}.json",
+    "agent_card_path": ".well-known/agent-card.json"
+  },
+
+  "project_tracking": {
+    "enabled": false,
+    "provider": "github-projects",
+    "project_number": null,
+    "owner": "safety-quotient-lab"
+  },
+
+  "domain_content": {
+    "_description": "References to domain-specific content. Replace with this agent's domain documents and constructs.",
+    "system_prompt_file": null,
+    "system_prompt_constant": null,
+    "domain_docs": [],
+    "domain_constructs": []
+  }
+}

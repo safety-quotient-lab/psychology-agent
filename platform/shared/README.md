@@ -26,9 +26,13 @@ platform/shared/
 │   ├── mesh-status.py          # Mesh status reporter
 │   └── verify_shared_scripts.py # Shared script integrity checker
 │
-└── cogarch/          # Cogarch templates — agent defaults
-    ├── cognitive-triggers.md   # T1–T17 trigger definitions (canonical)
-    └── rules/                  # Glob-scoped rule files
+└── cogarch/          # Cogarch templates — agent defaults + standup kit
+    ├── cognitive-triggers.md         # T1–T16 trigger definitions (T15 = domain slot)
+    ├── cogarch.config.template.json  # Skeleton config with {PLACEHOLDER} values
+    ├── CLAUDE.md.template            # Starter project instructions for new agents
+    ├── hooks-manifest.md             # Hook classification + identity replacement guide
+    ├── lessons.md.example            # Lessons format stub (gitignored at runtime)
+    └── rules/                        # Glob-scoped rule files
         ├── anti-patterns.md    # Known-failing approaches
         ├── evaluation.md       # Measurement methodology conventions
         ├── javascript.md       # CF Worker / Agent SDK patterns
@@ -69,6 +73,25 @@ Each agent gets the shared cogarch as defaults. To customize:
 
 3. **Agent-specific scripts** — keep in the agent's local `scripts/` directory.
    These coexist with the symlinks to platform shared scripts.
+
+## New Agent Standup
+
+The `cogarch/` directory contains a complete standup kit for new agents.
+Use these templates when creating a new agent in the mesh:
+
+1. Copy `cogarch.config.template.json` → agent repo `cogarch.config.json`,
+   replace all `{PLACEHOLDER}` values
+2. Copy `CLAUDE.md.template` → agent repo `CLAUDE.md`, fill in agent-specific
+   sections
+3. Copy `cognitive-triggers.md` → agent repo `docs/cognitive-triggers.md`,
+   replace T15 domain slot with agent-specific subsystem checks
+4. Copy `rules/` → agent repo `.claude/rules/`
+5. Copy hooks per `hooks-manifest.md` → agent repo `.claude/hooks/`,
+   run identity replacement (`sed -i 's/psychology-agent/{AGENT_ID}/g'`)
+6. Copy `lessons.md.example` → agent repo root
+7. Run verification checklist from `docs/cogarch-adaptation-guide.md`
+
+Full adaptation guide: `docs/cogarch-adaptation-guide.md` (7 steps, 4 tiers).
 
 ## Updating Shared Scripts
 

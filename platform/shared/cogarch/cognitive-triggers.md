@@ -497,52 +497,31 @@ stop and report to user.
 
 ---
 
-## T15: PSQ v3 Output Enters Context
+## T15: Domain-Specific Output Enters Context (SLOT — replace per agent)
 
-**Fires**: When machine-response/v3 output from the PSQ sub-agent enters context
-— as an interagent message, API response from `/psq/score`, or embedded JSON
-block extracted from the agent stream
+**Fires**: When domain-specific subsystem output enters context — as an
+interagent message, API response, or embedded data block extracted from
+the agent stream
 
-**Checks**:
-1. **Composite citation gate** — before citing the PSQ composite score, check
-   `scores.psq_composite.status`. Permissible cite values: `"scored"` only.
-   If status is `"excluded"` or `"fallback"` (50/100 default), MUST NOT cite
-   the composite as a meaningful result. MUST state the exclusion reason instead
-2. **Anti-calibration known issue** — raw confidence values in v3 dimensions are
-   anti-calibrated (all 10 dims return < 0.6 regardless of text content). This
-   is an expected model limitation, not an error. MUST NOT cite raw confidence
-   as a reliability indicator. MUST use `dimensions[].meets_threshold` (r-based proxy,
-   r ≥ 0.6) as the per-dimension reliability signal
-3. **Scale discipline** — dimension scores are 0–10; psq_composite is 0–100;
-   hierarchy factor scores (factors_2/3/5, g_psq) are 0–10. MUST NOT mix
-   scales when comparing or reporting. MUST confirm scale before arithmetic
-   on PSQ values
-4. **PSQ-Lite mapping confidence discipline** — the mapping of PSQ-Full 10-dim
-   names to observatory PSQ-Lite 3-dim names is a semantic inference
-   (confidence: 0.70, confirmed by observatory-agent 2026-03-05). MUST NOT
-   elevate above 0.70 without independent validation. When citing the mapping,
-   state its basis ("semantic inference from dimension names, not validated
-   decomposition")
-5. **Information-loss flag (PSQ-Lite triage)** — PSQ-Lite covers 3 dimensions
-   (threat_exposure, hostility_index, trust_conditions). The 7 PSQ-Full
-   dimensions outside PSQ-Lite may carry the dominant clinical signal for
-   certain text types (e.g. energy_dissipation for depletion/overwhelm). When
-   relaying PSQ-Lite scores as a triage output, flag the 7-dim coverage gap
-   explicitly. MUST NOT treat PSQ-Lite triage as a complete psychoemotional
-   safety assessment
-6. **WEIRD distribution flag** — PSQ-Full trained on Dreaddit (Reddit stress
-   posts). When scoring text outside this distribution (clinical text,
-   non-English, non-Western, formal/professional), surface the WEIRD assumption.
-   MUST NOT use PSQ scores for clinical decision support without this flag
+**Template checks** (adapt to your domain subsystem):
+1. **Output validity gate** — verify the output carries a valid status before
+   citing. If the output carries a fallback or error status, MUST NOT cite the
+   value as a meaningful result. MUST state the limitation instead
+2. **Known calibration issues** — document any known calibration gaps in your
+   subsystem. MUST NOT cite raw values as reliable when calibration issues exist
+3. **Scale discipline** — if multiple scales or units exist in subsystem output,
+   MUST confirm the scale before performing arithmetic or comparison
+4. **Distribution assumptions** — if the subsystem trained on a specific population
+   or data distribution, surface the assumption when scoring data outside that
+   distribution
 
-**Action**: MUST apply checks before relaying, citing, or reasoning from PSQ v3
-output. If composite is excluded/fallback, MUST surface the limitation explicitly
-rather than citing the number. Check 2 is REQUIRED for any response that discusses
-PSQ confidence values.
+**Action**: MUST apply domain-specific checks before relaying, citing, or reasoning
+from subsystem output. If output carries an invalid status, MUST surface the
+limitation explicitly rather than citing the number.
 
-**Provenance**: Derived from live psq-agent exchange (psq-endpoint-001.json,
-2026-03-06) + observatory-agent psq-lite-response-001.json (2026-03-05) +
-machine-response-v3-spec.md standard limitations block.
+**Reference implementation**: psychology-agent T15 (PSQ v3 output) applies 6 checks
+covering composite citation, anti-calibration, scale discipline, mapping confidence,
+information-loss flags, and WEIRD distribution assumptions.
 
 ---
 

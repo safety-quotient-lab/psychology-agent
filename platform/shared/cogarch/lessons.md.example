@@ -1,0 +1,52 @@
+# Lessons to Learn — Format Template
+
+This file is the tracked stub for `lessons.md`, which is personal and not
+git-tracked. Add `lessons.md` to `.gitignore` when git is initialized.
+
+The agent writes to `lessons.md` (not this file) when a pattern worth
+internalizing surfaces. The format below is the standard entry structure.
+
+**Schema fields** (YAML-style frontmatter) enable machine retrieval and pattern
+matching across lessons. The narrative fields below the frontmatter preserve
+human-readable context. Both are required — the frontmatter classifies, the
+narrative explains.
+
+**Promotion lifecycle:** When 3+ lessons share the same `pattern_type` or
+`domain`, they become candidates for promotion to a CLAUDE.md convention or
+a cogarch trigger. Flag with `[→ PROMOTE]` and note the target (CLAUDE.md
+section or T-number). See TODO.md "Graduated document promotion" for the
+full lifecycle spec.
+
+---
+
+## YYYY-MM-DDTHH:MM TZ — [Lesson Title]
+
+```yaml
+pattern_type: [reasoning-error | process-failure | architecture-insight | communication-gap | tooling-discovery | structural-disagreement]
+domain: [cogarch | memory | sub-agent | evaluation | documentation | security | workflow]
+severity: [low | medium | high]
+recurrence: 1           # increment on each re-encounter
+first_seen: null         # ISO date of first occurrence (set on creation)
+last_seen: null          # ISO date of most recent recurrence (updated on each increment)
+trigger_relevant: null   # T-number if this maps to a trigger improvement, else null
+promotion_status: null   # null | candidate | promoted | retired
+```
+
+*(Run `date '+%Y-%m-%dT%H:%M %Z'` before writing. Full timestamp required —
+time-between-lessons is a meaningful metric. Existing entries may show date-only.)*
+
+**The lesson:** [One-sentence statement of the transferable principle.]
+
+**The tell:** [How to recognize this pattern early — a linguistic or structural
+signal that flags the error before it's committed.]
+
+**The diagnostic:** [A question to ask yourself to catch it in the moment.]
+
+**Where it appeared:** [The specific instance that surfaced the lesson — enough
+context to reconstruct why it mattered.]
+
+**Where you already solved it:** [If applicable — a prior instance where the
+right move was already made. Connects the lesson to existing knowledge.]
+
+**Domains where this recurs:** [Other contexts where the same pattern applies,
+to support transfer.]
