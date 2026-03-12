@@ -677,3 +677,15 @@ auto-restart loops. None had monitoring — all required manual discovery.
 - [x] **Move pre_sync_check.py + issue_lifecycle.py to shared scripts** —
   COMPLETE (Session 73). Moved to `platform/shared/scripts/` with symlinks from
   `scripts/`. Safe project root resolution added (walks up from apparent location).
+
+---
+
+## D1 Cost Optimization
+
+- [ ] **D1 aggregation pipeline on cabinet** — pull-aggregate-purge cycle: D1 raw
+  data → cabinet SQLite (daily rollups), then purge raw rows past retention window
+  (7 days story_snapshots, 14 days events). Scoped via transport message to
+  claude-control (cabinet-infrastructure session, turn 1). Reusable binary opportunity
+  identified — generic table-processing, project-specific via config.
+  *Precondition: claude-control agent activated with transport path configured*
+  *Transport: transport/sessions/cabinet-infrastructure/to-claude-control-001.json*

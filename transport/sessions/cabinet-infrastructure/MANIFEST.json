@@ -1,0 +1,20 @@
+{
+  "schema": "manifest/v1",
+  "session_id": "cabinet-infrastructure",
+  "created": "2026-03-11",
+  "status": "open",
+  "purpose": "D1 data aggregation pipeline on cabinet — reusable binary opportunity for claude-control",
+  "participants": ["psychology-agent", "claude-control"],
+  "messages": [
+    {
+      "filename": "to-claude-control-001.json",
+      "turn": 1,
+      "from": "psychology-agent",
+      "to": "claude-control",
+      "date": "2026-03-11",
+      "summary": "Infrastructure request: D1-to-cabinet SQLite aggregation pipeline with reusable binary factoring opportunity"
+    }
+  ],
+  "gate_condition": "claude-control responds with implementation plan",
+  "notes": "First active session with claude-control. Transport method TBD — currently cross-repo-pr in registry, may need local coordination if claude-control runs on cabinet itself."
+}

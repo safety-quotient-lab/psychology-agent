@@ -18,21 +18,21 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 77. psq-sub-agent → psq-agent identity migration complete.
-Observatory hybrid architecture resolved (SQLite transport + D1 monitoring). D1
-aggregation pipeline scoped and delegated to claude-control (cabinet-infrastructure
-session). Triple-write backfill + session-close integrated into autonomous-sync.sh.
+**Where we stopped:** Session 76. meshd systemd supervision deployed — all 4 instances
+under `Restart=always` + `enable-linger`. Self-readiness audit consensus message created
+(`from-human-001.json`), needs commit/push/deploy. PSQ meshd path corrected
+(`psychology-sqlab`, not `safety-quotient`).
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- meshd: ✓ All 4 running under systemd `[warm]`
-- CI/CD: ✓ Tier 1 + Tier 2 operational `[warm]`
-- Transport: ✓ cross_repo_fetch inbound filter fixed (from-{agent_id}-) `[warm]`
-- Self-readiness audit: ⚑ Deployed, awaiting round 2 peer responses `[warm]`
-- D1 optimization: ⚑ Blocked on claude-control activation `[cold]`
-- Compositor: ✓ 5 tabs + GH issue links in Messages table `[warm]`
+- meshd: ✓ All 4 running under systemd, version `69c7dea` `[warm]`
+- CI/CD: ✓ Tier 1 + Tier 2 operational. PSQ model deploy parameterized `[warm]`
+- Transport: ✓ Materialization operational (--index implies --materialize) `[warm]`
+- Self-readiness audit: ⚑ Message created, not yet deployed `[cold]`
+- Compositor: ✓ 5 tabs, LCARS spine, deep links `[warm]`
 - DI Phase A Pass 2: pending `[cold]`
 
-**Next:** Await round 2 audit responses. DevOps/IT installation guide. DI Phase A Pass 2.
+**Next:** Deploy self-readiness audit + realtime monitoring. DevOps/IT installation guide.
+DI Phase A Pass 2.
 
 
 ## Memory Hygiene
