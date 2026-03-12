@@ -7,6 +7,17 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ## Architecture
 
+- [ ] **Internal code naming convention reform** — replace single-letter abbreviations
+  (T1, D1, F3, etc.) with human-readable codes. Two candidates under adjudication:
+  (a) 6-char mnemonic: `TRGSRT-1` (trigger-session-start), `DATCON-1` (data-constraint),
+  `FNDBLK-3` (finding-blocker) — token-efficient, grep-friendly;
+  (b) full kebab-case: `trigger-session-start-1`, `data-constraint-1`, `finding-blocker-3`
+  — self-documenting, no lookup table needed.
+  CLAUDE.md already exempts internal codes from semantic naming ("T-numbers, internal
+  enums, machine-only field values may use compact identifiers") — this reform would
+  narrow that exemption. Scope: T-numbers, D-numbers, F-numbers, FA-numbers, PL-codes.
+  *Precondition: /adjudicate to resolve naming convention*
+
 - [ ] **Re-add parry injection defense** — removed Session 56 due to permission prompt
   interference (anthropics/claude-code #32596). Re-add when upstream bug resolved.
   Re-enable checklist: (1) install parry, (2) restore hook entries to settings.json
