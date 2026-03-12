@@ -2146,3 +2146,36 @@ The tables exist, the write paths work, the schemas validate — but the system 
 unmonitored. The /diagnose skill created this session exists precisely to make this gap visible
 before it compounds further. Running it periodically catches the drift between architecture
 (what we designed) and telemetry (what we actually measure).
+
+
+## 55. Closing the Loop: From Data Collection to Data Action {#55-closing-the-loop}
+
+Session 79 addressed the monitoring gap identified in §54 by building the consumption
+side of two pipelines: claims verification and epistemic flag resolution.
+
+The claims pipeline applies conservative criteria — confidence at or above 0.9, non-empty
+basis text, and a processed source transport message — deliberately leaving 101 of 371
+claims unverified. The conservative threshold reflects an epistemic choice: a claim with
+high confidence but no stated basis lacks evidential warrant regardless of its numerical
+score. The pipeline rejects the assumption that confidence equals correctness. Of the 270
+claims that passed, each carried both a quantitative signal (confidence ≥ 0.9) and a
+qualitative one (basis text explaining why).
+
+The flag resolution pipeline operates on a simpler principle: when the session that
+produced an epistemic flag completes its work, the flag resolves — not because the
+uncertainty disappeared, but because the session's completed work either addressed or
+explicitly accepted the uncertainty. A second resolution method handles orphaned flags
+whose sources predate state.db indexing. Both methods record provenance (`session-completed`
+or `orphan-source`) in a new `resolved_by` column (schema v21), preserving the chain of
+resolution reasoning.
+
+The Solid-OIDC authentication design represents the project's first direction-setting
+decision for public client access. The stack — OAuth 2.0 → OpenID Connect → DPoP (RFC
+9449, Fett et al., 2023) → Solid-OIDC — arrives through alignment analysis with Solid
+pod architecture, where pods provide both authenticated storage and identity resolution.
+The phased rollout (anonymous → API keys → Solid-OIDC → tiered) enables incremental
+migration without forcing an immediate protocol change. The design document records not
+just the choice but the rationale: why Solid-OIDC over plain OIDC (pod storage as data
+architecture, not just auth), why Community Solid Server (dual IdP + storage role
+eliminates a separate auth service), and where the risks concentrate (spec at v0.1.0
+draft, DPoP validation complexity in CF Workers).

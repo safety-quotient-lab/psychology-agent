@@ -1,7 +1,7 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-11T21:53:53",
+  "generated_at": "2026-03-11T23:07:09",
   "source": "scripts/generate_manifest.py",
   "pending": {},
   "session_renames": {
