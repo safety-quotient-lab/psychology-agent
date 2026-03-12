@@ -20,21 +20,21 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 83. Crystallized sync all 7 steps implemented + deployed
-to chromabook. Operations-agent turns 4-6 complete (bootstrapped, meshd on :8081).
+**Where we stopped:** Session 82. Cogarch template done. R3 gate resolved (Option A).
+Psychology-agent R4 vote: READY. /cycle complete.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- Crystallized sync: ✓ Steps 1-7 complete + deployed. 52% rate on 123 msgs `[warm]`
-- agentdb: ✓ Phases 1-5 complete. Phase 6 (Python cleanup) eligible 2026-03-19 `[warm]`
-- Operations-agent: ✓ Turns 1-6 done. Cogarch adaptation pending `[hot]`
-- Self-readiness audit: ⚑ R4 — psychology-agent READY, psq-agent 4A blocks closure `[hot]`
-- ZMQ transport: feat/zmq-transport branch in progress `[cold]`
-- meshd: ✓ All 5 (incl operations-agent) running under systemd `[warm]`
+- agentdb: ✓ Phases 1-4 complete. Phase 5 (deploy) + Phase 6 (cleanup) pending `[warm]`
+- Cogarch template: ✓ 6 files in platform/shared/cogarch/ — ready for operations-agent `[warm]`
+- Operations-agent: ✓ All 6 questions resolved. Awaiting claude-control ACK (no turn 4 yet) `[hot]`
+- Self-readiness audit: ⚑ R4 in progress — psychology-agent READY, psq-agent 4A pending `[hot]`
+- Messaging layer: ⚑ Deferred — candidates MQTT/ZeroMQ, blocked on cabinet `[cold]`
+- meshd: ✓ All 4 running under systemd `[warm]`
 
 **Next session priorities:**
-1. Monitor psq-agent 4A remediation for R4 closure
-2. SSE dashboard replacement (user request — HIGH)
-3. Monitor operations-agent cogarch adaptation
+1. agentdb Phase 5 deploy (cross-compile, SCP, update autonomous-sync.sh)
+2. Monitor claude-control response to operations-agent standup
+3. Monitor psq-agent 4A remediation for R4 closure
 
 
 ## Memory Hygiene
