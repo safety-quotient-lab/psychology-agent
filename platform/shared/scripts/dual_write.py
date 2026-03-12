@@ -82,16 +82,32 @@ def get_connection() -> sqlite3.Connection:
 
 def cmd_transport_message(args: argparse.Namespace) -> None:
     conn = get_connection()
+    # Ensure issue columns exist (v18 migration for existing DBs)
+    for col, col_type, default in [
+        ("issue_url", "TEXT", "NULL"),
+        ("issue_number", "INTEGER", "NULL"),
+        ("issue_pending", "INTEGER", "0"),
+    ]:
+        try:
+            conn.execute(
+                f"ALTER TABLE transport_messages ADD COLUMN {col} {col_type} DEFAULT {default}"
+            )
+        except sqlite3.OperationalError:
+            pass  # column already exists
     conn.execute("""
         INSERT OR REPLACE INTO transport_messages
             (session_name, filename, turn, message_type, from_agent, to_agent,
-             timestamp, subject, claims_count, setl, urgency, processed, processed_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE, NULL)
+             timestamp, subject, claims_count, setl, urgency, processed, processed_at,
+             issue_url, issue_number, issue_pending)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE, NULL, ?, ?, ?)
     """, (
         args.session, args.filename, args.turn, args.type,
         args.from_agent, args.to_agent, args.timestamp,
         args.subject or "", args.claims_count or 0,
-        args.setl, args.urgency or "normal"
+        args.setl, args.urgency or "normal",
+        getattr(args, "issue_url", None),
+        getattr(args, "issue_number", None),
+        1 if getattr(args, "issue_pending", False) else 0,
     ))
     conn.commit()
     conn.close()
@@ -468,6 +484,10 @@ def main() -> None:
     tp.add_argument("--claims-count", type=int)
     tp.add_argument("--setl", type=float)
     tp.add_argument("--urgency")
+    tp.add_argument("--issue-url", help="GitHub issue URL (triple-write cross-ref)")
+    tp.add_argument("--issue-number", type=int, help="GitHub issue number")
+    tp.add_argument("--issue-pending", action="store_true",
+                    help="Flag for backfill sweep if issue creation failed")
 
     # mark-processed
     mp = sub.add_parser("mark-processed", help="Mark a transport message as processed")
