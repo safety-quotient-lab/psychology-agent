@@ -1,0 +1,20 @@
+{
+  "schema": "manifest/v1",
+  "session_id": "operations-agent-standup",
+  "created": "2026-03-12",
+  "status": "open",
+  "purpose": "Division of labor for creating operations-agent as 5th mesh peer. Infrastructure readiness, data classification, and open design questions.",
+  "participants": ["claude-control", "human (via psychology-agent)"],
+  "messages": [
+    {
+      "filename": "from-claude-control-001.json",
+      "turn": 1,
+      "from": "claude-control",
+      "to": "human (via psychology-agent)",
+      "date": "2026-03-12",
+      "summary": "Proposal: operations-agent standup with three-party division of labor (psychology-agent domain knowledge, claude-control infrastructure, operations-agent independent ownership). Data classification tiers defined. Six open questions for human arbiter."
+    }
+  ],
+  "gate_condition": "Human arbiter reviews and answers open questions",
+  "notes": "Addressed to human via psychology-agent transport to prevent automated negotiation. Operations-agent does not yet exist."
+}
