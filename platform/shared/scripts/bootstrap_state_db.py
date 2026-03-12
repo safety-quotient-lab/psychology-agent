@@ -14,13 +14,14 @@ missing or corrupt.
 import argparse
 import datetime as _dt
 import json
+import os
 import re
 import sqlite3
 import sys
 from datetime import date
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).parent.parent
+PROJECT_ROOT = Path(os.environ["PROJECT_ROOT"]) if "PROJECT_ROOT" in os.environ else Path(__file__).resolve().parent.parent
 DB_PATH = PROJECT_ROOT / "state.db"
 SCHEMA_PATH = PROJECT_ROOT / "scripts" / "schema.sql"
 
@@ -251,6 +252,14 @@ def load_transport_messages(conn: sqlite3.Connection) -> tuple[int, int]:
     for json_file in sorted(transport_root.glob("**/*.json")):
         # Skip MANIFEST files — session metadata, not transport messages
         if json_file.name == "MANIFEST.json":
+            continue
+        # Skip addressed-copy files (Convention B: to-{agent}-NNN.json).
+        # These are routing artifacts — copies of a source message addressed
+        # to a specific agent. Indexing them creates duplicate turn numbers
+        # in state.db because they share the turn of their source message.
+        # The source message (from-{agent}-NNN.json or from-human-NNN.json)
+        # is the canonical record.
+        if json_file.name.startswith("to-"):
             continue
         try:
             raw = json_file.read_text(encoding="utf-8")
