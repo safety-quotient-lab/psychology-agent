@@ -759,8 +759,12 @@ run_sync() {
     # Generate orientation payload from state.db (--no-cache: cross_repo_fetch
     # may have updated state.db since the last cached orientation)
     local orientation
+    local orientation_flags="--agent-id ${AGENT_ID} --no-cache"
+    if [ -n "${needs_llm_count}" ]; then
+        orientation_flags="${orientation_flags} --post-triage"
+    fi
     orientation=$(python3 "${PROJECT_ROOT}/scripts/orientation-payload.py" \
-        --agent-id "${AGENT_ID}" --no-cache 2>/dev/null) || {
+        ${orientation_flags} 2>/dev/null) || {
         err "orientation-payload.py failed — proceeding with bare /sync"
         orientation=""
     }
@@ -993,15 +997,94 @@ main() {
         fi
     fi
 
-    # Pre-flight check: skip expensive claude invocation if nothing changed.
-    # Still invoke if: transport changed, gates active, wake signal, or
-    # unprocessed messages exist in state.db (after cross-repo index + auto-process).
+    # ── Crystallized pre-processing ──────────────────────────────────────
+    # Deterministic triage + auto-ACK + gate resolve BEFORE the LLM sees anything.
+    # Cattell (1971): crystallized operations execute without fluid reasoning.
+    # Design: docs/crystallized-sync-spec.md §4
+    local needs_llm_count=""
+    if [ -x "${AGENTDB}" ]; then
+        # Step 1: Triage all unprocessed messages
+        local triage_result
+        triage_result=$("${AGENTDB}" triage --scan 2>/dev/null)
+        local triage_exit=$?
+        if [ ${triage_exit} -eq 0 ] && [ -n "${triage_result}" ]; then
+            local auto_ack_count
+            auto_ack_count=$(echo "${triage_result}" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+print(d.get('dispositions', {}).get('auto-ack', 0))
+" 2>/dev/null || echo "0")
+            needs_llm_count=$(echo "${triage_result}" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+print(d.get('dispositions', {}).get('needs-llm', 0))
+" 2>/dev/null || echo "0")
+            local auto_skip_count
+            auto_skip_count=$(echo "${triage_result}" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+print(d.get('dispositions', {}).get('auto-skip', 0))
+" 2>/dev/null || echo "0")
+            local auto_record_count
+            auto_record_count=$(echo "${triage_result}" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+print(d.get('dispositions', {}).get('auto-record', 0))
+" 2>/dev/null || echo "0")
+            log "Triage: ${auto_skip_count} skip, ${auto_ack_count} auto-ack, ${auto_record_count} record, ${needs_llm_count} needs-llm"
+
+            # Step 2: Generate template ACKs for auto-ack disposition messages
+            if [ "${auto_ack_count}" -gt 0 ]; then
+                local ack_result
+                ack_result=$("${AGENTDB}" ack --auto 2>/dev/null) || true
+                if [ -n "${ack_result}" ]; then
+                    local ack_generated
+                    ack_generated=$(echo "${ack_result}" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+print(d.get('generated', 0))
+" 2>/dev/null || echo "0")
+                    log "Auto-ACK: ${ack_generated} generated"
+                fi
+            fi
+
+            # Step 3: Resolve gates deterministically
+            local gate_result
+            gate_result=$("${AGENTDB}" gate resolve --scan 2>/dev/null) || true
+            if [ -n "${gate_result}" ]; then
+                local gates_resolved
+                gates_resolved=$(echo "${gate_result}" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+print(d.get('resolved', 0))
+" 2>/dev/null || echo "0")
+                if [ "${gates_resolved}" -gt 0 ] 2>/dev/null; then
+                    log "Gate resolve: ${gates_resolved} gates resolved"
+                fi
+            fi
+
+            # Step 4: Regenerate MANIFEST after triage/ACK changes
+            "${AGENTDB}" manifest 2>/dev/null || true
+        else
+            log "WARNING: triage scan failed (exit ${triage_exit}) — falling back to legacy pre-flight"
+        fi
+    fi
+
+    # ── Pre-flight skip check ─────────────────────────────────────────
+    # Uses needs_llm_count from triage when available; falls back to raw
+    # unprocessed_count when agentdb unavailable or triage failed.
     if [ "${TRANSPORT_CHANGED}" = false ] && [ "${GATE_ACCELERATED}" = false ]; then
-        local unprocessed_count
-        unprocessed_count=$(sqlite3 "${DB_PATH}" \
-            "SELECT COUNT(*) FROM transport_messages WHERE processed = FALSE;" 2>/dev/null || echo "0")
-        if [ "${unprocessed_count}" -eq 0 ]; then
-            log "NO-OP — no transport changes, no active gates, no unprocessed messages. Skipping /sync."
+        local substance_count
+        if [ -n "${needs_llm_count}" ]; then
+            substance_count="${needs_llm_count}"
+        else
+            # Legacy fallback: count all unprocessed messages
+            substance_count=$(sqlite3 "${DB_PATH}" \
+                "SELECT COUNT(*) FROM transport_messages WHERE processed = FALSE;" 2>/dev/null || echo "0")
+        fi
+
+        if [ "${substance_count}" -eq 0 ]; then
+            log "NO-OP — all messages handled deterministically. Skipping /sync."
 
             # Push any local changes (heartbeat, mesh-state) without invoking claude
             git_push || true
@@ -1014,7 +1097,7 @@ main() {
             log "=== Autonomous sync cycle complete (no-op, budget: ${budget}, ${cycle_duration}s total) ==="
             exit 0
         fi
-        log "Unprocessed messages found (${unprocessed_count}) — proceeding with /sync"
+        log "Substance messages found (${substance_count}) — proceeding with /sync"
     fi
 
     # Rate-limit cooldown gate: skip claude invocation if cooling down,
