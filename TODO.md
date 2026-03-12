@@ -288,13 +288,12 @@ semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
   per class, audit trail via autonomous_actions, escalation via escalate.py.
   *Precondition: ✓ MET — basic self-healing operational (Session 68)*
 
-- [x] **Batch message triage in autonomous sync** — SUPERSEDED by crystallized
-  sync (Session 83). `agentdb triage --scan` scores all unprocessed messages
-  deterministically (0-100 scale, 4 dispositions). `agentdb ack --auto` generates
-  template ACKs. `agentdb gate resolve --scan` auto-resolves matching gates.
-  Spec: `docs/crystallized-sync-spec.md`. Schema v22. Remaining: autonomous-sync.sh
-  integration (Step 5 of spec), orientation-payload.py --post-triage (Step 6),
-  mesh-status.py crystallization metric (Step 7), cross-compile and deploy to chromabook.
+- [x] **Crystallized sync — deterministic pre-processing** — COMPLETE (Session 83).
+  All 7 steps implemented: `agentdb triage --scan` (scoring), `agentdb ack --auto`
+  (template ACKs), `agentdb gate resolve --scan` (gate resolution), autonomous-sync.sh
+  integration (Step 5), orientation-payload.py `--post-triage` (Step 6), mesh-status.py
+  crystallization metric (Step 7). Spec: `docs/crystallized-sync-spec.md`. Schema v22.
+  Remaining: deploy updated scripts to chromabook.
 
 - [ ] **Autonomous session replay on web** — generate claude-replay HTML for
   every autonomous sync session and serve them on agent dashboards. Approach:

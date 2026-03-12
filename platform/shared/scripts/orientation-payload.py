@@ -8,6 +8,7 @@ Designed for injection into `claude -p` prompts during autonomous sync cycles.
 Usage:
     python3 scripts/orientation-payload.py
     python3 scripts/orientation-payload.py --agent-id psq-agent
+    python3 scripts/orientation-payload.py --post-triage   # after crystallized sync ran
 """
 import json
 import sqlite3
@@ -59,6 +60,46 @@ def unprocessed_messages(conn: sqlite3.Connection) -> list[dict]:
         "ORDER BY timestamp DESC",
     ).fetchall()
     return [dict(r) for r in rows]
+
+
+def triage_summary(conn: sqlite3.Connection) -> dict:
+    """Return triage disposition counts and substance queue after crystallized pre-processing."""
+    result = {"dispositions": {}, "substance_queue": [], "pre_processed": []}
+
+    # Disposition counts (including already-processed auto-skip/auto-ack)
+    rows = conn.execute(
+        "SELECT triage_disposition, COUNT(*) as cnt "
+        "FROM transport_messages "
+        "WHERE triage_disposition IS NOT NULL "
+        "AND triage_at IS NOT NULL "
+        "GROUP BY triage_disposition"
+    ).fetchall()
+    for r in rows:
+        result["dispositions"][r["triage_disposition"]] = r["cnt"]
+
+    # Substance queue: needs-llm messages still unprocessed
+    substance = conn.execute(
+        "SELECT session_name, filename, triage_score, message_type, "
+        "from_agent, subject, urgency "
+        "FROM transport_messages "
+        "WHERE triage_disposition = 'needs-llm' AND processed = FALSE "
+        "ORDER BY triage_score DESC"
+    ).fetchall()
+    result["substance_queue"] = [dict(r) for r in substance]
+
+    # Pre-processed this cycle: auto-skip + auto-ack that triage handled
+    pre = conn.execute(
+        "SELECT triage_disposition, COUNT(*) as cnt, "
+        "GROUP_CONCAT(DISTINCT message_type) as types "
+        "FROM transport_messages "
+        "WHERE triage_disposition IN ('auto-skip', 'auto-ack', 'auto-record') "
+        "AND triage_at IS NOT NULL "
+        "AND processed = TRUE "
+        "ORDER BY triage_disposition"
+    ).fetchall()
+    result["pre_processed"] = [dict(r) for r in pre]
+
+    return result
 
 
 def open_claims(conn: sqlite3.Connection, limit: int = 10) -> list[dict]:
@@ -148,6 +189,7 @@ def format_payload(
     budget: dict | None,
     stale: list,
     gates: list | None = None,
+    triage: dict | None = None,
 ) -> str:
     lines = []
     now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
@@ -202,27 +244,64 @@ def format_payload(
         lines.append(f"  S{sess['id']}: {sess['summary'][:80]}{flag_marker}")
     lines.append("")
 
-    # Unprocessed messages
-    lines.append(f"## Unprocessed Messages ({len(messages)})")
-    if messages:
-        for msg in messages:
-            lines.append(
-                f"  [{msg['urgency']}] {msg['session_name']}/{msg['filename']}"
-            )
-            lines.append(
-                f"    {msg['message_type']} from {msg['from_agent']}: "
-                f"{(msg.get('subject') or 'no subject')[:70]}"
-            )
+    # Unprocessed messages — triage-aware when post-triage data available
+    if triage and triage.get("substance_queue") is not None:
+        # Crystallized sync ran: show pre-processed summary + substance queue
+        disps = triage.get("dispositions", {})
+        pre = triage.get("pre_processed", [])
+        queue = triage.get("substance_queue", [])
+
+        lines.append("## Pre-processed (crystallized)")
+        if pre:
+            for p in pre:
+                lines.append(
+                    f"  {p['cnt']} messages {p['triage_disposition']} "
+                    f"({p.get('types', 'mixed')})"
+                )
+        else:
+            lines.append("  None this cycle.")
+        lines.append("")
+
+        lines.append(f"## Substance Queue ({len(queue)} needs your review)")
+        if queue:
+            for msg in queue:
+                lines.append(
+                    f"  [{msg.get('urgency', 'normal')}] "
+                    f"{msg['session_name']}/{msg['filename']} "
+                    f"(score: {msg['triage_score']})"
+                )
+                lines.append(
+                    f"    {msg.get('message_type', '?')} from "
+                    f"{msg['from_agent']}: "
+                    f"{(msg.get('subject') or 'no subject')[:70]}"
+                )
+        else:
+            lines.append("  None — all messages handled deterministically.")
+        lines.append("")
     else:
-        lines.append("  None — mesh quiescent.")
-    lines.append("")
+        # Legacy path: no triage data, show raw unprocessed
+        lines.append(f"## Unprocessed Messages ({len(messages)})")
+        if messages:
+            for msg in messages:
+                lines.append(
+                    f"  [{msg['urgency']}] {msg['session_name']}/{msg['filename']}"
+                )
+                lines.append(
+                    f"    {msg['message_type']} from {msg['from_agent']}: "
+                    f"{(msg.get('subject') or 'no subject')[:70]}"
+                )
+        else:
+            lines.append("  None — mesh quiescent.")
+        lines.append("")
 
     # Unverified claims (lowest confidence first)
     if claims:
         lines.append(f"## Unverified Claims (lowest confidence, max {len(claims)})")
         for claim in claims:
+            conf = claim['confidence']
+            conf_str = f"{conf:.2f}" if conf is not None else "?"
             lines.append(
-                f"  [{claim['confidence']:.2f}] {claim['from_agent']}/"
+                f"  [{conf_str}] {claim['from_agent']}/"
                 f"{claim['session_name']}: {claim['claim_text'][:70]}"
             )
         lines.append("")
@@ -307,7 +386,12 @@ def main() -> None:
         print(cache_path(agent_id).read_text(), end="")
         return
 
+    # --post-triage reads triage dispositions instead of raw unprocessed list
+    post_triage = "--post-triage" in sys.argv
+
     conn = get_conn()
+
+    triage_data = triage_summary(conn) if post_triage else None
 
     payload = format_payload(
         identity=identity,
@@ -319,6 +403,7 @@ def main() -> None:
         budget=autonomy_budget_status(conn, agent_id),
         stale=stale_memory(conn),
         gates=waiting_gates(conn, agent_id),
+        triage=triage_data,
     )
 
     print(payload)

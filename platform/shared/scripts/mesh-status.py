@@ -631,6 +631,23 @@ def collect_status() -> dict:
             session_messages[sn] = []
         session_messages[sn].append(msg)
 
+    # Crystallization metrics (triage dispositions)
+    triage_stats = query_db(
+        "SELECT triage_disposition, COUNT(*) as cnt "
+        "FROM transport_messages "
+        "WHERE triage_disposition IS NOT NULL "
+        "GROUP BY triage_disposition"
+    )
+    total_triaged = sum(r.get("cnt", 0) for r in triage_stats)
+    crystallized_count = sum(
+        r.get("cnt", 0) for r in triage_stats
+        if r.get("triage_disposition") in ("auto-skip", "auto-ack", "auto-record")
+    )
+    crystallization_rate = (
+        round(crystallized_count / total_triaged * 100, 1)
+        if total_triaged > 0 else 0.0
+    )
+
     # State of Play
     state_of_play = _collect_state_of_play(remote_states, registry_agents)
 
@@ -659,6 +676,12 @@ def collect_status() -> dict:
             "unprocessed": len(unprocessed),
             "active_gates": len(gates),
             "epistemic_flags_unresolved": total_flags,
+        },
+        "crystallization": {
+            "dispositions": {r["triage_disposition"]: r["cnt"] for r in triage_stats},
+            "total_triaged": total_triaged,
+            "crystallized_count": crystallized_count,
+            "rate_percent": crystallization_rate,
         },
         "heartbeat": heartbeat_info,
         "schedule": schedule,
@@ -694,6 +717,7 @@ def _build_jsonld(status: dict) -> dict:
     heartbeat = status.get("heartbeat", {})
     registry = status.get("registry_agents", {})
     collected_at = status.get("collected_at", "")
+    crystal = status.get("crystallization", {})
 
     # Peer agents as related applications
     peers = []
@@ -762,6 +786,8 @@ def _build_jsonld(status: dict) -> dict:
             {"@type": "PropertyValue", "name": "autonomy_budget_current", "value": budget.get("budget_current", "?")},
             {"@type": "PropertyValue", "name": "autonomy_budget_max", "value": budget.get("budget_max", "?")},
             {"@type": "PropertyValue", "name": "collected_at", "value": collected_at},
+            {"@type": "PropertyValue", "name": "crystallization_rate", "value": crystal.get("rate_percent", 0)},
+            {"@type": "PropertyValue", "name": "crystallized_count", "value": crystal.get("crystallized_count", 0)},
         ],
         "relatedLink": [
             f"https://{agent_id}.safety-quotient.dev/api/status",
@@ -1129,6 +1155,7 @@ def render_html(status: dict) -> str:
     last_action = budget.get("last_action", "never")
     consecutive_blocks = budget.get("consecutive_blocks", 0)
     shadow_mode = budget.get("shadow_mode", 0)
+    crystal = status.get("crystallization", {})
 
     # Budget bar
     if isinstance(budget_current, (int, float)) and isinstance(budget_max, (int, float)) and budget_max > 0:
@@ -1586,6 +1613,10 @@ def render_html(status: dict) -> str:
                     <span class="dot {'dot-yellow' if totals.get('active_gates', 0) > 0 else 'dot-gray'}"></span>
                     {totals.get('active_gates', 0)} gates
                 </div>
+                <div class="indicator">
+                    <span class="dot dot-{'green' if crystal.get('rate_percent', 0) > 40 else 'yellow' if crystal.get('total_triaged', 0) > 0 else 'gray'}"></span>
+                    {crystal.get('rate_percent', 0)}% crystallized
+                </div>
                 <div style="color:#484f58">v{status['schema_version']} · {status['collected_at']}</div>
             </div>
         </div>
@@ -1637,6 +1668,11 @@ def render_html(status: dict) -> str:
             <div class="card-label">Consecutive Errors</div>
             <div class="card-value{' alert' if consecutive_blocks and consecutive_blocks > 0 else ' ok'}">{consecutive_blocks}</div>
             <div class="card-detail">{'shadow mode ON' if shadow_mode else 'live mode'}</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Crystallization</div>
+            <div class="card-value{' ok' if crystal.get('rate_percent', 0) > 40 else ''}">{crystal.get('rate_percent', 0)}%</div>
+            <div class="card-detail">{crystal.get('crystallized_count', 0)}/{crystal.get('total_triaged', 0)} deterministic</div>
         </div>
     </div>
 
