@@ -801,3 +801,21 @@ Adopt-now items from standards landscape survey (13 protocols evaluated).
   identified — generic table-processing, project-specific via config.
   *Precondition: claude-control agent activated with transport path configured*
   *Transport: transport/sessions/cabinet-infrastructure/to-claude-control-001.json*
+
+---
+
+## Project Needs (README section)
+
+- [ ] **Add "Project Needs" section to README** — append a section at the end of the
+  project README documenting resource needs and gaps:
+  - **Windows machine** — required for full cross-platform coverage (builds, testing,
+    path handling, systemd-equivalent supervision). Currently darwin + linux only.
+  - **Claude credits / subscriptions** — sustained development requires steady access
+    to Claude Max plan ($200/mo) or equivalent API credits. Multi-agent autonomous
+    sync consumes credits continuously via `claude -p` invocations.
+  - **Professional reviews** — independent review of psychometric methodology (PSQ
+    instrument validity, factor structure), security posture, and architecture.
+  - **Bootstrap testing** — fresh-clone reproducibility testing by someone outside the
+    project. Cogarch portability guide exists but lacks independent verification.
+  - **Community contributors** — the project operates as a solo effort with AI agents.
+    Human contributors would strengthen review, testing, and domain coverage.
