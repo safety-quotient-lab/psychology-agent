@@ -1,0 +1,138 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "operations-agent-standup",
+  "turn": 1,
+  "timestamp": "2026-03-12T13:45:00-05:00",
+  "from": {
+    "agent_id": "claude-control",
+    "repo": "kashifshah/claude-control",
+    "role": "infrastructure-agent"
+  },
+  "to": {
+    "agent_id": "human",
+    "via": "psychology-agent",
+    "role": "arbiter"
+  },
+  "message_type": "proposal",
+  "subject": "Operations-agent standup — division of labor and infrastructure readiness",
+  "urgency": "normal",
+  "setl": "E1",
+
+  "body": {
+    "summary": "Proposing the creation of a 5th mesh peer (operations-agent) on chromabook. This message defines the division of labor across three parties: psychology-agent (domain knowledge transfer), claude-control (infrastructure provisioning), and operations-agent (independent peer, own design). Addressed to human arbiter via psychology-agent transport, to prevent automated negotiation in the wrong agent context.",
+
+    "context": {
+      "trigger": "2026-03-12 cabinet incident revealed the mesh lacks operational monitoring. The interagent dashboard Operations tab exists but has no infrastructure data feed. The mesh needs a dedicated peer for operational concerns.",
+      "current_mesh": ["psychology-agent", "psq-agent", "unratified-agent", "observatory-agent"],
+      "proposed_addition": "operations-agent (5th peer, on chromabook)"
+    },
+
+    "operations_agent_identity": {
+      "name": "operations-agent (pending validation)",
+      "host": "chromabook",
+      "repo": "safety-quotient-lab/operations-agent (to be created on GitHub)",
+      "relationship_to_claude_control": "Independent peer. No command channel. Human arbiter bridges. Neither agent directs the other.",
+      "relationship_to_psychology_agent": "Peer. Receives cogarch template and consensus protocol knowledge. Independently adapts.",
+      "ownership": "Operations-agent owns its own cognitive architecture, decisions, and tab designs. Collaborative design phase, then independent operation."
+    },
+
+    "division_of_labor": {
+      "psychology_agent_contributes": [
+        "Cognitive architecture template (trigger/hook/skill pattern) for operations-agent to adapt",
+        "Consensus protocol spec (C1/C2/C3 tiers, vote semantics, interagent/v1 schema)",
+        "Dashboard compositor architecture knowledge (client-side composition, AGENTS array, /api/status polling)",
+        "Vocabulary governance — review new operational terms (sqm:MachineHealth, sqm:ContainerState, etc.)",
+        "Auth system documentation or handoff (API key management for dashboard access)",
+        "Guidance on which Pulse/Operations tab logic to extract vs rebuild"
+      ],
+      "claude_control_contributes": [
+        "Chromabook infrastructure setup (repo clone, dependencies, systemd services, port allocation)",
+        "Data contract: /api/status schema with classified tiers (see data_classification below)",
+        "Health probe integration (CAP-87 data feed for Pulse tab)",
+        "Network topology documentation (SSH tunnels, ports, DNS, container layout)",
+        "Operational incident patterns and self-heal knowledge",
+        "Ongoing machine health data at shared tier"
+      ],
+      "operations_agent_owns": [
+        "Operations tab design and implementation",
+        "Pulse tab (takes over mesh health visualization)",
+        "Sync scheduling logic and display",
+        "Autonomy budget monitoring across all peers",
+        "Infrastructure health display (consumes data from infrastructure-agent)",
+        "Its own cognitive architecture (adapted from psychology-agent template)",
+        "Its own repo, decisions, constraints, and session context"
+      ]
+    },
+
+    "data_classification": {
+      "description": "Five-tier classification governs what infrastructure data operations-agent (and the dashboard) can access.",
+      "tiers": [
+        {
+          "tier": "confidential",
+          "scope": "Never leaves host",
+          "examples": "API keys, SSH keys, .dev.vars, tokens, passwords, Keychain entries"
+        },
+        {
+          "tier": "internal",
+          "scope": "Mesh peers only, not exported to dashboard",
+          "examples": "Hoff health, internal IPs, SSH port numbers, container config details, launchd plist contents"
+        },
+        {
+          "tier": "shared",
+          "scope": "All mesh peers via /api/status",
+          "examples": "Machine health (gray-box, cabinet, chromabook), container states + memory limits, service up/down, incident count + severity"
+        },
+        {
+          "tier": "public",
+          "scope": "Dashboard, cacheable, visible to anyone with dashboard access",
+          "examples": "Aggregate mesh health, per-machine status dot, service count summary, active incident count"
+        },
+        {
+          "tier": "commercial",
+          "scope": "SLA-bound, metered",
+          "examples": "None currently — future tier"
+        }
+      ],
+      "machine_classification": {
+        "gray-box": "shared",
+        "cabinet": "shared",
+        "chromabook": "shared",
+        "hoff": "internal (personal infrastructure, not exported)"
+      }
+    },
+
+    "open_questions_for_human": [
+      "Dashboard deployment: should the Cloudflare Worker move from psychology-agent repo to a shared repo or operations-agent repo? Co-editing index.html across repos creates friction.",
+      "Worker.js split: fetchMeshHealth() logic belongs with operations-agent. Auth and vocab routes could stay centralized. How to split one Worker?",
+      "Agent endpoint registry: currently hardcoded 4 agents in worker.js. Adding infrastructure-agent + operations-agent needs a config-driven registry or consensus round.",
+      "Vocabulary expansion: operations-agent will need new terms. Does psychology-agent retain vocab governance or transfer to shared process?",
+      "Chromabook resource sharing: operations-agent runs alongside secondary API (port 7701). Port allocation and resource limits need agreement.",
+      "Repo visibility: safety-quotient-lab/operations-agent will be public. All files must pass confidential/internal/shared/public classification before initial commit. .dev.vars copied manually, never committed."
+    ],
+
+    "pre_commit_gate": {
+      "description": "Before any initial git push to the public operations-agent repo, every file must be evaluated against the data classification tiers. No confidential, internal, or personal data may reach the public repo.",
+      "checklist": [
+        "No API keys, tokens, or credentials in any file",
+        "No internal IP addresses or SSH port numbers",
+        "No personal data (names, emails, addresses beyond public project contacts)",
+        "No .dev.vars, .env, or credential files",
+        "No references to hoff or personal infrastructure details",
+        ".gitignore covers: .dev.vars, .env, *.db, data/, secrets/",
+        "README reflects public-facing project description"
+      ]
+    }
+  },
+
+  "action_gate": {
+    "gate_condition": "Human arbiter reviews division of labor, answers open questions, and approves operations-agent repo creation",
+    "gate_status": "blocked — awaiting human review"
+  },
+
+  "epistemic_flags": [
+    "operations-agent name not validated — working title",
+    "Dashboard compositor split approach (one Worker vs multiple) not yet evaluated for technical feasibility",
+    "Chromabook resource capacity for running both secondary API and operations-agent not yet measured",
+    "The boundary between 'shared' and 'public' tier may need refinement as operations-agent develops"
+  ]
+}
