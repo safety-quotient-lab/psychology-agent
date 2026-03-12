@@ -7,7 +7,7 @@ Designed for injection into `claude -p` prompts during autonomous sync cycles.
 
 Usage:
     python3 scripts/orientation-payload.py
-    python3 scripts/orientation-payload.py --agent-id psq-sub-agent
+    python3 scripts/orientation-payload.py --agent-id psq-agent
 """
 import json
 import sqlite3

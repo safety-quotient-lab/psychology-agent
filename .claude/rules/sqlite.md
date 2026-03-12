@@ -72,7 +72,7 @@ cross-table references by convention.
 
 | Table | Key column | Derivation rule | Example |
 |-------|-----------|-----------------|---------|
-| `transport_messages` | `filename` | File basename (unique per session dir) | `from-psq-sub-agent-021.json` |
+| `transport_messages` | `filename` | File basename (unique per session dir) | `from-psq-agent-021.json` |
 | `decision_chain` | `decision_key` | Kebab-case of decision name from architecture.md | `psq-structural-model` |
 | `memory_entries` | `(topic, entry_key)` | Topic from filename; entry_key from bold-prefix or table row key | `('psq-status', 'model-version')` |
 | `psq_status` | `entry_key` | Kebab-case of bold-prefix key from psq-status.md | `'model-version'` |
@@ -103,7 +103,7 @@ Two vocabularies classify every entity:
 | `schema_type` | `schema:Message`, `schema:Claim`, `schema:ChooseAction`, `schema:Event`, `schema:DefinedTerm`, `schema:LearningResource`, `schema:HowToStep`, `schema:Action`, `schema:SuspendAction` | Static per entity table |
 | `domain` | `psychometrics`, `cognitive-architecture`, `design`, `operations` | Topic filename (migrated from `entry_facets`) |
 | `work_stream` | `psq-scoring/b3`, `psq-scoring/b5`, etc. | Entry key prefix |
-| `agent` | `psychology-agent`, `psq-sub-agent`, `unratified-agent` | Producer/owner |
+| `agent` | `psychology-agent`, `psq-agent`, `unratified-agent`, `observatory-agent` | Producer/owner |
 
 PSH categories use standard codes where available (PSH9194, PSH8808, etc.).
 Project-local extensions use `PL-NNN` codes for domains PSH cannot cover

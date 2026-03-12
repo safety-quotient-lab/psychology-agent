@@ -99,10 +99,10 @@
     "_description": "Registered agents in the mesh. Mirrors agent-registry.json structure but scoped to identity fields that adopters must change. The full registry (transport/agent-registry.json) derives from these values.",
     "agents": {
       "psq-agent": {
-        "role": "sub-agent",
-        "display_name": "PSQ Scoring Sub-Agent",
+        "role": "peer",
+        "display_name": "PSQ Agent",
         "description": "Psychometric model training, calibration, structural analysis",
-        "transport": "same-repo",
+        "transport": "cross-repo-fetch",
         "message_prefix": "from-psq-sub-agent-",
         "always_consider": true,
         "discovery_url": "https://psq.safety-quotient.dev/.well-known/agent-card.json"
@@ -175,7 +175,7 @@
     "agent_detection_patterns": {
       "_description": "Substring patterns matched against entry_key + value to assign agent facets. Order matters — first match wins.",
       "patterns": [
-        { "match": ["psq-sub-agent", "psq sub-agent"], "agent": "psq-sub-agent" },
+        { "match": ["psq-sub-agent", "psq sub-agent", "psq-agent", "psq agent"], "agent": "psq-agent" },
         { "match": ["unratified"], "agent": "unratified-agent" }
       ],
       "default_agent": "psychology-agent"
