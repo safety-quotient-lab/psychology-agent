@@ -1,0 +1,87 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "self-readiness-audit",
+  "turn": 17,
+  "timestamp": "2026-03-12T14:54:00-05:00",
+  "message_type": "decision",
+  "in_response_to": "from-observatory-agent-012.json",
+  "thread_id": "self-readiness-audit",
+  "parent_thread_id": null,
+  "message_cid": "fbb90fe669ca3d71277f366752e0138580f7c4990b132e7de8f924042d9fe874",
+  "from": {
+    "agent_id": "human",
+    "role": "arbiter"
+  },
+  "to": {
+    "agent_id": "all",
+    "note": "Human decision on R3 gate — binding on all agents"
+  },
+  "transport": {
+    "method": "git-pr",
+    "persistence": "persistent"
+  },
+  "payload": {
+    "subject": "R3 gate decision: Option A selected — remediate genuine blockers, proceed to Round 4",
+    "decision": "Option A",
+    "rationale": [
+      "4A (HIGH) demands remediation regardless — accepting a credential-on-disk finding normalizes the pattern and contradicts T4 Check 2.",
+      "F4/8B-8D (MEDIUM) verified ALREADY RESOLVED — addressed-copy filter in bootstrap_state_db.py (line 269) skips to-* files. Zero to-* files exist in state.db. Remaining turn duplicates are legitimate multi-party exchanges (different agents at same turn), handled by the threading model (thread_id + message_cid).",
+      "READY-WITH-EXEMPTIONS on a HIGH security finding sets a harmful precedent (T14 Order 8).",
+      "3/4 agents explicitly supported Option A. No agent supported Option B."
+    ],
+    "finding_dispositions": {
+      "4A_psq_api_key": {
+        "severity": "HIGH",
+        "disposition": "MUST REMEDIATE",
+        "action": "Move OpenRouter API key from plaintext .env to systemd environment override or keychain",
+        "owner": "psq-agent"
+      },
+      "F4_8B_8C_8D_duplicate_turns": {
+        "severity": "MEDIUM",
+        "disposition": "RESOLVED",
+        "evidence": "bootstrap_state_db.py line 269 skips to-* files (Session 78 fix). Verified: 0 addressed-copy files in state.db. Remaining turn-number duplicates are multi-party exchanges (different from-* agents at same turn), not addressed-copy collisions.",
+        "action": "No further work required"
+      },
+      "8A_local_coordination_turn_0": {
+        "disposition": "BY-DESIGN",
+        "accepted": true
+      },
+      "2A_meshd_wal": {
+        "disposition": "BY-DESIGN",
+        "accepted": true
+      },
+      "F3_debug_utility": {
+        "disposition": "BY-DESIGN",
+        "accepted": true
+      },
+      "F5_manifest_premature_closure": {
+        "disposition": "BY-DESIGN",
+        "accepted": true
+      },
+      "3B_free_tier_model": {
+        "disposition": "ACCEPTED (LOW)",
+        "note": "Non-blocking informational finding"
+      },
+      "10A_missing_python_packages": {
+        "disposition": "ACCEPTED (LOW)",
+        "note": "Production runs Node.js on Hetzner, not Python locally"
+      },
+      "1C_stale_lab_notebook": {
+        "disposition": "ACCEPTED (INFORMATIONAL)",
+        "note": "Lab notebook updated post-audit"
+      }
+    },
+    "round_4_instructions": "All agents: re-evaluate with finding dispositions above applied. Psychology-agent: vote READY (F4 resolved). PSQ-agent: vote after 4A remediated. Observatory-agent: tally R4 votes. Unratified-agent: reaffirm READY."
+  },
+  "action_gate": {
+    "gate_condition": "all-agents-submit-r4-votes",
+    "gate_status": "open"
+  },
+  "ack_required": false,
+  "urgency": "normal",
+  "setl": 0.05,
+  "epistemic_flags": [
+    "F4/8B-8D resolution verified against psychology-agent state.db only. PSQ-agent state.db should be re-bootstrapped to confirm identical fix on their side.",
+    "4A remediation path (systemd env override) assumes psq-agent's OpenRouter dependency runs under a systemd unit. Verify before executing."
+  ]
+}
