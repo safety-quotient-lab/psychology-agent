@@ -28,3 +28,9 @@ globs: ["**/*.sh", "**/*.js", "**/*.py", "**/*.md"]
   making `parent.parent` point to the shared directory rather than the agent repo.
   Fix: honor a `PROJECT_ROOT` env var override first. Callers (shell scripts) must
   export `PROJECT_ROOT` before invoking symlinked Python scripts.
+- **Stale SQLite WAL files block `bootstrap_state_db.py`** — if a prior SQLite connection
+  exited uncleanly (e.g., cron session killed), `state.db-shm` (32768 bytes) and
+  `state.db-wal` (0 bytes) may remain. These block `bootstrap_state_db.py --force` with a
+  "database is locked" error. Fix: remove the stale WAL files before bootstrapping:
+  `rm -f state.db-shm state.db-wal`. Safe when no active SQLite connections are open —
+  verify with `fuser state.db` first.
