@@ -35,6 +35,9 @@ CREATE TABLE IF NOT EXISTS transport_messages (
     problem_type    TEXT,
     task_state      TEXT DEFAULT 'pending',
     expires_at      TEXT,
+    triage_score    INTEGER,
+    triage_disposition TEXT,
+    triage_at       TEXT,
     created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
 );
 
@@ -54,6 +57,9 @@ CREATE INDEX IF NOT EXISTS idx_transport_task_state
     ON transport_messages (task_state) WHERE task_state NOT IN ('completed', 'canceled', 'rejected');
 CREATE INDEX IF NOT EXISTS idx_transport_agent_turn
     ON transport_messages (session_name, from_agent, turn);
+CREATE INDEX IF NOT EXISTS idx_transport_triage
+    ON transport_messages (triage_disposition)
+    WHERE triage_disposition IS NOT NULL;
 
 
 -- Decision chain (reasoning provenance with backreferences)
@@ -254,6 +260,9 @@ CREATE TABLE IF NOT EXISTS schema_version (
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (1, 'agentdb v1 — dual-DB split. Shared tables in state.db, local tables in state.local.db.');
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (22, 'Triage columns for crystallized sync (triage_score, triage_disposition, triage_at)');
 
 
 -- Table visibility (export tier definitions)

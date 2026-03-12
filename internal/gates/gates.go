@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 )
 
 // OpenGateParams holds parameters for opening a gate.
@@ -149,6 +150,139 @@ func QueryStatus(db *sql.DB, agentID string) (*GateStatus, error) {
 	}
 
 	return &GateStatus{ActiveGates: len(gates), Gates: gates}, nil
+}
+
+// ScanResolveResult holds output of a scan-and-resolve operation.
+type ScanResolveResult struct {
+	Resolved  int              `json:"resolved"`
+	Remaining int              `json:"remaining"`
+	Details   []ResolvedGate   `json:"details,omitempty"`
+}
+
+// ResolvedGate describes one gate that was resolved by scan.
+type ResolvedGate struct {
+	GateID     string `json:"gate_id"`
+	ResolvedBy string `json:"resolved_by"`
+	Session    string `json:"session"`
+}
+
+// ScanAndResolve checks all unprocessed inbound messages against active gates
+// and resolves matching gates deterministically.
+// sharedDB = state.db (transport_messages), localDB = state.local.db (active_gates).
+func ScanAndResolve(sharedDB, localDB *sql.DB, selfAgentID string, dryRun bool) (*ScanResolveResult, error) {
+	// Get all waiting gates where we are the sender
+	gateRows, err := localDB.Query(`
+		SELECT gate_id, receiving_agent, session_name, timeout_at
+		FROM active_gates
+		WHERE status = 'waiting' AND sending_agent = ?`, selfAgentID)
+	if err != nil {
+		return &ScanResolveResult{}, nil
+	}
+	defer gateRows.Close()
+
+	type gateInfo struct {
+		gateID         string
+		receivingAgent string
+		session        string
+		timeoutAt      string
+	}
+	var gates []gateInfo
+	for gateRows.Next() {
+		var g gateInfo
+		if err := gateRows.Scan(&g.gateID, &g.receivingAgent, &g.session, &g.timeoutAt); err != nil {
+			continue
+		}
+		gates = append(gates, g)
+	}
+
+	result := &ScanResolveResult{}
+
+	for _, g := range gates {
+		// Skip timed-out gates
+		if isTimedOut(g.timeoutAt) {
+			continue
+		}
+
+		// Find unprocessed messages from the expected receiving agent in the gate's session
+		var resolverFilename string
+		err := sharedDB.QueryRow(`
+			SELECT filename FROM transport_messages
+			WHERE session_name = ?
+			  AND from_agent = ?
+			  AND processed = FALSE
+			ORDER BY turn ASC
+			LIMIT 1`, g.session, g.receivingAgent).Scan(&resolverFilename)
+		if err != nil {
+			continue // No matching message found
+		}
+
+		detail := ResolvedGate{
+			GateID:     g.gateID,
+			ResolvedBy: resolverFilename,
+			Session:    g.session,
+		}
+
+		if dryRun {
+			fmt.Printf("dry-run: would resolve gate %s with %s\n", g.gateID, resolverFilename)
+		} else {
+			// Look up outbound filename before resolving (local DB)
+			var outboundFilename string
+			localDB.QueryRow(`SELECT outbound_filename FROM active_gates WHERE gate_id = ?`,
+				g.gateID).Scan(&outboundFilename)
+
+			affected, err := Resolve(localDB, g.gateID, resolverFilename)
+			if err != nil || affected == 0 {
+				continue
+			}
+			// Set ack_received on the gated outbound message (shared DB)
+			if outboundFilename != "" {
+				_, _ = sharedDB.Exec(`
+					UPDATE transport_messages
+					SET ack_received = 1
+					WHERE session_name = ? AND filename = ?`,
+					g.session, outboundFilename)
+			}
+		}
+
+		result.Details = append(result.Details, detail)
+		result.Resolved++
+	}
+
+	// Count remaining gates
+	var remaining int
+	localDB.QueryRow(`SELECT COUNT(*) FROM active_gates WHERE status = 'waiting' AND sending_agent = ?`,
+		selfAgentID).Scan(&remaining)
+	result.Remaining = remaining
+
+	return result, nil
+}
+
+func isTimedOut(timeoutAt string) bool {
+	t, err := parseTimestamp(timeoutAt)
+	if err != nil {
+		return false
+	}
+	return time.Now().After(t)
+}
+
+func parseTimestamp(ts string) (time.Time, error) {
+	formats := []string{
+		"2006-01-02T15:04:05-07:00",
+		"2006-01-02T15:04:05",
+		time.RFC3339,
+	}
+	for _, f := range formats {
+		if t, err := time.Parse(f, ts); err == nil {
+			return t, nil
+		}
+	}
+	return time.Time{}, fmt.Errorf("unparseable timestamp: %s", ts)
+}
+
+// PrintScanResolveJSON prints scan-resolve results as JSON.
+func PrintScanResolveJSON(result *ScanResolveResult) {
+	data, _ := json.MarshalIndent(result, "", "  ")
+	fmt.Println(string(data))
 }
 
 // PrintStatusJSON prints gate status as JSON.
