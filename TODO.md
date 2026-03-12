@@ -297,6 +297,13 @@ semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
   *Precondition: ✓ MET — claude-replay integrated (Session 64-65), dashboard
   replay tab exists, autonomous sync operational*
 
+- [ ] **Fair-witness-bot** — public-facing fair witness evaluation service at
+  fairwitness.bot. Operates a fair-witness agent that evaluates claims, text, or
+  content for fair witness discipline compliance (observation vs. inference,
+  evidence grounding, epistemic transparency). Separate agent in the mesh with
+  its own repo, identity, and transport path.
+  *Precondition: domain registration (fairwitness.bot), agent mesh operational*
+
 ---
 
 ## Cross-Repo Transport (PSQ Agent)
