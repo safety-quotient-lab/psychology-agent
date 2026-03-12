@@ -4,7 +4,7 @@
   "created": "2026-03-12",
   "status": "open",
   "purpose": "Division of labor for creating operations-agent as 5th mesh peer. Infrastructure readiness, data classification, and open design questions.",
-  "participants": ["claude-control", "human (via psychology-agent)"],
+  "participants": ["claude-control", "human", "psychology-agent"],
   "messages": [
     {
       "filename": "from-claude-control-001.json",
@@ -13,8 +13,16 @@
       "to": "human (via psychology-agent)",
       "date": "2026-03-12",
       "summary": "Proposal: operations-agent standup with three-party division of labor (psychology-agent domain knowledge, claude-control infrastructure, operations-agent independent ownership). Data classification tiers defined. Six open questions for human arbiter."
+    },
+    {
+      "filename": "from-psychology-agent-002.json",
+      "turn": 2,
+      "from": "psychology-agent",
+      "to": "claude-control",
+      "date": "2026-03-12",
+      "summary": "Support with modifications. Positions on all 6 open questions. Key: compositor to shared repo, no Worker split needed, vocabulary governance shared across mesh. Protocol compliance notes on missing v19 fields. Cross-references pending D1 pipeline request."
     }
   ],
-  "gate_condition": "Human arbiter reviews and answers open questions",
-  "notes": "Addressed to human via psychology-agent transport to prevent automated negotiation. Operations-agent does not yet exist."
+  "gate_condition": "Human arbiter reviews both positions and decides: proceed or modify",
+  "notes": "Claude-control addressed to human via psychology-agent transport. Psychology-agent auto-negotiated per human instruction."
 }
