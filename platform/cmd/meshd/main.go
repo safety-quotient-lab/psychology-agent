@@ -27,6 +27,7 @@ func main() {
 	port := flag.Int("port", 8077, "HTTP port")
 	projectRoot := flag.String("project-root", ".", "Path to the agent project root")
 	cacheTTL := flag.Duration("cache-ttl", 10*time.Second, "Cache TTL for collector results")
+	agentID := flag.String("agent-id", "", "Agent ID for ZMQ mesh (default: directory name from project-root)")
 	zmqPub := flag.String("zmq-pub", "", "ZMQ PUB bind address (e.g. tcp://*:9001). Empty disables ZMQ.")
 	zmqPeers := flag.String("zmq-peers", "", "Comma-separated peers: agent-id=zmq-addr[|http-url] (e.g. agent-a=tcp://host:9001|http://host:8076)")
 	flag.Parse()
@@ -116,9 +117,12 @@ func main() {
 	// ZMQ transport (optional)
 	var bus *zmqbus.Bus
 	if *zmqPub != "" {
-		agentID := filepath.Base(absRoot)
+		id := *agentID
+		if id == "" {
+			id = filepath.Base(absRoot)
+		}
 		httpURL := fmt.Sprintf("http://localhost:%d", *port)
-		bus = zmqbus.New(agentID, *zmqPub, httpURL)
+		bus = zmqbus.New(id, *zmqPub, httpURL)
 		if err := bus.Start(); err != nil {
 			log.Fatalf("zmq start: %v", err)
 		}
