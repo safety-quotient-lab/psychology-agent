@@ -1104,45 +1104,15 @@
 
             <!-- Section jump nav (T18 Check 7) -->
             <nav class="section-jump-nav" aria-label="Meta sections">
-                <a class="section-jump-btn" href="#kb-sec-decisions">Decisions</a>
-                <a class="section-jump-btn" href="#kb-sec-triggers">Triggers</a>
-                <a class="section-jump-btn" href="#kb-sec-memory">Memory</a>
-                <a class="section-jump-btn" href="#kb-sec-messages">Messages</a>
-                <a class="section-jump-btn" href="#kb-sec-debt">Epistemic Debt</a>
-                <a class="section-jump-btn" href="#kb-sec-flags">Flag Detail</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-messages').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Messages</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-memory').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Memory</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-debt').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Epistemic Debt</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-flags').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Flag Detail</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-decisions').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Decisions</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-triggers').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Triggers</a>
             </nav>
 
-            <!-- Decisions -->
-            <div id="kb-sec-decisions" class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-knowledge)">
-                <div class="lcars-panel-header">Decisions</div>
-                <div class="table-toolbar">
-                    <input class="table-filter" id="filter-decisions" placeholder="Filter decisions..." oninput="filterTable('decisions')">
-                    <div class="table-page-info" id="page-info-decisions"></div>
-                    <div class="table-page-btns" id="page-btns-decisions"></div>
-                </div>
-                <div class="lcars-panel-body scrollable">
-                    <div class="kb-table-wrap" id="kb-decisions">
-                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Cognitive Triggers -->
-            <div id="kb-sec-triggers" class="lcars-panel kb-section" data-section="epistemic" style="--panel-accent: var(--c-epistemic)">
-                <div class="lcars-panel-header">Cognitive Triggers</div>
-                <div class="table-toolbar">
-                    <input class="table-filter" id="filter-triggers" placeholder="Filter triggers..." oninput="filterTable('triggers')">
-                    <div class="table-page-info" id="page-info-triggers"></div>
-                    <div class="table-page-btns" id="page-btns-triggers"></div>
-                </div>
-                <div class="lcars-panel-body scrollable">
-                    <div class="kb-table-wrap" id="kb-triggers">
-                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Messages (audit trail) -->
+            <!-- Messages (thought process — communication trail) -->
             <div id="kb-sec-messages" class="lcars-panel kb-section" data-section="transport" style="--panel-accent: var(--c-transport)">
                 <div class="lcars-panel-header">Messages</div>
                 <div class="table-toolbar">
@@ -1189,6 +1159,36 @@
                     <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
                 </div>
             </div>
+
+            <!-- Decisions -->
+            <div id="kb-sec-decisions" class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-knowledge)">
+                <div class="lcars-panel-header">Decisions</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-decisions" placeholder="Filter decisions..." oninput="filterTable('decisions')">
+                    <div class="table-page-info" id="page-info-decisions"></div>
+                    <div class="table-page-btns" id="page-btns-decisions"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="kb-decisions">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cognitive Triggers -->
+            <div id="kb-sec-triggers" class="lcars-panel kb-section" data-section="epistemic" style="--panel-accent: var(--c-epistemic)">
+                <div class="lcars-panel-header">Cognitive Triggers</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-triggers" placeholder="Filter triggers..." oninput="filterTable('triggers')">
+                    <div class="table-page-info" id="page-info-triggers"></div>
+                    <div class="table-page-btns" id="page-btns-triggers"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="kb-triggers">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Knowledge Base Tab -->
@@ -1222,12 +1222,12 @@
 
             <!-- Section jump nav -->
             <div class="section-jump-nav">
-                <a class="section-jump-btn" href="#kb-sec-claims">Claims</a>
-                <a class="section-jump-btn" href="#kb-sec-chains">Decision Chains</a>
-                <a class="section-jump-btn" href="#kb-sec-facts">Memory Facts</a>
-                <a class="section-jump-btn" href="#kb-sec-vocab">Vocabulary</a>
-                <a class="section-jump-btn" href="#kb-sec-catalog">Disciplines</a>
-                <a class="section-jump-btn" href="#kb-sec-schema">Schema</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-claims').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Claims</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-chains').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Decision Chains</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-facts').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Memory Facts</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-vocab').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Vocabulary</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-catalog').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Disciplines</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-schema').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Schema</a>
             </div>
 
             <!-- Claims -->
@@ -1427,11 +1427,11 @@
             { label: "Topology",  color: "var(--c-epistemic)", flex: 1 },
         ],
         meta: [
+            { label: "Messages",  color: "var(--c-transport)", flex: 3 },
+            { label: "Memory",    color: "var(--c-tab-pulse)", flex: 2 },
+            { label: "Debt",      color: "var(--c-alert)",     flex: 1 },
             { label: "Decisions", color: "var(--c-tab-meta)",  flex: 3 },
             { label: "Triggers",  color: "var(--c-epistemic)", flex: 2 },
-            { label: "Memory",    color: "var(--c-tab-pulse)", flex: 2 },
-            { label: "Messages",  color: "var(--c-transport)", flex: 3 },
-            { label: "Debt",      color: "var(--c-alert)",     flex: 1 },
         ],
         kb: [
             { label: "Claims",     color: "var(--c-tab-kb)",    flex: 4 },
@@ -1745,7 +1745,7 @@
         container.innerHTML = display.map(m => {
             const time = formatTS(m.timestamp);
             const sess = escapeHtml(m.session || '');
-            return `<a href="#meta" class="activity-item activity-link" onclick="switchTab('meta');document.getElementById('filter-messages').value='${sess}';filterTable('messages');return false;">
+            return `<a href="#pane-meta" class="activity-item activity-link" onclick="switchTab('meta');document.getElementById('filter-messages').value='${sess}';filterTable('messages');return false;">
                 <span class="activity-time">${time}</span>
                 <span class="activity-route">
                     <span class="from">${m.from.replace("-agent", "")}</span>
@@ -1817,12 +1817,12 @@
         tableState.flags.data = [];
         // Meta tab
         renderKBVitals();
-        renderDecisions();
-        renderTriggers();
-        renderMemoryTopics();
         renderMessages();
+        renderMemoryTopics();
         renderEpistemicDebt();
         renderEpistemicFlags();
+        renderDecisions();
+        renderTriggers();
         // Knowledge tab
         renderKBTabVitals();
         renderClaims();
@@ -2463,7 +2463,7 @@
                         : (m.subject || "—");
                     const claimsCount = m.claims_count || 0;
                     const claimsLink = claimsCount > 0
-                        ? `<a href="#kb" onclick="switchTab('kb');document.getElementById('filter-claims').value='${escapeHtml(m.session_name || "")}';filterTable('claims');return false;" style="color:var(--c-knowledge)">${claimsCount}</a>`
+                        ? `<a href="#pane-kb" onclick="switchTab('kb');document.getElementById('filter-claims').value='${escapeHtml(m.session_name || "")}';filterTable('claims');return false;" style="color:var(--c-knowledge)">${claimsCount}</a>`
                         : `<span style="color:var(--text-dim)">0</span>`;
                     return `<tr>
                         <td><span class="agent-dot" data-agent="${m._agent}"></span>${escapeHtml(m.from_agent || "—")}</td>
@@ -2545,7 +2545,7 @@
                         <td><span class="confidence-badge ${confClass}">${confText}</span></td>
                         <td style="font-size:0.85em;color:var(--text-secondary)">${annotateAcronyms(escapeHtml(basis))}</td>
                         <td><span class="verified-badge ${verClass}">${verified}</span></td>
-                        <td style="font-size:0.85em;white-space:nowrap"><a href="#meta" onclick="switchTab('meta');document.getElementById('filter-messages').value='${escapeHtml(c.session_name || "")}';filterTable('messages');return false;" style="color:var(--c-transport)">${escapeHtml(c.session_name || "—")}</a></td>
+                        <td style="font-size:0.85em;white-space:nowrap"><a href="#pane-meta" onclick="switchTab('meta');document.getElementById('filter-messages').value='${escapeHtml(c.session_name || "")}';filterTable('messages');return false;" style="color:var(--c-transport)">${escapeHtml(c.session_name || "—")}</a></td>
                         <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
                     </tr>${truncated ? `<tr id="${rowId}" class="expanded-detail-row" style="display:none"><td colspan="7"><div class="expanded-detail">${annotateAcronyms(escapeHtml(fullText))}</div></td></tr>` : ""}`;
                 }).join("")}</tbody>
