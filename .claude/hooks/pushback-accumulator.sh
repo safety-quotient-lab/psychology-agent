@@ -26,9 +26,11 @@ if echo "$PROMPT" | grep -qiE "$PUSHBACK_PATTERNS"; then
 
   # Record T6 trigger firing
   PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-  DUAL_WRITE="${PROJECT_ROOT}/scripts/dual_write.py"
-  if [ -f "$DUAL_WRITE" ] && [ -f "${PROJECT_ROOT}/state.db" ]; then
-    python3 "$DUAL_WRITE" trigger-fired --trigger-id T6 2>/dev/null
+  AGENTDB="${PROJECT_ROOT}/agentdb"
+  if [ -x "$AGENTDB" ]; then
+    "$AGENTDB" trigger-fired --trigger-id T6 2>/dev/null
+  elif [ -f "${PROJECT_ROOT}/scripts/dual_write.py" ] && [ -f "${PROJECT_ROOT}/state.db" ]; then
+    python3 "${PROJECT_ROOT}/scripts/dual_write.py" trigger-fired --trigger-id T6 2>/dev/null
   fi
 
   if [ "$COUNT" -ge 3 ]; then

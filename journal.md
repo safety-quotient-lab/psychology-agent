@@ -58,6 +58,7 @@ partner, and Socratic interlocutor
 38. [When the Index Replaces the Ledger: MANIFEST as Generated Artifact](#38-when-the-index-replaces-the-ledger)
 39. [Private by Default: How Data Governance Emerges in Agent Systems](#39-private-by-default)
 49. [The Dashboard That Didn't Know: When Reachability Masquerades as Liveness](#49-the-dashboard-that-didnt-know)
+56. [One Binary, Two Databases: Why the State Layer Needed Surgery](#56-one-binary-two-databases)
 40. [When Lessons Graduate: The Emergence of Mechanical Conventions from Pattern Recognition](#40-when-lessons-graduate)
 41. [Filesystem as Protocol: Plan 9 and the Cross-Repo Transport Decision](#41-filesystem-as-protocol)
 42. [The Gate That Keeps the Budget: Blocking Semantics in a Poll-Based Mesh](#42-the-gate-that-keeps-the-budget)
@@ -2179,3 +2180,49 @@ just the choice but the rationale: why Solid-OIDC over plain OIDC (pod storage a
 architecture, not just auth), why Community Solid Server (dual IdP + storage role
 eliminates a separate auth service), and where the risks concentrate (spec at v0.1.0
 draft, DPoP validation complexity in CF Workers).
+
+
+## 56. One Binary, Two Databases: Why the State Layer Needed Surgery {#56-one-binary-two-databases}
+
+Session 80 replaced the project's entire Python state layer — six scripts, five domain
+modules, and their shell orchestration — with a single Go binary. The decision emerged
+from two converging failures that the Python architecture could not address independently.
+
+The first failure: `state.db` lived under git tracking. Every `git pull` on the chromabook
+overwrote the local autonomy budget, resetting the mechanical brake that prevents runaway
+autonomous API consumption. The agents operated overnight on 5-minute cron cycles across
+four repositories. When the budget reset silently on pull, the brake disappeared. The user
+reported $100-200 in API credits consumed overnight — an order of magnitude beyond the
+intended operating envelope. The root cause reduced to a single architectural flaw: the
+budget table lived in the same file as the transport index, and the transport index needed
+to travel with the repository.
+
+The second failure: script sprawl. `dual_write.py` (371 lines), `cross_repo_fetch.py`
+(755 lines), `generate_manifest.py` (109 lines), `bootstrap_state_db.py`, `export_public_
+state.py`, `autonomy-budget.py` — each touching `state.db` with overlapping concerns,
+each requiring Python 3.10+ on every agent machine, each resolving `PROJECT_ROOT`
+differently through symlinks.
+
+The solution split the database physically. `state.db` carries 14 tables of project
+knowledge — transport messages, decisions, triggers, lessons, claims — all exportable,
+all shareable across machines. `state.local.db` carries 5 tables that belong to the
+machine: autonomy budget, autonomous action audit trail, active gates, memory entries,
+entry facets. The local database never touches git. A `git pull` cannot affect it. The
+budget survives.
+
+The Go binary (`agentdb`) embeds both schemas via `//go:embed` and bootstraps both
+databases from a single command. Twenty-two subcommands cover the full surface area of
+the six Python scripts it replaces. Pure-Go SQLite (`modernc.org/sqlite`) eliminates CGO
+and cross-compiles to linux/amd64 for the chromabook without build infrastructure.
+
+The architecture reflects Conway's Law operating in reverse: the organizational boundary
+(shared vs. local) drove the module boundary, which drove the database boundary. Tables
+that cross machines (transport, decisions) belong to the shared database. Tables that
+define machine-specific state (budget, gates) belong to the local database. No cross-DB
+JOINs exist — every existing query stays within one database.
+
+The hook migration uses a fallback pattern: each hook tries `agentdb` first, falls back to
+`dual_write.py` if the binary does not exist. This enables incremental deployment — the
+chromabook can run the old Python path until the Go binary arrives, and the local
+development machine can run either. The pattern self-eliminates: once agentdb deploys
+everywhere, the elif branches become dead code and the Python scripts can be deleted.

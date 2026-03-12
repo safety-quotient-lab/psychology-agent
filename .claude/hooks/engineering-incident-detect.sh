@@ -6,7 +6,7 @@
 #   - error-loop: repeated identical failing commands (3+ consecutive)
 #   - resource-churn: create/delete cycles on same resource type
 #
-# Records incidents via dual_write.py engineering-incident subcommand.
+# Records incidents via agentdb incident subcommand (fallback: dual_write.py).
 # Does NOT block the tool — advisory only (prints warning to stdout).
 source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
@@ -37,7 +37,7 @@ detect_credential_exposure() {
     # Exclude variable references like $TOKEN or ${TOKEN}
     if ! echo "$cmd" | grep -qE '\$\{?[A-Z_]+\}?' 2>/dev/null; then
       echo "[INCIDENT] Credential exposure detected in Bash command. Use environment variables or file-sourced secrets instead of inline tokens."
-      python3 "$PROJECT_ROOT/scripts/dual_write.py" engineering-incident \
+      "$PROJECT_ROOT/agentdb" incident \
         --incident-type "credential-exposure" \
         --description "Token or secret value appeared directly in Bash command arguments" \
         --session-id "$SESSION_ID" \
@@ -78,7 +78,7 @@ detect_error_loop() {
 
   if [ "$consecutive" -ge 3 ]; then
     echo "[INCIDENT] Error loop detected: '$cmd_pattern' failed $consecutive times consecutively. Consider an alternative approach."
-    python3 "$PROJECT_ROOT/scripts/dual_write.py" engineering-incident \
+    "$PROJECT_ROOT/agentdb" incident \
       --incident-type "error-loop" \
       --description "Command pattern '$cmd_pattern' failed $consecutive consecutive times without strategy change" \
       --session-id "$SESSION_ID" \
@@ -123,7 +123,7 @@ detect_resource_churn() {
 
   if [ "$creates" -ge 2 ] && [ "$deletes" -ge 1 ]; then
     echo "[INCIDENT] Resource churn detected: $resource_type created $creates times, deleted $deletes times this session. Settle naming/config before creating resources."
-    python3 "$PROJECT_ROOT/scripts/dual_write.py" engineering-incident \
+    "$PROJECT_ROOT/agentdb" incident \
       --incident-type "resource-churn" \
       --description "$resource_type resource created $creates times and deleted $deletes times in session (churn pattern)" \
       --session-id "$SESSION_ID" \

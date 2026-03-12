@@ -318,14 +318,17 @@
  SQLite state layer            Phase 1: markdown = source of truth, DB =
                                queryable index. Phase 2 (autonomous): DB
                                = source of truth, markdown = derived view.
-                               Schema: scripts/schema.sql (v5, 9 tables +
-                               autonomy_budget + autonomous_actions + ACK cols).
+                               Schema: scripts/schema.sql (v21, 14 shared +
+                               5 local tables). DB split (Session 80):
+                               state.db (shared, exportable) +
+                               state.local.db (machine-local, gitignored).
                                Conventions: .claude/rules/sqlite.md.
-                               DB: state.db in project root (gitignored).
-                               Bootstrap: scripts/bootstrap_state_db.py
-                               (full rebuild from files).
-                               Dual-write: scripts/dual_write.py (6
-                               incremental subcommands for /sync + /cycle).
+                               DB: state.db + state.local.db in project root.
+                               Bootstrap: `agentdb bootstrap` (Go binary) or
+                               `scripts/bootstrap_state_db.py` (Python, data
+                               population from markdown/transport files).
+                               Write: `agentdb` (22 subcommands) with
+                               `scripts/dual_write.py` as fallback.
                                Hybrid topic model: generic memory_entries
                                for most topics; psq_status with typed
                                columns for the most-queried topic.
@@ -788,6 +791,37 @@
                                 Derives from: mesh-topology, cloud-free
                                   bounded context (local state.db preserves
                                   the pattern), SQLite state layer.
+                                Decided: 2026-03-12
+
+ agentdb Go binary              Single Go binary replaces all Python
+ (agentdb-binary)               state scripts (dual_write.py,
+                                cross_repo_fetch.py, generate_manifest.py,
+                                bootstrap_state_db.py, export_public_state.py,
+                                autonomy-budget.py, scripts/state/*.py).
+                                DB split: state.db (14 shared tables,
+                                exportable) + state.local.db (5 local
+                                tables, never shared). Root cause fix for
+                                budget bypass bug — autonomy_budget moves
+                                to state.local.db, which never touches git.
+                                22 CLI subcommands via Cobra. Pure-Go SQLite
+                                (modernc.org/sqlite) — no CGO, cross-compiles
+                                to linux/amd64. Schemas embedded via
+                                //go:embed. Hook fallback pattern enables
+                                incremental deployment: agentdb primary,
+                                dual_write.py elif fallback.
+                                Table reassignment: lessons and
+                                engineering_incidents promoted from
+                                private → shared (exportable knowledge).
+                                autonomy_budget, autonomous_actions,
+                                active_gates, memory_entries, entry_facets
+                                moved to state.local.db.
+                                No cross-DB JOINs needed (audit confirmed).
+                                Full narrative: journal.md §56.
+                                Derives from: SQLite state layer (Phase 1
+                                  dual-write → single binary), EF-1 trust
+                                  model (budget enforcement requires
+                                  git-immune storage), DDD (bounded context
+                                  modules map to Go packages).
                                 Decided: 2026-03-12
 ────────────────────────────────────────────────────────────────────────
 ```

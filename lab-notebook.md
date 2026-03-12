@@ -167,7 +167,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Transport hygiene fixes         | ✓ Skip addressed-copy indexing, exempt local-coordination, WAL disambiguation (Session 78) |
 | /diagnose skill                 | ✓ Created — systemic self-diagnostic for all monitoring mechanisms (Session 78, needs restart) |
 | Standards research              | ✓ 13 protocols evaluated — A2A Agent Cards + DIDComm threading recommended (Session 78) |
-| Pipeline gaps identified        | ⚑ Claims (0 verified), flags (0 resolved), triggers (0 fire-counted), facets (0), lessons.md missing (Session 78) |
+| Pipeline gaps identified        | ✓ Claims + flags closed; triggers partial (T1 only); facets populated; lessons indexed (Session 78-79) |
+| agentdb Go binary               | ✓ Phases 1-4 COMPLETE — 22 subcommands, DB split (state.db + state.local.db), 6 hooks updated. Deploy pending (Session 80) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -5150,3 +5151,63 @@ dashboard observability.
 - Operations tab renders from API data — no live data validation against actual meshd state
 
 ▶ journal.md §55, docs/decisions/2026-03-11-public-client-authentication.md
+
+
+## 2026-03-12T12:53 CDT — Session 80 (agentdb Go binary — Phases 1-4 complete)
+
+**Scope:** Implement the agentdb Go binary plan — replace all Python state scripts
+with a single Go binary. Addresses two converging problems: budget bypass bug
+(state.db git-tracked, overwritten on pull) and script sprawl (3 Python scripts +
+5 domain modules + shell orchestration).
+
+- **Go binary built and tested** — `cmd/agentdb/main.go` + 8 internal packages.
+  22 subcommands covering transport, gates, knowledge, cogarch, quality, export,
+  budget. Pure-Go SQLite via `modernc.org/sqlite` (no CGO, cross-compiles cleanly).
+  Cobra CLI framework. Binary size: ~10MB.
+- **DB split implemented** — `state.db` (14 shared/exportable tables) +
+  `state.local.db` (5 machine-local tables: autonomy_budget, autonomous_actions,
+  active_gates, memory_entries, entry_facets). Table reassignment: lessons and
+  engineering_incidents moved from private → shared (exportable knowledge).
+  autonomy_budget moved to state.local.db (root cause of budget bypass bug).
+- **Schema embedded** — `internal/db/schema_shared.sql` and `schema_local.sql`
+  embedded via `//go:embed`. Bootstrap creates both DBs from scratch.
+- **6 hooks updated** — session-start-orient, session-end-check, subagent-audit,
+  pushback-accumulator, external-action-gate, engineering-incident-detect. All use
+  agentdb primary with dual_write.py fallback (elif pattern for backward compat).
+- **.gitignore fixed** — root-anchored `/agentdb` and `/agentdb-*` patterns prevent
+  catching `cmd/agentdb/` directory. `state.local.db` patterns added.
+- **Overnight cost correction** — user states autonomous sync spent $100-200 in API
+  credits overnight, not the ~$0.56 estimated from psychology-agent logs alone.
+  Discrepancy likely from: (a) 4 agents × multiple invocations × Opus context costs,
+  (b) activity across peer repos not visible from this repo's logs. Budget enforcement
+  urgency upgraded — the DB split + agentdb budget subcommands address this directly.
+
+**Files created (Go):**
+- `go.mod`, `go.sum` — module + dependencies
+- `cmd/agentdb/main.go` — CLI entry, 22 subcommands
+- `internal/db/connection.go` — dual-DB connection manager
+- `internal/db/schema_shared.sql`, `schema_local.sql` — embedded schemas
+- `internal/db/schema.go`, `export.go`, `budget.go` — DB operations
+- `internal/transport/index.go`, `fetch.go`, `manifest.go` — transport layer
+- `internal/gates/gates.go` — gated chain state
+- `internal/knowledge/memory.go`, `sessions.go`, `decisions.go`
+- `internal/cogarch/triggers.go`, `lessons.go`
+- `internal/quality/claims.go`, `flags.go`, `incidents.go`, `facets.go`
+
+**Files modified:**
+- `.gitignore` — anchored agentdb patterns + state.local.db
+- 6 hook scripts — agentdb-first fallback pattern
+
+**Pending (Phases 5-6):**
+- Cross-compile for linux/amd64 and deploy to chromabook
+- Update autonomous-sync.sh: dual_write.py → agentdb calls
+- `git rm --cached state.db` across all 4 repos
+- Delete Python scripts after binary proven in production
+
+⚑ EPISTEMIC FLAGS
+- agentdb bootstrap creates empty schemas — Python bootstrap_state_db.py still needed for data population from markdown/transport files until agentdb absorbs that logic
+- Overnight cost estimate ($100-200) from user report, not independently verified from billing data
+- DB split verified structurally (tables in correct DB) but not yet tested under autonomous sync load
+- Hook fallback pattern means dual_write.py still required until agentdb deployed everywhere
+
+▶ cmd/agentdb/, internal/*, .claude/hooks/

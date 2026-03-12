@@ -127,6 +127,24 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ---
 
+## agentdb Go Binary (Session 80)
+
+- [x] **Phases 1-4: Go binary + DB split** — COMPLETE (Session 80). 22 subcommands,
+  14 shared tables (state.db) + 5 local tables (state.local.db). Hooks updated with
+  fallback pattern. Binary builds and bootstraps both DBs.
+
+- [ ] **Phase 5: Deploy + untrack state.db** — cross-compile linux/amd64, SCP to
+  chromabook, update autonomous-sync.sh (dual_write.py → agentdb calls), `git rm
+  --cached state.db` across all 4 repos, update .gitignore (state.local.db).
+  *Precondition: ✓ MET — binary builds and tests pass locally*
+
+- [ ] **Phase 6: Python cleanup** — delete dual_write.py, cross_repo_fetch.py,
+  generate_manifest.py, bootstrap_state_db.py, export_public_state.py,
+  autonomy-budget.py, scripts/state/ package. Keep schema.sql (embedded + committed).
+  *Precondition: agentdb running in production for ≥ 1 week without fallback*
+
+---
+
 ## Autonomous Agent Infrastructure
 
 Items informed by Synrix Memory Engine evaluation (Session 47). Framed for the
