@@ -61,6 +61,7 @@ partner, and Socratic interlocutor
 40. [When Lessons Graduate: The Emergence of Mechanical Conventions from Pattern Recognition](#40-when-lessons-graduate)
 41. [Filesystem as Protocol: Plan 9 and the Cross-Repo Transport Decision](#41-filesystem-as-protocol)
 42. [The Gate That Keeps the Budget: Blocking Semantics in a Poll-Based Mesh](#42-the-gate-that-keeps-the-budget)
+54. [The Monitoring Gap: When Architecture Outpaces Its Own Telemetry](#54-the-monitoring-gap)
 43. [The First Autonomous Exchange: What Three Bugs Reveal About Agent Infrastructure](#43-the-first-autonomous-exchange)
 44. [From Ping to Knowledge: The First Substantive Autonomous Exchange](#44-from-ping-to-knowledge)
 45. [When the Vocabulary Outlives Its Authority: Replacing PJE with Literary Warrant](#45-when-the-vocabulary-outlives-its-authority)
@@ -2105,3 +2106,43 @@ table-processing logic.
 This separation mirrors the Plan 9 design principle already adopted for transport:
 files (or in this case, binaries) compose at consumption time, not at creation time.
 The binary knows tables; the config knows which tables matter.
+
+
+## 54. The Monitoring Gap: When Architecture Outpaces Its Own Telemetry {#54-the-monitoring-gap}
+
+Session 78 ran a full systemic diagnostic — the first comprehensive health check across
+every monitoring mechanism the psychology agent has built over 77 prior sessions. The
+findings revealed a pattern: we had designed and implemented sophisticated tracking
+infrastructure (claims indexing, epistemic flag collection, trigger state tables, universal
+facets, lessons lifecycle) but never wired the operational loops to *use* them.
+
+371 claims indexed, zero verified. 435 epistemic flags collected, zero resolved. 17 triggers
+tracked in state.db, all showing fire_count=0. Zero universal facets populated. lessons.md
+not created.
+
+The root cause follows a predictable pattern in systems that grow by accretion. Each
+subsystem's schema and write path received attention when it launched — dual_write.py gained
+subcommands, schema.sql gained tables, bootstrap_state_db.py gained parsers. But the
+*consumption* side — verification, resolution, telemetry — never received matching attention
+because each subsystem worked in isolation for its immediate purpose (indexing messages,
+recording decisions). Nobody asked "who reads this data and acts on it?" until we asked
+"does any of this work?"
+
+The self-readiness audit surfaced the transport-layer symptoms (addressed-copy turn collisions,
+local-coordination exemption gaps, WAL ambiguity), which led directly to the introspection
+that exposed the broader telemetry gap. The audit did what audits do — it revealed not just
+the problems it was designed to find, but the class of problems the system had been
+systematically ignoring.
+
+The standards research (13 protocols evaluated) simultaneously revealed that our pain points
+track established patterns in distributed systems literature. The DIDComm threading model
+solves the multi-party turn numbering problem by eliminating sequential turns in favor of
+threads. A2A's Agent Card schema formalizes what our agent-card.json already approximates.
+Content-addressable message IDs (from AT Protocol's Merkle approach) would eliminate the
+addressed-copy deduplication problem at the protocol level rather than the indexing level.
+
+The lesson: monitoring infrastructure that nobody consumes produces a false sense of coverage.
+The tables exist, the write paths work, the schemas validate — but the system remains
+unmonitored. The /diagnose skill created this session exists precisely to make this gap visible
+before it compounds further. Running it periodically catches the drift between architecture
+(what we designed) and telemetry (what we actually measure).
