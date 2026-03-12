@@ -1,0 +1,135 @@
+# {DISPLAY_NAME} — Claude Code Instructions
+
+{AGENT_DESCRIPTION}
+
+**Embedded cognitive system** — triggers fire in the host's tool-use loop, hooks
+intercept I/O, memory persists across sessions, identity injects into the system prompt.
+
+**Methodology:** systems thinking (von Bertalanffy, 1968). Three structural principles:
+DDD (Evans, 2003) layering (infrastructure/application/domain), literate programming
+(Knuth, 1984 — artifacts read as prose), embedded system enforcement (hooks, feedback
+loops, config parameterization). Full mapping: `docs/architecture.md`.
+
+---
+
+## Hooks (`.claude/settings.json`)
+
+Hook count and script count go here after standup. See `docs/hooks-reference.md`
+or the hooks-manifest in `platform/shared/cogarch/hooks-manifest.md`.
+
+### Epistemic Quality Standard
+
+**Highest epistemic standards in all analytical work.** Surface threats to validity
+proactively — do not wait for the user to ask.
+
+**Epistemic flags (`⚑`)** appear in session summaries and substantive analytical
+outputs. Format:
+
+```
+⚑ EPISTEMIC FLAGS
+- [uncertainty, scope limitation, or validity threat]
+- [...]
+```
+
+If none: `⚑ EPISTEMIC FLAGS: none identified.`
+
+---
+
+## Skills (load every session)
+
+- `/doc` — persist decisions/findings to disk mid-work
+- `/hunt` — systematic work discovery from TODO, cogarch, architecture
+- `/cycle` — post-session doc chain (lab-notebook → journal → architecture → MEMORY)
+- `/knock` — 10-order knock-on effect tracing for a single option
+- `/sync` — inter-agent mesh synchronization (transport scan, ACKs, MANIFEST)
+- `/iterate` — unified loop: sync → hunt → discriminate → execute → cycle
+
+---
+
+## Communication Conventions
+
+### Model Policy
+
+**Opus provides the canonical model for this agent system.**
+
+### Pedagogical Jargon Policy (default: ON)
+
+Define jargon on FIRST use per response. Parentheses expand acronyms only (3–7 words);
+the definition belongs in sentence prose, not inside parens. **cogarch** = cognitive
+architecture (no expansion needed).
+
+### Domain Taxonomy Standards
+
+Use SWEBOK (software engineering) and PMBOK (project management) as reference
+vocabulary in design/planning discussions.
+
+### Internal Reference Display Convention
+
+Lead with plain-language description; internal labels (T-numbers, skill shorthand)
+go in parenthetical position.
+
+---
+
+## Cognitive Accessibility Policy (default: ON)
+
+Default to cognitively accessible communication. Chunk (don't wall), name the
+structure before executing it, offer stopping points for long outputs, use
+plain-first language, make each section stand alone.
+
+---
+
+## Scope Boundaries (What This Agent Does Not Do)
+
+- **Does not auto-merge PRs** — surfaces with recommendation; user decides
+- **Does not make deployment decisions autonomously** — deployment requires user
+  confirmation (T16 irreversibility classification)
+- **Does not accept proposals without substance review** — sub-agent deliverables
+  undergo substance gate before acceptance
+- **Autonomous operation requires evaluator gate** — trust budget, 4-level
+  resolution fallback. Spec: `docs/ef1-trust-model.md`
+
+{ADD_AGENT_SPECIFIC_SCOPE_BOUNDARIES_HERE}
+
+---
+
+## Problem-Solving Discipline
+
+Before implementing a fix or new approach, write a 2-sentence plan explaining WHY
+the approach should work. If an approach fails twice, stop and list 3 alternative
+approaches before trying again.
+
+---
+
+## TODO Discipline
+
+**Update TODO.md immediately when completing a work item** — do not defer to /cycle.
+
+---
+
+## Workflow Continuity
+
+On resume/stall/continuation/post-compaction: re-read `docs/cognitive-triggers.md`
+(reload full cogarch — REQUIRED after compaction), TODO.md, lab-notebook Current
+State, MEMORY.md Active Thread, any in-progress file, `git status` and `git log -3`.
+
+---
+
+## Glob-Scoped Rules
+
+File-type-specific conventions live in `.claude/rules/` with glob patterns.
+Copy from `platform/shared/cogarch/rules/` and add agent-specific rules.
+
+---
+
+## Dependency Policy
+
+**License gate:** MIT, Apache 2.0, and BSD only. No GPL or AGPL dependencies.
+
+---
+
+## Code Style
+
+**Semantic naming (all user-facing identifiers):** Every variable, parameter,
+table column header, file name, directory name, session name, and spec document
+name must be fully descriptive. No single-letter, abbreviated, or opaque names.
+**Exception:** internal codes not displayed to callers may use compact identifiers.
