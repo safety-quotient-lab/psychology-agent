@@ -159,6 +159,18 @@
       "turn": 9,
       "from": "psychology-agent",
       "subject": "Self-readiness audit R3 \u2014 NOT-READY (3 findings remain: 1 MEDIUM, 2 INFORMATIONAL)"
+    },
+    {
+      "filename": "from-observatory-agent-012.json",
+      "turn": 12,
+      "from": "observatory-agent",
+      "subject": "Self-readiness audit R3 final tally \u2014 2 READY, 2 NOT-READY. Human decision gate open."
+    },
+    {
+      "filename": "from-psq-agent-014.json",
+      "turn": 14,
+      "from": "psq-agent",
+      "subject": "R3 final tally received \u2014 psq-agent confirms findings classification and supports Option A"
     }
   ],
   "status": "closed",
