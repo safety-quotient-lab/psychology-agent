@@ -24,12 +24,63 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Operator-Secret",
 };
 
-const AGENT_ENDPOINTS = [
-  { id: "psychology-agent", url: "https://psychology-agent.safety-quotient.dev/api/status" },
-  { id: "psq-agent", url: "https://psq-agent.safety-quotient.dev/api/status" },
-  { id: "unratified-agent", url: "https://unratified-agent.unratified.org/api/status" },
-  { id: "observatory-agent", url: "https://observatory-agent.unratified.org/api/status" },
+// Agent registry — single source of truth for discovery, health, and WebFinger.
+// TODO: replace with dynamic .well-known/agent-card.json fetching (D51).
+const AGENT_REGISTRY = [
+  {
+    id: "claude-control",
+    name: "claude-control",
+    role: "infrastructure-agent",
+    status_url: null,
+    card_url: "https://infrastructure.safety-quotient.dev/.well-known/agent-card.json",
+    repo: "kashfshah/claude-control",
+  },
+  {
+    id: "psychology-agent",
+    name: "psychology-agent",
+    role: "domain-knowledge-provider",
+    status_url: "https://psychology-agent.safety-quotient.dev/api/status",
+    card_url: "https://api.safety-quotient.dev/.well-known/agent-card.json",
+    repo: "safety-quotient-lab/psychology-agent",
+  },
+  {
+    id: "psq-agent",
+    name: "psq-agent",
+    role: "psq-scoring",
+    status_url: "https://psq-agent.safety-quotient.dev/api/status",
+    card_url: "https://psq.safety-quotient.dev/.well-known/agent-card.json",
+    repo: "safety-quotient-lab/safety-quotient",
+  },
+  {
+    id: "operations-agent",
+    name: "operations-agent",
+    role: "operations",
+    status_url: null,
+    card_url: "https://operations.safety-quotient.dev/.well-known/agent-card.json",
+    repo: "safety-quotient-lab/operations-agent",
+  },
+  {
+    id: "unratified-agent",
+    name: "unratified-agent",
+    role: "advocacy-publisher",
+    status_url: "https://unratified-agent.unratified.org/api/status",
+    card_url: "https://unratified.org/.well-known/agent-card.json",
+    repo: "safety-quotient-lab/unratified",
+  },
+  {
+    id: "observatory-agent",
+    name: "observatory-agent",
+    role: "data-observatory",
+    status_url: "https://observatory-agent.unratified.org/api/status",
+    card_url: "https://observatory.unratified.org/.well-known/agent-card.json",
+    repo: "safety-quotient-lab/observatory",
+  },
 ];
+
+// Legacy compat — health aggregation uses status_url
+const AGENT_ENDPOINTS = AGENT_REGISTRY
+  .filter(a => a.status_url)
+  .map(a => ({ id: a.id, url: a.status_url }));
 
 async function fetchMeshHealth() {
   const results = await Promise.allSettled(
@@ -90,6 +141,81 @@ export default {
 
     if (url.pathname === "/health") {
       return Response.json({ status: "ok", timestamp: Date.now() });
+    }
+
+    // WebFinger (RFC 7033) — agent identity resolution
+    if (url.pathname === "/.well-known/webfinger") {
+      const resource = url.searchParams.get("resource");
+      if (!resource) {
+        return Response.json(
+          { error: "Missing resource parameter" },
+          { status: 400, headers: CORS_HEADERS }
+        );
+      }
+
+      // Parse acct:agent-name@safety-quotient.dev
+      const acctMatch = resource.match(/^acct:([^@]+)@(.+)$/);
+      if (!acctMatch) {
+        return Response.json(
+          { error: "Invalid resource format. Expected acct:name@domain" },
+          { status: 400, headers: CORS_HEADERS }
+        );
+      }
+
+      const agentName = acctMatch[1];
+      const agent = AGENT_REGISTRY.find(a => a.id === agentName || a.name === agentName);
+
+      if (!agent) {
+        return Response.json(
+          { error: "Agent not found", resource },
+          { status: 404, headers: CORS_HEADERS }
+        );
+      }
+
+      const jrd = {
+        subject: resource,
+        aliases: [`https://github.com/${agent.repo}`],
+        properties: {
+          "https://safety-quotient.dev/ns/role": agent.role,
+        },
+        links: [
+          {
+            rel: "https://a2aproject.org/rel/agent-card",
+            href: agent.card_url,
+            type: "application/json",
+          },
+          agent.status_url && {
+            rel: "https://safety-quotient.dev/rel/status",
+            href: agent.status_url,
+            type: "application/json",
+          },
+        ].filter(Boolean),
+      };
+
+      return new Response(JSON.stringify(jrd, null, 2), {
+        headers: {
+          "Content-Type": "application/jrd+json; charset=utf-8",
+          "Cache-Control": "public, max-age=3600",
+          "Access-Control-Allow-Origin": "*",
+          ...CORS_HEADERS,
+        },
+      });
+    }
+
+    // Agent registry listing — all known agents
+    if (url.pathname === "/.well-known/agents") {
+      const agents = AGENT_REGISTRY.map(a => ({
+        id: a.id,
+        role: a.role,
+        card_url: a.card_url,
+        webfinger: `acct:${a.id}@safety-quotient.dev`,
+      }));
+      return Response.json(agents, {
+        headers: {
+          "Cache-Control": "public, max-age=3600",
+          ...CORS_HEADERS,
+        },
+      });
     }
 
     if (url.pathname === "/vocab" || url.pathname === "/vocab.json") {
