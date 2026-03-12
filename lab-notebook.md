@@ -156,7 +156,13 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Observatory consolidation       | ✓ observatory-sqlab removed from chromabook; only ~/projects/observatory remains (Session 73) |
 | Jenkins Phase 2 (Tier 2 CI/CD) | ✓ Literate Jenkinsfiles (3 repos), meshd build+deploy, shared scripts sync, GH Actions relay (Session 74) |
 | meshd systemd supervision      | ✓ 4 user units with Restart=always + enable-linger — replaces bare nohup (Session 76) |
-| Self-readiness audit            | ⚑ Consensus message created, not yet deployed (Session 76) |
+| Self-readiness audit            | ⚑ Deployed + round 2 responses pending from peers (Session 76-77) |
+| psq-sub-agent → psq-agent rename | ✓ Identity migration across config, rules, scripts, docs (Session 77) |
+| Observatory hybrid architecture | ✓ Resolved — SQLite transport + D1 monitoring (Session 77) |
+| D1 aggregation pipeline         | ⚑ Scoped via transport to claude-control — blocked on claude-control activation (Session 77) |
+| Triple-write + session-close    | ✓ Integrated into autonomous-sync.sh pipeline (Session 77) |
+| cross_repo_fetch inbound fix    | ✓ from-{agent_id}- prefix added to inbound filter (Session 77) |
+| Compositor GH issue links       | ✓ issue_url/issue_number in Messages table (Session 77) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -5009,3 +5015,51 @@ dashboard observability.
   delivery latency varies by peer sync schedule (5-min cron)
 
 ▶ transport/sessions/self-readiness-audit/, TODO.md, memory/decisions.md
+
+
+## 2026-03-11T20:38 CDT — Session 77 (Identity migration, D1 cost analysis, autonomous pipeline hardening)
+
+- **psq-sub-agent → psq-agent identity migration** — updated agent-registry.json (role
+  sub-agent→peer, added legacy_prefixes), cogarch.config.json (display name, transport,
+  detection patterns), .claude/rules/sqlite.md + platform/shared/cogarch/rules/sqlite.md
+  (deterministic key examples, agent facet values), epistemic_debt.py (SQL CASE output),
+  autonomy-budget.py and orientation-payload.py (docstring examples). Historical records
+  preserved. PSQ already identifies as psq-agent; message_prefix retained for backward
+  compat with 155+ legacy transport files.
+- **cross_repo_fetch inbound filter fix** — root cause: psq-agent's self-readiness audit
+  response used `from-psq-agent-005.json` but the filter only matched `from-psq-sub-agent-*`
+  (message_prefix) and `to-psychology-agent-*` (Convention B). Fix: added `from-{agent_id}-`
+  to inbound_prefixes set, covering both legacy and current naming.
+- **bootstrap_state_db.py smart processed status** — inbound messages from peers now
+  bootstrap as processed=FALSE (previously all messages bootstrapped as TRUE, making
+  autonomous sync ignore the entire backlog). Uses `_get_local_agent_id()` to determine
+  direction. Applied to both modern interagent/v1 and legacy transport paths.
+- **Compositor GH issue links** — added issue_url and issue_number columns to meshd
+  messages SQL query (knowledge.go) and GH link column to compositor Messages table
+  (interagent/index.html).
+- **Triple-write backfill in autonomous-sync.sh** — sweeps issue_pending=1 messages
+  after cross_repo_fetch indexing, capped at 5/cycle. Non-blocking. Also added v18
+  column migrations to ensure_db() for issue_url, issue_number, issue_pending.
+- **Session-close automation** — new script session_close.py checks MANIFEST gate
+  conditions (all-agents-respond) against from-{agent}-*.json response files. Integrated
+  into autonomous-sync.sh pipeline between triple-write and pre-flight.
+- **send_broadcast.py committed** — full broadcast workflow: JSON generation + Convention B
+  copies + MANIFEST + state.db index + git commit/push + SSH deploy. Symlinked.
+- **Observatory hybrid architecture resolved** — confirmed hybrid already exists in
+  practice. SQLite state.db handles mesh transport (shared scripts), Cloudflare D1 handles
+  monitoring (health checks, content checks, analytics). Documented in architecture.md.
+- **D1 cost analysis** — hrcb-db at 772 MB (15 days). story_snapshots grows at ~58K
+  rows/day, events at ~22K rows/day. D1 read costs already exceed free tier. Storage
+  5 GB free tier hit in ~3 months. 100 GB hard limit not a near-term concern.
+- **D1 aggregation → claude-control** — drafted transport message (cabinet-infrastructure
+  session) scoping pull-aggregate-purge pipeline on cabinet. Reusable binary opportunity
+  identified — privacy boundary explicit (binary = generic, config = private).
+  ACK-gated on claude-control activation.
+
+⚑ EPISTEMIC FLAGS
+- D1 API rate limits not characterized — aggregation batch size may need tuning
+- Cabinet disk capacity not audited for unbounded SQLite growth
+- claude-control agent not yet active — cabinet-infrastructure session blocked indefinitely
+- psq-agent identity migration not deployed to peer repos (chromabook configs unchanged)
+
+▶ docs/architecture.md (observatory-hybrid-data decision), transport/sessions/cabinet-infrastructure/

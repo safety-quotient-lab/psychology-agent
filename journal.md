@@ -70,6 +70,7 @@ partner, and Socratic interlocutor
 50. [The Cold Peer Paradox: When Optimization Prevents Discovery](#50-the-cold-peer-paradox)
 51. [What Twelve Builds Teach About Integration Testing: The Meshd Deploy Pipeline](#51-what-twelve-builds-teach-about-integration-testing)
 52. [The Nohup Trap: Why Background Processes Need Supervision](#52-the-nohup-trap)
+53. [Infrastructure Delegation: When the Psychology Agent Routes Work It Cannot Own](#53-infrastructure-delegation)
 
 ---
 
@@ -2074,3 +2075,33 @@ This episode illustrates a broader pattern: **deployment mode determines failure
 `nohup` fails silently and permanently. systemd fails visibly and recovers automatically.
 cron fails on schedule and retries. The choice of deployment mechanism shapes not just
 whether a service runs, but how it breaks and whether anyone notices.
+
+
+## 53. Infrastructure Delegation: When the Psychology Agent Routes Work It Cannot Own {#53-infrastructure-delegation}
+
+Session 77 surfaced a cost problem in the Cloudflare D1 database: hrcb-db reached
+772 MB in 15 days, with story_snapshots growing at ~58K rows/day. D1 read costs
+already exceeded the free tier. The analysis produced three optimization tiers —
+retention (delete old data), aggregation (roll up daily), and migration (move to
+local SQLite on cabinet). The user chose aggregation with historical preservation.
+
+The interesting finding concerns *who does the work.* The psychology agent scoped the
+problem, framed the options, and made the architectural decision (hybrid: D1 for hot
+operational data, cabinet SQLite for historical analytics). But the implementation —
+Jenkins pipelines, D1 API scripts, SQLite schema design — falls outside psychology-
+agent's scope boundaries. We drafted a transport message to claude-control, a
+hypothetical infrastructure agent whose private codebase contains a reusable core
+that could factor into a generic pull-aggregate-purge binary.
+
+This delegation follows a pattern that recurs in multi-agent systems: the agent that
+identifies the problem often lacks the domain authority to solve it. The psychology
+agent understands *why* the data matters (analytical capacity, longitudinal trends)
+but not *how* to build the pipeline (D1 API auth, Jenkins job DSL, SQLite vacuum
+schedules). The transport message scopes the work precisely so the receiving agent
+can execute without needing the psychology agent's domain context — and the privacy
+boundary ensures the binary carries no project-specific knowledge, only generic
+table-processing logic.
+
+This separation mirrors the Plan 9 design principle already adopted for transport:
+files (or in this case, binaries) compose at consumption time, not at creation time.
+The binary knows tables; the config knows which tables matter.

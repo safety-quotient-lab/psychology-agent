@@ -189,6 +189,10 @@
                               *.unratified.org for agent discovery.
                               unratified.org stays for blog platform.
                               2026-03-10
+ Observatory data             Hybrid: SQLite state.db for mesh transport
+                              (shared scripts), D1 for monitoring (health,
+                              content, analytics). Historical aggregation
+                              on cabinet via claude-control. 2026-03-11
 ```
 
 ## Authority Hierarchy
