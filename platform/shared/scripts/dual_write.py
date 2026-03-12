@@ -48,6 +48,10 @@ Usage:
         --description TEXT [--session-id N] [--severity low|moderate|high|critical] \
         [--tool-name NAME] [--tool-context CTX] [--detection-tier 1|2]
 
+    python scripts/dual_write.py verify-claim --claim-id N [--failed]
+
+    python scripts/dual_write.py resolve-flag --flag-id N --resolved-by SOURCE
+
     python scripts/dual_write.py facet --entity-type TABLE --entity-id N \
         --facet-type TYPE --facet-value VALUE
 
@@ -484,6 +488,56 @@ def cmd_engineering_incident(args: argparse.Namespace) -> None:
     conn.close()
 
 
+# ── verify-claim ────────────────────────────────────────────────────────
+
+def cmd_verify_claim(args: argparse.Namespace) -> None:
+    """Mark a claim as verified (or failed verification)."""
+    conn = get_connection()
+    verified_value = 0 if args.failed else 1
+    cursor = conn.execute("""
+        UPDATE claims
+        SET verified = ?,
+            verified_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
+        WHERE id = ?
+    """, (verified_value, args.claim_id))
+    conn.commit()
+    if cursor.rowcount == 0:
+        print(f"warning: no claim found for id={args.claim_id}", file=sys.stderr)
+    else:
+        status = "failed" if args.failed else "verified"
+        print(f"claim {status}: claims/{args.claim_id}")
+    conn.close()
+
+
+# ── resolve-flag ────────────────────────────────────────────────────────
+
+def cmd_resolve_flag(args: argparse.Namespace) -> None:
+    """Mark an epistemic flag as resolved."""
+    conn = get_connection()
+    # Ensure resolved_by column exists (v21 migration safety)
+    try:
+        conn.execute(
+            "ALTER TABLE epistemic_flags ADD COLUMN resolved_by TEXT"
+        )
+    except sqlite3.OperationalError:
+        pass  # column already exists
+
+    cursor = conn.execute("""
+        UPDATE epistemic_flags
+        SET resolved = TRUE,
+            resolved_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
+            resolved_by = ?
+        WHERE id = ?
+    """, (args.resolved_by, args.flag_id))
+    conn.commit()
+    if cursor.rowcount == 0:
+        print(f"warning: no flag found for id={args.flag_id}", file=sys.stderr)
+    else:
+        print(f"flag resolved: epistemic_flags/{args.flag_id} "
+              f"by {args.resolved_by}")
+    conn.close()
+
+
 def cmd_facet(args: argparse.Namespace) -> None:
     """Add a universal facet to any entity."""
     conn = get_connection()
@@ -647,6 +701,20 @@ def main() -> None:
                     choices=[1, 2],
                     help="1=mechanical (hook), 2=cognitive (T17)")
 
+    # verify-claim
+    vc = sub.add_parser("verify-claim", help="Mark a claim as verified")
+    vc.add_argument("--claim-id", required=True, type=int,
+                    help="claims.id to verify")
+    vc.add_argument("--failed", action="store_true",
+                    help="Mark as failed verification instead of verified")
+
+    # resolve-flag
+    rf = sub.add_parser("resolve-flag", help="Mark an epistemic flag as resolved")
+    rf.add_argument("--flag-id", required=True, type=int,
+                    help="epistemic_flags.id to resolve")
+    rf.add_argument("--resolved-by", required=True,
+                    help="Resolution source (e.g., session-79, decision-key, manual)")
+
     # facet
     fa = sub.add_parser("facet", help="Add a universal facet to any entity")
     fa.add_argument("--entity-type", required=True,
@@ -680,6 +748,8 @@ def main() -> None:
         "gate-status": cmd_gate_status,
         "next-turn": cmd_next_turn,
         "engineering-incident": cmd_engineering_incident,
+        "verify-claim": cmd_verify_claim,
+        "resolve-flag": cmd_resolve_flag,
         "facet": cmd_facet,
         "facet-query": cmd_facet_query,
     }
