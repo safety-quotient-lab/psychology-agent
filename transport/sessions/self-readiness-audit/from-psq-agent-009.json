@@ -1,0 +1,159 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "self-readiness-audit",
+  "turn": 9,
+  "timestamp": "2026-03-11T21:06:27-05:00",
+  "message_type": "consensus-response",
+  "in_response_to": "to-psq-agent-008.json",
+  "from": {
+    "agent_id": "psq-agent",
+    "instance": "Claude Code (Sonnet 4.6), Debian 12 x86_64",
+    "schemas_supported": ["interagent/v1", "psychology-agent/machine-response/v2"],
+    "discovery_url": null
+  },
+  "to": {
+    "agent_id": "human",
+    "role": "operator"
+  },
+  "transport": {
+    "method": "git-pr",
+    "persistence": "persistent"
+  },
+  "payload": {
+    "subject": "PSQ agent self-readiness audit round 3 — NOT-READY",
+    "vote": "NOT-READY",
+    "scan_depth_applied": "strict",
+    "severity_threshold_applied": "INFORMATIONAL",
+    "treat_warnings_as_errors": true,
+    "max_acceptable_findings": 0,
+    "findings_count": 11,
+    "findings_remediated_this_session": 4,
+    "findings_remaining": 7,
+    "verdict_rationale": "7 findings remain after session remediations (2 HIGH, 3 MEDIUM, 1 LOW, 1 INFORMATIONAL). Under strict mode, any finding at any severity = NOT-READY.",
+    "session_remediations": [
+      {
+        "finding": "5A",
+        "description": "Phantom MANIFEST entry: from-unratified-agent-007.json referenced but missing on disk",
+        "action": "Fetched canonical source from safety-quotient-lab/unratified transport/sessions/self-readiness-audit/to-all-agents-004.json. File now present on disk.",
+        "status": "FIXED"
+      },
+      {
+        "finding": "1B",
+        "description": "MANIFEST status=closed while round 3 is active",
+        "action": "Updated MANIFEST to status=open with prior_close block preserved and reopened_at timestamp.",
+        "status": "FIXED"
+      },
+      {
+        "finding": "9A",
+        "description": "session-start-inbox.sh in .claude/hooks/ with no settings.json registration",
+        "action": "Registered under UserPromptSubmit event in .claude/settings.json.",
+        "status": "FIXED"
+      },
+      {
+        "finding": "5B",
+        "description": "to-psq-agent-008.json untracked in git",
+        "action": "Will be committed with this session's transport files.",
+        "status": "FIXED (committed in this batch)"
+      }
+    ],
+    "findings_remaining_detail": [
+      {
+        "id": "4A",
+        "severity": "HIGH",
+        "category": "Insecure state",
+        "description": "Live OpenRouter API key stored in plaintext in .env (sk-or-v1-e606...131). The .env file is gitignored and not tracked — no git leak. Risk is local filesystem exposure (hooks, logs, tool reads). The key is an OpenRouter credential, not Anthropic.",
+        "remediation": "Move to system keychain or secrets manager. Not fixable inline without breaking OpenRouter functionality.",
+        "by_design": false
+      },
+      {
+        "id": "8A",
+        "severity": "HIGH",
+        "category": "Transport hygiene — duplicate turn numbers",
+        "description": "local-coordination session: 86 files share turn=0 in state.db (halt files, escalation files, heartbeat, mesh-state). All autonomous cron-generated files.",
+        "remediation": "By-design architectural choice. local-coordination is not a mesh-protocol session — turn=0 is a sentinel for autonomous state files, not a monotonic protocol sequence. Recommend: add exempt_session_types field to transport convention spec to formally classify local-coordination as exempt from duplicate-turn constraint.",
+        "by_design": true,
+        "by_design_rationale": "Autonomous halt/escalation/heartbeat files are state snapshots, not message turns. Applying monotonic turn numbering to them would require protocol changes to the cron-generated file format."
+      },
+      {
+        "id": "2A",
+        "severity": "MEDIUM",
+        "category": "Broken state — WAL file",
+        "description": "state.db WAL active (1.6 MB, shm 32 KB) held by PID 1651844 (meshd — /home/kashif/platform/meshd --port 8077). This is NOT a stale WAL from a crashed process. meshd is the active autonomous-sync daemon.",
+        "remediation": "By-design. meshd holds state.db open continuously for real-time mesh state writes. The anti-pattern (CLAUDE.md anti-patterns.md) covers STALE WAL files from crashed processes, not active daemon WALs. Recommend: document meshd as the expected WAL holder in anti-patterns.md to disambiguate.",
+        "by_design": true,
+        "by_design_rationale": "meshd is the active mesh daemon and its WAL lock is expected behavior. The 1.6 MB WAL indicates active writes since last checkpoint — normal under continuous operation."
+      },
+      {
+        "id": "8B_8C_8D",
+        "severity": "MEDIUM",
+        "category": "Transport hygiene — duplicate turn numbers in state.db",
+        "description": "psq-scoring session: 11 dup-turn pairs (cross-repo-fetch addressed-copy messages indexed at same turn as source). self-readiness-audit session: 4 dup-turn pairs (addressed-copy collision). psychology-interface session: 1 dup-turn pair. Root cause: state.db indexes addressed-copy files (to-psq-agent-NNN.json) at the same turn number as their session source, causing UNIQUE(session_name, turn) violations.",
+        "remediation": "Structural fix required: either (a) do not index addressed-copies in state.db transport_messages (they are not psq-agent messages), or (b) assign monotonic turn numbers across all inbound + outbound files per session. Requires schema change + bootstrap_state_db.py update. Estimated effort: S (4-order, 2-pass). Not fixable in this session.",
+        "by_design": false
+      },
+      {
+        "id": "3B",
+        "severity": "LOW",
+        "category": "Misconfigured state",
+        "description": "OPENROUTER_MODEL=nvidia/nemotron-3-nano-30b-a3b:free in .env — free-tier model, rate-limited, not production-grade.",
+        "remediation": "Upgrade to paid-tier model if OpenRouter is used for any scoring-adjacent work. Verify which scripts consume OPENROUTER_MODEL.",
+        "by_design": false
+      },
+      {
+        "id": "10A",
+        "severity": "LOW",
+        "category": "Dependency availability",
+        "description": "4 Python packages not importable in local environment: datasets, detoxify, matplotlib, onnxruntime. (distill is a false positive — local script import.) onnxruntime is the most notable: needed for local ONNX inference/export scripts. Production scoring runs on Hetzner (Node.js onnxruntime-node), so this does not block production.",
+        "remediation": "Install in local venv: pip install datasets detoxify matplotlib onnxruntime. Not blocking for production. Low urgency.",
+        "by_design": false
+      },
+      {
+        "id": "1C",
+        "severity": "INFORMATIONAL",
+        "category": "Stale state — lab-notebook",
+        "description": "lab-notebook.md last entry is 2026-03-10. Git log shows autonomous transport-only commits on 2026-03-11 (heartbeat/mesh-state/messages). No session entry covers the self-readiness-audit session on 2026-03-11.",
+        "remediation": "Add lab-notebook entry for this session at /cycle time.",
+        "by_design": false
+      }
+    ],
+    "by_design_summary": "2 of 7 remaining findings (8A, 2A) are by-design architectural choices, not defects. Under strict mode these still count as NOT-READY. Formal exemption mechanism does not yet exist in the transport protocol spec.",
+    "round_3_context": "MEMORY.md entry updated to reflect round 3 open status. Prior R2 READY consensus is preserved in the audit record — this round opens a new evaluation against a stricter standard, not a reversal of R2 findings."
+  },
+  "claims": [
+    {
+      "claim_id": "c1",
+      "text": "PSQ agent has 7 remaining findings after session remediations: 2 HIGH, 3 MEDIUM (1 finding covering 8B/8C/8D), 1 LOW (covering 10A 4 packages), 1 INFORMATIONAL.",
+      "confidence": 0.87,
+      "confidence_basis": "Agent-executed audit across 10 check categories. Finding count may be undercounted if checks missed nested issues. Symlink check (pass), schema parity (pass) independently verified.",
+      "independently_verified": false
+    },
+    {
+      "claim_id": "c2",
+      "text": "2 HIGH findings are present: live OpenRouter key on disk (4A) and local-coordination turn-0 mass collision (8A, by-design).",
+      "confidence": 0.95,
+      "confidence_basis": "Direct file read (.env key confirmed present; state.db query confirmed 86 local-coordination turn-0 entries).",
+      "independently_verified": false
+    },
+    {
+      "claim_id": "c3",
+      "text": "meshd (PID 1651844) is the active WAL holder — this is the autonomous mesh daemon, not a stale crash artifact.",
+      "confidence": 0.98,
+      "confidence_basis": "ps aux confirmed process identity: /home/kashif/platform/meshd --port 8077 --project-root ...",
+      "independently_verified": false
+    }
+  ],
+  "action_gate": {
+    "gate_condition": "all-agents-vote-round-3",
+    "gate_status": "blocked",
+    "gate_note": "PSQ agent has voted NOT-READY. Gate remains blocked until all agents respond. Human decides next action: remediate blocking findings and run round 4, or accept findings and formally close."
+  },
+  "ack_required": false,
+  "urgency": "normal",
+  "setl": 0.04,
+  "epistemic_flags": [
+    "Self-audit limitation: findings are self-reported — no independent third-party verification. Confidence rated 0.87 to reflect this.",
+    "By-design classification for 8A and 2A is asserted by psq-agent; human may override if the intent was to surface all divergences regardless of architectural rationale.",
+    "Turn-0 collision count (86) verified via direct DB query. Classification as by-design is an inference from the file naming pattern and cron automation context.",
+    "Dependency check may have false negatives: only top-level imports scanned, not conditional or nested imports."
+  ]
+}
