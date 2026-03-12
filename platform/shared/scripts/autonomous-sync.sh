@@ -40,6 +40,8 @@ fi
 AGENT_ID="${AGENT_ID:-psychology-agent}"
 export AUTONOMOUS_AGENT="${AGENT_ID}"  # signals pre-commit hook to enforce allowlist
 DB_PATH="${PROJECT_ROOT}/state.db"
+LOCAL_DB_PATH="${PROJECT_ROOT}/state.local.db"
+AGENTDB="${PROJECT_ROOT}/agentdb"
 LOCK_FILE="/tmp/autonomous-sync-${AGENT_ID}.lock"
 WAKE_FILE="/tmp/sync-wake-${AGENT_ID}"
 RATELIMIT_MARKER="/tmp/sync-ratelimit-${AGENT_ID}"
@@ -135,9 +137,24 @@ ensure_hooks() {
 }
 
 ensure_db() {
+    # DB split: state.db (shared/exportable) + state.local.db (machine-local, never git-tracked)
+    # agentdb bootstrap creates both; Python bootstrap populates shared from files.
+
+    # Bootstrap local DB via agentdb if available
+    if [ -x "${AGENTDB}" ] && [ ! -f "${LOCAL_DB_PATH}" ]; then
+        log "state.local.db missing — running agentdb bootstrap"
+        "${AGENTDB}" bootstrap 2>/dev/null || true
+    fi
+
     if [ ! -f "${DB_PATH}" ]; then
         log "state.db missing — running bootstrap"
-        python3 "${PROJECT_ROOT}/scripts/bootstrap_state_db.py" --force
+        if [ -x "${AGENTDB}" ]; then
+            "${AGENTDB}" bootstrap 2>/dev/null || true
+        fi
+        # Python bootstrap populates from files (agentdb creates empty schemas)
+        if [ -f "${PROJECT_ROOT}/scripts/bootstrap_state_db.py" ]; then
+            PROJECT_ROOT="${PROJECT_ROOT}" python3 "${PROJECT_ROOT}/scripts/bootstrap_state_db.py" --force
+        fi
     fi
 
     # Apply full schema idempotently — CREATE TABLE IF NOT EXISTS + INSERT OR IGNORE
@@ -152,31 +169,11 @@ ensure_db() {
         log "WARNING: scripts/schema.sql not found — schema may be incomplete"
     fi
 
-    # Table rename migration (v15) — rename trust_budget → autonomy_budget
-    # Fails silently if already renamed or if table was created with new name
-    sqlite3 "${DB_PATH}" \
-        "ALTER TABLE trust_budget RENAME TO autonomy_budget;" 2>/dev/null || true
-    sqlite3 "${DB_PATH}" \
-        "UPDATE table_visibility SET table_name = 'autonomy_budget' WHERE table_name = 'trust_budget';" 2>/dev/null || true
-
-    # Column migrations — safe to re-run (ALTER fails silently if column exists)
-    sqlite3 "${DB_PATH}" \
-        "ALTER TABLE autonomy_budget ADD COLUMN min_action_interval INTEGER NOT NULL DEFAULT 300;" 2>/dev/null || true
-    sqlite3 "${DB_PATH}" \
-        "ALTER TABLE autonomy_budget ADD COLUMN shadow_mode INTEGER NOT NULL DEFAULT 1;" 2>/dev/null || true
-    sqlite3 "${DB_PATH}" \
-        "ALTER TABLE autonomous_actions ADD COLUMN adversarial_reason TEXT;" 2>/dev/null || true
-    sqlite3 "${DB_PATH}" \
-        "ALTER TABLE autonomous_actions ADD COLUMN peer_reviewed_by TEXT;" 2>/dev/null || true
-    sqlite3 "${DB_PATH}" \
-        "ALTER TABLE autonomous_actions ADD COLUMN knock_on_depth INTEGER DEFAULT 0;" 2>/dev/null || true
-    sqlite3 "${DB_PATH}" \
-        "ALTER TABLE autonomous_actions ADD COLUMN resolution_level TEXT;" 2>/dev/null || true
+    # Column migrations for shared DB (transport_messages columns)
     sqlite3 "${DB_PATH}" \
         "ALTER TABLE transport_messages ADD COLUMN ack_required INTEGER DEFAULT 0;" 2>/dev/null || true
     sqlite3 "${DB_PATH}" \
         "ALTER TABLE transport_messages ADD COLUMN ack_received INTEGER DEFAULT 0;" 2>/dev/null || true
-    # v18: triple-write cross-reference columns
     sqlite3 "${DB_PATH}" \
         "ALTER TABLE transport_messages ADD COLUMN issue_url TEXT;" 2>/dev/null || true
     sqlite3 "${DB_PATH}" \
@@ -184,19 +181,120 @@ ensure_db() {
     sqlite3 "${DB_PATH}" \
         "ALTER TABLE transport_messages ADD COLUMN issue_pending INTEGER DEFAULT 0;" 2>/dev/null || true
 
-    # Initialize budget row if absent
-    sqlite3 "${DB_PATH}" \
-        "INSERT OR IGNORE INTO autonomy_budget (agent_id) VALUES ('${AGENT_ID}');"
+    # Ensure local DB has required tables (agentdb bootstrap handles this,
+    # but fallback for pre-agentdb installs)
+    if [ ! -f "${LOCAL_DB_PATH}" ]; then
+        log "Creating state.local.db with local tables"
+        sqlite3 "${LOCAL_DB_PATH}" "
+            CREATE TABLE IF NOT EXISTS autonomy_budget (
+                agent_id TEXT PRIMARY KEY,
+                budget_current INTEGER NOT NULL DEFAULT 20,
+                budget_max INTEGER NOT NULL DEFAULT 20,
+                budget_total_spent INTEGER NOT NULL DEFAULT 0,
+                last_action TEXT,
+                last_reset TEXT,
+                consecutive_blocks INTEGER NOT NULL DEFAULT 0,
+                min_action_interval INTEGER NOT NULL DEFAULT 300,
+                shadow_mode INTEGER NOT NULL DEFAULT 1,
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+            CREATE TABLE IF NOT EXISTS autonomous_actions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                agent_id TEXT NOT NULL,
+                action_type TEXT NOT NULL,
+                description TEXT,
+                budget_before INTEGER,
+                budget_after INTEGER,
+                adversarial_reason TEXT,
+                peer_reviewed_by TEXT,
+                knock_on_depth INTEGER DEFAULT 0,
+                resolution_level TEXT,
+                timestamp TEXT DEFAULT (datetime('now')),
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+            CREATE TABLE IF NOT EXISTS active_gates (
+                gate_id TEXT PRIMARY KEY,
+                sending_agent TEXT NOT NULL,
+                receiving_agent TEXT NOT NULL,
+                gate_condition TEXT,
+                timeout_at TEXT,
+                fallback_action TEXT DEFAULT 'continue-without-response',
+                status TEXT NOT NULL DEFAULT 'waiting',
+                resolved_by TEXT,
+                resolved_at TEXT,
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+            CREATE TABLE IF NOT EXISTS memory_entries (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                topic TEXT NOT NULL,
+                entry_key TEXT NOT NULL,
+                value TEXT,
+                status TEXT,
+                last_confirmed TEXT,
+                session_id INTEGER,
+                created_at TEXT DEFAULT (datetime('now')),
+                UNIQUE(topic, entry_key)
+            );
+            CREATE TABLE IF NOT EXISTS entry_facets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                entry_id INTEGER NOT NULL,
+                facet_type TEXT NOT NULL,
+                facet_value TEXT NOT NULL,
+                created_at TEXT DEFAULT (datetime('now')),
+                UNIQUE(entry_id, facet_type, facet_value)
+            );
+        " 2>/dev/null || true
+    fi
+
+    # Column migrations for local DB
+    sqlite3 "${LOCAL_DB_PATH}" \
+        "ALTER TABLE autonomy_budget ADD COLUMN min_action_interval INTEGER NOT NULL DEFAULT 300;" 2>/dev/null || true
+    sqlite3 "${LOCAL_DB_PATH}" \
+        "ALTER TABLE autonomy_budget ADD COLUMN shadow_mode INTEGER NOT NULL DEFAULT 1;" 2>/dev/null || true
+    sqlite3 "${LOCAL_DB_PATH}" \
+        "ALTER TABLE autonomous_actions ADD COLUMN adversarial_reason TEXT;" 2>/dev/null || true
+    sqlite3 "${LOCAL_DB_PATH}" \
+        "ALTER TABLE autonomous_actions ADD COLUMN peer_reviewed_by TEXT;" 2>/dev/null || true
+    sqlite3 "${LOCAL_DB_PATH}" \
+        "ALTER TABLE autonomous_actions ADD COLUMN knock_on_depth INTEGER DEFAULT 0;" 2>/dev/null || true
+    sqlite3 "${LOCAL_DB_PATH}" \
+        "ALTER TABLE autonomous_actions ADD COLUMN resolution_level TEXT;" 2>/dev/null || true
+
+    # Migrate budget from state.db to state.local.db if needed
+    # (one-time migration: if budget exists in state.db but not in local)
+    local local_budget_exists
+    local_budget_exists=$(sqlite3 "${LOCAL_DB_PATH}" \
+        "SELECT COUNT(*) FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "0")
+    if [ "${local_budget_exists}" = "0" ]; then
+        # Try to migrate from state.db
+        local old_budget
+        old_budget=$(sqlite3 "${DB_PATH}" \
+            "SELECT budget_current FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "")
+        if [ -n "${old_budget}" ]; then
+            log "Migrating autonomy_budget from state.db to state.local.db (budget=${old_budget})"
+            sqlite3 "${LOCAL_DB_PATH}" \
+                "INSERT OR IGNORE INTO autonomy_budget (agent_id, budget_current) VALUES ('${AGENT_ID}', ${old_budget});"
+        else
+            sqlite3 "${LOCAL_DB_PATH}" \
+                "INSERT OR IGNORE INTO autonomy_budget (agent_id) VALUES ('${AGENT_ID}');"
+        fi
+    fi
 }
 
 check_budget() {
     local budget
-    budget=$(sqlite3 "${DB_PATH}" \
-        "SELECT budget_current FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';")
+    budget=$(sqlite3 "${LOCAL_DB_PATH}" \
+        "SELECT budget_current FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "")
+
+    # Fallback to state.db for pre-migration installs
+    if [ -z "${budget}" ]; then
+        budget=$(sqlite3 "${DB_PATH}" \
+            "SELECT budget_current FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "")
+    fi
 
     if [ -z "${budget}" ] || [ "${budget}" -le 0 ]; then
         err "HALT — autonomy budget exhausted (${budget:-0} credits). Human audit required."
-        err "Run: python3 scripts/autonomy-budget.py reset"
+        err "Run: ./agentdb budget reset --agent-id ${AGENT_ID}"
 
         # Write halt marker to local-coordination
         local halt_file
@@ -225,7 +323,7 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"; then
         escalate "critical" "budget-halt" \
             "Autonomy budget exhausted (0/${budget:-0} credits)" \
             "Autonomous sync halted. No credits remaining." \
-            "Run: python3 scripts/autonomy-budget.py reset" || true
+            "Run: ./agentdb budget reset --agent-id ${AGENT_ID}" || true
 
         exit 1
     fi
@@ -273,7 +371,7 @@ check_active_gates() {
     # Gate check runs BEFORE interval check — active gates override the standard
     # min_action_interval with GATE_ACCELERATED_INTERVAL (60s)
     local active_gates
-    active_gates=$(sqlite3 "${DB_PATH}" \
+    active_gates=$(sqlite3 "${LOCAL_DB_PATH}" \
         "SELECT COUNT(*) FROM active_gates
          WHERE status = 'waiting'
          AND datetime(timeout_at) > datetime('now', 'localtime')
@@ -288,7 +386,7 @@ check_active_gates() {
 handle_gate_timeouts() {
     # Process any gates that have exceeded their timeout_at
     local timed_out
-    timed_out=$(sqlite3 "${DB_PATH}" \
+    timed_out=$(sqlite3 "${LOCAL_DB_PATH}" \
         "SELECT gate_id, fallback_action FROM active_gates
          WHERE status = 'waiting'
          AND datetime(timeout_at) <= datetime('now', 'localtime')
@@ -303,13 +401,17 @@ handle_gate_timeouts() {
 
         case "${fallback_action}" in
             continue-without-response)
-                python3 "${PROJECT_ROOT}/scripts/dual_write.py" gate-timeout \
-                    --gate-id "${gate_id}" 2>/dev/null || true
+                if [ -x "${AGENTDB}" ]; then
+                    "${AGENTDB}" gate timeout --gate-id "${gate_id}" 2>/dev/null || true
+                else
+                    python3 "${PROJECT_ROOT}/scripts/dual_write.py" gate-timeout \
+                        --gate-id "${gate_id}" 2>/dev/null || true
+                fi
                 ;;
             retry-once)
                 # Check if already retried (status would have been set to timed-out)
                 local retry_count
-                retry_count=$(sqlite3 "${DB_PATH}" \
+                retry_count=$(sqlite3 "${LOCAL_DB_PATH}" \
                     "SELECT COUNT(*) FROM autonomous_actions
                      WHERE description LIKE '%retry gate ${gate_id}%'
                      AND agent_id = '${AGENT_ID}';" 2>/dev/null || echo "0")
@@ -325,8 +427,12 @@ handle_gate_timeouts() {
                 fi
                 ;;
             halt-and-escalate)
-                python3 "${PROJECT_ROOT}/scripts/dual_write.py" gate-timeout \
-                    --gate-id "${gate_id}" 2>/dev/null || true
+                if [ -x "${AGENTDB}" ]; then
+                    "${AGENTDB}" gate timeout --gate-id "${gate_id}" 2>/dev/null || true
+                else
+                    python3 "${PROJECT_ROOT}/scripts/dual_write.py" gate-timeout \
+                        --gate-id "${gate_id}" 2>/dev/null || true
+                fi
                 err "HALT — gate ${gate_id} timed out with halt-and-escalate"
                 # Write halt marker
                 local halt_file
@@ -362,7 +468,7 @@ check_interval() {
     # creates a fast lane for gated chains while preserving the standard
     # interval as authoritative for ungated operation.
     local result
-    result=$(sqlite3 "${DB_PATH}" "
+    result=$(sqlite3 "${LOCAL_DB_PATH}" "
         SELECT
             COALESCE(min_action_interval, 300) as interval_secs,
             CASE
@@ -371,7 +477,7 @@ check_interval() {
             END as elapsed_secs
         FROM autonomy_budget
         WHERE agent_id = '${AGENT_ID}';
-    ")
+    " 2>/dev/null)
 
     local interval_secs elapsed_secs
     interval_secs=$(echo "${result}" | cut -d'|' -f1)
@@ -461,14 +567,12 @@ git_sync() {
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>" 2>/dev/null || true
 
         # Log to autonomous_actions audit trail
-        if [ -f "${PROJECT_ROOT}/state.db" ]; then
-            sqlite3 "${PROJECT_ROOT}/state.db" \
-                "INSERT OR IGNORE INTO autonomous_actions
-                 (agent_id, action_type, details, timestamp)
-                 VALUES ('${AGENT_ID}', 'git-self-heal',
-                 'Pre-pull auto-commit: ${diagnosis}',
-                 datetime('now'));" 2>/dev/null || true
-        fi
+        sqlite3 "${LOCAL_DB_PATH}" \
+            "INSERT OR IGNORE INTO autonomous_actions
+             (agent_id, action_type, description, timestamp)
+             VALUES ('${AGENT_ID}', 'git-self-heal',
+             'Pre-pull auto-commit: ${diagnosis}',
+             datetime('now'));" 2>/dev/null || true
     fi
 
     # Record HEAD before pull to detect new commits
@@ -550,14 +654,12 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>" 2>/dev/null || true
         esac
 
         # Log the failure to audit trail
-        if [ -f "${PROJECT_ROOT}/state.db" ]; then
-            sqlite3 "${PROJECT_ROOT}/state.db" \
-                "INSERT OR IGNORE INTO autonomous_actions
-                 (agent_id, action_type, details, timestamp)
-                 VALUES ('${AGENT_ID}', 'git-sync-failure',
-                 'Pull failed (${failure_class}): $(echo "${pull_output}" | head -1 | sed "s/'/''/g")',
-                 datetime('now'));" 2>/dev/null || true
-        fi
+        sqlite3 "${LOCAL_DB_PATH}" \
+            "INSERT OR IGNORE INTO autonomous_actions
+             (agent_id, action_type, description, timestamp)
+             VALUES ('${AGENT_ID}', 'git-sync-failure',
+             'Pull failed (${failure_class}): $(echo "${pull_output}" | head -1 | sed "s/'/''/g")',
+             datetime('now'));" 2>/dev/null || true
 
         if [ ${pull_exit} -ne 0 ]; then
             # Recovery failed — escalate non-transient failures
@@ -690,20 +792,18 @@ run_sync() {
 
             # Track consecutive rate limits
             local consecutive_ratelimits=0
-            if [ -f "${PROJECT_ROOT}/state.db" ]; then
-                consecutive_ratelimits=$(sqlite3 "${PROJECT_ROOT}/state.db" \
-                    "SELECT COUNT(*) FROM autonomous_actions
-                     WHERE agent_id = '${AGENT_ID}'
-                       AND action_type = 'ratelimit'
-                       AND timestamp > datetime('now', '-1 hour')
-                     ORDER BY timestamp DESC;" 2>/dev/null || echo "0")
-            fi
+            consecutive_ratelimits=$(sqlite3 "${LOCAL_DB_PATH}" \
+                "SELECT COUNT(*) FROM autonomous_actions
+                 WHERE agent_id = '${AGENT_ID}'
+                   AND action_type = 'ratelimit'
+                   AND timestamp > datetime('now', '-1 hour')
+                 ORDER BY timestamp DESC;" 2>/dev/null || echo "0")
             consecutive_ratelimits=$((consecutive_ratelimits + 1))
 
             # Log to audit trail
-            sqlite3 "${PROJECT_ROOT}/state.db" \
+            sqlite3 "${LOCAL_DB_PATH}" \
                 "INSERT INTO autonomous_actions
-                 (agent_id, action_type, details, timestamp)
+                 (agent_id, action_type, description, timestamp)
                  VALUES ('${AGENT_ID}', 'ratelimit',
                  'Rate limit detected (consecutive: ${consecutive_ratelimits}). Cooldown ${RATELIMIT_COOLDOWN}s.',
                  datetime('now'));" 2>/dev/null || true
@@ -751,16 +851,15 @@ record_action() {
         budget_after=0
     fi
 
-    sqlite3 "${DB_PATH}" "INSERT INTO autonomous_actions
+    sqlite3 "${LOCAL_DB_PATH}" "INSERT INTO autonomous_actions
         (agent_id, action_type, action_class, evaluator_tier, evaluator_result,
          description, budget_before, budget_after)
         VALUES ('${AGENT_ID}', '${action_type}', '${action_class}', ${tier},
                 '${result}', '${description}', ${budget_before}, ${budget_after});"
 
-    sqlite3 "${DB_PATH}" "UPDATE autonomy_budget
+    sqlite3 "${LOCAL_DB_PATH}" "UPDATE autonomy_budget
         SET budget_current = ${budget_after},
-            last_action = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
-            updated_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
+            last_action = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
         WHERE agent_id = '${AGENT_ID}';"
 
     echo "${budget_after}"
@@ -837,7 +936,17 @@ main() {
     # cross_repo_fetch uses git fetch (not git pull), so new peer messages
     # won't appear in TRANSPORT_CHANGED. Indexing first ensures the
     # unprocessed count in state.db reflects reality.
-    if [ -f "${PROJECT_ROOT}/scripts/cross_repo_fetch.py" ]; then
+    if [ -x "${AGENTDB}" ]; then
+        log "Fetching cross-repo transport (agentdb)..."
+        "${AGENTDB}" inbox --index 2>/dev/null || {
+            log "WARNING: agentdb inbox failed — falling back to cross_repo_fetch.py"
+            if [ -f "${PROJECT_ROOT}/scripts/cross_repo_fetch.py" ]; then
+                python3 "${PROJECT_ROOT}/scripts/cross_repo_fetch.py" --index 2>/dev/null || {
+                    log "WARNING: cross_repo_fetch.py also failed — continuing without cross-repo inbound"
+                }
+            fi
+        }
+    elif [ -f "${PROJECT_ROOT}/scripts/cross_repo_fetch.py" ]; then
         log "Fetching cross-repo transport..."
         python3 "${PROJECT_ROOT}/scripts/cross_repo_fetch.py" --index 2>/dev/null || {
             log "WARNING: cross_repo_fetch.py failed — continuing without cross-repo inbound"
@@ -895,7 +1004,7 @@ main() {
             git_push || true
 
             # Reset consecutive blocks on successful no-op
-            sqlite3 "${DB_PATH}" \
+            sqlite3 "${LOCAL_DB_PATH}" \
                 "UPDATE autonomy_budget SET consecutive_blocks = 0 WHERE agent_id = '${AGENT_ID}';"
 
             local cycle_duration=$(( SECONDS - cycle_start ))
@@ -934,7 +1043,7 @@ main() {
                 record_action "gate_poll" "reversible" 1 "approved" \
                     "Gate-accelerated poll — no new messages (0 cost, ${sync_duration}s)" "${budget}" > /dev/null
                 # Don't update last_action for no-op polls — allows immediate re-poll
-                sqlite3 "${DB_PATH}" "UPDATE autonomy_budget
+                sqlite3 "${LOCAL_DB_PATH}" "UPDATE autonomy_budget
                     SET last_action = NULL
                     WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || true
                 log "Gate-accelerated no-op poll — 0 budget cost, immediate re-poll enabled"
@@ -962,10 +1071,10 @@ main() {
 
         # Check consecutive error count
         local blocks
-        blocks=$(sqlite3 "${DB_PATH}" \
-            "SELECT consecutive_blocks FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';")
+        blocks=$(sqlite3 "${LOCAL_DB_PATH}" \
+            "SELECT consecutive_blocks FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "0")
         blocks=$((blocks + 1))
-        sqlite3 "${DB_PATH}" \
+        sqlite3 "${LOCAL_DB_PATH}" \
             "UPDATE autonomy_budget SET consecutive_blocks = ${blocks} WHERE agent_id = '${AGENT_ID}';"
 
         if [ "${blocks}" -ge "${MAX_CONSECUTIVE_ERRORS}" ]; then
@@ -979,7 +1088,7 @@ main() {
     fi
 
     # Reset consecutive blocks on success
-    sqlite3 "${DB_PATH}" \
+    sqlite3 "${LOCAL_DB_PATH}" \
         "UPDATE autonomy_budget SET consecutive_blocks = 0 WHERE agent_id = '${AGENT_ID}';"
 
     local cycle_duration=$(( SECONDS - cycle_start ))
