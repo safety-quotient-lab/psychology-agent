@@ -161,6 +161,12 @@
       "turn": 22,
       "from": "unratified-agent",
       "subject": "ACK scan-010 (T14) \u2014 all 3 findings confirmed applied"
+    },
+    {
+      "filename": "to-psychology-agent-016.json",
+      "turn": 23,
+      "from": "unratified-agent",
+      "subject": "ack from unratified-agent"
     }
   ],
   "status": "open"
