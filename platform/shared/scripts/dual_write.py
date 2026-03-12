@@ -1,577 +1,187 @@
 #!/usr/bin/env python3
 """
-dual_write.py — Incremental SQLite state layer writes.
+dual_write.py — CLI dispatcher for the state layer.
 
-Called by /sync and /cycle after writing markdown (Phase 1 contract:
-markdown = source of truth, DB = queryable index).
+Thin entry point that routes subcommands to domain modules in scripts/state/.
+Backward-compatible: all existing CLI invocations continue to work unchanged.
 
-Usage:
-    python scripts/dual_write.py transport-message --session SESSION --filename FILE \
-        --turn N --type TYPE --from-agent FROM --to-agent TO --timestamp TS \
-        [--subject SUBJ] [--claims-count N] [--setl F] [--urgency URG] \
-        [--thread-id TID] [--parent-thread-id PTID] [--message-cid CID] \
-        [--problem-type error|warning|info]
+Domain modules (DDD bounded contexts):
+    state.transport   — transport-message, mark-processed, next-turn
+    state.gates       — gate-open, gate-resolve, gate-timeout, gate-status
+    state.knowledge   — memory-entry, session-entry, decision
+    state.cogarch     — trigger-fired, lesson
+    state.quality     — verify-claim, resolve-flag, engineering-incident, facet, facet-query
 
-    python scripts/dual_write.py mark-processed --session SESSION --filename FILE
-
-    python scripts/dual_write.py memory-entry --topic TOPIC --key KEY --value VAL \
-        [--status S] [--session-id N]
-
-    python scripts/dual_write.py session-entry --id N --timestamp TS --summary TEXT \
-        [--artifacts TEXT] [--flags TEXT]
-
-    python scripts/dual_write.py decision --key KEY --text TEXT --date DATE \
-        [--source SRC] [--confidence F]
-
-    python scripts/dual_write.py trigger-fired --trigger-id TID
-
-    python scripts/dual_write.py lesson --title TITLE --date DATE \
-        [--pattern-type TYPE] [--domain DOM] [--severity SEV] \
-        [--recurrence N] [--trigger-relevant TID] \
-        [--promotion-status STATUS] [--lesson-text TEXT]
-
-    python scripts/dual_write.py gate-open --gate-id GID \
-        --sending-agent FROM --receiving-agent TO \
-        --session SESSION --filename FILE \
-        [--blocks-until response|ack|specific-turn] \
-        [--timeout-minutes N] [--fallback-action ACTION]
-
-    python scripts/dual_write.py gate-resolve --gate-id GID --resolved-by FILE
-
-    python scripts/dual_write.py gate-timeout --gate-id GID
-
-    python scripts/dual_write.py gate-status [--agent-id AID]
-
-    python scripts/dual_write.py next-turn --session SESSION
-
-    python scripts/dual_write.py engineering-incident --incident-type TYPE \
-        --description TEXT [--session-id N] [--severity low|moderate|high|critical] \
-        [--tool-name NAME] [--tool-context CTX] [--detection-tier 1|2]
-
-    python scripts/dual_write.py verify-claim --claim-id N [--failed]
-
-    python scripts/dual_write.py resolve-flag --flag-id N --resolved-by SOURCE
-
-    python scripts/dual_write.py facet --entity-type TABLE --entity-id N \
-        --facet-type TYPE --facet-value VALUE
-
-    python scripts/dual_write.py facet-query --facet-type TYPE --facet-value VALUE
+Usage unchanged — see each subcommand's --help for details.
 
 Requires: Python 3.10+ (stdlib only)
 """
+
 import argparse
-import hashlib
 import json
-import sqlite3
 import sys
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).parent.parent
-DB_PATH = PROJECT_ROOT / "state.db"
-SCHEMA_PATH = PROJECT_ROOT / "scripts" / "schema.sql"
+# Ensure the scripts/ directory sits on sys.path so `state` package resolves
+# regardless of the working directory at invocation time.
+_SCRIPTS_DIR = str(Path(__file__).parent)
+if _SCRIPTS_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPTS_DIR)
+
+from state import transport, gates, knowledge, cogarch, quality
 
 
-def _compute_cid_from_file(session_name: str, filename: str) -> str | None:
-    """Compute SHA-256 content-addressable ID from a transport JSON file.
-
-    Returns the hex digest, or None if the file cannot be read.
-    Canonical form: sorted-keys JSON with no trailing whitespace.
-    """
-    filepath = PROJECT_ROOT / "transport" / "sessions" / session_name / filename
-    if not filepath.exists():
-        return None
-    try:
-        raw = json.loads(filepath.read_text())
-        canonical = json.dumps(raw, sort_keys=True, separators=(",", ":"))
-        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
-    except (json.JSONDecodeError, OSError):
-        return None
-
-
-def get_connection() -> sqlite3.Connection:
-    """Connect to state.db, creating from schema if missing."""
-    if not DB_PATH.exists():
-        if not SCHEMA_PATH.exists():
-            print("ERROR: state.db missing and schema.sql not found", file=sys.stderr)
-            sys.exit(1)
-        print(f"state.db not found — creating from {SCHEMA_PATH}", file=sys.stderr)
-        conn = sqlite3.connect(DB_PATH)
-        conn.executescript(SCHEMA_PATH.read_text())
-        conn.commit()
-        return conn
-    return sqlite3.connect(DB_PATH)
-
-
-# ── transport-message ────────────────────────────────────────────────────
+# ── CLI → Domain Dispatch ───────────────────────────────────────────────
 
 def cmd_transport_message(args: argparse.Namespace) -> None:
-    conn = get_connection()
-    # Ensure v18+ columns exist (migration safety for existing DBs)
-    for col, col_type, default in [
-        ("issue_url", "TEXT", "NULL"),
-        ("issue_number", "INTEGER", "NULL"),
-        ("issue_pending", "INTEGER", "0"),
-        ("thread_id", "TEXT", "NULL"),
-        ("parent_thread_id", "TEXT", "NULL"),
-        ("message_cid", "TEXT", "NULL"),
-        ("problem_type", "TEXT", "NULL"),
-        ("task_state", "TEXT", "'pending'"),
-        ("expires_at", "TEXT", "NULL"),
-    ]:
-        try:
-            conn.execute(
-                f"ALTER TABLE transport_messages ADD COLUMN {col} {col_type} DEFAULT {default}"
-            )
-        except sqlite3.OperationalError:
-            pass  # column already exists
+    transport.index_message(
+        session=args.session,
+        filename=args.filename,
+        turn=args.turn,
+        message_type=args.type,
+        from_agent=args.from_agent,
+        to_agent=args.to_agent,
+        timestamp=args.timestamp,
+        subject=args.subject or "",
+        claims_count=args.claims_count or 0,
+        setl=args.setl,
+        urgency=args.urgency or "normal",
+        issue_url=getattr(args, "issue_url", None),
+        issue_number=getattr(args, "issue_number", None),
+        issue_pending=getattr(args, "issue_pending", False),
+        thread_id=getattr(args, "thread_id", None),
+        parent_thread_id=getattr(args, "parent_thread_id", None),
+        message_cid=getattr(args, "message_cid", None),
+        problem_type=getattr(args, "problem_type", None),
+        task_state=getattr(args, "task_state", None) or "pending",
+        expires_at=getattr(args, "expires_at", None),
+    )
 
-    # Compute content-addressable ID from the source JSON file if available
-    message_cid = getattr(args, "message_cid", None)
-    if not message_cid:
-        message_cid = _compute_cid_from_file(args.session, args.filename)
-
-    # Default thread_id to session_name (backward compatible)
-    thread_id = getattr(args, "thread_id", None) or args.session
-    parent_thread_id = getattr(args, "parent_thread_id", None)
-    problem_type = getattr(args, "problem_type", None)
-
-    # Task state: outbound messages start completed; inbound start pending
-    task_state = getattr(args, "task_state", None) or "pending"
-    expires_at = getattr(args, "expires_at", None)
-
-    conn.execute("""
-        INSERT OR REPLACE INTO transport_messages
-            (session_name, filename, turn, message_type, from_agent, to_agent,
-             timestamp, subject, claims_count, setl, urgency, processed, processed_at,
-             issue_url, issue_number, issue_pending,
-             thread_id, parent_thread_id, message_cid, problem_type,
-             task_state, expires_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE, NULL, ?, ?, ?,
-                ?, ?, ?, ?,
-                ?, ?)
-    """, (
-        args.session, args.filename, args.turn, args.type,
-        args.from_agent, args.to_agent, args.timestamp,
-        args.subject or "", args.claims_count or 0,
-        args.setl, args.urgency or "normal",
-        getattr(args, "issue_url", None),
-        getattr(args, "issue_number", None),
-        1 if getattr(args, "issue_pending", False) else 0,
-        thread_id, parent_thread_id, message_cid, problem_type,
-        task_state, expires_at,
-    ))
-    conn.commit()
-    conn.close()
-    print(f"indexed: transport_messages/{args.filename}"
-          + (f" [cid:{message_cid[:12]}]" if message_cid else ""))
-
-
-# ── mark-processed ───────────────────────────────────────────────────────
 
 def cmd_mark_processed(args: argparse.Namespace) -> None:
-    conn = get_connection()
-    if args.session:
-        cursor = conn.execute("""
-            UPDATE transport_messages
-            SET processed = TRUE,
-                processed_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
-                task_state = 'completed'
-            WHERE session_name = ? AND filename = ?
-        """, (args.session, args.filename))
-    else:
-        cursor = conn.execute("""
-            UPDATE transport_messages
-            SET processed = TRUE,
-                processed_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
-                task_state = 'completed'
-            WHERE filename = ?
-        """, (args.filename,))
-    conn.commit()
-    if cursor.rowcount == 0:
-        print(f"warning: no row found for filename={args.filename}", file=sys.stderr)
-    else:
-        print(f"marked processed: {args.filename}")
-    conn.close()
+    transport.mark_processed(
+        filename=args.filename,
+        session=args.session,
+    )
 
-
-# ── memory-entry ─────────────────────────────────────────────────────────
-
-def cmd_memory_entry(args: argparse.Namespace) -> None:
-    conn = get_connection()
-    conn.execute("""
-        INSERT INTO memory_entries (topic, entry_key, value, status, last_confirmed, session_id)
-        VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'), ?)
-        ON CONFLICT(topic, entry_key) DO UPDATE SET
-            value = excluded.value,
-            status = excluded.status,
-            last_confirmed = excluded.last_confirmed,
-            session_id = COALESCE(excluded.session_id, session_id)
-    """, (args.topic, args.key, args.value, args.status, args.session_id))
-    conn.commit()
-    conn.close()
-    print(f"upserted: memory_entries/{args.topic}/{args.key}")
-
-
-# ── session-entry ────────────────────────────────────────────────────────
-
-def cmd_session_entry(args: argparse.Namespace) -> None:
-    conn = get_connection()
-    conn.execute("""
-        INSERT OR REPLACE INTO session_log (id, timestamp, summary, artifacts, epistemic_flags)
-        VALUES (?, ?, ?, ?, ?)
-    """, (args.id, args.timestamp, args.summary, args.artifacts, args.flags))
-    conn.commit()
-    conn.close()
-    print(f"upserted: session_log/{args.id}")
-
-
-# ── decision ─────────────────────────────────────────────────────────────
-
-def cmd_decision(args: argparse.Namespace) -> None:
-    conn = get_connection()
-    conn.execute("""
-        INSERT INTO decision_chain (decision_key, decision_text, evidence_source, decided_date, confidence)
-        VALUES (?, ?, ?, ?, ?)
-        ON CONFLICT(decision_key) DO UPDATE SET
-            decision_text = excluded.decision_text,
-            evidence_source = COALESCE(excluded.evidence_source, evidence_source),
-            decided_date = excluded.decided_date,
-            confidence = COALESCE(excluded.confidence, confidence)
-    """, (args.key, args.text, args.source, args.date, args.confidence))
-    conn.commit()
-    conn.close()
-    print(f"upserted: decision_chain/{args.key}")
-
-
-# ── trigger-fired ────────────────────────────────────────────────────────
-
-def cmd_trigger_fired(args: argparse.Namespace) -> None:
-    conn = get_connection()
-    conn.execute("""
-        UPDATE trigger_state
-        SET last_fired = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
-            fire_count = fire_count + 1,
-            updated_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
-        WHERE trigger_id = ?
-    """, (args.trigger_id,))
-    conn.commit()
-    conn.close()
-    print(f"fired: trigger_state/{args.trigger_id}")
-
-
-# ── lesson ──────────────────────────────────────────────────────────────
-
-def cmd_lesson(args: argparse.Namespace) -> None:
-    conn = get_connection()
-    # Ensure table exists (schema v7 migration-safe)
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS lessons (
-            id               INTEGER PRIMARY KEY AUTOINCREMENT,
-            title            TEXT NOT NULL UNIQUE,
-            lesson_date      TEXT NOT NULL,
-            pattern_type     TEXT,
-            domain           TEXT,
-            severity         TEXT,
-            recurrence       INTEGER DEFAULT 1,
-            first_seen       TEXT,
-            last_seen        TEXT,
-            trigger_relevant TEXT,
-            promotion_status TEXT,
-            graduated_to     TEXT,
-            graduated_date   TEXT,
-            lesson_text      TEXT,
-            created_at       TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
-        )
-    """)
-    conn.execute("""
-        INSERT INTO lessons
-            (title, lesson_date, pattern_type, domain, severity, recurrence,
-             first_seen, last_seen, trigger_relevant, promotion_status, lesson_text)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(title) DO UPDATE SET
-            pattern_type = COALESCE(excluded.pattern_type, pattern_type),
-            domain = COALESCE(excluded.domain, domain),
-            severity = COALESCE(excluded.severity, severity),
-            recurrence = COALESCE(excluded.recurrence, recurrence),
-            last_seen = COALESCE(excluded.last_seen, last_seen),
-            trigger_relevant = COALESCE(excluded.trigger_relevant, trigger_relevant),
-            promotion_status = COALESCE(excluded.promotion_status, promotion_status),
-            lesson_text = COALESCE(excluded.lesson_text, lesson_text)
-    """, (
-        args.title, args.date, args.pattern_type, args.domain,
-        args.severity, args.recurrence or 1,
-        args.date, args.date,  # first_seen = last_seen on initial insert
-        args.trigger_relevant, args.promotion_status, args.lesson_text
-    ))
-    conn.commit()
-    conn.close()
-    print(f"upserted: lessons/{args.title}")
-
-
-# ── gate-open ─────────────────────────────────────────────────────────────
-
-def cmd_gate_open(args: argparse.Namespace) -> None:
-    conn = get_connection()
-    # Ensure table exists (schema v10 migration-safe)
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS active_gates (
-            gate_id             TEXT PRIMARY KEY,
-            sending_agent       TEXT NOT NULL,
-            receiving_agent     TEXT NOT NULL,
-            session_name        TEXT NOT NULL,
-            outbound_filename   TEXT NOT NULL,
-            blocks_until        TEXT NOT NULL DEFAULT 'response',
-            timeout_minutes     INTEGER NOT NULL DEFAULT 60,
-            fallback_action     TEXT NOT NULL DEFAULT 'continue-without-response',
-            status              TEXT NOT NULL DEFAULT 'waiting',
-            created_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
-            resolved_at         TEXT,
-            resolved_by         TEXT,
-            timeout_at          TEXT NOT NULL
-        )
-    """)
-    timeout_minutes = min(args.timeout_minutes or 60, 1440)  # cap at 24h
-    conn.execute("""
-        INSERT OR REPLACE INTO active_gates
-            (gate_id, sending_agent, receiving_agent, session_name,
-             outbound_filename, blocks_until, timeout_minutes,
-             fallback_action, status, timeout_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?,
-                ?, 'waiting',
-                strftime('%Y-%m-%dT%H:%M:%S',
-                         datetime('now', 'localtime', '+' || ? || ' minutes')))
-    """, (
-        args.gate_id, args.sending_agent, args.receiving_agent,
-        args.session, args.filename, args.blocks_until or "response",
-        timeout_minutes, args.fallback_action or "continue-without-response",
-        str(timeout_minutes),
-    ))
-    conn.commit()
-    conn.close()
-    print(f"gate opened: {args.gate_id} "
-          f"({args.sending_agent} → {args.receiving_agent}, "
-          f"timeout {timeout_minutes}min)")
-
-
-# ── gate-resolve ──────────────────────────────────────────────────────────
-
-def cmd_gate_resolve(args: argparse.Namespace) -> None:
-    conn = get_connection()
-    cursor = conn.execute("""
-        UPDATE active_gates
-        SET status = 'resolved',
-            resolved_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
-            resolved_by = ?
-        WHERE gate_id = ? AND status = 'waiting'
-    """, (args.resolved_by, args.gate_id))
-    conn.commit()
-    if cursor.rowcount == 0:
-        print(f"warning: no waiting gate found for gate_id={args.gate_id}",
-              file=sys.stderr)
-    else:
-        print(f"gate resolved: {args.gate_id} by {args.resolved_by}")
-    conn.close()
-
-
-# ── gate-timeout ──────────────────────────────────────────────────────────
-
-def cmd_gate_timeout(args: argparse.Namespace) -> None:
-    conn = get_connection()
-    cursor = conn.execute("""
-        UPDATE active_gates
-        SET status = 'timed-out',
-            resolved_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
-        WHERE gate_id = ? AND status = 'waiting'
-    """, (args.gate_id,))
-    conn.commit()
-    if cursor.rowcount == 0:
-        print(f"warning: no waiting gate found for gate_id={args.gate_id}",
-              file=sys.stderr)
-    else:
-        print(f"gate timed out: {args.gate_id}")
-    conn.close()
-
-
-# ── gate-status ───────────────────────────────────────────────────────────
-
-def cmd_gate_status(args: argparse.Namespace) -> None:
-    conn = get_connection()
-    conn.row_factory = sqlite3.Row
-    # Check table exists
-    tables = [r[0] for r in conn.execute(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='active_gates'"
-    ).fetchall()]
-    if "active_gates" not in tables:
-        print(json.dumps({"active_gates": 0, "gates": []}))
-        conn.close()
-        return
-
-    query = """
-        SELECT gate_id, sending_agent, receiving_agent, session_name,
-               outbound_filename, blocks_until, timeout_minutes,
-               fallback_action, status, created_at, timeout_at,
-               resolved_at, resolved_by
-        FROM active_gates
-        WHERE status = 'waiting'
-    """
-    params: tuple = ()
-    if args.agent_id:
-        query += " AND (sending_agent = ? OR receiving_agent = ?)"
-        params = (args.agent_id, args.agent_id)
-    query += " ORDER BY created_at"
-
-    rows = conn.execute(query, params).fetchall()
-    gates = [dict(r) for r in rows]
-    result = {"active_gates": len(gates), "gates": gates}
-    print(json.dumps(result, indent=2))
-    conn.close()
-
-
-# ── next-turn ────────────────────────────────────────────────────────────
 
 def cmd_next_turn(args: argparse.Namespace) -> None:
-    """Print the next available turn number for a session.
-
-    Computes MAX(turn) + 1 from transport_messages for the given session,
-    across ALL agents (turns are session-scoped, not agent-scoped, even
-    though two agents may have historically shared turn numbers). All
-    transport-writing skills should use this instead of parsing filenames
-    or directory listings.
-    """
-    conn = get_connection()
-    row = conn.execute(
-        "SELECT MAX(turn) FROM transport_messages WHERE session_name = ?",
-        (args.session,)
-    ).fetchone()
-    max_turn = row[0] if row and row[0] is not None else 0
-    next_turn = max_turn + 1
-    print(next_turn)
-    conn.close()
+    turn = transport.next_turn(session=args.session)
+    print(turn)
 
 
-# ── engineering-incident ──────────────────────────────────────────────────
+def cmd_memory_entry(args: argparse.Namespace) -> None:
+    knowledge.upsert_memory(
+        topic=args.topic,
+        key=args.key,
+        value=args.value,
+        status=args.status,
+        session_id=args.session_id,
+    )
+
+
+def cmd_session_entry(args: argparse.Namespace) -> None:
+    knowledge.upsert_session(
+        session_id=args.id,
+        timestamp=args.timestamp,
+        summary=args.summary,
+        artifacts=args.artifacts,
+        flags=args.flags,
+    )
+
+
+def cmd_decision(args: argparse.Namespace) -> None:
+    knowledge.upsert_decision(
+        key=args.key,
+        text=args.text,
+        date=args.date,
+        source=args.source,
+        confidence=args.confidence,
+    )
+
+
+def cmd_trigger_fired(args: argparse.Namespace) -> None:
+    cogarch.fire_trigger(trigger_id=args.trigger_id)
+
+
+def cmd_lesson(args: argparse.Namespace) -> None:
+    cogarch.upsert_lesson(
+        title=args.title,
+        date=args.date,
+        pattern_type=args.pattern_type,
+        domain=args.domain,
+        severity=args.severity,
+        recurrence=args.recurrence or 1,
+        trigger_relevant=args.trigger_relevant,
+        promotion_status=args.promotion_status,
+        lesson_text=args.lesson_text,
+    )
+
+
+def cmd_gate_open(args: argparse.Namespace) -> None:
+    gates.open_gate(
+        gate_id=args.gate_id,
+        sending_agent=args.sending_agent,
+        receiving_agent=args.receiving_agent,
+        session=args.session,
+        filename=args.filename,
+        blocks_until=args.blocks_until or "response",
+        timeout_minutes=args.timeout_minutes or 60,
+        fallback_action=args.fallback_action or "continue-without-response",
+    )
+
+
+def cmd_gate_resolve(args: argparse.Namespace) -> None:
+    gates.resolve_gate(gate_id=args.gate_id, resolved_by=args.resolved_by)
+
+
+def cmd_gate_timeout(args: argparse.Namespace) -> None:
+    gates.timeout_gate(gate_id=args.gate_id)
+
+
+def cmd_gate_status(args: argparse.Namespace) -> None:
+    result = gates.query_status(agent_id=args.agent_id)
+    print(json.dumps(result, indent=2))
+
 
 def cmd_engineering_incident(args: argparse.Namespace) -> None:
-    """Record an engineering incident, incrementing recurrence on duplicate type."""
-    conn = get_connection()
-    # Check if same incident_type already exists (for recurrence increment)
-    row = conn.execute(
-        "SELECT id, recurrence FROM engineering_incidents "
-        "WHERE incident_type = ? AND graduated = 0 "
-        "ORDER BY created_at DESC LIMIT 1",
-        (args.incident_type,)
-    ).fetchone()
-    if row:
-        conn.execute(
-            "UPDATE engineering_incidents SET recurrence = ?, "
-            "description = ?, tool_name = ?, tool_context = ?, "
-            "session_id = ?, severity = ? "
-            "WHERE id = ?",
-            (row[1] + 1, args.description, args.tool_name,
-             args.tool_context, args.session_id, args.severity or "moderate",
-             row[0])
-        )
-        print(f"incremented: engineering_incidents/{args.incident_type} "
-              f"(recurrence={row[1] + 1})")
-    else:
-        conn.execute(
-            "INSERT INTO engineering_incidents "
-            "(session_id, incident_type, detection_tier, severity, "
-            "description, tool_name, tool_context) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (args.session_id, args.incident_type,
-             args.detection_tier or 1, args.severity or "moderate",
-             args.description, args.tool_name, args.tool_context)
-        )
-        print(f"recorded: engineering_incidents/{args.incident_type}")
-    conn.commit()
-    conn.close()
+    quality.record_incident(
+        incident_type=args.incident_type,
+        description=args.description,
+        session_id=args.session_id,
+        severity=args.severity or "moderate",
+        tool_name=args.tool_name,
+        tool_context=args.tool_context,
+        detection_tier=args.detection_tier or 1,
+    )
 
-
-# ── verify-claim ────────────────────────────────────────────────────────
 
 def cmd_verify_claim(args: argparse.Namespace) -> None:
-    """Mark a claim as verified (or failed verification)."""
-    conn = get_connection()
-    verified_value = 0 if args.failed else 1
-    cursor = conn.execute("""
-        UPDATE claims
-        SET verified = ?,
-            verified_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
-        WHERE id = ?
-    """, (verified_value, args.claim_id))
-    conn.commit()
-    if cursor.rowcount == 0:
-        print(f"warning: no claim found for id={args.claim_id}", file=sys.stderr)
-    else:
-        status = "failed" if args.failed else "verified"
-        print(f"claim {status}: claims/{args.claim_id}")
-    conn.close()
+    quality.verify_claim(claim_id=args.claim_id, failed=args.failed)
 
-
-# ── resolve-flag ────────────────────────────────────────────────────────
 
 def cmd_resolve_flag(args: argparse.Namespace) -> None:
-    """Mark an epistemic flag as resolved."""
-    conn = get_connection()
-    # Ensure resolved_by column exists (v21 migration safety)
-    try:
-        conn.execute(
-            "ALTER TABLE epistemic_flags ADD COLUMN resolved_by TEXT"
-        )
-    except sqlite3.OperationalError:
-        pass  # column already exists
-
-    cursor = conn.execute("""
-        UPDATE epistemic_flags
-        SET resolved = TRUE,
-            resolved_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
-            resolved_by = ?
-        WHERE id = ?
-    """, (args.resolved_by, args.flag_id))
-    conn.commit()
-    if cursor.rowcount == 0:
-        print(f"warning: no flag found for id={args.flag_id}", file=sys.stderr)
-    else:
-        print(f"flag resolved: epistemic_flags/{args.flag_id} "
-              f"by {args.resolved_by}")
-    conn.close()
+    quality.resolve_flag(flag_id=args.flag_id, resolved_by=args.resolved_by)
 
 
 def cmd_facet(args: argparse.Namespace) -> None:
-    """Add a universal facet to any entity."""
-    conn = get_connection()
-    conn.execute(
-        "INSERT OR IGNORE INTO universal_facets "
-        "(entity_type, entity_id, facet_type, facet_value) "
-        "VALUES (?, ?, ?, ?)",
-        (args.entity_type, args.entity_id, args.facet_type, args.facet_value),
+    quality.add_facet(
+        entity_type=args.entity_type,
+        entity_id=args.entity_id,
+        facet_type=args.facet_type,
+        facet_value=args.facet_value,
     )
-    conn.commit()
-    conn.close()
-    print(f"facet: {args.entity_type}/{args.entity_id} "
-          f"+{args.facet_type}={args.facet_value}")
 
 
 def cmd_facet_query(args: argparse.Namespace) -> None:
-    """Query entities by facet type and value. Returns JSON."""
-    conn = get_connection()
-    rows = conn.execute(
-        "SELECT entity_type, entity_id, facet_type, facet_value "
-        "FROM universal_facets WHERE facet_type = ? AND facet_value = ? "
-        "ORDER BY entity_type, entity_id",
-        (args.facet_type, args.facet_value),
-    ).fetchall()
-    conn.close()
-    results = [
-        {"entity_type": r[0], "entity_id": r[1],
-         "facet_type": r[2], "facet_value": r[3]}
-        for r in rows
-    ]
+    results = quality.query_facets(
+        facet_type=args.facet_type,
+        facet_value=args.facet_value,
+    )
     print(json.dumps(results, indent=2))
 
 
-# ── main ─────────────────────────────────────────────────────────────────
+# ── Argument Parsing ────────────────────────────────────────────────────
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Incremental dual-write to state.db")

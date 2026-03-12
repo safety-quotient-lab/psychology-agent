@@ -18,8 +18,12 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).parent.parent
-DB_PATH = PROJECT_ROOT / "state.db"
+_SCRIPTS_DIR = str(Path(__file__).parent)
+if _SCRIPTS_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPTS_DIR)
+
+from state.connection import PROJECT_ROOT, DB_PATH
+
 MANIFEST_PATH = PROJECT_ROOT / "transport" / "MANIFEST.json"
 
 # Legacy session name mappings — carried forward from manual MANIFEST.
