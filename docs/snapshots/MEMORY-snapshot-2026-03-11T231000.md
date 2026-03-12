@@ -12,29 +12,29 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 | `memory/psq-status.md` | PSQ sub-agent calibration, deploy status, open issues | PSQ work in this context (rare) |
 | `memory/infrastructure.md` | Chromabook, Cloudflare, CI/CD, known gotchas | Infrastructure/deploy work |
 | `memory/cognitive-triggers.md` | Legacy — full trigger descriptions (canonical: `docs/cognitive-triggers.md`) | Superseded; read canonical instead |
-| `memory/feedback_chromabook_not_hetzner.md` | Chromabook = local laptop, Hetzner = separate VPS — never conflate | Infrastructure planning |
 
 ## Active Thread (2026-03-11)
 
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 79. Pipeline gaps closed (claims 270/371 verified, flags
-435/435 resolved, triggers partial, facets populated, lessons indexed). Solid-OIDC auth
-design landed (direction-set). Operations tab built for compositor. /sync clean — no
-pending messages, 0 active gates.
+**Where we stopped:** Session 78. Circuit breaker implemented (3 mechanisms). Transport
+hygiene fixes landed (addressed-copy skip, exempt sessions, WAL disambig). R3 audit
+processed and closed (2 READY, 2 NOT-READY). /diagnose skill created. Standards research
+complete (A2A + DIDComm threading recommended). 5 pipeline gaps identified.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - meshd: ✓ All 4 running under systemd `[warm]`
 - CI/CD: ✓ Tier 1 + Tier 2 operational `[warm]`
-- Pipeline gaps: ✓ Claims + flags closed; triggers partial (T1 only) `[warm]`
-- Standards: ✓ A2A + DIDComm threading adopted and implemented `[warm]`
-- Auth design: ✓ Solid-OIDC direction-set — Phase 0 current, Phase 1-3 planned `[cold]`
+- Circuit breaker: ✓ mesh-stop/start + budget pause-all + autonomous-sync pause file `[warm]`
+- Self-readiness audit: ✓ R3 closed — 2 READY, 2 NOT-READY `[warm]`
+- Pipeline gaps: ⚑ Claims, flags, triggers, facets, lessons all broken `[warm]`
+- Standards: ✓ A2A + DIDComm threading adopted (design decision) `[cold]`
 - D1 optimization: ⚑ Blocked on claude-control activation `[cold]`
 - DI Phase A Pass 2: pending `[cold]`
 
-**Next:** Implement public client authentication (Solid-OIDC). Start with /adjudicate
-to resolve implementation sequencing. Deploy current version first.
+**Next:** Fix pipeline gaps (claims verification, flag resolution, trigger telemetry,
+facets, lessons.md). A2A agent card alignment. DIDComm threading model migration.
 
 
 ## Memory Hygiene

@@ -685,15 +685,12 @@ auto-restart loops. None had monitoring — all required manual discovery.
 Systemic diagnostic revealed 5 monitoring mechanisms that collect data but
 never consume it. Schema and write paths exist; consumption/action paths missing.
 
-- [ ] **Claims verification pipeline** — 371 claims, 0 verified. Need a mechanism
-  (periodic pass or at /sync processing time) that checks claim assertions against
-  available evidence and sets `verified=1`. Start with high-confidence (≥0.9) claims.
-  *Precondition: ✓ MET — claims table populated, dual_write.py indexes claims*
+- [x] **Claims verification pipeline** — COMPLETE (Session 79). `resolve_pipeline_gaps.py`
+  + dual_write `verify-claim`. Conservative criteria: confidence ≥ 0.9, non-empty basis,
+  processed source. 270/371 verified (101 remain — lack basis or below threshold). Schema v21.
 
-- [ ] **Epistemic flag resolution** — 435 flags, 0 resolved. Add resolution logic to
-  /cycle or /diagnose: when a flag's source session completes, the flag resolves. When
-  a flag's concern becomes moot (design decision supersedes it), mark resolved.
-  *Precondition: ✓ MET — epistemic_flags table populated*
+- [x] **Epistemic flag resolution** — COMPLETE (Session 79). dual_write `resolve-flag` +
+  batch resolver. Two methods: `session-completed` and `orphan-source`. 435/435 resolved.
 
 - [x] **Trigger telemetry to state.db** — session-start hook writes T1 fire via
   `dual_write.py trigger-fired`. Other triggers (T2-T16) fire behaviorally during

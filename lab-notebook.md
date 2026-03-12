@@ -5117,3 +5117,36 @@ dashboard observability.
 - bootstrap --force reset processed flags on 201 messages — may need selective re-processing
 
 ▶ journal.md §54, docs/architecture.md (transport exempt sessions, addressed-copy policy)
+
+## 2026-03-11T23:07 CDT — Session 79 (Pipeline gap closure, Solid-OIDC auth design, Operations tab)
+
+- **Claims verification pipeline** — `scripts/resolve_pipeline_gaps.py` + dual_write `verify-claim`
+  subcommand. Conservative criteria: confidence ≥ 0.9, non-empty basis text, processed source
+  message. Result: 270/371 verified (101 remain — lack basis or below threshold). Schema v21
+  (`resolved_by` column on epistemic_flags).
+- **Epistemic flag resolution pipeline** — dual_write `resolve-flag` subcommand + batch resolver.
+  Two methods: `session-completed` (source transport message processed) and `orphan-source` (source
+  predates state.db indexing). Result: 435/435 resolved.
+- **Solid-OIDC auth design** — `docs/decisions/2026-03-11-public-client-authentication.md`
+  (direction-set). Auth stack: OAuth 2.0 → OIDC → DPoP (RFC 9449) → Solid-OIDC v0.1.0.
+  Community Solid Server on Hetzner (IdP + pod storage). CF Worker DPoP validation via
+  Web Crypto API. Phased rollout: Phase 0 (anonymous) → Phase 1 (API keys) → Phase 2
+  (Solid-OIDC) → Phase 3 (tiered). Client trust budget mapping defined.
+- **Agent card auth update** — `.well-known/agent-card.json` now declares `solid-oidc` scheme
+  (planned phase).
+- **Operations tab** — interagent compositor Operations tab built: autonomy budget cards
+  (per-agent fill bars), sortable/filterable actions audit trail, sync schedule panel.
+  LCARS-inspired aesthetic.
+- **/hunt** — full sweep completed. Top picks: update MEMORY.md Active Thread, deploy
+  pipeline gap scripts, update lab-notebook.
+- **/sync** — no new inbound activity. 58 Convention B addressed copies skipped. 0 active
+  gates. MANIFEST regenerated (0 pending). 29 stale PRs identified.
+- **Feedback memory saved** — chromabook runs as local laptop, not on Hetzner. Infrastructure
+  distinction recorded.
+
+⚑ EPISTEMIC FLAGS
+- 101 claims remain unverified — intentionally conservative (lack basis text or confidence < 0.9)
+- Solid-OIDC spec at v0.1.0 draft — may change before finalization
+- Operations tab renders from API data — no live data validation against actual meshd state
+
+▶ journal.md §55, docs/decisions/2026-03-11-public-client-authentication.md
