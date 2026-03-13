@@ -54,11 +54,39 @@ See `.dev.vars.example` for required variables.
 
 ## Document Hierarchy
 
+### Public (repo)
+
 | File | Purpose |
 |---|---|
-| `plan.md` | Hub — status, phases, next steps |
+| `plan.md` | Hub — status, phases, next steps, decisions |
 | `MEMORY.md` | Volatile state across sessions |
 | `.well-known/agent-card.json` | Mesh discovery manifest |
+| `cogarch.config.json` | Cognitive architecture — identity, peers, capabilities |
+| `interagent/vocab.json` | Shared vocabulary definitions |
+
+### Private (auto-memory)
+
+| File | Purpose |
+|---|---|
+| `MEMORY.md` | Index — active thread, doc pointers |
+| `cognitive-triggers.md` | Trigger system T1–T8+ |
+| `lab-notebook.md` | Session log — what happened, when |
+| `journal.md` | Research narrative — why decisions were made |
+| `lessons.md` | Lessons learned — pattern errors, insights |
+
+---
+
+## Skills
+
+| Skill | Purpose |
+|---|---|
+| `/sync` | Inbound channel sweep — transport sessions, peer cards, compositor health |
+| `/cycle` | Post-session documentation chain — public + private docs, commit |
+| `/doc` | Mid-work documentation persistence |
+| `/hunt` | Systematic work discovery — plan phases, transport, compositor, vocabulary |
+| `/knock` | 10-order knock-on effect tracing |
+| `/iterate` | Unified work loop — sync → hunt → discriminate → execute → cycle |
+| `/scan-peer` | Peer agent-card schema compliance scanning (D49 governance) |
 
 ---
 
@@ -76,3 +104,4 @@ Before considering any task complete:
 - **Hardcoded infrastructure** — never commit hostnames, IPs, ports. Use config.
 - **Recursive filesystem search** — never `find /` or `grep -r /`. Scope searches.
 - **Setting env vars across Bash calls** — they don't persist. Chain or use a file.
+- **Modifying transport session files** — historical signed messages; immutable record.
