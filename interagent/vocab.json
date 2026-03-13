@@ -7,8 +7,8 @@
   "@type": "DefinedTermSet",
   "name": "Safety Quotient Mesh Vocabulary",
   "description": "Shared vocabulary for the safety-quotient federated agent mesh. Schema.org base with project-specific extensions under the sqm: namespace.",
-  "version": "1.0.0",
-  "dateModified": "2026-03-10",
+  "version": "1.1.0",
+  "dateModified": "2026-03-13",
   "publisher": {
     "@type": "Organization",
     "name": "Safety Quotient Lab",
@@ -103,6 +103,22 @@
       "description": "Which consensus mechanism handles a shared state change. C1: HTTP mechanical (additive, deterministic). C2: claude -p reasoning (substantive). C3: human escalation (deadlock, security).",
       "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
       "termCode": "sqm:ConsensusTier"
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:AgentEndpoint",
+      "name": "Agent Endpoint",
+      "description": "A bounded-context HTTP endpoint served by a mesh agent. Each endpoint returns a focused JSON payload for a single operational concern (status, budget, gates, messages, actions, schedule). Part of the API decomposition standard.",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:AgentEndpoint"
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:EndpointSchema",
+      "name": "Endpoint Schema",
+      "description": "The expected JSON shape of an agent endpoint response. Defined per-endpoint in the API decomposition proposal. Compositor validates responses against these schemas.",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:EndpointSchema"
     }
   ]
 }
