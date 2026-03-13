@@ -37,7 +37,12 @@ const AGENT_CARD_URLS = [
   "https://observatory.unratified.org/.well-known/agent-card.json",
 ];
 
-const DEPLOY_VERSION = "2026-03-13T15:10";
+const DEPLOY_VERSION = "2026-03-13T16:00";
+
+// Agents currently operated by a human (no autonomous cron loop).
+// Updated manually when agents transition between manual/autonomous.
+const MANUAL_MODE_AGENTS = new Set(["operations-agent", "psychology-agent"]);
+
 const AGENT_CACHE_KEY = "agent-registry-cache";
 const AGENT_CACHE_TTL = 300; // 5 minutes
 
@@ -263,7 +268,8 @@ function buildLocalStatus() {
     active_gates: [],
     recent_actions: [],
     recent_messages: [],
-    schedule: { cron_entry: null, last_sync: null },
+    schedule: { cron_entry: null, last_sync: null, autonomous: false },
+    manual_mode: true,
     skills: (card.skills || []).map(s => s.id),
     tabs: (card.tabs || []).map(t => t.name),
   };
@@ -319,6 +325,11 @@ async function fetchAllAgentStatus(registry) {
     agents.push({ id: selfId, status: "online", data: validateStatusData(localData) });
   }
 
+  // Tag agents in manual mode
+  for (const a of agents) {
+    a.manual_mode = MANUAL_MODE_AGENTS.has(a.id);
+  }
+
   return agents;
 }
 
@@ -344,14 +355,16 @@ async function buildPulseData(registry, cacheStatus, refreshedAt) {
     sum + (a.data?.active_gates || []).length, 0);
 
   const agentSummaries = agents.map(a => {
+    const manual = a.manual_mode || false;
     if (a.status !== "online") {
-      return { id: a.id, status: a.status, error: a.error || null };
+      return { id: a.id, status: a.status, manual_mode: manual, error: a.error || null };
     }
     const b = a.data?.autonomy_budget;
     if (!b || typeof b.budget_current !== "number") {
       return {
         id: a.id,
         status: "online",
+        manual_mode: manual,
         budget_current: null,
         budget_max: null,
         budget_pct: null,
@@ -365,6 +378,7 @@ async function buildPulseData(registry, cacheStatus, refreshedAt) {
     return {
       id: a.id,
       status: "online",
+      manual_mode: manual,
       budget_current: b.budget_current,
       budget_max: b.budget_max,
       budget_pct: b.budget_max > 0 ? Math.round((b.budget_current / b.budget_max) * 100) : 0,
@@ -424,6 +438,7 @@ async function buildOperationsData(registry) {
     const max = typeof b.budget_max === "number" ? b.budget_max : null;
     return {
       agent_id: a.id,
+      manual_mode: a.manual_mode || false,
       budget_current: cur,
       budget_max: max,
       budget_pct: (cur !== null && max > 0) ? Math.round((cur / max) * 100) : null,
@@ -496,8 +511,9 @@ async function fetchMeshHealth(registry) {
   const online = agents.filter(a => a.status === "online");
 
   const agentSummaries = agents.map(a => {
+    const manual = a.manual_mode || false;
     if (a.status !== "online") {
-      return { id: a.id, status: a.status, error: a.error || null };
+      return { id: a.id, status: a.status, manual_mode: manual, error: a.error || null };
     }
     const b = a.data?.autonomy_budget || {};
     const hasBudget = typeof b.budget_current === "number";
@@ -506,6 +522,7 @@ async function fetchMeshHealth(registry) {
     return {
       id: a.id,
       status: "online",
+      manual_mode: manual,
       budget_pct: (cur !== null && max > 0) ? Math.round((cur / max) * 100) : null,
       unprocessed: (a.data?.totals || {}).unprocessed || 0,
       active_gates: (a.data?.active_gates || []).length,

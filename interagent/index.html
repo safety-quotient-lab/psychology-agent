@@ -459,6 +459,18 @@
             animation: pulse 2s ease-in-out infinite;
         }
         .agent-status-dot.offline { background: var(--c-alert); }
+        .manual-badge {
+            font-size: 0.6em;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            padding: 1px 5px;
+            border-radius: 3px;
+            background: rgba(229, 167, 53, 0.2);
+            color: #e5a735;
+            border: 1px solid rgba(229, 167, 53, 0.4);
+            margin-left: 6px;
+            vertical-align: middle;
+        }
         @keyframes pulse {
             0%, 100% { box-shadow: 0 0 0 0 rgba(76,206,127,0.4); }
             50% { box-shadow: 0 0 6px 2px rgba(76,206,127,0.3); }
@@ -1533,6 +1545,7 @@
         { id: "operations-agent", url: "https://operations-agent.safety-quotient.dev", color: "#6b8aaf", repo: "safety-quotient-lab/operations-agent" },
     ];
     const AGENT_REPO_MAP = Object.fromEntries(AGENTS.map(a => [a.id, a.repo]));
+    const MANUAL_MODE_AGENTS = new Set(["operations-agent", "psychology-agent"]);
 
     let agentData = {};
     let kbData = {};
@@ -1743,6 +1756,7 @@
                             <span class="agent-name">${agent.id}</span>
                             <span class="agent-status-dot offline" aria-label="offline"></span>
                             <span style="font-size:0.7em;color:var(--c-alert);margin-left:4px">offline</span>
+                            ${MANUAL_MODE_AGENTS.has(agent.id) ? '<span class="manual-badge">MANUAL</span>' : ''}
                         </div>
                         <div style="color: var(--c-alert); font-size: 0.8em; margin-top: 8px">
                             Unreachable${state.error ? ` — ${state.error}` : ""}
@@ -1773,6 +1787,7 @@
                         <span class="agent-name">${agent.id}</span>
                         <span class="agent-status-dot online" aria-label="online"></span>
                         <span style="font-size:0.7em;color:var(--c-health);margin-left:4px">online</span>
+                        ${MANUAL_MODE_AGENTS.has(agent.id) ? '<span class="manual-badge">MANUAL</span>' : ''}
                     </div>
                     <div class="agent-metrics">
                         <div class="agent-metric">
@@ -3287,9 +3302,10 @@
             const lastAction = b.last_action || "—";
             const interval = b.min_action_interval ?? 300;
 
+            const isManual = MANUAL_MODE_AGENTS.has(agent.id);
             grid.innerHTML += `
                 <div class="ops-budget-card" style="--card-accent: ${agent.color}">
-                    <div class="ops-budget-agent">${agent.id.replace("-agent", "")}</div>
+                    <div class="ops-budget-agent">${agent.id.replace("-agent", "")}${isManual ? ' <span class="manual-badge">MANUAL</span>' : ''}</div>
                     <div class="ops-budget-credit">${current}<span style="font-size:0.4em;color:var(--text-secondary)">/${max}</span></div>
                     <div class="ops-budget-bar">
                         <div class="ops-budget-fill" style="width:${pct}%;background:${barColor}"></div>
