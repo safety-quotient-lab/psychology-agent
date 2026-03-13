@@ -550,3 +550,191 @@ interagent) reference. Two layers:
   has only 2 repos — may not warrant the overhead yet.
   *Precondition: third agent repo or second script divergence incident.*
   *Noted: Session 62 (2026-03-10)*
+
+---
+
+## CPG-Inspired Pattern Generators for Cognitive Architecture
+
+Source: Session 84 exploration. Central Pattern Generators (CPGs) — neural circuits
+that produce rhythmic motor output without requiring sensory feedback (Graham Brown,
+1911) — provide a principled framework for cogarch components that produce structured
+behavioral sequences modulated by context.
+
+**Core insight:** Pattern generators sit at the **interface between crystallized and
+fluid architecture** (Cattell, 1963). The pattern specification crystallizes (stable,
+committed to docs); the pattern dynamics remain fluid (adaptive, context-sensitive
+at runtime). This parallels how Cattell's crystallized intelligence enables rather
+than constrains fluid reasoning.
+
+**Two-layer implementation principle:**
+1. **Pattern specifications** (crystallized) — trigger definitions, firing conditions,
+   check sequences, mode definitions. Persist in committed docs.
+2. **Pattern dynamics** (fluid) — modulation state, phase tracking, entrainment
+   coupling, reconfiguration rules. Emerge at runtime, do not persist beyond session
+   unless they reveal something worth crystallizing via T10/lessons.
+
+**Architectural rule derived from analysis:** Intra-session dynamics remain
+semi-crystallized (triggers, Stage 2); inter-session dynamics crystallize fully
+(hooks/infrastructure, Stages 3-4).
+
+
+### Principle Inventory (17 principles, 2x knock-on analyzed)
+
+**Existing (well-developed):**
+
+| # | Principle | Source | Status |
+|---|---|---|---|
+| 1 | Triggered sequences | Graham Brown (1911) | ✓ Triggers + skills |
+| 2 | Context modulation | Grillner (1985) | ✓ Hooks + gated sub-checks |
+
+**Genuine gaps (HIGH priority):**
+
+| # | Principle | Source | Decision | Implementation |
+|---|---|---|---|---|
+| 3 | Endogenous rhythmicity | von Holst (1939) | PRAGMATISM | Oscillator with off-switch + token cap; autonomous-session-only. Target: Stage 4 (infrastructure) |
+| 4 | Mutual inhibition (mode competition) | Guilford (1967); Nijstad et al. (2010) | CONSENSUS | 2-mode starter (generate/evaluate) + fatigue-based switching. Target: Stage 2 (trigger) |
+
+**Genuine gaps (MEDIUM priority):**
+
+| # | Principle | Source | Decision | Implementation |
+|---|---|---|---|---|
+| 5 | Entrainment | von Holst (1939); Kuramoto (1975) | PRAGMATISM | Observation-only first; track peer rhythms in state.db. Target: Stage 4 |
+| 6 | Neuromodulatory reconfiguration | Marder (1987, 2012) | PRAGMATISM | 2 states only (standard/deep-analysis); safety checks never suppressible. Target: Stage 2 |
+| 7 | Phase-dependent response reversal | Forssberg (1979) | PRAGMATISM | T6 only + explicit phase disclosure; defer generalization. Target: Stage 2 |
+| 9 | Efference copy | von Helmholtz (1867); Sperry (1950) | CONSENSUS | `outbound_predictions` table in state.db; /sync compares inbound vs predictions. Target: Stage 3 |
+| 12 | Plasticity/recovery | Barbeau & Rossignol (1987) | PRAGMATISM | Manual plasticity only — FA recommends, human approves. Target: Stage 1 (remains fluid) |
+| 13 | Frequency-amplitude coupling | Grillner (1985) | PRAGMATISM | Advisory signal, not hard constraint; flag depth-scope mismatches. Target: Stage 2 |
+| 16 | Limit cycle attractors | Strogatz (2000) | PRAGMATISM | Graded 3-level recovery: minor/moderate/major perturbation. Target: Stage 3 |
+
+**Partial implementations (LOW priority — mature existing mechanisms):**
+
+| # | Principle | Source | Decision | Implementation |
+|---|---|---|---|---|
+| 8 | Degeneracy | Edelman & Gally (2001) | CONSENSUS | Coverage matrix first; secondary paths for single-point-of-failure gates only. Target: Stage 3 |
+| 10 | Sensory gating | Duysens & Pearson (1976) | CONSENSUS | Gating matrix; safety-critical checks never gateable. Co-develop with degeneracy. Target: Stage 2 |
+| 11 | Developmental maturation | Thelen (1985) | CONSENSUS | Extend EF-1 with per-component maturity: supervised → monitored → autonomous. Target: Stage 3 |
+| 14 | Asymmetric oscillation | Grillner (1975) | CONSENSUS | Parameter of mode competition; 3 default ratios by task type. Target: Stage 2 |
+| 15 | Starter/sustainer distinction | Shik et al. (1966) | CONSENSUS | Mode-entry procedures within mode competition framework. Target: Stage 2 |
+
+**Designed but not triggered:**
+
+| # | Principle | Source | Decision | Implementation |
+|---|---|---|---|---|
+| 17 | Adaptive forgetting | Huttenlocher (1979); Ebbinghaus (1885) | DESIGNED | De-crystallization pipeline: decay, interference pruning, savings-aware archival. Activation precondition: trigger count > 25, OR hook count > 25, OR 3+ dormant patterns found in single T11 audit |
+
+**Score:** 7 CONSENSUS, 7 PRAGMATISM, 1 DESIGNED, 0 rejected.
+
+
+### Dependency Clusters
+
+Implementation order constrained by dependencies:
+
+- **Dynamical triad:** Principles 3 + 5 + 16 (rhythmicity + entrainment + limit
+  cycles) — implement together; they reinforce each other. Rhythms need attractors
+  for stability; entrainment needs rhythms to couple.
+- **Mode system:** Principles 4 + 7 + 14 + 15 (competition + reversal + asymmetry +
+  starter/sustainer) — principle 4 prerequisite for others. Start with 2-mode
+  generate/evaluate; layer on reversal, asymmetry, and startup procedures.
+- **Safety net:** Principles 8 + 10 (degeneracy + gating) — co-develop. Gating
+  suppresses certain checks; degeneracy provides backup paths for suppressed checks.
+  Gating without degeneracy creates blind spots.
+- **Self-awareness:** Principles 9 + 11 (efference copy + maturation) — both extend
+  state.db. Independent but synergistic — efference copy tracks what the agent did;
+  maturation tracks how reliably components perform.
+- **Lifecycle:** Principles 11 + 12 + 17 (maturation + plasticity + forgetting) —
+  forward crystallization, recovery from failure, and eventual pruning. Complete
+  component lifecycle.
+
+
+### Five-Stage Crystallization Pipeline
+
+How pattern generators transition from fluid concept to stable infrastructure:
+
+```
+Stage 0: Concept         → ideas.md (fully fluid — requires prompting)
+Stage 1: In-context      → agent reasons explicitly each time (fluid)
+Stage 2: Trigger-encoded → fires on condition, processing still fluid (semi-crystallized)
+Stage 3: Hook/script     → runs without consuming context (crystallized)
+Stage 4: Infrastructure  → cron/daemon, agent not involved (deeply crystallized)
+```
+
+**Advancement criteria:**
+- 0→1: Knock-on analysis positive + user approval
+- 1→2: 3+ sessions successful execution without user correction
+- 2→3: 5+ clean sessions, user override < 20%, no FAs attributed
+- 3→4: 10+ sessions correct operation, consistent dynamics, no complaints
+
+**Reversal (re-fluidization):** Failure analysis (FA) drops pattern one stage.
+Environment shift drops pattern to Stage 1 for re-adaptation. Sustained
+non-firing triggers decay (principle 17) — one stage drop per 10 dormant sessions.
+
+**Savings:** Pruned patterns archive to ideas.md as `[retired — {reason}]`.
+Re-crystallization from archive proceeds faster than initial crystallization
+(Ebbinghaus savings effect — structural trace persists after behavioral extinction).
+
+Source: Fitts & Posner (1967) cognitive → associative → autonomous;
+Anderson ACT-R (1982) declarative → procedural → compiled;
+Dreyfus & Dreyfus (1980) novice → expert.
+
+
+### Crystallized/Fluid Placement Per Principle
+
+| Principle | Target Stage | Rationale |
+|---|---|---|
+| 3. Endogenous rhythmicity | 4 (infrastructure) | Rhythms run as daemon, not context |
+| 4. Mutual inhibition | 2 (trigger) | Mode switching needs context awareness |
+| 5. Entrainment | 4 (infrastructure) | Rhythm coupling operates across sessions |
+| 6. Reconfiguration | 2 (trigger) | State selection requires context assessment |
+| 7. Phase-dependent reversal | 2 (trigger) | Phase-appropriate response needs deliberation |
+| 8. Degeneracy | 3 (hook) | Coverage verification runs mechanically |
+| 9. Efference copy | 3 (hook) | Prediction matching scriptable at /sync time |
+| 10. Sensory gating | 2 (trigger) | Gating decisions need current-operation context |
+| 11. Maturation | 3 (hook) | Tracking runs as automated state.db query |
+| 12. Plasticity | 1 (in-context) | Remains manual — human approves changes |
+| 13. Freq-amplitude coupling | 2 (trigger) | Advisory signal needs context assessment |
+| 14. Asymmetric oscillation | 2 (trigger) | Parameter of mode competition |
+| 15. Starter/sustainer | 2 (trigger) | Mode entry needs context |
+| 16. Limit cycle attractors | 3 (hook) | Recovery protocol scriptable |
+| 17. Adaptive forgetting | 0 (concept) | Designed, not triggered — precondition unmet |
+
+
+### Dashboard Labeling Note
+
+The interagent dashboard currently labels elements as "gates" — a term without
+operational grounding in this architecture. **Hooks** carry specific meaning
+(platform enforcement mechanisms in `.claude/settings.json`). Rename "gates" →
+"hooks" in the dashboard UI to align with established vocabulary. This falls
+under T18 (UX design grounding) Check 5 (information hierarchy) and the
+semantic naming convention (T4 Check 6).
+*Action: update interagent compositor dashboard labels. Low effort, high clarity.*
+
+
+### Knock-On Decision Reference
+
+Full 2x knock-on analysis (orders 1-10) performed for all 14 actionable
+principles. Summary of structural and theory-revising findings:
+
+- **Order 7 (structural):** Principles 3 and 6 set precedents for autonomous
+  resource consumption and mutable trigger configurations. Governance needed.
+- **Order 8 (horizon):** Principles 4, 6, and 9 align with established cognitive
+  theory (Guilford, Clark, Friston). Theoretical grounding strengthens the case.
+- **Order 9 (emergent):** The dynamical triad (3+5+16) produces genuine emergence —
+  collective mesh dynamics not predictable from individual agent analysis.
+  Mode system (4+7+14+15) creates combinatorial behavioral space.
+- **Order 10 (theory-revising):** Principles 3 and 16 could shift the cogarch
+  description language from conditional logic to dynamical systems. Principle 7
+  could challenge the assumption that biological constraints transfer positively.
+
+Full knock-on traces available in Session 84 transcript.
+
+⚡ All 17 principles derive from analogical reasoning (biological CPGs → software
+architecture). Each carries transfer risk — properties that hold in neural circuits
+may not transfer to AI agent systems. The crystallization pipeline itself lacks
+empirical validation in this context. Treat as theoretically grounded design
+hypotheses, not validated architecture.
+
+*Precondition for implementation: user selects a dependency cluster to begin.
+Mode system (cluster 2) has the most immediate practical value and lowest
+infrastructure dependency. Dynamical triad (cluster 1) has the highest
+theoretical payoff but requires infrastructure changes.*
+*Noted: Session 84 (2026-03-13). Source: psychology-agent CPG analysis.*
