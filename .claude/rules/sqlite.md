@@ -81,6 +81,7 @@ cross-table references by convention.
 | `trigger_state` | `trigger_id` | `T{N}` from docs/cognitive-triggers.md heading | `T3` |
 | `session_log` | `id` | Session number from lab-notebook heading | `47` |
 | `claims` | `(transport_msg, claim_id)` | Parent message FK + claim_id from JSON | `(42, 'c1')` |
+| `agent_disclosures` | `id` | Auto-increment (append-only, no deterministic key — disclosures lack external identity) | `17` |
 
 **Convention:** When inserting, compute the key from the source material. When
 querying, compute the key from the same rule — never search by free text when
