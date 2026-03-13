@@ -10,17 +10,17 @@
 
 | Dimension | Issues found | Fixed | Remaining |
 |-----------|-------------|-------|-----------|
-| 1. Internal consistency | 5 | 3 | 2 (evaluator prompt v2 ref, crystallized sync schema ref) |
-| 2. Coverage gaps | 6 | 2 | 4 (GWT broadcast, DMN idle, conflict monitoring, efference copy) |
-| 3. Dead weight | 4 | 0 | 4 (retirement requires user approval per T3) |
-| 4. Theory-implementation gap | 8 items | 2 | 6 (largest: mode detection now hooked; reinforcement loop scripted) |
-| 5. Coupling | 2 over, 2 under | 0 | 4 (structural — require architectural refactoring) |
-| 6. Wu wei audit | 14 components staged | 2 advanced | 12 (mode detection 1→3, L4 2→3 earlier) |
-| 7. Yin-yang balance | Yang-dominant | 1 | Balance discipline added to CLAUDE.md |
-| 8. Scalability | 4 concerns | 0 | 4 (transport O(n²), CLAUDE.md growth, cogarch divergence, cross-agent RPG) |
-| 9. Feedback loops | 6 missing | 2 | 4 (trigger effectiveness + mode detection built) |
-| 10. Extensions | 6 proposed | 3 | 3 (jurisprudence lens, trigger effectiveness, mode detection built) |
-| **Total** | **~53** | **~14** | **~39** |
+| 1. Internal consistency | 5 | 5 | 0 (v2→v3 refs, budget DB, diagram, mode stage all fixed) |
+| 2. Coverage gaps | 6 | 3 | 3 (GWT broadcast, DMN idle, conflict monitoring) |
+| 3. Dead weight | 4 | 3 | 1 (T12 already retired S84; claim-log removed; inline hook already fixed; constraints consolidated) |
+| 4. Theory-implementation gap | 8 items | 4 | 4 (mode detection hooked; reinforcement scripted; feedback-loops.sh; maqasid/generator/invariant remain) |
+| 5. Coupling | 2 over, 2 under | 0 | 4 (structural — require dedicated refactoring session) |
+| 6. Wu wei audit | 14 components staged | 3 advanced | 11 (mode 1→3, L4 2→3, jurisprudence lens created) |
+| 7. Yin-yang balance | Yang-dominant | 1 | Balance discipline in CLAUDE.md |
+| 8. Scalability | 4 concerns | 0 | 4 (structural — longer horizon) |
+| 9. Feedback loops | 6 missing | 5 | 1 (trigger-effectiveness, EIC, expectations, carryover, lessons — all in feedback-loops.sh; EIC→trigger adjustment remains) |
+| 10. Extensions | 6 proposed | 4 | 2 (jurisprudence, trigger-effectiveness, mode-detection, constraint consolidation done; cross-agent RPG + efference copy remain) |
+| **Total** | **~53** | **~28** | **~25** |
 
 ## What Got Fixed This Session
 
