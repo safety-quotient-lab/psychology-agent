@@ -91,3 +91,20 @@ Per CoALA framework (Sumers et al., 2023), memory stores should distinguish:
 
 This mapping already exists implicitly — the contract makes it explicit.
 Phase 5 adds formal labeling and retrieval priority (ACT-R activation equation).
+
+
+## Schema.org Typed Retrieval (Phase 5 extension)
+
+Memory entries carry schema.org types via the `universal_facets` table:
+
+| Memory Location | Schema Type | Retrieval Query |
+|---|---|---|
+| lab-notebook sessions | schema:Event | `SELECT * FROM universal_facets WHERE facet_value = 'schema:Event'` |
+| architecture decisions | schema:ChooseAction | `SELECT * FROM universal_facets WHERE facet_value = 'schema:ChooseAction'` |
+| transport messages | schema:Message | `SELECT * FROM universal_facets WHERE facet_value = 'schema:Message'` |
+| claims | schema:Claim | `SELECT * FROM universal_facets WHERE facet_value = 'schema:Claim'` |
+| lessons | schema:LearningResource | `SELECT * FROM universal_facets WHERE facet_value = 'schema:LearningResource'` |
+| trigger state | schema:HowToStep | `SELECT * FROM universal_facets WHERE facet_value = 'schema:HowToStep'` |
+
+This enables CoALA-style typed retrieval: "find all decisions" queries
+schema:ChooseAction rather than scanning architecture.md.

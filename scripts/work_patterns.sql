@@ -56,7 +56,13 @@ GROUP BY trigger_id, check_number
 HAVING SUM(CASE WHEN result = 'fail' THEN 1 ELSE 0 END) = 0
   AND COUNT(DISTINCT session_id) >= 10;
 
--- 8. Mode distribution (CPG mode system usage)
+-- 8. Average completion time by status at creation (predictive work scoping)
+SELECT status as initial_status,
+       ROUND(AVG(CASE WHEN resolved_session IS NOT NULL THEN resolved_session - session_id ELSE sessions_carried END), 1) as avg_sessions,
+       COUNT(*) as sample_size
+FROM work_carryover GROUP BY status;
+
+-- 9. Mode distribution (CPG mode system usage)
 SELECT mode, COUNT(*) as activations,
        COUNT(DISTINCT session_id) as sessions
 FROM trigger_activations

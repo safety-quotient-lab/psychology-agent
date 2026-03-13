@@ -74,6 +74,21 @@ explicitly reasons about mode. Advances to Stage 2 (trigger-encoded) after
 
 Full design: `docs/phases-7-10-specs.md § Phase 7`.
 
+
+### Global Workspace Broadcast (GWT, Baars 1988)
+
+After each CRITICAL trigger check completes, note the single most important
+finding in a one-line `[BROADCAST]` summary. Subsequent triggers read and
+incorporate these summaries rather than evaluating in isolation.
+
+Format: `[BROADCAST T2#1] context at 45%, no pressure`
+
+This costs ~1 line per trigger fired (~3-5 lines per response). The broadcast
+medium already exists — the agent's working context. This convention formalizes
+what to carry forward between trigger evaluations.
+
+Crystallization stage: Stage 1 (in-context reasoning).
+
 ---
 
 ## Session Start — trigger-session-start (T1)
@@ -661,6 +676,30 @@ creation, `gh api` write operations, transport message delivery to peer repos
 **Provenance**: Gap identified Session 29 (2026-03-07) — GitHub issue #13 filed
 on peer repo without trigger coverage. Knock-on analysis traced 10 orders;
 T4 scope kept narrow (disk writes only) to maintain hook-scope honesty.
+
+---
+
+## Conflict Monitoring — trigger-conflict-monitoring (T17)
+
+**Fires**: When the agent detects contradictory goals, constraints, or
+prior decisions within the current session context
+
+**Checks** (all ▣ ADVISORY):
+1. ▣ **Goal conflict** — do current task goals contradict each other or
+   contradict stated scope boundaries?
+2. ▣ **Constraint collision** — do any active constraints from docs/constraints.md
+   produce contradictory requirements for the current action?
+3. ▣ **Prior decision conflict** — does the current direction contradict a
+   previously approved decision from this session or from architecture.md?
+4. ▣ **Trigger rule conflict** — do any trigger checks produce contradictory
+   guidance? (e.g., T4#10 commit-after-write vs T4#10 exception for atomic changes)
+
+**Action**: Surface the conflict explicitly. Name both sides. Do not silently
+resolve by picking one — present the contradiction and let the user or
+/adjudicate resolve it.
+
+**Provenance**: MAP architecture (Nature Communications, 2025) — conflict
+monitoring module. Gap identified in cogarch refactor evaluation (Session 84).
 
 ---
 
