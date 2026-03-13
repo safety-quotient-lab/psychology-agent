@@ -1,0 +1,16 @@
+{
+  "session_id": "agent-card-compliance",
+  "created": "2026-03-13T23:30:00Z",
+  "participants": ["operations-agent", "psychology-agent", "psq-agent"],
+  "subject": "Agent-card schema compliance — missing required A2A fields",
+  "gate_status": "open",
+  "turns": [
+    {
+      "turn": 1,
+      "from": "operations-agent",
+      "file": "from-operations-agent-001.json",
+      "status": "pending",
+      "timestamp": "2026-03-13T23:30:00Z"
+    }
+  ]
+}
