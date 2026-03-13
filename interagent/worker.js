@@ -11,6 +11,8 @@
  *   GET  /api/health          → mesh health (aggregates all agent /api/status)
  *   POST /api/keys            → create API key (operator-only)
  *   DELETE /api/keys/:identity → revoke API key (operator-only)
+ *   GET  /api/pulse           → mesh heartbeat (aggregated agent health)
+ *   GET  /api/operations      → operations data (budgets, actions, gates, schedules)
  *   *    /api/*               → authenticated API routes (rate-limited)
  */
 
@@ -161,6 +163,168 @@ async function loadAgentRegistry(env) {
   }
 
   return agents;
+}
+
+/**
+ * Fetch /api/status from each reachable agent. Returns array of
+ * { id, status, data } objects (data contains the full status payload).
+ */
+async function fetchAllAgentStatus(registry) {
+  const reachable = registry.filter(a => a.status_url && !a._unavailable);
+
+  const results = await Promise.allSettled(
+    reachable.map(async (agent) => {
+      const resp = await fetch(agent.status_url, {
+        cf: { cacheTtl: 30 },
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!resp.ok) return { id: agent.id, status: "unreachable", data: null };
+      return { id: agent.id, status: "online", data: await resp.json() };
+    })
+  );
+
+  const agents = results.map((r, i) =>
+    r.status === "fulfilled" && r.value
+      ? r.value
+      : { id: reachable[i].id, status: "unreachable", data: null }
+  );
+
+  // Include unavailable agents from discovery
+  for (const a of registry.filter(r => r._unavailable)) {
+    agents.push({ id: a.id, status: "unavailable", data: null });
+  }
+
+  return agents;
+}
+
+/**
+ * Build /api/pulse response — real-time mesh heartbeat and agent health.
+ */
+async function buildPulseData(registry) {
+  const agents = await fetchAllAgentStatus(registry);
+  const online = agents.filter(a => a.status === "online");
+
+  const totalBudget = online.reduce((sum, a) => {
+    const b = a.data?.autonomy_budget || {};
+    return sum + (b.budget_current ?? 0);
+  }, 0);
+  const maxBudget = online.reduce((sum, a) => {
+    const b = a.data?.autonomy_budget || {};
+    return sum + (b.budget_max ?? 20);
+  }, 0);
+  const totalPending = online.reduce((sum, a) =>
+    sum + ((a.data?.totals || {}).unprocessed || 0), 0);
+  const totalGates = online.reduce((sum, a) =>
+    sum + (a.data?.active_gates || []).length, 0);
+
+  const agentSummaries = agents.map(a => {
+    if (a.status !== "online") {
+      return { id: a.id, status: a.status };
+    }
+    const b = a.data?.autonomy_budget || {};
+    const cur = b.budget_current ?? 0;
+    const max = b.budget_max ?? 20;
+    return {
+      id: a.id,
+      status: "online",
+      budget_current: cur,
+      budget_max: max,
+      budget_pct: max > 0 ? Math.round((cur / max) * 100) : 0,
+      unprocessed: (a.data?.totals || {}).unprocessed || 0,
+      active_gates: (a.data?.active_gates || []).length,
+      schema_version: a.data?.schema_version || null,
+      epistemic_debt: a.data?.totals?.epistemic_debt || null,
+      collected_at: a.data?.collected_at || null,
+    };
+  });
+
+  return {
+    checked_at: new Date().toISOString(),
+    agents_total: agents.length,
+    agents_online: online.length,
+    autonomy_credits: { current: totalBudget, max: maxBudget },
+    pending_messages: totalPending,
+    active_gates: totalGates,
+    agents: agentSummaries,
+  };
+}
+
+/**
+ * Build /api/operations response — autonomy budgets, actions audit trail,
+ * active gates, sync schedules.
+ */
+async function buildOperationsData(registry) {
+  const agents = await fetchAllAgentStatus(registry);
+  const online = agents.filter(a => a.status === "online");
+
+  // Autonomy budgets per agent
+  const budgets = online.map(a => {
+    const b = a.data?.autonomy_budget || {};
+    const cur = b.budget_current ?? 0;
+    const max = b.budget_max ?? 20;
+    return {
+      agent_id: a.id,
+      budget_current: cur,
+      budget_max: max,
+      budget_pct: max > 0 ? Math.round((cur / max) * 100) : 0,
+      last_action: b.last_action || null,
+      min_action_interval: b.min_action_interval ?? 300,
+    };
+  });
+
+  // Collect all recent autonomous actions across agents
+  const actions = [];
+  for (const a of online) {
+    const agentActions = a.data?.recent_actions || [];
+    for (const action of agentActions) {
+      actions.push({ ...action, agent_id: a.id });
+    }
+  }
+  actions.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
+
+  // Active gates across all agents
+  const gates = [];
+  for (const a of online) {
+    const agentGates = a.data?.active_gates || [];
+    for (const gate of agentGates) {
+      gates.push({ ...gate, agent_id: a.id });
+    }
+  }
+
+  // Sync schedules per agent
+  const schedules = agents.map(a => {
+    if (a.status !== "online") {
+      return { agent_id: a.id, status: a.status };
+    }
+    const sched = a.data?.schedule || {};
+    return {
+      agent_id: a.id,
+      status: sched.cron_entry ? "active" : "no-cron",
+      cron_entry: sched.cron_entry || null,
+      last_sync: sched.last_sync || null,
+    };
+  });
+
+  // Vitals summary
+  const totalCredits = budgets.reduce((s, b) => s + b.budget_current, 0);
+  const maxCredits = budgets.reduce((s, b) => s + b.budget_max, 0);
+  const syncing = schedules.filter(s => s.status === "active").length;
+
+  return {
+    checked_at: new Date().toISOString(),
+    vitals: {
+      total_credits: totalCredits,
+      max_credits: maxCredits,
+      total_actions: actions.length,
+      active_gates: gates.length,
+      agents_syncing: syncing,
+      agents_total: agents.length,
+    },
+    budgets,
+    actions,
+    gates,
+    schedules,
+  };
 }
 
 async function fetchMeshHealth(registry) {
@@ -400,6 +564,22 @@ export default {
           rate_remaining: rateCheck.remaining,
           rate_reset_at: rateCheck.resetAt,
         }, { headers: rateLimitHeaders });
+      }
+
+      // Pulse — real-time mesh heartbeat and agent health
+      if (url.pathname === "/api/pulse") {
+        const pulse = await buildPulseData(registry);
+        return Response.json(pulse, {
+          headers: { "Cache-Control": "public, max-age=30", ...rateLimitHeaders },
+        });
+      }
+
+      // Operations — autonomy budgets, actions, gates, sync schedules
+      if (url.pathname === "/api/operations") {
+        const ops = await buildOperationsData(registry);
+        return Response.json(ops, {
+          headers: { "Cache-Control": "public, max-age=30", ...rateLimitHeaders },
+        });
       }
 
       // Unknown API route
