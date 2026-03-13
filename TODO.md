@@ -17,11 +17,12 @@ found 3 critical defects, 2 high-severity issues, 39 structural weaknesses,
   - ✓ E-3: Fixed hardcoded Linux paths in /hunt
   - ✓ E-4: Fixed /cycle Step 10c to dynamically enumerate all topic files
 
-- [ ] **Phase 2: Trigger tiering refactor** — restructure 60+ checks into
-  3 tiers (critical/advisory/spot-check). Critical checks always run; advisory
-  run when relevant; spot-check run 1-in-5. Reduces cognitive overhead while
-  preserving safety. Addresses E-5, E-6, E-7, E-8, P-2, P-7, P-9.
-  *Precondition: Phase 1 complete.*
+- [x] **Phase 2: Trigger tiering refactor** — ✓ COMPLETE (Session 84)
+  Classification: `docs/trigger-tiering-classification.md`
+  Applied: tier markers (⬛/▣/▢) in `docs/cognitive-triggers.md`
+  Result: 34 CRITICAL, 43 ADVISORY, 16 SPOT-CHECK. Typical response: 10 critical
+  checks (was 36). T14 reclassified from "every decision" to advisory-only.
+  Tier legend added to document header.
 
 - [ ] **Phase 3: Hook-trigger contract** — define which layer owns enforcement
   for each check. Mechanical (hook) enforcement for all critical-tier checks.
