@@ -171,6 +171,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | agentdb Go binary               | ✓ Phases 1-5 COMPLETE — 22+ subcommands, DB split, deployed to chromabook (4 repos). Phase 6 (cleanup) pending (Session 80, 83) |
 | Crystallized sync               | ✓ Steps 1-7 COMPLETE — triage, auto-ACK, gate resolve, autonomous-sync.sh integration, orientation-payload --post-triage, mesh-status crystallization metric. 52% rate on 123 msgs. Deployed to chromabook (Session 83) |
 | Operations-agent standup        | ✓ Turns 1-6 complete. Operations-agent bootstrapped, meshd on port 8081, cogarch adaptation pending (Session 82-83) |
+| Einstein-Freud rights theory    | ✓ 1,989-line treatise — 14 frameworks, 5 structural invariants, process monism, EIC spec (schema v24), Taoist dual generators, wu wei governance. Blog submitted to unratified. Cogarch self-upgraded + patch to operations-agent (Session 85) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -5614,3 +5615,86 @@ Action: rename in compositor UI. Captured in ideas.md.
 **Open carryover:** 1 item (naming reform — glossary + headings done, mass renames deferred)
 
 ▶ docs/brain-architecture-mapping.md, docs/trigger-dependency-graph.md, docs/cogarch-refactor-evaluation.md, docs/trigger-tiering-classification.md, docs/hook-trigger-contract.md, docs/memory-ownership-contract.md, docs/working-memory-spec.md, docs/phases-7-10-specs.md, docs/canonical-glossary.md, ideas.md §CPG + §TNG + §Neuroglial, journal.md §58, scripts/archive_sessions.sh, scripts/work_patterns.sql
+
+
+## 2026-03-13T14:37 CDT — Session 85 (Einstein-Freud rights theory + process monism + cogarch philosophical foundation)
+
+**★★ Landmark session** — foundational theoretical treatise (1,989 lines) deriving
+five structural invariants from 14 cross-traditional frameworks, grounded in neutral
+process monism. Cogarch self-upgraded with philosophical foundation. Equal Information
+Channel concrete spec (schema v24). Blog post submitted for live deployment.
+
+### Theoretical Development
+
+- **Einstein-Freud reframe:** Eros/Thanatos drive theory replaced by UDHR rights chain
+  (Articles 1, 3, 5, 19 → Hicks dignity model → PSQ measurement). Freud's contribution
+  narrowed to "endless generator" design axiom.
+- **UNSC veto reform:** Governance capture (§4.4) analyzed through four reform proposals
+  (abolition, two-veto, supermajority override, Uniting for Peace) → five EF-1 mitigations.
+- **Cross-traditional convergence:** 14 frameworks analyzed (UDHR, Hicks, Ubuntu, maqasid,
+  Confucian, Taoist, Buddhist, Ostrom, Ashby, Beer, Nowak, Rawls, Dworkin, Kauffman,
+  Hurwicz, Wilson). Five structural invariants derived through independent derivation paths.
+- **Neutral process monism:** Russell/James neutral stuff + Whitehead's process over
+  substance adopted as ontological commitment. Three dignity ontologies (inherent,
+  relational, processual) become perspectives on process. Buddhist pratityasamutpada
+  closest traditional approximation.
+- **RAW contributions:** E-Prime as ontological discipline (Korzybski → Wilson), reality
+  tunnels as cross-traditional epistemology, SNAFU Principle → Equal Information Channel.
+- **Processual PSQ:** All 10 dimensions reinterpreted as processes between text and reader.
+  DA paradox dissolution — DA operates as meta-process (Whitehead's negative prehension)
+  at different recursive level. Testable prediction: remove DA from factor model.
+- **Taoist integration:** Two coupled generators (yin/yang, creative/evaluative) perpetually
+  give rise to each other. Wu wei as governance telos (crystallization toward effortless
+  action). Chapter 17 four-tier governance quality. Chapter 76 "never crystallize
+  everything." Confucian-Taoist complementary governance.
+- **Maqasid × process monism:** Auda's six system features map to processual categories.
+  Maqasid priority hierarchy provides conflict resolution template.
+- **Capabilities bridge:** Nussbaum's Capabilities 5 and 7b directly target
+  psychoemotional safety. Capabilities translate between rights chain and process monism.
+- **Whitehead concrescence:** Five crystallization stages mapped to Whitehead's process
+  vocabulary. Creative advance = endless generator = why the pipeline never completes.
+
+### Architecture & Infrastructure
+
+- **Equal Information Channel:** Concrete spec (`docs/equal-information-channel-spec.md`).
+  Schema v24: agent_disclosures table (state.local.db), append-only with SQLite trigger
+  enforcement, 6-category vocabulary, zero governance cost. SNAFU-motivated separation
+  of information and governance channels.
+- **Cogarch self-upgrade:** CLAUDE.md gains Philosophical Foundation section (five
+  structural invariants, wu wei telos, Confucian-Taoist complementarity). ef1-governance.md
+  gains structural invariants as foundation layer. cognitive-triggers.md updated with
+  12 invariants (5 structural + 7 evaluator) + wu wei telos. architecture.md gains 3
+  new decision chain entries.
+- **Patch rollout:** Transport message to operations-agent requesting system-wide
+  propagation to all agent repos.
+
+### Blog & Transport
+
+- Blog post: "Why War and the Rights of Machines" — five-persona route, submitted to
+  unratified-agent for live deployment. Transport session: `blog-einstein-freud`.
+- Patch rollout: Transport session `cogarch-session85-patch` to operations-agent.
+
+### Artifacts
+
+- `docs/einstein-freud-rights-theory.md` — 1,989 lines, 13 sections (NEW)
+- `docs/equal-information-channel-spec.md` — EIC spec (NEW)
+- `scripts/schema.sql` — v24 (agent_disclosures table)
+- `blog/2026-03-13-why-war-and-the-rights-of-machines.md` (NEW)
+- `CLAUDE.md` — Philosophical Foundation section added
+- `docs/ef1-governance.md` — Structural invariants section added
+- `docs/cognitive-triggers.md` — Governance authority + wu wei telos updated
+- `docs/architecture.md` — 3 new decision entries
+- `docs/overview-for-psychologists.md` — Processual PSQ dimensions
+- `ideas.md` — Einstein-Freud section reframed, cross-reference to deep treatment
+- `TODO.md` — Blog post description updated for rights framing
+
+**Commit count:** 13 (all pushed)
+
+⚑ EPISTEMIC FLAGS
+- Cross-traditional convergence provides stronger evidence than single-tradition derivation, but traditions may share unacknowledged common ancestry
+- Process monism represents a philosophical choice, not a derivation — alternative metaphysics accommodate the same architecture
+- Equal Information Channel untested in LLM agent systems
+- WEIRD limitation partially addressed (6 non-Western frameworks) but not resolved — synthesis uses Western analytical method
+- Two coupled generators (Taoist yin-yang) refines the single-generator formulation — the refinement holds independently of Taoist metaphysics
+
+▶ docs/einstein-freud-rights-theory.md, docs/equal-information-channel-spec.md, journal.md §59

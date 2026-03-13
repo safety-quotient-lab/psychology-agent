@@ -22,26 +22,23 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 85 (IN PROGRESS). Einstein-Freud rights theory deep
-development + EIC spec + blog post submitted to unratified-agent.
+**Where we stopped:** Session 84. ★★ Landmark — CPG + 10-phase refactor (all done)
++ brain mapping (20 systems) + /diagnose 5-level + QA 25/25.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- **Einstein-Freud rights theory: 1,622 lines, 10 sections** — `docs/einstein-freud-rights-theory.md` `[hot]`
-  - 5 structural invariants from 13 cross-traditional frameworks
-  - Neutral process monism (Russell/James/Whitehead) as foundation
-  - SNAFU Principle → Equal Information Channel (spec + schema v24)
-  - Processual PSQ reinterpretation (DA paradox dissolution, testable prediction)
-  - RAW contributions: E-Prime as ontological discipline, reality tunnels, SNAFU
-- **EIC spec: concrete, schema v24 committed** — `docs/equal-information-channel-spec.md` `[hot]`
-- **Blog: Einstein-Freud post submitted to unratified-agent** — transport `blog-einstein-freud` `[hot]`
-- **Cogarch upgrade: PENDING** — 5 invariants + EIC + processual PSQ need propagation `[hot]`
-- Monistic deepening items 2-4: maqasid + capabilities + Whitehead concrescence `[warm]`
+- **Cogarch refactor: ALL 10 PHASES DONE. QA 25/25 pass** `[hot]`
+- **Brain mapping: 20 systems, 4 gaps with roadmaps** — `docs/brain-architecture-mapping.md` `[hot]`
+- **CPG: 17 principles + crystallization + forgetting** `[warm]`
+- **Neuroglial: PR #168 reviewed, accept-with-corrections** `[warm]`
+- Naming reform: ✓ Approved + glossary + headings done. Mass renames deferred `[warm]`
+- Blog: CPG post published by unratified-agent `[warm]`
+- Self-readiness audit: ✓ R4 3/4 READY. Observatory pending `[warm]`
 
-**In-session remaining:**
-1. Cogarch self-upgrade (propagate invariants, EIC, processual findings)
-2. Patch rollout to operations-agent via transport
-3. Monistic deepening: maqasid × process monism, capabilities bridge, Whitehead × crystallization
-4. /cycle at session end
+**Next session priorities:**
+1. Merge neuroglial PR #168 (accept with corrections)
+2. Naming reform mass renames (psq-agent → safety-quotient-agent)
+3. Brain gap 2: amygdala fast pre-screen hooks (credential + injection)
+4. Verify parry re-add (#32596 fix in current claude-code version)
 
 
 ## Memory Hygiene

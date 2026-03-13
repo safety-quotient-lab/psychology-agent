@@ -199,6 +199,31 @@
                               autonomy_budget in state.local.db (never
                               git-tracked). 22 subcommands, pure-Go SQLite,
                               cross-compiles. Phases 1-4 complete. 2026-03-12
+ Neutral process monism        Philosophical foundation: reality consists
+ (ontological commitment)      of processes preceding the material/ideal
+                              distinction (Russell 1921, James 1912,
+                              Whitehead 1929). Resolves three dignity
+                              ontologies as perspectives on process.
+                              Buddhist pratityasamutpada closest trad.
+                              E-Prime = ontological discipline. 2026-03-13
+ Five structural invariants    Cross-traditional convergence from 13
+                              frameworks: (1) worth precedes merit,
+                              (2) protection requires structure,
+                              (3) generator never stops, (4) governance
+                              captures itself, (5) no single architecture
+                              dominates. Spec: docs/einstein-freud-
+                              rights-theory.md §9. 2026-03-13
+ Equal Information Channel     SNAFU-motivated separation of information
+ (EIC, schema v24)            and governance channels. agent_disclosures
+                              table: append-only, zero governance cost,
+                              6-category vocabulary. Spec: docs/equal-
+                              information-channel-spec.md. 2026-03-13
+ Processual PSQ               PSQ dimensions measure processes between
+ (measurement reframe)        text and reader, not properties of text.
+                              DA = meta-process (boundary formation),
+                              explains weak loading + strong prediction.
+                              Testable: remove DA from factor model,
+                              treat as moderator. 2026-03-13
 ```
 
 ## Authority Hierarchy

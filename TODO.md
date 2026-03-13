@@ -151,9 +151,9 @@ found 3 critical defects, 2 high-severity issues, 39 structural weaknesses,
   Source: ideas.md §CPG, journal.md §58, Session 84 transcript.
   *Precondition: none — content complete, ready to draft.*
 
-- [ ] **Einstein-Freud "Why War?" blog post** — five-persona route via unratified-agent.
-  Topic: Einstein's 1932 question about structural protection of rights, reframed
-  through UDHR, Hicks' dignity framework, and psychoemotional safety measurement.
+- [x] **Einstein-Freud "Why War?" blog post** — SUBMITTED to unratified-agent (Session 85).
+  Transport: `blog-einstein-freud`. Theoretical treatment: `docs/einstein-freud-rights-theory.md`
+  (1,989 lines). Reframed through UDHR, Hicks, 14 cross-traditional frameworks,
   Freud's contribution narrowed to the "endless generator" argument (destructive
   impulses never deplete, only redirect through structure) — accepted as a design
   axiom, not as endorsement of drive theory.
