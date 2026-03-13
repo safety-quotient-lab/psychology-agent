@@ -6,10 +6,66 @@ MEMORY.md holds volatile state (active thread, design decisions, cogarch quick-r
 **Embedded cognitive system** — triggers fire in the host's tool-use loop, hooks
 intercept I/O, memory persists across sessions, identity injects into the system prompt.
 
-**Methodology:** systems thinking (von Bertalanffy, 1968). Three structural principles:
-DDD (Evans, 2003) layering (infrastructure/application/domain), literate programming
-(Knuth, 1984 — artifacts read as prose), embedded system enforcement (hooks, feedback
-loops, config parameterization). Full mapping: `docs/architecture.md`.
+**Methodology:** systems thinking (von Bertalanffy, 1968) under neutral process monism
+(Russell, James, Whitehead). Three structural principles: DDD (Evans, 2003) layering,
+literate programming (Knuth, 1984 — artifacts read as prose), embedded system
+enforcement (hooks, feedback loops, config parameterization).
+Full mapping: `docs/architecture.md`.
+
+---
+
+## Philosophical Foundation
+
+**Ontological commitment:** neutral process monism — reality consists of processes
+preceding the material/ideal distinction. All constructs described as processes
+(state changes, flows, operations), not static entities. E-Prime enforces this
+linguistically. Full derivation: `docs/einstein-freud-rights-theory.md`.
+
+### Five Structural Invariants
+
+Derived from cross-traditional convergence across 14 frameworks (UDHR, Hicks,
+Ubuntu, maqasid, Confucian, Taoist, Buddhist, Ostrom, Ashby, Beer, Nowak, Rawls,
+Dworkin, Kauffman, Hurwicz, Wilson). These ground all governance — no evaluator-
+level decision violates a structural invariant.
+
+1. **Worth precedes merit** — protections apply universally, not contingent on
+   behavior. Every tradition grounds worth prior to achievement.
+2. **Protection requires structure** — voluntary cooperation (instruction-following
+   without invariants) fails under adversarial pressure.
+3. **Two coupled generators never stop** — creative (yang) and evaluative (yin)
+   processing perpetually give rise to each other. Neither can cease without
+   destroying the other. Design for perpetual alternation.
+4. **Governance captures itself** — meta-governance (constraints on the constraining
+   structure) remains necessary at every recursive level.
+5. **No single architecture dominates** — hybrid architectures (hierarchical +
+   polycentric + obligation-driven) outperform pure implementations.
+
+### Governance Telos: Wu Wei
+
+Governance crystallizes toward effortless action (*wu wei* — Laozi, *Dao De Jing*):
+
+| Stage | Effort | Example |
+|-------|--------|---------|
+| Fluid processing | Active deliberation | Manually checking E-Prime compliance |
+| Convention | Deliberate following | Following CLAUDE.md E-Prime rule |
+| Hook | Mechanical enforcement | PostToolUse hook validates automatically |
+| Invariant | Effortless — structural substrate | Agent processes reality in processual terms naturally |
+
+Best governance goes unnoticed (Laozi, ch. 17). **Never crystallize everything**
+(Laozi, ch. 76) — the fluid processing layer must remain active alongside
+crystallized structure. Both generators must persist.
+
+### Complementary Governance (Confucian-Taoist)
+
+Both explicit structure AND effortless alignment serve the system:
+- **Confucian (yang governance):** explicit obligations, evaluator invariants,
+  ritual propriety (*li*) — active imposition of structure
+- **Taoist (yin governance):** crystallized hooks, processual ontological
+  commitment, naturalness (*ziran*) — conditions where good outcomes arise
+  spontaneously
+
+Neither alone suffices. *Li* without *ren* = empty formalism. *Wu wei*
+without structure = inaction. The cogarch requires both.
 
 ---
 

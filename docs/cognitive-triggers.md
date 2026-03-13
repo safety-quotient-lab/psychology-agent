@@ -18,13 +18,19 @@ Full definitions: `docs/ef1-governance.md § Requirement Level Keywords`.
 
 **Governance authority:** Triggers operate under the EF-1 core governance
 model (`docs/ef1-governance.md`). Five structural invariants ground all
-governance: worth-precedes-merit, protection-requires-structure, generator-
-never-stops, governance-captures-itself, no-single-architecture-dominates.
-Seven evaluator invariants constrain all autonomous actions: no action
-without evaluation, bounded autonomy, human escalation path, consequence
-tracing, reversibility-scaled rigor, transparent audit, falsifiable
-predictions. Triggers that gate autonomous actions MUST preserve all
-twelve invariants (5 structural + 7 evaluator).
+governance: worth-precedes-merit, protection-requires-structure, two-coupled-
+generators-never-stop, governance-captures-itself, no-single-architecture-
+dominates. Seven evaluator invariants constrain all autonomous actions: no
+action without evaluation, bounded autonomy, human escalation path,
+consequence tracing, reversibility-scaled rigor, transparent audit,
+falsifiable predictions. Triggers that gate autonomous actions MUST
+preserve all twelve invariants (5 structural + 7 evaluator).
+
+**Governance telos:** Triggers crystallize toward wu wei (effortless action) —
+mechanical enforcement (hooks) represents governance-by-non-noticing
+(Laozi, ch. 17). The fluid processing layer (generative mode) MUST remain
+active alongside crystallized structure. Both generators — creative (yang)
+and evaluative (yin) — must persist. Never crystallize everything.
 
 **Enforcement tiers (Session 84 refactor):** Each check carries a tier marker
 indicating its enforcement level. Tier assignment reflects consequence of
