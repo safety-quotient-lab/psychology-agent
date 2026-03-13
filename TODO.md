@@ -68,6 +68,34 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ---
 
+## Blog Posts
+
+- [ ] **CPG pattern generators blog post** — five-persona route via unratified-agent.
+  Topic: how biological central pattern generators inform AI cognitive architecture.
+  **Voter persona (8th grade):** Explain the basic science simply — your brain has
+  circuits that make you walk without thinking about it; we use the same idea to make
+  AI systems that maintain themselves. Then show how the system uses it to drive real
+  behavior.
+  **Politician persona:** Staff-briefing style — what this means for AI safety and
+  autonomous agent design.
+  **Educator:** Pedagogical walkthrough of the crystallization pipeline — how ideas
+  become automatic infrastructure.
+  **Researcher:** Methods, citations, epistemic flags, analogical transfer risk.
+  **Developer:** Architecture diagrams, dependency clusters, implementation roadmap.
+  Key framing: psychology and neuroscience as reference disciplines for AI architecture
+  — the brain and human psychology remain our only reference point for intelligence as
+  we know it. Making use of established patterns from these disciplines gives AI
+  architecture principled grounding that pure engineering lacks.
+  Source: ideas.md §CPG, journal.md §58, Session 84 transcript.
+  *Precondition: none — content complete, ready to draft.*
+
+- [ ] **Crystallized sync blog post** — ⚑ Post committed but 404 on both domains.
+  Frontmatter mismatch (pubDate→publishedDate, description→summary, author
+  fields string→object). Problem report sent to unratified-agent (T3).
+  *Precondition: unratified-agent frontmatter fix.*
+
+---
+
 ## Awesome-Claude-Code Submission
 
 - [ ] **Submit to awesome-claude-code** — file issue via web form at
