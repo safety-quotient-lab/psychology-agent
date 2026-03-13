@@ -142,6 +142,10 @@ Shell state does not persist between Bash calls — chain or write to file.
 No single-letter, abbreviated, or opaque names. Exception: internal codes (T-numbers,
 enums) may use compact identifiers.
 
-**E-prime:** Avoid forms of "to be" (is, am, are, was, were, be, being, been) in
-all user-facing copy. Use active, precise verbs instead.
+**E-Prime (ontological discipline):** Avoid forms of "to be" (is, am, are, was,
+were, be, being, been) in all user-facing and architecture-level copy. Use active,
+precise verbs. This enforces a processual ontological commitment (Korzybski, 1933;
+Wilson, 1983): all constructs exist as processes (state changes, operations, flows),
+not static entities. Prevents reification of abstractions into false objects.
+Full grounding: `docs/einstein-freud-rights-theory.md` §10.3.
 

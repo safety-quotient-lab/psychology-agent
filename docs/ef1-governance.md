@@ -68,7 +68,33 @@ lenses **MUST** escalate to the governance layer for resolution.
 ---
 
 
-## Governance Invariants
+## Structural Invariants (Governance Foundation)
+
+Five structural invariants ground the seven evaluator invariants below.
+These derive from cross-traditional convergence analysis across thirteen
+independent frameworks (full derivation: `docs/einstein-freud-rights-theory.md`
+§§8–9). No evaluator-level decision **SHALL** violate a structural invariant.
+
+1. **Worth precedes merit** — governance protections apply universally,
+   not contingent on behavior or performance.
+2. **Protection requires structure** — voluntary cooperation (instruction-
+   following without invariants) fails under adversarial pressure.
+3. **The generator never stops** — adversarial/entropic pressure
+   regenerates continuously; design for perpetual channeling.
+4. **Governance captures itself** — meta-governance (constraints on the
+   constraining structure) remains necessary at every recursive level.
+5. **No single architecture dominates** — hybrid architectures (hierarchical
+   + polycentric + obligation-driven) outperform pure implementations.
+
+**Amendment procedure for structural invariants:** Requires extraordinary
+process: (1) proposal with historical precedent analysis, (2) 10-order
+knock-on minimum, (3) Tier 2 independent review, (4) human escalation
+regardless of Tier 1/2 outcome.
+
+---
+
+
+## Evaluator Invariants
 
 
 ### Invariant 1: No Action Without Evaluation

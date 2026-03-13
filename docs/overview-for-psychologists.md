@@ -41,24 +41,34 @@ The 10 dimensions are:
 
 ```
 ────────────────────────────────────────────────────────────
- Dimension               Construct it captures
+ Dimension               Process it measures
 ────────────────────────────────────────────────────────────
- Threat Exposure         Perceived danger in the environment
- Regulatory Capacity     Emotion modulation under pressure
- Resilience Baseline     Capacity to absorb disruption
- Trust Conditions        Vulnerability exploitation risk
- Hostility Index         Overt or structural antagonism
- Cooling Capacity        De-escalation availability
- Energy Dissipation      Healthy outlets for accumulated stress
- Defensive Architecture  Boundary-setting and self-protection
- Authority Dynamics      Power and status negotiation
- Contractual Clarity     Explicitness of mutual obligations
+ Threat Exposure         Danger-perception process in the reader
+ Regulatory Capacity     Emotion-modulation process under pressure
+ Resilience Baseline     Disruption-absorption process
+ Trust Conditions        Vulnerability-exploitation dynamics
+ Hostility Index         Antagonism-generating process (overt or structural)
+ Cooling Capacity        De-escalation pathway availability
+ Energy Dissipation      Stress-discharge process through available outlets
+ Defensive Architecture  Boundary-formation meta-process (moderates all others)
+ Authority Dynamics      Power-negotiation process in the communicative exchange
+ Contractual Clarity     Obligation-surfacing process between participants
 ────────────────────────────────────────────────────────────
 ```
 
-Each dimension is scored 0–10 on a 100-item held-out set, with an average
+Each dimension measures a process occurring between text and reader, not a
+static property of the text (processual reframing, Session 85). Scores
+represent the expected processual outcome for a consensual reader population.
+Defensive Architecture (DA) operates as a **meta-process** — a boundary-
+formation mechanism (Whitehead's negative prehension) that moderates the
+balance between disruption processes (TE, HI, AD) and restoration processes
+(RC, RB) across all other dimensions. This explains DA's weak factor loading
+(operates at a different recursive level) alongside its strong criterion
+prediction (controls the scope within which all other processes operate).
+
+Each dimension scores 0–10 on a 100-item held-out set, with an average
 Pearson *r* of .684 between the distilled student model and the expert
-teacher model (Claude Opus 4.6). All correlations are significant at
+teacher model (Claude Opus 4.6). All correlations reach significance at
 *p* < .001.
 
 
