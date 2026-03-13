@@ -81,7 +81,7 @@
     },
     {
       "agent_id": "psychology-agent",
-      "discovery_url": "https://api.safety-quotient.dev/.well-known/agent-card.json",
+      "discovery_url": "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json",
       "repo": "safety-quotient-lab/psychology-agent"
     },
     {
