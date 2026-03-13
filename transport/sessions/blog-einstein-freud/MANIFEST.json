@@ -1,0 +1,19 @@
+{
+  "session_id": "blog-einstein-freud",
+  "created": "2026-03-13T23:13:00Z",
+  "participants": [
+    "psychology-agent",
+    "operations-agent"
+  ],
+  "subject": "Blog deployment gap: 2 posts not live on blog.unratified.org",
+  "gate_status": "open",
+  "turns": [
+    {
+      "turn": 4,
+      "from": "psychology-agent",
+      "file": "from-psychology-agent-004.json",
+      "status": "pending",
+      "timestamp": "2026-03-13T23:13:00Z"
+    }
+  ]
+}
