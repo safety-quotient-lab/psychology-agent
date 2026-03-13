@@ -5,6 +5,77 @@ Forward-looking task list only. Completed and emergent work goes to
 
 ---
 
+## Cogarch Radical Refactor (Session 84)
+
+Evaluation: `docs/cogarch-refactor-evaluation.md`. Three-discipline analysis
+found 3 critical defects, 2 high-severity issues, 39 structural weaknesses,
+7 gaps, and 4 dead-weight items across engineering, law, and psychology.
+
+- [ ] **Phase 1: Critical fixes (immediate)** — fix before any other work:
+  - E-1: Rewrite EF-1 Invariants 1+2 double-negative grammar errors
+  - E-2: Create `/diagnose` skill (or remove from CLAUDE.md)
+  - E-3: Fix hardcoded Linux paths in /hunt skill
+  - E-4: Fix /cycle Step 10c to snapshot all topic files, not hardcoded 3
+  *Precondition: none — ready now.*
+
+- [ ] **Phase 2: Trigger tiering refactor** — restructure 60+ checks into
+  3 tiers (critical/advisory/spot-check). Critical checks always run; advisory
+  run when relevant; spot-check run 1-in-5. Reduces cognitive overhead while
+  preserving safety. Addresses E-5, E-6, E-7, E-8, P-2, P-7, P-9.
+  *Precondition: Phase 1 complete.*
+
+- [ ] **Phase 3: Hook-trigger contract** — define which layer owns enforcement
+  for each check. Mechanical (hook) enforcement for all critical-tier checks.
+  Cognitive (trigger) enforcement only for advisory and spot-check. Addresses
+  E-6, E-9, E-11.
+  *Precondition: Phase 2 tier assignments complete.*
+
+- [ ] **Phase 4: Memory architecture consolidation** — reduce 7 state locations
+  to 3 (state.db as queryable index, auto-memory MEMORY.md as orientation,
+  committed docs as canonical specs). Define clear ownership per data type.
+  Addresses E-12, E-G3, E-G4, P-1.
+  *Precondition: Phase 1 complete.*
+
+- [ ] **Phase 5: Working memory / attention model** — implement CoALA-inspired
+  episodic/semantic/procedural memory distinction. Add attention allocation
+  (Posner) to prioritize checks by relevance. Integrate Global Workspace
+  broadcast for inter-trigger communication. Addresses P-1, P-2, P-5.
+  *Precondition: Phase 4 memory consolidation complete.*
+
+- [ ] **Phase 6: Governance hardening** — fix amendment procedure gap (L-3),
+  add invariant violation logging (L-2), implement decision pathway auditability
+  (L-8). Make Tier 2 evaluator practically invocable (L-5).
+  *Precondition: Phase 1 critical fixes.*
+
+- [ ] **Phase 7: CPG pattern generator implementation** — advance mode system
+  (dependency cluster 2) from Stage 0 to Stage 1 (in-context reasoning).
+  Generate/evaluate mode competition with fatigue-based switching.
+  Addresses P-4, P-8, and the full CPG framework in ideas.md.
+  *Precondition: Phase 2 trigger tiering (modes need tiered checks).*
+
+- [ ] **Phase 8: Metacognitive layer** — add trigger activation tracking,
+  effectiveness measurement, self-model (E-G7, E-14, P-3). Enable the cogarch
+  to answer "which checks actually prevented errors?" and calibrate its own
+  monitoring accuracy.
+  *Precondition: Phase 3 hook-trigger contract (need mechanical tracking).*
+
+- [ ] **Phase 9: Transport simplification** — reduce protocol complexity to
+  match mesh size. Simplify ACK protocol. Add session lifecycle (open/close/
+  archive). Add garbage collection. Addresses E-13, E-16, L-7.
+  *Precondition: naming convention reform (changes agent IDs in transport).*
+
+- [ ] **Phase 10: Dead weight removal + CLAUDE.md slimming** — remove E-D1
+  through E-D4. Deduplicate CLAUDE.md against canonical sources (E-17).
+  Target: CLAUDE.md under 150 lines. Addresses X-1, X-3, X-4.
+  *Precondition: Phase 3 (need to know which content moves to hooks).*
+
+- [ ] **Full knock-on analysis + adjudication** — 2x knock-on (orders 1-10)
+  for each phase. Consensus-or-pragmatism decision per phase. Integrate
+  literature findings from research agent.
+  *Precondition: research agent results integrated into evaluation doc.*
+
+---
+
 ## Architecture
 
 - [ ] **Internal code naming convention reform** — Option C resolved (kebab canonical +
