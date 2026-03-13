@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """mesh-status.py — Real-time autonomous mesh status dashboard.
 
-Serves a single HTML page that auto-refreshes every 30 seconds, showing
+Serves a single HTML page with SSE (Server-Sent Events) live updates, showing
 the current state of the agent mesh: autonomy budget, peer activity, transport
-queue, active gates, recent actions, and sync health.
+queue, active gates, recent actions, and sync health. Updates push to the
+browser only when underlying data changes — no polling or periodic refresh.
 
 Usage:
     python3 scripts/mesh-status.py              # serve on :8077
@@ -19,8 +20,9 @@ import re
 import sqlite3
 import subprocess
 import sys
+import time
 from datetime import datetime, timedelta
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import HTTPServer, BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -33,6 +35,10 @@ IDENTITY_PATH = PROJECT_ROOT / ".agent-identity.json"
 AGENT_CARD_PATH = PROJECT_ROOT / ".well-known" / "agent-card.json"
 
 COLD_THRESHOLD_HOURS = 24
+
+# SSE generation tracking — increments when collected_at changes
+_sse_generation = 0
+_sse_last_collected_at = None
 
 ALLOWED_ORIGINS = {
     "https://interagent.safety-quotient.dev",
@@ -1405,7 +1411,7 @@ def render_html(status: dict) -> str:
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="refresh" content="30">
+    <!-- SSE replaces meta refresh — updates only when data changes -->
     <title>Mesh Status — {status['agent_id']}</title>
     {jsonld_block}
     <style>
@@ -1835,6 +1841,40 @@ def render_html(status: dict) -> str:
     <footer>
         {status['db_path']} · {'db exists' if status['db_exists'] else 'DB MISSING'}
     </footer>
+
+    <script>
+    // SSE live updates — reload page only when server data changes.
+    // Replaces setInterval polling with server-push via EventSource.
+    (function() {{
+        if (typeof EventSource === 'undefined') return;
+
+        var evtSource = new EventSource('/events');
+        var currentGen = null;
+
+        evtSource.addEventListener('connected', function(e) {{
+            try {{
+                var data = JSON.parse(e.data);
+                currentGen = data.generation;
+            }} catch (_) {{}}
+        }});
+
+        evtSource.addEventListener('refresh', function(e) {{
+            try {{
+                var data = JSON.parse(e.data);
+                if (currentGen !== null && data.generation !== currentGen) {{
+                    currentGen = data.generation;
+                    location.reload();
+                }}
+            }} catch (_) {{}}
+        }});
+
+        evtSource.onerror = function() {{
+            // SSE disconnected — fall back to periodic refresh after 60s
+            evtSource.close();
+            setTimeout(function() {{ location.reload(); }}, 60000);
+        }};
+    }})();
+    </script>
 </body>
 </html>"""
 
@@ -1911,6 +1951,48 @@ class StatusHandler(BaseHTTPRequestHandler):
                 self.send_error(404)
             return
 
+        # SSE endpoint — push refresh events when data changes
+        if path == "/events":
+            global _sse_generation, _sse_last_collected_at
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream")
+            self.send_header("Cache-Control", "no-cache")
+            self.send_header("Connection", "keep-alive")
+            self.send_header("X-Accel-Buffering", "no")
+            if cors:
+                self.send_header("Access-Control-Allow-Origin", cors)
+            self.end_headers()
+
+            # Send initial generation
+            status = collect_status()
+            collected_at = status.get("collected_at", "")
+            if collected_at != _sse_last_collected_at:
+                _sse_generation += 1
+                _sse_last_collected_at = collected_at
+            self.wfile.write(
+                f"event: connected\ndata: {{\"generation\":{_sse_generation}}}\n\n".encode()
+            )
+            self.wfile.flush()
+
+            # Poll for changes, push SSE events
+            try:
+                while True:
+                    time.sleep(10)
+                    status = collect_status()
+                    collected_at = status.get("collected_at", "")
+                    if collected_at != _sse_last_collected_at:
+                        _sse_generation += 1
+                        _sse_last_collected_at = collected_at
+                        self.wfile.write(
+                            f"event: refresh\ndata: {{\"generation\":{_sse_generation}}}\n\n".encode()
+                        )
+                    else:
+                        self.wfile.write(b": keepalive\n\n")
+                    self.wfile.flush()
+            except (BrokenPipeError, ConnectionResetError):
+                return
+            return
+
         if path == "/api/status":
             status = collect_status()
             self.send_response(200)
@@ -1952,7 +2034,8 @@ def main():
         print(json.dumps(collect_status(), indent=2))
         return
 
-    server = HTTPServer(("0.0.0.0", args.port), StatusHandler)
+    server = ThreadingHTTPServer(("0.0.0.0", args.port), StatusHandler)
+    server.daemon_threads = True
     print(f"Mesh status dashboard: http://localhost:{args.port}")
     print(f"JSON API: http://localhost:{args.port}/api/status")
     print(f"Reading from: {DB_PATH}")

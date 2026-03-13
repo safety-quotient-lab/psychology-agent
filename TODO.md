@@ -486,7 +486,7 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
 ## Federated Dashboard
 
 - [x] **Mesh dashboard (local)** — COMPLETE (Session 62). `scripts/mesh-status.py`
-  serves on :8077 with Mesh + Semiotics tabs, auto-refresh 30s. Reads state.db
+  serves on :8077 with Mesh + Semiotics tabs, SSE live updates. Reads state.db
   for trust budget, transport queue, gates, autonomous actions, PSH facets.
 
 - [x] **Mesh-state export** — COMPLETE (Session 63). `scripts/mesh-state-export.py`
@@ -515,24 +515,22 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   facts/vocabulary/catalog/schema), Wisdom (lessons), Operations (stub). LCARS sidebar
   content-tracking, semantic tab colors, bidirectional deep links (Messages↔Claims),
   staleness vitals, agent switcher, sort/filter/pagination. Deployed to CF Worker.
-  SSE live updates still queued as enhancement.
+  SSE live updates implemented (Session 83).
 
-- [ ] **Replace auto-refresh with SSE on agent dashboards** — HIGH PRIORITY.
-  mesh-status.py currently uses 30s full-page auto-refresh, which causes disruptive
-  page reloads while reading. Replace with Server-Sent Events (SSE) or EventSource
-  for incremental live updates. Align with the approach chosen for the interagent
-  compositor dashboard. The individual agent dashboards should share the same
-  real-time update mechanism.
-  *Precondition: mesh-status.py dashboard exists (complete)*
+- [x] **Replace auto-refresh with SSE on agent dashboards** — COMPLETE (Session 83).
+  Both meshd (Go) and mesh-status.py (Python) now serve `/events` SSE endpoints.
+  Client-side EventSource replaces meta refresh and setInterval polling. meshd uses
+  cache subscriber pattern (goroutine notification); mesh-status.py uses
+  ThreadingHTTPServer with per-connection SSE loop. layout.html meta refresh removed.
 
 - [ ] **Jenkins build notifications** — configure notification channel for build
   success/failure. Options: email (emailext plugin + SMTP), Slack webhook, or
   GitHub commit status. Defer to IT session for SMTP/plugin config.
   *Precondition: Jenkins pipeline stages validated (complete)*
 
-- [ ] **Mesh topology lines too thin on mobile** — the mesh topology visualization
-  on the interagent dashboard uses line widths that render practically invisible on
-  mobile devices. Increase stroke width for connection lines.
+- [x] **Mesh topology lines too thin on mobile** — COMPLETE (Session 83).
+  Edge lines and node circle strokes increased from stroke-width 3 to 5, opacity
+  from 0.4 to 0.5 on edges. interagent/index.html updated.
 
 ---
 

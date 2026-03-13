@@ -55,6 +55,12 @@
             --c-unratified: #c4956a;
             --c-observatory: #9b8ec4;
 
+            /* Topology — mesh graph elements */
+            --topo-edge: #333c49;
+            --topo-edge-opacity: 0.5;
+            --topo-label: #7d8694;
+            --topo-label-hover: #dce1e8;
+
             /* Surface */
             --bg-primary: #0f1318;
             --bg-panel: #181d25;
@@ -102,6 +108,11 @@
             --text-secondary: #9999aa;
             --text-dim: #666677;
 
+            --topo-edge: #444466;
+            --topo-edge-opacity: 0.6;
+            --topo-label: #9999aa;
+            --topo-label-hover: #ffcc99;
+
             --band-height: 8px;
             --elbow-width: 28px;
             --elbow-radius: 20px;
@@ -109,6 +120,11 @@
 
         /* Light mode */
         .theme-light {
+            --topo-edge: #b8c1cc;
+            --topo-edge-opacity: 0.5;
+            --topo-label: #5a6577;
+            --topo-label-hover: #1a2030;
+
             --bg-primary: #f2f4f7;
             --bg-panel: #ffffff;
             --bg-inset: #f7f9fb;
@@ -568,8 +584,8 @@
         }
         .topology-svg a { cursor: pointer; }
         .topology-svg a:hover circle { opacity: 0.3; }
-        .topology-svg a text { fill: var(--text-secondary); }
-        .topology-svg a:hover text { fill: var(--text-primary); }
+        .topology-svg text { fill: var(--topo-label); }
+        .topology-svg g:hover text { fill: var(--topo-label-hover); }
 
         /* ── Knowledge Tab ───────────────────────────────────────────── */
 
@@ -1815,7 +1831,7 @@
             for (let j = i + 1; j < AGENTS.length; j++) {
                 const a = positions[i], b = positions[j];
                 html += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"
-                    stroke="var(--border-accent)" stroke-width="3" opacity="0.4"/>`;
+                    stroke="var(--topo-edge)" stroke-width="5" opacity="var(--topo-edge-opacity)"/>`;
             }
         }
 
@@ -1830,7 +1846,7 @@
             html += `<g style="cursor:pointer" onclick="switchAgent('${agent.id}');switchTab('meta')">
                 <circle cx="${pos.x}" cy="${pos.y}" r="45"
                     fill="${fill}" opacity="${online ? 0.12 : 0.05}"
-                    stroke="${fill}" stroke-width="3"/>
+                    stroke="${fill}" stroke-width="5"/>
                 <circle cx="${pos.x}" cy="${pos.y}" r="16" fill="${fill}"
                     opacity="${online ? 1 : 0.3}">
                     ${online ? `<animate attributeName="r" values="15;19;15" dur="3s" repeatCount="indefinite"/>` : ""}
