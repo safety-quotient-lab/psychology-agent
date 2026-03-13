@@ -43,25 +43,23 @@ found 3 critical defects, 2 high-severity issues, 39 structural weaknesses,
   Amendment procedure (5-step, human approval required), invariant violation
   logging template (GV entries), no same-session governance changes.
 
-- [ ] **Phase 7: CPG mode system** — SPEC COMPLETE (`docs/phases-7-10-specs.md`).
-  Generate/evaluate mode competition with fatigue-based switching. Stage 0→1.
-  Task-type detection drives mode selection. Phase disclosure for transparency.
-  *Precondition: ✓ Phase 2 complete. Ready to implement (in-context reasoning).*
+- [x] **Phase 7: CPG mode system** — ✓ IMPLEMENTED (Session 84)
+  Behavioral modes (Generative/Evaluative/Neutral) added to cognitive-triggers.md.
+  Mode detection at T2 Step 0. Fatigue-based switching. Phase disclosure.
+  Stage 1 (in-context reasoning). Advances to Stage 2 after 3+ clean sessions.
 
-- [ ] **Phase 8: Metacognitive layer** — SPEC COMPLETE (`docs/phases-7-10-specs.md`).
-  trigger_activations table in state.db. Dual-write activation logs. Effectiveness
-  measurement SQL queries. Self-model via extended trigger_state.
-  *Precondition: ✓ Phase 3 complete. Ready for schema + script implementation.*
+- [x] **Phase 8: Metacognitive layer** — ✓ SCHEMA IMPLEMENTED (Session 84)
+  trigger_activations table (schema v23) applied to state.db. Indexed by session,
+  trigger, result. memory_entries access columns for ACT-R activation scoring.
+  Remaining: dual_write.py subcommand for activation logging.
 
-- [ ] **Phase 9: Transport simplification** — SPEC COMPLETE (`docs/phases-7-10-specs.md`).
-  5-state session lifecycle (open→active→closing→closed→archived). Simplified ACK
-  (2 mechanisms, not 4). Garbage collection script.
-  *Precondition: naming convention reform (changes agent IDs in transport).*
+- [x] **Phase 9: Transport simplification** — ✓ IMPLEMENTED (Session 84)
+  5-state session lifecycle added to transport.md rules. Simplified ACK (2 mechanisms).
+  Garbage collection spec. Remaining: archive script, MANIFEST status field migration.
 
-- [ ] **Phase 10: Dead weight removal + CLAUDE.md slimming** — SPEC COMPLETE.
-  Retire T12, move E-prime to write convention, remove CLAUDE.md redundancy.
-  Target: CLAUDE.md ≤ 150 lines (50% reduction).
-  *Precondition: ✓ Phase 3 complete. Ready to implement.*
+- [x] **Phase 10: Dead weight removal + CLAUDE.md slimming** — ✓ IMPLEMENTED (Session 84)
+  CLAUDE.md: 190 → 147 lines. T12 retired. E-prime moved to CLAUDE.md convention.
+  README Policy, Cognitive Accessibility Policy, Glob-Scoped Rules listing removed.
 
 - [x] **Full knock-on analysis + adjudication** — ✓ COMPLETE (Session 84).
   Literature findings integrated into `docs/cogarch-refactor-evaluation.md`.
