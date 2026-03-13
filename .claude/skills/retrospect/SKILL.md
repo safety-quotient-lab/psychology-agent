@@ -157,3 +157,10 @@ Chronic deferrals (5+ sessions): [list]
   /retrospect catches cross-session patterns. They complement, not duplicate.
 - **EIC interaction:** EIC disclosures (especially `dissent` and `uncertainty`
   categories) feed the prediction audit and recurrence analysis.
+- **Feedback loops:** Run `scripts/feedback-loops.sh` as part of the `full`
+  scan. The script combines trigger effectiveness, expectation track record,
+  EIC summary, work carryover, and lesson promotion into one output.
+  ```bash
+  # During /retrospect full:
+  bash scripts/feedback-loops.sh
+  ```

@@ -51,19 +51,29 @@ for future hook development.
 | T18 #3 | Feedback + visibility | Norman — system response | ✗ No hook | Trigger (sole) |
 | T18 #6 | Accessibility | WCAG 2.1 | ✗ No hook | Trigger (sole) |
 
+**Session 85 additions (not in original contract — new hooks):**
+
+| Check | Description | Hook | Owner |
+|-------|------------|------|-------|
+| L4 graduated | Confidence claims without calibration ref | ✓ `confidence-calibration-screen.sh` | Hook (primary) |
+| Mode detection | Task-type classification (mechanical/analytical/creative) | ✓ `mode-detection.sh` | Hook (primary) |
+| Invariant conflict | Multiple structural invariants referenced → maqasid prompt | ✓ `invariant-conflict-detect.sh` | Hook (primary) |
+
 ---
 
 ## Coverage Summary
 
 | Status | Count | Percentage |
 |---|---|---|
-| Hook (primary enforcer) | 10 | 29% |
-| Hook (partial) + Trigger | 4 | 12% |
-| Trigger (sole enforcer) | 20 | 59% |
-| **Total CRITICAL checks** | **34** | |
+| Hook (primary enforcer) | 13 | 35% |
+| Hook (partial) + Trigger | 4 | 11% |
+| Trigger (sole enforcer) | 20 | 54% |
+| **Total CRITICAL + graduated** | **37** | |
 
-**Current state:** 59% of CRITICAL checks have no mechanical enforcement.
-**Target state:** ≤30% sole-trigger enforcement (hook development for the rest).
+**Current state:** 54% of CRITICAL checks have no mechanical enforcement (was 59%).
+**Session 85 progress:** 3 new hooks (confidence-calibration, mode-detection,
+invariant-conflict). First lesson-to-hook graduation (L4).
+**Target state:** ≤30% sole-trigger enforcement.
 
 ---
 

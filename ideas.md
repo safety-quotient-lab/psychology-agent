@@ -7,6 +7,18 @@ Flag: ⚡ = contrarian / worth challenging before pursuing
 
 ---
 
+## Product Concepts (moved from TODO, Session 85)
+
+- **Fair-witness-bot** — public-facing fair witness evaluation service at
+  fairwitness.bot. Evaluates claims for fair witness discipline compliance
+  (observation vs inference, evidence grounding, epistemic transparency).
+  Separate agent in the mesh.
+  - **News awareness extension** — news monitoring with fair-witness-grounded
+    analysis, epistemic failure detection in news coverage.
+  *Moved from TODO (RPG carryover analysis — product concept, not task).*
+
+---
+
 ## Sub-Agent Candidates (not pre-committed)
 
 - **Resilience agent** — operationalize resilience quotient as a validated
