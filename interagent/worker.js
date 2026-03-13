@@ -37,6 +37,7 @@ const AGENT_CARD_URLS = [
   "https://observatory.unratified.org/.well-known/agent-card.json",
 ];
 
+const DEPLOY_VERSION = "2026-03-13T15:10";
 const AGENT_CACHE_KEY = "agent-registry-cache";
 const AGENT_CACHE_TTL = 300; // 5 minutes
 
@@ -749,7 +750,8 @@ export default {
     return new Response(HTML, {
       headers: {
         "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "public, max-age=60",
+        "Cache-Control": "no-cache",
+        "ETag": `"${DEPLOY_VERSION}"`,
       },
     });
   },
