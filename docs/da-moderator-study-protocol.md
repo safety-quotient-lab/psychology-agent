@@ -198,12 +198,66 @@ point estimates. For definitive results, rerun with R + lavaan. Request
 sent to operations-agent for open-source SEM tooling evaluation.
 
 
+## Phase 2 Results (Session 85) — Internal Structural Moderation
+
+**Executed:** 2026-03-13. N=5,976. Tooling: statsmodels OLS (Python).
+Test: does DA moderate the contribution of each dimension to g_PSQ_9dim?
+(Internal structural test — external criterion datasets require PSQ agent.)
+
+| Dimension | DA × dim interaction β | p-value | Sig |
+|-----------|----------------------|---------|-----|
+| **AD** | **-0.0208** | **6.9e-10** | **\*\*\*** |
+| **ED** | **-0.0204** | **8.4e-08** | **\*\*\*** |
+| **CC** | **-0.0145** | **1.2e-04** | **\*\*\*** |
+| **CO** | +0.0080 | 2.1e-02 | * |
+| **TE** | +0.0077 | 1.9e-02 | * |
+| HI | -0.0045 | 0.131 | ns |
+| RB | +0.0047 | 0.253 | ns |
+| RC | -0.0041 | 0.255 | ns |
+| TC | -0.0021 | 0.443 | ns |
+
+**Verdict: DA MODERATES dimension contributions to g (5/9 significant).**
+
+**Protocol predictions:**
+- ✓ DA × AD interaction strongest (rank 1/9, p = 6.9e-10). Power-negotiation
+  (AD) and boundary-formation (DA) interact most strongly — both operate in
+  the authority/scope domain.
+- ✓ Threat-pole dimensions (TE/HI/AD) moderated 2.5× more strongly than
+  protection-pole (RC/RB). DA's boundary-formation function amplifies or
+  attenuates disruption processes more than restoration processes.
+- Remaining: context-dependent moderation (asymmetric > symmetric contexts)
+  and criterion validity preservation require external criterion datasets.
+
+**Interpretation under process monism:**
+
+Phase 1 showed DA contributes to the factor structure (cannot remove without
+degradation). Phase 2 shows DA *simultaneously* moderates how other dimensions
+contribute to the composite. This validates the processual interpretation:
+DA functions as a meta-process (boundary formation) that co-loads on the
+general factor while also regulating the scope within which other processes
+operate. The thermostat analogy holds: DA co-varies with room temperature
+(same factor) while adjusting the thermostat setting (moderation effect).
+
+The negative interaction signs (AD, ED, CC) indicate that **higher DA
+attenuates** these dimensions' contribution to g. When boundary-formation
+strengthens, the influence of power-negotiation, stress-discharge, and
+obligation-surfacing on the overall safety composite decreases. Processually:
+stronger boundaries reduce the need for active power negotiation, stress
+management, and contract specification — the meta-process partially
+substitutes for the processes it moderates.
+
+**Expectation ledger:** Phase 2 moderation partially confirmed (internal
+test; external criterion pending). DA × AD strongest confirmed. Track
+record: psychometrics 1 confirmed, 1 partial, 1 refuted (67% accuracy on
+resolved expectations).
+
+
 ## Resources Required
 
-- **Data:** Existing v37 scored datasets (N=5,976 complete cases assembled)
-- **Software:** R + lavaan (recommended — semopy FIM issues). Request pending.
+- **Data:** N=5,976 complete cases (assembled from all data files)
+- **Software:** statsmodels (Phase 2 internal), R + lavaan (Phase 1 definitive), criterion datasets on PSQ agent
 - **Compute:** Laptop-scale
-- **Time:** Phase 2 (moderation): ~1 session. Phase 3 (qualitative): ~1 session.
+- **Remaining:** Phase 2 external criterion (CaSiNo, CGA-Wiki, CMV, DonD — requires PSQ agent data access). Phase 3 qualitative (boundary-formation coding).
 
 
 ---
