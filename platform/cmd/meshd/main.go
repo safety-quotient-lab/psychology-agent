@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"html/template"
@@ -19,12 +20,16 @@ import (
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/collector"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/db"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/handlers"
+	"github.com/safety-quotient-lab/psychology-agent/platform/internal/zmqbus"
 )
 
 func main() {
 	port := flag.Int("port", 8077, "HTTP port")
 	projectRoot := flag.String("project-root", ".", "Path to the agent project root")
 	cacheTTL := flag.Duration("cache-ttl", 10*time.Second, "Cache TTL for collector results")
+	agentID := flag.String("agent-id", "", "Agent ID for ZMQ mesh (default: directory name from project-root)")
+	zmqPub := flag.String("zmq-pub", "", "ZMQ PUB bind address (e.g. tcp://*:9001). Empty disables ZMQ.")
+	zmqPeers := flag.String("zmq-peers", "", "Comma-separated peers: agent-id=zmq-addr[|http-url] (e.g. agent-a=tcp://host:9001|http://host:8076)")
 	flag.Parse()
 
 	// Resolve project root to absolute path
@@ -109,6 +114,72 @@ func main() {
 		IdleTimeout:  120 * time.Second,
 	}
 
+	// ZMQ transport (optional)
+	var bus *zmqbus.Bus
+	if *zmqPub != "" {
+		id := *agentID
+		if id == "" {
+			id = filepath.Base(absRoot)
+		}
+		httpURL := fmt.Sprintf("http://localhost:%d", *port)
+		bus = zmqbus.New(id, *zmqPub, httpURL)
+		if err := bus.Start(); err != nil {
+			log.Fatalf("zmq start: %v", err)
+		}
+
+		// Connect to initial peers (format: agent-id=zmq-addr[|http-url])
+		if *zmqPeers != "" {
+			for _, entry := range strings.Split(*zmqPeers, ",") {
+				parts := strings.SplitN(strings.TrimSpace(entry), "=", 2)
+				if len(parts) != 2 {
+					log.Printf("[zmq] skipping malformed peer entry: %s", entry)
+					continue
+				}
+				info := zmqbus.PeerInfo{AgentID: parts[0]}
+				addrs := strings.SplitN(parts[1], "|", 2)
+				info.ZMQPub = addrs[0]
+				if len(addrs) == 2 {
+					info.HTTPURL = addrs[1]
+				}
+				bus.ConnectPeer(info)
+			}
+		}
+
+		// Log incoming messages + invalidate cache for SSE push
+		bus.OnMessage(func(m zmqbus.Message) {
+			log.Printf("[zmq] %s/%s from %s", m.Topic, m.From, m.Timestamp.Format(time.RFC3339))
+			// Invalidate cache so SSE clients pick up any state.db changes
+			// triggered by the ZMQ event (e.g. heartbeat, gate resolve)
+			if m.Topic == "health" || m.Topic == "event" {
+				cache.Invalidate()
+			}
+		})
+
+		// Expose ZMQ peers via API
+		mux.HandleFunc("/api/zmq/peers", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(bus.KnownPeers())
+		})
+
+		// Accept peer registration (reverse-registration for bidirectional discovery)
+		mux.HandleFunc("/api/zmq/register", func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodPost {
+				http.Error(w, "POST required", http.StatusMethodNotAllowed)
+				return
+			}
+			var info zmqbus.PeerInfo
+			if err := json.NewDecoder(r.Body).Decode(&info); err != nil {
+				http.Error(w, "bad request", http.StatusBadRequest)
+				return
+			}
+			added := bus.RegisterPeer(info)
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(map[string]bool{"added": added})
+		})
+
+		fmt.Printf("  ZMQ PUB:    %s\n", *zmqPub)
+	}
+
 	// Graceful shutdown
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
@@ -129,6 +200,10 @@ func main() {
 
 	<-stop
 	fmt.Println("\nshutting down...")
+
+	if bus != nil {
+		bus.Stop()
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

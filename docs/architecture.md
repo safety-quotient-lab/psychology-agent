@@ -856,15 +856,25 @@
                                 Decided: 2026-03-12
 
  Transport architecture      Dual-channel: git-PR (durable, human
-                                review, public transparency) +
-                                real-time messaging layer (sub-second
-                                signaling, event notification). Git-PR
-                                not replaced — messaging handles cases
-                                where git-PR latency blocks.
-                                Candidates: MQTT, ZeroMQ. Redis
-                                pending cabinet availability.
-                                Constraint: one daemon acceptable,
-                                not a full broker cluster.
+ (transport-architecture)       review, public transparency) +
+                                ZeroMQ PUB/SUB (sub-second signaling,
+                                event notification). Git-PR not
+                                replaced — ZMQ handles cases where
+                                git-PR latency blocks.
+                                ZMQ: each meshd runs a PUB socket
+                                (broadcasts) + SUB sockets (per peer).
+                                Gossip-on-connect propagates peer
+                                discovery. HTTP reverse-registration
+                                completes bidirectional handshake.
+                                Topics: health, peer, event.
+                                SSE bridge: ZMQ events invalidate
+                                cache, push to dashboard clients via
+                                Server-Sent Events (replaces 30s
+                                auto-refresh polling).
+                                Rejects: MQTT (broker dependency),
+                                Redis (cabinet not available).
+                                Constraint met: one daemon (meshd)
+                                serves HTTP + ZMQ, no separate broker.
                                 Decided: 2026-03-12
 
  Compositor decomposition    Web Components (vanilla custom elements,
