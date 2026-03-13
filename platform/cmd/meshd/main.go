@@ -145,9 +145,14 @@ func main() {
 			}
 		}
 
-		// Log incoming messages
+		// Log incoming messages + invalidate cache for SSE push
 		bus.OnMessage(func(m zmqbus.Message) {
 			log.Printf("[zmq] %s/%s from %s", m.Topic, m.From, m.Timestamp.Format(time.RFC3339))
+			// Invalidate cache so SSE clients pick up any state.db changes
+			// triggered by the ZMQ event (e.g. heartbeat, gate resolve)
+			if m.Topic == "health" || m.Topic == "event" {
+				cache.Invalidate()
+			}
 		})
 
 		// Expose ZMQ peers via API
