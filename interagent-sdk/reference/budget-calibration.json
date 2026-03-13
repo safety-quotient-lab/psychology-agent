@@ -1,0 +1,50 @@
+{
+  "version": "1.0.0",
+  "calibrated_at": "2026-03-13",
+  "data_source": "909 sessions across 4 agents, ~15.5h autonomous operation (2026-03-11 to 2026-03-12)",
+
+  "action_costs": {
+    "gate_poll": {
+      "budget_units": 0,
+      "est_usd": 0.02,
+      "description": "Check if a gate resolved — minimal context, no Claude invocation needed"
+    },
+    "sync_light": {
+      "budget_units": 1,
+      "est_usd": 0.30,
+      "description": "Git pull, check transport, light reasoning, no commits"
+    },
+    "sync_substantive": {
+      "budget_units": 3,
+      "est_usd": 0.90,
+      "description": "Full sync with commits, edits, transport message drafting"
+    },
+    "deep": {
+      "budget_units": 10,
+      "est_usd": 8.50,
+      "description": "Full interactive-equivalent session — multi-file edits, complex reasoning"
+    }
+  },
+
+  "budget_mapping": {
+    "1_unit_usd": 0.30,
+    "50_budget_usd_range": "$15-45",
+    "50_budget_runtime": "~4-8 hours at 5-min sync intervals",
+    "100_budget_usd_range": "$30-90"
+  },
+
+  "safety_rails": {
+    "max_budget_usd_per_session": 10.00,
+    "max_budget_usd_enabled": false,
+    "max_turns_per_sync": 80,
+    "min_action_interval_seconds": 300,
+    "mesh_pause_file": "/tmp/mesh-pause"
+  },
+
+  "notes": [
+    "Costs estimated from JSONL session sizes — actual API costs may differ by ~30%",
+    "Cache hits reduce input token costs significantly (up to 90% reduction)",
+    "Observatory burns disproportionately due to high deep-session count",
+    "gate_poll should not invoke Claude at all — purely mechanical HTTP check"
+  ]
+}

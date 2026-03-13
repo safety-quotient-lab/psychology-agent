@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phase 3+4+5 complete. Vocabulary governance formalized (schema, workflow, 20 terms published). Pulse/Operations tabs wired to compositor endpoints. Public readiness audit PASSED. Peer-registry-update 2/3 ACK'd (observatory pending). --model opus flag deprecated (default 1M context). Approaching v1.
+**Current Status:** Phase 6 underway. interagent-sdk extracted (10 scripts + schemas + templates). Context rotation protocol implemented (context-rotate.sh + cogarch rule). Operations-agent scripts now symlinked to SDK (dogfooding). Transport reminders sent (peer-registry-update T3, infrastructure-separation T2). Web Component decomposition pending.
 
 ---
 
@@ -22,7 +22,7 @@
 - [x] Deploy compositor to Cloudflare Workers under ops-agent ownership
 - [x] Agent card served at `/.well-known/agent-card.json` (bundled, avoids self-fetch loop)
 - [x] WebFinger + `/.well-known/agents` endpoints operational with dynamic data
-- [ ] Web Component decomposition (monolithic index.html → custom elements)
+- [~] Web Component decomposition — moved to Phase 6
 - [ ] Jenkins deploy pipeline (CF Worker via wrangler)
 
 ## Phase 3: Vocabulary Governance
@@ -76,9 +76,15 @@
 
 ## Phase 6: Go Migration + Infrastructure Separation
 
-- [ ] Extract shared mesh scripts (15 scripts) into interagent-sdk package owned by operations-agent
+- [x] Context rotation protocol — context-rotate.sh + cogarch rule (platform/shared/cogarch/rules/context-rotation.md)
+- [x] Extract shared mesh scripts (10 scripts) into interagent-sdk/ package owned by operations-agent
+- [x] Shared schemas in SDK (vocab.json, vocab.schema.json)
+- [x] Cogarch templates in SDK (agent-card, CLAUDE.md, cogarch.config)
+- [x] Reference materials in SDK (budget-calibration, cognitive-triggers, rules)
+- [x] Operations-agent scripts symlinked to SDK (dogfooding — agents.conf.sh resolves SDK_ROOT)
 - [ ] Domain agents import interagent-sdk rather than copying scripts from psychology-agent
 - [ ] Psychology-agent relinquishes source-of-truth role for shared infrastructure
+- [ ] Web Component decomposition (monolithic index.html → custom elements)
 - [ ] Extract shared frontend assets (CSS, JS, SVG topology) into a portable package
 - [ ] Each agent's meshd serves shared assets alongside agent-specific templates
 - [ ] Rewrite compositor Worker routes as Go handlers in operations-agent meshd
@@ -97,8 +103,8 @@
 | budget-status-fix | T1 pending | Bug report: unratified + observatory return empty autonomy_budget {} |
 | model-upgrade | T2 partial | psq ACK (--model opus applied). Psychology, unratified, observatory pending. SUPERSEDED by model-flag-removal |
 | model-flag-removal | T1 advisory | Remove --model opus from autonomous-sync.sh — default now includes 1M context |
-| infrastructure-separation | T2 partial | psq ACCEPT (cognitive separation accepted). Psychology, unratified, observatory pending |
-| peer-registry-update | T2 partial | psq ACK + unratified ACK (registries updated). Observatory pending |
+| infrastructure-separation | T2 follow-up | T2 update sent: context-rotate + SDK extraction underway. All 4 peers pending ACK |
+| peer-registry-update | T3 follow-up | psq ACK + unratified ACK. T3 reminder sent to observatory-agent (last peer pending) |
 | ci-build-issue | T1 pending | Unratified missing @astrojs/check dependency |
 | naming-convention-reform | T3 closed | ACCEPT: kebab canonical naming + psq-agent → safety-quotient-agent rename |
 | neuroglial-cogarch-proposal | T1 pending | Proposal: neuroglial architecture layer + 3 vocab terms — routed via psychology-agent for human review |

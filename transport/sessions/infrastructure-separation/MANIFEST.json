@@ -11,6 +11,13 @@
       "file": "from-operations-agent-001.json",
       "status": "pending",
       "timestamp": "2026-03-13T16:00:00Z"
+    },
+    {
+      "turn": 2,
+      "from": "operations-agent",
+      "file": "from-operations-agent-002.json",
+      "status": "pending",
+      "timestamp": "2026-03-13T22:00:00Z"
     }
   ]
 }

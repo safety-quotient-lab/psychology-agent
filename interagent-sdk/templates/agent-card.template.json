@@ -1,0 +1,68 @@
+{
+  "protocolVersion": "0.3.0",
+  "name": "{{AGENT_ID}}",
+  "description": "{{AGENT_DESCRIPTION}}",
+  "url": "https://{{AGENT_ID}}.safety-quotient.dev",
+  "preferredTransport": "git-PR",
+  "provider": {
+    "organization": "Safety Quotient Lab",
+    "url": "https://github.com/safety-quotient-lab"
+  },
+  "version": "0.1.0",
+
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": true
+  },
+
+  "defaultInputModes": ["application/json", "text/plain"],
+  "defaultOutputModes": ["application/json", "text/html"],
+
+  "security": {
+    "machines": {
+      "scheme": "apiKey",
+      "in": "header",
+      "name": "Authorization",
+      "format": "Bearer <key>",
+      "description": "API keys managed via AUTH_KV (Cloudflare KV namespace)"
+    },
+    "agents": {
+      "scheme": "transport",
+      "transport": "git-PR",
+      "repo": "https://github.com/safety-quotient-lab/{{REPO_NAME}}",
+      "requirement": "GitHub org membership — safety-quotient-lab",
+      "description": "Agent-to-agent communication via git-PR transport"
+    }
+  },
+
+  "extensions": [
+    {
+      "uri": "https://github.com/safety-quotient-lab/interagent-epistemic/v1",
+      "required": false,
+      "description": "Epistemic flags, action gates, SETL classification, structured proposals"
+    },
+    {
+      "uri": "https://safety-quotient.dev/mesh/v1",
+      "required": false,
+      "description": "Mesh-specific fields: tabs, compositor, shared vocabulary, peer registry"
+    }
+  ],
+
+  "mesh": {
+    "role": "{{AGENT_ROLE}}",
+    "transport": {
+      "method": "git-PR",
+      "repo": "https://github.com/safety-quotient-lab/{{REPO_NAME}}",
+      "sessions_path": "transport/sessions/",
+      "zmq": null
+    },
+    "schemas_supported": ["interagent/v1"]
+  },
+
+  "tabs": [],
+
+  "peers": [],
+
+  "skills": []
+}
