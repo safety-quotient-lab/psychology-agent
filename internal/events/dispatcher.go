@@ -104,6 +104,12 @@ func (d *Dispatcher) HandleEvent(ctx context.Context, evt Event) {
 			"event_id", evt.ID,
 			"error", err,
 		)
+		// Refund the budget — spawn did not consume resources
+		if refundErr := d.budgetDeduct(-cost); refundErr != nil {
+			d.logger.Warn("budget refund failed", "cost", cost, "error", refundErr)
+		} else {
+			d.logger.Info("budget refunded after spawn failure", "cost", cost)
+		}
 		// Re-queue if retries remain
 		if evt.Attempts < evt.MaxRetries {
 			evt.Attempts++
