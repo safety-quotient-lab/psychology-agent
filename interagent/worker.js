@@ -704,8 +704,15 @@ async function buildPulseData(registry, cacheStatus, refreshedAt, env) {
     compositorStatus.degradation_reason = `${_lastFetchErrors.length} fetch errors accumulated — compositor partially impaired`;
   }
 
+  // Detect mesh operational mode from agent schedule data
+  // If any agent reports mesh_paused or all syncing agents have no recent activity,
+  // the mesh operates in paused mode
+  const anyPaused = online.some(a => a.data?.schedule?.mesh_paused === true);
+  const mesh_mode = anyPaused ? "paused" : "active";
+
   return {
     mesh_health,
+    mesh_mode,
     checked_at: new Date().toISOString(),
     agents_total: agents.length,
     agents_online: online.length,

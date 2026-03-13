@@ -109,6 +109,61 @@
             --elbow-radius: 20px;
         }
 
+        /* LCARS visual enhancements — scan-line, glow, typography */
+        .theme-lcars body,
+        .theme-lcars {
+            font-family: 'Antonio', 'Helvetica Neue', 'Arial', sans-serif;
+            letter-spacing: 0.03em;
+        }
+        .theme-lcars .lcars-title {
+            font-size: 1.6em;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+        .theme-lcars .lcars-spine-segment {
+            box-shadow: inset 0 0 12px rgba(255,255,255,0.08);
+        }
+        .theme-lcars .lcars-spine-segment:hover {
+            filter: brightness(1.3);
+        }
+        .theme-lcars .lcars-header {
+            border-bottom-width: var(--band-height);
+            box-shadow: 0 2px 12px rgba(255,153,0,0.15);
+        }
+        .theme-lcars .lcars-footer {
+            border-top-width: var(--band-height);
+            box-shadow: 0 -2px 12px rgba(255,153,0,0.15);
+        }
+        .theme-lcars .lcars-panel::before {
+            width: 6px;
+            box-shadow: 2px 0 8px rgba(255,153,0,0.2);
+        }
+        .theme-lcars .lcars-tab.active {
+            text-shadow: 0 0 8px currentColor;
+        }
+        /* Subtle scan-line overlay in LCARS mode */
+        .theme-lcars .lcars-content::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.03) 2px,
+                rgba(0,0,0,0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 999;
+        }
+        /* Topology edge glow in LCARS */
+        .theme-lcars .topology-svg line {
+            filter: drop-shadow(0 0 3px rgba(255,153,0,0.3));
+        }
+        .theme-lcars .topology-svg circle {
+            filter: drop-shadow(0 0 6px currentColor);
+        }
+
         /* Light mode */
         .theme-light {
             --bg-primary: #f2f4f7;
@@ -1137,6 +1192,10 @@
     <div class="lcars-content">
         <!-- Pulse Tab -->
         <div class="tab-pane active" id="pane-pulse">
+            <!-- Mesh mode banner (hidden by default, shown when paused) -->
+            <div id="mesh-mode-banner" style="display:none;background:var(--c-warning,#d4944a);color:var(--bg-primary);padding:8px 16px;border-radius:4px;margin-bottom:12px;font-weight:bold;font-size:0.85em;text-align:center">
+                ⏸ MESH PAUSED — autonomous operations halted by operator
+            </div>
             <!-- Mesh vitals -->
             <div class="vitals-grid" id="vitals-grid">
                 <div class="vital-card" style="--vital-color: var(--c-health)">
@@ -2111,12 +2170,19 @@
 
         const mode = sseActive ? "● SSE live" : "○ polling 30s";
         const src = pulseData ? "compositor" : "client";
+        const meshMode = pulseData?.mesh_mode === "paused" ? " · ⏸ PAUSED" : "";
         document.getElementById("footer-status").textContent =
-            `Updated ${new Date().toLocaleTimeString()} · ${mode} · ${src}`;
+            `Updated ${new Date().toLocaleTimeString()} · ${mode} · ${src}${meshMode}`;
     }
 
     // ── Render: Vitals ─────────────────────────────────────────────
     function renderVitals() {
+        // Show/hide mesh mode banner
+        const banner = document.getElementById("mesh-mode-banner");
+        if (banner) {
+            banner.style.display = pulseData?.mesh_mode === "paused" ? "block" : "none";
+        }
+
         // Prefer compositor-aggregated pulse data; fall back to client-side
         if (pulseData) {
             const p = pulseData;

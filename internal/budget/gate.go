@@ -51,7 +51,12 @@ var costTable = map[Priority]int{
 	Critical:    5,
 }
 
-// Gate mediates spawn decisions against budget, pause, and rotation state.
+// MeshMaxConcurrent caps total simultaneous Claude spawns across the entire mesh.
+// File locks in /tmp/mesh-spawn-slot-{N} enforce the limit.
+const MeshMaxConcurrent = 2
+
+// Gate mediates spawn decisions against budget, pause, rotation, and
+// mesh-wide concurrency state.
 type Gate struct {
 	// DBPath points to the SQLite state.db file.
 	DBPath string
@@ -139,7 +144,69 @@ func (g *Gate) CanSpawn(cost int) (bool, string) {
 		return false, "shadow mode active — spawn logged but not executed"
 	}
 
+	// Check mesh-wide concurrency — count active spawn slot files
+	activeSlots := countMeshSpawnSlots()
+	if activeSlots >= MeshMaxConcurrent {
+		g.logger.Warn("mesh-wide concurrency limit reached — refusing spawn",
+			"active_slots", activeSlots,
+			"max", MeshMaxConcurrent,
+			"agent_id", g.AgentID,
+		)
+		return false, fmt.Sprintf("mesh concurrency limit: %d/%d slots occupied", activeSlots, MeshMaxConcurrent)
+	}
+
 	return true, ""
+}
+
+// AcquireSlot claims a mesh-wide spawn slot before starting a Claude process.
+// Returns the slot path (for later release) or an error if no slot available.
+func (g *Gate) AcquireSlot() (string, error) {
+	for i := 0; i < MeshMaxConcurrent; i++ {
+		slotPath := fmt.Sprintf("/tmp/mesh-spawn-slot-%d", i)
+		// Try to create exclusively — fails if another process holds it
+		f, err := os.OpenFile(slotPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
+		if err != nil {
+			continue // slot occupied
+		}
+		// Write agent identity + timestamp for observability
+		fmt.Fprintf(f, "%s %s\n", g.AgentID, strings.TrimSpace(execDate()))
+		f.Close()
+		g.logger.Info("spawn slot acquired",
+			"slot", slotPath,
+			"agent_id", g.AgentID,
+		)
+		return slotPath, nil
+	}
+	return "", fmt.Errorf("no spawn slots available (%d/%d occupied)", countMeshSpawnSlots(), MeshMaxConcurrent)
+}
+
+// ReleaseSlot frees a previously acquired spawn slot.
+func (g *Gate) ReleaseSlot(slotPath string) {
+	if err := os.Remove(slotPath); err != nil && !os.IsNotExist(err) {
+		g.logger.Warn("failed to release spawn slot", "slot", slotPath, "error", err)
+	} else {
+		g.logger.Info("spawn slot released", "slot", slotPath)
+	}
+}
+
+// countMeshSpawnSlots returns how many /tmp/mesh-spawn-slot-N files exist.
+func countMeshSpawnSlots() int {
+	count := 0
+	for i := 0; i < MeshMaxConcurrent; i++ {
+		if fileExists(fmt.Sprintf("/tmp/mesh-spawn-slot-%d", i)) {
+			count++
+		}
+	}
+	return count
+}
+
+// execDate returns the current UTC datetime string.
+func execDate() string {
+	out, err := exec.Command("date", "-u", "+%Y-%m-%dT%H:%M:%SZ").Output()
+	if err != nil {
+		return "unknown"
+	}
+	return string(out)
 }
 
 // Deduct subtracts the given cost from the agent's budget in state.db.

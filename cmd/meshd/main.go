@@ -106,6 +106,13 @@ func main() {
 	dispatcher := events.NewDispatcher(
 		queue,
 		func(dctx context.Context, req events.SpawnRequest) error {
+			// Acquire mesh-wide spawn slot (max 2 across entire mesh)
+			slotPath, slotErr := budgetGate.AcquireSlot()
+			if slotErr != nil {
+				return fmt.Errorf("spawn slot unavailable: %w", slotErr)
+			}
+			defer budgetGate.ReleaseSlot(slotPath)
+
 			result, spawnErr := spawnr.Spawn(dctx, req.Prompt)
 			if spawnErr != nil {
 				return spawnErr
