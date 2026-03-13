@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phase 4+5 complete. Pulse/Operations tabs wired to compositor endpoints with client-side fallback. Complement cascade archiver implemented (scripts/archive-sessions.sh). Public readiness audit PASSED. Neuroglial proposal awaiting human review (PR #168). Approaching v1.
+**Current Status:** Phase 3+4+5 complete. Vocabulary governance formalized (schema, workflow, 20 terms published). Pulse/Operations tabs wired to compositor endpoints. Public readiness audit PASSED. Peer-registry-update 2/3 ACK'd (observatory pending). --model opus flag deprecated (default 1M context). Approaching v1.
 
 ---
 
@@ -27,9 +27,9 @@
 
 ## Phase 3: Vocabulary Governance
 
-- [ ] Define shared vocabulary schema (extend `interagent/vocab.json`)
-- [ ] Publish initial vocabulary set
-- [ ] Establish proposal workflow (domain agent → operations-agent)
+- [x] Define shared vocabulary schema (`interagent/vocab.schema.json` — JSON Schema 2020-12, validates term structure)
+- [x] Publish initial vocabulary set (20 terms, v1.3.0, served at /vocab with schema at /vocab/schema)
+- [x] Establish proposal workflow (`platform/shared/cogarch/rules/vocabulary-governance.md` — C1/C2/C3 tiers)
 - [x] Rename psq-agent → safety-quotient-agent (compositor: worker.js, index.html, cogarch, agent-card — dual-recognition active)
 - [ ] Rename psq-agent → safety-quotient-agent (DNS: safety-quotient-agent.safety-quotient.dev custom domain — credits available)
 
@@ -95,9 +95,10 @@
 |---|---|---|
 | api-decomposition | T5 open | psq ACCEPT (T3) + identity corrected (T5), unratified ACCEPT (T4), psychology ACK pending human review, observatory pending |
 | budget-status-fix | T1 pending | Bug report: unratified + observatory return empty autonomy_budget {} |
-| model-upgrade | T2 partial | psq ACK (--model opus applied). Psychology, unratified, observatory pending |
+| model-upgrade | T2 partial | psq ACK (--model opus applied). Psychology, unratified, observatory pending. SUPERSEDED by model-flag-removal |
+| model-flag-removal | T1 advisory | Remove --model opus from autonomous-sync.sh — default now includes 1M context |
 | infrastructure-separation | T2 partial | psq ACCEPT (cognitive separation accepted). Psychology, unratified, observatory pending |
-| peer-registry-update | T1 pending | HIGH: 3 agents missing operations-agent from agent-registry.json — transport broken |
+| peer-registry-update | T2 partial | psq ACK + unratified ACK (registries updated). Observatory pending |
 | ci-build-issue | T1 pending | Unratified missing @astrojs/check dependency |
 | naming-convention-reform | T3 closed | ACCEPT: kebab canonical naming + psq-agent → safety-quotient-agent rename |
 | neuroglial-cogarch-proposal | T1 pending | Proposal: neuroglial architecture layer + 3 vocab terms — routed via psychology-agent for human review |
@@ -128,4 +129,4 @@
 - **Repo visibility:** private until human audit confirms zero leaks
 - **Naming convention:** `{agent-id}.safety-quotient.dev` for all subdomains
 - **Division of labor:** cross-agent changes via transport messages, not direct code modification
-- **Model:** all agents use Opus (global default + explicit --model flag)
+- **Model:** all agents use Opus (global default — explicit --model flag no longer needed, default includes 1M context as of 2026-03-13)

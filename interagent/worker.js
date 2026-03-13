@@ -7,6 +7,7 @@
  * Routes:
  *   GET  /                    → interagent mesh compositor (index.html)
  *   GET  /vocab[.json]        → shared JSON-LD vocabulary
+ *   GET  /vocab/schema[.json] → vocabulary JSON Schema (validation)
  *   GET  /health              → worker health check (local only)
  *   GET  /api/health          → mesh health (aggregates all agent /api/status)
  *   POST /api/keys            → create API key (operator-only)
@@ -20,6 +21,7 @@
 
 import HTML from "./index.html";
 import VOCAB from "./vocab.json";
+import VOCAB_SCHEMA from "./vocab.schema.json";
 import AGENT_CARD from "../.well-known/agent-card.json";
 import { resolveAuth, checkRateLimit, handleKeyCreate, handleKeyRevoke } from "./auth.js";
 
@@ -1242,6 +1244,16 @@ export default {
         headers: {
           "Content-Type": "application/ld+json; charset=utf-8",
           "Cache-Control": "public, max-age=3600",
+          ...corsHeaders(request, true),
+        },
+      });
+    }
+
+    if (url.pathname === "/vocab/schema" || url.pathname === "/vocab/schema.json") {
+      return new Response(VOCAB_SCHEMA, {
+        headers: {
+          "Content-Type": "application/schema+json; charset=utf-8",
+          "Cache-Control": "public, max-age=86400",
           ...corsHeaders(request, true),
         },
       });
