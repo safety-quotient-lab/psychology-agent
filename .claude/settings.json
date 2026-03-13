@@ -30,6 +30,26 @@
             "timeout": 2000
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/credential-screen.sh",
+            "timeout": 1000
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/destructive-command-screen.sh",
+            "timeout": 1000
+          }
+        ]
       }
     ],
     "PostToolUse": [
