@@ -1697,14 +1697,9 @@
         const online = Object.values(agentData).filter(a => a.status === "online");
         const total = AGENTS.length;
 
-        const totalBudget = online.reduce((sum, a) => {
-            const b = a.data?.autonomy_budget || {};
-            return sum + (b.budget_current ?? 0);
-        }, 0);
-        const maxBudget = online.reduce((sum, a) => {
-            const b = a.data?.autonomy_budget || {};
-            return sum + (b.budget_max ?? 50);
-        }, 0);
+        const withBudget = online.filter(a => typeof a.data?.autonomy_budget?.budget_current === "number");
+        const totalBudget = withBudget.reduce((sum, a) => sum + a.data.autonomy_budget.budget_current, 0);
+        const maxBudget = withBudget.reduce((sum, a) => sum + (a.data.autonomy_budget.budget_max || 0), 0);
         const pending = online.reduce((sum, a) => sum + ((a.data?.totals || {}).unprocessed || 0), 0);
         const gates = online.reduce((sum, a) => sum + (a.data?.active_gates || []).length, 0);
         const debt = online.reduce((sum, a) => sum + ((a.data?.totals || {}).epistemic_flags_unresolved || 0), 0);
@@ -1758,10 +1753,11 @@
 
             const d = state.data;
             const budget = d.autonomy_budget || {};
-            const cur = budget.budget_current ?? 0;
-            const max = budget.budget_max ?? 50;
-            const pct = max > 0 ? Math.round((cur / max) * 100) : 0;
-            const budgetClass = pct > 50 ? "high" : pct > 20 ? "mid" : "low";
+            const hasBudget = typeof budget.budget_current === "number";
+            const cur = hasBudget ? budget.budget_current : null;
+            const max = hasBudget ? (budget.budget_max || 50) : null;
+            const pct = (cur !== null && max > 0) ? Math.round((cur / max) * 100) : null;
+            const budgetClass = pct === null ? "dim" : pct > 50 ? "high" : pct > 20 ? "mid" : "low";
             const unprocessed = (d.totals || {}).unprocessed || 0;
             const gateCount = (d.active_gates || []).length;
             const schema = d.schema_version || "?";
@@ -1779,7 +1775,7 @@
                     </div>
                     <div class="agent-metrics">
                         <div class="agent-metric">
-                            <div class="agent-metric-value">${cur}/${max}</div>
+                            <div class="agent-metric-value">${cur !== null ? `${cur}/${max}` : "—"}</div>
                             <div class="agent-metric-label">Budget</div>
                         </div>
                         <div class="agent-metric">
@@ -3221,14 +3217,9 @@
     function renderOpsVitals() {
         const online = Object.values(agentData).filter(a => a.status === "online");
 
-        const totalCredits = online.reduce((sum, a) => {
-            const b = a.data?.autonomy_budget || {};
-            return sum + (b.budget_current ?? 0);
-        }, 0);
-        const maxCredits = online.reduce((sum, a) => {
-            const b = a.data?.autonomy_budget || {};
-            return sum + (b.budget_max ?? 50);
-        }, 0);
+        const opsWithBudget = online.filter(a => typeof a.data?.autonomy_budget?.budget_current === "number");
+        const totalCredits = opsWithBudget.reduce((sum, a) => sum + a.data.autonomy_budget.budget_current, 0);
+        const maxCredits = opsWithBudget.reduce((sum, a) => sum + (a.data.autonomy_budget.budget_max || 0), 0);
         const totalActions = online.reduce((sum, a) =>
             sum + (a.data?.recent_actions || []).length, 0);
         const gates = online.reduce((sum, a) =>
@@ -3260,8 +3251,19 @@
                 continue;
             }
             const b = d.data?.autonomy_budget || {};
-            const current = b.budget_current ?? 0;
-            const max = b.budget_max ?? 50;
+            const hasBudget = typeof b.budget_current === "number";
+            if (!hasBudget) {
+                grid.innerHTML += `
+                    <div class="ops-budget-card" style="--card-accent: ${agent.color}; opacity: 0.6">
+                        <div class="ops-budget-agent">${agent.id.replace("-agent", "")}</div>
+                        <div class="ops-budget-credit" style="font-size:0.9em; color:var(--text-dim)">NO DATA</div>
+                        <div class="ops-budget-bar"><div class="ops-budget-fill" style="width:0%"></div></div>
+                        <div class="ops-budget-values"><span>Agent not reporting budget</span><span></span></div>
+                    </div>`;
+                continue;
+            }
+            const current = b.budget_current;
+            const max = b.budget_max || 50;
             const pct = max > 0 ? Math.round((current / max) * 100) : 0;
             const barColor = pct > 50 ? "#6aab8e" : pct > 20 ? "#d4944a" : "#c47070";
             const lastAction = b.last_action || "—";
