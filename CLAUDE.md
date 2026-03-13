@@ -95,6 +95,7 @@ If none: `⚑ EPISTEMIC FLAGS: none identified.`
 - `/iterate` — unified loop: sync → hunt → discriminate → execute → cycle
 - `/scan-peer` — peer content quality scan (PSQ safety, vocabulary, fair witness)
 - `/diagnose` — systemic self-diagnostic (claims, transport, memory, triggers, facets, lessons, decisions)
+- `/retrospect` — retrospective pattern generator (predictions, wins, recurrence, carryover)
 
 ## Commands (load on demand)
 

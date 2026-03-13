@@ -126,3 +126,26 @@ CREATE TRIGGER IF NOT EXISTS prevent_disclosure_update
 BEGIN
     SELECT RAISE(ABORT, 'agent_disclosures: append-only table, UPDATE prohibited (EIC spec)');
 END;
+
+
+-- Prediction ledger (schema v25) — RPG win/loss tracking
+-- Spec: docs/retrospective-pattern-generator-spec.md
+CREATE TABLE IF NOT EXISTS prediction_ledger (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id      INTEGER NOT NULL,
+    prediction      TEXT NOT NULL,
+    domain          TEXT NOT NULL,
+    source_doc      TEXT,
+    outcome         TEXT CHECK (outcome IN (
+                        'confirmed', 'partially-confirmed',
+                        'refuted', 'untested'
+                    )),
+    outcome_detail  TEXT,
+    delta_lesson    TEXT,
+    recorded_at     TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
+    resolved_at     TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_predictions_domain
+    ON prediction_ledger (domain, outcome);
+CREATE INDEX IF NOT EXISTS idx_predictions_session
+    ON prediction_ledger (session_id);
