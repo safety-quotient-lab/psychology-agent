@@ -153,13 +153,16 @@ terms — it was built independently and then asked which terms it could support
 pattern_type: reasoning-error
 domain: evaluation
 severity: high
-recurrence: 1
+recurrence: 4
 first_seen: 2026-03-01
-last_seen: 2026-03-01
+last_seen: 2026-03-13
 trigger_relevant: T15
-promotion_status: graduated
+promotion_status: hook-graduated
 graduated_to: ".claude/rules/evaluation.md"
 graduated_date: 2026-03-09
+hook_graduated_to: ".claude/hooks/confidence-calibration-screen.sh"
+hook_graduated_date: 2026-03-13
+hook_rationale: "3 post-convention recurrences (Sessions 30-31, 45, 47). Convention alone did not channel the pattern."
 ```
 
 **The lesson:** A model's stated confidence and its actual accuracy are separate

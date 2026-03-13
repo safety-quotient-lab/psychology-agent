@@ -101,6 +101,16 @@
             "timeout": 3000
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/confidence-calibration-screen.sh",
+            "timeout": 1000
+          }
+        ]
       }
     ],
     "PostToolUseFailure": [
