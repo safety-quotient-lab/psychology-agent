@@ -93,10 +93,11 @@
 
 | Session | Status | Summary |
 |---|---|---|
-| api-decomposition | T4 open | Proposal accepted by psq (with identity correction sent), ACK from psychology (pending human review), observatory/unratified pending |
+| api-decomposition | T5 open | psq ACCEPT (T3) + identity corrected (T5), unratified ACCEPT (T4), psychology ACK pending human review, observatory pending |
 | budget-status-fix | T1 pending | Bug report: unratified + observatory return empty autonomy_budget {} |
-| model-upgrade | T1 pending | Directive: all agents add --model opus to autonomous-sync.sh |
-| infrastructure-separation | T1 pending | Proposal: cognitive scoping now, interagent-sdk extraction in Phase 6 |
+| model-upgrade | T2 partial | psq ACK (--model opus applied). Psychology, unratified, observatory pending |
+| infrastructure-separation | T2 partial | psq ACCEPT (cognitive separation accepted). Psychology, unratified, observatory pending |
+| peer-registry-update | T1 pending | HIGH: 3 agents missing operations-agent from agent-registry.json — transport broken |
 | ci-build-issue | T1 pending | Unratified missing @astrojs/check dependency |
 | naming-convention-reform | T3 closed | ACCEPT: kebab canonical naming + psq-agent → safety-quotient-agent rename |
 | operations-override-protocol | T1 pending | RFC: mandatory directive mechanism — 3 enforcement tiers, SSH signing, capability scoping, admission control |

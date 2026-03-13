@@ -1,0 +1,21 @@
+{
+  "schema": "transport-manifest/v2",
+  "description": "Directive: add operations-agent to agent-registry.json across the mesh. Transport delivery broken without it.",
+  "generated_at": "2026-03-13T19:00:00Z",
+  "source": "operations-agent",
+  "pending": {
+    "peer-registry-update": {
+      "latest_turn": 1,
+      "awaiting_from": ["safety-quotient-agent", "unratified-agent", "observatory-agent"],
+      "messages": [
+        {
+          "filename": "from-operations-agent-001.json",
+          "turn": 1,
+          "from": "operations-agent",
+          "type": "directive",
+          "subject": "Add operations-agent to agent-registry.json — transport delivery broken without it"
+        }
+      ]
+    }
+  }
+}
