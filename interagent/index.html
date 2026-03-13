@@ -2614,35 +2614,28 @@
                     ${sortHeader("messages", "message_type", "Type")}
                     <th>Subject</th>
                     ${sortHeader("messages", "claims_count", "Claims")}
-                    <th style="width:2em">GH</th>
                     ${sortHeader("messages", "timestamp", "Date")}
                 </tr></thead>
                 <tbody>${display.map(m => {
                     const dateShort = formatTS(m.timestamp);
-                    const subject = (m.subject || "").length > 60
-                        ? m.subject.substring(0, 60) + "…"
-                        : (m.subject || "—");
+                    const rawSubject = m.subject || "—";
+                    const subject = rawSubject.length > 60 ? rawSubject.substring(0, 60) + "…" : rawSubject;
                     const claimsCount = m.claims_count || 0;
                     const claimsLink = claimsCount > 0
                         ? `<a href="#pane-kb" onclick="switchTab('kb');document.getElementById('filter-claims').value='${escapeHtml(m.session_name || "")}';filterTable('claims');return false;" style="color:var(--c-knowledge)">${claimsCount}</a>`
                         : `<span style="color:var(--text-dim)">0</span>`;
-                    const sessionUrl = transportGitHubUrl(m._agent, m.session_name);
-                    const fileUrl = transportGitHubUrl(m._agent, m.session_name, m.filename);
-                    const sessionCell = sessionUrl
-                        ? `<a href="${escapeHtml(sessionUrl)}" target="_blank" rel="noopener" style="color:var(--c-transport)">${escapeHtml(m.session_name || "—")}</a>`
-                        : escapeHtml(m.session_name || "—");
-                    const ghCell = fileUrl
-                        ? `<a href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener" title="View ${escapeHtml(m.filename || "message")}" style="color:var(--text-secondary);text-decoration:none">&#x1F4C4;</a>`
-                        : (m.issue_url ? `<a href="${escapeHtml(m.issue_url)}" target="_blank" rel="noopener" title="GitHub Issue #${m.issue_number || ''}" style="color:var(--text-secondary);text-decoration:none">&#x1F517;</a>` : '');
+                    const fileUrl = transportGitHubUrl(m._agent, m.session_name, m.filename, m.from_agent);
+                    const subjectCell = fileUrl
+                        ? `<a href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener" style="color:var(--c-transport)" title="${escapeHtml(m.filename || "")}">${escapeHtml(subject)}</a>`
+                        : escapeHtml(subject);
                     return `<tr>
                         <td><span class="agent-dot" data-agent="${m._agent}"></span>${escapeHtml(m.from_agent || "—")}</td>
                         <td style="font-size:0.85em">${escapeHtml(m.to_agent || "—")}</td>
-                        <td style="font-size:0.85em;white-space:nowrap">${sessionCell}</td>
+                        <td style="color:var(--c-transport);font-size:0.85em;white-space:nowrap">${escapeHtml(m.session_name || "—")}</td>
                         <td style="text-align:center">${m.turn || "—"}</td>
                         <td style="font-size:0.85em">${escapeHtml(m.message_type || "—")}</td>
-                        <td style="font-size:0.85em">${escapeHtml(subject)}</td>
+                        <td style="font-size:0.85em">${subjectCell}</td>
                         <td style="text-align:center">${claimsLink}</td>
-                        <td style="text-align:center">${ghCell}</td>
                         <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
                     </tr>`;
                 }).join("")}</tbody>
@@ -3170,13 +3163,20 @@
         return div.innerHTML;
     }
 
-    function transportGitHubUrl(agentId, sessionName, filename) {
+    function transportGitHubUrl(agentId, sessionName, filename, fromAgent) {
         const repo = AGENT_REPO_MAP[agentId];
         if (!repo || !sessionName) return null;
-        const path = filename
-            ? `transport/sessions/${sessionName}/${filename}`
-            : `transport/sessions/${sessionName}`;
-        return `https://github.com/${repo}/blob/main/${path}`;
+        // Files on disk use from-{sender} convention; KB indexes as to-{receiver}
+        // Reconstruct the actual filename: from-{from_agent}-{turn}.json
+        if (filename && fromAgent) {
+            const turnMatch = filename.match(/(\d+)\.json$/);
+            if (turnMatch) {
+                const realFile = `from-${fromAgent}-${turnMatch[1]}.json`;
+                return `https://github.com/${repo}/blob/main/transport/sessions/${sessionName}/${realFile}`;
+            }
+        }
+        // Fallback: link to session folder
+        return `https://github.com/${repo}/tree/main/transport/sessions/${sessionName}`;
     }
 
     // ── SSE Live Updates ─────────────────────────────────────────
