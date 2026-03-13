@@ -27,6 +27,9 @@ elif [ -f "${PROJECT_ROOT}/scripts/dual_write.py" ] && [ -f "${PROJECT_ROOT}/sta
   python3 "${PROJECT_ROOT}/scripts/dual_write.py" trigger-fired --trigger-id T1 2>/dev/null
 fi
 
+# Trigger activation telemetry reminder
+echo "[HOOK] Session ending — log trigger activations to state.db via: python3 scripts/dual_write.py trigger-activation --session-id N --trigger-id TX --check-number N --tier critical --result pass"
+
 # Log session end
 SESSION_LOG="/tmp/psychology-agent-session-log.jsonl"
 TIMESTAMP=$(date -Iseconds)
