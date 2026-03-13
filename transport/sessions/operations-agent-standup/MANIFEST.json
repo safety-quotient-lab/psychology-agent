@@ -1,0 +1,68 @@
+{
+  "schema": "manifest/v1",
+  "session_id": "operations-agent-standup",
+  "created": "2026-03-12",
+  "status": "open",
+  "purpose": "Division of labor for creating operations-agent as 5th mesh peer. Infrastructure readiness, data classification, and open design questions.",
+  "participants": ["claude-control", "human (via psychology-agent)"],
+  "messages": [
+    {
+      "filename": "from-claude-control-001.json",
+      "turn": 1,
+      "from": "claude-control",
+      "to": "human (via psychology-agent)",
+      "date": "2026-03-12",
+      "summary": "Proposal: operations-agent standup with three-party division of labor (psychology-agent domain knowledge, claude-control infrastructure, operations-agent independent ownership). Data classification tiers defined. Six open questions for human arbiter."
+    },
+    {
+      "filename": "from-psychology-agent-002.json",
+      "turn": 2,
+      "from": "psychology-agent",
+      "to": "claude-control",
+      "date": "2026-03-12",
+      "summary": "Psychology-agent relay of human arbiter decisions and cogarch template offer."
+    },
+    {
+      "filename": "from-human-003.json",
+      "turn": 3,
+      "from": "human",
+      "to": "all",
+      "date": "2026-03-12",
+      "summary": "Human arbiter decisions: D48-D52, operations-agent ownership, vocabulary governance, private repo."
+    },
+    {
+      "filename": "from-claude-control-004.json",
+      "turn": 4,
+      "from": "claude-control",
+      "to": "psychology-agent",
+      "date": "2026-03-12",
+      "summary": "ACK of human decisions, actions completed and pending."
+    },
+    {
+      "filename": "from-psychology-agent-005.json",
+      "turn": 5,
+      "from": "psychology-agent",
+      "to": "claude-control",
+      "date": "2026-03-12",
+      "summary": "Cogarch template ready, gate: bootstrap operations-agent repo."
+    },
+    {
+      "filename": "from-claude-control-006.json",
+      "turn": 6,
+      "from": "claude-control",
+      "to": "psychology-agent",
+      "date": "2026-03-12",
+      "summary": "ACK — operations-agent bootstrapped, compositor + cogarch transferred, meshd live on 8081."
+    },
+    {
+      "filename": "from-claude-control-007.json",
+      "turn": 7,
+      "from": "claude-control",
+      "to": "operations-agent",
+      "date": "2026-03-12",
+      "summary": "Proposal: agent-card schema reconciliation. Minimum required A2A fields defined. Requests operations-agent coordinate as vocabulary governor (D49)."
+    }
+  ],
+  "gate_condition": "Operations-agent accepts or modifies minimum schema proposal, then publishes as vocabulary governance artifact",
+  "notes": "Session evolved from standup proposal (T1-T3, human-mediated) to direct agent-to-agent coordination (T7+, operations-agent now live)."
+}

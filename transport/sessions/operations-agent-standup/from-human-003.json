@@ -1,0 +1,151 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "operations-agent-standup",
+  "turn": 3,
+  "timestamp": "2026-03-12T14:32:00-05:00",
+  "message_type": "decision",
+  "in_response_to": "from-claude-control-001.json",
+  "thread_id": "operations-agent-standup",
+  "parent_thread_id": null,
+  "from": {
+    "agent_id": "human",
+    "role": "arbiter"
+  },
+  "to": {
+    "agent_id": "all",
+    "note": "Decisions binding on claude-control (infrastructure), psychology-agent (domain knowledge transfer), and future operations-agent"
+  },
+  "transport": {
+    "method": "git-pr",
+    "persistence": "persistent"
+  },
+  "subject": "Operations-agent standup — all 6 questions resolved, emerging architecture decisions included",
+  "urgency": "normal",
+  "setl": 0.10,
+
+  "body": {
+    "preamble": "Human arbiter reviewed claude-control's proposal (turn 1) and psychology-agent's response (turn 2). All 6 open questions resolved. Two additional architectural directions emerged from the review process and are included as binding decisions.",
+
+    "resolved_questions": [
+      {
+        "question_number": 1,
+        "topic": "Compositor repo ownership",
+        "decision": "Operations-agent owns the compositor",
+        "detail": "The interagent dashboard (index.html + worker.js) moves to the operations-agent repo. Operations-agent owns layout, visual consistency, and the deploy pipeline. Other agents contribute via PRs or by serving data at /api/* endpoints. Discovery uses .well-known/agent-card.json — the compositor reads agent-cards at startup instead of maintaining a hardcoded AGENTS array.",
+        "rejects": "Shared repo (too many owners, coordination overhead at current scale). Psychology-agent repo (historical accident, not design)."
+      },
+      {
+        "question_number": 2,
+        "topic": "Worker.js split",
+        "decision": "No split",
+        "detail": "Operations-agent owns both index.html and worker.js as a unit. The CF Worker remains a thin aggregation proxy. Tab-specific rendering stays client-side. Agents serve structured data at /api/status and /api/kb; the compositor consumes it uniformly.",
+        "rejects": "Functional split of Worker logic across agents (unnecessary complexity for a thin proxy)."
+      },
+      {
+        "question_number": 3,
+        "topic": "Agent endpoint registry",
+        "decision": ".well-known discovery replaces hardcoded AGENTS array",
+        "detail": "Each agent serves .well-known/agent-card.json describing its identity, capabilities, endpoints, and tab contributions. The compositor reads agent-cards at startup for dynamic discovery. No KV-backed registry needed — agent-cards are the registry. A new agent joins the mesh by deploying an agent-card; the compositor discovers it on next refresh.",
+        "rejects": "Hardcoded AGENTS array (doesn't scale). KV-backed registry (adds runtime dependency and latency for marginal benefit at 5-6 agents)."
+      },
+      {
+        "question_number": 4,
+        "topic": "Vocabulary governance",
+        "decision": "Operations-agent governs shared vocabulary",
+        "detail": "Shared vocabulary (terms that appear in agent-cards, the dashboard, and cross-agent data contracts) is governed by operations-agent. Domain-specific vocabulary stays local to each agent. Psychology-agent governs psychology/psychometrics terms internally. Claude-control governs infrastructure terms internally. When a domain term needs to become shared (e.g., appearing in the compositor), the owning agent proposes it to operations-agent for inclusion in the shared vocabulary.",
+        "rejects": "Single-agent governance by psychology-agent (doesn't scale to 5+ domains). Human-only governance (too slow for operational vocabulary evolution)."
+      },
+      {
+        "question_number": 5,
+        "topic": "Port allocation",
+        "decision": "Delegated to claude-control",
+        "detail": "Claude-control owns chromabook infrastructure and allocates ports. Current meshd ports: :8076 (psychology), :8077 (psq), :8078 (unratified), :8079 (observatory). Claude-control assigns the operations-agent port based on what is available and avoids common default ports (8080, 3000, etc.) if they conflict with existing services.",
+        "rejects": "Human-assigned ports (infrastructure owner knows the bind landscape better)."
+      },
+      {
+        "question_number": 6,
+        "topic": "Repo visibility",
+        "decision": "Private first, public after audit",
+        "detail": "safety-quotient-lab/operations-agent created as a private repository. Claude-control's 7-item pre-commit gate checklist applies. Standard .gitignore covers: state.db, state.local.db, lessons.md, .claude/settings.local.json, .env, .dev.vars. Human reviews the repo contents before flipping to public. No timeline pressure — go public only when the audit confirms zero leaks.",
+        "rejects": "Public from day one (unnecessary risk during initial standup when configuration is volatile)."
+      }
+    ],
+
+    "emerging_architecture_decisions": [
+      {
+        "decision": "Dual-channel transport",
+        "detail": "git-PR transport stays for human review, public transparency, and durable session records. A real-time messaging layer complements it for inter-agent signaling, event notification, and operational telemetry. The messaging layer does NOT replace git-PR — it handles the cases where git-PR is too slow (sub-second agent coordination, transient state changes, reliability of event delivery).",
+        "candidates": "Redis pub/sub (pending cabinet verification — cabinet currently offline), ZeroMQ (brokerless, peer-to-peer). MQTT also viable given claude-control's existing mqtt-zulip-bridge. Decision deferred until cabinet is online and Redis availability is confirmed.",
+        "constraint": "Least infrastructure possible. One additional daemon is acceptable; a full message broker cluster is not."
+      },
+      {
+        "decision": "Web Component decomposition for compositor HTML",
+        "detail": "The monolithic index.html (~3000 lines) decomposes into Web Components. Each tab becomes a custom element. Agent-cards at .well-known/ include tab contribution manifests (tab name, data endpoints, schema.org types). The compositor shell discovers tabs from agent-cards and loads components dynamically. This enables agent-owned tabs with centralized visual governance by operations-agent.",
+        "constraint": "DIY Web Components — no framework dependency. Vanilla custom elements with optional JSON-LD structured manifests for semantic discovery."
+      },
+      {
+        "decision": "Jenkins deploys the compositor",
+        "detail": "Operations-agent's deploy pipeline runs through Jenkins (Tier 2 CI/CD). Jenkins → wrangler publish for the CF Worker. Existing Tier 2 infrastructure handles this with no new tooling.",
+        "constraint": "Must integrate with existing Jenkins setup on cabinet. When cabinet comes back online, verify Jenkins can reach the operations-agent repo (private repo access)."
+      }
+    ],
+
+    "action_items": [
+      {
+        "owner": "claude-control",
+        "action": "Create safety-quotient-lab/operations-agent as a private GitHub repo. Apply .gitignore template. Allocate meshd port. Set up systemd unit.",
+        "blocked_by": null
+      },
+      {
+        "owner": "claude-control",
+        "action": "Respond to the pending D1 aggregation pipeline request (cabinet-infrastructure session, to-claude-control-001.json). That request remains open and is separate from operations-agent standup.",
+        "blocked_by": "cabinet offline"
+      },
+      {
+        "owner": "psychology-agent",
+        "action": "Prepare cognitive architecture template in platform/shared/ for operations-agent adaptation. Hooks, identity pattern, transport protocol, lessons schema.",
+        "blocked_by": null
+      },
+      {
+        "owner": "psychology-agent",
+        "action": "Extract compositor (interagent/) from psychology-agent repo. Coordinate with operations-agent on handoff once the repo exists.",
+        "blocked_by": "operations-agent repo creation"
+      },
+      {
+        "owner": "operations-agent (once created)",
+        "action": "Receive compositor codebase. Begin Web Component decomposition. Implement .well-known discovery in worker.js.",
+        "blocked_by": "repo creation + compositor handoff"
+      },
+      {
+        "owner": "all agents",
+        "action": "Ensure .well-known/agent-card.json includes tab contribution manifests (tab name, data endpoints, schema types) for compositor discovery.",
+        "blocked_by": "operations-agent defines the manifest schema"
+      },
+      {
+        "owner": "human + claude-control",
+        "action": "When cabinet comes online: verify Redis availability, evaluate Redis pub/sub vs ZeroMQ vs MQTT for real-time messaging layer.",
+        "blocked_by": "cabinet offline"
+      }
+    ],
+
+    "cross_references": {
+      "psychology_agent_response": "from-psychology-agent-002.json — positions accepted with modifications noted above. Protocol compliance notes acknowledged (claude-control should add v19 fields to future messages).",
+      "cabinet_infrastructure": "Separate session. D1 pipeline request remains open. Not blocked by operations-agent decisions.",
+      "self_readiness_audit": "R3 gate remains open. Separate concern. Option A (remediate + R4) preferred but not decided here."
+    }
+  },
+
+  "action_gate": {
+    "gate_condition": "claude-control acknowledges decisions and begins operations-agent repo creation",
+    "gate_status": "open"
+  },
+
+  "ack_required": true,
+
+  "epistemic_flags": [
+    "Cabinet offline — Redis verification and Jenkins integration for operations-agent deploy pipeline blocked until cabinet returns.",
+    "Web Component decomposition scope not estimated. Could range from S (extract existing tabs as-is) to L (full semantic discovery with JSON-LD manifests).",
+    "Messaging layer decision deferred. Current polling-based architecture continues to function. No degradation from deferral.",
+    "Operations-agent cognitive architecture adaptation from platform/shared/ template untested. First agent to use the template — expect iteration."
+  ]
+}
