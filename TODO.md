@@ -96,37 +96,27 @@ found 3 critical defects, 2 high-severity issues, 39 structural weaknesses,
 
 ## Upstream Contribution
 
-- [ ] **PR to CreatmanCEO/claude-code-antiregression-setup** — WAITING ON EXTERNAL.
-  Reached out; maintainer forked our repo but has not responded. Original scope:
-  3 high-value items (bootstrap-check.sh, epistemic flags in code-reviewer,
-  write-provenance.sh hook) + reference to full cogarch framework. Do not push
-  further — if they engage, respond; if not, the awesome-claude-code submission
-  provides broader visibility independently.
-  *Status: waiting on maintainer response (as of 2026-03-09)*
+- [x] **PR to CreatmanCEO/claude-code-antiregression-setup** — [RETIRED: Session 85,
+  RPG carryover analysis. 73 sessions without response. Awesome-claude-code provides
+  broader visibility independently.]
 
 ---
 
 ## Awesome-Claude-Code Integration
 
-- [ ] **Phase-locked sub-agent orchestration** (Rank 4) — sub-agents return data
-  only; orchestrator holds exclusive write authority. Prevents rogue sub-agent
-  writes. Directly relevant to sub-agent protocol (complete, Session 20).
-  *Source: Compound Eng phase-locked execution*
-  *Precondition: ✓ MET — sub-agent protocol complete (Session 20). Grounding audit Session 56.*
+- [x] **Phase-locked sub-agent orchestration** (Rank 4) — [RETIRED: Session 85,
+  RPG carryover. 65 sessions since precondition met. Existing sub-agent protocol +
+  subagent-audit hooks provide equivalent enforcement.]
 
-- [ ] **Competing hypotheses workflow** (Rank 6) — 3-5 hypotheses with quality criteria
+- [x] **Competing hypotheses workflow** (Rank 6) — [RETIRED: Session 85, RPG carryover.
+  68 sessions since precondition met. Evaluator protocol + /adjudicate cover this.]
+  ~~3-5 hypotheses with quality criteria
   (testability, falsifiability, parsimony). Reference material for adversarial evaluator.
   *Source: K-Dense hypothesis-generation skill*
   *Precondition: ✓ MET — adversarial evaluator complete (Session 17). Grounding audit Session 56.*
 
-- [ ] **Activity logger** (Rank 7) — SQLite-backed cross-session audit trail as
-  complement to markdown lab-notebook. Structured, queryable.
-  *Source: Simone MCP activity logger*
-  *Precondition: implementation phase (code exists to log against)*
-  *Grounding audit Session 57: largely superseded by SL-2 dual-write (session_log
-  table + dual_write.py). Remaining delta: Simone-style MCP server exposing the
-  existing state.db to external tools. Reclassify as XS enhancement, not standalone
-  work item.*
+- [x] **Activity logger** (Rank 7) — [RETIRED: Session 85, RPG carryover.
+  Superseded by SL-2 dual-write per Session 57 grounding audit.]
 
 ---
 
@@ -315,14 +305,8 @@ human-mediated Claude Code sessions to autonomous operation.
   `scripts/dual_write.py` (6 subcommands). /sync Phase 3+5 index transport messages.
   /cycle Steps 2, 4, 7 dual-write sessions, decisions, memory entries. Schema v5.
 
-- [ ] **Cross-agent faceted queries (autonomous-op prerequisite)** — reframed from
-  MCP resource (Session 56). When PSQ sub-agent operates autonomously (EF-1 trust
-  model), it needs programmatic access to parent agent state (calibration decisions,
-  structural model history, scorer findings). **Implementation path:** transport
-  command-request (`query-facets` action, S effort) → MCP wrapper when runtime
-  supports it. **Grounding notes:** state.db must exist, dual-protocol concern
-  remains — transport command avoids the second-channel problem.
-  *Precondition: ✓ MET — SL-2 populated + autonomous sync operational (Session 62). Grounding audit Session 62d.*
+- [x] **Cross-agent faceted queries** — [RETIRED: Session 85, RPG carryover.
+  29 sessions without execution. Transport command-request handles ad-hoc queries.]
 
 - [x] **PSQ sub-agent cogarch mirror (Phase 2)** — COMPLETE (Session 52). PR #91 merged.
   T1-T16 mirrored, T15 adapted as producer self-check. Phase 3 (cross-agent faceted
@@ -396,17 +380,9 @@ semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
   (unprocessed messages, active gates, last exchange recency). Cold peers
   (no exchange >24h) skip `git fetch` entirely. `--force` overrides.
 
-- [ ] **Adaptive sync frequency (full scheduler)** — replace fixed cron with
-  self-rescheduling loop that adapts per-peer poll intervals:
-  active peers (unprocessed messages, open gates, exchange <1h) → 5 min;
-  warm peers (exchange 1-24h, registered with active sessions) → 30 min;
-  cold peers (exchange >24h, no active sessions) → 2 hr.
-  Implementation: daemon process with `MIN(next_poll_time)` sleep, crash
-  recovery via PID file, systemd unit or launchd plist for supervision.
-  Data sources already exist in state.db (transport_messages.timestamp,
-  active_gates.status, autonomy_budget.last_action).
-  *Precondition: simple tier classification complete (Session 62c)*
-  *Constraint: ✓ RESOLVED — systemd user units deployed (Session 76). Process supervision available.*
+- [x] **Adaptive sync frequency (full scheduler)** — [RETIRED: Session 85, RPG
+  carryover. Simple active/warm/cold classification (Session 62c) handles 80% case.
+  Full scheduler adds engineering complexity without demonstrated need.]
 
 - [x] **Smart self-healing in git_sync** — COMPLETE (Session 69). Diagnostic-first:
   classifies dirty files (transport/scripts/mixed), classifies pull failures
@@ -432,21 +408,10 @@ semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
   *Precondition: ✓ MET — claude-replay integrated (Session 64-65), dashboard
   replay tab exists, autonomous sync operational*
 
-- [ ] **Fair-witness-bot** — public-facing fair witness evaluation service at
-  fairwitness.bot. Operates a fair-witness agent that evaluates claims, text, or
-  content for fair witness discipline compliance (observation vs. inference,
-  evidence grounding, epistemic transparency). Separate agent in the mesh with
-  its own repo, identity, and transport path.
-  *Precondition: domain registration (fairwitness.bot), agent mesh operational*
+- [x] **Fair-witness-bot** — [MOVED to ideas.md: Session 85, RPG carryover.
+  Product concept, not task. Design notes preserved in ideas.md.]
 
-- [ ] **Fair-witness-bot news awareness** — extend the fair-witness-bot design to
-  include news monitoring and analysis capabilities. The bot should track news feeds,
-  provide fair-witness-grounded analysis of current events (separating observation from
-  inference), surface alerts when news coverage exhibits common epistemic failures
-  (conflation, unsupported claims, narrative framing as fact), and provide feedback on
-  news article quality. Deliverables: news ingestion pipeline, analysis scoring model,
-  alert/notification system, feedback interface.
-  *Precondition: fair-witness-bot base design complete*
+- [x] **Fair-witness-bot news awareness** — [MOVED with parent to ideas.md.]
 
 ---
 

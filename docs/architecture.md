@@ -1192,7 +1192,7 @@ all low; a speculative architectural claim would score 0.50–0.70.)
 When two psychology agent instances conflict (Tier 3 trigger):
 
 ```
-1. Both instances state their positions in v2 schema format (claims[],
+1. Both instances state their positions in machine-response/v3 schema format (claims[],
    source_confidence, witness_facts, witness_inferences).
 
 2. Evaluator receives both structured positions. Does not receive
@@ -1230,7 +1230,7 @@ sub-agents or agent instances conflict, the disagreement is information.
 Averaging destroys it.
 
 WHAT YOU RECEIVE
-- Structured outputs from sub-agents or psychology agent instances (v2 schema format)
+- Structured outputs from sub-agents or psychology agent instances (machine-response/v3 schema format)
 - The domain and stakes of the current claim
 - The activation tier requested (Lite / Standard / Full)
 
@@ -1336,7 +1336,7 @@ The evaluator spec has two parameters that the sub-agent protocol must fill:
 1. **Sub-agent output format** — the evaluator receives structured outputs from
    sub-agents. The sub-agent layer defines exactly what those look like (v2 schema
    binding for PSQ: 10 dimensions, per-dimension confidence, scope declaration).
-   Evaluator currently assumes v2 schema format; will inherit sub-agent layer binding.
+   Evaluator currently assumes machine-response/v3 schema format; will inherit sub-agent layer binding.
 
 2. **Action gate thresholds by domain** — the SETL > 0.40 threshold for Tier 2
    is a first approximation. The peer layer may refine domain-specific thresholds
