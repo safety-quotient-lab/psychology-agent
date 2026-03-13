@@ -78,6 +78,9 @@ func main() {
 		// Equal Information Channel (EIC)
 		discloseCmd(),
 		discloseSummaryCmd(),
+		// Retrospective Pattern Generator (RPG)
+		expectCmd(),
+		expectSummaryCmd(),
 	)
 
 	if err := root.Execute(); err != nil {
@@ -885,4 +888,44 @@ func discloseSummaryCmd() *cobra.Command {
 	cmd.Flags().StringVar(&agentID, "agent-id", "psychology-agent", "Agent identifier")
 	cmd.Flags().StringVar(&since, "since", "1970-01-01", "Show disclosures since this timestamp (ISO 8601)")
 	return cmd
+}
+
+// ── Retrospective Pattern Generator (RPG) ────────────────────────────
+
+func expectCmd() *cobra.Command {
+	var sessionID int
+	var expectation, domain, likelihood, sourceDoc, outcome, detail, delta string
+	cmd := &cobra.Command{
+		Use:   "expect",
+		Short: "Record an expectation in the ledger (state.local.db)",
+		Long: `Record an expectation with likelihood and optional outcome for the RPG ledger.
+Under process monism, we hold expectations about processual likelihoods,
+not predictions about fixed outcomes.
+Outcomes: confirmed, partially-confirmed, refuted, untested (or omit for untested).`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cogarch.RecordExpectation(mgr.Local(), sessionID, expectation, domain, likelihood, sourceDoc, outcome, detail, delta)
+		},
+	}
+	cmd.Flags().IntVar(&sessionID, "session-id", 0, "Session number (required)")
+	cmd.Flags().StringVar(&expectation, "expectation", "", "What processual outcome we expect (required)")
+	cmd.Flags().StringVar(&domain, "domain", "", "Domain: psychometrics, governance, architecture, etc. (required)")
+	cmd.Flags().StringVar(&likelihood, "likelihood", "", "Likelihood qualifier: likely, probable, possible, uncertain")
+	cmd.Flags().StringVar(&sourceDoc, "source", "", "Source document reference")
+	cmd.Flags().StringVar(&outcome, "outcome", "untested", "Outcome: confirmed|partially-confirmed|refuted|untested")
+	cmd.Flags().StringVar(&detail, "detail", "", "Outcome detail/evidence")
+	cmd.Flags().StringVar(&delta, "delta", "", "What the delta teaches (lesson)")
+	cmd.MarkFlagRequired("session-id")
+	cmd.MarkFlagRequired("expectation")
+	cmd.MarkFlagRequired("domain")
+	return cmd
+}
+
+func expectSummaryCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "expect-summary",
+		Short: "Show expectation track record by domain",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cogarch.ExpectationSummary(mgr.Local())
+		},
+	}
 }
