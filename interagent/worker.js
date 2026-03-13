@@ -266,11 +266,17 @@ async function loadAgentRegistry(env, forceRefresh = false) {
 function validateStatusData(raw) {
   if (!raw || typeof raw !== "object") return null;
 
-  // Must have at least agent_id or autonomy_budget to qualify as a status response
-  if (!raw.agent_id && !raw.autonomy_budget) return null;
+  // Must have at least agent_id or autonomy_budget/trust_budget to qualify as a status response
+  if (!raw.agent_id && !raw.autonomy_budget && !raw.trust_budget) return null;
 
   // BFT Mitigation 1: track every field that gets sanitized (defaulted/replaced)
   const sanitization_log = [];
+
+  // Normalize field name: some agents use "trust_budget" instead of "autonomy_budget"
+  if (!raw.autonomy_budget && raw.trust_budget) {
+    sanitization_log.push({ field: "autonomy_budget", original: "trust_budget", defaulted_to: "aliased from trust_budget" });
+    raw.autonomy_budget = raw.trust_budget;
+  }
 
   if (!raw.agent_id) {
     sanitization_log.push({ field: "agent_id", original: raw.agent_id, defaulted_to: null });

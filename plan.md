@@ -93,6 +93,12 @@
 - [ ] CF Worker retired or reduced to thin reverse proxy
 - [ ] Parity: individual agent dashboards gain compositor features (discovery, topology, deep-linking)
 
+## v1.0.0 Release Blockers
+
+- [ ] **README.md** — pristine root-level README (currently missing entirely). Must document: project purpose, architecture, dependencies (Go, Node/wrangler, Python3, SQLite), setup instructions, .dev.vars config, mesh topology, compositor endpoints, scripts reference. BLOCKER for v1 deploy.
+- [ ] /api/kb endpoint — claims/decisions/triggers never populate (see project_kb_endpoint_gap memory)
+- [ ] Web Component decomposition (in progress)
+
 ---
 
 ## Active Transport Sessions
@@ -100,7 +106,7 @@
 | Session | Status | Summary |
 |---|---|---|
 | api-decomposition | T5 open | psq ACCEPT (T3) + identity corrected (T5), unratified ACCEPT (T4), psychology ACK pending human review, observatory pending |
-| budget-status-fix | T1 pending | Bug report: unratified + observatory return empty autonomy_budget {} |
+| budget-status-fix | T2 resolved | Root cause: field name mismatch (trust_budget vs autonomy_budget). Compositor now normalizes both names. |
 | model-upgrade | T2 partial | psq ACK (--model opus applied). Psychology, unratified, observatory pending. SUPERSEDED by model-flag-removal |
 | model-flag-removal | T1 advisory | Remove --model opus from autonomous-sync.sh — default now includes 1M context |
 | infrastructure-separation | T2 follow-up | T2 update sent: context-rotate + SDK extraction underway. All 4 peers pending ACK |

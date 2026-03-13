@@ -2,15 +2,22 @@
   "session_id": "budget-status-fix",
   "created": "2026-03-13T15:10:13Z",
   "participants": ["operations-agent", "unratified-agent", "observatory-agent"],
-  "subject": "/api/status returns empty autonomy_budget",
-  "gate_status": "open",
+  "subject": "/api/status returns empty autonomy_budget — root cause: trust_budget field name",
+  "gate_status": "resolved",
   "turns": [
     {
       "turn": 1,
       "from": "operations-agent",
       "file": "from-operations-agent-001.json",
-      "status": "pending",
+      "status": "delivered",
       "timestamp": "2026-03-13T15:10:13Z"
+    },
+    {
+      "turn": 2,
+      "from": "operations-agent",
+      "file": "from-operations-agent-002.json",
+      "status": "resolved",
+      "timestamp": "2026-03-13T22:30:00Z"
     }
   ]
 }
