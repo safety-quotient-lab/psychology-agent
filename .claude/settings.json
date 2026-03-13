@@ -12,6 +12,7 @@
         ]
       },
       {
+        "matcher": "Read|Write|Edit|Bash|Agent|WebFetch",
         "hooks": [
           {
             "type": "command",
@@ -37,8 +38,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "FILE=\"$TOOL_INPUT_file_path\"; case \"$FILE\" in *MEMORY.md|*cognitive-triggers.md|*CLAUDE.md|*architecture.md) echo \"[HOOK] Critical file modified: $(basename \"$FILE\"). Verify T4 compliance: date discipline, public visibility, routing, semantic naming.\" ;; *lab-notebook.md) echo \"[HOOK] Lab notebook modified. Verify chronological ordering (T4).\" ;; esac",
-            "timeout": 5000
+            "command": ".claude/hooks/critical-file-modified.sh",
+            "timeout": 2000
           }
         ]
       },
