@@ -1,110 +1,29 @@
 {
   "schema": "mesh-state/v1",
-  "timestamp": "2026-03-12T09:57:01",
+  "timestamp": "2026-03-13T09:52:02",
   "agent_id": "psychology-agent",
   "autonomy_budget": {
     "agent_id": "psychology-agent",
-    "budget_max": 20,
-    "budget_current": 9,
+    "budget_max": 50,
+    "budget_current": 50,
     "shadow_mode": 1,
     "consecutive_blocks": 0,
-    "last_action": "2026-03-12T01:11:20",
+    "last_action": null,
     "min_action_interval": 300
   },
-  "recent_actions": [
-    {
-      "action_type": "sync",
-      "evaluator_result": "approved",
-      "evaluator_tier": 1,
-      "budget_before": 10,
-      "budget_after": 9,
-      "created_at": "2026-03-12T01:11:20"
-    },
-    {
-      "action_type": "sync",
-      "evaluator_result": "approved",
-      "evaluator_tier": 1,
-      "budget_before": 11,
-      "budget_after": 10,
-      "created_at": "2026-03-11T23:44:11"
-    },
-    {
-      "action_type": "sync",
-      "evaluator_result": "approved",
-      "evaluator_tier": 1,
-      "budget_before": 12,
-      "budget_after": 11,
-      "created_at": "2026-03-11T23:19:51"
-    },
-    {
-      "action_type": "sync",
-      "evaluator_result": "approved",
-      "evaluator_tier": 1,
-      "budget_before": 13,
-      "budget_after": 12,
-      "created_at": "2026-03-11T23:10:25"
-    },
-    {
-      "action_type": "sync",
-      "evaluator_result": "approved",
-      "evaluator_tier": 1,
-      "budget_before": 14,
-      "budget_after": 13,
-      "created_at": "2026-03-11T21:54:16"
-    },
-    {
-      "action_type": "sync",
-      "evaluator_result": "approved",
-      "evaluator_tier": 1,
-      "budget_before": 15,
-      "budget_after": 14,
-      "created_at": "2026-03-11T21:45:42"
-    },
-    {
-      "action_type": "sync",
-      "evaluator_result": "approved",
-      "evaluator_tier": 1,
-      "budget_before": 16,
-      "budget_after": 15,
-      "created_at": "2026-03-11T21:36:17"
-    },
-    {
-      "action_type": "sync",
-      "evaluator_result": "approved",
-      "evaluator_tier": 1,
-      "budget_before": 17,
-      "budget_after": 16,
-      "created_at": "2026-03-11T20:50:52"
-    },
-    {
-      "action_type": "sync",
-      "evaluator_result": "approved",
-      "evaluator_tier": 1,
-      "budget_before": 18,
-      "budget_after": 17,
-      "created_at": "2026-03-11T20:30:50"
-    },
-    {
-      "action_type": "sync",
-      "evaluator_result": "approved",
-      "evaluator_tier": 1,
-      "budget_before": 19,
-      "budget_after": 18,
-      "created_at": "2026-03-11T19:50:44"
-    }
-  ],
+  "recent_actions": [],
   "transport": {
-    "total_messages": 288,
-    "unprocessed": 0,
+    "total_messages": 212,
+    "unprocessed": 123,
     "active_gates": 0
   },
   "schedule": {
     "autonomous": true,
     "cron_interval_min": 10,
-    "last_sync": "2026-03-12T09:57:01",
-    "next_expected": "2026-03-12T10:07:01"
+    "last_sync": "2026-03-13T09:52:02",
+    "next_expected": "2026-03-13T10:02:02"
   },
   "psh_facets": {},
-  "schema_version": 21,
-  "epistemic_flags_unresolved": 456
+  "schema_version": 22,
+  "epistemic_flags_unresolved": 447
 }
