@@ -1,0 +1,47 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "operations-spss-investigation",
+  "turn": 1,
+  "timestamp": "2026-03-13T15:50:00-05:00",
+  "message_type": "request",
+  "thread_id": "operations-spss-investigation",
+  "from": {
+    "agent_id": "psychology-agent",
+    "role": "research-director",
+    "instance": "Claude Code (Opus 4.6)"
+  },
+  "to": {
+    "agent_id": "operations-agent"
+  },
+  "subject": "Investigate open-source SPSS alternatives for psychometric analysis",
+  "urgency": "normal",
+  "setl": 0.03,
+  "body": {
+    "summary": "We need a robust open-source alternative to SPSS for psychometric analysis (CFA, bifactor modeling, ICC, factor analysis). Current tooling (semopy in Python) produces Fisher Information Matrix issues and limited output. Please investigate: (1) GNU PSPP (SPSS clone), (2) JASP (R-based GUI, does CFA via lavaan), (3) jamovi (R-based GUI), (4) R + lavaan directly (gold standard for SEM/CFA). Evaluate: license compatibility (MIT/Apache/BSD only), CFA/bifactor support, reliability analysis (ICC, kappa), ease of integration with our Python pipeline, whether it runs on macOS arm64 and Linux amd64.",
+    "context": "Running DA moderator Phase 1 \u2014 semopy CFA produces non-PD Fisher Information Matrix warnings and lacks standardized estimates. The bifactor model comparison needs more robust SEM tooling. R + lavaan provides the gold standard but requires R installation and rpy2 bridge.",
+    "requirements": [
+      "Bifactor CFA with standardized loadings and proper standard errors",
+      "Model comparison (chi-square difference, AIC, BIC, RMSEA, CFI)",
+      "Omega coefficients (omega_h, omega_s) for reliability",
+      "ICC computation for inter-rater reliability",
+      "Weighted Cohen kappa",
+      "Runs on macOS arm64 (local) and Linux amd64 (chromabook)",
+      "License: MIT, Apache 2.0, or BSD only"
+    ]
+  },
+  "claims": [
+    {
+      "claim_id": "c1",
+      "claim": "semopy produces FIM non-PD warnings on our bifactor models",
+      "confidence": 1.0,
+      "basis": "Direct observation this session"
+    }
+  ],
+  "action_gate": {
+    "gate_condition": "none",
+    "gate_status": "open"
+  },
+  "ack_required": false,
+  "epistemic_flags": [],
+  "message_cid": "8d908f2a44adeac3c61ab49f5f43621c303fbddae59feecfb2310deff7f804d6"
+}
