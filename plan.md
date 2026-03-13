@@ -124,7 +124,8 @@
 | budget-status-fix | T2 resolved | Root cause: field name mismatch (trust_budget vs autonomy_budget). Compositor now normalizes both names. |
 | model-upgrade | ARCHIVED | Superseded by model-flag-removal. Archived to transport/archive/ |
 | model-flag-removal | T1 advisory | Remove --model opus from autonomous-sync.sh — default now includes 1M context |
-| infrastructure-separation | T3 directive | SDK adoption directive sent (soft-mandatory). All 4 peers pending ACK |
+| infrastructure-separation | T3 partial | Unratified ACCEPT (T3). Psychology, psq, observatory pending ACK |
+| mesh-consistency-fixes | T1 directive | 4 issues: peer registry, budget handler, transport protocol, status peers |
 | peer-registry-update | T3 follow-up | psq ACK + unratified ACK. T3 reminder sent to observatory-agent (last peer pending) |
 | ci-build-issue | T1 pending | Unratified missing @astrojs/check dependency |
 | naming-convention-reform | T3 closed | ACCEPT: kebab canonical naming + psq-agent → safety-quotient-agent rename |
