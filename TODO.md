@@ -67,6 +67,54 @@ found 3 critical defects, 2 high-severity issues, 39 structural weaknesses,
 
 ---
 
+## Session 85 Evaluation Findings (16 remaining)
+
+New items from the full cogarch evaluation (`docs/cogarch-evaluation-session85.md`):
+
+- [ ] **GWT inter-trigger broadcast (Stage 2→3)** — implement one-line broadcast
+  summaries between CRITICAL trigger checks. Convention exists; needs hook or
+  script to carry forward findings between T2→T3→T4 within a response.
+  *Effort: S. Precondition: mode-detection hook operational (✓).*
+
+- [ ] **Efference copy implementation** — link prediction_ledger to transport
+  outbound. Surprise-driven triage modifier (+25 for contradictions, -15 for
+  confirmations). Spec: `docs/efference-copy-spec.md`.
+  *Effort: S. Precondition: prediction_ledger schema v25 (✓).*
+
+- [ ] **--thorough flag implementation** — multi-pass self-consistency scoring.
+  Remove confidence from PSQ scoring prompt; replace with SD across N+1 passes.
+  Spec: `docs/thorough-scoring-spec.md`.
+  *Effort: S-M. Precondition: spec complete (✓). Requires PSQ agent scoring prompt edit.*
+
+- [ ] **EIC disclosure → trigger adjustment** — close the feedback loop from
+  disclosures (especially `dissent` and `uncertainty`) to trigger sensitivity.
+  Currently write-only; no consumer adjusts behavior based on disclosures.
+  *Effort: S. Precondition: EIC operational (✓).*
+
+- [ ] **DMN consolidation cron** — inter-session background processing via
+  `consolidation-pass.sh`. Analyze trigger_activations, identify chronic
+  carryover, pre-stage consolidation report for T1.
+  *Effort: M. Precondition: trigger_activations data (needs 10+ sessions).*
+
+- [ ] **/cycle decoupling** — reduce from 13 steps touching 10+ files to
+  modular sub-phases. Each phase independently invocable.
+  *Effort: M. Structural refactoring — dedicated session recommended.*
+
+- [ ] **autonomous-sync.sh concern separation** — 1100+ lines orchestrating
+  15 concerns. Extract into composable modules.
+  *Effort: L. Structural — dedicated session.*
+
+- [ ] **Cross-agent RPG** — extend /retrospect to scan peer transport for
+  mesh-level patterns invisible to single-agent retrospectives.
+  *Effort: M. Precondition: cross-repo-fetch operational (✓).*
+
+- [ ] **Agent personality rollout** — add personality fields to all 5 agent
+  cards (A2A extension). Update system prompts to reflect personality traits.
+  Spec: `docs/agent-personality-spec.md`.
+  *Effort: S. Precondition: spec complete (✓). Requires operations-agent coordination.*
+
+---
+
 ## Architecture
 
 - [ ] **Internal code naming convention reform** — Option C resolved (kebab canonical +
