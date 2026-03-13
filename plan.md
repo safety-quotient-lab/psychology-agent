@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phase 6 underway. Targeting v1.0.0-beta. interagent-sdk extracted (10 scripts + schemas + templates). Context rotation protocol implemented. Budget display fixed (trust_budget alias). Web Component decomposition in progress. v1-beta blockers: README, /api/kb endpoint, Web Components.
+**Current Status:** Phase 7 (v1.0.0-beta hardening). Phase 6 substantially complete — meshd Go daemon implemented, interagent-sdk extracted, Web Components decomposed, compositor deployed. Remaining v1-beta blockers: /api/kb endpoint, hardening pass.
 
 ---
 
