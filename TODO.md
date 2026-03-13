@@ -35,43 +35,37 @@ found 3 critical defects, 2 high-severity issues, 39 structural weaknesses,
   committed docs > auto-memory > state.db. Conflict resolution, reconciliation
   protocol at T1/cycle, CoALA type mapping (episodic/semantic/procedural/working).
 
-- [ ] **Phase 5: Working memory / attention model** — implement CoALA-inspired
-  episodic/semantic/procedural memory distinction. Add attention allocation
-  (Posner) to prioritize checks by relevance. Integrate Global Workspace
-  broadcast for inter-trigger communication. Addresses P-1, P-2, P-5.
-  *Precondition: Phase 4 memory consolidation complete.*
+- [x] **Phase 5: Working memory / attention model** — ✓ SPEC COMPLETE (Session 84)
+  Spec: `docs/working-memory-spec.md`. Baddeley WM, Posner attention, GWT broadcast,
+  ACT-R activation, task-type detection. 4-stage implementation roadmap.
 
-- [ ] **Phase 6: Governance hardening** — fix amendment procedure gap (L-3),
-  add invariant violation logging (L-2), implement decision pathway auditability
-  (L-8). Make Tier 2 evaluator practically invocable (L-5).
-  *Precondition: Phase 1 critical fixes.*
+- [x] **Phase 6: Governance hardening** — ✓ COMPLETE (Session 84)
+  Amendment procedure (5-step, human approval required), invariant violation
+  logging template (GV entries), no same-session governance changes.
 
-- [ ] **Phase 7: CPG pattern generator implementation** — advance mode system
-  (dependency cluster 2) from Stage 0 to Stage 1 (in-context reasoning).
-  Generate/evaluate mode competition with fatigue-based switching.
-  Addresses P-4, P-8, and the full CPG framework in ideas.md.
-  *Precondition: Phase 2 trigger tiering (modes need tiered checks).*
+- [ ] **Phase 7: CPG mode system** — SPEC COMPLETE (`docs/phases-7-10-specs.md`).
+  Generate/evaluate mode competition with fatigue-based switching. Stage 0→1.
+  Task-type detection drives mode selection. Phase disclosure for transparency.
+  *Precondition: ✓ Phase 2 complete. Ready to implement (in-context reasoning).*
 
-- [ ] **Phase 8: Metacognitive layer** — add trigger activation tracking,
-  effectiveness measurement, self-model (E-G7, E-14, P-3). Enable the cogarch
-  to answer "which checks actually prevented errors?" and calibrate its own
-  monitoring accuracy.
-  *Precondition: Phase 3 hook-trigger contract (need mechanical tracking).*
+- [ ] **Phase 8: Metacognitive layer** — SPEC COMPLETE (`docs/phases-7-10-specs.md`).
+  trigger_activations table in state.db. Dual-write activation logs. Effectiveness
+  measurement SQL queries. Self-model via extended trigger_state.
+  *Precondition: ✓ Phase 3 complete. Ready for schema + script implementation.*
 
-- [ ] **Phase 9: Transport simplification** — reduce protocol complexity to
-  match mesh size. Simplify ACK protocol. Add session lifecycle (open/close/
-  archive). Add garbage collection. Addresses E-13, E-16, L-7.
+- [ ] **Phase 9: Transport simplification** — SPEC COMPLETE (`docs/phases-7-10-specs.md`).
+  5-state session lifecycle (open→active→closing→closed→archived). Simplified ACK
+  (2 mechanisms, not 4). Garbage collection script.
   *Precondition: naming convention reform (changes agent IDs in transport).*
 
-- [ ] **Phase 10: Dead weight removal + CLAUDE.md slimming** — remove E-D1
-  through E-D4. Deduplicate CLAUDE.md against canonical sources (E-17).
-  Target: CLAUDE.md under 150 lines. Addresses X-1, X-3, X-4.
-  *Precondition: Phase 3 (need to know which content moves to hooks).*
+- [ ] **Phase 10: Dead weight removal + CLAUDE.md slimming** — SPEC COMPLETE.
+  Retire T12, move E-prime to write convention, remove CLAUDE.md redundancy.
+  Target: CLAUDE.md ≤ 150 lines (50% reduction).
+  *Precondition: ✓ Phase 3 complete. Ready to implement.*
 
-- [ ] **Full knock-on analysis + adjudication** — 2x knock-on (orders 1-10)
-  for each phase. Consensus-or-pragmatism decision per phase. Integrate
-  literature findings from research agent.
-  *Precondition: research agent results integrated into evaluation doc.*
+- [x] **Full knock-on analysis + adjudication** — ✓ COMPLETE (Session 84).
+  Literature findings integrated into `docs/cogarch-refactor-evaluation.md`.
+  12 validations, 8 gaps identified. 30+ sources from 2023-2025.
 
 ---
 
