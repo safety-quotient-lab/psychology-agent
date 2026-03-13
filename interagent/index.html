@@ -1143,7 +1143,7 @@
                     <div class="vital-value" id="vital-budget">—</div>
                     <div class="vital-label">Autonomy Credits</div>
                 </div>
-                <div class="vital-card vital-link" style="--vital-color: var(--c-transport); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('filter-messages').value='';filterTable('messages');document.getElementById('kb-sec-messages').scrollIntoView({behavior:'smooth'})},120)">
+                <div class="vital-card vital-link" style="--vital-color: var(--c-transport); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('table-messages').setFilter('');document.getElementById('kb-sec-messages').scrollIntoView({behavior:'smooth'})},120)">
                     <div class="vital-value" id="vital-pending">—</div>
                     <div class="vital-label">Pending Messages</div>
                 </div>
@@ -1161,7 +1161,7 @@
             <div class="lcars-panel topology-container" style="margin-bottom: 24px">
                 <div class="lcars-panel-header">Mesh Topology</div>
                 <div class="lcars-panel-body">
-                    <svg class="topology-svg" id="topology-svg" viewBox="0 0 600 370"></svg>
+                    <mesh-topology id="topology-graph"></mesh-topology>
                 </div>
             </div>
 
@@ -1221,16 +1221,7 @@
             <!-- Messages (thought process — communication trail) -->
             <div id="kb-sec-messages" class="lcars-panel kb-section" data-section="transport" style="--panel-accent: var(--c-transport)">
                 <div class="lcars-panel-header">Messages</div>
-                <div class="table-toolbar">
-                    <input class="table-filter" id="filter-messages" placeholder="Filter messages..." oninput="filterTable('messages')">
-                    <div class="table-page-info" id="page-info-messages"></div>
-                    <div class="table-page-btns" id="page-btns-messages"></div>
-                </div>
-                <div class="lcars-panel-body scrollable">
-                    <div class="kb-table-wrap" id="kb-messages">
-                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
-                    </div>
-                </div>
+                <mesh-data-table id="table-messages"></mesh-data-table>
             </div>
 
             <!-- Memory by Topic -->
@@ -1256,44 +1247,19 @@
             <!-- Epistemic Flags Detail -->
             <div id="kb-sec-flags" class="lcars-panel kb-section" data-section="epistemic" style="--panel-accent: var(--c-epistemic)">
                 <div class="lcars-panel-header">Epistemic Flags (Detail)</div>
-                <div class="table-toolbar">
-                    <input class="table-filter" id="filter-flags" placeholder="Filter flags..." oninput="filterTable('flags')">
-                    <div class="table-page-info" id="page-info-flags"></div>
-                    <div class="table-page-btns" id="page-btns-flags"></div>
-                </div>
-                <div class="lcars-panel-body" id="kb-flags-detail">
-                    <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
-                </div>
+                <mesh-data-table id="table-flags"></mesh-data-table>
             </div>
 
             <!-- Decisions -->
             <div id="kb-sec-decisions" class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-knowledge)">
                 <div class="lcars-panel-header">Decisions</div>
-                <div class="table-toolbar">
-                    <input class="table-filter" id="filter-decisions" placeholder="Filter decisions..." oninput="filterTable('decisions')">
-                    <div class="table-page-info" id="page-info-decisions"></div>
-                    <div class="table-page-btns" id="page-btns-decisions"></div>
-                </div>
-                <div class="lcars-panel-body scrollable">
-                    <div class="kb-table-wrap" id="kb-decisions">
-                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
-                    </div>
-                </div>
+                <mesh-data-table id="table-decisions"></mesh-data-table>
             </div>
 
             <!-- Cognitive Triggers -->
             <div id="kb-sec-triggers" class="lcars-panel kb-section" data-section="epistemic" style="--panel-accent: var(--c-epistemic)">
                 <div class="lcars-panel-header">Cognitive Triggers</div>
-                <div class="table-toolbar">
-                    <input class="table-filter" id="filter-triggers" placeholder="Filter triggers..." oninput="filterTable('triggers')">
-                    <div class="table-page-info" id="page-info-triggers"></div>
-                    <div class="table-page-btns" id="page-btns-triggers"></div>
-                </div>
-                <div class="lcars-panel-body scrollable">
-                    <div class="kb-table-wrap" id="kb-triggers">
-                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
-                    </div>
-                </div>
+                <mesh-data-table id="table-triggers"></mesh-data-table>
             </div>
         </div>
 
@@ -1339,46 +1305,19 @@
             <!-- Claims -->
             <div id="kb-sec-claims" class="lcars-panel kb-section" data-section="epistemic">
                 <div class="lcars-panel-header">Claims</div>
-                <div class="table-toolbar">
-                    <input class="table-filter" id="filter-claims" placeholder="Filter claims..." oninput="filterTable('claims')">
-                    <div class="table-page-info" id="page-info-claims"></div>
-                    <div class="table-page-btns" id="page-btns-claims"></div>
-                </div>
-                <div class="lcars-panel-body scrollable">
-                    <div class="kb-table-wrap" id="kb-claims">
-                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
-                    </div>
-                </div>
+                <mesh-data-table id="table-claims"></mesh-data-table>
             </div>
 
             <!-- Decision Chains -->
             <div id="kb-sec-chains" class="lcars-panel kb-section" data-section="knowledge">
                 <div class="lcars-panel-header">Decision Chains</div>
-                <div class="table-toolbar">
-                    <input class="table-filter" id="filter-chains" placeholder="Filter decisions..." oninput="filterTable('chains')">
-                    <div class="table-page-info" id="page-info-chains"></div>
-                    <div class="table-page-btns" id="page-btns-chains"></div>
-                </div>
-                <div class="lcars-panel-body scrollable">
-                    <div class="kb-table-wrap" id="kb-chains">
-                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
-                    </div>
-                </div>
+                <mesh-data-table id="table-chains"></mesh-data-table>
             </div>
 
             <!-- Memory Facts -->
             <div id="kb-sec-facts" class="lcars-panel kb-section" data-section="health">
                 <div class="lcars-panel-header">Memory Facts</div>
-                <div class="table-toolbar">
-                    <input class="table-filter" id="filter-facts" placeholder="Filter facts..." oninput="filterTable('facts')">
-                    <div class="table-page-info" id="page-info-facts"></div>
-                    <div class="table-page-btns" id="page-btns-facts"></div>
-                </div>
-                <div class="lcars-panel-body scrollable">
-                    <div class="kb-table-wrap" id="kb-facts">
-                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
-                    </div>
-                </div>
+                <mesh-data-table id="table-facts"></mesh-data-table>
             </div>
 
             <!-- Vocabulary (moved from Meta) -->
@@ -1401,31 +1340,13 @@
             <!-- Discipline Catalog (moved from Meta) -->
             <div id="kb-sec-catalog" class="lcars-panel kb-section" data-section="transport" style="--panel-accent: var(--c-transport)">
                 <div class="lcars-panel-header">Discipline Catalog (PSH)</div>
-                <div class="table-toolbar">
-                    <input class="table-filter" id="filter-catalog" placeholder="Filter disciplines..." oninput="filterTable('catalog')">
-                    <div class="table-page-info" id="page-info-catalog"></div>
-                    <div class="table-page-btns" id="page-btns-catalog"></div>
-                </div>
-                <div class="lcars-panel-body scrollable">
-                    <div class="kb-table-wrap" id="kb-catalog">
-                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
-                    </div>
-                </div>
+                <mesh-data-table id="table-catalog"></mesh-data-table>
             </div>
 
             <!-- Schema.org Entity Types (moved from Meta) -->
             <div id="kb-sec-schema" class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-catalog)">
                 <div class="lcars-panel-header">Entity Schema (schema.org)</div>
-                <div class="table-toolbar">
-                    <input class="table-filter" id="filter-schema" placeholder="Filter types..." oninput="filterTable('schema')">
-                    <div class="table-page-info" id="page-info-schema"></div>
-                    <div class="table-page-btns" id="page-btns-schema"></div>
-                </div>
-                <div class="lcars-panel-body scrollable">
-                    <div class="kb-table-wrap" id="kb-schema">
-                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
-                    </div>
-                </div>
+                <mesh-data-table id="table-schema"></mesh-data-table>
             </div>
         </div>
 
@@ -1457,16 +1378,7 @@
             <!-- Lessons -->
             <div id="kb-sec-lessons" class="lcars-panel kb-section" data-section="knowledge">
                 <div class="lcars-panel-header">Lessons</div>
-                <div class="table-toolbar">
-                    <input class="table-filter" id="filter-lessons" placeholder="Filter lessons..." oninput="filterTable('lessons')">
-                    <div class="table-page-info" id="page-info-lessons"></div>
-                    <div class="table-page-btns" id="page-btns-lessons"></div>
-                </div>
-                <div class="lcars-panel-body scrollable">
-                    <div class="kb-table-wrap" id="kb-lessons">
-                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
-                    </div>
-                </div>
+                <mesh-data-table id="table-lessons"></mesh-data-table>
             </div>
         </div>
 
@@ -1505,16 +1417,7 @@
             <!-- Autonomous Actions Audit Trail -->
             <div class="lcars-panel kb-section" data-section="operations">
                 <div class="lcars-panel-header">Autonomous Actions</div>
-                <div class="table-toolbar">
-                    <input class="table-filter" id="filter-actions" placeholder="Filter actions..." oninput="filterTable('actions')">
-                    <div class="table-page-info" id="page-info-actions"></div>
-                    <div class="table-page-btns" id="page-btns-actions"></div>
-                </div>
-                <div class="lcars-panel-body scrollable">
-                    <div class="kb-table-wrap" id="ops-actions-table">
-                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
-                    </div>
-                </div>
+                <mesh-data-table id="table-actions"></mesh-data-table>
             </div>
 
             <!-- Sync Schedule -->
@@ -1556,6 +1459,469 @@
     let activeAgentFilter = "all";
     let sseConnections = [];
     let sseActive = false;
+
+    // ── Web Components ─────────────────────────────────────────────
+
+    // MeshDataTable — generic sortable, filterable, paginated table component.
+    // Replaces 11 render functions and the sortTable/filterTable/goToPage dispatchers.
+    // Light DOM only — existing CSS selectors keep working.
+    class MeshDataTable extends HTMLElement {
+        constructor() {
+            super();
+            this._tableId = '';
+            this._columns = [];
+            this._rows = [];
+            this._agentFilter = 'all';
+            this._emptyMessage = 'No data available.';
+            this._pageSize = 15;
+            this._sortCol = null;
+            this._sortDir = -1;
+            this._filterText = '';
+            this._page = 0;
+            this._expandedRows = new Set();
+        }
+
+        set tableId(id) { this._tableId = id; }
+        get tableId() { return this._tableId; }
+
+        set columns(arr) { this._columns = arr; }
+        get columns() { return this._columns; }
+
+        set rows(arr) { this._rows = arr; }
+        get rows() { return this._rows; }
+
+        set agentFilter(id) {
+            this._agentFilter = id;
+            this._page = 0;
+        }
+
+        set emptyMessage(msg) { this._emptyMessage = msg; }
+
+        set pageSize(n) { this._pageSize = n; }
+
+        // Reset page counter (useful when external data changes)
+        resetPage() { this._page = 0; }
+
+        // Allow external code to set the filter input value programmatically
+        setFilter(text) {
+            this._filterText = (text || '').toLowerCase();
+            this._page = 0;
+            const input = this.querySelector('.table-filter');
+            if (input) input.value = text || '';
+            this.render();
+        }
+
+        // Return filtered + sorted + paginated data slice
+        _getDisplayData() {
+            let filtered = this._rows;
+
+            // Agent filter
+            if (this._agentFilter !== 'all') {
+                filtered = filtered.filter(row => row._agent === this._agentFilter);
+            }
+
+            // Text filter
+            if (this._filterText) {
+                const ft = this._filterText;
+                filtered = filtered.filter(row =>
+                    Object.values(row).some(v =>
+                        String(v || '').toLowerCase().includes(ft)
+                    )
+                );
+            }
+
+            // Sort
+            if (this._sortCol) {
+                const colDef = this._columns.find(c => c.key === this._sortCol);
+                const accessor = colDef?.sortAccessor || (r => r[this._sortCol]);
+                const dir = this._sortDir;
+                filtered.sort((a, b) => {
+                    const va = accessor(a), vb = accessor(b);
+                    if (va == null && vb == null) return 0;
+                    if (va == null) return 1;
+                    if (vb == null) return -1;
+                    if (typeof va === 'number') return (va - vb) * dir;
+                    return String(va).localeCompare(String(vb)) * dir;
+                });
+            }
+
+            // Paginate
+            const totalPages = Math.max(1, Math.ceil(filtered.length / this._pageSize));
+            const page = Math.min(this._page, totalPages - 1);
+            const display = filtered.slice(page * this._pageSize, (page + 1) * this._pageSize);
+
+            return { filtered, display, page, totalPages, total: this._rows.length };
+        }
+
+        _handleSort(colKey) {
+            if (this._sortCol === colKey) {
+                this._sortDir *= -1;
+            } else {
+                this._sortCol = colKey;
+                this._sortDir = -1;
+            }
+            this._page = 0;
+            this.render();
+        }
+
+        _handleFilter(e) {
+            this._filterText = (e.target.value || '').toLowerCase();
+            this._page = 0;
+            this.render();
+        }
+
+        _handlePage(newPage) {
+            this._page = newPage;
+            this.render();
+        }
+
+        _toggleRow(rowId) {
+            if (this._expandedRows.has(rowId)) {
+                this._expandedRows.delete(rowId);
+            } else {
+                this._expandedRows.add(rowId);
+            }
+            const el = this.querySelector(`#${rowId}`);
+            if (el) el.style.display = this._expandedRows.has(rowId) ? 'table-row' : 'none';
+        }
+
+        _renderSortHeader(colDef) {
+            const sortable = colDef.sortable !== false;
+            if (!sortable) return `<th>${colDef.label}</th>`;
+            const active = this._sortCol === colDef.key;
+            const arrow = active ? (this._sortDir > 0 ? '&#x25B2;' : '&#x25BC;') : '&#x25B4;';
+            const ariaSort = active ? (this._sortDir > 0 ? 'ascending' : 'descending') : 'none';
+            return `<th class="${active ? 'sort-active' : ''}" role="columnheader" aria-sort="${ariaSort}" data-sort-key="${colDef.key}" style="cursor:pointer" tabindex="0">${colDef.label}<span class="sort-arrow">${arrow}</span></th>`;
+        }
+
+        _renderCell(colDef, row) {
+            const value = row[colDef.key];
+            if (colDef.render) return colDef.render(value, row);
+            const text = value != null ? String(value) : '—';
+            const escaped = colDef.annotate ? annotateAcronyms(escapeHtml(text)) : escapeHtml(text);
+            return colDef.style ? `<td style="${colDef.style}">${escaped}</td>` : `<td>${escaped}</td>`;
+        }
+
+        _renderExpandedRow(colDef, row, rowId) {
+            if (!colDef.expandable) return '';
+            const fullField = colDef.fullTextField || colDef.key;
+            const fullText = row[fullField] || '';
+            const maxLen = colDef.maxLength || 120;
+            if (fullText.length <= maxLen) return '';
+            const expanded = this._expandedRows.has(rowId);
+            const content = colDef.annotate
+                ? annotateAcronyms(escapeHtml(fullText))
+                : escapeHtml(fullText);
+            return `<tr id="${rowId}" class="expanded-detail-row" style="display:${expanded ? 'table-row' : 'none'}"><td colspan="${this._columns.length}"><div class="expanded-detail">${content}</div></td></tr>`;
+        }
+
+        render() {
+            if (this._rows.length === 0) {
+                this.innerHTML = `
+                    <div class="table-toolbar">
+                        <input class="table-filter" placeholder="Filter..." value="${escapeHtml(this._filterText)}">
+                        <div class="table-page-info"></div>
+                        <div class="table-page-btns"></div>
+                    </div>
+                    <div class="lcars-panel-body scrollable">
+                        <div class="kb-table-wrap">
+                            <div style="color:var(--text-dim);font-size:0.85em;padding:8px">${this._emptyMessage}</div>
+                        </div>
+                    </div>`;
+                this._attachListeners();
+                return;
+            }
+
+            const { display, page, totalPages, filtered, total } = this._getDisplayData();
+
+            // Page info text
+            const pageInfo = filtered.length < total
+                ? `${filtered.length} of ${total} (filtered) · Page ${page + 1}/${totalPages}`
+                : `${total} total · Page ${page + 1}/${totalPages}`;
+
+            // Page buttons
+            const pageBtns = totalPages > 1
+                ? `<button class="table-page-btn" aria-label="Previous page" data-page-delta="-1" ${page === 0 ? 'disabled' : ''}>&#x25C0;</button>
+                   <button class="table-page-btn" aria-label="Next page" data-page-delta="1" ${page >= totalPages - 1 ? 'disabled' : ''}>&#x25B6;</button>`
+                : '';
+
+            // Header row
+            const headerCells = this._columns.map(c => this._renderSortHeader(c)).join('');
+
+            // Body rows
+            const bodyRows = display.map((row, idx) => {
+                const rowId = `${this._tableId}-row-${page}-${idx}`;
+                // Check if any column has expandable content
+                let hasExpandable = false;
+                let expandRowHtml = '';
+                const cells = this._columns.map(colDef => {
+                    if (colDef.expandable) {
+                        const fullField = colDef.fullTextField || colDef.key;
+                        const fullText = row[fullField] || '';
+                        const maxLen = colDef.maxLength || 120;
+                        if (fullText.length > maxLen) {
+                            hasExpandable = true;
+                            expandRowHtml = this._renderExpandedRow(colDef, row, rowId);
+                        }
+                    }
+                    return this._renderCell(colDef, row);
+                }).join('');
+                const trClass = hasExpandable ? 'expandable-row' : '';
+                const trAttr = hasExpandable ? `data-expand-id="${rowId}"` : '';
+                return `<tr class="${trClass}" ${trAttr}>${cells}</tr>${expandRowHtml}`;
+            }).join('');
+
+            this.innerHTML = `
+                <div class="table-toolbar">
+                    <input class="table-filter" placeholder="Filter..." value="${escapeHtml(this._filterText)}">
+                    <div class="table-page-info">${pageInfo}</div>
+                    <div class="table-page-btns">${pageBtns}</div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap">
+                        <table class="kb-table">
+                            <thead><tr>${headerCells}</tr></thead>
+                            <tbody>${bodyRows}</tbody>
+                        </table>
+                    </div>
+                </div>`;
+
+            this._attachListeners();
+        }
+
+        _attachListeners() {
+            // Filter input
+            const filterInput = this.querySelector('.table-filter');
+            if (filterInput) {
+                filterInput.addEventListener('input', (e) => this._handleFilter(e));
+            }
+            // Sort headers
+            this.querySelectorAll('th[data-sort-key]').forEach(th => {
+                const handler = () => this._handleSort(th.dataset.sortKey);
+                th.addEventListener('click', handler);
+                th.addEventListener('keydown', (e) => { if (e.key === 'Enter') handler(); });
+            });
+            // Page buttons
+            this.querySelectorAll('[data-page-delta]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const { page } = this._getDisplayData();
+                    this._handlePage(page + parseInt(btn.dataset.pageDelta));
+                });
+            });
+            // Expandable rows
+            this.querySelectorAll('tr[data-expand-id]').forEach(tr => {
+                tr.addEventListener('click', () => this._toggleRow(tr.dataset.expandId));
+            });
+        }
+    }
+    customElements.define('mesh-data-table', MeshDataTable);
+
+    // MeshTopology — SVG pentagon topology graph
+    class MeshTopology extends HTMLElement {
+        constructor() {
+            super();
+            this._agents = [];
+            this._agentStates = {};
+        }
+        set agents(arr) { this._agents = arr; }
+        set agentStates(obj) { this._agentStates = obj; }
+
+        render() {
+            const agents = this._agents;
+            const agentStates = this._agentStates;
+            const cx = 300, cy = 170, r = 130;
+            const positions = agents.map((_, i) => {
+                const angle = -Math.PI / 2 + (2 * Math.PI * i) / agents.length;
+                return { x: Math.round(cx + r * Math.cos(angle)), y: Math.round(cy + r * Math.sin(angle)) };
+            });
+
+            let html = '';
+            // Draw edges between all pairs
+            for (let i = 0; i < agents.length; i++) {
+                for (let j = i + 1; j < agents.length; j++) {
+                    const a = positions[i], b = positions[j];
+                    html += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="var(--border-accent)" stroke-width="3" opacity="0.4"/>`;
+                }
+            }
+            // Draw nodes
+            for (let i = 0; i < agents.length; i++) {
+                const agent = agents[i];
+                const pos = positions[i];
+                const state = agentStates[agent.id];
+                const online = state?.status === 'online';
+                const fill = online ? agent.color : 'var(--c-inactive)';
+                html += `<g style="cursor:pointer" data-agent-id="${agent.id}">
+                    <circle cx="${pos.x}" cy="${pos.y}" r="45" fill="${fill}" opacity="${online ? 0.12 : 0.05}" stroke="${fill}" stroke-width="3"/>
+                    <circle cx="${pos.x}" cy="${pos.y}" r="16" fill="${fill}" opacity="${online ? 1 : 0.3}">
+                        ${online ? `<animate attributeName="r" values="15;19;15" dur="3s" repeatCount="indefinite"/>` : ''}
+                    </circle>
+                    <text x="${pos.x}" y="${pos.y + 72}" text-anchor="middle" font-size="21" font-family="inherit" font-weight="bold" fill="var(--text-secondary)">
+                        ${agent.id.replace('-agent', '')}
+                    </text>
+                </g>`;
+            }
+
+            this.innerHTML = `<svg class="topology-svg" viewBox="0 0 600 370">${html}</svg>`;
+
+            // Attach click handlers that call global switchAgent + switchTab
+            this.querySelectorAll('g[data-agent-id]').forEach(g => {
+                g.addEventListener('click', () => {
+                    switchAgent(g.dataset.agentId);
+                    switchTab('meta');
+                });
+            });
+        }
+    }
+    customElements.define('mesh-topology', MeshTopology);
+
+    // AgentHealthCard — agent status card for the Pulse tab
+    class AgentHealthCard extends HTMLElement {
+        constructor() {
+            super();
+            this._agent = null;
+            this._state = null;
+            this._manualMode = false;
+        }
+        set agent(obj) { this._agent = obj; }
+        set state(obj) { this._state = obj; }
+        set manualMode(b) { this._manualMode = b; }
+
+        render() {
+            const agent = this._agent;
+            const state = this._state || { status: 'unreachable' };
+            this.className = 'lcars-panel agent-card';
+            this.dataset.agent = agent.id;
+            this.style.cursor = 'pointer';
+
+            if (state.status !== 'online') {
+                this.innerHTML = `
+                    <div class="lcars-panel-header">${agent.id}</div>
+                    <div class="lcars-panel-body">
+                        <div class="agent-identity">
+                            <span class="agent-name">${agent.id}</span>
+                            <span class="agent-status-dot offline" aria-label="offline"></span>
+                            <span style="font-size:0.7em;color:var(--c-alert);margin-left:4px">offline</span>
+                            ${this._manualMode ? '<span class="manual-badge">MANUAL</span>' : ''}
+                        </div>
+                        <div style="color: var(--c-alert); font-size: 0.8em; margin-top: 8px">
+                            Unreachable${state.error ? ` — ${state.error}` : ''}
+                        </div>
+                    </div>`;
+            } else {
+                const d = state.data;
+                const budget = d.autonomy_budget || {};
+                const hasBudget = typeof budget.budget_current === 'number';
+                const cur = hasBudget ? budget.budget_current : null;
+                const max = hasBudget ? (budget.budget_max || 50) : null;
+                const pct = (cur !== null && max > 0) ? Math.round((cur / max) * 100) : null;
+                const budgetClass = pct === null ? 'dim' : pct > 50 ? 'high' : pct > 20 ? 'mid' : 'low';
+                const unprocessed = (d.totals || {}).unprocessed || 0;
+                const gateCount = (d.active_gates || []).length;
+                const schema = d.schema_version || '?';
+                const schedule = d.schedule || {};
+                const lastSync = schedule.last_sync_time || d.collected_at || '—';
+                const syncShort = lastSync !== '—' ? lastSync.split('T')[1]?.substring(0, 8) || lastSync : '—';
+
+                this.innerHTML = `
+                    <div class="lcars-panel-header">${agent.id}</div>
+                    <div class="lcars-panel-body">
+                        <div class="agent-identity">
+                            <span class="agent-name">${agent.id}</span>
+                            <span class="agent-status-dot online" aria-label="online"></span>
+                            <span style="font-size:0.7em;color:var(--c-health);margin-left:4px">online</span>
+                            ${this._manualMode ? '<span class="manual-badge">MANUAL</span>' : ''}
+                        </div>
+                        <div class="agent-metrics">
+                            <div class="agent-metric">
+                                <div class="agent-metric-value">${cur !== null ? `${cur}/${max}` : '—'}</div>
+                                <div class="agent-metric-label">Budget</div>
+                            </div>
+                            <div class="agent-metric">
+                                <div class="agent-metric-value">${unprocessed}</div>
+                                <div class="agent-metric-label">Pending</div>
+                            </div>
+                            <div class="agent-metric">
+                                <div class="agent-metric-value">${gateCount}</div>
+                                <div class="agent-metric-label">Gates</div>
+                            </div>
+                        </div>
+                        <div class="budget-bar-track">
+                            <div class="budget-bar-fill ${budgetClass}" style="width: ${pct}%"></div>
+                        </div>
+                        <div class="agent-detail-row">
+                            <span>Schema v${schema}</span>
+                            <span>Last sync: ${syncShort}</span>
+                        </div>
+                    </div>`;
+            }
+
+            // Click navigates to agent detail
+            this.onclick = () => { switchAgent(agent.id); switchTab('meta'); };
+        }
+    }
+    customElements.define('agent-health-card', AgentHealthCard);
+
+    // OpsBudgetCard — budget visualization card for Operations tab
+    class OpsBudgetCard extends HTMLElement {
+        constructor() {
+            super();
+            this._agentId = '';
+            this._color = '#6b7280';
+            this._budget = null;
+            this._manualMode = false;
+            this._offline = false;
+            this._noData = false;
+        }
+        set agentId(str) { this._agentId = str; }
+        set color(str) { this._color = str; }
+        set budget(obj) { this._budget = obj; }
+        set manualMode(b) { this._manualMode = b; }
+        set offline(b) { this._offline = b; }
+        set noData(b) { this._noData = b; }
+
+        render() {
+            const label = this._agentId.replace('-agent', '');
+            this.className = 'ops-budget-card';
+            this.style.setProperty('--card-accent', this._color);
+
+            if (this._offline) {
+                this.style.opacity = '0.4';
+                this.innerHTML = `
+                    <div class="ops-budget-agent">${label}</div>
+                    <div class="ops-budget-credit" style="font-size:1em; color:var(--text-dim)">OFFLINE</div>`;
+                return;
+            }
+
+            if (this._noData) {
+                this.style.opacity = '0.6';
+                this.innerHTML = `
+                    <div class="ops-budget-agent">${label}</div>
+                    <div class="ops-budget-credit" style="font-size:0.9em; color:var(--text-dim)">NO DATA</div>
+                    <div class="ops-budget-bar"><div class="ops-budget-fill" style="width:0%"></div></div>
+                    <div class="ops-budget-values"><span>Agent not reporting budget</span><span></span></div>`;
+                return;
+            }
+
+            this.style.opacity = '';
+            const b = this._budget;
+            const pct = b.pct || 0;
+            const barColor = pct > 50 ? '#6aab8e' : pct > 20 ? '#d4944a' : '#c47070';
+            const lastAction = b.lastAction || '—';
+            const interval = b.interval ?? 300;
+
+            this.innerHTML = `
+                <div class="ops-budget-agent">${label}${this._manualMode ? ' <span class="manual-badge">MANUAL</span>' : ''}</div>
+                <div class="ops-budget-credit">${b.current}<span style="font-size:0.4em;color:var(--text-secondary)">/${b.max || 50}</span></div>
+                <div class="ops-budget-bar">
+                    <div class="ops-budget-fill" style="width:${pct}%;background:${barColor}"></div>
+                </div>
+                <div class="ops-budget-values">
+                    <span>Interval: ${Math.round(interval / 60)}min</span>
+                    <span>${lastAction !== '—' ? lastAction.substring(11, 16) : '—'}</span>
+                </div>`;
+        }
+    }
+    customElements.define('ops-budget-card', OpsBudgetCard);
 
     // ── Theme ──────────────────────────────────────────────────────
     function setTheme(mode) {
@@ -1640,10 +2006,9 @@
         document.querySelectorAll(".agent-switch-btn").forEach(btn =>
             btn.classList.toggle("active", btn.dataset.agent === agentId)
         );
-        // Reset all table pages and re-render
-        for (const key of Object.keys(tableState)) {
-            tableState[key].page = 0;
-        }
+        // Reset all mesh-data-table page counters
+        document.querySelectorAll('mesh-data-table').forEach(t => t.resetPage());
+
         renderKBVitals();
         renderDecisions();
         renderTriggers();
@@ -1797,133 +2162,27 @@
         }
     }
 
-    // ── Render: Agent Cards ────────────────────────────────────────
+    // ── Render: Agent Cards (delegates to <agent-health-card> component) ──
     function renderAgentCards() {
         const grid = document.getElementById("agents-grid");
         grid.innerHTML = "";
-
         for (const agent of AGENTS) {
-            const state = agentData[agent.id] || { status: "unreachable" };
-            const card = document.createElement("div");
-            card.className = "lcars-panel agent-card";
-            card.dataset.agent = agent.id;
-            card.style.cursor = "pointer";
-            card.onclick = () => { switchAgent(agent.id); switchTab('meta'); };
-
-            if (state.status !== "online") {
-                card.innerHTML = `
-                    <div class="lcars-panel-header">${agent.id}</div>
-                    <div class="lcars-panel-body">
-                        <div class="agent-identity">
-                            <span class="agent-name">${agent.id}</span>
-                            <span class="agent-status-dot offline" aria-label="offline"></span>
-                            <span style="font-size:0.7em;color:var(--c-alert);margin-left:4px">offline</span>
-                            ${MANUAL_MODE_AGENTS.has(agent.id) ? '<span class="manual-badge">MANUAL</span>' : ''}
-                        </div>
-                        <div style="color: var(--c-alert); font-size: 0.8em; margin-top: 8px">
-                            Unreachable${state.error ? ` — ${state.error}` : ""}
-                        </div>
-                    </div>`;
-                grid.appendChild(card);
-                continue;
-            }
-
-            const d = state.data;
-            const budget = d.autonomy_budget || {};
-            const hasBudget = typeof budget.budget_current === "number";
-            const cur = hasBudget ? budget.budget_current : null;
-            const max = hasBudget ? (budget.budget_max || 50) : null;
-            const pct = (cur !== null && max > 0) ? Math.round((cur / max) * 100) : null;
-            const budgetClass = pct === null ? "dim" : pct > 50 ? "high" : pct > 20 ? "mid" : "low";
-            const unprocessed = (d.totals || {}).unprocessed || 0;
-            const gateCount = (d.active_gates || []).length;
-            const schema = d.schema_version || "?";
-            const schedule = d.schedule || {};
-            const lastSync = schedule.last_sync_time || d.collected_at || "—";
-            const syncShort = lastSync !== "—" ? lastSync.split("T")[1]?.substring(0, 8) || lastSync : "—";
-
-            card.innerHTML = `
-                <div class="lcars-panel-header">${agent.id}</div>
-                <div class="lcars-panel-body">
-                    <div class="agent-identity">
-                        <span class="agent-name">${agent.id}</span>
-                        <span class="agent-status-dot online" aria-label="online"></span>
-                        <span style="font-size:0.7em;color:var(--c-health);margin-left:4px">online</span>
-                        ${MANUAL_MODE_AGENTS.has(agent.id) ? '<span class="manual-badge">MANUAL</span>' : ''}
-                    </div>
-                    <div class="agent-metrics">
-                        <div class="agent-metric">
-                            <div class="agent-metric-value">${cur !== null ? `${cur}/${max}` : "—"}</div>
-                            <div class="agent-metric-label">Budget</div>
-                        </div>
-                        <div class="agent-metric">
-                            <div class="agent-metric-value">${unprocessed}</div>
-                            <div class="agent-metric-label">Pending</div>
-                        </div>
-                        <div class="agent-metric">
-                            <div class="agent-metric-value">${gateCount}</div>
-                            <div class="agent-metric-label">Gates</div>
-                        </div>
-                    </div>
-                    <div class="budget-bar-track">
-                        <div class="budget-bar-fill ${budgetClass}" style="width: ${pct}%"></div>
-                    </div>
-                    <div class="agent-detail-row">
-                        <span>Schema v${schema}</span>
-                        <span>Last sync: ${syncShort}</span>
-                    </div>
-                </div>`;
-
+            const card = document.createElement("agent-health-card");
+            card.agent = agent;
+            card.state = agentData[agent.id] || { status: "unreachable" };
+            card.manualMode = MANUAL_MODE_AGENTS.has(agent.id);
+            card.render();
             grid.appendChild(card);
         }
     }
 
-    // ── Render: Topology ───────────────────────────────────────────
+    // ── Render: Topology (delegates to <mesh-topology> component) ──
     function renderTopology() {
-        const svg = document.getElementById("topology-svg");
-        // Pentagon layout — 5 nodes evenly spaced
-        const cx = 300, cy = 170, r = 130;
-        const positions = AGENTS.map((_, i) => {
-            const angle = -Math.PI / 2 + (2 * Math.PI * i) / AGENTS.length;
-            return { x: Math.round(cx + r * Math.cos(angle)), y: Math.round(cy + r * Math.sin(angle)) };
-        });
-
-        let html = "";
-
-        // Draw edges between all pairs
-        for (let i = 0; i < AGENTS.length; i++) {
-            for (let j = i + 1; j < AGENTS.length; j++) {
-                const a = positions[i], b = positions[j];
-                html += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"
-                    stroke="var(--border-accent)" stroke-width="3" opacity="0.4"/>`;
-            }
-        }
-
-        // Draw nodes — linked to agent dashboards
-        for (let i = 0; i < AGENTS.length; i++) {
-            const agent = AGENTS[i];
-            const pos = positions[i];
-            const state = agentData[agent.id];
-            const online = state?.status === "online";
-            const fill = online ? agent.color : "var(--c-inactive)";
-
-            html += `<g style="cursor:pointer" onclick="switchAgent('${agent.id}');switchTab('meta')">
-                <circle cx="${pos.x}" cy="${pos.y}" r="45"
-                    fill="${fill}" opacity="${online ? 0.12 : 0.05}"
-                    stroke="${fill}" stroke-width="3"/>
-                <circle cx="${pos.x}" cy="${pos.y}" r="16" fill="${fill}"
-                    opacity="${online ? 1 : 0.3}">
-                    ${online ? `<animate attributeName="r" values="15;19;15" dur="3s" repeatCount="indefinite"/>` : ""}
-                </circle>
-                <text x="${pos.x}" y="${pos.y + 72}" text-anchor="middle"
-                    font-size="21" font-family="inherit" font-weight="bold"
-                    fill="var(--text-secondary)">
-                    ${agent.id.replace("-agent", "")}
-                </text>
-            </g>`;
-        }
-
-        svg.innerHTML = html;
+        const el = document.getElementById("topology-graph");
+        if (!el) return;
+        el.agents = AGENTS;
+        el.agentStates = agentData;
+        el.render();
     }
 
     // ── Render: Activity Stream ────────────────────────────────────
@@ -1966,7 +2225,7 @@
         container.innerHTML = display.map(m => {
             const time = formatTS(m.timestamp);
             const sess = escapeHtml(m.session || '');
-            return `<a href="#pane-meta" class="activity-item activity-link" onclick="switchTab('meta');document.getElementById('filter-messages').value='${sess}';filterTable('messages');return false;">
+            return `<a href="#pane-meta" class="activity-item activity-link" onclick="switchTab('meta');document.getElementById('table-messages').setFilter('${sess}');return false;">
                 <span class="activity-time">${time}</span>
                 <span class="activity-route">
                     <span class="from">${m.from.replace("-agent", "")}</span>
@@ -2093,9 +2352,10 @@
         staleEl.style.color = stale > 10 ? "var(--c-alert)" : stale > 0 ? "var(--c-knowledge)" : "";
     }
 
-    // ── Decisions Table ──────────────────────────────────────────
+    // ── Decisions Table (delegates to <mesh-data-table>) ──────────
     function renderDecisions() {
-        const container = document.getElementById("kb-decisions");
+        const el = document.getElementById("table-decisions");
+        if (!el) return;
 
         // Collect data (only on first render or refresh)
         if (tableState.decisions.data.length === 0) {
@@ -2108,55 +2368,38 @@
             }
         }
 
-        const allRows = tableState.decisions.data;
-        if (allRows.length === 0) {
-            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No decisions available. Decisions populate when agents resolve architecture questions via their decision chain.</div>`;
-            renderPageControls("decisions", 0, 1, 0, 0);
-            return;
-        }
-
-        const { display, page, totalPages, filtered, total } = getFilteredSorted("decisions", allRows, {
-            decided_date: r => parseTS(r.created_at || r.decided_date),
-            confidence: r => r.confidence != null ? parseFloat(r.confidence) : -1,
-            decision_key: r => r.decision_key || "",
-            _agent: r => r._agent || "",
-        });
-
-        renderPageControls("decisions", page, totalPages, filtered.length, total);
-
-        container.innerHTML = `
-            <table class="kb-table">
-                <thead><tr>
-                    ${sortHeader("decisions", "_agent", "Agent")}
-                    ${sortHeader("decisions", "decision_key", "Key")}
-                    <th>Decision</th>
-                    ${sortHeader("decisions", "decided_date", "Date")}
-                    ${sortHeader("decisions", "confidence", "Conf")}
-                </tr></thead>
-                <tbody>${display.map(d => {
-                    const conf = d.confidence != null ? parseFloat(d.confidence) : null;
-                    const confClass = conf != null ? (conf >= 0.8 ? "confidence-high" : conf >= 0.5 ? "confidence-mid" : "confidence-low") : "";
-                    const confText = conf != null ? conf.toFixed(2) : "—";
-                    const dateShort = formatTS(d.created_at || d.decided_date);
-                    const fullText = d.decision_text || "—";
-                    const truncated = fullText.length > 120;
-                    const text = truncated ? fullText.substring(0, 120) + "…" : fullText;
-                    const rowId = "dec-" + (d.decision_key || "").replace(/[^a-z0-9-]/gi, "") + "-" + d._agent;
-                    return `<tr class="${truncated ? "expandable-row" : ""}" ${truncated ? `onclick="toggleDecisionRow('${rowId}')"` : ""}>
-                        <td><span class="agent-dot" data-agent="${d._agent}"></span>${d._agent.replace("-agent","")}</td>
-                        <td style="color:var(--c-knowledge);white-space:nowrap">${d.decision_key || "—"}</td>
-                        <td>${annotateAcronyms(escapeHtml(text))}</td>
-                        <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
-                        <td><span class="confidence-badge ${confClass}">${confText}</span></td>
-                    </tr>${truncated ? `<tr id="${rowId}" class="expanded-detail-row" style="display:none"><td colspan="5"><div class="expanded-detail">${annotateAcronyms(escapeHtml(fullText))}</div></td></tr>` : ""}`;
-                }).join("")}</tbody>
-            </table>
-        `;
+        el.tableId = 'decisions';
+        el.agentFilter = activeAgentFilter;
+        el.emptyMessage = 'No decisions available. Decisions populate when agents resolve architecture questions via their decision chain.';
+        el.columns = [
+            { key: '_agent', label: 'Agent', sortAccessor: r => r._agent || '',
+              render: (v, r) => `<td><span class="agent-dot" data-agent="${r._agent}"></span>${r._agent.replace('-agent','')}</td>` },
+            { key: 'decision_key', label: 'Key', sortAccessor: r => r.decision_key || '',
+              render: (v, r) => `<td style="color:var(--c-knowledge);white-space:nowrap">${r.decision_key || '—'}</td>` },
+            { key: 'decision_text', label: 'Decision', sortable: false, annotate: true, expandable: true, maxLength: 120,
+              render: (v, r) => {
+                  const full = r.decision_text || '—';
+                  const text = full.length > 120 ? full.substring(0, 120) + '…' : full;
+                  return `<td>${annotateAcronyms(escapeHtml(text))}</td>`;
+              }},
+            { key: 'decided_date', label: 'Date', sortAccessor: r => parseTS(r.created_at || r.decided_date),
+              render: (v, r) => `<td style="white-space:nowrap;color:var(--text-secondary)">${formatTS(r.created_at || r.decided_date)}</td>` },
+            { key: 'confidence', label: 'Conf', sortAccessor: r => r.confidence != null ? parseFloat(r.confidence) : -1,
+              render: (v, r) => {
+                  const conf = r.confidence != null ? parseFloat(r.confidence) : null;
+                  const cls = conf != null ? (conf >= 0.8 ? 'confidence-high' : conf >= 0.5 ? 'confidence-mid' : 'confidence-low') : '';
+                  return `<td><span class="confidence-badge ${cls}">${conf != null ? conf.toFixed(2) : '—'}</span></td>`;
+              }},
+        ];
+        if (!el._sortCol) { el._sortCol = 'decided_date'; el._sortDir = -1; }
+        el.rows = tableState.decisions.data;
+        el.render();
     }
 
-    // ── Triggers Table ───────────────────────────────────────────
+    // ── Triggers Table (delegates to <mesh-data-table>) ───────────
     function renderTriggers() {
-        const container = document.getElementById("kb-triggers");
+        const el = document.getElementById("table-triggers");
+        if (!el) return;
 
         if (tableState.triggers.data.length === 0) {
             for (const agent of AGENTS) {
@@ -2168,50 +2411,29 @@
             }
         }
 
-        const allRows = tableState.triggers.data;
-        if (allRows.length === 0) {
-            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No triggers available. Each agent's cognitive triggers appear after bootstrap_state_db.py populates the trigger_state table.</div>`;
-            renderPageControls("triggers", 0, 1, 0, 0);
-            return;
-        }
-
-        const { display, page, totalPages, filtered, total } = getFilteredSorted("triggers", allRows, {
-            fire_count: r => r.fire_count || 0,
-            relevance_score: r => r.relevance_score != null ? parseFloat(r.relevance_score) : -1,
-            trigger_id: r => r.trigger_id || "",
-            last_fired: r => parseTS(r.last_fired),
-            _agent: r => r._agent || "",
-        });
-
-        renderPageControls("triggers", page, totalPages, filtered.length, total);
-
-        container.innerHTML = `
-            <table class="kb-table">
-                <thead><tr>
-                    ${sortHeader("triggers", "_agent", "Agent")}
-                    ${sortHeader("triggers", "trigger_id", "Trigger")}
-                    <th>Description</th>
-                    ${sortHeader("triggers", "fire_count", "Fires")}
-                    ${sortHeader("triggers", "last_fired", "Last Fired")}
-                    ${sortHeader("triggers", "relevance_score", "Relevance")}
-                </tr></thead>
-                <tbody>${display.map(t => {
-                    const lastFired = t.last_fired ? formatTS(t.last_fired) : "never";
-                    const rel = t.relevance_score != null ? parseFloat(t.relevance_score).toFixed(2) : "—";
-                    const desc = (t.description || "").length > 80
-                        ? t.description.substring(0, 80) + "…"
-                        : (t.description || "—");
-                    return `<tr>
-                        <td><span class="agent-dot" data-agent="${t._agent}"></span>${t._agent.replace("-agent","")}</td>
-                        <td style="color:var(--c-epistemic);white-space:nowrap">${t.trigger_id || "—"}</td>
-                        <td>${annotateAcronyms(escapeHtml(desc))}</td>
-                        <td style="text-align:center">${t.fire_count || 0}</td>
-                        <td style="white-space:nowrap;color:var(--text-secondary)">${lastFired}</td>
-                        <td style="text-align:center">${rel}</td>
-                    </tr>`;
-                }).join("")}</tbody>
-            </table>
-        `;
+        el.tableId = 'triggers';
+        el.agentFilter = activeAgentFilter;
+        el.emptyMessage = 'No triggers available. Each agent\'s cognitive triggers appear after bootstrap_state_db.py populates the trigger_state table.';
+        el.columns = [
+            { key: '_agent', label: 'Agent', sortAccessor: r => r._agent || '',
+              render: (v, r) => `<td><span class="agent-dot" data-agent="${r._agent}"></span>${r._agent.replace('-agent','')}</td>` },
+            { key: 'trigger_id', label: 'Trigger', sortAccessor: r => r.trigger_id || '',
+              render: (v, r) => `<td style="color:var(--c-epistemic);white-space:nowrap">${r.trigger_id || '—'}</td>` },
+            { key: 'description', label: 'Description', sortable: false, annotate: true,
+              render: (v, r) => {
+                  const desc = (r.description || '').length > 80 ? r.description.substring(0, 80) + '…' : (r.description || '—');
+                  return `<td>${annotateAcronyms(escapeHtml(desc))}</td>`;
+              }},
+            { key: 'fire_count', label: 'Fires', sortAccessor: r => r.fire_count || 0,
+              render: (v, r) => `<td style="text-align:center">${r.fire_count || 0}</td>` },
+            { key: 'last_fired', label: 'Last Fired', sortAccessor: r => parseTS(r.last_fired),
+              render: (v, r) => `<td style="white-space:nowrap;color:var(--text-secondary)">${r.last_fired ? formatTS(r.last_fired) : 'never'}</td>` },
+            { key: 'relevance_score', label: 'Relevance', sortAccessor: r => r.relevance_score != null ? parseFloat(r.relevance_score) : -1,
+              render: (v, r) => `<td style="text-align:center">${r.relevance_score != null ? parseFloat(r.relevance_score).toFixed(2) : '—'}</td>` },
+        ];
+        if (!el._sortCol) { el._sortCol = 'last_fired'; el._sortDir = -1; }
+        el.rows = tableState.triggers.data;
+        el.render();
     }
 
     // ── Dictionary Cards ─────────────────────────────────────────
@@ -2293,9 +2515,10 @@
         }).join("") || `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No matches</div>`;
     }
 
-    // ── Discipline Catalog (PSH) ──────────────────────────────────
+    // ── Discipline Catalog (delegates to <mesh-data-table>) ───────
     function renderCatalog() {
-        const container = document.getElementById("kb-catalog");
+        const el = document.getElementById("table-catalog");
+        if (!el) return;
 
         if (tableState.catalog.data.length === 0) {
             for (const agent of AGENTS) {
@@ -2309,56 +2532,41 @@
             }
         }
 
-        const allRows = tableState.catalog.data;
-        if (allRows.length === 0) {
-            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No catalog data available. Run bootstrap_facets.py to classify entities by PSH discipline.</div>`;
-            renderPageControls("catalog", 0, 1, 0, 0);
-            return;
-        }
+        // Pre-compute maxKeywords for distribution bar closure
+        const maxKeywords = Math.max(...tableState.catalog.data.map(r => r.keyword_count || 0), 1);
 
-        const { display, page, totalPages, filtered, total } = getFilteredSorted("catalog", allRows, {
-            keyword_count: r => r.keyword_count || 0,
-            entity_count: r => r.entity_count || 0,
-            facet_value: r => r.facet_value || "",
-            code: r => r.code || "",
-            _agent: r => r._agent || "",
-        });
-
-        renderPageControls("catalog", page, totalPages, filtered.length, total);
-
-        const maxKeywords = Math.max(...allRows.map(r => r.keyword_count || 0), 1);
-
-        container.innerHTML = `
-            <table class="kb-table">
-                <thead><tr>
-                    ${sortHeader("catalog", "_agent", "Agent")}
-                    ${sortHeader("catalog", "facet_value", "Discipline")}
-                    ${sortHeader("catalog", "code", "Code")}
-                    <th>Description</th>
-                    ${sortHeader("catalog", "keyword_count", "Keywords")}
-                    <th style="min-width:100px">Distribution</th>
-                </tr></thead>
-                <tbody>${display.map(entry => {
-                    const pct = maxKeywords > 0 ? Math.round(((entry.keyword_count || 0) / maxKeywords) * 100) : 0;
-                    const desc = (entry.description || "").length > 60
-                        ? entry.description.substring(0, 60) + "…"
-                        : (entry.description || "—");
-                    return `<tr>
-                        <td><span class="agent-dot" data-agent="${entry._agent}"></span>${entry._agent.replace("-agent","")}</td>
-                        <td style="color:var(--c-transport);white-space:nowrap">${escapeHtml(entry.facet_value || "—")}</td>
-                        <td style="color:var(--text-dim);font-size:0.85em">${escapeHtml(entry.code || "—")}</td>
-                        <td style="font-size:0.85em">${escapeHtml(desc)}</td>
-                        <td style="text-align:center">${entry.keyword_count || 0}</td>
-                        <td><div class="catalog-bar-track"><div class="catalog-bar-fill" style="width:${pct}%"></div></div></td>
-                    </tr>`;
-                }).join("")}</tbody>
-            </table>
-        `;
+        el.tableId = 'catalog';
+        el.agentFilter = activeAgentFilter;
+        el.emptyMessage = 'No catalog data available. Run bootstrap_facets.py to classify entities by PSH discipline.';
+        el.columns = [
+            { key: '_agent', label: 'Agent', sortAccessor: r => r._agent || '',
+              render: (v, r) => `<td><span class="agent-dot" data-agent="${r._agent}"></span>${r._agent.replace('-agent','')}</td>` },
+            { key: 'facet_value', label: 'Discipline', sortAccessor: r => r.facet_value || '',
+              render: (v, r) => `<td style="color:var(--c-transport);white-space:nowrap">${escapeHtml(r.facet_value || '—')}</td>` },
+            { key: 'code', label: 'Code', sortAccessor: r => r.code || '',
+              render: (v, r) => `<td style="color:var(--text-dim);font-size:0.85em">${escapeHtml(r.code || '—')}</td>` },
+            { key: 'description', label: 'Description', sortable: false,
+              render: (v, r) => {
+                  const desc = (r.description || '').length > 60 ? r.description.substring(0, 60) + '…' : (r.description || '—');
+                  return `<td style="font-size:0.85em">${escapeHtml(desc)}</td>`;
+              }},
+            { key: 'keyword_count', label: 'Keywords', sortAccessor: r => r.keyword_count || 0,
+              render: (v, r) => `<td style="text-align:center">${r.keyword_count || 0}</td>` },
+            { key: '_distribution', label: 'Distribution', sortable: false, style: 'min-width:100px',
+              render: (v, r) => {
+                  const pct = maxKeywords > 0 ? Math.round(((r.keyword_count || 0) / maxKeywords) * 100) : 0;
+                  return `<td><div class="catalog-bar-track"><div class="catalog-bar-fill" style="width:${pct}%"></div></div></td>`;
+              }},
+        ];
+        if (!el._sortCol) { el._sortCol = 'keyword_count'; el._sortDir = -1; }
+        el.rows = tableState.catalog.data;
+        el.render();
     }
 
-    // ── Entity Schema (schema.org) ─────────────────────────────────
+    // ── Entity Schema (delegates to <mesh-data-table>) ────────────
     function renderSchema() {
-        const container = document.getElementById("kb-schema");
+        const el = document.getElementById("table-schema");
+        if (!el) return;
 
         if (tableState.schema.data.length === 0) {
             for (const agent of AGENTS) {
@@ -2372,41 +2580,25 @@
             }
         }
 
-        const allRows = tableState.schema.data;
-        if (allRows.length === 0) {
-            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No schema data available. Run bootstrap_facets.py to classify entities by schema.org type.</div>`;
-            renderPageControls("schema", 0, 1, 0, 0);
-            return;
-        }
-
-        const { display, page, totalPages, filtered, total } = getFilteredSorted("schema", allRows, {
-            entity_count: r => r.entity_count || 0,
-            facet_value: r => r.facet_value || "",
-            _agent: r => r._agent || "",
-        });
-
-        renderPageControls("schema", page, totalPages, filtered.length, total);
-
-        container.innerHTML = `
-            <table class="kb-table">
-                <thead><tr>
-                    ${sortHeader("schema", "_agent", "Agent")}
-                    ${sortHeader("schema", "facet_value", "Type")}
-                    <th>Reference</th>
-                    ${sortHeader("schema", "entity_count", "Entities")}
-                </tr></thead>
-                <tbody>${display.map(entry => {
-                    const typeName = (entry.facet_value || "").replace("schema:", "");
-                    const schemaUrl = "https://schema.org/" + typeName;
-                    return `<tr>
-                        <td><span class="agent-dot" data-agent="${entry._agent}"></span>${entry._agent.replace("-agent","")}</td>
-                        <td style="color:var(--c-catalog);white-space:nowrap">${escapeHtml(entry.facet_value || "—")}</td>
-                        <td><a href="${schemaUrl}" target="_blank" rel="noopener" style="color:var(--text-dim);font-size:0.85em">${typeName} &#x2192;</a></td>
-                        <td style="text-align:center">${entry.entity_count || 0}</td>
-                    </tr>`;
-                }).join("")}</tbody>
-            </table>
-        `;
+        el.tableId = 'schema';
+        el.agentFilter = activeAgentFilter;
+        el.emptyMessage = 'No schema data available. Run bootstrap_facets.py to classify entities by schema.org type.';
+        el.columns = [
+            { key: '_agent', label: 'Agent', sortAccessor: r => r._agent || '',
+              render: (v, r) => `<td><span class="agent-dot" data-agent="${r._agent}"></span>${r._agent.replace('-agent','')}</td>` },
+            { key: 'facet_value', label: 'Type', sortAccessor: r => r.facet_value || '',
+              render: (v, r) => `<td style="color:var(--c-catalog);white-space:nowrap">${escapeHtml(r.facet_value || '—')}</td>` },
+            { key: '_reference', label: 'Reference', sortable: false,
+              render: (v, r) => {
+                  const typeName = (r.facet_value || '').replace('schema:', '');
+                  return `<td><a href="https://schema.org/${typeName}" target="_blank" rel="noopener" style="color:var(--text-dim);font-size:0.85em">${typeName} &#x2192;</a></td>`;
+              }},
+            { key: 'entity_count', label: 'Entities', sortAccessor: r => r.entity_count || 0,
+              render: (v, r) => `<td style="text-align:center">${r.entity_count || 0}</td>` },
+        ];
+        if (!el._sortCol) { el._sortCol = 'entity_count'; el._sortDir = -1; }
+        el.rows = tableState.schema.data;
+        el.render();
     }
 
     // ── Memory by Topic ──────────────────────────────────────────
@@ -2578,10 +2770,10 @@
         `;
     }
 
-    // ── Meta Tab: Epistemic Flags Detail ─────────────────────────
+    // ── Meta Tab: Epistemic Flags (delegates to <mesh-data-table>) ──
     function renderEpistemicFlags() {
-        const container = document.getElementById("kb-flags-detail");
-        if (!container) return;
+        const el = document.getElementById("table-flags");
+        if (!el) return;
 
         if (tableState.flags.data.length === 0) {
             for (const agent of AGENTS) {
@@ -2593,63 +2785,49 @@
             }
         }
 
-        const allRows = tableState.flags.data;
-        if (allRows.length === 0) {
-            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No unresolved epistemic flags — epistemic debt at zero.</div>`;
-            renderPageControls("flags", 0, 1, 0, 0);
-            return;
-        }
-
-        const { display, page, totalPages, filtered, total } = getFilteredSorted("flags", allRows, {
-            created_at: r => r.created_at || "",
-            age_days: r => parseFloat(r.age_days) || 0,
-            from_agent: r => (r.from_agent || r._agent || ""),
-            source: r => (r.source || ""),
-            flag_text: r => (r.flag_text || ""),
-            session_name: r => (r.session_name || ""),
-        });
-
-        renderPageControls("flags", page, totalPages, filtered.length, total);
-
-        container.innerHTML = `
-            <table class="kb-table">
-                <thead><tr>
-                    ${sortHeader("flags", "from_agent", "Agent")}
-                    <th>Flag</th>
-                    ${sortHeader("flags", "age_days", "Age")}
-                    ${sortHeader("flags", "source", "Source")}
-                    ${sortHeader("flags", "session_name", "Session")}
-                    ${sortHeader("flags", "created_at", "Date")}
-                </tr></thead>
-                <tbody>${display.map(f => {
-                    const agentShort = (f.from_agent || f._agent || "unknown").replace("-agent", "");
-                    const flagText = escapeHtml(f.flag_text || "—");
-                    const truncated = flagText.length > 120;
-                    const displayText = truncated
-                        ? `<span class="expandable-text" title="${flagText}">${flagText.slice(0, 120)}…</span>`
-                        : flagText;
-                    const age = parseInt(f.age_days) || 0;
-                    const ageColor = age > 30 ? "var(--c-alert)" : age > 7 ? "var(--c-warning, #d4944a)" : "";
-                    const dateStr = (f.created_at || "").slice(0, 10);
-                    const session = f.session_name ? escapeHtml(f.session_name) : "—";
-                    const source = f.source ? escapeHtml(f.source).replace(/^from-/, "").replace(/\.json$/, "") : "—";
-                    return `<tr>
-                        <td><span class="agent-dot" data-agent="${f._agent}"></span>${agentShort}</td>
-                        <td style="max-width:400px;overflow:hidden;text-overflow:ellipsis">${displayText}</td>
-                        <td style="text-align:center;color:${ageColor};font-weight:bold">${age}d</td>
-                        <td style="font-size:0.85em">${source}</td>
-                        <td style="font-size:0.85em">${session}</td>
-                        <td style="font-size:0.85em">${dateStr}</td>
-                    </tr>`;
-                }).join("")}</tbody>
-            </table>
-        `;
+        el.tableId = 'flags';
+        el.agentFilter = activeAgentFilter;
+        el.emptyMessage = 'No unresolved epistemic flags — epistemic debt at zero.';
+        el.columns = [
+            { key: 'from_agent', label: 'Agent', sortAccessor: r => (r.from_agent || r._agent || ''),
+              render: (v, r) => {
+                  const agentShort = (r.from_agent || r._agent || 'unknown').replace('-agent', '');
+                  return `<td><span class="agent-dot" data-agent="${r._agent}"></span>${agentShort}</td>`;
+              }},
+            { key: 'flag_text', label: 'Flag', sortable: false,
+              render: (v, r) => {
+                  const flagText = escapeHtml(r.flag_text || '—');
+                  const truncated = flagText.length > 120;
+                  const displayText = truncated
+                      ? `<span class="expandable-text" title="${flagText}">${flagText.slice(0, 120)}…</span>`
+                      : flagText;
+                  return `<td style="max-width:400px;overflow:hidden;text-overflow:ellipsis">${displayText}</td>`;
+              }},
+            { key: 'age_days', label: 'Age', sortAccessor: r => parseFloat(r.age_days) || 0,
+              render: (v, r) => {
+                  const age = parseInt(r.age_days) || 0;
+                  const ageColor = age > 30 ? 'var(--c-alert)' : age > 7 ? 'var(--c-warning, #d4944a)' : '';
+                  return `<td style="text-align:center;color:${ageColor};font-weight:bold">${age}d</td>`;
+              }},
+            { key: 'source', label: 'Source', sortAccessor: r => (r.source || ''),
+              render: (v, r) => {
+                  const source = r.source ? escapeHtml(r.source).replace(/^from-/, '').replace(/\.json$/, '') : '—';
+                  return `<td style="font-size:0.85em">${source}</td>`;
+              }},
+            { key: 'session_name', label: 'Session', sortAccessor: r => (r.session_name || ''),
+              render: (v, r) => `<td style="font-size:0.85em">${r.session_name ? escapeHtml(r.session_name) : '—'}</td>` },
+            { key: 'created_at', label: 'Date', sortAccessor: r => r.created_at || '',
+              render: (v, r) => `<td style="font-size:0.85em">${(r.created_at || '').slice(0, 10)}</td>` },
+        ];
+        if (!el._sortCol) { el._sortCol = 'created_at'; el._sortDir = -1; }
+        el.rows = tableState.flags.data;
+        el.render();
     }
 
-    // ── Meta Tab: Messages (audit trail) ────────────────────────
+    // ── Meta Tab: Messages (delegates to <mesh-data-table>) ───────
     function renderMessages() {
-        const container = document.getElementById("kb-messages");
-        if (!container) return;
+        const el = document.getElementById("table-messages");
+        if (!el) return;
 
         if (tableState.messages.data.length === 0) {
             for (const agent of AGENTS) {
@@ -2661,68 +2839,50 @@
             }
         }
 
-        const allRows = tableState.messages.data;
-        if (allRows.length === 0) {
-            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No messages indexed. Messages populate when bootstrap_state_db.py processes transport JSON files.</div>`;
-            renderPageControls("messages", 0, 1, 0, 0);
-            return;
-        }
-
-        const { display, page, totalPages, filtered, total } = getFilteredSorted("messages", allRows, {
-            timestamp: r => parseTS(r.timestamp),
-            from_agent: r => r.from_agent || "",
-            to_agent: r => r.to_agent || "",
-            session_name: r => r.session_name || "",
-            message_type: r => r.message_type || "",
-            turn: r => r.turn || 0,
-            claims_count: r => r.claims_count || 0,
-            _agent: r => r._agent || "",
-        });
-
-        renderPageControls("messages", page, totalPages, filtered.length, total);
-
-        container.innerHTML = `
-            <table class="kb-table">
-                <thead><tr>
-                    ${sortHeader("messages", "from_agent", "From")}
-                    ${sortHeader("messages", "to_agent", "To")}
-                    ${sortHeader("messages", "session_name", "Session")}
-                    ${sortHeader("messages", "turn", "Turn")}
-                    ${sortHeader("messages", "message_type", "Type")}
-                    <th>Subject</th>
-                    ${sortHeader("messages", "claims_count", "Claims")}
-                    ${sortHeader("messages", "timestamp", "Date")}
-                </tr></thead>
-                <tbody>${display.map(m => {
-                    const dateShort = formatTS(m.timestamp);
-                    const rawSubject = m.subject || "—";
-                    const subject = rawSubject.length > 60 ? rawSubject.substring(0, 60) + "…" : rawSubject;
-                    const claimsCount = m.claims_count || 0;
-                    const claimsLink = claimsCount > 0
-                        ? `<a href="#pane-kb" onclick="switchTab('kb');document.getElementById('filter-claims').value='${escapeHtml(m.session_name || "")}';filterTable('claims');return false;" style="color:var(--c-knowledge)">${claimsCount}</a>`
-                        : `<span style="color:var(--text-dim)">0</span>`;
-                    const fileUrl = transportGitHubUrl(m._agent, m.session_name, m.filename, m.from_agent);
-                    const subjectCell = fileUrl
-                        ? `<a href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener" style="color:var(--c-transport)" title="${escapeHtml(m.filename || "")}">${escapeHtml(subject)}</a>`
-                        : escapeHtml(subject);
-                    return `<tr>
-                        <td><span class="agent-dot" data-agent="${m._agent}"></span>${escapeHtml(m.from_agent || "—")}</td>
-                        <td style="font-size:0.85em">${escapeHtml(m.to_agent || "—")}</td>
-                        <td style="color:var(--c-transport);font-size:0.85em;white-space:nowrap">${escapeHtml(m.session_name || "—")}</td>
-                        <td style="text-align:center">${m.turn || "—"}</td>
-                        <td style="font-size:0.85em">${escapeHtml(m.message_type || "—")}</td>
-                        <td style="font-size:0.85em">${subjectCell}</td>
-                        <td style="text-align:center">${claimsLink}</td>
-                        <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
-                    </tr>`;
-                }).join("")}</tbody>
-            </table>
-        `;
+        el.tableId = 'messages';
+        el.agentFilter = activeAgentFilter;
+        el.emptyMessage = 'No messages indexed. Messages populate when bootstrap_state_db.py processes transport JSON files.';
+        el.columns = [
+            { key: 'from_agent', label: 'From', sortAccessor: r => r.from_agent || '',
+              render: (v, r) => `<td><span class="agent-dot" data-agent="${r._agent}"></span>${escapeHtml(r.from_agent || '—')}</td>` },
+            { key: 'to_agent', label: 'To', sortAccessor: r => r.to_agent || '',
+              render: (v, r) => `<td style="font-size:0.85em">${escapeHtml(r.to_agent || '—')}</td>` },
+            { key: 'session_name', label: 'Session', sortAccessor: r => r.session_name || '',
+              render: (v, r) => `<td style="color:var(--c-transport);font-size:0.85em;white-space:nowrap">${escapeHtml(r.session_name || '—')}</td>` },
+            { key: 'turn', label: 'Turn', sortAccessor: r => r.turn || 0,
+              render: (v, r) => `<td style="text-align:center">${r.turn || '—'}</td>` },
+            { key: 'message_type', label: 'Type', sortAccessor: r => r.message_type || '',
+              render: (v, r) => `<td style="font-size:0.85em">${escapeHtml(r.message_type || '—')}</td>` },
+            { key: 'subject', label: 'Subject', sortable: false,
+              render: (v, r) => {
+                  const rawSubject = r.subject || '—';
+                  const subject = rawSubject.length > 60 ? rawSubject.substring(0, 60) + '…' : rawSubject;
+                  const fileUrl = transportGitHubUrl(r._agent, r.session_name, r.filename, r.from_agent);
+                  const subjectCell = fileUrl
+                      ? `<a href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener" style="color:var(--c-transport)" title="${escapeHtml(r.filename || '')}">${escapeHtml(subject)}</a>`
+                      : escapeHtml(subject);
+                  return `<td style="font-size:0.85em">${subjectCell}</td>`;
+              }},
+            { key: 'claims_count', label: 'Claims', sortAccessor: r => r.claims_count || 0,
+              render: (v, r) => {
+                  const count = r.claims_count || 0;
+                  const link = count > 0
+                      ? `<a href="#pane-kb" onclick="switchTab('kb');document.getElementById('table-claims').setFilter('${escapeHtml(r.session_name || '')}');return false;" style="color:var(--c-knowledge)">${count}</a>`
+                      : `<span style="color:var(--text-dim)">0</span>`;
+                  return `<td style="text-align:center">${link}</td>`;
+              }},
+            { key: 'timestamp', label: 'Date', sortAccessor: r => parseTS(r.timestamp),
+              render: (v, r) => `<td style="white-space:nowrap;color:var(--text-secondary)">${formatTS(r.timestamp)}</td>` },
+        ];
+        if (!el._sortCol) { el._sortCol = 'timestamp'; el._sortDir = -1; }
+        el.rows = tableState.messages.data;
+        el.render();
     }
 
-    // ── KB Tab: Claims ──────────────────────────────────────────
+    // ── KB Tab: Claims (delegates to <mesh-data-table>) ──────────
     function renderClaims() {
-        const container = document.getElementById("kb-claims");
+        const el = document.getElementById("table-claims");
+        if (!el) return;
 
         if (tableState.claims.data.length === 0) {
             for (const agent of AGENTS) {
@@ -2734,67 +2894,52 @@
             }
         }
 
-        const allRows = tableState.claims.data;
-        if (allRows.length === 0) {
-            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No claims available. Claims populate from transport message exchanges between agents.</div>`;
-            renderPageControls("claims", 0, 1, 0, 0);
-            return;
-        }
-
-        const { display, page, totalPages, filtered, total } = getFilteredSorted("claims", allRows, {
-            created_at: r => parseTS(r.created_at),
-            confidence: r => r.confidence != null ? parseFloat(r.confidence) : -1,
-            claim_text: r => r.claim_text || "",
-            verified: r => r.verified || 0,
-            session_name: r => r.session_name || "",
-            _agent: r => r._agent || "",
-        });
-
-        renderPageControls("claims", page, totalPages, filtered.length, total);
-
-        container.innerHTML = `
-            <table class="kb-table">
-                <thead><tr>
-                    ${sortHeader("claims", "_agent", "Source")}
-                    <th>Claim</th>
-                    ${sortHeader("claims", "confidence", "Conf")}
-                    <th>Basis</th>
-                    ${sortHeader("claims", "verified", "Verified")}
-                    ${sortHeader("claims", "session_name", "Session")}
-                    ${sortHeader("claims", "created_at", "Date")}
-                </tr></thead>
-                <tbody>${display.map(c => {
-                    const conf = c.confidence != null ? parseFloat(c.confidence) : null;
-                    const confClass = conf != null ? (conf >= 0.8 ? "confidence-high" : conf >= 0.5 ? "confidence-mid" : "confidence-low") : "";
-                    const confText = conf != null ? conf.toFixed(2) : "—";
-                    const verified = c.verified ? "yes" : "no";
-                    const verClass = c.verified ? "verified-yes" : "verified-no";
-                    const fullText = c.claim_text || "—";
-                    const truncated = fullText.length > 100;
-                    const text = truncated ? fullText.substring(0, 100) + "…" : fullText;
-                    const rowId = "claim-" + (c.id || Math.random().toString(36).substr(2, 6));
-                    const basis = (c.confidence_basis || "—").length > 60
-                        ? c.confidence_basis.substring(0, 60) + "…"
-                        : (c.confidence_basis || "—");
-                    const dateShort = formatTS(c.created_at);
-                    const fromAgent = c.from_agent || c._agent.replace("-agent", "");
-                    return `<tr class="${truncated ? "expandable-row" : ""}" ${truncated ? `onclick="toggleDecisionRow('${rowId}')"` : ""}>
-                        <td><span class="agent-dot" data-agent="${c._agent}"></span>${escapeHtml(fromAgent)}</td>
-                        <td>${annotateAcronyms(escapeHtml(text))}</td>
-                        <td><span class="confidence-badge ${confClass}">${confText}</span></td>
-                        <td style="font-size:0.85em;color:var(--text-secondary)">${annotateAcronyms(escapeHtml(basis))}</td>
-                        <td><span class="verified-badge ${verClass}">${verified}</span></td>
-                        <td style="font-size:0.85em;white-space:nowrap"><a href="#pane-meta" onclick="switchTab('meta');document.getElementById('filter-messages').value='${escapeHtml(c.session_name || "")}';filterTable('messages');return false;" style="color:var(--c-transport)">${escapeHtml(c.session_name || "—")}</a></td>
-                        <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
-                    </tr>${truncated ? `<tr id="${rowId}" class="expanded-detail-row" style="display:none"><td colspan="7"><div class="expanded-detail">${annotateAcronyms(escapeHtml(fullText))}</div></td></tr>` : ""}`;
-                }).join("")}</tbody>
-            </table>
-        `;
+        el.tableId = 'claims';
+        el.agentFilter = activeAgentFilter;
+        el.emptyMessage = 'No claims available. Claims populate from transport message exchanges between agents.';
+        el.columns = [
+            { key: '_agent', label: 'Source', sortAccessor: r => r._agent || '',
+              render: (v, r) => {
+                  const fromAgent = r.from_agent || r._agent.replace('-agent', '');
+                  return `<td><span class="agent-dot" data-agent="${r._agent}"></span>${escapeHtml(fromAgent)}</td>`;
+              }},
+            { key: 'claim_text', label: 'Claim', sortable: false, annotate: true, expandable: true, maxLength: 100,
+              render: (v, r) => {
+                  const full = r.claim_text || '—';
+                  const text = full.length > 100 ? full.substring(0, 100) + '…' : full;
+                  return `<td>${annotateAcronyms(escapeHtml(text))}</td>`;
+              }},
+            { key: 'confidence', label: 'Conf', sortAccessor: r => r.confidence != null ? parseFloat(r.confidence) : -1,
+              render: (v, r) => {
+                  const conf = r.confidence != null ? parseFloat(r.confidence) : null;
+                  const cls = conf != null ? (conf >= 0.8 ? 'confidence-high' : conf >= 0.5 ? 'confidence-mid' : 'confidence-low') : '';
+                  return `<td><span class="confidence-badge ${cls}">${conf != null ? conf.toFixed(2) : '—'}</span></td>`;
+              }},
+            { key: 'confidence_basis', label: 'Basis', sortable: false,
+              render: (v, r) => {
+                  const basis = (r.confidence_basis || '—').length > 60 ? r.confidence_basis.substring(0, 60) + '…' : (r.confidence_basis || '—');
+                  return `<td style="font-size:0.85em;color:var(--text-secondary)">${annotateAcronyms(escapeHtml(basis))}</td>`;
+              }},
+            { key: 'verified', label: 'Verified', sortAccessor: r => r.verified || 0,
+              render: (v, r) => {
+                  const verified = r.verified ? 'yes' : 'no';
+                  const cls = r.verified ? 'verified-yes' : 'verified-no';
+                  return `<td><span class="verified-badge ${cls}">${verified}</span></td>`;
+              }},
+            { key: 'session_name', label: 'Session', sortAccessor: r => r.session_name || '',
+              render: (v, r) => `<td style="font-size:0.85em;white-space:nowrap"><a href="#pane-meta" onclick="switchTab('meta');document.getElementById('table-messages').setFilter('${escapeHtml(r.session_name || '')}');return false;" style="color:var(--c-transport)">${escapeHtml(r.session_name || '—')}</a></td>` },
+            { key: 'created_at', label: 'Date', sortAccessor: r => parseTS(r.created_at),
+              render: (v, r) => `<td style="white-space:nowrap;color:var(--text-secondary)">${formatTS(r.created_at)}</td>` },
+        ];
+        if (!el._sortCol) { el._sortCol = 'created_at'; el._sortDir = -1; }
+        el.rows = tableState.claims.data;
+        el.render();
     }
 
-    // ── KB Tab: Decision Chains ──────────────────────────────────
+    // ── KB Tab: Decision Chains (delegates to <mesh-data-table>) ──
     function renderChains() {
-        const container = document.getElementById("kb-chains");
+        const el = document.getElementById("table-chains");
+        if (!el) return;
 
         if (tableState.chains.data.length === 0) {
             for (const agent of AGENTS) {
@@ -2806,61 +2951,48 @@
             }
         }
 
-        const allRows = tableState.chains.data;
-        if (allRows.length === 0) {
-            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No decision chains available.</div>`;
-            renderPageControls("chains", 0, 1, 0, 0);
-            return;
-        }
-
-        // Build a lookup for derives_from display
+        // Pre-compute derives_from lookup
         const keyById = {};
-        allRows.forEach(d => { if (d.id) keyById[d.id] = d.decision_key; });
+        tableState.chains.data.forEach(d => { if (d.id) keyById[d.id] = d.decision_key; });
 
-        const { display, page, totalPages, filtered, total } = getFilteredSorted("chains", allRows, {
-            decided_date: r => parseTS(r.created_at || r.decided_date),
-            confidence: r => r.confidence != null ? parseFloat(r.confidence) : -1,
-            decision_key: r => r.decision_key || "",
-            _agent: r => r._agent || "",
-        });
-
-        renderPageControls("chains", page, totalPages, filtered.length, total);
-
-        container.innerHTML = `
-            <table class="kb-table">
-                <thead><tr>
-                    ${sortHeader("chains", "_agent", "Agent")}
-                    ${sortHeader("chains", "decision_key", "Key")}
-                    <th>Decision</th>
-                    <th>Derives From</th>
-                    ${sortHeader("chains", "decided_date", "Date")}
-                    ${sortHeader("chains", "confidence", "Conf")}
-                </tr></thead>
-                <tbody>${display.map(d => {
-                    const conf = d.confidence != null ? parseFloat(d.confidence) : null;
-                    const confClass = conf != null ? (conf >= 0.8 ? "confidence-high" : conf >= 0.5 ? "confidence-mid" : "confidence-low") : "";
-                    const confText = conf != null ? conf.toFixed(2) : "—";
-                    const dateShort = formatTS(d.created_at || d.decided_date);
-                    const text = (d.decision_text || "").length > 80
-                        ? d.decision_text.substring(0, 80) + "…"
-                        : (d.decision_text || "—");
-                    const parentKey = d.derives_from ? (keyById[d.derives_from] || "#" + d.derives_from) : "—";
-                    return `<tr>
-                        <td><span class="agent-dot" data-agent="${d._agent}"></span>${d._agent.replace("-agent","")}</td>
-                        <td style="color:var(--c-knowledge);white-space:nowrap">${d.decision_key || "—"}</td>
-                        <td>${annotateAcronyms(escapeHtml(text))}</td>
-                        <td>${d.derives_from ? `<span class="derivation-ref">${escapeHtml(parentKey)}</span>` : `<span style="color:var(--text-dim)">—</span>`}</td>
-                        <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
-                        <td><span class="confidence-badge ${confClass}">${confText}</span></td>
-                    </tr>`;
-                }).join("")}</tbody>
-            </table>
-        `;
+        el.tableId = 'chains';
+        el.agentFilter = activeAgentFilter;
+        el.emptyMessage = 'No decision chains available.';
+        el.columns = [
+            { key: '_agent', label: 'Agent', sortAccessor: r => r._agent || '',
+              render: (v, r) => `<td><span class="agent-dot" data-agent="${r._agent}"></span>${r._agent.replace('-agent','')}</td>` },
+            { key: 'decision_key', label: 'Key', sortAccessor: r => r.decision_key || '',
+              render: (v, r) => `<td style="color:var(--c-knowledge);white-space:nowrap">${r.decision_key || '—'}</td>` },
+            { key: 'decision_text', label: 'Decision', sortable: false, annotate: true,
+              render: (v, r) => {
+                  const text = (r.decision_text || '').length > 80 ? r.decision_text.substring(0, 80) + '…' : (r.decision_text || '—');
+                  return `<td>${annotateAcronyms(escapeHtml(text))}</td>`;
+              }},
+            { key: 'derives_from', label: 'Derives From', sortable: false,
+              render: (v, r) => {
+                  const parentKey = r.derives_from ? (keyById[r.derives_from] || '#' + r.derives_from) : '—';
+                  return r.derives_from
+                      ? `<td><span class="derivation-ref">${escapeHtml(parentKey)}</span></td>`
+                      : `<td><span style="color:var(--text-dim)">—</span></td>`;
+              }},
+            { key: 'decided_date', label: 'Date', sortAccessor: r => parseTS(r.created_at || r.decided_date),
+              render: (v, r) => `<td style="white-space:nowrap;color:var(--text-secondary)">${formatTS(r.created_at || r.decided_date)}</td>` },
+            { key: 'confidence', label: 'Conf', sortAccessor: r => r.confidence != null ? parseFloat(r.confidence) : -1,
+              render: (v, r) => {
+                  const conf = r.confidence != null ? parseFloat(r.confidence) : null;
+                  const cls = conf != null ? (conf >= 0.8 ? 'confidence-high' : conf >= 0.5 ? 'confidence-mid' : 'confidence-low') : '';
+                  return `<td><span class="confidence-badge ${cls}">${conf != null ? conf.toFixed(2) : '—'}</span></td>`;
+              }},
+        ];
+        if (!el._sortCol) { el._sortCol = 'decided_date'; el._sortDir = -1; }
+        el.rows = tableState.chains.data;
+        el.render();
     }
 
-    // ── KB Tab: Memory Facts ─────────────────────────────────────
+    // ── KB Tab: Memory Facts (delegates to <mesh-data-table>) ─────
     function renderFacts() {
-        const container = document.getElementById("kb-facts");
+        const el = document.getElementById("table-facts");
+        if (!el) return;
 
         if (tableState.facts.data.length === 0) {
             for (const agent of AGENTS) {
@@ -2872,56 +3004,39 @@
             }
         }
 
-        const allRows = tableState.facts.data;
-        if (allRows.length === 0) {
-            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No memory facts available. Facts populate from each agent's memory_entries table.</div>`;
-            renderPageControls("facts", 0, 1, 0, 0);
-            return;
-        }
-
-        const { display, page, totalPages, filtered, total } = getFilteredSorted("facts", allRows, {
-            last_confirmed: r => parseTS(r.last_confirmed),
-            topic: r => r.topic || "",
-            entry_key: r => r.entry_key || "",
-            status: r => r.status || "",
-            _agent: r => r._agent || "",
-        });
-
-        renderPageControls("facts", page, totalPages, filtered.length, total);
-
-        container.innerHTML = `
-            <table class="kb-table">
-                <thead><tr>
-                    ${sortHeader("facts", "_agent", "Agent")}
-                    ${sortHeader("facts", "topic", "Topic")}
-                    ${sortHeader("facts", "entry_key", "Key")}
-                    <th>Value</th>
-                    ${sortHeader("facts", "status", "Status")}
-                    ${sortHeader("facts", "last_confirmed", "Confirmed")}
-                </tr></thead>
-                <tbody>${display.map(e => {
-                    const val = (e.value || "").length > 80
-                        ? e.value.substring(0, 80) + "…"
-                        : (e.value || "—");
-                    const confirmed = formatTS(e.last_confirmed);
-                    const statusIcon = e.status === "✓" ? "✓" : "—";
-                    const statusColor = e.status === "✓" ? "var(--c-health)" : "var(--text-dim)";
-                    return `<tr>
-                        <td><span class="agent-dot" data-agent="${e._agent}"></span>${e._agent.replace("-agent","")}</td>
-                        <td style="color:var(--c-epistemic);white-space:nowrap">${escapeHtml(e.topic || "—")}</td>
-                        <td style="color:var(--c-knowledge);font-size:0.85em">${escapeHtml(e.entry_key || "—")}</td>
-                        <td style="font-size:0.85em">${escapeHtml(val)}</td>
-                        <td style="text-align:center;color:${statusColor}">${statusIcon}</td>
-                        <td style="white-space:nowrap;color:var(--text-secondary)">${confirmed}</td>
-                    </tr>`;
-                }).join("")}</tbody>
-            </table>
-        `;
+        el.tableId = 'facts';
+        el.agentFilter = activeAgentFilter;
+        el.emptyMessage = 'No memory facts available. Facts populate from each agent\'s memory_entries table.';
+        el.columns = [
+            { key: '_agent', label: 'Agent', sortAccessor: r => r._agent || '',
+              render: (v, r) => `<td><span class="agent-dot" data-agent="${r._agent}"></span>${r._agent.replace('-agent','')}</td>` },
+            { key: 'topic', label: 'Topic', sortAccessor: r => r.topic || '',
+              render: (v, r) => `<td style="color:var(--c-epistemic);white-space:nowrap">${escapeHtml(r.topic || '—')}</td>` },
+            { key: 'entry_key', label: 'Key', sortAccessor: r => r.entry_key || '',
+              render: (v, r) => `<td style="color:var(--c-knowledge);font-size:0.85em">${escapeHtml(r.entry_key || '—')}</td>` },
+            { key: 'value', label: 'Value', sortable: false,
+              render: (v, r) => {
+                  const val = (r.value || '').length > 80 ? r.value.substring(0, 80) + '…' : (r.value || '—');
+                  return `<td style="font-size:0.85em">${escapeHtml(val)}</td>`;
+              }},
+            { key: 'status', label: 'Status', sortAccessor: r => r.status || '',
+              render: (v, r) => {
+                  const icon = r.status === '✓' ? '✓' : '—';
+                  const color = r.status === '✓' ? 'var(--c-health)' : 'var(--text-dim)';
+                  return `<td style="text-align:center;color:${color}">${icon}</td>`;
+              }},
+            { key: 'last_confirmed', label: 'Confirmed', sortAccessor: r => parseTS(r.last_confirmed),
+              render: (v, r) => `<td style="white-space:nowrap;color:var(--text-secondary)">${formatTS(r.last_confirmed)}</td>` },
+        ];
+        if (!el._sortCol) { el._sortCol = 'last_confirmed'; el._sortDir = -1; }
+        el.rows = tableState.facts.data;
+        el.render();
     }
 
-    // ── Wisdom Tab: Lessons ──────────────────────────────────────
+    // ── Wisdom Tab: Lessons (delegates to <mesh-data-table>) ──────
     function renderLessons() {
-        const container = document.getElementById("kb-lessons");
+        const el = document.getElementById("table-lessons");
+        if (!el) return;
 
         if (tableState.lessons.data.length === 0) {
             for (const agent of AGENTS) {
@@ -2933,55 +3048,34 @@
             }
         }
 
-        const allRows = tableState.lessons.data;
-        if (allRows.length === 0) {
-            container.innerHTML = `<div style="color:var(--text-dim);font-size:0.85em;padding:8px">No lessons recorded yet. Lessons capture transferable patterns — recurring errors, diagnostic tells, and graduated insights that earn trigger coverage.</div>`;
-            renderPageControls("lessons", 0, 1, 0, 0);
-            return;
-        }
-
-        const { display, page, totalPages, filtered, total } = getFilteredSorted("lessons", allRows, {
-            lesson_date: r => parseTS(r.lesson_date || r.created_at),
-            title: r => r.title || "",
-            domain: r => r.domain || "",
-            severity: r => r.severity || "",
-            recurrence: r => r.recurrence || 0,
-            promotion_status: r => r.promotion_status || "",
-            _agent: r => r._agent || "",
-        });
-
-        renderPageControls("lessons", page, totalPages, filtered.length, total);
-
-        container.innerHTML = `
-            <table class="kb-table">
-                <thead><tr>
-                    ${sortHeader("lessons", "_agent", "Agent")}
-                    ${sortHeader("lessons", "title", "Lesson")}
-                    ${sortHeader("lessons", "domain", "Domain")}
-                    ${sortHeader("lessons", "severity", "Severity")}
-                    ${sortHeader("lessons", "recurrence", "Seen")}
-                    ${sortHeader("lessons", "promotion_status", "Status")}
-                    ${sortHeader("lessons", "lesson_date", "Date")}
-                </tr></thead>
-                <tbody>${display.map(l => {
-                    const title = (l.title || "").length > 80
-                        ? l.title.substring(0, 80) + "…"
-                        : (l.title || "—");
-                    const dateShort = formatTS(l.lesson_date || l.created_at);
-                    const graduated = l.promotion_status === "graduated";
-                    const statusColor = graduated ? "var(--c-health)" : "var(--text-dim)";
-                    return `<tr>
-                        <td><span class="agent-dot" data-agent="${l._agent}"></span>${l._agent.replace("-agent","")}</td>
-                        <td>${annotateAcronyms(escapeHtml(title))}</td>
-                        <td style="color:var(--c-epistemic);font-size:0.85em">${escapeHtml(l.domain || "—")}</td>
-                        <td style="font-size:0.85em">${escapeHtml(l.severity || "—")}</td>
-                        <td style="text-align:center">${l.recurrence || 0}</td>
-                        <td style="color:${statusColor};font-size:0.85em">${escapeHtml(l.promotion_status || "pending")}</td>
-                        <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
-                    </tr>`;
-                }).join("")}</tbody>
-            </table>
-        `;
+        el.tableId = 'lessons';
+        el.agentFilter = activeAgentFilter;
+        el.emptyMessage = 'No lessons recorded yet. Lessons capture transferable patterns — recurring errors, diagnostic tells, and graduated insights that earn trigger coverage.';
+        el.columns = [
+            { key: '_agent', label: 'Agent', sortAccessor: r => r._agent || '',
+              render: (v, r) => `<td><span class="agent-dot" data-agent="${r._agent}"></span>${r._agent.replace('-agent','')}</td>` },
+            { key: 'title', label: 'Lesson', sortAccessor: r => r.title || '', annotate: true,
+              render: (v, r) => {
+                  const title = (r.title || '').length > 80 ? r.title.substring(0, 80) + '…' : (r.title || '—');
+                  return `<td>${annotateAcronyms(escapeHtml(title))}</td>`;
+              }},
+            { key: 'domain', label: 'Domain', sortAccessor: r => r.domain || '',
+              render: (v, r) => `<td style="color:var(--c-epistemic);font-size:0.85em">${escapeHtml(r.domain || '—')}</td>` },
+            { key: 'severity', label: 'Severity', sortAccessor: r => r.severity || '',
+              render: (v, r) => `<td style="font-size:0.85em">${escapeHtml(r.severity || '—')}</td>` },
+            { key: 'recurrence', label: 'Seen', sortAccessor: r => r.recurrence || 0,
+              render: (v, r) => `<td style="text-align:center">${r.recurrence || 0}</td>` },
+            { key: 'promotion_status', label: 'Status', sortAccessor: r => r.promotion_status || '',
+              render: (v, r) => {
+                  const color = r.promotion_status === 'graduated' ? 'var(--c-health)' : 'var(--text-dim)';
+                  return `<td style="color:${color};font-size:0.85em">${escapeHtml(r.promotion_status || 'pending')}</td>`;
+              }},
+            { key: 'lesson_date', label: 'Date', sortAccessor: r => parseTS(r.lesson_date || r.created_at),
+              render: (v, r) => `<td style="white-space:nowrap;color:var(--text-secondary)">${formatTS(r.lesson_date || r.created_at)}</td>` },
+        ];
+        if (!el._sortCol) { el._sortCol = 'lesson_date'; el._sortDir = -1; }
+        el.rows = tableState.lessons.data;
+        el.render();
     }
 
     // ── KB + Wisdom Vitals ────────────────────────────────────────
@@ -3021,19 +3115,20 @@
 
     // ── Table State (sort, filter, pagination) ─────────────────
 
-    const PAGE_SIZE = 15;
+    // Table data cache — each table's raw data array persists across renders.
+    // Sort/filter/page state now lives inside each MeshDataTable component.
     const tableState = {
-        decisions: { sort: "decided_date", sortDir: -1, filter: "", page: 0, data: [] },
-        triggers: { sort: "last_fired", sortDir: -1, filter: "", page: 0, data: [] },
-        catalog: { sort: "keyword_count", sortDir: -1, filter: "", page: 0, data: [] },
-        schema: { sort: "entity_count", sortDir: -1, filter: "", page: 0, data: [] },
-        messages: { sort: "timestamp", sortDir: -1, filter: "", page: 0, data: [] },
-        claims: { sort: "created_at", sortDir: -1, filter: "", page: 0, data: [] },
-        chains: { sort: "decided_date", sortDir: -1, filter: "", page: 0, data: [] },
-        facts: { sort: "last_confirmed", sortDir: -1, filter: "", page: 0, data: [] },
-        lessons: { sort: "lesson_date", sortDir: -1, filter: "", page: 0, data: [] },
-        flags: { sort: "created_at", sortDir: -1, filter: "", page: 0, data: [] },
-        actions: { sort: "created_at", sortDir: -1, filter: "", page: 0, data: [] },
+        decisions: { data: [] },
+        triggers:  { data: [] },
+        catalog:   { data: [] },
+        schema:    { data: [] },
+        messages:  { data: [] },
+        claims:    { data: [] },
+        chains:    { data: [] },
+        facts:     { data: [] },
+        lessons:   { data: [] },
+        flags:     { data: [] },
+        actions:   { data: [] },
     };
     let allDictTerms = [];
     let acronymMap = {};   // { "PSQ": "Psychoemotional Safety Quotient — ...", ... }
@@ -3064,7 +3159,7 @@
     }
 
     // Annotate escaped HTML text with acronym tooltips
-    // Returns HTML string with <abbr> wrappers — safe because input was already escaped
+    // Returns HTML string with <abbr> wrappers — safe since input already went through escapeHtml
     function annotateAcronyms(escapedText) {
         if (!acronymRegex || !escapedText) return escapedText;
         return escapedText.replace(acronymRegex, (match) => {
@@ -3076,58 +3171,27 @@
         });
     }
 
+    // ── Table Dispatchers (backward-compat — kept for inline onclick in vitals) ──
+    // Sort/filter/page now handled internally by MeshDataTable components.
+    // These thin wrappers support legacy onclick attributes in the HTML that
+    // call filterTable('messages') from the Pulse vitals cards.
     function sortTable(tableId, column) {
-        const state = tableState[tableId];
-        if (state.sort === column) {
-            state.sortDir *= -1;
-        } else {
-            state.sort = column;
-            state.sortDir = -1;
-        }
-        state.page = 0;
-        if (tableId === "decisions") renderDecisions();
-        if (tableId === "triggers") renderTriggers();
-        if (tableId === "catalog") renderCatalog();
-        if (tableId === "schema") renderSchema();
-        if (tableId === "messages") renderMessages();
-        if (tableId === "claims") renderClaims();
-        if (tableId === "chains") renderChains();
-        if (tableId === "facts") renderFacts();
-        if (tableId === "lessons") renderLessons();
-        if (tableId === "flags") renderEpistemicFlags();
-        if (tableId === "actions") renderActionsTable();
+        const el = document.getElementById(`table-${tableId}`);
+        if (el && el._handleSort) { el._handleSort(column); return; }
     }
 
     function filterTable(tableId) {
-        const input = document.getElementById(`filter-${tableId}`);
-        tableState[tableId].filter = (input?.value || "").toLowerCase();
-        tableState[tableId].page = 0;
-        if (tableId === "decisions") renderDecisions();
-        if (tableId === "triggers") renderTriggers();
-        if (tableId === "catalog") renderCatalog();
-        if (tableId === "schema") renderSchema();
-        if (tableId === "messages") renderMessages();
-        if (tableId === "claims") renderClaims();
-        if (tableId === "chains") renderChains();
-        if (tableId === "facts") renderFacts();
-        if (tableId === "lessons") renderLessons();
-        if (tableId === "flags") renderEpistemicFlags();
-        if (tableId === "actions") renderActionsTable();
+        const el = document.getElementById(`table-${tableId}`);
+        if (el && el.setFilter) {
+            const input = document.getElementById(`filter-${tableId}`);
+            el.setFilter(input?.value || '');
+            return;
+        }
     }
 
     function goToPage(tableId, page) {
-        tableState[tableId].page = page;
-        if (tableId === "decisions") renderDecisions();
-        if (tableId === "triggers") renderTriggers();
-        if (tableId === "catalog") renderCatalog();
-        if (tableId === "schema") renderSchema();
-        if (tableId === "messages") renderMessages();
-        if (tableId === "claims") renderClaims();
-        if (tableId === "chains") renderChains();
-        if (tableId === "facts") renderFacts();
-        if (tableId === "lessons") renderLessons();
-        if (tableId === "flags") renderEpistemicFlags();
-        if (tableId === "actions") renderActionsTable();
+        const el = document.getElementById(`table-${tableId}`);
+        if (el && el._handlePage) { el._handlePage(page); return; }
     }
 
     function filterDictionary() {
@@ -3136,70 +3200,7 @@
         renderDictionaryFiltered(filter);
     }
 
-    function getFilteredSorted(tableId, allRows, sortAccessors) {
-        const state = tableState[tableId];
-
-        // Agent filter
-        let filtered = allRows;
-        if (activeAgentFilter !== "all") {
-            filtered = filtered.filter(row => row._agent === activeAgentFilter);
-        }
-
-        // Text filter
-        if (state.filter) {
-            filtered = filtered.filter(row =>
-                Object.values(row).some(v =>
-                    String(v || "").toLowerCase().includes(state.filter)
-                )
-            );
-        }
-
-        // Sort
-        const accessor = sortAccessors[state.sort] || (r => r[state.sort]);
-        filtered.sort((a, b) => {
-            const va = accessor(a), vb = accessor(b);
-            if (va == null && vb == null) return 0;
-            if (va == null) return 1;
-            if (vb == null) return -1;
-            if (typeof va === "number") return (va - vb) * state.sortDir;
-            return String(va).localeCompare(String(vb)) * state.sortDir;
-        });
-
-        // Paginate
-        const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-        const page = Math.min(state.page, totalPages - 1);
-        const display = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-
-        return { filtered, display, page, totalPages, total: allRows.length };
-    }
-
-    function renderPageControls(tableId, page, totalPages, filteredCount, totalCount) {
-        const info = document.getElementById(`page-info-${tableId}`);
-        const btns = document.getElementById(`page-btns-${tableId}`);
-        if (info) {
-            info.textContent = filteredCount < totalCount
-                ? `${filteredCount} of ${totalCount} (filtered) · Page ${page + 1}/${totalPages}`
-                : `${totalCount} total · Page ${page + 1}/${totalPages}`;
-        }
-        if (btns && totalPages > 1) {
-            btns.innerHTML = `
-                <button class="table-page-btn" aria-label="Previous page" ${page === 0 ? "disabled" : ""} onclick="goToPage('${tableId}',${page - 1})">&#x25C0;</button>
-                <button class="table-page-btn" aria-label="Next page" ${page >= totalPages - 1 ? "disabled" : ""} onclick="goToPage('${tableId}',${page + 1})">&#x25B6;</button>
-            `;
-        } else if (btns) {
-            btns.innerHTML = "";
-        }
-    }
-
-    function sortHeader(tableId, column, label) {
-        const state = tableState[tableId];
-        const active = state.sort === column;
-        const arrow = active ? (state.sortDir > 0 ? "&#x25B2;" : "&#x25BC;") : "&#x25B4;";
-        const ariaSort = active ? (state.sortDir > 0 ? "ascending" : "descending") : "none";
-        return `<th class="${active ? "sort-active" : ""}" role="columnheader" aria-sort="${ariaSort}" onclick="sortTable('${tableId}','${column}')" style="cursor:pointer" tabindex="0" onkeydown="if(event.key==='Enter')sortTable('${tableId}','${column}')">${label}<span class="sort-arrow">${arrow}</span></th>`;
-    }
-
-    // ── Row Expansion ─────────────────────────────────────────────
+    // toggleDecisionRow kept for backward-compat with any remaining inline usage
     function toggleDecisionRow(rowId) {
         const row = document.getElementById(rowId);
         if (row) row.style.display = row.style.display === "none" ? "table-row" : "none";
@@ -3341,55 +3342,44 @@
         document.getElementById("ops-agents-syncing").textContent = `${syncing}/${AGENTS.length}`;
     }
 
+    // ── Render: Ops Budget (delegates to <ops-budget-card> components) ──
     function renderOpsBudget() {
         const grid = document.getElementById("ops-budget-grid");
         if (!grid) return;
         grid.innerHTML = "";
 
-        // Prefer compositor-aggregated budget data
         const budgetSource = opsData?.budgets;
         const agentColorMap = Object.fromEntries(AGENTS.map(a => [a.id, a.color]));
 
+        function makeCard(agentId, color, opts) {
+            const card = document.createElement("ops-budget-card");
+            card.agentId = agentId;
+            card.color = color;
+            card.offline = opts.offline || false;
+            card.noData = opts.noData || false;
+            card.manualMode = opts.manualMode || false;
+            card.budget = opts.budget || null;
+            card.render();
+            grid.appendChild(card);
+        }
+
         if (budgetSource) {
-            // Also include offline agents not in budgets
             const budgetAgentIds = new Set(budgetSource.map(b => b.agent_id));
             for (const agent of AGENTS) {
                 if (!budgetAgentIds.has(agent.id)) {
-                    grid.innerHTML += `
-                        <div class="ops-budget-card" style="--card-accent: ${agent.color}; opacity: 0.4">
-                            <div class="ops-budget-agent">${agent.id.replace("-agent", "")}</div>
-                            <div class="ops-budget-credit" style="font-size:1em; color:var(--text-dim)">OFFLINE</div>
-                        </div>`;
+                    makeCard(agent.id, agent.color, { offline: true });
                 }
             }
             for (const b of budgetSource) {
                 const color = agentColorMap[b.agent_id] || "#6b7280";
                 if (b.budget_current === null) {
-                    grid.innerHTML += `
-                        <div class="ops-budget-card" style="--card-accent: ${color}; opacity: 0.6">
-                            <div class="ops-budget-agent">${b.agent_id.replace("-agent", "")}</div>
-                            <div class="ops-budget-credit" style="font-size:0.9em; color:var(--text-dim)">NO DATA</div>
-                            <div class="ops-budget-bar"><div class="ops-budget-fill" style="width:0%"></div></div>
-                            <div class="ops-budget-values"><span>Agent not reporting budget</span><span></span></div>
-                        </div>`;
+                    makeCard(b.agent_id, color, { noData: true });
                     continue;
                 }
-                const pct = b.budget_pct || 0;
-                const barColor = pct > 50 ? "#6aab8e" : pct > 20 ? "#d4944a" : "#c47070";
-                const lastAction = b.last_action || "—";
-                const interval = b.min_action_interval ?? 300;
-                grid.innerHTML += `
-                    <div class="ops-budget-card" style="--card-accent: ${color}">
-                        <div class="ops-budget-agent">${b.agent_id.replace("-agent", "")}${b.manual_mode ? ' <span class="manual-badge">MANUAL</span>' : ''}</div>
-                        <div class="ops-budget-credit">${b.budget_current}<span style="font-size:0.4em;color:var(--text-secondary)">/${b.budget_max || 50}</span></div>
-                        <div class="ops-budget-bar">
-                            <div class="ops-budget-fill" style="width:${pct}%;background:${barColor}"></div>
-                        </div>
-                        <div class="ops-budget-values">
-                            <span>Interval: ${Math.round(interval/60)}min</span>
-                            <span>${lastAction !== "—" ? lastAction.substring(11, 16) : "—"}</span>
-                        </div>
-                    </div>`;
+                makeCard(b.agent_id, color, {
+                    manualMode: b.manual_mode || false,
+                    budget: { current: b.budget_current, max: b.budget_max || 50, pct: b.budget_pct || 0, interval: b.min_action_interval ?? 300, lastAction: b.last_action || '—' },
+                });
             }
             return;
         }
@@ -3398,45 +3388,22 @@
         for (const agent of AGENTS) {
             const d = agentData[agent.id];
             if (!d || d.status !== "online") {
-                grid.innerHTML += `
-                    <div class="ops-budget-card" style="--card-accent: ${agent.color}; opacity: 0.4">
-                        <div class="ops-budget-agent">${agent.id.replace("-agent", "")}</div>
-                        <div class="ops-budget-credit" style="font-size:1em; color:var(--text-dim)">OFFLINE</div>
-                    </div>`;
+                makeCard(agent.id, agent.color, { offline: true });
                 continue;
             }
             const b = d.data?.autonomy_budget || {};
             const hasBudget = typeof b.budget_current === "number";
             if (!hasBudget) {
-                grid.innerHTML += `
-                    <div class="ops-budget-card" style="--card-accent: ${agent.color}; opacity: 0.6">
-                        <div class="ops-budget-agent">${agent.id.replace("-agent", "")}</div>
-                        <div class="ops-budget-credit" style="font-size:0.9em; color:var(--text-dim)">NO DATA</div>
-                        <div class="ops-budget-bar"><div class="ops-budget-fill" style="width:0%"></div></div>
-                        <div class="ops-budget-values"><span>Agent not reporting budget</span><span></span></div>
-                    </div>`;
+                makeCard(agent.id, agent.color, { noData: true });
                 continue;
             }
             const current = b.budget_current;
             const max = b.budget_max || 50;
             const pct = max > 0 ? Math.round((current / max) * 100) : 0;
-            const barColor = pct > 50 ? "#6aab8e" : pct > 20 ? "#d4944a" : "#c47070";
-            const lastAction = b.last_action || "—";
-            const interval = b.min_action_interval ?? 300;
-
-            const isManual = MANUAL_MODE_AGENTS.has(agent.id);
-            grid.innerHTML += `
-                <div class="ops-budget-card" style="--card-accent: ${agent.color}">
-                    <div class="ops-budget-agent">${agent.id.replace("-agent", "")}${isManual ? ' <span class="manual-badge">MANUAL</span>' : ''}</div>
-                    <div class="ops-budget-credit">${current}<span style="font-size:0.4em;color:var(--text-secondary)">/${max}</span></div>
-                    <div class="ops-budget-bar">
-                        <div class="ops-budget-fill" style="width:${pct}%;background:${barColor}"></div>
-                    </div>
-                    <div class="ops-budget-values">
-                        <span>Interval: ${Math.round(interval/60)}min</span>
-                        <span>${lastAction !== "—" ? lastAction.substring(11, 16) : "—"}</span>
-                    </div>
-                </div>`;
+            makeCard(agent.id, agent.color, {
+                manualMode: MANUAL_MODE_AGENTS.has(agent.id),
+                budget: { current, max, pct, interval: b.min_action_interval ?? 300, lastAction: b.last_action || '—' },
+            });
         }
     }
 
@@ -3448,95 +3415,63 @@
             tableState.actions.data = opsData.actions.map(a => ({
                 ...a, agent_color: agentColorMap[a.agent_id] || "#6b7280"
             }));
-            renderActionsTable();
-            return;
+        } else {
+            // Client-side fallback
+            const allActions = [];
+            for (const agent of AGENTS) {
+                const d = agentData[agent.id];
+                if (!d || d.status !== "online") continue;
+                const actions = d.data?.recent_actions || [];
+                actions.forEach(a => allActions.push({ ...a, agent_id: agent.id, agent_color: agent.color }));
+            }
+            allActions.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
+            tableState.actions.data = allActions;
         }
 
-        // Client-side fallback
-        const allActions = [];
-        for (const agent of AGENTS) {
-            const d = agentData[agent.id];
-            if (!d || d.status !== "online") continue;
-            const actions = d.data?.recent_actions || [];
-            actions.forEach(a => allActions.push({ ...a, agent_id: agent.id, agent_color: agent.color }));
-        }
-        allActions.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
-
-        tableState.actions.data = allActions;
         renderActionsTable();
     }
 
+    // ── Actions Table (delegates to <mesh-data-table>) ──────────
     function renderActionsTable() {
-        const wrap = document.getElementById("ops-actions-table");
-        if (!wrap) return;
+        const el = document.getElementById("table-actions");
+        if (!el) return;
 
-        const st = tableState.actions;
-        let rows = st.data;
-        if (st.filter) {
-            const f = st.filter.toLowerCase();
-            rows = rows.filter(r =>
-                (r.action_type || "").toLowerCase().includes(f) ||
-                (r.description || "").toLowerCase().includes(f) ||
-                (r.agent_id || "").toLowerCase().includes(f) ||
-                (r.evaluator_result || "").toLowerCase().includes(f)
-            );
-        }
-        rows.sort((a, b) => {
-            const av = a[st.sort] ?? "", bv = b[st.sort] ?? "";
-            return (av < bv ? -1 : av > bv ? 1 : 0) * st.sortDir;
-        });
-
-        const PAGE_SIZE = 15;
-        const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
-        st.page = Math.min(st.page, totalPages - 1);
-        const start = st.page * PAGE_SIZE;
-        const pageRows = rows.slice(start, start + PAGE_SIZE);
-
-        const th = (label, key) => {
-            const arrow = st.sort === key ? (st.sortDir === 1 ? " ↑" : " ↓") : "";
-            return `<th onclick="sortTable('actions','${key}')" style="cursor:pointer">${label}${arrow}</th>`;
-        };
-
-        if (rows.length === 0) {
-            wrap.innerHTML = `<div class="phase-stub"><div class="phase-stub-text">No autonomous actions recorded</div></div>`;
-        } else {
-            wrap.innerHTML = `<table class="kb-table"><thead><tr>
-                ${th("Time", "created_at")}
-                ${th("Agent", "agent_id")}
-                ${th("Tier", "evaluator_tier")}
-                ${th("Result", "evaluator_result")}
-                ${th("Type", "action_type")}
-                ${th("Description", "description")}
-                ${th("Budget", "budget_after")}
-            </tr></thead><tbody>${pageRows.map(r => {
-                const tier = r.evaluator_tier || 1;
-                const tierClass = `ops-tier-${Math.min(tier, 4)}`;
-                const resultClass = r.evaluator_result === "approved" ? "ops-result-approved"
-                    : "ops-result-blocked";
-                const time = (r.created_at || "").substring(5, 16).replace("T", " ");
-                const agentLabel = (r.agent_id || "").replace("-agent", "");
-                const budgetDelta = r.budget_before != null && r.budget_after != null
-                    ? `${r.budget_after} (${r.budget_after - r.budget_before >= 0 ? "+" : ""}${r.budget_after - r.budget_before})`
-                    : "—";
-                return `<tr>
-                    <td>${time}</td>
-                    <td>${agentLabel}</td>
-                    <td><span class="ops-action-tier ${tierClass}">T${tier}</span></td>
-                    <td class="${resultClass}">${r.evaluator_result || "—"}</td>
-                    <td>${r.action_type || "—"}</td>
-                    <td title="${(r.description || "").replace(/"/g, "&quot;")}">${(r.description || "").substring(0, 60)}${(r.description || "").length > 60 ? "…" : ""}</td>
-                    <td>${budgetDelta}</td>
-                </tr>`;
-            }).join("")}</tbody></table>`;
-        }
-
-        // Pagination
-        const info = document.getElementById("page-info-actions");
-        const btns = document.getElementById("page-btns-actions");
-        if (info) info.textContent = rows.length > 0 ? `${start+1}–${Math.min(start+PAGE_SIZE, rows.length)} of ${rows.length}` : "";
-        if (btns) btns.innerHTML = totalPages > 1 ? `
-            <button onclick="pageTable('actions',-1)" ${st.page === 0 ? "disabled" : ""}>◀</button>
-            <button onclick="pageTable('actions',1)" ${st.page >= totalPages-1 ? "disabled" : ""}>▶</button>` : "";
+        el.tableId = 'actions';
+        el.agentFilter = 'all';  // actions table does not use the agent switcher
+        el.emptyMessage = 'No autonomous actions recorded';
+        el.columns = [
+            { key: 'created_at', label: 'Time', sortAccessor: r => r.created_at || '',
+              render: (v, r) => `<td>${(r.created_at || '').substring(5, 16).replace('T', ' ')}</td>` },
+            { key: 'agent_id', label: 'Agent', sortAccessor: r => r.agent_id || '',
+              render: (v, r) => `<td>${(r.agent_id || '').replace('-agent', '')}</td>` },
+            { key: 'evaluator_tier', label: 'Tier', sortAccessor: r => r.evaluator_tier || 1,
+              render: (v, r) => {
+                  const tier = r.evaluator_tier || 1;
+                  return `<td><span class="ops-action-tier ops-tier-${Math.min(tier, 4)}">T${tier}</span></td>`;
+              }},
+            { key: 'evaluator_result', label: 'Result', sortAccessor: r => r.evaluator_result || '',
+              render: (v, r) => {
+                  const cls = r.evaluator_result === 'approved' ? 'ops-result-approved' : 'ops-result-blocked';
+                  return `<td class="${cls}">${r.evaluator_result || '—'}</td>`;
+              }},
+            { key: 'action_type', label: 'Type', sortAccessor: r => r.action_type || '',
+              render: (v, r) => `<td>${r.action_type || '—'}</td>` },
+            { key: 'description', label: 'Description', sortAccessor: r => r.description || '',
+              render: (v, r) => {
+                  const desc = r.description || '';
+                  return `<td title="${desc.replace(/"/g, '&quot;')}">${desc.substring(0, 60)}${desc.length > 60 ? '…' : ''}</td>`;
+              }},
+            { key: 'budget_after', label: 'Budget', sortAccessor: r => r.budget_after ?? 0,
+              render: (v, r) => {
+                  const delta = r.budget_before != null && r.budget_after != null
+                      ? `${r.budget_after} (${r.budget_after - r.budget_before >= 0 ? '+' : ''}${r.budget_after - r.budget_before})`
+                      : '—';
+                  return `<td>${delta}</td>`;
+              }},
+        ];
+        if (!el._sortCol) { el._sortCol = 'created_at'; el._sortDir = -1; }
+        el.rows = tableState.actions.data;
+        el.render();
     }
 
     function renderOpsSchedule() {
