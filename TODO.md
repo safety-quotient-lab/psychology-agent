@@ -151,6 +151,46 @@ found 3 critical defects, 2 high-severity issues, 39 structural weaknesses,
   Source: ideas.md §CPG, journal.md §58, Session 84 transcript.
   *Precondition: none — content complete, ready to draft.*
 
+- [ ] **Einstein-Freud "Why War?" blog post** — five-persona route via unratified-agent.
+  Topic: the 1932 Einstein-Freud correspondence on war and peace, and how their
+  theoretical framework integrates into our model of psychoemotional safety.
+  **Source:** Einstein, A. & Freud, S. (1933). *Warum Krieg?* [Why War?]. Paris:
+  International Institute of Intellectual Cooperation, League of Nations.
+  **Theoretical integration:**
+  - **Freud's Eros/Thanatos duality** maps to the generate/evaluate mode competition
+    (CPG principle 4): Eros = generative mode (binding, creating, connecting);
+    Thanatos = evaluative mode (dissolving, pruning, critiquing). Neither operates
+    alone — their dynamic tension produces adaptive behavior
+  - **PSQ connection:** The 10 PSQ dimensions measure psychoemotional safety in
+    communication — directly operationalizing what Freud described as the conditions
+    under which Eros prevails over Thanatos in human interaction. Threat exposure,
+    hostility index, trust conditions — these quantify the Eros/Thanatos balance
+    in text
+  - **Einstein's institutional proposal** maps to our governance model (EF-1):
+    an authority structure with invariants that constrain autonomous action —
+    Einstein argued the same for nations
+  - **Freud's "cultural process"** maps to the crystallization pipeline: aggressive
+    impulses get sublimated into productive channels through cultural development;
+    our cogarch crystallizes fluid (potentially chaotic) processing into stable
+    (productive) infrastructure
+  - **The anti-sycophancy mechanism** (T3 #5, T6 #4) embodies Freud's warning that
+    emotional susceptibility enables manipulation — the agent resists the pull
+    toward agreeable-but-harmful responses the way Freud argued individuals must
+    resist propaganda
+  **Persona angles:**
+  - **Voter:** Two of history's greatest minds exchanged letters about why we fight.
+    Their answer applies to how AI systems communicate safely.
+  - **Politician:** International governance frameworks for AI draw from the same
+    principles Einstein proposed for nations in 1932.
+  - **Educator:** Freud's drive theory (Eros vs Thanatos) as a framework for
+    understanding constructive vs destructive AI behavior.
+  - **Researcher:** Operationalizing the Eros/Thanatos duality through the PSQ's
+    10-dimensional measurement model. Citations: Freud (1920 *Beyond the Pleasure
+    Principle*), Einstein & Freud (1933), Hicks (2011 *Dignity*).
+  - **Developer:** How the generate/evaluate mode competition implements drive theory
+    as architecture — biological drives as design patterns.
+  *Precondition: none — content ready to draft.*
+
 - [ ] **Crystallized sync blog post** — ⚑ Post committed but 404 on both domains.
   Frontmatter mismatch (pubDate→publishedDate, description→summary, author
   fields string→object). Problem report sent to unratified-agent (T3).

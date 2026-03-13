@@ -505,6 +505,92 @@ interagent) reference. Two layers:
 
 ---
 
+## Einstein-Freud Theory of War — Theoretical Integration
+
+Source: Einstein, A. & Freud, S. (1933). *Warum Krieg?* [Why War?]. Paris:
+International Institute of Intellectual Cooperation, League of Nations.
+
+The 1932 Einstein-Freud correspondence represents one of the earliest attempts
+to apply psychoanalytic theory to international governance. The exchange
+produces a theoretical framework — the Eros/Thanatos duality operating at
+collective scale — that maps to agent cognitive architecture at multiple levels.
+
+**Core mapping: Eros/Thanatos → Generate/Evaluate mode competition**
+
+Freud's drive theory posits two fundamental forces: Eros (life drive — binding,
+constructive, seeking connection) and Thanatos (death drive — destructive,
+dissolving, seeking entropy). Neither operates alone; their dynamic tension
+produces all complex behavior. War emerges when Thanatos dominates collectively;
+peace requires strengthening Eros (emotional bonds, cultural sublimation).
+
+The CPG mode system (principle 4) implements this duality:
+- **Generative mode = Eros** — binding ideas, creating connections, producing
+  new structure. The constructive drive.
+- **Evaluative mode = Thanatos** — dissolving weak arguments, pruning errors,
+  critiquing structure. The destructive drive in service of quality.
+- **Fatigue-based switching** = the dynamic tension. Neither mode dominates
+  indefinitely. Extended generation without evaluation produces unchecked
+  growth (Eros without Thanatos = cancer, in Freud's biological analogy);
+  extended evaluation without generation produces sterile criticism
+  (Thanatos without Eros = death).
+
+**PSQ as Eros/Thanatos quantification**
+
+The PSQ's 10 dimensions operationalize what Freud described abstractly.
+Threat exposure, hostility index, trust conditions — these quantify the
+balance between constructive and destructive forces in text. A high PSQ
+composite indicates Eros-dominant communication (psychoemotionally safe);
+a low composite indicates Thanatos-dominant communication (threatening,
+hostile, trust-eroding).
+
+This reframes PSQ from "safety measurement" to "Eros/Thanatos balance
+measurement" — grounding a modern computational instrument in century-old
+drive theory. The empirical question: does the Eros/Thanatos framing predict
+PSQ profile shapes better than the current factor structure?
+
+**Einstein's institutional proposal → EF-1 governance**
+
+Einstein argued that lasting peace required an international authority with
+legislative power and the means to enforce its decisions — structure that
+constrains individual actors from pursuing destructive self-interest. Our
+EF-1 governance model implements exactly this: invariants that constrain
+autonomous action, a trust budget that prevents unbounded operation, and a
+human escalation path that serves as the "international authority" Einstein
+envisioned.
+
+**Freud's cultural process → Crystallization pipeline**
+
+Freud's counterforce to war: cultural development sublimating aggressive
+impulses into productive channels. Art, science, law — structures that
+channel Thanatos into creation rather than destruction. The crystallization
+pipeline performs the same function: fluid (potentially chaotic) cognitive
+processing gets channeled through stages into stable (productive)
+infrastructure. Aggressive self-checking (Thanatos) crystallizes into
+mechanical hooks (productive structure).
+
+**Anti-sycophancy as resistance to propaganda**
+
+Freud identified emotional susceptibility as the mechanism by which ruling
+classes bend mass will toward war. The agent's anti-sycophancy mechanisms
+(T3 #5, T6 #4) resist exactly this: the pull toward agreeable-but-harmful
+responses. Sycophantic drift represents the AI equivalent of propaganda
+susceptibility — telling the user what they want to hear rather than what
+serves their interests.
+
+⚡ The Eros/Thanatos framework remains controversial in academic psychology.
+Post-Freudian theorists (ego psychology, object relations, self psychology)
+largely moved away from drive theory. However, the structural mapping to
+generate/evaluate dynamics doesn't depend on whether Eros and Thanatos exist
+as biological drives — it depends on whether the constructive/destructive
+duality describes a useful design pattern. The mapping functions as structural
+analogy, not psychoanalytic endorsement.
+
+*Precondition for PSQ integration: PSQ structural model validated (factor
+analysis complete). The empirical question requires data.*
+*Noted: Session 84 (2026-03-13).*
+
+---
+
 ## Meta
 
 - This agent system is itself a case study in PJE — it embodies Psycho Safety
