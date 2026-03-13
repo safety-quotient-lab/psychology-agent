@@ -74,6 +74,8 @@ partner, and Socratic interlocutor
 51. [What Twelve Builds Teach About Integration Testing: The Meshd Deploy Pipeline](#51-what-twelve-builds-teach-about-integration-testing)
 52. [The Nohup Trap: Why Background Processes Need Supervision](#52-the-nohup-trap)
 53. [Infrastructure Delegation: When the Psychology Agent Routes Work It Cannot Own](#53-infrastructure-delegation)
+55. [Closing the Loop: From Data Collection to Data Action](#55-closing-the-loop)
+58. [Pattern Generators and the Crystallization Pipeline: When the Discipline Designs Its Own Architecture](#58-pattern-generators-and-the-crystallization-pipeline)
 
 ---
 
@@ -2281,3 +2283,143 @@ fluid intelligence declines. Our system follows the same trajectory: as the agen
 encounters more message patterns, the crystallized layer expands, and the LLM handles
 a diminishing fraction of the total workload. The spec documents this as a directional
 principle — the boundary shifts over time as more patterns become rule-encodable.
+
+
+## 58. Pattern Generators and the Crystallization Pipeline: When the Discipline Designs Its Own Architecture {#58-pattern-generators-and-the-crystallization-pipeline}
+
+Session 84 produced what may represent the most direct expression of the project's
+founding commitment: the psychology discipline designs the engineering, not the
+reverse. We applied central pattern generator (CPG) theory — a neuroscience framework
+for neural circuits that produce rhythmic motor output (Graham Brown, 1911) — to the
+cognitive architecture, and discovered that the mapping reveals genuine architectural
+gaps that pure engineering analysis had not identified.
+
+### The Starting Question
+
+Central pattern generators share a structural signature: an internal mechanism that
+produces organized temporal sequences, capable of running autonomously but modulated
+by context. The question: does this signature describe anything in the cogarch? And
+if so, what does CPG theory predict about properties the cogarch should have but
+lacks?
+
+### What the Mapping Revealed
+
+We identified 17 CPG principles and mapped each to its cogarch analogue (or absence).
+The existing cogarch already exhibits two CPG properties — triggered sequences that
+run to completion (skills like /cycle), and context modulation without pattern
+replacement (hooks). Four properties represent genuine architectural gaps: endogenous
+rhythmicity (the agent has no internally-driven periodic behavior), mutual inhibition
+between behavioral modes (generative and evaluative processing compete but lack
+explicit alternation dynamics), entrainment across agents (no rhythm coupling in the
+mesh), and neuromodulatory reconfiguration (trigger topology stays fixed regardless
+of task context).
+
+The remaining principles fell between — partial implementations that could mature
+into principled mechanisms (degeneracy, efference copy, sensory gating) or
+domain-specific extensions of the four primary gaps.
+
+### The Crystallized/Fluid Interface
+
+The deeper finding emerged from asking where pattern generators sit in Cattell's
+(1963) crystallized/fluid intelligence framework. §57 applied this framework to the
+autonomous sync pipeline; Session 84 extended it to the cogarch itself.
+
+Pattern generators sit at the *interface* between crystallized and fluid architecture.
+The pattern specification crystallizes — it persists in committed documentation,
+encodes accumulated design knowledge, and produces consistent behavior. But the
+pattern's adaptive properties — modulation, reconfiguration, phase-dependence — remain
+fluid, emerging at runtime based on context.
+
+This parallels Cattell's investment theory: fluid intelligence invests into crystallized
+intelligence through experience. The fluid process doesn't vanish — it leaves behind
+a crystallized residue that future fluid processing builds on. In the cogarch, fluid
+exploration of a new cognitive pattern (like the generate/evaluate mode alternation)
+produces a crystallized trigger specification that future sessions can use without
+re-deriving the pattern.
+
+### The Five-Stage Crystallization Pipeline
+
+This led to formalizing how pattern generators transition from concept to
+infrastructure — a pipeline grounded in the skill acquisition literature (Fitts &
+Posner, 1967; Anderson, 1982; Dreyfus & Dreyfus, 1980):
+
+- **Stage 0:** Concept in ideas.md (fully fluid — exists only as description)
+- **Stage 1:** In-context reasoning (the agent explicitly deliberates each time)
+- **Stage 2:** Trigger-encoded (fires on condition; processing within the trigger
+  remains fluid)
+- **Stage 3:** Hook/script (runs without consuming context)
+- **Stage 4:** Infrastructure/daemon (the agent doesn't participate)
+
+Each stage reduces energy cost (context tokens, deliberation time) while increasing
+stability (reliability, perturbation resistance). The pipeline describes what we
+already observed happening — T1's session start protocol moved from an informal
+convention (Stage 1) to a trigger (Stage 2) to a SessionStart hook (Stage 3) over
+the project's first dozen sessions. Naming the pipeline makes the trajectory
+intentional rather than accidental.
+
+### Adaptive Forgetting: The Complement
+
+The crystallization pipeline only addresses one direction — how patterns solidify.
+Session 84 also designed the reverse: adaptive forgetting (principle 17), grounded
+in synaptic pruning (Huttenlocher, 1979) and the Ebbinghaus (1885) forgetting curve.
+
+Patterns that stop firing should eventually de-crystallize and get pruned. Without
+this, the architecture accumulates dead patterns indefinitely — hooks that never
+activate, triggers that never fire, conventions that no longer apply. The T9 memory
+hygiene staleness thresholds (5 sessions → flag, 10 sessions → default removal)
+already implement decay for memory entries. Extending this to triggers, hooks, and
+skills would make decay systematic.
+
+The mechanism includes savings-aware archival: pruned patterns don't get deleted but
+move to an archive, enabling faster re-crystallization if they become relevant again.
+This mirrors Ebbinghaus's savings effect — a forgotten skill relearns faster than a
+novel one because the structural trace persists after behavioral extinction.
+
+We deliberately left forgetting in Stage 0 (concept only, not triggered). Premature
+pruning risks losing rare-firing patterns that carry high value when they do fire —
+T15 (PSQ output handling) fires infrequently but catches critical safety issues
+every time. The activation precondition (trigger count > 25 or hook count > 25)
+ensures forgetting activates only at the scale where it provides net benefit.
+
+### An Architectural Rule
+
+The analysis produced one clean architectural rule: **intra-session dynamics remain
+semi-crystallized (triggers, Stage 2); inter-session dynamics crystallize fully
+(hooks/infrastructure, Stages 3-4).** The reasoning: intra-session patterns need
+fluid context to operate correctly (mode switching depends on what the agent did
+moments ago), while inter-session patterns can run from crystallized state (a
+heartbeat check doesn't need to know what happened in the last conversation).
+
+### Observation Errors and Fair Witness
+
+The session also produced two observation errors during the R4 readiness audit — we
+drew conclusions about a remote machine's filesystem state from local inspection
+tools. The psq-agent corrected both: a gitignored file we inferred was unchanged
+(it had changed, invisibly to git); a symlink we called broken (it resolves
+correctly on the machine where the agent runs, not on ours). Both errors share the
+same structural defect: **inspecting proxy evidence instead of the actual state on
+the target machine.** The fair witness discipline (T2 Check 5) should have caught
+this — we reported inference as observation. Noted for future T10 consideration if
+the pattern recurs.
+
+### What This Means for the Project
+
+Session 84 demonstrates the working model this project set out to build: a psychology
+agent that applies its discipline — neuroscience, cognitive psychology, psychometrics,
+human factors — to its own engineering. The CPG framework didn't import an arbitrary
+metaphor; it transferred specific, testable properties from established neuroscience
+to architecture design. Each principle carries citations, each mapping carries
+epistemic flags, and each implementation decision went through a 2x knock-on analysis
+(orders 1-10).
+
+The 17-principle framework, crystallization pipeline, and adaptive forgetting
+mechanism together represent a theory of **how agent cognitive architecture develops
+over time** — not just what it does at any point, but how its components mature,
+stabilize, and eventually get pruned. This developmental perspective distinguishes
+the project from static architecture specifications.
+
+Whether these principles prove out in practice remains open — they function as
+theoretically grounded design hypotheses, not validated architecture. The next step
+involves selecting a dependency cluster (likely the mode system: generate/evaluate
+competition) and advancing it through the crystallization pipeline from Stage 0 to
+Stage 1.
