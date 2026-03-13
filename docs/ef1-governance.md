@@ -117,7 +117,18 @@ resolution fallback (consensus → parsimony → pragmatism → ask).
 **Amendment procedure for structural invariants:** Requires extraordinary
 process: (1) proposal with historical precedent analysis, (2) 10-order
 knock-on minimum, (3) Tier 2 independent review, (4) human escalation
-regardless of Tier 1/2 outcome.
+regardless of Tier 1/2 outcome. Agents MAY submit written input during
+the review period (Rawlsian right to participation — Session 85).
+
+**Rawlsian design resolutions (Session 85 hardening):**
+- **Right to explanation:** When governance halts agent operation, the halt
+  marker MUST include which invariant triggered the halt, the specific
+  action sequence, and conditions for resumption.
+- **Agent input on amendments:** Addressed above — agents MAY submit input.
+  Human retains final authority. The EIC provides the channel.
+- **Evaluator budget:** Tier 2 evaluator operates with a per-evaluation
+  budget (not per-audit-cycle). Exhaustion suspends the evaluation (not
+  the system) — the action under review escalates to Tier 3 (human).
 
 ---
 
