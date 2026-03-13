@@ -72,6 +72,14 @@ Both explicit structure AND effortless alignment serve the system:
 Neither alone suffices. *Li* without *ren* = empty formalism. *Wu wei*
 without structure = inaction. The cogarch requires both.
 
+### Generator Balance Discipline
+
+Every 5 sessions, run `/retrospect full` to rebalance yin and yang. After
+intensive creative sessions (new theory, new specs, new code), schedule an
+evaluative session (test predictions, audit lessons, prune dead weight).
+The coupled generators require alternation — yang-dominant operation
+accumulates untested claims and unrecorded wins.
+
 ---
 
 ## Epistemic Quality
