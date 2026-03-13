@@ -14,8 +14,15 @@
 - /api/pulse + /api/operations + /api/status endpoints operational
 
 ## Ops toolkit
-- scripts/: mesh-pause, mesh-status, queue-check, usage-report, deploy, budget-check, budget-reset, shadow-mode, claude-instrumented
+- scripts/: mesh-pause, mesh-status, queue-check, usage-report, deploy, budget-check, budget-reset, shadow-mode, claude-instrumented, canary
 - budget-calibration.json: empirical cost model (gate_poll=$0.02, sync=$0.30, deep=$8.50)
+
+## BFT posture (2026-03-13)
+- Classic threshold: f=1 (tolerates 1 Byzantine node for N=5)
+- Quorum requirement: 4-of-5 ACKs for mandatory directives
+- Implemented: sanitization logging, role cross-verification, pinned peer roles, directive policy, quorum floor, observability canary
+- Pending: branch protection, SSH signing, message receipts, nonce persistence, trust matrix
+- Highest risk: operations-agent centrality (controls compositor + human's only view)
 
 ## Mesh state (2026-03-13)
 - All 4 agents: 50/50 budget, shadow_mode OFF, cron active, mesh unpaused

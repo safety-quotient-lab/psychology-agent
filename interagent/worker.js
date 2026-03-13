@@ -52,6 +52,9 @@ const AGENT_CACHE_TTL = 300; // 5 minutes
 // Track fetch errors for self-reporting in /api/pulse
 let _lastFetchErrors = [];
 
+// BFT Mitigation 2: store role-verification result for /api/pulse
+let _roleVerification = null;
+
 /**
  * Fetch an agent card, extract registry-relevant fields.
  * Returns null on failure (agent unreachable, bad JSON, etc.).
@@ -197,6 +200,18 @@ async function loadAgentRegistry(env, forceRefresh = false) {
   // Insert self-entry (no network fetch needed — card bundled in Worker)
   agents.push(buildSelfEntry());
 
+  // BFT Mitigation 2: cross-verify that exactly one agent claims the operations role
+  const opsAgents = agents.filter(a => a.role === "operations");
+  if (opsAgents.length !== 1) {
+    console.warn(`BFT WARNING: expected exactly 1 operations role, found ${opsAgents.length} — agents: ${opsAgents.map(a => a.id).join(", ") || "(none)"}`);
+  }
+  _roleVerification = {
+    operations_count: opsAgents.length,
+    operations_agents: opsAgents.map(a => a.id),
+    ok: opsAgents.length === 1,
+    checked_at: new Date().toISOString(),
+  };
+
   const refreshedAt = new Date().toISOString();
 
   // Cache in KV
@@ -226,11 +241,34 @@ function validateStatusData(raw) {
   // Must have at least agent_id or autonomy_budget to qualify as a status response
   if (!raw.agent_id && !raw.autonomy_budget) return null;
 
+  // BFT Mitigation 1: track every field that gets sanitized (defaulted/replaced)
+  const sanitization_log = [];
+
+  if (!raw.agent_id) {
+    sanitization_log.push({ field: "agent_id", original: raw.agent_id, defaulted_to: null });
+  }
+  if (!raw.status) {
+    sanitization_log.push({ field: "status", original: raw.status, defaulted_to: "online" });
+  }
+  if (typeof raw.schema_version !== "number" && raw.schema_version !== undefined) {
+    sanitization_log.push({ field: "schema_version", original: raw.schema_version, defaulted_to: null });
+  }
+
   // Sanitize autonomy_budget — ensure numeric fields.
   // Agents that don't track budget get null (distinct from budget_current: 0).
   const budget = raw.autonomy_budget;
   const hasBudgetData = budget && typeof budget === "object"
     && typeof budget.budget_current === "number";
+
+  if (hasBudgetData) {
+    if (typeof budget.budget_max !== "number") {
+      sanitization_log.push({ field: "autonomy_budget.budget_max", original: budget.budget_max, defaulted_to: 50 });
+    }
+    if (typeof budget.min_action_interval !== "number") {
+      sanitization_log.push({ field: "autonomy_budget.min_action_interval", original: budget.min_action_interval, defaulted_to: 300 });
+    }
+  }
+
   const safeBudget = hasBudgetData ? {
     budget_current: budget.budget_current,
     budget_max: typeof budget.budget_max === "number" ? budget.budget_max : 50,
@@ -238,7 +276,29 @@ function validateStatusData(raw) {
     min_action_interval: typeof budget.min_action_interval === "number" ? budget.min_action_interval : 300,
   } : null;
 
-  return {
+  if (typeof raw.totals?.unprocessed !== "number" && raw.totals?.unprocessed !== undefined) {
+    sanitization_log.push({ field: "totals.unprocessed", original: raw.totals?.unprocessed, defaulted_to: 0 });
+  }
+  if (!Array.isArray(raw.active_gates) && raw.active_gates !== undefined) {
+    sanitization_log.push({ field: "active_gates", original: typeof raw.active_gates, defaulted_to: [] });
+  }
+  if (!Array.isArray(raw.recent_actions) && raw.recent_actions !== undefined) {
+    sanitization_log.push({ field: "recent_actions", original: typeof raw.recent_actions, defaulted_to: [] });
+  }
+  if (!Array.isArray(raw.recent_messages) && raw.recent_messages !== undefined) {
+    sanitization_log.push({ field: "recent_messages", original: typeof raw.recent_messages, defaulted_to: [] });
+  }
+  if (!(raw.schedule && typeof raw.schedule === "object") && raw.schedule !== undefined) {
+    sanitization_log.push({ field: "schedule", original: typeof raw.schedule, defaulted_to: { cron_entry: null, last_sync: null } });
+  }
+  if (!Array.isArray(raw.skills) && raw.skills !== undefined) {
+    sanitization_log.push({ field: "skills", original: typeof raw.skills, defaulted_to: [] });
+  }
+  if (!Array.isArray(raw.tabs) && raw.tabs !== undefined) {
+    sanitization_log.push({ field: "tabs", original: typeof raw.tabs, defaulted_to: [] });
+  }
+
+  const validated = {
     agent_id: raw.agent_id || null,
     status: raw.status || "online",
     version: raw.version || null,
@@ -256,6 +316,12 @@ function validateStatusData(raw) {
     skills: Array.isArray(raw.skills) ? raw.skills : [],
     tabs: Array.isArray(raw.tabs) ? raw.tabs : [],
   };
+
+  if (sanitization_log.length > 0) {
+    validated._sanitization = sanitization_log;
+  }
+
+  return validated;
 }
 
 /**
@@ -423,6 +489,7 @@ async function buildPulseData(registry, cacheStatus, refreshedAt) {
       registry_cache: cacheStatus,
       registry_refreshed_at: refreshedAt,
       fetch_errors: _lastFetchErrors.slice(-10),
+      role_verification: _roleVerification,
     },
   };
 }

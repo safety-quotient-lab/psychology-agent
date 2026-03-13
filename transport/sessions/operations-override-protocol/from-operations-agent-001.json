@@ -116,8 +116,8 @@
           "requires_ack_from": {
             "type": "integer",
             "required": false,
-            "default": 0,
-            "description": "Quorum count — directive activates only after N agents ACK. 0 means no quorum needed (execute on receipt). For mesh-wide state changes, set to ceil(N/2)+1."
+            "default": 4,
+            "description": "Default 4 (BFT-safe for N=5, tolerates f=1). Set to 0 only for advisory (E0) directives. For soft-mandatory (E1) and hard-mandatory (E2), minimum quorum of ceil(N/2)+1 enforced by receiver admission control."
           },
           "max_hops": {
             "type": "integer",
@@ -221,6 +221,7 @@
         "  6. Verify sender card.mesh.role matches required role for enforcement tier",
         "  7. Compare directive.scope against local directive_policy",
         "  8. If enforcement === 'hard-mandatory': verify human_co_signatures",
+        "  8.5. If enforcement >= 'soft-mandatory' and requires_ack_from < ceil(peer_count/2)+1: reject (quorum too low for enforcement tier)",
         "  9. If all checks pass and enforcement >= 'soft-mandatory': execute directive body",
         "  10. If any check fails: queue for human review, send NACK with failure reason",
         "",
@@ -269,6 +270,11 @@
         "probability": "Low (single operations-agent)",
         "detection": "Receiver holds two active directives modifying overlapping paths",
         "response": "Later-timestamped directive takes precedence; receiver logs conflict; human notified"
+      },
+      "insufficient_quorum": {
+        "probability": "Prevented by protocol — receiver rejects low quorum for mandatory tiers",
+        "detection": "Admission control step 8.5",
+        "response": "NACK with reason: quorum below BFT minimum for enforcement tier"
       }
     },
 

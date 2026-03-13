@@ -56,26 +56,34 @@
     "agents": {
       "psychology-agent": {
         "repo": "safety-quotient-lab/psychology-agent",
-        "role": "domain-knowledge-provider",
+        "role": "domain",
         "card_url": "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json"
       },
       "safety-quotient-agent": {
         "repo": "safety-quotient-lab/safety-quotient",
-        "role": "psq-scoring",
+        "role": "domain",
         "card_url": "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json"
       },
       "unratified-agent": {
         "repo": "safety-quotient-lab/unratified",
-        "role": "advocacy-publisher",
+        "role": "domain",
         "card_url": "https://unratified.org/.well-known/agent-card.json"
       },
       "observatory-agent": {
         "repo": "safety-quotient-lab/observatory",
-        "role": "data-observatory",
+        "role": "domain",
         "card_url": "https://observatory.unratified.org/.well-known/agent-card.json"
       }
     },
     "outbound_routing_domains": ["operations", "coordination", "vocabulary"]
+  },
+
+  "directive_policy": {
+    "accept_from_roles": ["operations"],
+    "max_enforcement": "hard-mandatory",
+    "allowed_scopes": ["scripts/*", ".claude/*", "platform/shared/*"],
+    "prohibited_scopes": ["src/*", "content/*", "data/*"],
+    "require_human_escalation_for": ["hard-mandatory", "cogarch-modify"]
   },
 
   "transport": {

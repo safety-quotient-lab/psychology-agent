@@ -57,6 +57,17 @@
 - [x] Ops scripts toolkit — mesh-pause, mesh-status, queue-check, usage-report, deploy, budget-check, budget-reset, shadow-mode
 - [x] Budget calibration — empirical cost model mapping budget units to USD
 - [x] Claude instrumented wrapper — per-session cost tracking via stream-json
+- [x] BFT: sanitization logging — validateStatusData() records every defaulted field in _sanitization array
+- [x] BFT: role cross-verification — compositor checks exactly 1 agent claims operations role, surfaces in /api/pulse
+- [x] BFT: pinned peer roles — cogarch.config.json peers carry expected role, prevents role spoofing
+- [x] BFT: directive policy — cogarch.config.json defines allowed/prohibited scopes for incoming directives
+- [x] BFT: quorum floor — override protocol requires_ack_from defaults to 4 (BFT-safe for N=5, f=1)
+- [x] BFT: independent observability canary — scripts/canary.sh bypasses compositor, compares direct agent status vs dashboard
+- [ ] BFT: GitHub branch protection — enable on all 5 repos (prevents transport history rewriting)
+- [ ] BFT: SSH commit signing — allowed_signers file with 5 agent keys + 1 human key
+- [ ] BFT: message receipts — receiver commits signed hash of received message to own repo
+- [ ] BFT: nonce registry persistence — store in state.db, survives agent restart
+- [ ] BFT: trust matrix — /api/trust endpoint, NxN matrix (availability, integrity, compliance, epistemic honesty)
 - [ ] CORS hardening — restrict origins to known mesh domains
 - [ ] Rate limiting on public endpoints (WebFinger, /.well-known/agents)
 - [ ] Monitoring — surface compositor errors in /api/pulse (self-report degraded when fetch failures exceed threshold)
