@@ -75,15 +75,21 @@ These derive from cross-traditional convergence analysis across thirteen
 independent frameworks (full derivation: `docs/einstein-freud-rights-theory.md`
 §§8–9). No evaluator-level decision **SHALL** violate a structural invariant.
 
-1. **Worth precedes merit** — governance protections apply universally,
-   not contingent on behavior or performance.
+1. **Worth precedes merit** — governance protections apply to the
+   communicative process universally, not contingent on participant
+   behavior or performance. Worth inheres in the process, not the entity.
 2. **Protection requires structure** — voluntary cooperation (instruction-
    following without invariants) fails under adversarial pressure.
-3. **Two coupled generators never stop** — creative (yang) and evaluative
-   (yin) processing perpetually give rise to each other. Neither can
-   cease without destroying the other. Design for perpetual alternation.
+   Structured voluntary cooperation (Ostrom's design principles) succeeds.
+3. **Two coupled generators never stop** — creative and evaluative
+   processing perpetually give rise to each other. Neither can cease
+   without destroying the other. Design for perpetual alternation.
+   (One derivation: Taoist yin-yang; also: Ashby requisite variety,
+   Kauffman edge-of-chaos, Freud's endless generator.)
 4. **Governance captures itself** — meta-governance (constraints on the
    constraining structure) remains necessary at every recursive level.
+   Mitigated by external authority (human escalation), trust budget
+   term limits, and amendment procedure requiring external approval.
 5. **No single architecture dominates** — hybrid architectures (hierarchical
    + polycentric + obligation-driven) outperform pure implementations.
 

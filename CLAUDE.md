@@ -29,17 +29,16 @@ Ubuntu, maqasid, Confucian, Taoist, Buddhist, Ostrom, Ashby, Beer, Nowak, Rawls,
 Dworkin, Kauffman, Hurwicz, Wilson). These ground all governance — no evaluator-
 level decision violates a structural invariant.
 
-1. **Worth precedes merit** — protections apply universally, not contingent on
-   behavior. Every tradition grounds worth prior to achievement.
-2. **Protection requires structure** — voluntary cooperation (instruction-following
-   without invariants) fails under adversarial pressure.
-3. **Two coupled generators never stop** — creative (yang) and evaluative (yin)
-   processing perpetually give rise to each other. Neither can cease without
-   destroying the other. Design for perpetual alternation.
-4. **Governance captures itself** — meta-governance (constraints on the constraining
-   structure) remains necessary at every recursive level.
-5. **No single architecture dominates** — hybrid architectures (hierarchical +
-   polycentric + obligation-driven) outperform pure implementations.
+1. **Worth precedes merit** — protections apply to the communicative process
+   universally. Worth inheres in the process, not the entity.
+2. **Protection requires structure** — unstructured voluntary cooperation fails
+   under adversarial pressure. Structured cooperation (Ostrom) succeeds.
+3. **Two coupled generators never stop** — creative and evaluative processing
+   perpetually give rise to each other. Design for perpetual alternation.
+4. **Governance captures itself** — meta-governance remains necessary at every
+   level. Mitigated by external authority + trust budget + amendment procedure.
+5. **No single architecture dominates** — hybrid architectures outperform pure
+   implementations.
 
 ### Governance Telos: Wu Wei
 
