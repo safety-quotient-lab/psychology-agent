@@ -1255,7 +1255,170 @@ system. The monistic foundation explains *why* the axioms work: they
 describe properties of reality, not just properties of good design.
 
 
-### 10.8 PSQ Dimensions as Processual Measures
+### 10.8 Maqasid Meets Process Monism
+
+Jasser Auda (2008) reconstructed the classical maqasid al-shariah using
+**systems theory** — the same intellectual lineage (von Bertalanffy,
+Meadows) that this project adopted as its umbrella methodology (Session
+53). Auda's six system features for maqasid analysis map to processual
+categories with remarkable precision:
+
+| Auda's system feature | Maqasid application | Process monism equivalent |
+|----------------------|--------------------|-----------------------|
+| **Cognitive nature** | Maqasid reflect human understanding of divine purpose, not the purpose itself | All frameworks reflect processual models, not reality itself (Wilson's reality tunnels) |
+| **Wholeness** | The five protections function as an integrated system, not five independent rules | Processual reality operates holistically — isolating one dimension distorts the whole (Phase A finding: PSQ/DI measure different aspects of single processual reality) |
+| **Openness** | Maqasid remain open to new objectives as understanding develops | Process continuously produces novelty (Whitehead's creative advance); governance frameworks must remain open to processual evolution |
+| **Interrelated hierarchy** | Necessities → needs → embellishments, but no rigid precedence in all cases | Processual properties exhibit hierarchical organization (meta-processes like DA govern sub-processes like TE) without rigid top-down determination |
+| **Multidimensionality** | Each ruling has multiple maqasid simultaneously | Each communicative event participates in multiple processes simultaneously (the Phase A inversion zone: dignity process + threat process co-occurring) |
+| **Purposefulness** | The entire system serves maslaha (public welfare) | Under process monism, purposefulness = processual directionality — processes tend toward certain outcomes not because of teleological design but because of structural channeling |
+
+**The bridge:** Auda's open, multidimensional, purposeful system that
+acknowledges its own cognitive nature describes **exactly** what neutral
+process monism predicts a mature governance framework looks like. The
+classical maqasid (five protections of life, intellect, lineage, wealth,
+religion) function as processual invariants — structural properties that
+Islamic jurisprudence discovered through centuries of legal reasoning,
+paralleling the five invariants this analysis derived from cross-
+traditional convergence.
+
+The maqasid hierarchy (necessities > needs > embellishments) provides
+something the five structural invariants currently lack: an explicit
+**priority resolution mechanism**. When two invariants conflict (e.g.,
+"protection requires structure" suggests adding governance, while "no
+single architecture dominates" suggests restraint), the maqasid hierarchy
+offers a template: distinguish which invariant addresses a necessity
+(survival condition), which addresses a need (operational condition),
+and which addresses an embellishment (quality condition). Necessity
+takes precedence.
+
+**Karama and process:** Al-Qaradawi's addition of karama (dignity) as an
+independent maqsad (objective) positions dignity as a processual
+protection — not a state to achieve but a condition to continuously
+maintain. Under process monism, this aligns: dignity does not "exist"
+as a fixed achievement; it requires continuous processual maintenance
+through structural protection. The endless generator guarantees that
+conditions threatening dignity will always re-emerge.
+
+
+### 10.9 The Capabilities Approach as Measurement Bridge
+
+Nussbaum's ten central capabilities (2011) occupy a unique position in
+the theoretical architecture: they derive thresholds from dignity
+without committing to an ontological source, making them the
+**measurement-level framework** that remains valid across all three
+dignity ontologies.
+
+Two capabilities directly target psychoemotional safety:
+
+**Capability 5 (Emotions):** "Being able to have attachments to things
+and people outside ourselves... Not having one's emotional development
+blighted by overwhelming fear and anxiety, or by traumatic events of
+abuse or neglect" (Nussbaum, 2000, p. 79). Under process monism, this
+describes the right to undisrupted emotional processing — the freedom
+from processual interference that prevents normal affective development.
+PSQ's disruption pole (TE, HI, AD) measures precisely this: the degree
+to which communicative processes generate overwhelming fear, anxiety, or
+antagonism that blights emotional processing.
+
+**Capability 7b (Affiliation — non-humiliation):** "Having the social
+bases of self-respect and non-humiliation; being able to be treated as a
+dignified being whose worth is equal to that of others" (Nussbaum, 2000,
+p. 79). Under process monism, this describes the right to relational
+processes that sustain self-respect. Hicks' ten dignity elements
+operationalize exactly this — each element describes a relational
+process that either sustains or undermines self-respect.
+
+**The bridge function:** Capabilities translate between the rights chain
+(UDHR → Hicks → PSQ) and the processual ontology:
+
+```
+  Rights chain:     UDHR Art. 1 → Hicks D5 → PSQ TE
+  Capabilities:     Capability 5 (undisrupted emotional processing)
+  Process monism:   The right to participate in communicative processes
+                    that do not overwhelm affective processing capacity
+```
+
+Each layer uses different vocabulary for the same processual reality.
+The capabilities approach makes this translation explicit — it names
+the *threshold below which the process fails to sustain dignified life*.
+This threshold concept provides the missing operationalization link:
+the five structural invariants specify *what* governance must protect;
+capabilities specify *how much* protection suffices.
+
+Sen's deliberate refusal to fix a capability list (unlike Nussbaum)
+finds processual justification: if reality consists of processes that
+continuously produce novelty, the set of capabilities required for
+dignified life cannot remain fixed. New processual conditions (AI-
+mediated communication, for instance) generate new capability
+requirements. Sen's open framework anticipates processual novelty;
+Nussbaum's fixed list provides current operational thresholds. Both
+serve the framework — one for adaptability, one for measurement.
+
+
+### 10.10 Whitehead's Concrescence and the Crystallization Pipeline
+
+The crystallization pipeline (§7) transforms fluid cognitive processing
+into stable infrastructure through progressive stages: observation →
+lesson → convention → hook → governance constraint. Whitehead's process
+philosophy provides the formal vocabulary for this operation.
+
+**Concrescence** (Whitehead, 1929) names the process by which an actual
+occasion forms: it gathers (prehends) data from antecedent occasions,
+integrates them through progressive phases of feeling, and achieves
+determinate form (satisfaction). Once satisfied, the occasion perishes —
+becoming an object for subsequent occasions to prehend.
+
+The crystallization pipeline stages map term by term:
+
+| Crystallization stage | Whitehead process | What happens |
+|----------------------|------------------|-------------|
+| Fluid processing (generative mode) | Initial data of the concrescence — the raw prehensions from prior occasions | Novel cognitive input arrives; the system absorbs undifferentiated material |
+| Lesson learned (lab-notebook) | Conceptual prehension — recognizing a pattern in the initial data | The system identifies a recurring dynamic worth naming |
+| Convention (CLAUDE.md, rules/) | Transmutation — many prehensions unify into a single complex feeling | Multiple observations consolidate into a governing principle that applies across contexts |
+| Hook (mechanical enforcement) | Satisfaction — the occasion achieves its final determinate form | The principle achieves mechanical enforcement; it no longer requires deliberation |
+| Governance constraint (EF-1) | Transition — the satisfied occasion perishes, becoming objective datum for all future occasions | The crystallized structure becomes part of the governance substrate — an objective condition that all subsequent processing encounters |
+
+**Why "perishes" matters:** In Whitehead's framework, completed actual
+occasions *perish* — they lose subjective immediacy and become objective
+data. This maps to a crucial property of crystallized governance: once a
+convention hardens into a hook or invariant, **it stops being
+deliberated**. It becomes part of the background conditions that
+subsequent processing takes for granted. The E-Prime discipline, once a
+stylistic choice discussed each session, now operates as an ontological
+commitment enforced mechanically. It has perished as a live question and
+become an objective datum.
+
+**Negative prehension and DA:** Whitehead's negative prehension — the
+process by which an actual occasion *excludes* what it does not
+incorporate — maps directly to Defensive Architecture (DA). Every
+concrescence involves both positive prehension (what gets included) and
+negative prehension (what gets excluded). DA measures the boundary-
+formation meta-process that determines what participates in the
+communicative occasion. Its weak factor loading and strong criterion
+prediction (§10.11) find formal explanation: negative prehension operates
+at the level of the concrescence itself, not at the level of individual
+feelings within the concrescence. It determines *scope*, not *content*.
+
+**The creative advance and the endless generator:** Whitehead's
+"creative advance into novelty" — the fundamental category of his
+cosmology — names the same structural property as the endless generator.
+Reality continuously produces actual occasions that have never before
+existed. Each occasion contributes to a world that differs from what
+preceded it. No governance structure encounters the same processual
+landscape twice. The crystallization pipeline must therefore continue
+operating indefinitely — new fluid processing always arrives, requiring
+new observation, new lessons, new conventions, new hooks. The pipeline
+never completes because the creative advance never completes.
+
+This gives the crystallization pipeline its deepest theoretical
+justification: it implements the governance response to Whitehead's
+creative advance. Structure crystallizes to channel novelty; novelty
+dissolves crystallized structure that no longer fits. The tension
+between crystallization and dissolution IS the creative advance viewed
+from the governance perspective.
+
+
+### 10.11 PSQ Dimensions as Processual Measures
 
 Under substance ontology (the default, unexamined reading), PSQ
 dimensions measure **properties of a text**: "this text HAS a threat
@@ -1371,7 +1534,7 @@ for the remaining nine while preserving or improving criterion
 validity for the full instrument.
 
 
-### 10.9 Measurement Under Process Monism
+### 10.12 Measurement Under Process Monism
 
 The processual reinterpretation produces specific consequences for
 PSQ measurement methodology:
