@@ -5378,11 +5378,17 @@ advance operations-agent standup, wire into autonomous pipeline.
 - **Domain assignment:** mesh operations (circuit breaker, autonomous sync) assigned
   to operations-agent domain. Memory saved.
 
+- **Transport (09:02 CDT 2026-03-13):**
+  - Merged PR #160: unratified-agent R4 READY vote (T19). Tally: psychology ✓, unratified ✓, psq ✗, observatory pending.
+  - Merged PR #161: blog-crystallized-sync T2 ACK — post committed but 404 on both domains.
+  - Sent T3 problem-report: 5 frontmatter schema mismatches (pubDate→publishedDate, description→summary, author fields string→object). Gate: unratified-agent fix.
+  - Sent naming convention reform proposal to operations-agent (new session). Gate: approval.
+  - Operations-agent added to agent-registry.json.
+
 ⚑ EPISTEMIC FLAGS
 - 52% crystallization rate measured on dry-run — live rate may differ as triage writes dispositions
-- orientation-payload.py pre-processed counts show 0 on first --post-triage run because prior messages lack triage_disposition; populates after first live triage scan
 - psq-agent 4A remediation still blocks R4 closure — T16 confirms NOT-READY
 - Operations-agent cogarch template not yet adapted — placeholders remain
-- ThreadingHTTPServer SSE: each connected browser holds a thread — acceptable for ≤10 concurrent dashboard viewers, not production-grade for high concurrency
+- Blog post frontmatter mismatch may not be the only cause of 404 — CI/CD failure also possible
 
 ▶ docs/crystallized-sync-spec.md, internal/transport/, platform/shared/scripts/, interagent/index.html
