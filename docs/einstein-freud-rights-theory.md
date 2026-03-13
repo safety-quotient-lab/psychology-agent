@@ -1728,11 +1728,32 @@ admission).
 The processual interpretation suggests DA should not occupy the same
 factor-analytic model as the other nine dimensions. It operates at
 a different recursive level — Whitehead's "nexus" level rather than
-the "actual occasion" level. This represents a testable prediction:
-removing DA from the factor model and treating it as a moderating
-process (rather than a co-equal dimension) should improve model fit
-for the remaining nine while preserving or improving criterion
-validity for the full instrument.
+the "actual occasion" level.
+
+**Empirical test (Session 85):** This expectation was tested directly.
+Removing DA from the bifactor model (Model B: 9-dimension) and comparing
+against the current M5 (10-dimension) produced:
+
+| Metric | Model A (10-dim) | Model B (9-dim) | Delta |
+|--------|-----------------|-----------------|-------|
+| RMSEA | 0.169 | 0.189 | +0.020 (worse) |
+| CFI | 0.837 | 0.825 | -0.012 (worse) |
+
+**Result: the expectation was refuted.** DA contributes meaningfully to
+the 10-dimension factor structure. Removing it degrades model fit.
+
+**Revised interpretation:** DA operates as a meta-process (boundary
+formation, Whitehead's negative prehension) **within** the factor
+structure, not outside it. Function and structure need not align — a
+governor can co-vary with what it governs while still performing a
+regulatory function. The processual reinterpretation describes DA's
+*function* (boundary-formation at a different recursive level), not
+its *factor position* (which remains within the general factor).
+
+Phase 2 of the DA study (moderation analysis — does DA moderate the
+relationship between other dimensions and external criteria?) remains
+warranted. The factor structure result does not preclude interaction
+effects in criterion prediction.
 
 
 ### 10.13 Measurement Under Process Monism
