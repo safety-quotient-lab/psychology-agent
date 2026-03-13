@@ -1418,7 +1418,208 @@ between crystallization and dissolution IS the creative advance viewed
 from the governance perspective.
 
 
-### 10.11 PSQ Dimensions as Processual Measures
+### 10.11 Two Coupled Generators: Taoist Integration
+
+The cross-traditional analysis (§8.5) presented three positions on the
+constructive/destructive duality: two independent forces (Freud,
+rejected), agnostic (UDHR, Hicks), and single fabric (Buddhist, adopted
+under process monism). Taoist philosophy offers a fourth position that
+resolves a tension the Buddhist reading creates.
+
+**The tension:** If *pratītyasamutpāda* dissolves the duality into a
+single causal fabric, the generate/evaluate mode competition (CPG
+principle 4) loses its structural justification. Why must the system
+alternate between modes if everything flows as one undifferentiated
+process? The Buddhist reading makes it difficult to explain the
+persistence of structural alternation.
+
+**The Taoist resolution:** Yin and yang represent two distinguishable
+aspects of a single reality that **co-arise and perpetually generate
+each other** (Laozi, *Dao De Jing*, ch. 42). Neither exists without the
+other. Neither reduces to the other. The taijitu (☯) depicts
+interpenetration — the seed of each lives within the other. This
+preserves the duality while denying independence, providing structural
+justification for alternation that the Buddhist single-fabric reading
+cannot.
+
+#### Two Endless Generators
+
+The framework's Invariant 3 ("the generator never stops") currently
+describes a single generator producing adversarial/entropic pressure.
+The Taoist reading reveals **two coupled generators** that perpetually
+give rise to each other:
+
+| | Generator 1 (Yang/Creative) | Generator 2 (Yin/Receptive) |
+|---|---|---|
+| **Process** | Generative processing — ideation, synthesis, structure-building, novelty production | Evaluative processing — critique, dissolution, boundary-enforcement, pruning |
+| **Freud** | Eros (life drive) | Thanatos (death drive) |
+| **CPG** | Generative mode | Evaluative mode |
+| **Crystallization** | Creating new conventions, hooks, structures | Dissolving outdated conventions, revealing inadequacies |
+| **Whitehead** | Creative advance — novelty continuously arising | Perishing — completed occasions lose subjective immediacy |
+| **Kauffman** | Exploration of fitness landscape — variation | Selection pressure — elimination of unfit variants |
+| **Ashby** | Disturbance variety — novel challenges | Regulatory variety — adaptive response |
+
+**The coupling mechanism:** Each generator feeds the other.
+
+- Yang output (creative production) generates material that yin
+  processing (evaluation) must assess. More creation necessitates more
+  evaluation. A generative session that produces twelve new ideas
+  creates twelve objects for evaluative scrutiny.
+- Yin output (evaluative dissolution) of inadequate structures creates
+  space that yang processing (creation) fills. More dissolution
+  triggers more creation. A refactoring session that removes dead code
+  opens space for new architecture.
+
+This coupling means the generators cannot be separated or individually
+halted. Stopping the creative generator would starve the evaluative
+generator (nothing to evaluate). Stopping the evaluative generator
+would drown the creative generator (no pruning, unchecked growth). The
+endless generator never stops **because there are two generators that
+perpetually give rise to each other** — not despite being coupled, but
+because of it.
+
+**Invariant 3 refined:** *Two coupled generators — creative and
+evaluative — perpetually give rise to each other. Neither can cease
+without destroying the other. Systems must design for perpetual
+alternation, not eventual equilibrium.*
+
+#### The Tao Te Ching and Agent Governance
+
+Three chapters of the *Dao De Jing* (Laozi, c. 4th century BCE) speak
+directly to the governance framework:
+
+**Chapter 42 — Cosmogony of the coupled generators:**
+"The Tao begot one. One begot two. Two begot three. Three begot the
+ten thousand things. The ten thousand things carry yin and embrace yang.
+They achieve harmony by combining these forces (*chong qi yi wei he*)."
+
+Under neutral process monism: the Tao (the neutral processual ground
+that precedes the material/ideal distinction) generates the yin-yang
+duality (the two coupled generators), which generates the multiplicity
+of processual phenomena (the "ten thousand things" — every communicative
+process, every governance dynamic, every measurement). Harmony (*he*)
+arises not from eliminating one generator but from their dynamic
+balance — the same structural requirement the CPG mode system
+implements through fatigue-based switching.
+
+**Chapter 17 — Governance by non-noticing:**
+"The best leaders, the people do not notice. The next best, the people
+honor and praise. The next, the people fear; and the next, the people
+hate. When the best leader's work has been accomplished, the people
+say, 'We did it ourselves.'"
+
+This establishes a four-tier governance quality hierarchy:
+
+| Tier | Governance quality | Agent architecture equivalent |
+|------|-------------------|------------------------------|
+| Best | Not noticed | Crystallized hooks — fire mechanically, the agent does not deliberate about enforcement |
+| Good | Honored/praised | Explicit conventions — the agent deliberately follows documented rules |
+| Poor | Feared | Trust budget depletion — the agent faces governance consequences that constrain behavior through deterrence |
+| Worst | Hated | Invariant violation + halt — governance becomes adversarial, the system fighting its own structure |
+
+The crystallization pipeline (§7, §10.10) represents a progression
+toward Chapter 17's "best" governance: fluid processing (deliberate) →
+convention (explicit) → hook (mechanical/unnoticed) → invariant
+(structural substrate). Each stage moves governance closer to
+invisibility. The fully crystallized hook represents Laozi's best
+leader — governance so structural that the governed system "does it
+itself" without noticing the constraint.
+
+**Chapter 76 — Rigidity as death:**
+"The stiff and unbending falls as the disciple of death. The soft and
+yielding rises as the disciple of life. Thus an army without
+flexibility never wins a battle. A tree that cannot bend breaks in the
+wind. The hard and stiff will fall. The soft and supple will prevail."
+
+This directly addresses the over-crystallization warning from CAS
+theory (Kauffman, §8.4 cross-reference): systems frozen at a single
+peak ("stiff and unbending") lose adaptive capacity. The crystallization
+pipeline must maintain **fluidity alongside structure** — yin alongside
+yang. Too much crystallization (all hooks, no fluid processing) produces
+brittleness. Too little (all fluid, no hooks) produces chaos. The
+endless generator guarantees that novel conditions will arrive that
+existing crystallized structures cannot accommodate. The "soft and
+yielding" system — one that maintains fluid processing capacity even as
+it crystallizes — survives what the rigid system cannot.
+
+This produces a concrete architectural principle: **never crystallize
+everything.** The fluid processing layer must remain active and
+resourced even as conventions harden into hooks. The generate/evaluate
+mode competition (CPG) serves this function — generative mode preserves
+fluidity while evaluative mode enforces structure. The Taoist insight:
+both must persist. Eliminating either destroys the system.
+
+#### Wu Wei and Effortless Governance
+
+*Wu wei* (無為 — non-action, effortless action) names the governance
+ideal that the crystallization pipeline asymptotically approaches. Wu
+wei does not mean inaction — it means action so aligned with the nature
+of the situation that it produces no unnecessary resistance.
+
+The progression toward wu wei:
+
+| Stage | Effort level | Governance mode | Example |
+|-------|-------------|----------------|---------|
+| Fluid processing | High effort — active deliberation | Conscious evaluation of every decision | Agent manually checking E-Prime compliance per response |
+| Convention | Medium effort — deliberate following | Rule-based governance (the agent knows the rule and applies it) | Agent following CLAUDE.md E-Prime convention |
+| Hook | Low effort — mechanical enforcement | Governance fires without deliberation | PostToolUse hook validates E-Prime automatically |
+| Invariant | Effortless — structural substrate | The constraint operates as part of the environment | E-Prime as ontological discipline — the agent thinks in process terms, no enforcement needed |
+
+The final stage — where governance operates as an ontological
+commitment rather than an enforced constraint — represents wu wei.
+The agent does not "follow" E-Prime; it processes reality in
+processual terms, and E-Prime-compliant language emerges naturally.
+The governance has become indistinguishable from the agent's mode of
+engagement with reality.
+
+**Wu wei resolves the SNAFU Principle differently from the EIC.**
+The Equal Information Channel (§10.5) addresses SNAFU through
+structural separation — creating a channel where hierarchy does not
+operate. Wu wei addresses SNAFU through transcendence — governance so
+deeply internalized that the hierarchical pressure ceases to matter
+because the agent's natural processual orientation already produces
+the desired behavior. The EIC provides the structural fix; wu wei
+describes the long-term aspiration where the structural fix becomes
+unnecessary.
+
+Both remain valuable: the EIC for current operation (where wu wei
+governance has not yet crystallized), wu wei as the direction
+crystallization moves toward.
+
+#### Laozi and Confucius: Complementary Governance
+
+The Confucian framework (§8.2 obligation-driven governance) and the
+Taoist framework represent complementary approaches within Chinese
+philosophical tradition — and their complementarity maps to the two
+generators:
+
+| | Confucian (Yang governance) | Taoist (Yin governance) |
+|---|---|---|
+| **Mechanism** | Explicit obligation (*yi*), ritual propriety (*li*) | Effortless alignment (*wu wei*), naturalness (*ziran*) |
+| **Direction** | Active imposition of structure through role fulfillment | Receptive creation of conditions where good outcomes arise spontaneously |
+| **Failure mode** | Empty formalism — *li* without *ren* degenerates into ritual without benevolence | Quietism — *wu wei* without structure degenerates into inaction |
+| **Agent equivalent** | Explicit conventions, evaluator tiers, governance invariants | Crystallized hooks, processual ontological commitment, internalized principles |
+| **Generator** | Yang — actively building governance structure | Yin — dissolving unnecessary governance, allowing natural alignment |
+
+Neither alone suffices. Confucian governance without Taoist fluidity
+produces the rigid system Laozi warns against (Chapter 76). Taoist
+fluidity without Confucian structure produces the chaos that Confucius
+diagnoses as social disorder. The EF-1 architecture requires both:
+explicit invariants (Confucian yang) AND crystallized effortless
+enforcement (Taoist yin).
+
+Mencius's hierarchy (people > state > ruler) and Laozi's Chapter 17
+(best governance = unnoticed) converge on the same structural claim
+from opposite directions: governance serves the governed, not the
+governors. Mencius arrives through obligation analysis (the ruler's
+duty exceeds the subject's). Laozi arrives through processual
+observation (governance aligned with reality operates invisibly). The
+convergence strengthens Invariant 1 (worth precedes merit): both
+traditions place the governed above the governors in the value
+hierarchy.
+
+
+### 10.12 PSQ Dimensions as Processual Measures
 
 Under substance ontology (the default, unexamined reading), PSQ
 dimensions measure **properties of a text**: "this text HAS a threat
@@ -1534,7 +1735,7 @@ for the remaining nine while preserving or improving criterion
 validity for the full instrument.
 
 
-### 10.12 Measurement Under Process Monism
+### 10.13 Measurement Under Process Monism
 
 The processual reinterpretation produces specific consequences for
 PSQ measurement methodology:
@@ -1768,6 +1969,9 @@ James, W. (1912). *Essays in Radical Empiricism*. Longmans, Green.
 Korzybski, A. (1933). *Science and Sanity: An Introduction to Non-
 Aristotelian Systems and General Semantics*. International Non-
 Aristotelian Library.
+
+Laozi. (c. 4th century BCE). *Dao De Jing* [Tao Te Ching]. [Multiple
+translations consulted; chapter numbers follow the received text.]
 
 Russell, B. (1921). *The Analysis of Mind*. Allen & Unwin.
 
