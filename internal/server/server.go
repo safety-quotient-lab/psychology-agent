@@ -177,6 +177,7 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /hooks/github", s.handleWebhook)
 	mux.HandleFunc("POST /api/trigger", s.handleTrigger)
 	mux.HandleFunc("GET /api/spawns", s.handleSpawns)
+	mux.HandleFunc("GET /api/kb", s.handleKB)
 }
 
 // middleware chains recovery, CORS, request logging, and version header

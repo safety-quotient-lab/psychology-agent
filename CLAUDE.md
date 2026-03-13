@@ -63,6 +63,10 @@ See `.dev.vars.example` for required variables.
 | `.well-known/agent-card.json` | Mesh discovery manifest |
 | `cogarch.config.json` | Cognitive architecture — identity, peers, capabilities |
 | `interagent/vocab.json` | Shared vocabulary definitions |
+| `interagent-sdk/` | Shared mesh infrastructure package (scripts, schemas, frontend) |
+| `cmd/meshd/` | Go meshd daemon — event-driven mesh operations |
+| `internal/` | Go packages (config, events, webhook, transport, spawner, budget, health, server) |
+| `README.md` | Project documentation for v1.0.0-beta |
 
 ### Private (auto-memory)
 

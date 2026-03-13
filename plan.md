@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phase 7 (v1.0.0-beta hardening). Phase 6 substantially complete — meshd Go daemon implemented, interagent-sdk extracted, Web Components decomposed, compositor deployed. Remaining v1-beta blockers: /api/kb endpoint, hardening pass.
+**Current Status:** Phase 7 hardening 80% complete. meshd Go daemon implemented (3K lines, event-driven). interagent-sdk extracted. Web Components decomposed (4 components). Vocab v1.4.0. 8/10 hardening checks passed (2 manual remaining: component regression + cross-browser). v1.0.0-beta release gate: manual browser testing only.
 
 ---
 
@@ -124,11 +124,12 @@
 | budget-status-fix | T2 resolved | Root cause: field name mismatch (trust_budget vs autonomy_budget). Compositor now normalizes both names. |
 | model-upgrade | ARCHIVED | Superseded by model-flag-removal. Archived to transport/archive/ |
 | model-flag-removal | T1 advisory | Remove --model opus from autonomous-sync.sh — default now includes 1M context |
-| infrastructure-separation | T2 follow-up | T2 update sent: context-rotate + SDK extraction underway. All 4 peers pending ACK |
+| infrastructure-separation | T3 directive | SDK adoption directive sent (soft-mandatory). All 4 peers pending ACK |
 | peer-registry-update | T3 follow-up | psq ACK + unratified ACK. T3 reminder sent to observatory-agent (last peer pending) |
 | ci-build-issue | T1 pending | Unratified missing @astrojs/check dependency |
 | naming-convention-reform | T3 closed | ACCEPT: kebab canonical naming + psq-agent → safety-quotient-agent rename |
 | operations-agent-standup | ARCHIVED | Gate resolved T8. Archived to transport/archive/ |
+| agent-card-compliance | T1 pending | Phase 7 scan: psychology + psq missing protocolVersion, provider fields |
 | neuroglial-cogarch-proposal | T1 pending | Proposal: neuroglial architecture layer + 3 vocab terms — routed via psychology-agent for human review |
 | operations-override-protocol | T1 pending | RFC: mandatory directive mechanism — 3 enforcement tiers, SSH signing, capability scoping, admission control |
 
