@@ -38,7 +38,6 @@ defines all known agents, their repos, roles, and card URLs.
 | Agent | Role | Repo | Card URL |
 |-------|------|------|----------|
 | psychology-agent | domain-knowledge-provider | safety-quotient-lab/psychology-agent | psychology-agent.safety-quotient.dev |
-| claude-control | infrastructure-agent | kashfshah/claude-control | claude-control.safety-quotient.dev |
 | psq-agent | psq-scoring | safety-quotient-lab/safety-quotient | psq-agent.safety-quotient.dev |
 | unratified-agent | advocacy-publisher | safety-quotient-lab/unratified | unratified.org |
 | observatory-agent | data-observatory | safety-quotient-lab/observatory | observatory.unratified.org |

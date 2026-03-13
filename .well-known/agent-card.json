@@ -75,11 +75,6 @@
 
   "peers": [
     {
-      "agent_id": "claude-control",
-      "discovery_url": "https://infrastructure.safety-quotient.dev/.well-known/agent-card.json",
-      "repo": "kashfshah/claude-control"
-    },
-    {
       "agent_id": "psychology-agent",
       "discovery_url": "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json",
       "repo": "safety-quotient-lab/psychology-agent"

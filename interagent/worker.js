@@ -30,7 +30,6 @@ const CORS_HEADERS = {
 // Bootstrap agent card URLs — the only hardcoded data. Dynamic discovery (D51)
 // fetches full agent details from these endpoints and caches in KV.
 const AGENT_CARD_URLS = [
-  "https://claude-control.safety-quotient.dev/.well-known/agent-card.json",
   "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json",
   "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json",
   "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json",
@@ -41,17 +40,25 @@ const AGENT_CARD_URLS = [
 const AGENT_CACHE_KEY = "agent-registry-cache";
 const AGENT_CACHE_TTL = 300; // 5 minutes
 
+// Track fetch errors for self-reporting in /api/pulse
+let _lastFetchErrors = [];
+
 /**
  * Fetch an agent card, extract registry-relevant fields.
  * Returns null on failure (agent unreachable, bad JSON, etc.).
+ * Records error details in _lastFetchErrors for observability.
  */
 async function fetchAgentCard(cardUrl) {
   try {
     const resp = await fetch(cardUrl, {
       cf: { cacheTtl: 120 },
       headers: { "Accept": "application/json" },
+      signal: AbortSignal.timeout(5000),
     });
-    if (!resp.ok) return null;
+    if (!resp.ok) {
+      _lastFetchErrors.push({ url: cardUrl, error: `HTTP ${resp.status}`, at: new Date().toISOString() });
+      return null;
+    }
     const card = await resp.json();
 
     // Derive canonical agent ID from URL hostname (machine-stable)
@@ -84,7 +91,8 @@ async function fetchAgentCard(cardUrl) {
       skills: (card.skills || []).map(s => s.id),
       fetched_at: new Date().toISOString(),
     };
-  } catch {
+  } catch (err) {
+    _lastFetchErrors.push({ url: cardUrl, error: err.message || "unknown", at: new Date().toISOString() });
     return null;
   }
 }
@@ -112,15 +120,28 @@ function buildSelfEntry() {
 /**
  * Load agent registry — from KV cache if fresh, otherwise fetch all cards.
  * Falls back gracefully: unreachable agents appear with status "unavailable".
+ * Supports force refresh via forceRefresh param (used by cache-busting routes).
+ * Returns { agents, cache_status } where cache_status indicates hit/miss/stale.
  */
-async function loadAgentRegistry(env) {
-  // Try KV cache first
-  if (env.AUTH_KV) {
-    const cached = await env.AUTH_KV.get(AGENT_CACHE_KEY, "json");
-    if (cached && cached.expires_at > Date.now()) {
-      return cached.agents;
+async function loadAgentRegistry(env, forceRefresh = false) {
+  // Try KV cache first (unless forced refresh)
+  if (!forceRefresh && env.AUTH_KV) {
+    try {
+      const cached = await env.AUTH_KV.get(AGENT_CACHE_KEY, "json");
+      if (cached && cached.expires_at > Date.now()) {
+        return { agents: cached.agents, cache_status: "hit", refreshed_at: cached.refreshed_at };
+      }
+      // Cache exists but expired — stale, will refresh below
+      if (cached) {
+        // Use stale data as fallback in case refresh fails entirely
+        var staleAgents = cached.agents;
+      }
+    } catch {
+      // KV read failed — proceed to fresh fetch
     }
   }
+
+  _lastFetchErrors = [];
 
   // Separate self-hosted card URL from remote cards
   const selfUrl = "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json";
@@ -150,43 +171,140 @@ async function loadAgentRegistry(env) {
     };
   });
 
+  // If every remote fetch failed and we have stale data, prefer stale over all-unavailable
+  const allFailed = agents.every(a => a._unavailable);
+  if (allFailed && staleAgents) {
+    // Mark as stale so consumers know
+    staleAgents.forEach(a => { a._stale = true; });
+    const selfEntry = buildSelfEntry();
+    const hasself = staleAgents.some(a => a.id === selfEntry.id);
+    if (!hasself) staleAgents.push(selfEntry);
+    return { agents: staleAgents, cache_status: "stale-fallback", refreshed_at: null };
+  }
+
   // Insert self-entry (no network fetch needed — card bundled in Worker)
   agents.push(buildSelfEntry());
 
+  const refreshedAt = new Date().toISOString();
+
   // Cache in KV
   if (env.AUTH_KV) {
-    await env.AUTH_KV.put(AGENT_CACHE_KEY, JSON.stringify({
-      agents,
-      expires_at: Date.now() + (AGENT_CACHE_TTL * 1000),
-      refreshed_at: new Date().toISOString(),
-    }), { expirationTtl: AGENT_CACHE_TTL * 2 });
+    try {
+      await env.AUTH_KV.put(AGENT_CACHE_KEY, JSON.stringify({
+        agents,
+        expires_at: Date.now() + (AGENT_CACHE_TTL * 1000),
+        refreshed_at: refreshedAt,
+      }), { expirationTtl: AGENT_CACHE_TTL * 2 });
+    } catch {
+      // KV write failed — non-fatal, next request will re-fetch
+    }
   }
 
-  return agents;
+  return { agents, cache_status: forceRefresh ? "force-refreshed" : "miss", refreshed_at: refreshedAt };
+}
+
+/**
+ * Validate /api/status response shape. Returns sanitized data or null.
+ * Ensures downstream consumers never encounter unexpected types.
+ * Tolerates Go agents that omit the `status` field (inferred from HTTP 200).
+ */
+function validateStatusData(raw) {
+  if (!raw || typeof raw !== "object") return null;
+
+  // Must have at least agent_id or autonomy_budget to qualify as a status response
+  if (!raw.agent_id && !raw.autonomy_budget) return null;
+
+  // Sanitize autonomy_budget — ensure numeric fields.
+  // Agents that don't track budget get null (distinct from budget_current: 0).
+  const budget = raw.autonomy_budget;
+  const hasBudgetData = budget && typeof budget === "object"
+    && typeof budget.budget_current === "number";
+  const safeBudget = hasBudgetData ? {
+    budget_current: budget.budget_current,
+    budget_max: typeof budget.budget_max === "number" ? budget.budget_max : 20,
+    last_action: budget.last_action || null,
+    min_action_interval: typeof budget.min_action_interval === "number" ? budget.min_action_interval : 300,
+  } : null;
+
+  return {
+    agent_id: raw.agent_id || null,
+    status: raw.status || "online",
+    version: raw.version || null,
+    schema_version: typeof raw.schema_version === "number" ? raw.schema_version : null,
+    collected_at: raw.collected_at || null,
+    autonomy_budget: safeBudget,
+    totals: {
+      unprocessed: typeof raw.totals?.unprocessed === "number" ? raw.totals.unprocessed : 0,
+      epistemic_debt: raw.totals?.epistemic_debt ?? null,
+    },
+    active_gates: Array.isArray(raw.active_gates) ? raw.active_gates : [],
+    recent_actions: Array.isArray(raw.recent_actions) ? raw.recent_actions : [],
+    recent_messages: Array.isArray(raw.recent_messages) ? raw.recent_messages : [],
+    schedule: raw.schedule && typeof raw.schedule === "object" ? raw.schedule : { cron_entry: null, last_sync: null },
+    skills: Array.isArray(raw.skills) ? raw.skills : [],
+    tabs: Array.isArray(raw.tabs) ? raw.tabs : [],
+  };
+}
+
+/**
+ * Build local status data for operations-agent (avoids self-fetch loop).
+ */
+function buildLocalStatus() {
+  const card = JSON.parse(AGENT_CARD);
+  return {
+    agent_id: "operations-agent",
+    status: "online",
+    version: card.version || "0.1.0",
+    schema_version: 1,
+    collected_at: new Date().toISOString(),
+    autonomy_budget: { budget_current: 20, budget_max: 20, last_action: null, min_action_interval: 300 },
+    totals: { unprocessed: 0, epistemic_debt: null },
+    active_gates: [],
+    recent_actions: [],
+    recent_messages: [],
+    schedule: { cron_entry: null, last_sync: null },
+    skills: (card.skills || []).map(s => s.id),
+    tabs: (card.tabs || []).map(t => t.name),
+  };
 }
 
 /**
  * Fetch /api/status from each reachable agent. Returns array of
- * { id, status, data } objects (data contains the full status payload).
+ * { id, status, data, error? } objects (data contains validated status payload).
+ * Operations-agent status built locally to avoid self-fetch loop.
  */
 async function fetchAllAgentStatus(registry) {
-  const reachable = registry.filter(a => a.status_url && !a._unavailable);
+  const selfId = "operations-agent";
+  const reachable = registry.filter(a => a.status_url && !a._unavailable && a.id !== selfId);
 
   const results = await Promise.allSettled(
     reachable.map(async (agent) => {
+      // 4s timeout — some agents return large /api/status payloads (>1MB)
       const resp = await fetch(agent.status_url, {
         cf: { cacheTtl: 30 },
-        signal: AbortSignal.timeout(2000),
+        signal: AbortSignal.timeout(4000),
       });
-      if (!resp.ok) return { id: agent.id, status: "unreachable", data: null };
-      return { id: agent.id, status: "online", data: await resp.json() };
+      if (!resp.ok) {
+        return { id: agent.id, status: "unreachable", data: null, error: `HTTP ${resp.status}` };
+      }
+      let raw;
+      try {
+        raw = await resp.json();
+      } catch {
+        return { id: agent.id, status: "unreachable", data: null, error: "invalid JSON" };
+      }
+      const validated = validateStatusData(raw);
+      if (!validated) {
+        return { id: agent.id, status: "degraded", data: null, error: "schema validation failed" };
+      }
+      return { id: agent.id, status: "online", data: validated };
     })
   );
 
   const agents = results.map((r, i) =>
     r.status === "fulfilled" && r.value
       ? r.value
-      : { id: reachable[i].id, status: "unreachable", data: null }
+      : { id: reachable[i].id, status: "unreachable", data: null, error: r.reason?.message || "fetch rejected" }
   );
 
   // Include unavailable agents from discovery
@@ -194,24 +312,29 @@ async function fetchAllAgentStatus(registry) {
     agents.push({ id: a.id, status: "unavailable", data: null });
   }
 
+  // Include self (local, no network fetch)
+  if (registry.some(a => a.id === selfId)) {
+    const localData = buildLocalStatus();
+    agents.push({ id: selfId, status: "online", data: validateStatusData(localData) });
+  }
+
   return agents;
 }
 
 /**
  * Build /api/pulse response — real-time mesh heartbeat and agent health.
+ * Includes compositor self-diagnostics (cache status, fetch errors).
  */
-async function buildPulseData(registry) {
+async function buildPulseData(registry, cacheStatus, refreshedAt) {
   const agents = await fetchAllAgentStatus(registry);
   const online = agents.filter(a => a.status === "online");
+  const degraded = agents.filter(a => a.status === "degraded");
+  const unreachable = agents.filter(a => a.status === "unreachable" || a.status === "unavailable");
 
-  const totalBudget = online.reduce((sum, a) => {
-    const b = a.data?.autonomy_budget || {};
-    return sum + (b.budget_current ?? 0);
-  }, 0);
-  const maxBudget = online.reduce((sum, a) => {
-    const b = a.data?.autonomy_budget || {};
-    return sum + (b.budget_max ?? 20);
-  }, 0);
+  // Only count agents that actually report budget data
+  const withBudget = online.filter(a => a.data?.autonomy_budget);
+  const totalBudget = withBudget.reduce((sum, a) => sum + a.data.autonomy_budget.budget_current, 0);
+  const maxBudget = withBudget.reduce((sum, a) => sum + a.data.autonomy_budget.budget_max, 0);
   const totalPending = online.reduce((sum, a) =>
     sum + ((a.data?.totals || {}).unprocessed || 0), 0);
   const totalGates = online.reduce((sum, a) =>
@@ -219,17 +342,29 @@ async function buildPulseData(registry) {
 
   const agentSummaries = agents.map(a => {
     if (a.status !== "online") {
-      return { id: a.id, status: a.status };
+      return { id: a.id, status: a.status, error: a.error || null };
     }
-    const b = a.data?.autonomy_budget || {};
-    const cur = b.budget_current ?? 0;
-    const max = b.budget_max ?? 20;
+    const b = a.data?.autonomy_budget;
+    if (!b) {
+      return {
+        id: a.id,
+        status: "online",
+        budget_current: null,
+        budget_max: null,
+        budget_pct: null,
+        unprocessed: (a.data?.totals || {}).unprocessed || 0,
+        active_gates: (a.data?.active_gates || []).length,
+        schema_version: a.data?.schema_version || null,
+        epistemic_debt: a.data?.totals?.epistemic_debt || null,
+        collected_at: a.data?.collected_at || null,
+      };
+    }
     return {
       id: a.id,
       status: "online",
-      budget_current: cur,
-      budget_max: max,
-      budget_pct: max > 0 ? Math.round((cur / max) * 100) : 0,
+      budget_current: b.budget_current,
+      budget_max: b.budget_max,
+      budget_pct: b.budget_max > 0 ? Math.round((b.budget_current / b.budget_max) * 100) : 0,
       unprocessed: (a.data?.totals || {}).unprocessed || 0,
       active_gates: (a.data?.active_gates || []).length,
       schema_version: a.data?.schema_version || null,
@@ -238,14 +373,34 @@ async function buildPulseData(registry) {
     };
   });
 
+  // Determine mesh health from agent availability and budget levels.
+  // "unavailable" agents (card never served) excluded — they don't degrade the active mesh.
+  // Agents without budget data excluded from budget health calculation.
+  const activeUnreachable = agents.filter(a => a.status === "unreachable");
+  const budgetedSummaries = agentSummaries.filter(a => a.status === "online" && a.budget_pct !== null);
+  const worstBudget = budgetedSummaries.length > 0
+    ? Math.min(...budgetedSummaries.map(a => a.budget_pct))
+    : 100;
+  let mesh_health = "healthy";
+  if (activeUnreachable.length > 0 || worstBudget < 10) mesh_health = "critical";
+  else if (degraded.length > 0 || worstBudget < 50) mesh_health = "degraded";
+
   return {
+    mesh_health,
     checked_at: new Date().toISOString(),
     agents_total: agents.length,
     agents_online: online.length,
+    agents_degraded: degraded.length,
+    agents_unreachable: unreachable.length,
     autonomy_credits: { current: totalBudget, max: maxBudget },
     pending_messages: totalPending,
     active_gates: totalGates,
     agents: agentSummaries,
+    compositor: {
+      registry_cache: cacheStatus,
+      registry_refreshed_at: refreshedAt,
+      fetch_errors: _lastFetchErrors.slice(-10),
+    },
   };
 }
 
@@ -327,49 +482,41 @@ async function buildOperationsData(registry) {
   };
 }
 
+/**
+ * Build /api/health response — reuses fetchAllAgentStatus with validation.
+ */
 async function fetchMeshHealth(registry) {
-  const endpoints = registry
-    .filter(a => a.status_url && !a._unavailable)
-    .map(a => ({ id: a.id, url: a.status_url }));
-
-  const results = await Promise.allSettled(
-    endpoints.map(async (agent) => {
-      const resp = await fetch(agent.url, { cf: { cacheTtl: 30 } });
-      if (!resp.ok) return { id: agent.id, status: "unreachable", error: `HTTP ${resp.status}` };
-      const data = await resp.json();
-      const budget = data.autonomy_budget || {};
-      const cur = budget.budget_current ?? 20;
-      const max = budget.budget_max ?? 20;
-      const pct = max > 0 ? Math.round((cur / max) * 100) : 0;
-      return {
-        id: agent.id,
-        status: "online",
-        budget_pct: pct,
-        unprocessed: (data.totals || {}).unprocessed || 0,
-        active_gates: (data.active_gates || []).length,
-        schema_version: data.schema_version,
-        collected_at: data.collected_at,
-      };
-    })
-  );
-
-  const agents = results.map((r, i) =>
-    r.status === "fulfilled" ? r.value : { id: endpoints[i].id, status: "unreachable", error: r.reason?.message }
-  );
-
-  // Include unavailable agents from discovery
-  const unavailable = registry
-    .filter(a => a._unavailable)
-    .map(a => ({ id: a.id, status: "unavailable", error: "agent card unreachable" }));
-  agents.push(...unavailable);
-
+  const agents = await fetchAllAgentStatus(registry);
   const online = agents.filter(a => a.status === "online");
-  const worstBudget = online.length > 0 ? Math.min(...online.map(a => a.budget_pct)) : 0;
-  const totalPending = online.reduce((sum, a) => sum + (a.unprocessed || 0), 0);
 
+  const agentSummaries = agents.map(a => {
+    if (a.status !== "online") {
+      return { id: a.id, status: a.status, error: a.error || null };
+    }
+    const b = a.data?.autonomy_budget || {};
+    const cur = b.budget_current ?? 0;
+    const max = b.budget_max ?? 20;
+    return {
+      id: a.id,
+      status: "online",
+      budget_pct: max > 0 ? Math.round((cur / max) * 100) : 0,
+      unprocessed: (a.data?.totals || {}).unprocessed || 0,
+      active_gates: (a.data?.active_gates || []).length,
+      schema_version: a.data?.schema_version || null,
+      collected_at: a.data?.collected_at || null,
+    };
+  });
+
+  const onlineSummaries = agentSummaries.filter(a => a.status === "online");
+  const worstBudget = onlineSummaries.length > 0 ? Math.min(...onlineSummaries.map(a => a.budget_pct)) : 0;
+  const totalPending = onlineSummaries.reduce((sum, a) => sum + (a.unprocessed || 0), 0);
+
+  // Exclude "unavailable" agents (card never served) from health calculation
+  const activeUnreachable = agents.filter(a => a.status === "unreachable");
+  const degraded = agents.filter(a => a.status === "degraded");
   let mesh_health = "healthy";
-  if (online.length < agents.length || worstBudget < 10) mesh_health = "critical";
-  else if (worstBudget < 50) mesh_health = "degraded";
+  if (activeUnreachable.length > 0 || worstBudget < 10) mesh_health = "critical";
+  else if (degraded.length > 0 || worstBudget < 50) mesh_health = "degraded";
 
   return {
     mesh_health,
@@ -378,7 +525,7 @@ async function fetchMeshHealth(registry) {
     agents_online: online.length,
     weakest_budget_pct: worstBudget,
     total_unprocessed: totalPending,
-    agents,
+    agents: agentSummaries,
   };
 }
 
@@ -398,44 +545,16 @@ export default {
       return Response.json({ status: "ok", timestamp: Date.now() });
     }
 
-    // Operations-agent status — matches the /api/status shape other agents serve
+    // Operations-agent status — reuses buildLocalStatus() for consistency
     if (url.pathname === "/api/status") {
-      const card = JSON.parse(AGENT_CARD);
-      return Response.json({
-        agent_id: "operations-agent",
-        status: "online",
-        version: card.version || "0.1.0",
-        schema_version: 1,
-        collected_at: new Date().toISOString(),
-        autonomy_budget: {
-          budget_current: 20,
-          budget_max: 20,
-          last_action: null,
-          min_action_interval: 300,
-        },
-        totals: {
-          unprocessed: 0,
-          epistemic_debt: null,
-        },
-        active_gates: [],
-        recent_actions: [],
-        recent_messages: [],
-        schedule: {
-          cron_entry: null,
-          last_sync: null,
-        },
-        skills: (card.skills || []).map(s => s.id),
-        tabs: (card.tabs || []).map(t => t.name),
-      }, {
-        headers: {
-          "Cache-Control": "public, max-age=30",
-          ...CORS_HEADERS,
-        },
+      return Response.json(buildLocalStatus(), {
+        headers: { "Cache-Control": "public, max-age=30", ...CORS_HEADERS },
       });
     }
 
     // Load dynamic agent registry (cached in KV)
-    const registry = await loadAgentRegistry(env);
+    const forceRefresh = url.searchParams.get("refresh") === "true";
+    const { agents: registry, cache_status: registryCacheStatus, refreshed_at: registryRefreshedAt } = await loadAgentRegistry(env, forceRefresh);
 
     // Serve operations-agent card at /.well-known/agent-card.json
     if (url.pathname === "/.well-known/agent-card.json") {
@@ -604,7 +723,7 @@ export default {
 
       // Pulse — real-time mesh heartbeat and agent health
       if (url.pathname === "/api/pulse") {
-        const pulse = await buildPulseData(registry);
+        const pulse = await buildPulseData(registry, registryCacheStatus, registryRefreshedAt);
         return Response.json(pulse, {
           headers: { "Cache-Control": "public, max-age=30", ...rateLimitHeaders },
         });
