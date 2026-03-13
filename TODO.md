@@ -8,10 +8,11 @@ Forward-looking task list only. Completed and emergent work goes to
 ## Architecture
 
 - [ ] **Internal code naming convention reform** — Option C resolved (kebab canonical +
-  short alias). Proposal sent to operations-agent for mesh-wide approval
-  (`transport/sessions/naming-convention-reform/from-psychology-agent-001.json`).
+  short alias). Proposal (T1) + amendment (T2: psq-agent → safety-quotient-agent rename)
+  sent to operations-agent for mesh-wide approval via PR operations-agent#1.
   Implementation (after approval): (1) create canonical glossary, (2) update
-  docs/cognitive-triggers.md headings, (3) narrow CLAUDE.md exemption, (4) notify peers.
+  docs/cognitive-triggers.md headings, (3) narrow CLAUDE.md exemption, (4) notify peers,
+  (5) rename psq-agent → safety-quotient-agent across transport, agent cards, docs.
   D-numbers and F-numbers still need enumeration before canonical names.
   *Precondition: ✓ adjudication complete (Session 83). Blocked on operations-agent approval.*
 
@@ -21,6 +22,8 @@ Forward-looking task list only. Completed and emergent work goes to
   (3 events: PreToolUse, PostToolUse, UserPromptSubmit), (3) test trusted-file
   pre-filter (wrapper-level path exclusion for CLAUDE.md, cogarch files).
   *Precondition: #32596 resolved or workaround confirmed*
+  ⚑ **Grounding audit (Session 84):** #32596 now CLOSED upstream. Precondition
+  may be satisfied — verify fix in current claude-code version before re-enabling.
 
 - [x] `/turn` route — DEPRECATED (Session 59). Removed: the CF Worker
   lacked cogarch (T1-T16), memory, hooks — delivering a degraded agent.
