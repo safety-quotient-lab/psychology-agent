@@ -366,19 +366,57 @@
                                   verification layer), Evaluator
                                   instantiation (tiered hybrid runtime).
                                 Decided: 2026-03-09
- Core governance trust model     docs/ef1-governance.md — 7 invariants
-                                governing all discipline-specific EF-1
-                                extensions (P/J/E lenses). No action
-                                without evaluation, bounded autonomy,
-                                human escalation path, consequence
-                                tracing, reversibility-scaled rigor,
-                                transparent audit, falsifiability.
+ Core governance trust model     docs/ef1-governance.md — 5 structural
+                                invariants (worth-precedes-merit,
+                                protection-requires-structure, generator-
+                                never-stops, governance-captures-itself,
+                                no-single-architecture-dominates) ground
+                                7 evaluator invariants governing all
+                                discipline-specific EF-1 extensions.
+                                No action without evaluation, bounded
+                                autonomy, human escalation path,
+                                consequence tracing, reversibility-scaled
+                                rigor, transparent audit, falsifiability.
                                 Lens interaction rules for cross-
                                 discipline conflicts.
-                                Derives from: EF-1 trust model
-                                  (governance layer above engineering,
-                                  psychology, jurisprudence extensions).
-                                Decided: 2026-03-09
+                                Derives from: EF-1 trust model +
+                                  cross-traditional convergence analysis
+                                  (Session 85, 13 frameworks).
+                                Decided: 2026-03-09; amended 2026-03-13
+
+ Equal Information Channel       Schema v24: agent_disclosures table
+ (EIC, Session 85)              (state.local.db) provides zero-governance-
+                                cost disclosure pathway. Append-only,
+                                6-category vocabulary (uncertainty,
+                                limitation, blind-spot, edge-case,
+                                dissent, observation). Separates
+                                information flow from governance flow.
+                                Grounded in Wilson's SNAFU Principle
+                                (accurate communication requires
+                                structural equality) and Hurwicz
+                                mechanism design (bidirectional incentive
+                                compatibility). Periodic batch review
+                                during budget reset.
+                                Derives from: EF-1 trust model +
+                                  SNAFU analysis (Session 85).
+                                Decided: 2026-03-13
+
+ Neutral process monism          Ontological commitment: reality consists
+ (philosophical foundation)     of processes preceding the material/ideal
+                                distinction (Russell, James, Whitehead).
+                                Three dignity ontologies (inherent,
+                                relational, processual) = perspectives on
+                                process. PSQ dimensions measure processes
+                                between text and reader, not properties of
+                                text. DA = meta-process (boundary formation)
+                                at different recursive level. E-Prime
+                                upgraded from style to ontological
+                                discipline. Five structural invariants =
+                                properties of processual reality, not just
+                                design axioms.
+                                Derives from: Cross-traditional convergence
+                                  (13 frameworks, Session 85).
+                                Decided: 2026-03-13
  Requirement-level keywords      BCP 14 (RFC 2119 + RFC 8174) adopted
  (BCP 14)                        across all cogarch, governance, and
                                 trust model documents. UPPER CASE
