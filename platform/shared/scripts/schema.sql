@@ -877,3 +877,34 @@ END;
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (24, 'Equal Information Channel: agent_disclosures append-only table (SNAFU mitigation, Wilson 1975). Spec: docs/equal-information-channel-spec.md');
+
+
+-- ── Schema v25: Prediction Ledger (RPG win/loss tracking) ──────────────
+-- Spec: docs/retrospective-pattern-generator-spec.md
+-- Tracks predictions → outcomes → deltas for calibration.
+-- LIVES IN state.local.db (machine-local).
+
+CREATE TABLE IF NOT EXISTS prediction_ledger (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id      INTEGER NOT NULL,
+    prediction      TEXT NOT NULL,
+    domain          TEXT NOT NULL,
+    source_doc      TEXT,
+    outcome         TEXT CHECK (outcome IN (
+                        'confirmed', 'partially-confirmed',
+                        'refuted', 'untested'
+                    )),
+    outcome_detail  TEXT,
+    delta_lesson    TEXT,
+    recorded_at     TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
+    resolved_at     TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_predictions_domain
+    ON prediction_ledger (domain, outcome);
+
+CREATE INDEX IF NOT EXISTS idx_predictions_session
+    ON prediction_ledger (session_id);
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (25, 'Prediction ledger: RPG win/loss tracking (predictions → outcomes → deltas). Spec: docs/retrospective-pattern-generator-spec.md');

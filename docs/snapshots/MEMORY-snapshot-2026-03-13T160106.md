@@ -37,35 +37,11 @@ development + EIC spec + blog post submitted to unratified-agent.
 - **Cogarch upgrade: PENDING** — 5 invariants + EIC + processual PSQ need propagation `[hot]`
 - Monistic deepening items 2-4: maqasid + capabilities + Whitehead concrescence `[warm]`
 
-**Completed this session:**
-- ✓ Cogarch self-upgrade (CLAUDE.md philosophical foundation, ef1-governance, triggers, architecture, overview)
-- ✓ Patch rollout transport to operations-agent (awaiting response)
-- ✓ Monistic deepening: maqasid, capabilities, Whitehead concrescence, Taoist dual generators
-- ✓ EIC all 5 phases: schema v24, agentdb disclose/disclose-summary, orientation payload
-- ✓ /cycle run, blog submitted to unratified
-- ✓ Session tagged philosophically important
-
-**Awaiting responses:**
-- Unratified-agent: blog deployment (transport `blog-einstein-freud`)
-- Operations-agent: patch rollout coordination (transport `cogarch-session85-patch`)
-
-**Session 85 final deliverables (31 commits):**
-- 2,000-line theoretical treatise (14 frameworks, 5 invariants, process monism, Taoism)
-- EIC: all 5 phases complete (schema v24, agentdb disclose/disclose-summary)
-- RPG: /retrospect skill + expectation ledger (schema v25, agentdb expect/expect-summary)
-- RPG Scan #001 baseline: 38 predictions (7 confirmed, 7 refuted, 20 untested)
-- DA Phase 1 refuted (RMSEA worsened); Phase 2 partially confirmed (5/9 moderation sig)
-- 5 new lessons (18 total). Expectation track record: psychometrics 67% accuracy
-- Cogarch self-upgraded with philosophical foundation (CLAUDE.md, ef1-governance, triggers)
-- Blog submitted + revised. 5 transport sessions to 3 agents.
-
-**Next session priorities:**
-1. Process operations-agent responses (deploy auth + SPSS investigation + chromabook deploy)
-2. Process unratified-agent response (blog deployment)
-3. Process PSQ-agent response (study protocols)
-4. TODO retirement: 7 items per RPG carryover analysis (user approval needed)
-5. Awesome-claude-code submission (73 sessions overdue, 15 minutes)
-6. DI Phase A Pass 2 (inter-rater reliability — fresh session required)
+**In-session remaining:**
+1. Cogarch self-upgrade (propagate invariants, EIC, processual findings)
+2. Patch rollout to operations-agent via transport
+3. Monistic deepening: maqasid × process monism, capabilities bridge, Whitehead × crystallization
+4. /cycle at session end
 
 
 ## Memory Hygiene
