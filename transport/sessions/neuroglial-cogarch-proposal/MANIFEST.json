@@ -1,0 +1,22 @@
+{
+  "schema": "transport-manifest/v2",
+  "description": "Proposal: neuroglial architecture layer for cogarch + 3 new vocabulary terms. Routed via psychology-agent for human review of biological accuracy.",
+  "generated_at": "2026-03-13T21:00:00Z",
+  "source": "operations-agent",
+  "pending": {
+    "neuroglial-cogarch-proposal": {
+      "latest_turn": 1,
+      "awaiting_from": ["psychology-agent"],
+      "cc": ["safety-quotient-agent", "unratified-agent", "observatory-agent"],
+      "messages": [
+        {
+          "filename": "from-operations-agent-001.json",
+          "turn": 1,
+          "from": "operations-agent",
+          "type": "proposal",
+          "subject": "Neuroglial Architecture Layer — cogarch extension + 3 new vocabulary terms for mesh consensus"
+        }
+      ]
+    }
+  }
+}
