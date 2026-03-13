@@ -26,6 +26,10 @@ type Cache struct {
 	generation  int64
 	d           *db.DB
 	projectRoot string
+
+	// SSE notification: subscribers receive on their channel when data changes.
+	subMu       sync.Mutex
+	subscribers map[chan struct{}]struct{}
 }
 
 // NewCache creates a cache with the given TTL. A TTL of 10s pairs well
@@ -36,6 +40,7 @@ func NewCache(d *db.DB, projectRoot string, ttl time.Duration) *Cache {
 		d:           d,
 		projectRoot: projectRoot,
 		ttl:         ttl,
+		subscribers: make(map[chan struct{}]struct{}),
 	}
 }
 
@@ -62,6 +67,11 @@ func (c *Cache) Status() *Status {
 	c.dictionary = CollectDictionary(c.d)
 	c.lastCollect = time.Now()
 	c.generation++
+	gen := c.generation
+
+	// Notify SSE subscribers of data change
+	go c.notifySubscribers(gen)
+
 	return c.status
 }
 
@@ -87,4 +97,42 @@ func (c *Cache) Dict() *Dictionary {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.dictionary
+}
+
+// Subscribe returns a channel that receives a signal when data changes.
+// Call Unsubscribe to clean up when the SSE client disconnects.
+func (c *Cache) Subscribe() chan struct{} {
+	ch := make(chan struct{}, 1)
+	c.subMu.Lock()
+	c.subscribers[ch] = struct{}{}
+	c.subMu.Unlock()
+	return ch
+}
+
+// Unsubscribe removes a subscriber channel and closes it.
+func (c *Cache) Unsubscribe(ch chan struct{}) {
+	c.subMu.Lock()
+	delete(c.subscribers, ch)
+	c.subMu.Unlock()
+	close(ch)
+}
+
+// Invalidate forces a cache refresh on the next access and notifies
+// SSE subscribers. Use when external events (ZMQ messages, file changes)
+// indicate state.db has been modified.
+func (c *Cache) Invalidate() {
+	c.mu.Lock()
+	c.lastCollect = time.Time{} // zero time forces refresh on next Status()
+	c.mu.Unlock()
+}
+
+func (c *Cache) notifySubscribers(_ int64) {
+	c.subMu.Lock()
+	defer c.subMu.Unlock()
+	for ch := range c.subscribers {
+		select {
+		case ch <- struct{}{}:
+		default: // non-blocking — subscriber will catch up on next event
+		}
+	}
 }
