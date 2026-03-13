@@ -121,6 +121,16 @@
             "timeout": 1000
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/invariant-conflict-detect.sh",
+            "timeout": 1000
+          }
+        ]
       }
     ],
     "PostToolUseFailure": [

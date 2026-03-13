@@ -99,7 +99,12 @@ This costs ~1 line per trigger fired (~3-5 lines per response). The broadcast
 medium already exists — the agent's working context. This convention formalizes
 what to carry forward between trigger evaluations.
 
-Crystallization stage: Stage 1 (in-context reasoning).
+Crystallization stage: Stage 2 (convention with mechanical support). The
+mode-detection hook writes task type to `/tmp/{agent-id}-task-mode`. GWT
+broadcast reads this to adjust which ADVISORY checks fire:
+- **mechanical** → skip ADVISORY, broadcast only CRITICAL findings
+- **analytical** → full ADVISORY broadcast
+- **creative** → broadcast generative findings, skip evaluative ADVISORY
 
 ---
 
