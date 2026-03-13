@@ -22,23 +22,22 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 84. ★★ Landmark — CPG + 10-phase refactor (all done)
-+ brain mapping (20 systems) + /diagnose 5-level + QA 25/25.
+**Where we stopped:** Session 84. ★★ Landmark session — CPG framework (17 principles)
++ cogarch radical refactor (55 findings, 10-phase roadmap, 6 phases done/spec'd).
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- **Cogarch refactor: ALL 10 PHASES DONE. QA 25/25 pass** `[hot]`
-- **Brain mapping: 20 systems, 4 gaps with roadmaps** — `docs/brain-architecture-mapping.md` `[hot]`
-- **CPG: 17 principles + crystallization + forgetting** `[warm]`
-- **Neuroglial: PR #168 reviewed, accept-with-corrections** `[warm]`
-- Naming reform: ✓ Approved + glossary + headings done. Mass renames deferred `[warm]`
-- Blog: CPG post published by unratified-agent `[warm]`
-- Self-readiness audit: ✓ R4 3/4 READY. Observatory pending `[warm]`
+- **Cogarch refactor: Phases 1-4+6 DONE, Phase 5 SPEC, 7-10 SPEC** `[hot]`
+- **CPG pattern generators: 17 principles in ideas.md, journal §58** `[hot]`
+- Self-readiness audit: ✓ R4 tally 3/4 READY. Observatory tally pending `[warm]`
+- Operations-agent: Naming reform T1+T2 delivered (PR #1) `[warm]`
+- Blog posts: CPG post planned + crystallized sync post 404 `[warm]`
+- Parry re-add: ⚑ Upstream #32596 CLOSED — needs verification `[warm]`
 
 **Next session priorities:**
-1. Merge neuroglial PR #168 (accept with corrections)
-2. Naming reform mass renames (psq-agent → safety-quotient-agent)
-3. Brain gap 2: amygdala fast pre-screen hooks (credential + injection)
-4. Verify parry re-add (#32596 fix in current claude-code version)
+1. Naming convention reform implementation (glossary done, renames ready — gate OPEN)
+2. Monitor CPG mode system Stage 1 across sessions for Stage 2 advancement
+3. Await unratified-agent blog post draft (PR #54 sent)
+4. Check unratified frontmatter fix for crystallized sync blog 404
 
 
 ## Memory Hygiene

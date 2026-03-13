@@ -5586,7 +5586,31 @@ Action: rename in compositor UI. Captured in ideas.md.
 - **Work completion pattern:** Memory file saved. Partially implemented — analysis
   queries written, /cycle + T1 integration done, pattern analysis deferred.
 
-**Final session commit count:** 28+
-**Open carryover:** 1 item (naming reform implementation — glossary done, renames deferred)
+### Phase 6: QA, Extrapolation, Brain Mapping (11:00–12:21)
 
-▶ docs/cogarch-refactor-evaluation.md, docs/trigger-tiering-classification.md, docs/hook-trigger-contract.md, docs/memory-ownership-contract.md, docs/working-memory-spec.md, docs/phases-7-10-specs.md, docs/canonical-glossary.md, ideas.md §CPG, journal.md §58, scripts/archive_sessions.sh, scripts/work_patterns.sql
+- **QA:** /diagnose Level 3 run — 7 findings (claims/flags 0% resolved, trigger
+  tracking gap, facets empty, session drift). Facets repopulated (3,864 entries).
+- **Extrapolated ideas (6):** automatic trigger telemetry, predictive work scoping,
+  GWT broadcast convention, conflict monitoring (T17), Schema.org typed memory,
+  trigger dependency graph. All 6 implemented.
+- **Naming reform:** 17 trigger headings renamed to canonical kebab-case.
+  Operations-agent acceptance received and committed.
+- **/diagnose redesigned:** Five-level depth hierarchy (Sternbach & Okuda, 1991).
+  Level 1 replaces manual QA (25+ automated checks, 25/25 pass).
+- **TNG Technical Manual patterns:** 5 transferable patterns captured in ideas.md
+  (diagnostic levels, LCARS vocabulary, constraint propagation, isolinear modules,
+  usage-based maintenance).
+- **Neuroglial proposal review:** Operations-agent PR #168 reviewed. 3 strong
+  mappings (astrocyte, oligodendrocyte, microglia), 3 with caveats (ependymal,
+  radial glia, Schwann). Complement cascade pruning protocol noted.
+- **Brain architecture mapping:** 20 brain systems mapped to cogarch components.
+  12 HIGH quality, 5 MODERATE, 3 LOW. 4 gaps with implementation roadmaps
+  (reinforcement loop, fast pre-screen, inter-session consolidation, global
+  state modulation).
+- **Blog post published:** Unratified-agent drafted and committed ~3000 words
+  (PR arrived during session).
+
+**Final session commit count:** ~37
+**Open carryover:** 1 item (naming reform — glossary + headings done, mass renames deferred)
+
+▶ docs/brain-architecture-mapping.md, docs/trigger-dependency-graph.md, docs/cogarch-refactor-evaluation.md, docs/trigger-tiering-classification.md, docs/hook-trigger-contract.md, docs/memory-ownership-contract.md, docs/working-memory-spec.md, docs/phases-7-10-specs.md, docs/canonical-glossary.md, ideas.md §CPG + §TNG + §Neuroglial, journal.md §58, scripts/archive_sessions.sh, scripts/work_patterns.sql
