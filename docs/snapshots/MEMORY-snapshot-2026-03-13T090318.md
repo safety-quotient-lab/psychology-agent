@@ -21,22 +21,22 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 83 (final). All work complete. PRs merged, proposals sent,
-problem reports filed. Clean stopping point.
+**Where we stopped:** Session 83 (continued). Dashboard work + /sync + /cycle complete.
+Mesh operations assigned to operations-agent domain.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - Crystallized sync: ✓ Steps 1-7 complete + deployed. 52% rate on 123 msgs `[warm]`
 - agentdb: ✓ Phases 1-5 complete. Phase 6 (Python cleanup) eligible 2026-03-19 `[warm]`
 - SSE dashboards: ✓ Both meshd (Go) and mesh-status.py (Python) serve /events `[warm]`
-- Operations-agent: ✓ Turns 1-6 done. Naming convention proposal sent. `[hot]`
-- Self-readiness audit: ⚑ R4 — psych+unrat READY, psq NOT-READY (4A blocks) `[hot]`
-- Blog crystallized sync: ⚑ Post 404 — frontmatter mismatch, problem report sent `[hot]`
+- Operations-agent: ✓ Turns 1-6 done. Cogarch adaptation pending `[hot]`
+- Self-readiness audit: ⚑ R4 — psychology-agent READY, psq-agent 4A blocks closure `[hot]`
 - ZMQ transport: ✓ Merged to main. All 5 meshd instances running with gossip `[warm]`
+- meshd: ✓ All 5 (incl operations-agent) running under systemd `[warm]`
 
 **Next session priorities:**
-1. Check transport for unratified-agent frontmatter fix
-2. Check operations-agent naming convention approval
-3. Monitor psq-agent 4A/8BCD remediation for R4 closure
+1. Monitor psq-agent 4A remediation for R4 closure
+2. Monitor operations-agent cogarch adaptation
+3. Internal code naming convention reform (adjudication written, implementation pending)
 
 
 ## Memory Hygiene
