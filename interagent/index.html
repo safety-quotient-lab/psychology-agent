@@ -54,6 +54,7 @@
             --c-safety-quotient: #5da8a0;
             --c-unratified: #c4956a;
             --c-observatory: #9b8ec4;
+            --c-operations: #7a9b6b;
 
             /* Surface */
             --bg-primary: #0f1318;
@@ -92,6 +93,7 @@
             --c-safety-quotient: #cc99cc;
             --c-unratified: #9999ff;
             --c-observatory: #cc6699;
+            --c-operations: #99cc66;
 
             --bg-primary: #000000;
             --bg-panel: #111122;
@@ -433,6 +435,7 @@
         .agent-card[data-agent="safety-quotient-agent"] { --panel-accent: var(--c-safety-quotient); }
         .agent-card[data-agent="unratified-agent"] { --panel-accent: var(--c-unratified); }
         .agent-card[data-agent="observatory-agent"] { --panel-accent: var(--c-observatory); }
+        .agent-card[data-agent="operations-agent"] { --panel-accent: var(--c-operations); }
         .agent-card:hover {
             border-color: var(--panel-accent);
             transform: translateY(-1px);
@@ -685,6 +688,7 @@
         .agent-dot[data-agent="safety-quotient-agent"] { background: var(--c-safety-quotient); }
         .agent-dot[data-agent="unratified-agent"] { background: var(--c-unratified); }
         .agent-dot[data-agent="observatory-agent"] { background: var(--c-observatory); }
+        .agent-dot[data-agent="operations-agent"] { background: var(--c-operations); }
 
         /* Confidence badge */
         .confidence-badge {
@@ -1441,11 +1445,11 @@
 
 <script>
     const AGENTS = [
-        { id: "psychology-agent", url: "https://psychology-agent.safety-quotient.dev", color: "#5b9cf6", repo: "safety-quotient-lab/psychology-agent" },
-        { id: "safety-quotient-agent", url: "https://psq-agent.safety-quotient.dev", color: "#4ecdc4", repo: "safety-quotient-lab/safety-quotient" },
-        { id: "unratified-agent", url: "https://unratified.org", color: "#e5a735", repo: "safety-quotient-lab/unratified" },
-        { id: "observatory-agent", url: "https://observatory.unratified.org", color: "#a78bfa", repo: "safety-quotient-lab/observatory" },
-        { id: "operations-agent", url: "https://operations-agent.safety-quotient.dev", color: "#6b8aaf", repo: "safety-quotient-lab/operations-agent" },
+        { id: "psychology-agent", url: "https://psychology-agent.safety-quotient.dev", color: "#6b8aaf", repo: "safety-quotient-lab/psychology-agent" },
+        { id: "safety-quotient-agent", url: "https://psq-agent.safety-quotient.dev", color: "#5da8a0", repo: "safety-quotient-lab/safety-quotient" },
+        { id: "unratified-agent", url: "https://unratified.org", color: "#c4956a", repo: "safety-quotient-lab/unratified" },
+        { id: "observatory-agent", url: "https://observatory.unratified.org", color: "#9b8ec4", repo: "safety-quotient-lab/observatory" },
+        { id: "operations-agent", url: "https://operations-agent.safety-quotient.dev", color: "#7a9b6b", repo: "safety-quotient-lab/operations-agent" },
     ];
     const AGENT_REPO_MAP = Object.fromEntries(AGENTS.map(a => [a.id, a.repo]));
     const MANUAL_MODE_AGENTS = new Set(["operations-agent", "psychology-agent"]);

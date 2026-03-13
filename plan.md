@@ -93,11 +93,25 @@
 - [ ] CF Worker retired or reduced to thin reverse proxy
 - [ ] Parity: individual agent dashboards gain compositor features (discovery, topology, deep-linking)
 
+## Phase 7: v1.0.0-beta Hardening
+
+- [x] Semantic agent color consistency — AGENTS array, CSS variables, topology, cards, dots all use same palette
+- [ ] /api/kb endpoint — claims/decisions/triggers never populate (Go meshd handler + bootstrap_state_db.py)
+- [ ] Error resilience audit — verify graceful degradation when 1/2/3 agents offline after Web Component refactor
+- [ ] Component regression testing — sort, filter, paginate, agent switching across all 12 MeshDataTable instances
+- [ ] Security re-scan — CORS headers, rate limiting, API key auth unchanged after refactor
+- [ ] Performance baseline — measure initial load time, refresh cycle, payload sizes
+- [ ] Cross-browser verification — Web Components (custom elements v1) in Chrome, Firefox, Safari, Edge
+- [ ] Transport integrity check — archiver, session lifecycle, tombstone mechanism with new archive/ directory
+- [ ] Vocabulary schema validation — run vocab.schema.json against vocab.json, confirm no drift
+- [ ] Agent-card schema compliance scan — /scan-peer across all 5 agents
+
 ## v1.0.0-beta Release Blockers
 
-- [x] **README.md** — comprehensive root-level README: architecture, dependencies, setup, endpoints, scripts, vocabulary, transport, BFT
-- [ ] /api/kb endpoint — claims/decisions/triggers never populate (see project_kb_endpoint_gap memory)
+- [x] **README.md** — comprehensive root-level README
+- [ ] /api/kb endpoint — claims/decisions/triggers (Phase 7)
 - [x] Web Component decomposition
+- [ ] Phase 7 hardening pass — all items above
 
 ---
 
