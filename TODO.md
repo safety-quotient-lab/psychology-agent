@@ -70,13 +70,12 @@ found 3 critical defects, 2 high-severity issues, 39 structural weaknesses,
 ## Architecture
 
 - [ ] **Internal code naming convention reform** — Option C resolved (kebab canonical +
-  short alias). Proposal (T1) + amendment (T2: psq-agent → safety-quotient-agent rename)
-  sent to operations-agent for mesh-wide approval via PR operations-agent#1.
-  Implementation (after approval): (1) create canonical glossary, (2) update
+  short alias). ✓ APPROVED by operations-agent (Turn 3, 2026-03-13). Gate OPEN.
+  Implementation: (1) create canonical glossary, (2) update
   docs/cognitive-triggers.md headings, (3) narrow CLAUDE.md exemption, (4) notify peers,
   (5) rename psq-agent → safety-quotient-agent across transport, agent cards, docs.
   D-numbers and F-numbers still need enumeration before canonical names.
-  *Precondition: ✓ adjudication complete (Session 83). Blocked on operations-agent approval.*
+  *Precondition: ✓ approved. DNS migration for safety-quotient-agent needs Cloudflare config.*
 
 - [ ] **Re-add parry injection defense** — removed Session 56 due to permission prompt
   interference (anthropics/claude-code #32596). Re-add when upstream bug resolved.
