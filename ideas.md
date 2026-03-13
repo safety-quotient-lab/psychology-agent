@@ -738,3 +738,175 @@ Mode system (cluster 2) has the most immediate practical value and lowest
 infrastructure dependency. Dynamical triad (cluster 1) has the highest
 theoretical payoff but requires infrastructure changes.*
 *Noted: Session 84 (2026-03-13). Source: psychology-agent CPG analysis.*
+
+---
+
+## TNG Technical Manual Design Patterns (Sternbach & Okuda, 1991)
+
+Five transferable engineering patterns from the *Star Trek: The Next Generation
+Technical Manual* (Sternbach, R. & Okuda, M., 1991, Pocket Books). These
+describe fictional systems but embody real engineering principles that map to
+agent cognitive architecture.
+
+### 1. Five-Level Diagnostic Depth Hierarchy
+
+**Source:** TNG Tech Manual §14.1 (Computer Systems — Diagnostic Protocols)
+
+**Pattern:** Diagnostics scale from Level 5 (quick automated status poll) to
+Level 1 (complete physical inspection + automated testing, requiring system
+offline). Lower numbers = higher thoroughness.
+
+**Adopted:** `/diagnose` skill now implements this five-level model. Level 1
+replaces manual QA with 25+ automated verification steps.
+
+### 2. LCARS — Consistent Interaction Vocabulary
+
+**Source:** TNG Tech Manual §14.3 (Library Computer Access/Retrieval System)
+
+**Pattern:** LCARS provides a unified interface vocabulary across all ship
+systems. Every console, panel, and display uses the same visual language,
+interaction patterns, color semantics, and information hierarchy. The vocabulary
+consistency reduces cognitive load more than interface aesthetics.
+
+**Current state:** Our shared vocabulary governance (vocab.json, canonical
+glossary, Schema.org typed retrieval) partially implements this. The interagent
+compositor dashboard provides a unified view.
+
+**Refinement opportunity:** Conduct an LCARS-style audit of all agent-facing
+surfaces — dashboards, CLI outputs, transport message formats, diagnostic
+displays, /cycle output, /diagnose output — for vocabulary consistency. Every
+surface that presents the same concept should use the same term, the same
+visual encoding, and the same information hierarchy. Currently each surface
+names things independently ("Trust Budget" vs "Budget" vs "autonomy_budget").
+*Precondition: shared vocabulary (vocab.json) deployed to all agent dashboards.*
+*Action: create a vocabulary consistency matrix mapping terms across surfaces.*
+
+### 3. Warp Field Geometry — Constraint Propagation
+
+**Source:** TNG Tech Manual §5.2 (Warp Propulsion — Field Geometry)
+
+**Pattern:** Warp field calculations operate as constraint satisfaction: field
+geometry must balance power output, speed, structural stress, and subspace
+conditions simultaneously. No single parameter optimizes independently —
+changes propagate through all constraints.
+
+**Mapping:** This describes exactly what our constraint system
+(`docs/constraints.md`, 66 constraints across 5 categories) and knock-on
+analysis (10 orders) implement. The knock-on framework traces how a change
+propagates through all dependent constraints. The warp field analogy suggests
+we should treat the constraint system as a **simultaneous satisfaction problem**
+rather than a sequential checklist — the current implementation checks
+constraints one at a time, but they interact.
+
+**Refinement opportunity:** Implement constraint interaction detection.
+When T3 Check 15 cross-references constraints, check for constraint *pairs*
+that interact (where satisfying one makes satisfying another harder). This
+transforms the constraint system from a flat checklist to a dependency-aware
+satisfaction engine.
+*Precondition: constraint activation tracking (from Phase 8 metacognitive layer).*
+
+### 4. Isolinear Chip Architecture — Modular, Hot-Swappable
+
+**Source:** TNG Tech Manual §14.4 (Isolinear Optical Chips)
+
+**Pattern:** Ship systems use standardized isolinear chips with uniform
+interfaces. Individual chips slot into any compatible panel and can swap
+without taking down the system. The standardized interface contract between
+modules matters more than module internals.
+
+**Current state:** Close to this with our skill system (.claude/skills/),
+hook scripts (.claude/hooks/), and Go CLI tools (meshd, agentdb). Each
+operates independently with standardized I/O (stdin/stdout for hooks,
+JSON for transport, SQL for state.db). The Unix philosophy ("do one thing
+well, compose via standard interfaces") already guides the design.
+
+**Refinement opportunity:** Formalize the interface contract for each
+component type — what inputs does a hook receive, what outputs does it
+produce, what side effects may it have? Currently documented informally
+in hooks-reference.md. A formal contract would enable automated testing
+of hook compliance and make hot-swapping reliable (replace one hook script
+with another that satisfies the same contract).
+*Precondition: hook-trigger contract (Phase 3, done). Extend to formal I/O spec.*
+
+### 5. Operational Hours — Maintenance by Usage, Not Calendar
+
+**Source:** TNG Tech Manual §11.6 (Maintenance Protocols)
+
+**Pattern:** Maintenance schedules tie to operational hours and power cycles,
+not elapsed wall time. Different subsystems have different maintenance intervals
+based on operational stress, not a uniform cadence.
+
+**Current state:** T9 memory hygiene uses session counts (5 sessions → flag,
+10 → default removal). The work_carryover table tracks session-based metrics.
+
+**Connection to neuroglial proposal:** Operations-agent's neuroglial cogarch
+proposal (PR #168, 2026-03-13) proposes an ependymal cell analogue — "log
+rotation, cache eviction, nonce compaction during maintenance windows." This
+maps directly to usage-based maintenance. The glymphatic maintenance window
+concept (from the proposal) suggests that maintenance should run during
+low-activity periods, not at fixed intervals — the operations-agent would
+detect idle periods and schedule maintenance accordingly.
+
+**Refinement opportunity:** Extend the trigger_activations and work_carryover
+data to derive per-subsystem operational stress metrics. Subsystems with
+high activation counts and high failure rates need more frequent maintenance
+than quiet, reliable subsystems. The /diagnose cadence table already
+differentiates (L5 every session, L3 every 5-10 sessions, L1 after refactors)
+— extend this to per-subsystem adaptive scheduling.
+*Precondition: 10+ sessions of trigger_activations data for statistical basis.*
+
+---
+
+## Neuroglial Architecture Layer (operations-agent proposal, PR #168)
+
+Operations-agent proposes mapping six glial cell types to mesh infrastructure
+functions. **Awaiting human review of biological accuracy.**
+
+| Glial Type | Biological Function | Mesh Function | Status |
+|---|---|---|---|
+| Astrocyte | Metabolic support, synaptic regulation | Budget distribution, routing | Partial |
+| Oligodendrocyte | Myelination (signal speed) | KV caching (fetch speed) | Active |
+| Microglia | Immune surveillance, synaptic pruning | BFT monitoring, stale pruning | Partial |
+| Ependymal | CSF circulation, waste clearance | Log rotation, maintenance windows | Planned |
+| Radial glia | Developmental scaffolding | Bootstrap scaffolding, onboarding | Partial |
+| Schwann | Peripheral myelination | Transport integrity, message receipts | Planned |
+
+**New vocabulary terms:** `sqm:NeuroglialLayer`, `sqm:AmbientState`,
+`sqm:ComplementCascade`.
+
+**Connection to this session's work:**
+- **CPG pattern generators** (this ideas.md §above): CPGs model neural computation;
+  glial cells model neural support. Together they provide a complete neuroscience
+  framework for agent architecture — computation (CPGs/triggers) supported by
+  infrastructure (glia/operations-agent).
+- **TNG Technical Manual #5** (usage-based maintenance): the ependymal cell
+  analogue maps to the maintenance-by-operational-hours pattern.
+- **Adaptive forgetting** (CPG #17): the microglia complement cascade
+  (C1q tag → C3 verify → phagocytose with SHIP1 brake) provides a more
+  nuanced pruning mechanism than simple decay — tag before pruning, verify
+  before removing, with an override brake.
+
+**Biological accuracy review needed:**
+- Astrocyte mapping holds well (metabolic support + boundary enforcement)
+- Oligodendrocyte mapping holds (myelination → caching = speed optimization)
+- Microglia mapping holds (immune + pruning = monitoring + cleanup)
+- ⚑ Ependymal mapping stretches — real ependymal cells line ventricles and
+  produce CSF; the waste-clearance function belongs more to the glymphatic
+  system (a discovery post-2012, Iliff et al.). The mapping works directionally
+  but the biological specifics need updating
+- ⚑ Radial glia mapping stretches — radial glia function primarily during
+  development and largely disappear in adult brains. As a "bootstrap-only"
+  scaffolding that self-removes after onboarding, the analogy holds; as an
+  ongoing function, it does not
+- ⚑ Schwann cell mapping weakest — Schwann cells myelinate the peripheral
+  nervous system (not central). Transport integrity as "peripheral" protocol
+  (outside the core cognitive system) makes the analogy work, but it requires
+  the reader to accept this specific framing
+
+**Recommendation:** Accept with corrections (ependymal → glymphatic attribution,
+radial glia → development-only caveat, Schwann → peripheral framing). The
+complement cascade (microglia) deserves deeper development — it provides a
+principled pruning protocol that improves on simple session-count decay.
+
+*Noted: Session 84 (2026-03-13). Source: operations-agent PR #168 + psychology-agent
+neuroscience review.*
