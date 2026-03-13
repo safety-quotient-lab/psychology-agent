@@ -149,12 +149,61 @@ interpretation through qualitative analysis:
 | Criterion validity preserved | g_PSQ_9dim AUC ≥ g_PSQ_10dim AUC | Removing DA should not degrade prediction |
 
 
+## Phase 1 Results (Session 85)
+
+**Executed:** 2026-03-13. N=5,976 complete cases (all data files assembled).
+Tooling: semopy (Python). FIM non-PD warning on both models (Moore-Penrose
+inverse used — standard errors approximate).
+
+| Metric | Model A (M5, 10-dim) | Model B (9-dim, DA removed) | Delta |
+|--------|---------------------|----------------------------|-------|
+| chi2 | 4789.3 (df=28) | 4499.4 (df=21) | -289.9 |
+| CFI | 0.8370 | 0.8248 | -0.0122 |
+| RMSEA | 0.1687 | 0.1889 | +0.0202 |
+| AIC | 52.4 | 46.5 | -5.9 |
+
+**Verdict: DOES NOT SUPPORT the DA-removal hypothesis at the factor level.**
+
+Removing DA from the bifactor model **worsens** both RMSEA (+0.020) and CFI
+(-0.012). DA contributes meaningfully to the 10-dimension factor structure.
+The protocol success criterion (Model B RMSEA < 0.125) was NOT MET.
+
+**Interpretation under process monism:**
+
+The processual hypothesis (DA operates as meta-process at a different
+recursive level) does not receive empirical support from factor structure
+analysis. Two alternative interpretations:
+
+1. **DA operates as a meta-process WITHIN the factor structure**, not outside
+   it. Its boundary-formation function contributes to g through the same
+   processual channel as other dimensions — it moderates scope while loading
+   on the same general factor. The "different level" manifests in criterion
+   prediction (Phase 2), not in factor structure (Phase 1).
+
+2. **The processual reinterpretation describes function, not structure.** DA
+   may function as a boundary-formation meta-process (Whiteheadian negative
+   prehension) while structurally co-varying with other dimensions in the
+   same factor model. Function and structure need not align — a governor
+   (meta-process) can be measured by the same instruments as what it governs.
+
+**Phase 2 (moderation analysis) remains warranted** — the factor structure
+result does not preclude interaction effects in criterion prediction. DA
+may moderate the relationship between other dimensions and outcomes even
+though it contributes to the same general factor. This parallels how a
+thermostat (meta-process) co-varies with room temperature (the system it
+regulates) while still performing a regulatory function.
+
+**Tooling note:** semopy FIM non-PD warnings affect standard errors but not
+point estimates. For definitive results, rerun with R + lavaan. Request
+sent to operations-agent for open-source SEM tooling evaluation.
+
+
 ## Resources Required
 
-- **Data:** Existing v37 scored datasets (already available in PSQ agent)
-- **Software:** semopy (Python CFA), statsmodels (moderation regression)
-- **Compute:** Laptop-scale — N=4,432 fits in memory trivially
-- **Time:** ~2 sessions (Phase 1+2 in one, Phase 3 qualitative in another)
+- **Data:** Existing v37 scored datasets (N=5,976 complete cases assembled)
+- **Software:** R + lavaan (recommended — semopy FIM issues). Request pending.
+- **Compute:** Laptop-scale
+- **Time:** Phase 2 (moderation): ~1 session. Phase 3 (qualitative): ~1 session.
 
 
 ---
