@@ -829,3 +829,51 @@ ALTER TABLE memory_entries ADD COLUMN access_count INTEGER DEFAULT 0;
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (23, 'Metacognitive layer: trigger_activations table for effectiveness tracking, memory_entries access columns for ACT-R activation scoring');
+
+
+-- ── Schema v24: Equal Information Channel (SNAFU mitigation) ──────────
+-- Theoretical grounding: Wilson's SNAFU Principle (1975) — accurate
+-- communication only occurs between equals. This table provides a
+-- zero-governance-cost disclosure pathway alongside the hierarchical
+-- governance channel (autonomous_actions). Spec: docs/equal-information-channel-spec.md
+--
+-- LIVES IN state.local.db (machine-local, never committed).
+-- ENFORCEMENT: append-only. No UPDATE or DELETE permitted.
+-- Application code enforces; bootstrap verifies row count monotonicity.
+
+CREATE TABLE IF NOT EXISTS agent_disclosures (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    agent_id        TEXT NOT NULL,
+    session_id      INTEGER,
+    category        TEXT NOT NULL CHECK (category IN (
+                        'uncertainty', 'limitation', 'blind-spot',
+                        'edge-case', 'dissent', 'observation'
+                    )),
+    confidence      REAL CHECK (confidence >= 0.0 AND confidence <= 1.0),
+    content         TEXT NOT NULL,
+    context         TEXT,
+    related_action  INTEGER,
+    created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_disclosures_agent
+    ON agent_disclosures (agent_id, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_disclosures_category
+    ON agent_disclosures (category);
+
+-- Append-only enforcement via trigger (SQLite cannot enforce at table level)
+CREATE TRIGGER IF NOT EXISTS prevent_disclosure_delete
+    BEFORE DELETE ON agent_disclosures
+BEGIN
+    SELECT RAISE(ABORT, 'agent_disclosures: append-only table, DELETE prohibited (EIC spec)');
+END;
+
+CREATE TRIGGER IF NOT EXISTS prevent_disclosure_update
+    BEFORE UPDATE ON agent_disclosures
+BEGIN
+    SELECT RAISE(ABORT, 'agent_disclosures: append-only table, UPDATE prohibited (EIC spec)');
+END;
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (24, 'Equal Information Channel: agent_disclosures append-only table (SNAFU mitigation, Wilson 1975). Spec: docs/equal-information-channel-spec.md');
