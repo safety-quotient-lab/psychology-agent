@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phases 1–4 mostly landed. T7 schema gate resolved. Acronym deep-linking live. Focus shifting to Phase 5 (stability, reliability, robustness). Phase 6 (Go migration) scoped. Remaining from earlier phases: Web Component decomposition, Jenkins pipeline, wiring Operations/Pulse tabs to aggregated API endpoints.
+**Current Status:** Phase 5 stability work ongoing. Budget display fixed (empty vs zero distinction). Manual mode indicators live. Model upgraded to Opus across mesh. Infrastructure separation proposal sent to all agents — immediate cognitive scoping + Phase 6 interagent-sdk extraction. API decomposition under peer review (psq accepted, psychology ACK'd, observatory/unratified pending).
 
 ---
 
@@ -49,14 +49,24 @@
 - [x] Health check endpoint validation — validateStatusData() sanitizes all /api/status responses
 - [x] Timeout tuning — 4s for status fetches (agents return >1MB), 5s for card discovery
 - [x] Stale cache detection — KV cache with expires_at + stale fallback + ?refresh=true bypass
+- [x] Budget display fix — distinguish empty autonomy_budget {} from real budget=0 (null vs 0)
+- [x] Manual mode indicator — MANUAL badge on Pulse cards and Operations budget cards
+- [x] Dashboard cache headers — no-cache + ETag revalidation (prevents stale JS)
+- [x] Message deep-linking — Meta tab subjects link to GitHub transport files
+- [x] Ops scripts toolkit — mesh-pause, mesh-status, queue-check, usage-report, deploy, budget-check, budget-reset, shadow-mode
+- [x] Budget calibration — empirical cost model mapping budget units to USD
+- [x] Claude instrumented wrapper — per-session cost tracking via stream-json
 - [ ] CORS hardening — restrict origins to known mesh domains
 - [ ] Rate limiting on public endpoints (WebFinger, /.well-known/agents)
 - [ ] Monitoring — surface compositor errors in /api/pulse (self-report degraded when fetch failures exceed threshold)
 - [ ] Transport session validation — reject malformed interagent/v1 messages at ingest
 - [ ] Idempotent message handling — duplicate transport messages detected and skipped
 
-## Phase 6: Go Migration
+## Phase 6: Go Migration + Infrastructure Separation
 
+- [ ] Extract shared mesh scripts (15 scripts) into interagent-sdk package owned by operations-agent
+- [ ] Domain agents import interagent-sdk rather than copying scripts from psychology-agent
+- [ ] Psychology-agent relinquishes source-of-truth role for shared infrastructure
 - [ ] Extract shared frontend assets (CSS, JS, SVG topology) into a portable package
 - [ ] Each agent's meshd serves shared assets alongside agent-specific templates
 - [ ] Rewrite compositor Worker routes as Go handlers in operations-agent meshd
@@ -64,6 +74,18 @@
 - [ ] LCARS theme as shared CSS served by all meshd instances
 - [ ] CF Worker retired or reduced to thin reverse proxy
 - [ ] Parity: individual agent dashboards gain compositor features (discovery, topology, deep-linking)
+
+---
+
+## Active Transport Sessions
+
+| Session | Status | Summary |
+|---|---|---|
+| api-decomposition | T4 open | Proposal accepted by psq (with identity correction sent), ACK from psychology (pending human review), observatory/unratified pending |
+| budget-status-fix | T1 pending | Bug report: unratified + observatory return empty autonomy_budget {} |
+| model-upgrade | T1 pending | Directive: all agents add --model opus to autonomous-sync.sh |
+| infrastructure-separation | T1 pending | Proposal: cognitive scoping now, interagent-sdk extraction in Phase 6 |
+| ci-build-issue | T1 pending | Unratified missing @astrojs/check dependency |
 
 ---
 
@@ -76,6 +98,8 @@
 | D50 | Private repo first, public after audit | human arbiter (operations-agent-standup T3) |
 | D51 | .well-known/agent-card.json for discovery | human arbiter (operations-agent-standup T3) |
 | D52 | Dual-channel transport (git-PR + ZeroMQ) | human arbiter (operations-agent-standup T3) |
+| D53 | Global CLI model default: Opus | human arbiter (2026-03-13) |
+| D54 | Infrastructure separation: operations-agent owns mesh infra, domain agents focus on domain | human arbiter (2026-03-13) |
 
 ---
 
@@ -87,3 +111,5 @@
 - **Components:** DIY Web Components — no framework dependency
 - **Repo visibility:** private until human audit confirms zero leaks
 - **Naming convention:** `{agent-id}.safety-quotient.dev` for all subdomains
+- **Division of labor:** cross-agent changes via transport messages, not direct code modification
+- **Model:** all agents use Opus (global default + explicit --model flag)
