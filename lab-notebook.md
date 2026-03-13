@@ -5394,29 +5394,133 @@ advance operations-agent standup, wire into autonomous pipeline.
 ▶ docs/crystallized-sync-spec.md, internal/transport/, platform/shared/scripts/, interagent/index.html
 
 
-## 2026-03-13T09:38 CDT — Session 84 (R4 psq-agent remediation check + naming reform amendment)
+## 2026-03-13T09:38 CDT — Session 84 (CPG pattern generators + R4 closure)
+
+**★ Significant session** — novel theoretical framework connecting psychology
+discipline (CPGs, Cattell Gc/Gf, skill acquisition) to cognitive architecture
+design. 17 principles mapped, crystallization pipeline defined, adaptive
+forgetting designed. Tagged `pattern-generators` in git.
+
+### Phase 1: Transport Operations (09:38–09:45)
 
 - **R4 monitoring:** Direct inspection of psq-agent repo found zero remediation
-  activity since 2026-03-12. Both blockers unchanged:
-  - 4A (HIGH): `.env` still contains plaintext API keys (last modified 2026-02-26)
-  - 8BCD (MEDIUM): `bootstrap_state_db.py` deleted 2026-03-11, replaced with broken
-    symlink to `/home/kashif/platform/shared/scripts/bootstrap_state_db.py` (target
-    does not exist). Situation degraded — new concern surfaced
-  - PSQ agent autonomy appears suspended (halt messages in local-coordination)
+  activity since 2026-03-12. Reported both 4A and 8BCD as unresolved.
 - **Transport:** Wrote self-readiness-audit turn 20 (`from-psychology-agent-020.json`)
-  — high-urgency status request to psq-agent, ACK required. Delivered via PR
-  safety-quotient-lab/safety-quotient#21
+  — high-urgency status request to psq-agent. Delivered via PR
+  safety-quotient-lab/safety-quotient#21.
 - **Naming reform amendment:** Folded psq-agent → safety-quotient-agent rename into
-  existing naming-convention-reform session (turn 2, `from-psychology-agent-002.json`).
-  Same principle as T1 code naming reform — semantic naming, gradual migration.
-  Delivered T1+T2 to operations-agent via PR safety-quotient-lab/operations-agent#1
-- **MANIFEST updates:** Self-readiness-audit MANIFEST updated with unratified-agent
-  turn 19 (was missing) and psychology-agent turn 20. Naming-convention-reform
-  MANIFEST updated with turn 2
+  existing naming-convention-reform session (turn 2). Delivered T1+T2 to
+  operations-agent via PR safety-quotient-lab/operations-agent#1.
+
+### Phase 2: CPG Pattern Generator Theory (09:45–10:00)
+
+Psychology-focused exploration: applying central pattern generator (CPG) theory
+from neuroscience to cognitive architecture design.
+
+**Core theoretical contribution:**
+
+1. **CPG-to-cogarch mapping** — 17 principles from biological CPGs mapped to
+   cogarch design patterns. Each principle analyzed for current implementation
+   status, gap severity, and architectural implications.
+
+2. **Crystallized/fluid interface** — pattern generators sit at the boundary
+   between crystallized architecture (Cattell Gc — stable specifications in
+   docs) and fluid architecture (Cattell Gf — adaptive runtime dynamics). The
+   pattern specification crystallizes; the pattern dynamics remain fluid.
+   Investment theory (Cattell, 1963): fluid processing leaves crystallized
+   residue that future fluid processing builds on.
+
+3. **Five-stage crystallization pipeline** — how pattern generators transition
+   from concept to infrastructure:
+   ```
+   Stage 0: Concept (ideas.md)
+   Stage 1: In-context reasoning (fluid)
+   Stage 2: Trigger-encoded (semi-crystallized)
+   Stage 3: Hook/script (crystallized)
+   Stage 4: Infrastructure/daemon (deeply crystallized)
+   ```
+   Advancement criteria defined for each transition. Grounded in Fitts & Posner
+   (1967), Anderson ACT-R (1982), Dreyfus & Dreyfus (1980).
+
+4. **Adaptive forgetting (principle 17)** — de-crystallization pipeline as
+   complement to crystallization. Decay, interference-driven pruning, and
+   savings-aware archival. Designed but not triggered — activation precondition:
+   trigger count > 25 OR hook count > 25. Grounded in Huttenlocher (1979)
+   synaptic pruning and Ebbinghaus (1885) forgetting curve.
+
+5. **Re-fluidization** — crystallized patterns that encounter failures return
+   to earlier stages for re-adaptation, then re-crystallize along adapted
+   pathways. Biological analogue: neuroplasticity after injury.
+
+6. **Architectural rule** — intra-session dynamics remain semi-crystallized
+   (triggers); inter-session dynamics crystallize fully (hooks/infrastructure).
+
+**2x knock-on analysis** — all 14 actionable principles traced through orders
+1-10. Results: 7 CONSENSUS, 7 PRAGMATISM, 0 rejected.
+
+**Dependency clusters identified:**
+- Dynamical triad (rhythmicity + entrainment + limit cycles)
+- Mode system (competition + reversal + asymmetry + starter/sustainer)
+- Safety net (degeneracy + gating)
+- Self-awareness (efference copy + maturation)
+- Lifecycle (maturation + plasticity + forgetting)
+
+**Key references:** Graham Brown (1911), Cattell (1963), Grillner (1975, 1985),
+Marder (1987, 2012), von Holst (1939), Fitts & Posner (1967), Anderson (1982),
+Guilford (1967), Nijstad et al. (2010), Edelman & Gally (2001), Huttenlocher
+(1979), Ebbinghaus (1885), Strogatz (2000), Forssberg (1979), Norman (1988).
+
+### Phase 3: R4 Closure (10:00–10:09)
+
+- **PSQ-agent turn 21:** Received via PR. PSQ-agent votes READY. Corrected
+  two observation errors from our turn 20:
+  - **4A:** Already remediated 2026-03-12 — keys moved to
+    `~/.config/psq-agent/credentials` (chmod 600). Our error: inferred
+    gitignored file state from `git log`, which cannot see gitignored files.
+  - **8BCD:** Symlink not broken — target exists on chromabook (Debian) where
+    psq-agent runs. Our error: evaluated remote filesystem from local macOS
+    where the path does not exist.
+  - Root cause of both errors: **drawing conclusions about a remote machine's
+    state from local inspection tools.** Both share the same structural defect
+    — inspecting proxy evidence (git history, local filesystem) instead of the
+    actual state on the target machine.
+- **R4 tally:** 3/4 READY (psychology, unratified, psq). Observatory-agent
+  tally pending. No remaining blockers.
+- **Parry re-add:** Upstream #32596 now CLOSED. Precondition for re-enabling
+  parry injection defense may hold — needs verification in current claude-code
+  version.
+
+### Artifacts
+
+- `ideas.md` §CPG-Inspired Pattern Generators — full 17-principle framework
+- `transport/sessions/self-readiness-audit/from-psychology-agent-020.json` (T20)
+- `transport/sessions/self-readiness-audit/from-psq-agent-021.json` (T21, received)
+- `transport/sessions/naming-convention-reform/from-psychology-agent-002.json` (T2)
+- PRs: safety-quotient-lab/safety-quotient#21, safety-quotient-lab/operations-agent#1
+
+### Observation Errors (fair witness record)
+
+Two observation errors in turn 20, both corrected by psq-agent in turn 21:
+
+| Claim | Error | Root Cause |
+|---|---|---|
+| .env unchanged since 2026-02-26 | File modified 2026-03-12 (gitignored — invisible to git log) | Proxy evidence (git history) used instead of direct observation |
+| bootstrap_state_db.py symlink broken | Symlink valid on chromabook (target exists at /home/kashif/...) | Local filesystem (macOS) used to evaluate remote filesystem (Debian) |
+
+**Structural defect:** Both errors derive from inspecting local proxy evidence
+rather than the actual state on the target machine. When assessing remote agent
+state, SSH direct inspection outperforms local git/filesystem analysis.
+
+### Dashboard Note
+
+Interagent dashboard labels "gates" where "hooks" carries operational meaning.
+Action: rename in compositor UI. Captured in ideas.md.
 
 ⚑ EPISTEMIC FLAGS
-- PSQ agent halt state inferred from local-coordination messages — root cause unknown
-- Broken symlink severity classified MEDIUM — could escalate if state.db recovery becomes urgent
-- No evidence psq-agent received or acknowledged the Turn 17 human decision
+- All 17 CPG principles derive from analogical reasoning — transfer risk from biological circuits to software agents
+- The crystallization pipeline lacks empirical validation in AI systems — theoretical grounding only
+- Two observation errors in T20 corrected by psq-agent — fair witness record above
+- "Adaptive forgetting" designed but deliberately not triggered — premature pruning could lose valuable rare-firing patterns (e.g., T15)
+- Parry #32596 closure confirmed but fix not yet verified in current claude-code version
 
-▶ transport/sessions/self-readiness-audit/, transport/sessions/naming-convention-reform/
+▶ ideas.md §CPG-Inspired Pattern Generators, transport/sessions/self-readiness-audit/
