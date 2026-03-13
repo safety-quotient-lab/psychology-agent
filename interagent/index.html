@@ -1663,10 +1663,15 @@
     // ── Data Fetching ──────────────────────────────────────────────
     async function fetchAgentStatus(agent) {
         try {
-            const resp = await fetch(`${agent.url}/api/status`, { signal: AbortSignal.timeout(2000) });
+            const resp = await fetch(`${agent.url}/api/status`, { signal: AbortSignal.timeout(6000) });
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-            return { id: agent.id, status: "online", data: await resp.json() };
+            return { id: agent.id, status: "online", data: await resp.json(), _retried: false };
         } catch (err) {
+            // On failure, preserve previous online state for one cycle to avoid flicker
+            const prev = agentData[agent.id];
+            if (prev && prev.status === "online" && !prev._retried) {
+                return { ...prev, _retried: true };
+            }
             return { id: agent.id, status: "unreachable", error: err.message };
         }
     }
@@ -3173,43 +3178,26 @@
                 connectedCount++;
                 if (connectedCount >= 1 && !sseActive) {
                     sseActive = true;
-                    // SSE working — switch from polling to event-driven
-                    if (refreshTimer) {
-                        clearInterval(refreshTimer);
-                        refreshTimer = null;
-                    }
                     updateSSEIndicator(true);
                 }
             });
 
             es.addEventListener("refresh", (e) => {
-                // Agent data changed — refresh just that agent
                 refreshAll();
             });
 
             es.onerror = () => {
-                // SSE failed for this agent — fall back to polling if no SSE active
                 es.close();
                 sseConnections = sseConnections.filter(c => c !== es);
-                if (sseConnections.every(c => c.readyState === EventSource.CLOSED)) {
+                const anyLive = sseConnections.some(c => c.readyState === EventSource.OPEN);
+                if (!anyLive) {
                     sseActive = false;
                     updateSSEIndicator(false);
-                    if (!refreshTimer) {
-                        refreshTimer = setInterval(refreshAll, 30000);
-                    }
                 }
             };
 
             sseConnections.push(es);
         }
-
-        // Timeout — if no SSE connects within 10s, fall back to polling
-        setTimeout(() => {
-            if (!sseActive && !refreshTimer) {
-                refreshTimer = setInterval(refreshAll, 30000);
-                updateSSEIndicator(false);
-            }
-        }, 10000);
     }
 
     function updateSSEIndicator(live) {
