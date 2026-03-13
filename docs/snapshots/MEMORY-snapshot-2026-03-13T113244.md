@@ -15,7 +15,6 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 | `memory/feedback_chromabook_not_hetzner.md` | Chromabook = local laptop, Hetzner = separate VPS — never conflate | Infrastructure planning |
 | `memory/feedback_cabinet_port.md` | Cabinet SSH on port 2535, not default 22 | SSH to cabinet |
 | `memory/feedback_mesh_ops_domain.md` | Mesh circuit breaker + autonomous sync = operations-agent domain | Mesh/sync operations |
-| `memory/project_work_completion_pattern.md` | Work completion pattern generator — partially implemented, needs finishing | /cycle integration, T1 carryover |
 
 ## Active Thread (2026-03-13)
 
@@ -34,10 +33,10 @@ discipline-first) with specialized sub-agents and an adversarial evaluator.
 - Parry re-add: ⚑ Upstream #32596 CLOSED — needs verification `[warm]`
 
 **Next session priorities:**
-1. Naming convention reform implementation (glossary done, renames ready — gate OPEN)
-2. Monitor CPG mode system Stage 1 across sessions for Stage 2 advancement
-3. Await unratified-agent blog post draft (PR #54 sent)
-4. Check unratified frontmatter fix for crystallized sync blog 404
+1. Implement Phase 7 (CPG mode system — generate/evaluate competition)
+2. Implement Phase 10 (dead weight removal + CLAUDE.md slimming)
+3. Blog post: CPG pattern generators (five personas via unratified)
+4. Check transport for ops-agent naming approval + unratified frontmatter fix
 
 
 ## Memory Hygiene

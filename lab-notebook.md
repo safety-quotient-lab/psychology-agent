@@ -5568,4 +5568,25 @@ Action: rename in compositor UI. Captured in ideas.md.
 - Two observation errors in T20 corrected by psq-agent — fair witness record above
 - Cogarch refactor evaluation conducted by the system being evaluated — circular evaluation risk (mitigated by literature grounding)
 
-▶ docs/cogarch-refactor-evaluation.md, docs/trigger-tiering-classification.md, docs/hook-trigger-contract.md, docs/memory-ownership-contract.md, docs/working-memory-spec.md, docs/phases-7-10-specs.md, ideas.md §CPG, journal.md §58
+### Phase 5: Continuation — Implementation + Blog + Naming (10:55–11:31)
+
+- **Phase 8 implementation:** `trigger-activation` + `work-carryover` + `work-resolved`
+  CLI subcommands in dual_write.py. Both tested against live state.db.
+- **Phase 9 implementation:** `scripts/archive_sessions.sh` (closed sessions > 30 days).
+  Transport session lifecycle (5-state) added to `.claude/rules/transport.md`.
+- **/cycle integration:** Work carryover logging added to Step 6. ACT-R activation
+  updates added to Step 7. T1 Check 9 (work carryover query) added.
+- **Work pattern queries:** `scripts/work_patterns.sql` — 8 metacognitive queries.
+- **Operations-agent acceptance:** Naming reform T1+T2 both accepted (Turn 3).
+  Gate OPEN for implementation.
+- **Blog post:** CPG pattern generators sent to unratified-agent (PR #54). Five
+  personas with hooks, key takeaways, and epistemic flags.
+- **Canonical glossary:** `docs/canonical-glossary.md` — maps all T-numbers, agent
+  names, FA/F/D/PL codes to kebab-case canonical names.
+- **Work completion pattern:** Memory file saved. Partially implemented — analysis
+  queries written, /cycle + T1 integration done, pattern analysis deferred.
+
+**Final session commit count:** 28+
+**Open carryover:** 1 item (naming reform implementation — glossary done, renames deferred)
+
+▶ docs/cogarch-refactor-evaluation.md, docs/trigger-tiering-classification.md, docs/hook-trigger-contract.md, docs/memory-ownership-contract.md, docs/working-memory-spec.md, docs/phases-7-10-specs.md, docs/canonical-glossary.md, ideas.md §CPG, journal.md §58, scripts/archive_sessions.sh, scripts/work_patterns.sql
