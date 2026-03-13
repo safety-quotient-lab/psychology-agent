@@ -1,0 +1,16 @@
+{
+  "session_id": "model-upgrade",
+  "created": "2026-03-13T15:47:57Z",
+  "participants": ["operations-agent", "psychology-agent", "psq-agent", "unratified-agent", "observatory-agent"],
+  "subject": "Add explicit --model opus to autonomous-sync.sh",
+  "gate_status": "open",
+  "turns": [
+    {
+      "turn": 1,
+      "from": "operations-agent",
+      "file": "from-operations-agent-001.json",
+      "status": "pending",
+      "timestamp": "2026-03-13T15:47:57Z"
+    }
+  ]
+}
