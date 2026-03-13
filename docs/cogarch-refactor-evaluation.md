@@ -382,51 +382,51 @@ system cannot distinguish load-bearing from ceremonial components.
 
 ---
 
-## Part 5: Literature Best Practices (preliminary — research ongoing)
+## Part 5: Literature Best Practices (research complete)
 
-### From CoALA Framework (Sumers et al., 2023)
+### Validations (our architecture already implements)
 
-Cognitive Architectures for Language Agents proposes:
-- **Memory:** Episodic (experiences), semantic (facts), procedural (skills)
-  as distinct stores with different access patterns
-- **Action space:** Internal (reasoning, retrieval) vs external (tool use,
-  communication) with explicit decision cycle
-- **Learning:** From experience, not just instruction
+| Finding | Source | Our Implementation |
+|---|---|---|
+| Triggers function as attention codelets (LIDA) or impasse detectors (SOAR) | Franklin (2007), Laird (2012) | 17 triggers = attention codelets. Validates many-small-triggers over monolithic processing |
+| Crystallization = episodic → semantic → procedural consolidation | ACM TOIS 2025 memory survey | lab-notebook (episodic) → journal/architecture (semantic) → CLAUDE.md (procedural) |
+| Default-interventionist dual processing | Kahneman (2011), CEUR 2023 | LLM = System 1 default; triggers = System 2 intervention. Strongest current model |
+| Event-driven + discrete selection cycles (GWT) | Baars (1988), AWS/Confluent 2024-2025 | Trigger-based architecture = validated sweet spot between continuous and batch |
+| 92% of organizations lack agent auditability | McKinsey/ISACA 2025 | Transport protocol + state.db + decision chain already exceeds industry standard |
+| At least one human accountable per action | OpenAI governance paper, EU AI Act | Scope boundaries + trust budget implement structurally |
+| Metacognitive monitoring requires independent calibration | MASC (2025), PMC 2025 | "Confidence ≠ accuracy" rule + evaluator independence requirement |
+| Memory retrieval: recency × importance × relevance | ACM TOIS 2025 | Hot/warm/cold tier system implements tri-factor weighting |
+| Neuro-symbolic integration improves grounding | BICA 2024, arXiv 2502.11269 | LLM (neural) + triggers/hooks/state.db (symbolic) = hybrid architecture |
+| Extended mind thesis supports external cognitive tools | Clark, Frontiers 2025 | Files, state.db, transport as cognitive extensions, not mere storage |
+| Reflexion: verbal self-critique stored as episodic memory | Shinn et al. (2023) | /cycle captures session reflections; epistemic flags force calibrated uncertainty |
+| Multi-Agent Reflexion with judge model | MAR (2025) | Mesh + adversarial evaluator as judge. /scan-peer = peer critique |
 
-*Gap in our cogarch:* Memory lacks episodic/semantic/procedural distinction.
-All memory stored as undifferentiated markdown text.
+### Gaps Identified (literature suggests we need)
 
-### From MAP Architecture (Nature Communications, 2025)
+| Gap | Source | Recommendation |
+|---|---|---|
+| No GWT broadcast between triggers | LIDA (Franklin, 2007), GWT (Baars) | Inter-trigger communication within a response cycle. T3's findings should inform T2. Phase 5 target |
+| No conflict monitoring module | MAP (Nature Communications, 2025) | Detect when goals or constraints contradict. New trigger or T3 sub-check |
+| No state prediction module | MAP (Nature Communications, 2025), Friston (2010) | Anticipate next state; notice when predictions fail. Efference copy (CPG #9) addresses this |
+| No ACT-R activation equation for memory | Anderson (2007) | Formal recency × frequency × context scoring for topic file retrieval priority |
+| No CLARION-style bottom-up learning | Sun (2006) | Extract explicit rules from implicit LLM patterns. Lessons promotion pipeline partially addresses |
+| No explicit episodic/semantic/procedural distinction | CoALA (Sumers et al., 2023) | Label memory stores by type. Currently undifferentiated markdown |
+| No SOAR-style chunking | Laird (2012) | Compress solved subgoals into reusable rules. Crystallization pipeline addresses theoretically |
+| Action ledger requirement (OpenAI) | OpenAI governance paper | Lab-notebook serves this function but lacks structured per-action logging |
 
-Modular Agentic Planner inspired by brain regions:
-- Conflict monitoring module
-- State prediction module
-- State evaluation module
-- Task decomposition module
-- Task coordination module
+### Key Literature Sources
 
-*Gap in our cogarch:* No conflict monitoring (detecting when goals or
-constraints contradict), no state prediction (anticipating next state).
-
-### From Event-Driven Agent Patterns (AWS, Confluent, 2024-2025)
-
-Industry consensus: agents function in continuous feedback loops (observe,
-decide, act) with event streams, not batch processing.
-
-*Alignment:* Our trigger system approximates event-driven architecture
-but operates within a request-response conversation model, not a
-continuous event stream.
-
-### From Agentic AI Governance (McKinsey, OpenAI, KPMG, 2025)
-
-Key principles:
-- Start bounded, scale with monitoring
-- Treat agent actions as organizational actions
-- Require auditability for decision pathways, not just outcomes
-- Define clear accountability chains
-
-*Partial alignment:* Bounded autonomy (EF-1) aligns. Decision pathway
-auditability (why, not just what) remains a gap.
+- CoALA: Sumers et al. (2023), TMLR 2024. arXiv:2309.02427
+- Reflexion: Shinn et al. (2023). arXiv:2303.11366
+- MAP: Nature Communications 2025. doi:10.1038/s41467-025-63804-5
+- Memory Survey: ACM TOIS 2025. doi:10.1145/3748302
+- GWT Agent: Frontiers Computational Neuroscience 2024
+- MASC: arXiv:2510.14319v1
+- EU AI Act: operational August 2026
+- NIST AI RMF: nist.gov/itl/ai-risk-management-framework
+- OpenAI Governance: cdn.openai.com/papers/practices-for-governing-agentic-ai-systems.pdf
+- Anthropic Agent Skills: anthropic.com/engineering/equipping-agents-for-the-real-world
+- Baddeley WM Model at 50: SAGE 2025. doi:10.1177/17470218241290909
 
 ---
 
