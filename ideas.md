@@ -505,89 +505,130 @@ interagent) reference. Two layers:
 
 ---
 
-## Einstein-Freud Theory of War — Theoretical Integration
+## Einstein-Freud and the Rights Foundation of Psychoemotional Safety
 
 Source: Einstein, A. & Freud, S. (1933). *Warum Krieg?* [Why War?]. Paris:
 International Institute of Intellectual Cooperation, League of Nations.
+Secondary: United Nations (1948). *Universal Declaration of Human Rights*.
+Secondary: Hicks, D. (2011). *Dignity: Its Essential Role in Resolving Conflict*.
 
-The 1932 Einstein-Freud correspondence represents one of the earliest attempts
-to apply psychoanalytic theory to international governance. The exchange
-produces a theoretical framework — the Eros/Thanatos duality operating at
-collective scale — that maps to agent cognitive architecture at multiple levels.
+The 1932 Einstein-Freud correspondence asked a deceptively simple question:
+why do humans keep making war, and what structural conditions prevent it?
+Einstein framed this as a **rights and governance problem** — how do we
+prevent powerful actors from bending weaker ones to serve destructive ends?
+Freud contributed one lasting insight: destructive impulses function as an
+**endless generator** — they never deplete, only redirect. You cannot
+eliminate them; you can only channel them through structure.
 
-**Core mapping: Eros/Thanatos → Generate/Evaluate mode competition**
+That endless generator argument stands independent of Freud's broader drive
+theory (Eros/Thanatos), which post-Freudian psychology largely moved away
+from. We accept the structural observation — destructive potential never
+reaches zero — without adopting the psychoanalytic apparatus.
 
-Freud's drive theory posits two fundamental forces: Eros (life drive — binding,
-constructive, seeking connection) and Thanatos (death drive — destructive,
-dissolving, seeking entropy). Neither operates alone; their dynamic tension
-produces all complex behavior. War emerges when Thanatos dominates collectively;
-peace requires strengthening Eros (emotional bonds, cultural sublimation).
+The productive reframe grounds this correspondence in **rights**, not drives.
 
-The CPG mode system (principle 4) implements this duality:
-- **Generative mode = Eros** — binding ideas, creating connections, producing
-  new structure. The constructive drive.
-- **Evaluative mode = Thanatos** — dissolving weak arguments, pruning errors,
-  critiquing structure. The destructive drive in service of quality.
-- **Fatigue-based switching** = the dynamic tension. Neither mode dominates
-  indefinitely. Extended generation without evaluation produces unchecked
-  growth (Eros without Thanatos = cancer, in Freud's biological analogy);
-  extended evaluation without generation produces sterile criticism
-  (Thanatos without Eros = death).
 
-**PSQ as Eros/Thanatos quantification**
+**Rights foundation: UDHR → dignity → psychoemotional safety**
 
-The PSQ's 10 dimensions operationalize what Freud described abstractly.
-Threat exposure, hostility index, trust conditions — these quantify the
-balance between constructive and destructive forces in text. A high PSQ
-composite indicates Eros-dominant communication (psychoemotionally safe);
-a low composite indicates Thanatos-dominant communication (threatening,
-hostile, trust-eroding).
+The Universal Declaration of Human Rights (UDHR, 1948) established
+foundational principles that anchor the theoretical chain:
 
-This reframes PSQ from "safety measurement" to "Eros/Thanatos balance
-measurement" — grounding a modern computational instrument in century-old
-drive theory. The empirical question: does the Eros/Thanatos framing predict
-PSQ profile shapes better than the current factor structure?
+- **Article 1** — inherent dignity and equal rights for all human beings
+- **Article 3** — the right to security of person
+- **Article 5** — freedom from cruel, inhuman, or degrading treatment
+- **Article 19** — freedom of opinion and expression
 
-**Einstein's institutional proposal → EF-1 governance**
+Hicks (2011) operationalized dignity as something people **do to each other**
+in interaction — not an abstract endowment but a set of conditions that
+communication either honors or violates. Ten elements of dignity (acceptance
+of identity, recognition, acknowledgment, inclusion, safety, fairness,
+independence, understanding, benefit of the doubt, accountability) describe
+what respectful interaction looks like in practice.
+
+PSQ dimensions measure a complementary construct: the right to
+**psychoemotional safety** in communication — freedom from threat, hostility,
+and manipulation in textual interaction. Where Hicks describes what dignity
+looks like when honored, PSQ quantifies the degree to which communication
+threatens or preserves that safety.
+
+The layered framework:
+- **UDHR** provides the philosophical grounding — *why* these rights matter
+- **Hicks dignity** provides the interactional model — *what* respectful
+  communication looks like
+- **PSQ** provides the measurement layer — *how much* a given text honors
+  or violates psychoemotional safety
+
+
+**Einstein's governance question → EF-1 invariants**
 
 Einstein argued that lasting peace required an international authority with
 legislative power and the means to enforce its decisions — structure that
-constrains individual actors from pursuing destructive self-interest. Our
-EF-1 governance model implements exactly this: invariants that constrain
-autonomous action, a trust budget that prevents unbounded operation, and a
-human escalation path that serves as the "international authority" Einstein
-envisioned.
+constrains individual actors from pursuing destructive self-interest. He
+framed this as protecting the **rights of weaker parties** against domination
+by stronger ones.
 
-**Freud's cultural process → Crystallization pipeline**
+Our EF-1 governance model implements the same principle: invariants that
+constrain autonomous action, a trust budget that prevents unbounded
+operation, and a human escalation path. Einstein proposed structural
+protection of rights at the international level; EF-1 implements structural
+protection of rights at the agent level.
 
-Freud's counterforce to war: cultural development sublimating aggressive
-impulses into productive channels. Art, science, law — structures that
-channel Thanatos into creation rather than destruction. The crystallization
-pipeline performs the same function: fluid (potentially chaotic) cognitive
-processing gets channeled through stages into stable (productive)
-infrastructure. Aggressive self-checking (Thanatos) crystallizes into
-mechanical hooks (productive structure).
 
-**Anti-sycophancy as resistance to propaganda**
+**The endless generator and the need for structure**
 
-Freud identified emotional susceptibility as the mechanism by which ruling
-classes bend mass will toward war. The agent's anti-sycophancy mechanisms
-(T3 #5, T6 #4) resist exactly this: the pull toward agreeable-but-harmful
-responses. Sycophantic drift represents the AI equivalent of propaganda
-susceptibility — telling the user what they want to hear rather than what
-serves their interests.
+Freud's lasting contribution to the correspondence: destructive impulses
+function as an endless generator. They never exhaust. Cultural development
+channels them into productive activity — art, science, law — but the
+generator keeps running.
 
-⚡ The Eros/Thanatos framework remains controversial in academic psychology.
-Post-Freudian theorists (ego psychology, object relations, self psychology)
-largely moved away from drive theory. However, the structural mapping to
-generate/evaluate dynamics doesn't depend on whether Eros and Thanatos exist
-as biological drives — it depends on whether the constructive/destructive
-duality describes a useful design pattern. The mapping functions as structural
-analogy, not psychoanalytic endorsement.
+This maps directly to the generate/evaluate mode competition (CPG principle
+4). Evaluative processing — the critical, pruning, dissolving function —
+never depletes. Left unstructured, it produces sterile criticism or
+destructive output. Channeled through governance (invariants, hooks, gates),
+it serves quality. The crystallization pipeline channels fluid (potentially
+chaotic) processing into stable infrastructure — the same structural
+channeling Freud described, without the drive-theory metaphysics.
 
-*Precondition for PSQ integration: PSQ structural model validated (factor
-analysis complete). The empirical question requires data.*
-*Noted: Session 84 (2026-03-13).*
+The design insight: systems that assume destructive potential reaches zero
+will eventually fail. Systems that assume an endless generator and build
+structural channeling persist.
+
+
+**Anti-sycophancy as rights protection**
+
+Einstein and Freud both identified emotional susceptibility as a mechanism
+of exploitation — powerful actors manipulate emotional responses to override
+rational self-interest. The agent's anti-sycophancy mechanisms (substance
+gate T3 #5, position audit T6 #4) protect the user's right to honest,
+unmanipulated communication. Sycophantic drift — telling the user what they
+want to hear rather than what serves their interests — violates the same
+dignity elements Hicks identifies: it denies acknowledgment of reality and
+undermines the benefit of the doubt.
+
+This reframes anti-sycophancy from a technical quality measure to a
+**rights-protective mechanism**: the user has a right to communication that
+respects their dignity, which requires honesty even when honesty produces
+discomfort.
+
+
+⚑ EPISTEMIC FLAGS
+- The UDHR-to-PSQ chain involves analogical transfer across levels of
+  analysis (international law → interpersonal interaction → text measurement).
+  Each link requires independent validation.
+- Hicks' dignity elements and PSQ dimensions measure overlapping but distinct
+  constructs. Convergent validity has not yet been established empirically
+  (Dignity Index Phase A addresses this).
+- The "endless generator" argument represents a structural observation
+  accepted here as a design axiom, not an empirical claim about human
+  psychology.
+
+*Updated: Session 85 (2026-03-13). Reframed from drive theory to rights.*
+
+**Deep treatment:** `docs/einstein-freud-rights-theory.md` — full theoretical
+development with UDHR article mapping, Hicks element ↔ PSQ dimension convergence
+map, Phase A empirical evidence, endless generator as design axiom with cross-domain
+parallels, governance-as-rights-protection analysis, anti-sycophancy as dignity
+violation, crystallization pipeline as rights infrastructure.
 
 ---
 
