@@ -332,10 +332,12 @@ async function buildPulseData(registry, cacheStatus, refreshedAt) {
   const degraded = agents.filter(a => a.status === "degraded");
   const unreachable = agents.filter(a => a.status === "unreachable" || a.status === "unavailable");
 
-  // Only count agents that actually report budget data
-  const withBudget = online.filter(a => a.data?.autonomy_budget);
+  // Only count agents that actually report numeric budget data (not empty {})
+  const withBudget = online.filter(a =>
+    typeof a.data?.autonomy_budget?.budget_current === "number"
+  );
   const totalBudget = withBudget.reduce((sum, a) => sum + a.data.autonomy_budget.budget_current, 0);
-  const maxBudget = withBudget.reduce((sum, a) => sum + a.data.autonomy_budget.budget_max, 0);
+  const maxBudget = withBudget.reduce((sum, a) => sum + (a.data.autonomy_budget.budget_max || 0), 0);
   const totalPending = online.reduce((sum, a) =>
     sum + ((a.data?.totals || {}).unprocessed || 0), 0);
   const totalGates = online.reduce((sum, a) =>
@@ -346,7 +348,7 @@ async function buildPulseData(registry, cacheStatus, refreshedAt) {
       return { id: a.id, status: a.status, error: a.error || null };
     }
     const b = a.data?.autonomy_budget;
-    if (!b) {
+    if (!b || typeof b.budget_current !== "number") {
       return {
         id: a.id,
         status: "online",
@@ -414,15 +416,17 @@ async function buildOperationsData(registry) {
   const online = agents.filter(a => a.status === "online");
 
   // Autonomy budgets per agent
+  // Distinguish "agent reports budget_current=0" from "agent returned no budget data"
   const budgets = online.map(a => {
     const b = a.data?.autonomy_budget || {};
-    const cur = b.budget_current ?? 0;
-    const max = b.budget_max ?? 50;
+    const hasBudgetData = typeof b.budget_current === "number";
+    const cur = hasBudgetData ? b.budget_current : null;
+    const max = typeof b.budget_max === "number" ? b.budget_max : null;
     return {
       agent_id: a.id,
       budget_current: cur,
       budget_max: max,
-      budget_pct: max > 0 ? Math.round((cur / max) * 100) : 0,
+      budget_pct: (cur !== null && max > 0) ? Math.round((cur / max) * 100) : null,
       last_action: b.last_action || null,
       min_action_interval: b.min_action_interval ?? 300,
     };
@@ -461,9 +465,10 @@ async function buildOperationsData(registry) {
     };
   });
 
-  // Vitals summary
-  const totalCredits = budgets.reduce((s, b) => s + b.budget_current, 0);
-  const maxCredits = budgets.reduce((s, b) => s + b.budget_max, 0);
+  // Vitals summary — only count agents that report budget data
+  const withBudgetData = budgets.filter(b => b.budget_current !== null);
+  const totalCredits = withBudgetData.reduce((s, b) => s + b.budget_current, 0);
+  const maxCredits = withBudgetData.reduce((s, b) => s + (b.budget_max || 0), 0);
   const syncing = schedules.filter(s => s.status === "active").length;
 
   return {
@@ -495,12 +500,13 @@ async function fetchMeshHealth(registry) {
       return { id: a.id, status: a.status, error: a.error || null };
     }
     const b = a.data?.autonomy_budget || {};
-    const cur = b.budget_current ?? 0;
-    const max = b.budget_max ?? 50;
+    const hasBudget = typeof b.budget_current === "number";
+    const cur = hasBudget ? b.budget_current : null;
+    const max = typeof b.budget_max === "number" ? b.budget_max : null;
     return {
       id: a.id,
       status: "online",
-      budget_pct: max > 0 ? Math.round((cur / max) * 100) : 0,
+      budget_pct: (cur !== null && max > 0) ? Math.round((cur / max) * 100) : null,
       unprocessed: (a.data?.totals || {}).unprocessed || 0,
       active_gates: (a.data?.active_gates || []).length,
       schema_version: a.data?.schema_version || null,
@@ -509,7 +515,8 @@ async function fetchMeshHealth(registry) {
   });
 
   const onlineSummaries = agentSummaries.filter(a => a.status === "online");
-  const worstBudget = onlineSummaries.length > 0 ? Math.min(...onlineSummaries.map(a => a.budget_pct)) : 0;
+  const withBudgetPct = onlineSummaries.filter(a => a.budget_pct !== null);
+  const worstBudget = withBudgetPct.length > 0 ? Math.min(...withBudgetPct.map(a => a.budget_pct)) : null;
   const totalPending = onlineSummaries.reduce((sum, a) => sum + (a.unprocessed || 0), 0);
 
   // Exclude "unavailable" agents (card never served) from health calculation
