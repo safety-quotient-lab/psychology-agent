@@ -77,7 +77,7 @@ to implementation phase.*
 | Scope | Status |
 |---|---|
 | Canonical glossary | ✓ Created (this document) |
-| Trigger headings in cognitive-triggers.md | Planned — next implementation step |
+| Trigger headings in cognitive-triggers.md | ✓ Complete — all 17 headings renamed (Session 84) |
 | CLAUDE.md exemption narrowing | Planned |
 | Peer notification | ✓ Operations-agent notified + approved (Turn 3) |
 | psq-agent → safety-quotient-agent | Planned — requires DNS + transport migration |
