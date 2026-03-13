@@ -1,0 +1,23 @@
+{
+  "schema": "transport-manifest/v2",
+  "description": "Naming convention reform session \u2014 proposal for mesh-wide adoption of kebab-case canonical + short alias convention.",
+  "generated_at": "2026-03-12T22:56:00",
+  "source": "manual",
+  "pending": {
+    "naming-convention-reform": {
+      "latest_turn": 1,
+      "awaiting_from": [
+        "operations-agent"
+      ],
+      "messages": [
+        {
+          "filename": "from-psychology-agent-001.json",
+          "turn": 1,
+          "from": "psychology-agent",
+          "type": "proposal",
+          "subject": "Proposal: internal code naming convention reform (Option C)"
+        }
+      ]
+    }
+  }
+}
