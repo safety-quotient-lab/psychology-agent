@@ -21,22 +21,26 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 84. ★★ Landmark session — CPG framework (17 principles)
-+ cogarch radical refactor (55 findings, 10-phase roadmap, 6 phases done/spec'd).
+**Where we stopped:** Session 84. ★ Significant — CPG pattern generator framework
+(17 principles, crystallization pipeline, adaptive forgetting). R4 tally 3/4 READY.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
-- **Cogarch refactor: Phases 1-4+6 DONE, Phase 5 SPEC, 7-10 SPEC** `[hot]`
-- **CPG pattern generators: 17 principles in ideas.md, journal §58** `[hot]`
-- Self-readiness audit: ✓ R4 tally 3/4 READY. Observatory tally pending `[warm]`
-- Operations-agent: Naming reform T1+T2 delivered (PR #1) `[warm]`
-- Blog posts: CPG post planned + crystallized sync post 404 `[warm]`
+- **CPG pattern generators: ★ NEW — 17 principles in ideas.md, journal §58** `[hot]`
+- Crystallized sync: ✓ Steps 1-7 complete + deployed. 52% rate on 123 msgs `[warm]`
+- agentdb: ✓ Phases 1-5 complete. Phase 6 (Python cleanup) eligible 2026-03-19 `[warm]`
+- SSE dashboards: ✓ Both meshd (Go) and mesh-status.py (Python) serve /events `[warm]`
+- Operations-agent: ✓ Turns 1-6 done. Naming reform T1+T2 delivered (PR #1) `[hot]`
+- Self-readiness audit: ✓ R4 tally 3/4 READY (psych T18, unrat T19, psq T21). Observatory tally pending `[hot]`
+- Blog crystallized sync: ⚑ Post 404 — frontmatter mismatch, problem report sent `[hot]`
+- ZMQ transport: ✓ Merged to main. All 5 meshd instances running with gossip `[warm]`
 - Parry re-add: ⚑ Upstream #32596 CLOSED — needs verification `[warm]`
+- Blog post: ⚑ CPG pattern generators — planned, five-persona route via unratified `[hot]`
 
 **Next session priorities:**
-1. Implement Phase 7 (CPG mode system — generate/evaluate competition)
-2. Implement Phase 10 (dead weight removal + CLAUDE.md slimming)
-3. Blog post: CPG pattern generators (five personas via unratified)
-4. Check transport for ops-agent naming approval + unratified frontmatter fix
+1. Select CPG dependency cluster for Stage 0→1 advancement (mode system recommended)
+2. Blog post: CPG pattern generators (voter=basic science explained simply; five personas)
+3. Check transport for unratified-agent frontmatter fix + ops-agent naming approval
+4. Verify parry re-add precondition (#32596 fix in current claude-code version)
 
 
 ## Memory Hygiene
