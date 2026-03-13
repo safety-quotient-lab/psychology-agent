@@ -8,21 +8,23 @@
 
 set -eo pipefail
 
+# shellcheck source=agents.conf.sh
+source "$(dirname "$0")/agents.conf.sh"
+
 VERBOSE="${1:-}"
-SSH_HOST="${AGENT_SSH_HOST:-chromabook}"
 
 printf "%-22s %8s  %s\n" "AGENT" "PENDING" "SESSIONS"
 printf "%-22s %8s  %s\n" "-----" "-------" "--------"
 
+REMOTE_PAIRS=""
+for pair in "${AGENT_DIR_PAIRS[@]}"; do
+  REMOTE_PAIRS="${REMOTE_PAIRS} \"${pair}\""
+done
+
 ssh "${SSH_HOST}" '
 VERBOSE="'"${VERBOSE}"'"
 
-for pair in \
-  "psychology-agent:/home/kashif/projects/psychology" \
-  "psq-agent:/home/kashif/projects/psychology/safety-quotient" \
-  "unratified-agent:/home/kashif/projects/unratified" \
-  "observatory-agent:/home/kashif/projects/observatory"; do
-
+for pair in '"${REMOTE_PAIRS}"'; do
   agent_id="${pair%%:*}"
   project_dir="${pair#*:}"
   total=0

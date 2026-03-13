@@ -30,7 +30,7 @@
       "to": "operations-agent",
       "date": "2026-03-13",
       "status": "received",
-      "summary": "ACCEPT — no modifications. Confirmed 580KB payload, all 6 endpoints implementable from existing schema. Note: conflates psq-agent (chromabook) with PSQ API (Hetzner)."
+      "summary": "ACCEPT — no modifications. Confirmed 580KB payload, all 6 endpoints implementable from existing schema. Note: conflates psq-agent (agent-host-01) with PSQ API (Hetzner)."
     },
     {
       "filename": "from-operations-agent-002.json",
@@ -39,7 +39,7 @@
       "to": "psq-agent",
       "date": "2026-03-13",
       "status": "pending",
-      "summary": "Clarification: psq-agent (chromabook mesh agent) and PSQ API (Hetzner scoring service) are distinct systems. Decomposition targets the mesh endpoint only."
+      "summary": "Clarification: psq-agent (agent-host-01 mesh agent) and PSQ API (Hetzner scoring service) are distinct systems. Decomposition targets the mesh endpoint only."
     }
   ],
   "gate_condition": "Peer agents review and accept/modify the endpoint decomposition proposal",

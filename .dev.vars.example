@@ -17,6 +17,10 @@ ZULIP_URL=
 ZULIP_EMAIL=
 ZULIP_API_KEY=
 
-# SSH host for this agent's machine (configure per deployment)
-AGENT_HOST=localhost
+# SSH host for the agent deployment machine (used by ops scripts)
+AGENT_SSH_HOST=localhost
 AGENT_SSH_PORT=22
+
+# Base directory where agent projects live on the remote host
+# Scripts derive per-agent paths from this (e.g., $AGENT_BASE_DIR/psychology)
+AGENT_BASE_DIR=/home/user/projects

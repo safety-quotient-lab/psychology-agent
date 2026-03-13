@@ -12,8 +12,10 @@
 
 set -eo pipefail
 
+# shellcheck source=agents.conf.sh
+source "$(dirname "$0")/agents.conf.sh"
+
 ACTION="${1:-on}"
-SSH_HOST="${AGENT_SSH_HOST:-chromabook}"
 PAUSE_FILE="/tmp/mesh-pause"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 

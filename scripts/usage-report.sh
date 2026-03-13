@@ -9,7 +9,9 @@
 
 set -eo pipefail
 
-SSH_HOST="${AGENT_SSH_HOST:-chromabook}"
+# shellcheck source=agents.conf.sh
+source "$(dirname "$0")/agents.conf.sh"
+
 FILTER_AGENT=""
 DATE_FILTER="today"
 
@@ -84,8 +86,8 @@ if not agents:
     sys.exit(0)
 
 # Header
-print(f\"{'AGENT':<22} {'SESSIONS':>8} {'COST':>10} {'IN_TOK':>10} {'OUT_TOK':>10} {'CACHE%':>7} {'TIME':>8}\")
-print(f\"{'-----':<22} {'--------':>8} {'------':>10} {'------':>10} {'-------':>10} {'------':>7} {'----':>8}\")
+print(f\"{\"AGENT\":<22} {\"SESSIONS\":>8} {\"COST\":>10} {\"IN_TOK\":>10} {\"OUT_TOK\":>10} {\"CACHE%\":>7} {\"TIME\":>8}\")
+print(f\"{\"-----\":<22} {\"--------\":>8} {\"------\":>10} {\"------\":>10} {\"-------\":>10} {\"------\":>7} {\"----\":>8}\")
 
 total_cost = 0
 total_sessions = 0
@@ -96,12 +98,12 @@ for agent in sorted(agents.keys()):
     cache_pct = (a[\"cache_read\"] / total_in * 100) if total_in > 0 else 0
     duration_min = a[\"duration_ms\"] / 60000
 
-    print(f\"{agent:<22} {a['sessions']:>8} {a['cost_usd']:>9.2f}$ {a['input_tokens']:>10,} {a['output_tokens']:>10,} {cache_pct:>6.1f}% {duration_min:>7.1f}m\")
+    print(f\"{agent:<22} {a[\"sessions\"]:>8} {a[\"cost_usd\"]:>9.2f}$ {a[\"input_tokens\"]:>10,} {a[\"output_tokens\"]:>10,} {cache_pct:>6.1f}% {duration_min:>7.1f}m\")
 
     total_cost += a[\"cost_usd\"]
     total_sessions += a[\"sessions\"]
 
-print(f\"{'':->82}\")
-print(f\"{'TOTAL':<22} {total_sessions:>8} {total_cost:>9.2f}$\")
+print(f\"{\"\":->82}\")
+print(f\"{\"TOTAL\":<22} {total_sessions:>8} {total_cost:>9.2f}$\")
 "
 '

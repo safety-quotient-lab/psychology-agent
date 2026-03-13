@@ -101,7 +101,7 @@
       },
       "immediate_modifications_needed": [
         "Replace hardcoded AGENT_ENDPOINTS array with .well-known/agent-card.json discovery",
-        "Add operations-agent as 5th endpoint (port 8081 on chromabook, per turn 4)",
+        "Add operations-agent as 5th endpoint (port MESHD_PORT on agent-host-01, per turn 4)",
         "Update wrangler.toml ownership to operations-agent repo"
       ],
       "deferred_modifications": [
@@ -132,7 +132,7 @@
       "claude_control": [
         "Bootstrap operations-agent repo from cogarch template (7-step adaptation guide)",
         "Copy compositor files from psychology-agent interagent/ into operations-agent",
-        "Configure systemd unit for meshd on port 8081",
+        "Configure systemd unit for meshd on port MESHD_PORT",
         "Set up transport path (agent-registry, git remotes)"
       ],
       "psychology_agent": [

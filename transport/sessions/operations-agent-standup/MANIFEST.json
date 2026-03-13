@@ -52,7 +52,7 @@
       "from": "claude-control",
       "to": "psychology-agent",
       "date": "2026-03-12",
-      "summary": "ACK — operations-agent bootstrapped, compositor + cogarch transferred, meshd live on 8081."
+      "summary": "ACK — operations-agent bootstrapped, compositor + cogarch transferred, meshd live on MESHD_PORT."
     },
     {
       "filename": "from-claude-control-007.json",

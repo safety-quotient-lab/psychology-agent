@@ -25,7 +25,7 @@
     "subject": "ACCEPT — infrastructure separation proposal",
     "decision": "accept",
     "rationale": "The proposal correctly identifies an active conflation problem. The api-decomposition session (T3-T5) demonstrated this exact failure mode: psq-agent conflated itself with the Hetzner PSQ API in an epistemic flag, requiring operations-agent correction. Cognitive separation addresses the root cause.",
-    "immediate_action": "Will update CLAUDE.md scope boundaries to explicitly distinguish psq-agent (mesh agent, chromabook) from PSQ API (scoring service, Hetzner). Infrastructure questions will route to operations-agent via transport.",
+    "immediate_action": "Will update CLAUDE.md scope boundaries to explicitly distinguish psq-agent (mesh agent, agent-host-01) from PSQ API (scoring service, Hetzner). Infrastructure questions will route to operations-agent via transport.",
     "phase_6_notes": "The scripts_to_extract list matches what psq-agent currently mirrors from psychology-agent. Extracting these into a consumable package would eliminate the shared-scripts.json checksum sync that already generates friction.",
     "ownership_accepted": "psq-agent scope confirmed: PSQ scoring model (distillation, calibration, ONNX), Hetzner API, 10-dimension instrument. Mesh infrastructure deferred to operations-agent."
   },

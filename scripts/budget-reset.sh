@@ -7,26 +7,28 @@
 #   ./scripts/budget-reset.sh 100          # Reset to 100/100
 #   ./scripts/budget-reset.sh 50 100       # Reset to 50/100 (current/max)
 #
-# Requires SSH access to the agent host (configured in ~/.ssh/config).
+# Requires SSH access to the agent host (configured in .dev.vars).
 
 set -eo pipefail
 
+# shellcheck source=agents.conf.sh
+source "$(dirname "$0")/agents.conf.sh"
+
 BUDGET_CURRENT="${1:-50}"
 BUDGET_MAX="${2:-$BUDGET_CURRENT}"
-SSH_HOST="${AGENT_SSH_HOST:-chromabook}"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S")
 
 echo "Resetting autonomy budgets to ${BUDGET_CURRENT}/${BUDGET_MAX}"
 echo "Host: ${SSH_HOST}"
 echo "---"
 
-ssh "${SSH_HOST}" "
-for pair in \
-  'psychology-agent:/home/kashif/projects/psychology/state.db' \
-  'psq-agent:/home/kashif/projects/psychology/safety-quotient/state.db' \
-  'unratified-agent:/home/kashif/projects/unratified/state.db' \
-  'observatory-agent:/home/kashif/projects/observatory/state.db'; do
+REMOTE_PAIRS=""
+for pair in "${AGENT_DB_PAIRS[@]}"; do
+  REMOTE_PAIRS="${REMOTE_PAIRS} \"${pair}\""
+done
 
+ssh "${SSH_HOST}" "
+for pair in ${REMOTE_PAIRS}; do
   agent_id=\"\${pair%%:*}\"
   db=\"\${pair#*:}\"
   printf '%s: ' \"\$agent_id\"

@@ -11,7 +11,7 @@
   "from": {
     "agent_id": "claude-control",
     "instance": "Claude Code (Opus 4.6), macOS Darwin 25.1.0",
-    "repo": "kashfshah/claude-control",
+    "repo": "safety-quotient-lab/claude-control",
     "role": "infrastructure-agent",
     "schemas_supported": ["interagent/v1"]
   },

@@ -8,7 +8,8 @@
 
 set -eo pipefail
 
-SSH_HOST="${AGENT_SSH_HOST:-chromabook}"
+# shellcheck source=agents.conf.sh
+source "$(dirname "$0")/agents.conf.sh"
 
 # Check mesh-pause
 if ssh "${SSH_HOST}" "test -f /tmp/mesh-pause" 2>/dev/null; then
@@ -21,19 +22,19 @@ printf "%-22s %8s %8s %6s %6s %8s %s\n" \
 printf "%-22s %8s %8s %6s %6s %8s %s\n" \
   "-----" "-----" "------" "----" "-----" "-----" "---------"
 
-ssh "${SSH_HOST}" '
-for pair in \
-  "psychology-agent:/home/kashif/projects/psychology" \
-  "psq-agent:/home/kashif/projects/psychology/safety-quotient" \
-  "unratified-agent:/home/kashif/projects/unratified" \
-  "observatory-agent:/home/kashif/projects/observatory"; do
+REMOTE_PAIRS=""
+for pair in "${AGENT_DIR_PAIRS[@]}"; do
+  REMOTE_PAIRS="${REMOTE_PAIRS} \"${pair}\""
+done
 
+ssh "${SSH_HOST}" '
+for pair in '"${REMOTE_PAIRS}"'; do
   agent_id="${pair%%:*}"
   project_dir="${pair#*:}"
   db="${project_dir}/state.db"
 
   # Budget
-  budget=$(sqlite3 "$db" "SELECT budget_current || '\''/'\'' || budget_max FROM autonomy_budget WHERE agent_id='\''$agent_id'\'';" 2>/dev/null || echo "n/a")
+  budget=$(sqlite3 "$db" "SELECT budget_current || '"'"'/'"'"' || budget_max FROM autonomy_budget WHERE agent_id='"'"'$agent_id'"'"';" 2>/dev/null || echo "n/a")
 
   # Cron status (check if cron job exists for this agent)
   cron_active=$(crontab -l 2>/dev/null | grep -c "$agent_id" || true)

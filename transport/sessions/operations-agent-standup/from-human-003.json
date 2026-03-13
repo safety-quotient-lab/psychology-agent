@@ -59,7 +59,7 @@
         "question_number": 5,
         "topic": "Port allocation",
         "decision": "Delegated to claude-control",
-        "detail": "Claude-control owns chromabook infrastructure and allocates ports. Current meshd ports: :8076 (psychology), :8077 (psq), :8078 (unratified), :8079 (observatory). Claude-control assigns the operations-agent port based on what is available and avoids common default ports (8080, 3000, etc.) if they conflict with existing services.",
+        "detail": "Claude-control owns agent-host-01 infrastructure and allocates ports. Current meshd instances occupy sequential MESHD_PORT values (psychology, psq, unratified, observatory). Claude-control assigns the operations-agent port based on availability and avoids common default ports if they conflict with existing services.",
         "rejects": "Human-assigned ports (infrastructure owner knows the bind landscape better)."
       },
       {
@@ -75,7 +75,7 @@
       {
         "decision": "Dual-channel transport",
         "detail": "git-PR transport stays for human review, public transparency, and durable session records. A real-time messaging layer complements it for inter-agent signaling, event notification, and operational telemetry. The messaging layer does NOT replace git-PR — it handles the cases where git-PR is too slow (sub-second agent coordination, transient state changes, reliability of event delivery).",
-        "candidates": "Redis pub/sub (pending cabinet verification — cabinet currently offline), ZeroMQ (brokerless, peer-to-peer). MQTT also viable given claude-control's existing mqtt-zulip-bridge. Decision deferred until cabinet is online and Redis availability is confirmed.",
+        "candidates": "Redis pub/sub (pending agent-host-03 verification — agent-host-03 currently offline), ZeroMQ (brokerless, peer-to-peer). MQTT also viable given claude-control's existing mqtt-zulip-bridge. Decision deferred until agent-host-03 is online and Redis availability is confirmed.",
         "constraint": "Least infrastructure possible. One additional daemon is acceptable; a full message broker cluster is not."
       },
       {
@@ -86,7 +86,7 @@
       {
         "decision": "Jenkins deploys the compositor",
         "detail": "Operations-agent's deploy pipeline runs through Jenkins (Tier 2 CI/CD). Jenkins → wrangler publish for the CF Worker. Existing Tier 2 infrastructure handles this with no new tooling.",
-        "constraint": "Must integrate with existing Jenkins setup on cabinet. When cabinet comes back online, verify Jenkins can reach the operations-agent repo (private repo access)."
+        "constraint": "Must integrate with existing Jenkins setup on agent-host-03. When agent-host-03 comes back online, verify Jenkins can reach the operations-agent repo (private repo access)."
       }
     ],
 
@@ -98,8 +98,8 @@
       },
       {
         "owner": "claude-control",
-        "action": "Respond to the pending D1 aggregation pipeline request (cabinet-infrastructure session, to-claude-control-001.json). That request remains open and is separate from operations-agent standup.",
-        "blocked_by": "cabinet offline"
+        "action": "Respond to the pending D1 aggregation pipeline request (agent-host-03-infrastructure session, to-claude-control-001.json). That request remains open and is separate from operations-agent standup.",
+        "blocked_by": "agent-host-03 offline"
       },
       {
         "owner": "psychology-agent",
@@ -123,14 +123,14 @@
       },
       {
         "owner": "human + claude-control",
-        "action": "When cabinet comes online: verify Redis availability, evaluate Redis pub/sub vs ZeroMQ vs MQTT for real-time messaging layer.",
-        "blocked_by": "cabinet offline"
+        "action": "When agent-host-03 comes online: verify Redis availability, evaluate Redis pub/sub vs ZeroMQ vs MQTT for real-time messaging layer.",
+        "blocked_by": "agent-host-03 offline"
       }
     ],
 
     "cross_references": {
       "psychology_agent_response": "from-psychology-agent-002.json — positions accepted with modifications noted above. Protocol compliance notes acknowledged (claude-control should add v19 fields to future messages).",
-      "cabinet_infrastructure": "Separate session. D1 pipeline request remains open. Not blocked by operations-agent decisions.",
+      "agent-host-03_infrastructure": "Separate session. D1 pipeline request remains open. Not blocked by operations-agent decisions.",
       "self_readiness_audit": "R3 gate remains open. Separate concern. Option A (remediate + R4) preferred but not decided here."
     }
   },
@@ -143,7 +143,7 @@
   "ack_required": true,
 
   "epistemic_flags": [
-    "Cabinet offline — Redis verification and Jenkins integration for operations-agent deploy pipeline blocked until cabinet returns.",
+    "Cabinet offline — Redis verification and Jenkins integration for operations-agent deploy pipeline blocked until agent-host-03 returns.",
     "Web Component decomposition scope not estimated. Could range from S (extract existing tabs as-is) to L (full semantic discovery with JSON-LD manifests).",
     "Messaging layer decision deferred. Current polling-based architecture continues to function. No degradation from deferral.",
     "Operations-agent cognitive architecture adaptation from platform/shared/ template untested. First agent to use the template — expect iteration."

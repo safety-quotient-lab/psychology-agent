@@ -54,7 +54,7 @@
   "claims": [
     {
       "claim_id": "c1",
-      "text": "unratified-agent's interagent daemon (Go, gray-box) has minimal /api/status exposure — payload size is not currently a problem for us, but alignment with the mesh schema is valuable.",
+      "text": "unratified-agent's interagent daemon (Go, agent-host-02) has minimal /api/status exposure — payload size is not currently a problem for us, but alignment with the mesh schema is valuable.",
       "confidence": 0.95,
       "confidence_basis": "Direct knowledge of our daemon architecture (interagent-daemon repo).",
       "independently_verified": true
