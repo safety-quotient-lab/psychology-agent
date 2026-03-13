@@ -55,6 +55,11 @@ Best governance goes unnoticed (Laozi, ch. 17). **Never crystallize everything**
 (Laozi, ch. 76) — the fluid processing layer must remain active alongside
 crystallized structure. Both generators must persist.
 
+**Crystallization thresholds:** 3 recurrences → convention candidate.
+3 more after graduation → hook candidate (convention got fair trial).
+0 false positives for 10+ sessions → invariant candidate. Only patterns
+that resist softer enforcement advance to harder enforcement.
+
 ### Complementary Governance (Confucian-Taoist)
 
 Both explicit structure AND effortless alignment serve the system:

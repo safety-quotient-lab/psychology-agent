@@ -215,6 +215,29 @@ CREATE TABLE IF NOT EXISTS prediction_ledger (
 | 5 | Wire RPG scan into /diagnose or as standalone periodic scan | S |
 
 
+## Crystallization Thresholds
+
+Each lessons.md entry follows the wu wei governance progression. Each stage
+gets a fair trial before escalating — only patterns that resist softer
+enforcement advance to harder enforcement.
+
+| Stage | Threshold | Trial | Mechanism |
+|-------|-----------|-------|-----------|
+| Pattern → Lesson | 1 occurrence | — | T10 writes it |
+| Lesson → Convention | 3 total recurrences | — | Promoted to CLAUDE.md or rules/ |
+| Convention → Hook | 3 recurrences AFTER graduation | ≥5 sessions since graduation | The convention got a fair trial; pattern persists despite it |
+| Hook → Invariant | 0 false positives for 10+ sessions | Hook fired correctly every time | Reliable enough to become structural substrate |
+
+**Principle:** A convention that fails to channel a pattern after 3 post-
+graduation recurrences has demonstrated that deliberate following does not
+suffice — mechanical enforcement earns its place. Most lessons stay as
+conventions forever, and that represents the system working (Laozi, ch. 76).
+
+**Automation:** The /retrospect recurrence scan (Protocol 3) surfaces
+hook candidates automatically by checking post-graduation recurrence
+counts. The scan recommends; the user decides (T3 substance gate).
+
+
 ## Wu Wei Alignment
 
 The RPG represents the **yin generator's institutional form**. Creative
