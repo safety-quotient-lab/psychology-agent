@@ -42,6 +42,16 @@
         ]
       },
       {
+        "matcher": "Write|Edit|Bash|Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/mode-detection.sh",
+            "timeout": 500
+          }
+        ]
+      },
+      {
         "matcher": "Bash",
         "hooks": [
           {

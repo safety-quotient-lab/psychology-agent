@@ -71,11 +71,11 @@ architecture.md § S4 tradeoff).
 
 | Parameter | Default | Stored in |
 |---|---|---|
-| `budget_max` | 20 | `state.db` → `autonomy_budget` table |
-| `budget_current` | 20 (at reset) | `state.db` → `autonomy_budget` table |
-| `last_audit` | ISO timestamp | `state.db` → `autonomy_budget` table |
-| `last_action` | ISO timestamp | `state.db` → `autonomy_budget` table |
-| `min_action_interval` | 300 (seconds) | `state.db` → `autonomy_budget` table |
+| `budget_max` | 20 | `state.local.db` → `autonomy_budget` table |
+| `budget_current` | 20 (at reset) | `state.local.db` → `autonomy_budget` table |
+| `last_audit` | ISO timestamp | `state.local.db` → `autonomy_budget` table |
+| `last_action` | ISO timestamp | `state.local.db` → `autonomy_budget` table |
+| `min_action_interval` | 300 (seconds) | `state.local.db` → `autonomy_budget` table |
 
 **Temporal spacing guarantee:**
 
@@ -120,7 +120,7 @@ deferring instead of writing its halt marker.
 Resume REQUIRES human audit (direct observation of actions since
 `last_audit`) and explicit budget reset.
 
-**Budget reset:** Human runs `python3 scripts/autonomy-budget.py reset`
+**Budget reset:** Human runs `agentdb budget reset --agent-id {id}` (or legacy `python3 scripts/autonomy-budget.py reset`)
 after reviewing the audit trail. The reset command:
 1. Displays all actions since `last_audit`
 2. Requires interactive confirmation
