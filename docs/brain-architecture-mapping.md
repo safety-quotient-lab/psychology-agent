@@ -388,9 +388,118 @@ limitations of the conversation-based architecture.
 3. DMN idle-state processing (inter-session background consolidation)
 4. Neurotransmitter global modulation (2-state reconfiguration per CPG #6)
 
+## Implementation Roadmap for Gaps
+
+### Gap 1: Reinforcement Loop (Basal Ganglia)
+
+**Mechanism:** Periodic review of trigger_activations data adjusts tier
+assignments. Checks with high catch rates promote toward CRITICAL; checks
+with zero catches over 10+ sessions demote toward SPOT-CHECK.
+
+**Implementation:**
+```sql
+-- Candidates for promotion (advisory checks catching errors)
+SELECT trigger_id, check_number FROM trigger_activations
+WHERE tier = 'advisory' AND result = 'fail'
+GROUP BY trigger_id, check_number
+HAVING COUNT(*) >= 3;
+
+-- Candidates for demotion (critical checks never catching)
+SELECT trigger_id, check_number FROM trigger_activations
+WHERE tier = 'critical'
+GROUP BY trigger_id, check_number
+HAVING SUM(CASE WHEN result = 'fail' THEN 1 ELSE 0 END) = 0
+  AND COUNT(DISTINCT session_id) >= 10;
+```
+
+**Integration:** Add as /cycle Step 6c or /diagnose Level 2 recommendation.
+Human approves tier changes — no autonomous adjustment.
+
+*Precondition: 10+ sessions of trigger_activations data.*
+
+
+### Gap 2: Fast Pre-Screen (Amygdala)
+
+**Mechanism:** A lightweight PreToolUse hook that screens for critical
+threats BEFORE the agent processes the full trigger pipeline.
+
+**Screens:**
+1. Credential patterns in Write targets (API keys, tokens, passwords)
+2. Destructive commands in Bash (rm -rf, git reset --hard, drop table)
+3. Prompt injection patterns in external content (role reassignment, instruction override)
+
+**Implementation:** Extend the existing hook infrastructure:
+- `credential-screen.sh` — PreToolUse on Write|Edit, grep for key patterns
+- Parry re-add — PreToolUse on Read|WebFetch for injection patterns
+- `destructive-command-screen.sh` — PreToolUse on Bash, pattern match
+
+These run at hook level (milliseconds) before the agent commits context.
+
+*Precondition: parry #32596 fix verification for injection screening.
+Credential and destructive screens can proceed independently.*
+
+
+### Gap 3: Inter-Session Consolidation (DMN)
+
+**Mechanism:** A cron-driven process that runs between sessions to:
+1. Analyze trigger_activations for pattern emergence
+2. Identify chronic work_carryover items (sessions_carried >= 3)
+3. Run work_patterns.sql queries and store results
+4. Pre-stage a "consolidation report" that T1 loads at session start
+
+**Implementation:** Extend the existing crystallized sync cron:
+```bash
+# Add to cron alongside existing autonomous-sync
+*/30 * * * * /path/to/consolidation-pass.sh
+```
+
+The consolidation script reads state.db (read-only), generates a markdown
+report at `docs/consolidation-report.md`, and commits it. The next session's
+T1 loads this report as part of orientation.
+
+*Precondition: 10+ sessions of activation + carryover data.*
+
+
+### Gap 4: Global State Modulation (Neurotransmitters)
+
+**Mechanism:** A session-level state variable that modulates all trigger
+processing simultaneously. Two axes:
+
+| Axis | Low State | High State |
+|---|---|---|
+| **Arousal** (norepinephrine analogue) | Routine — minimal checking | Alert — expanded checking |
+| **Exploration** (dopamine analogue) | Exploit — use proven approaches | Explore — try novel approaches |
+
+**Mode × Arousal matrix:**
+
+| | Low Arousal | High Arousal |
+|---|---|---|
+| **Generative** | Casual brainstorming | Urgent creative problem-solving |
+| **Evaluative** | Routine review | Critical security audit |
+| **Neutral** | Standard work | Emergency response |
+
+**Implementation:** Extend T2 Step 0 (mode detection) to also assess arousal
+level from context cues:
+- User urgency language ("immediately", "critical", "urgent") → High arousal
+- Transport urgency field = "immediate" or "high" → High arousal
+- Context pressure > 60% → High arousal (resource scarcity)
+- Default → Low arousal
+
+Arousal level adjusts how many ADVISORY checks fire:
+- Low arousal: ADVISORY checks fire only when strong relevance signal
+- High arousal: all ADVISORY checks fire (expanded vigilance)
+
+*Precondition: CPG mode system (Phase 7) operational for 3+ sessions.*
+
+
+---
+
 ⚑ EPISTEMIC FLAGS
 - All mappings function as analogical reasoning with transfer risk
 - LOW-quality mappings (DMN, neurotransmitters) may not transfer beneficially
 - The brain operates as an integrated system; mapping individual components
   loses emergent properties that arise from their interaction
 - No empirical validation — these represent design hypotheses, not tested architecture
+- The 4 gap implementations above range from concrete (Gap 2, hook scripts) to
+  speculative (Gap 4, arousal modulation). Implementation should follow the
+  crystallization pipeline: concept → in-context reasoning → trigger → hook
