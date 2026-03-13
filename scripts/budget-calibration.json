@@ -34,7 +34,8 @@
   },
 
   "safety_rails": {
-    "max_budget_usd_per_session": 5.00,
+    "max_budget_usd_per_session": 10.00,
+    "max_budget_usd_enabled": false,
     "max_turns_per_sync": 80,
     "min_action_interval_seconds": 300,
     "mesh_pause_file": "/tmp/mesh-pause"
