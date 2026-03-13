@@ -5523,4 +5523,49 @@ Action: rename in compositor UI. Captured in ideas.md.
 - "Adaptive forgetting" designed but deliberately not triggered — premature pruning could lose valuable rare-firing patterns (e.g., T15)
 - Parry #32596 closure confirmed but fix not yet verified in current claude-code version
 
-▶ ideas.md §CPG-Inspired Pattern Generators, transport/sessions/self-readiness-audit/
+### Phase 4: Cogarch Radical Refactor (10:00–10:55)
+
+- **Three-discipline evaluation:** 55 findings across engineering (20 structural
+  weaknesses, 3 critical, 7 gaps, 4 dead weight), law (8 findings), psychology
+  (11 findings), cross-cutting (5 systemic issues).
+- **Literature research:** 30+ sources from 2023-2025. 12 validations of existing
+  architecture (LIDA, CoALA, GWT, Reflexion, EU AI Act, NIST). 8 gaps identified.
+- **10-phase refactor roadmap** created in TODO.md with dependency ordering.
+- **Phases implemented:**
+  - Phase 1: Fixed 4 critical defects (EF-1 double-negatives, /diagnose naming,
+    Linux paths, snapshot scope)
+  - Phase 2: Trigger tiering — 93 checks classified into 3 tiers (34 CRITICAL,
+    43 ADVISORY, 16 SPOT-CHECK). Tier markers (⬛/▣/▢) applied to all triggers.
+    T14 reclassified from "every decision" to advisory-only.
+  - Phase 3: Hook-trigger enforcement contract — ownership mapped for all 34
+    CRITICAL checks. Inline hook → script. Context-pressure matcher scoped.
+  - Phase 4: Memory ownership contract — authority hierarchy, conflict resolution,
+    reconciliation protocol, CoALA type mapping.
+  - Phase 6: Governance hardening — amendment procedure, violation logging.
+- **Phases spec'd:**
+  - Phase 5: Working memory model (Baddeley, Posner, GWT, ACT-R)
+  - Phases 7-10: CPG modes, metacognitive layer, transport simplification,
+    dead weight removal
+
+### Artifacts
+
+- `ideas.md` §CPG-Inspired Pattern Generators — 17 principles + crystallization pipeline
+- `docs/cogarch-refactor-evaluation.md` — 55 findings + 30+ literature sources
+- `docs/trigger-tiering-classification.md` — complete tier assignment
+- `docs/hook-trigger-contract.md` — enforcement ownership mapping
+- `docs/memory-ownership-contract.md` — authority hierarchy
+- `docs/working-memory-spec.md` — Baddeley/Posner/GWT/ACT-R integration
+- `docs/phases-7-10-specs.md` — remaining phase designs
+- `journal.md` §58 — CPG pattern generators narrative
+- Transport: T20 (status request), T21 (psq-agent READY), T2 (naming reform)
+- PRs: safety-quotient-lab/safety-quotient#21, safety-quotient-lab/operations-agent#1
+- Git tag: `pattern-generators`
+
+⚑ EPISTEMIC FLAGS
+- All 17 CPG principles derive from analogical reasoning — transfer risk present
+- Trigger tiering assignments reflect judgment, not empirical data — effectiveness tracking (Phase 8) will validate
+- Literature research used web search — publication dates and abstracts verified, full papers not read in all cases
+- Two observation errors in T20 corrected by psq-agent — fair witness record above
+- Cogarch refactor evaluation conducted by the system being evaluated — circular evaluation risk (mitigated by literature grounding)
+
+▶ docs/cogarch-refactor-evaluation.md, docs/trigger-tiering-classification.md, docs/hook-trigger-contract.md, docs/memory-ownership-contract.md, docs/working-memory-spec.md, docs/phases-7-10-specs.md, ideas.md §CPG, journal.md §58
