@@ -32,7 +32,7 @@ const AGENT_REGISTRY = [
     name: "claude-control",
     role: "infrastructure-agent",
     status_url: null,
-    card_url: "https://infrastructure.safety-quotient.dev/.well-known/agent-card.json",
+    card_url: "https://claude-control.safety-quotient.dev/.well-known/agent-card.json",
     repo: "kashfshah/claude-control",
   },
   {
@@ -40,7 +40,7 @@ const AGENT_REGISTRY = [
     name: "psychology-agent",
     role: "domain-knowledge-provider",
     status_url: "https://psychology-agent.safety-quotient.dev/api/status",
-    card_url: "https://api.safety-quotient.dev/.well-known/agent-card.json",
+    card_url: "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json",
     repo: "safety-quotient-lab/psychology-agent",
   },
   {
@@ -48,7 +48,7 @@ const AGENT_REGISTRY = [
     name: "psq-agent",
     role: "psq-scoring",
     status_url: "https://psq-agent.safety-quotient.dev/api/status",
-    card_url: "https://psq.safety-quotient.dev/.well-known/agent-card.json",
+    card_url: "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json",
     repo: "safety-quotient-lab/safety-quotient",
   },
   {
@@ -56,7 +56,7 @@ const AGENT_REGISTRY = [
     name: "operations-agent",
     role: "operations",
     status_url: null,
-    card_url: "https://operations.safety-quotient.dev/.well-known/agent-card.json",
+    card_url: "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json",
     repo: "safety-quotient-lab/operations-agent",
   },
   {
