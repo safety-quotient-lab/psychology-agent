@@ -11,13 +11,15 @@ Usage:
     python3 scripts/orientation-payload.py --post-triage   # after crystallized sync ran
 """
 import json
+import os
 import sqlite3
 import sys
 from datetime import datetime
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).parent.parent
+PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent))
 DB_PATH = PROJECT_ROOT / "state.db"
+LOCAL_DB_PATH = PROJECT_ROOT / "state.local.db"
 IDENTITY_PATH = PROJECT_ROOT / ".agent-identity.json"
 
 
@@ -26,6 +28,15 @@ def get_conn() -> sqlite3.Connection:
         print("ERROR: state.db not found", file=sys.stderr)
         sys.exit(1)
     conn = sqlite3.connect(str(DB_PATH))
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def get_local_conn() -> sqlite3.Connection | None:
+    """Connect to state.local.db (budget, actions, disclosures). Returns None if missing."""
+    if not LOCAL_DB_PATH.exists():
+        return None
+    conn = sqlite3.connect(str(LOCAL_DB_PATH))
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -134,10 +145,19 @@ def active_decisions(conn: sqlite3.Connection, limit: int = 10) -> list[dict]:
 
 
 def autonomy_budget_status(conn: sqlite3.Connection, agent_id: str) -> dict | None:
-    row = conn.execute(
-        "SELECT * FROM autonomy_budget WHERE agent_id = ?", (agent_id,)
-    ).fetchone()
-    return dict(row) if row else None
+    """Query autonomy budget from state.local.db (DB split, Session 80)."""
+    local_conn = get_local_conn()
+    if local_conn is None:
+        return None
+    try:
+        row = local_conn.execute(
+            "SELECT * FROM autonomy_budget WHERE agent_id = ?", (agent_id,)
+        ).fetchone()
+        return dict(row) if row else None
+    except Exception:
+        return None
+    finally:
+        local_conn.close()
 
 
 def stale_memory(conn: sqlite3.Connection, days_threshold: int = 5) -> list[dict]:
@@ -334,6 +354,43 @@ def format_payload(
                 f"{entry['days_stale']}d since confirmed"
             )
         lines.append("")
+
+    # Equal Information Channel — disclosure summary (Phase 5)
+    # Shows disclosure counts since last audit. Zero governance cost.
+    try:
+        if LOCAL_DB_PATH.exists():
+            import sqlite3 as sqlite
+            local_conn = sqlite.connect(str(LOCAL_DB_PATH))
+            local_conn.row_factory = sqlite.Row
+            last_audit = budget["last_audit"] if budget else "1970-01-01"
+            disc_rows = local_conn.execute(
+                "SELECT category, COUNT(*) as cnt "
+                "FROM agent_disclosures "
+                "WHERE agent_id = ? AND created_at > ? "
+                "GROUP BY category ORDER BY cnt DESC",
+                (identity["agent_id"], last_audit),
+            ).fetchall()
+            disc_total = sum(r["cnt"] for r in disc_rows)
+            if disc_total > 0:
+                lines.append(f"## Information Channel ({disc_total} disclosures since audit)")
+                for r in disc_rows:
+                    lines.append(f"  [{r['category']}] {r['cnt']}")
+                # Most recent disclosure
+                recent = local_conn.execute(
+                    "SELECT category, content, created_at "
+                    "FROM agent_disclosures "
+                    "WHERE agent_id = ? AND created_at > ? "
+                    "ORDER BY created_at DESC LIMIT 1",
+                    (identity["agent_id"], last_audit),
+                ).fetchone()
+                if recent:
+                    trunc = recent["content"][:80]
+                    lines.append(f"  Most recent [{recent['category']}]: {trunc}")
+                lines.append("  Use `agentdb disclose` to add zero-cost disclosures.")
+                lines.append("")
+            local_conn.close()
+    except Exception:
+        pass  # Non-fatal — EIC summary optional in orientation
 
     return "\n".join(lines)
 
