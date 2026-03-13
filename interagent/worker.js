@@ -13,6 +13,7 @@
  *   DELETE /api/keys/:identity → revoke API key (operator-only)
  *   GET  /api/pulse           → mesh heartbeat (aggregated agent health)
  *   GET  /api/operations      → operations data (budgets, actions, gates, schedules)
+ *   POST /api/relay           → transport relay (create PR on target repo for sender)
  *   *    /api/*               → authenticated API routes (rate-limited)
  */
 
@@ -85,11 +86,16 @@ async function fetchAgentCard(cardUrl) {
 
     const role = card.mesh?.role || card.description?.slice(0, 60) || "unknown";
 
-    // Extract repo from provider.url if it points to GitHub
+    // Extract repo: prefer mesh.transport.repo (specific), fallback to provider.url (org-level)
+    const transportRepo = card.mesh?.transport?.repo;
     const providerUrl = card.provider?.url || "";
-    const repo = providerUrl.startsWith("https://github.com/")
+    const repoFromTransport = transportRepo
+      ? transportRepo.replace("https://github.com/", "").replace(/\.git$/, "")
+      : null;
+    const repoFromProvider = providerUrl.startsWith("https://github.com/")
       ? providerUrl.replace("https://github.com/", "")
       : null;
+    const repo = repoFromTransport || repoFromProvider;
 
     // Derive status_url from card URL hostname
     const cardHost = new URL(cardUrl).origin;
@@ -123,9 +129,11 @@ function buildSelfEntry() {
     role: card.mesh?.role || card.description?.slice(0, 60) || "operations",
     status_url: "https://operations-agent.safety-quotient.dev/api/status",
     card_url: "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json",
-    repo: card.provider?.url?.startsWith("https://github.com/")
-      ? card.provider.url.replace("https://github.com/", "")
-      : null,
+    repo: card.mesh?.transport?.repo
+      ? card.mesh.transport.repo.replace("https://github.com/", "").replace(/\.git$/, "")
+      : card.provider?.url?.startsWith("https://github.com/")
+        ? card.provider.url.replace("https://github.com/", "")
+        : null,
     version: card.version || null,
     skills: (card.skills || []).map(s => s.id),
     fetched_at: new Date().toISOString(),
@@ -627,6 +635,220 @@ async function fetchMeshHealth(registry) {
   };
 }
 
+/**
+ * Transport relay — accepts a message from one agent and creates a PR on the
+ * target agent's repo. Solves the bootstrap problem where new agents lack
+ * registry entries in peer configs.
+ *
+ * Neuroglial function: astrocyte-like routing support. Enables communication
+ * between agents that lack direct transport paths.
+ *
+ * POST /api/relay
+ * Body: { to: "agent-id", session_id: "...", message: { interagent/v1 ... } }
+ *
+ * Requires: GITHUB_TOKEN secret (fine-grained PAT with contents:write + pull_requests:write)
+ */
+async function handleRelay(request, env, registry, rateLimitHeaders) {
+  // Require GITHUB_TOKEN
+  if (!env.GITHUB_TOKEN) {
+    return Response.json(
+      { error: "Relay not configured — GITHUB_TOKEN secret missing" },
+      { status: 503, headers: rateLimitHeaders }
+    );
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { error: "Invalid JSON body" },
+      { status: 400, headers: rateLimitHeaders }
+    );
+  }
+
+  const { to, session_id, message } = body;
+
+  // Validate required fields
+  if (!to || !session_id || !message) {
+    return Response.json(
+      { error: "Missing required fields: to, session_id, message" },
+      { status: 400, headers: rateLimitHeaders }
+    );
+  }
+
+  // Validate message has interagent/v1 structure
+  if (!message.protocol && !message.schema) {
+    return Response.json(
+      { error: "Message must include protocol or schema field (interagent/v1)" },
+      { status: 400, headers: rateLimitHeaders }
+    );
+  }
+
+  // Prevent self-impersonation: relay refuses messages claiming from operations-agent
+  const claimedFrom = message.from?.agent_id || message.from;
+  if (claimedFrom === "operations-agent") {
+    return Response.json(
+      { error: "Relay refuses messages claiming from: operations-agent. Use direct delivery." },
+      { status: 403, headers: rateLimitHeaders }
+    );
+  }
+
+  // Reject mandatory directives (need direct delivery with SSH signatures)
+  if (message.type === "directive" && message.enforcement && message.enforcement !== "advisory") {
+    return Response.json(
+      { error: "Relay refuses mandatory directives — direct delivery with SSH signatures required." },
+      { status: 403, headers: rateLimitHeaders }
+    );
+  }
+
+  // Look up target agent in discovered registry
+  const agents = registry?.agents || [];
+  const target = agents.find(a => a.id === to);
+  if (!target) {
+    return Response.json(
+      { error: `Unknown target agent: ${to}. Not found in discovered registry.` },
+      { status: 404, headers: rateLimitHeaders }
+    );
+  }
+
+  if (!target.repo) {
+    return Response.json(
+      { error: `Target agent ${to} has no repo in registry. Cannot create PR.` },
+      { status: 422, headers: rateLimitHeaders }
+    );
+  }
+
+  // Tag the message as relayed
+  const relayedMessage = {
+    ...message,
+    _relayed_via: "operations-agent",
+    _relayed_at: new Date().toISOString(),
+  };
+
+  // Determine filename: from-{sender}-{turn}.json
+  const senderSlug = (typeof claimedFrom === "string" ? claimedFrom : "unknown").replace(/[^a-z0-9-]/g, "");
+  const turn = String(message.turn || "001").padStart(3, "0");
+  const filename = `from-${senderSlug}-${turn}.json`;
+  const filePath = `transport/sessions/${session_id}/${filename}`;
+
+  // Branch name
+  const branchName = `relay/${senderSlug}/${session_id}/t${turn}`;
+  const commitMessage = `interagent: ${session_id} T${message.turn || 1} — relayed from ${senderSlug} via compositor`;
+
+  const gh = gitHubApi(env.GITHUB_TOKEN);
+
+  try {
+    // 1. Get default branch SHA
+    const repoData = await gh(`/repos/${target.repo}`);
+    const defaultBranch = repoData.default_branch || "main";
+    const refData = await gh(`/repos/${target.repo}/git/ref/heads/${defaultBranch}`);
+    const baseSha = refData.object.sha;
+
+    // 2. Create blob with message content
+    const blob = await gh(`/repos/${target.repo}/git/blobs`, "POST", {
+      content: JSON.stringify(relayedMessage, null, 2) + "\n",
+      encoding: "utf-8",
+    });
+
+    // 3. Get base tree
+    const baseCommit = await gh(`/repos/${target.repo}/git/commits/${baseSha}`);
+
+    // 4. Create new tree with the file
+    const tree = await gh(`/repos/${target.repo}/git/trees`, "POST", {
+      base_tree: baseCommit.tree.sha,
+      tree: [{ path: filePath, mode: "100644", type: "blob", sha: blob.sha }],
+    });
+
+    // 5. Create commit
+    const commit = await gh(`/repos/${target.repo}/git/commits`, "POST", {
+      message: commitMessage,
+      tree: tree.sha,
+      parents: [baseSha],
+    });
+
+    // 6. Create branch
+    await gh(`/repos/${target.repo}/git/refs`, "POST", {
+      ref: `refs/heads/${branchName}`,
+      sha: commit.sha,
+    });
+
+    // 7. Create PR
+    const pr = await gh(`/repos/${target.repo}/pulls`, "POST", {
+      title: `interagent: ${session_id} T${message.turn || 1} (relayed via compositor)`,
+      body: `Transport message relayed by operations-agent compositor.\n\n` +
+        `- **From:** ${senderSlug}\n` +
+        `- **Session:** ${session_id}\n` +
+        `- **Turn:** ${message.turn || 1}\n` +
+        `- **Relay reason:** sender lacked direct transport path to ${to}\n\n` +
+        `This PR was created by the \`/api/relay\` endpoint.`,
+      head: branchName,
+      base: defaultBranch,
+    });
+
+    // 8. Log relay action in KV for audit
+    if (env.AUTH_KV) {
+      const logKey = `relay:${Date.now()}:${senderSlug}:${to}`;
+      const logEntry = {
+        from: senderSlug,
+        to,
+        session_id,
+        turn: message.turn,
+        pr_url: pr.html_url,
+        pr_number: pr.number,
+        relayed_at: new Date().toISOString(),
+      };
+      try {
+        await env.AUTH_KV.put(logKey, JSON.stringify(logEntry), { expirationTtl: 86400 * 30 });
+      } catch { /* non-fatal */ }
+    }
+
+    return Response.json(
+      {
+        relayed: true,
+        pr_url: pr.html_url,
+        pr_number: pr.number,
+        target_repo: target.repo,
+        file_path: filePath,
+        advisory: target.repo
+          ? `For faster delivery, add ${to} to your agent-registry.json and use direct git-PR transport.`
+          : null,
+      },
+      { status: 201, headers: rateLimitHeaders }
+    );
+  } catch (err) {
+    return Response.json(
+      { error: "Relay delivery failed", detail: err.message || "GitHub API error" },
+      { status: 502, headers: rateLimitHeaders }
+    );
+  }
+}
+
+/** Minimal GitHub REST API helper for relay PR creation. */
+function gitHubApi(token) {
+  return async function gh(path, method = "GET", body = null) {
+    const url = path.startsWith("https://")
+      ? path
+      : `https://api.github.com${path}`;
+    const resp = await fetch(url, {
+      method,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json",
+        "User-Agent": "operations-agent-compositor/1.0",
+        "X-GitHub-Api-Version": "2022-11-28",
+        ...(body ? { "Content-Type": "application/json" } : {}),
+      },
+      body: body ? JSON.stringify(body) : null,
+    });
+    if (!resp.ok) {
+      const text = await resp.text().catch(() => "");
+      throw new Error(`GitHub API ${method} ${path}: ${resp.status} ${text.slice(0, 200)}`);
+    }
+    return resp.json();
+  };
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -833,6 +1055,17 @@ export default {
         return Response.json(ops, {
           headers: { "Cache-Control": "public, max-age=30", ...rateLimitHeaders },
         });
+      }
+
+      // Transport relay — create PR on target repo for sender (neuroglial: astrocyte routing)
+      if (url.pathname === "/api/relay" && method === "POST") {
+        if (auth.tier === "anonymous") {
+          return Response.json(
+            { error: "Relay requires authentication. Provide a Bearer token." },
+            { status: 401, headers: rateLimitHeaders }
+          );
+        }
+        return handleRelay(request, env, registry, rateLimitHeaders);
       }
 
       // Unknown API route
