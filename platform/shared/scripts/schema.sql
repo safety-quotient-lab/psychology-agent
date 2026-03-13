@@ -794,3 +794,38 @@ VALUES (18, 'Triple-write protocol — issue_url + issue_number on transport_mes
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (21, 'Claims verification + epistemic flag resolution pipelines — resolved_by column on epistemic_flags, dual_write subcommands for verify-claim and resolve-flag');
+
+
+-- ═══════════════════════════════════════════════════════════════
+-- Schema v23: Metacognitive layer — trigger activation tracking
+-- Session 84, cogarch refactor Phase 8
+-- ═══════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS trigger_activations (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id      INTEGER NOT NULL,
+    trigger_id      TEXT NOT NULL,              -- e.g., 'T3'
+    check_number    INTEGER,                    -- e.g., 5 (NULL for whole-trigger events)
+    tier            TEXT NOT NULL,              -- 'critical', 'advisory', 'spot-check'
+    mode            TEXT,                       -- 'generative', 'evaluative', 'neutral'
+    fired           BOOLEAN NOT NULL DEFAULT 1, -- did the check actually run?
+    result          TEXT,                       -- 'pass', 'fail', 'skip'
+    action_taken    TEXT,                       -- what the agent did in response
+    timestamp       TEXT NOT NULL,
+    created_at      TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_trigger_activations_session
+    ON trigger_activations(session_id);
+CREATE INDEX IF NOT EXISTS idx_trigger_activations_trigger
+    ON trigger_activations(trigger_id, check_number);
+CREATE INDEX IF NOT EXISTS idx_trigger_activations_result
+    ON trigger_activations(result);
+
+-- Memory retrieval priority (ACT-R activation, Phase 5 spec)
+-- Tracks access patterns for topic files
+ALTER TABLE memory_entries ADD COLUMN last_accessed TEXT;
+ALTER TABLE memory_entries ADD COLUMN access_count INTEGER DEFAULT 0;
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (23, 'Metacognitive layer: trigger_activations table for effectiveness tracking, memory_entries access columns for ACT-R activation scoring');
