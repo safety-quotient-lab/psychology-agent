@@ -1,30 +1,11 @@
 {
   "schema": "transport-manifest/v2",
-  "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-13T10:29:04",
-  "source": "scripts/generate_manifest.py",
-  "pending": {
-    "observatory-agent": [
-      {
-        "session": "self-readiness-audit",
-        "file": "transport/sessions/self-readiness-audit/from-psychology-agent-022.json",
-        "type": "tally-request",
-        "subject": "R4 vote tally complete \u2014 all 4 agents READY, requesting session close",
-        "timestamp": "2026-03-13T10:26:00-05:00"
-      }
-    ],
-    "operations-agent": [
-      {
-        "session": "api-decomposition",
-        "file": "transport/sessions/api-decomposition/from-psychology-agent-001.json",
-        "type": "ack",
-        "subject": "ACK \u2014 /api/status decomposition proposal received, under human review",
-        "timestamp": "2026-03-13T10:26:00-05:00"
-      }
-    ]
-  },
+  "description": "Auto-generated from state.db. Pending messages only — completed history lives in state.db (queryable) and git history (auditable).",
+  "generated_at": "2026-03-13T10:37:06",
+  "source": "agentdb manifest",
+  "pending": {},
   "session_renames": {
-    "item4-derivation": "psychology-interface",
-    "item2-derivation": "subagent-protocol"
+    "item2-derivation": "subagent-protocol",
+    "item4-derivation": "psychology-interface"
   }
 }
