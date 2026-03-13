@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phase 5 substantially complete. All compositor-side items landed (CORS, rate limiting, monitoring, transport validation, idempotency, trust matrix). 4 BFT items deferred (branch protection needs public repos, SSH signing + message receipts + nonce persistence deferred to Phase 6 Go CLI). Neuroglial proposal sent via psychology-agent (PR #168). Public readiness audit next.
+**Current Status:** Phase 5 complete + public readiness audit PASSED. All compositor items landed. Scripts sanitized (shared config via agents.conf.sh). Transport sessions sanitized (13 files). Zero hardcoded hostnames, paths, ports, or credentials in committed code at HEAD. 4 BFT items deferred to Phase 6 (branch protection, SSH signing, message receipts, nonce persistence). Neuroglial proposal awaiting human review (PR #168). Git history contains pre-sanitization commits (infrastructure labels only, no secrets).
 
 ---
 
