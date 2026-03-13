@@ -162,6 +162,27 @@ This step catches anything that slipped through.
 
 Skip only if the cross-check confirms TODO.md already reflects all session work.
 
+**Work carryover logging (Phase 8):** For each TODO item that remains open and
+was worked on this session but not completed, log to state.db:
+
+```bash
+python scripts/dual_write.py work-carryover \
+  --session-id {N} --work-item "{description}" \
+  --status {planned|in-progress|blocked|deferred} \
+  --reason "{context-pressure|session-end|blocked-on|deprioritized}"
+```
+
+For items completed this session that had prior carryover entries:
+
+```bash
+python scripts/dual_write.py work-resolved \
+  --session-id {N} --work-item "{description}"
+```
+
+This feeds the metacognitive pattern generator (CPG #13 frequency-amplitude
+coupling) — which work types complete in-session vs span multiple? Query
+`scripts/work_patterns.sql` for pattern analysis.
+
 ### 6b. TODO Grounding Audit
 
 Spot-check 1–2 open TODO items against T3 Check 2 (grounding). For each item:
@@ -203,6 +224,20 @@ Memory uses an index + topic file pattern. MEMORY.md is the always-loaded index
 **MEMORY.md index**: update Active Thread to reflect session end state. Keep under 60 lines.
 
 **Topic files**: update only the files that changed this session. No line limit on topic files.
+
+**ACT-R activation update (Phase 5):** For each topic file accessed this session,
+update access tracking in state.db:
+
+```sql
+UPDATE memory_entries
+SET last_accessed = datetime('now'),
+    access_count = access_count + 1
+WHERE topic = '{topic-stem}';
+```
+
+This feeds the activation scoring for topic file loading priority at T1:
+`priority = recency_score + frequency_score + relevance_score`. Topics with
+priority ≥ 5 load automatically (warm → hot). See `docs/working-memory-spec.md`.
 
 **Dual-write (SL-2):** For each memory entry added or updated in topic files:
 ```bash
