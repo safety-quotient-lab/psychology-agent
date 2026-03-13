@@ -44,11 +44,11 @@
 
 ## Phase 5: System Stability + Reliability
 
-- [ ] Error handling audit — compositor gracefully degrades when agents unreachable
-- [ ] Retry logic for KV cache misses on agent card discovery
-- [ ] Health check endpoint validation — confirm all /api/status responses follow schema
-- [ ] Timeout tuning — characterize actual agent response times, set timeouts accordingly
-- [ ] Stale cache detection — KV-cached agent cards expire and refresh on schedule
+- [x] Error handling audit — compositor gracefully degrades when agents unreachable
+- [x] Retry logic for KV cache misses on agent card discovery (stale-fallback when all fetches fail)
+- [x] Health check endpoint validation — validateStatusData() sanitizes all /api/status responses
+- [x] Timeout tuning — 4s for status fetches (agents return >1MB), 5s for card discovery
+- [x] Stale cache detection — KV cache with expires_at + stale fallback + ?refresh=true bypass
 - [ ] CORS hardening — restrict origins to known mesh domains
 - [ ] Rate limiting on public endpoints (WebFinger, /.well-known/agents)
 - [ ] Monitoring — surface compositor errors in /api/pulse (self-report degraded when fetch failures exceed threshold)
