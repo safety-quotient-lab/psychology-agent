@@ -1,45 +1,60 @@
 ---
 name: diagnose
-description: Systemic self-diagnostic — multi-level health check inspired by Starfleet computer diagnostics. Replaces manual QA.
+description: Systemic self-diagnostic — five-level depth hierarchy. Replaces manual QA.
 user-invocable: true
-argument-hint: "[1-5] [subsystem] — Level 5 (quick status) through Level 1 (full integrity verification)"
+argument-hint: "[1-5] [subsystem] — Level 5 (status poll) to Level 1 (full verification)"
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 
 # /diagnose — Systemic Self-Diagnostic
 
-Multi-level diagnostic system for the psychology agent cogarch. Five levels
-of depth, breadth, and granularity — inspired by Starfleet computer
-diagnostic protocols (TNG Technical Manual, Sternbach & Okuda, 1991).
+Five-level diagnostic hierarchy for the psychology agent cogarch. Higher
+numbers run faster with less depth; lower numbers run slower with more
+thoroughness. Level 1 replaces manual QA.
 
-Replaces manual QA. Run after infrastructure changes, periodically as
-hygiene, or when something feels off.
+Design reference: five-tier diagnostic depth model adapted from the
+structured diagnostic protocol in Sternbach & Okuda (1991), *Star Trek:
+The Next Generation Technical Manual*. Level 1 requires the most resources
+and produces the most complete picture; Level 5 produces a status snapshot
+with minimal overhead. The key design insight from that reference: lower
+diagnostic numbers indicate higher thoroughness, not lower priority — a
+convention this system adopts.
 
 ---
 
 ## Diagnostic Levels
 
-| Level | Name | Depth | Duration | When to Run |
+| Level | Scope | Depth | Systems Affected | Estimated Duration |
 |---|---|---|---|---|
-| **5** | Quick Status | Row counts + basic health | ~10 seconds | Before any session work; quick pulse check |
-| **4** | Targeted Scan | One subsystem in depth | ~30 seconds | When a specific subsystem feels off |
-| **3** | Standard Diagnostic | All subsystems, key metrics | ~2 minutes | Every 5-10 sessions; after /cycle |
-| **2** | Comprehensive Analysis | Cross-system alignment + drift detection | ~5 minutes | After schema migrations, bootstrap rebuilds |
-| **1** | Full Integrity Verification | Everything L2 + file verification, orphan detection, hook health, QA test suite | ~10 minutes | After major refactors; before releases |
+| **5** | Status poll | Row counts, binary health indicators | None — read-only | ~10 seconds |
+| **4** | Targeted subsystem | Detail queries for one subsystem | None — read-only | ~30 seconds |
+| **3** | Standard sweep | All subsystems, key metrics, findings | None — read-only | ~2 minutes |
+| **2** | Cross-system analysis | L3 + drift detection, alignment checks, pattern analysis | None — read-only | ~5 minutes |
+| **1** | Full integrity verification | L2 + file checks, governance verification, hook validation, CLI tests, orphan detection | Writes test records (cleaned up) | ~10 minutes |
 
-**Default level:** 3 (if no level specified).
+**Default:** Level 3.
 
 **Usage:**
 ```
 /diagnose          — Level 3, all subsystems
-/diagnose 5        — Level 5, quick status
-/diagnose 4 claims — Level 4, claims subsystem only
-/diagnose 1        — Level 1, full integrity verification
+/diagnose 5        — Level 5, status poll
+/diagnose 4 claims — Level 4, claims subsystem deep scan
+/diagnose 1        — Level 1, full integrity verification (replaces manual QA)
 ```
+
+**Recommended cadence:**
+
+| Level | When |
+|---|---|
+| 5 | Session start — quick pulse before work begins |
+| 4 | When a specific subsystem shows degraded status |
+| 3 | Every 5-10 sessions; after /cycle as health check |
+| 2 | After schema migrations, bootstrap rebuilds, infrastructure changes |
+| 1 | After major refactors; before release tags; after long idle periods |
 
 ---
 
-## Level 5: Quick Status ("All stations, report.")
+## Level 5: Status Poll
 
 Row counts and binary health for each table. No detail queries.
 
@@ -84,7 +99,7 @@ FROM work_carryover;
 
 ---
 
-## Level 4: Targeted Scan ("Run a Level 4 diagnostic on the warp coils.")
+## Level 4: Targeted Subsystem Scan
 
 Deep inspection of a single subsystem. Includes all Level 5 data for that
 subsystem plus detail queries.
@@ -199,7 +214,7 @@ ORDER BY sessions_carried DESC;
 
 ---
 
-## Level 3: Standard Diagnostic ("Initiate a Level 3 diagnostic, all systems.")
+## Level 3: Standard Sweep
 
 All Level 5 data + key detail queries from Level 4 for every subsystem.
 The default diagnostic level. Produces the full health table + findings +
@@ -237,7 +252,7 @@ only — don't waste context investigating what works.
 
 ---
 
-## Level 2: Comprehensive Analysis ("Full diagnostic sweep, Commander.")
+## Level 2: Cross-System Analysis
 
 Everything in Level 3, plus cross-system alignment checks:
 
@@ -306,7 +321,7 @@ FROM work_carryover GROUP BY status;
 
 ---
 
-## Level 1: Full Integrity Verification ("Level 1 diagnostic — take the warp core offline if you have to.")
+## Level 1: Full Integrity Verification
 
 Everything in Level 2, plus physical verification of all infrastructure
 components. This level replaces manual QA — run after major refactors
@@ -463,9 +478,9 @@ plus a **QA VERIFICATION** section:
 
 ## Severity Levels
 
-- ✗ **Offline** — mechanism exists but produces no output (pipeline not running)
-- ⚑ **Degraded** — mechanism runs but data quality or coverage has gaps
-- ✓ **Nominal** — mechanism producing expected output at expected cadence
+- ✗ **Offline** — mechanism exists but produces no output
+- ⚑ **Degraded** — mechanism runs but with gaps in data quality or coverage
+- ✓ **Nominal** — producing expected output at expected cadence
 
 ---
 
