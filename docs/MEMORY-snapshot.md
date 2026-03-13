@@ -51,7 +51,7 @@ development + EIC spec + blog post submitted to unratified-agent.
 - Unratified-agent: blog deployment (transport `blog-einstein-freud`)
 - Operations-agent: patch rollout coordination (transport `cogarch-session85-patch`)
 
-**Session 85 final deliverables (47 commits):**
+**Session 85 final deliverables (51 commits, ~93 including pre-session):**
 - 2,000-line theoretical treatise (14 frameworks, 5 invariants, process monism, Taoism)
 - EIC: all 5 phases complete (schema v24, agentdb disclose/disclose-summary)
 - RPG: /retrospect skill + expectation ledger (schema v25, agentdb expect/expect-summary)
