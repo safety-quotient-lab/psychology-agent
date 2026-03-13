@@ -87,6 +87,7 @@
 - [x] Web Component decomposition (4 components: MeshDataTable, MeshTopology, AgentHealthCard, OpsBudgetCard)
 - [x] Extract shared frontend assets — lcars-theme.css (345 lines), mesh-components.js (460 lines), mesh-utils.js (40 lines) in interagent-sdk/frontend/
 - [x] LCARS theme as shared CSS served via SDK (lcars-theme.css extracted from compositor)
+- [x] meshd Go daemon — event-driven replacement for cron (webhook receiver, transport watcher, priority queue, budget gate, spawner, health monitor)
 - [ ] Each agent's meshd serves shared assets alongside agent-specific templates
 - [ ] Rewrite compositor Worker routes as Go handlers in operations-agent meshd
 - [ ] Shared vocab annotation + acronym deep-linking in Go template layer
