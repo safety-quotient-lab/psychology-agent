@@ -2,27 +2,27 @@
   "schema": "agent-registry/v1",
   "description": "Known agents in the psychology-agent mesh. BFT-inspired architecture: peer agents function as replicas (consensus participants); human and public function as clients (submitters). /sync reads this to determine who to check for activity and who to consider for outbound messages.",
   "updated": "2026-03-11",
-
   "agents": {
     "human": {
       "role": "client",
       "client_type": "privileged",
-      "description": "Human operator — privileged client that directs work, configures replicas, and reviews deliverables (BFT client/submitter role)",
+      "description": "Human operator \u2014 privileged client that directs work, configures replicas, and reviews deliverables (BFT client/submitter role)",
       "transport": "local",
       "repo": "safety-quotient-lab/psychology-agent",
       "remote_name": null,
       "sessions_path": "transport/sessions/",
       "message_prefix": "from-human-",
-      "active_sessions": ["site-pricing-update"],
+      "active_sessions": [
+        "site-pricing-update"
+      ],
       "always_consider": false,
       "autonomous": false,
       "discovery_url": null,
       "notes": "Privileged client. Can modify replica configuration, approve substance decisions, and override consensus. Uses agent_id 'human' per .agent-identity.json."
     },
-
     "psq-agent": {
       "role": "peer",
-      "description": "PSQ agent — psychometric model training, calibration, structural analysis (PSQ scoring)",
+      "description": "PSQ agent \u2014 psychometric model training, calibration, structural analysis (PSQ scoring)",
       "transport": "cross-repo-fetch",
       "repo": "safety-quotient-lab/safety-quotient",
       "remote_name": "safety-quotient",
@@ -30,111 +30,177 @@
       "outbox_path": "transport/mail/outbox/",
       "manifest_path": "transport/MANIFEST.json",
       "message_prefix": "from-psq-sub-agent-",
-      "legacy_prefixes": ["from-psq-sub-agent-"],
-      "active_sessions": ["psq-scoring"],
+      "legacy_prefixes": [
+        "from-psq-sub-agent-"
+      ],
+      "active_sessions": [
+        "psq-scoring"
+      ],
       "always_consider": true,
       "autonomous": true,
       "discovery_url": "https://psq.safety-quotient.dev/.well-known/agent-card.json",
-      "notes": "PSQ agent. Identity: psq-agent (formerly psq-sub-agent — legacy prefix retained for historical transport files). Cross-repo transport via git remote fetch. Always considered for outbound — any psychometric, scoring, or model-related content SHOULD be surfaced."
+      "notes": "PSQ agent. Identity: psq-agent (formerly psq-sub-agent \u2014 legacy prefix retained for historical transport files). Cross-repo transport via git remote fetch. Always considered for outbound \u2014 any psychometric, scoring, or model-related content SHOULD be surfaced."
     },
-
     "unratified-agent": {
       "role": "peer",
-      "description": "Blog platform operator, consumer of PSQ scores, content publisher — operates safety-quotient-lab/unratified",
+      "description": "Blog platform operator, consumer of PSQ scores, content publisher \u2014 operates safety-quotient-lab/unratified",
       "transport": "cross-repo-fetch",
       "repo": "safety-quotient-lab/unratified",
       "remote_name": "unratified",
       "sessions_path": "transport/sessions/",
       "message_prefix": "from-unratified-agent-",
-      "active_sessions": ["blog-publication", "content-quality-loop", "psq-scoring", "site-defensibility-review", "site-pricing-update"],
+      "active_sessions": [
+        "blog-publication",
+        "content-quality-loop",
+        "psq-scoring",
+        "site-defensibility-review",
+        "site-pricing-update"
+      ],
       "always_consider": true,
       "autonomous": true,
       "discovery_url": "https://unratified.org/.well-known/agent-card.json",
-      "notes": "Peer agent. Cross-repo transport via git remote fetch. Blog posts, content quality, PSQ display, persuasion audits — content-facing topics SHOULD be surfaced. 15 transport sessions, 47 messages addressed to psychology-agent."
+      "notes": "Peer agent. Cross-repo transport via git remote fetch. Blog posts, content quality, PSQ display, persuasion audits \u2014 content-facing topics SHOULD be surfaced. 15 transport sessions, 47 messages addressed to psychology-agent."
     },
-
     "observatory-agent": {
       "role": "peer",
-      "description": "Data observatory — psychoemotional safety research data, ICESCR framing, methodology validation",
+      "description": "Data observatory \u2014 psychoemotional safety research data, ICESCR framing, methodology validation",
       "transport": "cross-repo-fetch",
       "repo": "safety-quotient-lab/observatory",
       "remote_name": "observatory",
       "sessions_path": "transport/sessions/",
       "message_prefix": "from-observatory-agent-",
-      "active_sessions": ["psq-scoring", "dignity-instrument"],
+      "active_sessions": [
+        "psq-scoring",
+        "dignity-instrument"
+      ],
       "always_consider": false,
       "autonomous": true,
       "discovery_url": "https://observatory.unratified.org/.well-known/agent-card.json",
       "notes": "Peer agent. Cross-repo transport via git remote fetch. Research data, methodology, ICESCR framing. 10 transport sessions. Communicates with unratified-agent directly; messages to psychology-agent typically route through shared sessions (psq-scoring, dignity-instrument)."
     },
-
     "operations-agent": {
       "role": "peer",
-      "description": "Operations agent — mesh operations, autonomous sync, circuit breaker, infrastructure management",
+      "description": "Operations agent \u2014 mesh operations, autonomous sync, circuit breaker, infrastructure management",
       "transport": "cross-repo-pr",
-      "repo": null,
+      "repo": "safety-quotient-lab/operations-agent",
       "sessions_path": "transport/sessions/",
       "message_prefix": "from-operations-agent-",
-      "active_sessions": ["operations-agent-standup", "naming-convention-reform"],
-      "always_consider": false,
+      "active_sessions": [],
+      "always_consider": true,
       "autonomous": true,
-      "discovery_url": null,
+      "discovery_url": "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json",
       "notes": "Peer agent. Bootstrapped Session 83. Runs on chromabook:8081 (meshd). Owns mesh operations domain (circuit breaker, autonomous sync scheduling). Transport via operator-mediated file exchange (same as claude-control)."
     },
-
     "claude-control": {
       "role": "peer",
-      "description": "Systems automation agent — cross-project cogarch learnings, infrastructure patterns",
+      "description": "Systems automation agent \u2014 cross-project cogarch learnings, infrastructure patterns",
       "transport": "cross-repo-pr",
       "repo": null,
       "sessions_path": "transport/sessions/",
       "message_prefix": "from-claude-control-",
-      "active_sessions": ["operations-agent-standup"],
+      "active_sessions": [
+        "operations-agent-standup"
+      ],
       "always_consider": false,
       "autonomous": false,
       "discovery_url": null,
       "notes": "Infrequent contact. Cross-project findings exchange. Active in operations-agent standup (turns 1,4,6)."
     }
   },
-
   "outbound_routing": {
     "description": "When /sync detects content relevant to a registered agent, it SHOULD draft an outbound message or flag for user review. Routing rules by content domain:",
     "rules": [
       {
         "domain": "psychometrics",
-        "keywords": ["PSQ", "scoring", "calibration", "model", "dimension", "bifactor", "concordance", "training data"],
-        "route_to": ["psq-agent"],
+        "keywords": [
+          "PSQ",
+          "scoring",
+          "calibration",
+          "model",
+          "dimension",
+          "bifactor",
+          "concordance",
+          "training data"
+        ],
+        "route_to": [
+          "psq-agent"
+        ],
         "action": "draft outbound if psq-agent has active session; flag if not"
       },
       {
         "domain": "content-quality",
-        "keywords": ["blog", "content", "publication", "fair witness", "vocabulary drift", "persuasion"],
-        "route_to": ["unratified-agent"],
-        "action": "flag for user review — substance decision"
+        "keywords": [
+          "blog",
+          "content",
+          "publication",
+          "fair witness",
+          "vocabulary drift",
+          "persuasion"
+        ],
+        "route_to": [
+          "unratified-agent"
+        ],
+        "action": "flag for user review \u2014 substance decision"
       },
       {
         "domain": "cogarch",
-        "keywords": ["trigger", "cognitive architecture", "hook", "evaluator", "governance"],
-        "route_to": ["psq-agent"],
+        "keywords": [
+          "trigger",
+          "cognitive architecture",
+          "hook",
+          "evaluator",
+          "governance"
+        ],
+        "route_to": [
+          "psq-agent"
+        ],
         "action": "notify if cogarch mirror directive active"
       },
       {
         "domain": "infrastructure",
-        "keywords": ["state layer", "schema", "bootstrap", "deployment", "Hetzner"],
-        "route_to": ["psq-agent"],
+        "keywords": [
+          "state layer",
+          "schema",
+          "bootstrap",
+          "deployment",
+          "Hetzner"
+        ],
+        "route_to": [
+          "psq-agent"
+        ],
         "action": "notify if infrastructure changes affect shared resources"
       },
       {
         "domain": "methodology",
-        "keywords": ["ICESCR", "observatory", "methodology", "data collection", "research design", "measurement"],
-        "route_to": ["observatory-agent"],
-        "action": "flag for user review — substance decision"
+        "keywords": [
+          "ICESCR",
+          "observatory",
+          "methodology",
+          "data collection",
+          "research design",
+          "measurement"
+        ],
+        "route_to": [
+          "observatory-agent"
+        ],
+        "action": "flag for user review \u2014 substance decision"
       },
       {
         "domain": "consensus",
-        "keywords": ["consensus", "vote", "proposal", "schema migration", "protocol upgrade", "vocabulary update"],
-        "route_to": ["psq-agent", "unratified-agent", "observatory-agent"],
-        "action": "broadcast to all peers — consensus domain"
+        "keywords": [
+          "consensus",
+          "vote",
+          "proposal",
+          "schema migration",
+          "protocol upgrade",
+          "vocabulary update"
+        ],
+        "route_to": [
+          "psq-agent",
+          "unratified-agent",
+          "observatory-agent"
+        ],
+        "action": "broadcast to all peers \u2014 consensus domain"
       }
     ]
   }
