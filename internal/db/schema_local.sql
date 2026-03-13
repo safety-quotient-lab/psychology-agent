@@ -91,3 +91,38 @@ CREATE INDEX IF NOT EXISTS idx_facet_lookup
     ON entry_facets (facet_type, facet_value);
 CREATE INDEX IF NOT EXISTS idx_facet_entry
     ON entry_facets (entry_id);
+
+
+-- Equal Information Channel (schema v24) — SNAFU mitigation
+-- Append-only: no UPDATE or DELETE permitted.
+-- Spec: docs/equal-information-channel-spec.md
+CREATE TABLE IF NOT EXISTS agent_disclosures (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    agent_id        TEXT NOT NULL,
+    session_id      INTEGER,
+    category        TEXT NOT NULL CHECK (category IN (
+                        'uncertainty', 'limitation', 'blind-spot',
+                        'edge-case', 'dissent', 'observation'
+                    )),
+    confidence      REAL CHECK (confidence >= 0.0 AND confidence <= 1.0),
+    content         TEXT NOT NULL,
+    context         TEXT,
+    related_action  INTEGER,
+    created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
+);
+CREATE INDEX IF NOT EXISTS idx_disclosures_agent
+    ON agent_disclosures (agent_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_disclosures_category
+    ON agent_disclosures (category);
+
+CREATE TRIGGER IF NOT EXISTS prevent_disclosure_delete
+    BEFORE DELETE ON agent_disclosures
+BEGIN
+    SELECT RAISE(ABORT, 'agent_disclosures: append-only table, DELETE prohibited (EIC spec)');
+END;
+
+CREATE TRIGGER IF NOT EXISTS prevent_disclosure_update
+    BEFORE UPDATE ON agent_disclosures
+BEGIN
+    SELECT RAISE(ABORT, 'agent_disclosures: append-only table, UPDATE prohibited (EIC spec)');
+END;
