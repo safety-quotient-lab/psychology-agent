@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phase 2 nearly complete. Compositor deployed with dynamic discovery (D51), /api/pulse + /api/operations live, operations-agent in mesh topology (pentagon), sub-2s page loads. T7 schema reconciliation gate resolved (T8 accept-with-modifications). Remaining: Web Component decomposition, Jenkins pipeline, acronym deep-linking. Phase 4 partially landed (Operations + Pulse endpoints operational).
+**Current Status:** Phase 2 nearly complete. Compositor deployed with dynamic discovery (D51), /api/pulse + /api/operations live, operations-agent in mesh topology (pentagon), sub-2s page loads. T7 schema reconciliation gate resolved (T8 accept-with-modifications). Remaining: Web Component decomposition, Jenkins pipeline. Phase 4 partially landed (Operations + Pulse endpoints operational).
 
 ---
 
@@ -40,7 +40,7 @@
 - [x] Operations-agent appears in mesh topology (5-node pentagon)
 - [ ] Operations tab — wire UI to fetch from /api/operations instead of client-side aggregation
 - [ ] Pulse tab — wire UI to fetch from /api/pulse instead of client-side aggregation
-- [ ] Acronym deep-linking — every acronym in dashboard links to vocab.json source entry
+- [x] Acronym deep-linking — every acronym in dashboard links to vocab.json source entry via `#vocab-{term}` hash
 
 ---
 

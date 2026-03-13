@@ -1928,10 +1928,21 @@
         }
     }
 
+    async function fetchSharedVocab() {
+        try {
+            const resp = await fetch("/vocab", { signal: AbortSignal.timeout(2000) });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            return { id: "_shared", status: "ok", data: await resp.json() };
+        } catch (err) {
+            return { id: "_shared", status: "error", error: err.message };
+        }
+    }
+
     async function refreshKnowledge() {
-        const [kbResults, dictResults] = await Promise.all([
+        const [kbResults, dictResults, sharedVocab] = await Promise.all([
             Promise.allSettled(AGENTS.map(fetchAgentKB)),
             Promise.allSettled(AGENTS.map(fetchAgentDict)),
+            fetchSharedVocab(),
         ]);
 
         kbResults.forEach((r, i) => {
@@ -1940,6 +1951,9 @@
         dictResults.forEach((r, i) => {
             dictData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "error" };
         });
+        if (sharedVocab.status === "ok") {
+            dictData["_shared"] = sharedVocab;
+        }
 
         buildAcronymMap();
         renderKnowledge();
@@ -2125,15 +2139,18 @@
     function renderDictionary() {
         allDictTerms = [];
 
-        for (const agent of AGENTS) {
-            const dd = dictData[agent.id];
+        const sources = AGENTS.map(a => a.id);
+        if (dictData["_shared"]) sources.push("_shared");
+        for (const srcId of sources) {
+            const dd = dictData[srcId];
             if (dd?.status !== "ok") continue;
             const vocab = dd.data || {};
             const terms = vocab["@graph"] || vocab.hasDefinedTerm || [];
+            const label = srcId === "_shared" ? "shared-vocab" : srcId;
             terms.forEach(term => {
                 const existing = allDictTerms.find(t => t.name === term.name);
                 if (existing) {
-                    if (!existing._agents.includes(agent.id)) existing._agents.push(agent.id);
+                    if (!existing._agents.includes(label)) existing._agents.push(label);
                     return;
                 }
                 allDictTerms.push({
@@ -2141,7 +2158,7 @@
                     description: term.description || "",
                     termCode: term.termCode || "",
                     inDefinedTermSet: term.inDefinedTermSet || "",
-                    _agents: [agent.id],
+                    _agents: [label],
                 });
             });
         }
@@ -2942,16 +2959,17 @@
     let acronymMap = {};   // { "PSQ": "Psychoemotional Safety Quotient — ...", ... }
     let acronymRegex = null;
 
-    // Build acronym lookup from dictionary data after fetch
+    // Build acronym lookup from all dictionary + shared vocab data
     function buildAcronymMap() {
         acronymMap = {};
-        for (const agent of AGENTS) {
-            const dd = dictData[agent.id];
+        const sources = AGENTS.map(a => a.id);
+        if (dictData["_shared"]) sources.push("_shared");
+        for (const srcId of sources) {
+            const dd = dictData[srcId];
             if (dd?.status !== "ok") continue;
             const vocab = dd.data || {};
             const terms = vocab["@graph"] || vocab.hasDefinedTerm || [];
             terms.forEach(term => {
-                if (term.inDefinedTermSet !== "Project Acronyms") return;
                 const name = term.name || "";
                 if (!name || acronymMap[name]) return;
                 acronymMap[name] = term.description || name;
@@ -2973,7 +2991,8 @@
             const desc = acronymMap[match];
             if (!desc) return match;
             const safeDesc = desc.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-            return `<abbr class="acronym-tip" title="${safeDesc}" onclick="event.stopPropagation();switchTab('kb');setTimeout(()=>{const f=document.getElementById('filter-dictionary');if(f){f.value='${match}';filterDictionary();}},100)">${match}</abbr>`;
+            const hashName = encodeURIComponent(match);
+            return `<abbr class="acronym-tip" title="${safeDesc}" onclick="event.stopPropagation();location.hash='vocab-${hashName}';switchTab('kb');setTimeout(()=>{const f=document.getElementById('filter-dictionary');if(f){f.value='${match}';filterDictionary();}},100)">${match}</abbr>`;
         });
     }
 
@@ -3408,9 +3427,24 @@
         const savedTheme = localStorage.getItem("theme");
         if (savedTheme && savedTheme !== "dark") setTheme(savedTheme);
 
-        // Restore tab from URL fragment
-        const hashTab = location.hash.replace("#", "");
-        if (hashTab && VALID_TABS.includes(hashTab)) switchTab(hashTab, false);
+        // Restore tab from URL fragment or deep-link to vocab term
+        const hashVal = location.hash.replace("#", "");
+        if (hashVal.startsWith("vocab-")) {
+            const term = decodeURIComponent(hashVal.slice(6));
+            switchTab("kb", false);
+            // Filter after data loads — poll until dictionary renders
+            const waitForDict = setInterval(() => {
+                const f = document.getElementById("filter-dictionary");
+                if (f && allDictTerms.length > 0) {
+                    clearInterval(waitForDict);
+                    f.value = term;
+                    filterDictionary();
+                }
+            }, 200);
+            setTimeout(() => clearInterval(waitForDict), 10000);
+        } else if (hashVal && VALID_TABS.includes(hashVal)) {
+            switchTab(hashVal, false);
+        }
 
         buildAgentSwitcher();
 
