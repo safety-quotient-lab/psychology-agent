@@ -75,6 +75,9 @@ func main() {
 		// Export + Budget
 		exportCmd(),
 		budgetCmd(),
+		// Equal Information Channel (EIC)
+		discloseCmd(),
+		discloseSummaryCmd(),
 	)
 
 	if err := root.Execute(); err != nil {
@@ -839,4 +842,47 @@ func budgetResumeAllCmd() *cobra.Command {
 			return db.BudgetResumeAll(mgr.Local())
 		},
 	}
+}
+
+// ── Equal Information Channel (EIC) ──────────────────────────────────
+
+func discloseCmd() *cobra.Command {
+	var agentID, category, content, context string
+	var confidence float64
+	var relatedAction int64
+	cmd := &cobra.Command{
+		Use:   "disclose",
+		Short: "Write a zero-cost disclosure (state.local.db, append-only)",
+		Long: `Record an agent disclosure through the Equal Information Channel.
+Zero governance cost — no budget deduction, no evaluator scrutiny.
+Append-only: entries cannot be updated or deleted.
+
+Categories: uncertainty, limitation, blind-spot, edge-case, dissent, observation`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cogarch.Disclose(mgr.Local(), agentID, category, content, confidence, context, relatedAction)
+		},
+	}
+	cmd.Flags().StringVar(&agentID, "agent-id", "psychology-agent", "Agent identifier")
+	cmd.Flags().StringVar(&category, "category", "", "Disclosure category (required: uncertainty|limitation|blind-spot|edge-case|dissent|observation)")
+	cmd.Flags().StringVar(&content, "content", "", "Disclosure content (required)")
+	cmd.Flags().Float64Var(&confidence, "confidence", 0.5, "Agent confidence in the disclosure (0.0–1.0)")
+	cmd.Flags().StringVar(&context, "context", "", "What the agent was doing when this arose")
+	cmd.Flags().Int64Var(&relatedAction, "related-action", 0, "FK to autonomous_actions.id (0 = none)")
+	cmd.MarkFlagRequired("category")
+	cmd.MarkFlagRequired("content")
+	return cmd
+}
+
+func discloseSummaryCmd() *cobra.Command {
+	var agentID, since string
+	cmd := &cobra.Command{
+		Use:   "disclose-summary",
+		Short: "Show disclosure summary since timestamp (budget reset integration)",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cogarch.DisclosureSummary(mgr.Local(), agentID, since)
+		},
+	}
+	cmd.Flags().StringVar(&agentID, "agent-id", "psychology-agent", "Agent identifier")
+	cmd.Flags().StringVar(&since, "since", "1970-01-01", "Show disclosures since this timestamp (ISO 8601)")
+	return cmd
 }
