@@ -78,13 +78,14 @@ found 3 critical defects, 2 high-severity issues, 39 structural weaknesses,
   *Precondition: ✓ approved. DNS migration for safety-quotient-agent needs Cloudflare config.*
 
 - [ ] **Re-add parry injection defense** — removed Session 56 due to permission prompt
-  interference (anthropics/claude-code #32596). Re-add when upstream bug resolved.
-  Re-enable checklist: (1) install parry, (2) restore hook entries to settings.json
-  (3 events: PreToolUse, PostToolUse, UserPromptSubmit), (3) test trusted-file
-  pre-filter (wrapper-level path exclusion for CLAUDE.md, cogarch files).
-  *Precondition: #32596 resolved or workaround confirmed*
-  ⚑ **Grounding audit (Session 84):** #32596 now CLOSED upstream. Precondition
-  may be satisfied — verify fix in current claude-code version before re-enabling.
+  interference (anthropics/claude-code #32596). #32596 CLOSED upstream, but parry
+  package source needs to be located (not in npm or pip registries). The ML-based
+  injection scanning functionality has been **partially replaced** by brain gap 2
+  hooks (Session 84): `credential-screen.sh` (pattern-match credentials in writes)
+  and `destructive-command-screen.sh` (pattern-match destructive Bash commands).
+  These cover credential and destructive command threats via simple regex; the
+  remaining gap: ML-based prompt injection detection in external content (T13 #2).
+  *Precondition: locate parry source package or implement equivalent ML scanner.*
 
 - [x] `/turn` route — DEPRECATED (Session 59). Removed: the CF Worker
   lacked cogarch (T1-T16), memory, hooks — delivering a degraded agent.
