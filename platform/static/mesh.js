@@ -36,3 +36,36 @@ function toggleSession(id) {
     var thread = document.getElementById(id);
     thread.style.display = thread.style.display === 'none' ? 'block' : 'none';
 }
+
+// SSE live updates — reload page only when server data changes.
+// Replaces meta http-equiv="refresh" which reloaded every 30s regardless.
+// URL hash preserves the active tab across reloads.
+(function() {
+    if (typeof EventSource === 'undefined') return;
+
+    var evtSource = new EventSource('/events');
+    var currentGen = null;
+
+    evtSource.addEventListener('connected', function(e) {
+        try {
+            var data = JSON.parse(e.data);
+            currentGen = data.generation;
+        } catch (_) {}
+    });
+
+    evtSource.addEventListener('refresh', function(e) {
+        try {
+            var data = JSON.parse(e.data);
+            if (currentGen !== null && data.generation !== currentGen) {
+                currentGen = data.generation;
+                location.reload();
+            }
+        } catch (_) {}
+    });
+
+    evtSource.onerror = function() {
+        // SSE disconnected — fall back to periodic refresh after 60s
+        evtSource.close();
+        setTimeout(function() { location.reload(); }, 60000);
+    };
+})();
