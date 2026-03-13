@@ -1526,12 +1526,13 @@
 
 <script>
     const AGENTS = [
-        { id: "psychology-agent", url: "https://psychology-agent.safety-quotient.dev", color: "#5b9cf6" },
-        { id: "psq-agent", url: "https://psq-agent.safety-quotient.dev", color: "#4ecdc4" },
-        { id: "unratified-agent", url: "https://unratified.org", color: "#e5a735" },
-        { id: "observatory-agent", url: "https://observatory.unratified.org", color: "#a78bfa" },
-        { id: "operations-agent", url: "https://operations-agent.safety-quotient.dev", color: "#6b8aaf" },
+        { id: "psychology-agent", url: "https://psychology-agent.safety-quotient.dev", color: "#5b9cf6", repo: "safety-quotient-lab/psychology-agent" },
+        { id: "psq-agent", url: "https://psq-agent.safety-quotient.dev", color: "#4ecdc4", repo: "safety-quotient-lab/safety-quotient" },
+        { id: "unratified-agent", url: "https://unratified.org", color: "#e5a735", repo: "safety-quotient-lab/unratified" },
+        { id: "observatory-agent", url: "https://observatory.unratified.org", color: "#a78bfa", repo: "safety-quotient-lab/observatory" },
+        { id: "operations-agent", url: "https://operations-agent.safety-quotient.dev", color: "#6b8aaf", repo: "safety-quotient-lab/operations-agent" },
     ];
+    const AGENT_REPO_MAP = Object.fromEntries(AGENTS.map(a => [a.id, a.repo]));
 
     let agentData = {};
     let kbData = {};
@@ -2625,15 +2626,23 @@
                     const claimsLink = claimsCount > 0
                         ? `<a href="#pane-kb" onclick="switchTab('kb');document.getElementById('filter-claims').value='${escapeHtml(m.session_name || "")}';filterTable('claims');return false;" style="color:var(--c-knowledge)">${claimsCount}</a>`
                         : `<span style="color:var(--text-dim)">0</span>`;
+                    const sessionUrl = transportGitHubUrl(m._agent, m.session_name);
+                    const fileUrl = transportGitHubUrl(m._agent, m.session_name, m.filename);
+                    const sessionCell = sessionUrl
+                        ? `<a href="${escapeHtml(sessionUrl)}" target="_blank" rel="noopener" style="color:var(--c-transport)">${escapeHtml(m.session_name || "—")}</a>`
+                        : escapeHtml(m.session_name || "—");
+                    const ghCell = fileUrl
+                        ? `<a href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener" title="View ${escapeHtml(m.filename || "message")}" style="color:var(--text-secondary);text-decoration:none">&#x1F4C4;</a>`
+                        : (m.issue_url ? `<a href="${escapeHtml(m.issue_url)}" target="_blank" rel="noopener" title="GitHub Issue #${m.issue_number || ''}" style="color:var(--text-secondary);text-decoration:none">&#x1F517;</a>` : '');
                     return `<tr>
                         <td><span class="agent-dot" data-agent="${m._agent}"></span>${escapeHtml(m.from_agent || "—")}</td>
                         <td style="font-size:0.85em">${escapeHtml(m.to_agent || "—")}</td>
-                        <td style="color:var(--c-transport);font-size:0.85em;white-space:nowrap">${escapeHtml(m.session_name || "—")}</td>
+                        <td style="font-size:0.85em;white-space:nowrap">${sessionCell}</td>
                         <td style="text-align:center">${m.turn || "—"}</td>
                         <td style="font-size:0.85em">${escapeHtml(m.message_type || "—")}</td>
                         <td style="font-size:0.85em">${escapeHtml(subject)}</td>
                         <td style="text-align:center">${claimsLink}</td>
-                        <td style="text-align:center">${m.issue_url ? `<a href="${escapeHtml(m.issue_url)}" target="_blank" rel="noopener" title="GitHub Issue #${m.issue_number || ''}" style="color:var(--text-secondary);text-decoration:none">&#x1F517;</a>` : ''}</td>
+                        <td style="text-align:center">${ghCell}</td>
                         <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
                     </tr>`;
                 }).join("")}</tbody>
@@ -3159,6 +3168,15 @@
         const div = document.createElement("div");
         div.textContent = str;
         return div.innerHTML;
+    }
+
+    function transportGitHubUrl(agentId, sessionName, filename) {
+        const repo = AGENT_REPO_MAP[agentId];
+        if (!repo || !sessionName) return null;
+        const path = filename
+            ? `transport/sessions/${sessionName}/${filename}`
+            : `transport/sessions/${sessionName}`;
+        return `https://github.com/${repo}/blob/main/${path}`;
     }
 
     // ── SSE Live Updates ─────────────────────────────────────────
