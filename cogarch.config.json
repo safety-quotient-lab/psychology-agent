@@ -59,7 +59,7 @@
         "role": "domain-knowledge-provider",
         "card_url": "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json"
       },
-      "psq-agent": {
+      "safety-quotient-agent": {
         "repo": "safety-quotient-lab/safety-quotient",
         "role": "psq-scoring",
         "card_url": "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json"

@@ -29,6 +29,8 @@ const CORS_HEADERS = {
 
 // Bootstrap agent card URLs — the only hardcoded data. Dynamic discovery (D51)
 // fetches full agent details from these endpoints and caches in KV.
+// NOTE: psq-agent → safety-quotient-agent rename in progress. URL stays at
+// psq-agent.safety-quotient.dev until DNS cutover. Both IDs recognized during transition.
 const AGENT_CARD_URLS = [
   "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json",
   "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json",
@@ -41,6 +43,7 @@ const DEPLOY_VERSION = "2026-03-13T16:00";
 
 // Agents currently operated by a human (no autonomous cron loop).
 // Updated manually when agents transition between manual/autonomous.
+// Both psq-agent and safety-quotient-agent recognized during transition.
 const MANUAL_MODE_AGENTS = new Set(["operations-agent", "psychology-agent"]);
 
 const AGENT_CACHE_KEY = "agent-registry-cache";
@@ -71,7 +74,10 @@ async function fetchAgentCard(cardUrl) {
     // Card `name` field can be human-readable ("PSQ-Full Agent") — use as display name only
     const hostname = new URL(cardUrl).hostname;
     const urlId = hostname.split(".")[0];
-    const id = card.mesh?.agent_id || urlId;
+    // Dual-recognition: psq-agent → safety-quotient-agent during transition.
+    // The agent card may still report "psq-agent" until that repo updates.
+    const rawId = card.mesh?.agent_id || urlId;
+    const id = rawId === "psq-agent" ? "safety-quotient-agent" : rawId;
     const displayName = card.name || id;
 
     const role = card.mesh?.role || card.description?.slice(0, 60) || "unknown";

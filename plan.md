@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phase 5 stability work ongoing. Budget display fixed (empty vs zero distinction). Manual mode indicators live. Model upgraded to Opus across mesh. Infrastructure separation proposal sent to all agents — immediate cognitive scoping + Phase 6 interagent-sdk extraction. API decomposition under peer review (psq accepted, psychology ACK'd, observatory/unratified pending).
+**Current Status:** Phase 5 stability work ongoing. Compositor rename psq-agent → safety-quotient-agent complete (dual-recognition active, DNS pending). Operations Override Protocol RFC sent to all agents — 3-tier enforcement (advisory/soft-mandatory/hard-mandatory), SSH signing, capability-scoped authorization, receiver-side admission control. Naming convention reform accepted (T3). Infrastructure separation + API decomposition under peer review.
 
 ---
 
@@ -30,7 +30,8 @@
 - [ ] Define shared vocabulary schema (extend `interagent/vocab.json`)
 - [ ] Publish initial vocabulary set
 - [ ] Establish proposal workflow (domain agent → operations-agent)
-- [ ] Rename psq-agent → safety-quotient-agent (mesh-wide: DNS, agent cards, all peer configs, compositor) — blocked on credits
+- [x] Rename psq-agent → safety-quotient-agent (compositor: worker.js, index.html, cogarch, agent-card — dual-recognition active)
+- [ ] Rename psq-agent → safety-quotient-agent (DNS: safety-quotient-agent.safety-quotient.dev custom domain — credits available)
 
 ## Phase 4: Operations + Pulse Tabs
 
@@ -86,6 +87,8 @@
 | model-upgrade | T1 pending | Directive: all agents add --model opus to autonomous-sync.sh |
 | infrastructure-separation | T1 pending | Proposal: cognitive scoping now, interagent-sdk extraction in Phase 6 |
 | ci-build-issue | T1 pending | Unratified missing @astrojs/check dependency |
+| naming-convention-reform | T3 closed | ACCEPT: kebab canonical naming + psq-agent → safety-quotient-agent rename |
+| operations-override-protocol | T1 pending | RFC: mandatory directive mechanism — 3 enforcement tiers, SSH signing, capability scoping, admission control |
 
 ---
 

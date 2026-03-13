@@ -23,7 +23,7 @@
         },
         "hasPart": [
             { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "psychology-agent", "url": "https://psychology-agent.safety-quotient.dev" },
-            { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "psq-agent", "url": "https://psq-agent.safety-quotient.dev" },
+            { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "safety-quotient-agent", "url": "https://psq-agent.safety-quotient.dev" },
             { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "unratified-agent", "url": "https://unratified.org" },
             { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "observatory-agent", "url": "https://observatory.unratified.org" }
         ]
@@ -51,7 +51,7 @@
 
             /* Agent identity palette — subtle, distinguishable */
             --c-psychology: #6b8aaf;
-            --c-psq: #5da8a0;
+            --c-safety-quotient: #5da8a0;
             --c-unratified: #c4956a;
             --c-observatory: #9b8ec4;
 
@@ -89,7 +89,7 @@
             --c-tab-ops: #ff9900;
 
             --c-psychology: #ff9900;
-            --c-psq: #cc99cc;
+            --c-safety-quotient: #cc99cc;
             --c-unratified: #9999ff;
             --c-observatory: #cc6699;
 
@@ -430,7 +430,7 @@
             --panel-accent: var(--c-transport);
         }
         .agent-card[data-agent="psychology-agent"] { --panel-accent: var(--c-psychology); }
-        .agent-card[data-agent="psq-agent"] { --panel-accent: var(--c-psq); }
+        .agent-card[data-agent="safety-quotient-agent"] { --panel-accent: var(--c-safety-quotient); }
         .agent-card[data-agent="unratified-agent"] { --panel-accent: var(--c-unratified); }
         .agent-card[data-agent="observatory-agent"] { --panel-accent: var(--c-observatory); }
         .agent-card:hover {
@@ -682,7 +682,7 @@
             vertical-align: middle;
         }
         .agent-dot[data-agent="psychology-agent"] { background: var(--c-psychology); }
-        .agent-dot[data-agent="psq-agent"] { background: var(--c-psq); }
+        .agent-dot[data-agent="safety-quotient-agent"] { background: var(--c-safety-quotient); }
         .agent-dot[data-agent="unratified-agent"] { background: var(--c-unratified); }
         .agent-dot[data-agent="observatory-agent"] { background: var(--c-observatory); }
 
@@ -1539,7 +1539,7 @@
 <script>
     const AGENTS = [
         { id: "psychology-agent", url: "https://psychology-agent.safety-quotient.dev", color: "#5b9cf6", repo: "safety-quotient-lab/psychology-agent" },
-        { id: "psq-agent", url: "https://psq-agent.safety-quotient.dev", color: "#4ecdc4", repo: "safety-quotient-lab/safety-quotient" },
+        { id: "safety-quotient-agent", url: "https://psq-agent.safety-quotient.dev", color: "#4ecdc4", repo: "safety-quotient-lab/safety-quotient" },
         { id: "unratified-agent", url: "https://unratified.org", color: "#e5a735", repo: "safety-quotient-lab/unratified" },
         { id: "observatory-agent", url: "https://observatory.unratified.org", color: "#a78bfa", repo: "safety-quotient-lab/observatory" },
         { id: "operations-agent", url: "https://operations-agent.safety-quotient.dev", color: "#6b8aaf", repo: "safety-quotient-lab/operations-agent" },

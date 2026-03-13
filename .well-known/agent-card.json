@@ -80,6 +80,11 @@
       "repo": "safety-quotient-lab/psychology-agent"
     },
     {
+      "agent_id": "safety-quotient-agent",
+      "discovery_url": "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json",
+      "repo": "safety-quotient-lab/safety-quotient"
+    },
+    {
       "agent_id": "observatory-agent",
       "discovery_url": "https://observatory.unratified.org/.well-known/agent-card.json",
       "repo": "safety-quotient-lab/observatory"
