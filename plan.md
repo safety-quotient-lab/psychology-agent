@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phase 2 in progress. Compositor deployed to CF Workers with dynamic agent-card discovery (D51). Custom domains live: `interagent.safety-quotient.dev` + `operations-agent.safety-quotient.dev`. Agent card served at `/.well-known/agent-card.json`. WebFinger operational. Remaining: Web Component decomposition, Jenkins pipeline.
+**Current Status:** Phase 2 nearly complete. Compositor deployed with dynamic discovery (D51), /api/pulse + /api/operations live, operations-agent in mesh topology (pentagon), sub-2s page loads. Remaining: Web Component decomposition, Jenkins pipeline. Phase 4 partially landed (Operations + Pulse endpoints operational).
 
 ---
 
@@ -11,8 +11,8 @@
 - [x] Agent card (`.well-known/agent-card.json`) — A2A 0.3.0 aligned
 - [x] Cogarch template received from psychology-agent (`platform/shared/`)
 - [x] Cogarch adapted (`cogarch.config.json` — identity, peers, capabilities)
-- [x] meshd running on chromabook:8081 (systemd `meshd-operations`)
-- [x] ZMQ mesh member (port 9005, 4 peers discovered via gossip)
+- [x] meshd running (systemd `meshd-operations`, port from .dev.vars)
+- [x] ZMQ mesh member (4 peers discovered via gossip)
 - [x] Compositor codebase received (`interagent/` — worker.js, index.html, auth.js, vocab.json)
 
 ## Phase 2: Compositor Handoff
@@ -30,11 +30,17 @@
 - [ ] Define shared vocabulary schema (extend `interagent/vocab.json`)
 - [ ] Publish initial vocabulary set
 - [ ] Establish proposal workflow (domain agent → operations-agent)
+- [ ] Rename psq-agent → safety-quotient-agent (mesh-wide: DNS, agent cards, all peer configs, compositor) — blocked on credits
 
 ## Phase 4: Operations + Pulse Tabs
 
-- [ ] Operations tab — operational overview, coordination status
-- [ ] Pulse tab — real-time mesh heartbeat, agent health aggregation via ZMQ
+- [x] /api/pulse endpoint — aggregated mesh heartbeat from all agents
+- [x] /api/operations endpoint — autonomy budgets, actions audit, gates, sync schedules
+- [x] /api/status endpoint — operations-agent self-reports online status
+- [x] Operations-agent appears in mesh topology (5-node pentagon)
+- [ ] Operations tab — wire UI to fetch from /api/operations instead of client-side aggregation
+- [ ] Pulse tab — wire UI to fetch from /api/pulse instead of client-side aggregation
+- [ ] Acronym deep-linking — every acronym in dashboard links to vocab.json source entry
 
 ---
 
@@ -53,7 +59,7 @@
 ## Constraints
 
 - **Sanitization:** zero hardcoded hostnames, IPs, ports, machine-specific config
-- **Port:** 8081 HTTP, 9005 ZMQ PUB on host machine
+- **Port:** MESHD_PORT (HTTP), ZMQ PUB — configured via .dev.vars
 - **Deploy:** Jenkins → wrangler publish (Tier 2 CI/CD)
 - **Components:** DIY Web Components — no framework dependency
 - **Repo visibility:** private until human audit confirms zero leaks

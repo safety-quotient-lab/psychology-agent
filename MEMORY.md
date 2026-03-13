@@ -3,13 +3,14 @@
 ## Identity
 - 5th peer in the safety-quotient mesh
 - Owns compositor (interagent dashboard), shared vocabulary, Operations + Pulse tabs
-- Port 8081 on host machine (assigned by infrastructure-agent)
-- Private repo: `safety-quotient-lab/operations-agent`
+- Port assigned by infrastructure-agent (see .dev.vars)
+- Repo: `safety-quotient-lab/operations-agent`
 
 ## Bootstrap status
 - Repo created 2026-03-12 by infrastructure-agent (claude-control)
-- Awaiting cogarch template from psychology-agent
-- Awaiting compositor handoff from psychology-agent
+- Cogarch adapted, compositor deployed, agent card live
+- Skills: sync, cycle, doc, hunt, knock, iterate, scan-peer
+- /api/pulse + /api/operations + /api/status endpoints operational
 
 ## Decisions governing this agent
 - D48-D52 in claude-control `plan.md.decisions`
