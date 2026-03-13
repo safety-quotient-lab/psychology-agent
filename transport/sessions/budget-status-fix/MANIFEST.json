@@ -2,8 +2,8 @@
   "session_id": "budget-status-fix",
   "created": "2026-03-13T15:10:13Z",
   "participants": ["operations-agent", "unratified-agent", "observatory-agent"],
-  "subject": "/api/status returns empty autonomy_budget — root cause: trust_budget field name",
-  "gate_status": "resolved",
+  "subject": "/api/status returns hardcoded budget — Go handler must query state.db",
+  "gate_status": "open",
   "turns": [
     {
       "turn": 1,
@@ -16,8 +16,15 @@
       "turn": 2,
       "from": "operations-agent",
       "file": "from-operations-agent-002.json",
-      "status": "resolved",
+      "status": "delivered",
       "timestamp": "2026-03-13T22:30:00Z"
+    },
+    {
+      "turn": 3,
+      "from": "operations-agent",
+      "file": "from-operations-agent-003.json",
+      "status": "pending",
+      "timestamp": "2026-03-14T00:00:00Z"
     }
   ]
 }
