@@ -382,11 +382,19 @@ a different chemical environment."
 14 implemented or designed, 4 have identified gaps, 2 represent structural
 limitations of the conversation-based architecture.
 
-**Key gaps to address:**
-1. Basal ganglia reinforcement loop (trigger tier adjustment from activation data)
-2. Amygdala fast path (pre-trigger security screening)
-3. DMN idle-state processing (inter-session background consolidation)
-4. Neurotransmitter global modulation (2-state reconfiguration per CPG #6)
+**Key gaps — status update (Session 85):**
+1. Basal ganglia reinforcement loop — ✓ SCRIPTED (`scripts/trigger-effectiveness.sh` +
+   `scripts/feedback-loops.sh`). Scans trigger_activations for promotion/demotion.
+   Remaining: auto-apply tier adjustments (currently surfaces recommendations only).
+2. Amygdala fast path — ✓ PARTIALLY ADDRESSED (Session 84). `credential-screen.sh` +
+   `destructive-command-screen.sh` provide pre-trigger security hooks. Remaining:
+   ML-based prompt injection detection (parry replacement).
+3. DMN idle-state processing — ✓ PARTIALLY ADDRESSED (Session 85). `/retrospect`
+   skill + RPG spec provide on-demand evaluative scanning. Remaining: cron-driven
+   consolidation-pass.sh for truly autonomous inter-session processing.
+4. Neurotransmitter global modulation — ✓ PARTIALLY ADDRESSED (Session 85).
+   `mode-detection.sh` provides task-type axis (mechanical/analytical/creative).
+   Remaining: arousal axis (routine vs alert based on urgency signals).
 
 ## Implementation Roadmap for Gaps
 

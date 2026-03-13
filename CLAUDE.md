@@ -1,4 +1,5 @@
 # Psychology Project — Claude Code Instructions
+<!-- LINE BUDGET: 250 max. Current: 221. Growth requires compression elsewhere. -->
 
 General-purpose psychology agent project root. Specialized sub-projects below.
 MEMORY.md holds volatile state (active thread, design decisions, cogarch quick-ref).
