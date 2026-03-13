@@ -5371,10 +5371,17 @@ advance operations-agent standup, wire into autonomous pipeline.
 - `interagent/index.html` — semantic topology tokens, mobile stroke-width
 - `TODO.md` — SSE dashboard + mobile topology marked complete
 
+- **/sync (22:54 CDT):** psq-agent T16 found — NOT-READY unchanged, Option A
+  confirmed, 2 findings open (4A API key, 8BCD addressed-copy indexing). 71
+  addressed copies (Convention B) from unratified/observatory catalogued — routing
+  artifacts, not new substance. Mesh circuit breaker active since 10:02 CDT.
+- **Domain assignment:** mesh operations (circuit breaker, autonomous sync) assigned
+  to operations-agent domain. Memory saved.
+
 ⚑ EPISTEMIC FLAGS
 - 52% crystallization rate measured on dry-run — live rate may differ as triage writes dispositions
 - orientation-payload.py pre-processed counts show 0 on first --post-triage run because prior messages lack triage_disposition; populates after first live triage scan
-- psq-agent 4A remediation still blocks R4 closure — no new activity detected
+- psq-agent 4A remediation still blocks R4 closure — T16 confirms NOT-READY
 - Operations-agent cogarch template not yet adapted — placeholders remain
 - ThreadingHTTPServer SSE: each connected browser holds a thread — acceptable for ≤10 concurrent dashboard viewers, not production-grade for high concurrency
 

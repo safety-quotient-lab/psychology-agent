@@ -14,15 +14,14 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 | `memory/cognitive-triggers.md` | Legacy — full trigger descriptions (canonical: `docs/cognitive-triggers.md`) | Superseded; read canonical instead |
 | `memory/feedback_chromabook_not_hetzner.md` | Chromabook = local laptop, Hetzner = separate VPS — never conflate | Infrastructure planning |
 | `memory/feedback_cabinet_port.md` | Cabinet SSH on port 2535, not default 22 | SSH to cabinet |
-| `memory/feedback_mesh_ops_domain.md` | Mesh circuit breaker + autonomous sync = operations-agent domain | Mesh/sync operations |
 
 ## Active Thread (2026-03-12)
 
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 83 (continued). Dashboard work + /sync + /cycle complete.
-Mesh operations assigned to operations-agent domain.
+**Where we stopped:** Session 83 (continued). All dashboard work complete — SSE live
+updates on both meshd + mesh-status.py, semantic topology tokens, mobile line fix.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - Crystallized sync: ✓ Steps 1-7 complete + deployed. 52% rate on 123 msgs `[warm]`
