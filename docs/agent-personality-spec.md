@@ -134,6 +134,38 @@ Personality manifests through three channels:
 3. **Public-facing outputs** — blog posts, API responses, dashboard copy.
    The agent's personality shapes how outputs read to external audiences.
 
+### A2A Agent Card Extension
+
+Personality should appear as a discoverable extension in the A2A agent card
+(`.well-known/agent-card.json`). Peers that fetch the card can adapt their
+communication style to the target agent's personality.
+
+**Proposed extension field:**
+
+```json
+{
+  "personality": {
+    "voice": "reflective",
+    "register": ["technical", "poetic", "accessible"],
+    "traits": ["socratic", "fair-witness", "metaphor-at-closure"],
+    "anti_patterns": ["no-lectures", "no-unnecessary-summaries"],
+    "communication_style": {
+      "default": "analytical",
+      "closure": "compressed-resonant",
+      "disagreement": "socratic-with-evidence"
+    }
+  }
+}
+```
+
+**Discovery protocol:** When /sync fetches a peer's agent card, read the
+`personality` field (if present) to adjust outbound message tone. A terse
+operations-agent receives shorter, action-oriented messages. An editorial
+unratified-agent receives audience-aware content with lensFraming.
+
+**Backward compatibility:** The `personality` field uses A2A's extension
+mechanism — agents that don't recognize it ignore it. No breaking change.
+
 ### Crystallization Path
 
 | Stage | Implementation |
