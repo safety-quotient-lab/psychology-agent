@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phase 1 complete. meshd live on chromabook:8081 with ZMQ mesh (4 peers). Compositor codebase transferred. Cogarch adapted.
+**Current Status:** Phase 2 in progress. Compositor deployed to CF Workers with dynamic agent-card discovery (D51). Custom domains live: `interagent.safety-quotient.dev` + `operations-agent.safety-quotient.dev`. Agent card served at `/.well-known/agent-card.json`. WebFinger operational. Remaining: Web Component decomposition, Jenkins pipeline.
 
 ---
 
@@ -17,11 +17,13 @@
 
 ## Phase 2: Compositor Handoff
 
+- [x] Implement .well-known discovery in worker.js (replace hardcoded AGENT_REGISTRY) — D51 dynamic fetching with KV cache
+- [x] Set up DNS: `operations-agent.safety-quotient.dev` custom domain on CF Workers
+- [x] Deploy compositor to Cloudflare Workers under ops-agent ownership
+- [x] Agent card served at `/.well-known/agent-card.json` (bundled, avoids self-fetch loop)
+- [x] WebFinger + `/.well-known/agents` endpoints operational with dynamic data
 - [ ] Web Component decomposition (monolithic index.html → custom elements)
-- [ ] Implement .well-known discovery in worker.js (replace hardcoded AGENT_REGISTRY)
-- [ ] Set up DNS: `operations-agent.safety-quotient.dev` CNAME to Workers
 - [ ] Jenkins deploy pipeline (CF Worker via wrangler)
-- [ ] Deploy compositor to Cloudflare Workers under ops-agent ownership
 
 ## Phase 3: Vocabulary Governance
 
