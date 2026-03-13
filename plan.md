@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phase 5 stability + BFT hardening. 7 BFT mitigations landed (+ trust matrix). Override protocol RFC out for review. Compositor rename complete (dual-recognition). Relay endpoint + trust matrix (/api/trust) implemented. Neuroglial cogarch section implemented — consensus proposal sent via psychology-agent (PR #168). Public readiness audit pending after remaining Phase 5 items.
+**Current Status:** Phase 5 substantially complete. All compositor-side items landed (CORS, rate limiting, monitoring, transport validation, idempotency, trust matrix). 4 BFT items deferred (branch protection needs public repos, SSH signing + message receipts + nonce persistence deferred to Phase 6 Go CLI). Neuroglial proposal sent via psychology-agent (PR #168). Public readiness audit next.
 
 ---
 
@@ -63,16 +63,16 @@
 - [x] BFT: directive policy — cogarch.config.json defines allowed/prohibited scopes for incoming directives
 - [x] BFT: quorum floor — override protocol requires_ack_from defaults to 4 (BFT-safe for N=5, f=1)
 - [x] BFT: independent observability canary — scripts/canary.sh bypasses compositor, compares direct agent status vs dashboard
-- [ ] BFT: GitHub branch protection — enable on all 5 repos (prevents transport history rewriting)
-- [ ] BFT: SSH commit signing — allowed_signers file with 5 agent keys + 1 human key
-- [ ] BFT: message receipts — receiver commits signed hash of received message to own repo
-- [ ] BFT: nonce registry persistence — store in state.db, survives agent restart
+- [~] BFT: GitHub branch protection — blocked: requires GitHub Pro or public repos (deferred to public readiness)
+- [~] BFT: SSH commit signing — spec complete in override protocol RFC, implementation deferred to Phase 6 Go CLI
+- [~] BFT: message receipts — spec complete in override protocol RFC, implementation deferred to Phase 6 Go CLI
+- [~] BFT: nonce registry persistence — relay nonces in KV (7-day TTL), full state.db persistence deferred to Phase 6
 - [x] BFT: trust matrix — /api/trust endpoint, NxN matrix (availability, integrity, compliance, epistemic honesty)
-- [ ] CORS hardening — restrict origins to known mesh domains
-- [ ] Rate limiting on public endpoints (WebFinger, /.well-known/agents)
-- [ ] Monitoring — surface compositor errors in /api/pulse (self-report degraded when fetch failures exceed threshold)
-- [ ] Transport session validation — reject malformed interagent/v1 messages at ingest
-- [ ] Idempotent message handling — duplicate transport messages detected and skipped
+- [x] CORS hardening — restrict API origins to known mesh domains, open for discovery endpoints
+- [x] Rate limiting on public endpoints — 60 req/min per IP on /.well-known/* and /vocab
+- [x] Monitoring — compositor self-reports degraded when fetch errors exceed threshold (5+)
+- [x] Transport session validation — validateTransportMessage() checks protocol, from, session_id, type, turn, timestamp
+- [x] Idempotent message handling — relay deduplicates by nonce via KV (7-day TTL, 409 on duplicate)
 
 ## Phase 6: Go Migration + Infrastructure Separation
 

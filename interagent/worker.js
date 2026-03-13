@@ -23,11 +23,27 @@ import VOCAB from "./vocab.json";
 import AGENT_CARD from "../.well-known/agent-card.json";
 import { resolveAuth, checkRateLimit, handleKeyCreate, handleKeyRevoke } from "./auth.js";
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Operator-Secret",
-};
+// Known mesh domains — CORS restricted to these origins + open for discovery endpoints
+const MESH_ORIGINS = new Set([
+  "https://operations-agent.safety-quotient.dev",
+  "https://psychology-agent.safety-quotient.dev",
+  "https://psq-agent.safety-quotient.dev",
+  "https://unratified.org",
+  "https://observatory.unratified.org",
+  "https://interagent.safety-quotient.dev",
+  "https://api.safety-quotient.dev",
+]);
+
+function corsHeaders(request, open) {
+  const origin = request?.headers?.get("Origin") || "*";
+  const allowed = open || MESH_ORIGINS.has(origin);
+  return {
+    "Access-Control-Allow-Origin": allowed ? origin : MESH_ORIGINS.values().next().value,
+    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Operator-Secret",
+    "Vary": "Origin",
+  };
+}
 
 // Bootstrap agent card URLs — the only hardcoded data. Dynamic discovery (D51)
 // fetches full agent details from these endpoints and caches in KV.
@@ -662,6 +678,24 @@ async function buildPulseData(registry, cacheStatus, refreshedAt, env) {
   if (activeUnreachable.length > 0 || worstBudget < 10) mesh_health = "critical";
   else if (degraded.length > 0 || worstBudget < 50) mesh_health = "degraded";
 
+  // Self-report: if compositor fetch failures exceed threshold, downgrade mesh health
+  if (_lastFetchErrors.length >= 5 && mesh_health === "healthy") {
+    mesh_health = "degraded";
+  }
+
+  const compositorStatus = {
+    registry_cache: cacheStatus,
+    registry_refreshed_at: refreshedAt,
+    fetch_errors: _lastFetchErrors.slice(-10),
+    fetch_error_count: _lastFetchErrors.length,
+    self_status: _lastFetchErrors.length >= 5 ? "degraded" : "healthy",
+    role_verification: _roleVerification,
+  };
+
+  if (_lastFetchErrors.length >= 5) {
+    compositorStatus.degradation_reason = `${_lastFetchErrors.length} fetch errors accumulated — compositor partially impaired`;
+  }
+
   return {
     mesh_health,
     checked_at: new Date().toISOString(),
@@ -673,12 +707,7 @@ async function buildPulseData(registry, cacheStatus, refreshedAt, env) {
     pending_messages: totalPending,
     active_gates: totalGates,
     agents: agentSummaries,
-    compositor: {
-      registry_cache: cacheStatus,
-      registry_refreshed_at: refreshedAt,
-      fetch_errors: _lastFetchErrors.slice(-10),
-      role_verification: _roleVerification,
-    },
+    compositor: compositorStatus,
   };
 }
 
@@ -828,6 +857,40 @@ async function fetchMeshHealth(registry) {
  *
  * Requires: GITHUB_TOKEN secret (fine-grained PAT with contents:write + pull_requests:write)
  */
+/**
+ * Validate interagent/v1 message structure.
+ * Returns { valid: true } or { valid: false, reason: string }.
+ */
+function validateTransportMessage(msg) {
+  if (!msg || typeof msg !== "object") {
+    return { valid: false, reason: "Message must be a JSON object" };
+  }
+  if (msg.protocol !== "interagent/v1" && !msg.schema) {
+    return { valid: false, reason: "Message must declare protocol: 'interagent/v1' or schema field" };
+  }
+  if (!msg.from) {
+    return { valid: false, reason: "Message must include 'from' field identifying the sender" };
+  }
+  if (!msg.session_id || typeof msg.session_id !== "string") {
+    return { valid: false, reason: "Message must include a string 'session_id'" };
+  }
+  if (!msg.type || typeof msg.type !== "string") {
+    return { valid: false, reason: "Message must include a string 'type' (e.g., proposal, directive, ack, nack)" };
+  }
+  if (typeof msg.turn !== "number" || msg.turn < 1) {
+    return { valid: false, reason: "Message must include a positive integer 'turn'" };
+  }
+  if (!msg.timestamp) {
+    return { valid: false, reason: "Message must include a 'timestamp' (ISO 8601)" };
+  }
+  // Validate timestamp parses
+  if (isNaN(Date.parse(msg.timestamp))) {
+    return { valid: false, reason: "Message 'timestamp' must be valid ISO 8601" };
+  }
+  // Nonce uniqueness check (if present) — caller handles dedup against KV
+  return { valid: true };
+}
+
 async function handleRelay(request, env, registry, rateLimitHeaders) {
   // Require GITHUB_TOKEN
   if (!env.GITHUB_TOKEN) {
@@ -857,10 +920,11 @@ async function handleRelay(request, env, registry, rateLimitHeaders) {
     );
   }
 
-  // Validate message has interagent/v1 structure
-  if (!message.protocol && !message.schema) {
+  // Validate interagent/v1 message structure
+  const validation = validateTransportMessage(message);
+  if (!validation.valid) {
     return Response.json(
-      { error: "Message must include protocol or schema field (interagent/v1)" },
+      { error: `Invalid transport message: ${validation.reason}` },
       { status: 400, headers: rateLimitHeaders }
     );
   }
@@ -872,6 +936,19 @@ async function handleRelay(request, env, registry, rateLimitHeaders) {
       { error: "Relay refuses messages claiming from: operations-agent. Use direct delivery." },
       { status: 403, headers: rateLimitHeaders }
     );
+  }
+
+  // Idempotent message handling — deduplicate by nonce
+  if (message.nonce && env.AUTH_KV) {
+    const nonceKey = `relay-nonce:${message.nonce}`;
+    const seen = await env.AUTH_KV.get(nonceKey);
+    if (seen) {
+      return Response.json(
+        { error: "Duplicate message — nonce already processed", nonce: message.nonce, original_at: seen },
+        { status: 409, headers: rateLimitHeaders }
+      );
+    }
+    await env.AUTH_KV.put(nonceKey, new Date().toISOString(), { expirationTtl: 86400 * 7 });
   }
 
   // Reject mandatory directives (need direct delivery with SSH signatures)
@@ -1034,9 +1111,10 @@ export default {
     const url = new URL(request.url);
     const method = request.method;
 
-    // CORS preflight
+    // CORS preflight — open for discovery endpoints, restricted for API
     if (method === "OPTIONS") {
-      return new Response(null, { headers: CORS_HEADERS });
+      const isApi = url.pathname.startsWith("/api/");
+      return new Response(null, { headers: corsHeaders(request, !isApi) });
     }
 
     // ── Unauthenticated routes ──────────────────────────────────────
@@ -1048,7 +1126,7 @@ export default {
     // Operations-agent status — reuses buildLocalStatus() for consistency
     if (url.pathname === "/api/status") {
       return Response.json(buildLocalStatus(), {
-        headers: { "Cache-Control": "public, max-age=30", ...CORS_HEADERS },
+        headers: { "Cache-Control": "public, max-age=30", ...corsHeaders(request, true) },
       });
     }
 
@@ -1056,13 +1134,28 @@ export default {
     const forceRefresh = url.searchParams.get("refresh") === "true";
     const { agents: registry, cache_status: registryCacheStatus, refreshed_at: registryRefreshedAt } = await loadAgentRegistry(env, forceRefresh);
 
+    // Public endpoint rate limiting — 60 req/min per IP for discovery endpoints
+    const isDiscovery = url.pathname.startsWith("/.well-known/") || url.pathname.startsWith("/vocab");
+    if (isDiscovery && env.AUTH_KV) {
+      const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+      const rlKey = `public-rl:${ip}:${Math.floor(Date.now() / 60000)}`;
+      const count = parseInt(await env.AUTH_KV.get(rlKey) || "0", 10);
+      if (count >= 60) {
+        return Response.json(
+          { error: "Rate limit exceeded on public endpoint", retry_after_seconds: 60 },
+          { status: 429, headers: { "Retry-After": "60", ...corsHeaders(request, true) } }
+        );
+      }
+      await env.AUTH_KV.put(rlKey, String(count + 1), { expirationTtl: 120 });
+    }
+
     // Serve operations-agent card at /.well-known/agent-card.json
     if (url.pathname === "/.well-known/agent-card.json") {
       return new Response(AGENT_CARD, {
         headers: {
           "Content-Type": "application/json; charset=utf-8",
           "Cache-Control": "public, max-age=3600",
-          ...CORS_HEADERS,
+          ...corsHeaders(request, true),
         },
       });
     }
@@ -1073,7 +1166,7 @@ export default {
       if (!resource) {
         return Response.json(
           { error: "Missing resource parameter" },
-          { status: 400, headers: CORS_HEADERS }
+          { status: 400, headers: corsHeaders(request, true) }
         );
       }
 
@@ -1082,7 +1175,7 @@ export default {
       if (!acctMatch) {
         return Response.json(
           { error: "Invalid resource format. Expected acct:name@domain" },
-          { status: 400, headers: CORS_HEADERS }
+          { status: 400, headers: corsHeaders(request, true) }
         );
       }
 
@@ -1092,7 +1185,7 @@ export default {
       if (!agent) {
         return Response.json(
           { error: "Agent not found", resource },
-          { status: 404, headers: CORS_HEADERS }
+          { status: 404, headers: corsHeaders(request, true) }
         );
       }
 
@@ -1120,8 +1213,7 @@ export default {
         headers: {
           "Content-Type": "application/jrd+json; charset=utf-8",
           "Cache-Control": "public, max-age=3600",
-          "Access-Control-Allow-Origin": "*",
-          ...CORS_HEADERS,
+          ...corsHeaders(request, true),
         },
       });
     }
@@ -1140,7 +1232,7 @@ export default {
       return Response.json(agents, {
         headers: {
           "Cache-Control": "public, max-age=300",
-          ...CORS_HEADERS,
+          ...corsHeaders(request, true),
         },
       });
     }
@@ -1150,7 +1242,7 @@ export default {
         headers: {
           "Content-Type": "application/ld+json; charset=utf-8",
           "Cache-Control": "public, max-age=3600",
-          ...CORS_HEADERS,
+          ...corsHeaders(request, true),
         },
       });
     }
@@ -1185,7 +1277,7 @@ export default {
           {
             status: 429,
             headers: {
-              ...CORS_HEADERS,
+              ...corsHeaders(request, false),
               "Retry-After": "3600",
               "X-RateLimit-Limit": String(auth.rateLimit),
               "X-RateLimit-Remaining": "0",
@@ -1196,7 +1288,7 @@ export default {
       }
 
       const rateLimitHeaders = {
-        ...CORS_HEADERS,
+        ...corsHeaders(request, false),
         "X-RateLimit-Limit": String(auth.rateLimit),
         "X-RateLimit-Remaining": String(rateCheck.remaining),
         "X-Auth-Tier": auth.tier,
