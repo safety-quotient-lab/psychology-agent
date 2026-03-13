@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** v1.0.0-beta.1 tagged and deployed. Phase 7 hardening 8/10 complete (2 manual: browser testing). meshd operational on chromabook (3 successful Claude spawns). Pre-public release ready (NOTICE, SECURITY, CONTRIBUTING, GitHub Actions CI, 6-sigma credential scan PASS). Pluggable notifications. Psychology-agent meshd deployed in shadow mode. Awaiting: manual browser testing, then flip to public.
+**Current Status:** v1.0.0-beta.1 tagged + deployed. 25 commits this session. Pre-public release ready (6-sigma PASS, CI green, all docs). meshd operational on chromabook (3 spawns verified). Cross-repo fetcher built. Psychology-agent v1-beta.1 APPROVED (issue #171). Awaiting: manual browser testing → flip to public.
 
 ---
 
