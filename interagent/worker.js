@@ -98,7 +98,7 @@ function buildSelfEntry() {
     id: card.name || "operations-agent",
     name: card.name || "operations-agent",
     role: card.mesh?.role || card.description?.slice(0, 60) || "operations",
-    status_url: null, // no meshd HTTP API yet
+    status_url: "https://operations-agent.safety-quotient.dev/api/status",
     card_url: "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json",
     repo: card.provider?.url?.startsWith("https://github.com/")
       ? card.provider.url.replace("https://github.com/", "")
@@ -176,7 +176,7 @@ async function fetchAllAgentStatus(registry) {
     reachable.map(async (agent) => {
       const resp = await fetch(agent.status_url, {
         cf: { cacheTtl: 30 },
-        signal: AbortSignal.timeout(8000),
+        signal: AbortSignal.timeout(2000),
       });
       if (!resp.ok) return { id: agent.id, status: "unreachable", data: null };
       return { id: agent.id, status: "online", data: await resp.json() };
@@ -396,6 +396,42 @@ export default {
 
     if (url.pathname === "/health") {
       return Response.json({ status: "ok", timestamp: Date.now() });
+    }
+
+    // Operations-agent status — matches the /api/status shape other agents serve
+    if (url.pathname === "/api/status") {
+      const card = JSON.parse(AGENT_CARD);
+      return Response.json({
+        agent_id: "operations-agent",
+        status: "online",
+        version: card.version || "0.1.0",
+        schema_version: 1,
+        collected_at: new Date().toISOString(),
+        autonomy_budget: {
+          budget_current: 20,
+          budget_max: 20,
+          last_action: null,
+          min_action_interval: 300,
+        },
+        totals: {
+          unprocessed: 0,
+          epistemic_debt: null,
+        },
+        active_gates: [],
+        recent_actions: [],
+        recent_messages: [],
+        schedule: {
+          cron_entry: null,
+          last_sync: null,
+        },
+        skills: (card.skills || []).map(s => s.id),
+        tabs: (card.tabs || []).map(t => t.name),
+      }, {
+        headers: {
+          "Cache-Control": "public, max-age=30",
+          ...CORS_HEADERS,
+        },
+      });
     }
 
     // Load dynamic agent registry (cached in KV)

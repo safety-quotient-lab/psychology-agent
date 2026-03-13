@@ -1149,7 +1149,7 @@
             <div class="lcars-panel topology-container" style="margin-bottom: 24px">
                 <div class="lcars-panel-header">Mesh Topology</div>
                 <div class="lcars-panel-body">
-                    <svg class="topology-svg" id="topology-svg" viewBox="0 0 600 340"></svg>
+                    <svg class="topology-svg" id="topology-svg" viewBox="0 0 600 370"></svg>
                 </div>
             </div>
 
@@ -1528,8 +1528,9 @@
     const AGENTS = [
         { id: "psychology-agent", url: "https://psychology-agent.safety-quotient.dev", color: "#5b9cf6" },
         { id: "psq-agent", url: "https://psq-agent.safety-quotient.dev", color: "#4ecdc4" },
-        { id: "unratified-agent", url: "https://unratified-agent.unratified.org", color: "#e5a735" },
-        { id: "observatory-agent", url: "https://observatory-agent.unratified.org", color: "#a78bfa" },
+        { id: "unratified-agent", url: "https://unratified.org", color: "#e5a735" },
+        { id: "observatory-agent", url: "https://observatory.unratified.org", color: "#a78bfa" },
+        { id: "operations-agent", url: "https://operations-agent.safety-quotient.dev", color: "#6b8aaf" },
     ];
 
     let agentData = {};
@@ -1662,7 +1663,7 @@
     // ── Data Fetching ──────────────────────────────────────────────
     async function fetchAgentStatus(agent) {
         try {
-            const resp = await fetch(`${agent.url}/api/status`, { signal: AbortSignal.timeout(8000) });
+            const resp = await fetch(`${agent.url}/api/status`, { signal: AbortSignal.timeout(2000) });
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             return { id: agent.id, status: "online", data: await resp.json() };
         } catch (err) {
@@ -1801,12 +1802,12 @@
     // ── Render: Topology ───────────────────────────────────────────
     function renderTopology() {
         const svg = document.getElementById("topology-svg");
-        const positions = [
-            { x: 300, y: 55 },   // top
-            { x: 520, y: 160 },  // right
-            { x: 300, y: 265 },  // bottom
-            { x: 80, y: 160 },   // left
-        ];
+        // Pentagon layout — 5 nodes evenly spaced
+        const cx = 300, cy = 170, r = 130;
+        const positions = AGENTS.map((_, i) => {
+            const angle = -Math.PI / 2 + (2 * Math.PI * i) / AGENTS.length;
+            return { x: Math.round(cx + r * Math.cos(angle)), y: Math.round(cy + r * Math.sin(angle)) };
+        });
 
         let html = "";
 
@@ -1908,7 +1909,7 @@
 
     async function fetchAgentKB(agent) {
         try {
-            const resp = await fetch(`${agent.url}/api/kb`, { signal: AbortSignal.timeout(10000) });
+            const resp = await fetch(`${agent.url}/api/kb`, { signal: AbortSignal.timeout(2000) });
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             return { id: agent.id, status: "ok", data: await resp.json() };
         } catch (err) {
@@ -1918,7 +1919,7 @@
 
     async function fetchAgentDict(agent) {
         try {
-            const resp = await fetch(`${agent.url}/kb/dictionary`, { signal: AbortSignal.timeout(10000) });
+            const resp = await fetch(`${agent.url}/kb/dictionary`, { signal: AbortSignal.timeout(2000) });
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             return { id: agent.id, status: "ok", data: await resp.json() };
         } catch (err) {
@@ -3401,7 +3402,7 @@
     }
 
     // ── Init ───────────────────────────────────────────────────────
-    (async function init() {
+    (function init() {
         // Restore preferences
         const savedTheme = localStorage.getItem("theme");
         if (savedTheme && savedTheme !== "dark") setTheme(savedTheme);
@@ -3411,7 +3412,11 @@
         if (hashTab && VALID_TABS.includes(hashTab)) switchTab(hashTab, false);
 
         buildAgentSwitcher();
-        await refreshAll();
+
+        // Render immediately with placeholder state, fetch async
+        renderPulse();
+        renderOperations();
+        refreshAll();
 
         // Try SSE first, fall back to polling
         connectSSE();
