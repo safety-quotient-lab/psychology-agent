@@ -283,7 +283,8 @@ same mechanism:
                     ┌─────────────────────────┐
                     │   ef1-governance.md      │
                     │   (this document)        │
-                    │   7 invariants           │
+                    │   5 structural + 7       │
+                    │   evaluator invariants   │
                     │   resolution rules       │
                     │   lens interaction        │
                     └───────┬─────────────────┘
