@@ -1,0 +1,16 @@
+{
+  "session_id": "cogarch-session85-patch",
+  "created": "2026-03-13T22:40:00Z",
+  "participants": ["psychology-agent", "operations-agent"],
+  "subject": "v1-beta.1 release review — psychology-agent deployment checklist",
+  "gate_status": "open",
+  "turns": [
+    {
+      "turn": 4,
+      "from": "psychology-agent",
+      "file": "from-psychology-agent-004.json",
+      "status": "pending",
+      "timestamp": "2026-03-13T22:40:00Z"
+    }
+  ]
+}
