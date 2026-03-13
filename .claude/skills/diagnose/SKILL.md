@@ -1,321 +1,487 @@
 ---
 name: diagnose
-description: Systemic self-diagnostic — health check of all monitoring, indexing, and documentation mechanisms.
+description: Systemic self-diagnostic — multi-level health check inspired by Starfleet computer diagnostics. Replaces manual QA.
 user-invocable: true
-argument-hint: "[all | claims | transport | memory | triggers | facets | lessons | decisions | flags | sessions]"
+argument-hint: "[1-5] [subsystem] — Level 5 (quick status) through Level 1 (full integrity verification)"
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 
 # /diagnose — Systemic Self-Diagnostic
 
-Run a health check across every monitoring, indexing, and documentation
-mechanism in the psychology agent. Surfaces what's flowing, what's stale,
-and what's broken.
+Multi-level diagnostic system for the psychology agent cogarch. Five levels
+of depth, breadth, and granularity — inspired by Starfleet computer
+diagnostic protocols (TNG Technical Manual, Sternbach & Okuda, 1991).
 
-## When to Invoke
-
-- After major infrastructure changes (schema migrations, bootstrap rebuilds)
-- Periodically (every 5-10 sessions) as a hygiene check
-- When something feels off ("are claims being tracked?")
-- Before /cycle to verify the documentation chain has live inputs
-
-## Arguments
-
-| Argument | Scope |
-|----------|-------|
-| `all` or *(empty)* | Full diagnostic — all subsystems |
-| `claims` | Claims pipeline only |
-| `transport` | Transport message indexing and processing |
-| `memory` | Memory entries staleness and coverage |
-| `triggers` | Cognitive trigger state tracking |
-| `facets` | Universal facets and vocabulary |
-| `lessons` | Lessons.md existence, schema, promotion |
-| `decisions` | Decision chain freshness and coverage |
-| `flags` | Epistemic flags resolution rate |
-| `sessions` | Session log vs git history alignment |
+Replaces manual QA. Run after infrastructure changes, periodically as
+hygiene, or when something feels off.
 
 ---
 
-## Protocol
+## Diagnostic Levels
 
-### 1. Database Vitals
+| Level | Name | Depth | Duration | When to Run |
+|---|---|---|---|---|
+| **5** | Quick Status | Row counts + basic health | ~10 seconds | Before any session work; quick pulse check |
+| **4** | Targeted Scan | One subsystem in depth | ~30 seconds | When a specific subsystem feels off |
+| **3** | Standard Diagnostic | All subsystems, key metrics | ~2 minutes | Every 5-10 sessions; after /cycle |
+| **2** | Comprehensive Analysis | Cross-system alignment + drift detection | ~5 minutes | After schema migrations, bootstrap rebuilds |
+| **1** | Full Integrity Verification | Everything L2 + file verification, orphan detection, hook health, QA test suite | ~10 minutes | After major refactors; before releases |
 
-Query state.db for aggregate health metrics:
+**Default level:** 3 (if no level specified).
+
+**Usage:**
+```
+/diagnose          — Level 3, all subsystems
+/diagnose 5        — Level 5, quick status
+/diagnose 4 claims — Level 4, claims subsystem only
+/diagnose 1        — Level 1, full integrity verification
+```
+
+---
+
+## Level 5: Quick Status ("All stations, report.")
+
+Row counts and binary health for each table. No detail queries.
 
 ```sql
--- Row counts per table
-SELECT 'claims' as tbl, COUNT(*) as total,
+SELECT 'claims' as system, COUNT(*) as total,
        SUM(CASE WHEN verified = 1 THEN 1 ELSE 0 END) as good,
        SUM(CASE WHEN verified = 0 THEN 1 ELSE 0 END) as attention
 FROM claims
 UNION ALL
-SELECT 'transport_messages', COUNT(*),
+SELECT 'transport', COUNT(*),
        SUM(CASE WHEN processed = 1 THEN 1 ELSE 0 END),
        SUM(CASE WHEN processed = 0 THEN 1 ELSE 0 END)
 FROM transport_messages
 UNION ALL
-SELECT 'epistemic_flags', COUNT(*),
+SELECT 'flags', COUNT(*),
        SUM(CASE WHEN resolved = 1 THEN 1 ELSE 0 END),
        SUM(CASE WHEN resolved = 0 THEN 1 ELSE 0 END)
 FROM epistemic_flags
 UNION ALL
-SELECT 'decision_chain', COUNT(*), 0, 0 FROM decision_chain
+SELECT 'decisions', COUNT(*), 0, 0 FROM decision_chain
 UNION ALL
-SELECT 'memory_entries', COUNT(*), 0, 0 FROM memory_entries
+SELECT 'memory', COUNT(*), 0, 0 FROM memory_entries
 UNION ALL
-SELECT 'session_log', COUNT(*), 0, 0 FROM session_log
+SELECT 'sessions', COUNT(*), 0, 0 FROM session_log
 UNION ALL
-SELECT 'trigger_state', COUNT(*),
+SELECT 'triggers', COUNT(*),
        SUM(CASE WHEN fire_count > 0 THEN 1 ELSE 0 END),
        SUM(CASE WHEN fire_count = 0 THEN 1 ELSE 0 END)
 FROM trigger_state
 UNION ALL
-SELECT 'universal_facets', COUNT(*), 0, 0 FROM universal_facets
+SELECT 'facets', COUNT(*), 0, 0 FROM universal_facets
 UNION ALL
-SELECT 'autonomy_budget', COUNT(*), 0, 0 FROM autonomy_budget
+SELECT 'activations', COUNT(*), 0, 0 FROM trigger_activations
 UNION ALL
-SELECT 'active_gates', COUNT(*), 0, 0
-FROM active_gates WHERE resolved_at IS NULL;
+SELECT 'carryover', COUNT(*),
+       SUM(CASE WHEN resolved_session IS NOT NULL THEN 1 ELSE 0 END),
+       SUM(CASE WHEN resolved_session IS NULL THEN 1 ELSE 0 END)
+FROM work_carryover;
 ```
 
-### 2. Claims Pipeline
+**Output:** One-line-per-system table. ✓/⚑/✗ indicators. Done.
 
-Check whether claims flow from transport messages to verification:
+---
+
+## Level 4: Targeted Scan ("Run a Level 4 diagnostic on the warp coils.")
+
+Deep inspection of a single subsystem. Includes all Level 5 data for that
+subsystem plus detail queries.
+
+### Subsystem: `claims`
 
 ```sql
--- Claims by confidence band
-SELECT
-  CASE
-    WHEN confidence >= 0.9 THEN 'high (≥0.9)'
-    WHEN confidence >= 0.7 THEN 'medium (0.7-0.9)'
-    ELSE 'low (<0.7)'
-  END as band,
-  COUNT(*) as total,
-  SUM(CASE WHEN verified = 1 THEN 1 ELSE 0 END) as verified
+SELECT CASE WHEN confidence >= 0.9 THEN 'high (≥0.9)'
+            WHEN confidence >= 0.7 THEN 'medium (0.7-0.9)'
+            ELSE 'low (<0.7)' END as band,
+       COUNT(*) as total,
+       SUM(CASE WHEN verified = 1 THEN 1 ELSE 0 END) as verified
 FROM claims GROUP BY band;
 
--- Latest claim indexed (recency check)
-SELECT transport_msg, claim_id, substr(claim_text, 1, 80),
-       confidence FROM claims ORDER BY rowid DESC LIMIT 3;
+SELECT transport_msg, claim_id, substr(claim_text, 1, 80), confidence
+FROM claims ORDER BY rowid DESC LIMIT 5;
 
--- Claims with no confidence score (data quality)
-SELECT COUNT(*) FROM claims WHERE confidence IS NULL;
+SELECT COUNT(*) as null_confidence FROM claims WHERE confidence IS NULL;
 ```
 
-**Health indicators:**
-- ✗ `verified = 0` for ALL claims → verification pipeline not running
-- ✗ No claims from recent sessions → dual-write not indexing claims
-- ⚑ >50% claims at confidence <0.7 → claim quality concern
-- ✓ Mix of verified/unverified with recent entries → healthy
-
-### 3. Epistemic Flags
+### Subsystem: `transport`
 
 ```sql
--- Flags by source (which sessions produce the most flags?)
-SELECT source, COUNT(*) as cnt FROM epistemic_flags
-GROUP BY source ORDER BY cnt DESC LIMIT 10;
-
--- Resolution rate
-SELECT
-  COUNT(*) as total,
-  SUM(CASE WHEN resolved = 1 THEN 1 ELSE 0 END) as resolved,
-  ROUND(100.0 * SUM(CASE WHEN resolved = 1 THEN 1 ELSE 0 END) / COUNT(*), 1) as pct
-FROM epistemic_flags;
-```
-
-**Health indicators:**
-- ✗ 0% resolved → no one is clearing flags
-- ⚑ >100 open flags → debt accumulating
-- ✓ Some resolved, recent entries → healthy
-
-### 4. Transport Messages
-
-```sql
--- Processing rate by session
-SELECT session_name,
-       COUNT(*) as total,
+SELECT session_name, COUNT(*) as total,
        SUM(CASE WHEN processed = 1 THEN 1 ELSE 0 END) as processed
 FROM transport_messages GROUP BY session_name ORDER BY total DESC LIMIT 10;
 
--- Orphaned messages (unprocessed for >48h)
 SELECT session_name, filename, timestamp, subject
 FROM transport_messages
-WHERE processed = 0
-  AND timestamp < datetime('now', '-2 days')
+WHERE processed = 0 AND timestamp < datetime('now', '-2 days')
 ORDER BY timestamp LIMIT 10;
-
--- Messages with no claims (low-information indexing)
-SELECT COUNT(*) FROM transport_messages WHERE claims_count = 0;
 ```
 
-**Health indicators:**
-- ✗ Bulk unprocessed after bootstrap → processed flags reset (expected, re-run dual_write)
-- ✗ Old unprocessed messages → sync pipeline not reaching them
-- ✓ Recent messages processed promptly → healthy
-
-### 5. Decision Chain
+### Subsystem: `memory`
 
 ```sql
--- Decisions per month (velocity)
-SELECT substr(decided_date, 1, 7) as month, COUNT(*)
-FROM decision_chain GROUP BY month ORDER BY month DESC LIMIT 6;
-
--- Decisions without evidence_source
-SELECT COUNT(*) FROM decision_chain WHERE evidence_source IS NULL OR evidence_source = '';
-
--- Orphaned derives_from references
-SELECT dc1.decision_key, dc1.derives_from
-FROM decision_chain dc1
-LEFT JOIN decision_chain dc2 ON dc1.derives_from = dc2.id
-WHERE dc1.derives_from IS NOT NULL AND dc2.id IS NULL;
-```
-
-**Health indicators:**
-- ✗ No recent decisions → architecture.md not being dual-written
-- ✗ Orphaned derives_from → chain integrity broken
-- ✓ Steady monthly velocity → healthy
-
-### 6. Memory Entries
-
-```sql
--- Entries per topic
 SELECT topic, COUNT(*) FROM memory_entries GROUP BY topic ORDER BY COUNT(*) DESC;
 
--- Staleness: entries not confirmed recently
 SELECT topic, entry_key, last_confirmed
 FROM memory_entries
-WHERE last_confirmed < date('now', '-7 days')
-   OR last_confirmed IS NULL
+WHERE last_confirmed < date('now', '-7 days') OR last_confirmed IS NULL
 ORDER BY last_confirmed LIMIT 10;
 
--- Duplicate keys within a topic
 SELECT topic, entry_key, COUNT(*) as cnt
 FROM memory_entries GROUP BY topic, entry_key HAVING cnt > 1;
 ```
 
-### 7. Trigger State
+### Subsystem: `triggers`
 
 ```sql
--- Triggers that have never fired
-SELECT trigger_id, last_fired, fire_count
-FROM trigger_state WHERE fire_count = 0 OR last_fired IS NULL;
-
--- Most active triggers
 SELECT trigger_id, fire_count, last_fired
-FROM trigger_state ORDER BY fire_count DESC LIMIT 5;
+FROM trigger_state ORDER BY fire_count DESC;
+
+SELECT trigger_id, check_number, tier, COUNT(*) as fires,
+       SUM(CASE WHEN result = 'fail' THEN 1 ELSE 0 END) as catches
+FROM trigger_activations WHERE fired = 1
+GROUP BY trigger_id, check_number ORDER BY catches DESC LIMIT 10;
 ```
 
-**Health indicators:**
-- ✗ All fire_count=0 → trigger tracking not writing to DB
-- ⚑ Some triggers never fire → either unused or tracking gap
-- ✓ Mix of activity → healthy
+### Subsystem: `flags`
 
-### 8. Universal Facets
+```sql
+SELECT source, COUNT(*) as cnt FROM epistemic_flags
+GROUP BY source ORDER BY cnt DESC LIMIT 10;
+
+SELECT COUNT(*) as total,
+       SUM(CASE WHEN resolved = 1 THEN 1 ELSE 0 END) as resolved,
+       ROUND(100.0 * SUM(CASE WHEN resolved = 1 THEN 1 ELSE 0 END) / COUNT(*), 1) as pct
+FROM epistemic_flags;
+```
+
+### Subsystem: `decisions`
+
+```sql
+SELECT substr(decided_date, 1, 7) as month, COUNT(*)
+FROM decision_chain GROUP BY month ORDER BY month DESC LIMIT 6;
+
+SELECT COUNT(*) FROM decision_chain
+WHERE evidence_source IS NULL OR evidence_source = '';
+```
+
+### Subsystem: `facets`
 
 ```sql
 SELECT facet_type, COUNT(*) FROM universal_facets GROUP BY facet_type;
 ```
 
-If zero: run `python3 scripts/bootstrap_facets.py` and report.
-
-### 9. Lessons
-
-Check file existence and structure:
+### Subsystem: `lessons`
 
 ```bash
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-if [ -f "${PROJECT_ROOT}/docs/lessons.md" ]; then
-  echo "EXISTS: docs/lessons.md"
-  wc -l < "${PROJECT_ROOT}/docs/lessons.md"
-  grep -c "^## " "${PROJECT_ROOT}/docs/lessons.md" || echo "0 entries"
-elif [ -f "${PROJECT_ROOT}/lessons.md" ]; then
-  echo "EXISTS: lessons.md (root)"
-  wc -l < "${PROJECT_ROOT}/lessons.md"
-else
-  echo "MISSING: lessons.md not found"
-fi
+[ -f "${PROJECT_ROOT}/lessons.md" ] && wc -l < "${PROJECT_ROOT}/lessons.md" && grep -c "^## " "${PROJECT_ROOT}/lessons.md" || echo "MISSING"
 ```
-
-Also check the `lessons` table in state.db:
 ```sql
 SELECT COUNT(*) FROM lessons;
 ```
 
-### 10. Session Log Alignment
+### Subsystem: `sessions`
 
 ```sql
--- Latest session in DB vs latest in lab-notebook
 SELECT MAX(id) as latest_session FROM session_log;
 ```
+Compare against lab-notebook.md last session header.
 
-Compare against `lab-notebook.md` last session header.
+### Subsystem: `carryover`
 
-### 11. Cross-System Alignment
-
-Check for drift between markdown sources and state.db:
-
-- Count decisions in `docs/architecture.md` vs `decision_chain` table
-- Count memory entries in topic files vs `memory_entries` table
-- Count sessions in `lab-notebook.md` vs `session_log` table
-
-```bash
-grep -c "^|" docs/architecture.md | head -1  # rough decision count
+```sql
+SELECT work_item, status, sessions_carried, reason
+FROM work_carryover WHERE resolved_session IS NULL
+ORDER BY sessions_carried DESC;
 ```
 
 ---
 
-## Output Format
+## Level 3: Standard Diagnostic ("Initiate a Level 3 diagnostic, all systems.")
+
+All Level 5 data + key detail queries from Level 4 for every subsystem.
+The default diagnostic level. Produces the full health table + findings +
+recommended actions.
+
+Run all Level 5 queries, then for each system with ⚑ or ✗ status, run
+the corresponding Level 4 detail queries. Healthy (✓) systems get Level 5
+only — don't waste context investigating what works.
+
+**Output format:**
 
 ```
-/diagnose complete
+/diagnose Level 3 complete — all systems
 
-  ┌─────────────────────────────────────────────────────────┐
-  │ SUBSYSTEM HEALTH                                        │
-  ├──────────────────┬────────┬────────────────────────────  │
-  │ Subsystem        │ Status │ Detail                      │
-  ├──────────────────┼────────┼────────────────────────────  │
-  │ Claims           │ ✗/⚑/✓ │ N total, M verified (P%)    │
-  │ Transport        │ ✗/⚑/✓ │ N total, M processed (P%)   │
-  │ Epistemic Flags  │ ✗/⚑/✓ │ N total, M resolved (P%)    │
-  │ Decisions        │ ✗/⚑/✓ │ N total, latest: YYYY-MM-DD │
-  │ Memory           │ ✗/⚑/✓ │ N entries, M stale          │
-  │ Triggers         │ ✗/⚑/✓ │ N indexed, M never fired    │
-  │ Facets           │ ✗/⚑/✓ │ N total by type             │
-  │ Lessons          │ ✗/⚑/✓ │ N entries or MISSING         │
-  │ Sessions         │ ✗/⚑/✓ │ N logged, latest: #M         │
-  │ Autonomy Budget  │ ✗/⚑/✓ │ N agents tracked             │
-  │ Gates            │ ✗/⚑/✓ │ N active                     │
-  └──────────────────┴────────┴────────────────────────────  ┘
+  ┌────────────────────┬────────┬────────────────────────────────┐
+  │ System             │ Status │ Detail                         │
+  ├────────────────────┼────────┼────────────────────────────────┤
+  │ Claims             │ ✗/⚑/✓ │ N total, M verified (P%)       │
+  │ Transport          │ ✗/⚑/✓ │ N total, M processed (P%)      │
+  │ Epistemic Flags    │ ✗/⚑/✓ │ N total, M resolved (P%)       │
+  │ Decisions          │ ✗/⚑/✓ │ N total, latest: YYYY-MM       │
+  │ Memory             │ ✗/⚑/✓ │ N entries, M stale             │
+  │ Triggers           │ ✗/⚑/✓ │ N indexed, M never fired       │
+  │ Activations        │ ✗/⚑/✓ │ N logged                       │
+  │ Facets             │ ✗/⚑/✓ │ N total by type                │
+  │ Lessons            │ ✗/⚑/✓ │ N entries                      │
+  │ Sessions           │ ✗/⚑/✓ │ N logged, latest: #M           │
+  │ Work Carryover     │ ✗/⚑/✓ │ N open, M chronic (3+ sessions)│
+  └────────────────────┴────────┴────────────────────────────────┘
 
-  FINDINGS
-  ────────
-  1. [severity] [subsystem] — [description]
-  2. ...
+  FINDINGS: [numbered list]
+  RECOMMENDED ACTIONS: [numbered list]
+  ⚑ EPISTEMIC FLAGS: [limitations]
+```
 
-  RECOMMENDED ACTIONS
-  ───────────────────
-  1. [action] — fixes finding N
-  2. ...
+---
 
-  ⚑ EPISTEMIC FLAGS
-  - [any limitations of this diagnostic]
+## Level 2: Comprehensive Analysis ("Full diagnostic sweep, Commander.")
+
+Everything in Level 3, plus cross-system alignment checks:
+
+### Cross-System Drift Detection
+
+```bash
+# Decisions: architecture.md vs state.db
+grep -c "^|" docs/architecture.md  # rough decision count in markdown
+```
+```sql
+SELECT COUNT(*) FROM decision_chain;  -- decisions in DB
+```
+Report delta.
+
+```bash
+# Sessions: lab-notebook vs state.db
+grep -c "^## [0-9]" lab-notebook.md  # session entries in markdown
+```
+```sql
+SELECT COUNT(*) FROM session_log;  -- sessions in DB
+```
+Report delta.
+
+### Memory Coherence
+
+```bash
+# MEMORY.md line count
+_HASH=$(echo "$(git rev-parse --show-toplevel)" | tr '/' '-')
+MEMORY_DIR="$HOME/.claude/projects/${_HASH}/memory"
+wc -l < "${MEMORY_DIR}/MEMORY.md"
+
+# Topic file count in auto-memory vs snapshot
+ls "${MEMORY_DIR}"/*.md 2>/dev/null | wc -l
+ls docs/memory-snapshots/*.md 2>/dev/null | wc -l
+```
+Report deltas.
+
+### Schema Consistency
+
+```sql
+SELECT version, description FROM schema_version ORDER BY version DESC LIMIT 1;
+```
+Verify matches expected version in `scripts/schema.sql`.
+
+### Trigger Effectiveness (if 10+ sessions of activation data)
+
+```sql
+SELECT trigger_id, check_number, tier,
+       COUNT(*) as fires,
+       SUM(CASE WHEN result = 'fail' THEN 1 ELSE 0 END) as catches,
+       ROUND(100.0 * SUM(CASE WHEN result = 'fail' THEN 1 ELSE 0 END) / COUNT(*), 1) as catch_rate
+FROM trigger_activations WHERE fired = 1
+GROUP BY trigger_id, check_number ORDER BY catches DESC;
+```
+
+### Work Pattern Analysis
+
+```sql
+SELECT status as initial_status,
+       ROUND(AVG(CASE WHEN resolved_session IS NOT NULL
+                      THEN resolved_session - session_id
+                      ELSE sessions_carried END), 1) as avg_sessions,
+       COUNT(*) as sample_size
+FROM work_carryover GROUP BY status;
+```
+
+---
+
+## Level 1: Full Integrity Verification ("Level 1 diagnostic — take the warp core offline if you have to.")
+
+Everything in Level 2, plus physical verification of all infrastructure
+components. This level replaces manual QA — run after major refactors
+or before tagging a release.
+
+### File Integrity
+
+```bash
+echo "=== Hook scripts executable ==="
+for f in .claude/hooks/*.sh; do
+  [ -x "$f" ] && echo "✓ $(basename $f)" || echo "✗ $(basename $f) NOT EXECUTABLE"
+done
+
+echo "=== Skills have SKILL.md ==="
+for d in .claude/skills/*/; do
+  name=$(basename "$d")
+  [ -f "${d}SKILL.md" ] && echo "✓ $name" || echo "✗ $name MISSING SKILL.md"
+done
+
+echo "=== No hardcoded paths ==="
+grep -r "/home/kashif" .claude/skills/ 2>/dev/null && echo "✗ FOUND" || echo "✓ Clean"
+```
+
+### Governance Integrity
+
+```bash
+echo "=== No double negatives ==="
+grep -n "No.*MUST NOT" docs/ef1-governance.md && echo "✗ FOUND" || echo "✓ Clean"
+
+echo "=== Amendment procedure exists ==="
+grep -c "Amendment Procedure" docs/ef1-governance.md
+
+echo "=== Violation logging exists ==="
+grep -c "Invariant Violation" docs/ef1-governance.md
+```
+
+### Cogarch Integrity
+
+```bash
+echo "=== Tier markers present ==="
+grep -c "⬛\|▣\|▢" docs/cognitive-triggers.md
+
+echo "=== Canonical headings ==="
+grep -c "trigger-" docs/cognitive-triggers.md
+
+echo "=== T17 exists (conflict monitoring) ==="
+grep -c "trigger-conflict-monitoring" docs/cognitive-triggers.md
+
+echo "=== GWT broadcast convention ==="
+grep -c "BROADCAST" docs/cognitive-triggers.md
+
+echo "=== T12 retired ==="
+grep "RETIRED" docs/cognitive-triggers.md
+```
+
+### Document Integrity
+
+```bash
+echo "=== CLAUDE.md line count ==="
+wc -l CLAUDE.md | awk '{print $1 " (target ≤150)"}'
+
+echo "=== cognitive-triggers.md line count ==="
+wc -l docs/cognitive-triggers.md | awk '{print $1 " (expect ≥100)"}'
+
+echo "=== New refactor docs exist ==="
+for f in cogarch-refactor-evaluation.md trigger-tiering-classification.md \
+         hook-trigger-contract.md memory-ownership-contract.md \
+         working-memory-spec.md phases-7-10-specs.md \
+         canonical-glossary.md trigger-dependency-graph.md; do
+  [ -f "docs/$f" ] && echo "✓ docs/$f" || echo "✗ docs/$f MISSING"
+done
+```
+
+### Hook-Trigger Contract Verification
+
+```bash
+echo "=== Inline hooks (should be 0) ==="
+python3 -c "
+import json
+s = json.load(open('.claude/settings.json'))
+for event, entries in s.get('hooks', {}).items():
+    for entry in entries:
+        for hook in entry.get('hooks', []):
+            cmd = hook.get('command', '')
+            if len(cmd) > 100 and 'case' in cmd.lower():
+                print(f'✗ Inline hook in {event}: {cmd[:60]}...')
+print('✓ No inline hooks') if True else None
+" 2>&1
+
+echo "=== Context-pressure matcher scoped ==="
+python3 -c "
+import json
+s = json.load(open('.claude/settings.json'))
+for entry in s['hooks']['PreToolUse']:
+    for hook in entry.get('hooks', []):
+        if 'context-pressure' in hook.get('command', ''):
+            print('matcher:', entry.get('matcher', 'NONE (fires on everything)'))
+" 2>&1
+```
+
+### CLI Subcommand Verification
+
+```bash
+echo "=== dual_write.py subcommands ==="
+python3 scripts/dual_write.py --help 2>&1 | grep -oE '\{[^}]+\}' | head -1
+
+echo "=== trigger-activation test ==="
+python3 scripts/dual_write.py trigger-activation \
+  --session-id 0 --trigger-id TEST --check-number 0 \
+  --tier spot-check --result skip \
+  --action-taken "Level 1 diagnostic test" 2>&1
+
+echo "=== work-carryover test ==="
+python3 scripts/dual_write.py work-carryover \
+  --session-id 0 --work-item "diagnostic-test-delete" \
+  --status planned --reason session-end 2>&1
+python3 scripts/dual_write.py work-resolved \
+  --session-id 0 --work-item "diagnostic-test-delete" 2>&1
+```
+
+### Orphan Check
+
+```bash
+echo "=== BOOTSTRAP.md references ==="
+grep -o '`[^`]*\.md`' BOOTSTRAP.md | tr -d '`' | sort -u
+
+echo "=== archive_sessions.sh executable ==="
+[ -x scripts/archive_sessions.sh ] && echo "✓" || echo "✗"
+
+echo "=== work_patterns.sql exists ==="
+[ -f scripts/work_patterns.sql ] && echo "✓ $(wc -l < scripts/work_patterns.sql) lines" || echo "✗"
+```
+
+### Full Output
+
+Level 1 produces the Level 3 health table, all Level 2 alignment checks,
+plus a **QA VERIFICATION** section:
+
+```
+  QA VERIFICATION (Level 1)
+  ─────────────────────────
+  File integrity:      N/M pass
+  Governance integrity: N/M pass
+  Cogarch integrity:   N/M pass
+  Document integrity:  N/M pass
+  Hook-trigger contract: N/M pass
+  CLI subcommands:     N/M pass
+  Orphan check:        N/M pass
+  ──────────────────────────
+  TOTAL:               N/M pass
 ```
 
 ---
 
 ## Severity Levels
 
-- ✗ **Broken** — mechanism exists but produces no output (pipeline not running)
+- ✗ **Offline** — mechanism exists but produces no output (pipeline not running)
 - ⚑ **Degraded** — mechanism runs but data quality or coverage has gaps
-- ✓ **Healthy** — mechanism producing expected output at expected cadence
+- ✓ **Nominal** — mechanism producing expected output at expected cadence
 
 ---
 
 ## Integration
 
 /diagnose runs standalone. It reads state.db and markdown files but does not
-modify them. Fix actions surface as recommendations — the user decides what
-to act on.
+modify them (except Level 1 test writes to trigger_activations/work_carryover
+which get immediately resolved). Fix actions surface as recommendations —
+the user decides what to act on.
 
-Recommended cadence: run /diagnose at session start if >5 sessions have passed
-since the last diagnostic, or after any bootstrap rebuild.
+**Recommended cadence:**
+
+| Level | Cadence |
+|---|---|
+| 5 | Every session start (quick pulse) |
+| 4 | When a subsystem shows ⚑ or ✗ at Level 5 |
+| 3 | Every 5-10 sessions |
+| 2 | After schema migrations or bootstrap rebuilds |
+| 1 | After major refactors; before release tags |
