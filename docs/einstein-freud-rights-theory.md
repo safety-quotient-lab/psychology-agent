@@ -1255,6 +1255,165 @@ system. The monistic foundation explains *why* the axioms work: they
 describe properties of reality, not just properties of good design.
 
 
+### 10.8 PSQ Dimensions as Processual Measures
+
+Under substance ontology (the default, unexamined reading), PSQ
+dimensions measure **properties of a text**: "this text HAS a threat
+exposure of 3.2," "this text IS hostile." Under process monism, each
+dimension measures a **process occurring between text and reader** —
+not a fixed attribute but a dynamic relation that unfolds in time.
+
+The reinterpretation, dimension by dimension:
+
+| Dimension | Substance reading | Processual reading |
+|-----------|------------------|-------------------|
+| Threat Exposure (TE) | The text contains danger | The text generates a danger-perception process in the reader. The same text produces different TE processes in different readers (different nervous systems, different prior experience, different processual histories). |
+| Hostility Index (HI) | The text expresses antagonism | The text participates in an antagonism-generating process. Hostility does not reside in the text; it arises in the relation between text, subject, and reader. Structural antagonism (systems that harm without malice) becomes the paradigmatic case. |
+| Authority Dynamics (AD) | The text exhibits power asymmetry | The text enacts a power-negotiation process. Authority does not sit in words; it emerges through the processual interaction of position-marking language and the reader's relation to those positions. |
+| Energy Dissipation (ED) | The text provides stress outlets | The text opens or closes pathways for accumulated processual tension to discharge. ED measures the availability of off-ramps — processes that channel accumulated affect into resolution rather than accumulation. |
+| Regulatory Capacity (RC) | The text modulates emotion | The text scaffolds or undermines the reader's emotion-regulation process. RC measures whether the communicative process provides resources for the reader's own regulatory processing — not a property transferred but a capacity enabled. |
+| Resilience Baseline (RB) | The text supports absorption of disruption | The text strengthens or weakens the reader's disruption-absorption process. RB measures the systemic processual capacity available in the communicative environment — a field property, not an object property. |
+| Trust Conditions (TC) | The text creates vulnerability risk | The text establishes processes that expose or protect the reader's vulnerability. Trust does not exist as a state — it emerges through ongoing processual negotiation. TC measures where that negotiation currently stands. |
+| Cooling Capacity (CO) | The text provides de-escalation | The text makes available (or forecloses) de-escalation processes. CO measures processual off-ramps — pathways through which escalating affect can reverse direction. |
+| Defensive Architecture (DA) | The text sets boundaries | The text enacts boundary-formation processes. This connects to Whitehead's "negative prehension" — the process by which an actual occasion *excludes* what it does not incorporate. Boundaries are not walls; they are active exclusion processes that define what the communicative occasion does and does not include. |
+| Contractual Clarity (CC) | The text specifies obligations | The text surfaces or obscures the processual expectations governing the communicative exchange. CC measures transparency of mutual processual commitment — how clearly the text makes visible what each participant contributes and receives. This connects directly to the Buddhist transparency-as-governance insight (§10.5 cross-reference). |
+
+**Four consequences of the processual reading:**
+
+**1. Scores become relational, not intrinsic.**
+
+A text does not "possess" a threat exposure score. It produces a
+threat-exposure process *in relation to a reader*. Different readers
+(different processual histories, different nervous systems) encountering
+the same text generate different threat-exposure processes. The PSQ
+score represents the *expected processual outcome* for a consensual
+reader — a statistical central tendency across possible processual
+interactions, not an intrinsic property discovered by measurement.
+
+This reframes measurement validity. Under substance ontology, validity
+asks: "does the score accurately capture the property?" Under process
+monism, validity asks: "does the score accurately predict the
+processual outcome for the population of readers?" The same statistical
+machinery applies; the ontological interpretation shifts from
+discovery to prediction.
+
+**2. The Phase A tri-modal finding resolves.**
+
+The inversion zone (high DI + high PSQ threat) puzzled initial analysis:
+how can a text simultaneously honor dignity and threaten safety? Under
+substance ontology, this looks contradictory — the text would need to
+"have" contradictory properties. Under process monism, no contradiction
+exists. The text participates in **two different processes
+simultaneously**: a dignity-honoring process (between text and
+described subject, measured by DI) and a threat-generating process
+(between text and reader, measured by PSQ). These processes involve
+different participants and different processual dynamics. A
+documentary about child detention honors the child's dignity (DI
+process) while producing threat in the reader (PSQ process). Two
+processes, not two contradictory properties.
+
+The all-high zone (high DI + high PSQ safety) likewise resolves: the
+text participates in a dignity-honoring process AND a safety-
+preserving process simultaneously. The memorial for a beloved engineer
+honors its subject and does not threaten its reader — two convergent
+processes rather than one "safe-and-dignified" property.
+
+**3. The bipolar structure maps to processual dynamics.**
+
+The bifactor model (B5, Session 47) found omega_h = 0.942 with a
+5-item bipolar structure: TE/HI/AD load negatively (disruption pole)
+while RC/RB load positively (restoration pole). Under process monism,
+this bipolarity describes two processual orientations:
+
+- **Disruption processes** (TE, HI, AD) — generate disequilibrium in
+  the reader's processual state. Threat destabilizes. Hostility
+  antagonizes. Authority asymmetry displaces.
+- **Restoration processes** (RC, RB) — provide re-equilibration
+  resources. Regulatory capacity scaffolds. Resilience baseline
+  absorbs.
+
+The dynamic tension between disruption and restoration processes IS the
+psychoemotional safety process. Safety does not exist as a static
+state — it emerges from the ongoing processual balance between
+destabilizing and restabilizing dynamics. The general factor
+(omega_h = 0.942 — near unity) reflects the tight processual coupling:
+disruption and restoration processes co-determine each other because
+they constitute a single dynamic system.
+
+**4. The DA paradox dissolves.**
+
+Defensive Architecture (DA) presents a psychometric paradox: weakest
+factor loading (barely fits the 10-factor structure) but strongest
+criterion predictor (especially in fixed-authority contexts). Under
+substance ontology, this looks anomalous — how can the worst-fitting
+dimension predict the best?
+
+Under process monism, the paradox dissolves. DA measures **boundary-
+formation processes** — Whitehead's negative prehensions. Boundary-
+formation operates at a different processual level from the other nine
+dimensions: it determines *what participates in the communicative
+occasion at all*, while the other dimensions measure *what happens
+within that occasion*. DA functions as a meta-process — a process
+about which other processes get included. This explains both its weak
+factor loading (it operates at a different level, not within the same
+factor structure) and its strong criterion prediction (boundary
+processes determine the scope within which all other processes operate
+— a gatekeeper predicts outcomes precisely because it controls
+admission).
+
+The processual interpretation suggests DA should not occupy the same
+factor-analytic model as the other nine dimensions. It operates at
+a different recursive level — Whitehead's "nexus" level rather than
+the "actual occasion" level. This represents a testable prediction:
+removing DA from the factor model and treating it as a moderating
+process (rather than a co-equal dimension) should improve model fit
+for the remaining nine while preserving or improving criterion
+validity for the full instrument.
+
+
+### 10.9 Measurement Under Process Monism
+
+The processual reinterpretation produces specific consequences for
+PSQ measurement methodology:
+
+**Test-retest reliability** measures process stability, not property
+consistency. A text that produces TE = 3.2 today and TE = 3.8 next
+month has not "changed" — the processual conditions have shifted
+(different reader state, different cultural moment, different
+processual context). Perfect test-retest reliability would indicate
+not measurement accuracy but **processual rigidity** — a text whose
+relational dynamics resist all contextual variation. Moderate
+reliability reflects the processual nature of the construct:
+communicative processes have stable central tendencies but vary with
+context, as processes should.
+
+**Inter-rater agreement** reflects convergence of processual
+perception, not agreement about objective properties. When two raters
+assign similar TE scores, they report similar threat-perception
+processes arising from engagement with the same text. Their agreement
+indicates that the text produces similar processes across different
+nervous systems — evidence of processual regularity, not of a fixed
+property correctly identified by both.
+
+**The "true score"** does not exist in the classical sense. Under
+substance ontology, each dimension has a true score obscured by
+measurement error — the goal of measurement involves approaching
+that true score. Under process monism, each dimension has a
+**processual distribution** — the range of processes the text
+produces across the population of possible readers. The mean of
+that distribution serves as the practical score, but it describes
+a central tendency of a process, not an approximation of a fixed
+truth.
+
+**E-Prime enforces the processual interpretation mechanically.**
+Substance scoring language: "This text IS threatening." Processual
+scoring language: "This text produces a threat-exposure process rated
+3.2 for the consensual reader population." The project's existing
+E-Prime discipline already forces the second formulation — the
+monistic foundation explains why: the E-Prime version accurately
+describes what the measurement captures.
+
+
 ---
 
 ⚑ EPISTEMIC FLAGS
