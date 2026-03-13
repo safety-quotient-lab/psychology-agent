@@ -24,11 +24,11 @@ found 3 critical defects, 2 high-severity issues, 39 structural weaknesses,
   checks (was 36). T14 reclassified from "every decision" to advisory-only.
   Tier legend added to document header.
 
-- [ ] **Phase 3: Hook-trigger contract** — define which layer owns enforcement
-  for each check. Mechanical (hook) enforcement for all critical-tier checks.
-  Cognitive (trigger) enforcement only for advisory and spot-check. Addresses
-  E-6, E-9, E-11.
-  *Precondition: Phase 2 tier assignments complete.*
+- [x] **Phase 3: Hook-trigger contract** — ✓ COMPLETE (Session 84)
+  Contract: `docs/hook-trigger-contract.md`. 34 CRITICAL checks mapped:
+  10 hook-primary (29%), 4 partial (12%), 20 trigger-only (59%).
+  Inline hook → script file. Context-pressure matcher scoped.
+  Hook development priorities documented for remaining CRITICAL checks.
 
 - [ ] **Phase 4: Memory architecture consolidation** — reduce 7 state locations
   to 3 (state.db as queryable index, auto-memory MEMORY.md as orientation,
