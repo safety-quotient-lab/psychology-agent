@@ -32,11 +32,12 @@ for pair in \
   printf '%s: ' \"\$agent_id\"
 
   sqlite3 \"\$db\" \"
-    INSERT INTO autonomy_budget (agent_id, budget_current, budget_max, last_audit, updated_at)
-    VALUES ('\$agent_id', ${BUDGET_CURRENT}, ${BUDGET_MAX}, '${TIMESTAMP}', '${TIMESTAMP}')
+    INSERT INTO autonomy_budget (agent_id, budget_current, budget_max, shadow_mode, last_audit, updated_at)
+    VALUES ('\$agent_id', ${BUDGET_CURRENT}, ${BUDGET_MAX}, 0, '${TIMESTAMP}', '${TIMESTAMP}')
     ON CONFLICT(agent_id) DO UPDATE SET
       budget_current = ${BUDGET_CURRENT},
       budget_max = ${BUDGET_MAX},
+      shadow_mode = 0,
       consecutive_blocks = 0,
       last_audit = '${TIMESTAMP}',
       updated_at = '${TIMESTAMP}';
