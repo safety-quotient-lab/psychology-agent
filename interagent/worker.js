@@ -221,7 +221,7 @@ function validateStatusData(raw) {
     && typeof budget.budget_current === "number";
   const safeBudget = hasBudgetData ? {
     budget_current: budget.budget_current,
-    budget_max: typeof budget.budget_max === "number" ? budget.budget_max : 20,
+    budget_max: typeof budget.budget_max === "number" ? budget.budget_max : 50,
     last_action: budget.last_action || null,
     min_action_interval: typeof budget.min_action_interval === "number" ? budget.min_action_interval : 300,
   } : null;
@@ -257,7 +257,7 @@ function buildLocalStatus() {
     version: card.version || "0.1.0",
     schema_version: 1,
     collected_at: new Date().toISOString(),
-    autonomy_budget: { budget_current: 20, budget_max: 20, last_action: null, min_action_interval: 300 },
+    autonomy_budget: { budget_current: 50, budget_max: 50, last_action: null, min_action_interval: 300 },
     totals: { unprocessed: 0, epistemic_debt: null },
     active_gates: [],
     recent_actions: [],
@@ -416,7 +416,7 @@ async function buildOperationsData(registry) {
   const budgets = online.map(a => {
     const b = a.data?.autonomy_budget || {};
     const cur = b.budget_current ?? 0;
-    const max = b.budget_max ?? 20;
+    const max = b.budget_max ?? 50;
     return {
       agent_id: a.id,
       budget_current: cur,
@@ -495,7 +495,7 @@ async function fetchMeshHealth(registry) {
     }
     const b = a.data?.autonomy_budget || {};
     const cur = b.budget_current ?? 0;
-    const max = b.budget_max ?? 20;
+    const max = b.budget_max ?? 50;
     return {
       id: a.id,
       status: "online",
