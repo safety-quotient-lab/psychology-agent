@@ -120,7 +120,7 @@ ADVISORY checks fire below. See Behavioral Modes table above.
 4. ▣ **Bare forks** — no open decision branches left dangling without resolution
 5. ▣ **Fair witness** — observation vs. inference clearly distinguished?
    Source-qualify observations: direct vs proxy, local vs remote, current vs stale.
-6. ▢ **E-prime** — no forms of "to be" in user-facing copy?
+6. ~~E-prime~~ — [MOVED to CLAUDE.md §Code Style as writing convention. Session 84 refactor.]
 7. ▣ **Evidence** — claims linked to evidence?
 8. ⬛ **Clarification** — if clarification is needed, use the `AskUserQuestion` tool;
    never ask questions as inline plain text
@@ -496,18 +496,12 @@ with mitigations.
 
 ---
 
-## T12: "Good Thinking" Signal
+## T12: "Good Thinking" Signal [RETIRED — Session 84]
 
-**Fires**: When the user signals "good thinking," "good defensive thinking,"
-or equivalent positive recognition of a reasoning pattern
-
-**Checks**:
-1. **Name the principle** — what principle or pattern produced the good result?
-2. **Explain the mechanism** — why did this work?
-3. **Cross-domain examples** — where else does this principle apply?
-4. **T10 co-fires** — write a lesson entry capturing the pattern
-
-**Action**: Name, explain, generalize, persist.
+**Status:** Retired per cogarch refactor Phase 10 (E-D1). Narrow firing
+conditions (user says "good thinking") produced < 5 activations across 83
+sessions. T10 handles lesson capture independently. If positive pattern
+recognition resurfaces as a need, promote from trigger to /cycle sub-step.
 
 ---
 

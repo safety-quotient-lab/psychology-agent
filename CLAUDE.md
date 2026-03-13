@@ -13,28 +13,19 @@ loops, config parameterization). Full mapping: `docs/architecture.md`.
 
 ---
 
-## Hooks (`.claude/settings.json`)
+## Epistemic Quality
 
-14 hook events, 17 active scripts. Full table: `docs/hooks-reference.md`.
+**Highest epistemic standards.** Surface validity threats proactively.
 
-### Epistemic Quality Standard
-
-**Highest epistemic standards in all analytical work.** Surface threats to validity
-proactively — don't wait for the user to ask.
-
-**Epistemic flags (`⚑`)** are mandatory in session summaries and substantive analytical
-outputs. Format:
-
-```
-⚑ EPISTEMIC FLAGS
-- [uncertainty, scope limitation, or validity threat]
-- [...]
-```
-
+**Epistemic flags (`⚑`)** mandatory in session summaries and analytical outputs:
+`⚑ EPISTEMIC FLAGS` followed by uncertainties, scope limitations, or validity threats.
 If none: `⚑ EPISTEMIC FLAGS: none identified.`
 
-Covers: miscalibration, scope overreach, unstated assumptions, evidence-free claims,
-stale data, conclusions exceeding evidence.
+## Platform Infrastructure
+
+- **Hooks:** 17 scripts across 14 events. See `docs/hooks-reference.md`
+- **Triggers:** 16 triggers (T1-T18), tiered ⬛/▣/▢. See `docs/cognitive-triggers.md`
+- **Rules:** `.claude/rules/` — glob-scoped (markdown, javascript, transport, anti-patterns, evaluation, sqlite)
 
 ---
 
@@ -90,20 +81,6 @@ Lead with plain-language description; internal labels (T-numbers, skill shorthan
 go in parenthetical position. The user sees the meaning first.
 Example: "Running gap check (T5)" not "Running T5 gap check."
 
-### README Policy
-
-Developers have priority at root README.md; also a platform for general audience
-content. Link out to audience-specific docs rather than duplicating inline.
-
----
-
-## Cognitive Accessibility Policy (default: ON)
-
-Default to cognitively accessible communication — these practices cost nothing and
-benefit everyone. Chunk (don't wall), name the structure before executing it, offer
-stopping points for long outputs, use plain-first language, make each section stand
-alone without requiring prior sections in working memory.
-
 ---
 
 ## Scope Boundaries (What This Agent Does Not Do)
@@ -147,43 +124,24 @@ primary update mechanism.
 
 ## Workflow Continuity
 
-On resume/stall/continuation/post-compaction: re-read `docs/cognitive-triggers.md`
-(reload full cogarch — REQUIRED after compaction), TODO.md, lab-notebook Current
-State, MEMORY.md Active Thread, any in-progress file, `git status` and `git log -3`.
-The cogarch reload MUST happen before any substantive work — compaction strips the
-loaded trigger system from context. Shell state (env vars, `cd`, functions) does not
-persist between Bash calls — chain in one call or write to file.
+On resume/stall/post-compaction: re-read `docs/cognitive-triggers.md` (REQUIRED),
+TODO.md, lab-notebook Current State, MEMORY.md Active Thread, `git status`.
+Shell state does not persist between Bash calls — chain or write to file.
 
 ---
 
-## Glob-Scoped Rules
+## Dependencies
 
-File-type-specific conventions live in `.claude/rules/` with glob patterns:
-- `markdown.md` (`**/*.md`) — formatting, whitespace, epistemic flags, lab-notebook
-- `javascript.md` (`**/*.js`) — CF Worker patterns, Agent SDK, PSQ client
-- `transport.md` (`transport/**/*.json`) — interagent protocol, naming, urgency field
-- `anti-patterns.md` (`**/*.{sh,js,py,md}`) — known-failing approaches
-- `evaluation.md` (`docs/dignity-*.md`, `safety-quotient/**/*.md`, `**/*psq*`) — measurement methodology
-
-These load automatically when editing matching files. CLAUDE.md retains universal conventions.
-
----
-
-## Dependency Policy
-
-**License gate:** MIT, Apache 2.0, and BSD only. No GPL or AGPL dependencies.
-
-**Adopted tools:** `recall` (session search), `ccusage` (token tracking), `claude-replay` (transcript → HTML).
+**License gate:** MIT, Apache 2.0, BSD only. No GPL/AGPL.
 
 ---
 
 ## Code Style
 
-**Semantic naming (all user-facing identifiers):** Every variable, parameter,
-table column header, file name, directory name, session name, and spec document
-name must be fully descriptive. No single-letter, abbreviated, mnemonic, or
-opaque item-number names — not `w`, `frac`, `tc`, `item4-spec.md`, `sess_n`,
-or similar. If a name needs context to interpret, rename it instead.
-**Exception:** internal codes not displayed to callers (T-numbers, internal
-enums, machine-only field values) may use compact identifiers.
+**Semantic naming:** All user-facing identifiers must describe their purpose fully.
+No single-letter, abbreviated, or opaque names. Exception: internal codes (T-numbers,
+enums) may use compact identifiers.
+
+**E-prime:** Avoid forms of "to be" (is, am, are, was, were, be, being, been) in
+all user-facing copy. Use active, precise verbs instead.
 
