@@ -28,18 +28,25 @@ type BudgetCheckFunc func(cost int) (bool, string)
 // BudgetDeductFunc debits the budget after a successful spawn decision.
 type BudgetDeductFunc func(cost int) error
 
+// NotifyFunc sends a notification when the budget gate blocks a spawn.
+// The dispatcher calls this so human operators learn about pending work.
+type NotifyFunc func(ctx context.Context, agentID, eventType, priority, reason, session string) error
+
 // Dispatcher evaluates individual events, applies budget gating,
 // and dispatches spawn requests.
 type Dispatcher struct {
 	spawn        SpawnFunc
 	budgetCheck  BudgetCheckFunc
 	budgetDeduct BudgetDeductFunc
+	notify       NotifyFunc
+	agentID      string
 	queue        *Queue
 	logger       *slog.Logger
 
 	// Metrics
 	dispatched int64
 	dropped    int64
+	notified   int64
 	batched    int64
 	mu         sync.RWMutex
 }
@@ -57,8 +64,15 @@ func NewDispatcher(
 		spawn:        spawnFn,
 		budgetCheck:  budgetCheck,
 		budgetDeduct: budgetDeduct,
+		notify:       func(_ context.Context, _, _, _, _, _ string) error { return nil },
 		logger:       logger,
 	}
+}
+
+// SetNotifier configures the notification callback for blocked spawns.
+func (d *Dispatcher) SetNotifier(agentID string, fn NotifyFunc) {
+	d.agentID = agentID
+	d.notify = fn
 }
 
 // HandleEvent processes a single event — checks budget, builds prompt, spawns.
@@ -83,6 +97,19 @@ func (d *Dispatcher) HandleEvent(ctx context.Context, evt Event) {
 		d.mu.Lock()
 		d.dropped++
 		d.mu.Unlock()
+
+		// Notify the operator about the blocked event
+		session := evt.Payload["session"]
+		if session == "" {
+			session = evt.Payload["path"]
+		}
+		if err := d.notify(ctx, d.agentID, string(evt.Type), evt.Priority.String(), reason, session); err != nil {
+			d.logger.Warn("notification delivery failed", "error", err)
+		} else {
+			d.mu.Lock()
+			d.notified++
+			d.mu.Unlock()
+		}
 		return
 	}
 
@@ -132,6 +159,13 @@ func (d *Dispatcher) Stats() (dispatched, dropped, batched int64) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 	return d.dispatched, d.dropped, d.batched
+}
+
+// NotifiedCount returns how many notifications the dispatcher sent.
+func (d *Dispatcher) NotifiedCount() int64 {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+	return d.notified
 }
 
 // estimateCost maps event priority to budget units.

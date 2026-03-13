@@ -29,6 +29,16 @@ type Config struct {
 	TransportDir   string // path to transport/sessions/ directory
 	LogLevel       string // logging verbosity: debug, info, warn, error
 	MaxConcurrent  int    // max concurrent claude spawns
+
+	// Notification channel
+	NotifyChannel       string // "null", "file", "zulip", "webhook"
+	NotifyFilePath      string // file channel output path
+	ZulipNotifyURL      string // Zulip API messages endpoint
+	ZulipNotifyEmail    string // Zulip bot email
+	ZulipNotifyKey      string // Zulip bot API key
+	ZulipNotifyStream   string // Zulip target stream
+	ZulipNotifyTopic    string // Zulip target topic
+	NotifyWebhookURL    string // generic webhook URL
 }
 
 // Load reads configuration from a .dev.vars file, applies environment
@@ -108,6 +118,16 @@ func Load() (*Config, error) {
 	// Paths that derive from RepoRoot when no explicit value appears
 	cfg.BudgetDBPath = resolve("BUDGET_DB_PATH", filepath.Join(repoRoot, "state.db"))
 	cfg.TransportDir = resolve("TRANSPORT_DIR", filepath.Join(repoRoot, "transport", "sessions"))
+
+	// Notification channel
+	cfg.NotifyChannel = resolve("NOTIFY_CHANNEL", "null")
+	cfg.NotifyFilePath = resolve("NOTIFY_FILE", "/tmp/meshd-notifications.jsonl")
+	cfg.ZulipNotifyURL = resolve("ZULIP_NOTIFY_URL", "")
+	cfg.ZulipNotifyEmail = resolve("ZULIP_NOTIFY_EMAIL", "")
+	cfg.ZulipNotifyKey = resolve("ZULIP_NOTIFY_KEY", "")
+	cfg.ZulipNotifyStream = resolve("ZULIP_NOTIFY_STREAM", "mesh-ops")
+	cfg.ZulipNotifyTopic = resolve("ZULIP_NOTIFY_TOPIC", "meshd")
+	cfg.NotifyWebhookURL = resolve("NOTIFY_WEBHOOK_URL", "")
 
 	return cfg, nil
 }

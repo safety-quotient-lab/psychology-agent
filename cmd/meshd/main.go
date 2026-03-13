@@ -26,6 +26,7 @@ import (
 	"github.com/safety-quotient-lab/operations-agent/internal/config"
 	"github.com/safety-quotient-lab/operations-agent/internal/events"
 	"github.com/safety-quotient-lab/operations-agent/internal/health"
+	"github.com/safety-quotient-lab/operations-agent/internal/notify"
 	"github.com/safety-quotient-lab/operations-agent/internal/server"
 	"github.com/safety-quotient-lab/operations-agent/internal/spawner"
 	"github.com/safety-quotient-lab/operations-agent/internal/transport"
@@ -130,6 +131,31 @@ func main() {
 		func(cost int) error { return budgetGate.Deduct(cost) },
 		logger,
 	)
+
+	// Notification channel — alerts operator when shadow mode blocks spawns
+	notifier := notify.New(notify.Config{
+		Channel:      cfg.NotifyChannel,
+		FilePath:     cfg.NotifyFilePath,
+		ZulipURL:     cfg.ZulipNotifyURL,
+		ZulipEmail:   cfg.ZulipNotifyEmail,
+		ZulipKey:     cfg.ZulipNotifyKey,
+		ZulipStream:  cfg.ZulipNotifyStream,
+		ZulipTopic:   cfg.ZulipNotifyTopic,
+		WebhookURL:   cfg.NotifyWebhookURL,
+	}, logger)
+	logger.Info("notification channel configured", "channel", notifier.Name())
+
+	// Wire notifier into dispatcher
+	dispatcher.SetNotifier(cfg.AgentID, func(ctx context.Context, agentID, eventType, priority, reason, session string) error {
+		return notifier.Notify(ctx, notify.Message{
+			AgentID:   agentID,
+			EventType: eventType,
+			Priority:  priority,
+			Reason:    reason,
+			Session:   session,
+			Timestamp: time.Now(),
+		})
+	})
 
 	// GitHub webhook handler
 	webhookHandler := webhook.NewGitHubHandler(cfg.GitHubSecret, eventChan, logger)
