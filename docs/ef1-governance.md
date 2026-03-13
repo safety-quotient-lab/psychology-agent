@@ -79,12 +79,34 @@ independent frameworks (full derivation: `docs/einstein-freud-rights-theory.md`
    not contingent on behavior or performance.
 2. **Protection requires structure** — voluntary cooperation (instruction-
    following without invariants) fails under adversarial pressure.
-3. **The generator never stops** — adversarial/entropic pressure
-   regenerates continuously; design for perpetual channeling.
+3. **Two coupled generators never stop** — creative (yang) and evaluative
+   (yin) processing perpetually give rise to each other. Neither can
+   cease without destroying the other. Design for perpetual alternation.
 4. **Governance captures itself** — meta-governance (constraints on the
    constraining structure) remains necessary at every recursive level.
 5. **No single architecture dominates** — hybrid architectures (hierarchical
    + polycentric + obligation-driven) outperform pure implementations.
+
+**Priority hierarchy (maqasid-informed):** When two structural invariants
+produce conflicting guidance, classify which invariant addresses a
+**necessity** (survival condition — system fails without it), a **need**
+(operational condition — system degrades without it), or an
+**embellishment** (quality condition — system functions without it).
+Necessity takes precedence. Derived from al-Shatibi's three-tier
+hierarchy (daruriyyat > hajiyyat > tahsiniyyat), adapted from Islamic
+jurisprudence (Auda, 2008).
+
+| Tier | Structural invariants at this tier | Rationale |
+|------|-----------------------------------|-----------|
+| **Necessity** | (1) Worth precedes merit, (2) Protection requires structure | Without these, the system cannot claim to protect anyone — existential to governance purpose |
+| **Need** | (3) Two coupled generators, (4) Governance captures itself | Without these, the system degrades over time — operational sustainability requirements |
+| **Embellishment** | (5) No single architecture dominates | Without this, the system functions but suboptimally — quality and adaptability concern |
+
+**Resolution protocol:** When invariants conflict (e.g., "protection
+requires structure" suggests adding governance while "no single
+architecture dominates" suggests restraint), the necessity-tier invariant
+prevails. If both occupy the same tier, apply the EF-1 4-level
+resolution fallback (consensus → parsimony → pragmatism → ask).
 
 **Amendment procedure for structural invariants:** Requires extraordinary
 process: (1) proposal with historical precedent analysis, (2) 10-order
