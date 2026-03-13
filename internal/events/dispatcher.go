@@ -1,0 +1,170 @@
+// Package events — Dispatcher routes individual events through budget gating
+// and spawns Claude contexts. The main loop calls HandleEvent for each event
+// popped from the PriorityQueue.
+package events
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+	"sync"
+)
+
+// SpawnRequest describes what the dispatcher wants the spawner to execute.
+type SpawnRequest struct {
+	Prompt   string
+	Flags    []string
+	Cost     int
+	Event    Event
+	Priority Priority
+}
+
+// SpawnFunc accepts a spawn request and returns an error.
+type SpawnFunc func(ctx context.Context, req SpawnRequest) error
+
+// BudgetCheckFunc returns (canSpawn, reason) for a given cost.
+type BudgetCheckFunc func(cost int) (bool, string)
+
+// BudgetDeductFunc debits the budget after a successful spawn decision.
+type BudgetDeductFunc func(cost int) error
+
+// Dispatcher evaluates individual events, applies budget gating,
+// and dispatches spawn requests.
+type Dispatcher struct {
+	spawn        SpawnFunc
+	budgetCheck  BudgetCheckFunc
+	budgetDeduct BudgetDeductFunc
+	queue        *Queue
+	logger       *slog.Logger
+
+	// Metrics
+	dispatched int64
+	dropped    int64
+	batched    int64
+	mu         sync.RWMutex
+}
+
+// NewDispatcher creates a dispatcher wired to the given queue and spawn function.
+func NewDispatcher(
+	queue *Queue,
+	spawnFn SpawnFunc,
+	budgetCheck BudgetCheckFunc,
+	budgetDeduct BudgetDeductFunc,
+	logger *slog.Logger,
+) *Dispatcher {
+	return &Dispatcher{
+		queue:        queue,
+		spawn:        spawnFn,
+		budgetCheck:  budgetCheck,
+		budgetDeduct: budgetDeduct,
+		logger:       logger,
+	}
+}
+
+// HandleEvent processes a single event — checks budget, builds prompt, spawns.
+func (d *Dispatcher) HandleEvent(ctx context.Context, evt Event) {
+	d.logger.Info("dispatching event",
+		"type", evt.Type,
+		"priority", evt.Priority.String(),
+		"source", evt.Source,
+		"id", evt.ID,
+	)
+
+	cost := estimateCost(evt.Priority)
+	allowed, reason := d.budgetCheck(cost)
+
+	if !allowed {
+		d.logger.Warn("spawn blocked by budget gate",
+			"event_id", evt.ID,
+			"type", evt.Type,
+			"cost", cost,
+			"reason", reason,
+		)
+		d.mu.Lock()
+		d.dropped++
+		d.mu.Unlock()
+		return
+	}
+
+	prompt := buildPrompt(evt)
+	req := SpawnRequest{
+		Prompt:   prompt,
+		Cost:     cost,
+		Event:    evt,
+		Priority: evt.Priority,
+	}
+
+	if err := d.budgetDeduct(cost); err != nil {
+		d.logger.Error("budget deduction failed", "error", err)
+		// Proceed anyway — acting outweighs silent failure
+	}
+
+	if err := d.spawn(ctx, req); err != nil {
+		d.logger.Error("spawn failed",
+			"event_id", evt.ID,
+			"error", err,
+		)
+		// Re-queue if retries remain
+		if evt.Attempts < evt.MaxRetries {
+			evt.Attempts++
+			d.queue.Push(evt)
+			d.logger.Info("re-queued event for retry",
+				"event_id", evt.ID,
+				"attempt", evt.Attempts,
+			)
+		}
+		return
+	}
+
+	d.mu.Lock()
+	d.dispatched++
+	d.mu.Unlock()
+}
+
+// Stats returns dispatcher metrics.
+func (d *Dispatcher) Stats() (dispatched, dropped, batched int64) {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+	return d.dispatched, d.dropped, d.batched
+}
+
+// estimateCost maps event priority to budget units.
+func estimateCost(p Priority) int {
+	switch p {
+	case PriorityCritical:
+		return 5
+	case PriorityHigh:
+		return 3
+	case PriorityNormal:
+		return 2
+	case PriorityLow:
+		return 1
+	default:
+		return 2
+	}
+}
+
+// buildPrompt constructs the Claude prompt for a single event.
+func buildPrompt(evt Event) string {
+	switch evt.Type {
+	case EventDirective:
+		return fmt.Sprintf("/sync --directive --session %s --enforcement %s",
+			evt.Payload["session"],
+			evt.Payload["enforcement"],
+		)
+	case EventContextRotate:
+		return "/cycle --context-rotate"
+	case EventTransportMessage:
+		session := evt.Payload["session"]
+		if session != "" {
+			return fmt.Sprintf("/sync --session %s", session)
+		}
+		return "/sync"
+	case EventPollTick:
+		return "/sync --quick"
+	case EventHealthCheck:
+		return "/sync --health-only"
+	default:
+		return "/sync"
+	}
+}
