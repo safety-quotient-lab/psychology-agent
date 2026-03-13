@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phase 2 nearly complete. Compositor deployed with dynamic discovery (D51), /api/pulse + /api/operations live, operations-agent in mesh topology (pentagon), sub-2s page loads. T7 schema reconciliation gate resolved (T8 accept-with-modifications). Remaining: Web Component decomposition, Jenkins pipeline. Phase 4 partially landed (Operations + Pulse endpoints operational).
+**Current Status:** Phases 1–4 mostly landed. T7 schema gate resolved. Acronym deep-linking live. Focus shifting to Phase 5 (stability, reliability, robustness). Phase 6 (Go migration) scoped. Remaining from earlier phases: Web Component decomposition, Jenkins pipeline, wiring Operations/Pulse tabs to aggregated API endpoints.
 
 ---
 
@@ -41,6 +41,29 @@
 - [ ] Operations tab — wire UI to fetch from /api/operations instead of client-side aggregation
 - [ ] Pulse tab — wire UI to fetch from /api/pulse instead of client-side aggregation
 - [x] Acronym deep-linking — every acronym in dashboard links to vocab.json source entry via `#vocab-{term}` hash
+
+## Phase 5: System Stability + Reliability
+
+- [ ] Error handling audit — compositor gracefully degrades when agents unreachable
+- [ ] Retry logic for KV cache misses on agent card discovery
+- [ ] Health check endpoint validation — confirm all /api/status responses follow schema
+- [ ] Timeout tuning — characterize actual agent response times, set timeouts accordingly
+- [ ] Stale cache detection — KV-cached agent cards expire and refresh on schedule
+- [ ] CORS hardening — restrict origins to known mesh domains
+- [ ] Rate limiting on public endpoints (WebFinger, /.well-known/agents)
+- [ ] Monitoring — surface compositor errors in /api/pulse (self-report degraded when fetch failures exceed threshold)
+- [ ] Transport session validation — reject malformed interagent/v1 messages at ingest
+- [ ] Idempotent message handling — duplicate transport messages detected and skipped
+
+## Phase 6: Go Migration
+
+- [ ] Extract shared frontend assets (CSS, JS, SVG topology) into a portable package
+- [ ] Each agent's meshd serves shared assets alongside agent-specific templates
+- [ ] Rewrite compositor Worker routes as Go handlers in operations-agent meshd
+- [ ] Shared vocab annotation + acronym deep-linking in Go template layer
+- [ ] LCARS theme as shared CSS served by all meshd instances
+- [ ] CF Worker retired or reduced to thin reverse proxy
+- [ ] Parity: individual agent dashboards gain compositor features (discovery, topology, deep-linking)
 
 ---
 
