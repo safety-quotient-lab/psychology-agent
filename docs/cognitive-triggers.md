@@ -77,9 +77,12 @@ as a signal to narrow scope rather than defend position."
 - Pushback during **Evaluative** → loosen constraints (user finds evaluation too rigid)
 - Pushback during **Neutral** → standard T6 checks (assess position stability)
 
-**Crystallization stage:** Stage 1 (in-context reasoning). The agent
-explicitly reasons about mode. Advances to Stage 2 (trigger-encoded) after
-3+ sessions of successful execution without user correction.
+**Crystallization stage:** Stage 3 (hook-backed). The `mode-detection.sh`
+PreToolUse hook classifies tasks as mechanical/analytical/creative from
+user message keywords and writes to `/tmp/{agent-id}-task-mode`. Triggers
+read this file for tiering adjustments. Advances to Stage 4 (invariant)
+when mode detection operates without hook — the agent naturally processes
+in the appropriate mode.
 
 Full design: `docs/phases-7-10-specs.md § Phase 7`.
 
