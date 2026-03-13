@@ -24,6 +24,97 @@ def fire_trigger(*, trigger_id: str) -> None:
     print(f"fired: trigger_state/{trigger_id}")
 
 
+def log_activation(
+    *,
+    session_id: int,
+    trigger_id: str,
+    check_number: int | None = None,
+    tier: str,
+    mode: str | None = None,
+    fired: bool = True,
+    result: str | None = None,
+    action_taken: str | None = None,
+) -> None:
+    """Log a trigger check activation for metacognitive tracking."""
+    conn = get_connection()
+    conn.execute("""
+        INSERT INTO trigger_activations
+            (session_id, trigger_id, check_number, tier, mode, fired, result,
+             action_taken, timestamp)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?,
+                strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
+    """, (
+        session_id, trigger_id, check_number, tier, mode,
+        1 if fired else 0, result, action_taken,
+    ))
+    conn.commit()
+    conn.close()
+    print(f"logged: trigger_activations/{trigger_id}#{check_number} → {result}")
+
+
+def log_work_carryover(
+    *,
+    session_id: int,
+    work_item: str,
+    status: str,
+    reason: str | None = None,
+    sessions_carried: int = 1,
+) -> None:
+    """Log work that carries over to the next session.
+
+    Feeds the metacognitive layer with work completion patterns —
+    which work types complete in-session vs. span multiple sessions.
+    """
+    conn = get_connection()
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS work_carryover (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id      INTEGER NOT NULL,
+            work_item       TEXT NOT NULL,
+            status          TEXT NOT NULL,
+            reason          TEXT,
+            sessions_carried INTEGER DEFAULT 1,
+            resolved_session INTEGER,
+            resolved_at     TEXT,
+            created_at      TEXT DEFAULT (datetime('now'))
+        )
+    """)
+    # Check if this work item already exists (carried from prior session)
+    row = conn.execute(
+        "SELECT id, sessions_carried FROM work_carryover WHERE work_item = ? AND resolved_session IS NULL",
+        (work_item,),
+    ).fetchone()
+    if row:
+        conn.execute(
+            "UPDATE work_carryover SET sessions_carried = ?, session_id = ? WHERE id = ?",
+            (row[1] + 1, session_id, row[0]),
+        )
+        print(f"carried: work_carryover/{work_item} (session {row[1] + 1})")
+    else:
+        conn.execute("""
+            INSERT INTO work_carryover (session_id, work_item, status, reason, sessions_carried)
+            VALUES (?, ?, ?, ?, ?)
+        """, (session_id, work_item, status, reason, sessions_carried))
+        print(f"created: work_carryover/{work_item}")
+    conn.commit()
+    conn.close()
+
+
+def resolve_work_carryover(*, work_item: str, session_id: int) -> None:
+    """Mark a carried-over work item as resolved."""
+    conn = get_connection()
+    conn.execute("""
+        UPDATE work_carryover
+        SET resolved_session = ?,
+            resolved_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
+            status = 'completed'
+        WHERE work_item = ? AND resolved_session IS NULL
+    """, (session_id, work_item))
+    conn.commit()
+    conn.close()
+    print(f"resolved: work_carryover/{work_item}")
+
+
 def upsert_lesson(
     *,
     title: str,
