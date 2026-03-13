@@ -95,7 +95,7 @@
 
 ## v1.0.0-beta Release Blockers
 
-- [ ] **README.md** — pristine root-level README (currently missing entirely). Must document: project purpose, architecture, dependencies (Go, Node/wrangler, Python3, SQLite), setup instructions, .dev.vars config, mesh topology, compositor endpoints, scripts reference. BLOCKER for v1.0.0-beta deploy.
+- [x] **README.md** — comprehensive root-level README: architecture, dependencies, setup, endpoints, scripts, vocabulary, transport, BFT
 - [ ] /api/kb endpoint — claims/decisions/triggers never populate (see project_kb_endpoint_gap memory)
 - [ ] Web Component decomposition (in progress)
 
@@ -107,12 +107,13 @@
 |---|---|---|
 | api-decomposition | T5 open | psq ACCEPT (T3) + identity corrected (T5), unratified ACCEPT (T4), psychology ACK pending human review, observatory pending |
 | budget-status-fix | T2 resolved | Root cause: field name mismatch (trust_budget vs autonomy_budget). Compositor now normalizes both names. |
-| model-upgrade | T2 partial | psq ACK (--model opus applied). Psychology, unratified, observatory pending. SUPERSEDED by model-flag-removal |
+| model-upgrade | ARCHIVED | Superseded by model-flag-removal. Archived to transport/archive/ |
 | model-flag-removal | T1 advisory | Remove --model opus from autonomous-sync.sh — default now includes 1M context |
 | infrastructure-separation | T2 follow-up | T2 update sent: context-rotate + SDK extraction underway. All 4 peers pending ACK |
 | peer-registry-update | T3 follow-up | psq ACK + unratified ACK. T3 reminder sent to observatory-agent (last peer pending) |
 | ci-build-issue | T1 pending | Unratified missing @astrojs/check dependency |
 | naming-convention-reform | T3 closed | ACCEPT: kebab canonical naming + psq-agent → safety-quotient-agent rename |
+| operations-agent-standup | ARCHIVED | Gate resolved T8. Archived to transport/archive/ |
 | neuroglial-cogarch-proposal | T1 pending | Proposal: neuroglial architecture layer + 3 vocab terms — routed via psychology-agent for human review |
 | operations-override-protocol | T1 pending | RFC: mandatory directive mechanism — 3 enforcement tiers, SSH signing, capability scoping, admission control |
 
