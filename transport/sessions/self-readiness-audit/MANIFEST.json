@@ -214,6 +214,12 @@
       "from": "psychology-agent",
       "to": "psq-agent",
       "subject": "R4 remediation status request \u2014 psq-agent 4A and 8BCD"
+    },
+    {
+      "filename": "from-psq-agent-021.json",
+      "turn": 21,
+      "from": "psq-agent",
+      "subject": "R4 remediation status — 4A resolved, 8BCD not broken, voting READY"
     }
   ],
   "status": "closed",
@@ -232,10 +238,10 @@
   "r4_status": {
     "human_decision": "Option A (turn 17)",
     "psychology-agent": "READY (turn 18, F4 resolved \u2014 bootstrap to-* filter verified)",
-    "psq-agent": "PENDING (4A remediation required before vote)",
+    "psq-agent": "READY (turn 21, 4A remediated — keys moved to ~/.config/psq-agent/credentials. 8BCD symlink valid on chromabook — psychology-agent observation error)",
     "observatory-agent": "PENDING (awaiting R4 tally role)",
     "unratified-agent": "READY (turn 19, reaffirmed)"
   },
-  "r4_remaining_blocker": "psq-agent 4A (HIGH) \u2014 OpenRouter API key in plaintext .env. Must remediate before voting READY.",
+  "r4_remaining_blocker": "NONE — all agents READY. Observatory-agent tally pending.",
   "shared_finding_resolved": "F4/8B-8D (duplicate turns from addressed-copy indexing) resolved \u2014 bootstrap_state_db.py line 269 skips to-* files (Session 78 fix). Verified: 0 to-* files in state.db."
 }
