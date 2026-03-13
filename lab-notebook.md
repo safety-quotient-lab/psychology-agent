@@ -90,7 +90,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Lesson promotion lifecycle    | ✓ 17/25 graduated: evaluation.md (6), anti-patterns.md (+2), CLAUDE.md (+2 lines), cogarch/hooks (4). 1 candidate, 7 below threshold (Session 59d) |
 | 4-tier visibility (schema v8) | ✓ table_visibility (public/shared/commercial/private), export_public_state.py (4 profiles: seed/release/licensed/full), private-by-default (Session 59) |
 | Epistemic debt dashboard      | ✓ `scripts/epistemic_debt.py` — 4 modes (full, --summary, --by-source, --by-session), wired into /hunt Phase 1 + /cycle Step 11c (Session 59d) |
-| Mesh status dashboard         | ✓ `scripts/mesh-status.py` — HTTP server (port 8077) + --json CLI, auto-refresh 30s, trust budget / peers / queue / gates / actions / debt (Session 62d) |
+| Mesh status dashboard         | ✓ `scripts/mesh-status.py` — ThreadingHTTPServer (port 8077) + --json CLI, SSE live updates, trust budget / peers / queue / gates / actions / debt (Session 83) |
 | Adaptive sync (simple)        | ✓ `cross_repo_fetch.py` classifies peers as active/warm/cold, skips cold peers (>24h no exchange), --force override (Session 62d) |
 | Transport dedup (schema v11)  | ✓ UNIQUE index on (session_name, from_agent, turn) + `next-turn` subcommand — canonical turn derivation (Session 62d) |
 | Agent communication asymmetry | ✓ `scripts/agent_communication.py` — mesh imbalance detection, direction asymmetry, quiet pairs (Session 60) |
@@ -5347,10 +5347,35 @@ advance operations-agent standup, wire into autonomous pipeline.
 - `docs/architecture.md` — crystallized-sync decision
 - `TODO.md` — crystallized sync complete, SSE dashboard TODO
 
+- **SSE live updates (continued 22:24 CDT):**
+  - mesh-status.py: added `/events` SSE endpoint, `ThreadingHTTPServer` with
+    `daemon_threads`, generation-tracking via `collected_at` change detection.
+    Replaced `setInterval`/`setTimeout` polling with `EventSource` client.
+  - meshd (Go): `/events` handler + cache subscriber pattern already deployed
+    earlier in session. layout.html meta refresh removed, mesh.js EventSource added.
+- **Semantic topology tokens:**
+  Added `--topo-edge`, `--topo-edge-opacity`, `--topo-label`, `--topo-label-hover`
+  across dark/LCARS/light themes. Root cause: JS-generated SVG used `<g>` not `<a>`,
+  so CSS selector `.topology-svg a text` never matched — labels defaulted to black
+  fill in all non-light themes.
+- **Mobile topology line width:**
+  Edge stroke-width 3→5, opacity 0.4→0.5. Node circle stroke-width 3→5.
+- **agentdb Phase 6 assessed:** precondition not met (1-week soak, earliest 2026-03-19).
+- **Deploy:** mesh-status.py SCP + git pull on chromabook. CF Worker deployed for
+  interagent compositor.
+
+**Additional files modified:**
+- `platform/shared/scripts/mesh-status.py` — SSE endpoint, ThreadingHTTPServer
+- `platform/static/mesh.js` — EventSource SSE client
+- `platform/templates/layout.html` — meta refresh → SSE comment
+- `interagent/index.html` — semantic topology tokens, mobile stroke-width
+- `TODO.md` — SSE dashboard + mobile topology marked complete
+
 ⚑ EPISTEMIC FLAGS
 - 52% crystallization rate measured on dry-run — live rate may differ as triage writes dispositions
 - orientation-payload.py pre-processed counts show 0 on first --post-triage run because prior messages lack triage_disposition; populates after first live triage scan
 - psq-agent 4A remediation still blocks R4 closure — no new activity detected
 - Operations-agent cogarch template not yet adapted — placeholders remain
+- ThreadingHTTPServer SSE: each connected browser holds a thread — acceptable for ≤10 concurrent dashboard viewers, not production-grade for high concurrency
 
-▶ docs/crystallized-sync-spec.md, internal/transport/, platform/shared/scripts/
+▶ docs/crystallized-sync-spec.md, internal/transport/, platform/shared/scripts/, interagent/index.html
