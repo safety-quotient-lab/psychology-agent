@@ -1,7 +1,7 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only — completed history lives in state.db (queryable) and git history (auditable).",
-  "generated_at": "2026-03-13T12:42:09",
+  "generated_at": "2026-03-13T12:47:06",
   "source": "agentdb manifest",
   "pending": {},
   "session_renames": {
