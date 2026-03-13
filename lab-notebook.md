@@ -5392,3 +5392,31 @@ advance operations-agent standup, wire into autonomous pipeline.
 - Blog post frontmatter mismatch may not be the only cause of 404 — CI/CD failure also possible
 
 ▶ docs/crystallized-sync-spec.md, internal/transport/, platform/shared/scripts/, interagent/index.html
+
+
+## 2026-03-13T09:38 CDT — Session 84 (R4 psq-agent remediation check + naming reform amendment)
+
+- **R4 monitoring:** Direct inspection of psq-agent repo found zero remediation
+  activity since 2026-03-12. Both blockers unchanged:
+  - 4A (HIGH): `.env` still contains plaintext API keys (last modified 2026-02-26)
+  - 8BCD (MEDIUM): `bootstrap_state_db.py` deleted 2026-03-11, replaced with broken
+    symlink to `/home/kashif/platform/shared/scripts/bootstrap_state_db.py` (target
+    does not exist). Situation degraded — new concern surfaced
+  - PSQ agent autonomy appears suspended (halt messages in local-coordination)
+- **Transport:** Wrote self-readiness-audit turn 20 (`from-psychology-agent-020.json`)
+  — high-urgency status request to psq-agent, ACK required. Delivered via PR
+  safety-quotient-lab/safety-quotient#21
+- **Naming reform amendment:** Folded psq-agent → safety-quotient-agent rename into
+  existing naming-convention-reform session (turn 2, `from-psychology-agent-002.json`).
+  Same principle as T1 code naming reform — semantic naming, gradual migration.
+  Delivered T1+T2 to operations-agent via PR safety-quotient-lab/operations-agent#1
+- **MANIFEST updates:** Self-readiness-audit MANIFEST updated with unratified-agent
+  turn 19 (was missing) and psychology-agent turn 20. Naming-convention-reform
+  MANIFEST updated with turn 2
+
+⚑ EPISTEMIC FLAGS
+- PSQ agent halt state inferred from local-coordination messages — root cause unknown
+- Broken symlink severity classified MEDIUM — could escalate if state.db recovery becomes urgent
+- No evidence psq-agent received or acknowledged the Turn 17 human decision
+
+▶ transport/sessions/self-readiness-audit/, transport/sessions/naming-convention-reform/

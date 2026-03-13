@@ -16,28 +16,27 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 | `memory/feedback_cabinet_port.md` | Cabinet SSH on port 2535, not default 22 | SSH to cabinet |
 | `memory/feedback_mesh_ops_domain.md` | Mesh circuit breaker + autonomous sync = operations-agent domain | Mesh/sync operations |
 
-## Active Thread (2026-03-13)
+## Active Thread (2026-03-12)
 
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 84. R4 psq-agent check + naming reform amendment.
+**Where we stopped:** Session 83 (final). All work complete. PRs merged, proposals sent,
+problem reports filed. Clean stopping point.
 
 **Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
 - Crystallized sync: ✓ Steps 1-7 complete + deployed. 52% rate on 123 msgs `[warm]`
 - agentdb: ✓ Phases 1-5 complete. Phase 6 (Python cleanup) eligible 2026-03-19 `[warm]`
 - SSE dashboards: ✓ Both meshd (Go) and mesh-status.py (Python) serve /events `[warm]`
-- Operations-agent: ✓ Turns 1-6 done. Naming reform T1+T2 delivered (PR #1) `[hot]`
-- Self-readiness audit: ⚑ R4 — psych+unrat READY, psq NOT-READY. Status request sent (T20, PR #21). Broken symlink discovered `[hot]`
+- Operations-agent: ✓ Turns 1-6 done. Naming convention proposal sent. `[hot]`
+- Self-readiness audit: ⚑ R4 — psych+unrat READY, psq NOT-READY (4A blocks) `[hot]`
 - Blog crystallized sync: ⚑ Post 404 — frontmatter mismatch, problem report sent `[hot]`
 - ZMQ transport: ✓ Merged to main. All 5 meshd instances running with gossip `[warm]`
-- Parry re-add: ⚑ Upstream #32596 now CLOSED — precondition may hold, needs verification `[warm]`
 
 **Next session priorities:**
 1. Check transport for unratified-agent frontmatter fix
-2. Check operations-agent naming convention + rename approval
-3. Await psq-agent ACK on T20 status request (R4 closure)
-4. Verify parry re-add precondition (#32596 fix in current claude-code version)
+2. Check operations-agent naming convention approval
+3. Monitor psq-agent 4A/8BCD remediation for R4 closure
 
 
 ## Memory Hygiene
