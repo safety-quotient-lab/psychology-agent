@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Priority classifies events by their budget cost.
@@ -189,13 +190,27 @@ func (g *Gate) ReleaseSlot(slotPath string) {
 	}
 }
 
-// countMeshSpawnSlots returns how many /tmp/mesh-spawn-slot-N files exist.
+// slotMaxAge defines the maximum age of a spawn slot before it gets
+// treated as stale (orphaned by a crashed process). Set to spawn timeout + buffer.
+const slotMaxAge = 6 * 60 // 6 minutes in seconds
+
+// countMeshSpawnSlots returns how many active (non-stale) spawn slot files exist.
+// Stale slots (older than slotMaxAge) get cleaned up automatically.
 func countMeshSpawnSlots() int {
 	count := 0
 	for i := 0; i < MeshMaxConcurrent; i++ {
-		if fileExists(fmt.Sprintf("/tmp/mesh-spawn-slot-%d", i)) {
-			count++
+		slotPath := fmt.Sprintf("/tmp/mesh-spawn-slot-%d", i)
+		info, err := os.Stat(slotPath)
+		if err != nil {
+			continue // slot does not exist
 		}
+		// Check staleness — a slot older than slotMaxAge indicates a crashed process
+		age := int(time.Since(info.ModTime()).Seconds())
+		if age > slotMaxAge {
+			os.Remove(slotPath) // self-healing: clean up stale slot
+			continue
+		}
+		count++
 	}
 	return count
 }
