@@ -81,19 +81,28 @@ Full design: `docs/phases-7-10-specs.md § Phase 7`.
 **Fires**: Beginning of every session
 
 **Checks**:
-1. **Auto-memory health check** — verify MEMORY.md exists in auto-memory and
+1. ⬛ **Auto-memory health check** — verify MEMORY.md exists in auto-memory and
    is substantive. If missing or suspect, run `./bootstrap-check.sh` to restore
    from committed snapshot. If bootstrap-check.sh is unavailable, restore manually
    per BOOTSTRAP.md recovery section. Do not proceed with stale or absent memory.
-2. Read auto-memory MEMORY.md — restore active thread, design decisions, working principles
-3. Read `docs/cognitive-triggers.md` — load full trigger system (canonical, in-repo)
-4. Check TODO.md — current task backlog
-5. Check lab-notebook.md — last session summary and open questions
-6. Verify skills loaded (/doc, /hunt, /cycle, /capacity, /adjudicate)
-7. **Output compact cogarch baseline summary** — read `docs/cognitive-triggers.md` and
+2. ⬛ Read auto-memory MEMORY.md — restore active thread, design decisions, working principles
+3. ▣ Read `docs/cognitive-triggers.md` — load full trigger system (canonical, in-repo)
+4. ▣ Check TODO.md — current task backlog
+5. ▣ Check lab-notebook.md — last session summary and open questions
+6. ▢ Verify skills loaded (/doc, /hunt, /cycle, /capacity, /adjudicate)
+7. ▢ **Output compact cogarch baseline summary** — read `docs/cognitive-triggers.md` and
    emit the full trigger table, platform hooks, skills, and memory architecture as the
    first visible output of the session
-8. Establish context baseline before responding to any user request
+8. ⬛ Establish context baseline before responding to any user request
+9. ▣ **Work carryover check** — query `work_carryover` table for items carried from
+   prior sessions. Surface items with `sessions_carried >= 3` as chronic carryover
+   requiring attention. For all open items, display a brief summary so the user
+   has visibility into what remains from prior sessions.
+   ```sql
+   SELECT work_item, status, sessions_carried, reason
+   FROM work_carryover WHERE resolved_session IS NULL
+   ORDER BY sessions_carried DESC;
+   ```
 
 **Action**: MUST orient fully before doing any work. If restoration occurred,
 MUST note it in the session's first response so the user has visibility.
