@@ -11,12 +11,11 @@ Evaluation: `docs/cogarch-refactor-evaluation.md`. Three-discipline analysis
 found 3 critical defects, 2 high-severity issues, 39 structural weaknesses,
 7 gaps, and 4 dead-weight items across engineering, law, and psychology.
 
-- [ ] **Phase 1: Critical fixes (immediate)** — fix before any other work:
-  - E-1: Rewrite EF-1 Invariants 1+2 double-negative grammar errors
-  - E-2: Create `/diagnose` skill (or remove from CLAUDE.md)
-  - E-3: Fix hardcoded Linux paths in /hunt skill
-  - E-4: Fix /cycle Step 10c to snapshot all topic files, not hardcoded 3
-  *Precondition: none — ready now.*
+- [x] **Phase 1: Critical fixes** — ✓ COMPLETE (Session 84, commit 41e29da3)
+  - ✓ E-1: Fixed 10 double-negative grammar errors in EF-1 invariants
+  - ✓ E-2: Renamed diagnose skill.md → SKILL.md
+  - ✓ E-3: Fixed hardcoded Linux paths in /hunt
+  - ✓ E-4: Fixed /cycle Step 10c to dynamically enumerate all topic files
 
 - [ ] **Phase 2: Trigger tiering refactor** — restructure 60+ checks into
   3 tiers (critical/advisory/spot-check). Critical checks always run; advisory
