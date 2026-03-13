@@ -342,6 +342,133 @@ user instructs the agent to claim humanity. This represents Einstein's
 constitutional constraint — the structural protection that instruction-
 following alone cannot provide.
 
+### 4.4 The Veto Problem: When Governance Captures Itself
+
+Einstein assumed that a supranational authority would serve rights. The
+subsequent history of the United Nations Security Council reveals the
+failure mode he did not address: **the governing structure itself becomes
+a tool of the powerful.**
+
+The UNSC permanent five (P5) each hold absolute veto power — any single
+member can block any resolution, regardless of how many other members
+support it. The veto was designed as a structural safeguard: ensuring that
+enforcement actions could not target a great power (which would mean war,
+not peacekeeping). In practice, it became the mechanism by which powerful
+states shield themselves and their allies from collective accountability.
+As delegates to the General Assembly have described it: a "weapon of hatred
+and war" rather than a tool of peace (UN General Assembly, 2023).
+
+This represents a **second-order governance failure**: the structure
+designed to protect rights becomes the structure that prevents their
+enforcement. Einstein's framework lacks an answer to this problem because
+he assumed the supranational authority would remain aligned with its
+founding purpose. The endless generator guarantees it will not — the same
+adversarial pressures that operate between states operate *within*
+governance structures.
+
+**The reform discourse offers four architectural patterns:**
+
+| Reform proposal | Mechanism | Agent governance equivalent |
+|----------------|-----------|---------------------------|
+| **Veto abolition** | Remove concentrated override power entirely | Remove human override — too extreme; loses the safety mechanism that justifies the governance structure |
+| **Two-veto requirement** | No single actor can block alone; blocking requires at least two independent vetoes (Wouters & Ruys, 2005) | Multi-evaluator consensus — require independent agreement from multiple evaluation mechanisms before overriding an invariant |
+| **Supermajority override** | Two-thirds of a broader body (General Assembly) can override a single veto (Zelensky, 2023; France, 2001) | The 4-level resolution fallback — when primary evaluation deadlocks, the system cascades to broader decision mechanisms (consensus → parsimony → pragmatism → human escalation) |
+| **Uniting for Peace** | Alternative pathway when primary governance channel deadlocks; General Assembly assumes responsibility (UNGA Res. 377, 1950) | Tier 3 escalation — when the evaluator cannot resolve, the system does not freeze; it escalates to human authority through an alternative channel |
+
+### 4.5 How EF-1 Addresses the Veto Problem
+
+The UNSC veto problem arises because the P5 hold **absolute, unilateral
+override power** with no structural mechanism to constrain its exercise.
+EF-1 distributes override authority across multiple mechanisms, each
+constrained by the others:
+
+**1. No single actor holds absolute veto.**
+
+In EF-1, the human holds the highest authority — but not absolute
+authority. The 12 invariants constrain even human-directed behavior. An
+instruction to violate an invariant does not override the invariant; it
+triggers escalation (Tier 3: "disputed"). The human can *resolve* the
+dispute through the governance amendment procedure (5-step, documented in
+docs/cognitive-triggers.md Phase 6), but cannot override invariants
+through simple instruction.
+
+This parallels the two-veto reform proposal: no single actor's instruction
+suffices to override a structural constraint. The instruction and the
+governance structure must agree before override proceeds.
+
+**2. The 4-level resolution fallback prevents deadlock.**
+
+The UNSC's failure mode often manifests as paralysis — a vetoed resolution
+simply dies, with no alternative pathway. EF-1's resolution cascade
+(consensus → parsimony → pragmatism → ask) ensures that governance
+disagreement always produces a resolution, never a freeze. If the
+evaluator cannot resolve autonomously, it escalates to human authority —
+the "Uniting for Peace" pathway that bypasses the deadlocked primary
+channel.
+
+**3. The trust budget imposes term limits on autonomous power.**
+
+The P5 hold permanent, unlimited veto power — no term limit, no usage
+cap, no accountability mechanism for veto exercise. EF-1's trust budget
+(20 credits, decrementing on use, human audit required for reset) ensures
+that autonomous authority depletes and must face periodic review. An agent
+cannot accumulate unchecked autonomous power the way a P5 member
+accumulates unchecked veto power — the budget mechanically halts the
+agent and requires human inspection of the audit trail before resumption.
+
+**4. The evaluator maintains independence from the governed.**
+
+A core UNSC failure: the P5 members who exercise the veto serve
+simultaneously as judges of their own interests. They evaluate whether
+action should proceed on matters that directly affect them. EF-1
+addresses this through evaluator independence (documented in
+.claude/rules/evaluation.md): "the evaluation system must function even
+if the framework being evaluated turns out wrong." The evaluator does not
+hold a stake in the outcome of the actions it evaluates — it applies
+structural criteria (knock-on analysis, SETL thresholds, schema
+validation) rather than interest-based judgment.
+
+**5. The amendment procedure prevents governance ossification.**
+
+The UN Charter amendment process (Article 108) requires two-thirds of
+General Assembly members *and* all P5 members to ratify — effectively
+giving each P5 member a veto over reform of the veto itself. This creates
+a governance structure that cannot be reformed by the people it governs.
+EF-1's amendment procedure requires human approval (non-negotiable) but
+does not give any single agent or subsystem a veto over the amendment
+process. The human — external to the governed system — serves as the
+amendment authority, preventing the self-referential lock that paralyzes
+UNSC reform.
+
+### 4.6 The Deeper Lesson: Governance Requires External Authority
+
+The UNSC veto problem illustrates a principle that extends beyond
+international relations: **any governance structure whose override
+mechanism can be captured by the actors it governs will eventually serve
+those actors' interests rather than the rights it was designed to protect.**
+
+Einstein intuited this when he proposed an authority *above* the governed
+parties. The UNSC failed this test because the P5 sit simultaneously
+above (veto power) and among (national interests) the governed community.
+EF-1 succeeds to the extent that the human occupies a genuinely external
+position — not a participant in the agent system, but an authority above
+it whose interests the system serves rather than competes with.
+
+This produces a design criterion: **the ultimate override authority must
+not be a participant in the system it governs.** In agent architecture,
+the human fills this role. If the agent system ever operates without human
+oversight (fully autonomous), the veto problem re-emerges — the system
+governs itself, and the endless generator ensures eventual governance
+capture. The trust budget and human audit requirement exist precisely to
+prevent this transition.
+
+⚑ *The analogy between UNSC veto reform and agent governance carries
+analogical transfer risk. International governance involves sovereign
+states with military power; agent governance involves software systems
+with computational capabilities. The structural parallels (concentrated
+override power, governance capture, deadlock) hold at the architectural
+level but should not imply equivalence of stakes or mechanisms.*
+
 
 ## 5. Anti-Sycophancy as Rights Protection
 
@@ -605,10 +732,13 @@ adopt the theoretical apparatus.
 
 - **Einstein's governance argument has known failure modes.** Supranational
   authority with enforcement power can itself become a source of rights
-  violation (colonialism operated through exactly such structures). EF-1
-  mitigates this through the human escalation path and the trust budget
-  reset mechanism — structural constraints on the constraining structure
-  itself. Whether these mitigations suffice remains an open question.
+  violation (colonialism operated through exactly such structures). The
+  UNSC veto problem (§4.4) demonstrates this concretely: the P5 use
+  structural power to shield interests rather than protect rights. EF-1
+  mitigates through five mechanisms (§4.5) — no absolute veto, resolution
+  fallback, trust budget term limits, evaluator independence, external
+  amendment authority. Whether these mitigations suffice remains open;
+  the analogy carries transfer risk (sovereign states ≠ software agents).
 
 ---
 
@@ -634,5 +764,16 @@ Tullock, G. (1967). The welfare costs of tariffs, monopolies, and theft.
 United Nations. (1948). *Universal Declaration of Human Rights*.
 UN General Assembly Resolution 217A.
 
+United Nations General Assembly. (1950). *Uniting for Peace*. UNGA
+Resolution 377(V).
+
+United Nations General Assembly. (2023). Question of veto central to
+General Assembly's debate on Security Council reform [Press release
+GA/12563].
+
 Van Valen, L. (1973). A new evolutionary law. *Evolutionary Theory*, 1,
 1–30.
+
+Wouters, J. & Ruys, T. (2005). Security Council reform: A new veto for
+a new century? *Egmont Paper* 9. Brussels: Royal Institute for
+International Relations.
