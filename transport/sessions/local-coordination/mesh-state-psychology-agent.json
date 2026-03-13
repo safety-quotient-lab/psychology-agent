@@ -1,6 +1,6 @@
 {
   "schema": "mesh-state/v1",
-  "timestamp": "2026-03-13T15:27:02",
+  "timestamp": "2026-03-13T15:32:01",
   "agent_id": "psychology-agent",
   "autonomy_budget": {
     "agent_id": "psychology-agent",
@@ -20,8 +20,8 @@
   "schedule": {
     "autonomous": true,
     "cron_interval_min": 10,
-    "last_sync": "2026-03-13T15:27:02",
-    "next_expected": "2026-03-13T15:37:02"
+    "last_sync": "2026-03-13T15:32:01",
+    "next_expected": "2026-03-13T15:42:01"
   },
   "psh_facets": {},
   "schema_version": 24,
