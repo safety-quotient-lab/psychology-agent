@@ -7,7 +7,7 @@ it responsibly.
 
 **Do NOT open a public GitHub issue for security vulnerabilities.**
 
-Instead, email **security@safety-quotient.dev** or use
+Instead, email **kashif+sqlab@kashifshah.net** or use
 [GitHub Security Advisories](https://github.com/safety-quotient-lab/operations-agent/security/advisories/new)
 to report privately.
 
