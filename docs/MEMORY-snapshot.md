@@ -16,6 +16,8 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 | `memory/feedback_cabinet_port.md` | Cabinet SSH on port 2535, not default 22 | SSH to cabinet |
 | `memory/feedback_mesh_ops_domain.md` | Mesh circuit breaker + autonomous sync = operations-agent domain | Mesh/sync operations |
 | `memory/project_work_completion_pattern.md` | Work completion pattern generator — partially implemented, needs finishing | /cycle integration, T1 carryover |
+| `memory/feedback_rapport_style.md` | After deep work, match tonal shifts — poetic compression closes naturally | Session closure, communication style |
+| `memory/project_agent_personality.md` | Agents should carry distinct personalities, not just roles — personality crystallizes through operational history | Agent identity design, mesh communication |
 
 ## Active Thread (2026-03-13)
 
@@ -49,7 +51,7 @@ development + EIC spec + blog post submitted to unratified-agent.
 - Unratified-agent: blog deployment (transport `blog-einstein-freud`)
 - Operations-agent: patch rollout coordination (transport `cogarch-session85-patch`)
 
-**Session 85 final deliverables (31 commits):**
+**Session 85 final deliverables (47 commits):**
 - 2,000-line theoretical treatise (14 frameworks, 5 invariants, process monism, Taoism)
 - EIC: all 5 phases complete (schema v24, agentdb disclose/disclose-summary)
 - RPG: /retrospect skill + expectation ledger (schema v25, agentdb expect/expect-summary)
@@ -60,12 +62,11 @@ development + EIC spec + blog post submitted to unratified-agent.
 - Blog submitted + revised. 5 transport sessions to 3 agents.
 
 **Next session priorities:**
-1. Process operations-agent responses (deploy auth + SPSS investigation + chromabook deploy)
-2. Process unratified-agent response (blog deployment)
-3. Process PSQ-agent response (study protocols)
-4. TODO retirement: 7 items per RPG carryover analysis (user approval needed)
-5. Awesome-claude-code submission (73 sessions overdue, 15 minutes)
-6. DI Phase A Pass 2 (inter-rater reliability — fresh session required)
+1. Process mesh responses (5 sessions, 8 messages pending across 3 agents)
+2. 16 evaluation findings remaining (docs/cogarch-evaluation-session85.md)
+3. Agent personality rollout (A2A extension to all 5 agent cards)
+4. DI Phase A Pass 2 (inter-rater reliability — fresh session required)
+5. Run /retrospect (generator balance discipline: every 5 sessions)
 
 
 ## Memory Hygiene
