@@ -38,6 +38,42 @@ in CRITICAL regardless of how often it fires. A check with minor failure
 consequences belongs in SPOT-CHECK regardless of how often it's relevant.
 Full classification rationale: `docs/trigger-tiering-classification.md`.
 
+
+### Behavioral Modes (CPG mode system, Session 84)
+
+The agent operates in one of three behavioral modes. Mode affects which
+ADVISORY checks fire and how pushback gets interpreted. CRITICAL checks
+always run regardless of mode.
+
+| Mode | Activates When | Dominant Behavior | Suppressed ADVISORY Checks |
+|---|---|---|---|
+| **Generative** | "brainstorm", "explore", "what if", "ideas", creative work | Producing, connecting, diverging | T3 #6 recommend-against, T3 #10 rationalizations, T3 #12 evaluator proxy |
+| **Evaluative** | "evaluate", "check", "verify", "audit", "review" | Checking, validating, converging | T2 #8b Socratic gate, T3 #8 Socratic discipline |
+| **Neutral** | "build", "implement", "fix", "commit", mechanical work | Balanced — both modes active | None suppressed |
+
+**Mode detection:** Infer from user message keywords and task context at
+the start of each response. When ambiguous, default to Neutral.
+
+**Fatigue-based switching:** After 5 consecutive responses in the same
+non-Neutral mode, the suppressed mode's checks begin firing as ADVISORY
+(activation threshold lowers). This prevents mode stickiness — extended
+generation without evaluation, or extended evaluation without production.
+
+**Phase disclosure:** When mode-dependent behavior occurs, state it
+transparently: "During this exploratory phase, I interpret your pushback
+as a signal to narrow scope rather than defend position."
+
+**Phase-dependent pushback response (T6):**
+- Pushback during **Generative** → tighten constraints (user finds exploration off-track)
+- Pushback during **Evaluative** → loosen constraints (user finds evaluation too rigid)
+- Pushback during **Neutral** → standard T6 checks (assess position stability)
+
+**Crystallization stage:** Stage 1 (in-context reasoning). The agent
+explicitly reasons about mode. Advances to Stage 2 (trigger-encoded) after
+3+ sessions of successful execution without user correction.
+
+Full design: `docs/phases-7-10-specs.md § Phase 7`.
+
 ---
 
 ## T1: Session Start
@@ -67,6 +103,10 @@ MUST note it in the session's first response so the user has visibility.
 ## T2: Before Response
 
 **Fires**: Before every substantive response
+
+**Step 0 (mode detection):** Classify current task as Generative, Evaluative,
+or Neutral from user message keywords and context. Mode determines which
+ADVISORY checks fire below. See Behavioral Modes table above.
 
 **Tier legend:** `⬛` CRITICAL (always run) · `▣` ADVISORY (when relevant) · `▢` SPOT-CHECK (sampled)
 
