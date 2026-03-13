@@ -6,7 +6,7 @@
 **Governed lenses:**
 - `docs/ef1-trust-model.md` — Engineering (implementation spec)
 - `docs/ef1-psychological-foundations.md` — Psychology (cognitive, social, organizational)
-- `docs/ef1-jurisprudence-extensions.md` — Jurisprudence (planned)
+- `docs/ef1-jurisprudence-extensions.md` — Jurisprudence (active — Session 85)
 
 
 ---
