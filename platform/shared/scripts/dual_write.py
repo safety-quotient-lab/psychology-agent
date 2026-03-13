@@ -104,6 +104,36 @@ def cmd_trigger_fired(args: argparse.Namespace) -> None:
     cogarch.fire_trigger(trigger_id=args.trigger_id)
 
 
+def cmd_trigger_activation(args: argparse.Namespace) -> None:
+    cogarch.log_activation(
+        session_id=args.session_id,
+        trigger_id=args.trigger_id,
+        check_number=args.check_number,
+        tier=args.tier,
+        mode=args.mode,
+        fired=not args.skipped,
+        result=args.result,
+        action_taken=args.action_taken,
+    )
+
+
+def cmd_work_carryover(args: argparse.Namespace) -> None:
+    cogarch.log_work_carryover(
+        session_id=args.session_id,
+        work_item=args.work_item,
+        status=args.status,
+        reason=args.reason,
+        sessions_carried=args.sessions_carried or 1,
+    )
+
+
+def cmd_work_resolved(args: argparse.Namespace) -> None:
+    cogarch.resolve_work_carryover(
+        work_item=args.work_item,
+        session_id=args.session_id,
+    )
+
+
 def cmd_lesson(args: argparse.Namespace) -> None:
     cogarch.upsert_lesson(
         title=args.title,
@@ -248,6 +278,30 @@ def main() -> None:
     tf = sub.add_parser("trigger-fired", help="Record a trigger firing")
     tf.add_argument("--trigger-id", required=True)
 
+    # trigger-activation (metacognitive layer, Phase 8)
+    ta = sub.add_parser("trigger-activation", help="Log a trigger check activation")
+    ta.add_argument("--session-id", type=int, required=True)
+    ta.add_argument("--trigger-id", required=True)
+    ta.add_argument("--check-number", type=int)
+    ta.add_argument("--tier", required=True, choices=["critical", "advisory", "spot-check"])
+    ta.add_argument("--mode", choices=["generative", "evaluative", "neutral"])
+    ta.add_argument("--result", choices=["pass", "fail", "skip"])
+    ta.add_argument("--action-taken")
+    ta.add_argument("--skipped", action="store_true", help="Check was skipped (not fired)")
+
+    # work-carryover (pattern generator for unfinished work)
+    wc = sub.add_parser("work-carryover", help="Log work carrying to next session")
+    wc.add_argument("--session-id", type=int, required=True)
+    wc.add_argument("--work-item", required=True, help="Description of the unfinished work")
+    wc.add_argument("--status", required=True, choices=["planned", "in-progress", "blocked", "deferred"])
+    wc.add_argument("--reason", help="Why work carries over (context-pressure, session-end, blocked-on, deprioritized)")
+    wc.add_argument("--sessions-carried", type=int, default=1)
+
+    # work-resolved
+    wr = sub.add_parser("work-resolved", help="Mark carried-over work as completed")
+    wr.add_argument("--session-id", type=int, required=True)
+    wr.add_argument("--work-item", required=True)
+
     # lesson
     ls = sub.add_parser("lesson", help="Upsert a lesson entry")
     ls.add_argument("--title", required=True)
@@ -351,6 +405,9 @@ def main() -> None:
         "session-entry": cmd_session_entry,
         "decision": cmd_decision,
         "trigger-fired": cmd_trigger_fired,
+        "trigger-activation": cmd_trigger_activation,
+        "work-carryover": cmd_work_carryover,
+        "work-resolved": cmd_work_resolved,
         "lesson": cmd_lesson,
         "gate-open": cmd_gate_open,
         "gate-resolve": cmd_gate_resolve,
