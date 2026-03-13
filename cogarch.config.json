@@ -187,6 +187,27 @@
     }
   },
 
+  "pattern_generator": {
+    "description": "Systematic cross-agent consistency detection. Loads all agent-cards and status endpoints into a single context window, compares field names, peer lists, protocol declarations, and data shapes. Generates fix directives for divergences invisible to agents operating in isolation.",
+    "trigger": "Periodic (per-session or on-demand), especially after mesh topology changes or new agent onboarding.",
+    "inputs": [
+      "All agent .well-known/agent-card.json",
+      "All agent /api/status responses",
+      "Shared vocabulary (vocab.json)",
+      "Mesh conventions (CLAUDE.md, cogarch peers)"
+    ],
+    "checks": [
+      "Peer registry completeness — every agent lists every other agent",
+      "Field name consistency — canonical vocabulary terms vs local variants",
+      "Protocol alignment — preferredTransport, schemas_supported across agents",
+      "Budget accuracy — /api/status values match state.db ground truth",
+      "Agent-card schema compliance — required A2A fields present",
+      "Role uniqueness — exactly one agent per declared role"
+    ],
+    "outputs": "Transport directive (mesh-consistency-fixes session) with per-agent fix instructions",
+    "first_run": "2026-03-13 — detected 4 issues across 3 agents during v1.0.0-beta.1 hardening"
+  },
+
   "domain_content": {
     "domain_docs": [
       "interagent/vocab.json",
