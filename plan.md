@@ -84,7 +84,7 @@
 - [x] Operations-agent scripts symlinked to SDK (dogfooding — agents.conf.sh resolves SDK_ROOT)
 - [ ] Domain agents import interagent-sdk rather than copying scripts from psychology-agent
 - [ ] Psychology-agent relinquishes source-of-truth role for shared infrastructure
-- [ ] Web Component decomposition (monolithic index.html → custom elements)
+- [x] Web Component decomposition (4 components: MeshDataTable, MeshTopology, AgentHealthCard, OpsBudgetCard)
 - [ ] Extract shared frontend assets (CSS, JS, SVG topology) into a portable package
 - [ ] Each agent's meshd serves shared assets alongside agent-specific templates
 - [ ] Rewrite compositor Worker routes as Go handlers in operations-agent meshd
@@ -97,7 +97,7 @@
 
 - [x] **README.md** — comprehensive root-level README: architecture, dependencies, setup, endpoints, scripts, vocabulary, transport, BFT
 - [ ] /api/kb endpoint — claims/decisions/triggers never populate (see project_kb_endpoint_gap memory)
-- [ ] Web Component decomposition (in progress)
+- [x] Web Component decomposition
 
 ---
 
