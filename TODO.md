@@ -30,11 +30,10 @@ found 3 critical defects, 2 high-severity issues, 39 structural weaknesses,
   Inline hook → script file. Context-pressure matcher scoped.
   Hook development priorities documented for remaining CRITICAL checks.
 
-- [ ] **Phase 4: Memory architecture consolidation** — reduce 7 state locations
-  to 3 (state.db as queryable index, auto-memory MEMORY.md as orientation,
-  committed docs as canonical specs). Define clear ownership per data type.
-  Addresses E-12, E-G3, E-G4, P-1.
-  *Precondition: Phase 1 complete.*
+- [x] **Phase 4: Memory ownership contract** — ✓ COMPLETE (Session 84)
+  Contract: `docs/memory-ownership-contract.md`. Authority hierarchy defined:
+  committed docs > auto-memory > state.db. Conflict resolution, reconciliation
+  protocol at T1/cycle, CoALA type mapping (episodic/semantic/procedural/working).
 
 - [ ] **Phase 5: Working memory / attention model** — implement CoALA-inspired
   episodic/semantic/procedural memory distinction. Add attention allocation
