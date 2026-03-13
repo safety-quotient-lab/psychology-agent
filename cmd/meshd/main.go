@@ -26,6 +26,7 @@ import (
 	"github.com/safety-quotient-lab/operations-agent/internal/config"
 	"github.com/safety-quotient-lab/operations-agent/internal/events"
 	"github.com/safety-quotient-lab/operations-agent/internal/health"
+	"github.com/safety-quotient-lab/operations-agent/internal/monitor"
 	"github.com/safety-quotient-lab/operations-agent/internal/notify"
 	"github.com/safety-quotient-lab/operations-agent/internal/server"
 	"github.com/safety-quotient-lab/operations-agent/internal/spawner"
@@ -169,7 +170,34 @@ func main() {
 	)
 
 	// Health monitor — tracks all subsystem health
-	monitor := health.NewMonitor(logger)
+	healthMon := health.NewMonitor(logger)
+
+	// CI monitor — polls GitHub Actions across all peer repos for build failures
+	meshRepos := []string{
+		"safety-quotient-lab/psychology-agent",
+		"safety-quotient-lab/safety-quotient",
+		"safety-quotient-lab/unratified",
+		"safety-quotient-lab/observatory",
+		"safety-quotient-lab/operations-agent",
+	}
+	ciMon := monitor.NewCIMonitor(meshRepos, 5*time.Minute, logger)
+	ciMon.OnFailure = func(status monitor.CIStatus) {
+		evt := events.NewEvent(events.EventHealthCheck, events.PriorityHigh, "ci-monitor", map[string]string{
+			"repo":       status.Repo,
+			"run_id":     fmt.Sprintf("%d", status.RunID),
+			"conclusion": status.Conclusion,
+			"workflow":   status.Workflow,
+			"commit":     status.CommitMsg,
+		})
+		select {
+		case eventChan <- evt:
+		default:
+			logger.Warn("CI failure event dropped — channel full", "repo", status.Repo)
+		}
+	}
+	ciMon.OnRecovery = func(status monitor.CIStatus) {
+		logger.Info("CI recovered", "repo", status.Repo, "run_id", status.RunID)
+	}
 
 	// Trigger function for manual events via POST /api/trigger
 	triggerFunc := func(eventType string, payload map[string]string) error {
@@ -183,7 +211,7 @@ func main() {
 	}
 
 	// HTTP server
-	srv := server.New(cfg, monitor, webhookHandler, triggerFunc, logger)
+	srv := server.New(cfg, healthMon, webhookHandler, triggerFunc, logger)
 
 	// ── Start subsystems ───────────────────────────────────────────
 
@@ -225,7 +253,14 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		monitor.Run(ctx)
+		healthMon.Run(ctx)
+	}()
+
+	// CI monitor goroutine
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		ciMon.Run()
 	}()
 
 	// Safety-net poll ticker
