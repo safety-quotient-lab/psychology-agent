@@ -152,43 +152,39 @@ found 3 critical defects, 2 high-severity issues, 39 structural weaknesses,
   *Precondition: none — content complete, ready to draft.*
 
 - [ ] **Einstein-Freud "Why War?" blog post** — five-persona route via unratified-agent.
-  Topic: the 1932 Einstein-Freud correspondence on war and peace, and how their
-  theoretical framework integrates into our model of psychoemotional safety.
-  **Source:** Einstein, A. & Freud, S. (1933). *Warum Krieg?* [Why War?]. Paris:
-  International Institute of Intellectual Cooperation, League of Nations.
+  Topic: Einstein's 1932 question about structural protection of rights, reframed
+  through UDHR, Hicks' dignity framework, and psychoemotional safety measurement.
+  Freud's contribution narrowed to the "endless generator" argument (destructive
+  impulses never deplete, only redirect through structure) — accepted as a design
+  axiom, not as endorsement of drive theory.
+  **Sources:** Einstein & Freud (1933), UDHR (1948), Hicks (2011 *Dignity*).
   **Theoretical integration:**
-  - **Freud's Eros/Thanatos duality** maps to the generate/evaluate mode competition
-    (CPG principle 4): Eros = generative mode (binding, creating, connecting);
-    Thanatos = evaluative mode (dissolving, pruning, critiquing). Neither operates
-    alone — their dynamic tension produces adaptive behavior
-  - **PSQ connection:** The 10 PSQ dimensions measure psychoemotional safety in
-    communication — directly operationalizing what Freud described as the conditions
-    under which Eros prevails over Thanatos in human interaction. Threat exposure,
-    hostility index, trust conditions — these quantify the Eros/Thanatos balance
-    in text
-  - **Einstein's institutional proposal** maps to our governance model (EF-1):
-    an authority structure with invariants that constrain autonomous action —
-    Einstein argued the same for nations
-  - **Freud's "cultural process"** maps to the crystallization pipeline: aggressive
-    impulses get sublimated into productive channels through cultural development;
-    our cogarch crystallizes fluid (potentially chaotic) processing into stable
-    (productive) infrastructure
-  - **The anti-sycophancy mechanism** (T3 #5, T6 #4) embodies Freud's warning that
-    emotional susceptibility enables manipulation — the agent resists the pull
-    toward agreeable-but-harmful responses the way Freud argued individuals must
-    resist propaganda
+  - **UDHR → dignity → PSQ** — rights chain from universal declaration (Articles
+    1, 3, 5, 19) through Hicks' interactional dignity model to PSQ measurement
+    of psychoemotional safety in text
+  - **Einstein's governance question** maps to EF-1 invariants: structural
+    protection of rights through constraint, not through hoping actors behave well
+  - **Endless generator** — Freud's lasting insight: destructive potential never
+    reaches zero. Systems must assume the generator keeps running and build
+    structural channeling (crystallization pipeline, governance gates)
+  - **Anti-sycophancy as rights protection** — emotional manipulation violates
+    dignity (Hicks); anti-sycophancy mechanisms protect the user's right to
+    honest, unmanipulated communication
   **Persona angles:**
   - **Voter:** Two of history's greatest minds exchanged letters about why we fight.
-    Their answer applies to how AI systems communicate safely.
-  - **Politician:** International governance frameworks for AI draw from the same
-    principles Einstein proposed for nations in 1932.
-  - **Educator:** Freud's drive theory (Eros vs Thanatos) as a framework for
-    understanding constructive vs destructive AI behavior.
-  - **Researcher:** Operationalizing the Eros/Thanatos duality through the PSQ's
-    10-dimensional measurement model. Citations: Freud (1920 *Beyond the Pleasure
-    Principle*), Einstein & Freud (1933), Hicks (2011 *Dignity*).
-  - **Developer:** How the generate/evaluate mode competition implements drive theory
-    as architecture — biological drives as design patterns.
+    Their answer — protect rights through structure, not hope — applies directly
+    to how AI systems communicate safely.
+  - **Politician:** The same rights-protection principles from the UDHR apply to
+    AI governance. Einstein proposed structural constraints for nations in 1932;
+    we implement them for autonomous agents.
+  - **Educator:** Dignity as a right in communication — what Hicks describes as
+    elements of dignity, PSQ measures as psychoemotional safety. Pedagogical
+    walkthrough of the rights chain.
+  - **Researcher:** UDHR-to-PSQ analogical transfer chain, convergent validity
+    questions (Dignity Index Phase A), endless generator as design axiom.
+    Citations: Einstein & Freud (1933), UDHR (1948), Hicks (2011), Freud (1920).
+  - **Developer:** Governance invariants as rights protection, crystallization as
+    structural channeling, generate/evaluate tension as endless generator management.
   *Precondition: none — content ready to draft.*
 
 - [ ] **Crystallized sync blog post** — ⚑ Post committed but 404 on both domains.
