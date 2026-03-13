@@ -141,6 +141,33 @@ Retired constraints preserve the reasoning for why they once existed.
 
 **Constraint count:** E:10, M:10, P:23, I:15, D:8 — 66 total
 
+## Structural Invariant Mapping (Session 85)
+
+Each constraint reduces to a specific instance of one or more of the five
+structural invariants (ef1-governance.md). Constraints that map cleanly
+to an invariant receive enforcement through the invariant's governance
+machinery. Constraints without invariant mapping represent domain-specific
+rules that supplement the invariants.
+
+| Invariant | Constraints that reduce to it | Count |
+|-----------|------------------------------|-------|
+| **1. Worth precedes merit** | E-1 (no clinical authority), E-4 (no verdict delivery), E-5 (no persona adoption), E-7 (preserve disagreement shape) | 4 |
+| **2. Protection requires structure** | P-5 (bootstrap restoration), P-6 (context pressure), P-11 (pre-commit gate), P-14 (triggers need firing conditions), P-17 (reversibility before external), P-18 (data integrity), P-21 (hook health) | 7 |
+| **3. Two coupled generators** | P-3 (gap check before boundary — yin), P-4 (epistemic sweep — yin), P-22 (lesson promotion — crystallization) | 3 |
+| **4. Governance captures itself** | M-9 (evidence-bearing), M-10 (no speculation as fact), E-6 (no fabricated confidence), E-8 (systematic error declared), P-13 (pushback accumulator) | 5 |
+| **5. No single architecture dominates** | I-10 (no averaging conflicts), I-11 (no unverifiable state), E-2 (WEIRD flag) | 3 |
+| **Domain-specific (no invariant reduction)** | M-1 through M-8, I-1 through I-9, I-12 through I-15, D-1 through D-8, P-1, P-2, P-7 through P-10, P-12, P-15, P-16, P-19, P-20, P-23, E-3, E-9, E-10 | 44 |
+
+**Result:** 22 of 66 constraints (33%) reduce to structural invariant instances.
+The remaining 44 represent domain-specific rules (PSQ methodology, transport
+protocol, platform mechanics) that supplement the invariants with operational
+detail. No constraints conflict with the invariants.
+
+**Recommendation:** The 22 invariant-mapped constraints function as enforcement
+instances. T3 Check 15 can prioritize these 22 when scanning — they represent
+the governance-critical subset. The remaining 44 provide operational guardrails
+that the 4-level resolution fallback handles when questions arise.
+
 ---
 
 ## Relation to Other Documents
