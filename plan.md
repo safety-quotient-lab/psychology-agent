@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phase 5 complete + public readiness audit PASSED. All compositor items landed. Scripts sanitized (shared config via agents.conf.sh). Transport sessions sanitized (13 files). Zero hardcoded hostnames, paths, ports, or credentials in committed code at HEAD. 4 BFT items deferred to Phase 6 (branch protection, SSH signing, message receipts, nonce persistence). Neuroglial proposal awaiting human review (PR #168). Git history contains pre-sanitization commits (infrastructure labels only, no secrets).
+**Current Status:** Phase 4+5 complete. Pulse/Operations tabs wired to compositor endpoints with client-side fallback. Complement cascade archiver implemented (scripts/archive-sessions.sh). Public readiness audit PASSED. Neuroglial proposal awaiting human review (PR #168). Approaching v1.
 
 ---
 
@@ -39,8 +39,8 @@
 - [x] /api/operations endpoint — autonomy budgets, actions audit, gates, sync schedules
 - [x] /api/status endpoint — operations-agent self-reports online status
 - [x] Operations-agent appears in mesh topology (5-node pentagon)
-- [ ] Operations tab — wire UI to fetch from /api/operations instead of client-side aggregation
-- [ ] Pulse tab — wire UI to fetch from /api/pulse instead of client-side aggregation
+- [x] Operations tab — wired to /api/operations with client-side fallback (vitals, budgets, actions, schedules)
+- [x] Pulse tab — wired to /api/pulse with client-side fallback (vitals, mesh health, agent summaries)
 - [x] Acronym deep-linking — every acronym in dashboard links to vocab.json source entry via `#vocab-{term}` hash
 
 ## Phase 5: System Stability + Reliability

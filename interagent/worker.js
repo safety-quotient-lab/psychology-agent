@@ -57,7 +57,7 @@ const AGENT_CARD_URLS = [
   "https://observatory.unratified.org/.well-known/agent-card.json",
 ];
 
-const DEPLOY_VERSION = "2026-03-13T16:00";
+const DEPLOY_VERSION = "2026-03-13T22:00";
 
 // Agents currently operated by a human (no autonomous cron loop).
 // Updated manually when agents transition between manual/autonomous.

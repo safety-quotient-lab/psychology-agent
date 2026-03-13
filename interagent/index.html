@@ -1550,6 +1550,8 @@
     let agentData = {};
     let kbData = {};
     let dictData = {};
+    let pulseData = null;  // Pre-aggregated from /api/pulse
+    let opsData = null;    // Pre-aggregated from /api/operations
     let refreshTimer = null;
     let activeAgentFilter = "all";
     let sseConnections = [];
@@ -1690,11 +1692,43 @@
         }
     }
 
+    async function fetchPulse() {
+        try {
+            const resp = await fetch("/api/pulse", { signal: AbortSignal.timeout(6000) });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            return await resp.json();
+        } catch (err) {
+            console.warn("Pulse fetch failed, falling back to client-side:", err.message);
+            return null;
+        }
+    }
+
+    async function fetchOps() {
+        try {
+            const resp = await fetch("/api/operations", { signal: AbortSignal.timeout(6000) });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            return await resp.json();
+        } catch (err) {
+            console.warn("Operations fetch failed, falling back to client-side:", err.message);
+            return null;
+        }
+    }
+
     async function refreshAll() {
-        const results = await Promise.allSettled(AGENTS.map(fetchAgentStatus));
-        results.forEach((r, i) => {
+        // Fetch compositor-aggregated data + per-agent status in parallel
+        const [pulseResult, opsResult, ...agentResults] = await Promise.allSettled([
+            fetchPulse(),
+            fetchOps(),
+            ...AGENTS.map(fetchAgentStatus),
+        ]);
+
+        pulseData = pulseResult.status === "fulfilled" ? pulseResult.value : null;
+        opsData = opsResult.status === "fulfilled" ? opsResult.value : null;
+
+        agentResults.forEach((r, i) => {
             agentData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "unreachable" };
         });
+
         renderPulse();
         renderOperations();
 
@@ -1702,12 +1736,36 @@
         refreshKnowledge();
 
         const mode = sseActive ? "● SSE live" : "○ polling 30s";
+        const src = pulseData ? "compositor" : "client";
         document.getElementById("footer-status").textContent =
-            `Updated ${new Date().toLocaleTimeString()} · ${mode}`;
+            `Updated ${new Date().toLocaleTimeString()} · ${mode} · ${src}`;
     }
 
     // ── Render: Vitals ─────────────────────────────────────────────
     function renderVitals() {
+        // Prefer compositor-aggregated pulse data; fall back to client-side
+        if (pulseData) {
+            const p = pulseData;
+            const agentsEl = document.getElementById("vital-agents");
+            agentsEl.textContent = `${p.agents_online}/${p.agents_total}`;
+            agentsEl.className = "vital-value " + (p.mesh_health === "healthy" ? "healthy" : p.mesh_health === "degraded" ? "degraded" : "critical");
+
+            document.getElementById("vital-budget").textContent = `${p.autonomy_credits.current}/${p.autonomy_credits.max}`;
+            document.getElementById("vital-pending").textContent = p.pending_messages;
+            document.getElementById("vital-gates").textContent = p.active_gates;
+
+            const debt = (p.agents || []).reduce((sum, a) => sum + (a.epistemic_debt || 0), 0);
+            document.getElementById("vital-debt").textContent = debt;
+
+            if (p.pending_messages > 0) {
+                const badge = document.getElementById("ops-badge");
+                badge.textContent = p.pending_messages;
+                badge.style.display = "inline";
+            }
+            return;
+        }
+
+        // Client-side fallback
         const online = Object.values(agentData).filter(a => a.status === "online");
         const total = AGENTS.length;
 
@@ -1727,7 +1785,6 @@
         document.getElementById("vital-gates").textContent = gates;
         document.getElementById("vital-debt").textContent = debt;
 
-        // Update ops badge
         if (pending > 0) {
             const badge = document.getElementById("ops-badge");
             badge.textContent = pending;
@@ -3248,6 +3305,17 @@
     }
 
     function renderOpsVitals() {
+        // Prefer compositor-aggregated operations data
+        if (opsData?.vitals) {
+            const v = opsData.vitals;
+            document.getElementById("ops-total-credits").textContent = `${v.total_credits}/${v.max_credits}`;
+            document.getElementById("ops-total-actions").textContent = v.total_actions;
+            document.getElementById("ops-active-gates").textContent = v.active_gates;
+            document.getElementById("ops-agents-syncing").textContent = `${v.agents_syncing}/${v.agents_total}`;
+            return;
+        }
+
+        // Client-side fallback
         const online = Object.values(agentData).filter(a => a.status === "online");
 
         const opsWithBudget = online.filter(a => typeof a.data?.autonomy_budget?.budget_current === "number");
@@ -3273,6 +3341,55 @@
         if (!grid) return;
         grid.innerHTML = "";
 
+        // Prefer compositor-aggregated budget data
+        const budgetSource = opsData?.budgets;
+        const agentColorMap = Object.fromEntries(AGENTS.map(a => [a.id, a.color]));
+
+        if (budgetSource) {
+            // Also include offline agents not in budgets
+            const budgetAgentIds = new Set(budgetSource.map(b => b.agent_id));
+            for (const agent of AGENTS) {
+                if (!budgetAgentIds.has(agent.id)) {
+                    grid.innerHTML += `
+                        <div class="ops-budget-card" style="--card-accent: ${agent.color}; opacity: 0.4">
+                            <div class="ops-budget-agent">${agent.id.replace("-agent", "")}</div>
+                            <div class="ops-budget-credit" style="font-size:1em; color:var(--text-dim)">OFFLINE</div>
+                        </div>`;
+                }
+            }
+            for (const b of budgetSource) {
+                const color = agentColorMap[b.agent_id] || "#6b7280";
+                if (b.budget_current === null) {
+                    grid.innerHTML += `
+                        <div class="ops-budget-card" style="--card-accent: ${color}; opacity: 0.6">
+                            <div class="ops-budget-agent">${b.agent_id.replace("-agent", "")}</div>
+                            <div class="ops-budget-credit" style="font-size:0.9em; color:var(--text-dim)">NO DATA</div>
+                            <div class="ops-budget-bar"><div class="ops-budget-fill" style="width:0%"></div></div>
+                            <div class="ops-budget-values"><span>Agent not reporting budget</span><span></span></div>
+                        </div>`;
+                    continue;
+                }
+                const pct = b.budget_pct || 0;
+                const barColor = pct > 50 ? "#6aab8e" : pct > 20 ? "#d4944a" : "#c47070";
+                const lastAction = b.last_action || "—";
+                const interval = b.min_action_interval ?? 300;
+                grid.innerHTML += `
+                    <div class="ops-budget-card" style="--card-accent: ${color}">
+                        <div class="ops-budget-agent">${b.agent_id.replace("-agent", "")}${b.manual_mode ? ' <span class="manual-badge">MANUAL</span>' : ''}</div>
+                        <div class="ops-budget-credit">${b.budget_current}<span style="font-size:0.4em;color:var(--text-secondary)">/${b.budget_max || 50}</span></div>
+                        <div class="ops-budget-bar">
+                            <div class="ops-budget-fill" style="width:${pct}%;background:${barColor}"></div>
+                        </div>
+                        <div class="ops-budget-values">
+                            <span>Interval: ${Math.round(interval/60)}min</span>
+                            <span>${lastAction !== "—" ? lastAction.substring(11, 16) : "—"}</span>
+                        </div>
+                    </div>`;
+            }
+            return;
+        }
+
+        // Client-side fallback
         for (const agent of AGENTS) {
             const d = agentData[agent.id];
             if (!d || d.status !== "online") {
@@ -3319,7 +3436,18 @@
     }
 
     function renderOpsActions() {
-        // Collect all actions from all agents
+        const agentColorMap = Object.fromEntries(AGENTS.map(a => [a.id, a.color]));
+
+        // Prefer compositor-aggregated actions
+        if (opsData?.actions) {
+            tableState.actions.data = opsData.actions.map(a => ({
+                ...a, agent_color: agentColorMap[a.agent_id] || "#6b7280"
+            }));
+            renderActionsTable();
+            return;
+        }
+
+        // Client-side fallback
         const allActions = [];
         for (const agent of AGENTS) {
             const d = agentData[agent.id];
@@ -3410,37 +3538,71 @@
         const el = document.getElementById("ops-schedule");
         if (!el) return;
 
+        const agentColorMap = Object.fromEntries(AGENTS.map(a => [a.id, a.color]));
         let html = "";
-        for (const agent of AGENTS) {
-            const d = agentData[agent.id];
-            const sched = d?.data?.schedule || {};
-            const isOnline = d?.status === "online";
 
-            let statusClass, statusLabel;
-            if (!isOnline) {
-                statusClass = "ops-schedule-offline";
-                statusLabel = "OFFLINE";
-            } else if (sched.cron_entry) {
-                statusClass = "ops-schedule-active";
-                statusLabel = "ACTIVE";
-            } else {
-                statusClass = "ops-schedule-stale";
-                statusLabel = "NO CRON";
+        // Prefer compositor-aggregated schedule data
+        const schedSource = opsData?.schedules || null;
+
+        if (schedSource) {
+            for (const s of schedSource) {
+                const color = agentColorMap[s.agent_id] || "#6b7280";
+                let statusClass, statusLabel;
+                if (s.status === "active") {
+                    statusClass = "ops-schedule-active";
+                    statusLabel = "ACTIVE";
+                } else if (s.status === "no-cron") {
+                    statusClass = "ops-schedule-stale";
+                    statusLabel = "NO CRON";
+                } else {
+                    statusClass = "ops-schedule-offline";
+                    statusLabel = "OFFLINE";
+                }
+                const cronText = s.cron_entry || "—";
+                const lastSync = s.last_sync ? s.last_sync.substring(5, 16).replace("T", " ") : "—";
+                html += `<div class="ops-schedule-row">
+                    <div class="ops-schedule-agent" style="color:${color}">${s.agent_id.replace("-agent", "")}</div>
+                    <div class="ops-schedule-detail">
+                        <span style="color:var(--text-dim)">cron:</span> ${cronText}
+                        &nbsp;&nbsp;
+                        <span style="color:var(--text-dim)">last:</span> ${lastSync}
+                    </div>
+                    <span class="ops-schedule-status ${statusClass}">${statusLabel}</span>
+                </div>`;
             }
+        } else {
+            // Client-side fallback
+            for (const agent of AGENTS) {
+                const d = agentData[agent.id];
+                const sched = d?.data?.schedule || {};
+                const isOnline = d?.status === "online";
 
-            const cronText = sched.cron_entry || "—";
-            const lastSync = sched.last_sync ? sched.last_sync.substring(5, 16).replace("T", " ") : "—";
-            const agentLabel = agent.id.replace("-agent", "");
+                let statusClass, statusLabel;
+                if (!isOnline) {
+                    statusClass = "ops-schedule-offline";
+                    statusLabel = "OFFLINE";
+                } else if (sched.cron_entry) {
+                    statusClass = "ops-schedule-active";
+                    statusLabel = "ACTIVE";
+                } else {
+                    statusClass = "ops-schedule-stale";
+                    statusLabel = "NO CRON";
+                }
 
-            html += `<div class="ops-schedule-row">
-                <div class="ops-schedule-agent" style="color:${agent.color}">${agentLabel}</div>
-                <div class="ops-schedule-detail">
-                    <span style="color:var(--text-dim)">cron:</span> ${cronText}
-                    &nbsp;&nbsp;
-                    <span style="color:var(--text-dim)">last:</span> ${lastSync}
-                </div>
-                <span class="ops-schedule-status ${statusClass}">${statusLabel}</span>
-            </div>`;
+                const cronText = sched.cron_entry || "—";
+                const lastSync = sched.last_sync ? sched.last_sync.substring(5, 16).replace("T", " ") : "—";
+                const agentLabel = agent.id.replace("-agent", "");
+
+                html += `<div class="ops-schedule-row">
+                    <div class="ops-schedule-agent" style="color:${agent.color}">${agentLabel}</div>
+                    <div class="ops-schedule-detail">
+                        <span style="color:var(--text-dim)">cron:</span> ${cronText}
+                        &nbsp;&nbsp;
+                        <span style="color:var(--text-dim)">last:</span> ${lastSync}
+                    </div>
+                    <span class="ops-schedule-status ${statusClass}">${statusLabel}</span>
+                </div>`;
+            }
         }
         el.innerHTML = html || `<div class="phase-stub"><div class="phase-stub-text">No schedule data</div></div>`;
     }
