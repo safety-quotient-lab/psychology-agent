@@ -17,6 +17,14 @@ ZULIP_URL=
 ZULIP_EMAIL=
 ZULIP_API_KEY=
 
+# Jenkins Forge (optional — CI/CD pipeline)
+JENKINS_URL=
+JENKINS_USER=
+JENKINS_API_TOKEN=
+
+# Cloudflare DNS (optional — subdomain management)
+CLOUDFLARE_DNS_TOKEN=
+
 # SSH host for the agent deployment machine (used by ops scripts)
 AGENT_SSH_HOST=localhost
 AGENT_SSH_PORT=22
@@ -24,3 +32,22 @@ AGENT_SSH_PORT=22
 # Base directory where agent projects live on the remote host
 # Scripts derive per-agent paths from this (e.g., $AGENT_BASE_DIR/psychology)
 AGENT_BASE_DIR=/home/user/projects
+
+# Claude spawn command (meshd uses this to invoke Claude contexts)
+# Point to claude binary or a wrapper script that sets PATH
+SPAWN_COMMAND=claude
+
+# Spawn timeout in seconds (max wall-clock time per Claude invocation)
+SPAWN_TIMEOUT=300
+
+# Safety-net poll interval in seconds (meshd fallback polling)
+POLL_INTERVAL=60
+
+# Max concurrent Claude spawns per agent
+MAX_CONCURRENT_SPAWNS=2
+
+# GitHub webhook HMAC secret (for meshd webhook verification)
+GITHUB_WEBHOOK_SECRET=
+
+# Log level (debug, info, warn, error)
+LOG_LEVEL=info
