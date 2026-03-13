@@ -110,6 +110,83 @@
     }
   },
 
+  "neuroglial": {
+    "description": "Infrastructure support layer modeled after biological glial cells. Operations-agent functions as a glial agent — maintains, monitors, feeds, and protects domain agents without processing domain content.",
+    "references": ["Jäkel & Bhatt, 2005 (glial taxonomy)", "Allen & Barres, 2009 (astrocyte signaling)", "Schafer et al., 2012 (complement-mediated pruning)"],
+    "functions": {
+      "astrocyte": {
+        "biological_role": "Metabolic support, synaptic regulation, blood-brain barrier maintenance",
+        "mesh_mapping": "Budget distribution, routing weight adjustment, access boundary enforcement",
+        "status": "partial",
+        "implementations": [
+          "scripts/budget-check.sh — monitors autonomy budget consumption",
+          "scripts/budget-reset.sh — replenishes budget after human audit",
+          "interagent/worker.js — compositor routes requests between agents"
+        ],
+        "gaps": ["adaptive routing weights based on agent load", "hypoperfusion detection (agent starved of budget)"]
+      },
+      "oligodendrocyte": {
+        "biological_role": "Myelination — insulates axons to accelerate signal propagation",
+        "mesh_mapping": "KV caching layer — insulates slow network fetches with fast cache reads",
+        "status": "active",
+        "implementations": [
+          "interagent/worker.js — KV cache with expires_at + stale fallback for agent card discovery",
+          "interagent/worker.js — ETag revalidation on dashboard assets"
+        ],
+        "gaps": ["per-agent cache hit-rate metrics", "adaptive TTL based on agent update frequency"]
+      },
+      "microglia": {
+        "biological_role": "Immune surveillance, synaptic pruning via complement cascade, debris clearance",
+        "mesh_mapping": "BFT monitoring, stale session pruning, anomaly detection",
+        "status": "partial",
+        "implementations": [
+          "scripts/canary.sh — independent observability bypassing compositor",
+          "interagent/worker.js — validateStatusData() sanitization logging",
+          "interagent/worker.js — role cross-verification in loadAgentRegistry()"
+        ],
+        "gaps": ["complement cascade pruning protocol (C1q tag → C3 verify → phagocytose)", "SHIP1 brake to prevent over-pruning active sessions"],
+        "pruning_protocol": {
+          "description": "Three-step cleanup modeled after microglial synaptic pruning",
+          "steps": ["C1q: flag sessions with no activity for >14 days", "C3: verify no pending messages or unresolved gates", "phagocytose: archive to transport/archive/ and remove from sessions/"],
+          "brake": "SHIP1 — never prune sessions with open gates or pending ACKs"
+        }
+      },
+      "ependymal": {
+        "biological_role": "Lines ventricles, circulates cerebrospinal fluid, clears metabolic waste",
+        "mesh_mapping": "Log rotation, cache eviction, nonce compaction during maintenance windows",
+        "status": "planned",
+        "implementations": [],
+        "gaps": ["glymphatic maintenance window (02:00-04:00 UTC batch maintenance)", "log rotation across agent repos"]
+      },
+      "radial_glia": {
+        "biological_role": "Scaffolding for neuronal migration during development",
+        "mesh_mapping": "Bootstrap scaffolding — agent onboarding, registry propagation, relay endpoint",
+        "status": "partial",
+        "implementations": [
+          "interagent/worker.js — POST /api/relay solves bootstrap transport gap",
+          "transport/sessions/peer-registry-update/ — registry propagation directive"
+        ],
+        "gaps": ["automated onboarding checklist for new mesh agents", "scaffold teardown after agent reaches steady-state"]
+      },
+      "schwann": {
+        "biological_role": "Peripheral nerve myelination + injury repair (Wallerian degeneration cleanup)",
+        "mesh_mapping": "Transport integrity — message receipt verification, retry on delivery failure",
+        "status": "planned",
+        "implementations": [],
+        "gaps": ["message receipts (receiver commits signed hash)", "Wallerian cleanup of failed transport branches"]
+      }
+    },
+    "ambient_state": {
+      "description": "Glial cells maintain ambient chemical gradients that neurons depend on without explicitly requesting. Operations-agent maintains ambient mesh state that domain agents consume passively.",
+      "signals": [
+        {"signal": "mesh_topology", "source": "/api/pulse", "consumers": "compositor UI, human operator"},
+        {"signal": "vocabulary_definitions", "source": "interagent/vocab.json", "consumers": "all agents via deep-linking"},
+        {"signal": "agent_discovery", "source": "/.well-known/agents", "consumers": "new agents, external systems"},
+        {"signal": "role_verification", "source": "/api/pulse compositor.role_verification", "consumers": "human operator, canary"}
+      ]
+    }
+  },
+
   "domain_content": {
     "domain_docs": [
       "interagent/vocab.json",

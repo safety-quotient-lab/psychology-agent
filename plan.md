@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phase 5 stability work ongoing. Compositor rename psq-agent → safety-quotient-agent complete (dual-recognition active, DNS pending). Operations Override Protocol RFC sent to all agents — 3-tier enforcement (advisory/soft-mandatory/hard-mandatory), SSH signing, capability-scoped authorization, receiver-side admission control. Naming convention reform accepted (T3). Infrastructure separation + API decomposition under peer review.
+**Current Status:** Phase 5 stability + BFT hardening. 6 BFT mitigations landed. Override protocol RFC out for review. Compositor rename complete (dual-recognition). Transport gap discovered: 3 agents missing operations-agent from registry — PRs delivered to all three. Relay endpoint implemented. Neuroglial cogarch section implemented locally — proposal sent via psychology-agent for human review of biological accuracy. Trust matrix implementation next.
 
 ---
 
@@ -100,6 +100,7 @@
 | peer-registry-update | T1 pending | HIGH: 3 agents missing operations-agent from agent-registry.json — transport broken |
 | ci-build-issue | T1 pending | Unratified missing @astrojs/check dependency |
 | naming-convention-reform | T3 closed | ACCEPT: kebab canonical naming + psq-agent → safety-quotient-agent rename |
+| neuroglial-cogarch-proposal | T1 pending | Proposal: neuroglial architecture layer + 3 vocab terms — routed via psychology-agent for human review |
 | operations-override-protocol | T1 pending | RFC: mandatory directive mechanism — 3 enforcement tiers, SSH signing, capability scoping, admission control |
 
 ---

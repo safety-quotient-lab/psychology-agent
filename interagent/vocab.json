@@ -7,7 +7,7 @@
   "@type": "DefinedTermSet",
   "name": "Safety Quotient Mesh Vocabulary",
   "description": "Shared vocabulary for the safety-quotient federated agent mesh. Schema.org base with project-specific extensions under the sqm: namespace.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "dateModified": "2026-03-13",
   "publisher": {
     "@type": "Organization",
@@ -143,6 +143,30 @@
       "description": "Receiver-side validation gate for incoming directives. Runs in autonomous-sync.sh before LLM evaluation phase. Checks: SSH signature validity, nonce uniqueness (replay protection), expiry, content hash integrity, sender role authorization, and scope compliance against local directive_policy. Modeled after Kubernetes admission controllers.",
       "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
       "termCode": "sqm:AdmissionControl"
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:NeuroglialLayer",
+      "name": "Neuroglial Layer",
+      "description": "Infrastructure support layer in cogarch modeled after biological glial cells. Maps six glial cell types to mesh infrastructure functions: astrocyte (budget/routing), oligodendrocyte (caching), microglia (BFT/pruning), ependymal (maintenance), radial glia (bootstrap scaffolding), schwann (transport integrity). The glial agent maintains ambient state that domain agents consume without explicit request.",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:NeuroglialLayer"
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:AmbientState",
+      "name": "Ambient State",
+      "description": "Mesh state maintained continuously by the operations-agent that domain agents consume passively — analogous to chemical gradients maintained by glial cells. Examples: mesh topology, vocabulary definitions, agent discovery endpoints, role verification status. Domain agents depend on ambient state without explicitly requesting its production.",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:AmbientState"
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:ComplementCascade",
+      "name": "Complement Cascade",
+      "description": "Three-step pruning protocol modeled after microglial complement-mediated synaptic elimination (Schafer et al., 2012). Steps: C1q tag (flag inactive sessions >14 days), C3 verify (confirm no pending messages or open gates), phagocytose (archive to transport/archive/ and remove from sessions/). SHIP1 brake prevents over-pruning — never removes sessions with open gates or pending ACKs.",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:ComplementCascade"
     }
   ]
 }
