@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phase 7 hardening 80% complete. meshd Go daemon implemented (3K lines, event-driven). interagent-sdk extracted. Web Components decomposed (4 components). Vocab v1.4.0. 8/10 hardening checks passed (2 manual remaining: component regression + cross-browser). v1.0.0-beta release gate: manual browser testing only.
+**Current Status:** v1.0.0-beta.1 tagged and deployed. Phase 7 hardening 8/10 complete (2 manual: browser testing). meshd operational on chromabook (3 successful Claude spawns). Pre-public release ready (NOTICE, SECURITY, CONTRIBUTING, GitHub Actions CI, 6-sigma credential scan PASS). Pluggable notifications. Psychology-agent meshd deployed in shadow mode. Awaiting: manual browser testing, then flip to public.
 
 ---
 
