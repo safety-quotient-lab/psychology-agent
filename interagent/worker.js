@@ -16,6 +16,7 @@
 
 import HTML from "./index.html";
 import VOCAB from "./vocab.json";
+import AGENT_CARD from "../.well-known/agent-card.json";
 import { resolveAuth, checkRateLimit, handleKeyCreate, handleKeyRevoke } from "./auth.js";
 
 const CORS_HEADERS = {
@@ -24,67 +25,151 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Operator-Secret",
 };
 
-// Agent registry — single source of truth for discovery, health, and WebFinger.
-// TODO: replace with dynamic .well-known/agent-card.json fetching (D51).
-const AGENT_REGISTRY = [
-  {
-    id: "claude-control",
-    name: "claude-control",
-    role: "infrastructure-agent",
-    status_url: null,
-    card_url: "https://claude-control.safety-quotient.dev/.well-known/agent-card.json",
-    repo: "kashfshah/claude-control",
-  },
-  {
-    id: "psychology-agent",
-    name: "psychology-agent",
-    role: "domain-knowledge-provider",
-    status_url: "https://psychology-agent.safety-quotient.dev/api/status",
-    card_url: "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json",
-    repo: "safety-quotient-lab/psychology-agent",
-  },
-  {
-    id: "psq-agent",
-    name: "psq-agent",
-    role: "psq-scoring",
-    status_url: "https://psq-agent.safety-quotient.dev/api/status",
-    card_url: "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json",
-    repo: "safety-quotient-lab/safety-quotient",
-  },
-  {
-    id: "operations-agent",
-    name: "operations-agent",
-    role: "operations",
-    status_url: null,
-    card_url: "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json",
-    repo: "safety-quotient-lab/operations-agent",
-  },
-  {
-    id: "unratified-agent",
-    name: "unratified-agent",
-    role: "advocacy-publisher",
-    status_url: "https://unratified-agent.unratified.org/api/status",
-    card_url: "https://unratified.org/.well-known/agent-card.json",
-    repo: "safety-quotient-lab/unratified",
-  },
-  {
-    id: "observatory-agent",
-    name: "observatory-agent",
-    role: "data-observatory",
-    status_url: "https://observatory-agent.unratified.org/api/status",
-    card_url: "https://observatory.unratified.org/.well-known/agent-card.json",
-    repo: "safety-quotient-lab/observatory",
-  },
+// Bootstrap agent card URLs — the only hardcoded data. Dynamic discovery (D51)
+// fetches full agent details from these endpoints and caches in KV.
+const AGENT_CARD_URLS = [
+  "https://claude-control.safety-quotient.dev/.well-known/agent-card.json",
+  "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json",
+  "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json",
+  "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json",
+  "https://unratified.org/.well-known/agent-card.json",
+  "https://observatory.unratified.org/.well-known/agent-card.json",
 ];
 
-// Legacy compat — health aggregation uses status_url
-const AGENT_ENDPOINTS = AGENT_REGISTRY
-  .filter(a => a.status_url)
-  .map(a => ({ id: a.id, url: a.status_url }));
+const AGENT_CACHE_KEY = "agent-registry-cache";
+const AGENT_CACHE_TTL = 300; // 5 minutes
 
-async function fetchMeshHealth() {
+/**
+ * Fetch an agent card, extract registry-relevant fields.
+ * Returns null on failure (agent unreachable, bad JSON, etc.).
+ */
+async function fetchAgentCard(cardUrl) {
+  try {
+    const resp = await fetch(cardUrl, {
+      cf: { cacheTtl: 120 },
+      headers: { "Accept": "application/json" },
+    });
+    if (!resp.ok) return null;
+    const card = await resp.json();
+
+    // Derive canonical agent ID from URL hostname (machine-stable)
+    // Card `name` field can be human-readable ("PSQ-Full Agent") — use as display name only
+    const hostname = new URL(cardUrl).hostname;
+    const urlId = hostname.split(".")[0];
+    const id = card.mesh?.agent_id || urlId;
+    const displayName = card.name || id;
+
+    const role = card.mesh?.role || card.description?.slice(0, 60) || "unknown";
+
+    // Extract repo from provider.url if it points to GitHub
+    const providerUrl = card.provider?.url || "";
+    const repo = providerUrl.startsWith("https://github.com/")
+      ? providerUrl.replace("https://github.com/", "")
+      : null;
+
+    // Derive status_url from card URL hostname
+    const cardHost = new URL(cardUrl).origin;
+    const statusUrl = card.mesh?.transport?.status_url || `${cardHost}/api/status`;
+
+    return {
+      id,
+      name: displayName,
+      role,
+      status_url: statusUrl,
+      card_url: cardUrl,
+      repo,
+      version: card.version || null,
+      skills: (card.skills || []).map(s => s.id),
+      fetched_at: new Date().toISOString(),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Build self-entry from the bundled agent card (avoids self-fetch loop).
+ */
+function buildSelfEntry() {
+  const card = JSON.parse(AGENT_CARD);
+  return {
+    id: card.name || "operations-agent",
+    name: card.name || "operations-agent",
+    role: card.mesh?.role || card.description?.slice(0, 60) || "operations",
+    status_url: null, // no meshd HTTP API yet
+    card_url: "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json",
+    repo: card.provider?.url?.startsWith("https://github.com/")
+      ? card.provider.url.replace("https://github.com/", "")
+      : null,
+    version: card.version || null,
+    skills: (card.skills || []).map(s => s.id),
+    fetched_at: new Date().toISOString(),
+  };
+}
+
+/**
+ * Load agent registry — from KV cache if fresh, otherwise fetch all cards.
+ * Falls back gracefully: unreachable agents appear with status "unavailable".
+ */
+async function loadAgentRegistry(env) {
+  // Try KV cache first
+  if (env.AUTH_KV) {
+    const cached = await env.AUTH_KV.get(AGENT_CACHE_KEY, "json");
+    if (cached && cached.expires_at > Date.now()) {
+      return cached.agents;
+    }
+  }
+
+  // Separate self-hosted card URL from remote cards
+  const selfUrl = "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json";
+  const remoteUrls = AGENT_CARD_URLS.filter(u => u !== selfUrl);
+
+  // Fetch remote agent cards in parallel
   const results = await Promise.allSettled(
-    AGENT_ENDPOINTS.map(async (agent) => {
+    remoteUrls.map(url => fetchAgentCard(url))
+  );
+
+  const agents = results.map((r, i) => {
+    if (r.status === "fulfilled" && r.value) return r.value;
+    // Fallback entry for unreachable agents
+    const hostname = new URL(remoteUrls[i]).hostname;
+    const id = hostname.split(".")[0];
+    return {
+      id,
+      name: id,
+      role: "unknown",
+      status_url: null,
+      card_url: remoteUrls[i],
+      repo: null,
+      version: null,
+      skills: [],
+      fetched_at: new Date().toISOString(),
+      _unavailable: true,
+    };
+  });
+
+  // Insert self-entry (no network fetch needed — card bundled in Worker)
+  agents.push(buildSelfEntry());
+
+  // Cache in KV
+  if (env.AUTH_KV) {
+    await env.AUTH_KV.put(AGENT_CACHE_KEY, JSON.stringify({
+      agents,
+      expires_at: Date.now() + (AGENT_CACHE_TTL * 1000),
+      refreshed_at: new Date().toISOString(),
+    }), { expirationTtl: AGENT_CACHE_TTL * 2 });
+  }
+
+  return agents;
+}
+
+async function fetchMeshHealth(registry) {
+  const endpoints = registry
+    .filter(a => a.status_url && !a._unavailable)
+    .map(a => ({ id: a.id, url: a.status_url }));
+
+  const results = await Promise.allSettled(
+    endpoints.map(async (agent) => {
       const resp = await fetch(agent.url, { cf: { cacheTtl: 30 } });
       if (!resp.ok) return { id: agent.id, status: "unreachable", error: `HTTP ${resp.status}` };
       const data = await resp.json();
@@ -105,8 +190,14 @@ async function fetchMeshHealth() {
   );
 
   const agents = results.map((r, i) =>
-    r.status === "fulfilled" ? r.value : { id: AGENT_ENDPOINTS[i].id, status: "unreachable", error: r.reason?.message }
+    r.status === "fulfilled" ? r.value : { id: endpoints[i].id, status: "unreachable", error: r.reason?.message }
   );
+
+  // Include unavailable agents from discovery
+  const unavailable = registry
+    .filter(a => a._unavailable)
+    .map(a => ({ id: a.id, status: "unavailable", error: "agent card unreachable" }));
+  agents.push(...unavailable);
 
   const online = agents.filter(a => a.status === "online");
   const worstBudget = online.length > 0 ? Math.min(...online.map(a => a.budget_pct)) : 0;
@@ -143,6 +234,20 @@ export default {
       return Response.json({ status: "ok", timestamp: Date.now() });
     }
 
+    // Load dynamic agent registry (cached in KV)
+    const registry = await loadAgentRegistry(env);
+
+    // Serve operations-agent card at /.well-known/agent-card.json
+    if (url.pathname === "/.well-known/agent-card.json") {
+      return new Response(AGENT_CARD, {
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "public, max-age=3600",
+          ...CORS_HEADERS,
+        },
+      });
+    }
+
     // WebFinger (RFC 7033) — agent identity resolution
     if (url.pathname === "/.well-known/webfinger") {
       const resource = url.searchParams.get("resource");
@@ -163,7 +268,7 @@ export default {
       }
 
       const agentName = acctMatch[1];
-      const agent = AGENT_REGISTRY.find(a => a.id === agentName || a.name === agentName);
+      const agent = registry.find(a => a.id === agentName || a.name === agentName);
 
       if (!agent) {
         return Response.json(
@@ -174,7 +279,7 @@ export default {
 
       const jrd = {
         subject: resource,
-        aliases: [`https://github.com/${agent.repo}`],
+        aliases: agent.repo ? [`https://github.com/${agent.repo}`] : [],
         properties: {
           "https://safety-quotient.dev/ns/role": agent.role,
         },
@@ -202,17 +307,20 @@ export default {
       });
     }
 
-    // Agent registry listing — all known agents
+    // Agent registry listing — all known agents (dynamic from agent cards)
     if (url.pathname === "/.well-known/agents") {
-      const agents = AGENT_REGISTRY.map(a => ({
+      const agents = registry.map(a => ({
         id: a.id,
         role: a.role,
         card_url: a.card_url,
+        version: a.version,
+        skills: a.skills,
+        available: !a._unavailable,
         webfinger: `acct:${a.id}@safety-quotient.dev`,
       }));
       return Response.json(agents, {
         headers: {
-          "Cache-Control": "public, max-age=3600",
+          "Cache-Control": "public, max-age=300",
           ...CORS_HEADERS,
         },
       });
@@ -277,7 +385,7 @@ export default {
 
       // Mesh health
       if (url.pathname === "/api/health") {
-        const health = await fetchMeshHealth();
+        const health = await fetchMeshHealth(registry);
         return Response.json(health, {
           headers: { "Cache-Control": "public, max-age=30", ...rateLimitHeaders },
         });
