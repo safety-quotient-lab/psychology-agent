@@ -54,7 +54,7 @@ Before hunting, understand what's currently in-flight:
 1. **Read `TODO.md`** — canonical task backlog
 2. **Run `TaskList`** — active task tracker (in-progress = in-flight)
 3. **Read `lab-notebook.md`** Current State block — open questions, pending items
-4. **Read `MEMORY.md`** at `~/.claude/projects/-home-kashif-projects-psychology/memory/MEMORY.md`
+4. **Read `MEMORY.md`** from auto-memory (the platform loads this automatically)
    — active thread, cogarch quick-reference, working principles
 5. **Glob `.claude/plans/*.md`** — existing plans (may have unfinished work)
 6. **Epistemic debt summary** — run `python3 scripts/epistemic_debt.py --summary`
@@ -148,10 +148,11 @@ This is the T11 audit as a hunt source — always run, even for `quick` constrai
 
 ```bash
 # References to files that might have been renamed or not yet created
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 grep -r "SKILL\.md\|architecture\.md\|cogarch\|cognitive-triggers" \
-     /home/kashif/projects/psychology/*.md \
-     /home/kashif/projects/psychology/docs/*.md \
-     /home/kashif/projects/psychology/.claude/skills/**/*.md \
+     "${PROJECT_ROOT}"/*.md \
+     "${PROJECT_ROOT}"/docs/*.md \
+     "${PROJECT_ROOT}"/.claude/skills/**/*.md \
      2>/dev/null | grep -v "^Binary"
 ```
 

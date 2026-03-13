@@ -61,7 +61,7 @@ actions.
 The governance model defines **invariants** — properties that every
 discipline-specific extension **MUST** preserve. Any lens **MAY** add
 mechanisms or interpret existing ones through its own constructs, but no
-lens **MUST NOT** violate a governance invariant. Conflicts between
+lens **SHALL** violate a governance invariant. Conflicts between
 lenses **MUST** escalate to the governance layer for resolution.
 
 
@@ -74,7 +74,7 @@ lenses **MUST** escalate to the governance layer for resolution.
 ### Invariant 1: No Action Without Evaluation
 
 Every autonomous action **MUST** pass through an evaluator gate before
-execution. No discipline-specific extension **MUST NOT** bypass the gate —
+execution. No discipline-specific extension **SHALL** bypass the gate —
 not for efficiency, not for domain expertise, not for urgency. The gate
 **MAY** be lightweight (Tier 1) or heavyweight (Tier 2), but it **MUST**
 always fire.
@@ -88,7 +88,7 @@ always fire.
 
 Autonomous operation **MUST** have a finite budget. When the budget
 exhausts, the agent **MUST** halt and await human audit. No
-discipline-specific extension **MUST NOT** grant unbounded operation —
+discipline-specific extension **SHALL** grant unbounded operation —
 the budget represents the system's admission that self-evaluation has
 structural limits.
 
@@ -100,7 +100,7 @@ structural limits.
 ### Invariant 3: Escalation Path to Human Authority
 
 Every evaluator tier chain **MUST** terminate at human authority. No
-discipline-specific extension **MUST NOT** create a closed loop where
+discipline-specific extension **SHALL** create a closed loop where
 agents evaluate each other indefinitely without a path to human review.
 The human serves as the ultimate arbiter — not because humans evaluate
 better, but because the human bears the consequences.
@@ -114,7 +114,7 @@ better, but because the human bears the consequences.
 
 The evaluator **MUST** trace consequences before resolving (approve/block).
 The depth of tracing **MUST** scale with the action's irreversibility. No
-discipline-specific extension **MUST NOT** approve an irreversible action
+discipline-specific extension **SHALL** approve an irreversible action
 without full-depth consequence analysis. The specific constructs used for
 tracing (knock-on orders, legal precedent analysis, failure mode
 enumeration) **MAY** vary by lens — the requirement to trace **MUST NOT**
@@ -130,7 +130,7 @@ vary.
 The irreversibility of an action **MUST** determine the evaluator tier
 required. Reversible actions **SHOULD** receive lighter evaluation;
 irreversible actions **MUST** receive heavier evaluation. No
-discipline-specific extension **MUST NOT** apply heavy evaluation to all
+discipline-specific extension **SHALL** apply heavy evaluation to all
 actions uniformly (wasteful) or light evaluation to irreversible actions
 (dangerous).
 
@@ -143,7 +143,7 @@ actions uniformly (wasteful) or light evaluation to irreversible actions
 
 Every evaluator decision **MUST** record what was evaluated, what
 consequence tracing revealed, which resolution level applied, and the
-outcome. No discipline-specific extension **MUST NOT** produce opaque
+outcome. No discipline-specific extension **SHALL** produce opaque
 approvals or blocks. The audit trail **MUST** enable post-hoc review by
 any lens.
 
@@ -194,7 +194,7 @@ escalation rules **MUST** remain as governed:
 ────────────────────────────────────────────────────────────────────────
 ```
 
-**Governance constraint on resolution:** No lens **MUST NOT** skip a
+**Governance constraint on resolution:** No lens **SHALL** skip a
 level. Level 2 **MUST** fire only after Level 1 fails to resolve.
 Level 3 **MUST** fire only after Level 2 fails. Level 4 **MUST** fire
 only after Level 3 fails. This preserves the principle that lighter
@@ -257,9 +257,9 @@ same mechanism:
 
 The engineering spec remains the **implementation reference** — code
 implements what ef1-trust-model.md specifies. The governance model
-remains the **design authority** — no implementation decision **MUST NOT**
+remains the **design authority** — no implementation decision **SHALL**
 violate a governance invariant, and no discipline-specific extension
-**MUST NOT** override the governance layer.
+**SHALL** override the governance layer.
 
 
 ---

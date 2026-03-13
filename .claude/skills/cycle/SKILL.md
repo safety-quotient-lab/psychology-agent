@@ -331,10 +331,11 @@ cp "${MEMORY_DIR}/MEMORY.md" "${SNAPSHOT_DIR}/MEMORY-snapshot.md"
 
 # Topic files → docs/memory-snapshots/ (committed alongside MEMORY-snapshot.md)
 mkdir -p "${SNAPSHOT_DIR}/memory-snapshots"
-for topic in decisions.md cogarch.md psq-status.md; do
-  if [ -f "${MEMORY_DIR}/${topic}" ]; then
-    cp "${MEMORY_DIR}/${topic}" "${SNAPSHOT_DIR}/memory-snapshots/${topic}"
-  fi
+for topic_file in "${MEMORY_DIR}"/*.md; do
+  [ -f "${topic_file}" ] || continue
+  topic_name="$(basename "${topic_file}")"
+  [ "${topic_name}" = "MEMORY.md" ] && continue  # index handled above
+  cp "${topic_file}" "${SNAPSHOT_DIR}/memory-snapshots/${topic_name}"
 done
 ```
 
