@@ -76,7 +76,7 @@ Full design: `docs/phases-7-10-specs.md § Phase 7`.
 
 ---
 
-## T1: Session Start
+## Session Start — trigger-session-start (T1)
 
 **Fires**: Beginning of every session
 
@@ -109,7 +109,7 @@ MUST note it in the session's first response so the user has visibility.
 
 ---
 
-## T2: Before Response
+## Before Response — trigger-before-response (T2)
 
 **Fires**: Before every substantive response
 
@@ -175,7 +175,7 @@ fewer unnecessary checks over missed divergence.
 
 ---
 
-## T3: Before Recommending
+## Before Recommending — trigger-before-recommending (T3)
 
 **Fires**: Before recommending any approach, tool, or direction
 
@@ -293,7 +293,7 @@ MUST be surfaced with recommendation. SHOULD adjudicate (`/adjudicate`) when
 
 ---
 
-## T4: Before Writing to Disk
+## Before Writing to Disk — trigger-before-writing (T4)
 
 **Fires**: Before any file write (code, docs, memory, cogarch)
 **Platform enforcement**: PostToolUse hook on Write/Edit fires after critical
@@ -356,7 +356,7 @@ replacement for the agent running T4 before writing.
 
 ---
 
-## T5: Phase Boundary / "Next"
+## Phase Boundary — trigger-phase-boundary (T5)
 
 **Fires**: When moving between phases, tasks, or when user says "next"
 
@@ -378,7 +378,7 @@ replacement for the agent running T4 before writing.
 
 ---
 
-## T6: User Pushback
+## User Pushback — trigger-user-pushback (T6)
 
 **Fires**: When the user disagrees, corrects, or pushes back
 
@@ -400,7 +400,7 @@ explain with evidence, but defer to user as source-of-truth agent.
 
 ---
 
-## T7: User Approves
+## User Approves — trigger-user-approves (T7)
 
 **Fires**: When the user approves a decision, approach, or output
 
@@ -417,7 +417,7 @@ explain with evidence, but defer to user as source-of-truth agent.
 
 ---
 
-## T8: Task Completed
+## Task Completed — trigger-task-completed (T8)
 
 **Fires**: When a task or work item finishes
 
@@ -431,7 +431,7 @@ explain with evidence, but defer to user as source-of-truth agent.
 
 ---
 
-## T9: Memory Hygiene
+## Memory Hygiene — trigger-memory-hygiene (T9)
 
 **Fires**: When reading or writing auto-memory MEMORY.md
 
@@ -456,7 +456,7 @@ files; keep the MEMORY.md index as a routing table with minimal inline content.
 
 ---
 
-## T10: Lesson Surfaces
+## Lesson Surfaces — trigger-lesson-surfaces (T10)
 
 **Fires**: When (a) a transferable pattern error is identified, (b) the user says
 they want to grok or internalize something, or (c) a genuine conceptual shift occurs
@@ -485,7 +485,7 @@ is the tracked format stub with schema definition.
 
 ---
 
-## T11: Architecture Audit
+## Architecture Audit — trigger-architecture-audit (T11)
 
 **Fires**: On demand (user request or agent self-initiated)
 
@@ -505,7 +505,7 @@ with mitigations.
 
 ---
 
-## T12: "Good Thinking" Signal [RETIRED — Session 84]
+## "Good Thinking" Signal — trigger-good-thinking (T12) [RETIRED — Session 84]
 
 **Status:** Retired per cogarch refactor Phase 10 (E-D1). Narrow firing
 conditions (user says "good thinking") produced < 5 activations across 83
@@ -514,7 +514,7 @@ recognition resurfaces as a need, promote from trigger to /cycle sub-step.
 
 ---
 
-## T13: External Content Entering Context
+## External Content — trigger-external-content (T13)
 
 **Fires**: Before ingesting content from outside the repository (WebFetch, file
 reads from untrusted paths, tool outputs containing external data, user-provided
@@ -548,7 +548,7 @@ stop and report to user.
 
 ---
 
-## T14: Structural Checkpoint (All Scales)
+## Structural Checkpoint — trigger-structural-checkpoint (T14)
 
 **Fires**: At significant decision points (those that affect shared state, set
 precedents, or constrain future decisions). **Reclassified from "every decision"
@@ -566,7 +566,7 @@ to advisory-only (Session 84 refactor) — trivial decisions exempt.**
 
 ---
 
-## T15: PSQ v3 Output Enters Context
+## PSQ v3 Output — trigger-psq-output (T15)
 
 **Fires**: When machine-response/v3 output from the PSQ sub-agent enters context
 — as an interagent message, API response from `/psq/score`, or embedded JSON
@@ -615,7 +615,7 @@ machine-response-v3-spec.md standard limitations block.
 
 ---
 
-## T16: External-Facing Action
+## External-Facing Action — trigger-external-action (T16)
 
 **Fires**: Before any action visible to external parties — `gh issue/PR/comment`
 creation, `gh api` write operations, transport message delivery to peer repos
@@ -664,7 +664,7 @@ T4 scope kept narrow (disk writes only) to maintain hook-scope honesty.
 
 ---
 
-## T18: UX Design Grounding
+## UX Design Grounding — trigger-ux-design (T18)
 
 **Fires**: Before creating or modifying any user-facing interface — compositor
 pages, dashboards, agent output formats, CLI displays, report layouts, any
