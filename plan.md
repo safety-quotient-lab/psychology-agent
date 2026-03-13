@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phase 6 underway. interagent-sdk extracted (10 scripts + schemas + templates). Context rotation protocol implemented (context-rotate.sh + cogarch rule). Operations-agent scripts now symlinked to SDK (dogfooding). Transport reminders sent (peer-registry-update T3, infrastructure-separation T2). Web Component decomposition pending.
+**Current Status:** Phase 6 underway. Targeting v1.0.0-beta. interagent-sdk extracted (10 scripts + schemas + templates). Context rotation protocol implemented. Budget display fixed (trust_budget alias). Web Component decomposition in progress. v1-beta blockers: README, /api/kb endpoint, Web Components.
 
 ---
 
@@ -93,9 +93,9 @@
 - [ ] CF Worker retired or reduced to thin reverse proxy
 - [ ] Parity: individual agent dashboards gain compositor features (discovery, topology, deep-linking)
 
-## v1.0.0 Release Blockers
+## v1.0.0-beta Release Blockers
 
-- [ ] **README.md** — pristine root-level README (currently missing entirely). Must document: project purpose, architecture, dependencies (Go, Node/wrangler, Python3, SQLite), setup instructions, .dev.vars config, mesh topology, compositor endpoints, scripts reference. BLOCKER for v1 deploy.
+- [ ] **README.md** — pristine root-level README (currently missing entirely). Must document: project purpose, architecture, dependencies (Go, Node/wrangler, Python3, SQLite), setup instructions, .dev.vars config, mesh topology, compositor endpoints, scripts reference. BLOCKER for v1.0.0-beta deploy.
 - [ ] /api/kb endpoint — claims/decisions/triggers never populate (see project_kb_endpoint_gap memory)
 - [ ] Web Component decomposition (in progress)
 
