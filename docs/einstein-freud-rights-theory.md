@@ -74,7 +74,7 @@ pressure.
 | Evolutionary biology | Predation pressure drives defensive adaptation indefinitely (Van Valen, 1973 — Red Queen hypothesis) |
 | Institutional economics | Rent-seeking behavior regenerates continuously; regulatory capture requires perpetual vigilance (Tullock, 1967) |
 | Game theory | In iterated games with imperfect monitoring, defection incentives never fully disappear (Axelrod, 1984) |
-| Immune systems | Pathogen pressure never ceases; immune response maintains continuous surveillance without endpoint |
+| Immune systems | Pathogen pressure never ceases; immune response maintains continuous surveillance without endpoint (domain knowledge — no single citation; see Janeway et al., 2001 for standard reference) |
 
 The convergence across domains suggests Freud identified a genuine
 structural property of complex adaptive systems, even if his mechanistic
