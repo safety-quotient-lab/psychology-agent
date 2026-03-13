@@ -1,4 +1,4 @@
-# Thorough Scoring — Self-Consistency Confidence via Multi-Pass
+# Thorough Scoring — Self-Consistency Measurement via Multi-Pass
 
 **Status:** Proposed (Session 85, 2026-03-13)
 **Derives from:** L4 (Confidence ≠ Accuracy), LLM confidence literature review
@@ -24,15 +24,18 @@ Self-consistency — scoring the same text multiple times and measuring agreemen
 
 A `--thorough N` flag controls multi-pass self-consistency scoring:
 
-| N | Passes | Confidence | Cost | Use case |
-|---|--------|-----------|------|----------|
+| N | Passes | Consistency measure | Cost | Use case |
+|---|--------|-------------------|------|----------|
 | 0 | 1 (current behavior) | None — single-pass score only | 1× | Production, bulk scoring, real-time API |
 | 1 | 2 | Basic consistency check (agree/disagree) | 2× | Quick verification of edge cases |
-| 3 | 4 | Mean ± SD per dimension. SD = inverse confidence. | 4× | Research, calibration studies, publication-grade |
+| 3 | 4 | Mean ± SD per dimension. SD measures scoring consistency. | 4× | Research, calibration studies, publication-grade |
 | 5 | 6 | Mean ± SD + IQR. Outlier detection per dimension. | 6× | Psychometric validation, instrument development |
 
-**Confidence metric:** Standard deviation across N+1 independent passes.
-Low SD = high consistency = high empirical confidence. No self-report needed.
+**Consistency metric:** Standard deviation across N+1 independent passes.
+Low SD = high consistency (the scorer produces stable results for this text).
+High SD = low consistency (the text generates divergent processual outcomes).
+**This measures consistency (precision), not accuracy.** A consistently wrong
+scorer produces low SD. Post-hoc calibration addresses accuracy separately.
 
 ```
 thorough=0:  score = [7.2]                    → report: 7.2
@@ -111,38 +114,42 @@ Response (thorough = 0, backward compatible):
 
 **Remove:** "Rate your confidence (0.0-1.0) in this score."
 
-**Replace with:** Nothing. Each pass produces only a score. Confidence
-emerges from cross-pass consistency, not from self-report.
+**Replace with:** Nothing. Each pass produces only a score. Consistency
+emerges from cross-pass measurement, not from self-report. The word
+"confidence" does not appear in the scoring prompt or response schema —
+only "consistency" and "sd" (L4 discipline: never name a consistency
+measure as a confidence measure).
 
 The scoring prompt becomes simpler — one dimension, one score, no
 meta-cognitive demand. This reduces prompt complexity and eliminates
-the self-report confidence that L4 identifies as unreliable.
+the self-report that L4 identifies as unreliable.
 
 ## Implementation
 
 | Phase | What | Effort |
 |-------|------|--------|
-| 1 | Remove confidence from scoring prompt | XS — prompt edit only |
+| 1 | Remove confidence from scoring prompt; ensure "consistency" naming throughout | XS — prompt edit only |
 | 2 | Add `--thorough` flag to scoring script/endpoint | S — loop + aggregation |
 | 3 | Update machine-response/v3 schema for consistency block | S — schema extension |
 | 4 | Calibration study: compare self-consistency SD vs held-out accuracy | M — requires scoring budget |
-| 5 | Replace confidence field in existing data with held-out r per dimension | S — retrospective annotation |
+| 5 | Replace confidence field in existing data with held-out r per dimension (accuracy metric, not consistency) | S — retrospective annotation |
 
 ## Cost Analysis
 
 At thorough=3 (recommended research default): 4× the scoring cost per text.
 For bulk scoring (training data): thorough=0 suffices — the held-out
-correlation per dimension already provides population-level confidence.
-Multi-pass adds value for individual-text confidence where the question
-matters: "how reliable represents THIS particular score?"
+correlation per dimension already provides population-level accuracy.
+Multi-pass adds value for individual-text **consistency** where the
+question matters: "how stable does this particular score remain across
+independent scorings?"
 
 ## What This Replaces
 
 | Old | New |
 |-----|-----|
-| LLM self-reports confidence (0.0-1.0) | Multi-pass SD measures consistency empirically |
+| LLM self-reports "confidence" (0.0-1.0) | Multi-pass SD measures **consistency** empirically |
 | Single number claimed by the scorer | Distribution observed across independent scorings |
-| Confidence assumed calibrated | Consistency measured, calibration not assumed |
+| "Confidence" conflates consistency with accuracy | Consistency (SD) and accuracy (held-out r) tracked separately |
 | Prompt asks for meta-cognition | Prompt asks only for the score |
 
 
