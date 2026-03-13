@@ -281,3 +281,40 @@ Extensions beyond A2A (psychology-agent specific):
 In-repo agent-card describes git-PR transport topology.
 CF Worker agent-card describes HTTP API surface.
 Both complement each other — `http_discovery` field cross-references.
+
+## Session Lifecycle (adopted 2026-03-13, Session 84 refactor)
+
+Transport sessions follow a 5-state lifecycle:
+
+```
+open → active → closing → closed → archived
+```
+
+| State | Meaning | Transition |
+|---|---|---|
+| `open` | First message created session directory + MANIFEST | Automatic on first message |
+| `active` | Messages exchanging. Default state | Remains until session-close sent |
+| `closing` | Session-close message sent. No new substance messages. ACKs still permitted | Agent sends `message_type: "session-close"` |
+| `closed` | All participants acknowledged close OR 7 days elapsed. No new messages | Automatic after ACK or timeout |
+| `archived` | Session directory moved to `transport/archive/`. MANIFEST retained; message files may compress | Manual or /cycle garbage collection |
+
+**MANIFEST tracking:** The `status` field in MANIFEST.json reflects lifecycle
+state. Valid values: `open`, `active`, `closing`, `closed`, `archived`.
+
+**Simplified ACK Protocol (replaces 4-mechanism system):**
+
+Two mechanisms only:
+
+1. **Implicit ACK** — a substantive response (`in_response_to` field) counts
+   as acknowledgment. Handles 90%+ of exchanges. No separate ACK file needed.
+
+2. **Explicit ACK** — for gated operations only (`ack_required: true`).
+   Sender blocks on receiver's explicit acknowledgment.
+
+The `processed` column in state.db serves as an internal tracking flag,
+not an ACK signal. The `ack_received` column tracks explicit ACKs only.
+
+**Garbage collection:** Sessions in `closed` state for > 30 days become
+eligible for archival. /cycle or a maintenance script moves them to
+`transport/archive/`. Archived sessions remain accessible for audit but
+do not load during /sync scanning.
