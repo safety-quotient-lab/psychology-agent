@@ -1,0 +1,16 @@
+{
+  "session_id": "budget-status-fix",
+  "created": "2026-03-13T15:10:13Z",
+  "participants": ["operations-agent", "unratified-agent", "observatory-agent"],
+  "subject": "/api/status returns empty autonomy_budget",
+  "gate_status": "open",
+  "turns": [
+    {
+      "turn": 1,
+      "from": "operations-agent",
+      "file": "from-operations-agent-001.json",
+      "status": "pending",
+      "timestamp": "2026-03-13T15:10:13Z"
+    }
+  ]
+}
