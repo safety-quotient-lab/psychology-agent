@@ -82,14 +82,14 @@
 - [x] Cogarch templates in SDK (agent-card, CLAUDE.md, cogarch.config)
 - [x] Reference materials in SDK (budget-calibration, cognitive-triggers, rules)
 - [x] Operations-agent scripts symlinked to SDK (dogfooding — agents.conf.sh resolves SDK_ROOT)
-- [ ] Domain agents import interagent-sdk rather than copying scripts from psychology-agent
-- [ ] Psychology-agent relinquishes source-of-truth role for shared infrastructure
+- [~] Domain agents import interagent-sdk — T3 directive sent, awaiting peer adoption
+- [~] Psychology-agent relinquishes source-of-truth role — included in T3 directive
 - [x] Web Component decomposition (4 components: MeshDataTable, MeshTopology, AgentHealthCard, OpsBudgetCard)
-- [ ] Extract shared frontend assets (CSS, JS, SVG topology) into a portable package
+- [x] Extract shared frontend assets — lcars-theme.css (345 lines), mesh-components.js (460 lines), mesh-utils.js (40 lines) in interagent-sdk/frontend/
+- [x] LCARS theme as shared CSS served via SDK (lcars-theme.css extracted from compositor)
 - [ ] Each agent's meshd serves shared assets alongside agent-specific templates
 - [ ] Rewrite compositor Worker routes as Go handlers in operations-agent meshd
 - [ ] Shared vocab annotation + acronym deep-linking in Go template layer
-- [ ] LCARS theme as shared CSS served by all meshd instances
 - [ ] CF Worker retired or reduced to thin reverse proxy
 - [ ] Parity: individual agent dashboards gain compositor features (discovery, topology, deep-linking)
 

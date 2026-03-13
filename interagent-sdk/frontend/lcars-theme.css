@@ -1,0 +1,345 @@
+        /* ── Design System ────────────────────────────────────────────── */
+        :root {
+            /* Modern palette (default) — muted, desaturated, pleasing */
+            --c-transport: #6b8aaf;
+            --c-knowledge: #c4956a;
+            --c-health: #6aab8e;
+            --c-epistemic: #9b8ec4;
+            --c-catalog: #c48a9e;
+            --c-alert: #c47070;
+            --c-inactive: #6b7280;
+            --c-warning: #d4944a;
+
+            /* Tab identity — semantic color per tab */
+            --c-tab-pulse: #6aab8e;       /* green — operational health */
+            --c-tab-meta: #9b8ec4;        /* purple — thought, reflection */
+            --c-tab-kb: #c4956a;          /* amber — structured knowledge */
+            --c-tab-wisdom: #b8956a;      /* warm bronze — accumulated insight */
+            --c-tab-ops: #6b8aaf;         /* blue — transport, operations */
+
+            /* Agent identity palette — subtle, distinguishable */
+            --c-psychology: #6b8aaf;
+            --c-safety-quotient: #5da8a0;
+            --c-unratified: #c4956a;
+            --c-observatory: #9b8ec4;
+            --c-operations: #7a9b6b;
+
+            /* Surface */
+            --bg-primary: #0f1318;
+            --bg-panel: #181d25;
+            --bg-inset: #0f1318;
+            --border: #252b35;
+            --border-accent: #333c49;
+            --text-primary: #dce1e8;
+            --text-secondary: #7d8694;
+            --text-dim: #4a5261;
+
+            /* Geometry */
+            --elbow-width: 20px;
+            --elbow-radius: 16px;
+            --band-height: 4px;
+        }
+
+        /* LCARS classic mode — saturated Trek colors */
+        .theme-lcars {
+            --c-transport: #ff9900;
+            --c-knowledge: #cc99cc;
+            --c-health: #9999ff;
+            --c-epistemic: #cc6699;
+            --c-catalog: #ff9966;
+            --c-alert: #cc6666;
+            --c-inactive: #666688;
+            --c-warning: #ff9944;
+
+            --c-tab-pulse: #9999ff;
+            --c-tab-meta: #cc6699;
+            --c-tab-kb: #cc99cc;
+            --c-tab-wisdom: #ffcc66;
+            --c-tab-ops: #ff9900;
+
+            --c-psychology: #ff9900;
+            --c-safety-quotient: #cc99cc;
+            --c-unratified: #9999ff;
+            --c-observatory: #cc6699;
+            --c-operations: #99cc66;
+
+            --bg-primary: #000000;
+            --bg-panel: #111122;
+            --bg-inset: #000011;
+            --border: #333355;
+            --border-accent: #444466;
+            --text-primary: #ffcc99;
+            --text-secondary: #9999aa;
+            --text-dim: #666677;
+
+            --band-height: 8px;
+            --elbow-width: 28px;
+            --elbow-radius: 20px;
+        }
+
+        /* Light mode */
+        .theme-light {
+            --bg-primary: #f2f4f7;
+            --bg-panel: #ffffff;
+            --bg-inset: #f7f9fb;
+            --border: #d4dae3;
+            --border-accent: #b8c1cc;
+            --text-primary: #1a2030;
+            --text-secondary: #5a6577;
+            --text-dim: #8893a4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* ── LCARS Frame ─────────────────────────────────────────────── */
+        .lcars-frame {
+            display: grid;
+            grid-template-columns: var(--elbow-width) 1fr;
+            grid-template-rows: auto auto 1fr auto;
+            min-height: 100vh;
+            gap: 0;
+        }
+
+        /* Left spine */
+        .lcars-spine {
+            grid-column: 1;
+            grid-row: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .lcars-spine-segment {
+            flex: 1;
+            min-height: 30px;
+            transition: flex 0.4s ease, background 0.4s ease;
+            cursor: default;
+            position: relative;
+        }
+        .lcars-spine-segment:hover::after {
+            content: attr(title);
+            position: absolute;
+            left: calc(100% + 8px);
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--bg-panel);
+            color: var(--text-primary);
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.65em;
+            white-space: nowrap;
+            z-index: 10;
+            border: 1px solid var(--border);
+            pointer-events: none;
+        }
+        .lcars-spine-segment:first-child {
+            border-radius: var(--elbow-radius) 0 0 0;
+        }
+        .lcars-spine-segment:last-child {
+            border-radius: 0 0 0 var(--elbow-radius);
+        }
+
+        /* Header band */
+        .lcars-header {
+            grid-column: 2;
+            grid-row: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            border-bottom: var(--band-height) solid var(--active-tab-color, var(--c-transport));
+        }
+
+        .lcars-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--active-tab-color, var(--c-transport));
+            letter-spacing: 0.05em;
+        }
+        .lcars-subtitle {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            margin-left: 12px;
+        }
+
+        .lcars-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Toggle switches */
+        .toggle-group {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .toggle-btn {
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.7em;
+            transition: all 0.2s;
+        }
+        .toggle-btn:hover { border-color: var(--text-secondary); }
+        .toggle-btn.active {
+            background: var(--c-transport);
+            color: var(--bg-primary);
+            border-color: var(--c-transport);
+        }
+
+        /* Tab bar */
+        .lcars-tabs {
+            grid-column: 2;
+            grid-row: 2;
+            display: flex;
+            gap: 0;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .lcars-tab {
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-secondary);
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85em;
+            font-weight: bold;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .lcars-tab:hover { color: var(--text-primary); }
+        .lcars-tab.active { color: var(--c-tab-pulse); border-bottom-color: var(--c-tab-pulse); }
+        .lcars-tab[data-tab="pulse"].active  { color: var(--c-tab-pulse); border-bottom-color: var(--c-tab-pulse); }
+        .lcars-tab[data-tab="meta"].active   { color: var(--c-tab-meta);  border-bottom-color: var(--c-tab-meta); }
+        .lcars-tab[data-tab="kb"].active     { color: var(--c-tab-kb);    border-bottom-color: var(--c-tab-kb); }
+        .lcars-tab[data-tab="wisdom"].active { color: var(--c-tab-wisdom); border-bottom-color: var(--c-tab-wisdom); }
+        .lcars-tab[data-tab="operations"].active { color: var(--c-tab-ops); border-bottom-color: var(--c-tab-ops); }
+        .tab-badge {
+            background: var(--c-alert);
+            color: var(--bg-primary);
+            border-radius: 8px;
+            padding: 1px 6px;
+            font-size: 0.75em;
+            margin-left: 6px;
+            font-weight: bold;
+        }
+
+        /* Content area */
+        .lcars-content {
+            grid-column: 2;
+            grid-row: 3;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        /* Footer */
+        .lcars-footer {
+            grid-column: 2;
+            grid-row: 4;
+            padding: 8px 20px;
+            border-top: var(--band-height) solid var(--c-transport);
+            font-size: 0.7em;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* ── LCARS Panels ────────────────────────────────────────────── */
+        .lcars-panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 0 8px 8px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .lcars-panel::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            background: var(--panel-accent, var(--c-transport));
+        }
+        .lcars-panel-header {
+            padding: 10px 16px 8px 16px;
+            font-size: 0.75em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--panel-accent, var(--c-transport));
+            border-bottom: 1px solid var(--border);
+        }
+        .lcars-panel-body {
+            padding: 12px 16px;
+        }
+        /* Capped panel height with internal scroll */
+        .lcars-panel-body.scrollable {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* Table toolbar — filter + pagination */
+        .table-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .table-filter {
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.75em;
+            min-width: 160px;
+        }
+        .table-filter::placeholder { color: var(--text-dim); }
+        .table-filter:focus { outline: none; border-color: var(--text-secondary); }
+        .table-page-info {
+            font-size: 0.7em;
+            color: var(--text-dim);
+        }
+        .table-page-btns {
+            display: flex;
+            gap: 4px;
+        }
+        .table-page-btn {
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 2px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.7em;
+        }
+        .table-page-btn:hover { border-color: var(--text-secondary); }
+        .table-page-btn:disabled { opacity: 0.3; cursor: default; }
+        .table-page-btn.active { background: var(--c-transport); color: var(--bg-primary); border-color: var(--c-transport); }
+
+        /* Sort indicators — prominent active state (T18 Check 3) */
+        .sort-active { color: var(--c-transport) !important; border-bottom: 2px solid var(--c-transport); }
+        .sort-arrow { opacity: 0.3; font-size: 0.9em; }
+        .sort-active .sort-arrow { opacity: 1; }
+
