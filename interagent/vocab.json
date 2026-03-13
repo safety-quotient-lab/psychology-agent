@@ -7,7 +7,7 @@
   "@type": "DefinedTermSet",
   "name": "Safety Quotient Mesh Vocabulary",
   "description": "Shared vocabulary for the safety-quotient federated agent mesh. Schema.org base with project-specific extensions under the sqm: namespace.",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "dateModified": "2026-03-13",
   "publisher": {
     "@type": "Organization",
@@ -167,6 +167,14 @@
       "description": "Three-step pruning protocol modeled after microglial complement-mediated synaptic elimination (Schafer et al., 2012). Steps: C1q tag (flag inactive sessions >14 days), C3 verify (confirm no pending messages or open gates), phagocytose (archive to transport/archive/ and remove from sessions/). SHIP1 brake prevents over-pruning — never removes sessions with open gates or pending ACKs.",
       "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
       "termCode": "sqm:ComplementCascade"
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "sqm:TrustMatrix",
+      "name": "Trust Matrix",
+      "description": "NxN matrix of trust scores across mesh agents, measured on 4 dimensions: availability (reachability), integrity (response validation), compliance (protocol adherence), epistemic honesty (uncertainty reporting). Scores use exponential moving average with charitable prior (1.0). Aggregate computed as geometric mean — penalizes weakness in any single dimension. Persisted in KV, accumulates across all observations.",
+      "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
+      "termCode": "sqm:TrustMatrix"
     }
   ]
 }

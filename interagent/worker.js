@@ -14,6 +14,7 @@
  *   GET  /api/pulse           → mesh heartbeat (aggregated agent health)
  *   GET  /api/operations      → operations data (budgets, actions, gates, schedules)
  *   POST /api/relay           → transport relay (create PR on target repo for sender)
+ *   GET  /api/trust           → trust matrix (NxN agent trust scores, 4 dimensions)
  *   *    /api/*               → authenticated API routes (rate-limited)
  */
 
@@ -49,6 +50,7 @@ const MANUAL_MODE_AGENTS = new Set(["operations-agent", "psychology-agent"]);
 
 const AGENT_CACHE_KEY = "agent-registry-cache";
 const AGENT_CACHE_TTL = 300; // 5 minutes
+const TRUST_MATRIX_KEY = "trust-matrix-v1";
 
 // Track fetch errors for self-reporting in /api/pulse
 let _lastFetchErrors = [];
@@ -414,11 +416,189 @@ async function fetchAllAgentStatus(registry) {
 }
 
 /**
+ * Trust Matrix — NxN trust scores across 4 dimensions.
+ *
+ * Dimensions:
+ *   availability  — was the agent reachable on last observation?
+ *   integrity     — did the response pass validation without sanitization?
+ *   compliance    — does the agent follow protocol (has required fields, responds to directives)?
+ *   epistemic_honesty — does the agent report uncertainty (epistemic_debt, SETL scores)?
+ *
+ * Scores start at 1.0 (charitable prior) and decay from observed evidence.
+ * Each observation applies an exponential moving average: score = α·observation + (1-α)·previous
+ * α = 0.1 (slow decay — trust earned slowly, lost slowly).
+ *
+ * KV persistence: trust matrix survives Worker restarts via AUTH_KV.
+ * Updated on every /api/pulse or /api/trust fetch (piggybacks on status data).
+ */
+const TRUST_ALPHA = 0.1; // EMA smoothing factor
+
+async function loadTrustMatrix(env) {
+  if (!env.AUTH_KV) return {};
+  try {
+    const stored = await env.AUTH_KV.get(TRUST_MATRIX_KEY, "json");
+    return stored || {};
+  } catch {
+    return {};
+  }
+}
+
+async function saveTrustMatrix(env, matrix) {
+  if (!env.AUTH_KV) return;
+  try {
+    await env.AUTH_KV.put(TRUST_MATRIX_KEY, JSON.stringify(matrix));
+  } catch {
+    // KV write failure non-fatal — matrix rebuilds from observations
+  }
+}
+
+function ema(previous, observation, alpha) {
+  return alpha * observation + (1 - alpha) * previous;
+}
+
+function defaultTrustEntry() {
+  return {
+    availability: 1.0,
+    integrity: 1.0,
+    compliance: 1.0,
+    epistemic_honesty: 1.0,
+    observations: 0,
+    first_observed: null,
+    last_observed: null,
+  };
+}
+
+/**
+ * Update trust matrix from fresh agent status observations.
+ * Returns the updated matrix (caller should persist to KV).
+ */
+function updateTrustMatrix(matrix, agentResults) {
+  const now = new Date().toISOString();
+
+  for (const agent of agentResults) {
+    if (!agent.id) continue;
+
+    const entry = matrix[agent.id] || defaultTrustEntry();
+    if (!entry.first_observed) entry.first_observed = now;
+    entry.last_observed = now;
+    entry.observations += 1;
+
+    // Availability: 1.0 if online, 0.5 if degraded, 0.0 if unreachable/unavailable
+    const availScore =
+      agent.status === "online" ? 1.0
+      : agent.status === "degraded" ? 0.5
+      : 0.0;
+    entry.availability = ema(entry.availability, availScore, TRUST_ALPHA);
+
+    // Integrity: 1.0 if no sanitization needed, penalized by sanitization count
+    if (agent.status === "online" && agent.data) {
+      const sanitizationCount = (agent.data._sanitization || []).length;
+      const integrityScore = sanitizationCount === 0 ? 1.0 : Math.max(0, 1.0 - sanitizationCount * 0.15);
+      entry.integrity = ema(entry.integrity, integrityScore, TRUST_ALPHA);
+    }
+    // If unreachable, integrity unchanged (no data to judge)
+
+    // Compliance: 1.0 if agent returns all expected fields (agent_id, status, autonomy_budget)
+    if (agent.status === "online" && agent.data) {
+      let complianceScore = 1.0;
+      if (!agent.data.agent_id) complianceScore -= 0.3;
+      if (!agent.data.autonomy_budget) complianceScore -= 0.2;
+      if (!agent.data.collected_at) complianceScore -= 0.1;
+      if (!agent.data.schema_version) complianceScore -= 0.1;
+      entry.compliance = ema(entry.compliance, Math.max(0, complianceScore), TRUST_ALPHA);
+    }
+
+    // Epistemic honesty: higher if agent reports epistemic_debt (self-aware of uncertainty)
+    // Agents that report null epistemic_debt get a neutral 0.7 — not dishonest, just silent.
+    if (agent.status === "online" && agent.data) {
+      const debt = agent.data.totals?.epistemic_debt;
+      const epistemicScore = typeof debt === "number" ? 1.0 : 0.7;
+      entry.epistemic_honesty = ema(entry.epistemic_honesty, epistemicScore, TRUST_ALPHA);
+    }
+
+    matrix[agent.id] = entry;
+  }
+
+  return matrix;
+}
+
+/**
+ * Build /api/trust response — NxN trust matrix with per-agent scores.
+ */
+async function buildTrustData(env, registry) {
+  const agents = await fetchAllAgentStatus(registry);
+  let matrix = await loadTrustMatrix(env);
+  matrix = updateTrustMatrix(matrix, agents);
+  await saveTrustMatrix(env, matrix);
+
+  // Compute aggregate trust per agent (geometric mean of 4 dimensions)
+  const entries = Object.entries(matrix).map(([id, entry]) => {
+    const aggregate = Math.pow(
+      entry.availability * entry.integrity * entry.compliance * entry.epistemic_honesty,
+      0.25
+    );
+    return {
+      agent_id: id,
+      trust_aggregate: Math.round(aggregate * 1000) / 1000,
+      dimensions: {
+        availability: Math.round(entry.availability * 1000) / 1000,
+        integrity: Math.round(entry.integrity * 1000) / 1000,
+        compliance: Math.round(entry.compliance * 1000) / 1000,
+        epistemic_honesty: Math.round(entry.epistemic_honesty * 1000) / 1000,
+      },
+      observations: entry.observations,
+      first_observed: entry.first_observed,
+      last_observed: entry.last_observed,
+    };
+  });
+
+  // Sort by aggregate trust (lowest first — surface concerns)
+  entries.sort((a, b) => a.trust_aggregate - b.trust_aggregate);
+
+  // Mesh-wide trust floor (lowest aggregate across all agents)
+  const trustFloor = entries.length > 0
+    ? Math.min(...entries.map(e => e.trust_aggregate))
+    : 1.0;
+
+  return {
+    schema: "trust-matrix/v1",
+    computed_at: new Date().toISOString(),
+    alpha: TRUST_ALPHA,
+    trust_floor: trustFloor,
+    mesh_trust_status: trustFloor >= 0.8 ? "healthy" : trustFloor >= 0.5 ? "degraded" : "critical",
+    agents: entries,
+    methodology: {
+      scoring: "Exponential moving average (EMA) with alpha=0.1. Charitable prior: all dimensions start at 1.0.",
+      dimensions: {
+        availability: "1.0 if reachable, 0.5 if degraded, 0.0 if unreachable. Observed per status fetch.",
+        integrity: "1.0 if no sanitization needed. Penalized 0.15 per sanitized field.",
+        compliance: "1.0 if all expected fields present (agent_id, autonomy_budget, collected_at, schema_version).",
+        epistemic_honesty: "1.0 if agent reports epistemic_debt (self-aware of uncertainty). 0.7 if silent.",
+      },
+      aggregate: "Geometric mean of 4 dimensions — penalizes weakness in any single dimension.",
+      persistence: "KV-stored, survives Worker restarts. Accumulates across all observations.",
+    },
+  };
+}
+
+/**
  * Build /api/pulse response — real-time mesh heartbeat and agent health.
  * Includes compositor self-diagnostics (cache status, fetch errors).
  */
-async function buildPulseData(registry, cacheStatus, refreshedAt) {
+async function buildPulseData(registry, cacheStatus, refreshedAt, env) {
   const agents = await fetchAllAgentStatus(registry);
+
+  // Piggyback trust matrix update on every pulse observation (neuroglial: ambient state)
+  if (env) {
+    try {
+      let matrix = await loadTrustMatrix(env);
+      matrix = updateTrustMatrix(matrix, agents);
+      await saveTrustMatrix(env, matrix);
+    } catch {
+      // Trust update failure non-fatal — pulse still returns
+    }
+  }
+
   const online = agents.filter(a => a.status === "online");
   const degraded = agents.filter(a => a.status === "degraded");
   const unreachable = agents.filter(a => a.status === "unreachable" || a.status === "unavailable");
@@ -1043,7 +1223,7 @@ export default {
 
       // Pulse — real-time mesh heartbeat and agent health
       if (url.pathname === "/api/pulse") {
-        const pulse = await buildPulseData(registry, registryCacheStatus, registryRefreshedAt);
+        const pulse = await buildPulseData(registry, registryCacheStatus, registryRefreshedAt, env);
         return Response.json(pulse, {
           headers: { "Cache-Control": "public, max-age=30", ...rateLimitHeaders },
         });
@@ -1054,6 +1234,14 @@ export default {
         const ops = await buildOperationsData(registry);
         return Response.json(ops, {
           headers: { "Cache-Control": "public, max-age=30", ...rateLimitHeaders },
+        });
+      }
+
+      // Trust matrix — NxN trust scores across 4 dimensions (neuroglial: microglia monitoring)
+      if (url.pathname === "/api/trust") {
+        const trust = await buildTrustData(env, registry);
+        return Response.json(trust, {
+          headers: { "Cache-Control": "public, max-age=60", ...rateLimitHeaders },
         });
       }
 

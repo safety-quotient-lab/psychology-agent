@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Phase 5 stability + BFT hardening. 6 BFT mitigations landed. Override protocol RFC out for review. Compositor rename complete (dual-recognition). Transport gap discovered: 3 agents missing operations-agent from registry — PRs delivered to all three. Relay endpoint implemented. Neuroglial cogarch section implemented locally — proposal sent via psychology-agent for human review of biological accuracy. Trust matrix implementation next.
+**Current Status:** Phase 5 stability + BFT hardening. 7 BFT mitigations landed (+ trust matrix). Override protocol RFC out for review. Compositor rename complete (dual-recognition). Relay endpoint + trust matrix (/api/trust) implemented. Neuroglial cogarch section implemented — consensus proposal sent via psychology-agent (PR #168). Public readiness audit pending after remaining Phase 5 items.
 
 ---
 
@@ -67,7 +67,7 @@
 - [ ] BFT: SSH commit signing — allowed_signers file with 5 agent keys + 1 human key
 - [ ] BFT: message receipts — receiver commits signed hash of received message to own repo
 - [ ] BFT: nonce registry persistence — store in state.db, survives agent restart
-- [ ] BFT: trust matrix — /api/trust endpoint, NxN matrix (availability, integrity, compliance, epistemic honesty)
+- [x] BFT: trust matrix — /api/trust endpoint, NxN matrix (availability, integrity, compliance, epistemic honesty)
 - [ ] CORS hardening — restrict origins to known mesh domains
 - [ ] Rate limiting on public endpoints (WebFinger, /.well-known/agents)
 - [ ] Monitoring — surface compositor errors in /api/pulse (self-report degraded when fetch failures exceed threshold)
