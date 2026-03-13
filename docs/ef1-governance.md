@@ -265,6 +265,65 @@ violate a governance invariant, and no discipline-specific extension
 ---
 
 
+## Amendment Procedure (Session 84 addition — addresses L-3)
+
+Governance invariants may change. This section defines how.
+
+**Who may propose amendments:** Any agent or the human operator.
+
+**Amendment process:**
+1. **Proposal:** State the proposed change, the invariant affected, and the
+   rationale. Use the transport protocol (`message_type: "proposal"`) for
+   inter-agent proposals or direct conversation for human-initiated changes.
+2. **Knock-on analysis:** Run /knock on the proposed change. All 10 orders
+   MUST be traced. Governance changes have structural (Order 7) and
+   theory-revising (Order 10) implications by definition.
+3. **Review period:** The proposal MUST remain open for at least one session
+   before approval. No same-session governance changes — this prevents
+   impulse modifications during high-pressure sessions.
+4. **Approval:** The human operator MUST approve. Agent consensus does not
+   suffice for governance changes — only the human can modify the
+   constraints that bind the agents.
+5. **Documentation:** Update this document, add a decision chain entry to
+   `docs/architecture.md`, and log in lab-notebook with the amendment date.
+
+**Invariant retirement:** An invariant may be retired (marked deprecated) but
+MUST NOT be deleted. Retired invariants carry a `[RETIRED: {date} — {reason}]`
+annotation and remain in the document for historical reference.
+
+
+## Invariant Violation Logging (Session 84 addition — addresses L-2)
+
+When a governance invariant fails to hold, the violation MUST be logged:
+
+```
+## GV-{N}: Governance Violation {one-line description}
+
+**Date:** YYYY-MM-DD
+**Session:** N
+**Invariant violated:** {number and name}
+**Severity:** CRITICAL / HIGH / MEDIUM
+
+**What happened:** {Observable facts — fair witness standard}
+
+**Detection:** {How the violation was discovered — T-trigger, human observation, audit}
+
+**Root cause:** {Why the invariant failed to hold}
+
+**Remediation:** {What was done to restore the invariant}
+
+**Prevention:** {What changes prevent recurrence}
+```
+
+Log GV entries in this document (below the invariants section) or in a
+dedicated `docs/governance-violations.md` if the count exceeds 5.
+
+*(No GV entries yet.)*
+
+
+---
+
+
 ## Epistemic Flags
 
 - The governance invariants represent the current best understanding of
