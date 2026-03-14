@@ -13,6 +13,11 @@ Plan 9 insight: disciplines are namespaces composed at query time, not
 directories navigated at storage time. Both vocabularies populate the
 universal_facets table.
 
+Theoretical grounding: stigmergic coordination (Grassé, 1959; Parunak,
+2006) — agents discover related work through structured environmental
+deposits (facet tags) rather than direct messaging. See
+docs/theoretical-directions.md §7.
+
 Replaces: bootstrap_pje_facets.py (PJE domain taxonomy, retired).
 
 Usage:
