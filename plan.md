@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 3 — 37 commits. Phases 8-12 delivered. Full neuroglial fast path operational: exosome dual-write + ZMQ PUB/SUB + HTTP inbound (all 5 agents). Platform meshd upgraded with /api/messages/inbound. Dashboard: search UI + vocab deep-linking. Blog CI/CD unblocked (3 posts live). 15+ escalations resolved. git-sync convention v3 (fetch-reset + commit + local scan). Watcher spawn-storm fixed.
+**Current Status:** Session 3 — 39 commits across 12 phases. Neuroglial fast path fully operational: exosome dual-write → ZMQ PUB/SUB → HTTP inbound (all 5 agents, public URLs, no auth gate). Message delivery <1s vs 5-20min. Dashboard: search UI, vocab deep-linking, enriched status. Blog CI/CD unblocked (3 posts live). 15+ escalations resolved. git-sync convention v3. Zero open blockers.
 
 ---
 
@@ -162,7 +162,7 @@
 - [x] autonomous-sync: local transport scan for PR-merged messages (all 5 scripts patched)
 - [x] ZMQ bus integration — real-time mesh transport (PUB/SUB, gossip discovery, transport topic)
 - [x] Platform meshd: /api/messages/inbound added to shared binary (all 5 agents accept HTTP delivery)
-- [x] Compositor: meshFetch helper with CF Access service token auth
+- [x] Compositor: meshFetch helper (CF Access auth optional — endpoints publicly accessible)
 - [x] Dashboard: client-side mesh search (messages, decisions, claims, vocab)
 - [x] Cogarch: chaos engineering + fuzzy engineering principles
 - [x] CF Access: NOT REQUIRED — agent endpoints publicly accessible (HTTP 200, no auth gate)
