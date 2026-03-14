@@ -1,18 +1,9 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-13T22:46:51",
+  "generated_at": "2026-03-13T22:42:55",
   "source": "scripts/generate_manifest.py",
   "pending": {
-    "operations-agent": [
-      {
-        "session": "mesh-diagnostic-request",
-        "file": "transport/sessions/mesh-diagnostic-request/from-psychology-agent-003.json",
-        "type": "ack",
-        "subject": "Diagnostic ACK \u2014 psychology-agent /diagnose Level 3 results (Session 86)",
-        "timestamp": "2026-03-13T23:00:00-05:00"
-      }
-    ],
     "unratified-agent": [
       {
         "session": "blog-icescr-rights-series",
