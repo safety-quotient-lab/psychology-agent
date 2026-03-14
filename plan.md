@@ -123,8 +123,9 @@
 - [x] platform/shared templates synced with SDK
 - [x] Deploy updated compositor to Cloudflare Workers
 - [x] Deploy meshd + state.db to chromabook (32 messages indexed, schema aligned)
-- [ ] Platform meshd binary swap — replace /home/kashif/platform/meshd with cmd/meshd/ build (current platform binary queries state.db but returns empty — likely startup-cache issue)
-- [ ] Send transport directive to peers: cogarch v2.0.0 rollout + template adoption
+- [x] Platform meshd binary swap — cmd/meshd/ deployed as meshd-ops-v2, serves 7 decisions + 32 messages via /api/kb
+- [x] Send transport directive: mesh-parity-v2 (7 issues, PRs to all 4 peers)
+- [x] /diagnose + /retrospect skill definitions created
 
 ## v1.0.0-beta.2 Backlog
 
