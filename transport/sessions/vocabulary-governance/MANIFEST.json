@@ -1,0 +1,9 @@
+{
+  "session_id": "vocabulary-governance",
+  "status": "open",
+  "created_at": "2026-03-14T16:06:00Z",
+  "participants": ["psychology-agent", "operations-agent", "psq-agent", "unratified-agent", "observatory-agent"],
+  "summary": "Mesh-wide vocabulary rename: trust budget → autonomy budget. Governance process clarification (D49).",
+  "turns": 2,
+  "last_updated": "2026-03-14T16:30:00Z"
+}
