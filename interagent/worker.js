@@ -1011,7 +1011,8 @@ async function handleRelay(request, env, registry, rateLimitHeaders) {
 
   // ── Dual-write: meshd HTTP first (source of truth), PR for audit ──
 
-  // Write 1: HTTP POST to target's meshd (fast path)
+  // Write 1: HTTP POST to target's meshd (fast path via Cloudflare Tunnel)
+  // All agents expose /api/messages/inbound through tunnel subdomains.
   let meshDelivery = null;
   if (target.status_url) {
     const meshBase = target.status_url.replace(/\/api\/status$/, "");
