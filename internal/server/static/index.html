@@ -157,13 +157,11 @@
             pointer-events: none;
             z-index: 999;
         }
-        /* Topology edge glow in LCARS */
-        .theme-lcars .topology-svg line {
-            filter: drop-shadow(0 0 3px rgba(255,153,0,0.3));
-        }
-        .theme-lcars .topology-svg circle {
-            filter: drop-shadow(0 0 6px currentColor);
-        }
+        /* Topology in LCARS — sharper wireframe, stronger glow on pips */
+        .theme-lcars .topology-svg .topo-edge { opacity: 0.6; }
+        .theme-lcars .topology-svg .topo-node-pip { filter: drop-shadow(0 0 4px currentColor); }
+        .theme-lcars .topology-svg .topo-label { fill: var(--text-secondary); }
+        .theme-lcars .topology-svg .topo-grid { opacity: 0.15; }
 
         /* Light mode */
         .theme-light {
@@ -628,7 +626,7 @@
             color: var(--text-secondary);
         }
 
-        /* Topology placeholder */
+        /* Topology — TNG schematic wireframe style */
         .topology-container {
             --panel-accent: var(--c-health);
             min-height: 360px;
@@ -637,10 +635,29 @@
             width: 100%;
             height: 340px;
         }
+        .topology-svg .topo-grid { stroke: var(--border); stroke-width: 0.5; opacity: 0.3; }
+        .topology-svg .topo-edge { stroke-width: 1; opacity: 0.5; stroke-dasharray: none; }
+        .topology-svg .topo-edge-active { opacity: 0.8; }
+        .topology-svg .topo-node-ring { fill: none; stroke-width: 1; }
+        .topology-svg .topo-node-pip { r: 3; }
+        .topology-svg .topo-node-pip.online { filter: url(#pip-glow); }
+        .topology-svg .topo-label {
+            font-family: 'Antonio', 'Helvetica Neue', system-ui, sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            fill: var(--text-secondary);
+        }
+        .topology-svg .topo-label-line { stroke-width: 0.5; opacity: 0.4; }
+        .topology-svg .topo-status {
+            font-family: 'Antonio', 'Helvetica Neue', system-ui, sans-serif;
+            font-size: 8px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
         .topology-svg g { cursor: pointer; }
-        .topology-svg g:hover circle { opacity: 0.3; }
-        .topology-svg g text { fill: var(--text-secondary); }
-        .topology-svg g:hover text { fill: var(--text-primary); }
+        .topology-svg g:hover .topo-node-ring { stroke-width: 2; opacity: 1; }
+        .topology-svg g:hover .topo-label { fill: var(--text-primary); }
 
         /* ── Knowledge Tab ───────────────────────────────────────────── */
 
@@ -1797,39 +1814,86 @@
         render() {
             const agents = this._agents;
             const agentStates = this._agentStates;
-            const cx = 300, cy = 170, r = 130;
+            const cx = 300, cy = 155, r = 110;
+            const W = 600, H = 340;
             const positions = agents.map((_, i) => {
                 const angle = -Math.PI / 2 + (2 * Math.PI * i) / agents.length;
                 return { x: Math.round(cx + r * Math.cos(angle)), y: Math.round(cy + r * Math.sin(angle)) };
             });
 
             let html = '';
-            // Draw edges between all pairs
+
+            // ── SVG defs: glow filter for online pips ──
+            html += `<defs>
+                <filter id="pip-glow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+            </defs>`;
+
+            // ── Background grid (subtle schematic feel) ──
+            for (let x = 0; x <= W; x += 30) {
+                html += `<line class="topo-grid" x1="${x}" y1="0" x2="${x}" y2="${H}"/>`;
+            }
+            for (let y = 0; y <= H; y += 30) {
+                html += `<line class="topo-grid" x1="0" y1="${y}" x2="${W}" y2="${y}"/>`;
+            }
+
+            // ── Edges: thin wireframe lines between all pairs ──
             for (let i = 0; i < agents.length; i++) {
                 for (let j = i + 1; j < agents.length; j++) {
                     const a = positions[i], b = positions[j];
-                    html += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="var(--border-accent)" stroke-width="3" opacity="0.4"/>`;
+                    const aiOnline = agentStates[agents[i].id]?.status === 'online';
+                    const ajOnline = agentStates[agents[j].id]?.status === 'online';
+                    const bothOnline = aiOnline && ajOnline;
+                    const edgeColor = bothOnline ? 'var(--c-health)' : 'var(--border-accent)';
+                    const cls = bothOnline ? 'topo-edge topo-edge-active' : 'topo-edge';
+                    html += `<line class="${cls}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${edgeColor}"/>`;
                 }
             }
-            // Draw nodes
+
+            // ── Nodes: wireframe rings + small pip + label with leader line ──
             for (let i = 0; i < agents.length; i++) {
                 const agent = agents[i];
                 const pos = positions[i];
                 const state = agentStates[agent.id];
                 const online = state?.status === 'online';
-                const fill = online ? agent.color : 'var(--c-inactive)';
-                html += `<g style="cursor:pointer" data-agent-id="${agent.id}">
-                    <circle cx="${pos.x}" cy="${pos.y}" r="45" fill="${fill}" opacity="${online ? 0.12 : 0.05}" stroke="${fill}" stroke-width="3"/>
-                    <circle cx="${pos.x}" cy="${pos.y}" r="16" fill="${fill}" opacity="${online ? 1 : 0.3}">
-                        ${online ? `<animate attributeName="r" values="15;19;15" dur="3s" repeatCount="indefinite"/>` : ''}
-                    </circle>
-                    <text x="${pos.x}" y="${pos.y + 72}" text-anchor="middle" font-size="21" font-family="inherit" font-weight="bold" fill="var(--text-secondary)">
-                        ${agent.id.replace('-agent', '')}
-                    </text>
-                </g>`;
+                const color = online ? agent.color : 'var(--c-inactive)';
+                const label = agent.id.replace('-agent', '').toUpperCase();
+
+                // Label positioning: offset based on angle to avoid overlap
+                const angle = -Math.PI / 2 + (2 * Math.PI * i) / agents.length;
+                const labelR = 155;
+                const lx = Math.round(cx + labelR * Math.cos(angle));
+                const ly = Math.round(cy + labelR * Math.sin(angle));
+                const anchor = Math.abs(angle) < 0.1 || Math.abs(angle - Math.PI) < 0.1
+                    ? 'middle'
+                    : angle > -Math.PI / 2 && angle < Math.PI / 2 ? 'start' : 'end';
+
+                html += `<g data-agent-id="${agent.id}">`;
+
+                // Outer wireframe ring
+                html += `<circle class="topo-node-ring" cx="${pos.x}" cy="${pos.y}" r="18" stroke="${color}" opacity="${online ? 0.4 : 0.15}"/>`;
+
+                // Inner wireframe ring (double-ring schematic look)
+                html += `<circle class="topo-node-ring" cx="${pos.x}" cy="${pos.y}" r="10" stroke="${color}" opacity="${online ? 0.6 : 0.2}"/>`;
+
+                // Center pip (small filled dot — the key indicator)
+                html += `<circle class="topo-node-pip ${online ? 'online' : ''}" cx="${pos.x}" cy="${pos.y}" fill="${color}" opacity="${online ? 1 : 0.3}"/>`;
+
+                // Leader line from node to label
+                html += `<line class="topo-label-line" x1="${pos.x}" y1="${pos.y}" x2="${lx}" y2="${ly}" stroke="${color}"/>`;
+
+                // Label
+                html += `<text class="topo-label" x="${lx}" y="${ly - 6}" text-anchor="${anchor}">${label}</text>`;
+
+                // Status text
+                html += `<text class="topo-status" x="${lx}" y="${ly + 6}" text-anchor="${anchor}" fill="${online ? color : 'var(--text-dim)'}">${online ? 'ONLINE' : 'OFFLINE'}</text>`;
+
+                html += `</g>`;
             }
 
-            this.innerHTML = `<svg class="topology-svg" viewBox="0 0 600 370">${html}</svg>`;
+            this.innerHTML = `<svg class="topology-svg" viewBox="0 0 ${W} ${H}">${html}</svg>`;
 
             // Attach click handlers that call global switchAgent + switchTab
             this.querySelectorAll('g[data-agent-id]').forEach(g => {

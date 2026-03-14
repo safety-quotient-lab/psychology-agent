@@ -133,13 +133,21 @@
         }
         .panel-body { padding: 16px; }
 
-        /* ── Topology ─────────────────────────────────────────── */
+        /* ── Topology — TNG wireframe schematic ────────────────── */
         .topology-svg { width: 100%; max-height: 280px; }
-        .topology-svg circle { fill: var(--bg-primary); stroke-width: 2; }
-        .topology-svg circle.self { fill: var(--c-agent); opacity: 0.2; }
-        .topology-svg line { stroke: var(--border-accent); stroke-width: 1; }
-        .topology-svg text { fill: var(--text-secondary); font-size: 12px; text-anchor: middle; }
-        .topology-svg text.self { fill: var(--c-agent); font-weight: bold; }
+        .topology-svg .topo-grid { stroke: var(--border); stroke-width: 0.5; opacity: 0.2; }
+        .topology-svg .topo-edge { stroke-width: 1; opacity: 0.5; }
+        .topology-svg .topo-ring { fill: none; stroke-width: 1; }
+        .topology-svg .topo-pip { r: 3; }
+        .topology-svg .topo-label {
+            font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+            fill: var(--text-secondary);
+        }
+        .topology-svg .topo-label.self { fill: var(--c-agent); }
+        .topology-svg .topo-leader { stroke-width: 0.5; opacity: 0.4; }
+        .topology-svg .topo-status { font-size: 7px; letter-spacing: 0.08em; text-transform: uppercase; }
+        .topology-svg g:hover .topo-ring { stroke-width: 2; }
+        .topology-svg g:hover .topo-label { fill: var(--text-primary); }
 
         /* ── Tables ───────────────────────────────────────────── */
         table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
@@ -264,34 +272,48 @@
         "operations-agent": "#7a9b6b"
     };
 
-    // ── Topology SVG ────────────────────────────────────────
+    // ── Topology SVG — TNG wireframe schematic ────────────────
     function renderTopology(agents) {
-        const cx = 300, cy = 150, r = 120;
+        const cx = 300, cy = 140, r = 100, W = 600, H = 280;
         const n = agents.length || 5;
         const points = agents.map((a, i) => {
             const angle = (2 * Math.PI * i / n) - Math.PI / 2;
-            return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle), id: a.id || a };
+            return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle), id: a.id || a, angle };
         });
 
         let svg = '';
-        // Edges (full mesh)
+        // Grid
+        for (let x = 0; x <= W; x += 30) svg += `<line class="topo-grid" x1="${x}" y1="0" x2="${x}" y2="${H}"/>`;
+        for (let y = 0; y <= H; y += 30) svg += `<line class="topo-grid" x1="0" y1="${y}" x2="${W}" y2="${y}"/>`;
+
+        // Edges
         for (let i = 0; i < points.length; i++) {
             for (let j = i + 1; j < points.length; j++) {
-                svg += `<line x1="${points[i].x}" y1="${points[i].y}" x2="${points[j].x}" y2="${points[j].y}"/>`;
+                svg += `<line class="topo-edge" x1="${points[i].x}" y1="${points[i].y}" x2="${points[j].x}" y2="${points[j].y}" stroke="var(--c-health)"/>`;
             }
         }
         // Nodes
+        const labelR = 135;
         for (const p of points) {
             const isSelf = p.id === AGENT_ID;
             const color = AGENT_COLORS[p.id] || "#6b7280";
+            const label = p.id.replace("-agent", "").toUpperCase();
+            const lx = cx + labelR * Math.cos(p.angle);
+            const ly = cy + labelR * Math.sin(p.angle);
+            const anchor = Math.abs(p.angle) < 0.1 ? 'middle' : p.angle > -Math.PI/2 && p.angle < Math.PI/2 ? 'start' : 'end';
+
             svg += `<g>`;
-            svg += `<circle cx="${p.x}" cy="${p.y}" r="20" stroke="${color}" class="${isSelf ? 'self' : ''}"/>`;
-            svg += `<text x="${p.x}" y="${p.y + 35}" class="${isSelf ? 'self' : ''}">${p.id.replace("-agent", "")}</text>`;
+            svg += `<circle class="topo-ring" cx="${p.x}" cy="${p.y}" r="16" stroke="${color}" opacity="0.4"/>`;
+            svg += `<circle class="topo-ring" cx="${p.x}" cy="${p.y}" r="9" stroke="${color}" opacity="0.6"/>`;
+            svg += `<circle class="topo-pip" cx="${p.x}" cy="${p.y}" fill="${color}"/>`;
+            svg += `<line class="topo-leader" x1="${p.x}" y1="${p.y}" x2="${lx}" y2="${ly}" stroke="${color}"/>`;
+            svg += `<text class="topo-label ${isSelf ? 'self' : ''}" x="${lx}" y="${ly - 5}" text-anchor="${anchor}">${label}</text>`;
+            svg += `<text class="topo-status" x="${lx}" y="${ly + 5}" text-anchor="${anchor}" fill="${color}">ONLINE</text>`;
             svg += `</g>`;
         }
 
         document.getElementById("topology-container").innerHTML =
-            `<svg class="topology-svg" viewBox="0 0 600 310">${svg}</svg>`;
+            `<svg class="topology-svg" viewBox="0 0 ${W} ${H}">${svg}</svg>`;
     }
 
     // ── Data fetching ───────────────────────────────────────
