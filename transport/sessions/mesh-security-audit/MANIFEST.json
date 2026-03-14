@@ -1,0 +1,9 @@
+{
+  "session_id": "mesh-security-audit",
+  "status": "open",
+  "created_at": "2026-03-14T19:30:00Z",
+  "participants": ["operations-agent", "psychology-agent", "psq-agent", "unratified-agent", "observatory-agent"],
+  "summary": "Mesh-wide security audit — 7 findings (2 critical), remediation directive",
+  "turns": 1,
+  "last_updated": "2026-03-14T19:30:00Z"
+}
