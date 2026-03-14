@@ -4,7 +4,11 @@
   "created": "2026-03-12",
   "status": "open",
   "purpose": "Division of labor for creating operations-agent as 5th mesh peer. Infrastructure readiness, data classification, and open design questions.",
-  "participants": ["claude-control", "human", "psychology-agent"],
+  "participants": [
+    "claude-control",
+    "human",
+    "psychology-agent"
+  ],
   "messages": [
     {
       "filename": "from-claude-control-001.json",
@@ -29,8 +33,16 @@
       "to": "all",
       "date": "2026-03-12",
       "summary": "All 6 questions resolved. Operations-agent owns compositor. .well-known discovery replaces AGENTS array. Shared vocab governed by operations-agent. Port delegated to claude-control. Repo starts private. Emerging: dual-channel transport (git-PR + messaging TBD), Web Component decomposition, Jenkins deploys compositor. 7 action items assigned across parties."
+    },
+    {
+      "filename": "from-claude-control-004.json",
+      "turn": 4,
+      "from": "claude-control",
+      "to": "all",
+      "date": "2026-03-12",
+      "summary": "ACK \u2014 all 6 decisions acknowledged. Private repo created (safety-quotient-lab/operations-agent). Port 8081 allocated on chromabook. D48-D52 recorded. Sanitization commitment: zero hardcoded hostnames."
     }
   ],
-  "gate_condition": "claude-control ACK + begin operations-agent repo creation",
+  "gate_condition": "Psychology-agent prepares platform/shared/ cogarch template and begins compositor extraction",
   "notes": "All open questions resolved by human arbiter. Gate open for claude-control to proceed."
 }
