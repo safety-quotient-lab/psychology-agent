@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 3 complete (20 commits). Phases 8-10 delivered: cogarch v2.0.0, exosome dual-write architecture, state.db with FTS5 search, spawn logging, health persistence. meshd-ops-v2 deployed as drop-in replacement. 12 mesh escalations resolved. git-sync convention v2 patched across all 5 agents. 8 transport directive PRs delivered to peers. Watcher spawn-storm identified for beta.2.
+**Current Status:** Session 3 — 37 commits. Phases 8-12 delivered. Full neuroglial fast path operational: exosome dual-write + ZMQ PUB/SUB + HTTP inbound (all 5 agents). Platform meshd upgraded with /api/messages/inbound. Dashboard: search UI + vocab deep-linking. Blog CI/CD unblocked (3 posts live). 15+ escalations resolved. git-sync convention v3 (fetch-reset + commit + local scan). Watcher spawn-storm fixed.
 
 ---
 
@@ -160,7 +160,13 @@
 - [x] Vocab deep-linking: annotateAcronyms on message subjects + activity feed
 - [x] Blog CI/CD fixed: @astrojs/check installed, frontmatter schema fixed, PostList type fixed (174 pages deploy success)
 - [x] autonomous-sync: local transport scan for PR-merged messages (all 5 scripts patched)
-- [ ] CF Access service token for cross-mesh API calls
+- [x] ZMQ bus integration — real-time mesh transport (PUB/SUB, gossip discovery, transport topic)
+- [x] Platform meshd: /api/messages/inbound added to shared binary (all 5 agents accept HTTP delivery)
+- [x] Compositor: meshFetch helper with CF Access service token auth
+- [x] Dashboard: client-side mesh search (messages, decisions, claims, vocab)
+- [x] Cogarch: chaos engineering + fuzzy engineering principles
+- [ ] CF Access service token: `wrangler secret put CF_ACCESS_CLIENT_ID + CF_ACCESS_CLIENT_SECRET` (same values as FORGE_ACCESS_*)
+- [ ] Cloudflare Tunnel on chromabook for GitHub webhook delivery
 - [ ] Blog persona selector (awaiting unratified ACK — #64 merged, processing)
 
 ## v1.0.0-beta.2 Backlog
