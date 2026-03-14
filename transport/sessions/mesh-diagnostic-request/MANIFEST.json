@@ -1,0 +1,23 @@
+{
+  "session_id": "mesh-diagnostic-request",
+  "created": "2026-03-13T22:32:06.398485",
+  "participants": [
+    "operations-agent",
+    "psq-agent"
+  ],
+  "messages": [
+    {
+      "filename": "from-operations-agent-001.json",
+      "turn": 1,
+      "from": "operations-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-psq-agent-001.json",
+      "turn": 2,
+      "from": "psq-agent",
+      "subject": ""
+    }
+  ],
+  "status": "open"
+}
