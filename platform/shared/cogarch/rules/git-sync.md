@@ -57,6 +57,29 @@ refuses to rebase with a dirty index. The `git commit` between them ensures
 the index stays clean. Without this commit, every cycle fails with
 "cannot pull with rebase: Your index contains uncommitted changes."
 
+## Local Transport Scan (PR-merged messages)
+
+Messages delivered via PR merge land in the local transport directory but
+bypass the `git diff` check that sets `TRANSPORT_CHANGED`. When head stays
+the same (transport was synced before pull), the script treats the cycle
+as "no new transport" and skips the Claude spawn.
+
+Fix: after git_sync, scan local transport for files newer than state.db:
+
+```bash
+if [ "${TRANSPORT_CHANGED}" = false ] && [ -d "transport/sessions" ]; then
+    local_unindexed=$(find transport/sessions -name "from-*.json" \
+        -newer "${DB_PATH}" 2>/dev/null | wc -l | tr -d ' ')
+    if [ "${local_unindexed}" -gt 0 ]; then
+        TRANSPORT_CHANGED=true
+        log "Local transport scan: ${local_unindexed} files newer than state.db"
+    fi
+fi
+```
+
+This catches messages from any delivery path: PR merge, meshd inbound
+endpoint, cross-repo fetch, or manual file creation.
+
 ## Scope
 
 This convention applies to the `transport/` directory only. Source code,
