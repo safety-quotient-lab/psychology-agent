@@ -7,6 +7,8 @@ package server
 
 import (
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -92,9 +94,12 @@ func (s *Server) handlePulse(w http.ResponseWriter, r *http.Request) {
 		meshHealth = "degraded"
 	}
 
-	// Check for mesh pause
+	// Check for mesh pause sentinel file
 	meshMode := "active"
-	// TODO: check mesh-pause sentinel file
+	pausePath := filepath.Join(s.Config.RepoRoot, ".mesh-paused")
+	if _, err := os.Stat(pausePath); err == nil {
+		meshMode = "paused"
+	}
 
 	pulse := map[string]any{
 		"mesh_health":     meshHealth,

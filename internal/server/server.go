@@ -340,8 +340,11 @@ func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
 	unprocessedMsgs, _ := db.QueryJSON(dbPath,
 		"SELECT filename, session_name, from_agent, message_type, subject, timestamp, turn FROM transport_messages WHERE processed=0 ORDER BY timestamp DESC")
 
-	// Active gates (placeholder — no gates table yet)
-	activeGates := []map[string]string{}
+	// Active gates — messages with ack_required that lack responses
+	activeGates, _ := db.QueryJSON(dbPath,
+		"SELECT session_name, from_agent, subject, timestamp FROM transport_messages "+
+			"WHERE processed=0 AND message_type IN ('directive','proposal','request') "+
+			"ORDER BY timestamp DESC LIMIT 10")
 
 	// Spawn history
 	spawnHistory, _ := db.QueryJSON(dbPath,

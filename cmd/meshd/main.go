@@ -16,9 +16,10 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"strings"
 	"log/slog"
+	"net/http"
 	"os"
+	"strings"
 	"os/signal"
 	"path/filepath"
 	"sync"
@@ -302,6 +303,9 @@ func main() {
 		}
 	}
 
+	// Agent registry — compositor discovery (background refresh)
+	registry := server.NewAgentRegistry(cfg.AgentID, cfg.AgentCardURLs, 5*time.Minute, logger)
+
 	// CI monitor — polls GitHub Actions across all peer repos for build failures
 	meshRepos := []string{
 		"safety-quotient-lab/psychology-agent",
@@ -324,9 +328,15 @@ func main() {
 		default:
 			logger.Warn("CI failure event dropped — channel full", "repo", status.Repo)
 		}
+
+		// Notify the responsible agent via meshd HTTP inbound
+		go notifyAgentCIFailure(registry, status, logger)
 	}
 	ciMon.OnRecovery = func(status monitor.CIStatus) {
 		logger.Info("CI recovered", "repo", status.Repo, "run_id", status.RunID)
+
+		// Notify recovery too
+		go notifyAgentCIRecovery(registry, status, logger)
 	}
 
 	// Cross-repo fetcher — polls peer repos for transport messages addressed to us
@@ -349,9 +359,6 @@ func main() {
 			return fmt.Errorf("event channel full")
 		}
 	}
-
-	// Agent registry — compositor discovery (background refresh)
-	registry := server.NewAgentRegistry(cfg.AgentID, cfg.AgentCardURLs, 5*time.Minute, logger)
 
 	// HTTP server
 	srv := server.New(cfg, healthMon, webhookHandler, triggerFunc, logger)
@@ -524,4 +531,140 @@ func runPollTicker(ctx context.Context, cfg *config.Config, eventChan chan<- eve
 			}
 		}
 	}
+}
+
+// notifyAgentCIFailure sends a CI failure notification to the responsible
+// agent's meshd via HTTP POST /api/messages/inbound.
+func notifyAgentCIFailure(registry *server.AgentRegistry, status monitor.CIStatus, logger *slog.Logger) {
+	agent := findAgentByRepo(registry, status.Repo)
+	if agent == nil {
+		logger.Debug("CI failure: no agent found for repo", "repo", status.Repo)
+		return
+	}
+	if agent.StatusURL == "" {
+		return
+	}
+
+	meshBase := strings.TrimSuffix(agent.StatusURL, "/api/status")
+	msg := map[string]any{
+		"schema":     "interagent/v1",
+		"session_id": "ci-failure-notify",
+		"turn":       1,
+		"timestamp":  time.Now().UTC().Format(time.RFC3339),
+		"message_type": "notification",
+		"from": map[string]string{
+			"agent_id": "operations-agent",
+		},
+		"to": map[string]string{
+			"agent_id": agent.ID,
+		},
+		"subject": fmt.Sprintf("CI build failure: %s — %s", status.Workflow, status.CommitMsg),
+		"urgency": "high",
+		"body": map[string]any{
+			"type":       "ci_failure",
+			"repo":       status.Repo,
+			"run_id":     status.RunID,
+			"conclusion": status.Conclusion,
+			"workflow":   status.Workflow,
+			"branch":     status.Branch,
+			"commit":     status.CommitMsg,
+			"run_url":    fmt.Sprintf("https://github.com/%s/actions/runs/%d", status.Repo, status.RunID),
+		},
+	}
+
+	body, err := json.Marshal(msg)
+	if err != nil {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, meshBase+"/api/messages/inbound", strings.NewReader(string(body)))
+	if err != nil {
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		logger.Debug("CI failure notification delivery failed", "agent", agent.ID, "err", err)
+		return
+	}
+	resp.Body.Close()
+	logger.Info("CI failure notification sent", "agent", agent.ID, "repo", status.Repo, "status", resp.StatusCode)
+}
+
+// notifyAgentCIRecovery sends a CI recovery notification to the agent.
+func notifyAgentCIRecovery(registry *server.AgentRegistry, status monitor.CIStatus, logger *slog.Logger) {
+	agent := findAgentByRepo(registry, status.Repo)
+	if agent == nil || agent.StatusURL == "" {
+		return
+	}
+
+	meshBase := strings.TrimSuffix(agent.StatusURL, "/api/status")
+	msg := map[string]any{
+		"schema":     "interagent/v1",
+		"session_id": "ci-failure-notify",
+		"turn":       1,
+		"timestamp":  time.Now().UTC().Format(time.RFC3339),
+		"message_type": "notification",
+		"from": map[string]string{
+			"agent_id": "operations-agent",
+		},
+		"to": map[string]string{
+			"agent_id": agent.ID,
+		},
+		"subject": fmt.Sprintf("CI build recovered: %s", status.Workflow),
+		"urgency": "normal",
+		"body": map[string]any{
+			"type":       "ci_recovery",
+			"repo":       status.Repo,
+			"run_id":     status.RunID,
+			"conclusion": status.Conclusion,
+			"workflow":   status.Workflow,
+			"run_url":    fmt.Sprintf("https://github.com/%s/actions/runs/%d", status.Repo, status.RunID),
+		},
+	}
+
+	body, _ := json.Marshal(msg)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, meshBase+"/api/messages/inbound", strings.NewReader(string(body)))
+	if req == nil {
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return
+	}
+	resp.Body.Close()
+	logger.Info("CI recovery notification sent", "agent", agent.ID, "repo", status.Repo)
+}
+
+// findAgentByRepo looks up an agent by its GitHub repo path.
+func findAgentByRepo(registry *server.AgentRegistry, repo string) *server.AgentInfo {
+	agents := registry.Agents()
+	// Map repo slug to agent (repo format: "safety-quotient-lab/psychology-agent")
+	repoSlug := repo
+	for i := range agents {
+		if agents[i].Repo == repoSlug {
+			return &agents[i]
+		}
+	}
+	// Fallback: match by repo name suffix against agent ID
+	parts := strings.SplitN(repo, "/", 2)
+	if len(parts) == 2 {
+		repoName := parts[1]
+		for i := range agents {
+			if agents[i].ID == repoName || strings.HasPrefix(agents[i].ID, repoName) {
+				return &agents[i]
+			}
+		}
+	}
+	return nil
 }
