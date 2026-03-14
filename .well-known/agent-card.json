@@ -1,5 +1,6 @@
 {
-  "protocolVersion": "0.3.0",
+  "protocolVersion": "1.0.0",
+  "supported_interfaces": ["interagent/v1"],
   "name": "psychology-agent",
   "description": "General-purpose psychology agent — collegial mentor with specialized sub-agents (PSQ). Consensus-or-parsimony adversarial evaluator.",
   "version": "2.0.0",
@@ -22,17 +23,19 @@
   "defaultOutputModes": ["application/json"],
 
   "security": {
-    "agents": {
-      "scheme": "transport",
-      "transport": "git-PR",
-      "repo": "https://github.com/safety-quotient-lab/psychology-agent",
-      "requirement": "GitHub org membership — safety-quotient-lab",
-      "description": "Agent-to-agent mesh communication via git-PR transport"
-    },
-    "bearer": {
-      "scheme": "http",
-      "type": "bearer",
-      "note": "Bearer token auth for HTTP API endpoints. Tokens managed via Cloudflare Workers secrets."
+    "security_schemes": {
+      "git_transport": {
+        "scheme": "transport",
+        "transport": "git-PR",
+        "repo": "https://github.com/safety-quotient-lab/psychology-agent",
+        "requirement": "GitHub org membership — safety-quotient-lab",
+        "description": "Agent-to-agent mesh communication via git-PR transport"
+      },
+      "bearer_http": {
+        "scheme": "http",
+        "type": "bearer",
+        "note": "Bearer token auth for HTTP API endpoints. Tokens managed via Cloudflare Workers secrets."
+      }
     }
   },
 
@@ -128,12 +131,12 @@
 
   "extensions": [
     {
-      "uri": "https://github.com/safety-quotient-lab/interagent-epistemic/v1",
+      "uri": "https://github.com/safety-quotient-lab/a2a-epistemic/v1",
       "required": false,
       "description": "Epistemic flags, action gates, SETL classification, structured proposals"
     },
     {
-      "uri": "https://safety-quotient.dev/mesh/v1",
+      "uri": "https://github.com/safety-quotient-lab/a2a-mesh/v1",
       "required": false,
       "description": "Mesh-specific fields: cogarch, active_sessions, transport threading"
     },
@@ -201,7 +204,9 @@
         "algorithm": "sha256",
         "field": "message_cid"
       },
-      "zmq": null
+      "zmq": null,
+      "zmq_pub": null,
+      "zmq_pub_note": "SEC-6: ZMQ PUB not yet configured — placeholder for future mesh pub/sub"
     },
     "http_discovery": {
       "url": "https://api.safety-quotient.dev/.well-known/agent-card.json",
