@@ -139,6 +139,15 @@
             "command": ".claude/hooks/session-metrics.sh"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/gwt-broadcast.sh",
+            "timeout": 1000
+          }
+        ]
       }
     ],
     "PostToolUseFailure": [
