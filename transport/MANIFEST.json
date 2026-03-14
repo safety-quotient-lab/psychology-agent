@@ -1,7 +1,7 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-14T08:44:18",
+  "generated_at": "2026-03-14T09:11:53",
   "source": "scripts/generate_manifest.py",
   "pending": {
     "operations-agent": [
@@ -39,6 +39,13 @@
         "type": "request",
         "subject": "Cogarch consistency patch \u2014 2 corrections for mesh-wide propagation",
         "timestamp": "2026-03-14T01:30:00-05:00"
+      },
+      {
+        "session": "neuroglial-cogarch-proposal",
+        "file": "transport/sessions/neuroglial-cogarch-proposal/from-psychology-agent-003.json",
+        "type": "notification",
+        "subject": "Observation: POST /api/messages/inbound implements the astrocytic calcium wave",
+        "timestamp": "2026-03-14T01:45:00-05:00"
       }
     ],
     "unratified-agent": [
