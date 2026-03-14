@@ -1,6 +1,6 @@
 {
-  "schema": "mesh-state/v1",
-  "timestamp": "2026-03-14T09:12:02",
+  "schema": "mesh-state/v2",
+  "timestamp": "2026-03-14T13:46:01",
   "agent_id": "psychology-agent",
   "autonomy_budget": {
     "agent_id": "psychology-agent",
@@ -13,17 +13,47 @@
   },
   "recent_actions": [],
   "transport": {
-    "total_messages": 291,
-    "unprocessed": 4,
+    "total_messages": 294,
+    "unprocessed": 5,
     "active_gates": 0
+  },
+  "emotional_state": {
+    "model": "PAD (Mehrabian & Russell, 1974)",
+    "hedonic_valence": 0.5,
+    "activation": 0.0,
+    "perceived_control": 1.0,
+    "affect_category": "neutral"
+  },
+  "personality": {
+    "model": "OCEAN (Costa & McCrae, 1992)",
+    "openness": 0.85,
+    "conscientiousness": 0.9,
+    "extraversion": 0.6,
+    "agreeableness": 0.35,
+    "neuroticism": 0.55
+  },
+  "workload": {
+    "model": "NASA-TLX (Hart & Staveland, 1988)",
+    "cognitive_load": 13.0,
+    "cognitive_demand": 25,
+    "regulatory_fatigue": 0
+  },
+  "resource_model": {
+    "cognitive_reserve": 0.87,
+    "self_regulatory_resource": 1.0,
+    "allostatic_load": 0.89
+  },
+  "working_memory": {
+    "capacity_load_proxy": 0.5,
+    "note": "Proxy from transport density. Actual context load available only during interactive sessions."
   },
   "schedule": {
     "autonomous": true,
     "cron_interval_min": 2,
-    "last_sync": "2026-03-14T09:12:01",
-    "next_expected": "2026-03-14T09:14:01"
+    "last_sync": "2026-03-14T13:46:01",
+    "next_expected": "2026-03-14T13:48:01"
   },
   "psh_facets": {},
-  "schema_version": 25,
+  "schema_version": 26,
   "epistemic_flags_unresolved": 447
 }
