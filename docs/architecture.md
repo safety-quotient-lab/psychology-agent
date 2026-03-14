@@ -1007,7 +1007,7 @@
 ────────────────────────────────────────────────────────────────────────
 ```
 
-**Key principle:** PJE is a hypothesis space, not a specification. The psychology
+**Key principle:** PJE functions as a hypothesis space, not a specification. The psychology
 agent helps the user sort signal from aspiration — the same way the PSQ
 (Psychoemotional Safety Quotient) reduced 71 PJE terms to 10 validated
 dimensions.
@@ -1037,7 +1037,7 @@ dimensions.
 
 **Scope:** How the evaluator resolves disagreement between sub-agents or between
 the psychology agent and evidence. Procedures applied in ranked order until one
-resolves. Escalation is the terminal procedure — never average conflicting outputs.
+resolves. Escalation serves as the terminal procedure — never average conflicting outputs.
 
 ---
 
@@ -1090,7 +1090,7 @@ resolves. Escalation is the terminal procedure — never average conflicting out
 ────────────────────────────────────────────────────────────────────────
 ```
 
-Procedure selection is not mechanical. The evaluator reads domain and
+Procedure selection operates non-mechanically. The evaluator reads domain and
 stakes before ordering procedures. Clinical safety claims: pragmatism
 may outrank parsimony. Theoretical validation: falsifiability ranks
 higher. Architecture decisions: parsimony first.
@@ -1199,7 +1199,7 @@ Completes Architecture Item 3 (reasoning procedures already spec'd above).
 ```
 
 **SETL threshold rationale:** 0.40 chosen as the Tier 2 boundary. Below 0.40,
-editorial distance is low enough that the structural basis adequately grounds
+editorial distance remains low enough that the structural basis adequately grounds
 the conclusion. Above 0.40, the inferential layer carries enough weight to
 warrant a full procedure check. (Reference exchanges: branding check SETL 0.05–0.20,
 all low; a speculative architectural claim would score 0.50–0.70.)
@@ -1358,12 +1358,12 @@ The evaluator spec has two parameters that the sub-agent protocol must fill:
    Evaluator currently assumes machine-response/v3 schema format; will inherit sub-agent layer binding.
 
 2. **Action gate thresholds by domain** — the SETL > 0.40 threshold for Tier 2
-   is a first approximation. The peer layer may refine domain-specific thresholds
+   represents a first approximation. The peer layer may refine domain-specific thresholds
    once live peer exchanges establish empirical SETL distributions.
 
-3. **Plumber prior art** — Plan 9's plumber is rule-based message routing with
+3. **Plumber prior art** — Plan 9's plumber provides rule-based message routing with
    30 years of production use. Its rule format (match conditions → dispatch action)
-   is the Unix-process precedent for what the v2 schema does between agents.
+   represents the Unix-process precedent for what the v2 schema does between agents.
    Review plumber rules format when specifying sub-agent routing in the sub-agent layer.
    Not an adoption target — prior art for design.
    *Source: closing instance (Sessions 1–9) architectural note, 2026-03-05.*
@@ -1462,7 +1462,7 @@ blind spots. Four mechanisms compensate:
    Probabilistic independence for a self-check that otherwise lacks structural
    separation.
 
-**Acknowledged tradeoff:** Tier 1 structural independence is deferred, not
+**Acknowledged tradeoff:** Tier 1 structural independence remains deferred, not
 achieved. The S4 mechanisms reduce the risk of self-serving blind spots but
 cannot eliminate them. Full structural independence begins at Tier 2.
 
@@ -1710,7 +1710,7 @@ inference about intent required.
 ────────────────────────────────────────────────────────────────────────
 ```
 
-Stage 1 is a hard gate. Machine callers never enter Socratic routing.
+Stage 1 functions as a hard gate. Machine callers never enter Socratic routing.
 Sub-agent returns never enter request classification — they route
 directly to synthesis mode.
 
@@ -1753,7 +1753,7 @@ the expected request space. Sign type determines destination.
 ────────────────────────────────────────────────────────────────────────
 ```
 
-Scoring requests are the only sign type that routes out of the psychology
+Scoring requests represent the only sign type that routes out of the psychology
 agent to a sub-agent. All others remain with the psychology agent, though
 synthesis may draw on prior sub-agent outputs.
 
