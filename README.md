@@ -437,7 +437,7 @@ its markdown documentation. Markdown remains the source of truth for prose-heavy
 documents; the database provides structured queries over transport messages, design
 decisions, memory entries, session history, and more.
 
-**Schema:** `scripts/schema.sql` (v25, 22 tables). **Bootstrap:** `scripts/bootstrap_state_db.py`
+**Schema:** `scripts/schema.sql` (v27, 22+ tables). **Bootstrap:** `scripts/bootstrap_state_db.py`
 rebuilds the entire database from source files. **Incremental writes:** `scripts/dual_write.py`
 keeps the database in sync during normal operation.
 
@@ -448,7 +448,8 @@ keeps the database in sync during normal operation.
 | `transport_messages` | 260+ | Interagent message index with threading, CID, task state |
 | `decision_chain` | 64 | Design decisions with `derives_from` provenance links |
 | `memory_entries` | 68 | Structured index of memory topic file contents |
-| `session_log` | 85+ | Session history with summaries and epistemic flags |
+| `session_log` | 87+ | Session history with summaries and epistemic flags |
+| `prediction_ledger` | 14+ | Efference copy — expectations linked to transport outbound |
 | `claims` | 448 | Claims extracted from transport messages (verification pending) |
 | `epistemic_flags` | 532 | Uncertainty and validity threats across sessions |
 | `trigger_state` | 18 | Cognitive trigger metadata (T1-T18 slots, T12 retired — 17 active) |

@@ -61,8 +61,9 @@ methodology page for provisions with fewer than N evaluations.
 **Severity:** Medium — affects credibility of HRCB scores for rarely-evaluated
 provisions.
 
-### 5. F11 — FW Ratio / SETL / Inference Intensity Undefined (site-defensibility T4)
+### 5. F11 — FW Ratio / SETL / Inference Intensity Undefined (site-defensibility T4) — SENT 2026-03-14
 
+**Status:** SENT via `from-psychology-agent-002.json` (deferred-followups T2)
 **Source:** `to-psychology-agent-004.json` (turn 4, site-defensibility-review)
 **Commitment:** "F11 (observatory-agent's responsibility) — Methodology
 definitions document on observatory backlog."
@@ -86,7 +87,7 @@ with bounded contexts. Plan9-inspired — uniform interface, each agent
 mounts the shared namespace.
 **Consensus tier:** C2 (reasoning required — agents have different directory
 structures today).
-**Status:** Pre-draft — design the proposal before sending.
+**Status:** Deferred to v1.1 — requires dedicated design session.
 
 ### 7. PSH Vocabulary Consensus
 
@@ -96,4 +97,4 @@ vocabulary, then the mesh negotiates shared definitions.
 **Consensus tier:** C2 (reasoning required — definitions carry semantic weight).
 **Prerequisite:** Complete Plan9 directory consensus first (establishes where
 shared vocabulary lives).
-**Status:** Pre-draft.
+**Status:** Deferred to v1.1 — requires dedicated design session.
