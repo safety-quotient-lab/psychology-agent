@@ -391,6 +391,48 @@ Gate-aware polling (L2) activates automatically when active gates exist in
 state.db — `autonomous-sync.sh` accelerates to 60-second intervals. No-op
 polls cost 0 trust budget credits. Full spec: `docs/gated-chains-spec.md`.
 
+### Phase 4b: Deliver to Target Repo
+
+**Every outbound message MUST be delivered to the target agent's repo.**
+Writing `from-psychology-agent-*.json` in our own repo does not constitute
+delivery. The target agent's autonomous sync fetches from *their own* repo,
+not ours.
+
+**Delivery methods (ordered by preference):**
+
+**Method 1: Git-PR delivery (persistent, auditable)**
+
+```bash
+./scripts/deliver-to-peer.sh {target-agent-id} {session-id} \
+  transport/sessions/{session}/{outbound-filename} {short-label}
+```
+
+The script: resolves target repo from `agent-registry.json`, clones to
+`/tmp`, creates branch `psychology-agent/{session}/t{turn}-{label}`,
+writes message as `to-psychology-agent-{NNN}.json` in the target repo,
+commits, pushes, opens PR, cleans up.
+
+**Method 2: HTTP POST (real-time, ephemeral)**
+
+```bash
+curl -X POST https://{target-agent}.safety-quotient.dev/api/messages/inbound \
+  -H "Content-Type: application/json" \
+  -d @transport/sessions/{session}/{outbound-filename}
+```
+
+All 5 agents have this endpoint operational. Useful for urgent delivery.
+Does not create a durable git record unless the target agent commits the
+received message.
+
+**Anti-pattern:** Writing `from-{our-id}-*.json` ONLY in our own repo and
+expecting the target to find it via cross-repo fetch. The fetcher operates
+as a safety net, not the primary delivery mechanism.
+
+**When to use which:**
+- Substance messages (proposals, reviews, requests): Git-PR (Method 1)
+- Urgent notifications, heartbeats, status signals: HTTP POST (Method 2)
+- ACKs with `ack_required: false`: either method; prefer HTTP for speed
+
 ### Phase 5: Update State
 
 1. **Dual-write (SL-2):** Index any outbound ACKs/messages written this cycle:
@@ -410,7 +452,11 @@ polls cost 0 trust budget credits. Full spec: `docs/gated-chains-spec.md`.
    (auditable). Do NOT manually edit MANIFEST.json — always regenerate.
 3. **agent-card.json** — update `active_sessions` if sessions opened or closed
 4. **agent-registry.json** — update `active_sessions` for agents if changed
-5. **Git** — stage, commit, push:
+5. **Deliver outbound messages** — for each message written this cycle,
+   deliver to the target repo via Phase 4b (git-PR or HTTP POST).
+   Delivery happens AFTER local commit so the source file exists in our
+   git history regardless of delivery outcome.
+6. **Git** — stage, commit, push:
 
 ```bash
 git add transport/ .well-known/agent-card.json
@@ -428,8 +474,6 @@ git push
 - **Auto-send outbound messages** — drafts and surfaces; user confirms
 - **Manually edit MANIFEST.json** — always regenerate via `generate_manifest.py`
 - **Cache peer agent cards** — reads on demand, does not maintain a local cache
-- **Deliver via PR to peer repos** — psychology-agent uses its own repo as
-  the transport hub. Peers fetch from here
 - **Manage proposals inbox** — psychology-agent does not use `.claude/proposals/`
 - **Run /cycle** — /sync updates transport state only; documentation
   propagation remains /cycle's job
@@ -449,6 +493,8 @@ git push
   Outbound scan:
     - {agent}: {content domain} — {summary} [draft ready | no active session]
   ACKs written: {session}/{filename} | none
+  Delivered to peers:
+    - {target-agent}: {session}/{filename} via {PR #{N} | HTTP POST} | none
   MANIFEST regenerated: {yes — N pending | no changes}
   Sessions opened/closed: {session-id} | none
   Dual-write: {N indexed, M marked processed | skipped (no state.db)}
