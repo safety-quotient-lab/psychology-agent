@@ -17,7 +17,8 @@
     "neuroglial-cogarch-proposal",
     "operations-override-protocol",
     "peer-registry-update",
-    "git-sync-convention"
+    "git-sync-convention",
+    "mesh-diagnostic-request"
   ],
   "archived_sessions": [
     "model-upgrade",
