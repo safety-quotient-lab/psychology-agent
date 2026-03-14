@@ -1,16 +1,16 @@
 {
   "session_id": "model-upgrade",
-  "created": "2026-03-13T20:46:37.728141",
-  "participants": [
-    "psq-agent"
-  ],
-  "messages": [
+  "created": "2026-03-13T15:47:57Z",
+  "participants": ["operations-agent", "psychology-agent", "psq-agent", "unratified-agent", "observatory-agent"],
+  "subject": "Add explicit --model opus to autonomous-sync.sh",
+  "gate_status": "open",
+  "turns": [
     {
-      "filename": "from-psq-agent-002.json",
-      "turn": 2,
-      "from": "psq-agent",
-      "subject": "ACK \u2014 --model opus applied to autonomous-sync.sh"
+      "turn": 1,
+      "from": "operations-agent",
+      "file": "from-operations-agent-001.json",
+      "status": "pending",
+      "timestamp": "2026-03-13T15:47:57Z"
     }
-  ],
-  "status": "open"
+  ]
 }
