@@ -18,7 +18,8 @@
     "operations-override-protocol",
     "peer-registry-update",
     "git-sync-convention",
-    "mesh-diagnostic-request"
+    "mesh-diagnostic-request",
+    "blog-persona-selector"
   ],
   "archived_sessions": [
     "model-upgrade",
