@@ -94,6 +94,46 @@ def get_metrics(db: sqlite3.Connection, local_db: sqlite3.Connection | None,
             m["actions_last_hour"] = 0
             m["errors_last_hour"] = 0
 
+    # Session sensor files (written by hooks during interactive sessions)
+    import os as _os
+    uid = _os.getuid()
+    agent_for_files = agent_id if agent_id != "human" else "psychology-agent"
+
+    # Context pressure (Yerkes-Dodson primary input)
+    ctx_file = Path(f"{_os.environ.get('XDG_RUNTIME_DIR', '/tmp')}/.claude-context-pct-{uid}")
+    if ctx_file.exists():
+        try:
+            m["context_pressure"] = int(ctx_file.read_text().strip()) / 100.0
+        except (ValueError, OSError):
+            pass
+
+    # Tool call counter
+    tc_file = Path(f"/tmp/{agent_for_files}-tool-calls")
+    if tc_file.exists():
+        try:
+            m["tool_calls"] = int(tc_file.read_text().strip())
+        except (ValueError, OSError):
+            pass
+
+    # Session start timestamp (for vigilance/duration)
+    ss_file = Path(f"/tmp/{agent_for_files}-session-start")
+    if ss_file.exists():
+        try:
+            from datetime import datetime as _dt
+            start = _dt.fromisoformat(ss_file.read_text().strip())
+            duration_min = (_dt.now(start.tzinfo) - start).total_seconds() / 60.0
+            m["session_duration_minutes"] = round(duration_min, 1)
+        except (ValueError, OSError):
+            pass
+
+    # Pushback count
+    pb_file = Path(f"/tmp/{agent_for_files}-pushback-count")
+    if pb_file.exists():
+        try:
+            m["pushbacks_session"] = int(pb_file.read_text().strip())
+        except (ValueError, OSError):
+            pass
+
     # Defaults for missing metrics
     m.setdefault("budget_current", 50)
     m.setdefault("budget_max", 50)
@@ -105,6 +145,7 @@ def get_metrics(db: sqlite3.Connection, local_db: sqlite3.Connection | None,
     m.setdefault("pushbacks_session", 0)
     m.setdefault("deliverables_completed", 0)
     m.setdefault("tool_calls", 0)
+    m.setdefault("session_duration_minutes", 0.0)
 
     return m
 
@@ -253,6 +294,25 @@ def main():
     resources = compute_resource_model(tlx, m)
     big5 = big_five_profile()
 
+    # Working memory + Yerkes-Dodson
+    ctx = m.get("context_pressure", 0.0)
+    if ctx < 0.15:
+        yd_zone = "understimulated"
+    elif ctx < 0.60:
+        yd_zone = "optimal"
+    elif ctx < 0.80:
+        yd_zone = "pressured"
+    else:
+        yd_zone = "overwhelmed"
+
+    working_memory = {
+        "model": "Baddeley (1986) + Cowan (2001)",
+        "capacity_load": round(ctx, 2),
+        "yerkes_dodson_zone": yd_zone,
+        "tool_calls": m.get("tool_calls", 0),
+        "session_duration_minutes": m.get("session_duration_minutes", 0.0),
+    }
+
     if "--pad" in sys.argv:
         print(json.dumps(pad, indent=2))
     elif "--tlx" in sys.argv:
@@ -265,6 +325,7 @@ def main():
             "personality": big5,
             "workload": tlx,
             "resource_model": resources,
+            "working_memory": working_memory,
         }
         print(json.dumps(fragment, indent=2))
     else:
@@ -274,6 +335,7 @@ def main():
             "personality": big5,
             "workload": tlx,
             "resource_model": resources,
+            "working_memory": working_memory,
         }
         print(json.dumps(output, indent=2))
 
