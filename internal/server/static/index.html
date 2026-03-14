@@ -2095,10 +2095,12 @@
         document.body.classList.remove("theme-light", "theme-lcars");
         if (mode === "light") document.body.classList.add("theme-light");
         if (mode === "lcars") document.body.classList.add("theme-lcars");
-        document.getElementById("btn-dark").classList.toggle("active", mode === "dark");
-        document.getElementById("btn-light").classList.toggle("active", mode === "light");
-        document.getElementById("btn-lcars").classList.toggle("active", mode === "lcars");
+        document.getElementById("btn-dark")?.classList.toggle("active", mode === "dark");
+        document.getElementById("btn-light")?.classList.toggle("active", mode === "light");
+        document.getElementById("btn-lcars")?.classList.toggle("active", mode === "lcars");
         localStorage.setItem("theme", mode);
+        // Sync theme across all *.safety-quotient.dev subdomains via shared cookie
+        document.cookie = `mesh-theme=${mode}; domain=.safety-quotient.dev; path=/; max-age=31536000; SameSite=Lax`;
     }
 
     // ── Tabs ───────────────────────────────────────────────────────
@@ -3983,8 +3985,9 @@
 
     // ── Init ───────────────────────────────────────────────────────
     (function init() {
-        // Restore preferences
-        const savedTheme = localStorage.getItem("theme");
+        // Restore preferences — shared cookie first, localStorage fallback
+        const cookieTheme = document.cookie.split('; ').find(c => c.startsWith('mesh-theme='))?.split('=')[1];
+        const savedTheme = cookieTheme || localStorage.getItem("theme");
         if (savedTheme && savedTheme !== "dark") setTheme(savedTheme);
 
         // Restore tab from URL fragment or deep-link to vocab term

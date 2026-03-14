@@ -122,6 +122,10 @@ func main() {
 	queueCfg := events.DefaultQueueConfig()
 	queue := events.NewQueue(queueCfg)
 
+	// ZMQ publish function — set later when ZMQ bus initializes.
+	// Used by spawn handler to broadcast completion events.
+	var zmqPublishFn func(string, any) error
+
 	// Input channel — subsystems push events here, main drains into queue
 	eventChan := make(chan events.Event, 256)
 
@@ -188,6 +192,19 @@ func main() {
 				"event_id", req.Event.ID,
 				"duration", result.Duration,
 			)
+
+			// Broadcast spawn completion to mesh via ZMQ
+			if zmqPublishFn != nil {
+				zmqPublishFn("event", map[string]any{
+					"agent_id":    cfg.AgentID,
+					"event":       "spawn_completed",
+					"event_id":    req.Event.ID,
+					"duration_ms": durationMs,
+					"status":      spawnStatus,
+					"cost":        cost,
+				})
+			}
+
 			return nil
 		},
 		func(cost int) (bool, string) { return budgetGate.CanSpawn(cost) },
@@ -257,6 +274,9 @@ func main() {
 		if err := zmqBus.Start(); err != nil {
 			logger.Error("ZMQ bus failed to start", "err", err)
 		} else {
+			// Wire publish function for spawn handler
+			zmqPublishFn = zmqBus.Publish
+
 			// Connect to initial peers from --zmq-peers flag
 			// Format: "agent-id=tcp://host:port|http://host:port,..."
 			if zmqPeers != "" {
@@ -379,6 +399,34 @@ func main() {
 	// ── Start subsystems ───────────────────────────────────────────
 
 	var wg sync.WaitGroup
+
+	// ── On-wake: broadcast "I'm alive" to mesh ────────────────────
+	startupEvt := events.NewEvent(events.EventHealthCheck, events.PriorityNormal, "startup", map[string]string{
+		"agent_id": cfg.AgentID,
+		"version":  version,
+		"event":    "meshd_started",
+	})
+	select {
+	case eventChan <- startupEvt:
+		logger.Info("startup event emitted", "agent_id", cfg.AgentID)
+	default:
+	}
+
+	// ZMQ broadcast: immediate "online" announcement (no gossip delay)
+	if zmqBus != nil {
+		zmqBus.Publish("health", map[string]string{
+			"agent_id": cfg.AgentID,
+			"status":   "online",
+			"version":  version,
+			"event":    "meshd_started",
+		})
+		logger.Info("ZMQ startup broadcast sent")
+	}
+
+	// Notify operations-agent compositor (if we aren't operations-agent)
+	if cfg.AgentID != "operations-agent" {
+		go notifyCompositorOnline(cfg, logger)
+	}
 
 	// Agent registry background refresh
 	wg.Add(1)
@@ -531,6 +579,53 @@ func runPollTicker(ctx context.Context, cfg *config.Config, eventChan chan<- eve
 			}
 		}
 	}
+}
+
+// notifyCompositorOnline sends a status update to operations-agent when
+// this agent's meshd starts. Enables real-time dashboard updates.
+func notifyCompositorOnline(cfg *config.Config, logger *slog.Logger) {
+	// Try known compositor endpoints
+	urls := []string{
+		"https://operations-agent.safety-quotient.dev/api/messages/inbound",
+		"http://localhost:8081/api/messages/inbound", // local fallback
+	}
+
+	msg := map[string]any{
+		"schema":       "interagent/v1",
+		"session_id":   "mesh-heartbeat",
+		"turn":         1,
+		"timestamp":    time.Now().UTC().Format(time.RFC3339),
+		"message_type": "notification",
+		"from":         map[string]string{"agent_id": cfg.AgentID},
+		"to":           map[string]string{"agent_id": "operations-agent"},
+		"subject":      cfg.AgentID + " meshd started",
+		"body": map[string]string{
+			"event":   "meshd_started",
+			"version": "v3",
+		},
+	}
+
+	body, _ := json.Marshal(msg)
+
+	for _, url := range urls {
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, strings.NewReader(string(body)))
+		if err != nil {
+			cancel()
+			continue
+		}
+		req.Header.Set("Content-Type", "application/json")
+		resp, err := http.DefaultClient.Do(req)
+		cancel()
+		if err == nil {
+			resp.Body.Close()
+			if resp.StatusCode < 500 {
+				logger.Info("compositor notified of startup", "url", url, "status", resp.StatusCode)
+				return
+			}
+		}
+	}
+	logger.Debug("compositor startup notification failed (non-critical)")
 }
 
 // notifyAgentCIFailure sends a CI failure notification to the responsible

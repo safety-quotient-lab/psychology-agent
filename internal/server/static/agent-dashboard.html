@@ -409,6 +409,17 @@
     }
 
     // ── Init ────────────────────────────────────────────────
+    // Load shared theme from cross-subdomain cookie
+    const cookieTheme = document.cookie.split('; ').find(c => c.startsWith('mesh-theme='))?.split('=')[1];
+    if (cookieTheme === 'lcars') {
+        document.documentElement.style.setProperty('--bg-primary', '#000000');
+        document.documentElement.style.setProperty('--bg-panel', '#111122');
+        document.documentElement.style.setProperty('--border', '#333355');
+        document.documentElement.style.setProperty('--text-primary', '#ffcc99');
+        document.documentElement.style.setProperty('--text-secondary', '#9999aa');
+        document.documentElement.style.setProperty('--c-agent', '#ff9900');
+    }
+
     renderTopology(AGENTS);
     refresh();
     connectSSE();
