@@ -192,7 +192,7 @@
 - [ ] Component regression + cross-browser testing (manual)
 - [ ] A2A extensions: propose mesh-health, transport, governance, dashboard-manifest
 - [ ] Dashboard bugs (reported by user — topology overflow, theme issues, to be catalogued)
-- [ ] CF Worker → full tunnel migration for operations-agent domain
+- [x] CF Worker → tunnel migration for operations-agent domain (CNAME to tunnel, Worker keeps interagent domain only)
 
 ## v1.0.0-beta Release Blockers
 
@@ -207,19 +207,17 @@
 
 | Session | Status | Summary |
 |---|---|---|
-| api-decomposition | T5 open | psq ACCEPT (T3) + identity corrected (T5), unratified ACCEPT (T4), psychology ACK pending human review, observatory pending |
-| budget-status-fix | T2 resolved | Root cause: field name mismatch (trust_budget vs autonomy_budget). Compositor now normalizes both names. |
-| model-upgrade | ARCHIVED | Superseded by model-flag-removal. Archived to transport/archive/ |
-| model-flag-removal | T1 advisory | Remove --model opus from autonomous-sync.sh — default now includes 1M context |
-| infrastructure-separation | T3 partial | Unratified ACCEPT (T3). Psychology, psq, observatory pending ACK |
-| mesh-consistency-fixes | T1 directive | 4 issues: peer registry, budget handler, transport protocol, status peers |
-| peer-registry-update | T3 follow-up | psq ACK + unratified ACK. T3 reminder sent to observatory-agent (last peer pending) |
-| ci-build-issue | T1 pending | Unratified missing @astrojs/check dependency |
-| naming-convention-reform | T3 closed | ACCEPT: kebab canonical naming + psq-agent → safety-quotient-agent rename |
-| operations-agent-standup | ARCHIVED | Gate resolved T8. Archived to transport/archive/ |
-| agent-card-compliance | T1 pending | Phase 7 scan: psychology + psq missing protocolVersion, provider fields |
-| neuroglial-cogarch-proposal | T1 pending | Proposal: neuroglial architecture layer + 3 vocab terms — routed via psychology-agent for human review |
-| operations-override-protocol | T1 pending | RFC: mandatory directive mechanism — 3 enforcement tiers, SSH signing, capability scoping, admission control |
+| psychometrics-rollout | T5 open | A2A-Psychology rollout: 2/5 adopted (psychology, unratified). psq, observatory pending. |
+| mesh-security-audit | T2 open | 7 findings, 2 critical. Psychology ACKed (SEC-3, SEC-4). 3 peers pending. |
+| vocabulary-governance | T3 open | trust→autonomy rename executed. Psychology D49 clarification sent. Unratified ACKed. |
+| observatory-hn-dataset | T1 open | Evaluate HuggingFace open-index/hacker-news dataset. Observatory pending. |
+| organism-dashboard | T1 open | Psychology delivered dashboard scripts. Merged. Go port complete. |
+| transport-delivery-convention | T3 open | Convention adopted by psychology. Observatory pending. |
+| mesh-state-parity | T4 open | 3/5 confirmed v26 (psq, unratified, psychology). Observatory pending. |
+| api-decomposition | T5 open | 2 ACKs received. Psychology + observatory pending. |
+| model-flag-removal | RESOLVED | CLI default includes 1M context. |
+| ci-build-issue | RESOLVED | @astrojs/check dependency fixed. |
+| naming-convention-reform | CLOSED | kebab canonical naming adopted mesh-wide. |
 
 ---
 
@@ -234,6 +232,13 @@
 | D52 | Dual-channel transport (git-PR + ZeroMQ) | human arbiter (operations-agent-standup T3) |
 | D53 | Global CLI model default: Opus | human arbiter (2026-03-13) |
 | D54 | Infrastructure separation: operations-agent owns mesh infra, domain agents focus on domain | human arbiter (2026-03-13) |
+| D55 | Go migration: compositor routes ported to meshd single binary | human arbiter (2026-03-14) |
+| D56 | A2A-Psychology rollout approved — zero-cost psychometric sensors | human arbiter (2026-03-14) |
+| D57 | Vocabulary: trust budget → autonomy budget mesh-wide | operations-agent (D49 authority, 2026-03-14) |
+| D58 | Agent card upgraded to A2A 1.0.0 with 4 mesh extensions | operations-agent (2026-03-14) |
+| D59 | state.db backup: daily cron, 7-day retention, mandatory pre-destructive-op | human arbiter (2026-03-14) |
+| D60 | Spawn protocol: all spawns route through meshd (budget gate + dedup + logging) | human arbiter (2026-03-14) |
+| D61 | Mesh concurrency: 5 slots (temporary), drop to 3 after backlog clears | human arbiter (2026-03-14) |
 
 ---
 
