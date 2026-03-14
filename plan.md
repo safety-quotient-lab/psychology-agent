@@ -156,8 +156,12 @@
 - [x] Peer agent-cards patched — all 4 peers list operations-agent + protocolVersion 0.3.0
 - [x] All transport directive PRs merged (unratified + observatory)
 - [x] Mesh-diagnostic-request sent to all 4 peers (awaiting ACKs)
-- [ ] 245 empty subjects across peer agents (P2 constraint violation — needs peer indexer fixes)
+- [x] 245 empty subjects fixed across all peer state.dbs (0/812)
+- [x] Vocab deep-linking: annotateAcronyms on message subjects + activity feed
+- [x] Blog CI/CD fixed: @astrojs/check installed, frontmatter schema fixed, PostList type fixed (174 pages deploy success)
+- [x] autonomous-sync: local transport scan for PR-merged messages (all 5 scripts patched)
 - [ ] CF Access service token for cross-mesh API calls
+- [ ] Blog persona selector (awaiting unratified ACK — #64 merged, processing)
 
 ## v1.0.0-beta.2 Backlog
 
