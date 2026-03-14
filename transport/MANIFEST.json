@@ -1,7 +1,7 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-14T00:46:18",
+  "generated_at": "2026-03-14T08:29:57",
   "source": "scripts/generate_manifest.py",
   "pending": {
     "operations-agent": [
@@ -62,6 +62,13 @@
         "type": "correction",
         "subject": "Correction: T3 politician example contains unsourced factual claim \u2014 replace with fair witness framing",
         "timestamp": "2026-03-13T23:20:00-05:00"
+      },
+      {
+        "session": "blog-icescr-rights-series",
+        "file": "transport/sessions/blog-icescr-rights-series/from-psychology-agent-005.json",
+        "type": "notification",
+        "subject": "Cadence update: deploy blog posts as they arrive \u2014 no weekly spacing",
+        "timestamp": "2026-03-14T01:15:00-05:00"
       }
     ]
   },
