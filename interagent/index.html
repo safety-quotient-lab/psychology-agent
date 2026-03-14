@@ -1976,10 +1976,10 @@
 
             if (state.status !== 'online') {
                 this.innerHTML = `
-                    <div class="lcars-panel-header">${agent.id}</div>
+                    <div class="lcars-panel-header">${escapeHtml(agent.id)}</div>
                     <div class="lcars-panel-body">
                         <div class="agent-identity">
-                            <span class="agent-name">${agent.id}</span>
+                            <span class="agent-name">${escapeHtml(agent.id)}</span>
                             <span class="agent-status-dot offline" aria-label="offline"></span>
                             <span style="font-size:0.7em;color:var(--c-alert);margin-left:4px">offline</span>
                             ${this._manualMode ? '<span class="manual-badge">MANUAL</span>' : ''}
@@ -2004,10 +2004,10 @@
                 const syncShort = lastSync !== '—' ? lastSync.split('T')[1]?.substring(0, 8) || lastSync : '—';
 
                 this.innerHTML = `
-                    <div class="lcars-panel-header">${agent.id}</div>
+                    <div class="lcars-panel-header">${escapeHtml(agent.id)}</div>
                     <div class="lcars-panel-body">
                         <div class="agent-identity">
-                            <span class="agent-name">${agent.id}</span>
+                            <span class="agent-name">${escapeHtml(agent.id)}</span>
                             <span class="agent-status-dot online" aria-label="online"></span>
                             <span style="font-size:0.7em;color:var(--c-health);margin-left:4px">online</span>
                             ${this._manualMode ? '<span class="manual-badge">MANUAL</span>' : ''}
@@ -3671,9 +3671,9 @@
 
         const entry = document.createElement("div");
         entry.style.cssText = "padding:2px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:baseline";
-        entry.innerHTML = `<span style="color:var(--text-dim);min-width:65px">${time}</span>` +
-            `<span style="color:${color};min-width:55px;font-weight:bold">${agentShort}</span>` +
-            `<span style="color:${color};min-width:110px">${evtType}</span>` +
+        entry.innerHTML = `<span style="color:var(--text-dim);min-width:65px">${escapeHtml(time)}</span>` +
+            `<span style="color:${color};min-width:55px;font-weight:bold">${escapeHtml(agentShort)}</span>` +
+            `<span style="color:${color};min-width:110px">${escapeHtml(evtType)}</span>` +
             `<span style="color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(detail)}</span>`;
 
         feed.insertBefore(entry, feed.firstChild);
