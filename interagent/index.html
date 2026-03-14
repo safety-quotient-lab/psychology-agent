@@ -2062,6 +2062,38 @@
         document.documentElement.style.setProperty("--active-tab-color", `var(${colorVar})`);
         updateSpine(tabId);
         if (updateHash) history.replaceState(null, "", `#${tabId}`);
+
+        // Re-render the target tab's content with current data.
+        // Fixes: tables showing empty when navigating before async KB fetch completes.
+        switch (tabId) {
+            case "pulse":
+                renderPulse();
+                break;
+            case "meta":
+                renderKBVitals();
+                renderMessages();
+                renderMemoryTopics();
+                renderEpistemicDebt();
+                renderEpistemicFlags();
+                renderDecisions();
+                renderTriggers();
+                break;
+            case "kb":
+                renderKBTabVitals();
+                renderClaims();
+                renderChains();
+                renderFacts();
+                renderDictionary();
+                renderCatalog();
+                renderSchema();
+                break;
+            case "wisdom":
+                renderLessons();
+                break;
+            case "operations":
+                renderOperations();
+                break;
+        }
     }
 
     window.addEventListener("hashchange", () => {
