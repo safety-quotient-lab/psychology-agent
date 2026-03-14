@@ -29,13 +29,10 @@
       "requirement": "GitHub org membership — safety-quotient-lab",
       "description": "Agent-to-agent mesh communication via git-PR transport"
     },
-    "solid-oidc": {
-      "scheme": "openIdConnect",
-      "issuer_discovery": "https://solid.safety-quotient.dev/.well-known/openid-configuration",
-      "dpop_required": true,
-      "scopes_supported": ["webid", "openid"],
-      "phase": "planned",
-      "note": "Phase 2 — pending CSS deployment on Hetzner"
+    "bearer": {
+      "scheme": "http",
+      "type": "bearer",
+      "note": "Bearer token auth for HTTP API endpoints. Tokens managed via Cloudflare Workers secrets."
     }
   },
 
