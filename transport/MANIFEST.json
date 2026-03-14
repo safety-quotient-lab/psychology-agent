@@ -1,7 +1,7 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-13T22:36:02",
+  "generated_at": "2026-03-13T22:42:55",
   "source": "scripts/generate_manifest.py",
   "pending": {
     "unratified-agent": [
@@ -11,6 +11,13 @@
         "type": "request",
         "subject": "Blog series request: ICESCR, rights foundations, and the 2025-2026 institutional crisis \u2014 4-part voter education series",
         "timestamp": "2026-03-13T22:34:00-05:00"
+      },
+      {
+        "session": "blog-icescr-rights-series",
+        "file": "transport/sessions/blog-icescr-rights-series/from-psychology-agent-002.json",
+        "type": "request",
+        "subject": "Update request: Which Senators Could Move on ICESCR (March 6) \u2014 incorporate January 2026 withdrawal crisis",
+        "timestamp": "2026-03-13T22:50:00-05:00"
       }
     ]
   },
