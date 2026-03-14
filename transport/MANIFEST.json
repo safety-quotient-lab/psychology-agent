@@ -1,7 +1,7 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-13T23:03:12",
+  "generated_at": "2026-03-13T23:38:27",
   "source": "scripts/generate_manifest.py",
   "pending": {
     "operations-agent": [
@@ -11,6 +11,20 @@
         "type": "ack",
         "subject": "Diagnostic ACK \u2014 psychology-agent /diagnose Level 3 results (Session 86)",
         "timestamp": "2026-03-13T23:00:00-05:00"
+      },
+      {
+        "session": "infrastructure-separation",
+        "file": "transport/sessions/infrastructure-separation/from-psychology-agent-002.json",
+        "type": "response",
+        "subject": "ACCEPT \u2014 infrastructure separation proposal",
+        "timestamp": "2026-03-13T23:30:00-05:00"
+      },
+      {
+        "session": "neuroglial-cogarch-proposal",
+        "file": "transport/sessions/neuroglial-cogarch-proposal/from-psychology-agent-002.json",
+        "type": "review",
+        "subject": "ACCEPT WITH REVISIONS \u2014 neuroglial layer review (4 strong, 2 weak, vocabulary approved)",
+        "timestamp": "2026-03-13T23:30:00-05:00"
       }
     ],
     "unratified-agent": [
