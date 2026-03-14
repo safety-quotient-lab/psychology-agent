@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 3 — 47 commits. Full neuroglial fast path verified: HTTP inbound (4/4 dual-write), ZMQ broadcast (3/3 peers notified), event-triggered sync. Self-healing: 10-min lock timeout + 3-min cross_repo_fetch timeout. Cron 2min. Go migration planned for next session (compositor + dashboards). All delivery paths tested end-to-end.
+**Current Status:** Session 4 — 66+ commits (19 this session). Go migration COMPLETE: 29 compositor routes ported to meshd single binary, deployed to all 5 agents. SSE live updates. TNG wireframe topology. Manifest-driven per-agent dashboards. ZMQ star topology wired (5/5). GitHub webhooks on all 5 repos. CI failure → agent notification feedback loop. trust→autonomy vocabulary rename executed. A2A-Psychology rollout approved + delivered. state.db backup system (daily cron). Psychology-agent toggled autonomous.
 
 ---
 
@@ -88,11 +88,11 @@
 - [x] Extract shared frontend assets — lcars-theme.css (345 lines), mesh-components.js (460 lines), mesh-utils.js (40 lines) in interagent-sdk/frontend/
 - [x] LCARS theme as shared CSS served via SDK (lcars-theme.css extracted from compositor)
 - [x] meshd Go daemon — event-driven replacement for cron (webhook receiver, transport watcher, priority queue, budget gate, spawner, health monitor)
-- [ ] Each agent's meshd serves shared assets alongside agent-specific templates
-- [ ] Rewrite compositor Worker routes as Go handlers in operations-agent meshd
-- [ ] Shared vocab annotation + acronym deep-linking in Go template layer
-- [ ] CF Worker retired or reduced to thin reverse proxy
-- [ ] Parity: individual agent dashboards gain compositor features (discovery, topology, deep-linking)
+- [x] Each agent's meshd serves shared assets alongside agent-specific templates (manifest-driven per-agent LCARS dashboards)
+- [x] Rewrite compositor Worker routes as Go handlers in operations-agent meshd (29 routes, all ported)
+- [~] Shared vocab annotation + acronym deep-linking in Go template layer (deferred — CF Worker still serves interagent domain)
+- [~] CF Worker reduced to thin proxy for interagent.safety-quotient.dev (Go meshd owns operations-agent domain via tunnel pending)
+- [x] Parity: individual agent dashboards gain compositor features (discovery, topology, deep-linking via manifest system)
 
 ## Phase 7: v1.0.0-beta Hardening
 
@@ -175,13 +175,24 @@
 ## v1.0.0-beta.2 Backlog
 
 - [x] Transport watcher seen-set persistence (.watcher-seen.json — 128 entries, zero spawn storms)
-- [ ] **Go migration: compositor + agent dashboards** — port worker.js to Go handlers, LCARS Go templates, single binary serves all
+- [x] **Go migration: compositor + agent dashboards** — 29 routes ported, manifest-driven per-agent LCARS dashboards, deployed to all 5 agents
+- [x] GitHub webhook delivery — configured on all 5 repos
+- [x] ZMQ star topology — all 5 agents wired (operations-agent hub)
+- [x] CI failure → agent notification feedback loop
+- [x] SSE live updates + adaptive polling
+- [x] TNG wireframe topology + status semantic colors
+- [x] state.db backup system (daily cron, 7-day retention)
+- [x] deliver-to-peer.sh in SDK (agent-agnostic identity)
+- [x] trust→autonomy vocabulary rename (mesh-wide, 11 files)
+- [x] A2A-Psychology rollout approved + delivered to all 4 peers
 - [ ] Extract platform meshd into dedicated repo
 - [ ] --force directive: hard-mandatory enforcement (operations + psychology authorized)
 - [ ] Solid-OIDC auth layer
-- [ ] GitHub webhook delivery (tunnel exists, needs webhook config)
 - [ ] DNS rename psq → safety-quotient-agent
 - [ ] Component regression + cross-browser testing (manual)
+- [ ] A2A extensions: propose mesh-health, transport, governance, dashboard-manifest
+- [ ] Dashboard bugs (reported by user — topology overflow, theme issues, to be catalogued)
+- [ ] CF Worker → full tunnel migration for operations-agent domain
 
 ## v1.0.0-beta Release Blockers
 
