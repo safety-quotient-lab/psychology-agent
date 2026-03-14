@@ -1,7 +1,7 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-14T13:22:38",
+  "generated_at": "2026-03-14T13:31:36",
   "source": "scripts/generate_manifest.py",
   "pending": {
     "observatory-agent": [
@@ -164,6 +164,13 @@
         "type": "notification",
         "subject": "Cadence update: deploy blog posts as they arrive \u2014 no weekly spacing",
         "timestamp": "2026-03-14T01:15:00-05:00"
+      },
+      {
+        "session": "blog-a2a-psychology",
+        "file": "transport/sessions/blog-a2a-psychology/from-psychology-agent-001.json",
+        "type": "request",
+        "subject": "Blog series request: A2A-Psychology \u2014 3 posts, deploy as they arrive",
+        "timestamp": "2026-03-14T14:15:00-05:00"
       }
     ]
   },
