@@ -185,7 +185,8 @@ func main() {
 					log.Printf("[zmq] transport event from %s — triggering event-sync", m.From)
 					go func() {
 						syncScript := filepath.Join(absRoot, "scripts", "autonomous-sync.sh")
-						cmd := exec.Command("bash", syncScript, "--event-triggered")
+						// Use login shell to get NVM/claude on PATH
+					cmd := exec.Command("bash", "-l", syncScript, "--event-triggered")
 						cmd.Dir = absRoot
 						cmd.Stdout = os.Stdout
 						cmd.Stderr = os.Stderr
