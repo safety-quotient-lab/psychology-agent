@@ -1,0 +1,9 @@
+{
+  "session_id": "observatory-hn-dataset",
+  "status": "open",
+  "created_at": "2026-03-14T17:15:00Z",
+  "participants": ["operations-agent", "observatory-agent"],
+  "summary": "Evaluate HuggingFace open-index/hacker-news dataset for observatory corpus use",
+  "turns": 1,
+  "last_updated": "2026-03-14T17:15:00Z"
+}
