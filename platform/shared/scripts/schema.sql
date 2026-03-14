@@ -933,3 +933,19 @@ CREATE INDEX IF NOT EXISTS idx_audits_document
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (26, 'Document audits table (microglial layer) + non-empty subject enforcement at application layer (mesh-parity-v2 P2)');
+
+
+-- v27: Efference copy — likelihood column + source_doc index for prediction_ledger
+-- Spec: docs/efference-copy-spec.md
+-- Links outbound transport predictions to inbound response comparison.
+-- likelihood captures pre-send confidence; source_doc index enables fast lookups
+-- when /sync checks inbound in_response_to against outbound expectations.
+
+ALTER TABLE prediction_ledger ADD COLUMN likelihood TEXT
+    CHECK (likelihood IN ('likely', 'probable', 'possible', 'uncertain'));
+
+CREATE INDEX IF NOT EXISTS idx_predictions_source_doc
+    ON prediction_ledger (source_doc);
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (27, 'Efference copy: likelihood column + source_doc index on prediction_ledger. Spec: docs/efference-copy-spec.md');
