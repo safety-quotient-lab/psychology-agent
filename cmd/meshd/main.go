@@ -24,6 +24,7 @@ import (
 
 	"github.com/safety-quotient-lab/operations-agent/internal/budget"
 	"github.com/safety-quotient-lab/operations-agent/internal/config"
+	"github.com/safety-quotient-lab/operations-agent/internal/db"
 	"github.com/safety-quotient-lab/operations-agent/internal/events"
 	"github.com/safety-quotient-lab/operations-agent/internal/health"
 	"github.com/safety-quotient-lab/operations-agent/internal/monitor"
@@ -140,6 +141,38 @@ func main() {
 			defer budgetGate.ReleaseSlot(slotPath)
 
 			result, spawnErr := spawnr.Spawn(dctx, req.Prompt)
+
+			// Dual-write: persist spawn result to state.db
+			spawnStatus := "completed"
+			spawnError := ""
+			exitCode := 0
+			durationMs := int64(0)
+			if result != nil {
+				exitCode = result.ExitCode
+				durationMs = result.Duration.Milliseconds()
+			}
+			if spawnErr != nil {
+				spawnStatus = "failed"
+				spawnError = spawnErr.Error()
+			} else if result != nil && result.ExitCode != 0 {
+				spawnStatus = "error"
+				spawnError = result.Stderr
+			}
+			cost := budgetGate.EstimateCost(budget.Priority(req.Event.Priority))
+			logSQL := fmt.Sprintf(
+				"INSERT INTO spawn_log (agent_id, event_id, prompt, exit_code, duration_ms, cost, status, error, started_at) "+
+					"VALUES ('%s', '%s', '%s', %d, %d, %d, '%s', '%s', datetime('now'));",
+				db.SanitizeID(cfg.AgentID),
+				db.EscapeString(req.Event.ID),
+				db.EscapeString(req.Prompt[:min(len(req.Prompt), 200)]),
+				exitCode, durationMs, cost,
+				db.EscapeString(spawnStatus),
+				db.EscapeString(spawnError[:min(len(spawnError), 500)]),
+			)
+			if _, dbErr := db.Exec(cfg.BudgetDBPath, logSQL); dbErr != nil {
+				logger.Warn("spawn log write failed", "err", dbErr)
+			}
+
 			if spawnErr != nil {
 				return spawnErr
 			}
@@ -195,6 +228,20 @@ func main() {
 
 	// Health monitor — tracks all subsystem health
 	healthMon := health.NewMonitor(logger)
+	healthMon.OnObserve = func(agentID, checkType, status, detail string) {
+		if agentID == "" {
+			agentID = cfg.AgentID
+		}
+		sql := fmt.Sprintf(
+			"INSERT INTO health_observations (agent_id, check_type, status, detail) "+
+				"VALUES ('%s', '%s', '%s', '%s');",
+			db.SanitizeID(agentID), db.EscapeString(checkType),
+			db.EscapeString(status), db.EscapeString(detail[:min(len(detail), 500)]),
+		)
+		if _, err := db.Exec(cfg.BudgetDBPath, sql); err != nil {
+			logger.Debug("health observation write failed", "err", err)
+		}
+	}
 
 	// CI monitor — polls GitHub Actions across all peer repos for build failures
 	meshRepos := []string{

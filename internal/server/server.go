@@ -180,6 +180,7 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/kb", s.handleKB)
 	mux.HandleFunc("POST /api/messages/inbound", s.handleInbound)
 	mux.HandleFunc("GET /api/routing", s.handleRouting)
+	mux.HandleFunc("GET /api/search", s.handleSearch)
 }
 
 // middleware chains recovery, CORS, request logging, and version header

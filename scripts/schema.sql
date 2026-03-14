@@ -146,6 +146,62 @@ CREATE TABLE IF NOT EXISTS universal_facets (
     UNIQUE(entity_type, entity_id, facet_type, facet_value)
 );
 
+-- ── Spawn log ─────────────────────────────────────────────────
+-- Records every Claude spawn attempt for observability and cost tracking.
+
+CREATE TABLE IF NOT EXISTS spawn_log (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    agent_id     TEXT NOT NULL,
+    event_id     TEXT,
+    prompt       TEXT,
+    exit_code    INTEGER,
+    duration_ms  INTEGER,
+    cost         INTEGER NOT NULL DEFAULT 0,
+    status       TEXT NOT NULL DEFAULT 'completed',
+    error        TEXT,
+    started_at   TEXT NOT NULL DEFAULT (datetime('now')),
+    created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ── Health observations ───────────────────────────────────────
+-- Persists health monitor findings for trend analysis.
+
+CREATE TABLE IF NOT EXISTS health_observations (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    agent_id      TEXT NOT NULL,
+    check_type    TEXT NOT NULL,
+    status        TEXT NOT NULL,
+    detail        TEXT,
+    observed_at   TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ── Full-text search (FTS5) ───────────────────────────────────
+-- Virtual tables for fast keyword search across transport messages,
+-- decisions, and vocabulary. Populated via triggers on base tables.
+
+CREATE VIRTUAL TABLE IF NOT EXISTS fts_messages USING fts5(
+    session_name, from_agent, to_agent, message_type, subject,
+    content='transport_messages',
+    content_rowid='id'
+);
+
+CREATE VIRTUAL TABLE IF NOT EXISTS fts_decisions USING fts5(
+    decision_key, title, source,
+    content='decisions',
+    content_rowid='id'
+);
+
+-- Triggers to keep FTS in sync with base tables
+CREATE TRIGGER IF NOT EXISTS fts_messages_insert AFTER INSERT ON transport_messages BEGIN
+    INSERT INTO fts_messages(rowid, session_name, from_agent, to_agent, message_type, subject)
+    VALUES (new.id, new.session_name, new.from_agent, new.to_agent, new.message_type, new.subject);
+END;
+
+CREATE TRIGGER IF NOT EXISTS fts_decisions_insert AFTER INSERT ON decisions BEGIN
+    INSERT INTO fts_decisions(rowid, decision_key, title, source)
+    VALUES (new.id, new.decision_key, new.title, new.source);
+END;
+
 -- ── Indexes ───────────────────────────────────────────────────────
 
 CREATE INDEX IF NOT EXISTS idx_claims_status ON claims(status);
@@ -157,3 +213,7 @@ CREATE INDEX IF NOT EXISTS idx_mos_domain ON mos_scores(scoring_domain);
 CREATE INDEX IF NOT EXISTS idx_mos_run_at ON mos_scores(run_at);
 CREATE INDEX IF NOT EXISTS idx_facets_entity ON universal_facets(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_facets_type_value ON universal_facets(facet_type, facet_value);
+CREATE INDEX IF NOT EXISTS idx_spawn_agent ON spawn_log(agent_id);
+CREATE INDEX IF NOT EXISTS idx_spawn_started ON spawn_log(started_at);
+CREATE INDEX IF NOT EXISTS idx_health_agent ON health_observations(agent_id);
+CREATE INDEX IF NOT EXISTS idx_health_observed ON health_observations(observed_at);

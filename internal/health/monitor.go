@@ -64,12 +64,16 @@ type Checkable interface {
 	HealthCheck() (Status, string)
 }
 
+// ObservationFunc receives health check results for persistence (dual-write).
+type ObservationFunc func(agentID, checkType, status, detail string)
+
 // Monitor coordinates periodic health checks across all registered subsystems
 // and invokes self-healing functions when a subsystem enters a non-healthy state.
 type Monitor struct {
 	subsystems map[string]*Subsystem
 	checkers   map[string]Checkable
 	healFuncs  map[string]func() error
+	OnObserve  ObservationFunc // called after each health check for persistence
 	mu         sync.RWMutex
 	logger     *slog.Logger
 }
@@ -137,6 +141,11 @@ func (m *Monitor) Check() {
 				"message", msg,
 				"fail_count", sub.FailCount,
 			)
+		}
+
+		// Dual-write: persist observation to state.db
+		if m.OnObserve != nil && (status != prev || status != Healthy) {
+			m.OnObserve("", name, status.String(), msg)
 		}
 
 		// Attempt self-healing when the subsystem deviates from Healthy.
