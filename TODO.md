@@ -600,6 +600,24 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
 
 ---
 
+## v1 Release Blocker: Documentation Audit
+
+- [ ] **Full README + docs consistency/accuracy/staleness review** — BLOCKER for v1.
+  Scope: README.md, COLOPHON.md, CLAUDE.md, docs/*.md (all non-snapshot docs),
+  cogarch.config.json, agent-card.json, agent-registry.json.
+  Checks: (1) internal consistency (counts, versions, stats match across documents),
+  (2) factual accuracy (claims match current code/state), (3) staleness (stale
+  references to renamed/removed components), (4) completeness gaps (sections that
+  promise content not delivered, missing cross-references), (5) room for expansion
+  (sections that need deepening for external audience), (6) vocabulary consistency
+  (autonomy budget not trust budget, 14 frameworks not 13, 17 active triggers not 18).
+  Method: microglial audit rotation covers individual documents; this item requires
+  a *cross-document* consistency pass that the per-document audit cannot perform.
+  Precondition: all evaluation findings resolved (✓), vocabulary governance
+  directive acknowledged by ops.
+
+---
+
 ## Public Release Preparation
 
 - [x] **Document state layer extensions in README + wiki** — COMPLETE (Session 59c).
