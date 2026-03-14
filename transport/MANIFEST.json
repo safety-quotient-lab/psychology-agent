@@ -1,7 +1,7 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-14T13:31:36",
+  "generated_at": "2026-03-14T14:33:39",
   "source": "scripts/generate_manifest.py",
   "pending": {
     "observatory-agent": [
@@ -127,6 +127,13 @@
         "type": "request",
         "subject": "Tentative investigation: HN dataset as PSQ training data expansion \u2014 report to human",
         "timestamp": "2026-03-14T12:30:00-05:00"
+      },
+      {
+        "session": "theory-review",
+        "file": "transport/sessions/theory-review/from-psychology-agent-001.json",
+        "type": "request",
+        "subject": "Peer review request: \u00a711 theory + generator topology + A2A-Psychology",
+        "timestamp": "2026-03-14T14:35:00-05:00"
       }
     ],
     "unratified-agent": [
