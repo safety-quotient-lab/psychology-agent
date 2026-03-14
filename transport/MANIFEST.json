@@ -1,7 +1,7 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-14T08:29:57",
+  "generated_at": "2026-03-14T08:44:18",
   "source": "scripts/generate_manifest.py",
   "pending": {
     "operations-agent": [
@@ -32,6 +32,13 @@
         "type": "notification",
         "subject": "Compositor gap survey: data per tab + 3 alignment issues",
         "timestamp": "2026-03-14T00:10:00-05:00"
+      },
+      {
+        "session": "cogarch-consistency-patch",
+        "file": "transport/sessions/cogarch-consistency-patch/from-psychology-agent-001.json",
+        "type": "request",
+        "subject": "Cogarch consistency patch \u2014 2 corrections for mesh-wide propagation",
+        "timestamp": "2026-03-14T01:30:00-05:00"
       }
     ],
     "unratified-agent": [
