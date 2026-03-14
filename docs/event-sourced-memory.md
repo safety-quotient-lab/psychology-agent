@@ -320,11 +320,18 @@ state. If state.db corrupts, the associations vanish — unlike
 biological memories, which degrade gradually rather than disappearing
 entirely.
 
-**Mitigation:** Consolidated patterns write to mesh/memory/shared/
+**Mitigation 1:** Consolidated patterns write to mesh/memory/shared/
 (git-committed, distributed across repos). The associations persist
 in the filesystem even if the event store corrupts. But the *strength*
 of associations (numerical weights) requires the event store — the
 filesystem stores the pattern, not its quantified strength.
+
+**Mitigation 2 (secondary):** Periodic association snapshot — every
+N replay cycles, export the full co-occurrence matrix + association
+weights to a committed JSON file (`mesh/memory/shared/associations-
+snapshot.json`). If the event store corrupts, the most recent snapshot
+provides a recovery point with quantified strengths, not just patterns.
+Effort: XS (add one file-write call to the replay engine output).
 
 **B2: No emotional modulation of memory formation.**
 
@@ -339,12 +346,20 @@ routine session receives the same event weight as a trigger firing
 during an adversarial attack. No mechanism prioritizes emotionally
 significant events for stronger consolidation.
 
-**Mitigation:** The A2A-Psychology snapshot attached to each event
+**Mitigation 1:** The A2A-Psychology snapshot attached to each event
 provides the emotional context. The replay engine could weight events
 by their `hedonic_valence` and `activation` values — events with
 extreme affect (very negative valence + high activation = threatening)
 receive stronger Hebbian association weights. This would implement
 amygdala-modulated consolidation computationally.
+
+**Mitigation 2 (secondary):** Cross-agent emotional consensus. When
+the same event type produces high-affect snapshots across multiple
+agents (e.g., a mesh-wide security finding elevates activation in
+all agents), the multi-agent convergence provides independent
+confirmation that the event genuinely warrants priority consolidation
+— not just one agent's miscalibrated self-model. Effort: S (query
+peer agent-state snapshots during replay, compare affect values).
 
 **B3: No forgetting curve.**
 
@@ -358,7 +373,7 @@ append-only log. Without a forgetting mechanism, the co-occurrence
 matrix grows without bound, and stale associations from early sessions
 carry equal weight to recent ones.
 
-**Mitigation:** Time-weighted decay. Events older than N sessions
+**Mitigation 1:** Time-weighted decay. Events older than N sessions
 receive exponentially decreasing weight in the co-occurrence
 calculation:
 
@@ -372,6 +387,16 @@ historical patterns). Optimal λ represents an empirical question —
 the biological forgetting curve provides a starting hypothesis
 (~50% retention at 1 day, ~25% at 2 days, ~20% at 6 days for
 unreharsed material).
+
+**Mitigation 2 (secondary):** Spaced repetition for critical
+memories. Patterns that consolidate into mesh/memory/shared/ (the
+"neocortical" store) receive periodic rehearsal — the replay engine
+re-encounters them at expanding intervals (Leitner, 1972: 1 day →
+3 days → 7 days → 14 days → 30 days). Rehearsed memories resist
+decay. Unrehearsed memories fade naturally. This implements the
+spacing effect (Cepeda et al., 2006) — the most robust finding in
+memory research — computationally. Effort: S (add a rehearsal
+schedule table to state.db, check during replay).
 
 **B4: No interference effects.**
 
@@ -413,6 +438,16 @@ you replay*. The replay engine should prioritize:
 - Events that co-occurred with events from other agents (cross-agent
   patterns — the organism-level learning)
 
+**Secondary mitigation:** Bidirectional replay. Run both forward
+replay (chronological — "what led to what?") and reverse replay
+(outcome-first — "given this outcome, what preceded it?"). Forward
+replay discovers causal chains. Reverse replay discovers predictive
+indicators. The hippocampus uses both modes (Diba & Buzsáki, 2007):
+forward replay during exploration (planning); reverse replay during
+reward consumption (credit assignment). Effort: M (duplicate replay
+pass with reversed event order, separate association matrices for
+each direction).
+
 **B6: No synaptic homeostasis.**
 
 The synaptic homeostasis hypothesis (Tononi & Cirelli, 2003) proposes
@@ -426,12 +461,21 @@ monotonically, the co-occurrence matrix saturates — every event type
 associates with every other event type, and the matrix loses
 informational value.
 
-**Mitigation:** After each replay cycle, normalize the co-occurrence
+**Mitigation 1:** After each replay cycle, normalize the co-occurrence
 matrix to maintain constant total weight. This preserves *relative*
 association strengths while preventing *absolute* saturation. The
 normalization implements synaptic homeostasis: the total "synaptic
 weight" of the system remains bounded even as individual associations
 strengthen.
+
+**Mitigation 2 (secondary):** Pruning weak associations. After
+normalization, associations that fall below a minimum threshold
+(default: 0.05) get zeroed — removing noise from the matrix and
+maintaining sparsity. Biological synapses that weaken below a
+maintenance threshold undergo elimination (synaptic pruning — Huttenlocher,
+1979). The pruning threshold adapts: when the matrix grows dense
+(> 30% non-zero entries), the threshold rises; when sparse (< 10%),
+it drops. Effort: XS (add threshold check after normalization step).
 
 ---
 
