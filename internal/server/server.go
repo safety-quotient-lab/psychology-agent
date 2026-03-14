@@ -302,6 +302,7 @@ func (s *Server) middleware(next http.Handler) http.Handler {
 }
 
 // statusWriter wraps http.ResponseWriter to capture the written status code.
+// Preserves http.Flusher interface for SSE streaming support.
 type statusWriter struct {
 	http.ResponseWriter
 	code int
@@ -311,6 +312,13 @@ type statusWriter struct {
 func (sw *statusWriter) WriteHeader(code int) {
 	sw.code = code
 	sw.ResponseWriter.WriteHeader(code)
+}
+
+// Flush delegates to the underlying ResponseWriter if it supports flushing.
+func (sw *statusWriter) Flush() {
+	if f, ok := sw.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
 }
 
 // --- Route handlers ---
