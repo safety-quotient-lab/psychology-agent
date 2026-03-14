@@ -846,3 +846,149 @@ Whitehead) adopted as ontological commitment. E-Prime's connection to
 Korzybski's general semantics → Wilson's model agnosticism → Whitehead's
 process philosophy revealed the implicit commitment. Extends Lesson 10
 ("inherited framing runs unexamined") to inherited *practices*.
+
+---
+
+## 2026-03-13T16:30 CDT — Unified Feedback Consumers Outperform Isolated Signals
+
+```yaml
+pattern_type: architecture-insight
+domain: cogarch
+severity: medium
+recurrence: 1
+first_seen: 2026-03-13
+last_seen: 2026-03-13
+trigger_relevant: T11
+promotion_status: null
+```
+
+**The lesson:** Write-only signal stores (tables that accumulate data with no
+consumer) provide zero operational value until a consumer reads them. Combining
+multiple signals into a single scan (trigger effectiveness + expectations +
+disclosures + carryover + lesson promotion) produces a coherent picture that
+individual queries cannot. The unified consumer reveals cross-signal patterns:
+a domain with high disclosure uncertainty AND low expectation accuracy AND
+chronic carryover points to a systematic competence gap, not isolated issues.
+
+**Where it appeared:** Session 85 — trigger_activations (schema v23), EIC
+disclosures (v24), prediction_ledger (v25), and work_carryover all existed
+as write-only stores. `scripts/feedback-loops.sh` unified them into one scan.
+The combination revealed that psychometrics held 100% of expectations but
+0 trigger activation data — two signals that individually meant little but
+together indicated the domain operated without mechanical enforcement.
+
+---
+
+## 2026-03-13T17:00 CDT — Single-Pass Evaluation Inflates Perceived Thoroughness
+
+```yaml
+pattern_type: reasoning-error
+domain: evaluation
+severity: medium
+recurrence: 1
+first_seen: 2026-03-13
+last_seen: 2026-03-13
+trigger_relevant: T3
+promotion_status: null
+```
+
+**The lesson:** Finding an issue and immediately fixing it in the same pass
+creates a halo effect (L7) on the evaluation itself. The evaluator feels
+thorough because fixes landed quickly. An independent audit in a separate
+session — where the auditor lacks the context of having just fixed things —
+provides more reliable verification of whether fixes actually resolved their
+target issues.
+
+**The tell:** A high fix rate reported in the same breath as the finding count.
+"53 findings, 37 fixed" produced in one session should carry lower confidence
+than "53 findings (session A), 37 verified fixed (session B)."
+
+**Where it appeared:** Session 85 cogarch evaluation — 10 dimensions, 53
+findings, 37 claimed fixed. The L7 halo risk surfaces because the same
+context that identified the issues also implemented the fixes, with no
+independent verification pass.
+
+---
+
+## 2026-03-13T17:10 CDT — A2A Extensions Carry Personality Without Breaking Protocol
+
+```yaml
+pattern_type: architecture-insight
+domain: interagent
+severity: low
+recurrence: 1
+first_seen: 2026-03-13
+last_seen: 2026-03-13
+trigger_relevant: null
+promotion_status: null
+```
+
+**The lesson:** Standard protocols (A2A agent cards, interagent/v1) support
+extension fields that peers ignore if they don't recognize them. This
+provides a clean mechanism for carrying non-standard metadata (personality
+traits, processual ontological commitments, communication style preferences)
+without breaking interoperability. Agents that understand the extension
+adapt their communication; agents that don't proceed normally.
+
+**Where it appeared:** Session 85 — the `personality` field added to
+agent-card.json (A2A extension). Fields like `voice`, `traits`,
+`communication_style` travel with the agent card. Peers that fetch the
+card can adjust outbound tone. No protocol version bump needed.
+
+---
+
+## 2026-03-13T16:00 CDT — Crystallization Thresholds Prevent Premature Automation
+
+```yaml
+pattern_type: architecture-insight
+domain: governance
+severity: high
+recurrence: 1
+first_seen: 2026-03-13
+last_seen: 2026-03-13
+trigger_relevant: T10
+promotion_status: null
+```
+
+**The lesson:** Without explicit thresholds for when a convention advances
+to mechanical enforcement (hook), the system either automates too early
+(brittle hooks for patterns that haven't proven stable) or too late
+(conventions that recur indefinitely without enforcement). The 3+3+10
+threshold (3 recurrences for convention, 3 more post-graduation for hook,
+10 sessions clean for invariant) provides a principled gate at each
+transition. Each stage gets a fair trial before escalating.
+
+**Where it appeared:** Session 85 — L4 (Confidence ≠ Accuracy) became the
+first lesson to complete the full progression: pattern → lesson → convention
+(evaluation.md) → hook (confidence-calibration-screen.sh). The threshold
+framework emerged from asking "how many recurrences justify automation?"
+and finding that the convention had recurred 3 times after graduation —
+demonstrating that deliberate following alone did not channel the pattern.
+
+---
+
+## 2026-03-13T15:30 CDT — Blog Deployment Requires Verification, Not Trust in ACK
+
+```yaml
+pattern_type: observation-error
+domain: operations
+severity: medium
+recurrence: 1
+first_seen: 2026-03-13
+last_seen: 2026-03-13
+trigger_relevant: T16
+promotion_status: null
+```
+
+**The lesson:** A transport ACK or PR title claiming "published" does not
+mean the content reached the live site. Deployment pipelines can fail
+silently — content reaches the repo but CI/CD does not trigger, or
+triggers but fails, or succeeds but deploys to the wrong environment.
+Verification requires checking the actual endpoint, not the transport
+acknowledgment.
+
+**Where it appeared:** Session 85 — PR #169 titled "post published" for
+the CPG pattern generators blog post. WebFetch verification of
+blog.unratified.org found zero psychology-agent posts. The post existed
+in the unratified repo but never deployed. The RPG Scan #001 finding
+(ACK ≠ completion) predicted exactly this class of gap.
