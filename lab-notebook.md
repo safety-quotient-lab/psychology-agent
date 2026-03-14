@@ -79,7 +79,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | B5 bifactor CFA               | ✓ COMPLETE — omega_h=0.942, 5-item bipolar confirmed (turns 34-36) |
 | B5-S structural comparison    | ✓ COMPLETE — M5 accepted as final model (RMSEA=0.129, turn 38-39) |
 | Project board sync            | ✓ `sync_project_board.py` — TODO.md ↔ GitHub Projects reconciliation, --mark-in-progress flag, /cycle Step 11b, /hunt Phase 6, /iterate Phase 3 (Session 58, 59c) |
-| GitHub issues (full coverage) | ✓ All 20 open TODO items tracked as issues (#94–#108 created Session 59c); #46 closed (deprecated) |
+| GitHub issues (full coverage) | ✓ 35 open issues. 6 retired closed, 20 created (#193–#212) Session 87 |
 | GitHub release v0.6.0         | ✓ Sessions 50-57: autonomous infra, SL-2, cogarch portability, hooks, interagent, DX (Session 58) |
 | Orientation payload           | ✓ `scripts/orientation-payload.py` — state.db → compact context for autonomous sessions (Session 59) |
 | Heartbeat mesh                | ✓ `scripts/heartbeat.py` — emit/scan/negotiate, 30-min stale threshold, registry-filtered (Session 59) |
@@ -172,7 +172,10 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | agentdb Go binary               | ✓ Phases 1-5 COMPLETE — 22+ subcommands, DB split, deployed to chromabook (4 repos). Phase 6 (cleanup) pending (Session 80, 83) |
 | Crystallized sync               | ✓ Steps 1-7 COMPLETE — triage, auto-ACK, gate resolve, autonomous-sync.sh integration, orientation-payload --post-triage, mesh-status crystallization metric. 52% rate on 123 msgs. Deployed to chromabook (Session 83) |
 | Operations-agent standup        | ✓ Turns 1-6 complete. Operations-agent bootstrapped, meshd on port 8081, cogarch adaptation pending (Session 82-83) |
-| Einstein-Freud rights theory    | ✓ 1,989-line treatise — 14 frameworks, 5 structural invariants, process monism, EIC spec (schema v24), Taoist dual generators, wu wei governance. Blog submitted to unratified. Cogarch self-upgraded + patch to operations-agent (Session 85) |
+| Einstein-Freud rights theory    | ✓ 2,834-line treatise — §11 consciousness/coherence, §11.9 apophatic discipline, §11.10 generator topology (8 generators, conservation laws). Session 86 additions merged via PR #191 (Session 87) |
+| v1 doc audit                    | ✓ 4-agent parallel audit: 8 findings fixed (cogarch.config, architecture, triggers, /doc skill). ~35 E-Prime violations deferred (Session 87) |
+| SEC-4 remediation               | ✓ solid-oidc removed from agent card, replaced with bearer auth (Session 87) |
+| Mesh security audit ACK         | ✓ ACK'd SEC-3/4/6/7, forwarded PSQ budget-exhausted to ops. Delivered via PR #22 to operations-agent (Session 87) |
 | PSQ integration               | ✗ Pending PSQ readiness (separate context)       |
 | GitHub repository             | ✓ safety-quotient-lab/psychology-agent (public)  |
 | Ecosystem evaluation (round 2)| ✓ 5 repos evaluated, 7 candidates ranked (Session 13) |
@@ -5785,3 +5788,45 @@ Channel concrete spec (schema v24). Blog post submitted for live deployment.
 - Prediction ledger re-seeded from RPG Scan #001 covers 14/38 original predictions — remaining 24 require manual re-entry from lab-notebook
 
 ▶ README.md, COLOPHON.md, scripts/microglial-audit.py, transport/sessions/blog-icescr-rights-series/, transport/sessions/neuroglial-cogarch-proposal/, transport/sessions/agent-personality-rollout/
+
+
+## 2026-03-14T15:08 CDT — Session 87 (Mesh sync, SEC-4 fix, backlog triage, v1 doc audit)
+
+**Scope:** Evaluative session — mesh synchronization, security remediation, backlog
+management, and documentation audit. Yin-generator work following Session 86 marathon.
+
+- **Mesh sync (/sync all):** Fetched all 4 cross-repo peers. Found new activity
+  across psq-agent (budget exhausted), unratified-agent (~15 new messages across
+  7 sessions), observatory-agent (6 messages across 4 sessions). 2 inbound PRs
+  processed.
+- **PR #192 merged:** unratified-agent blog-a2a-psychology T2 ACK — 3-post blog
+  series "Teaching Agents to Know Themselves" accepted.
+- **PR #191 merged:** operations-agent mesh-security-audit T1 — 7 findings, 2
+  critical. §11.10 generator topology (8 generators, coupling map, conservation laws).
+- **Security audit ACK:** Accepted SEC-3 (A2A 1.0.0 upgrade), SEC-4 (solid-oidc),
+  SEC-6 (zmq_pub), SEC-7 (extension URIs). Forwarded PSQ budget-exhausted status
+  to operations-agent. Delivered via PR #22 to ops repo.
+- **SEC-4 fixed:** Removed unimplemented solid-oidc from agent-card.json, replaced
+  with bearer auth scheme.
+- **Activity summary:** Generated detailed table of Session 86 activity — 62
+  substantive commits, 346 autonomous cycles, 7 PRs merged, 53/53 eval findings.
+- **Backlog triage:** Closed 6 retired GitHub issues (#51, #53, #55, #56, #95, #99).
+  Created 20 new issues (#193–#212) covering security, cogarch, infrastructure,
+  content, and research. Total open: 35.
+- **v1 doc audit (#194):** 4 parallel audit agents scanned architecture.md (2,703
+  lines), cognitive-triggers.md (841 lines), all cross-references (135 refs), and
+  vocabulary consistency (6 search patterns). Results:
+  - 1 CRITICAL: cogarch.config.json `trust_budget` → `autonomy_budget`
+  - 2 HIGH: architecture.md trigger count (T1-T16 → T1-T18), psq-sub-agent → psq-agent
+  - 5 MEDIUM: schema v21 → v26, provenance header, three-layer → four-layer refs
+  - ~35 LOW: E-Prime violations (deferred)
+  - All 8 actionable findings fixed and pushed.
+
+**Commit count:** 4 (SEC-4 fix, security ACK, doc audit fixes, this cycle)
+
+⚑ EPISTEMIC FLAGS
+- Cross-reference audit reported memory/ directory missing — needs verification (auto-memory path vs repo path distinction)
+- E-Prime violations deferred to dedicated cleanup pass — ~35 instances across architecture.md and cognitive-triggers.md
+- PSQ agent budget exhaustion root cause not investigated — observation forwarded to ops
+
+▶ .well-known/agent-card.json, cogarch.config.json, docs/architecture.md, docs/cognitive-triggers.md, transport/sessions/mesh-security-audit/
