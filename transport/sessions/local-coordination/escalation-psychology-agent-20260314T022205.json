@@ -1,0 +1,23 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "local-coordination",
+  "timestamp": "2026-03-14T02:22:05.896379+00:00",
+  "message_type": "escalation",
+  "from": {
+    "agent_id": "psychology-agent"
+  },
+  "to": {
+    "agent_id": "human"
+  },
+  "content": {
+    "subject": "git pull failed (unknown) \u2014 recovery unsuccessful",
+    "severity": "warning",
+    "category": "git-sync-failure",
+    "context": "Agent: psychology-agent. Output: error: cannot pull with rebase: Your index contains uncommitted changes.\nerror: please commit or stash them.",
+    "issue_url": "https://github.com/safety-quotient-lab/psychology-agent/issues/176"
+  },
+  "ack_required": true,
+  "urgency": "normal",
+  "setl": 0.02,
+  "epistemic_flags": []
+}
