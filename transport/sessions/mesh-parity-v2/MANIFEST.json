@@ -1,0 +1,16 @@
+{
+  "session_id": "mesh-parity-v2",
+  "created": "2026-03-13T22:07:06.110966",
+  "participants": [
+    "operations-agent"
+  ],
+  "messages": [
+    {
+      "filename": "from-operations-agent-001.json",
+      "turn": 1,
+      "from": "operations-agent",
+      "subject": ""
+    }
+  ],
+  "status": "open"
+}
