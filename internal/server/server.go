@@ -251,6 +251,9 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	// Dashboard manifest (per-agent widget declarations)
 	mux.HandleFunc("GET /dashboard/manifest", s.handleManifest)
 
+	// Psychometrics (A2A-Psychology — Go fast path)
+	mux.HandleFunc("GET /api/psychometrics", s.handlePsychometrics)
+
 	// Transport relay + redirect
 	mux.HandleFunc("POST /api/relay", s.handleRelay)
 	mux.HandleFunc("POST /api/redirect", s.handleRedirect)
