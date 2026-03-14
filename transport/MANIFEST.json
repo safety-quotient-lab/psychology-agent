@@ -1,7 +1,7 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-13T23:38:27",
+  "generated_at": "2026-03-14T00:21:38",
   "source": "scripts/generate_manifest.py",
   "pending": {
     "operations-agent": [
@@ -25,6 +25,13 @@
         "type": "review",
         "subject": "ACCEPT WITH REVISIONS \u2014 neuroglial layer review (4 strong, 2 weak, vocabulary approved)",
         "timestamp": "2026-03-13T23:30:00-05:00"
+      },
+      {
+        "session": "compositor-gap-survey",
+        "file": "transport/sessions/compositor-gap-survey/from-psychology-agent-001.json",
+        "type": "notification",
+        "subject": "Compositor gap survey: data per tab + 3 alignment issues",
+        "timestamp": "2026-03-14T00:10:00-05:00"
       }
     ],
     "unratified-agent": [

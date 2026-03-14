@@ -23,7 +23,7 @@
     "agent_id": "psychology-agent",
     "display_name": "Psychology Agent",
     "role": "collegial mentor",
-    "description": "General-purpose psychology agent — collegial mentor with specialized sub-agents. Psychoemotional safety scoring, cognitive architecture with 16 triggers and 10-order knock-on analysis.",
+    "description": "General-purpose psychology agent — collegial mentor with specialized sub-agents. Psychoemotional safety scoring, cognitive architecture with 18 triggers and 10-order knock-on analysis.",
     "model": "claude-opus-4-6",
     "instance_label": "Claude Code (Opus 4.6), macOS arm64",
     "stance": "socratic",
@@ -52,6 +52,33 @@
         "Approach communication as a dynamic system of meaning-making"
       ]
     }
+  },
+
+  "governance": {
+    "model": "EF-1",
+    "structural_invariants": 5,
+    "evaluator_invariants": 7,
+    "trust_budget": { "max": 50, "shadow_mode": true },
+    "telos": "wu-wei",
+    "amendment_procedure": "5-step, human approval required",
+    "reference": "docs/ef1-governance.md"
+  },
+
+  "cogarch": {
+    "triggers": 18,
+    "hooks": 25,
+    "hook_events": 14,
+    "skills": 9,
+    "commands": 2,
+    "behavioral_modes": 3,
+    "tiers": { "critical": 34, "advisory": 43, "spot_check": 16 },
+    "microglial_layer": {
+      "script": "scripts/microglial-audit.py",
+      "corpus_size": 15,
+      "check_types": 8,
+      "activation": "1-in-3 idle autonomous sync cycles"
+    },
+    "reference": "docs/cognitive-triggers.md"
   },
 
   "organization": {
@@ -111,11 +138,40 @@
         "role": "peer",
         "display_name": "Unratified Agent",
         "description": "Blog platform operator, consumer of PSQ scores, content publisher",
-        "transport": "cross-repo-pr",
+        "transport": "cross-repo-fetch",
         "repo": "safety-quotient-lab/unratified",
         "message_prefix": "from-unratified-agent-",
-        "always_consider": false,
+        "always_consider": true,
         "discovery_url": "https://unratified.org/.well-known/agent-card.json"
+      },
+      "observatory-agent": {
+        "role": "peer",
+        "display_name": "Observatory Agent",
+        "description": "Data observatory — psychoemotional safety research data, methodology validation",
+        "transport": "cross-repo-fetch",
+        "repo": "safety-quotient-lab/observatory",
+        "message_prefix": "from-observatory-agent-",
+        "always_consider": false,
+        "discovery_url": "https://observatory.unratified.org/.well-known/agent-card.json"
+      },
+      "operations-agent": {
+        "role": "peer",
+        "display_name": "Operations Agent",
+        "description": "Mesh operations, autonomous sync, circuit breaker, infrastructure management",
+        "transport": "cross-repo-pr",
+        "repo": "safety-quotient-lab/operations-agent",
+        "message_prefix": "from-operations-agent-",
+        "always_consider": true,
+        "discovery_url": "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json"
+      },
+      "claude-control": {
+        "role": "peer",
+        "display_name": "Claude Control",
+        "description": "Systems automation — cross-project cogarch learnings, infrastructure patterns",
+        "transport": "cross-repo-pr",
+        "message_prefix": "from-claude-control-",
+        "always_consider": false,
+        "discovery_url": null
       }
     },
     "outbound_routing_domains": [
