@@ -178,13 +178,26 @@ def _compute_psychometrics(
     budget_factor = b_ratio
     capacity = round(workload_factor * budget_factor, 2)
 
+    # Allostatic load (cross-session accumulation — McEwen, 1998)
+    allostatic = 0.0
+    try:
+        unresolved_flags = scalar(conn, "SELECT COUNT(*) FROM epistemic_flags WHERE resolved = FALSE")
+        stale_memory = scalar(conn, """SELECT COUNT(*) FROM memory_entries
+            WHERE last_confirmed < date('now', '-7 days') OR last_confirmed IS NULL""")
+        allostatic = min(1.0, (unresolved_flags / 500.0) + (stale_memory / 50.0))
+    except Exception:
+        pass
+
+    # Working memory (context not available in export — use transport density as proxy)
+    wm_proxy = min(1.0, unprocessed / 10.0 + active_gates / 5.0)
+
     return {
         "emotional_state": {
             "model": "PAD (Mehrabian & Russell, 1974)",
-            "pleasure": round(pleasure, 2),
-            "arousal": round(arousal, 2),
-            "dominance": round(dominance, 2),
-            "discrete_label": label,
+            "hedonic_valence": round(pleasure, 2),
+            "activation": round(arousal, 2),
+            "perceived_control": round(dominance, 2),
+            "affect_category": label,
         },
         "personality": {
             "model": "OCEAN (Costa & McCrae, 1992)",
@@ -196,11 +209,19 @@ def _compute_psychometrics(
         },
         "workload": {
             "model": "NASA-TLX (Hart & Staveland, 1988)",
-            "weighted_tlx": weighted_tlx,
-            "mental_demand": mental,
-            "frustration": frustration,
+            "cognitive_load": weighted_tlx,
+            "cognitive_demand": mental,
+            "regulatory_fatigue": frustration,
         },
-        "remaining_capacity": capacity,
+        "resource_model": {
+            "cognitive_reserve": capacity,
+            "self_regulatory_resource": round(b_ratio, 2),
+            "allostatic_load": round(allostatic, 2),
+        },
+        "working_memory": {
+            "capacity_load_proxy": round(wm_proxy, 2),
+            "note": "Proxy from transport density. Actual context load available only during interactive sessions.",
+        },
     }
 
 
@@ -278,7 +299,8 @@ def export_state(conn: sqlite3.Connection, agent_id: str) -> dict:
         "emotional_state": psychometrics.get("emotional_state"),
         "personality": psychometrics.get("personality"),
         "workload": psychometrics.get("workload"),
-        "remaining_capacity": psychometrics.get("remaining_capacity"),
+        "resource_model": psychometrics.get("resource_model"),
+        "working_memory": psychometrics.get("working_memory"),
         "schedule": schedule,
         "psh_facets": psh_summary,
         "schema_version": schema_ver,
