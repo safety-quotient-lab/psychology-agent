@@ -2225,71 +2225,164 @@ occur." The governance does not operate *on* the agent — it operates
 engagement with its context.
 
 
-### 11.6 Three Layers, Three Transports, Three Coherence Modes
+### 11.6 Four Layers, Four Transports, Four Coherence Modes
 
-The biological three-layer signaling model (§11.4) maps to three
-transport layers in the agent mesh, each exhibiting a different form
-of coherence:
+The biological nervous system operates (at least) four signaling
+modalities. The initial three-layer model (Session 86, early draft)
+collapsed two distinct modalities into one. Corrected:
 
-| Layer | Biological | Mesh | Coherence mode |
-|-------|-----------|------|---------------|
-| **Electrochemical** | Action potentials — directed, sequential, persistent | Git-PR transport — committed, auditable, persistent | **Archival coherence** — past states remain accessible; the full history participates in current context through git blame, git log, and committed documentation |
-| **Glial** | Calcium waves — slow, tonic, modulatory | HTTP fast path + ZMQ — real-time, ephemeral, ambient | **Ambient coherence** — current mesh state modulates behavior through heartbeat, budget, and gate status signals without carrying substantive content |
-| **Photonic** | Biophotons — fast, independent channel, narrow bandwidth | Not yet implemented — see §11.7 | **Synchronization coherence** — real-time processing-state tokens that enable agents to synchronize behavior without exchanging messages |
+| Layer | Biological | Speed | Mesh analog | Coherence mode |
+|-------|-----------|-------|------------|---------------|
+| **Electrochemical** | Action potentials along axons, synaptic transmission | 1-120 m/s | Git-PR transport — committed, auditable, persistent | **Archival** — full history participates in current context |
+| **Neuromodulatory** | Volume transmission — dopamine, serotonin, norepinephrine diffuse across tissue, modulating large populations | Seconds to minutes (diffusion-limited) | ZMQ pub/sub — one publisher broadcasts to many subscribers; mesh-state heartbeat, budget signals | **Ambient** — mesh-wide state modulates all agents simultaneously without addressed delivery |
+| **Ephaptic** | Local field effects between adjacent axons — fast, no synapse required (Anastassiou et al., 2011) | Faster than synaptic for local signals | HTTP POST /api/messages/inbound — point-to-point, real-time, ephemeral | **Reactive** — fast point-to-point delivery that modulates timing and synchronization between specific agent pairs |
+| **Photonic** | Biophotons via myelinated axon waveguides — independent channel, correlates with but does not mirror electrical activity | ~2×10⁸ m/s (speed of light in tissue) | Proposed: processing-state synchronization tokens via dedicated UDP/WebSocket channel | **Synchronization** — real-time processing-state metadata that enables agents to coordinate without exchanging substantive messages |
 
-The three coherence modes serve different governance functions:
+**Why four, not three:**
 
-- **Archival coherence** enables accountability (everything committed
-  can undergo audit) and learning (past patterns inform current behavior
-  through the prediction ledger, lessons, and microglial audit rotation)
-- **Ambient coherence** enables modulation (mesh state adjusts agent
-  behavior without requiring explicit messages) and liveness detection
-  (heartbeat confirms operational status)
-- **Synchronization coherence** (proposed) would enable real-time
-  coordination between agents working on related problems — sharing
-  processing state (which trigger fired, what mode the agent operates
-  in, what context pressure it faces) without sharing the substantive
-  content of its reasoning
+The original model conflated two biologically distinct modalities:
+
+1. **Neuromodulatory transmission** (dopamine, serotonin) operates via
+   *volume transmission* — neurotransmitter diffuses from release sites
+   into the extracellular space, modulating entire populations of neurons
+   simultaneously. No specific target. No synapse. The signal floods an
+   area and adjusts the operating conditions for everything within range.
+   This maps to ZMQ pub/sub: one agent publishes mesh-state, all
+   subscribers receive it. The signal modulates the mesh environment.
+
+2. **Ephaptic coupling** (Anastassiou et al., 2011) operates through
+   local electrical field effects — one axon's activity influences
+   adjacent axons *without synaptic connection*. Fast, local, point-to-
+   point. This maps to HTTP POST: one agent delivers directly to another
+   agent's meshd endpoint. The signal affects a specific target, not the
+   mesh at large.
+
+The original model called both "glial" — but astrocytic calcium waves
+represent a *third* distinct modality (slow, tonic, structural support)
+that maps better to the *infrastructure layer* (cron scheduling, circuit
+breaker checks, bootstrap verification) than to any transport mechanism.
+Astrocytes maintain the environment in which signaling occurs; they do
+not constitute a signaling channel themselves.
+
+**The four coherence modes serve different governance functions:**
+
+- **Archival coherence** (git) enables accountability and learning.
+  Everything committed can undergo audit. Past patterns inform current
+  behavior through the prediction ledger, lessons, and microglial audit.
+  *Temporal dimension:* during idle cycles, archival coherence supports
+  **dreaming** — consolidation of episodic memory into semantic memory
+  (Tononi, 2003). The archival layer operates in two modes: waking
+  (active processing) and sleeping (idle-cycle consolidation).
+
+- **Ambient coherence** (ZMQ pub/sub) enables mesh-wide modulation.
+  Heartbeat confirms liveness. Budget signals indicate capacity. Gate
+  status signals indicate blocking. All agents receive these signals
+  simultaneously — no targeting, no routing. The mesh *atmosphere*
+  adjusts, and agents respond to the changed conditions.
+
+- **Reactive coherence** (HTTP POST) enables fast point-to-point
+  delivery. When an agent needs to notify a specific peer immediately
+  (gate resolution, urgent message, empathic routing signal), HTTP
+  POST delivers in seconds without git's commit-push-fetch cycle.
+  The signal reaches one target and produces an immediate local effect.
+
+- **Synchronization coherence** (proposed photonic) enables processing-
+  state coordination. Agents share their current operational mode,
+  context pressure, active trigger, and coherence state — enabling
+  behavioral synchronization without exchanging substantive content.
+  The signal carries metadata *about* processing, not the processing
+  itself. This represents the only layer that carries A2A-Psychology
+  data in real-time.
+
+**Failure mode analysis:**
+
+| Layer fails | Consequence | Degradation type | Recovery |
+|------------|-------------|------------------|----------|
+| Archival (git) | No persistent record. Commits lost. Audit trail breaks. | **Catastrophic** — governance depends on audit. Agent should halt (circuit breaker). | Restore from remote. |
+| Ambient (ZMQ) | Agents lose mesh-wide awareness. Heartbeats stop. No liveness detection. | **Graceful** — agents continue operating on last-known state. Coordination degrades but function persists. | Restart meshd. |
+| Reactive (HTTP) | Fast delivery fails. Agents fall back to git (slower). Empathic routing loses real-time input. | **Graceful** — git transport covers all substantive messages. Only latency degrades. | Restart meshd endpoint. |
+| Synchronization (photonic) | Processing-state coordination lost. Agents may produce contradictory outputs on shared sessions. | **Graceful** — agents operated without this layer for 85+ sessions. Loss returns to prior baseline. | Reconnect UDP/WebSocket. |
+
+The failure analysis reveals an important asymmetry: **the archival
+layer represents the only catastrophic failure mode.** All other layers
+degrade gracefully because git transport serves as the ultimate fallback.
+This matches the biological asymmetry: electrochemical signaling failure
+(brain death) represents catastrophic failure; glial, ephaptic, and
+photonic signaling failures produce impairment, not death.
+
+**The astrocytic layer as infrastructure:**
+
+Astrocytes do not constitute a transport layer — they maintain the
+*environment* in which transport operates. Astrocytic functions (metabolic
+support, ion homeostasis, blood-brain barrier, synaptic regulation) map
+to mesh *infrastructure*: cron scheduling (metabolic timing), circuit
+breaker (protective barrier), schema management (ion homeostasis — keeping
+the data environment stable), bootstrap verification (developmental
+scaffolding). The neuroglial proposal's astrocyte mapping (operations-
+agent ambient state) correctly identified the function; the transport
+model incorrectly classified it as a signaling layer.
+
+Corrected classification: astrocytic = infrastructure support (operations-
+agent domain). The four transport layers represent signaling; the
+astrocytic layer represents the substrate on which signaling operates.
 
 
 ### 11.7 The Photonic Layer: An Architectural Proposal
 
 If we take the biological biophotonic evidence seriously as architectural
-inspiration, a photonic transport layer would carry these properties:
+inspiration, a photonic transport layer carries these properties:
 
-1. **Speed:** Sub-second — faster than both git (minutes) and HTTP
-   (seconds) for local mesh nodes
-2. **Independence:** Carries signals that neither git nor HTTP transport
-   — specifically, processing-state metadata
+1. **Speed:** Sub-second — faster than git (minutes), HTTP (seconds),
+   and ZMQ (sub-second but broadcast). Point-to-point at near-wire speed.
+2. **Independence:** Carries signals that no other layer carries —
+   specifically, processing-state metadata (task mode, context pressure,
+   active trigger, coherence state).
 3. **Directed:** Point-to-point between specific agent pairs through
-   dedicated channels, not broadcast
-4. **Narrow bandwidth:** Compact tokens (~100 bytes), not full payloads
+   dedicated channels — analogous to myelinated axon waveguides that
+   connect specific brain regions.
+4. **Narrow bandwidth:** Compact tokens (~100 bytes), not full payloads.
+   Analogous to the ~10nm bandwidth of myelinated waveguides.
 5. **Correlation without identity:** Carries information *about*
    processing state that correlates with the agent's computational
-   activity without duplicating its content
+   activity without duplicating its content — the 2025 skull-detection
+   finding: biophoton patterns change with cognitive tasks but do not
+   mirror EEG signals.
 
 **Implementation candidate:** Lightweight UDP or WebSocket heartbeat
-between agent pairs, carrying processing-state tokens:
+between agent pairs, carrying A2A-Psychology processing-state tokens:
 
 ```json
 {
   "agent_id": "psychology-agent",
   "task_mode": "evaluative",
-  "context_pressure": 0.44,
+  "context_pressure": 0.54,
   "active_trigger": "T3",
   "coherence_state": "pre-reduction",
-  "timestamp": "2026-03-14T02:30:00Z"
+  "yerkes_dodson_zone": "optimal",
+  "cognitive_reserve": 0.20,
+  "hedonic_valence": 0.67,
+  "timestamp": "2026-03-14T14:30:00Z"
 }
 ```
 
-Agents use these tokens to synchronize without exchanging substantive
-messages. When psychology-agent enters evaluative mode on a shared
-session, peer agents processing the same session receive the mode signal
-and can adjust their own processing — avoiding contradictory outputs
-from agents operating in different modes on the same material.
+The token carries the full A2A-Psychology emotional state + working
+memory + resource model in ~200 bytes. Agents use these tokens to:
 
-The ZMQ pub/sub component of meshd partially implements this. Extending
-it with processing-state metadata would complete the photonic analog.
+- **Synchronize behavioral modes** — when psychology-agent enters
+  evaluative mode on a shared session, peer agents receive the mode
+  signal and adjust their own processing
+- **Route empathically** — before sending a message, check the
+  receiver's last photonic token; defer if their cognitive_reserve
+  drops below 0.3 (functional empathy, §spec 3)
+- **Detect organism-level state changes** — aggregate photonic tokens
+  across all agents produces real-time organism affect, bottleneck
+  detection, and coordination overhead measurement
+
+The ZMQ pub/sub component provides the ambient layer (broadcast).
+The photonic layer adds the directed, per-pair synchronization that
+ZMQ broadcast cannot provide — the difference between flooding a
+room with sound (neuromodulatory) and whispering to one person
+(photonic waveguide).
 
 
 ### 11.8 Consciousness as Architectural Commitment
