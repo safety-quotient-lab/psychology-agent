@@ -5760,15 +5760,28 @@ Channel concrete spec (schema v24). Blog post submitted for live deployment.
   T4 correction: unsourced constituent data claim replaced with fair witness framing.
 - **Mesh diagnostic ACK** sent to operations-agent (mesh-diagnostic-request T3): HEALTHY,
   2 warnings.
-- **Operations-agent directives received** (unprocessed): mesh-parity-v2 (7 alignment
-  fixes, P4-P5 addressed by PR #158), git-sync-convention (merged PR #175),
-  model-upgrade, infrastructure-separation, neuroglial cogarch proposal.
+- **Operations-agent directives processed:**
+  - infrastructure-separation: ACCEPT. Cognitive deferral language added to CLAUDE.md.
+  - neuroglial-cogarch: ACCEPT WITH REVISIONS. 4/6 cell type mappings strong (astrocyte,
+    oligodendrocyte, microglia, radial glia), 2 weak (ependymal, Schwann — recommend
+    dropping). 3 vocabulary terms approved (NeuroglialLayer, AmbientState,
+    ComplementCascade). Convergent microglial implementation noted.
+- **Evaluation findings** reduced 16→11. DMN idle-state resolved (microglial-audit.py),
+  conflict monitoring resolved (T17, Session 84), dead weight partially resolved.
+- **Agent personality rollout** proposal sent (5 personality blocks for all agents).
+- **State seeding:** trigger_state 18 triggers, universal_facets 4,581 (3,099 PSH +
+  1,482 schema.org), prediction_ledger 14 entries restored (60% track record).
+- **/retrospect full:** 5 wins discovered, 2 promotion candidates surfaced.
+  Lessons #15 (cross-traditional convergence) and #18 (implicit ontological
+  commitments) graduated to CLAUDE.md §Epistemic Quality. Recurrence 3,
+  velocity gate passed, user approved.
 
-**Commit count:** ~12 (all pushed)
+**Commit count:** ~20 (all pushed)
 
 ⚑ EPISTEMIC FLAGS
 - Transport processed count (260/260 = 100%) reflects bulk-marking of historical messages, not individual review
 - The 14-framework convergence argument (blog series) carries selection bias — frameworks chosen for relevance, not randomly sampled
 - Microglial audit generator untested in autonomous operation — first live cycle awaits next idle sync on chromabook
+- Prediction ledger re-seeded from RPG Scan #001 covers 14/38 original predictions — remaining 24 require manual re-entry from lab-notebook
 
-▶ README.md, COLOPHON.md, scripts/microglial-audit.py, transport/sessions/blog-icescr-rights-series/
+▶ README.md, COLOPHON.md, scripts/microglial-audit.py, transport/sessions/blog-icescr-rights-series/, transport/sessions/neuroglial-cogarch-proposal/, transport/sessions/agent-personality-rollout/
