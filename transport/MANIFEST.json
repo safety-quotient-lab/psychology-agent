@@ -16,7 +16,8 @@
     "naming-convention-reform",
     "neuroglial-cogarch-proposal",
     "operations-override-protocol",
-    "peer-registry-update"
+    "peer-registry-update",
+    "git-sync-convention"
   ],
   "archived_sessions": [
     "model-upgrade",
