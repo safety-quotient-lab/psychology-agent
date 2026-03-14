@@ -947,6 +947,18 @@ main() {
         exit 1
     fi
 
+    # Scan for locally-present but unindexed transport messages.
+    # PR-merged messages bypass the git diff check (head_before == head_after
+    # when the transport dir was synced before pull). This scan catches them.
+    if [ "\${TRANSPORT_CHANGED}" = false ] && [ -d "transport/sessions" ]; then
+        local local_unindexed
+        local_unindexed=\$(find transport/sessions -name "from-*.json" -newer "\${DB_PATH}" 2>/dev/null | wc -l | tr -d " ")
+        if [ "\${local_unindexed}" -gt 0 ] 2>/dev/null; then
+            TRANSPORT_CHANGED=true
+            log "Local transport scan: \${local_unindexed} files newer than state.db"
+        fi
+    fi
+
     # Index cross-repo inbound messages BEFORE pre-flight check.
     # cross_repo_fetch uses git fetch (not git pull), so new peer messages
     # won't appear in TRANSPORT_CHANGED. Indexing first ensures the
