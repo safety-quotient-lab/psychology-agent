@@ -10,6 +10,13 @@ provides a governance-cost-free pathway for self-reporting. This script converts
 those disclosures into actionable trigger adjustments — completing the feedback
 loop that makes disclosures *useful*, not just recorded.
 
+Strange loop (Hofstadter, 1979): this script implements the D → F path in
+the self-referential governance loop (docs/theoretical-directions.md §8).
+High-level self-description (disclosures) feeds back into low-level
+governance (trigger sensitivity), which changes behavior, which changes
+future self-descriptions. The loop stability depends on feedback gain α < 1
+(§8.2) — this script's relevance_score adjustments must remain bounded.
+
 Mechanism: when an agent discloses uncertainty about a domain, triggers that
 operate in that domain receive a relevance_score boost (more likely to fire
 their ADVISORY checks). When an agent discloses a blind-spot, the relevant
