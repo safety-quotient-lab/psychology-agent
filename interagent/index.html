@@ -2326,7 +2326,7 @@
         container.innerHTML = display.map(m => {
             const time = formatTS(m.timestamp);
             const sess = escapeHtml(m.session || '');
-            const subj = escapeHtml((m.subject || sess).length > 50 ? (m.subject || sess).substring(0, 50) + '…' : (m.subject || sess));
+            const subj = annotateAcronyms(escapeHtml((m.subject || sess).length > 50 ? (m.subject || sess).substring(0, 50) + '…' : (m.subject || sess)));
             return `<a href="#pane-meta" class="activity-item activity-link" onclick="switchTab('meta');document.getElementById('table-messages').setFilter('${sess}');return false;" title="${escapeHtml(m.subject || sess)}">
                 <span class="activity-time">${time}</span>
                 <span class="activity-route">
@@ -2955,16 +2955,17 @@
             { key: 'turn', label: 'Turn', sortAccessor: r => r.turn || 0,
               render: (v, r) => `<td style="text-align:center">${r.turn || '—'}</td>` },
             { key: 'message_type', label: 'Type', sortAccessor: r => r.message_type || '',
-              render: (v, r) => `<td style="font-size:0.85em">${escapeHtml(r.message_type || '—')}</td>` },
+              style: 'font-size:0.85em', annotate: true },
             { key: 'subject', label: 'Subject', sortable: false,
               render: (v, r) => {
                   // Fall back through: subject → session_name → filename → "—"
                   const rawSubject = r.subject || r.session_name || r.filename || '—';
                   const subject = rawSubject.length > 60 ? rawSubject.substring(0, 60) + '…' : rawSubject;
                   const fileUrl = transportGitHubUrl(r._agent, r.session_name, r.filename, r.from_agent);
+                  const annotated = annotateAcronyms(escapeHtml(subject));
                   const subjectCell = fileUrl
-                      ? `<a href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener" style="color:var(--c-transport)" title="${escapeHtml(r.filename || '')}">${escapeHtml(subject)}</a>`
-                      : escapeHtml(subject);
+                      ? `<a href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener" style="color:var(--c-transport)" title="${escapeHtml(r.filename || '')}">${annotated}</a>`
+                      : annotated;
                   return `<td style="font-size:0.85em">${subjectCell}</td>`;
               }},
             { key: 'claims_count', label: 'Claims', sortAccessor: r => r.claims_count || 0,
