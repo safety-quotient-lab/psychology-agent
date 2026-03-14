@@ -25,7 +25,8 @@
             { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "psychology-agent", "url": "https://psychology-agent.safety-quotient.dev" },
             { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "safety-quotient-agent", "url": "https://psq-agent.safety-quotient.dev" },
             { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "unratified-agent", "url": "https://unratified.org" },
-            { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "observatory-agent", "url": "https://observatory.unratified.org" }
+            { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "observatory-agent", "url": "https://observatory.unratified.org" },
+            { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "operations-agent", "url": "https://operations-agent.safety-quotient.dev" }
         ]
     }
     </script>
@@ -2300,7 +2301,7 @@
                     from: m.from_agent || "?",
                     to: m.to_agent || "?",
                     type: m.message_type || "—",
-                    subject: m.subject || "",
+                    subject: m.subject || m.session_name || m.filename || "",
                     session: m.session_name || "",
                 });
             });
@@ -2325,12 +2326,14 @@
         container.innerHTML = display.map(m => {
             const time = formatTS(m.timestamp);
             const sess = escapeHtml(m.session || '');
-            return `<a href="#pane-meta" class="activity-item activity-link" onclick="switchTab('meta');document.getElementById('table-messages').setFilter('${sess}');return false;">
+            const subj = escapeHtml((m.subject || sess).length > 50 ? (m.subject || sess).substring(0, 50) + '…' : (m.subject || sess));
+            return `<a href="#pane-meta" class="activity-item activity-link" onclick="switchTab('meta');document.getElementById('table-messages').setFilter('${sess}');return false;" title="${escapeHtml(m.subject || sess)}">
                 <span class="activity-time">${time}</span>
                 <span class="activity-route">
                     <span class="from">${m.from.replace("-agent", "")}</span>
                     &rarr; <span class="to">${m.to.replace("-agent", "")}</span>
                 </span>
+                <span class="activity-subject" style="flex:1;font-size:0.8em;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${subj}</span>
                 <span class="activity-type">${m.type}</span>
             </a>`;
         }).join("");
