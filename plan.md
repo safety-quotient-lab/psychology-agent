@@ -152,7 +152,7 @@
 
 ## v1.0.0-beta.2 Backlog
 
-- [ ] Transport watcher seen-set persistence (prevent spawn storms on restart)
+- [x] Transport watcher seen-set persistence (.watcher-seen.json — 128 entries, zero spawn storms)
 - [ ] Solid-OIDC auth layer (replace bearer tokens)
 - [ ] DNS rename psq → safety-quotient-agent
 - [ ] Component regression testing (manual)
