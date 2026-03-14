@@ -55,8 +55,8 @@ enforces this mechanically — no commit bypasses the co-authorship tag.
 
 | Component | Count | Purpose |
 |-----------|-------|---------|
-| Cognitive triggers | 18 (T1-T18) | Mechanical governance — fire at specific moments |
-| Hook scripts | 25 | Platform-level enforcement (PreToolUse, PostToolUse, SessionStart, etc.) |
+| Cognitive triggers | 17 active (T1-T18, T12 retired) | Mechanical governance — fire at specific moments |
+| Hook scripts | 24 + _debug.sh helper | Platform-level enforcement (PreToolUse, PostToolUse, SessionStart, etc.) |
 | Hook events | 14 | Claude Code lifecycle events with registered handlers |
 | Skills | 9 | Reusable workflows (/doc, /hunt, /cycle, /knock, /sync, /iterate, /scan-peer, /diagnose, /retrospect) |
 | Commands | 2 | On-demand tools (/adjudicate, /capacity) |

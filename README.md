@@ -451,7 +451,7 @@ keeps the database in sync during normal operation.
 | `session_log` | 85+ | Session history with summaries and epistemic flags |
 | `claims` | 448 | Claims extracted from transport messages (verification pending) |
 | `epistemic_flags` | 532 | Uncertainty and validity threats across sessions |
-| `trigger_state` | 18 | Cognitive trigger metadata (T1-T18, fire count, decay) |
+| `trigger_state` | 18 | Cognitive trigger metadata (T1-T18 slots, T12 retired — 17 active) |
 | `universal_facets` | — | Polythematic classification (PSH, schema.org, domain, agent) |
 | `psq_status` | 29 | PSQ operational status (calibration, endpoints, models) |
 | `lessons` | 11 | Structured index of lessons.md entries |
@@ -541,7 +541,7 @@ A2A protocolVersion 0.3.0. Process monism as ontological foundation.**
 
 | Capability | Maturity | Notes |
 |------------|----------|-------|
-| Cognitive triggers (T1-T18) | **Proven** | 18 triggers, 25 hook scripts, 3 behavioral modes (Generative/Evaluative/Neutral), SRT extensions with calibrated gates |
+| Cognitive triggers (T1-T18) | **Proven** | 17 active triggers (T12 retired), 24 hook scripts, 3 behavioral modes (Generative/Evaluative/Neutral), SRT extensions with calibrated gates |
 | Skills (/doc, /hunt, /cycle, /knock, /sync, /iterate, /scan-peer, /diagnose, /retrospect) | **Proven** | 9 skills, daily use, tested across 85+ sessions |
 | Commands (/adjudicate, /capacity) | **Proven** | On-demand, verified |
 | Memory architecture (5-layer) | **Proven** | Auto-memory, snapshots, archives, self-healing bootstrap |
@@ -580,13 +580,13 @@ starting points.
 
 
 **Cognitive architecture (trigger system)** — The agent governs itself through
-18 mechanical triggers (T1-T18) across three behavioral modes (Generative,
+17 active triggers (T1-T18, T12 retired) across three behavioral modes (Generative,
 Evaluative, Neutral) that fire at specific moments: session start, before
 responding, before recommending, before writing to disk, at phase boundaries,
 on user pushback, when external content enters context, before external-facing
 actions, on conflict detection, and before UX design decisions. Principles
 without firing conditions remain aspirations; principles with triggers become
-infrastructure. 25 hook scripts across 14 platform events provide mechanical
+infrastructure. 24 hook scripts across 14 platform events provide mechanical
 enforcement. Tiered checks (CRITICAL/ADVISORY/SPOT-CHECK) scale enforcement
 to consequence severity. Global Workspace broadcast (Baars, 1988) carries
 findings between triggers.

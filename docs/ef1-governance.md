@@ -71,7 +71,7 @@ lenses **MUST** escalate to the governance layer for resolution.
 ## Structural Invariants (Governance Foundation)
 
 Five structural invariants ground the seven evaluator invariants below.
-These derive from cross-traditional convergence analysis across thirteen
+These derive from cross-traditional convergence analysis across fourteen
 independent frameworks (full derivation: `docs/einstein-freud-rights-theory.md`
 §§8–9). No evaluator-level decision **SHALL** violate a structural invariant.
 

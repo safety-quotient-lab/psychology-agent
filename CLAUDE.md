@@ -73,8 +73,8 @@ properties), and flag when the choice affects the conclusion.
 
 ## Platform Infrastructure
 
-- **Hooks:** 25 scripts across 14 events. See `docs/hooks-reference.md`
-- **Triggers:** 18 triggers (T1-T18), tiered ⬛/▣/▢. See `docs/cognitive-triggers.md`
+- **Hooks:** 24 scripts (+ `_debug.sh` helper) across 14 events. See `docs/hooks-reference.md`
+- **Triggers:** 17 active triggers (T1-T18, T12 retired), tiered ⬛/▣/▢. See `docs/cognitive-triggers.md`
 - **Rules:** `.claude/rules/` — glob-scoped (markdown, javascript, transport, anti-patterns, evaluation, sqlite)
 
 ---
