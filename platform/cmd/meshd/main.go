@@ -150,13 +150,40 @@ func main() {
 			}
 		}
 
-		// Log incoming messages + invalidate cache for SSE push
+		// Track last event-triggered spawn to debounce
+		var lastEventSpawn time.Time
+		var eventSpawnMu sync.Mutex
+
+		// Log incoming messages + invalidate cache + event-triggered sync
 		bus.OnMessage(func(m zmqbus.Message) {
 			log.Printf("[zmq] %s/%s from %s", m.Topic, m.From, m.Timestamp.Format(time.RFC3339))
 			// Invalidate cache so SSE clients pick up any state.db changes
-			// triggered by the ZMQ event (e.g. heartbeat, gate resolve)
 			if m.Topic == "health" || m.Topic == "event" {
 				cache.Invalidate()
+			}
+			// Transport event: trigger fast autonomous sync (debounced)
+			if m.Topic == "transport" && m.From != id {
+				eventSpawnMu.Lock()
+				since := time.Since(lastEventSpawn)
+				eventSpawnMu.Unlock()
+				if since > 30*time.Second {
+					eventSpawnMu.Lock()
+					lastEventSpawn = time.Now()
+					eventSpawnMu.Unlock()
+					log.Printf("[zmq] transport event from %s — triggering event-sync", m.From)
+					go func() {
+						syncScript := filepath.Join(absRoot, "scripts", "autonomous-sync.sh")
+						cmd := exec.Command("bash", syncScript, "--event-triggered")
+						cmd.Dir = absRoot
+						cmd.Stdout = os.Stdout
+						cmd.Stderr = os.Stderr
+						if err := cmd.Run(); err != nil {
+							log.Printf("[zmq] event-sync failed: %v", err)
+						}
+					}()
+				} else {
+					log.Printf("[zmq] transport event debounced (%.0fs since last)", since.Seconds())
+				}
 			}
 		})
 

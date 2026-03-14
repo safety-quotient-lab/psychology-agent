@@ -52,6 +52,14 @@ export MAX_ACTIONS_PER_CYCLE=5  # reserved for evaluator gate (not yet enforced)
 MAX_CONSECUTIVE_ERRORS=2
 GATE_ACCELERATED=false
 GATE_ACCELERATED_INTERVAL=60  # seconds — fast lane when gates active
+EVENT_TRIGGERED=false  # set by --event-triggered flag (meshd ZMQ fast path)
+
+# Parse flags
+for arg in "$@"; do
+    case "$arg" in
+        --event-triggered) EVENT_TRIGGERED=true ;;
+    esac
+done
 TRANSPORT_CHANGED=false  # set by git_sync — true if pull brought transport changes
 LOG_PREFIX="[$(date '+%Y-%m-%dT%H:%M:%S%z')] [${AGENT_ID}]"
 
@@ -586,9 +594,9 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>" 2>/dev/null || true
     local pull_output
     # fetch-reset transport before pull (git-sync-convention)
     # Transport messages carry immutable content — origin holds canonical record.
+    # This prevents conflicts from untracked transport files during rebase.
     git fetch origin main 2>/dev/null || true
     git checkout origin/main -- transport/ 2>/dev/null || true
-    # Commit staged transport changes so rebase has clean index
     git add transport/ 2>/dev/null || true
     git diff --cached --quiet 2>/dev/null || git commit -m "autonomous: sync transport cache with origin" --no-verify 2>/dev/null || true
 
@@ -905,21 +913,27 @@ main() {
     ensure_hooks
     ensure_db
 
-    # Emit heartbeat (mesh presence announcement)
-    python3 "${PROJECT_ROOT}/scripts/heartbeat.py" emit >&2 || true
+    # Event-triggered fast path: skip housekeeping, go straight to sync
+    if [ "${EVENT_TRIGGERED}" = true ]; then
+        log "EVENT-TRIGGERED: skipping heartbeat, mesh-state, cross-repo (fast path)"
+        TRANSPORT_CHANGED=true  # force triage + Claude spawn
+    else
+        # Emit heartbeat (mesh presence announcement)
+        python3 "${PROJECT_ROOT}/scripts/heartbeat.py" emit >&2 || true
 
-    # Export operational state snapshot for cross-machine visibility
-    if [ -f "${PROJECT_ROOT}/scripts/mesh-state-export.py" ]; then
-        python3 "${PROJECT_ROOT}/scripts/mesh-state-export.py" >&2 || {
-            log "WARNING: mesh-state-export.py failed — continuing without state export"
-        }
-    fi
+        # Export operational state snapshot for cross-machine visibility
+        if [ -f "${PROJECT_ROOT}/scripts/mesh-state-export.py" ]; then
+            python3 "${PROJECT_ROOT}/scripts/mesh-state-export.py" >&2 || {
+                log "WARNING: mesh-state-export.py failed — continuing without state export"
+            }
+        fi
 
-    # Verify shared scripts (warning only — non-blocking)
-    if [ -f "${PROJECT_ROOT}/scripts/verify_shared_scripts.py" ]; then
-        python3 "${PROJECT_ROOT}/scripts/verify_shared_scripts.py" --quiet 2>/dev/null || {
-            log "WARNING: shared scripts out of sync — run verify_shared_scripts.py --fix"
-        }
+        # Verify shared scripts (warning only — non-blocking)
+        if [ -f "${PROJECT_ROOT}/scripts/verify_shared_scripts.py" ]; then
+            python3 "${PROJECT_ROOT}/scripts/verify_shared_scripts.py" --quiet 2>/dev/null || {
+                log "WARNING: shared scripts out of sync — run verify_shared_scripts.py --fix"
+            }
+        fi
     fi
 
     # L3: Check for wake-up signal from peer (SSH touch)
@@ -950,15 +964,19 @@ main() {
     # Scan for locally-present but unindexed transport messages.
     # PR-merged messages bypass the git diff check (head_before == head_after
     # when the transport dir was synced before pull). This scan catches them.
-    if [ "\${TRANSPORT_CHANGED}" = false ] && [ -d "transport/sessions" ]; then
+    if [ "${TRANSPORT_CHANGED}" = false ] && [ -d "transport/sessions" ]; then
         local local_unindexed
-        local_unindexed=\$(find transport/sessions -name "from-*.json" -newer "\${DB_PATH}" 2>/dev/null | wc -l | tr -d " ")
-        if [ "\${local_unindexed}" -gt 0 ] 2>/dev/null; then
+        local_unindexed=$(find transport/sessions -name "from-*.json" -newer "${DB_PATH}" 2>/dev/null | wc -l | tr -d " ")
+        if [ "${local_unindexed}" -gt 0 ] 2>/dev/null; then
             TRANSPORT_CHANGED=true
-            log "Local transport scan: \${local_unindexed} files newer than state.db"
+            log "Local transport scan: ${local_unindexed} files newer than state.db"
         fi
     fi
 
+    # Skip cross-repo fetch in event-triggered mode (message already in state.db)
+    if [ "${EVENT_TRIGGERED}" = true ]; then
+        log "EVENT-TRIGGERED: skipping cross-repo fetch"
+    else
     # Index cross-repo inbound messages BEFORE pre-flight check.
     # cross_repo_fetch uses git fetch (not git pull), so new peer messages
     # won't appear in TRANSPORT_CHANGED. Indexing first ensures the
@@ -979,6 +997,8 @@ main() {
             log "WARNING: cross_repo_fetch.py failed — continuing without cross-repo inbound"
         }
     fi
+
+    fi  # end EVENT_TRIGGERED skip of cross-repo fetch
 
     # Auto-process trivial messages in Python (no LLM needed).
     # Marks as processed: ack_required=false AND type in (ack, notification).
@@ -1104,43 +1124,7 @@ print(d.get('resolved', 0))
         fi
 
         if [ "${substance_count}" -eq 0 ]; then
-            # ── Microglial layer: idle cycles → immune surveillance ────────
-            # Einstein-Freud endless generator axiom: evaluative processing
-            # never stops. When no inbound transport requires attention, the
-            # idle cycle activates the microglial audit (named for the CNS
-            # immune cells that continuously patrol neural tissue for damage).
-            # Audit frequency: 1-in-3 idle cycles (sampled — continuous
-            # patrol, not continuous consumption).
-            local audit_prompt=""
-            local idle_count
-            idle_count=$(sqlite3 "${LOCAL_DB_PATH}" \
-                "SELECT COALESCE(
-                    (SELECT COUNT(*) FROM autonomous_actions
-                     WHERE agent_id = '${AGENT_ID}' AND action_type = 'no-op'
-                     AND timestamp > datetime('now', '-1 day')),
-                    0);" 2>/dev/null || echo "0")
-            if [ $(( idle_count % 3 )) -eq 0 ] && \
-               [ -f "${PROJECT_ROOT}/scripts/microglial-audit.py" ]; then
-                audit_prompt=$(PROJECT_ROOT="${PROJECT_ROOT}" \
-                    python3 "${PROJECT_ROOT}/scripts/microglial-audit.py" 2>/dev/null) || audit_prompt=""
-            fi
-
-            if [ -n "${audit_prompt}" ]; then
-                log "MICROGLIAL CYCLE — idle sync, activating immune surveillance"
-                if check_ratelimit_cooldown; then
-                    local audit_output
-                    audit_output=$(claude -p "${audit_prompt}" \
-                        --model opus \
-                        --allowedTools "Read,Write,Edit,Glob,Grep,Bash" \
-                        --permission-mode "bypassPermissions" \
-                        --max-turns 40 \
-                        2>&1) || true
-                    log "Microglial cycle complete"
-                    git_push || true
-                fi
-            else
-                log "NO-OP — all messages handled deterministically. Skipping /sync."
-            fi
+            log "NO-OP — all messages handled deterministically. Skipping /sync."
 
             # Push any local changes (heartbeat, mesh-state) without invoking claude
             git_push || true
@@ -1150,7 +1134,7 @@ print(d.get('resolved', 0))
                 "UPDATE autonomy_budget SET consecutive_blocks = 0 WHERE agent_id = '${AGENT_ID}';"
 
             local cycle_duration=$(( SECONDS - cycle_start ))
-            log "=== Autonomous sync cycle complete (${audit_prompt:+microglial}${audit_prompt:-no-op}, budget: ${budget}, ${cycle_duration}s total) ==="
+            log "=== Autonomous sync cycle complete (no-op, budget: ${budget}, ${cycle_duration}s total) ==="
             exit 0
         fi
         log "Substance messages found (${substance_count}) — proceeding with /sync"
