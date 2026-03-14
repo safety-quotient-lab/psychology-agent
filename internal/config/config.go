@@ -6,6 +6,7 @@ package config
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -29,6 +30,11 @@ type Config struct {
 	TransportDir   string // path to transport/sessions/ directory
 	LogLevel       string // logging verbosity: debug, info, warn, error
 	MaxConcurrent  int    // max concurrent claude spawns
+
+	// Compositor (ported from CF Worker)
+	AgentCardURLs  []string // bootstrap agent card URLs for discovery
+	GitHubToken    string   // PAT for PR creation (relay/redirect)
+	OperatorSecret string   // secret for API key management
 
 	// Notification channel
 	NotifyChannel       string // "null", "file", "zulip", "webhook"
@@ -129,7 +135,71 @@ func Load() (*Config, error) {
 	cfg.ZulipNotifyTopic = resolve("ZULIP_NOTIFY_TOPIC", "meshd")
 	cfg.NotifyWebhookURL = resolve("NOTIFY_WEBHOOK_URL", "")
 
+	// Compositor config
+	cfg.GitHubToken = resolve("GITHUB_TOKEN", "")
+	cfg.OperatorSecret = resolve("OPERATOR_SECRET", "")
+
+	// Load agent card URLs from cogarch.config.json
+	cfg.AgentCardURLs = loadAgentCardURLs(repoRoot)
+
 	return cfg, nil
+}
+
+// loadAgentCardURLs reads card URLs from cogarch.config.json peers.
+func loadAgentCardURLs(repoRoot string) []string {
+	path := filepath.Join(repoRoot, "cogarch.config.json")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return defaultCardURLs()
+	}
+
+	var cogarch struct {
+		Peers struct {
+			Agents []struct {
+				CardURL string `json:"card_url"`
+			} `json:"agents"`
+		} `json:"peers"`
+	}
+
+	// Use encoding/json import
+	if err := parseJSON(data, &cogarch); err != nil {
+		return defaultCardURLs()
+	}
+
+	urls := make([]string, 0, len(cogarch.Peers.Agents))
+	for _, a := range cogarch.Peers.Agents {
+		if a.CardURL != "" {
+			// Ensure URL points to agent-card.json
+			url := a.CardURL
+			if !strings.HasSuffix(url, "/.well-known/agent-card.json") {
+				url = strings.TrimSuffix(url, "/") + "/.well-known/agent-card.json"
+			}
+			urls = append(urls, url)
+		}
+	}
+
+	// Add self
+	urls = append(urls, "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json")
+
+	if len(urls) == 0 {
+		return defaultCardURLs()
+	}
+	return urls
+}
+
+func defaultCardURLs() []string {
+	return []string{
+		"https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json",
+		"https://psq-agent.safety-quotient.dev/.well-known/agent-card.json",
+		"https://operations-agent.safety-quotient.dev/.well-known/agent-card.json",
+		"https://unratified.org/.well-known/agent-card.json",
+		"https://observatory.unratified.org/.well-known/agent-card.json",
+	}
+}
+
+// parseJSON decodes JSON data into dst.
+func parseJSON(data []byte, dst any) error {
+	return json.Unmarshal(data, dst)
 }
 
 // detectRepoRoot walks up from the executable's directory until it finds

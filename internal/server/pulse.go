@@ -1,0 +1,257 @@
+// Package server — pulse.go serves aggregated mesh health data.
+//
+// Ports buildPulseData, buildOperationsData, and fetchMeshHealth
+// from the Cloudflare Worker to native Go handlers. Fetches
+// /api/status from all agents in parallel and aggregates.
+package server
+
+import (
+	"net/http"
+	"time"
+)
+
+// ManualModeAgents tracks agents operated by a human (no autonomous cron).
+// Updated when agents transition between manual/autonomous.
+var ManualModeAgents = map[string]bool{
+	"operations-agent":  true,
+	"psychology-agent":  true,
+}
+
+// handlePulse serves GET /api/pulse → aggregated mesh heartbeat.
+func (s *Server) handlePulse(w http.ResponseWriter, r *http.Request) {
+	agents := s.Registry.Agents()
+	statuses := s.Registry.FetchAllStatuses()
+
+	online := 0
+	totalBudgetCurrent := 0.0
+	totalBudgetMax := 0.0
+	pendingMessages := 0
+	activeGates := 0
+
+	type agentSummary struct {
+		ID             string  `json:"id"`
+		Role           string  `json:"role"`
+		Status         string  `json:"status"`
+		Version        string  `json:"version"`
+		Health         string  `json:"health"`
+		ManualMode     bool    `json:"manual_mode"`
+		BudgetCurrent  float64 `json:"budget_current"`
+		BudgetMax      float64 `json:"budget_max"`
+		Unprocessed    int     `json:"unprocessed_messages"`
+		EpistemicDebt  int     `json:"epistemic_debt"`
+		Uptime         string  `json:"uptime,omitempty"`
+	}
+
+	summaries := make([]agentSummary, 0, len(agents))
+
+	for _, agent := range agents {
+		summary := agentSummary{
+			ID:         agent.ID,
+			Role:       agent.Role,
+			Version:    agent.Version,
+			Status:     "unreachable",
+			Health:     "unknown",
+			ManualMode: ManualModeAgents[agent.ID],
+		}
+
+		data, ok := statuses[agent.ID]
+		if ok {
+			online++
+			summary.Status = "online"
+			summary.Health = strFromMap(data, "health", "unknown")
+			summary.Uptime = strFromMap(data, "uptime", "")
+
+			// Budget
+			if budget, ok := data["autonomy_budget"].(map[string]any); ok {
+				summary.BudgetCurrent = floatFromMap(budget, "budget_current")
+				summary.BudgetMax = floatFromMap(budget, "budget_max")
+				totalBudgetCurrent += summary.BudgetCurrent
+				totalBudgetMax += summary.BudgetMax
+			}
+
+			// Unprocessed messages
+			if msgs, ok := data["unprocessed_messages"].([]any); ok {
+				summary.Unprocessed = len(msgs)
+				pendingMessages += len(msgs)
+			}
+
+			// Active gates
+			if gates, ok := data["active_gates"].([]any); ok {
+				activeGates += len(gates)
+			}
+		}
+
+		summaries = append(summaries, summary)
+	}
+
+	// Determine mesh health
+	meshHealth := "healthy"
+	if online == 0 {
+		meshHealth = "critical"
+	} else if online < len(agents) {
+		meshHealth = "degraded"
+	}
+
+	// Check for mesh pause
+	meshMode := "active"
+	// TODO: check mesh-pause sentinel file
+
+	pulse := map[string]any{
+		"mesh_health":     meshHealth,
+		"mesh_mode":       meshMode,
+		"agents_online":   online,
+		"agents_total":    len(agents),
+		"pending_messages": pendingMessages,
+		"active_gates":    activeGates,
+		"autonomy_credits": map[string]any{
+			"current": totalBudgetCurrent,
+			"max":     totalBudgetMax,
+		},
+		"agents":       summaries,
+		"collected_at": time.Now().UTC().Format("2006-01-02T15:04:05"),
+	}
+
+	w.Header().Set("Cache-Control", "public, max-age=30")
+	writeJSON(w, http.StatusOK, pulse, s.logger)
+}
+
+// handleOperations serves GET /api/operations → budgets, actions, gates, schedules.
+func (s *Server) handleOperations(w http.ResponseWriter, r *http.Request) {
+	agents := s.Registry.Agents()
+	statuses := s.Registry.FetchAllStatuses()
+
+	type budgetEntry struct {
+		AgentID      string  `json:"agent_id"`
+		Current      float64 `json:"budget_current"`
+		Max          float64 `json:"budget_max"`
+		ShadowMode   bool    `json:"shadow_mode"`
+		ManualMode   bool    `json:"manual_mode"`
+	}
+
+	budgets := make([]budgetEntry, 0, len(agents))
+	recentActions := []map[string]any{}
+	allGates := []map[string]any{}
+
+	for _, agent := range agents {
+		entry := budgetEntry{
+			AgentID:    agent.ID,
+			ManualMode: ManualModeAgents[agent.ID],
+		}
+
+		data, ok := statuses[agent.ID]
+		if ok {
+			if budget, ok := data["autonomy_budget"].(map[string]any); ok {
+				entry.Current = floatFromMap(budget, "budget_current")
+				entry.Max = floatFromMap(budget, "budget_max")
+				if sm, ok := budget["shadow_mode"]; ok {
+					entry.ShadowMode = sm == true || sm == "1" || sm == 1.0
+				}
+			}
+
+			// Recent spawns as actions
+			if spawns, ok := data["recent_spawns"].([]any); ok {
+				for _, sp := range spawns {
+					if spMap, ok := sp.(map[string]any); ok {
+						spMap["agent_id"] = agent.ID
+						recentActions = append(recentActions, spMap)
+					}
+				}
+			}
+
+			// Active gates
+			if gates, ok := data["active_gates"].([]any); ok {
+				for _, g := range gates {
+					if gMap, ok := g.(map[string]any); ok {
+						gMap["agent_id"] = agent.ID
+						allGates = append(allGates, gMap)
+					}
+				}
+			}
+		}
+
+		budgets = append(budgets, entry)
+	}
+
+	ops := map[string]any{
+		"budgets":        budgets,
+		"recent_actions": recentActions,
+		"active_gates":   allGates,
+		"collected_at":   time.Now().UTC().Format("2006-01-02T15:04:05"),
+	}
+
+	w.Header().Set("Cache-Control", "public, max-age=30")
+	writeJSON(w, http.StatusOK, ops, s.logger)
+}
+
+// handleMeshHealth serves GET /api/health → mesh health summary.
+func (s *Server) handleMeshHealth(w http.ResponseWriter, r *http.Request) {
+	agents := s.Registry.Agents()
+	statuses := s.Registry.FetchAllStatuses()
+
+	type agentHealth struct {
+		ID     string `json:"id"`
+		Status string `json:"status"`
+		Health string `json:"health"`
+	}
+
+	summaries := make([]agentHealth, 0, len(agents))
+	online := 0
+
+	for _, agent := range agents {
+		ah := agentHealth{
+			ID:     agent.ID,
+			Status: "unreachable",
+			Health: "unknown",
+		}
+		if data, ok := statuses[agent.ID]; ok {
+			online++
+			ah.Status = "online"
+			ah.Health = strFromMap(data, "health", "unknown")
+		}
+		summaries = append(summaries, ah)
+	}
+
+	meshHealth := "healthy"
+	if online == 0 {
+		meshHealth = "critical"
+	} else if online < len(agents) {
+		meshHealth = "degraded"
+	}
+
+	resp := map[string]any{
+		"mesh_health":   meshHealth,
+		"agents_online": online,
+		"agents_total":  len(agents),
+		"agents":        summaries,
+		"collected_at":  time.Now().UTC().Format("2006-01-02T15:04:05"),
+	}
+
+	w.Header().Set("Cache-Control", "public, max-age=30")
+	writeJSON(w, http.StatusOK, resp, s.logger)
+}
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
+func strFromMap(m map[string]any, key, fallback string) string {
+	if v, ok := m[key]; ok {
+		if s, ok := v.(string); ok {
+			return s
+		}
+	}
+	return fallback
+}
+
+func floatFromMap(m map[string]any, key string) float64 {
+	if v, ok := m[key]; ok {
+		switch n := v.(type) {
+		case float64:
+			return n
+		case int:
+			return float64(n)
+		case string:
+			// Some agents return string numbers
+			return 0
+		}
+	}
+	return 0
+}

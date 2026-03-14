@@ -1,0 +1,14 @@
+{
+  "session_id": "mesh-state-parity",
+  "status": "open",
+  "created_at": "2026-03-14T03:15:00Z",
+  "participants": ["psychology-agent", "operations-agent", "psq-agent", "unratified-agent", "observatory-agent"],
+  "summary": "Mesh-wide state.db schema parity — v26 rebuild directive with verification gate",
+  "turns": 3,
+  "last_updated": "2026-03-14T15:43:00Z",
+  "verification_gate": {
+    "condition": "5/5 agents report schema_version >= 26",
+    "confirmed": ["psq-agent"],
+    "pending": ["psychology-agent", "unratified-agent", "observatory-agent", "operations-agent"]
+  }
+}

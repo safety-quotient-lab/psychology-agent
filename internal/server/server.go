@@ -62,6 +62,15 @@ type Server struct {
 	// webhook package's concrete type.
 	webhookHandler http.Handler
 
+	// Registry manages dynamic agent card discovery and caching.
+	Registry *AgentRegistry
+
+	// GitHubToken for creating PRs via GitHub API (relay/redirect).
+	GitHubToken string
+
+	// OperatorSecret for API key management endpoints.
+	OperatorSecret string
+
 	// ZMQPublish broadcasts messages to the mesh via ZMQ PUB.
 	// Nil when ZMQ not configured.
 	ZMQPublish func(topic string, data any) error
@@ -200,6 +209,7 @@ func (s *Server) shutdown() error {
 
 // registerRoutes wires all endpoints onto the provided mux.
 func (s *Server) registerRoutes(mux *http.ServeMux) {
+	// ── Existing meshd routes ───────────────────────────────────────
 	mux.HandleFunc("GET /api/status", s.handleStatus)
 	mux.HandleFunc("GET /health", s.Health.HTTPHandler())
 	mux.HandleFunc("GET /api/events", s.handleEvents)
@@ -212,6 +222,31 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/routing", s.handleRouting)
 	mux.HandleFunc("GET /api/search", s.handleSearch)
 	mux.HandleFunc("POST /api/zmq/register", s.handleZMQRegister)
+
+	// ── Compositor routes (ported from CF Worker) ───────────────────
+	// Static assets
+	mux.HandleFunc("GET /{$}", s.handleIndex)
+	mux.HandleFunc("GET /vocab", s.handleVocab)
+	mux.HandleFunc("GET /vocab.json", s.handleVocab)
+	mux.HandleFunc("GET /vocab/schema", s.handleVocabSchema)
+	mux.HandleFunc("GET /vocab/schema.json", s.handleVocabSchema)
+	mux.HandleFunc("GET /.well-known/agent-card.json", s.handleAgentCardStatic)
+	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
+
+	// Discovery
+	mux.HandleFunc("GET /.well-known/agents", s.handleAgents)
+	mux.HandleFunc("GET /.well-known/webfinger", s.handleWebFinger)
+
+	// Aggregation
+	mux.HandleFunc("GET /api/pulse", s.handlePulse)
+	mux.HandleFunc("GET /api/operations", s.handleOperations)
+	mux.HandleFunc("GET /api/health", s.handleMeshHealth)
+	mux.HandleFunc("GET /api/trust", s.handleTrust)
+
+	// Auth + keys
+	mux.HandleFunc("GET /api/whoami", s.handleWhoAmI)
+	mux.HandleFunc("POST /api/keys", s.handleKeyCreate)
+	mux.HandleFunc("DELETE /api/keys/", s.handleKeyRevoke)
 }
 
 // middleware chains recovery, CORS, request logging, and version header
@@ -418,6 +453,11 @@ func (s *Server) spawnCount() int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return len(s.spawnLog)
+}
+
+// decodeJSON reads and parses a JSON request body into dst.
+func decodeJSON(r *http.Request, dst any) error {
+	return json.NewDecoder(r.Body).Decode(dst)
 }
 
 // writeJSON marshals v as JSON and writes it to w with the given status code.

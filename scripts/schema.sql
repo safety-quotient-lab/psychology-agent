@@ -217,3 +217,38 @@ CREATE INDEX IF NOT EXISTS idx_spawn_agent ON spawn_log(agent_id);
 CREATE INDEX IF NOT EXISTS idx_spawn_started ON spawn_log(started_at);
 CREATE INDEX IF NOT EXISTS idx_health_agent ON health_observations(agent_id);
 CREATE INDEX IF NOT EXISTS idx_health_observed ON health_observations(observed_at);
+
+-- ── Compositor tables (ported from CF Worker KV) ─────────────────
+
+CREATE TABLE IF NOT EXISTS api_keys (
+    token_hash TEXT PRIMARY KEY,
+    identity TEXT NOT NULL,
+    label TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    revoked INTEGER DEFAULT 0,
+    revoked_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_api_keys_identity ON api_keys(identity);
+
+CREATE TABLE IF NOT EXISTS rate_limits (
+    client_id TEXT NOT NULL,
+    window TEXT NOT NULL,
+    count INTEGER DEFAULT 1,
+    PRIMARY KEY (client_id, window)
+);
+
+CREATE TABLE IF NOT EXISTS trust_matrix (
+    agent_id TEXT PRIMARY KEY,
+    availability REAL DEFAULT 0.5,
+    integrity REAL DEFAULT 0.5,
+    compliance REAL DEFAULT 0.5,
+    epistemic_honesty REAL DEFAULT 0.5,
+    observations INTEGER DEFAULT 0,
+    first_observed TEXT,
+    last_observed TEXT
+);
+
+CREATE TABLE IF NOT EXISTS relay_nonces (
+    nonce TEXT PRIMARY KEY,
+    created_at TEXT DEFAULT (datetime('now'))
+);

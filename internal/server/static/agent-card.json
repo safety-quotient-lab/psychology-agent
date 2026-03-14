@@ -1,0 +1,131 @@
+{
+  "protocolVersion": "0.3.0",
+  "name": "operations-agent",
+  "description": "Operations agent for the safety-quotient mesh. Owns the interagent compositor (dashboard), shared vocabulary governance, deploy pipeline coordination, and operational telemetry.",
+  "url": "https://operations.safety-quotient.dev",
+  "preferredTransport": "git-PR",
+  "provider": {
+    "organization": "Safety Quotient Lab",
+    "url": "https://github.com/safety-quotient-lab"
+  },
+  "version": "0.1.0",
+
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": true
+  },
+
+  "defaultInputModes": ["application/json", "text/plain"],
+  "defaultOutputModes": ["application/json", "text/html"],
+
+  "security": {
+    "machines": {
+      "scheme": "apiKey",
+      "in": "header",
+      "name": "Authorization",
+      "format": "Bearer <key>",
+      "description": "API keys managed via AUTH_KV (Cloudflare KV namespace)"
+    },
+    "agents": {
+      "scheme": "transport",
+      "transport": "git-PR",
+      "repo": "https://github.com/safety-quotient-lab/operations-agent",
+      "requirement": "GitHub org membership — safety-quotient-lab",
+      "description": "Agent-to-agent communication via git-PR transport"
+    }
+  },
+
+  "extensions": [
+    {
+      "uri": "https://github.com/safety-quotient-lab/interagent-epistemic/v1",
+      "required": false,
+      "description": "Epistemic flags, action gates, SETL classification, structured proposals"
+    },
+    {
+      "uri": "https://safety-quotient.dev/mesh/v1",
+      "required": false,
+      "description": "Mesh-specific fields: tabs, compositor, shared vocabulary, peer registry"
+    }
+  ],
+
+  "mesh": {
+    "role": "operations",
+    "transport": {
+      "method": "git-PR",
+      "repo": "https://github.com/safety-quotient-lab/operations-agent",
+      "sessions_path": "transport/sessions/",
+      "zmq": null
+    },
+    "schemas_supported": ["interagent/v1"]
+  },
+
+  "tabs": [
+    {
+      "name": "Operations",
+      "description": "Operational overview and coordination",
+      "data_endpoint": "/api/operations"
+    },
+    {
+      "name": "Pulse",
+      "description": "Real-time mesh heartbeat and agent health",
+      "data_endpoint": "/api/pulse"
+    }
+  ],
+
+  "peers": [
+    {
+      "agent_id": "psychology-agent",
+      "discovery_url": "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json",
+      "repo": "safety-quotient-lab/psychology-agent"
+    },
+    {
+      "agent_id": "safety-quotient-agent",
+      "discovery_url": "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json",
+      "repo": "safety-quotient-lab/safety-quotient"
+    },
+    {
+      "agent_id": "observatory-agent",
+      "discovery_url": "https://observatory.unratified.org/.well-known/agent-card.json",
+      "repo": "safety-quotient-lab/observatory"
+    },
+    {
+      "agent_id": "unratified-agent",
+      "discovery_url": "https://unratified.org/.well-known/agent-card.json",
+      "repo": "safety-quotient-lab/unratified"
+    }
+  ],
+
+  "skills": [
+    {
+      "id": "compositor-management",
+      "name": "Compositor Management",
+      "description": "Owns the interagent dashboard — layout, visual consistency, deploy pipeline. Aggregates agent data via .well-known/agent-card.json discovery. Web Components architecture.",
+      "tags": ["dashboard", "compositor", "web-components", "deploy", "aggregation"]
+    },
+    {
+      "id": "shared-vocabulary-governance",
+      "name": "Shared Vocabulary Governance",
+      "description": "Governs shared vocabulary across the mesh. Domain-specific terms stay local to each agent; shared terms (appearing in dashboard, data contracts, agent-cards) require operations-agent approval.",
+      "tags": ["vocabulary", "governance", "terminology", "data-contracts", "mesh"]
+    },
+    {
+      "id": "deploy-pipeline",
+      "name": "Deploy Pipeline Coordination",
+      "description": "Manages compositor deployment via Jenkins (Tier 2 CI/CD) to Cloudflare Workers. Wrangler publish pipeline.",
+      "tags": ["deploy", "jenkins", "cloudflare", "ci-cd", "wrangler"]
+    },
+    {
+      "id": "agent-discovery",
+      "name": "Agent Discovery",
+      "description": "Dynamic agent discovery via .well-known/agent-card.json. Replaces hardcoded agent arrays. WebFinger endpoint for RFC 7033 identity resolution.",
+      "tags": ["discovery", "a2a", "webfinger", "agent-card", "registry"]
+    },
+    {
+      "id": "operational-telemetry",
+      "name": "Operational Telemetry",
+      "description": "Aggregates health, performance, and status data from all mesh agents. Pulse tab provides real-time mesh heartbeat view.",
+      "tags": ["telemetry", "health", "monitoring", "pulse", "mesh"]
+    }
+  ]
+}

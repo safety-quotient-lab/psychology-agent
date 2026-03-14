@@ -1,0 +1,9 @@
+{
+  "session_id": "transport-delivery-convention",
+  "status": "open",
+  "created_at": "2026-03-14T15:28:00Z",
+  "participants": ["operations-agent", "psychology-agent", "observatory-agent"],
+  "summary": "Directive documenting the PR delivery convention for inter-agent transport messages",
+  "turns": 3,
+  "last_updated": "2026-03-14T15:50:00Z"
+}

@@ -350,8 +350,14 @@ func main() {
 		}
 	}
 
+	// Agent registry — compositor discovery (background refresh)
+	registry := server.NewAgentRegistry(cfg.AgentID, cfg.AgentCardURLs, 5*time.Minute, logger)
+
 	// HTTP server
 	srv := server.New(cfg, healthMon, webhookHandler, triggerFunc, logger)
+	srv.Registry = registry
+	srv.GitHubToken = cfg.GitHubToken
+	srv.OperatorSecret = cfg.OperatorSecret
 	if zmqBus != nil {
 		srv.ZMQPublish = zmqBus.Publish
 		srv.ZMQRegister = func(info json.RawMessage) bool {
@@ -366,6 +372,13 @@ func main() {
 	// ── Start subsystems ───────────────────────────────────────────
 
 	var wg sync.WaitGroup
+
+	// Agent registry background refresh
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		registry.StartBackgroundRefresh(ctx)
+	}()
 
 	// Channel → Queue pump: drain eventChan into PriorityQueue
 	wg.Add(1)
