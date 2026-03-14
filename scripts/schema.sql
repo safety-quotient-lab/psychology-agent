@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS transport_messages (
     to_agent      TEXT,
     turn          INTEGER,
     message_type  TEXT,
-    subject       TEXT,
+    subject       TEXT NOT NULL CHECK(length(trim(subject)) > 0),
     timestamp     TEXT NOT NULL DEFAULT (datetime('now')),
     processed     INTEGER NOT NULL DEFAULT 0,
     processed_at  TEXT,

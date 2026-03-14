@@ -87,7 +87,22 @@ for session_name in sorted(os.listdir(transport_dir)):
             continue
 
         message_type = data.get("type", data.get("message_type", ""))
-        subject = data.get("subject", data.get("title", data.get("session_id", "")))
+
+        # Subject is required — derive from available fields when absent
+        subject = data.get("subject", "") or data.get("title", "") or data.get("session_id", "")
+        if not subject.strip():
+            # Build from session + type + sender: "peer-registry-update (directive from operations-agent)"
+            parts = [session_name]
+            if message_type:
+                parts.append(f"({message_type}")
+                sender = file_from or data.get("from", "")
+                if isinstance(sender, dict):
+                    sender = sender.get("agent_id", "")
+                if sender:
+                    parts[-1] += f" from {sender})"
+                else:
+                    parts[-1] += ")"
+            subject = " ".join(parts)
 
         # Handle 'from' field (string or dict or list)
         json_from = data.get("from", "")
