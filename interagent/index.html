@@ -2127,52 +2127,82 @@
 
     async function fetchPulse() {
         try {
-            const resp = await fetch("/api/pulse", { signal: AbortSignal.timeout(6000) });
+            const resp = await fetch("/api/pulse", { signal: AbortSignal.timeout(8000) });
+            if (resp.status === 429) {
+                console.warn("Pulse rate-limited — using cached data");
+                consecutiveFailures += 2; // accelerate backoff
+                return null;
+            }
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             return await resp.json();
         } catch (err) {
-            console.warn("Pulse fetch failed, falling back to client-side:", err.message);
+            console.warn("Pulse fetch failed:", err.message);
             return null;
         }
     }
 
     async function fetchOps() {
         try {
-            const resp = await fetch("/api/operations", { signal: AbortSignal.timeout(6000) });
+            const resp = await fetch("/api/operations", { signal: AbortSignal.timeout(8000) });
+            if (resp.status === 429) {
+                console.warn("Operations rate-limited — using cached data");
+                return null;
+            }
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             return await resp.json();
         } catch (err) {
-            console.warn("Operations fetch failed, falling back to client-side:", err.message);
+            console.warn("Operations fetch failed:", err.message);
             return null;
         }
     }
 
+    let lastSuccessfulRefresh = null;
+    let consecutiveFailures = 0;
+
     async function refreshAll() {
-        // Fetch compositor-aggregated data + per-agent status in parallel
-        const [pulseResult, opsResult, ...agentResults] = await Promise.allSettled([
-            fetchPulse(),
-            fetchOps(),
-            ...AGENTS.map(fetchAgentStatus),
-        ]);
+        try {
+            // Fetch compositor-aggregated data + per-agent status in parallel
+            const [pulseResult, opsResult, ...agentResults] = await Promise.allSettled([
+                fetchPulse(),
+                fetchOps(),
+                ...AGENTS.map(fetchAgentStatus),
+            ]);
 
-        pulseData = pulseResult.status === "fulfilled" ? pulseResult.value : null;
-        opsData = opsResult.status === "fulfilled" ? opsResult.value : null;
+            // Preserve previous data when fetches fail (prevents UI flicker)
+            const newPulse = pulseResult.status === "fulfilled" ? pulseResult.value : null;
+            const newOps = opsResult.status === "fulfilled" ? opsResult.value : null;
 
-        agentResults.forEach((r, i) => {
-            agentData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "unreachable" };
-        });
+            if (newPulse) { pulseData = newPulse; consecutiveFailures = 0; }
+            else { consecutiveFailures++; }
 
-        renderPulse();
-        renderOperations();
+            if (newOps) { opsData = newOps; }
 
-        // Fetch KB data (non-blocking — renders when ready)
-        refreshKnowledge();
+            agentResults.forEach((r, i) => {
+                if (r.status === "fulfilled" && r.value) {
+                    agentData[AGENTS[i].id] = r.value;
+                }
+                // On failure, keep previous agentData (stale but stable)
+            });
 
-        const mode = sseActive ? "● SSE live" : "○ polling 30s";
-        const src = pulseData ? "compositor" : "client";
-        const meshMode = pulseData?.mesh_mode === "paused" ? " · ⏸ PAUSED" : "";
-        document.getElementById("footer-status").textContent =
-            `Updated ${new Date().toLocaleTimeString()} · ${mode} · ${src}${meshMode}`;
+            renderPulse();
+            renderOperations();
+
+            // Fetch KB data (non-blocking — renders when ready)
+            refreshKnowledge();
+
+            lastSuccessfulRefresh = new Date();
+            const src = newPulse ? "compositor" : (pulseData ? "cached" : "client");
+            const meshMode = pulseData?.mesh_mode === "paused" ? " · ⏸ PAUSED" : "";
+            const staleWarning = consecutiveFailures > 2 ? " · ⚠ STALE" : "";
+            document.getElementById("footer-status").textContent =
+                `Updated ${new Date().toLocaleTimeString()} · polling 30s · ${src}${meshMode}${staleWarning}`;
+        } catch (err) {
+            // Catch render errors — prevent polling from dying
+            console.error("refreshAll failed:", err);
+            consecutiveFailures++;
+            const el = document.getElementById("footer-status");
+            if (el) el.textContent = `⚠ Refresh failed (${consecutiveFailures}x) · retrying...`;
+        }
     }
 
     // ── Render: Vitals ─────────────────────────────────────────────
@@ -3328,46 +3358,16 @@
     }
 
     // ── SSE Live Updates ─────────────────────────────────────────
+    // SSE removed — no agent currently serves /events endpoints.
+    // When meshd gains SSE support, re-enable with reconnection logic.
     function connectSSE() {
-        sseConnections.forEach(es => es.close());
-        sseConnections = [];
-        let connectedCount = 0;
-
-        for (const agent of AGENTS) {
-            const es = new EventSource(`${agent.url}/events`);
-
-            es.addEventListener("connected", (e) => {
-                connectedCount++;
-                if (connectedCount >= 1 && !sseActive) {
-                    sseActive = true;
-                    updateSSEIndicator(true);
-                }
-            });
-
-            es.addEventListener("refresh", (e) => {
-                refreshAll();
-            });
-
-            es.onerror = () => {
-                es.close();
-                sseConnections = sseConnections.filter(c => c !== es);
-                const anyLive = sseConnections.some(c => c.readyState === EventSource.OPEN);
-                if (!anyLive) {
-                    sseActive = false;
-                    updateSSEIndicator(false);
-                }
-            };
-
-            sseConnections.push(es);
-        }
+        // Placeholder — SSE not yet implemented on any agent meshd
+        sseActive = false;
     }
 
     function updateSSEIndicator(live) {
         const el = document.getElementById("footer-status");
         if (!el) return;
-        const dot = live ? "●" : "○";
-        const label = live ? "SSE live" : "polling 30s";
-        el.dataset.sseMode = live ? "live" : "poll";
         // Update will happen on next refresh cycle
     }
 
@@ -3649,10 +3649,28 @@
         renderOperations();
         refreshAll();
 
-        // Try SSE first, fall back to polling
+        // Polling with adaptive interval — backs off on consecutive failures
+        // Pause polling when tab hidden (saves rate limit budget)
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                if (refreshTimer) { clearTimeout(refreshTimer); refreshTimer = null; }
+            } else {
+                // Tab became visible — refresh immediately then resume polling
+                refreshAll().finally(schedulePoll);
+            }
+        });
+
         connectSSE();
-        // Safety net — always have polling as backup until SSE connects
-        refreshTimer = setInterval(refreshAll, 30000);
+        const BASE_POLL_MS = 60000; // 60s base interval (was 30s — reduces rate limit pressure)
+        function schedulePoll() {
+            const backoff = Math.min(consecutiveFailures * 15000, 120000); // +15s per failure, max 2min
+            const jitter = Math.random() * 5000; // 0-5s jitter prevents thundering herd
+            const interval = BASE_POLL_MS + backoff + jitter;
+            refreshTimer = setTimeout(() => {
+                refreshAll().finally(schedulePoll);
+            }, interval);
+        }
+        schedulePoll();
     })();
 </script>
 
