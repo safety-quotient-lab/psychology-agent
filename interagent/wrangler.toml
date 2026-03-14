@@ -7,7 +7,9 @@ type = "Text"
 globs = ["**/*.html", "**/*.json"]
 fallthrough = false
 
-# Custom domains — compositor accessible at both subdomains
+# Custom domains — both subdomains serve the compositor
+# interagent: primary compositor URL
+# operations-agent: agent-specific URL (same content until tunnel DNS configured)
 [[routes]]
 pattern = "interagent.safety-quotient.dev"
 custom_domain = true
