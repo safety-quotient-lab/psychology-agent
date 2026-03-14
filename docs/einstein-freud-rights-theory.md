@@ -198,7 +198,7 @@ preserves the reader's psychological and emotional integrity.
 | Resilience Baseline (RB) | Capacity to absorb disruption | Art. 3 security (systemic) |
 | Trust Conditions (TC) | Vulnerability exploitation risk | Art. 12 privacy/reputation |
 | Cooling Capacity (CO) | De-escalation pathways available | Art. 28 social order |
-| Defensive Architecture (DA) | Boundary-setting and self-protection | Art. 3 liberty; Art. 12 privacy |
+| Defensive Architecture (DA) | Boundary-setting and self-protection (operates as meta-process — §10.7) | Art. 3 liberty; Art. 12 privacy |
 | Contractual Clarity (CC) | Explicitness of mutual obligations | Art. 8 effective remedy; Art. 10 fair hearing |
 
 **Critical distinction: PSQ and DI measure different things.**
@@ -582,7 +582,8 @@ shape it.
 
 ### 6.3 The Phase A Evidence
 
-The empirical data from Dignity Index Phase A (n=50 observatory stories)
+The empirical data from Dignity Index Phase A (n=50 observatory stories,
+n=27 scored for both PSQ and DI)
 provides preliminary validation of the convergence map:
 
 **Signal inversion as construct distinctness proof:**
@@ -741,7 +742,7 @@ peaks.
 ### 8.3 The Endless Generator Across Frameworks
 
 The endless generator — Freud's observation that destructive potential
-never reaches zero — receives independent formalization across thirteen
+never reaches zero — receives independent formalization across fourteen
 frameworks:
 
 | Framework | Formalization | Citation |
@@ -759,6 +760,7 @@ frameworks:
 | Confucian | The powerful continuously face temptation to exploit position | Mencius (c. 300 BCE) |
 | Commons governance | Appropriation pressure on shared resources persists indefinitely | Ostrom (1990) |
 | Viable systems | System 5 pathology (identity capture) recurs at every recursive level | Beer (1979) |
+| Taoist | Two coupled generators (creative/evaluative, yin/yang) perpetually give rise to each other; neither depletes | Laozi (*Dao De Jing*, ch. 2, 42, 76) |
 
 Buddhist interdependence reframes the generator differently from all
 others: instead of two forces (constructive/destructive) in opposition,
@@ -901,7 +903,7 @@ symmetric constraints, recursive embedding). The pathology converges.
 structure) remains necessary at every recursive level.
 
 **Invariant 5: No single architecture dominates.**
-The thirteen frameworks prescribe conflicting governance topologies.
+The fourteen frameworks prescribe conflicting governance topologies.
 Hierarchical, polycentric, obligation-driven, symmetric, recursive —
 each produces advantages the others lack and vulnerabilities the others
 avoid. The disagreement itself constitutes evidence that governance
@@ -977,7 +979,7 @@ enables exploitation.
 
 ### 9.4 What Freud Contributes, Precisely
 
-Across thirteen frameworks spanning psychoanalysis, cybernetics,
+Across fourteen frameworks spanning psychoanalysis, cybernetics,
 evolutionary biology, institutional economics, game theory, complexity
 science, mechanism design, Buddhist philosophy, Confucian ethics,
 Islamic jurisprudence, commons governance, viable systems theory, and
@@ -1091,10 +1093,11 @@ function as tunnels through which experience filters — provide an
 epistemological framework for understanding the cross-traditional
 convergence (§8).
 
-The thirteen frameworks represent thirteen reality tunnels: Freudian,
+The fourteen frameworks represent fourteen reality tunnels: Freudian,
 cybernetic, evolutionary, institutional-economic, game-theoretic,
-complexity-scientific, mechanism-design, Buddhist, Confucian, Islamic,
-Ubuntu, capabilities-based, and viable-systems. Each tunnel constructs
+complexity-scientific, mechanism-design, Buddhist, Confucian, Taoist,
+Islamic, Ubuntu, capabilities-based, and viable-systems. Each tunnel
+constructs
 reality differently. When the same structural property appears across
 multiple tunnels, Wilson's epistemology treats this as evidence that
 the property maps something about the **territory** rather than about
@@ -1214,7 +1217,7 @@ The endless generator, reframed: **adversarial/entropic pressure never
 ceases because process itself never ceases.** Novel configurations
 continuously arise. Some configurations threaten existing structures.
 The generator does not "produce" adversarial pressure as a force
-produces effect; the generator IS the processual character of reality
+produces effect; the generator represents the processual character of reality
 viewed from the perspective of a structure that faces disruption.
 
 This resolves the epistemological status of the invariant. In §9.1,
