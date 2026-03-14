@@ -30,14 +30,30 @@ else
 fi
 echo "$COUNT" > "$TOOL_COUNT_FILE"
 
-# Estimate context pressure if the Notification hook hasn't written it
-# Heuristic: each tool call averages ~1500 tokens (input + output)
-# 1M context = ~667 tool calls to fill (rough ceiling)
+# Estimate context pressure
+# Calibrated from Session 86 observation: 437K tokens / 62 calls ≈ 7000 tokens/call
+# 1M context / 7000 tokens per call ≈ 143 calls to fill
+# Use 150 as ceiling (conservative) — each call consumes ~0.67% of context
+# The Notification hook provides actual % when available; this serves as
+# fallback AND as continuous updater (overwrite stale Notification values
+# older than 60 seconds)
+TOKENS_PER_CALL=7000
+CONTEXT_MAX=1000000
+CALLS_TO_FILL=$(( CONTEXT_MAX / TOKENS_PER_CALL ))
+EST_PCT=$(( COUNT * 100 / CALLS_TO_FILL ))
+if [ "$EST_PCT" -gt 100 ]; then
+    EST_PCT=100
+fi
+
+# Write estimation if: no file exists, file is empty, OR file is stale (>60s old)
+SHOULD_WRITE=false
 if [ ! -f "$CTX_FILE" ] || [ ! -s "$CTX_FILE" ]; then
-    EST_PCT=$(( COUNT * 100 / 667 ))
-    if [ "$EST_PCT" -gt 100 ]; then
-        EST_PCT=100
-    fi
+    SHOULD_WRITE=true
+elif [ "$(find "$CTX_FILE" -mmin +1 2>/dev/null)" ]; then
+    SHOULD_WRITE=true
+fi
+
+if [ "$SHOULD_WRITE" = true ]; then
     echo "$EST_PCT" > "$CTX_FILE"
 fi
 

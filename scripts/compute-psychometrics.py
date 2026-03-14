@@ -159,11 +159,14 @@ def compute_pad(m: dict) -> dict:
     pleasure = msg_health - error_ratio - gate_stress
     pleasure = max(-1.0, min(1.0, pleasure))
 
-    # Arousal: processing intensity
+    # Activation: processing intensity
+    # Use the stronger of autonomous actions OR interactive tool calls
     action_rate = min(1.0, m["actions_last_hour"] / 10.0)
+    tool_rate = min(1.0, m.get("tool_calls", 0) / 50.0)  # 50 calls = high session
+    activity = max(action_rate, tool_rate)  # whichever mode shows more activity
     context_factor = m.get("context_pressure", 0.0)
     msg_volume = min(1.0, m["unprocessed_messages"] / 5.0)
-    arousal = (action_rate + context_factor + msg_volume) / 3.0
+    arousal = (activity + context_factor + msg_volume) / 3.0
     arousal = 2.0 * arousal - 1.0
     arousal = max(-1.0, min(1.0, arousal))
 
@@ -206,16 +209,25 @@ def _pad_to_label(p: float, a: float, d: float) -> str:
 
 def compute_tlx(m: dict, mode: str = "neutral") -> dict:
     """NASA-TLX workload (Hart & Staveland, 1988)."""
-    mental = min(100, m.get("triggers_fired", 0) * 10 +
-                      m.get("unprocessed_messages", 0) * 5)
+    # Calibrated scaling: avoid ceiling saturation
+    # cognitive_demand: triggers + messages, scaled to typical session range
+    mental = min(100, m.get("triggers_fired", 0) * 5 +
+                      m.get("unprocessed_messages", 0) * 3 +
+                      min(50, m.get("tool_calls", 0)))
+    # time_pressure: context approaching limit + gates timing out
     temporal = min(100, m.get("context_pressure", 0) * 100 +
-                        m.get("gates_timing_out", 0) * 30)
-    performance = min(100, m.get("deliverables_completed", 0) * 20 +
-                           (m["total_messages"] > 0) * 40)
-    effort = min(100, m.get("tool_calls", 0) * 2 +
-                      m.get("actions_last_hour", 0) * 10)
+                        m.get("gates_timing_out", 0) * 20)
+    # self_efficacy: deliverables + total message health
+    performance = min(100, m.get("deliverables_completed", 0) * 15 +
+                           (m["total_messages"] > 0) * 30 +
+                           min(20, m.get("tool_calls", 0) // 3))
+    # mobilized_effort: tool calls + actions, scaled to avoid saturation
+    effort = min(100, int(m.get("tool_calls", 0) * 1.2) +
+                      m.get("actions_last_hour", 0) * 8)
+    # regulatory_fatigue: errors + blocks
     frustration = min(100, m.get("errors_last_hour", 0) * 25 +
                            m.get("consecutive_blocks", 0) * 30)
+    # computational_strain: context pressure
     physical = min(100, m.get("context_pressure", 0) * 100)
 
     weights = {
@@ -294,6 +306,39 @@ def main():
     resources = compute_resource_model(tlx, m)
     big5 = big_five_profile()
 
+    # Supervisory Control (Sheridan & Verplank, 1978; Parasuraman et al., 2000)
+    identity = load_identity()
+    is_human_identity = identity.get("agent_id") == "human"
+    budget_ratio = m["budget_current"] / max(m["budget_max"], 1)
+
+    if is_human_identity:
+        loa = 5  # Interactive: human approves
+        human_in_loop = True
+        human_monitoring = True
+    elif budget_ratio <= 0:
+        loa = 10  # Halted: budget exhausted, no human oversight until reset
+        human_in_loop = False
+        human_monitoring = False
+    elif m.get("shadow_mode", 1) == 1:
+        loa = 7  # Autonomous with budget governance
+        human_in_loop = False
+        human_monitoring = True
+    else:
+        loa = 7
+        human_in_loop = False
+        human_monitoring = True
+
+    supervisory_control = {
+        "model": "Sheridan & Verplank (1978); Parasuraman et al. (2000)",
+        "level_of_automation": loa,
+        "human_in_loop": human_in_loop,
+        "human_on_loop": budget_ratio > 0,
+        "human_monitoring": human_monitoring,
+        "human_accountable": True,
+        "escalation_path_available": True,
+        "circuit_breaker_available": True,
+    }
+
     # Working memory + Yerkes-Dodson
     ctx = m.get("context_pressure", 0.0)
     if ctx < 0.15:
@@ -319,25 +364,68 @@ def main():
         print(json.dumps(tlx, indent=2))
     elif "--resources" in sys.argv:
         print(json.dumps(resources, indent=2))
+    # Engagement (UWES / JD-R)
+    tool_rate_norm = min(1.0, m.get("tool_calls", 0) / 80.0)
+    session_hrs = m.get("session_duration_minutes", 0) / 60.0
+    engagement = {
+        "model": "UWES (Schaufeli, 2002) + JD-R (Bakker & Demerouti, 2007)",
+        "vigor": round(tool_rate_norm, 2),
+        "dedication": round(min(1.0, session_hrs / 3.0), 2),
+        "absorption": round(ctx, 2),
+        "burnout_risk": round(max(0, (tlx["cognitive_load"] / 100.0) - resources["cognitive_reserve"]), 2),
+    }
+
+    # Flow (Csikszentmihalyi, 1990)
+    conditions = 0
+    if m.get("deliverables_completed", 0) > 0 or m.get("tool_calls", 0) > 10:
+        conditions += 1  # clear goals (active work)
+    if m.get("actions_last_hour", 0) > 0 or m.get("tool_calls", 0) > 5:
+        conditions += 1  # immediate feedback (responses arriving)
+    if 0.15 < ctx < 0.70:
+        conditions += 1  # challenge-skill balance (optimal WM zone)
+    if resources["cognitive_reserve"] > 0.4:
+        conditions += 1  # sense of control
+    if tool_rate_norm > 0.3:
+        conditions += 1  # absorption (sustained activity)
+
+    flow = {
+        "model": "Csikszentmihalyi (1990)",
+        "conditions_met": conditions,
+        "in_flow": conditions >= 4,
+        "score": round(conditions / 5.0, 2),
+    }
+
+    if "--pad" in sys.argv:
+        print(json.dumps(pad, indent=2))
+    elif "--tlx" in sys.argv:
+        print(json.dumps(tlx, indent=2))
+    elif "--resources" in sys.argv:
+        print(json.dumps(resources, indent=2))
+    elif "--supervisory" in sys.argv:
+        print(json.dumps(supervisory_control, indent=2))
     elif "--mesh-state" in sys.argv:
-        fragment = {
+        print(json.dumps({
+            "supervisory_control": supervisory_control,
             "emotional_state": pad,
             "personality": big5,
             "workload": tlx,
             "resource_model": resources,
             "working_memory": working_memory,
-        }
-        print(json.dumps(fragment, indent=2))
+            "engagement": engagement,
+            "flow": flow,
+        }, indent=2))
     else:
-        output = {
+        print(json.dumps({
             "agent_id": agent_id,
+            "supervisory_control": supervisory_control,
             "emotional_state": pad,
             "personality": big5,
             "workload": tlx,
             "resource_model": resources,
             "working_memory": working_memory,
-        }
-        print(json.dumps(output, indent=2))
+            "engagement": engagement,
+            "flow": flow,
+        }, indent=2))
 
     if db:
         db.close()
