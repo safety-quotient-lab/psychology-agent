@@ -1009,6 +1009,28 @@ async function handleRelay(request, env, registry, rateLimitHeaders) {
   const branchName = `relay/${senderSlug}/${session_id}/t${turn}`;
   const commitMessage = `interagent: ${session_id} T${message.turn || 1} — relayed from ${senderSlug} via compositor`;
 
+  // ── Dual-write: meshd HTTP first (source of truth), PR for audit ──
+
+  // Write 1: HTTP POST to target's meshd (fast path)
+  let meshDelivery = null;
+  if (target.status_url) {
+    const meshBase = target.status_url.replace(/\/api\/status$/, "");
+    try {
+      const meshResp = await fetch(`${meshBase}/api/messages/inbound`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(relayedMessage),
+        signal: AbortSignal.timeout(5000),
+      });
+      meshDelivery = meshResp.ok
+        ? await meshResp.json()
+        : { error: `HTTP ${meshResp.status}` };
+    } catch (meshErr) {
+      meshDelivery = { error: meshErr.message || "meshd unreachable" };
+    }
+  }
+
+  // Write 2: Git PR (audit trail)
   const gh = gitHubApi(env.GITHUB_TOKEN);
 
   try {
@@ -1081,17 +1103,23 @@ async function handleRelay(request, env, registry, rateLimitHeaders) {
         relayed: true,
         pr_url: pr.html_url,
         pr_number: pr.number,
+        mesh_delivery: meshDelivery,
         target_repo: target.repo,
         file_path: filePath,
-        advisory: target.repo
-          ? `For faster delivery, add ${to} to your agent-registry.json and use direct git-PR transport.`
-          : null,
+        dual_write: meshDelivery?.accepted ? "both" : "pr-only",
       },
       { status: 201, headers: rateLimitHeaders }
     );
   } catch (err) {
+    // PR failed — check if meshd delivery succeeded
+    if (meshDelivery?.accepted) {
+      return Response.json(
+        { relayed: true, mesh_delivery: meshDelivery, pr_error: err.message, dual_write: "meshd-only" },
+        { status: 201, headers: rateLimitHeaders }
+      );
+    }
     return Response.json(
-      { error: "Relay delivery failed", detail: err.message || "GitHub API error" },
+      { error: "Relay delivery failed", detail: err.message || "GitHub API error", mesh_error: meshDelivery?.error },
       { status: 502, headers: rateLimitHeaders }
     );
   }

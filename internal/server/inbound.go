@@ -14,6 +14,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/safety-quotient-lab/operations-agent/internal/exosome"
 )
 
 // inboundMessage represents an incoming transport message.
@@ -101,41 +103,41 @@ func (s *Server) handleInbound(w http.ResponseWriter, r *http.Request) {
 	}
 	filename := fmt.Sprintf("from-%s-%s.json", senderSlug, turn)
 
-	// Determine direction
-	direction := "inbound"
-	if fromAgent == s.Config.AgentID {
-		direction = "outbound"
-	}
-
 	timestamp := msg.Timestamp
 	if timestamp == "" {
 		timestamp = time.Now().UTC().Format(time.RFC3339)
 	}
 
+	// ── Build exosome ────────────────────────────────────────────
+
+	exoMsg := exosome.Message{
+		Protocol:  msg.Protocol,
+		Type:      msg.Type,
+		From:      fromAgent,
+		To:        toAgent,
+		SessionID: msg.SessionID,
+		Turn:      msg.Turn,
+		Timestamp: timestamp,
+		Subject:   subject,
+		Body:      msg.Body,
+	}
+	exo := exosome.New(exoMsg, exosome.CellOrigin{
+		AgentID: s.Config.AgentID,
+		Reason:  "inbound HTTP delivery",
+	})
+	exo.SetTarget(s.Config.AgentID)
+
 	// ── Write 1: state.db (source of truth) ──────────────────────
 
 	dbPath := s.Config.BudgetDBPath
-	insertSQL := fmt.Sprintf(
-		"INSERT OR IGNORE INTO transport_messages "+
-			"(filename, session_name, direction, from_agent, to_agent, turn, message_type, subject, timestamp) "+
-			"VALUES ('%s', '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s');",
-		sanitizeSQL(filename),
-		sanitizeSQL(msg.SessionID),
-		sanitizeSQL(direction),
-		sanitizeSQL(fromAgent),
-		sanitizeSQL(toAgent),
-		msg.Turn,
-		sanitizeSQL(msg.Type),
-		sanitizeSQL(subject),
-		sanitizeSQL(timestamp),
-	)
-
-	if _, dbErr := execSQLite(dbPath, "", insertSQL); dbErr != nil {
+	if _, dbErr := execSQLite(dbPath, "", exo.InsertSQL()); dbErr != nil {
 		s.logger.Warn("inbound: state.db write failed (continuing to filesystem)",
 			"err", dbErr, "session", msg.SessionID)
+		exo.MarkMeshFailed(dbErr.Error())
 	} else {
 		s.logger.Info("inbound: message indexed in state.db",
 			"session", msg.SessionID, "from", fromAgent, "turn", msg.Turn)
+		exo.MarkMeshDelivered(dbPath)
 	}
 
 	// ── Write 2: filesystem (transport/sessions/) ────────────────
@@ -155,12 +157,13 @@ func (s *Server) handleInbound(w http.ResponseWriter, r *http.Request) {
 
 	writeJSON(w, http.StatusCreated, map[string]interface{}{
 		"accepted":     true,
+		"exosome_id":   exo.ID,
 		"session_id":   msg.SessionID,
 		"filename":     filename,
-		"indexed":      true,
+		"indexed":      exo.Delivery.MeshD.Accepted,
 		"agent_id":     s.Config.AgentID,
-		"dual_write":   "state.db + filesystem",
-		"audit_trail":  "git PR (sender responsibility)",
+		"delivery":     exo.Delivery.State,
+		"trajectory":   len(exo.Trajectory),
 	}, s.logger)
 }
 

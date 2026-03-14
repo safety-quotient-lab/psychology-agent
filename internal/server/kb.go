@@ -6,12 +6,10 @@
 package server
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
-	"os/exec"
-	"strings"
+
+	"github.com/safety-quotient-lab/operations-agent/internal/db"
 )
 
 // kbResponse defines the JSON envelope returned by GET /api/kb.
@@ -72,22 +70,30 @@ func (s *Server) handleKB(w http.ResponseWriter, r *http.Request) {
 	data := emptyKBData()
 
 	// Query each table independently; missing tables produce empty results.
-	data.Decisions = s.kbQuery(dbPath, "SELECT * FROM decisions ORDER BY created_at DESC")
-	data.Claims = s.kbQuery(dbPath, "SELECT * FROM claims ORDER BY created_at DESC")
-	data.Triggers = s.kbQuery(dbPath, "SELECT * FROM trigger_state ORDER BY last_fired DESC")
-	data.Memory.Entries = s.kbQuery(dbPath, "SELECT * FROM memory_entries ORDER BY last_confirmed DESC")
-	data.Messages = s.kbQuery(dbPath, "SELECT filename, session_name, direction, from_agent, to_agent, turn, message_type, subject, timestamp, processed FROM transport_messages ORDER BY timestamp DESC")
+	query := func(q string) []map[string]string {
+		rows, err := db.QueryJSON(dbPath, q)
+		if err != nil {
+			s.logger.Debug("kb query failed", "query", q, "err", err)
+		}
+		return rows
+	}
+
+	data.Decisions = query("SELECT * FROM decisions ORDER BY created_at DESC")
+	data.Claims = query("SELECT * FROM claims ORDER BY created_at DESC")
+	data.Triggers = query("SELECT * FROM trigger_state ORDER BY last_fired DESC")
+	data.Memory.Entries = query("SELECT * FROM memory_entries ORDER BY last_confirmed DESC")
+	data.Messages = query("SELECT filename, session_name, direction, from_agent, to_agent, turn, message_type, subject, timestamp, processed FROM transport_messages ORDER BY timestamp DESC")
 
 	// Totals — each count query runs independently and defaults to zero.
-	data.Totals.Decisions = s.kbCount(dbPath, "SELECT count(*) FROM decisions")
-	data.Totals.Claims = s.kbCount(dbPath, "SELECT count(*) FROM claims")
-	data.Totals.ClaimsVerified = s.kbCount(dbPath, "SELECT count(*) FROM claims WHERE status = 'verified'")
-	data.Totals.ClaimsStale = s.kbCount(dbPath, "SELECT count(*) FROM claims WHERE status = 'stale'")
-	data.Totals.Triggers = s.kbCount(dbPath, "SELECT count(*) FROM trigger_state")
-	data.Totals.MemoryEntries = s.kbCount(dbPath, "SELECT count(*) FROM memory_entries")
-	data.Totals.StaleEntries = s.kbCount(dbPath, "SELECT count(*) FROM memory_entries WHERE status = 'stale'")
-	data.Totals.Lessons = s.kbCount(dbPath, "SELECT count(*) FROM memory_entries WHERE topic = 'lesson'")
-	data.Totals.LessonsStale = s.kbCount(dbPath, "SELECT count(*) FROM memory_entries WHERE topic = 'lesson' AND status = 'stale'")
+	data.Totals.Decisions = db.QueryScalar(dbPath, "SELECT count(*) FROM decisions")
+	data.Totals.Claims = db.QueryScalar(dbPath, "SELECT count(*) FROM claims")
+	data.Totals.ClaimsVerified = db.QueryScalar(dbPath, "SELECT count(*) FROM claims WHERE status = 'verified'")
+	data.Totals.ClaimsStale = db.QueryScalar(dbPath, "SELECT count(*) FROM claims WHERE status = 'stale'")
+	data.Totals.Triggers = db.QueryScalar(dbPath, "SELECT count(*) FROM trigger_state")
+	data.Totals.MemoryEntries = db.QueryScalar(dbPath, "SELECT count(*) FROM memory_entries")
+	data.Totals.StaleEntries = db.QueryScalar(dbPath, "SELECT count(*) FROM memory_entries WHERE status = 'stale'")
+	data.Totals.Lessons = db.QueryScalar(dbPath, "SELECT count(*) FROM memory_entries WHERE topic = 'lesson'")
+	data.Totals.LessonsStale = db.QueryScalar(dbPath, "SELECT count(*) FROM memory_entries WHERE topic = 'lesson' AND status = 'stale'")
 
 	writeJSON(w, http.StatusOK, kbResponse{
 		Status: "ok",
@@ -95,76 +101,15 @@ func (s *Server) handleKB(w http.ResponseWriter, r *http.Request) {
 	}, s.logger)
 }
 
-// kbQuery runs a SELECT query against dbPath using sqlite3 in JSON mode.
-// Returns a slice of maps on success, or an empty slice when the table
-// does not exist or the query fails for any reason.
-func (s *Server) kbQuery(dbPath, query string) []map[string]string {
-	output, err := execSQLite(dbPath, "-json", query)
-	if err != nil {
-		s.logger.Warn("kb query failed", "query", query, "err", err, "output", output)
-		return []map[string]string{}
-	}
-
-	trimmed := strings.TrimSpace(output)
-	if trimmed == "" || trimmed == "[]" {
-		return []map[string]string{}
-	}
-
-	// sqlite3 -json returns numbers as JSON numbers, not strings.
-	// Unmarshal into interface{} first, then convert everything to strings.
-	var rawRows []map[string]interface{}
-	if jErr := json.Unmarshal([]byte(trimmed), &rawRows); jErr != nil {
-		s.logger.Warn("failed to parse sqlite3 JSON output", "query", query, "err", jErr)
-		return []map[string]string{}
-	}
-
-	rows := make([]map[string]string, len(rawRows))
-	for i, raw := range rawRows {
-		row := make(map[string]string, len(raw))
-		for k, v := range raw {
-			if v == nil {
-				row[k] = ""
-			} else {
-				row[k] = fmt.Sprintf("%v", v)
-			}
-		}
-		rows[i] = row
-	}
-	return rows
-}
-
-// kbCount runs a scalar count query and returns the integer result.
-// Returns 0 when the table does not exist or the query fails.
-func (s *Server) kbCount(dbPath, query string) int {
-	output, err := execSQLite(dbPath, "", query)
-	if err != nil {
-		return 0
-	}
-
-	trimmed := strings.TrimSpace(output)
-	if trimmed == "" {
-		return 0
-	}
-
-	var count int
-	if _, scanErr := fmt.Sscanf(trimmed, "%d", &count); scanErr != nil {
-		return 0
-	}
-	return count
-}
-
-// execSQLite shells out to the sqlite3 CLI. When mode contains a non-empty
-// value (e.g. "-json"), that flag gets passed before the query.
+// execSQLite shells out to the sqlite3 CLI. Kept as a thin wrapper
+// around db.Exec for backward compatibility with inbound.go.
 func execSQLite(dbPath, mode, query string) (string, error) {
-	var args []string
 	if mode != "" {
-		args = []string{mode, dbPath, query}
-	} else {
-		args = []string{dbPath, query}
+		// -json mode: use db.QueryJSON indirectly — but callers
+		// that need -json now use db.QueryJSON directly.
+		return db.Exec(dbPath, query)
 	}
-	cmd := exec.Command("sqlite3", args...)
-	out, err := cmd.CombinedOutput()
-	return string(out), err
+	return db.Exec(dbPath, query)
 }
 
 // emptyKBData constructs a kbData with all slices initialized to empty
