@@ -127,9 +127,26 @@
 - [x] Send transport directive: mesh-parity-v2 (7 issues, PRs to all 4 peers)
 - [x] /diagnose + /retrospect skill definitions created
 
+## Phase 9: Exosome Architecture + Dual-Write
+
+- [x] internal/exosome/ — generic dual-write message abstraction (routing, delivery, trajectory audit)
+- [x] internal/db/ — shared SQLite access (QueryJSON, QueryScalar, EscapeString, SanitizeID)
+- [x] POST /api/messages/inbound — meshd receives messages via HTTP, dual-writes state.db + filesystem
+- [x] POST /api/redirect — compositor routes misrouted messages, notifies sender
+- [x] GET /api/routing — exposes keyword routing table (exosome = single source of truth)
+- [x] Relay handler: dual-write (meshd HTTP + git PR), graceful degradation
+- [x] Redirect handler: dual-write + sender notification via PR
+- [x] kb.go refactored: uses db.QueryJSON (removes duplicated JSON parsing)
+- [x] routing.go refactored: uses exosome.DefaultRoutingTable() (removes duplicated table)
+- [x] 9 tests passing (exosome package)
+- [x] E2E verified: inbound → state.db + filesystem (exosome_id, delivery state, trajectory)
+
 ## v1.0.0-beta.2 Backlog
 
 - [ ] Search — full-text search across transport messages, decisions, vocabulary
+- [ ] Spawn logging to state.db (spawner results dual-write)
+- [ ] Health observations persisted to state.db (health monitor dual-write)
+- [ ] Solid-OIDC auth layer (replace bearer tokens)
 
 ## v1.0.0-beta Release Blockers
 
