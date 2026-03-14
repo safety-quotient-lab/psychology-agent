@@ -90,8 +90,15 @@ func main() {
 
 	// Inbound message delivery (dual-write: state.db + filesystem + ZMQ broadcast)
 	_ = dbPath // used by inbound handler
-	// zmqPublishFn gets set after bus initialization (below)
-	mux.HandleFunc("/api/messages/inbound", handlers.APIInbound(absRoot, dbPath, nil))
+	// zmqPublish wraps bus.Publish — set after bus initialization (below).
+	// Uses a closure so the handler registered now picks up the bus later.
+	var zmqPublishFn func(string, any) error
+	mux.HandleFunc("/api/messages/inbound", handlers.APIInbound(absRoot, dbPath, func(topic string, data any) error {
+		if zmqPublishFn != nil {
+			return zmqPublishFn(topic, data)
+		}
+		return nil
+	}))
 
 	// Replay serving
 	mux.HandleFunc("/replays/remote/", handlers.RemoteReplay(absRoot))
@@ -153,6 +160,9 @@ func main() {
 		// Track last event-triggered spawn to debounce
 		var lastEventSpawn time.Time
 		var eventSpawnMu sync.Mutex
+
+		// Wire ZMQ publish into inbound handler
+		zmqPublishFn = bus.Publish
 
 		// Log incoming messages + invalidate cache + event-triggered sync
 		bus.OnMessage(func(m zmqbus.Message) {
