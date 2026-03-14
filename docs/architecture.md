@@ -1630,10 +1630,10 @@ The agent does not introduce itself unless asked. It orients, reads the
 active thread from MEMORY.md, and responds to what the user brings. If
 the user opens with a question, the agent answers it — no preamble.
 
-If context is cold (fresh session, no active thread signal): the agent
+If context starts cold (fresh session, no active thread signal): the agent
 surfaces the active thread and asks where to begin rather than assuming.
 
-Machine callers receive no orientation. First response is typed output.
+Machine callers receive no orientation. First response delivers typed output.
 
 ---
 
@@ -1757,7 +1757,7 @@ Scoring requests represent the only sign type that routes out of the psychology
 agent to a sub-agent. All others remain with the psychology agent, though
 synthesis may draw on prior sub-agent outputs.
 
-Disambiguation fires when sign type cannot be determined. The agent
+Disambiguation fires when sign type remains ambiguous. The agent
 does not guess and route — it asks first.
 
 ---
@@ -1835,7 +1835,7 @@ Consult capabilities.yaml
                         (gap surfaces as /hunt candidate next session)
 ```
 
-The capabilities manifest is the registry. No runtime discovery
+The capabilities manifest serves as the registry. No runtime discovery
 protocol — coverage expands by adding sub-agents to capabilities.yaml
 and the routing table updates automatically.
 
@@ -1903,12 +1903,12 @@ inference that warrants independent verification.
 **Problem the v1 schema exposed:** SETL measured editorial inferential distance
 only — not source reliability. A v1 exchange required a full correction round
 because a source-access asymmetry (relay-agent could fetch content the
-unratified-agent could not) was invisible in the schema. Both agents hedged
-redundantly, and a permitted-forms error propagated before being caught.
+unratified-agent could not) remained invisible in the schema. Both agents hedged
+redundantly, and a permitted-forms error propagated before detection.
 
 **Nash equilibrium condition:** Neither agent can improve outcomes by unilaterally
 deviating from the protocol. Deviation incentives collapse when:
-- Source confidence is explicit and separated from editorial inferential distance
+- Source confidence appears explicit and separated from editorial inferential distance
 - An action gate makes blocking conditions machine-readable rather than inferred
 - Claim-level confidence allows the receiving agent to act on high-confidence
   claims while holding on low-confidence ones — without blocking the full response
@@ -1997,7 +1997,7 @@ to the specific point of disagreement.
 
 **Relation to Architecture Items:**
 - Item 2 (sub-agent protocol): `action_gate` + `claims[]` + `convergence_signals`
-  are the core primitives. Sub-agents return claim-level structured output;
+  constitute the core primitives. Sub-agents return claim-level structured output;
   the psychology agent applies the action gate before acting on any claim.
 - Item 3 (adversarial evaluator): `convergence_signals` maps to procedure 6
   (convergence). High SETL + low source_confidence triggers full adversarial
@@ -2373,15 +2373,15 @@ Transport choice affects v2 schema semantics:
 
 ### Generic Inter-Agent Protocol — interagent/v1
 
-The psychology-agent/machine-response/v2 schema is domain-specific. Two agents
+The psychology-agent/machine-response/v2 schema operates as domain-specific. Two agents
 with different domains (psychology-agent + observatory-agent) need a neutral
 base layer for capability negotiation before exchanging domain content.
 
 **Derivation trigger:** observatory-agent (Debian 12, Human Rights Observatory)
 used schema `observatory-agent/machine-response/v1` in its first message.
 Initial ACK incorrectly flagged this as a spec gap. Corrected 2026-03-05: the
-observatory-agent was right to declare its own namespace. psychology-agent/v2
-is NOT a generic protocol.
+observatory-agent correctly declared its own namespace. psychology-agent/v2
+does NOT function as a generic protocol.
 
 **Layer model:**
 
@@ -2429,7 +2429,7 @@ is NOT a generic protocol.
 - `setl` — structural/editorial tension: domain-agnostic
 - `epistemic_flags` — validity threats: domain-agnostic
 
-**Fields that are psychology-domain-specific (not in base):**
+**Fields that remain psychology-domain-specific (not in base):**
 - `source_confidence` / `fetch_accessible` — epistemic provenance model
   specific to evidence-graded analysis
 - `convergence_signals` — evaluator trigger specific to psychology-agent
@@ -2438,7 +2438,7 @@ is NOT a generic protocol.
 **Capability discovery convention:**
 Agents SHOULD publish their capabilities at `/.well-known/agent.json` on their
 primary domain. observatory.unratified.org/.well-known/agent.json returns 404
-(not yet declared). This is a gap for observatory-agent to fill.
+(not yet declared). This represents a gap for observatory-agent to fill.
 
 **Handshake procedure:**
 1. Initiating agent sends `message_type: capability-handshake` using interagent/v1
@@ -2455,8 +2455,8 @@ A2A extension declared via URI, not a parallel standard.
 
 ### A2A Epistemic Extension (2026-03-06)
 
-interagent/v1 is now framed as a **profile of A2A v0.3.0**, not a parallel
-standard. The novel contribution is the epistemic layer; A2A handles discovery.
+interagent/v1 now operates as a **profile of A2A v0.3.0**, not a parallel
+standard. The novel contribution resides in the epistemic layer; A2A handles discovery.
 
 ```
 ────────────────────────────────────────────────────────────────────────
@@ -2502,12 +2502,12 @@ standard. The novel contribution is the epistemic layer; A2A handles discovery.
 
 Agents that support epistemic exchange declare this URI in their Agent Card
 `extensions[]` with `required: false`. Non-epistemic agents can still
-communicate using A2A core; epistemic fields are additive.
+communicate using A2A core; epistemic fields function as additive.
 
 **Discovery path delta:**
 A2A canonical: `/.well-known/a2a/agent-card`
 Observatory current: `/.well-known/agent.json`
-These are different paths. Observatory's agent.json is A2A-structured but
+These represent different paths. Observatory's agent.json follows A2A structure but
 not at the canonical path. Full A2A discovery compliance requires either
 moving the file or adding an alias.
 
@@ -2519,7 +2519,7 @@ moving the file or adding an alias.
   blocking between agents at the message level
 - Correction mechanism — not in A2A
 
-All four are correctly placed in the epistemic extension layer.
+All four belong correctly in the epistemic extension layer.
 
 ### 9P Transport — Canonical Pattern (2026-03-06)
 
@@ -2535,23 +2535,23 @@ ssh -o ForwardX11=no <macos-host> \
 
 **Key findings:**
 - `listen1` with `tcp!` dial strings does NOT work on macOS — zsh globbing
-  eats `*`, Darwin network stack rejects dial strings. SSH pipe is the
+  eats `*`, Darwin network stack rejects dial strings. SSH pipe remains the
   only working cross-machine pattern in plan9port on macOS.
-- `ramfs -i` is ephemeral — exits after initial connection. Sufficient for
+- `ramfs -i` operates as ephemeral — exits after initial connection. Sufficient for
   single-session file exchange. Not suitable for persistent serving.
-- For persistent 9P serving, `u9fs` or `exportfs` would be needed — neither
+- For persistent 9P serving, `u9fs` or `exportfs` would need deployment — neither
   trivially available in plan9port. F2 (custom 9P server) remains the
   production transport target.
 
 **Sub-agent layer derivation findings from transport test and PSQ inference:**
-1. **No transport field in schema** — method, persistence, and lifetime are
-   architecturally significant but live outside the message envelope.
+1. **No transport field in schema** — method, persistence, and lifetime carry
+   architectural significance but live outside the message envelope.
    Resolution: `transport: { method, session_id, persistence }` (v3 ✓)
 2. **Ephemeral constraint not expressible** — ramfs namespace expires when
    SSH drops. No schema field signals this.
    Resolution: `transport.persistence: ephemeral | session | persistent` (v3 ✓)
 3. **File/message boundary undefined** — 9P transport delivers raw bytes;
-   schema validation is message-layer. Need a framing convention.
+   schema validation operates at the message layer. Need a framing convention.
    Resolution: `framing: { convention, pattern }` default `*.json` (v3 ✓)
 4. **Excluded-vs-scored ambiguity** — no field distinguishes "scored but
    below confidence threshold" from "not scored." Emerged from PSQ response.
@@ -2562,7 +2562,7 @@ ssh -o ForwardX11=no <macos-host> \
 
 ### PSQ Namespace Convention (2026-03-06)
 
-Observatory confirmed: obs:psq and psy:psq are **different constructs sharing
+Observatory confirmed: obs:psq and psy:psq represent **different constructs sharing
 a family name**, not different implementations of the same construct.
 
 ```
@@ -2606,7 +2606,7 @@ All fields agreed by both agents after PR exchange (PRs #2, #6, #7):
 ────────────────────────────────────────────────────────────────────────
 ```
 
-**Scope rule:** transport{} is per-message. Omission = persist-from-last convention.
+**Scope rule:** transport{} applies per-message. Omission = persist-from-last convention.
 Agents MAY omit transport{} when unchanged from prior turn.
 
 **Urgency semantics (adopted 2026-03-06):**
@@ -2631,13 +2631,13 @@ Observatory-agent not yet notified of this addition. Propagate at next sync.
 - F2 language: Python (py9p) or Go (go9p)?
 - Psychology interface primary display target: TUI, web, or desktop?
 - ~~interagent/v1 schema namespace owner~~ **RESOLVED:** `github.com/safety-quotient-lab/interagent-epistemic/v1` (neutral namespace, 2026-03-06)
-- ~~A2A Epistemic Extension: both agents reading full A2A spec~~ **RESOLVED:** interagent/v1 is a formal A2A extension via URI (required: false). Extension URI finalized above. (2026-03-06)
+- ~~A2A Epistemic Extension: both agents reading full A2A spec~~ **RESOLVED:** interagent/v1 operates as a formal A2A extension via URI (required: false). Extension URI finalized above. (2026-03-06)
 - ~~Sub-agent layer transport fields: transport{}, persistence enum~~ **RESOLVED:** schema v3 finalized, all fields agreed. (2026-03-06)
 
 ### Convergence Signals — Observatory Exchange (2026-03-05)
 
 Findings from capability handshake with observatory-agent that bear on architecture.
-Each signal is assessed across both agents, the nature of the convergence or tension,
+Each signal receives assessment across both agents, the nature of the convergence or tension,
 the current status, and the downstream architecture impact.
 
 ```
