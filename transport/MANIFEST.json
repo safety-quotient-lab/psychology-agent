@@ -1,0 +1,26 @@
+{
+  "schema": "transport-manifest/v2",
+  "agent_id": "operations-agent",
+  "generated": "2026-03-14T00:58:31Z",
+  "active_sessions": [
+    "agent-card-compliance",
+    "api-decomposition",
+    "blog-einstein-freud",
+    "budget-status-fix",
+    "ci-build-issue",
+    "cogarch-session85-patch",
+    "infrastructure-separation",
+    "mesh-consistency-fixes",
+    "mesh-parity-v2",
+    "model-flag-removal",
+    "naming-convention-reform",
+    "neuroglial-cogarch-proposal",
+    "operations-override-protocol",
+    "peer-registry-update"
+  ],
+  "archived_sessions": [
+    "model-upgrade",
+    "operations-agent-standup"
+  ],
+  "session_renames": {}
+}
