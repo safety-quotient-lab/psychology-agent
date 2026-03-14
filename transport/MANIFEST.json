@@ -1,7 +1,7 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-14T10:00:10",
+  "generated_at": "2026-03-14T10:07:39",
   "source": "scripts/generate_manifest.py",
   "pending": {
     "operations-agent": [
@@ -60,6 +60,13 @@
         "type": "proposal",
         "subject": "Proposal: photonic transport layer \u2014 third signaling mode for processing-state synchronization",
         "timestamp": "2026-03-14T03:00:00-05:00"
+      },
+      {
+        "session": "mesh-state-parity",
+        "file": "transport/sessions/mesh-state-parity/from-psychology-agent-001.json",
+        "type": "request",
+        "subject": "Mesh-wide state.db parity gap \u2014 schema drift + content seeding affects all agents",
+        "timestamp": "2026-03-14T03:15:00-05:00"
       }
     ],
     "unratified-agent": [
