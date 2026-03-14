@@ -1,0 +1,1 @@
+{"protocol": "interagent/v1", "type": "test", "from": "operations-agent", "session_id": "test-http-only", "turn": 1, "timestamp": "2026-03-14T15:05:00Z", "subject": "HTTP-only delivery test", "to": "psychology-agent"}
