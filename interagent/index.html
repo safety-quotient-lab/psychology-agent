@@ -2277,14 +2277,12 @@
         }
     }
 
+    // Aggregation endpoints — use operations-agent meshd directly (no CF Worker rate limit)
+    const OPS_MESHD = "https://operations-agent.safety-quotient.dev";
+
     async function fetchPulse() {
         try {
-            const resp = await fetch("/api/pulse", { signal: AbortSignal.timeout(8000) });
-            if (resp.status === 429) {
-                console.warn("Pulse rate-limited — using cached data");
-                consecutiveFailures += 2; // accelerate backoff
-                return null;
-            }
+            const resp = await fetch(`${OPS_MESHD}/api/pulse`, { signal: AbortSignal.timeout(8000) });
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             return await resp.json();
         } catch (err) {
@@ -2295,11 +2293,7 @@
 
     async function fetchOps() {
         try {
-            const resp = await fetch("/api/operations", { signal: AbortSignal.timeout(8000) });
-            if (resp.status === 429) {
-                console.warn("Operations rate-limited — using cached data");
-                return null;
-            }
+            const resp = await fetch(`${OPS_MESHD}/api/operations`, { signal: AbortSignal.timeout(8000) });
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             return await resp.json();
         } catch (err) {
