@@ -42,7 +42,7 @@ def cmd_transport_message(args: argparse.Namespace) -> None:
         from_agent=args.from_agent,
         to_agent=args.to_agent,
         timestamp=args.timestamp,
-        subject=args.subject or "",
+        subject=args.subject.strip() if args.subject and args.subject.strip() else f"(derived: {args.session})",
         claims_count=args.claims_count or 0,
         setl=args.setl,
         urgency=args.urgency or "normal",

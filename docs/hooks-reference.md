@@ -1,7 +1,7 @@
 # Platform Hooks Reference
 
-14 hook events (17 active scripts) enforce cogarch mechanically. Scripts live
-in `.claude/hooks/`.
+14 hook events (24 active scripts + `_debug.sh` shared helper) enforce cogarch
+mechanically. Scripts live in `.claude/hooks/`.
 
 | Hook | Event | Purpose |
 |------|-------|---------|

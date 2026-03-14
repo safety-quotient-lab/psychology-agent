@@ -908,3 +908,28 @@ CREATE INDEX IF NOT EXISTS idx_predictions_session
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (25, 'Prediction ledger: RPG win/loss tracking (predictions → outcomes → deltas). Spec: docs/retrospective-pattern-generator-spec.md');
+
+
+-- v26: Non-empty subject enforcement (mesh-parity-v2 P2) + document_audits
+-- Subject derivation: when JSON lacks subject field, derive from session_name.
+-- Existing NULL subjects remain — this constrains new inserts only.
+-- Note: SQLite cannot add CHECK constraints via ALTER TABLE. Enforcement
+-- applies at the application layer (dual_write.py) rather than schema level.
+-- The CHECK below applies to fresh databases built from this schema file.
+
+CREATE TABLE IF NOT EXISTS document_audits (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    document_path   TEXT NOT NULL,
+    tier            INTEGER NOT NULL,
+    check_types     TEXT NOT NULL,
+    findings_count  INTEGER DEFAULT 0,
+    session_id      INTEGER,
+    audited_at      TEXT DEFAULT (datetime('now')),
+    created_at      TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_audits_document
+    ON document_audits (document_path);
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (26, 'Document audits table (microglial layer) + non-empty subject enforcement at application layer (mesh-parity-v2 P2)');
