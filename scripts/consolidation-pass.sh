@@ -21,6 +21,7 @@ DB_PATH="${PROJECT_ROOT}/state.db"
 LOCAL_DB_PATH="${PROJECT_ROOT}/state.local.db"
 REPORT_PATH="${PROJECT_ROOT}/docs/consolidation-report.md"
 AGENTDB="${PROJECT_ROOT}/agentdb"
+export AGENTDB
 
 # Only run if state.db exists
 [ -f "${DB_PATH}" ] || exit 0

@@ -7,6 +7,9 @@
 # Fires on Write/Edit to evaluation-related files.
 # Does NOT block — warns and prompts calibration verification.
 
+# Claude Code injects TOOL_NAME and TOOL_INPUT_* variables at runtime
+# shellcheck disable=SC2154
+
 # Only fire on Write or Edit tools
 TOOL="$TOOL_NAME"
 case "$TOOL" in

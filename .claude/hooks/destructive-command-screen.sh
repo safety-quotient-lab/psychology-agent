@@ -2,6 +2,8 @@
 # PreToolUse hook: fast pre-screen for destructive commands in Bash.
 # Brain gap 2 (amygdala analogue) — fires before full trigger pipeline.
 
+# Claude Code injects TOOL_INPUT_* variables at runtime
+# shellcheck disable=SC2154
 COMMAND="$TOOL_INPUT_command"
 [ -z "$COMMAND" ] && exit 0
 
