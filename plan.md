@@ -141,12 +141,22 @@
 - [x] 9 tests passing (exosome package)
 - [x] E2E verified: inbound → state.db + filesystem (exosome_id, delivery state, trajectory)
 
+## Phase 10: Dual-Write Completion + Search
+
+- [x] Spawn logging to state.db — every spawn persists to spawn_log table
+- [x] Health observations persisted — OnObserve callback writes to health_observations table
+- [x] GET /api/search — FTS5 search across messages, decisions, vocab (with LIKE fallback)
+- [x] Schema v2 — spawn_log, health_observations, FTS5 virtual tables + triggers
+- [x] git-sync convention v2 — commit staged transport before rebase (fixed dirty index bug)
+- [ ] Transport watcher startup — fires on existing files, causing unnecessary spawns. Need seen-set persistence or initial scan suppression.
+
 ## v1.0.0-beta.2 Backlog
 
-- [ ] Search — full-text search across transport messages, decisions, vocabulary
-- [ ] Spawn logging to state.db (spawner results dual-write)
-- [ ] Health observations persisted to state.db (health monitor dual-write)
+- [ ] Transport watcher seen-set persistence (prevent spawn storms on restart)
 - [ ] Solid-OIDC auth layer (replace bearer tokens)
+- [ ] DNS rename psq → safety-quotient-agent
+- [ ] Component regression testing (manual)
+- [ ] Cross-browser verification (manual)
 
 ## v1.0.0-beta Release Blockers
 
