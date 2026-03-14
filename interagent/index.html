@@ -1169,6 +1169,10 @@
             <span class="lcars-subtitle">Safety Quotient Lab</span>
         </div>
         <div class="lcars-controls">
+            <div class="mesh-search" style="position:relative;margin-right:8px">
+                <input type="text" id="mesh-search-input" placeholder="Search mesh..." style="background:var(--bg-secondary);border:1px solid var(--border-color,#333);color:var(--text-primary);padding:4px 8px;border-radius:4px;font-size:0.85em;width:180px;font-family:inherit" onkeydown="if(event.key==='Enter')meshSearch()" />
+                <div id="mesh-search-results" style="display:none;position:absolute;top:100%;right:0;width:400px;max-height:400px;overflow-y:auto;background:var(--bg-secondary);border:1px solid var(--border-color,#333);border-radius:4px;margin-top:4px;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.3)"></div>
+            </div>
             <div class="toggle-group">
                 <button class="toggle-btn active" id="btn-dark" onclick="setTheme('dark')">Dark</button>
                 <button class="toggle-btn" id="btn-light" onclick="setTheme('light')">Light</button>
@@ -3273,6 +3277,111 @@
             const safeDesc = desc.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
             const hashName = encodeURIComponent(match);
             return `<abbr class="acronym-tip" title="${safeDesc}" onclick="event.stopPropagation();location.hash='vocab-${hashName}';switchTab('kb');setTimeout(()=>{const f=document.getElementById('filter-dictionary');if(f){f.value='${match}';filterDictionary();}},100)">${match}</abbr>`;
+        });
+    }
+
+    // ── Mesh Search ────────────────────────────────────────────────
+    // Client-side search across all loaded KB data (messages, decisions,
+    // claims, vocab). No server round-trip — searches in-memory data.
+
+    function meshSearch() {
+        const input = document.getElementById('mesh-search-input');
+        const resultsDiv = document.getElementById('mesh-search-results');
+        const query = (input?.value || '').trim().toLowerCase();
+
+        if (!query || query.length < 2) {
+            resultsDiv.style.display = 'none';
+            return;
+        }
+
+        const results = [];
+
+        // Search messages across all agents
+        for (const agent of AGENTS) {
+            const kb = kbData[agent.id];
+            if (kb?.status !== "ok") continue;
+            const msgs = (kb.data || kb)?.messages || [];
+            msgs.forEach(m => {
+                const searchable = [m.subject, m.session_name, m.from_agent, m.to_agent, m.message_type].join(' ').toLowerCase();
+                if (searchable.includes(query)) {
+                    results.push({ type: 'message', agent: agent.id, data: m });
+                }
+            });
+            // Search decisions
+            const decs = (kb.data || kb)?.decisions || [];
+            decs.forEach(d => {
+                const searchable = [d.title, d.decision_key, d.source].join(' ').toLowerCase();
+                if (searchable.includes(query)) {
+                    results.push({ type: 'decision', agent: agent.id, data: d });
+                }
+            });
+            // Search claims
+            const claims = (kb.data || kb)?.claims || [];
+            claims.forEach(c => {
+                const searchable = [c.claim_text, c.session_name, c.confidence_basis].join(' ').toLowerCase();
+                if (searchable.includes(query)) {
+                    results.push({ type: 'claim', agent: agent.id, data: c });
+                }
+            });
+        }
+
+        // Search vocab
+        const sharedVocab = dictData["_shared"];
+        if (sharedVocab?.status === "ok") {
+            const terms = sharedVocab.data?.["@graph"] || sharedVocab.data?.hasDefinedTerm || [];
+            terms.forEach(t => {
+                const searchable = [t.name, t.description, t.termCode].join(' ').toLowerCase();
+                if (searchable.includes(query)) {
+                    results.push({ type: 'vocab', agent: '_shared', data: t });
+                }
+            });
+        }
+
+        // Render results
+        if (results.length === 0) {
+            resultsDiv.innerHTML = `<div style="padding:12px;color:var(--text-dim);font-size:0.85em">No results for "${escapeHtml(query)}"</div>`;
+        } else {
+            const limited = results.slice(0, 20);
+            resultsDiv.innerHTML = `<div style="padding:8px 12px;font-size:0.75em;color:var(--text-dim);border-bottom:1px solid var(--border-color,#333)">${results.length} result${results.length !== 1 ? 's' : ''} for "${escapeHtml(query)}"</div>` +
+                limited.map(r => {
+                    const icon = { message: '&#x2709;', decision: '&#x2696;', claim: '&#x2714;', vocab: '&#x1F4D6;' }[r.type] || '?';
+                    let title = '', subtitle = '', onclick = '';
+                    if (r.type === 'message') {
+                        title = r.data.subject || r.data.session_name || '—';
+                        subtitle = `${r.data.from_agent || '?'} → ${r.data.to_agent || '?'} · ${r.data.session_name || ''}`;
+                        onclick = `switchTab('meta');document.getElementById('table-messages').setFilter('${escapeHtml(r.data.session_name || '')}')`;
+                    } else if (r.type === 'decision') {
+                        title = r.data.title || r.data.decision_key || '—';
+                        subtitle = `${r.data.source || ''} · ${r.data.status || ''}`;
+                        onclick = `switchTab('wisdom')`;
+                    } else if (r.type === 'claim') {
+                        title = (r.data.claim_text || '—').substring(0, 80);
+                        subtitle = `${r.data.session_name || ''} · conf: ${r.data.confidence || '?'}`;
+                        onclick = `switchTab('kb');document.getElementById('table-claims').setFilter('${escapeHtml(r.data.session_name || '')}')`;
+                    } else if (r.type === 'vocab') {
+                        title = r.data.name || '—';
+                        subtitle = (r.data.description || '').substring(0, 60);
+                        onclick = `switchTab('kb');location.hash='vocab-${encodeURIComponent(r.data.name || '')}';setTimeout(()=>{const f=document.getElementById('filter-dictionary');if(f){f.value='${escapeHtml(r.data.name || '')}';filterDictionary();}},100)`;
+                    }
+                    return `<div class="search-result-item" style="padding:8px 12px;border-bottom:1px solid var(--border-color,#222);cursor:pointer;font-size:0.85em" onclick="${escapeHtml(onclick)};document.getElementById('mesh-search-results').style.display='none'" onmouseover="this.style.background='var(--bg-primary)'" onmouseout="this.style.background=''">
+                        <div style="display:flex;align-items:center;gap:6px">
+                            <span style="font-size:1.1em">${icon}</span>
+                            <span class="agent-dot" data-agent="${r.agent}" style="width:6px;height:6px"></span>
+                            <span style="color:var(--text-primary)">${annotateAcronyms(escapeHtml(title.length > 70 ? title.substring(0, 70) + '…' : title))}</span>
+                        </div>
+                        <div style="padding-left:28px;color:var(--text-dim);font-size:0.8em">${escapeHtml(subtitle)}</div>
+                    </div>`;
+                }).join('') +
+                (results.length > 20 ? `<div style="padding:8px 12px;color:var(--text-dim);font-size:0.8em;text-align:center">+ ${results.length - 20} more</div>` : '');
+        }
+        resultsDiv.style.display = 'block';
+
+        // Close on click outside
+        document.addEventListener('click', function closeSearch(e) {
+            if (!resultsDiv.contains(e.target) && e.target !== input) {
+                resultsDiv.style.display = 'none';
+                document.removeEventListener('click', closeSearch);
+            }
         });
     }
 
