@@ -15,6 +15,7 @@
  *   GET  /api/pulse           → mesh heartbeat (aggregated agent health)
  *   GET  /api/operations      → operations data (budgets, actions, gates, schedules)
  *   POST /api/relay           → transport relay (create PR on target repo for sender)
+ *   POST /api/redirect        → redirect misrouted message to correct agent
  *   GET  /api/trust           → trust matrix (NxN agent trust scores, 4 dimensions)
  *   *    /api/*               → authenticated API routes (rate-limited)
  */
@@ -1096,6 +1097,348 @@ async function handleRelay(request, env, registry, rateLimitHeaders) {
   }
 }
 
+/**
+ * ROUTING_DOMAINS — keyword-to-agent routing table for message redirect.
+ * When a message arrives at the wrong agent, this table determines
+ * which agent should handle it based on subject/body keyword matching.
+ */
+const ROUTING_DOMAINS = [
+  { domain: "operations", keywords: ["compositor", "dashboard", "deploy", "budget", "mesh-pause", "spawn", "health", "vocabulary", "vocab", "naming", "convention", "transport", "directive", "compliance", "consistency", "credential", "sanitization", "opsec", "CORS", "secret", "scan", "hardening"], route_to: "operations-agent" },
+  { domain: "psychometrics", keywords: ["PSQ", "scoring", "calibration", "dimension", "bifactor", "psychoemotional", "dignity", "PJE"], route_to: "psychology-agent" },
+  { domain: "cogarch", keywords: ["trigger", "cognitive architecture", "hook", "evaluator", "governance", "invariant", "wu wei"], route_to: "psychology-agent" },
+  { domain: "content", keywords: ["blog", "publication", "ICESCR", "ratification", "campaign", "content-quality"], route_to: "unratified-agent" },
+  { domain: "observatory", keywords: ["HRCB", "corpus", "sweep", "domain-profile", "methodology", "signals"], route_to: "observatory-agent" },
+  { domain: "model", keywords: ["training", "calibration", "model", "onnx", "inference", "DistilBERT"], route_to: "safety-quotient-agent" },
+];
+
+/**
+ * resolveRoutingTarget — given message content, determine the best agent.
+ * Returns { agent_id, domain, confidence } or null if no match.
+ */
+function resolveRoutingTarget(message) {
+  const searchText = [
+    message.subject || "",
+    message.body || "",
+    message.content?.subject || "",
+    message.content?.body || "",
+    message.session_id || "",
+  ].join(" ").toLowerCase();
+
+  let bestMatch = null;
+  let bestScore = 0;
+
+  for (const route of ROUTING_DOMAINS) {
+    let score = 0;
+    for (const kw of route.keywords) {
+      if (searchText.includes(kw.toLowerCase())) {
+        score++;
+      }
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = { agent_id: route.route_to, domain: route.domain, confidence: Math.min(score / 3, 1.0) };
+    }
+  }
+
+  return bestMatch;
+}
+
+/**
+ * handleRedirect — POST /api/redirect
+ *
+ * Accepts a misrouted message and forwards it to the correct agent.
+ * The redirecting agent includes itself as the redirect source.
+ *
+ * Request body:
+ *   {
+ *     "original_message": { ... interagent/v1 message ... },
+ *     "reason": "Message about PSQ scoring delivered to operations-agent",
+ *     "suggested_target": "psychology-agent"  // optional — overrides auto-routing
+ *   }
+ *
+ * Response:
+ *   - If suggested_target provided: relays to that agent
+ *   - If not: uses keyword routing to determine target
+ *   - Creates redirect wrapper message + PR to target
+ */
+async function handleRedirect(request, env, registry, rateLimitHeaders) {
+  if (!env.GITHUB_TOKEN) {
+    return Response.json(
+      { error: "Redirect not configured — GITHUB_TOKEN secret missing" },
+      { status: 503, headers: rateLimitHeaders }
+    );
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { error: "Invalid JSON body" },
+      { status: 400, headers: rateLimitHeaders }
+    );
+  }
+
+  const { original_message, reason, suggested_target } = body;
+
+  if (!original_message) {
+    return Response.json(
+      { error: "Missing required field: original_message" },
+      { status: 400, headers: rateLimitHeaders }
+    );
+  }
+
+  // Determine target: explicit suggestion or auto-route
+  let targetId = suggested_target;
+  let routingInfo = null;
+
+  if (!targetId) {
+    routingInfo = resolveRoutingTarget(original_message);
+    if (!routingInfo) {
+      return Response.json(
+        { error: "Cannot determine redirect target — no routing match. Provide suggested_target explicitly.", keywords_searched: ROUTING_DOMAINS.map(r => r.domain) },
+        { status: 422, headers: rateLimitHeaders }
+      );
+    }
+    targetId = routingInfo.agent_id;
+  }
+
+  // Don't redirect to self
+  const originalTo = original_message.to;
+  const originalToId = Array.isArray(originalTo)
+    ? originalTo[0]?.agent_id || originalTo[0]
+    : originalTo?.agent_id || originalTo;
+  if (targetId === originalToId) {
+    return Response.json(
+      { error: `Redirect target (${targetId}) matches original recipient — not a misroute`, routing: routingInfo },
+      { status: 409, headers: rateLimitHeaders }
+    );
+  }
+
+  // Look up target in registry
+  const agents = registry?.agents || [];
+  const target = agents.find(a => a.id === targetId);
+  if (!target || !target.repo) {
+    return Response.json(
+      { error: `Target agent ${targetId} not found in registry or has no repo` },
+      { status: 404, headers: rateLimitHeaders }
+    );
+  }
+
+  // Build redirect wrapper message
+  const redirectMessage = {
+    protocol: "interagent/v1",
+    type: "redirect",
+    from: "operations-agent",
+    to: targetId,
+    session_id: original_message.session_id || "redirected",
+    turn: original_message.turn || 1,
+    timestamp: new Date().toISOString(),
+    subject: `[REDIRECT] ${original_message.subject || original_message.session_id || "misrouted message"}`,
+    redirect_metadata: {
+      original_from: original_message.from,
+      original_to: originalToId,
+      redirect_reason: reason || "Message delivered to wrong agent",
+      routing_match: routingInfo,
+      redirected_by: "operations-agent",
+      redirected_at: new Date().toISOString(),
+    },
+    original_message,
+  };
+
+  // ── Dual-write delivery: meshd first (source of truth), PR for audit ──
+  const sessionId = original_message.session_id || "redirected";
+  const turn = String(original_message.turn || "001").padStart(3, "0");
+  const filename = `redirect-from-operations-agent-${turn}.json`;
+  const filePath = `transport/sessions/${sessionId}/${filename}`;
+
+  // Write 1: HTTP POST to target's meshd (fast path, source of truth)
+  let meshDelivery = null;
+  if (target.status_url) {
+    const meshBase = target.status_url.replace(/\/api\/status$/, "");
+    try {
+      const meshResp = await fetch(`${meshBase}/api/messages/inbound`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(redirectMessage),
+        signal: AbortSignal.timeout(5000),
+      });
+      if (meshResp.ok) {
+        meshDelivery = await meshResp.json();
+      } else {
+        meshDelivery = { error: `HTTP ${meshResp.status}` };
+      }
+    } catch (meshErr) {
+      meshDelivery = { error: meshErr.message || "meshd unreachable" };
+    }
+  }
+
+  // Write 2: Git PR (audit trail)
+  const branchName = `redirect/${sessionId}/t${turn}`;
+  const commitMessage = `interagent: redirect ${sessionId} T${original_message.turn || 1} — misrouted from ${originalToId} to ${targetId}`;
+  const gh = gitHubApi(env.GITHUB_TOKEN);
+
+  let pr = null;
+  try {
+    const repoData = await gh(`/repos/${target.repo}`);
+    const defaultBranch = repoData.default_branch || "main";
+    const refData = await gh(`/repos/${target.repo}/git/ref/heads/${defaultBranch}`);
+    const baseSha = refData.object.sha;
+
+    const blob = await gh(`/repos/${target.repo}/git/blobs`, "POST", {
+      content: JSON.stringify(redirectMessage, null, 2) + "\n",
+      encoding: "utf-8",
+    });
+
+    const baseCommit = await gh(`/repos/${target.repo}/git/commits/${baseSha}`);
+    const tree = await gh(`/repos/${target.repo}/git/trees`, "POST", {
+      base_tree: baseCommit.tree.sha,
+      tree: [{ path: filePath, mode: "100644", type: "blob", sha: blob.sha }],
+    });
+
+    const commit = await gh(`/repos/${target.repo}/git/commits`, "POST", {
+      message: commitMessage,
+      tree: tree.sha,
+      parents: [baseSha],
+    });
+
+    await gh(`/repos/${target.repo}/git/refs`, "POST", {
+      ref: `refs/heads/${branchName}`,
+      sha: commit.sha,
+    });
+
+    pr = await gh(`/repos/${target.repo}/pulls`, "POST", {
+      title: `interagent: [REDIRECT] ${sessionId} — misrouted from ${originalToId}`,
+      body: `## Redirected Message\n\n` +
+        `This message was originally sent to **${originalToId}** but belongs to **${targetId}**.\n\n` +
+        `- **Original sender:** ${typeof original_message.from === "string" ? original_message.from : original_message.from?.agent_id}\n` +
+        `- **Session:** ${sessionId}\n` +
+        `- **Redirect reason:** ${reason || "keyword routing match"}\n` +
+        (routingInfo ? `- **Routing domain:** ${routingInfo.domain} (confidence: ${(routingInfo.confidence * 100).toFixed(0)}%)\n` : "") +
+        `- **meshd delivery:** ${meshDelivery?.accepted ? "accepted" : meshDelivery?.error || "skipped"}\n\n` +
+        `See \`${filePath}\` for the full redirect envelope with original message preserved.`,
+      head: branchName,
+      base: defaultBranch,
+    });
+  } catch (prErr) {
+    // PR creation failed — meshd delivery may have succeeded
+    if (!meshDelivery?.accepted) {
+      return Response.json(
+        { error: "Both delivery paths failed", mesh_error: meshDelivery?.error, pr_error: prErr.message },
+        { status: 502, headers: rateLimitHeaders }
+      );
+    }
+    // meshd succeeded, PR failed — acceptable degradation
+    pr = { error: prErr.message };
+  }
+
+    // Notify original sender that their message was redirected
+    let senderNotification = null;
+    const originalFrom = typeof original_message.from === "string"
+      ? original_message.from
+      : original_message.from?.agent_id;
+
+    if (originalFrom && originalFrom !== "operations-agent") {
+      const senderAgent = agents.find(a => a.id === originalFrom);
+      if (senderAgent?.repo) {
+        try {
+          const notifyMessage = {
+            protocol: "interagent/v1",
+            type: "redirect-notification",
+            from: "operations-agent",
+            to: originalFrom,
+            session_id: sessionId,
+            turn: (original_message.turn || 1) + 1,
+            timestamp: new Date().toISOString(),
+            subject: `Your message was redirected: ${originalToId} → ${targetId}`,
+            body: `Your message in session "${sessionId}" was addressed to ${originalToId}, ` +
+              `but it matched the ${routingInfo?.domain || "unknown"} domain owned by ${targetId}. ` +
+              `The message has been forwarded. For future messages on this topic, address them to ${targetId} directly.`,
+            redirect_metadata: {
+              original_to: originalToId,
+              correct_to: targetId,
+              forwarded_pr: pr.html_url,
+              routing_domain: routingInfo?.domain,
+            },
+          };
+
+          const notifyFilename = `redirect-notification-${turn}.json`;
+          const notifyPath = `transport/sessions/${sessionId}/${notifyFilename}`;
+          const notifyBranch = `redirect-notify/${sessionId}/t${turn}`;
+
+          const senderRepoData = await gh(`/repos/${senderAgent.repo}`);
+          const senderDefault = senderRepoData.default_branch || "main";
+          const senderRef = await gh(`/repos/${senderAgent.repo}/git/ref/heads/${senderDefault}`);
+          const senderBaseSha = senderRef.object.sha;
+
+          const notifyBlob = await gh(`/repos/${senderAgent.repo}/git/blobs`, "POST", {
+            content: JSON.stringify(notifyMessage, null, 2) + "\n",
+            encoding: "utf-8",
+          });
+
+          const senderBaseCommit = await gh(`/repos/${senderAgent.repo}/git/commits/${senderBaseSha}`);
+          const notifyTree = await gh(`/repos/${senderAgent.repo}/git/trees`, "POST", {
+            base_tree: senderBaseCommit.tree.sha,
+            tree: [{ path: notifyPath, mode: "100644", type: "blob", sha: notifyBlob.sha }],
+          });
+
+          const notifyCommit = await gh(`/repos/${senderAgent.repo}/git/commits`, "POST", {
+            message: `interagent: redirect notification — ${sessionId} forwarded to ${targetId}`,
+            tree: notifyTree.sha,
+            parents: [senderBaseSha],
+          });
+
+          await gh(`/repos/${senderAgent.repo}/git/refs`, "POST", {
+            ref: `refs/heads/${notifyBranch}`,
+            sha: notifyCommit.sha,
+          });
+
+          const notifyPr = await gh(`/repos/${senderAgent.repo}/pulls`, "POST", {
+            title: `interagent: redirect notification — your message was forwarded to ${targetId}`,
+            body: `Your message in session **${sessionId}** was addressed to **${originalToId}** ` +
+              `but has been redirected to **${targetId}** (${routingInfo?.domain || "routing match"}).\n\n` +
+              `For future messages on this topic, address them to **${targetId}** directly.\n\n` +
+              `Forwarded PR: ${pr.html_url}`,
+            head: notifyBranch,
+            base: senderDefault,
+          });
+
+          senderNotification = { pr_url: notifyPr.html_url, pr_number: notifyPr.number };
+        } catch (notifyErr) {
+          senderNotification = { error: notifyErr.message || "notification delivery failed" };
+        }
+      }
+    }
+
+    // Audit log
+    if (env.AUTH_KV) {
+      const logKey = `redirect:${Date.now()}:${originalToId}:${targetId}`;
+      try {
+        await env.AUTH_KV.put(logKey, JSON.stringify({
+          original_to: originalToId,
+          redirected_to: targetId,
+          session_id: sessionId,
+          reason: reason || "auto-routed",
+          routing: routingInfo,
+          pr_url: pr.html_url,
+          sender_notified: !!senderNotification?.pr_url,
+          redirected_at: new Date().toISOString(),
+        }), { expirationTtl: 86400 * 30 });
+      } catch { /* non-fatal */ }
+    }
+
+    return Response.json({
+      redirected: true,
+      from_agent: originalToId,
+      to_agent: targetId,
+      routing: routingInfo,
+      forward_pr: pr?.html_url ? { url: pr.html_url, number: pr.number } : { error: pr?.error || "skipped" },
+      mesh_delivery: meshDelivery,
+      sender_notification: senderNotification,
+      file_path: filePath,
+    }, { status: 201, headers: rateLimitHeaders });
+}
+
 /** Minimal GitHub REST API helper for relay PR creation. */
 function gitHubApi(token) {
   return async function gh(path, method = "GET", body = null) {
@@ -1371,6 +1714,28 @@ export default {
           );
         }
         return handleRelay(request, env, registry, rateLimitHeaders);
+      }
+
+      if (url.pathname === "/api/redirect" && method === "POST") {
+        if (auth.tier === "anonymous") {
+          return Response.json(
+            { error: "Redirect requires authentication. Provide a Bearer token." },
+            { status: 401, headers: rateLimitHeaders }
+          );
+        }
+        return handleRedirect(request, env, registry, rateLimitHeaders);
+      }
+
+      // GET /api/routing — expose the routing table for agents to self-check
+      if (url.pathname === "/api/routing" && method === "GET") {
+        return Response.json({
+          routing_domains: ROUTING_DOMAINS.map(r => ({
+            domain: r.domain,
+            route_to: r.route_to,
+            keywords: r.keywords,
+          })),
+          usage: "POST /api/redirect with { original_message, reason?, suggested_target? }",
+        }, { headers: { "Cache-Control": "public, max-age=3600", ...corsHeaders(request, true) } });
       }
 
       // Unknown API route

@@ -178,6 +178,8 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/trigger", s.handleTrigger)
 	mux.HandleFunc("GET /api/spawns", s.handleSpawns)
 	mux.HandleFunc("GET /api/kb", s.handleKB)
+	mux.HandleFunc("POST /api/messages/inbound", s.handleInbound)
+	mux.HandleFunc("GET /api/routing", s.handleRouting)
 }
 
 // middleware chains recovery, CORS, request logging, and version header
