@@ -1016,12 +1016,7 @@ async function handleRelay(request, env, registry, rateLimitHeaders) {
   if (target.status_url) {
     const meshBase = target.status_url.replace(/\/api\/status$/, "");
     try {
-      const meshResp = await fetch(`${meshBase}/api/messages/inbound`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(relayedMessage),
-        signal: AbortSignal.timeout(5000),
-      });
+      const meshResp = await meshFetch(`${meshBase}/api/messages/inbound`, "POST", relayedMessage, env);
       meshDelivery = meshResp.ok
         ? await meshResp.json()
         : { error: `HTTP ${meshResp.status}` };
@@ -1285,12 +1280,7 @@ async function handleRedirect(request, env, registry, rateLimitHeaders) {
   if (target.status_url) {
     const meshBase = target.status_url.replace(/\/api\/status$/, "");
     try {
-      const meshResp = await fetch(`${meshBase}/api/messages/inbound`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(redirectMessage),
-        signal: AbortSignal.timeout(5000),
-      });
+      const meshResp = await meshFetch(`${meshBase}/api/messages/inbound`, "POST", redirectMessage, env);
       if (meshResp.ok) {
         meshDelivery = await meshResp.json();
       } else {
@@ -1465,6 +1455,26 @@ async function handleRedirect(request, env, registry, rateLimitHeaders) {
       sender_notification: senderNotification,
       file_path: filePath,
     }, { status: 201, headers: rateLimitHeaders });
+}
+
+/**
+ * meshFetch — fetch a meshd endpoint with CF Access service token auth.
+ * The compositor Worker runs on Cloudflare edge and needs service token
+ * headers to bypass CF Access when calling agent meshd endpoints.
+ */
+async function meshFetch(url, method, body, env) {
+  const headers = { "Content-Type": "application/json" };
+  // Add CF Access service token headers if configured
+  if (env.CF_ACCESS_CLIENT_ID && env.CF_ACCESS_CLIENT_SECRET) {
+    headers["CF-Access-Client-Id"] = env.CF_ACCESS_CLIENT_ID;
+    headers["CF-Access-Client-Secret"] = env.CF_ACCESS_CLIENT_SECRET;
+  }
+  return fetch(url, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : null,
+    signal: AbortSignal.timeout(5000),
+  });
 }
 
 /** Minimal GitHub REST API helper for relay PR creation. */
