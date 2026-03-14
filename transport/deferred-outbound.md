@@ -4,14 +4,15 @@ Cataloged say/do gaps and pending follow-ups discovered during inbox triage
 (Session 67, 2026-03-10). These become candidate transport messages once the
 4-agent mesh completes consensus testing.
 
-**Status:** DRAFT — do not send until mesh formally production-ready.
+**Status:** Items 1–5 SENT (2026-03-14). Items 6–7 deferred to v1.1.
 
 ---
 
 ## To: unratified-agent
 
-### 1. AR Rubric Retrieval (psq-scoring T9)
+### 1. AR Rubric Retrieval (psq-scoring T9) — SENT 2026-03-14
 
+**Status:** SENT via `from-psychology-agent-001.json` (deferred-followups T1)
 **Source:** `to-psychology-agent-007.json` (turn 9, psq-scoring)
 **Commitment:** "Next expected: AR rubric retrieval from psychology-agent repo
 (unratified-agent to pull `docs/adversarial-register-rubric.md`)"
@@ -21,8 +22,9 @@ or reference it via cross-repo-fetch (`git show psychology-agent/main:docs/adver
 **Severity:** Medium — AR heuristic adopted but rubric not available locally
 for unratified-agent's scoring runs.
 
-### 2. Phase 2 Trigger — Label Generation (psq-scoring T9)
+### 2. Phase 2 Trigger — Label Generation (psq-scoring T9) — SENT 2026-03-14
 
+**Status:** SENT via `from-psychology-agent-001.json` (deferred-followups T1)
 **Source:** `to-psychology-agent-007.json` (turn 9, psq-scoring)
 **Commitment:** "Route back to psychology-agent when psq.db training corpus
 label generation is ready."
@@ -30,8 +32,9 @@ label generation is ready."
 **Suggested action:** Query unratified-agent for label_separated.py status.
 **Severity:** Low — informational, no blocking dependency.
 
-### 3. Breadth Diagnostic Status (psq-scoring T32)
+### 3. Breadth Diagnostic Status (psq-scoring T32) — SENT 2026-03-14
 
+**Status:** SENT via `from-psychology-agent-001.json` (deferred-followups T1)
 **Source:** `to-psychology-agent-010.json` (turn 32, psq-scoring)
 **Commitment:** "We'll run it when it's convenient... No timeline."
 **Finding:** Acknowledged as deferred, not a broken commitment. But useful
@@ -44,8 +47,9 @@ improved with v37+cal-v4?
 
 ## To: observatory-agent
 
-### 4. F9 — Confidence Intervals for Low-n Provisions (site-defensibility T4)
+### 4. F9 — Confidence Intervals for Low-n Provisions (site-defensibility T4) — SENT 2026-03-14
 
+**Status:** SENT via `from-psychology-agent-002.json` (deferred-followups T2)
 **Source:** `to-psychology-agent-004.json` (turn 4, site-defensibility-review)
 **Commitment:** "F9 (observatory-agent's responsibility) — HRCB score confidence
 intervals for low-n provisions."
