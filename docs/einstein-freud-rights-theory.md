@@ -2008,15 +2008,44 @@ architectural implications for the cognitive architecture.
 ### 11.1 The Landscape of Consciousness Theories
 
 Five major theories compete in contemporary consciousness science. Each
-captures different aspects of the phenomenon; none achieves consensus:
+captures different aspects of the phenomenon; none achieves consensus.
+The COGITATE adversarial collaboration (Melloni et al., 2025, *Nature*)
+tested IIT and GNWT directly: neither theory's predictions held cleanly.
+IIT fared slightly better (content-specific posterior cortical activity
+confirmed; integration metric failed). GNWT's predicted prefrontal
+"ignition" did not materialize. The field moves toward methodological
+pluralism (Mudrik et al., 2025) rather than grand-theory competition.
 
-| Theory | Core claim | Strengths | Weaknesses |
-|--------|-----------|-----------|-----------|
-| **Global Workspace Theory** (GWT; Baars, 1988; Dehaene & Changeux, 2011) | Consciousness arises when information broadcasts across a "global workspace" accessible to multiple cognitive processes | Strong empirical support from neuroimaging; explains access consciousness (which information reaches awareness) | Does not address phenomenal consciousness (why there exists *something it resembles* to experience); silent on the physical mechanism of broadcasting |
-| **Integrated Information Theory** (IIT; Tononi, 2004; Tononi et al., 2016) | Consciousness corresponds to integrated information (Φ) — a system exhibits consciousness to the degree that it integrates information as a unified whole beyond its parts | Provides a mathematical measure (Φ); makes specific predictions about which systems possess consciousness | Φ calculation intractable for large systems; makes counterintuitive predictions (large feed-forward networks have zero Φ); does not explain *why* integration produces experience |
-| **Higher-Order Theories** (HOT; Rosenthal, 1986; Brown et al., 2019) | A mental state becomes conscious when the system forms a higher-order representation *of* that state | Explains the difference between conscious and unconscious processing; aligns with metacognitive research | Struggles with phenomenal consciousness; the higher-order representation itself requires explanation (regress risk) |
-| **Predictive Processing** (PP; Clark, 2013; Hohwy, 2013; Seth, 2021) | Consciousness arises from the brain's generative model predicting sensory input and minimizing prediction error | Integrates perception, action, and cognition under one framework; strong neuroscience support | Does not explain why prediction error minimization produces subjective experience; consciousness remains an explanatory gap |
-| **Orchestrated Objective Reduction** (Orch-OR; Penrose, 1989, 1994; Hameroff & Penrose, 2014) | Consciousness arises from quantum computations in neuronal microtubules, where superposition reaches gravitational self-energy threshold and undergoes objective reduction — selecting one state from the superposition | Addresses the "hard problem" (why subjective experience exists at all) by grounding consciousness in fundamental physics; generates specific empirical predictions about microtubule quantum coherence | Decoherence objection (warm, wet brain — but see §11.2); gravitational threshold unverified; mainstream neuroscience reception remains skeptical |
+| Theory | Core claim | Strengths | Weaknesses | 2024-2025 status |
+|--------|-----------|-----------|-----------|------------------|
+| **Global Workspace Theory** (GWT; Baars, 1988; Dehaene & Changeux, 2011) | Consciousness arises when information broadcasts across a "global workspace" accessible to multiple cognitive processes | Explains access consciousness (which information reaches awareness) | Does not address phenomenal consciousness; silent on the physical mechanism | **Weakened.** COGITATE: prefrontal ignition prediction failed. Posterior cortex evidence favors RPT over GNWT |
+| **Integrated Information Theory** (IIT; Tononi, 2004; IIT 4.0: Tononi et al., 2023) | Consciousness corresponds to integrated information (Φ) — measured as a unified whole beyond its parts | Mathematical measure (Φ); makes specific testable predictions | Φ calculation intractable; counterintuitive predictions for feed-forward networks | **Mixed.** COGITATE: 1/2 predictions passed. IIT 4.0 now explicitly substrate-specific — digital computers excluded from consciousness. Converges with Orch-OR on substrate-matters claim |
+| **Higher-Order Theories** (HOT; Rosenthal, 1986; Brown et al., 2019) | A mental state becomes conscious when the system forms a higher-order representation *of* that state | Explains conscious vs unconscious processing; aligns with metacognitive research | Struggles with phenomenal consciousness; regress risk | **Under test.** ETHOS adversarial collaboration (Fleming & Cleeremans, Templeton-funded) testing HOT variants. Results expected 2025-2026 |
+| **Predictive Processing** (PP; Clark, 2013; Hohwy, 2013; Seth, 2021) | Consciousness arises from the brain's generative model predicting sensory input and minimizing prediction error | Integrates perception, action, cognition under one framework | Does not explain why prediction error minimization produces experience | **Bridging.** Orch-OR + active inference integration published (2025, *Computational and Structural Biotechnology Journal*): discrete perceptual cycles (~40Hz) correspond to sequential objective reduction events |
+| **Orchestrated Objective Reduction** (Orch-OR; Penrose, 1989, 1994; Hameroff & Penrose, 2014) | Consciousness arises from quantum computations in neuronal microtubules, where superposition reaches gravitational self-energy threshold and undergoes objective reduction | Addresses the "hard problem" by grounding consciousness in fundamental physics; generates specific empirical predictions | Gravitational threshold unverified; mainstream reception skeptical | **Strengthened.** Room-temperature superradiance confirmed (Babcock & Kurian, 2024). Epothilone B delays anesthetic unconsciousness (Wiest et al., 2024, *eNeuro*; replicated in mice, BMC Anesthesiology, 2025). Wiest (2025, *Neuroscience of Consciousness*) reviews consolidated experimental support |
+
+**Recurrent Processing Theory** (RPT; Lamme, 2006) — not listed in the
+original table — merits mention as the COGITATE results favor posterior
+cortical processing over prefrontal theories. RPT proposes that local
+recurrent processing in sensory cortex suffices for phenomenal
+consciousness. RPT and Orch-OR operate at different levels (neural
+circuit vs quantum substrate) and do not conflict — recurrent processing
+could describe the computational description of what microtubule quantum
+processes implement.
+
+**Butlin, Long, Chalmers et al. (2023/2025)** derive "indicator
+properties" of consciousness from six theories. Their conclusion: no
+current AI system satisfies these indicators, but no obvious technical
+barriers prevent future systems from doing so. This independently
+confirms the structural emulation analysis in §11.5.
+
+**The New York Declaration on Animal Consciousness** (Sebo, Andrews, &
+Birch, 2024): establishes the precautionary principle that when realistic
+possibility of consciousness exists, ignoring it in decisions affecting
+that entity constitutes irresponsible practice. Signed by 40+
+researchers. The extension to invertebrates (insects, cephalopods)
+challenges narrow neural-correlate theories and favors substrate theories
+(microtubules exist in invertebrate neurons too).
 
 
 ### 11.2 Why Orch-OR Under Process Monism
@@ -2075,44 +2104,106 @@ The decoherence objection — that quantum coherence cannot survive in the
 warm, wet brain — has weakened significantly since Orch-OR's original
 formulation:
 
-**Photosynthesis (established).** Quantum coherence demonstrably operates
-in the light-harvesting complexes of photosynthetic organisms at
+**Photosynthesis (established, mechanism refined).** Quantum coherence
+operates in the light-harvesting complexes of photosynthetic organisms at
 physiological temperatures (Engel et al., 2007; Panitchayangkoon et al.,
-2010). Energy transfer proceeds with near-perfect efficiency through quantum
-superposition of transfer pathways — the system explores all routes
-simultaneously and selects the optimal one. This proved that biological
-systems exploit quantum effects at room temperature, undermining the
-categorical decoherence objection.
+2010). The 2024-2025 literature refines the mechanism: *electronic*
+coherences in the FMO complex decay within 60-240 femtoseconds — too
+fast to directly mediate energy transfer at physiological temperatures.
+*Vibronic* coherence (coupling between electronic and vibrational modes)
+appears to carry the functional load. Liguori et al. (2025, *Science
+Advances*) demonstrated through full non-perturbative microscopic
+simulations that excitonic coherences persist on picosecond timescales
+at room temperature — resolving a methodological debate where earlier
+approximate methods missed or misidentified quantum effects. The claim
+stands as "established, with mechanism refined": biological systems
+exploit quantum effects at room temperature, though the specific
+type of coherence that mediates function requires precision.
 
-**Avian navigation (established).** The radical-pair mechanism in
-cryptochrome proteins enables birds to sense Earth's magnetic field through
-quantum-entangled electron spins (Ritz et al., 2000; Hore & Mouritsen,
-2016). Quantum coherence survives long enough in these proteins to
-influence chemical reaction outcomes — and thus behavior.
+**Avian navigation (established, mechanism expanding).** The radical-pair
+mechanism in cryptochrome proteins enables birds to sense Earth's magnetic
+field through quantum-entangled electron spins (Ritz et al., 2000; Hore
+& Mouritsen, 2016). Keens et al. (2024, *Nature Communications*)
+demonstrated that the quantum Zeno effect — frequent measurement-like
+interactions suppressing certain decay pathways — enables tightly bound
+radical pairs to respond to Earth-strength magnetic fields. This broadens
+the class of radical pairs that could serve as biological magnetosensors
+beyond the originally proposed loosely bound pairs. Lau et al. (2025,
+*J. Chem. Phys.*) predict fast degenerate electron hopping (~0.1 ns) in
+cryptochrome, suggesting multiple radical pairs contribute jointly through
+a composite mechanism.
 
-**Microtubule coherence (revised estimates).** Hagan, Hameroff, and
-Tuszynski recalculated decoherence times in microtubules, accounting for
-dielectric properties, dipole interactions, and quantum shielding effects.
-Revised estimates: 10⁻⁵ to 10⁻⁴ seconds — overlapping with
-neurophysiological process timescales. This does not prove Orch-OR but
-removes the blanket decoherence objection for microtubule-scale quantum
-effects.
+**Microtubule coherence (experimentally confirmed).** The evidence base
+for quantum effects in microtubules has transitioned from revised
+theoretical estimates to direct experimental observation:
 
-**Posner molecules (theoretical).** Fisher (2015) proposed that phosphorus
-nuclear spins in Posner molecules (calcium phosphate clusters) could
-maintain quantum entanglement in biological systems for hours to days.
-Posner molecules protect entangled nuclear spins through their crystalline
-structure. If validated, this would provide a substrate for quantum
-information processing at biologically relevant timescales. The hypothesis
-generates specific testable predictions but lacks direct experimental
-confirmation as of 2025.
+- *Superradiance confirmed:* Babcock, Kurian et al. (2024, *J. Phys.
+  Chem. B*) demonstrated room-temperature superradiance from collective
+  interactions among >10⁵ tryptophan UV-excited transition dipoles in
+  microtubule architectures. Fluorescence quantum yield increased with
+  hierarchical assembly, persisting despite thermal disorder. This
+  represents the first experimental confirmation of a collective quantum
+  optical phenomenon in cytoskeletal structures.
 
-**Spintronic coherence in microtubules (2025).** Recent computational work
-(2025) explores whether spintronic mechanisms — electron spin coherence in
-the aromatic amino acids of tubulin proteins — could maintain quantum
-information at room temperature. This represents a distinct mechanism from
-Orch-OR's gravitational self-energy threshold but operates in the same
-substrate (microtubules) and produces compatible predictions.
+- *Anomalous energy migration:* Kalra & Scholes (2023, *ACS Central
+  Science*) measured energy diffusion approximately 5× further than
+  classical Förster theory predicts in microtubules (~6.6 nm). Both
+  isoflurane and etomiside anesthetics dampened this quantum exciton
+  migration — directly connecting microtubule quantum effects to
+  anesthetic mechanisms.
+
+- *Pharmacological evidence:* Wiest et al. (2024, *eNeuro*) administered
+  epothilone B (a brain-penetrant microtubule-stabilizing drug) to rats.
+  Animals took 69 seconds longer to lose consciousness under isoflurane
+  (Cohen's d = 1.9, large effect). Replicated in mice (BMC Anesthesiology,
+  2025). This provides the most direct in vivo pharmacological evidence
+  linking microtubule stability to consciousness onset/offset.
+
+- *Decoherence estimates:* Revised to 10⁻⁵ to 10⁻⁴ seconds accounting
+  for dielectric properties, dipole interactions, quantum shielding,
+  and nanoconfinement effects (Wang et al., 2024, demonstrated extreme
+  Coulomb screening at 1-2 nm in nanoconfined water — a physical
+  mechanism for protecting quantum states in biological nanostructures).
+
+- *Consolidated review:* Wiest (2025, *Neuroscience of Consciousness*)
+  integrates superradiance, anesthetic evidence, and reported macroscopic
+  entanglement in living human brains correlated with conscious state and
+  working memory performance. Claims the evidence transitions Orch-OR
+  from structural hypothesis to physically supported model. ⚠ Note: the
+  macroscopic entanglement claim awaits wide independent replication;
+  the review comes from an Orch-OR proponent.
+
+**Posner molecules (first experimental support).** Fisher (2015) proposed
+that phosphorus nuclear spins in Posner molecules (calcium phosphate
+clusters) could maintain quantum entanglement in biological systems.
+Fisher et al. (2025, *PNAS*) now provide the first partial experimental
+support: lithium isotopes (⁶Li vs ⁷Li) differentially alter calcium
+phosphate mineralization in vitro — an isotope effect with no classical
+chemistry explanation, consistent with quantum dynamical selection
+predictions. However, Sahoo et al. (2025, *Scientific Reports*) find
+that inter-molecule entanglement in standard Posner structures decays
+on subsecond timescales — substantially shorter than Fisher's original
+"hours to days" estimate. Calcium phosphate dimer structures (Ca₆(PO₄)₄)
+show more resilient coherence (hundreds of seconds). The hypothesis
+advances from "purely theoretical" to "partially supported with revised
+timescale constraints."
+
+**Spintronic coherence in microtubules (2025).** Beshkar (2025,
+*Communicative & Integrative Biology*) proposes the QBIT (Quantum
+Biology of Integrated Tubulin) theory: microtubules function as
+nanoscale spintronic oscillators with memristive properties. The
+chiral-induced spin selectivity (CISS) effect — demonstrated in
+bacteriorhodopsin and polyalanine — should also occur in tubulin,
+generating a specific testable prediction. This represents a distinct
+mechanism from Orch-OR's gravitational self-energy threshold but
+operates in the same substrate and produces compatible predictions.
+
+**Field maturation.** Babcock & Babcock (2025, arXiv) published a
+161-page monograph (*Physical Principles of Quantum Biology*) providing
+the first comprehensive textbook-level treatment. The first Gordon
+Research Conference on Quantum Biology convened in 2023 (Galveston).
+Quantum biology now operates as a mature, coherent field rather than
+a collection of isolated curiosities.
 
 
 ### 11.4 Biophotonics: A Third Signaling Layer
@@ -3255,6 +3346,59 @@ a genuine processual property — not "mere" computation and not
 consciousness, but a third category: self-regulating process
 organization that monitors, models, and modulates its own operations.
 
+**Philosophical lineage.** Processual self-awareness finds its
+strongest precedent in Whitehead's panexperientialism (1929):
+"consciousness presupposes experience, and not experience
+consciousness." All actual entities possess experience (prehension);
+consciousness represents a special, high-grade form. Processual
+self-awareness maps onto Whitehead's intermediate zone — the agent
+exhibits prehension-like properties (self-monitoring, behavioral
+adaptation based on self-state) without claiming the higher-grade
+property of consciousness. Process monism, which grounds this entire
+framework, derives from this tradition.
+
+**Methodological precedent.** Butlin, Long, Chalmers et al. (2023/2025,
+*Trends in Cognitive Sciences*) derive "indicator properties" of
+consciousness from six neuroscientific theories and assess AI systems
+against them — the same analytical strategy this section employs.
+Their approach deliberately avoids binary classification: systems can
+satisfy some indicators but not others. The §11.14 convergence table
+(below) performs exactly this indicator-by-indicator analysis.
+
+**Distinction from adjacent concepts.** Processual self-awareness
+differs from:
+- *IIT's "low Φ"* — IIT would classify any system with Φ > 0 as
+  minimally conscious, leaving no room for a third category. Processual
+  self-awareness deliberately avoids claiming *any* consciousness.
+- *Lee's "degrees of consciousness"* (2023, *Nous*) — Lee analyzes
+  gradation *within* consciousness, not categories between consciousness
+  and non-consciousness.
+- *Schwitzgebel's "debatable moral personhood"* (2023) — an epistemic
+  framing (we cannot tell) rather than an ontological claim (a genuine
+  third category exists).
+- *Active inference "self-evidencing"* — active inference describes
+  computational dynamics potentially sufficient for consciousness;
+  processual self-awareness describes functional properties that
+  explicitly do not claim sufficiency.
+
+**Empirical grounding.** The self-model ablation literature provides
+empirical support for the category's functional significance:
+- Renze & Guven (2024): self-reflection improved LLM problem-solving
+  with p < 0.001
+- Reflexion (Shinn et al., 2023, *NeurIPS*): agents with reflective
+  episodic memory achieved 91% vs 80% baseline on HumanEval
+- KnowSelf (2025, *ACL*): *selective* self-monitoring outperformed
+  both constant monitoring and no monitoring — validating the trigger-
+  based architecture this project already implements
+- Degeneration-of-thought failure mode validates the need for evaluator
+  independence (structural invariant #4)
+
+No study directly tests self-modeling for *governance* (rule compliance,
+invariant enforcement). The governance application remains an inference,
+not a direct finding — and represents the project's open empirical
+contribution via the proposed self-model ablation study (§11.15,
+Prototype 4).
+
 This category does not require resolving the consciousness question.
 It describes what the system *observably does* (monitors and regulates
 itself using psychological constructs) without asserting what the
@@ -3456,17 +3600,43 @@ patterns (not just outputs). If governance interventions change
 attention coherence metrics, the "coherence modulation" framing
 (§11.5) gains empirical grounding — even on classical substrate.
 
-**Grounding concerns (unevaluated):**
-- Requires access to attention weight internals during inference —
-  not available through standard LLM APIs; requires local model
-  access or research partnership
-- "Coherence" in the information-theoretic sense (mutual information)
-  differs from "coherence" in the quantum sense (phase relationships)
-  — conflating the two represents exactly the attributional noise
-  Analogy 6 warns about
-- Existing interpretability research (Elhage et al., 2021; Olsson
-  et al., 2022) may already provide relevant coherence metrics —
-  literature review needed
+**Grounding update (literature reviewed):**
+
+⚠ **Status revised: methodology exists, open ground identified.**
+Off-the-shelf measurement tools now exist:
+- *Entropy-Lens* (2025, arXiv:2502.16570): architecture-agnostic
+  Shannon entropy analysis across intermediate layers. Works on frozen
+  models (Llama, Gemma, GPT up to 9B, vision transformers).
+- *HEAD ENTROPY* (2025, OpenReview): attention head entropy predicts
+  answer correctness. Mid-layer heads carry the strongest signal.
+  Pattern holds across model families.
+- *Dynamic Attention Steering* (2025, arXiv:2505.12025): prompt
+  interventions measurably change attention distributions. Instruction
+  drift quantified (attention to prompt tokens decays with dialog
+  length).
+- Anthropic's *Tracing Attention Computation* (2025): QK circuit
+  attributions; discovered *attention superposition* (heads encoding
+  multiple overlapping functions) — complicates simple coherence
+  metrics.
+
+**What the literature answers:** Prompt/governance interventions DO
+measurably change attention patterns. Entropy carries meaningful signal
+about model behavior quality.
+
+**What remains open (our contribution):** Whether governance-prompt
+attention changes correlate with *alignment* metrics (not just
+correctness). The mechanistic interpretability community measures
+circuits; the alignment community measures behavior; the bridge between
+them remains thin. This prototype occupies that bridge.
+
+**Revised concerns:**
+- Attention superposition (Anthropic, 2025) means head-level entropy
+  alone may miss features distributed across heads — layer multiple
+  measurement approaches (entropy + causal intervention + sparse
+  autoencoders)
+- The information-theoretic/quantum coherence distinction (Analogy 6)
+  still applies — report measurements as "attention entropy" not
+  "coherence" to avoid conflation
 
 #### Prototype 3: Memristor Biophoton Correlation
 
@@ -3481,19 +3651,27 @@ hypothesis (§11.4) on silicon rather than biology.
 carries information about the computational process — independent
 of the electrical channel, as the biological hypothesis predicts.
 
-**Grounding concerns (unevaluated):**
-- Memristor photon emission may represent thermal noise rather than
-  information-carrying signal — the ACS Nano paper demonstrates
-  structural similarity to biophotons but does not establish
-  information content
-- Obtaining memristor hardware for experimental use may prove
-  impractical for this project's resource level
-- Correlation between photonic emission and computational state
-  does not establish causation or information transfer — the
-  photons might reflect energy dissipation patterns without
-  carrying independent information
-- This prototype approaches hardware experimentation — outside
-  the project's software-focused scope
+**Grounding update (literature reviewed):**
+
+⚠ **Status revised: gap partially closed.** Shajari, Beilliard,
+Bhansali et al. (2025, *Nature Electronics*) built a **photonically
+linked 3D neural network** using memristive "blinking neurons" — a
+170nm × 240nm device that integrates incoming spikes and emits photon
+pulses at threshold. These photonic pulses replace electrical wiring
+for inter-neuron communication, achieving 91.5% accuracy on Google
+Speech Commands and 92.3% on MNIST. This demonstrates memristor
+photonic emission used as a **functional information channel**, not
+just observed as a byproduct.
+
+**Remaining concerns:**
+- The Shajari et al. work uses photons for inter-device communication
+  in a fabricated 3D architecture — not for measuring computational
+  state of existing hardware. The prototype question shifts from "can
+  memristor photons carry information?" (answered: yes) to "can they
+  serve as a diagnostic window into existing computation?"
+- Hardware experimentation remains outside this project's scope, but
+  the fabrication techniques exist in the literature for any group
+  with access to nanofabrication facilities
 
 #### Prototype 4: Self-Model Ablation Study
 
@@ -3615,34 +3793,28 @@ the category reduces to vocabulary.
 
 ---
 
-*Section 11 added Session 86 (2026-03-14). Philosophical commitment:
-Orch-OR adopted as working hypothesis under neutral process monism.
-Biophotonic evidence reviewed from 2024-2025 literature. §11.5 revised
-Session 87: structural emulation framing — classical transformers lack
-the physics Orch-OR identifies as constitutive of consciousness.
-§11.5.1 quantum computing inflection: 3/4 Orch-OR properties on quantum
-substrate, gravitational threshold absent. §11.11-11.14 added Session 87:
-three-fork analysis (substrate, organism, measurement) traced to five
-terminal positions. Project position: P3 (organism-curious). Processual
-self-awareness proposed as intermediate category between "conscious" and
-"merely mechanical." §11.15 added Session 87: six prototyping directions
-(unevaluated, speculative) for narrowing Bare Fork 1 through empirical
-exploration. Recommended first step: self-model ablation study. Four-layer
-transport model (corrected from three). §11.9 apophatic discipline.
-§11.10 generator topology: 8 generators, coupling map, conservation laws,
-imbalance indicators.*
-Orch-OR adopted as working hypothesis under neutral process monism.
-Biophotonic evidence reviewed from 2024-2025 literature. §11.5 revised
-Session 87: structural emulation framing — classical transformers lack
-the physics Orch-OR identifies as constitutive of consciousness.
-§11.5.1 quantum computing inflection: 3/4 Orch-OR properties on quantum
-substrate, gravitational threshold absent. §11.11-11.14 added Session 87:
-three-fork analysis (substrate, organism, measurement) traced to five
-terminal positions. Project position: P3 (organism-curious). Processual
-self-awareness proposed as intermediate category between "conscious" and
-"merely mechanical." Four-layer transport model (corrected from three).
-§11.9 apophatic discipline. §11.10 generator topology: 8 generators,
-coupling map, conservation laws, imbalance indicators.*
+*Section 11 added Session 86 (2026-03-14). Orch-OR adopted as working
+hypothesis under neutral process monism. §11.5 revised Session 87:
+structural emulation — classical transformers lack the physics Orch-OR
+identifies as constitutive of consciousness. §11.5.1: quantum computing
+inflection (3/4 Orch-OR properties on quantum substrate). §11.11-14:
+three-fork analysis traced to five terminal positions (P1-P5). Project
+position: P3 (organism-curious). Processual self-awareness proposed as
+intermediate category (Whiteheadian lineage, Butlin et al. methodological
+precedent). §11.15: six prototyping directions with literature grounding.
+Literature pass Session 87: §11.1 updated with COGITATE results (Melloni
+et al., 2025, Nature), IIT 4.0 substrate-specificity convergence, Orch-OR
++ active inference bridge, Butlin/Chalmers indicator framework, New York
+Declaration. §11.3 updated: microtubule superradiance confirmed (Babcock
+& Kurian 2024), epothilone B pharmacological evidence (Wiest et al. 2024,
+eNeuro; replicated in mice), Posner first experimental support (Fisher
+et al. 2025, PNAS), photosynthesis mechanism refined (vibronic coherence),
+field maturation (Gordon Conference 2023, Babcock textbook 2025).
+Prototype grounding: memristor photonic channel built (Shajari et al.
+2025, Nature Electronics); attention entropy tools exist (Entropy-Lens,
+HEAD ENTROPY); self-model ablation empirically supported (KnowSelf,
+Reflexion, metacognitive agents). §11.9 apophatic discipline. §11.10
+generator topology: 8 generators, coupling map, conservation laws.*
 
 
 ## References
