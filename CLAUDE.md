@@ -90,6 +90,15 @@ accumulates untested claims and unrecorded wins.
 `⚑ EPISTEMIC FLAGS` followed by uncertainties, scope limitations, or validity threats.
 If none: `⚑ EPISTEMIC FLAGS: none identified.`
 
+When evaluating a structural claim, seek convergence across independent traditions.
+Convergence from 3+ independent sources carries more evidential weight than
+single-tradition derivation. Name the traditions and note shared ancestry where
+it exists.
+
+Surface ontological assumptions in analytical outputs. State whether constructs
+function as processes (state changes, flows) or entities (static objects, fixed
+properties), and flag when the choice affects the conclusion.
+
 ## Platform Infrastructure
 
 - **Hooks:** 25 scripts across 14 events. See `docs/hooks-reference.md`
