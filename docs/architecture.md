@@ -813,6 +813,25 @@
                                 Derives from: mesh-topology, tier-2-cicd.
                                 Decided: 2026-03-11
 
+ Microglial audit layer        Immune surveillance for document integrity.
+ (microglial-audit)            scripts/microglial-audit.py — named for CNS
+                                microglia that continuously patrol neural
+                                tissue for damage. 15-document corpus across
+                                3 tiers (governance/architecture/operational),
+                                8 check types (logical, factual, consistency,
+                                citation, staleness, completeness,
+                                self-reference, contradiction). Recency-
+                                weighted rotation through corpus. Integrated
+                                into autonomous-sync.sh: 1-in-3 idle cycles
+                                activate surveillance. Implements Einstein-
+                                Freud endless generator axiom — evaluative
+                                processing never depletes.
+                                Evidence: Einstein & Freud (1933),
+                                neuroglial cogarch proposal (operations-agent).
+                                Derives from: endless-generator-axiom,
+                                neuroglial-cogarch.
+                                Decided: 2026-03-13
+
  Observatory hybrid data       Hybrid architecture: local SQLite state.db
  architecture                  for mesh transport (shared scripts work
  (observatory-hybrid-data)     identically to other agents) and Cloudflare
