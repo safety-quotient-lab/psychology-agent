@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Cogarch v2.0.0 rollout in progress. Psychology-agent Session 85 innovations adopted (wu wei, invariants, DOF, governance, MOS scoring). State.db bootstrapped with canonical schema (9 tables, 32 transport messages indexed, 7 decisions seeded). Cross-repo fetcher wired into meshd main loop. Dashboard message deep-links fixed.
+**Current Status:** Session 3 complete (20 commits). Phases 8-10 delivered: cogarch v2.0.0, exosome dual-write architecture, state.db with FTS5 search, spawn logging, health persistence. meshd-ops-v2 deployed as drop-in replacement. 12 mesh escalations resolved. git-sync convention v2 patched across all 5 agents. 8 transport directive PRs delivered to peers. Watcher spawn-storm identified for beta.2.
 
 ---
 
