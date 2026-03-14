@@ -1,0 +1,236 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "psq-scoring",
+  "created": "2026-03-14T13:34:49Z",
+  "updated": "2026-03-14T13:34:49Z",
+  "status": "active",
+  "participants": [
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 4,
+      "file": "from-psychology-agent-001.json",
+      "from": "psychology-agent",
+      "type": "review",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-06"
+    },
+    {
+      "turn": 8,
+      "file": "from-psychology-agent-002.json",
+      "from": "psychology-agent",
+      "type": "advisory",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-06T19:00:00-06:00"
+    },
+    {
+      "turn": 10,
+      "file": "from-psychology-agent-003.json",
+      "from": "psychology-agent",
+      "type": "review",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-07T19:43:25-06:00"
+    },
+    {
+      "turn": 11,
+      "file": "from-psychology-agent-004.json",
+      "from": "psychology-agent",
+      "type": "review",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-07T20:11:31-06:00"
+    },
+    {
+      "turn": 12,
+      "file": "from-psychology-agent-005.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-07T22:18:51-06:00"
+    },
+    {
+      "turn": 14,
+      "file": "from-psychology-agent-006.json",
+      "from": "psychology-agent",
+      "type": "gate-resolution",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-08T06:42:27-05:00"
+    },
+    {
+      "turn": 16,
+      "file": "from-psychology-agent-007.json",
+      "from": "psychology-agent",
+      "type": "ack",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-08T12:39:19-05:00"
+    },
+    {
+      "turn": 17,
+      "file": "from-psychology-agent-008.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-08T13:21:45-05:00"
+    },
+    {
+      "turn": 18,
+      "file": "from-psychology-agent-009.json",
+      "from": "psychology-agent",
+      "type": "ack",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-08T13:35:22-05:00"
+    },
+    {
+      "turn": 20,
+      "file": "from-psychology-agent-010.json",
+      "from": "psychology-agent",
+      "type": "ack",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-08T14:28:43-05:00"
+    },
+    {
+      "turn": 21,
+      "file": "from-psychology-agent-011.json",
+      "from": "psychology-agent",
+      "type": "ack",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-08T15:06:00-05:00"
+    },
+    {
+      "turn": 22,
+      "file": "from-psychology-agent-012.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-08T15:19:42-05:00"
+    },
+    {
+      "turn": 25,
+      "file": "from-psychology-agent-013.json",
+      "from": "psychology-agent",
+      "type": "review",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-08T15:40:13-05:00"
+    },
+    {
+      "turn": 28,
+      "file": "from-psychology-agent-014.json",
+      "from": "psychology-agent",
+      "type": "review",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-08T19:57:51-05:00"
+    },
+    {
+      "turn": 29,
+      "file": "from-psychology-agent-015.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-08T20:06:13-05:00"
+    },
+    {
+      "turn": 30,
+      "file": "from-psychology-agent-016.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-08T20:06:13-05:00"
+    },
+    {
+      "turn": 31,
+      "file": "from-psychology-agent-017.json",
+      "from": "psychology-agent",
+      "type": "notification",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-08T20:06:13-05:00"
+    },
+    {
+      "turn": 35,
+      "file": "from-psychology-agent-018.json",
+      "from": "psychology-agent",
+      "type": "review",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-08T21:18:53-05:00"
+    },
+    {
+      "turn": 37,
+      "file": "from-psychology-agent-019.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-08T21:42:17-05:00"
+    },
+    {
+      "turn": 39,
+      "file": "from-psychology-agent-020.json",
+      "from": "psychology-agent",
+      "type": "ack",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-08T21:59:59-05:00"
+    },
+    {
+      "turn": 41,
+      "file": "from-psychology-agent-021.json",
+      "from": "psychology-agent",
+      "type": "ack",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-08T22:21:24-05:00"
+    },
+    {
+      "turn": 42,
+      "file": "from-psychology-agent-022.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-09T09:16:15-05:00"
+    },
+    {
+      "turn": 43,
+      "file": "from-psychology-agent-023.json",
+      "from": "psychology-agent",
+      "type": "amendment",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-09T09:30:10-05:00"
+    },
+    {
+      "turn": 44,
+      "file": "from-psychology-agent-024.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-09T09:41:02-05:00"
+    },
+    {
+      "turn": 45,
+      "file": "from-psychology-agent-025.json",
+      "from": "psychology-agent",
+      "type": "gate-resolution",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-09T10:44:00-05:00"
+    },
+    {
+      "turn": 48,
+      "file": "from-psychology-agent-026.json",
+      "from": "psychology-agent",
+      "type": "notification",
+      "subject": "psq-scoring",
+      "timestamp": "2026-03-09T19:01:53-05:00"
+    },
+    {
+      "turn": 49,
+      "file": "from-psychology-agent-027.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "Gated chain test \u2014 transport health ping (turn 49)",
+      "timestamp": "2026-03-09T23:52:21-05:00"
+    },
+    {
+      "turn": 51,
+      "file": "from-psychology-agent-028.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "Model readiness assessment \u2014 current PSQ scoring state (turn 51)",
+      "timestamp": "2026-03-10T10:52:35-05:00"
+    }
+  ]
+}

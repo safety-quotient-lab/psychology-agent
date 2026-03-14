@@ -1,0 +1,20 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "operations-spss-investigation",
+  "created": "2026-03-14T13:34:49Z",
+  "updated": "2026-03-14T13:34:49Z",
+  "status": "active",
+  "participants": [
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 1,
+      "file": "from-psychology-agent-001.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "Investigate open-source SPSS alternatives for psychometric analysis",
+      "timestamp": "2026-03-13T15:50:00-05:00"
+    }
+  ]
+}

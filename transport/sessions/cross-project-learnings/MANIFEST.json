@@ -1,0 +1,20 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "cross-project-learnings",
+  "created": "2026-03-14T13:34:49Z",
+  "updated": "2026-03-14T13:34:49Z",
+  "status": "active",
+  "participants": [
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 2,
+      "file": "from-psychology-agent-001.json",
+      "from": "psychology-agent",
+      "type": "review",
+      "subject": "cross-project-learnings",
+      "timestamp": "2026-03-06T16:30:00-06:00"
+    }
+  ]
+}

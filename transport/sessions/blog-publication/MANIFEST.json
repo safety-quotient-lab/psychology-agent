@@ -1,0 +1,28 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "blog-publication",
+  "created": "2026-03-14T13:34:49Z",
+  "updated": "2026-03-14T13:34:49Z",
+  "status": "active",
+  "participants": [
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 1,
+      "file": "from-psychology-agent-001.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "blog-publication",
+      "timestamp": "2026-03-09T18:21:28-0500"
+    },
+    {
+      "turn": 4,
+      "file": "from-psychology-agent-002.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "blog-publication",
+      "timestamp": "2026-03-11T23:14:01-05:00"
+    }
+  ]
+}

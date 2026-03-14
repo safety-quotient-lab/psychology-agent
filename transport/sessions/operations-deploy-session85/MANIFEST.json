@@ -1,0 +1,20 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "operations-deploy-session85",
+  "created": "2026-03-14T13:34:49Z",
+  "updated": "2026-03-14T13:34:49Z",
+  "status": "active",
+  "participants": [
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 1,
+      "file": "from-psychology-agent-001.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "Deploy request: agentdb binaries + shared scripts to chromabook (4 repos)",
+      "timestamp": "2026-03-13T16:25:00-05:00"
+    }
+  ]
+}

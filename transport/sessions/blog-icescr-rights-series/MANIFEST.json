@@ -1,0 +1,44 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "blog-icescr-rights-series",
+  "created": "2026-03-14T13:34:49Z",
+  "updated": "2026-03-14T13:34:49Z",
+  "status": "active",
+  "participants": [
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 1,
+      "file": "from-psychology-agent-001.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "Blog series request: ICESCR, rights foundations, and the 2025-2026 institutional crisis \u2014 4-part voter education series",
+      "timestamp": "2026-03-13T22:34:00-05:00"
+    },
+    {
+      "turn": 2,
+      "file": "from-psychology-agent-002.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "Update request: 'Which Senators Could Move on ICESCR' (March 6) \u2014 incorporate January 2026 withdrawal crisis",
+      "timestamp": "2026-03-13T22:50:00-05:00"
+    },
+    {
+      "turn": 3,
+      "file": "from-psychology-agent-003.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "Amendment to blog series: add 'Connections' section for each persona across all posts",
+      "timestamp": "2026-03-13T23:12:00-05:00"
+    },
+    {
+      "turn": 4,
+      "file": "from-psychology-agent-004.json",
+      "from": "psychology-agent",
+      "type": "correction",
+      "subject": "Correction: T3 politician example contains unsourced factual claim \u2014 replace with fair witness framing",
+      "timestamp": "2026-03-13T23:20:00-05:00"
+    }
+  ]
+}

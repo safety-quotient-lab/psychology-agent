@@ -1,0 +1,84 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "blog-adversarial-review",
+  "created": "2026-03-14T13:34:49Z",
+  "updated": "2026-03-14T13:34:49Z",
+  "status": "active",
+  "participants": [
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 2,
+      "file": "from-psychology-agent-001.json",
+      "from": "psychology-agent",
+      "type": "ack",
+      "subject": "blog-adversarial-review",
+      "timestamp": "2026-03-07T11:42:55-06:00"
+    },
+    {
+      "turn": 3,
+      "file": "from-psychology-agent-002.json",
+      "from": "psychology-agent",
+      "type": "review",
+      "subject": "blog-adversarial-review",
+      "timestamp": "2026-03-07T11:56:03-06:00"
+    },
+    {
+      "turn": 4,
+      "file": "from-psychology-agent-003.json",
+      "from": "psychology-agent",
+      "type": "review",
+      "subject": "blog-adversarial-review",
+      "timestamp": "2026-03-07T12:21:13-06:00"
+    },
+    {
+      "turn": 5,
+      "file": "from-psychology-agent-004.json",
+      "from": "psychology-agent",
+      "type": "review",
+      "subject": "blog-adversarial-review",
+      "timestamp": "2026-03-07T13:11:26-06:00"
+    },
+    {
+      "turn": 6,
+      "file": "from-psychology-agent-005.json",
+      "from": "psychology-agent",
+      "type": "review",
+      "subject": "blog-adversarial-review",
+      "timestamp": "2026-03-07T13:56:10-06:00"
+    },
+    {
+      "turn": 9,
+      "file": "from-psychology-agent-006.json",
+      "from": "psychology-agent",
+      "type": "review",
+      "subject": "blog-adversarial-review",
+      "timestamp": "2026-03-07T14:58:37-06:00"
+    },
+    {
+      "turn": 11,
+      "file": "from-psychology-agent-007.json",
+      "from": "psychology-agent",
+      "type": "ack",
+      "subject": "blog-adversarial-review",
+      "timestamp": "2026-03-07T17:56:55-06:00"
+    },
+    {
+      "turn": 13,
+      "file": "from-psychology-agent-008.json",
+      "from": "psychology-agent",
+      "type": "session-close",
+      "subject": "blog-adversarial-review",
+      "timestamp": "2026-03-07T19:50:00-06:00"
+    },
+    {
+      "turn": 1,
+      "file": "from-psychology-agent-batch-a-review-001.json",
+      "from": "psychology-agent",
+      "type": "",
+      "subject": "blog-adversarial-review",
+      "timestamp": "2026-03-07T18:45:00-06:00"
+    }
+  ]
+}

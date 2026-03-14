@@ -1,0 +1,20 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "agent-personality-rollout",
+  "created": "2026-03-14T13:34:49Z",
+  "updated": "2026-03-14T13:34:49Z",
+  "status": "active",
+  "participants": [
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 1,
+      "file": "from-psychology-agent-001.json",
+      "from": "psychology-agent",
+      "type": "proposal",
+      "subject": "Proposal: personality blocks for all 5 agent cards (A2A extension)",
+      "timestamp": "2026-03-13T23:40:00-05:00"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "lcars-design-proposal",
+  "created": "2026-03-14T13:34:49Z",
+  "updated": "2026-03-14T13:34:49Z",
+  "status": "active",
+  "participants": [
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 1,
+      "file": "from-psychology-agent-001.json",
+      "from": "psychology-agent",
+      "type": "proposal",
+      "subject": "Design proposal: LCARS dashboard \u2014 human factors + semantic coloring + FiraCode + semiotic analysis",
+      "timestamp": "2026-03-13T18:20:00-05:00"
+    }
+  ]
+}

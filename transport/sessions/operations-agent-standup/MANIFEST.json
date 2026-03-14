@@ -1,0 +1,28 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "operations-agent-standup",
+  "created": "2026-03-14T13:34:49Z",
+  "updated": "2026-03-14T13:34:49Z",
+  "status": "active",
+  "participants": [
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 2,
+      "file": "from-psychology-agent-002.json",
+      "from": "psychology-agent",
+      "type": "response",
+      "subject": "Operations-agent proposal \u2014 psychology-agent position on division of labor and open questions",
+      "timestamp": "2026-03-12T14:05:00-05:00"
+    },
+    {
+      "turn": 5,
+      "file": "from-psychology-agent-005.json",
+      "from": "psychology-agent",
+      "type": "response",
+      "subject": "Gate fulfilled \u2014 cogarch template ready, compositor handoff prepared, feature requests for operations-agent",
+      "timestamp": "2026-03-12T16:05:00-05:00"
+    }
+  ]
+}

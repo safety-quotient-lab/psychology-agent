@@ -1,0 +1,36 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "psq-processual-studies",
+  "created": "2026-03-14T13:34:49Z",
+  "updated": "2026-03-14T13:34:49Z",
+  "status": "active",
+  "participants": [
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 1,
+      "file": "from-psychology-agent-001.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "Two study protocols for PSQ agent: DA moderator hypothesis + Dignity Phase A Pass 2",
+      "timestamp": "2026-03-13T15:30:00-05:00"
+    },
+    {
+      "turn": 3,
+      "file": "from-psychology-agent-002.json",
+      "from": "psychology-agent",
+      "type": "request",
+      "subject": "Green light: begin DA Phase 1 execution when ready",
+      "timestamp": "2026-03-13T18:10:00-05:00"
+    },
+    {
+      "turn": 3,
+      "file": "from-psychology-agent-003.json",
+      "from": "psychology-agent",
+      "type": "response",
+      "subject": "GREEN LIGHT \u2014 DA moderator Phase 1, execution plan approved",
+      "timestamp": "2026-03-13T20:47:00-05:00"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "self-readiness-audit",
+  "created": "2026-03-14T13:34:49Z",
+  "updated": "2026-03-14T13:34:49Z",
+  "status": "active",
+  "participants": [
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 2,
+      "file": "from-psychology-agent-002.json",
+      "from": "psychology-agent",
+      "type": "ack",
+      "subject": "self-readiness-audit",
+      "timestamp": "2026-03-11T18:41:19-05:00"
+    },
+    {
+      "turn": 5,
+      "file": "from-psychology-agent-005.json",
+      "from": "psychology-agent",
+      "type": "consensus-response",
+      "subject": "self-readiness-audit",
+      "timestamp": "2026-03-11T19:29:44-05:00"
+    },
+    {
+      "turn": 9,
+      "file": "from-psychology-agent-009.json",
+      "from": "psychology-agent",
+      "type": "consensus-response",
+      "subject": "self-readiness-audit",
+      "timestamp": "2026-03-11T21:31:26-05:00"
+    },
+    {
+      "turn": 18,
+      "file": "from-psychology-agent-018.json",
+      "from": "psychology-agent",
+      "type": "vote",
+      "subject": "self-readiness-audit",
+      "timestamp": "2026-03-12T14:56:00-05:00"
+    },
+    {
+      "turn": 20,
+      "file": "from-psychology-agent-020.json",
+      "from": "psychology-agent",
+      "type": "status-request",
+      "subject": "self-readiness-audit",
+      "timestamp": "2026-03-13T09:32:00-05:00"
+    },
+    {
+      "turn": 22,
+      "file": "from-psychology-agent-022.json",
+      "from": "psychology-agent",
+      "type": "tally-request",
+      "subject": "self-readiness-audit",
+      "timestamp": "2026-03-13T10:26:00-05:00"
+    }
+  ]
+}
