@@ -67,6 +67,13 @@
 
     "constructs": [
       {
+        "name": "Supervisory Control",
+        "question": "Does a human participate in this agent's decisions, and at what level?",
+        "model": "Sheridan & Verplank (1978); Parasuraman, Sheridan, & Wickens (2000)",
+        "reports": ["level_of_automation", "human_in_loop", "human_on_loop", "human_accountable", "human_monitoring", "escalation_path", "circuit_breaker"],
+        "note": "The most consequential construct for external consumers. Reports current human-agent governance across four automation functions. Interactive mode: LOA 5 (human approves). Autonomous mode: LOA 7 (human on-the-loop with budget governance)."
+      },
+      {
         "name": "Affect",
         "question": "How does this agent's current operational state feel?",
         "model": "PAD (Mehrabian & Russell, 1974)",
