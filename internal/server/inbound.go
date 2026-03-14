@@ -155,6 +155,18 @@ func (s *Server) handleInbound(w http.ResponseWriter, r *http.Request) {
 		s.logger.Info("inbound: message written to filesystem", "path", filePath)
 	}
 
+	// Broadcast via ZMQ — notify mesh peers about the new message
+	if s.ZMQPublish != nil {
+		s.ZMQPublish("transport", map[string]interface{}{
+			"session_id": msg.SessionID,
+			"from":       fromAgent,
+			"to":         toAgent,
+			"type":       msg.Type,
+			"subject":    subject,
+			"turn":       msg.Turn,
+		})
+	}
+
 	writeJSON(w, http.StatusCreated, map[string]interface{}{
 		"accepted":     true,
 		"exosome_id":   exo.ID,

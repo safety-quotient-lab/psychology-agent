@@ -62,6 +62,14 @@ type Server struct {
 	// webhook package's concrete type.
 	webhookHandler http.Handler
 
+	// ZMQPublish broadcasts messages to the mesh via ZMQ PUB.
+	// Nil when ZMQ not configured.
+	ZMQPublish func(topic string, data any) error
+
+	// ZMQRegister handles inbound peer registration from ZMQ reverse-register.
+	// Nil when ZMQ not configured.
+	ZMQRegister func(info json.RawMessage) bool
+
 	// triggerFunc handles manual event triggers from operators.
 	// Accepts event type and payload; returns an error on failure.
 	triggerFunc func(eventType string, payload map[string]string) error
@@ -182,6 +190,7 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/messages/inbound", s.handleInbound)
 	mux.HandleFunc("GET /api/routing", s.handleRouting)
 	mux.HandleFunc("GET /api/search", s.handleSearch)
+	mux.HandleFunc("POST /api/zmq/register", s.handleZMQRegister)
 }
 
 // middleware chains recovery, CORS, request logging, and version header

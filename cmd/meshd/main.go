@@ -13,8 +13,10 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"strings"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -34,6 +36,7 @@ import (
 	"github.com/safety-quotient-lab/operations-agent/internal/spawner"
 	"github.com/safety-quotient-lab/operations-agent/internal/transport"
 	"github.com/safety-quotient-lab/operations-agent/internal/webhook"
+	"github.com/safety-quotient-lab/operations-agent/internal/zmqbus"
 )
 
 const version = "0.1.0"
@@ -245,6 +248,60 @@ func main() {
 		}
 	}
 
+	// ZMQ bus — real-time mesh communication (replaces cron-based polling)
+	var zmqBus *zmqbus.Bus
+	if zmqPub != "" {
+		httpBase := fmt.Sprintf("http://localhost:%d", cfg.Port)
+		zmqBus = zmqbus.New(cfg.AgentID, zmqPub, httpBase)
+		if err := zmqBus.Start(); err != nil {
+			logger.Error("ZMQ bus failed to start", "err", err)
+		} else {
+			// Connect to initial peers from --zmq-peers flag
+			// Format: "agent-id=tcp://host:port|http://host:port,..."
+			if zmqPeers != "" {
+				for _, peerSpec := range strings.Split(zmqPeers, ",") {
+					parts := strings.SplitN(peerSpec, "=", 2)
+					if len(parts) != 2 {
+						continue
+					}
+					peerID := parts[0]
+					addrs := strings.SplitN(parts[1], "|", 2)
+					peerZMQ := addrs[0]
+					peerHTTP := ""
+					if len(addrs) > 1 {
+						peerHTTP = addrs[1]
+					}
+					zmqBus.ConnectPeer(zmqbus.PeerInfo{
+						AgentID: peerID,
+						ZMQPub:  peerZMQ,
+						HTTPURL: peerHTTP,
+					})
+				}
+			}
+
+			// Handle incoming ZMQ messages — emit transport events
+			zmqBus.OnMessage(func(m zmqbus.Message) {
+				if m.Topic == "transport" {
+					// A peer delivered a transport message — emit event
+					evt := events.NewEvent(events.EventTransportMessage, events.PriorityHigh, "zmq", map[string]string{
+						"from":    m.From,
+						"topic":   m.Topic,
+						"zmq":     "true",
+					})
+					select {
+					case eventChan <- evt:
+						logger.Info("ZMQ transport event received",
+							"from", m.From,
+							"topic", m.Topic,
+						)
+					default:
+						logger.Warn("ZMQ event dropped — channel full", "from", m.From)
+					}
+				}
+			})
+		}
+	}
+
 	// CI monitor — polls GitHub Actions across all peer repos for build failures
 	meshRepos := []string{
 		"safety-quotient-lab/psychology-agent",
@@ -295,6 +352,16 @@ func main() {
 
 	// HTTP server
 	srv := server.New(cfg, healthMon, webhookHandler, triggerFunc, logger)
+	if zmqBus != nil {
+		srv.ZMQPublish = zmqBus.Publish
+		srv.ZMQRegister = func(info json.RawMessage) bool {
+			var peer zmqbus.PeerInfo
+			if err := json.Unmarshal(info, &peer); err != nil {
+				return false
+			}
+			return zmqBus.RegisterPeer(peer)
+		}
+	}
 
 	// ── Start subsystems ───────────────────────────────────────────
 
