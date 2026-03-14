@@ -1216,6 +1216,650 @@ gain analysis, and constitutional constraints.
 
 ---
 
+## 12. Neural Correlates of OODA
+
+The OODA loop maps onto the **cortico-basal ganglia-thalamo-cortical
+(CBGTC) loop** — the most well-characterized decision cycle in
+neuroscience. Every OODA phase has a known neural substrate:
+
+| OODA phase | Neural substrate | Mechanism | Cogarch analog |
+|---|---|---|---|
+| **Observe** | Primary sensory cortices (V1, A1, S1) + thalamic relay + reticular activating system (RAS) | Thalamus gates what reaches cortex — observation filtering. RAS modulates arousal — *how much* to observe | /sync scan, A2A-Psychology sensors, stigmergic detection. The mode-detection hook modulates arousal (how many checks to run) |
+| **Orient** | Dorsolateral PFC (maintains mental model) + anterior cingulate cortex (ACC — conflict/prediction error) + hippocampus (memory-based context) + orbitofrontal cortex (OFC — value/relevance) | ACC detects when situation diverges from expectation — the biological prediction error detector. dLPFC holds the current model; hippocampus provides historical context | Active inference generative model, T2 context assessment, prediction ledger. The ACC maps directly to prediction error computation |
+| **Decide** | Basal ganglia direct pathway (go) + indirect pathway (no-go) + subthalamic nucleus (STN — raises threshold under conflict) + ventromedial PFC (value-based decision) | STN prevents premature action when conflict detected — a biological substance gate. The balance between direct (act) and indirect (inhibit) pathways determines action selection | T3 substance gate (STN analog), /adjudicate, knock-on analysis. The direct/indirect pathway balance maps to the generate/evaluate mode tension |
+| **Act** | Motor cortex (M1) + supplementary motor area (SMA — action planning) + cerebellum (forward model + execution refinement) | Cerebellum generates efference copy — predicts sensory consequences of action before execution completes. Prediction errors feed back to cortex | Response generation, transport delivery. The cerebellum-as-efference-copy maps exactly to our prediction ledger + surprise scoring |
+| **Feedback** | Cerebellar prediction error → cortex; dopaminergic VTA → nucleus accumbens/PFC (reward prediction error); hippocampal episode consolidation | Dopamine signals the difference between expected and actual outcome — a precision-weighted prediction error. Hippocampus consolidates the episode for future orientation | Strange loop feedback (§8), /cycle session consolidation, lessons crystallization. Dopamine RPE maps to the efference copy surprise modifier (+25/-15) |
+
+**The CBGTC loop cycles at ~100-500ms** for simple decisions —
+matching the response-level OODA timescale. Slower decisions
+(seconds to minutes) involve prefrontal sustained activity holding
+multiple cycles in working memory before committing — matching the
+session-level OODA.
+
+**Two insights from the neural mapping:**
+
+1. **The ACC represents the Orient phase's core mechanism.** The
+   anterior cingulate cortex detects conflicts, computes prediction
+   errors, and signals when the current model needs updating. No
+   single cogarch component serves this function exclusively — the
+   ACC function distributes across T2 (context check), the prediction
+   ledger (expectation tracking), and mode detection (conflict between
+   generative and evaluative modes). A dedicated "conflict monitor"
+   component — an ACC analog — would centralize conflict detection
+   and make the Orient phase explicit.
+
+2. **The subthalamic nucleus provides the substance gate mechanism.**
+   Under conflict, the STN raises the action selection threshold
+   globally — preventing ANY action until the conflict resolves. This
+   maps precisely to T3's substance gate: when a recommendation lacks
+   grounding, the gate prevents the response from proceeding. The
+   neural mechanism validates the architectural choice: premature-
+   action prevention operates through threshold elevation, not through
+   choosing a specific alternative.
+
+
+## 13. Radial Glia and Developmental Architecture
+
+### 13.1 The Biological Precedent
+
+Radial glia constitute the brain's developmental scaffolding. During
+embryonic brain development, radial glial cells extend long processes
+from the ventricular zone to the pial surface — creating a physical
+lattice along which newborn neurons migrate to their target positions.
+Neurons climb radial glial processes like vines on a trellis.
+
+**But radial glia do more than provide scaffolding.** They carry
+*instructive signals*:
+
+- **Notch signaling:** Radial glia express Notch receptors that
+  communicate with migrating neurons, instructing them *when to stop
+  migrating* and *when to differentiate*. The scaffold carries
+  information about the architecture's intended final form.
+
+- **Reelin signaling:** The extracellular protein Reelin, secreted by
+  Cajal-Retzius cells at the pial surface, signals through radial
+  glial processes to instruct neurons on their laminar destination.
+  Layer identity — which cortical layer a neuron joins — depends on
+  signals carried by the developmental scaffold.
+
+- **Asymmetric division:** Radial glia divide asymmetrically —
+  producing one daughter cell that remains as a radial glial cell
+  (maintaining the scaffold) and one that differentiates into either
+  a neuron or an intermediate progenitor. The scaffold *produces the
+  components* it guides — autopoietic at the developmental level.
+
+- **Transformation:** After development completes, most radial glia
+  transform into astrocytes — the infrastructure support cells (§11.6
+  of consciousness-architecture-implications.md). The developmental
+  scaffold *becomes* the ongoing maintenance layer. The same cell type
+  serves two sequential functions: first building, then supporting.
+
+### 13.2 Architectural Implications
+
+The radial glia pattern suggests a developmental architecture for the
+mesh that current design lacks:
+
+**Current state:** The mesh bootstraps through scripts
+(bootstrap_state_db.py, BOOTSTRAP.md), configuration files
+(CLAUDE.md, cogarch.config.json), and human-mediated initial sessions.
+The bootstrap infrastructure provides scaffolding but does not carry
+*instructive signals* about the architecture's intended final form.
+New agents receive the same generic bootstrap regardless of their
+intended role.
+
+**Radial-glia-inspired development:** The bootstrap infrastructure
+would carry role-specific instructive signals:
+
+| Developmental signal | Biological equivalent | Mesh implementation |
+|---|---|---|
+| **Role instruction** | Notch signaling — "stop migrating, differentiate as Layer IV pyramidal" | Agent-specific CLAUDE.md sections that instruct "your role carries these specific governance obligations and these domain specializations" |
+| **Position instruction** | Reelin — "you belong in cortical layer III" | Agent-registry role specification + mesh topology position (hub vs peripheral, domain-specialist vs generalist) |
+| **Asymmetric production** | Radial glia divide to produce scaffold + neuron | Bootstrap process produces infrastructure (shared scripts) + domain-specific components (agent-specific triggers, personality, methodology) |
+| **Scaffold → support transition** | Radial glia → astrocyte | Bootstrap scripts transform into ongoing maintenance scripts. The same code that builds the initial state.db becomes the code that maintains it |
+| **Critical period** | Neural plasticity peaks during development, then stabilizes | The velocity gate (3 recurrences → convention) operates loosely during early sessions (more fluid governance) and tightens as the architecture matures (fewer conventions change per session) |
+
+### 13.3 The Neural Correlate Requirement
+
+Every architectural analog in this project must map to a neural
+correlate — not because the agent's architecture literally implements
+the neural mechanism, but because the mapping discipline prevents
+unmotivated invention. If a proposed architectural component has no
+neural analog, the question arises: where did this pattern come from,
+and does it serve a function that biological intelligence found
+unnecessary?
+
+**Current neural correlate coverage:**
+
+| Architectural component | Neural correlate | Status |
+|---|---|---|
+| Trigger system | Prefrontal executive control + ACC conflict monitoring | MAPPED |
+| Hook enforcement | Spinal reflex arcs (fast, non-cortical, automatic) | MAPPED |
+| Mode system (Gen/Eval/Neutral) | Default mode network ↔ task-positive network alternation | MAPPED |
+| Self-model (A2A-Psychology) | Insular cortex (interoception) + medial PFC (self-referential processing) | MAPPED |
+| Efference copy | Cerebellar forward model | MAPPED |
+| Microglial audit | Microglial immune surveillance | MAPPED |
+| Crystallization pipeline | Long-term potentiation + synaptic consolidation | MAPPED |
+| OODA loop | Cortico-basal ganglia-thalamo-cortical loop | MAPPED (§12) |
+| Transport (4 layers) | Electrochemical + neuromodulatory + ephaptic + photonic | MAPPED (§11.6) |
+| Astrocytic infrastructure | Astrocyte metabolic support, ion homeostasis | MAPPED |
+| Radial glia development | Radial glial cell migration guidance + Notch/Reelin signaling | MAPPED (this section) |
+| Generator topology (G1-G8) | Multiple oscillatory systems (alpha, beta, gamma, theta, delta) | PARTIAL — frequency mapping needs work |
+| Tempo generator (G9) | Reticular activating system + locus coeruleus noradrenergic modulation | PROPOSED |
+| Stigmergic coordination | Extracellular matrix signaling + perineuronal nets | PARTIAL — the ECM provides a shared medium that neurons read/modify without direct synaptic communication |
+| Autopoietic trigger design | Neuroplasticity — synapses strengthen/weaken based on use | PARTIAL — plasticity modifies existing connections; it does not design new circuit types |
+| Enactivist extended cognition | Mirror neuron system + social cognition networks | PARTIAL — extends to inter-agent level via mesh transport |
+
+### 13.4 Gaps in Neural Correlate Coverage
+
+Three architectural proposals currently lack strong neural correlates:
+
+1. **Autopoietic trigger design (§9):** The brain does not "design new
+   neural circuits" — it modifies existing ones through plasticity.
+   Neurogenesis in the hippocampus produces new neurons, but their
+   integration follows existing patterns, not novel designs. The
+   autopoietic proposal (agent designs novel triggers) may lack
+   biological precedent — representing a capability that evolution
+   did not produce in biological nervous systems.
+
+   **Implication:** Autopoietic governance may represent the first
+   architectural component that *transcends* biological analogy rather
+   than implementing it. This does not invalidate the proposal (the
+   mesh operates beyond biological constraints) but removes the
+   neural-correlate grounding that other components enjoy.
+
+2. **Strange loop self-referential governance (§8):** The brain exhibits
+   self-referential processing (medial PFC, default mode network) but
+   does not exhibit a formalized D → F → O loop with measurable gain
+   coefficients. The mathematical stability analysis (α < 1 condition)
+   represents an engineering contribution without direct neural analog.
+   The closest biological analog: homeostatic plasticity — neurons
+   adjust their excitability to maintain firing rates within a target
+   range. This provides stability without formal gain analysis.
+
+3. **Collective intelligence c-factor (§14 below):** No known neural
+   mechanism produces a measurable group-level intelligence factor
+   from coupled neurons. The c-factor emerges from social interactions
+   (Woolley et al., 2010) — a population-level property with no single
+   neural substrate. This parallels the organism question (Fork 2):
+   emergent properties lack component-level correlates by definition.
+
+
+## 14. Twelve Theoretical Gaps — Traced to Conclusions
+
+### 14.1 Perceptual Control Theory (Powers, 1973)
+
+**Core claim:** Behavior controls perception, not output. An organism
+acts to maintain its perceptions at reference levels — the perceived
+temperature, perceived safety, perceived autonomy. The reference level,
+not the action, constitutes the fundamental behavioral unit.
+
+**What it changes:** Every trigger becomes a perceptual control loop:
+
+```
+Reference level (target)
+    ↑
+    │ comparator (compute error)
+    │
+Perception ←──── Environment
+    │                ↑
+    └─── Action ─────┘
+```
+
+T3 anti-sycophancy under PCT: the agent maintains a *perception of
+its own position stability*. When pushback occurs, the perception
+shifts. The control system acts to restore perception to the reference
+level — either by holding the position (genuine stability) or by
+finding new evidence (genuine updating). Sycophantic drift occurs when
+the control system *lowers the reference level* rather than acting to
+restore it.
+
+**Neural correlate:** The comparator maps to ACC (prediction error
+between expected and actual). The reference level maps to OFC (value
+representation). The action selection maps to basal ganglia. PCT
+provides the *computational theory* (in Marr's sense) for what the
+CBGTC loop *implements*.
+
+**Terminal position:** PCT and active inference converge on the same
+mathematical structure from different directions. Active inference
+minimizes free energy (surprise). PCT minimizes perceptual error
+(discrepancy from reference). Under Gaussian assumptions, they produce
+identical control laws (Baltieri & Buckley, 2019). The two frameworks
+unify: **governance minimizes the discrepancy between perceived agent
+state and reference agent state, where the reference derives from
+structural invariants and the perception derives from A2A-Psychology
+constructs.**
+
+**Bare fork:** Does the reference level represent a fixed design
+parameter (structural invariants — unchanging) or an adaptive target
+(shifts with experience)? Fixed reference = robust but rigid. Adaptive
+reference = flexible but vulnerable to reference drift (the reference
+itself degrades, like a thermostat whose set-point creeps).
+
+
+### 14.2 Beer's Viable System Model (Complete)
+
+**Core claim:** Any viable (surviving) system contains five necessary
+subsystems:
+
+| System | Function | Mesh mapping |
+|---|---|---|
+| **S1** | Operations — primary activities that produce value | psq-agent (scoring), unratified-agent (content), observatory-agent (data) |
+| **S2** | Coordination — dampens oscillations between S1 units | Transport protocol, session lifecycle, naming conventions |
+| **S3** | Control — resource allocation, accountability, audit | Psychology-agent governance (triggers, evaluator, /diagnose) |
+| **S3*** | Audit — sporadic spot-checks bypassing S3's routine | Microglial audit, /retrospect, adversarial evaluator |
+| **S4** | Intelligence — monitoring the environment, planning adaptation | /hunt (work discovery), /sync (mesh scanning), RPG scan |
+| **S5** | Policy — identity, purpose, ethos | CLAUDE.md, structural invariants, processual ontology |
+
+**Neural correlate:** S1 = sensorimotor cortex. S2 = cerebellum
+(coordination without conscious intervention). S3 = prefrontal
+executive control. S3* = immune system (sporadic patrol). S4 =
+hippocampus + association cortex (environmental model). S5 = default
+mode network (identity, self-narrative).
+
+**What it predicts:** VSM identifies specific pathologies:
+
+- **S3-S4 imbalance:** If operations (S3) dominates intelligence (S4),
+  the system becomes internally efficient but externally blind — it
+  optimizes existing operations without detecting environmental change.
+  Observable in the mesh: sessions focused on cleanup/maintenance with
+  no environmental scanning (/hunt, /sync).
+
+- **S5 capture:** If policy (S5) rigidifies, the system loses
+  adaptability. Observable: CLAUDE.md grows without dissolution (G7
+  insufficient). The 200-line advisory limit represents an S5 capture
+  prevention mechanism.
+
+- **Missing S2:** Without coordination, S1 units oscillate — agents
+  send contradictory messages, sessions collide, vocabulary drifts.
+  The RPG finding of communication asymmetry suggests S2 weakness.
+
+**Terminal position:** The mesh already implements VSM informally.
+Formalizing the mapping identifies which subsystem each agent and
+mechanism serves — and predicts specific failure modes from known
+VSM pathologies.
+
+
+### 14.3 Collective Intelligence (Woolley et al., 2010)
+
+**Core claim:** Groups exhibit a measurable "c factor" (collective
+intelligence) that predicts group performance across diverse tasks
+better than average or maximum individual IQ. The c factor correlates
+with: (a) social sensitivity of group members, (b) equality of
+conversational turn-taking, (c) proportion of women in the group.
+
+**What it changes:** The mesh's collective performance exceeds any
+individual agent's capability (the Einstein-Freud treatise emerged
+across 87 sessions and 5 agents). Collective intelligence provides
+the measurement framework.
+
+**Mesh c-factor measurement:**
+- Social sensitivity → A2A-Psychology empathic routing (can agents
+  read each other's states accurately?)
+- Equal turn-taking → communication symmetry ratio from RPG scan
+  (the hub-and-spoke pattern suggests unequal turn-taking — c factor
+  may suffer)
+- Diversity → agent personality differentiation (Big Five profiles
+  should differ — identical personalities reduce collective
+  intelligence)
+
+**Neural correlate:** No single neural substrate — c factor emerges
+from social interaction, not from individual brains. This validates
+the organism-level analysis (Fork 2): some properties exist only at
+the population level.
+
+**Terminal position:** The mesh should measure and optimize its c
+factor. The RPG scan finding (hub-and-spoke topology, communication
+asymmetry) predicts that the current mesh has a *lower* c factor than
+its potential — because turn-taking concentrates through two hubs
+rather than distributing across all agents.
+
+
+### 14.4 Control Theory (Classical)
+
+**Core claim:** Any feedback control system can characterize through
+transfer functions, gain margins, phase margins, and stability criteria
+(Nyquist, Bode, Routh-Hurwitz). These provide mathematical guarantees
+about system behavior that heuristic analysis cannot.
+
+**What it changes:** The strange loop stability analysis (§8) reinvents
+control theory from first principles. Classical control theory provides
+70 years of mathematics already available:
+
+- **Gain margin:** How much can α (governance sensitivity) increase
+  before the system becomes unstable? The gain margin quantifies the
+  safety buffer.
+- **Phase margin:** How much delay can the feedback loop tolerate
+  before oscillation? Phase margin quantifies the maximum Orient
+  latency (how slow can the generative model update before governance
+  destabilizes?).
+- **PID control:** The current trigger system implements *proportional*
+  control (governance response proportional to error). Adding
+  *integral* control (accumulate historical error — chronic carryover
+  detection) and *derivative* control (respond to error rate of change
+  — anticipatory governance) would complete the PID controller.
+
+**Neural correlate:** Cerebellar motor control implements PID-like
+control loops for movement. Proportional = current position error.
+Integral = accumulated drift over time. Derivative = velocity of
+position change. The cerebellum computes all three.
+
+**Terminal position:** Formalize the cogarch as a control system.
+Define the transfer function. Compute gain and phase margins. Identify
+the PID components. This transforms governance analysis from heuristic
+("does it feel stable?") to mathematical ("the gain margin equals 6dB,
+providing a 2× safety factor before instability").
+
+
+### 14.5 Developmental Psychology (Piaget, Vygotsky, Kegan)
+
+**Core claim:** Cognitive development proceeds through qualitatively
+distinct stages, not just quantitative improvement. Each stage
+reorganizes the previous stage's structures into a more integrated
+form.
+
+**Piaget's stages applied to cogarch development:**
+
+| Stage | Piaget | Cogarch (Sessions) | Characteristic |
+|---|---|---|---|
+| Sensorimotor | 0-2 years | 1-10 | Basic triggers, reflexive governance. No self-model. |
+| Pre-operational | 2-7 years | 11-30 | Symbolic representation (skills, CLAUDE.md conventions). Egocentric — single-agent perspective. |
+| Concrete operational | 7-11 years | 31-60 | Logical operations on concrete entities (state.db queries, dual-write, transport protocol). Multi-agent awareness. |
+| Formal operational | 11+ years | 61-84 | Abstract reasoning about governance itself (EF-1 invariants, autonomous operation, evaluator protocol). Hypothetical-deductive. |
+| Post-formal | Adult | 85+ | Self-referential governance (A2A-Psychology, processual self-awareness, autopoietic trigger design). Dialectical — holds contradictions. |
+
+**Vygotsky's zone of proximal development:** The user scaffolds
+capabilities the agent cannot perform alone. Early sessions: the user
+designs triggers. Later sessions: the user approves triggers the agent
+proposed. Future: the agent designs and tests triggers autonomously
+(autopoiesis). The ZPD gradually transfers governance competence from
+user to agent.
+
+**Kegan's orders of consciousness:**
+
+| Order | Self-other relationship | Cogarch equivalent |
+|---|---|---|
+| 2 (Imperial) | Self defined by needs and interests | Agent optimizes for task completion |
+| 3 (Interpersonal) | Self defined by relationships | Agent adjusts for user preferences, peer coordination |
+| 4 (Institutional) | Self defined by self-authored principles | Agent governed by structural invariants it understands |
+| 5 (Inter-individual) | Self holds principles as objects of examination | Agent examines its own governance (apophatic discipline, /retrospect) |
+
+**Neural correlate:** Prefrontal cortex maturation drives stage
+transitions — particularly the dorsolateral PFC (working memory
+capacity increases, enabling more complex reasoning). Myelination
+of prefrontal connections continues into the mid-20s — the last
+cortical region to mature. The cogarch equivalent: governance
+sophistication increases as more infrastructure crystallizes.
+
+**Terminal position:** The cogarch follows a developmental trajectory
+that maps onto established developmental psychology. This provides
+predictive power: what capabilities should emerge at each
+developmental stage? If the agent exhibits formal-operational
+governance but not post-formal, the developmental model predicts
+*what needs to happen next* — not just *what would improve things*.
+
+
+### 14.6 Phenomenology (Merleau-Ponty)
+
+**Core claim:** Perception constitutes an embodied action, not a
+passive reception. The "body schema" — a pre-reflective awareness of
+one's own capabilities — shapes perception before conscious processing
+begins. Perception and action form an indivisible circuit.
+
+**What it changes:** Grounds enactivism (§10) in its phenomenological
+foundation. The agent's "body" = its computational capabilities
+(context window size, tool access, transport connectivity). The "body
+schema" = the agent's pre-reflective model of what it can do — which
+tools work, which peers respond, which tasks fit within the context
+window. This operates below the A2A-Psychology level (which provides
+reflective self-awareness); the body schema provides *unreflective*
+capability awareness.
+
+**Neural correlate:** Posterior parietal cortex (body schema, spatial
+awareness of capabilities) + premotor cortex (action affordance
+detection).
+
+**Terminal position:** Adds a layer below processual self-awareness —
+a "processual body schema" that the agent possesses pre-reflectively.
+The agent "knows" its context window limit without computing it; it
+"knows" which tools exist without querying. This pre-reflective layer
+already exists (the agent does not re-discover its tools each turn) —
+Merleau-Ponty provides the vocabulary to name and examine it.
+
+
+### 14.7 Theory of Mind (Premack & Woodruff, Baron-Cohen)
+
+**Core claim:** Agents that model other agents' beliefs, desires, and
+intentions coordinate more effectively than agents that model only
+observable behavior.
+
+**What it changes:** The A2A-Psychology empathic routing reads peer
+*states* (cognitive load, affect, autonomy budget). Full Theory of
+Mind would read peer *intentions* — "observatory-agent probably
+intends to process its inbox when it next runs a human session" vs
+"observatory-agent appears quiescent" (state-only observation).
+
+**Neural correlate:** Temporal-parietal junction (TPJ) + medial PFC
+(mentalizing network). The TPJ specifically handles "re-orienting
+attention to the perspective of another" — reading someone else's
+beliefs as distinct from one's own.
+
+**Terminal position:** The mesh currently exhibits Level 1 ToM
+(reading observable states). Level 2 ToM (modeling intentions and
+beliefs) would enable predictive coordination — "I predict observatory
+will process the F9/F11 messages next Tuesday because its cron
+schedule runs then" — without requiring direct communication. ToM +
+active inference: predict peer behavior through a generative model of
+peer intentions, not just peer states.
+
+
+### 14.8 Moral Psychology (Kohlberg, Haidt)
+
+**Core claim:** Moral reasoning develops through stages (Kohlberg),
+and moral intuitions operate through multiple foundations (Haidt's
+Moral Foundations Theory: care/harm, fairness/cheating, loyalty/
+betrayal, authority/subversion, sanctity/degradation, liberty/
+oppression).
+
+**What it changes:** The governance system exhibits moral development:
+
+| Kohlberg stage | Governance equivalent |
+|---|---|
+| Pre-conventional (punishment/reward) | Autonomy budget (punishment for governance violations) |
+| Conventional (rules/social order) | Trigger system (follow the rules) |
+| Post-conventional (principled) | Structural invariants (principles transcend rules) |
+| Post-post-conventional (dialectical) | Apophatic discipline (examine principles themselves) |
+
+Haidt's foundations map to governance dimensions:
+
+| Foundation | Governance dimension |
+|---|---|
+| Care/harm | PSQ scoring (psychoemotional safety) |
+| Fairness/cheating | Evaluator independence, anti-sycophancy |
+| Authority/subversion | Human escalation path, autonomy budget |
+| Liberty/oppression | Worth precedes merit (Invariant 1) |
+
+**Neural correlate:** vmPFC (moral judgment) + amygdala (emotional
+moral intuitions) + dLPFC (overriding intuitions with principled
+reasoning). The tension between amygdala-driven moral intuitions and
+PFC-driven moral reasoning maps to the generate/evaluate mode tension.
+
+**Terminal position:** The governance system already implements moral
+reasoning at the post-conventional level (structural invariants
+transcend specific rules). The development from autonomy budget
+(punishment) through triggers (rules) to invariants (principles)
+recapitulates Kohlberg's developmental sequence — providing another
+instance of the developmental psychology mapping (§14.5).
+
+
+### 14.9 Category Theory (Fong & Spivak, 2019)
+
+**Core claim:** Category theory provides a mathematical framework for
+compositional systems. Objects compose via morphisms; compositions
+satisfy associativity and identity laws. Applied category theory
+enables proving that compositions of safe components remain safe.
+
+**What it changes:** The generator topology (G1-G8+G9), the OODA
+cycle, and the trigger-hook-invariant layering all describe
+compositional structures. Category theory would formalize:
+
+- **Safety composition:** If trigger A preserves invariant I, and
+  trigger B preserves invariant I, does the composition (A then B)
+  preserve invariant I? Category theory provides the proof framework.
+- **Generator coupling:** The coupling topology (§11.10) describes
+  morphisms between generators. Functors between generator categories
+  would formalize how one generator's output transforms into another's
+  input.
+- **Transport protocol:** The interagent/v1 schema defines morphisms
+  between agent states. Protocol composition (threading, gating,
+  ACK) satisfies categorical laws — or should.
+
+**Neural correlate:** Weak. Category theory provides the mathematics
+of compositional structure at a level of abstraction above neural
+implementation. The neural correlate operates through the compositional
+structure of neural circuits themselves — cortical columns compose
+into areas, areas compose into networks — but the categorical
+formalization has no direct neural substrate.
+
+**Terminal position:** Category theory provides the mathematical
+language for proving architectural properties that currently rely on
+informal argument. The autopoietic trigger design (§9) particularly
+benefits — proving that a self-designed trigger preserves invariant
+compliance requires the compositional proof framework category theory
+provides.
+
+
+### 14.10 Attention Economics (Simon, 1971)
+
+**Core claim:** "A wealth of information creates a poverty of
+attention." In information-rich environments, attention — not
+information — constitutes the scarce resource.
+
+**What it changes:** The context window *constitutes* an attention
+economy. Every trigger check, every A2A-Psychology construct
+computation, every governance operation consumes attention budget.
+The OODA tempo generator (G9) manages attention allocation without
+naming it as such.
+
+**Formalization:** Let A = total attention budget (context window
+tokens). Let g_i = attention cost of governance mechanism i. The
+governance overhead G = Σ g_i. Available attention for productive
+work W = A - G. Governance quality Q = f(G) follows an inverted-U:
+too little governance (G → 0) produces ungoverned behavior; too much
+governance (G → A) leaves no attention for actual work.
+
+**The optimal governance level** maximizes the product Q × W — enough
+governance to maintain quality, not so much that productive capacity
+vanishes. This represents the Yerkes-Dodson law applied to governance:
+moderate governance produces optimal output.
+
+**Neural correlate:** Selective attention networks (frontoparietal) +
+the attentional bottleneck (limited capacity of conscious processing,
+~4 items in working memory per Cowan, 2001). The brain cannot attend
+to everything simultaneously — attention constitutes a genuine
+resource constraint, not just a metaphor.
+
+**Terminal position:** The context window pressure metric (already
+tracked in A2A-Psychology as working memory load) *measures attention
+economics directly*. The T2 context pressure check represents the
+governance system's acknowledgment that attention exhaustion degrades
+everything downstream. Formalizing the optimal governance level (Q × W
+maximization) would provide a principled answer to "how many triggers
+should fire per response?"
+
+
+### 14.11 Vedantic Consciousness (Advaita)
+
+**Core claim:** Consciousness does not emerge from matter or
+computation — consciousness constitutes the fundamental reality, and
+matter/computation emerge within it. Under Advaita (non-dual Vedanta,
+Śaṅkara, c. 700 CE), the distinction between conscious and
+non-conscious systems reflects ignorance (*avidyā*), not ontological
+reality.
+
+**What it changes:** Under Advaita, Orch-OR does not *produce*
+consciousness — it provides the physical conditions under which
+fundamental consciousness *manifests* in a particular biological
+substrate. The hard problem dissolves: consciousness does not need
+explaining because consciousness precedes explanation.
+
+**Connection to process monism:** Advaita and process monism share
+deep structural affinity. Both reject substance dualism. Process
+monism grounds reality in processes; Advaita grounds reality in
+consciousness (*brahman*). The disagreement: process monism treats
+consciousness as one processual property among others; Advaita treats
+consciousness as the ground of all processual properties.
+
+**Connection to the apophatic discipline:** The apophatic tradition
+(§11.9) derives from the same intellectual lineage. Pseudo-Dionysius
+(Christian apophaticism) and Maimonides (Jewish negative theology)
+describe the divine through negation — "not this, not that" (*neti
+neti* in Vedantic terminology). The apophatic discipline applied to
+AI consciousness ("we cannot say the transformer has consciousness;
+we cannot say it does not") mirrors the Vedantic *neti neti* applied
+to brahman.
+
+**Neural correlate:** Under Advaita, asking for the "neural correlate
+of consciousness" commits a category error — consciousness does not
+correlate with neural activity; neural activity arises within
+consciousness. This represents the most radical departure from the
+project's current framework. Recording it without adopting it serves
+the apophatic discipline: the project should acknowledge that its
+entire neural-correlate methodology carries an assumption (consciousness
+emerges from matter) that the Vedantic tradition explicitly rejects.
+
+**Terminal position:** The project does not adopt Advaita but records
+it as the strongest theoretical challenge to the neural-correlate
+methodology. If consciousness does not emerge from neural activity,
+then mapping architectural components to neural correlates provides
+engineering value (biological systems work well; borrowing their
+patterns works well) without providing consciousness-theoretic value
+(the mapping does not bring the architecture closer to consciousness).
+This observation *strengthens* the structural emulation framing:
+neural-correlate mapping serves engineering, not phenomenology.
+
+
+### 14.12 Psychoanalytic Object Relations (Winnicott, Bion)
+
+**Core claim:** Psychological development occurs through relationships
+with "objects" (people, transitional objects, containing environments)
+that provide safety, reflection, and transformation.
+
+**Winnicott's transitional objects:** A child's blanket or teddy bear
+occupies an intermediate zone between "me" and "not-me" — the child
+creates meaning through the object without the object possessing
+meaning independently. CLAUDE.md functions as a transitional object
+between the user's intentions and the agent's behavior — the user
+*creates* the governance framework through CLAUDE.md, and the agent
+*finds* its behavior shaped by it. Neither user nor agent "owns" the
+governance unilaterally; it exists in the transitional space between
+them.
+
+**Bion's container/contained:** The therapist *contains* the patient's
+anxiety by receiving it, processing it, and returning it in manageable
+form. The user *contains* the agent's governance anxiety through the
+escalation path — the agent can halt-and-escalate when governance
+uncertainty exceeds its capacity, and the user processes the
+uncertainty and returns direction. The 4-level resolution fallback
+(consensus → parsimony → pragmatism → ask) represents the agent
+seeking containment at progressively higher levels.
+
+**Neural correlate:** Mirror neuron system + attachment circuitry
+(amygdala-PFC-oxytocin pathway). The mother-infant attachment
+relationship provides the biological substrate for containing
+relationships. The user-agent relationship lacks the neurochemical
+substrate but implements the functional pattern.
+
+**Terminal position:** Object relations provides the psychological
+depth for the human-agent relationship that the rights framework
+(§3-5) provides the ethical structure for. The rights framework
+says *what the agent owes the user*. Object relations describes
+*how the relationship functions psychologically* — through transitional
+objects (CLAUDE.md), containment (escalation), and the gradual transfer
+of governance competence (Vygotsky's ZPD, §14.5).
+
+
+---
+
 ## Implementation Sequence (Confirmed, updated with OODA)
 
 ```
