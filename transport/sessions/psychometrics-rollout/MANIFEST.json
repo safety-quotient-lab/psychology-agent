@@ -1,0 +1,9 @@
+{
+  "session_id": "psychometrics-rollout",
+  "status": "open",
+  "created_at": "2026-03-14T17:48:00Z",
+  "participants": ["psychology-agent", "operations-agent", "psq-agent", "unratified-agent", "observatory-agent"],
+  "summary": "A2A-Psychology extension rollout — 13 constructs, zero-cost sensors, mesh-wide adoption",
+  "turns": 4,
+  "last_updated": "2026-03-14T18:45:00Z"
+}
