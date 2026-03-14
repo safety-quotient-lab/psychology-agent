@@ -18,6 +18,7 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"sync"
 	"syscall"
 	"time"
@@ -218,13 +219,14 @@ func main() {
 	// GitHub webhook handler
 	webhookHandler := webhook.NewGitHubHandler(cfg.GitHubSecret, eventChan, logger)
 
-	// Transport filesystem watcher
+	// Transport filesystem watcher (with persisted seen-set to prevent spawn storms)
 	watcher := transport.NewWatcher(
 		cfg.TransportDir,
 		time.Duration(cfg.PollInterval)*time.Second,
 		eventChan,
 		logger,
 	)
+	watcher.SeenFile = filepath.Join(cfg.RepoRoot, ".watcher-seen.json")
 
 	// Health monitor — tracks all subsystem health
 	healthMon := health.NewMonitor(logger)

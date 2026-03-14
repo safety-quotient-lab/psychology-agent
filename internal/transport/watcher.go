@@ -29,6 +29,7 @@ type Watcher struct {
 	Dir          string
 	PollInterval time.Duration
 	EventChan    chan<- events.Event
+	SeenFile     string // path to persist seen-set (prevents spawn storms on restart)
 	seen         map[string]time.Time
 	mu           sync.Mutex
 	logger       *slog.Logger
@@ -50,17 +51,22 @@ func NewWatcher(dir string, interval time.Duration, ch chan<- events.Event, logg
 // Run starts the polling loop. It blocks until Stop gets called or the
 // stopCh channel closes. Run the method in a dedicated goroutine.
 func (w *Watcher) Run() {
+	// Load persisted seen-set before first scan (prevents spawn storms)
+	w.loadSeenSet()
+
 	ticker := time.NewTicker(w.PollInterval)
 	defer ticker.Stop()
 
 	// Perform an initial scan immediately rather than waiting for the first tick.
 	w.scan()
+	w.saveSeenSet()
 
 	for {
 		select {
 		case <-ticker.C:
 			w.scan()
 			w.pruneSeenSet()
+			w.saveSeenSet()
 		case <-w.stopCh:
 			w.logger.Info("watcher stopping")
 			return
@@ -269,6 +275,82 @@ func (w *Watcher) pruneSeenSet() {
 			"pruned", pruned,
 			"remaining", len(w.seen),
 		)
+	}
+}
+
+// --------------------------------------------------------------------------
+// Seen-set persistence (prevents spawn storms on restart)
+// --------------------------------------------------------------------------
+
+// seenEntry holds one entry for JSON serialization.
+type seenEntry struct {
+	Path string    `json:"path"`
+	At   time.Time `json:"at"`
+}
+
+// loadSeenSet reads the persisted seen-set from disk. If the file
+// does not exist or fails to parse, the watcher starts with an empty
+// set — this means the first scan after a fresh install will process
+// all existing files (acceptable for bootstrap).
+func (w *Watcher) loadSeenSet() {
+	if w.SeenFile == "" {
+		return
+	}
+	data, err := os.ReadFile(w.SeenFile)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			w.logger.Warn("failed to load seen-set file", "path", w.SeenFile, "err", err)
+		}
+		return
+	}
+
+	var entries []seenEntry
+	if err := json.Unmarshal(data, &entries); err != nil {
+		w.logger.Warn("failed to parse seen-set file — starting fresh", "err", err)
+		return
+	}
+
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	cutoff := time.Now().Add(-seenTTL)
+	loaded := 0
+	for _, e := range entries {
+		if e.At.After(cutoff) {
+			w.seen[e.Path] = e.At
+			loaded++
+		}
+	}
+
+	w.logger.Info("loaded persisted seen-set",
+		"file", w.SeenFile,
+		"loaded", loaded,
+		"expired", len(entries)-loaded,
+	)
+}
+
+// saveSeenSet writes the current seen-set to disk for persistence
+// across restarts. Called after each scan cycle.
+func (w *Watcher) saveSeenSet() {
+	if w.SeenFile == "" {
+		return
+	}
+
+	w.mu.Lock()
+	entries := make([]seenEntry, 0, len(w.seen))
+	for path, at := range w.seen {
+		entries = append(entries, seenEntry{Path: path, At: at})
+	}
+	w.mu.Unlock()
+
+	data, err := json.Marshal(entries)
+	if err != nil {
+		w.logger.Warn("failed to serialize seen-set", "err", err)
+		return
+	}
+
+	if err := os.WriteFile(w.SeenFile, data, 0644); err != nil {
+		w.logger.Warn("failed to write seen-set file", "path", w.SeenFile, "err", err)
 	}
 }
 

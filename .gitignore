@@ -45,3 +45,4 @@ __pycache__/
 
 # Transport registry overrides (machine-specific)
 transport/agent-registry.local.json
+.watcher-seen.json
