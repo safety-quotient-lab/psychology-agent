@@ -3659,7 +3659,13 @@
             spawn: "var(--c-knowledge)",
             webhook: "var(--c-epistemic)",
         };
-        const color = colors[evtType] || "var(--text-secondary)";
+        let color = colors[evtType] || "var(--text-secondary)";
+        // ZMQ topics get their own colors
+        if (evtType.startsWith("zmq:")) {
+            const topic = evtType.split(":")[1];
+            const zmqColors = { health: "var(--status-online)", peer: "var(--c-epistemic)", transport: "var(--c-transport)", event: "var(--c-knowledge)" };
+            color = zmqColors[topic] || "var(--c-warning)";
+        }
 
         let detail = "";
         try {
@@ -3722,6 +3728,23 @@
                         refreshAll();
                     });
                 }
+
+                // ZMQ raw message stream — dedicated listener
+                es.addEventListener("zmq", (e) => {
+                    try {
+                        const d = JSON.parse(e.data);
+                        const topic = d.topic || "?";
+                        const from = (d.from || "?").replace("-agent", "");
+                        const ts = d.timestamp ? new Date(d.timestamp).toLocaleTimeString() : new Date().toLocaleTimeString();
+                        let payload = "";
+                        if (typeof d.data === "object" && d.data) {
+                            payload = JSON.stringify(d.data).substring(0, 120);
+                        } else if (d.data) {
+                            payload = String(d.data).substring(0, 120);
+                        }
+                        appendEventFeed(d.from || agent.id, "zmq:" + topic, JSON.stringify({topic, from, data: payload}));
+                    } catch {}
+                });
 
                 es.onerror = () => {
                     es.close();

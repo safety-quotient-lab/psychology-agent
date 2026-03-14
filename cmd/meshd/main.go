@@ -123,8 +123,11 @@ func main() {
 	queue := events.NewQueue(queueCfg)
 
 	// ZMQ publish function — set later when ZMQ bus initializes.
-	// Used by spawn handler to broadcast completion events.
 	var zmqPublishFn func(string, any) error
+
+	// SSE broadcast function — set after server creation.
+	// Used by ZMQ handler to push messages to dashboard.
+	var sseBroadcastFn func(server.SSEEvent)
 
 	// Input channel — subsystems push events here, main drains into queue
 	eventChan := make(chan events.Event, 256)
@@ -317,10 +320,23 @@ func main() {
 				}
 			}
 
-			// Handle incoming ZMQ messages — emit transport events
+			// Handle ALL incoming ZMQ messages — broadcast via SSE + emit transport events
 			zmqBus.OnMessage(func(m zmqbus.Message) {
+				// Broadcast every ZMQ message to SSE (dashboard ZMQ viewer)
+				if sseBroadcastFn != nil {
+					sseBroadcastFn(server.SSEEvent{
+						Type: "zmq",
+						Data: map[string]any{
+							"topic": m.Topic,
+							"from":  m.From,
+							"timestamp": m.Timestamp.Format(time.RFC3339),
+							"data":  m.Data,
+						},
+					})
+				}
+
+				// Transport-topic messages also enter the event queue for spawn processing
 				if m.Topic == "transport" {
-					// A peer delivered a transport message — emit event
 					evt := events.NewEvent(events.EventTransportMessage, events.PriorityHigh, "zmq", map[string]string{
 						"from":    m.From,
 						"topic":   m.Topic,
@@ -402,6 +418,7 @@ func main() {
 	srv.Registry = registry
 	srv.GitHubToken = cfg.GitHubToken
 	srv.OperatorSecret = cfg.OperatorSecret
+	sseBroadcastFn = srv.SSEBroadcast
 	if zmqBus != nil {
 		srv.ZMQPublish = zmqBus.Publish
 		srv.ZMQRegister = func(info json.RawMessage) bool {

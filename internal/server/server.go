@@ -85,6 +85,9 @@ type Server struct {
 
 	// sseBroker fans out events to connected SSE clients.
 	sseBroker *SSEBroker
+
+	// SSEBroadcast exposes the broker's Broadcast for external callers (ZMQ handler).
+	SSEBroadcast func(SSEEvent)
 }
 
 // New constructs a Server with the provided dependencies.
@@ -97,6 +100,7 @@ func New(
 	triggerFunc func(string, map[string]string) error,
 	logger *slog.Logger,
 ) *Server {
+	broker := NewSSEBroker(logger)
 	return &Server{
 		Config:         cfg,
 		Health:         healthMon,
@@ -106,7 +110,8 @@ func New(
 		logger:         logger,
 		eventLog:       make([]events.Event, 0, maxEventLog),
 		spawnLog:       make([]SpawnRecord, 0, maxSpawnLog),
-		sseBroker:      NewSSEBroker(logger),
+		sseBroker:      broker,
+		SSEBroadcast:   broker.Broadcast,
 	}
 }
 
