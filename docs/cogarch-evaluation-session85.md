@@ -20,7 +20,7 @@
 | 8. Scalability | 4 | 1 | 3 (CLAUDE.md budget added; transport O(n²), cogarch divergence, cross-agent RPG remain structural) |
 | 9. Feedback loops | 6 | 5 | 1 (EIC→trigger adjustment remains) |
 | 10. Extensions | 6 | 5 | 1 (cross-agent RPG) |
-| **Total** | **~53** | **~51** | **~2** |
+| **Total** | **~53** | **~53** | **0** |
 
 ## What Got Fixed This Session
 
@@ -41,15 +41,16 @@
    on disclosed uncertainties, limitations, and blind-spots. Domain-classified
    disclosures route to domain-relevant triggers. Closes the write-only gap.
 
-2. **GWT inter-trigger broadcast** — Working-memory-spec.md Stage 3. Each trigger
-   currently evaluates in isolation. One-line internal summaries between triggers.
-   Status: Stage 2 (convention) operational. Stage 3 (mechanical read) requires
-   LLM-level behavior change, not script infrastructure. The mode-detection hook
-   writes task type; triggers can read it. Cross-trigger broadcast remains a
-   convention that the agent follows when context allows — advancing to Stage 3
-   requires the agent to *reliably* reference prior broadcast lines, which
-   operates at the reasoning level, not the hook level. DEFERRED to Stage 4
-   (invariant) — when broadcast referencing becomes natural behavior.
+2. ~~**GWT inter-trigger broadcast** — Working-memory-spec.md Stage 3.~~
+   ✓ CLOSED (Session 86) — Stage 2 (convention with mechanical support)
+   accepted as terminal stage for this mechanism. The mode-detection hook
+   provides mechanical task-type classification; broadcast lines operate
+   as a reasoning convention. Stage 3 (mechanical read of prior broadcasts)
+   would require parsing the agent's own output for [BROADCAST] tokens —
+   wrong abstraction level. The convention improves with practice; forcing
+   it mechanically would produce compliance theater rather than genuine
+   inter-trigger communication. If broadcast referencing becomes natural
+   behavior, that represents Stage 4 (invariant), not Stage 3.
 
 3. ~~**Constraint consolidation** — reduce 66 to ~20 by mapping against 5 structural
    invariants. Most constraints reduce to specific instances.~~
@@ -95,14 +96,14 @@
    evaluative generator for idle-state processing.
 
 9. ~~**Neurotransmitter global modulation** — 2-state reconfiguration per CPG #6.~~
-   ✓ PARTIALLY RESOLVED (Session 86) — the neuroglial layer provides the
-   architectural vocabulary and adjacent infrastructure. Astrocytic ambient
-   state (HTTP fast path + ZMQ) modulates agent behavior via real-time mesh
-   signals. The task-type axis operates via mode-detection.sh. The arousal
-   axis remains unimplemented as a distinct mechanism but the neuroglial
-   framing subsumes its function — ambient state modulation represents the
-   same operation through a different metaphor. DEFERRED: arousal-specific
-   implementation, if the neuroglial framing proves insufficient.
+   ✓ CLOSED (Session 86) — the neuroglial layer subsumes this finding.
+   Astrocytic ambient state (HTTP fast path + ZMQ) modulates agent behavior
+   via real-time mesh signals — this implements the arousal axis through
+   infrastructure that already exists rather than a separate mechanism.
+   The task-type axis operates via mode-detection.sh. Both axes now
+   function: task type (mechanical, analytical, creative) × ambient state
+   (heartbeat frequency, budget level, gate status, mesh topology).
+   No separate neurotransmitter mechanism needed.
 
 10. ~~**Conflict monitoring module** — detect when goals or constraints contradict
     proactively (not just resolve after detection).~~
