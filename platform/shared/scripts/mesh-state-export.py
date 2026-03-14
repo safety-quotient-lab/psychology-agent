@@ -113,6 +113,97 @@ def _collect_schedule(agent_id: str) -> dict:
     return schedule
 
 
+def _compute_psychometrics(
+    budget: dict, total_msgs: int, unprocessed: int, active_gates: int,
+    recent_actions: list, agent_id: str, conn: sqlite3.Connection
+) -> dict:
+    """Compute PAD, TLX, Big Five, and remaining capacity from operational metrics."""
+    budget_current = budget.get("budget_current", 50) if budget else 50
+    budget_max = budget.get("budget_max", 50) if budget else 50
+    consecutive_blocks = budget.get("consecutive_blocks", 0) if budget else 0
+
+    errors_recent = sum(1 for a in recent_actions if a.get("evaluator_result") == "blocked")
+    actions_recent = len(recent_actions)
+
+    # Gates timing out
+    gates_timing_out = 0
+    try:
+        gates_timing_out = scalar(
+            conn, "SELECT COUNT(*) FROM active_gates WHERE status = 'waiting' AND timeout_at < datetime('now')"
+        )
+    except Exception:
+        pass
+
+    # PAD (Mehrabian & Russell, 1974)
+    error_ratio = min(1.0, errors_recent / 3.0)
+    msg_health = 1.0 - min(1.0, unprocessed / 10.0)
+    gate_stress = min(1.0, gates_timing_out / 2.0)
+    pleasure = max(-1.0, min(1.0, msg_health - error_ratio - gate_stress))
+
+    action_rate = min(1.0, actions_recent / 10.0)
+    msg_volume = min(1.0, unprocessed / 5.0)
+    arousal = max(-1.0, min(1.0, 2.0 * ((action_rate + msg_volume) / 2.0) - 1.0))
+
+    b_ratio = budget_current / max(budget_max, 1)
+    block_pen = min(1.0, consecutive_blocks / 3.0)
+    dominance = max(-1.0, min(1.0, 2.0 * (b_ratio - block_pen) - 1.0))
+
+    # Discrete label
+    if pleasure > 0.3 and arousal < 0 and dominance > 0:
+        label = "calm-satisfied"
+    elif pleasure > 0.3 and arousal > 0.3 and dominance > 0:
+        label = "excited-triumphant"
+    elif pleasure < -0.3 and arousal > 0.3 and dominance < 0:
+        label = "anxious-overwhelmed"
+    elif pleasure < -0.3 and arousal > 0.3:
+        label = "frustrated"
+    elif pleasure < -0.3 and arousal < 0 and dominance < 0:
+        label = "depleted"
+    else:
+        label = "neutral"
+
+    # NASA-TLX (Hart & Staveland, 1988)
+    mental = min(100, unprocessed * 5 + active_gates * 15)
+    temporal = min(100, gates_timing_out * 30)
+    performance = min(100, (total_msgs > 0) * 40 + (actions_recent - errors_recent) * 10)
+    effort = min(100, actions_recent * 10)
+    frustration = min(100, errors_recent * 25 + consecutive_blocks * 30)
+    physical = 0  # no context pressure data in export context
+    w = [0.20, 0.15, 0.20, 0.15, 0.15, 0.15]
+    dims = [mental, temporal, performance, effort, frustration, physical]
+    weighted_tlx = round(sum(d * wt for d, wt in zip(dims, w)), 1)
+
+    # Remaining capacity
+    workload_factor = 1.0 - (weighted_tlx / 100.0)
+    budget_factor = b_ratio
+    capacity = round(workload_factor * budget_factor, 2)
+
+    return {
+        "emotional_state": {
+            "model": "PAD (Mehrabian & Russell, 1974)",
+            "pleasure": round(pleasure, 2),
+            "arousal": round(arousal, 2),
+            "dominance": round(dominance, 2),
+            "discrete_label": label,
+        },
+        "personality": {
+            "model": "OCEAN (Costa & McCrae, 1992)",
+            "openness": 0.85,
+            "conscientiousness": 0.90,
+            "extraversion": 0.60,
+            "agreeableness": 0.35,
+            "neuroticism": 0.55,
+        },
+        "workload": {
+            "model": "NASA-TLX (Hart & Staveland, 1988)",
+            "weighted_tlx": weighted_tlx,
+            "mental_demand": mental,
+            "frustration": frustration,
+        },
+        "remaining_capacity": capacity,
+    }
+
+
 def export_state(conn: sqlite3.Connection, agent_id: str) -> dict:
     """Build the operational state snapshot."""
     now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
@@ -168,8 +259,13 @@ def export_state(conn: sqlite3.Connection, agent_id: str) -> dict:
     # Schedule info (cron interval, last sync, next expected)
     schedule = _collect_schedule(agent_id)
 
+    # Psychometric state (PAD, TLX, Big Five, capacity)
+    psychometrics = _compute_psychometrics(
+        budget, total_messages, unprocessed, active_gates, actions, agent_id, conn
+    )
+
     return {
-        "schema": "mesh-state/v1",
+        "schema": "mesh-state/v2",
         "timestamp": now,
         "agent_id": agent_id,
         "autonomy_budget": budget,
@@ -179,6 +275,10 @@ def export_state(conn: sqlite3.Connection, agent_id: str) -> dict:
             "unprocessed": unprocessed,
             "active_gates": active_gates,
         },
+        "emotional_state": psychometrics.get("emotional_state"),
+        "personality": psychometrics.get("personality"),
+        "workload": psychometrics.get("workload"),
+        "remaining_capacity": psychometrics.get("remaining_capacity"),
         "schedule": schedule,
         "psh_facets": psh_summary,
         "schema_version": schema_ver,
