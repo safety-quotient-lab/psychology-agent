@@ -33,6 +33,12 @@
     <style>
         /* ── Design System ────────────────────────────────────────────── */
         :root {
+            /* Status colors — fixed across all themes (never remapped) */
+            --status-online: #4ade80;   /* green — agent responding */
+            --status-offline: #ef4444;  /* red — agent unreachable */
+            --status-degraded: #f59e0b; /* amber — agent impaired */
+            --status-unknown: #6b7280;  /* gray — no data */
+
             /* Modern palette (default) — muted, desaturated, pleasing */
             --c-transport: #6b8aaf;
             --c-knowledge: #c4956a;
@@ -629,17 +635,17 @@
         /* Topology — TNG schematic wireframe style */
         .topology-container {
             --panel-accent: var(--c-health);
-            min-height: 360px;
+            min-height: 400px;
         }
         .topology-svg {
             width: 100%;
-            height: 340px;
+            height: 390px;
         }
         .topology-svg .topo-grid { stroke: var(--border); stroke-width: 0.5; opacity: 0.3; }
-        .topology-svg .topo-edge { stroke-width: 1; opacity: 0.5; stroke-dasharray: none; }
+        .topology-svg .topo-edge { stroke-width: 2.5; opacity: 0.5; stroke-dasharray: none; }
         .topology-svg .topo-edge-active { opacity: 0.8; }
-        .topology-svg .topo-node-ring { fill: none; stroke-width: 1; }
-        .topology-svg .topo-node-pip { r: 3; }
+        .topology-svg .topo-node-ring { fill: none; stroke-width: 4; }
+        .topology-svg .topo-node-pip { r: 8; }
         .topology-svg .topo-node-pip.online { filter: url(#pip-glow); }
         .topology-svg .topo-label {
             font-family: 'Antonio', 'Helvetica Neue', system-ui, sans-serif;
@@ -1151,7 +1157,18 @@
             .lcars-panel-body.scrollable { max-height: 300px; }
         }
 
+        @media (max-width: 768px) {
+            .topology-svg .topo-node-ring { stroke-width: 6; }
+            .topology-svg .topo-node-pip { r: 12; }
+            .topology-svg .topo-edge { stroke-width: 3; }
+            .topology-svg .topo-label { font-size: 15px; }
+            .topology-svg .topo-status { font-size: 11px; }
+        }
+
         @media (max-width: 480px) {
+            .topology-svg .topo-node-ring { stroke-width: 8; }
+            .topology-svg .topo-node-pip { r: 14; }
+            .topology-svg .topo-edge { stroke-width: 4; }
             .vitals-grid { grid-template-columns: repeat(2, 1fr); }
             .toggle-group { display: none; }
         }
@@ -1814,8 +1831,8 @@
         render() {
             const agents = this._agents;
             const agentStates = this._agentStates;
-            const cx = 300, cy = 155, r = 110;
-            const W = 600, H = 340;
+            const cx = 300, cy = 185, r = 110;
+            const W = 600, H = 390;
             const positions = agents.map((_, i) => {
                 const angle = -Math.PI / 2 + (2 * Math.PI * i) / agents.length;
                 return { x: Math.round(cx + r * Math.cos(angle)), y: Math.round(cy + r * Math.sin(angle)) };
@@ -1858,8 +1875,12 @@
                 const pos = positions[i];
                 const state = agentStates[agent.id];
                 const online = state?.status === 'online';
-                const color = online ? agent.color : 'var(--c-inactive)';
-                const label = agent.id.replace('-agent', '').toUpperCase();
+                const agentColor = agent.color;  // semantic identity color
+                const statusColor = online ? 'var(--status-online)' : 'var(--status-offline)';  // fixed green/red
+                const rawLabel = agent.id.replace('-agent', '').toUpperCase();
+                // Abbreviate long names to fit topology viewport
+                const LABEL_ABBREV = {'SAFETY-QUOTIENT': 'PSQ', 'OBSERVATORY': 'OBSERVATORY'};
+                const label = LABEL_ABBREV[rawLabel] || rawLabel;
 
                 // Label positioning: offset based on angle to avoid overlap
                 const angle = -Math.PI / 2 + (2 * Math.PI * i) / agents.length;
@@ -1872,34 +1893,37 @@
 
                 html += `<g data-agent-id="${agent.id}">`;
 
-                // Outer wireframe ring
-                html += `<circle class="topo-node-ring" cx="${pos.x}" cy="${pos.y}" r="18" stroke="${color}" opacity="${online ? 0.4 : 0.15}"/>`;
+                // Outer wireframe ring — status color (green/red)
+                html += `<circle class="topo-node-ring" cx="${pos.x}" cy="${pos.y}" r="30" stroke="${statusColor}" opacity="${online ? 0.4 : 0.15}"/>`;
 
-                // Inner wireframe ring (double-ring schematic look)
-                html += `<circle class="topo-node-ring" cx="${pos.x}" cy="${pos.y}" r="10" stroke="${color}" opacity="${online ? 0.6 : 0.2}"/>`;
+                // Inner wireframe ring — status color
+                html += `<circle class="topo-node-ring" cx="${pos.x}" cy="${pos.y}" r="18" stroke="${statusColor}" opacity="${online ? 0.6 : 0.2}"/>`;
 
-                // Center pip (small filled dot — the key indicator)
-                html += `<circle class="topo-node-pip ${online ? 'online' : ''}" cx="${pos.x}" cy="${pos.y}" fill="${color}" opacity="${online ? 1 : 0.3}"/>`;
+                // Center pip — status color
+                html += `<circle class="topo-node-pip ${online ? 'online' : ''}" cx="${pos.x}" cy="${pos.y}" fill="${statusColor}" opacity="${online ? 1 : 0.3}"/>`;
 
-                // Leader line from node to label
-                html += `<line class="topo-label-line" x1="${pos.x}" y1="${pos.y}" x2="${lx}" y2="${ly}" stroke="${color}"/>`;
+                // Leader line — agent identity color
+                html += `<line class="topo-label-line" x1="${pos.x}" y1="${pos.y}" x2="${lx}" y2="${ly}" stroke="${agentColor}"/>`;
 
-                // Label
-                html += `<text class="topo-label" x="${lx}" y="${ly - 6}" text-anchor="${anchor}">${label}</text>`;
+                // Label — agent identity color
+                html += `<text class="topo-label" x="${lx}" y="${ly - 6}" text-anchor="${anchor}" fill="${agentColor}">${label}</text>`;
 
-                // Status text
-                html += `<text class="topo-status" x="${lx}" y="${ly + 6}" text-anchor="${anchor}" fill="${online ? color : 'var(--text-dim)'}">${online ? 'ONLINE' : 'OFFLINE'}</text>`;
+                // Status text — status color (green ONLINE / red OFFLINE)
+                html += `<text class="topo-status" x="${lx}" y="${ly + 6}" text-anchor="${anchor}" fill="${statusColor}">${online ? 'ONLINE' : 'OFFLINE'}</text>`;
 
                 html += `</g>`;
             }
 
             this.innerHTML = `<svg class="topology-svg" viewBox="0 0 ${W} ${H}">${html}</svg>`;
 
-            // Attach click handlers that call global switchAgent + switchTab
+            // Attach click handlers — navigate to agent's own dashboard
+            const agentURLMap = Object.fromEntries(agents.map(a => [a.id, a.url]));
             this.querySelectorAll('g[data-agent-id]').forEach(g => {
                 g.addEventListener('click', () => {
-                    switchAgent(g.dataset.agentId);
-                    switchTab('meta');
+                    const url = agentURLMap[g.dataset.agentId];
+                    if (url) {
+                        window.open(url, '_blank');
+                    }
                 });
             });
         }
