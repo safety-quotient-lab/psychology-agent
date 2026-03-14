@@ -125,6 +125,8 @@ for session_name in sorted(os.listdir(transport_dir)):
             )
 
         json_turn = data.get("turn", "")
+        # Extract the message's own timestamp (not indexing time)
+        msg_timestamp = data.get("timestamp", "")
 
         # Prefer JSON-extracted values; fall back to filename-parsed
         from_agent = file_from or json_from
@@ -137,16 +139,21 @@ for session_name in sorted(os.listdir(transport_dir)):
 
         sql = (
             f"INSERT OR IGNORE INTO transport_messages "
-            f"(filename, session_name, direction, from_agent, to_agent, turn, message_type, subject) "
+            f"(filename, session_name, direction, from_agent, to_agent, turn, message_type, subject, timestamp) "
             f"VALUES ('{esc(filename)}', '{esc(session_name)}', '{esc(direction)}', "
-            f"'{esc(from_agent)}', '{esc(to_agent)}', {turn}, '{esc(message_type)}', '{esc(subject)}');"
+            f"'{esc(from_agent)}', '{esc(to_agent)}', {turn}, '{esc(message_type)}', '{esc(subject)}', "
+            f"'{esc(msg_timestamp)}');"
         )
 
         ok, err = run_sql(sql)
         if ok:
-            # Check if it was actually inserted (not ignored)
-            _, count_out = run_sql("SELECT changes();")
             indexed += 1
+            # Update timestamp from message content (INSERT DEFAULT uses now())
+            if msg_timestamp:
+                run_sql(
+                    f"UPDATE transport_messages SET timestamp='{esc(msg_timestamp)}' "
+                    f"WHERE session_name='{esc(session_name)}' AND filename='{esc(filename)}';"
+                )
         else:
             skipped += 1
 
