@@ -3716,22 +3716,61 @@
             }
         } catch {}
 
+        // Build expandable detail content
+        let expandContent = "";
+        try {
+            const d = typeof data === "string" ? JSON.parse(data) : data;
+            const p = d.Payload || d.payload || d;
+            const parts = [];
+            if (p.from) parts.push(`From: ${typeof p.from === "object" ? p.from.agent_id || JSON.stringify(p.from) : p.from}`);
+            if (p.to) parts.push(`To: ${typeof p.to === "object" ? p.to.agent_id || JSON.stringify(p.to) : p.to}`);
+            if (p.session || p.session_id) parts.push(`Session: ${p.session || p.session_id}`);
+            if (p.repo) parts.push(`Repo: ${p.repo}`);
+            if (p.workflow) parts.push(`Workflow: ${p.workflow}`);
+            if (p.conclusion) parts.push(`Result: ${p.conclusion}`);
+            if (p.commit) parts.push(`Commit: ${p.commit}`);
+            if (p.status) parts.push(`Status: ${p.status}`);
+            if (p.duration_ms) parts.push(`Duration: ${(p.duration_ms / 1000).toFixed(1)}s`);
+            if (p.cost) parts.push(`Cost: ${p.cost}`);
+            if (p.summary) parts.push(`Summary: ${p.summary}`);
+            if (p.event) parts.push(`Event: ${p.event}`);
+            if (p.topic) parts.push(`Topic: ${p.topic}`);
+            if (d.topic && !p.topic) parts.push(`Topic: ${d.topic}`);
+            if (d.timestamp) parts.push(`Time: ${d.timestamp}`);
+            expandContent = parts.map(p => escapeHtml(p)).join("<br>");
+        } catch {}
+
         const entry = document.createElement("div");
-        entry.style.cssText = "padding:3px 0;border-bottom:1px solid var(--border)";
+        entry.style.cssText = "padding:3px 0;border-bottom:1px solid var(--border);cursor:pointer";
 
         const mainLine = document.createElement("div");
         mainLine.style.cssText = "display:flex;gap:8px;align-items:baseline";
-        mainLine.innerHTML = `<span style="color:var(--text-dim);min-width:65px;font-size:0.75em">${escapeHtml(time)}</span>` +
+        mainLine.innerHTML = `<span style="color:var(--text-secondary);min-width:65px;font-size:0.75em">${escapeHtml(time)}</span>` +
             `<span style="color:${color};min-width:55px;font-weight:bold">${escapeHtml(agentShort)}</span>` +
             `<span style="color:${color};min-width:90px;font-size:0.85em">${escapeHtml(evtType.replace("_", " "))}</span>` +
-            `<span style="color:var(--text-primary);flex:1">${escapeHtml(detail)}</span>`;
+            `<span style="color:var(--text-primary);flex:1">${escapeHtml(detail)}</span>` +
+            `<span style="color:var(--text-secondary);font-size:0.7em">▸</span>`;
         entry.appendChild(mainLine);
 
         if (subdetail) {
             const sub = document.createElement("div");
-            sub.style.cssText = "padding-left:128px;font-size:0.75em;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
+            sub.style.cssText = "padding-left:128px;font-size:0.78em;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
             sub.textContent = subdetail;
             entry.appendChild(sub);
+        }
+
+        // Expandable detail panel (hidden by default)
+        if (expandContent) {
+            const detailPanel = document.createElement("div");
+            detailPanel.style.cssText = "display:none;padding:6px 8px 6px 128px;font-size:0.75em;color:var(--text-secondary);line-height:1.8;background:var(--bg-inset,var(--bg-primary));border-radius:4px;margin:4px 0";
+            detailPanel.innerHTML = expandContent;
+            entry.appendChild(detailPanel);
+
+            entry.addEventListener("click", () => {
+                const visible = detailPanel.style.display !== "none";
+                detailPanel.style.display = visible ? "none" : "block";
+                mainLine.querySelector("span:last-child").textContent = visible ? "▸" : "▾";
+            });
         }
 
         feed.insertBefore(entry, feed.firstChild);
