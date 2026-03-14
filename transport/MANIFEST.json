@@ -1,7 +1,7 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-14T10:49:13",
+  "generated_at": "2026-03-14T11:05:37",
   "source": "scripts/generate_manifest.py",
   "pending": {
     "operations-agent": [
@@ -81,6 +81,13 @@
         "type": "notification",
         "subject": "Shared delivery script available: platform/shared/scripts/deliver-to-peer.sh",
         "timestamp": "2026-03-14T03:50:00-05:00"
+      },
+      {
+        "session": "vocabulary-governance",
+        "file": "transport/sessions/vocabulary-governance/from-psychology-agent-001.json",
+        "type": "directive",
+        "subject": "DIRECTIVE: rename trust budget \u2192 autonomy budget mesh-wide",
+        "timestamp": "2026-03-14T11:10:00-05:00"
       }
     ],
     "unratified-agent": [
