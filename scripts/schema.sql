@@ -252,3 +252,15 @@ CREATE TABLE IF NOT EXISTS relay_nonces (
     nonce TEXT PRIMARY KEY,
     created_at TEXT DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS mesh_events (
+    id TEXT PRIMARY KEY,
+    event_type TEXT NOT NULL,
+    source TEXT,
+    priority INTEGER DEFAULT 2,
+    agent_id TEXT,
+    payload TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_mesh_events_created ON mesh_events(created_at);
+CREATE INDEX IF NOT EXISTS idx_mesh_events_type ON mesh_events(event_type);

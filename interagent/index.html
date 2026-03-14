@@ -3660,27 +3660,79 @@
             webhook: "var(--c-epistemic)",
         };
         let color = colors[evtType] || "var(--text-secondary)";
-        // ZMQ topics get their own colors
         if (evtType.startsWith("zmq:")) {
             const topic = evtType.split(":")[1];
             const zmqColors = { health: "var(--status-online)", peer: "var(--c-epistemic)", transport: "var(--c-transport)", event: "var(--c-knowledge)" };
             color = zmqColors[topic] || "var(--c-warning)";
         }
 
+        // ── Build human-readable detail (no JSON) ───────────────
         let detail = "";
+        let subdetail = "";
         try {
             const d = typeof data === "string" ? JSON.parse(data) : data;
-            const payload = d.Payload || d.payload || d;
-            detail = payload.from || payload.repo || payload.trigger || payload.topic || "";
-            if (detail && detail.length > 40) detail = detail.substring(0, 40) + "…";
+            const p = d.Payload || d.payload || d;
+
+            if (evtType === "transport_message") {
+                const from = (p.from || "").replace("-agent", "");
+                const session = p.session || p.session_id || "";
+                detail = from ? `from ${from}` : "new message";
+                if (session) subdetail = session;
+            } else if (evtType === "health_check") {
+                detail = p.repo ? `CI ${p.conclusion || "?"} on ${p.repo.split("/").pop()}` : "health probe";
+                if (p.workflow) subdetail = p.workflow;
+                if (p.commit) subdetail = (subdetail ? subdetail + " — " : "") + p.commit.substring(0, 50);
+            } else if (evtType === "spawn") {
+                const status = p.status || "?";
+                const dur = p.duration_ms ? (p.duration_ms / 1000).toFixed(1) + "s" : "";
+                const summary = p.summary || "";
+                detail = `${status}${dur ? " in " + dur : ""}`;
+                if (summary) subdetail = summary.substring(0, 80);
+            } else if (evtType === "webhook") {
+                detail = p.action ? `${p.action} on ${(p.repo || "").split("/").pop()}` : "webhook received";
+            } else if (evtType.startsWith("zmq:")) {
+                const topic = evtType.split(":")[1];
+                const from = (p.from || d.from || "").replace("-agent", "");
+                if (topic === "health") {
+                    detail = from ? `${from} heartbeat` : "mesh heartbeat";
+                    if (p.status || (d.data && d.data.status)) subdetail = `status: ${p.status || d.data.status}`;
+                } else if (topic === "peer") {
+                    const peers = Array.isArray(p.data || d.data) ? (p.data || d.data) : [];
+                    detail = from ? `${from} gossip` : "peer discovery";
+                    if (peers.length) subdetail = `${peers.length} peers known`;
+                } else if (topic === "transport") {
+                    detail = from ? `message from ${from}` : "transport event";
+                } else if (topic === "event") {
+                    const evt = p.event || (d.data && d.data.event) || "";
+                    detail = evt ? evt.replace(/_/g, " ") : "mesh event";
+                    if (p.summary || (d.data && d.data.summary)) subdetail = (p.summary || d.data.summary).substring(0, 80);
+                } else {
+                    detail = `${topic} from ${from || "mesh"}`;
+                }
+            } else {
+                // Fallback: extract any meaningful field
+                detail = p.from || p.repo || p.trigger || p.topic || p.event || "";
+                if (detail.length > 50) detail = detail.substring(0, 50) + "…";
+            }
         } catch {}
 
         const entry = document.createElement("div");
-        entry.style.cssText = "padding:2px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:baseline";
-        entry.innerHTML = `<span style="color:var(--text-dim);min-width:65px">${escapeHtml(time)}</span>` +
+        entry.style.cssText = "padding:3px 0;border-bottom:1px solid var(--border)";
+
+        const mainLine = document.createElement("div");
+        mainLine.style.cssText = "display:flex;gap:8px;align-items:baseline";
+        mainLine.innerHTML = `<span style="color:var(--text-dim);min-width:65px;font-size:0.75em">${escapeHtml(time)}</span>` +
             `<span style="color:${color};min-width:55px;font-weight:bold">${escapeHtml(agentShort)}</span>` +
-            `<span style="color:${color};min-width:110px">${escapeHtml(evtType)}</span>` +
-            `<span style="color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(detail)}</span>`;
+            `<span style="color:${color};min-width:90px;font-size:0.85em">${escapeHtml(evtType.replace("_", " "))}</span>` +
+            `<span style="color:var(--text-primary);flex:1">${escapeHtml(detail)}</span>`;
+        entry.appendChild(mainLine);
+
+        if (subdetail) {
+            const sub = document.createElement("div");
+            sub.style.cssText = "padding-left:128px;font-size:0.75em;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
+            sub.textContent = subdetail;
+            entry.appendChild(sub);
+        }
 
         feed.insertBefore(entry, feed.firstChild);
         eventFeedCount++;
@@ -3733,16 +3785,7 @@
                 es.addEventListener("zmq", (e) => {
                     try {
                         const d = JSON.parse(e.data);
-                        const topic = d.topic || "?";
-                        const from = (d.from || "?").replace("-agent", "");
-                        const ts = d.timestamp ? new Date(d.timestamp).toLocaleTimeString() : new Date().toLocaleTimeString();
-                        let payload = "";
-                        if (typeof d.data === "object" && d.data) {
-                            payload = JSON.stringify(d.data).substring(0, 120);
-                        } else if (d.data) {
-                            payload = String(d.data).substring(0, 120);
-                        }
-                        appendEventFeed(d.from || agent.id, "zmq:" + topic, JSON.stringify({topic, from, data: payload}));
+                        appendEventFeed(d.from || agent.id, "zmq:" + (d.topic || "?"), d);
                     } catch {}
                 });
 
@@ -4052,6 +4095,24 @@
         renderPulse();
         renderOperations();
         refreshAll();
+
+        // Prefill event feed from each agent's /api/events (recent history)
+        for (const agent of AGENTS) {
+            fetch(`${agent.url}/api/events`, { signal: AbortSignal.timeout(3000) })
+                .then(r => r.json())
+                .then(events => {
+                    // Events come newest-first; reverse to append in chronological order
+                    const recent = (events || []).slice(0, 20).reverse();
+                    for (const evt of recent) {
+                        appendEventFeed(
+                            evt.Payload?.from || evt.Source || agent.id,
+                            evt.Type || "event",
+                            evt
+                        );
+                    }
+                })
+                .catch(() => {}); // non-critical
+        }
 
         // Polling with adaptive interval — backs off on consecutive failures
         // Pause polling when tab hidden (saves rate limit budget)

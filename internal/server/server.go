@@ -128,6 +128,27 @@ func (s *Server) RecordEvent(ev events.Event) {
 	}
 	s.eventLog = append(s.eventLog, ev)
 
+	// Persist to state.db (non-blocking)
+	go func() {
+		payloadJSON := "{}"
+		if ev.Payload != nil {
+			if b, err := json.Marshal(ev.Payload); err == nil {
+				payloadJSON = string(b)
+			}
+		}
+		sql := fmt.Sprintf(
+			"INSERT OR IGNORE INTO mesh_events (id, event_type, source, priority, agent_id, payload) "+
+				"VALUES ('%s', '%s', '%s', %d, '%s', '%s')",
+			db.EscapeString(ev.ID),
+			db.EscapeString(string(ev.Type)),
+			db.EscapeString(ev.Source),
+			ev.Priority,
+			db.SanitizeID(s.Config.AgentID),
+			db.EscapeString(payloadJSON),
+		)
+		db.Exec(s.Config.BudgetDBPath, sql)
+	}()
+
 	// Broadcast to SSE clients
 	if s.sseBroker != nil {
 		s.sseBroker.Broadcast(SSEEvent{
