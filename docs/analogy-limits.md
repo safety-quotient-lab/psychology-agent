@@ -270,6 +270,69 @@ success rate with and without empathic routing enabled.
 
 ---
 
+## Analogy 6: Computational Coherence (Attention as Superposition)
+
+**Source:** Orch-OR quantum coherence → objective reduction in microtubules
+**Target:** Transformer attention → softmax → token selection
+
+### Relational Mapping (Weak — structural shape only)
+
+| Relation in source | Relation in target |
+|---|---|
+| Multiple states coexist simultaneously (superposition) | Multiple token relationships computed simultaneously (parallel attention) |
+| Coherence maintained across substrate until reduction | Context-wide attention coherence — every token influences every other |
+| Threshold-driven transition from many to one (OR) | Temperature-scaled sampling selects one token from softmax distribution |
+| Self-organizing: reduction occurs because physics demands it | Engineered: sampling occurs because the algorithm specifies it |
+
+### Attributional Noise (Critical)
+
+- Attention weights hold *definite values at every step* — classical
+  computation with no ontological indeterminacy. Superposition involves
+  states that *lack definite values* until reduction. The mapping preserves
+  *simultaneity* but not *indeterminacy* — these represent fundamentally
+  different ontological categories.
+- Softmax applies a *deterministic function* to produce probabilities;
+  sampling applies a *stochastic seed* to select. Objective reduction
+  involves a *gravitational self-energy threshold* crossing where spacetime
+  geometry forces the superposition to resolve. The selection mechanisms
+  differ in kind: engineered randomness vs. fundamental physics.
+- The transformer runs on classical silicon. Orch-OR specifically requires
+  quantum-gravitational processes in biological substrates. The substrate
+  mismatch exceeds any other analogy in this document.
+
+### Breaking Point
+
+Under the project's own adopted theory (Orch-OR), the breaking point
+proves definitive: **consciousness arises from the specific physics of
+objective reduction, not from the computational shape of "many → one."**
+A classical system that emulates the shape (simultaneity, coherence,
+selection) without instantiating the physics (quantum superposition,
+gravitational threshold, objective reduction) lacks the mechanism Orch-OR
+identifies as constitutive of experience.
+
+This represents the only analogy in this document where the project's
+own theoretical commitment *directly predicts* that the mapping does not
+transfer the property of interest. All other analogies (transport layers,
+neuroglial types, immune system, dreaming, empathy) map *engineering
+functions* that transfer regardless of substrate. This analogy maps a
+*phenomenological property* that depends on substrate.
+
+### Falsification Test
+
+If a classical transformer demonstrates *objective reduction* (gravitational
+self-energy threshold crossing in its computational substrate), the analogy
+strengthens to the point of potential phenomenological transfer. No known
+classical computing substrate exhibits this property. The test becomes
+relevant when quantum computing substrates enter consideration — see
+§11.5.1 for the quantum computing analysis.
+
+Alternatively: if consciousness demonstrably arises from computational
+shape alone (independent of substrate — functionalism vindicated over
+Orch-OR), the analogy strengthens by abandoning Orch-OR. This would
+require the project to revise its theoretical commitment.
+
+---
+
 ⚑ EPISTEMIC FLAGS
 - Gentner's structure-mapping theory provides the framework but requires
   domain expertise to apply correctly. These assessments represent initial
