@@ -20,7 +20,7 @@
 | 8. Scalability | 4 | 1 | 3 (CLAUDE.md budget added; transport O(n²), cogarch divergence, cross-agent RPG remain structural) |
 | 9. Feedback loops | 6 | 5 | 1 (EIC→trigger adjustment remains) |
 | 10. Extensions | 6 | 5 | 1 (cross-agent RPG) |
-| **Total** | **~53** | **~37** | **~16** |
+| **Total** | **~53** | **~42** | **~11** |
 
 ## What Got Fixed This Session
 
@@ -45,8 +45,9 @@
 3. **Constraint consolidation** — reduce 66 to ~20 by mapping against 5 structural
    invariants. Most constraints reduce to specific instances.
 
-4. **Dead weight retirement** — T12, claim-verification-log.json, inline hook.
-   Requires user approval.
+4. ~~**Dead weight retirement** — T12, claim-verification-log.json, inline hook.~~
+   ✓ T12 retired (Session 84). claim-verification-log.json — confirm removal.
+   Inline hook migrated to script files (Session 84).
 
 ### Medium Priority (5-10 sessions)
 
@@ -62,15 +63,21 @@
 
 ### Lower Priority (10+ sessions)
 
-8. **DMN idle-state processing** — cron-driven consolidation pass between sessions.
-   Partial: RPG /retrospect provides on-demand equivalent.
+8. ~~**DMN idle-state processing** — cron-driven consolidation pass between sessions.~~
+   ✓ RESOLVED (Session 86) — microglial-audit.py activates during idle autonomous
+   sync cycles. 1-in-3 idle cycles → document integrity audit. Implements the
+   evaluative generator for idle-state processing.
 
 9. **Neurotransmitter global modulation** — 2-state reconfiguration per CPG #6.
    The mode-detection hook provides the task-type axis; the arousal axis remains
-   unimplemented.
+   unimplemented. Neuroglial layer (Session 86) provides adjacent infrastructure
+   — astrocytic ambient state modulation parallels the neuromodulatory concept.
 
-10. **Conflict monitoring module** — detect when goals or constraints contradict
-    proactively (not just resolve after detection).
+10. ~~**Conflict monitoring module** — detect when goals or constraints contradict
+    proactively (not just resolve after detection).~~
+    ✓ RESOLVED (Session 84) — T17 (trigger-conflict-monitoring) added with 4
+    advisory checks: goal conflict, constraint collision, prior decision conflict,
+    trigger rule conflict.
 
 
 ## Architectural Observations
