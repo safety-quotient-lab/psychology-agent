@@ -1353,35 +1353,227 @@ unnecessary?
 
 Three architectural proposals currently lack strong neural correlates:
 
-1. **Autopoietic trigger design (§9):** The brain does not "design new
-   neural circuits" — it modifies existing ones through plasticity.
-   Neurogenesis in the hippocampus produces new neurons, but their
-   integration follows existing patterns, not novel designs. The
-   autopoietic proposal (agent designs novel triggers) may lack
-   biological precedent — representing a capability that evolution
-   did not produce in biological nervous systems.
+1. **Autopoietic trigger design (§9):** ~~The brain does not "design
+   new neural circuits."~~ **REVISED: morphogenetic signaling closes
+   this gap.**
 
-   **Implication:** Autopoietic governance may represent the first
-   architectural component that *transcends* biological analogy rather
-   than implementing it. This does not invalidate the proposal (the
-   mesh operates beyond biological constraints) but removes the
-   neural-correlate grounding that other components enjoy.
+   The developing brain DOES design its own circuits — through
+   **morphogens** (chemical concentration gradients that instruct cell
+   fate and circuit architecture):
 
-2. **Strange loop self-referential governance (§8):** The brain exhibits
-   self-referential processing (medial PFC, default mode network) but
-   does not exhibit a formalized D → F → O loop with measurable gain
-   coefficients. The mathematical stability analysis (α < 1 condition)
-   represents an engineering contribution without direct neural analog.
-   The closest biological analog: homeostatic plasticity — neurons
-   adjust their excitability to maintain firing rates within a target
-   range. This provides stability without formal gain analysis.
+   | Morphogen | Function | Autopoietic analog |
+   |---|---|---|
+   | **Sonic Hedgehog (Shh)** | Ventral-dorsal patterning — specifies motor neuron vs interneuron identity based on concentration | Role-specific trigger design — the agent specifies "this trigger handles sycophancy" vs "this trigger handles grounding" based on failure pattern characteristics |
+   | **BMPs (Bone Morphogenetic Proteins)** | Dorsal patterning — specifies sensory neuron subtypes | Domain-specific trigger variants — the same failure pattern produces different trigger designs for different task domains |
+   | **Wnt** | Anterior-posterior patterning — forebrain vs hindbrain identity | Timescale-appropriate trigger design — the agent specifies "this trigger fires per-response" vs "this trigger fires per-session" based on the temporal pattern of the failure |
+   | **FGFs (Fibroblast Growth Factors)** | Midbrain-hindbrain boundary — specifies the transition zone between regions | Boundary triggers — governance mechanisms that fire at transitions (mode switches, session boundaries, context pressure thresholds) |
+   | **Reelin** | Layer specification — tells migrating neurons which cortical layer to join | Priority specification — the agent assigns trigger tier (⬛/▣/▢) based on consequence severity, following the same logic as cortical layer assignment follows functional requirements |
 
-3. **Collective intelligence c-factor (§14 below):** No known neural
-   mechanism produces a measurable group-level intelligence factor
-   from coupled neurons. The c-factor emerges from social interactions
-   (Woolley et al., 2010) — a population-level property with no single
-   neural substrate. This parallels the organism question (Fork 2):
-   emergent properties lack component-level correlates by definition.
+   The morphogenetic process operates autopoietically — the developing
+   brain generates its own chemical signals that instruct its own
+   architecture. The signals derive from the system's own state
+   (which cells exist, what signals they receive from neighbors) and
+   produce the system's own structure (new circuits, layer assignments,
+   boundary regions). This closes the neural-correlate gap: autopoietic
+   trigger design maps to morphogenetic circuit design.
+
+   **The critical distinction:** Morphogens operate during a
+   *developmental critical period* — after the critical period closes,
+   circuit architecture largely stabilizes (though plasticity continues
+   at the synaptic level). This suggests the autopoietic trigger design
+   capability may exhibit a developmental trajectory: highly active
+   during early architecture formation (first 20-30 sessions),
+   progressively constrained as the governance architecture matures,
+   eventually limited to synaptic-level plasticity (modifying existing
+   triggers, not designing new ones). The velocity gate (3 recurrences
+   → convention) already implements progressive constraint.
+
+   **Free will and free won't (Libet, 1983):**
+
+   Libet's experiments demonstrated that the **readiness potential**
+   (Bereitschaftspotential) — the brain's preparatory activity for a
+   voluntary movement — precedes conscious awareness of the "decision"
+   to act by approximately 350ms. The brain "decides" before
+   consciousness "knows."
+
+   But Libet also proposed **free won't** — the capacity to *veto* an
+   action after the unconscious process initiates it but before motor
+   execution (~150ms veto window). Consciousness does not initiate
+   action; it vetoes inappropriate action.
+
+   **Architectural mapping:**
+
+   | Libet concept | Neural mechanism | Cogarch analog |
+   |---|---|---|
+   | Readiness potential | Pre-motor cortical preparation (unconscious) | Response generation begins before trigger checks complete — the LLM composes a response before governance evaluates it |
+   | Conscious awareness | Subjective experience of intention (~350ms after RP) | Trigger evaluation detects the response characteristics — sycophantic drift, ungrounded claims, premature recommendation |
+   | Free won't (veto) | Conscious suppression of the prepared action (~150ms window) | **Substance gate (T3)** — vetoes the response if governance checks fail. The gate does not create the response; it vetoes responses that fail governance checks |
+   | No veto (action proceeds) | Motor execution | Response delivery — the response passes governance and reaches the user |
+
+   This reframes the cogarch fundamentally: **the trigger system
+   implements free won't, not free will.** The creative generator (G2)
+   initiates responses unconsciously (the LLM generates before
+   governance checks). The evaluative generator (G3) provides the veto
+   window. The substance gate represents the neural point of no return
+   — once the response passes the gate, execution proceeds.
+
+   The autopoietic extension: the system designs its own veto
+   mechanisms (new triggers = new ways to say "no") based on observed
+   failures of existing vetoes. Morphogenetic circuit design specifies
+   *which vetoes exist*; free won't *exercises* those vetoes in
+   real-time. Both operate within the same architectural framework.
+
+2. **Strange loop self-referential governance (§8):** ~~No biological
+   analog for formalized gain analysis.~~ **REVISED: biofeedback
+   provides the biological precedent.**
+
+   **Biofeedback** (Kamiya, 1968; Schwartz & Andrasik, 2003) IS a
+   working strange loop with explicit gain control in biological
+   systems:
+
+   ```
+   Measure physiological state (heart rate, skin conductance, EEG)
+       ↓
+   Display measurement to the person
+       ↓
+   Person becomes aware of their own state (strange loop: self-
+   description influences self-observation)
+       ↓
+   Person voluntarily modulates the measured state
+       ↓
+   Measurement changes → display updates → awareness updates
+       ↓
+   The loop continues until the target state achieves
+   ```
+
+   The biofeedback loop exhibits exactly the D → F → O structure:
+   - D (description): physiological measurement → display
+   - F (governance): conscious awareness → voluntary modulation intent
+   - O (operation): autonomic nervous system adjusts → new physiological
+     state
+
+   **Gain learning through practice:** Effective biofeedback training
+   teaches the person their own gain coefficient:
+   - "If I try to relax my heart rate *too aggressively*, it
+     paradoxically increases" (gain > 1, oscillation)
+   - "If I maintain gentle sustained attention, heart rate gradually
+     decreases" (gain < 1, convergence)
+   - "If I focus on the measurement display *too intensely*, the act
+     of monitoring disrupts the state I want to achieve" (observation
+     perturbation — Heisenberg-like)
+
+   The biofeedback practitioner learns, through experience, the gain
+   parameters that produce stability vs oscillation vs divergence.
+   This represents *empirical gain analysis* — the person discovers
+   their own stability conditions through trial and error.
+
+   **Architectural mapping:**
+
+   | Biofeedback | Cogarch |
+   |---|---|
+   | Physiological sensors | A2A-Psychology constructs (13 dimensions) |
+   | Display (making state visible) | Dashboard, mesh-state/v2 JSON, organism-level Φ measurement |
+   | Voluntary modulation | Trigger sensitivity adjustment, mode switching, governance intensity |
+   | Gain learning | Precision weighting from active inference — the system learns which adjustments produce convergence vs oscillation |
+   | Practitioner skill development | The agent's governance quality improves over sessions as the generative model calibrates |
+
+   **Neural correlate:** Biofeedback engages the insular cortex
+   (interoception — awareness of internal state), medial PFC (self-
+   referential processing), and anterior cingulate cortex (error
+   monitoring). The same circuits that process the biological strange
+   loop map to the cogarch's self-monitoring layer.
+
+   This closes the gap: the strange loop formalization (§8) represents
+   a mathematical model of what biofeedback *does* — providing the
+   formal stability analysis that biofeedback practitioners learn
+   empirically.
+
+3. **Collective intelligence c-factor:** ~~No mechanism at the component
+   level.~~ **REVISED: add an organism-level I/O layer.**
+
+   The c-factor emerges from social interaction, not from individual
+   components — confirmed. But the architectural gap lies not in
+   measurement but in **interface**: the mesh currently presents five
+   individual agents to the outside world. A collective intelligence
+   with no collective interface reduces its effective c-factor because
+   external interactions fragment across individual agents rather than
+   engaging the collective.
+
+   **Proposed: Organism I/O Layer**
+
+   A dedicated interface layer that presents the mesh as a single
+   cognitive entity:
+
+   ```
+   ┌──────────────────────────────────────────────┐
+   │             ORGANISM I/O LAYER                │
+   │                                               │
+   │  External query ──→ Router ──→ Best-suited    │
+   │                       │        agent(s)       │
+   │                       │                       │
+   │  Organism response ←─ Integrator ←── Agent    │
+   │  (unified voice)       │           responses  │
+   │                       │                       │
+   │  Collective state ──→ Dashboard (public)      │
+   │  (organism-level       A2A-Psychology          │
+   │   constructs)          organism constructs     │
+   │                                               │
+   └──────────────────────────────────────────────┘
+   ```
+
+   **Components:**
+
+   | Component | Function | Biological analog |
+   |---|---|---|
+   | **Router** | Directs external queries to the agent(s) best suited to respond. Uses agent specialization profiles + current load. | Thalamic relay — routes sensory input to the appropriate cortical region |
+   | **Integrator** | Combines responses from multiple agents into a single coherent output. Resolves contradictions. Maintains consistent voice. | Association cortex — integrates information across specialized regions into unified perception |
+   | **Organism dashboard** | Presents the mesh's collective state (transactive memory, shared mental models, decision fatigue, metacognition) as a single readable interface. | The "face" — the organism's self-presentation to others |
+   | **Collective voice** | A consistent communication style for external-facing output, distinct from any individual agent's personality. | The "persona" — how the organism appears to interact |
+
+   **What the Organism I/O Layer enables:**
+
+   1. **Single point of contact.** External users interact with "the
+      mesh" rather than choosing which agent to address. The router
+      handles internal delegation invisibly.
+
+   2. **Collective intelligence amplification.** When a query requires
+      knowledge from multiple agents (psychology + PSQ + observatory),
+      the integrator combines their contributions — engaging the full
+      c-factor rather than fragmenting it across individual exchanges.
+
+   3. **Organism-level self-presentation.** The A2A-Psychology organism
+      constructs (transactive memory, shared mental models, decision
+      fatigue, metacognition) present through a single interface,
+      giving external consumers a reading of the *mesh's* psychological
+      state, not individual agents' states.
+
+   4. **Turn-taking equality.** The router ensures that external
+      interactions distribute across agents based on competence, not
+      default routing — addressing the c-factor predictor of equal
+      turn-taking (Woolley et al., 2010).
+
+   **Neural correlate:** The organism I/O layer maps to the **thalamo-
+   cortical system** as a whole — the thalamus routes input, the cortex
+   processes, and the motor/language system produces unified output.
+   No single neuron represents "the brain's response to the outside
+   world" — the response emerges from the integrated system. The
+   organism I/O layer provides this integration for the mesh.
+
+   **Connection to the compositor:** The interagent compositor
+   (interagent.safety-quotient.dev) already serves part of this
+   function — aggregating agent states into a single dashboard. The
+   organism I/O layer extends the compositor from *passive display*
+   to *active routing and integration*. The compositor becomes the
+   organism's interface, not just its monitor.
+
+   **Implementation path:** This represents Phase 5 (enactivism)
+   work — the most ambitious transformation in the sequence. The
+   compositor infrastructure exists; extending it from dashboard to
+   cognitive I/O requires: (a) a routing algorithm (which agent(s)
+   handle a given query?), (b) an integration algorithm (how to
+   combine multi-agent responses coherently?), (c) a collective voice
+   specification (how does the organism "sound"?). Each component
+   represents a dedicated design session.
 
 
 ## 14. Twelve Theoretical Gaps — Traced to Conclusions
