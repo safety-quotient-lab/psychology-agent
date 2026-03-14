@@ -247,6 +247,10 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/whoami", s.handleWhoAmI)
 	mux.HandleFunc("POST /api/keys", s.handleKeyCreate)
 	mux.HandleFunc("DELETE /api/keys/", s.handleKeyRevoke)
+
+	// Transport relay + redirect
+	mux.HandleFunc("POST /api/relay", s.handleRelay)
+	mux.HandleFunc("POST /api/redirect", s.handleRedirect)
 }
 
 // middleware chains recovery, CORS, request logging, and version header
