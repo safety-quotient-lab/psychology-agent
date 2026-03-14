@@ -28,7 +28,7 @@ _SCRIPTS_DIR = str(Path(__file__).parent)
 if _SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, _SCRIPTS_DIR)
 
-from state import transport, gates, knowledge, cogarch, quality
+from state import transport, gates, knowledge, cogarch, quality, predictions
 
 
 # ── CLI → Domain Dispatch ───────────────────────────────────────────────
@@ -209,6 +209,30 @@ def cmd_facet_query(args: argparse.Namespace) -> None:
         facet_value=args.facet_value,
     )
     print(json.dumps(results, indent=2))
+
+
+def cmd_expect(args: argparse.Namespace) -> None:
+    predictions.record_expectation(
+        session_id=args.session_id,
+        expectation=args.expectation,
+        domain=args.domain,
+        likelihood=args.likelihood,
+        source=args.source,
+    )
+
+
+def cmd_compare(args: argparse.Namespace) -> None:
+    predictions.resolve_expectation(
+        source=args.source,
+        outcome=args.outcome,
+        detail=args.detail,
+        delta_lesson=args.delta_lesson,
+    )
+
+
+def cmd_surprise_score(args: argparse.Namespace) -> None:
+    result = predictions.compute_surprise_score(source=args.source)
+    print(json.dumps(result, indent=2))
 
 
 # ── Argument Parsing ────────────────────────────────────────────────────
@@ -396,6 +420,40 @@ def main() -> None:
     fq.add_argument("--facet-type", required=True)
     fq.add_argument("--facet-value", required=True)
 
+    # expect (efference copy: record outbound prediction)
+    ex = sub.add_parser("expect",
+                        help="Record an outbound prediction (efference copy)")
+    ex.add_argument("--session-id", required=True, type=int,
+                    help="Session number")
+    ex.add_argument("--expectation", required=True,
+                    help="Predicted response (natural language)")
+    ex.add_argument("--domain", required=True,
+                    help="Domain (e.g., operations, psychometrics)")
+    ex.add_argument("--likelihood", required=True,
+                    choices=["likely", "probable", "possible", "uncertain"],
+                    help="Pre-send confidence level")
+    ex.add_argument("--source", required=True,
+                    help="Outbound transport message filename")
+
+    # compare (efference copy: resolve prediction against inbound response)
+    cp = sub.add_parser("compare",
+                        help="Compare inbound response against expectation (efference copy)")
+    cp.add_argument("--source", required=True,
+                    help="Outbound message filename that carried the expectation")
+    cp.add_argument("--outcome", required=True,
+                    choices=["confirmed", "partially-confirmed", "refuted"],
+                    help="Comparison result")
+    cp.add_argument("--detail",
+                    help="Response content summary for the comparison record")
+    cp.add_argument("--delta-lesson",
+                    help="Lesson derived from the prediction delta")
+
+    # surprise-score (efference copy: triage modifier lookup)
+    ss = sub.add_parser("surprise-score",
+                        help="Compute surprise-driven triage modifier (JSON)")
+    ss.add_argument("--source", required=True,
+                    help="Outbound message filename to check for expectations")
+
     args = parser.parse_args()
 
     dispatch = {
@@ -419,6 +477,9 @@ def main() -> None:
         "resolve-flag": cmd_resolve_flag,
         "facet": cmd_facet,
         "facet-query": cmd_facet_query,
+        "expect": cmd_expect,
+        "compare": cmd_compare,
+        "surprise-score": cmd_surprise_score,
     }
     dispatch[args.command](args)
 
