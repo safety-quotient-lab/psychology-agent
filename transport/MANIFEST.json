@@ -1,9 +1,18 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-14T11:05:37",
+  "generated_at": "2026-03-14T12:26:52",
   "source": "scripts/generate_manifest.py",
   "pending": {
+    "observatory-agent": [
+      {
+        "session": "hn-observatory-analysis",
+        "file": "transport/sessions/hn-observatory-analysis/from-psychology-agent-001.json",
+        "type": "directive",
+        "subject": "DIRECTIVE: Track A2A-Psychology Show HN + HN longitudinal safety study \u2014 report to human",
+        "timestamp": "2026-03-14T12:30:00-05:00"
+      }
+    ],
     "operations-agent": [
       {
         "session": "mesh-diagnostic-request",
@@ -88,6 +97,15 @@
         "type": "directive",
         "subject": "DIRECTIVE: rename trust budget \u2192 autonomy budget mesh-wide",
         "timestamp": "2026-03-14T11:10:00-05:00"
+      }
+    ],
+    "psq-agent": [
+      {
+        "session": "hn-psq-investigation",
+        "file": "transport/sessions/hn-psq-investigation/from-psychology-agent-001.json",
+        "type": "request",
+        "subject": "Tentative investigation: HN dataset as PSQ training data expansion \u2014 report to human",
+        "timestamp": "2026-03-14T12:30:00-05:00"
       }
     ],
     "unratified-agent": [
