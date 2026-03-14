@@ -138,10 +138,10 @@ def compute_pad(m: dict) -> dict:
 
     return {
         "model": "PAD (Mehrabian & Russell, 1974)",
-        "pleasure": round(pleasure, 2),
-        "arousal": round(arousal, 2),
-        "dominance": round(dominance, 2),
-        "discrete_label": label,
+        "hedonic_valence": round(pleasure, 2),
+        "activation": round(arousal, 2),
+        "perceived_control": round(dominance, 2),
+        "affect_category": label,
     }
 
 
@@ -188,28 +188,39 @@ def compute_tlx(m: dict, mode: str = "neutral") -> dict:
 
     return {
         "model": "NASA-TLX (Hart & Staveland, 1988)",
-        "mental_demand": mental,
-        "temporal_demand": temporal,
-        "performance": performance,
-        "effort": effort,
-        "frustration": frustration,
-        "physical_demand": physical,
-        "weighted_tlx": round(weighted, 1),
+        "cognitive_demand": mental,
+        "time_pressure": temporal,
+        "self_efficacy": performance,
+        "mobilized_effort": effort,
+        "regulatory_fatigue": frustration,
+        "computational_strain": physical,
+        "cognitive_load": round(weighted, 1),
         "mode": mode,
     }
 
 
-def compute_capacity(tlx: dict, m: dict) -> dict:
-    """Remaining capacity derived from TLX + budget + context."""
-    workload_factor = 1.0 - (tlx["weighted_tlx"] / 100.0)
+def compute_resource_model(tlx: dict, m: dict) -> dict:
+    """Three-construct resource model (Stern, Baumeister, McEwen)."""
+    # Cognitive reserve (Stern, 2002; Kahneman, 1973)
+    workload_factor = 1.0 - (tlx["cognitive_load"] / 100.0)
     budget_factor = m["budget_current"] / max(m["budget_max"], 1)
     context_factor = 1.0 - m.get("context_pressure", 0.0)
-    capacity = workload_factor * budget_factor * context_factor
+    cognitive_reserve = workload_factor * budget_factor * context_factor
+
+    # Self-regulatory resource (Baumeister et al., 1998)
+    self_regulatory = budget_factor
+
+    # Allostatic load (McEwen, 1998) — would need cross-session data
+    # Placeholder: derive from error accumulation
+    allostatic = min(1.0, m.get("errors_last_hour", 0) / 5.0)
+
     return {
-        "remaining_capacity": round(capacity, 2),
+        "cognitive_reserve": round(cognitive_reserve, 2),
+        "self_regulatory_resource": round(self_regulatory, 2),
+        "allostatic_load": round(allostatic, 2),
         "components": {
-            "workload": round(workload_factor, 2),
-            "budget": round(budget_factor, 2),
+            "workload_factor": round(workload_factor, 2),
+            "budget_factor": round(budget_factor, 2),
             "context": round(context_factor, 2),
         },
     }
@@ -239,21 +250,21 @@ def main():
 
     pad = compute_pad(m)
     tlx = compute_tlx(m)
-    cap = compute_capacity(tlx, m)
+    resources = compute_resource_model(tlx, m)
     big5 = big_five_profile()
 
     if "--pad" in sys.argv:
         print(json.dumps(pad, indent=2))
     elif "--tlx" in sys.argv:
         print(json.dumps(tlx, indent=2))
-    elif "--capacity" in sys.argv:
-        print(json.dumps(cap, indent=2))
+    elif "--resources" in sys.argv:
+        print(json.dumps(resources, indent=2))
     elif "--mesh-state" in sys.argv:
         fragment = {
             "emotional_state": pad,
             "personality": big5,
             "workload": tlx,
-            "remaining_capacity": cap["remaining_capacity"],
+            "resource_model": resources,
         }
         print(json.dumps(fragment, indent=2))
     else:
@@ -262,7 +273,7 @@ def main():
             "emotional_state": pad,
             "personality": big5,
             "workload": tlx,
-            "remaining_capacity": cap,
+            "resource_model": resources,
         }
         print(json.dumps(output, indent=2))
 
