@@ -59,7 +59,6 @@ type kbTotals struct {
 // data for the compositor dashboard.
 func (s *Server) handleKB(w http.ResponseWriter, r *http.Request) {
 	dbPath := s.Config.BudgetDBPath
-
 	// When state.db does not exist, return an empty-but-valid response.
 	if _, err := os.Stat(dbPath); err != nil {
 		s.logger.Info("state.db not found, returning empty KB response", "path", dbPath)
@@ -102,8 +101,7 @@ func (s *Server) handleKB(w http.ResponseWriter, r *http.Request) {
 func (s *Server) kbQuery(dbPath, query string) []map[string]string {
 	output, err := execSQLite(dbPath, "-json", query)
 	if err != nil {
-		// Missing table or other failure — log at debug level and move on.
-		s.logger.Debug("kb query returned no results", "query", query, "err", err)
+		s.logger.Warn("kb query failed", "query", query, "err", err, "output", output)
 		return []map[string]string{}
 	}
 
@@ -112,10 +110,25 @@ func (s *Server) kbQuery(dbPath, query string) []map[string]string {
 		return []map[string]string{}
 	}
 
-	var rows []map[string]string
-	if jErr := json.Unmarshal([]byte(trimmed), &rows); jErr != nil {
+	// sqlite3 -json returns numbers as JSON numbers, not strings.
+	// Unmarshal into interface{} first, then convert everything to strings.
+	var rawRows []map[string]interface{}
+	if jErr := json.Unmarshal([]byte(trimmed), &rawRows); jErr != nil {
 		s.logger.Warn("failed to parse sqlite3 JSON output", "query", query, "err", jErr)
 		return []map[string]string{}
+	}
+
+	rows := make([]map[string]string, len(rawRows))
+	for i, raw := range rawRows {
+		row := make(map[string]string, len(raw))
+		for k, v := range raw {
+			if v == nil {
+				row[k] = ""
+			} else {
+				row[k] = fmt.Sprintf("%v", v)
+			}
+		}
+		rows[i] = row
 	}
 	return rows
 }

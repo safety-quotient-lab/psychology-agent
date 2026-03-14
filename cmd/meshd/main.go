@@ -38,14 +38,34 @@ const version = "0.1.0"
 
 func main() {
 	var (
-		configPath string
-		port       int
-		logLevel   string
+		configPath  string
+		port        int
+		logLevel    string
+		projectRoot string
+		agentID     string
+		zmqPub      string
+		zmqPeers    string
+		cacheTTL    string
 	)
 	flag.StringVar(&configPath, "config", "", "path to .dev.vars config file")
 	flag.IntVar(&port, "port", 0, "override MESHD_PORT")
 	flag.StringVar(&logLevel, "log-level", "", "override LOG_LEVEL (debug|info|warn|error)")
+	// Platform-compatible flags (drop-in replacement for /home/kashif/platform/meshd)
+	flag.StringVar(&projectRoot, "project-root", "", "path to agent project root")
+	flag.StringVar(&agentID, "agent-id", "", "agent identity within the mesh")
+	flag.StringVar(&zmqPub, "zmq-pub", "", "ZMQ PUB bind address (accepted but not yet implemented)")
+	flag.StringVar(&zmqPeers, "zmq-peers", "", "ZMQ peer addresses (accepted but not yet implemented)")
+	flag.StringVar(&cacheTTL, "cache-ttl", "", "cache TTL for collector results (accepted for compat)")
 	flag.Parse()
+
+	// When --project-root provided, set working directory so config.Load()
+	// finds .dev.vars relative to the project root
+	if projectRoot != "" {
+		if err := os.Chdir(projectRoot); err != nil {
+			fmt.Fprintf(os.Stderr, "failed to chdir to project-root %s: %v\n", projectRoot, err)
+			os.Exit(1)
+		}
+	}
 
 	// Load configuration from .dev.vars + environment
 	cfg, err := config.Load()
@@ -53,8 +73,12 @@ func main() {
 		fmt.Fprintf(os.Stderr, "configuration load failed: %v\n", err)
 		os.Exit(1)
 	}
+	// CLI flags override config file values
 	if port > 0 {
 		cfg.Port = port
+	}
+	if agentID != "" {
+		cfg.AgentID = agentID
 	}
 	if logLevel != "" {
 		cfg.LogLevel = logLevel
