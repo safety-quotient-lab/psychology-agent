@@ -1149,7 +1149,38 @@
         .ops-schedule-stale { background: rgba(212,149,74,0.15); color: #d4944a; }
         .ops-schedule-offline { background: rgba(196,112,112,0.15); color: #c47070; }
 
-        /* ── Responsive ──────────────────────────────────────────────── */
+        /* ── Tablet Responsive ──────────────────────────────────────── */
+        @media (min-width: 768px) and (max-width: 1366px) {
+            /* Tablet shared rules — touch targets + readability */
+            body { font-size: 15px; }
+            .lcars-tab { padding: 12px 20px; min-height: 48px; font-size: 0.85em; }
+            .vital-card { padding: 20px; }
+            .vital-value { font-size: 2.2em; }
+            .vital-label { font-size: 0.8em; }
+            table td, table th { padding: 12px 16px; min-height: 48px; }
+            table { font-size: 0.9em; }
+            .lcars-panel-header { padding: 14px 16px; min-height: 48px; display: flex; align-items: center; }
+            .topology-container { min-height: 420px; }
+            .topology-svg { height: 410px; }
+            .toggle-btn { min-height: 44px; min-width: 44px; padding: 8px 16px; }
+            .activity-item { padding: 10px 12px; min-height: 48px; }
+            .table-filter { min-height: 44px; font-size: 0.9em; }
+            .kb-vital { padding: 12px; }
+            .kb-vital-value { font-size: 2em; }
+        }
+
+        @media (min-width: 768px) and (max-width: 1024px) {
+            /* Tablet portrait — PADD mode */
+            :root { --elbow-width: 32px; --elbow-radius: 24px; }
+            .vitals-grid { grid-template-columns: repeat(3, 1fr); }
+            .agents-grid { grid-template-columns: repeat(2, 1fr); }
+            .lcars-content { padding: 16px; }
+            .lcars-tab { padding: 14px 24px; }
+            .kb-vitals { grid-template-columns: repeat(3, 1fr); }
+            .dict-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── Phone Responsive ──────────────────────────────────────────── */
         @media (max-width: 768px) {
             .lcars-frame {
                 grid-template-columns: 12px 1fr;
@@ -1171,7 +1202,7 @@
             .lcars-panel-body.scrollable { max-height: 300px; }
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 767px) {
             .topology-svg .topo-node-ring { stroke-width: 6; }
             .topology-svg .topo-node-pip { r: 12; }
             .topology-svg .topo-edge { stroke-width: 3; }
