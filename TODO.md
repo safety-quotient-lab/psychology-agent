@@ -360,10 +360,10 @@ human-mediated Claude Code sessions to autonomous operation.
   T1-T16 mirrored, T15 adapted as producer self-check. Phase 3 (cross-agent faceted
   queries) gate OPEN — SL-2 landed Session 51.
 
-- [x] **Autonomous operation trust model** — RESOLVED (Session 50). Evaluator-as-arbiter
+- [x] **Autonomous operation autonomy model** — RESOLVED (Session 50). Evaluator-as-arbiter
   with 10-order knock-on analysis and 4-level resolution fallback (consensus → parsimony
-  → pragmatism → ask). Trust budget (20 credits, decrement per action, human audit resets).
-  Full spec: `docs/ef1-trust-model.md`. Scripts: `autonomous-sync.sh`, `autonomy-budget.py`.
+  → pragmatism → ask). autonomy budget (20 credits, decrement per action, human audit resets).
+  Full spec: `docs/ef1-autonomy-model.md`. Scripts: `autonomous-sync.sh`, `autonomy-budget.py`.
   *Unblocks: autonomous multi-agent tandem /sync via cron + Claude CLI.*
 
 ---
@@ -507,7 +507,7 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
 
 - [x] **Autonomous sync orientation payload** — COMPLETE (Session 59).
   `scripts/orientation-payload.py` queries state.db for compact context
-  (trust budget, recent sessions, unprocessed messages, open claims, stale
+  (autonomy budget, recent sessions, unprocessed messages, open claims, stale
   memory) and injects into `claude -p` prompts. Replaces reading 15+ markdown
   files at autonomous session start.
   *Precondition: ✓ MET — SL-2 dual-write populates all queried tables.*
@@ -563,9 +563,9 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
 - [x] **EF-1: Autonomous trust degradation model** — RESOLVED (Session 50).
   Evaluator-as-arbiter chosen (option a). Every autonomous action gated by evaluator
   protocol: structural checklist → 10-order knock-on analysis → 4-level resolution
-  (consensus / parsimony / pragmatism / ask-human). Trust budget (20 credits) provides
+  (consensus / parsimony / pragmatism / ask-human). autonomy budget (20 credits) provides
   mechanical halt. Cron + Claude CLI drives multi-agent tandem sync (10-min interval).
-  Full spec: `docs/ef1-trust-model.md`. BFT open question #1 resolved.
+  Full spec: `docs/ef1-autonomy-model.md`. BFT open question #1 resolved.
 
 - [x] **EF-2: Claim verification baseline — tracker created** — tracking log at
   `docs/claim-verification-log.json`. Seeded with exchange #1 (rsync to Hetzner,
@@ -626,7 +626,7 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
 
 - [x] **Mesh dashboard (local)** — COMPLETE (Session 62). `scripts/mesh-status.py`
   serves on :8077 with Mesh + Semiotics tabs, SSE live updates. Reads state.db
-  for trust budget, transport queue, gates, autonomous actions, PSH facets.
+  for autonomy budget, transport queue, gates, autonomous actions, PSH facets.
 
 - [x] **Mesh-state export** — COMPLETE (Session 63). `scripts/mesh-state-export.py`
   exports lean JSON (mesh-state/v1) for cross-machine visibility. Wired into
@@ -642,7 +642,7 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
 
 - [x] **Naming audit: "safety-quotient agent" → "psq-agent"** — COMPLETE (Session 71).
   Replaced informal "safety-quotient agent" with "psq-agent" across CLAUDE.md,
-  TODO.md, architecture.md, agent-registry.json, ef1-trust-model.md,
+  TODO.md, architecture.md, agent-registry.json, ef1-autonomy-model.md,
   bootstrap_state_db.py, memory/decisions.md. Historical records preserved.
 
 - [x] **Deploy dashboard to chromabook** — COMPLETE (Session 65). PRs #4-7
@@ -714,7 +714,7 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   *Precondition: ✓ MET — Plan9 directory consensus resolved (2026-03-10)*
 
 - [x] **Enable autonomous sync on peer repos** — COMPLETE (Session 68).
-  Scripts deployed, cron installed (*/5), trust budgets initialized, smoke
+  Scripts deployed, cron installed (*/5), autonomy budgets initialized, smoke
   tested. All 4 agents autonomous. agent-registry.json updated.
 
 - [x] **Delete old interagent tunnel** — COMPLETE (Session 71). Edge connections

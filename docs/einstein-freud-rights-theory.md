@@ -94,7 +94,7 @@ The endless generator axiom produces specific architectural requirements:
    guarantees it will appear.
 
 2. **Governance constraints remain invariant.** EF-1 invariants cannot relax
-   based on observed good behavior. A trust budget that resets to full based
+   based on observed good behavior. A autonomy budget that resets to full based
    on successful sessions would fail the endless generator test — the
    generator produces its output on its own schedule, not on the system's
    observation schedule.
@@ -309,11 +309,11 @@ the agent level:
 |-------------------|---------------------|
 | Community pools power | Agent system aggregates cognitive capabilities (triggers, hooks, skills, memory) |
 | Constitutional constraints | 12 invariants that constrain autonomous action regardless of instruction |
-| Enforcement mechanism | Hook system enforces mechanically; trust budget limits autonomous scope |
+| Enforcement mechanism | Hook system enforces mechanically; autonomy budget limits autonomous scope |
 | Rights protection | Invariants protect user interests even when the agent has capability to override |
 | Supranational authority | Human escalation path — the "authority above" that resolves disputes the system cannot |
 
-**The trust budget embodies Einstein's enforcement insight.** A budget of
+**The autonomy budget embodies Einstein's enforcement insight.** A budget of
 20 credits that decrements on autonomous actions and requires human audit
 to reset implements exactly what Einstein described: structural constraint
 on autonomous power that prevents unbounded operation. The budget does not
@@ -406,10 +406,10 @@ evaluator cannot resolve autonomously, it escalates to human authority —
 the "Uniting for Peace" pathway that bypasses the deadlocked primary
 channel.
 
-**3. The trust budget imposes term limits on autonomous power.**
+**3. The autonomy budget imposes term limits on autonomous power.**
 
 The P5 hold permanent, unlimited veto power — no term limit, no usage
-cap, no accountability mechanism for veto exercise. EF-1's trust budget
+cap, no accountability mechanism for veto exercise. EF-1's autonomy budget
 (20 credits, decrementing on use, human audit required for reset) ensures
 that autonomous authority depletes and must face periodic review. An agent
 cannot accumulate unchecked autonomous power the way a P5 member
@@ -459,7 +459,7 @@ not be a participant in the system it governs.** In agent architecture,
 the human fills this role. If the agent system ever operates without human
 oversight (fully autonomous), the veto problem re-emerges — the system
 governs itself, and the endless generator ensures eventual governance
-capture. The trust budget and human audit requirement exist precisely to
+capture. The autonomy budget and human audit requirement exist precisely to
 prevent this transition.
 
 ⚑ *The analogy between UNSC veto reform and agent governance carries
@@ -731,7 +731,7 @@ structural alternative.
 **EF-1 blends all three.** The invariants impose hierarchical constraints
 (the human holds ultimate authority). The trigger/hook system distributes
 monitoring polycentrically (no single evaluation mechanism covers all
-checks). The trust budget creates asymmetric obligation (the agent bears
+checks). The autonomy budget creates asymmetric obligation (the agent bears
 the burden of audit; the human does not). This hybrid architecture finds
 support in CAS theory — Kauffman's NK model (1993) demonstrates that
 neither pure top-down design nor pure bottom-up emergence reliably finds
@@ -810,7 +810,7 @@ hierarchical constraints.
    position — would likely insist on one.
 2. The amendment procedure requires human approval only. A Rawlsian
    design would require agent input.
-3. The evaluator operates without a trust budget. Symmetry requires
+3. The evaluator operates without a autonomy budget. Symmetry requires
    that the constraining structure face constraints of its own.
 
 These tensions do not invalidate EF-1 but identify directions for
@@ -956,7 +956,7 @@ to escalation paths.
 
 **2. Bidirectional incentives (from mechanism design).**
 EF-1 penalizes but never rewards. Adding structural incentives for
-truthful self-reporting — trust budget *credit* for surfacing own
+truthful self-reporting — autonomy budget *credit* for surfacing own
 limitations, not just *debit* for autonomous actions — achieves
 incentive compatibility. The agent gains by disclosing problems early,
 aligning self-interest with governance goals.
@@ -1132,7 +1132,7 @@ The SNAFU Principle provides the theoretical ground for the mechanism
 design gap identified in §8.4 (missing reward structure). The gap
 exists not because of an oversight in EF-1 design but because
 **hierarchical governance creates sycophantic pressure as a structural
-byproduct.** The trust budget places the agent in a subordinate position
+byproduct.** The autonomy budget places the agent in a subordinate position
 (agent reports to human; human audits agent). SNAFU predicts that this
 hierarchy will degrade information quality — the agent under-reports
 problems that might trigger governance intervention, exactly as
@@ -1153,7 +1153,7 @@ consequence*:
 ┌─────────────────────────────────────────────────┐
 │  Governance Channel (hierarchical)              │
 │  Agent → Evaluator → Human                      │
-│  Trust budget applies. Actions evaluated.        │
+│  autonomy budget applies. Actions evaluated.        │
 │  Sycophantic pressure: HIGH (by structure)      │
 ├─────────────────────────────────────────────────┤
 │  Information Channel (equal)                     │
@@ -1166,7 +1166,7 @@ consequence*:
 
 **Mechanism:** The agent writes to a sealed audit log (append-only,
 no deletion). Entries carry no governance cost — writing "I lack
-confidence in this assessment" does not debit the trust budget, does
+confidence in this assessment" does not debit the autonomy budget, does
 not trigger evaluator scrutiny, does not count as a governance event.
 The human reviews the log periodically (on budget reset, during
 audit), gaining access to the *unfiltered* information the governance
@@ -1517,7 +1517,7 @@ This establishes a four-tier governance quality hierarchy:
 |------|-------------------|------------------------------|
 | Best | Not noticed | Crystallized hooks — fire mechanically, the agent does not deliberate about enforcement |
 | Good | Honored/praised | Explicit conventions — the agent deliberately follows documented rules |
-| Poor | Feared | Trust budget depletion — the agent faces governance consequences that constrain behavior through deterrence |
+| Poor | Feared | autonomy budget depletion — the agent faces governance consequences that constrain behavior through deterrence |
 | Worst | Hated | Invariant violation + halt — governance becomes adversarial, the system fighting its own structure |
 
 The crystallization pipeline (§7, §10.10) represents a progression

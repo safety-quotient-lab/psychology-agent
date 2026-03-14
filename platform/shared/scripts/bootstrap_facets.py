@@ -67,7 +67,7 @@ PSH_CATEGORIES = {
     "law": {
         "code": "PSH8808",
         "keywords": {
-            "governance", "trust budget", "obligation", "gate", "fallback",
+            "governance", "autonomy budget", "obligation", "gate", "fallback",
             "due process", "authority", "hierarchy", "precedent",
             "adjudicate", "resolution", "arbiter", "autonomy", "consent",
             "permission", "license", "apache", "gpl", "compliance",

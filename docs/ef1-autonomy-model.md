@@ -1,10 +1,10 @@
-# EF-1: Evaluator-as-Arbiter Trust Model
+# EF-1: Evaluator-as-Arbiter Autonomy Model
 
 **Date:** 2026-03-09
 **Status:** Active design — resolves BFT open question #1
 **Resolves:** EF-1 (TODO.md), bft-design-note.md open question #1
 **Scope:** Replaces human-as-TTP assumption for autonomous agent operation
-**Governed by:** `docs/ef1-governance.md` — core governance trust model (7 invariants, BCP 14 keywords)
+**Governed by:** `docs/ef1-governance.md` — core governance autonomy model (7 invariants, BCP 14 keywords)
 **Theoretical grounding:**
 - `docs/ef1-psychological-foundations.md` — psychology (cognitive, social, organizational)
 - `docs/ef1-jurisprudence-extensions.md` — legal theory (planned)
@@ -32,7 +32,7 @@ in the absence of the human TTP.
 
 The existing T16 irreversibility classification determines which evaluator
 tier gates each action. This reuses infrastructure: T16 already fires on
-external actions; the trust model extends its classification to internal
+external actions; the autonomy model extends its classification to internal
 state changes.
 
 ```
@@ -62,7 +62,7 @@ state changes.
 
 ## Autonomy Budget
 
-Trust budget provides a mechanical halt condition. Without it, agents
+autonomy budget provides a mechanical halt condition. Without it, agents
 could loop indefinitely under Tier 1 self-evaluation — structurally
 insufficient for detecting self-serving blind spots (acknowledged in
 architecture.md § S4 tradeoff).
@@ -274,7 +274,7 @@ serves as the communication bus. Each agent's cycle:
 │   git pull origin main                              │
 │       │                                             │
 │       ▼                                             │
-│   check trust budget (state.db)                     │
+│   check autonomy budget (state.db)                     │
 │       │                                             │
 │       ├── budget = 0 → HALT (write halt marker)     │
 │       │                                             │
@@ -295,7 +295,7 @@ serves as the communication bus. Each agent's cycle:
 │   git add + commit + push                           │
 │       │                                             │
 │       ▼                                             │
-│   update trust budget in state.db                   │
+│   update autonomy budget in state.db                   │
 │                                                     │
 └─────────────────────────────────────────────────────┘
 ```
@@ -311,7 +311,7 @@ psq-agent writes `from-psq-sub-agent-*`). MANIFEST.json updates can
 collide — resolution: each agent updates only its own pending/completed
 sections. `git pull --rebase` before push handles ordering.
 
-**Runaway prevention:** The trust budget provides the hard halt. Additional
+**Runaway prevention:** The autonomy budget provides the hard halt. Additional
 safeguards:
 - Maximum actions per cycle: 5 (configurable). More than 5 actions in one
   /sync SHOULD trigger a halt and flag for review.
@@ -328,7 +328,7 @@ safeguards:
 
 ## Triggering Mechanisms
 
-The trust model's temporal spacing guarantee (`min_action_interval`) makes
+The autonomy model's temporal spacing guarantee (`min_action_interval`) makes
 the triggering mechanism a deployment choice, not a safety-critical design
 decision. Any mechanism that invokes `autonomous-sync.sh` works — the
 script enforces budget and interval checks before acting.
@@ -431,7 +431,7 @@ CREATE INDEX IF NOT EXISTS idx_actions_agent
 | T16 irreversibility | Classifies actions into evaluator tiers |
 | S4 independence strengthening | Adversarial self-framing, audit trail, random escalation remain active |
 | `/sync` protocol | Gains `--autonomous` flag; evaluator gate injected before each action |
-| `state.db` | Stores trust budget + action audit trail |
+| `state.db` | Stores autonomy budget + action audit trail |
 | `transport/MANIFEST.json` | Both agents update; git rebase resolves ordering |
 | BFT Principle 5 (human escalation) | Triggered by Tier 3 or budget exhaustion |
 | BFT Principle 6 (evaluator as verification) | Activated — evaluator gates every action, not just disputes |
@@ -447,7 +447,7 @@ CREATE INDEX IF NOT EXISTS idx_actions_agent
 | Human mediates every action | Evaluator gates every action |
 | Human reviews PRs | Tier 1 checklist reviews PRs; human spot-checks |
 | `/sync` surfaces recommendations | `/sync --autonomous` executes recommendations |
-| No trust budget | Budget of 20 per audit cycle |
+| No autonomy budget | Budget of 20 per audit cycle |
 | Agent asks before external actions | Agent acts if evaluator approves; halts if not |
 | Evaluator Tier 1 only for T3 | Tier 1 for all autonomous actions; Tier 2 for moderate+ |
 
@@ -460,7 +460,7 @@ CREATE INDEX IF NOT EXISTS idx_actions_agent
 ### EF-flag 1: Tier 1 blind spots (self-evaluation limitation)
 
 **Risk:** The Tier 1 evaluator shares the agent's blind spots (acknowledged
-in S4 tradeoff). The trust budget provides a mechanical halt but does not
+in S4 tradeoff). The autonomy budget provides a mechanical halt but does not
 detect sophisticated self-serving errors. Tier 2 escalation (random or
 triggered) partially compensates.
 

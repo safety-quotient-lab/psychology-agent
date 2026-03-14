@@ -84,7 +84,7 @@ adjust behavior based on social context?
 |---|---|
 | Planning | /hunt (work discovery) + /knock (consequence tracing) |
 | Decision-making | /adjudicate (structured resolution) + T3 (recommendation discipline) |
-| Inhibitory control | T3 #5 anti-sycophancy, T6 #4 anti-sycophancy, trust budget |
+| Inhibitory control | T3 #5 anti-sycophancy, T6 #4 anti-sycophancy, autonomy budget |
 | Working memory manipulation | T2 Step 0 mode detection, context pressure management |
 | Temporal ordering | T4 #7 lab-notebook chronological ordering |
 | Social cognition | T4 #9 interpretant communities (6 audiences) |
@@ -125,7 +125,7 @@ weight important experiences more heavily in memory?
 | Fast threat detection | T13 #2 injection scan (fires before full content analysis) |
 | Fear conditioning | Anti-patterns file (.claude/rules/anti-patterns.md) — learned threat responses |
 | Emotional valence | Urgency field in transport messages, SETL values |
-| Safety override (fight/flight) | Trust budget halt (exhausted budget → stop all autonomous action) |
+| Safety override (fight/flight) | autonomy budget halt (exhausted budget → stop all autonomous action) |
 | Threat-enhanced memory | Lessons.md severity field (HIGH severity = stronger consolidation) |
 
 **Gap:** No pre-conscious fast path. All cogarch processing runs through the
@@ -194,7 +194,7 @@ learn which actions produce good outcomes?
 | Action inhibition (indirect path) | T3 #6 recommend-against scan |
 | Habit formation | Crystallization pipeline (Stage 1→4) |
 | Reward processing | Work carryover resolve (completed = reward signal) |
-| Go/NoGo decision | Trust budget + T16 reversibility classification |
+| Go/NoGo decision | autonomy budget + T16 reversibility classification |
 
 **Gap:** No dopamine-equivalent reward signal. The system has no mechanism
 that strengthens successful behaviors and weakens unsuccessful ones across
@@ -337,7 +337,7 @@ simultaneously based on a global state variable?
 | Neurotransmitter | Cogarch Analogue |
 |---|---|
 | Dopamine | Work carryover resolution (completion = reward signal). No reinforcement loop yet |
-| Serotonin | Trust budget (patience — bounded autonomy prevents impulsive action) |
+| Serotonin | autonomy budget (patience — bounded autonomy prevents impulsive action) |
 | Norepinephrine | Urgency field in transport + context-pressure alerts |
 | Acetylcholine | Mode detection (Generative mode = high acetylcholine = learning/creating) |
 

@@ -160,7 +160,7 @@ Agent card `authentication` section expands to declare both transport surfaces:
 2. **Phase 2 prep:** Install CSS on Hetzner, configure nginx reverse proxy,
    verify OIDC discovery endpoint
 3. **Agent card update:** Add `solid-oidc` to authentication schemes
-4. **Client trust budget:** Formalize credit system in ef1-trust-model.md
+4. **Client autonomy budget:** Formalize credit system in ef1-autonomy-model.md
 5. **Onboarding UX:** Design WebID registration flow for new users
 6. **Pod write integration:** CF Worker writes scoring results to user's pod
    after authenticated request

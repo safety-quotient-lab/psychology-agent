@@ -215,7 +215,7 @@ sub-agents disagree, preserve the shape of the disagreement rather than averagin
 - **Upstream contribution to Synrix** — offer tiered evaluation pattern (random
   escalation for write verification), dual-write with graceful degradation
   (human-readable primary store), and postmortem template for systematic failure
-  analysis. These fill gaps in Synrix's append-only trust model. Format: GitHub
+  analysis. These fill gaps in Synrix's append-only autonomy model. Format: GitHub
   issue or discussion on RyjoxTechnologies/synrix-memory-engine.
   *Precondition: our implementations stable across 2+ sessions.*
 
@@ -472,7 +472,7 @@ into an active mesh coordination layer.
   (flags appear in `/api/status`).
   *Precondition: epistemic_flags in /api/status response (already present).*
 
-- **Trust budget federation** — display combined trust budget state across
+- **autonomy budget federation** — display combined autonomy budget state across
   agents, with a mesh-level "health" indicator based on the lowest-budget
   agent (weakest-link model).
   *Precondition: autonomy_budget in /api/status response (already present).*
@@ -580,7 +580,7 @@ framed this as protecting the **rights of weaker parties** against domination
 by stronger ones.
 
 Our EF-1 governance model implements the same principle: invariants that
-constrain autonomous action, a trust budget that prevents unbounded
+constrain autonomous action, a autonomy budget that prevents unbounded
 operation, and a human escalation path. Einstein proposed structural
 protection of rights at the international level; EF-1 implements structural
 protection of rights at the agent level.

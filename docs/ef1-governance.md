@@ -1,10 +1,10 @@
-# EF-1: Core Governance Trust Model
+# EF-1: Core Governance Autonomy Model
 
 **Date:** 2026-03-09
 **Status:** Active design — governs all discipline-specific EF-1 extensions
 **Scope:** Discipline-agnostic trust invariants for autonomous agent operation
 **Governed lenses:**
-- `docs/ef1-trust-model.md` — Engineering (implementation spec)
+- `docs/ef1-autonomy-model.md` — Engineering (implementation spec)
 - `docs/ef1-psychological-foundations.md` — Psychology (cognitive, social, organizational)
 - `docs/ef1-jurisprudence-extensions.md` — Jurisprudence (active — Session 85)
 
@@ -45,13 +45,13 @@ compliance violation requiring correction or documented exception.
 
 ## Why a Governance Layer Exists
 
-The EF-1 trust model receives interpretation through multiple disciplinary
+The EF-1 autonomy model receives interpretation through multiple disciplinary
 lenses — psychology, jurisprudence, engineering. Each lens illuminates
 different aspects of the same mechanisms: the psychologist sees appraisal
 theory in knock-on analysis; the jurist sees due process; the engineer
 sees a state machine with halt conditions.
 
-No single discipline **SHOULD** dominate the trust model's design. A
+No single discipline **SHOULD** dominate the autonomy model's design. A
 purely engineering framing optimizes for mechanical correctness but misses
 human-system trust dynamics. A purely psychological framing captures trust
 dynamics but **MAY** lack implementability. A purely jurisprudential
@@ -88,7 +88,7 @@ independent frameworks (full derivation: `docs/einstein-freud-rights-theory.md`
    Kauffman edge-of-chaos, Freud's endless generator.)
 4. **Governance captures itself** — meta-governance (constraints on the
    constraining structure) remains necessary at every recursive level.
-   Mitigated by external authority (human escalation), trust budget
+   Mitigated by external authority (human escalation), autonomy budget
    term limits, and amendment procedure requiring external approval.
 5. **No single architecture dominates** — hybrid architectures (hierarchical
    + polycentric + obligation-driven) outperform pure implementations.
@@ -322,7 +322,7 @@ same mechanism:
 ```
 
 The engineering spec remains the **implementation reference** — code
-implements what ef1-trust-model.md specifies. The governance model
+implements what ef1-autonomy-model.md specifies. The governance model
 remains the **design authority** — no implementation decision **SHALL**
 violate a governance invariant, and no discipline-specific extension
 **SHALL** override the governance layer.
@@ -393,7 +393,7 @@ dedicated `docs/governance-violations.md` if the count exceeds 5.
 ## Epistemic Flags
 
 - The governance invariants represent the current best understanding of
-  what properties a multi-lens trust model **MUST** preserve. They **MAY**
+  what properties a multi-lens autonomy model **MUST** preserve. They **MAY**
   need revision as the jurisprudence extension reveals constraints not
   visible from the psychology or engineering perspectives alone.
 - Invariant 7 (falsifiability) creates a tension: some valuable

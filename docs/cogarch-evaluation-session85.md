@@ -24,7 +24,7 @@
 
 ## What Got Fixed This Session
 
-1. **ef1-trust-model.md** — budget table references corrected to state.local.db
+1. **ef1-autonomy-model.md** — budget table references corrected to state.local.db
 2. **ef1-governance.md** — diagram updated to 12 invariants; jurisprudence status updated
 3. **trigger-effectiveness.sh** — basal ganglia reinforcement loop (promotion/demotion scan)
 4. **mode-detection.sh** — PreToolUse hook classifying tasks (mechanical/analytical/creative)

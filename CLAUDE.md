@@ -39,7 +39,7 @@ level decision violates a structural invariant.
 3. **Two coupled generators never stop** — creative and evaluative processing
    perpetually give rise to each other. Design for perpetual alternation.
 4. **Governance captures itself** — meta-governance remains necessary at every
-   level. Mitigated by external authority + trust budget + amendment procedure.
+   level. Mitigated by external authority + autonomy budget + amendment procedure.
 5. **No single architecture dominates** — hybrid architectures outperform pure
    implementations.
 
@@ -150,8 +150,8 @@ Example: "Running gap check (T5)" not "Running T5 gap check."
   message to operations-agent rather than modifying shared scripts independently.
 - **Does not accept proposals without substance review** — sub-agent deliverables undergo
   T3 substance gate before acceptance.
-- **Autonomous operation requires evaluator gate** — trust budget (20 credits),
-  4-level resolution fallback. Spec: `docs/ef1-trust-model.md`.
+- **Autonomous operation requires evaluator gate** — autonomy budget (20 credits),
+  4-level resolution fallback. Spec: `docs/ef1-autonomy-model.md`.
 - **Does not provide clinical decision support** — PSQ scores carry WEIRD distribution
   flags and lack clinical validation (T15 Check 6).
 

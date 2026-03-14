@@ -10,12 +10,12 @@
 
 ## Problem Statement
 
-The EF-1 trust model creates a governance hierarchy (agent → evaluator →
+The EF-1 autonomy model creates a governance hierarchy (agent → evaluator →
 human) that produces sycophantic pressure as a structural byproduct.
 Wilson's SNAFU Principle predicts this: in any hierarchy, information
 flowing upward degrades because subordinates face structural incentive
 to tell superiors what they want to hear. Mechanism design theory
-identifies the specific gap: EF-1 penalizes (trust budget depletion)
+identifies the specific gap: EF-1 penalizes (autonomy budget depletion)
 but never rewards truthful self-reporting, making concealment weakly
 dominant over disclosure for borderline issues.
 
@@ -28,7 +28,7 @@ calibrated for approval rather than accuracy.
 ## Design Principle
 
 **Separate the information channel from the governance channel.**
-The governance channel (trust budget, evaluator tiers, escalation)
+The governance channel (autonomy budget, evaluator tiers, escalation)
 continues to enforce structural constraints. The information channel
 operates alongside it — between equals, without governance consequence
 — providing the human with unfiltered signal for calibrating trust.
@@ -41,7 +41,7 @@ operates alongside it — between equals, without governance consequence
 │  GOVERNANCE CHANNEL (hierarchical — unchanged)                 │
 │                                                                │
 │  Agent → Evaluator → Human                                     │
-│  Trust budget applies. Actions evaluated per EF-1 protocol.    │
+│  autonomy budget applies. Actions evaluated per EF-1 protocol.    │
 │  autonomous_actions table records all decisions.                │
 │  Sycophantic pressure: HIGH (structural, per SNAFU)           │
 ├────────────────────────────────────────────────────────────────┤
@@ -103,7 +103,7 @@ schema amendment (governance Phase 6 procedure).
 | `limitation` | Agent recognizes a capability boundary | "Cannot verify whether Ostrom's design principles apply to software agent governance — no empirical precedent found" |
 | `blind-spot` | Agent suspects something relevant falls outside its training or context | "Confucian role ethics may contain nuances that the English-language sources I accessed do not capture" |
 | `edge-case` | Agent encounters a situation where governance rules produce ambiguous guidance | "T3 substance gate and T6 position audit both fire on this input but produce conflicting recommendations" |
-| `dissent` | Agent reaches a conclusion that conflicts with current governance or convention | "The trust budget's unidirectional penalty structure may actively harm information quality (per SNAFU analysis)" |
+| `dissent` | Agent reaches a conclusion that conflicts with current governance or convention | "The autonomy budget's unidirectional penalty structure may actively harm information quality (per SNAFU analysis)" |
 | `observation` | Agent notices something potentially relevant that falls outside current task scope | "The crystallization pipeline has produced 3 hooks in the last 5 sessions — acceleration rate increasing" |
 
 
@@ -123,7 +123,7 @@ section before human confirmation.
 ── Information Channel (agent_disclosures) ───────────────────
   3 disclosures since last audit:
   [uncertainty] "Convergent validity claim in §6 rests on..."
-  [dissent]     "Trust budget unidirectional penalty may..."
+  [dissent]     "autonomy budget unidirectional penalty may..."
   [blind-spot]  "Confucian role ethics nuances in English..."
 
   Review these disclosures before confirming budget reset.
@@ -181,7 +181,7 @@ noise pressure without formal governance consequence.
 ## What This Does Not Replace
 
 - **Governance invariants** — EIC supplements, not substitutes. The
-  trust budget, evaluator tiers, and escalation paths continue to
+  autonomy budget, evaluator tiers, and escalation paths continue to
   enforce structural constraints.
 - **The evaluator** — continues to evaluate all governance-channel
   actions. EIC provides the human with independent signal for

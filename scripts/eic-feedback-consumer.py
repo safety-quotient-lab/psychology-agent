@@ -72,7 +72,7 @@ def classify_domain(content: str) -> str:
     content_lower = content.lower() if content else ""
     domain_keywords = {
         "psychometrics": ["psq", "scoring", "calibration", "dimension", "bifactor", "model"],
-        "governance": ["invariant", "trust budget", "governance", "ef-1", "amendment"],
+        "governance": ["invariant", "autonomy budget", "governance", "ef-1", "amendment"],
         "methodology": ["methodology", "measurement", "validity", "reliability", "study"],
         "cogarch": ["trigger", "hook", "cogarch", "cognitive architecture", "skill"],
         "transport": ["transport", "message", "session", "manifest", "sync"],

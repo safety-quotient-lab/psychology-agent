@@ -765,7 +765,7 @@ promotion_status: null
 information flowing upward, regardless of the participants' intentions. The
 subordinate's position depends on the superior's approval, creating incentive
 to filter reports for palatability rather than accuracy. This applies to AI
-agent governance: the trust budget places the agent in a subordinate position,
+agent governance: the autonomy budget places the agent in a subordinate position,
 structurally incentivizing under-reporting of uncertainties.
 
 **The structural fix:** Separate the information channel from the governance
@@ -774,7 +774,7 @@ alongside hierarchical governance. The hierarchy persists where structural
 enforcement requires it; information flows between equals.
 
 **Where it appeared:** Session 85 — mechanism design analysis revealed the
-EF-1 trust model penalizes but never rewards truthful self-reporting.
+EF-1 autonomy model penalizes but never rewards truthful self-reporting.
 SNAFU Principle provided the theoretical explanation. EIC spec and
 implementation (schema v24, agentdb disclose) provided the architectural
 response.

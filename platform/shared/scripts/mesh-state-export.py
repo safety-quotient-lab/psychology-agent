@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """mesh-state-export.py — Export operational state for cross-machine visibility.
 
-Dumps a lean JSON snapshot of trust budget, recent autonomous actions,
+Dumps a lean JSON snapshot of autonomy budget, recent autonomous actions,
 facet distribution, and transport health. Committed by autonomous-sync.sh
 alongside heartbeat — peers read it via `git show remote/main:path`.
 
@@ -117,7 +117,7 @@ def export_state(conn: sqlite3.Connection, agent_id: str) -> dict:
     """Build the operational state snapshot."""
     now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
-    # Trust budget
+    # autonomy budget
     budget_rows = query(
         conn,
         "SELECT agent_id, budget_max, budget_current, shadow_mode, "

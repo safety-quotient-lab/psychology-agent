@@ -346,13 +346,13 @@
                                  queryable index, not just flat files).
                                Decided: 2026-03-09
 
- Autonomous trust model         EF-1 resolved: evaluator-as-arbiter.
+ Autonomous autonomy model         EF-1 resolved: evaluator-as-arbiter.
  (EF-1)                         Every autonomous action gated by
                                 evaluator protocol: structural
                                 checklist → 10-order knock-on analysis
                                 → 4-level resolution fallback (consensus
                                 / parsimony / pragmatism / ask-human).
-                                Trust budget: 20 credits per audit
+                                autonomy budget: 20 credits per audit
                                 cycle; each action costs 1 (Tier 1) or
                                 3 (Tier 2). Budget exhaustion → halt.
                                 Execution: cron + Claude CLI, 10-min
@@ -360,13 +360,13 @@
                                 Schema additions: autonomy_budget,
                                 autonomous_actions tables in state.db.
                                 BFT open question #1 resolved.
-                                Full spec: docs/ef1-trust-model.md.
+                                Full spec: docs/ef1-autonomy-model.md.
                                 Derives from: Byzantine fault tolerance
                                   (BFT Principle 6: evaluator as
                                   verification layer), Evaluator
                                   instantiation (tiered hybrid runtime).
                                 Decided: 2026-03-09
- Core governance trust model     docs/ef1-governance.md — 5 structural
+ Core governance autonomy model     docs/ef1-governance.md — 5 structural
                                 invariants (worth-precedes-merit,
                                 protection-requires-structure, generator-
                                 never-stops, governance-captures-itself,
@@ -379,7 +379,7 @@
                                 rigor, transparent audit, falsifiability.
                                 Lens interaction rules for cross-
                                 discipline conflicts.
-                                Derives from: EF-1 trust model +
+                                Derives from: EF-1 autonomy model +
                                   cross-traditional convergence analysis
                                   (Session 85, 13 frameworks).
                                 Decided: 2026-03-09; amended 2026-03-13
@@ -397,7 +397,7 @@
                                 mechanism design (bidirectional incentive
                                 compatibility). Periodic batch review
                                 during budget reset.
-                                Derives from: EF-1 trust model +
+                                Derives from: EF-1 autonomy model +
                                   SNAFU analysis (Session 85).
                                 Decided: 2026-03-13
 
@@ -419,11 +419,11 @@
                                 Decided: 2026-03-13
  Requirement-level keywords      BCP 14 (RFC 2119 + RFC 8174) adopted
  (BCP 14)                        across all cogarch, governance, and
-                                trust model documents. UPPER CASE
+                                autonomy model documents. UPPER CASE
                                 keywords (MUST, SHOULD, MAY) carry
                                 RFC-defined meaning. Lower case carries
                                 ordinary English meaning.
-                                Derives from: Core governance trust model
+                                Derives from: Core governance autonomy model
                                   (consistency requirement for spec docs).
                                 Decided: 2026-03-09
 
@@ -470,7 +470,7 @@
  (methodology)                   1968; Meadows, 2008) as the umbrella
                                 methodology. The cogarch exhibits:
                                 feedback loops (T10 lessons, T12
-                                reinforcement, trust budget decay),
+                                reinforcement, autonomy budget decay),
                                 boundaries (DDD layers, sub-project
                                 fences, scope refusals), emergence
                                 (agent behavior from trigger
@@ -669,7 +669,7 @@
                                  directories with exclusive-write per
                                  agent. Pre-commit hook (.githooks/)
                                  prevents secret leaks in autonomous
-                                 commits. Trust model min_action_interval
+                                 commits. Autonomy model min_action_interval
                                  (300s) ensures temporal spacing regardless
                                  of trigger mechanism (cron, post-receive,
                                  manual).
@@ -687,7 +687,7 @@
                                       suffices for MVP.
                                  Derives from: Plan 9 design philosophy
                                    (everything-as-file, split mailboxes);
-                                   EF-1 trust model (temporal spacing);
+                                   EF-1 autonomy model (temporal spacing);
                                    agent mesh architecture (Session 57).
                                  Decided: 2026-03-09
 
@@ -700,13 +700,13 @@
                                  hook (deferred). Gate protocol extends
                                  interagent/v1 with sender-side blocking
                                  semantics (blocks_until, timeout, fallback).
-                                 Trust model preserved: min_action_interval
+                                 Autonomy model preserved: min_action_interval
                                  remains authoritative for ungated ops;
                                  gate-accelerated polls cost 0 credits.
                                  Schema v10 (active_gates table).
                                  Spec: docs/gated-chains-spec.md
                                  Derives from: cross-repo transport
-                                   (Session 60); EF-1 trust model;
+                                   (Session 60); EF-1 autonomy model;
                                    /knock analysis of push-notification.
                                  Decided: 2026-03-09
 
@@ -968,7 +968,7 @@
                                 Spec: docs/crystallized-sync-spec.md.
                                 Derives from: agentdb binary (Go CLI),
                                   SQLite state layer (triage columns v22),
-                                  EF-1 trust model (reduce LLM turns).
+                                  EF-1 autonomy model (reduce LLM turns).
                                 Decided: 2026-03-12
 ────────────────────────────────────────────────────────────────────────
 ```

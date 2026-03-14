@@ -14,7 +14,7 @@
 
 /**
  * Client tiers — each defines a rate budget and capability set.
- * Mirrors the trust budget table in the auth design document.
+ * Mirrors the autonomy budget table in the auth design document.
  */
 const TIERS = {
   anonymous:  { rateLimit: 10,   podAccess: false, label: "Anonymous" },

@@ -197,7 +197,7 @@ How do invariants themselves change? The document describes what they govern
 but not how they evolve. Governance frameworks require amendment procedures
 to prevent uncontrolled scope drift.
 
-**L-4. Trust model exists as design documentation, not running infrastructure**
+**L-4. Autonomy model exists as design documentation, not running infrastructure**
 The autonomy budget references state.db tables, but mechanical enforcement
 depends on scripts that may or may not exist. The gap between governance spec
 and enforcement mechanism remains undocumented. Accountability requires
@@ -364,7 +364,7 @@ context, or the agent applies triggers from memory (potentially stale).
 
 **X-3. Spec-to-implementation ratio**
 docs/cognitive-triggers.md: 712 lines. CLAUDE.md: ~200 lines. Plus
-architecture.md, ef1-governance.md, ef1-trust-model.md, constraints.md,
+architecture.md, ef1-governance.md, ef1-autonomy-model.md, constraints.md,
 6 rules/ files. Total specification: > 2,000 lines. Actual enforcement:
 ~17 hook scripts (< 50 lines each) + agent reasoning. The specification
 exceeds the implementation by an order of magnitude.
@@ -393,7 +393,7 @@ system cannot distinguish load-bearing from ceremonial components.
 | Default-interventionist dual processing | Kahneman (2011), CEUR 2023 | LLM = System 1 default; triggers = System 2 intervention. Strongest current model |
 | Event-driven + discrete selection cycles (GWT) | Baars (1988), AWS/Confluent 2024-2025 | Trigger-based architecture = validated sweet spot between continuous and batch |
 | 92% of organizations lack agent auditability | McKinsey/ISACA 2025 | Transport protocol + state.db + decision chain already exceeds industry standard |
-| At least one human accountable per action | OpenAI governance paper, EU AI Act | Scope boundaries + trust budget implement structurally |
+| At least one human accountable per action | OpenAI governance paper, EU AI Act | Scope boundaries + autonomy budget implement structurally |
 | Metacognitive monitoring requires independent calibration | MASC (2025), PMC 2025 | "Confidence ≠ accuracy" rule + evaluator independence requirement |
 | Memory retrieval: recency × importance × relevance | ACM TOIS 2025 | Hot/warm/cold tier system implements tri-factor weighting |
 | Neuro-symbolic integration improves grounding | BICA 2024, arXiv 2502.11269 | LLM (neural) + triggers/hooks/state.db (symbolic) = hybrid architecture |

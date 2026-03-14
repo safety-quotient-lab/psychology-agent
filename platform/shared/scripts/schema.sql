@@ -206,7 +206,7 @@ VALUES (1, 'Initial schema — transport, memory, decisions, triggers, sessions,
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (2, 'Add psq_status (typed topic table), entry_facets (polythematic subject headings)');
 
--- ── Schema v3: Autonomous operation (EF-1 trust model) ─────────────────
+-- ── Schema v3: Autonomous operation (EF-1 autonomy model) ─────────────────
 
 -- Autonomy budget — tracks autonomous operation credits per agent
 CREATE TABLE IF NOT EXISTS autonomy_budget (
@@ -243,7 +243,7 @@ CREATE INDEX IF NOT EXISTS idx_actions_agent
     ON autonomous_actions (agent_id, created_at);
 
 INSERT OR IGNORE INTO schema_version (version, description)
-VALUES (3, 'Add autonomy_budget, autonomous_actions (EF-1 evaluator-as-arbiter trust model)');
+VALUES (3, 'Add autonomy_budget, autonomous_actions (EF-1 evaluator-as-arbiter autonomy model)');
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (4, 'Add shadow_mode to autonomy_budget, adversarial_reason + peer_reviewed_by to autonomous_actions (EF-1 flag mitigations)');
@@ -323,7 +323,7 @@ INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (8, 'State lifecycle — table_visibility with 4-tier model (public/shared/commercial/private). Commercial tier for monetizable assets (calibration, rubrics, datasets, service configs).');
 
 INSERT OR IGNORE INTO schema_version (version, description)
-VALUES (9, 'Add min_action_interval to autonomy_budget — temporal spacing guarantee decoupled from triggering mechanism (EF-1 trust model update)');
+VALUES (9, 'Add min_action_interval to autonomy_budget — temporal spacing guarantee decoupled from triggering mechanism (EF-1 autonomy model update)');
 
 
 -- ── Schema v10: Gated autonomous chains ─────────────────────────────
@@ -640,10 +640,10 @@ INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, d
     ('acronym', 'DA',  NULL, 'PSQ', 'Defensive Architecture — self-protective behavioral patterns'),
     ('acronym', 'CO',  NULL, 'PSQ', 'Contractual Clarity — explicitness of behavioral expectations');
 
--- Cognitive architecture and trust model
+-- Cognitive architecture and autonomy model
 INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, description) VALUES
     ('acronym', 'cogarch', NULL, 'project-local', 'Cognitive Architecture — the trigger, hook, memory, and identity system'),
-    ('acronym', 'EF-1',   NULL, 'project-local', 'Evaluator Framework 1 — evaluator-as-arbiter autonomous trust model'),
+    ('acronym', 'EF-1',   NULL, 'project-local', 'Evaluator Framework 1 — evaluator-as-arbiter autonomous autonomy model'),
     ('acronym', 'EF-3',   NULL, 'project-local', 'Evaluator Framework 3 — evaluator instantiation gate for sub-agents'),
     ('acronym', 'BFT',    NULL, 'project-local', 'Byzantine Fault Tolerance — consensus protocol for multi-agent mesh'),
     ('acronym', 'TTP',    NULL, 'project-local', 'Trusted Third Party — BFT role for claim verification arbitration'),

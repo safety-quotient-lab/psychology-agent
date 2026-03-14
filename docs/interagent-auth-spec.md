@@ -3,7 +3,7 @@
 **Date:** 2026-03-10
 **Status:** Draft design
 **Depends on:** Consensus protocol (docs/consensus-protocol-spec.md),
-EF-1 trust model, agent-card/v1
+EF-1 autonomy model, agent-card/v1
 **Related:** `docs/bft-design-note.md` (BFT principles),
 OWASP Top 10 (2021), NIST SP 800-207 (Zero Trust Architecture),
 NIST SP 800-227 (Post-Quantum Crypto Migration)
@@ -429,7 +429,7 @@ Tables: `auth_events`, `seen_tokens` (see Replay Attack Prevention above).
 - ML-DSA (FIPS 204) finalized August 2024; Python library support (liboqs)
   exists but ecosystem maturity remains limited. Production deployment
   experience scarce as of early 2026.
-- The zero-trust model assumes Cloudflare tunnels provide TLS termination.
+- The zero-autonomy model assumes Cloudflare tunnels provide TLS termination.
   If an agent runs without a tunnel (direct HTTP), the auth layer alone
   does not prevent eavesdropping — transport encryption becomes a separate
   concern.

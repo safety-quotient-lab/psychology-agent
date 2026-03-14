@@ -136,7 +136,7 @@ crontab -l | grep autonomous
 
 The cron runs every 5 minutes. On the first run, it will:
 1. Emit a heartbeat
-2. Check trust budget (20 credits)
+2. Check autonomy budget (20 credits)
 3. Check interval spacing (300s default)
 4. Fetch cross-repo inbound messages
 5. Generate orientation payload

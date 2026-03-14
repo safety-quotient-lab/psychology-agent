@@ -389,7 +389,7 @@ python scripts/dual_write.py gate-open \
 
 Gate-aware polling (L2) activates automatically when active gates exist in
 state.db — `autonomous-sync.sh` accelerates to 60-second intervals. No-op
-polls cost 0 trust budget credits. Full spec: `docs/gated-chains-spec.md`.
+polls cost 0 autonomy budget credits. Full spec: `docs/gated-chains-spec.md`.
 
 ### Phase 4b: Deliver to Target Repo
 
