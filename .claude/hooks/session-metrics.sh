@@ -57,4 +57,13 @@ if [ "$SHOULD_WRITE" = true ]; then
     echo "$EST_PCT" > "$CTX_FILE"
 fi
 
+# Recompute psychometric state every 10 tool calls
+# ~50ms Python execution, zero LLM cost — SQLite reads + arithmetic
+PSYCH_FILE="/tmp/${AGENT_ID}-psychometrics.json"
+if [ $(( COUNT % 10 )) -eq 0 ] && [ -f "${BASH_SOURCE[0]%/*}/../../scripts/compute-psychometrics.py" ]; then
+    PROJECT_ROOT="$(cd "${BASH_SOURCE[0]%/*}/../.." && pwd)" \
+        python3 "${BASH_SOURCE[0]%/*}/../../scripts/compute-psychometrics.py" \
+        --mesh-state > "$PSYCH_FILE" 2>/dev/null &
+fi
+
 exit 0
