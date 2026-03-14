@@ -131,6 +131,7 @@ func main() {
 
 	// Budget gate — queries state.db before allowing spawns
 	budgetGate := budget.NewGate(cfg.BudgetDBPath, cfg.AgentID, logger)
+	budgetGate.MeshMaxConcurrent = cfg.MaxConcurrent
 
 	// Spawner — manages Claude process lifecycle with circuit breaker
 	spawnr := spawner.New(cfg.AgentID, logger)

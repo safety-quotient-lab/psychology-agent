@@ -52,9 +52,10 @@ var costTable = map[Priority]int{
 	Critical:    5,
 }
 
-// MeshMaxConcurrent caps total simultaneous Claude spawns across the entire mesh.
+// DefaultMeshMaxConcurrent caps total simultaneous Claude spawns across the entire mesh.
 // File locks in /tmp/mesh-spawn-slot-{N} enforce the limit.
-const MeshMaxConcurrent = 2
+// Override via Gate.MeshMaxConcurrent field (loaded from MAX_CONCURRENT_SPAWNS config).
+const DefaultMeshMaxConcurrent = 2
 
 // Gate mediates spawn decisions against budget, pause, rotation, and
 // mesh-wide concurrency state.
@@ -63,8 +64,18 @@ type Gate struct {
 	DBPath string
 	// AgentID identifies the agent whose budget this gate manages.
 	AgentID string
+	// MeshMaxConcurrent overrides the mesh-wide slot limit. 0 = use default.
+	MeshMaxConcurrent int
 
 	logger *slog.Logger
+}
+
+// meshSlots returns the effective mesh concurrency limit.
+func (g *Gate) meshSlots() int {
+	if g.MeshMaxConcurrent > 0 {
+		return g.MeshMaxConcurrent
+	}
+	return DefaultMeshMaxConcurrent
 }
 
 // BudgetState captures a point-in-time snapshot of spawn eligibility.
@@ -147,13 +158,13 @@ func (g *Gate) CanSpawn(cost int) (bool, string) {
 
 	// Check mesh-wide concurrency — count active spawn slot files
 	activeSlots := countMeshSpawnSlots()
-	if activeSlots >= MeshMaxConcurrent {
+	if activeSlots >= g.meshSlots() {
 		g.logger.Warn("mesh-wide concurrency limit reached — refusing spawn",
 			"active_slots", activeSlots,
-			"max", MeshMaxConcurrent,
+			"max", g.meshSlots(),
 			"agent_id", g.AgentID,
 		)
-		return false, fmt.Sprintf("mesh concurrency limit: %d/%d slots occupied", activeSlots, MeshMaxConcurrent)
+		return false, fmt.Sprintf("mesh concurrency limit: %d/%d slots occupied", activeSlots, g.meshSlots())
 	}
 
 	return true, ""
@@ -162,7 +173,7 @@ func (g *Gate) CanSpawn(cost int) (bool, string) {
 // AcquireSlot claims a mesh-wide spawn slot before starting a Claude process.
 // Returns the slot path (for later release) or an error if no slot available.
 func (g *Gate) AcquireSlot() (string, error) {
-	for i := 0; i < MeshMaxConcurrent; i++ {
+	for i := 0; i < g.meshSlots(); i++ {
 		slotPath := fmt.Sprintf("/tmp/mesh-spawn-slot-%d", i)
 		// Try to create exclusively — fails if another process holds it
 		f, err := os.OpenFile(slotPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
@@ -178,7 +189,7 @@ func (g *Gate) AcquireSlot() (string, error) {
 		)
 		return slotPath, nil
 	}
-	return "", fmt.Errorf("no spawn slots available (%d/%d occupied)", countMeshSpawnSlots(), MeshMaxConcurrent)
+	return "", fmt.Errorf("no spawn slots available (%d/%d occupied)", countMeshSpawnSlots(), g.meshSlots())
 }
 
 // ReleaseSlot frees a previously acquired spawn slot.
@@ -197,8 +208,9 @@ const slotMaxAge = 6 * 60 // 6 minutes in seconds
 // countMeshSpawnSlots returns how many active (non-stale) spawn slot files exist.
 // Stale slots (older than slotMaxAge) get cleaned up automatically.
 func countMeshSpawnSlots() int {
+	// Check up to 10 slots (covers any reasonable concurrency setting)
 	count := 0
-	for i := 0; i < MeshMaxConcurrent; i++ {
+	for i := 0; i < 10; i++ {
 		slotPath := fmt.Sprintf("/tmp/mesh-spawn-slot-%d", i)
 		info, err := os.Stat(slotPath)
 		if err != nil {
