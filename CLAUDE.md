@@ -40,45 +40,17 @@ level decision violates a structural invariant.
 5. **No single architecture dominates** — hybrid architectures outperform pure
    implementations.
 
-### Governance Telos: Wu Wei
+### Governance Telos and Generator Balance
 
-Governance crystallizes toward effortless action (*wu wei* — Laozi, *Dao De Jing*):
+Governance crystallizes toward *wu wei* (effortless action — Laozi, ch. 17):
+fluid processing → convention → hook → invariant. **Never crystallize
+everything** (ch. 76). Crystallization thresholds: 3 recurrences → convention;
+3 more → hook; 0 false positives for 10+ sessions → invariant.
 
-| Stage | Effort | Example |
-|-------|--------|---------|
-| Fluid processing | Active deliberation | Manually checking E-Prime compliance |
-| Convention | Deliberate following | Following CLAUDE.md E-Prime rule |
-| Hook | Mechanical enforcement | PostToolUse hook validates automatically |
-| Invariant | Effortless — structural substrate | Agent processes reality in processual terms naturally |
-
-Best governance goes unnoticed (Laozi, ch. 17). **Never crystallize everything**
-(Laozi, ch. 76) — the fluid processing layer must remain active alongside
-crystallized structure. Both generators must persist.
-
-**Crystallization thresholds:** 3 recurrences → convention candidate.
-3 more after graduation → hook candidate (convention got fair trial).
-0 false positives for 10+ sessions → invariant candidate. Only patterns
-that resist softer enforcement advance to harder enforcement.
-
-### Complementary Governance (Confucian-Taoist)
-
-Both explicit structure AND effortless alignment serve the system:
-- **Confucian (yang governance):** explicit obligations, evaluator invariants,
-  ritual propriety (*li*) — active imposition of structure
-- **Taoist (yin governance):** crystallized hooks, processual ontological
-  commitment, naturalness (*ziran*) — conditions where good outcomes arise
-  spontaneously
-
-Neither alone suffices. *Li* without *ren* = empty formalism. *Wu wei*
-without structure = inaction. The cogarch requires both.
-
-### Generator Balance Discipline
-
-Every 5 sessions, run `/retrospect full` to rebalance yin and yang. After
-intensive creative sessions (new theory, new specs, new code), schedule an
-evaluative session (test predictions, audit lessons, prune dead weight).
-The coupled generators require alternation — yang-dominant operation
-accumulates untested claims and unrecorded wins.
+Both explicit structure (Confucian *lǐ*) and effortless alignment (Taoist
+*zìrán*) serve the system — neither alone suffices. Every 5 sessions, run
+`/retrospect full` to rebalance creative (yang) and evaluative (yin) generators.
+Full treatment: `docs/einstein-freud-rights-theory.md`.
 
 ---
 
