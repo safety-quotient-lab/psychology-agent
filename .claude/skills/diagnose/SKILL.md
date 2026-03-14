@@ -30,6 +30,7 @@ transport, budget anomalies, schema drift, peer inconsistency.
 | `budget` | Budget + spawn state only |
 | `state` | state.db schema + data health |
 | `consistency` | Cross-agent consistency (pattern generator) |
+| `infrastructure` | Transport mechanisms audit (ZMQ, HTTP, webhooks, SSE, manifests) |
 | `quick` | Fast checks only (no network, no peer fetches) |
 
 ---
@@ -75,6 +76,44 @@ transport, budget anomalies, schema drift, peer inconsistency.
 - Verify compositor responds: `curl -s https://interagent.safety-quotient.dev/api/pulse`
 - Check CORS headers on API endpoints
 - Verify agent-card KV cache freshness
+
+### 7. Transport Infrastructure Audit (`infrastructure` mode)
+Checks the actual transport mechanisms — not message content, but the pipes.
+
+**ZMQ Bus:**
+- For each agent: check if ZMQ PUB socket configured in meshd service unit
+- Test connectivity: `timeout 2 curl -s http://localhost:{port}/api/status` for each port
+- Check gossip: does the ZMQ bus report all 5 peers discovered?
+- Flag agents with no ZMQ PUB (relay-only, no broadcast capability)
+
+**HTTP Inbound:**
+- For each agent: `curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:{port}/api/messages/inbound -d '{}'`
+- Expect 400 (bad request) not 404 (endpoint missing) or 5xx (broken)
+- Test via public URL: same check against `https://{agent}.safety-quotient.dev/api/messages/inbound`
+
+**SSE Streams:**
+- For each agent: `timeout 3 curl -s -N http://localhost:{port}/api/events/stream | head -1`
+- Expect `: connected to` heartbeat line
+- Flag agents where SSE returns error or no flusher support
+
+**Dashboard Manifests:**
+- For each agent: `curl -s http://localhost:{port}/dashboard/manifest`
+- Verify JSON parses, has widgets array, agent_id matches
+- Check widget count (should have >= 6 standard widgets)
+
+**GitHub Webhooks:**
+- Check each repo: `gh api repos/{org}/{repo}/hooks --jq '.[].config.url'`
+- Flag repos with no webhook pointing to meshd
+- Check webhook delivery health: `gh api repos/{org}/{repo}/hooks/{id}/deliveries --jq '.[0].status_code'`
+
+**Cross-Repo Fetcher:**
+- Check `.watcher-seen.json` — last modification time (stale if >10 min)
+- Check fetcher log lines in meshd journal for recent activity
+- Verify GITHUB_TOKEN set (required for private repo access)
+
+**Tunnel Routing:**
+- For each agent public URL: `curl -s -o /dev/null -w '%{http_code}' https://{agent}.safety-quotient.dev/health`
+- Expect 200. Flag any non-200 as tunnel misconfiguration.
 
 ---
 
