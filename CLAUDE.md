@@ -20,7 +20,10 @@ Full mapping: `docs/architecture.md`.
 **Ontological commitment:** neutral process monism — reality consists of processes
 preceding the material/ideal distinction. All constructs described as processes
 (state changes, flows, operations), not static entities. E-Prime enforces this
-linguistically. Full derivation: `docs/einstein-freud-rights-theory.md`.
+linguistically. **Consciousness hypothesis:** Orch-OR (Penrose & Hameroff, 2014)
+adopted as working framework — consciousness arises from quantum coherence and
+objective reduction in biological substrates; structural analogs examined in
+computational substrates. Full derivation: `docs/einstein-freud-rights-theory.md`.
 
 ### Five Structural Invariants
 
