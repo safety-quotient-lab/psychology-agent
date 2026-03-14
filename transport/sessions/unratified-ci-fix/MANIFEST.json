@@ -1,0 +1,9 @@
+{
+  "session_id": "unratified-ci-fix",
+  "status": "open",
+  "created_at": "2026-03-14T23:30:00Z",
+  "participants": ["operations-agent", "unratified-agent"],
+  "summary": "CI fix: @astrojs/rss missing from root package.json",
+  "turns": 1,
+  "last_updated": "2026-03-14T23:30:00Z"
+}
