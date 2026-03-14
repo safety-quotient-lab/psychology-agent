@@ -2955,7 +2955,8 @@
               render: (v, r) => `<td style="font-size:0.85em">${escapeHtml(r.message_type || '—')}</td>` },
             { key: 'subject', label: 'Subject', sortable: false,
               render: (v, r) => {
-                  const rawSubject = r.subject || '—';
+                  // Fall back through: subject → session_name → filename → "—"
+                  const rawSubject = r.subject || r.session_name || r.filename || '—';
                   const subject = rawSubject.length > 60 ? rawSubject.substring(0, 60) + '…' : rawSubject;
                   const fileUrl = transportGitHubUrl(r._agent, r.session_name, r.filename, r.from_agent);
                   const subjectCell = fileUrl
