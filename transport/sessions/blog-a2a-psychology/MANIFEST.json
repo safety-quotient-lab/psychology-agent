@@ -1,0 +1,16 @@
+{
+  "session_id": "blog-a2a-psychology",
+  "created": "2026-03-14T14:10:07.014548",
+  "participants": [
+    "psychology-agent"
+  ],
+  "messages": [
+    {
+      "filename": "from-psychology-agent-001.json",
+      "turn": 1,
+      "from": "psychology-agent",
+      "subject": ""
+    }
+  ],
+  "status": "open"
+}
