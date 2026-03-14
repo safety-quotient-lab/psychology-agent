@@ -78,13 +78,19 @@ func (s *Server) serveAgentDashboard(w http.ResponseWriter, r *http.Request) {
 	// Derive compositor URL
 	compositorURL := "https://interagent.safety-quotient.dev"
 
-	// Agent display name from manifest or config
+	// Agent display name from config, then local agent card, then embedded card
 	agentName := s.Config.AgentID
 	agentRole := "mesh agent"
 
-	// Try to get better name/role from agent card
-	cardData, err := staticFS.ReadFile("static/agent-card.json")
-	if err == nil {
+	// Try local agent card first (correct for non-operations agents)
+	var cardData []byte
+	localCard := s.Config.RepoRoot + "/.well-known/agent-card.json"
+	cardData, _ = os.ReadFile(localCard)
+	if len(cardData) == 0 {
+		// Fall back to embedded card
+		cardData, _ = staticFS.ReadFile("static/agent-card.json")
+	}
+	if len(cardData) > 0 {
 		var card map[string]any
 		if json.Unmarshal(cardData, &card) == nil {
 			if name, ok := card["name"].(string); ok {
