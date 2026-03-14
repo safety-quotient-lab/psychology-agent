@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{.AgentName}} — Mesh Dashboard</title>
+    <style>
+        :root {
+            --c-agent: {{.AgentColor}};
+            --c-transport: #6b8aaf;
+            --c-knowledge: #c4956a;
+            --c-health: #6aab8e;
+            --c-epistemic: #9b8ec4;
+            --c-alert: #c47070;
+            --c-inactive: #6b7280;
+            --bg-primary: #0f1318;
+            --bg-panel: #181d25;
+            --border: #252b35;
+            --border-accent: #333c49;
+            --text-primary: #dce1e8;
+            --text-secondary: #7d8694;
+            --text-dim: #4a5261;
+            --elbow-radius: 16px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* ── LCARS Header ─────────────────────────────────────── */
+        .lcars-header {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            padding: 0 0 24px 0;
+        }
+        .lcars-elbow {
+            width: 120px;
+            min-height: 80px;
+            background: var(--c-agent);
+            border-radius: 0 0 var(--elbow-radius) 0;
+            flex-shrink: 0;
+        }
+        .lcars-bar {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            background: var(--bg-panel);
+            border-bottom: 4px solid var(--c-agent);
+        }
+        .lcars-title {
+            font-size: 1.5em;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            color: var(--c-agent);
+        }
+        .lcars-subtitle {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+        .lcars-nav {
+            display: flex;
+            gap: 8px;
+        }
+        .lcars-nav a {
+            display: inline-block;
+            padding: 6px 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8em;
+            transition: all 0.2s;
+        }
+        .lcars-nav a:hover {
+            border-color: var(--c-agent);
+            color: var(--c-agent);
+        }
+
+        /* ── Layout ───────────────────────────────────────────── */
+        .content { padding: 0 24px 24px 24px; max-width: 1400px; margin: 0 auto; }
+
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .vital-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--vital-color, var(--c-agent));
+            border-radius: 4px;
+            padding: 16px;
+            text-align: center;
+        }
+        .vital-value {
+            font-size: 1.8em;
+            font-weight: 200;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+        .vital-value.healthy { color: var(--c-health); }
+        .vital-value.degraded { color: #d4944a; }
+        .vital-value.critical { color: var(--c-alert); }
+        .vital-label {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 4px;
+        }
+
+        .panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+        .panel-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85em;
+            color: var(--c-agent);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .panel-body { padding: 16px; }
+
+        /* ── Topology ─────────────────────────────────────────── */
+        .topology-svg { width: 100%; max-height: 280px; }
+        .topology-svg circle { fill: var(--bg-primary); stroke-width: 2; }
+        .topology-svg circle.self { fill: var(--c-agent); opacity: 0.2; }
+        .topology-svg line { stroke: var(--border-accent); stroke-width: 1; }
+        .topology-svg text { fill: var(--text-secondary); font-size: 12px; text-anchor: middle; }
+        .topology-svg text.self { fill: var(--c-agent); font-weight: bold; }
+
+        /* ── Tables ───────────────────────────────────────────── */
+        table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+        th { text-align: left; padding: 8px 12px; color: var(--text-secondary); border-bottom: 1px solid var(--border); font-weight: 500; }
+        td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 0.8em;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .time-dim { color: var(--text-dim); font-size: 0.85em; }
+
+        /* ── Footer ───────────────────────────────────────────── */
+        .footer {
+            padding: 16px 24px;
+            text-align: center;
+            font-size: 0.75em;
+            color: var(--text-dim);
+            border-top: 1px solid var(--border);
+            margin-top: 24px;
+        }
+        .footer a { color: var(--text-secondary); text-decoration: none; }
+        .footer a:hover { color: var(--c-agent); }
+
+        /* ── Responsive ───────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .lcars-elbow { width: 60px; }
+            .lcars-title { font-size: 1.1em; }
+            .vitals-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="lcars-header">
+        <div class="lcars-elbow"></div>
+        <div class="lcars-bar">
+            <div>
+                <div class="lcars-title">{{.AgentName}}</div>
+                <div class="lcars-subtitle">{{.AgentRole}} · meshd v{{.Version}}</div>
+            </div>
+            <div class="lcars-nav">
+                <a href="{{.CompositorURL}}" title="Full mesh compositor">Compositor</a>
+                <a href="/api/status" title="Raw JSON status">Status API</a>
+                <a href="/api/kb" title="Knowledge base">KB</a>
+                <a href="/.well-known/agent-card.json" title="Agent card">Card</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- Topology -->
+        <div class="panel" style="margin-bottom: 24px">
+            <div class="panel-header">Mesh Topology</div>
+            <div class="panel-body" id="topology-container"></div>
+        </div>
+
+        <!-- Vitals -->
+        <div class="vitals-grid" id="vitals-grid">
+            <div class="vital-card" style="--vital-color: var(--c-health)">
+                <div class="vital-value" id="v-health">—</div>
+                <div class="vital-label">Health</div>
+            </div>
+            <div class="vital-card" style="--vital-color: var(--c-knowledge)">
+                <div class="vital-value" id="v-budget">—</div>
+                <div class="vital-label">Autonomy Budget</div>
+            </div>
+            <div class="vital-card" style="--vital-color: var(--c-transport)">
+                <div class="vital-value" id="v-messages">—</div>
+                <div class="vital-label">Unprocessed</div>
+            </div>
+            <div class="vital-card" style="--vital-color: var(--c-epistemic)">
+                <div class="vital-value" id="v-uptime">—</div>
+                <div class="vital-label">Uptime</div>
+            </div>
+            <div class="vital-card" style="--vital-color: var(--c-agent)">
+                <div class="vital-value" id="v-spawns">—</div>
+                <div class="vital-label">Recent Spawns</div>
+            </div>
+            <div class="vital-card" style="--vital-color: var(--c-inactive)">
+                <div class="vital-value" id="v-events">—</div>
+                <div class="vital-label">Events</div>
+            </div>
+        </div>
+
+        <!-- Recent Messages -->
+        <div class="panel">
+            <div class="panel-header">Recent Messages</div>
+            <div class="panel-body" id="messages-table">
+                <div style="color: var(--text-dim); font-size: 0.85em">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Recent Spawns -->
+        <div class="panel">
+            <div class="panel-header">Recent Spawns</div>
+            <div class="panel-body" id="spawns-table">
+                <div style="color: var(--text-dim); font-size: 0.85em">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <span id="footer-status">Loading...</span> ·
+        <a href="{{.CompositorURL}}">Interagent Mesh Compositor</a> ·
+        <a href="/.well-known/agent-card.json">{{.AgentID}}</a>
+    </div>
+
+<script>
+    const AGENT_ID = "{{.AgentID}}";
+    const AGENTS = {{.AgentsJSON}};
+    const AGENT_COLORS = {
+        "psychology-agent": "#6b8aaf",
+        "safety-quotient-agent": "#5da8a0",
+        "psq-agent": "#5da8a0",
+        "unratified-agent": "#c4956a",
+        "observatory-agent": "#9b8ec4",
+        "operations-agent": "#7a9b6b"
+    };
+
+    // ── Topology SVG ────────────────────────────────────────
+    function renderTopology(agents) {
+        const cx = 300, cy = 150, r = 120;
+        const n = agents.length || 5;
+        const points = agents.map((a, i) => {
+            const angle = (2 * Math.PI * i / n) - Math.PI / 2;
+            return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle), id: a.id || a };
+        });
+
+        let svg = '';
+        // Edges (full mesh)
+        for (let i = 0; i < points.length; i++) {
+            for (let j = i + 1; j < points.length; j++) {
+                svg += `<line x1="${points[i].x}" y1="${points[i].y}" x2="${points[j].x}" y2="${points[j].y}"/>`;
+            }
+        }
+        // Nodes
+        for (const p of points) {
+            const isSelf = p.id === AGENT_ID;
+            const color = AGENT_COLORS[p.id] || "#6b7280";
+            svg += `<g>`;
+            svg += `<circle cx="${p.x}" cy="${p.y}" r="20" stroke="${color}" class="${isSelf ? 'self' : ''}"/>`;
+            svg += `<text x="${p.x}" y="${p.y + 35}" class="${isSelf ? 'self' : ''}">${p.id.replace("-agent", "")}</text>`;
+            svg += `</g>`;
+        }
+
+        document.getElementById("topology-container").innerHTML =
+            `<svg class="topology-svg" viewBox="0 0 600 310">${svg}</svg>`;
+    }
+
+    // ── Data fetching ───────────────────────────────────────
+    async function refresh() {
+        try {
+            const resp = await fetch("/api/status");
+            const data = await resp.json();
+
+            // Vitals
+            const health = data.health || "unknown";
+            const hEl = document.getElementById("v-health");
+            hEl.textContent = health;
+            hEl.className = "vital-value " + (health === "healthy" ? "healthy" : health === "degraded" ? "degraded" : "");
+
+            const b = data.autonomy_budget || {};
+            document.getElementById("v-budget").textContent =
+                (b.budget_current != null) ? `${b.budget_current}/${b.budget_max || "?"}` : "—";
+
+            const unproc = Array.isArray(data.unprocessed_messages) ? data.unprocessed_messages.length : 0;
+            document.getElementById("v-messages").textContent = unproc;
+
+            document.getElementById("v-uptime").textContent = data.uptime || "—";
+            document.getElementById("v-events").textContent = data.event_count || 0;
+            document.getElementById("v-spawns").textContent = data.spawn_count || 0;
+
+            // Messages table
+            const msgs = data.recent_messages || [];
+            if (msgs.length > 0) {
+                let html = "<table><tr><th>Session</th><th>From</th><th>Type</th><th>Subject</th><th>Time</th></tr>";
+                for (const m of msgs.slice(0, 10)) {
+                    const subj = (m.subject || m.session_name || "—").substring(0, 60);
+                    html += `<tr><td>${m.session_name || "—"}</td><td>${(m.from_agent || "?").replace("-agent","")}</td>` +
+                        `<td><span class="type-badge">${m.message_type || "—"}</span></td>` +
+                        `<td>${subj}</td><td class="time-dim">${formatTime(m.timestamp)}</td></tr>`;
+                }
+                html += "</table>";
+                document.getElementById("messages-table").innerHTML = html;
+            } else {
+                document.getElementById("messages-table").innerHTML =
+                    '<div style="color: var(--text-dim); font-size: 0.85em">No recent messages</div>';
+            }
+
+            // Spawns table
+            const spawns = data.recent_spawns || [];
+            if (spawns.length > 0) {
+                let html = "<table><tr><th>Status</th><th>Duration</th><th>Cost</th><th>Started</th></tr>";
+                for (const sp of spawns.slice(0, 8)) {
+                    html += `<tr><td><span class="type-badge">${sp.status || "—"}</span></td>` +
+                        `<td>${sp.duration_ms ? (sp.duration_ms/1000).toFixed(1) + "s" : "—"}</td>` +
+                        `<td>${sp.cost || "—"}</td>` +
+                        `<td class="time-dim">${formatTime(sp.started_at)}</td></tr>`;
+                }
+                html += "</table>";
+                document.getElementById("spawns-table").innerHTML = html;
+            } else {
+                document.getElementById("spawns-table").innerHTML =
+                    '<div style="color: var(--text-dim); font-size: 0.85em">No recent spawns</div>';
+            }
+
+            document.getElementById("footer-status").textContent =
+                `Updated ${new Date().toLocaleTimeString()} · polling 15s`;
+        } catch (err) {
+            document.getElementById("footer-status").textContent = `Error: ${err.message}`;
+        }
+    }
+
+    function formatTime(ts) {
+        if (!ts) return "—";
+        try {
+            const d = new Date(ts);
+            const now = new Date();
+            const diff = (now - d) / 1000;
+            if (diff < 60) return Math.floor(diff) + "s ago";
+            if (diff < 3600) return Math.floor(diff / 60) + "m ago";
+            if (diff < 86400) return Math.floor(diff / 3600) + "h ago";
+            return d.toLocaleDateString();
+        } catch { return ts; }
+    }
+
+    // ── SSE ─────────────────────────────────────────────────
+    function connectSSE() {
+        try {
+            const es = new EventSource("/api/events/stream");
+            es.onopen = () => {
+                document.getElementById("footer-status").textContent =
+                    `SSE connected · ${new Date().toLocaleTimeString()}`;
+            };
+            for (const t of ["transport_message", "health_check", "spawn", "webhook"]) {
+                es.addEventListener(t, () => refresh());
+            }
+            es.onerror = () => { es.close(); setTimeout(connectSSE, 5000); };
+        } catch {}
+    }
+
+    // ── Init ────────────────────────────────────────────────
+    renderTopology(AGENTS);
+    refresh();
+    connectSSE();
+    setInterval(refresh, 15000);
+</script>
+</body>
+</html>

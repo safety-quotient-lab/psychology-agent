@@ -248,6 +248,9 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/keys", s.handleKeyCreate)
 	mux.HandleFunc("DELETE /api/keys/", s.handleKeyRevoke)
 
+	// Dashboard manifest (per-agent widget declarations)
+	mux.HandleFunc("GET /dashboard/manifest", s.handleManifest)
+
 	// Transport relay + redirect
 	mux.HandleFunc("POST /api/relay", s.handleRelay)
 	mux.HandleFunc("POST /api/redirect", s.handleRedirect)

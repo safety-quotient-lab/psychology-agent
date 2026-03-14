@@ -19,16 +19,18 @@ import (
 
 // AgentInfo holds parsed agent card data for compositor use.
 type AgentInfo struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Role        string         `json:"role"`
-	Version     string         `json:"version"`
-	CardURL     string         `json:"card_url"`
-	StatusURL   string         `json:"status_url,omitempty"`
-	Repo        string         `json:"repo,omitempty"`
-	Skills      int            `json:"skills"`
-	Unavailable bool           `json:"unavailable,omitempty"`
-	RawCard     map[string]any `json:"-"`
+	ID          string              `json:"id"`
+	Name        string              `json:"name"`
+	Role        string              `json:"role"`
+	Version     string              `json:"version"`
+	CardURL     string              `json:"card_url"`
+	StatusURL   string              `json:"status_url,omitempty"`
+	ManifestURL string              `json:"manifest_url,omitempty"`
+	Repo        string              `json:"repo,omitempty"`
+	Skills      int                 `json:"skills"`
+	Unavailable bool                `json:"unavailable,omitempty"`
+	Manifest    *DashboardManifest  `json:"manifest,omitempty"`
+	RawCard     map[string]any      `json:"-"`
 }
 
 // AgentRegistry fetches and caches agent cards from bootstrap URLs.
@@ -88,6 +90,23 @@ func (r *AgentRegistry) Refresh() {
 		}
 		agents = append(agents, info)
 	}
+
+	// Fetch dashboard manifests for available agents (non-blocking)
+	var wg sync.WaitGroup
+	for i := range agents {
+		if agents[i].Unavailable || agents[i].ManifestURL == "" {
+			continue
+		}
+		wg.Add(1)
+		go func(idx int) {
+			defer wg.Done()
+			manifest, err := r.fetchManifest(agents[idx].ManifestURL)
+			if err == nil {
+				agents[idx].Manifest = manifest
+			}
+		}(i)
+	}
+	wg.Wait()
 
 	r.mu.Lock()
 	r.agents = agents
@@ -233,9 +252,11 @@ func (r *AgentRegistry) fetchCard(cardURL string) (AgentInfo, error) {
 	}
 	info.Version = jsonStr(raw, "version")
 
-	// Derive status URL from card URL hostname
+	// Derive status + manifest URLs from card URL hostname
 	if idx := strings.Index(cardURL, "/.well-known/"); idx > 0 {
-		info.StatusURL = cardURL[:idx] + "/api/status"
+		base := cardURL[:idx]
+		info.StatusURL = base + "/api/status"
+		info.ManifestURL = base + "/dashboard/manifest"
 	}
 
 	// Count skills
@@ -259,6 +280,34 @@ func jsonStr(m map[string]any, key string) string {
 		}
 	}
 	return ""
+}
+
+// fetchManifest retrieves a peer agent's dashboard manifest.
+func (r *AgentRegistry) fetchManifest(manifestURL string) (*DashboardManifest, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, manifestURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := r.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("HTTP %d from %s", resp.StatusCode, manifestURL)
+	}
+
+	var m DashboardManifest
+	if err := json.NewDecoder(resp.Body).Decode(&m); err != nil {
+		return nil, err
+	}
+	return &m, nil
 }
 
 func countAvailable(agents []AgentInfo) int {
