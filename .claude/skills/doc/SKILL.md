@@ -50,7 +50,7 @@ Parse `$ARGUMENTS` and recent conversation context to determine:
 
  Convention        "always use LaTeX for complex docs"   MEMORY.md
 
- Architecture      "three-layer agent system"            Architecture doc
+ Architecture      "four-layer agent system"              Architecture doc
 
  Status update     "PSQ analysis complete, moving to     MEMORY.md
                     architecture"

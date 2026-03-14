@@ -3,6 +3,8 @@
      creation), Session 5 (T4 semantic naming), Session 9 (T3 effort-weight,
      T4 public visibility + ordering, T5 staleness check), journal §6-7,
      unratified project adaptation (structural reference).
+     Extended: Sessions 13-84 (T13-T18 added, T12 retired Session 84).
+     Session 84: tiering refactor (⬛/▣/▢), CPG mode system, GWT broadcast.
      Canonical location: docs/cognitive-triggers.md (moved from auto-memory,
      Session 12, 2026-03-05). -->
 
