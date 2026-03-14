@@ -165,8 +165,8 @@
 - [x] Compositor: meshFetch helper with CF Access service token auth
 - [x] Dashboard: client-side mesh search (messages, decisions, claims, vocab)
 - [x] Cogarch: chaos engineering + fuzzy engineering principles
-- [ ] CF Access service token: `wrangler secret put CF_ACCESS_CLIENT_ID + CF_ACCESS_CLIENT_SECRET` (same values as FORGE_ACCESS_*)
-- [ ] Cloudflare Tunnel on chromabook for GitHub webhook delivery
+- [x] CF Access: NOT REQUIRED — agent endpoints publicly accessible (HTTP 200, no auth gate)
+- [x] Public URL delivery verified: compositor → agent meshd /api/messages/inbound works directly
 - [ ] Blog persona selector (awaiting unratified ACK — #64 merged, processing)
 
 ## v1.0.0-beta.2 Backlog
