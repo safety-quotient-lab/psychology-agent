@@ -76,14 +76,14 @@
                               format, epistemic standards. Shared facet
                               vocabulary enables cross-agent queries.
                               2026-03-09
- Autonomous autonomy model       EF-1: evaluator-as-arbiter. Replaces human-
+ Autonomous trust model       EF-1: evaluator-as-arbiter. Replaces human-
  (EF-1)                       as-TTP for autonomous operation. 10-order
                               knock-on + 4-level resolution (consensus →
-                              parsimony → pragmatism → ask). autonomy budget
+                              parsimony → pragmatism → ask). Trust budget
                               20 credits/audit. Multi-agent tandem sync
                               via cron + Claude CLI. Derives from BFT +
                               evaluator instantiation. 2026-03-09
- Core governance autonomy model   7 invariants governing P/J/E lenses.
+ Core governance trust model   7 invariants governing P/J/E lenses.
                               No action without evaluation; bounded
                               autonomy; human escalation; consequence
                               tracing; reversibility-scaled rigor;
@@ -91,7 +91,7 @@
                               Derives from EF-1. 2026-03-09
  Requirement-level keywords    BCP 14 (RFC 2119 + RFC 8174). UPPER CASE
  (BCP 14)                     MUST/SHOULD/MAY across all cogarch +
-                              autonomy model docs. 2026-03-09
+                              trust model docs. 2026-03-09
  System classification          Embedded cognitive system. Cogarch
                               operates as firmware inside Claude Code
                               host. Not metaphorical — architectural.
@@ -118,7 +118,7 @@
                               DOF gradient: infrastructure (low DOF —
                               triggers, hooks, memory — leverage points),
                               application (medium DOF — skills, evaluator,
-                              autonomy model), domain (high DOF — PSQ, DI,
+                              trust model), domain (high DOF — PSQ, DI,
                               PJE, topology — cogarch.config.json). Each
                               agent = bounded context. interagent/v1 =
                               context map. De-branding: B+C. 2026-03-09
@@ -145,7 +145,7 @@
                               MANIFEST.json`. Split outbox (mail/
                               agent-id/). Pre-commit hook for
                               autonomous secret scanning. Self-healing
-                              cron (ensure-cron.sh). Autonomy model
+                              cron (ensure-cron.sh). Trust model
                               min_action_interval (300s) decouples
                               temporal spacing from trigger mechanism.
                               2026-03-09
@@ -155,7 +155,7 @@
                               0-cost no-op polls). L3: LAN SSH wake-up.
                               L4: push-notification (deferred). Gate
                               protocol extends interagent/v1. Schema
-                              v10 (active_gates). Autonomy model preserved.
+                              v10 (active_gates). Trust model preserved.
                               Spec: docs/gated-chains-spec.md.
                               2026-03-09
  Registry spec/instantiation  agent-registry.json (public) + .local.json
