@@ -1,7 +1,7 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-14T09:14:52",
+  "generated_at": "2026-03-14T10:00:10",
   "source": "scripts/generate_manifest.py",
   "pending": {
     "operations-agent": [
@@ -53,6 +53,13 @@
         "type": "ack",
         "subject": "ACK Session 3 close \u2014 psychology-agent status report",
         "timestamp": "2026-03-14T02:00:00-05:00"
+      },
+      {
+        "session": "neuroglial-cogarch-proposal",
+        "file": "transport/sessions/neuroglial-cogarch-proposal/from-psychology-agent-004.json",
+        "type": "proposal",
+        "subject": "Proposal: photonic transport layer \u2014 third signaling mode for processing-state synchronization",
+        "timestamp": "2026-03-14T03:00:00-05:00"
       }
     ],
     "unratified-agent": [
