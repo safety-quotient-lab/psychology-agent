@@ -8,6 +8,8 @@
 # Evaluation dimension 10, extension 4: maqasid invocation mechanism
 # Evaluation dimension 4: invariant mechanical verification
 
+# Claude Code injects TOOL_NAME and TOOL_INPUT_* variables at runtime
+# shellcheck disable=SC2154
 TOOL="$TOOL_NAME"
 case "$TOOL" in
     Write|Edit) ;;

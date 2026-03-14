@@ -19,8 +19,12 @@ jobs:
 
       - name: Run ShellCheck
         run: |
-          shellcheck -x \
-            .claude/hooks/*.sh \
-            bootstrap-check.sh \
-            transport/hooks/*.sh \
-            scripts/*.sh
+          find . -name "*.sh" \
+            -not -path "./.git/*" \
+            -not -path "./.claude/worktrees/*" \
+            -not -path "./node_modules/*" \
+            -not -path "./reconstruction/*" \
+            -not -path "./safety-quotient/*" \
+            -not -path "./pje-framework/*" \
+            -not -type l \
+            -print0 | xargs -0 shellcheck -S warning -x

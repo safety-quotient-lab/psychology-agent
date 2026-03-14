@@ -3,6 +3,8 @@
 # Brain gap 2 (amygdala analogue) — fires before full trigger pipeline.
 # Checks written content for common credential patterns.
 
+# Claude Code injects TOOL_INPUT_* variables at runtime
+# shellcheck disable=SC2154
 CONTENT="$TOOL_INPUT_new_string$TOOL_INPUT_content"
 [ -z "$CONTENT" ] && exit 0
 
