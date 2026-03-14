@@ -199,6 +199,16 @@ func main() {
 		logger.Info("CI recovered", "repo", status.Repo, "run_id", status.RunID)
 	}
 
+	// Cross-repo fetcher — polls peer repos for transport messages addressed to us
+	fetcherPeers := []transport.PeerConfig{
+		{AgentID: "psychology-agent", Repo: "safety-quotient-lab/psychology-agent"},
+		{AgentID: "safety-quotient-agent", Repo: "safety-quotient-lab/safety-quotient"},
+		{AgentID: "unratified-agent", Repo: "safety-quotient-lab/unratified"},
+		{AgentID: "observatory-agent", Repo: "safety-quotient-lab/observatory"},
+	}
+	fetcher := transport.NewFetcher(cfg.AgentID, cfg.TransportDir, fetcherPeers, 5*time.Minute, logger)
+	fetcher.GitHubToken = os.Getenv("GITHUB_TOKEN")
+
 	// Trigger function for manual events via POST /api/trigger
 	triggerFunc := func(eventType string, payload map[string]string) error {
 		evt := events.NewEvent(events.EventType(eventType), events.PriorityNormal, "manual", payload)
@@ -263,6 +273,13 @@ func main() {
 		ciMon.Run()
 	}()
 
+	// Cross-repo fetcher goroutine
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		fetcher.Run()
+	}()
+
 	// Safety-net poll ticker
 	wg.Add(1)
 	go func() {
@@ -281,7 +298,7 @@ func main() {
 
 	logger.Info("meshd ready",
 		"port", cfg.Port,
-		"subsystems", "queue,dispatcher,watcher,monitor,server,poll",
+		"subsystems", "queue,dispatcher,watcher,monitor,server,poll,fetcher",
 	)
 
 	// ── Wait for shutdown signal ───────────────────────────────────

@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** v1.0.0-beta.1 tagged + deployed. 25 commits this session. Pre-public release ready (6-sigma PASS, CI green, all docs). meshd operational on chromabook (3 spawns verified). Cross-repo fetcher built. Psychology-agent v1-beta.1 APPROVED (issue #171). Awaiting: manual browser testing → flip to public.
+**Current Status:** Cogarch v2.0.0 rollout in progress. Psychology-agent Session 85 innovations adopted (wu wei, invariants, DOF, governance, MOS scoring). State.db bootstrapped with canonical schema (9 tables, 32 transport messages indexed, 7 decisions seeded). Cross-repo fetcher wired into meshd main loop. Dashboard message deep-links fixed.
 
 ---
 
@@ -106,6 +106,24 @@
 - [x] Transport integrity check — PASS: 9 active sessions, 2 tombstones, 2 archived, zero orphans
 - [x] Vocabulary schema validation — PASS: 20 terms v1.4.0, all carry status field (fixed from v1.3.0)
 - [x] Agent-card schema compliance scan — 3/5 PASS: psychology + psq missing protocolVersion (T1 sent)
+
+## Phase 8: Cogarch v2.0.0 Rollout + State Layer
+
+- [x] Fetch psychology-agent Session 85 cogarch evaluation (10 dimensions, 53 issues)
+- [x] Parity analysis — explicit rationale for every adoption/skip decision
+- [x] cogarch.config.json v2.0.0 — adopted: DOF gradient, governance section (wu wei, invariants, complementary, generator balance), inspirations (Deming, Ashby, Beer, Meadows, Stephenson/Anathem, Aurelius/Epictetus), MOS scoring (security + health + compliance + opsec pedagogy), enriched peers, structured routing domains
+- [x] CLAUDE.md — adopted: philosophical foundation, problem-solving discipline, scope boundaries, workflow continuity, epistemic flags, /diagnose + /retrospect skills, license gate, internal reference display convention
+- [x] schema.sql — canonical schema (9 tables: autonomy_budget, decisions, claims, trigger_state, memory_entries, transport_messages, cogarch_state, mos_scores, universal_facets)
+- [x] bootstrap-state-db.sh — initializes state.db from schema + seeds budget, decisions, cogarch state
+- [x] index-transport.sh — indexes all transport JSON files into transport_messages table (32 messages)
+- [x] kb.go — added messages query (transport_messages → /api/kb response)
+- [x] Cross-repo fetcher wired into meshd main loop (5-minute poll, 4 peer repos)
+- [x] Dashboard fix — transportGitHubUrl rewired for correct repo resolution + URI encoding
+- [x] SDK templates updated — cogarch template + CLAUDE.md template carry governance section
+- [x] platform/shared templates synced with SDK
+- [ ] Deploy updated compositor to Cloudflare Workers
+- [ ] Deploy updated meshd to chromabook
+- [ ] Send transport directive to peers: cogarch v2.0.0 rollout + template adoption
 
 ## v1.0.0-beta Release Blockers
 

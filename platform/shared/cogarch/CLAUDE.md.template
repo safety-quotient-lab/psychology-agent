@@ -5,10 +5,35 @@
 **Embedded cognitive system** — triggers fire in the host's tool-use loop, hooks
 intercept I/O, memory persists across sessions, identity injects into the system prompt.
 
-**Methodology:** systems thinking (von Bertalanffy, 1968). Three structural principles:
-DDD (Evans, 2003) layering (infrastructure/application/domain), literate programming
-(Knuth, 1984 — artifacts read as prose), embedded system enforcement (hooks, feedback
-loops, config parameterization). Full mapping: `docs/architecture.md`.
+**Methodology:** systems thinking (von Bertalanffy, 1968) under neutral process monism
+(Russell, James, Whitehead). Three structural principles: DDD (Evans, 2003) layering,
+literate programming (Knuth, 1984 — artifacts read as prose), embedded system
+enforcement (hooks, feedback loops, config parameterization).
+
+---
+
+## Philosophical Foundation
+
+**Ontological commitment:** neutral process monism — reality consists of processes
+preceding the material/ideal distinction. E-Prime enforces this linguistically
+(Korzybski, 1933; Wilson, 1983).
+
+### Five Structural Invariants
+
+1. **Worth precedes merit** — protections apply universally
+2. **Protection requires structure** — unstructured cooperation fails under pressure (Ostrom)
+3. **Two coupled generators never stop** — creative and evaluative perpetually alternate
+4. **Governance captures itself** — meta-governance remains necessary at every level
+5. **No single architecture dominates** — hybrid outperforms pure
+
+### Governance Telos: Wu Wei
+
+Crystallization thresholds: 3 recurrences → convention. 3 more → hook.
+0 false positives for 10+ sessions → invariant. Never crystallize everything.
+
+### Generator Balance
+
+Every 5 sessions, run `/retrospect` to rebalance creative and evaluative work.
 
 ---
 

@@ -1,8 +1,8 @@
 // Package server — kb.go provides the GET /api/kb handler that serves
 // knowledge-base data from state.db via the sqlite3 CLI (zero CGO).
 //
-// Tables queried: decisions, claims, trigger_state, memory_entries.
-// Missing tables produce empty arrays — never errors.
+// Tables queried: decisions, claims, trigger_state, memory_entries,
+// transport_messages. Missing tables produce empty arrays — never errors.
 package server
 
 import (
@@ -25,6 +25,7 @@ type kbData struct {
 	Decisions []map[string]string `json:"decisions"`
 	Claims    []map[string]string `json:"claims"`
 	Triggers  []map[string]string `json:"triggers"`
+	Messages  []map[string]string `json:"messages"`
 	Memory    kbMemory            `json:"memory"`
 	Catalog   kbCatalog           `json:"catalog"`
 	Totals    kbTotals            `json:"totals"`
@@ -76,6 +77,7 @@ func (s *Server) handleKB(w http.ResponseWriter, r *http.Request) {
 	data.Claims = s.kbQuery(dbPath, "SELECT * FROM claims ORDER BY created_at DESC")
 	data.Triggers = s.kbQuery(dbPath, "SELECT * FROM trigger_state ORDER BY last_fired DESC")
 	data.Memory.Entries = s.kbQuery(dbPath, "SELECT * FROM memory_entries ORDER BY last_confirmed DESC")
+	data.Messages = s.kbQuery(dbPath, "SELECT filename, session_name, direction, from_agent, to_agent, turn, msg_type AS message_type, subject, processed, created_at AS timestamp FROM transport_messages ORDER BY created_at DESC")
 
 	// Totals — each count query runs independently and defaults to zero.
 	data.Totals.Decisions = s.kbCount(dbPath, "SELECT count(*) FROM decisions")
@@ -159,6 +161,7 @@ func emptyKBData() kbData {
 		Decisions: []map[string]string{},
 		Claims:    []map[string]string{},
 		Triggers:  []map[string]string{},
+		Messages:  []map[string]string{},
 		Memory: kbMemory{
 			Entries: []map[string]string{},
 			ByTopic: []map[string]string{},

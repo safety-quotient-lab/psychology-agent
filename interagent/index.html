@@ -3342,19 +3342,23 @@
     }
 
     function transportGitHubUrl(agentId, sessionName, filename, fromAgent) {
-        const repo = AGENT_REPO_MAP[agentId];
-        if (!repo || !sessionName) return null;
-        // Files on disk use from-{sender} convention; KB indexes as to-{receiver}
-        // Reconstruct the actual filename: from-{from_agent}-{turn}.json
-        if (filename && fromAgent) {
-            const turnMatch = filename.match(/(\d+)\.json$/);
-            if (turnMatch) {
-                const realFile = `from-${fromAgent}-${turnMatch[1]}.json`;
-                return `https://github.com/${repo}/blob/main/transport/sessions/${sessionName}/${realFile}`;
-            }
+        if (!sessionName || sessionName === '—') return null;
+
+        // Determine which repo holds this message:
+        // Messages FROM a peer live in that peer's repo, not ours.
+        // Messages FROM us live in our repo.
+        const senderRepo = fromAgent ? AGENT_REPO_MAP[fromAgent] : null;
+        const agentRepo = AGENT_REPO_MAP[agentId];
+        const repo = senderRepo || agentRepo;
+        if (!repo) return null;
+
+        // If we have the actual filename, link directly to the file
+        if (filename && filename !== '—') {
+            return `https://github.com/${repo}/blob/main/transport/sessions/${encodeURIComponent(sessionName)}/${encodeURIComponent(filename)}`;
         }
+
         // Fallback: link to session folder
-        return `https://github.com/${repo}/tree/main/transport/sessions/${sessionName}`;
+        return `https://github.com/${repo}/tree/main/transport/sessions/${encodeURIComponent(sessionName)}`;
     }
 
     // ── SSE Live Updates ─────────────────────────────────────────

@@ -101,6 +101,41 @@
     "owner": "safety-quotient-lab"
   },
 
+  "governance": {
+    "_description": "Shared governance framework — inherited from mesh-level cogarch. These principles apply to all mesh agents. Do not remove; extend with agent-specific governance if needed.",
+
+    "structural_invariants": {
+      "_description": "Derived from cross-traditional convergence across 14 frameworks. No evaluator-level decision violates a structural invariant.",
+      "invariants": [
+        "Worth precedes merit — protections apply to the communicative process universally",
+        "Protection requires structure — unstructured voluntary cooperation fails under adversarial pressure (Ostrom)",
+        "Two coupled generators never stop — creative and evaluative processing perpetually alternate",
+        "Governance captures itself — meta-governance remains necessary at every level",
+        "No single architecture dominates — hybrid architectures outperform pure implementations"
+      ]
+    },
+
+    "wu_wei_telos": {
+      "_description": "Governance crystallizes toward effortless action (wu wei — Laozi). Never crystallize everything — the fluid processing layer must remain active.",
+      "crystallization_thresholds": {
+        "convention_candidate": "3 recurrences of a pattern",
+        "hook_candidate": "3 more recurrences after convention graduation",
+        "invariant_candidate": "0 false positives for 10+ sessions"
+      }
+    },
+
+    "complementary_governance": {
+      "yang": "Confucian — explicit obligations, evaluator invariants, ritual propriety",
+      "yin": "Taoist — crystallized hooks, processual commitment, naturalness"
+    },
+
+    "generator_balance": {
+      "_description": "Every 5 sessions, run /retrospect to rebalance creative and evaluative work.",
+      "yang_activities": [],
+      "yin_activities": []
+    }
+  },
+
   "domain_content": {
     "_description": "References to domain-specific content. Replace with this agent's domain documents and constructs.",
     "system_prompt_file": null,
