@@ -125,11 +125,23 @@ check_lock() {
         local lock_pid
         lock_pid=$(cat "${LOCK_FILE}" 2>/dev/null || echo "")
         if [ -n "${lock_pid}" ] && kill -0 "${lock_pid}" 2>/dev/null; then
-            log "Another sync in progress (PID ${lock_pid}). Skipping."
-            exit 0
+            # Check lock age — kill holder if stuck >10 minutes (self-healing)
+            local lock_age
+            lock_age=$(( $(date +%s) - $(stat -c %Y "${LOCK_FILE}" 2>/dev/null || stat -f %m "${LOCK_FILE}" 2>/dev/null || echo "0") ))
+            if [ "${lock_age}" -gt 600 ]; then
+                log "SELF-HEAL: lock held by PID ${lock_pid} for ${lock_age}s (>600s). Killing stuck process."
+                kill "${lock_pid}" 2>/dev/null
+                sleep 2
+                kill -9 "${lock_pid}" 2>/dev/null || true
+                rm -f "${LOCK_FILE}"
+            else
+                log "Another sync in progress (PID ${lock_pid}, ${lock_age}s). Skipping."
+                exit 0
+            fi
+        else
+            log "Stale lock found (PID ${lock_pid} not running). Removing."
+            rm -f "${LOCK_FILE}"
         fi
-        log "Stale lock found (PID ${lock_pid} not running). Removing."
-        rm -f "${LOCK_FILE}"
     fi
     echo $$ > "${LOCK_FILE}"
 }
@@ -982,8 +994,8 @@ main() {
     # won't appear in TRANSPORT_CHANGED. Indexing first ensures the
     # unprocessed count in state.db reflects reality.
     if [ -x "${AGENTDB}" ]; then
-        log "Fetching cross-repo transport (agentdb)..."
-        "${AGENTDB}" inbox --index 2>/dev/null || {
+        log "Fetching cross-repo transport (agentdb, 180s timeout)..."
+        timeout 180 "${AGENTDB}" inbox --index 2>/dev/null || {
             log "WARNING: agentdb inbox failed — falling back to cross_repo_fetch.py"
             if [ -f "${PROJECT_ROOT}/scripts/cross_repo_fetch.py" ]; then
                 python3 "${PROJECT_ROOT}/scripts/cross_repo_fetch.py" --index 2>/dev/null || {
