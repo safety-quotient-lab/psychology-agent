@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/safety-quotient-lab/operations-agent/internal/config"
+	"github.com/safety-quotient-lab/operations-agent/internal/db"
 	"github.com/safety-quotient-lab/operations-agent/internal/events"
 	"github.com/safety-quotient-lab/operations-agent/internal/health"
 )
@@ -245,27 +246,54 @@ func (sw *statusWriter) WriteHeader(code int) {
 
 // --- Route handlers ---
 
-// handleStatus serves GET /api/status — agent self-report including budget
-// state, health summary, version, and uptime.
+// handleStatus serves GET /api/status — agent self-report matching the
+// schema the compositor dashboard expects: agent_id, autonomy_budget,
+// recent_messages, unprocessed_messages, active_gates, health, version.
 func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
 	uptime := time.Since(s.startTime)
+	dbPath := s.Config.BudgetDBPath
 
-	resp := struct {
-		AgentID       string `json:"agent_id"`
-		Version       string `json:"version"`
-		Uptime        string `json:"uptime"`
-		UptimeSeconds int64  `json:"uptime_seconds"`
-		Health        string `json:"health"`
-		EventCount    int    `json:"event_count"`
-		SpawnCount    int    `json:"spawn_count"`
-	}{
-		AgentID:       s.Config.AgentID,
-		Version:       Version,
-		Uptime:        uptime.Truncate(time.Second).String(),
-		UptimeSeconds: int64(uptime.Seconds()),
-		Health:        s.Health.OverallStatus().String(),
-		EventCount:    s.eventCount(),
-		SpawnCount:    s.spawnCount(),
+	// Budget from state.db
+	budgetRows, _ := db.QueryJSON(dbPath,
+		"SELECT agent_id, budget_current, budget_max, shadow_mode, consecutive_blocks, last_audit, updated_at FROM autonomy_budget WHERE agent_id='"+db.SanitizeID(s.Config.AgentID)+"'")
+	var budget interface{}
+	if len(budgetRows) > 0 {
+		budget = budgetRows[0]
+	} else {
+		budget = map[string]interface{}{}
+	}
+
+	// Recent messages (last 20)
+	recentMsgs, _ := db.QueryJSON(dbPath,
+		"SELECT filename, session_name, from_agent, to_agent, message_type, subject, timestamp, turn FROM transport_messages ORDER BY timestamp DESC LIMIT 20")
+
+	// Unprocessed messages
+	unprocessedMsgs, _ := db.QueryJSON(dbPath,
+		"SELECT filename, session_name, from_agent, message_type, subject, timestamp, turn FROM transport_messages WHERE processed=0 ORDER BY timestamp DESC")
+
+	// Active gates (placeholder — no gates table yet)
+	activeGates := []map[string]string{}
+
+	// Spawn history
+	spawnHistory, _ := db.QueryJSON(dbPath,
+		"SELECT agent_id, event_id, status, exit_code, duration_ms, cost, started_at FROM spawn_log ORDER BY started_at DESC LIMIT 10")
+
+	resp := map[string]interface{}{
+		"agent_id":              s.Config.AgentID,
+		"version":               Version,
+		"uptime":                uptime.Truncate(time.Second).String(),
+		"uptime_seconds":        int64(uptime.Seconds()),
+		"collected_at":          time.Now().UTC().Format("2006-01-02T15:04:05"),
+		"db_path":               dbPath,
+		"db_exists":             true,
+		"health":                s.Health.OverallStatus().String(),
+		"autonomy_budget":       budget,
+		"recent_messages":       recentMsgs,
+		"unprocessed_messages":  unprocessedMsgs,
+		"active_gates":          activeGates,
+		"event_count":           s.eventCount(),
+		"spawn_count":           s.spawnCount(),
+		"recent_spawns":         spawnHistory,
 	}
 
 	writeJSON(w, http.StatusOK, resp, s.logger)
