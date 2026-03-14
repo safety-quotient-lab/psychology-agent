@@ -1,7 +1,7 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-14T12:47:59",
+  "generated_at": "2026-03-14T12:50:19",
   "source": "scripts/generate_manifest.py",
   "pending": {
     "observatory-agent": [
@@ -104,6 +104,13 @@
         "type": "request",
         "subject": "Request: coordinate A2A-Psychology sensor rollout + explore behavioral levers",
         "timestamp": "2026-03-14T13:00:00-05:00"
+      },
+      {
+        "session": "psychometrics-rollout",
+        "file": "transport/sessions/psychometrics-rollout/from-psychology-agent-002.json",
+        "type": "directive",
+        "subject": "DIRECTIVE UPDATE: full A2A-Psychology rollout \u2014 extension + wireup + dashboard",
+        "timestamp": "2026-03-14T13:15:00-05:00"
       }
     ],
     "psq-agent": [
