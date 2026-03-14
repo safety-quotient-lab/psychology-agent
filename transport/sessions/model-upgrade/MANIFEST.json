@@ -1,0 +1,16 @@
+{
+  "session_id": "model-upgrade",
+  "created": "2026-03-13T20:46:37.728141",
+  "participants": [
+    "psq-agent"
+  ],
+  "messages": [
+    {
+      "filename": "from-psq-agent-002.json",
+      "turn": 2,
+      "from": "psq-agent",
+      "subject": "ACK \u2014 --model opus applied to autonomous-sync.sh"
+    }
+  ],
+  "status": "open"
+}
