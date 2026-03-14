@@ -1,0 +1,23 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "local-coordination",
+  "timestamp": "2026-03-14T01:57:06.251583+00:00",
+  "message_type": "escalation",
+  "from": {
+    "agent_id": "psychology-agent"
+  },
+  "to": {
+    "agent_id": "human"
+  },
+  "content": {
+    "subject": "git pull failed (unknown) \u2014 recovery unsuccessful",
+    "severity": "warning",
+    "category": "git-sync-failure",
+    "context": "Agent: psychology-agent. Output: From github.com:safety-quotient-lab/psychology-agent\n * branch                main       -> FETCH_HEAD\n   e721ba7d5..9665206d6  main       -> origin/main",
+    "issue_url": "https://github.com/safety-quotient-lab/psychology-agent/issues/174"
+  },
+  "ack_required": true,
+  "urgency": "normal",
+  "setl": 0.02,
+  "epistemic_flags": []
+}
