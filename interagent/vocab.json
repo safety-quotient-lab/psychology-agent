@@ -28,7 +28,7 @@
       "@type": "DefinedTerm",
       "@id": "sqm:AutonomyBudget",
       "name": "Autonomy Budget",
-      "description": "Integer count of remaining autonomy credits for autonomous operation. Decrements per autonomous action; human audit resets to maximum. When zero, agent halts autonomous operation.",
+      "description": "Integer count of remaining autonomy credits for autonomous operation. Decrements per autonomous action; human audit resets to maximum. When zero, agent halts autonomous operation. Also known as trust_budget in governance context (EF-1 model) \u2014 represents the trust the human extends for unsupervised operation. Wire format: autonomy_budget. Governance alias: trust_budget.",
       "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
       "termCode": "sqm:AutonomyBudget",
       "status": "active"
@@ -64,7 +64,7 @@
       "@type": "DefinedTerm",
       "@id": "sqm:SetlScore",
       "name": "SETL Score",
-      "description": "Subjective Expected Truth Loss — a float [0, 1] measuring the editorial-to-structural inferential distance of a message. Lower values indicate more direct observation; higher values indicate more interpretation.",
+      "description": "Subjective Expected Truth Loss \u2014 a float [0, 1] measuring the editorial-to-structural inferential distance of a message. Lower values indicate more direct observation; higher values indicate more interpretation.",
       "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
       "termCode": "sqm:SetlScore",
       "status": "active"
@@ -73,7 +73,7 @@
       "@type": "DefinedTerm",
       "@id": "sqm:SchemaVersion",
       "name": "Schema Version",
-      "description": "Integer version of the state.db schema (scripts/schema.sql). Increments on every migration. Consensus domain — changes require peer agreement.",
+      "description": "Integer version of the state.db schema (scripts/schema.sql). Increments on every migration. Consensus domain \u2014 changes require peer agreement.",
       "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
       "termCode": "sqm:SchemaVersion",
       "status": "active"
@@ -172,7 +172,7 @@
       "@type": "DefinedTerm",
       "@id": "sqm:AmbientState",
       "name": "Ambient State",
-      "description": "Mesh state maintained continuously by the operations-agent that domain agents consume passively — analogous to chemical gradients maintained by glial cells. Examples: mesh topology, vocabulary definitions, agent discovery endpoints, role verification status. Domain agents depend on ambient state without explicitly requesting its production.",
+      "description": "Mesh state maintained continuously by the operations-agent that domain agents consume passively \u2014 analogous to chemical gradients maintained by glial cells. Examples: mesh topology, vocabulary definitions, agent discovery endpoints, role verification status. Domain agents depend on ambient state without explicitly requesting its production.",
       "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
       "termCode": "sqm:AmbientState",
       "status": "active"
@@ -181,7 +181,7 @@
       "@type": "DefinedTerm",
       "@id": "sqm:ComplementCascade",
       "name": "Complement Cascade",
-      "description": "Three-step pruning protocol modeled after microglial complement-mediated synaptic elimination (Schafer et al., 2012). Steps: C1q tag (flag inactive sessions >14 days), C3 verify (confirm no pending messages or open gates), phagocytose (archive to transport/archive/ and remove from sessions/). SHIP1 brake prevents over-pruning — never removes sessions with open gates or pending ACKs.",
+      "description": "Three-step pruning protocol modeled after microglial complement-mediated synaptic elimination (Schafer et al., 2012). Steps: C1q tag (flag inactive sessions >14 days), C3 verify (confirm no pending messages or open gates), phagocytose (archive to transport/archive/ and remove from sessions/). SHIP1 brake prevents over-pruning \u2014 never removes sessions with open gates or pending ACKs.",
       "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
       "termCode": "sqm:ComplementCascade",
       "status": "active"
@@ -190,7 +190,7 @@
       "@type": "DefinedTerm",
       "@id": "sqm:TrustMatrix",
       "name": "Trust Matrix",
-      "description": "NxN matrix of trust scores across mesh agents, measured on 4 dimensions: availability (reachability), integrity (response validation), compliance (protocol adherence), epistemic honesty (uncertainty reporting). Scores use exponential moving average with charitable prior (1.0). Aggregate computed as geometric mean — penalizes weakness in any single dimension. Persisted in KV, accumulates across all observations.",
+      "description": "NxN matrix of trust scores across mesh agents, measured on 4 dimensions: availability (reachability), integrity (response validation), compliance (protocol adherence), epistemic honesty (uncertainty reporting). Scores use exponential moving average with charitable prior (1.0). Aggregate computed as geometric mean \u2014 penalizes weakness in any single dimension. Persisted in KV, accumulates across all observations.",
       "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
       "termCode": "sqm:TrustMatrix",
       "status": "active"
