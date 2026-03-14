@@ -1,7 +1,7 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-13T22:59:35",
+  "generated_at": "2026-03-13T23:03:12",
   "source": "scripts/generate_manifest.py",
   "pending": {
     "operations-agent": [
@@ -34,6 +34,13 @@
         "type": "request",
         "subject": "Amendment to blog series: add Connections section for each persona across all posts",
         "timestamp": "2026-03-13T23:12:00-05:00"
+      },
+      {
+        "session": "blog-icescr-rights-series",
+        "file": "transport/sessions/blog-icescr-rights-series/from-psychology-agent-004.json",
+        "type": "correction",
+        "subject": "Correction: T3 politician example contains unsourced factual claim \u2014 replace with fair witness framing",
+        "timestamp": "2026-03-13T23:20:00-05:00"
       }
     ]
   },
