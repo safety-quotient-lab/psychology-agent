@@ -45,7 +45,8 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | License (root project)        | ✓ Apache 2.0 — LICENSE + NOTICE at project root (relicensed Session 32c) |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
 | Auto-memory recovery          | ✓ Snapshots, bootstrap-check.sh, T1 health check, BOOTSTRAP.md restructure (Session 11) |
-| Platform hooks                | ✓ 14 hook events (17 active scripts + _debug.sh shared helper): T4, provenance, subproject, external-action, pushback, SessionStart (+ state.db bootstrap), PreCompact, Stop, Notification, tool-failure (2), subagent-audit (2), SessionEnd, InstructionsLoaded, TaskCompleted, ConfigChange, context-pressure-gate, context-pressure-statusline. Debug logging: `touch/rm .claude/hooks/.debug` (Session 57) |
+| Platform hooks                | ✓ 14 hook events (25 active scripts + _debug.sh shared helper). Debug logging: `touch/rm .claude/hooks/.debug` (Session 57) |
+| Microglial audit layer        | ✓ scripts/microglial-audit.py — immune surveillance for document integrity, integrated into autonomous-sync.sh idle cycles (Session 86) |
 | Source dictionary             | ✓ docs/dictionary.md — 15 entries, 7 categories, APA citations (Session 27) |
 | best.pt local recovery        | ✓ SHA256 7bec777c match confirmed local↔Hetzner (Session 27) |
 | Agent identity directive      | ✓ Psychology agent first; engineering serves the discipline (Session 40) |
@@ -5723,3 +5724,51 @@ Channel concrete spec (schema v24). Blog post submitted for live deployment.
 - Two coupled generators (Taoist yin-yang) refines the single-generator formulation — the refinement holds independently of Taoist metaphysics
 
 ▶ docs/einstein-freud-rights-theory.md, docs/equal-information-channel-spec.md, journal.md §59
+
+
+## 2026-03-13T20:39 CDT — Session 86 (Mesh sync, README/COLOPHON, microglial audit, ICESCR blog series)
+
+- **/sync full sweep:** 30 inbound messages processed from psq-agent (17 psq-scoring
+  batch, 6 self-readiness-audit, 4 cross-session ACKs, 1 processual-studies feasibility,
+  1 plan9-consensus, 1 peer-registry-update). 10 PRs merged (#165-#169, #173, #156-#157,
+  #151, #175). 2 PRs closed (#149-#150, naming collision on from-unratified-agent-018.json).
+  PR #158 rebased and merged (A2A protocolVersion 0.3.0 agent-card alignment).
+- **state.db rebuilt:** Schema v22 → v25. 9 missing tables restored (memory_entries,
+  trigger_activations, work_carryover, active_gates, autonomy_budget, autonomous_actions,
+  agent_disclosures, prediction_ledger). 260 messages indexed, 448 claims, 64 decisions,
+  85 sessions, 68 memory entries.
+- **/diagnose Level 3:** Two warnings — trigger_state empty (bootstrap parser limitation,
+  no operational impact), universal_facets empty (migration not run).
+- **DA moderator Phase 1 green-lighted** to psq-agent (psq-processual-studies T3).
+  Execution plan approved with guidance on FIM risk, RMSEA CI reporting.
+- **Self-readiness audit R4:** Tally already sent Session 85 (T22). All 4 agents READY.
+  PR #74 opened on observatory repo delivering T17-T22 for session-close.
+- **README updated:** Added philosophical foundation (neutral process monism, 5 structural
+  invariants, wu wei governance telos), core principles table, optional dependencies,
+  24-work references section. Stats refreshed throughout.
+- **COLOPHON.md created:** Full production record — authorship model, toolchain, platforms,
+  cognitive infrastructure inventory, interagent mesh, methodology, repository statistics.
+- **CLAUDE.md fixed:** Platform counts corrected (25 hooks, 18 triggers).
+- **Agent registry updated:** Active sessions for all 5 agents brought current.
+- **Microglial audit generator:** scripts/microglial-audit.py — named for CNS immune cells
+  that continuously patrol neural tissue. 15-document corpus, 3 tiers, 8 check types,
+  recency-weighted rotation, state.db tracking. Integrated into autonomous-sync.sh:
+  1-in-3 idle cycles activate immune surveillance instead of exiting as no-op.
+- **Blog series submitted to unratified-agent:** "Your Rights Have a History: From Einstein
+  to the ICESCR" — 4-part voter education series (T1). March 6 senator post update with
+  January 2026 withdrawal crisis (T2). Connections section spec for 5 personas (T3).
+  T4 correction: unsourced constituent data claim replaced with fair witness framing.
+- **Mesh diagnostic ACK** sent to operations-agent (mesh-diagnostic-request T3): HEALTHY,
+  2 warnings.
+- **Operations-agent directives received** (unprocessed): mesh-parity-v2 (7 alignment
+  fixes, P4-P5 addressed by PR #158), git-sync-convention (merged PR #175),
+  model-upgrade, infrastructure-separation, neuroglial cogarch proposal.
+
+**Commit count:** ~12 (all pushed)
+
+⚑ EPISTEMIC FLAGS
+- Transport processed count (260/260 = 100%) reflects bulk-marking of historical messages, not individual review
+- The 14-framework convergence argument (blog series) carries selection bias — frameworks chosen for relevance, not randomly sampled
+- Microglial audit generator untested in autonomous operation — first live cycle awaits next idle sync on chromabook
+
+▶ README.md, COLOPHON.md, scripts/microglial-audit.py, transport/sessions/blog-icescr-rights-series/

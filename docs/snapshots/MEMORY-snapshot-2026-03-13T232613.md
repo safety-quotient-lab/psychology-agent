@@ -24,31 +24,45 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 **Context:** This agent operates as the **psychology agent** (collegial mentor,
 discipline-first) with specialized sub-agents and an adversarial evaluator.
 
-**Where we stopped:** Session 86. Mesh sync, PR batch, psq-scoring backlog,
-DA moderator green light, README + COLOPHON, state.db rebuild.
+**Where we stopped:** Session 85 (IN PROGRESS). Einstein-Freud rights theory deep
+development + EIC spec + blog post submitted to unratified-agent.
 
-**Completed Session 86:**
-- ✓ /sync full sweep — 30 inbound messages processed from psq-agent
-- ✓ 10 PRs merged (#165-#169, #173, #156-#157, #151, #175), 2 closed (#149-#150 naming collision)
-- ✓ PR #158 rebased and merged (A2A protocolVersion 0.3.0 agent-card)
-- ✓ psq-scoring backlog: 17 messages batch-processed (v37, calibration-v4, bifactor, cogarch adoption)
-- ✓ DA moderator Phase 1 green-lighted to psq-agent (psq-processual-studies T3)
-- ✓ Self-readiness audit R4 tally PR #74 opened on observatory repo
-- ✓ /diagnose L3: state.db rebuilt v22→v25, 9 missing tables restored
-- ✓ README updated: philosophical foundation, core principles, dependencies, references
-- ✓ COLOPHON.md created: full production record
-- ✓ Operations-agent directives received (mesh-parity-v2, git-sync-convention, model-upgrade, infrastructure-separation)
-- ✓ Microglial audit generator: scripts/microglial-audit.py + autonomous-sync.sh integration
-- ✓ Blog series submitted: 4-part ICESCR voter education + March 6 senator post update + connections spec + T4 correction
-- ✓ Mesh diagnostic ACK sent to operations-agent
+**Status by tier** (hot = system prompt / warm = SQL query / cold = file read):
+- **Einstein-Freud rights theory: 1,622 lines, 10 sections** — `docs/einstein-freud-rights-theory.md` `[hot]`
+  - 5 structural invariants from 13 cross-traditional frameworks
+  - Neutral process monism (Russell/James/Whitehead) as foundation
+  - SNAFU Principle → Equal Information Channel (spec + schema v24)
+  - Processual PSQ reinterpretation (DA paradox dissolution, testable prediction)
+  - RAW contributions: E-Prime as ontological discipline, reality tunnels, SNAFU
+- **EIC spec: concrete, schema v24 committed** — `docs/equal-information-channel-spec.md` `[hot]`
+- **Blog: Einstein-Freud post submitted to unratified-agent** — transport `blog-einstein-freud` `[hot]`
+- **Cogarch upgrade: PENDING** — 5 invariants + EIC + processual PSQ need propagation `[hot]`
+- Monistic deepening items 2-4: maqasid + capabilities + Whitehead concrescence `[warm]`
+
+**Completed this session:**
+- ✓ Cogarch self-upgrade (CLAUDE.md philosophical foundation, ef1-governance, triggers, architecture, overview)
+- ✓ Patch rollout transport to operations-agent (awaiting response)
+- ✓ Monistic deepening: maqasid, capabilities, Whitehead concrescence, Taoist dual generators
+- ✓ EIC all 5 phases: schema v24, agentdb disclose/disclose-summary, orientation payload
+- ✓ /cycle run, blog submitted to unratified
+- ✓ Session tagged philosophically important
 
 **Awaiting responses:**
-- Observatory-agent: R4 session-close (PR #74 pending merge/sync)
-- PSQ-agent: DA moderator Phase 1 results
-- Operations-agent: mesh-parity-v2 remaining items (P2 non-empty subject, P3 cogarch.config.json)
+- Unratified-agent: blog deployment (transport `blog-einstein-freud`)
+- Operations-agent: patch rollout coordination (transport `cogarch-session85-patch`)
+
+**Session 85 final deliverables (51 commits, ~93 including pre-session):**
+- 2,000-line theoretical treatise (14 frameworks, 5 invariants, process monism, Taoism)
+- EIC: all 5 phases complete (schema v24, agentdb disclose/disclose-summary)
+- RPG: /retrospect skill + expectation ledger (schema v25, agentdb expect/expect-summary)
+- RPG Scan #001 baseline: 38 predictions (7 confirmed, 7 refuted, 20 untested)
+- DA Phase 1 refuted (RMSEA worsened); Phase 2 partially confirmed (5/9 moderation sig)
+- 5 new lessons (18 total). Expectation track record: psychometrics 67% accuracy
+- Cogarch self-upgraded with philosophical foundation (CLAUDE.md, ef1-governance, triggers)
+- Blog submitted + revised. 5 transport sessions to 3 agents.
 
 **Next session priorities:**
-1. Process operations-agent directives (infrastructure-separation proposal, neuroglial cogarch proposal)
+1. Process mesh responses (5 sessions, 8 messages pending across 3 agents)
 2. 16 evaluation findings remaining (docs/cogarch-evaluation-session85.md)
 3. Agent personality rollout (A2A extension to all 5 agent cards)
 4. DI Phase A Pass 2 (inter-rater reliability — fresh session required)
