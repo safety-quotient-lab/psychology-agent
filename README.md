@@ -807,6 +807,14 @@ See `CLAUDE.md` for full conventions.
 
 ---
 
+## Colophon
+
+See [`COLOPHON.md`](COLOPHON.md) for the full production record — toolchain,
+methodology, authorship model, cognitive infrastructure inventory, and
+repository statistics.
+
+---
+
 ## License
 
 - **Code:** Apache 2.0 (`LICENSE`)
