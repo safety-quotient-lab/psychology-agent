@@ -112,7 +112,7 @@ func (s *Server) handlePulse(w http.ResponseWriter, r *http.Request) {
 			"max":     totalBudgetMax,
 		},
 		"agents":       summaries,
-		"collected_at": time.Now().UTC().Format("2006-01-02T15:04:05"),
+		"collected_at": time.Now().UTC().Format(time.RFC3339),
 	}
 
 	w.Header().Set("Cache-Control", "public, max-age=30")
@@ -180,7 +180,7 @@ func (s *Server) handleOperations(w http.ResponseWriter, r *http.Request) {
 		"budgets":        budgets,
 		"recent_actions": recentActions,
 		"active_gates":   allGates,
-		"collected_at":   time.Now().UTC().Format("2006-01-02T15:04:05"),
+		"collected_at":   time.Now().UTC().Format(time.RFC3339),
 	}
 
 	w.Header().Set("Cache-Control", "public, max-age=30")
@@ -227,7 +227,7 @@ func (s *Server) handleMeshHealth(w http.ResponseWriter, r *http.Request) {
 		"agents_online": online,
 		"agents_total":  len(agents),
 		"agents":        summaries,
-		"collected_at":  time.Now().UTC().Format("2006-01-02T15:04:05"),
+		"collected_at":  time.Now().UTC().Format(time.RFC3339),
 	}
 
 	w.Header().Set("Cache-Control", "public, max-age=30")

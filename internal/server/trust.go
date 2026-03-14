@@ -56,7 +56,7 @@ func (s *Server) handleTrust(w http.ResponseWriter, r *http.Request) {
 		"trust_matrix": entries,
 		"dimensions":   []string{"availability", "integrity", "compliance", "epistemic_honesty"},
 		"ema_alpha":    emaAlpha,
-		"collected_at": time.Now().UTC().Format("2006-01-02T15:04:05"),
+		"collected_at": time.Now().UTC().Format(time.RFC3339),
 	}
 
 	w.Header().Set("Cache-Control", "public, max-age=60")
@@ -66,7 +66,7 @@ func (s *Server) handleTrust(w http.ResponseWriter, r *http.Request) {
 // updateTrustFromStatuses applies EMA updates based on agent status results.
 func (s *Server) updateTrustFromStatuses(matrix map[string]*TrustEntry, statuses map[string]map[string]any) {
 	agents := s.Registry.Agents()
-	now := time.Now().UTC().Format("2006-01-02T15:04:05")
+	now := time.Now().UTC().Format(time.RFC3339)
 
 	for _, agent := range agents {
 		if agent.Unavailable {

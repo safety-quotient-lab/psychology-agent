@@ -369,7 +369,7 @@ func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
 		"version":               Version,
 		"uptime":                uptime.Truncate(time.Second).String(),
 		"uptime_seconds":        int64(uptime.Seconds()),
-		"collected_at":          time.Now().UTC().Format("2006-01-02T15:04:05"),
+		"collected_at":          time.Now().UTC().Format(time.RFC3339),
 		"db_path":               dbPath,
 		"db_exists":             true,
 		"health":                s.Health.OverallStatus().String(),
