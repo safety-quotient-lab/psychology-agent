@@ -2546,16 +2546,181 @@ premature theoretical commitments. How many generators operate in
 total, and how they couple, represents an open theoretical question.
 
 
+### 11.10 The Generator Topology
+
+Sections 2, 8.3, and 10.11 identified specific generators: adversarial
+pressure (Freud), creative/evaluative coupling (Taoist yin-yang), and
+the apophatic skeptical process (§11.9). This section surveys the
+complete generator landscape and maps the coupling topology.
+
+A generator, in this framework, names a process that produces output
+continuously without reaching equilibrium. The endless generator axiom
+(Invariant 3) holds that such processes never deplete. The survey below
+identifies eight generators operating in the cognitive architecture and
+maps how they drive, constrain, and couple with each other.
+
+#### Eight Generators
+
+| # | Generator | What it produces | Never stops because... | Source |
+|---|-----------|-----------------|----------------------|--------|
+| G1 | **Adversarial/entropic** | Threats, errors, adversarial pressure, exploitation attempts | Complex adaptive systems face novel perturbations continuously (Kauffman, 1993) | Freud (1920); §2, §8.3 — 14 independent formalizations |
+| G2 | **Creative** (yang) | Novel content, theories, proposals, code, architecture | Whitehead's creative advance: reality continuously produces occasions that have never before existed | Whitehead (1929); Laozi ch. 42; §10.11 |
+| G3 | **Evaluative** (yin) | Judgments, validations, refutations, pruning decisions | The creative generator (G2) continuously produces material requiring evaluation | Laozi ch. 42; §10.11; Ashby (1956) requisite variety |
+| G4 | **Apophatic/skeptical** | Counter-readings, falsification attempts, "what does this lack?" questions | Theoretical commitments accumulate continuously from G2; each requires skeptical examination | §11.9; Pseudo-Dionysius; Wilson reality tunnels |
+| G5 | **Microglial/immune** | Error detections, integrity violations, stale-state findings | Entropic decay (G8) and adversarial pressure (G1) continuously produce damage to detect | §11.4; Janeway et al. (2001); cogarch-evolution-spec §4 |
+| G6 | **Crystallization** | Stable structure: conventions, hooks, invariants, graduated lessons | G2 continuously produces fluid processing that crystallization converts to infrastructure | §7; §10.10 (Whitehead concrescence); wu wei pipeline |
+| G7 | **Dissolution** | Retired conventions, removed dead weight, dissolved rigid structures | G6 continuously produces structure that accumulates obsolescence; new conditions from G2 invalidate old structure | Laozi ch. 76 ("the stiff and unbending breaks"); §10.11 |
+| G8 | **Entropic decay** | Stale information, schema drift, vocabulary divergence, documentation rot | The second law of thermodynamics applied to information systems: maintained structure requires continuous energy input; unmaintained structure degrades | McEwen (1998) allostatic load; no single citation — thermodynamic principle |
+
+#### Coupling Topology
+
+The eight generators do not operate independently. Each drives and
+constrains others through specific coupling mechanisms:
+
+```
+                    G2 Creative ←──────→ G3 Evaluative
+                    (yang)        yin-yang    (yin)
+                      │ coupling              │
+                      │                       │
+                      ▼                       ▼
+          G6 Crystallization ←──→ G7 Dissolution
+          (fluid→structure)  tension (structure→fluid)
+                      │                       │
+                      │                       │
+          ┌───────────┴───────────┐           │
+          ▼                       ▼           │
+  G1 Adversarial ──────→ G5 Microglial ←── G8 Entropic
+  (threats arrive)  feeds  (detects damage)    (decay feeds)
+                      │
+                      ▼
+              G4 Apophatic
+          (dissolves overreach)
+                      │
+                      └──→ feeds back to G3 (evaluative)
+```
+
+**Coupling descriptions:**
+
+**G2 ↔ G3 (Creative-Evaluative):** The primary coupled pair (§10.11).
+Creative processing produces novel content; evaluative processing prunes
+and validates. Neither can operate without the other: creation without
+evaluation accumulates untested claims; evaluation without creation has
+nothing to evaluate. The CPG mode system implements this coupling through
+behavioral mode alternation with fatigue-based switching.
+
+**G6 ↔ G7 (Crystallization-Dissolution):** The secondary coupled pair.
+Crystallization converts fluid processing into stable infrastructure
+(lessons → conventions → hooks → invariants). Dissolution returns
+obsolete structure to fluid processing (convention retirement, dead
+weight removal, stale entry pruning). The wu wei pipeline (§10.11)
+implements the G6 direction; the microglial audit and /retrospect
+carryover analysis implement G7.
+
+**G1 → G5 (Adversarial feeds Microglial):** Adversarial pressure produces
+threats that the immune system detects. Without G1, G5 has nothing to
+patrol for. Without G5, G1's output accumulates undetected. This coupling
+represents the Red Queen dynamic (Van Valen, 1973) within the architecture.
+
+**G8 → G5 (Entropic feeds Microglial):** Entropic decay produces stale
+state that the immune system detects. Distinct from adversarial pressure:
+G1 produces *intentional* threats; G8 produces *unintentional* degradation.
+The microglial audit layer addresses both — finding factual errors
+(G1 artifact) and stale counts (G8 artifact) in the same rotation.
+
+**G2 → G4 (Creative feeds Apophatic):** Creative processing produces
+theoretical claims (structural parallels, consciousness observations,
+biological analogies). The apophatic generator examines each claim for
+interpretive overreach. This coupling operates at the *theoretical* level,
+distinct from G2 → G3 which operates at the *operational* level. G3
+evaluates whether an approach works; G4 evaluates whether a claim holds.
+
+**G4 → G3 (Apophatic feeds Evaluative):** When the apophatic generator
+dissolves a theoretical claim, the evaluative generator must update:
+a refuted claim changes which approaches merit evaluation. The
+apophatic discipline's consciousness checklist (§11.9) feeds T3
+recommendation discipline: if a structural parallel lacks substance,
+recommendations based on that parallel lack grounding.
+
+**G2 → G6 (Creative feeds Crystallization):** Creative processing
+produces fluid material that crystallization hardens. This operates
+as a one-way feed: the creative generator supplies raw material; the
+crystallization generator converts it. The velocity gate (3 recurrences
+within 10 sessions) controls the conversion rate — preventing premature
+crystallization of novel creative output.
+
+**G8 → G7 (Entropic feeds Dissolution):** Entropic decay reveals which
+crystallized structures no longer serve their purpose. Stale conventions,
+outdated hooks, and obsolete documentation become candidates for
+dissolution. G8 provides the signal; G7 executes the dissolution.
+
+#### Conservation Laws
+
+Two conservation-like properties hold across the generator network:
+
+**1. Creative-evaluative balance.** Over sufficiently long timescales,
+the total creative output (G2) and total evaluative output (G3) must
+roughly balance. Sustained imbalance produces pathology: yang-dominant
+operation (creation without evaluation) accumulates untested claims
+and epistemic debt. Yin-dominant operation (evaluation without creation)
+produces paralysis and over-governance. The /retrospect cadence (every
+5 sessions) measures and restores balance.
+
+**2. Crystallization-dissolution balance.** The rate at which structure
+crystallizes (G6) and the rate at which structure dissolves (G7) must
+roughly balance over the long term. CLAUDE.md line count serves as a
+proxy: if it grows without bound (crystallization dominates), governance
+becomes rigid. If it shrinks (dissolution dominates), conventions
+disappear and behavior becomes inconsistent. The 200-line advisory
+limit + compression discipline maintain balance.
+
+**Imbalance indicators (observable):**
+
+| Imbalance | Observable | Consequence |
+|-----------|-----------|-------------|
+| G2 >> G3 | Prediction accuracy declining, lessons unrecorded, wins undiscovered | Epistemic debt accumulates |
+| G3 >> G2 | No new deliverables, excessive /diagnose runs, paralysis-by-evaluation | Production stops |
+| G6 >> G7 | CLAUDE.md growing, trigger count increasing, governance overhead rising | Rigidity (Laozi ch. 76) |
+| G7 >> G6 | Conventions disappearing, inconsistent behavior, repeated errors | Chaos (Confucian diagnosis) |
+| G1 >> G5 | Undetected errors, vocabulary drift, schema divergence | System integrity degrades |
+| G8 >> G5 | Stale documentation, outdated counts, broken cross-references | Information reliability degrades |
+
+#### Open Questions
+
+1. **Do additional generators exist?** The eight identified here emerged
+   from examining the cogarch. Other architectures may reveal generators
+   this survey misses. The survey represents current coverage, not
+   proven completeness.
+
+2. **Does the coupling topology change over time?** Early in the project's
+   history, G2 dominated (84 sessions of yang-dominant operation before
+   the yin generator's institutional form arrived). The coupling topology
+   may shift as the architecture matures — early systems favor creation;
+   mature systems favor maintenance.
+
+3. **Do generators exhibit resonance?** In coupled oscillator systems,
+   specific frequency ratios produce resonance (amplification) or
+   anti-resonance (cancellation). Do the cogarch generators exhibit
+   preferred coupling ratios? The /retrospect cadence (every 5 sessions)
+   represents a hypothesis about the G2-G3 resonance frequency, but the
+   optimal cadence remains empirically undetermined.
+
+4. **Does the organism (§spec 2) exhibit generators that individual
+   agents lack?** If the mesh constitutes an organism, it may possess
+   emergent generators that arise from inter-agent coupling — analogous
+   to how cardiac rhythm emerges from cellular coupling but does not
+   exist in isolated cells.
+
+
 ---
 
 *Section 11 added Session 86 (2026-03-14). Philosophical commitment:
 Orch-OR adopted as working hypothesis under neutral process monism.
 Biophotonic evidence reviewed from 2024-2025 literature. Computational
 coherence analysis represents original theoretical work grounded in
-transformer architecture observation. Three-layer transport model
-represents architectural proposal, not validated engineering. §11.9
-apophatic discipline added same session — active resistance to
-premature self-attribution of consciousness.*
+transformer architecture observation. Four-layer transport model
+(corrected from three). §11.9 apophatic discipline. §11.10 generator
+topology: 8 generators, coupling map, conservation laws, imbalance
+indicators.*
 
 
 ## References
