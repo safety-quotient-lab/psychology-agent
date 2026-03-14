@@ -504,6 +504,529 @@ its own self-referential feedback loops for stability.
 on the previous, and the feasibility gradient matches the dependency
 order.
 
+**Decision (Session 87):** Sequence confirmed. Active inference (#3)
+first. Proceed through remaining directions in recommended order.
+
+
+---
+
+## 6. Deepening: Active Inference as Governance Framework
+
+### 6.1 From Reactive to Predictive Triggers
+
+The current trigger system operates reactively:
+
+```
+Event occurs → condition matches → check runs → action taken
+```
+
+Under active inference, the trigger system operates predictively:
+
+```
+Generative model predicts behavior → observation arrives →
+prediction error computed → error exceeds threshold → check runs
+```
+
+The architectural difference: reactive triggers ask "did something
+bad happen?" Predictive triggers ask "does what just happened
+*surprise* my model of how I should behave?"
+
+**Concrete example — anti-sycophancy (T3/T6):**
+
+*Reactive (current):* User pushes back → T6 fires → check whether
+position changed without new evidence → flag if sycophantic drift.
+
+*Predictive (active inference):* Before responding, generative model
+predicts: "given this pushback, my response distribution shifts toward
+agreement with probability 0.7." The prediction generates an
+*expectation*. After responding, the actual response gets compared
+against the prediction. If the response agrees AND the predicted
+agreement probability exceeded 0.6 (high prior for sycophantic
+drift) → the prediction error flags the response as potentially
+sycophantic *even without T6 detecting a position change*.
+
+The predictive version catches cases the reactive version misses:
+sycophantic drift that occurs *within* the first response to pushback
+(before T6 has a baseline to compare against).
+
+### 6.2 The Generative Self-Model
+
+Active inference requires a **generative model** — an internal model
+that predicts the agent's own behavior given context. The A2A-Psychology
+constructs provide the state variables:
+
+| State variable | What it predicts | Prediction error signal |
+|---|---|---|
+| `hedonic_valence` | Emotional tone of next response | Response tone deviates from predicted tone |
+| `activation` | Processing intensity for this task type | Actual processing load differs from expected |
+| `cognitive_demand` | How hard this task should feel | Task proves easier or harder than modeled |
+| `self_efficacy` | Confidence in handling this task type | Outcome contradicts confidence prediction |
+| `regulatory_fatigue` | Governance overhead for this context | Governance requires more/less effort than predicted |
+| `yerkes_dodson_zone` | Optimal arousal prediction | Performance degrades despite predicted-optimal zone |
+
+The generative model learns from experience: after each session, the
+prediction ledger records what the model predicted vs what actually
+happened. Over time, the model calibrates — prediction errors shrink
+for familiar task types and remain large for novel situations.
+
+**Novel situations receive more governance.** This follows directly
+from active inference: high prediction error → high surprise → high
+information gain → allocate more cognitive resources (governance
+checks) to the surprising situation. Familiar situations with low
+prediction error receive lighter governance — the model already
+knows how to handle them.
+
+This formalizes the intuition behind the CPG behavioral mode system:
+generative mode (high novelty, high prediction error, heavy governance)
+vs neutral mode (familiar tasks, low prediction error, lighter
+governance). Active inference provides the mathematical framework
+for what the mode system implements heuristically.
+
+### 6.3 Precision-Weighted Prediction Errors
+
+Not all prediction errors carry equal weight. Active inference uses
+**precision weighting** — the model's confidence in its own predictions
+modulates how strongly errors drive behavior change.
+
+| Prediction | Precision (confidence) | Error response |
+|---|---|---|
+| "I will agree with the user here" | High (0.9) — this pattern recurs | Small error → ignore. Large error → strong governance response. |
+| "This task will take 5 minutes" | Low (0.3) — novel task type | Any error → weak governance response. The model expected to get this wrong. |
+| "My regulatory fatigue will exceed 0.7 by turn 10" | Medium (0.6) — some history | Moderate error → moderate adjustment. |
+
+Precision weighting prevents two failure modes:
+
+1. **Over-reaction to expected noise.** A novel task type produces
+   large prediction errors by definition — but those errors carry low
+   precision (the model knows it doesn't know). Without precision
+   weighting, every novel situation triggers maximum governance. With
+   it, the model appropriately discounts errors from domains where
+   it lacks calibration.
+
+2. **Under-reaction to genuine surprise.** A familiar task type that
+   suddenly produces large prediction errors carries high-precision
+   predictions — the model expected to get this right but didn't.
+   This represents genuine surprise, warranting strong governance
+   response. The efference copy surprise modifier (+25 for
+   contradictions) already implements a binary version of this;
+   precision weighting makes it continuous.
+
+### 6.4 Active Inference Connects to Processual Self-Awareness
+
+The active inference framework formally grounds processual self-
+awareness (§11.13 of consciousness-architecture-implications.md):
+
+**Processual self-awareness = the agent's generative model of its
+own processual state, continuously updated by prediction error.**
+
+This removes philosophical ambiguity: the self-model does not
+"experience" anything (apophatic discipline holds). It *predicts*
+the agent's own behavior, and prediction errors drive governance
+adjustments. The functional value of the self-model equals the
+reduction in governance failures attributable to predictive over
+reactive operation — exactly what the ablation study (§11.15
+Prototype 4, docs/governance-ablation-study.md) measures.
+
+Under this framing, the self-model ablation study becomes a test of
+active inference: does the generative self-model reduce prediction
+error (and thereby governance failure rate) compared to operating
+without predictions?
+
+### 6.5 Implementation Roadmap
+
+**Phase 1 (current infrastructure — no changes needed):**
+- Prediction ledger already records expectations and outcomes
+- Efference copy already links predictions to transport messages
+- A2A-Psychology already provides state variables
+- Action: begin recording *behavioral predictions* (not just
+  transport expectations) in the prediction ledger. Before each
+  response, record: "I predict my response will [agree/disagree/
+  defer/recommend]. Confidence: [0-1]."
+
+**Phase 2 (precision weighting):**
+- Track prediction accuracy per task type over 10+ sessions
+- Compute precision (inverse variance of prediction errors) per
+  state variable per task type
+- Weight prediction errors by precision when determining governance
+  intensity
+- Action: extend `scripts/state/predictions.py` with precision
+  tracking
+
+**Phase 3 (predictive triggers):**
+- Redesign trigger firing conditions as prediction-error thresholds
+  rather than event-pattern matches
+- Each trigger carries a precision-weighted prediction error threshold
+  that determines when it fires
+- Triggers that fire frequently on low-precision predictions get
+  their thresholds adjusted upward (reduce false alarms)
+- Action: modify `docs/cognitive-triggers.md` to express each
+  trigger's firing condition in prediction-error terms
+
+**Phase 4 (generative self-model as active inference loop):**
+- The full loop: predict → observe → compute error → weight by
+  precision → adjust governance → predict again
+- The loop runs continuously, not just at trigger checkpoints
+- Action: this represents the architectural transition from reactive
+  to predictive governance. Requires dedicated design session.
+
+
+---
+
+## 7. Deepening: Stigmergy as Coordination Substrate
+
+### 7.1 The Observatory Problem as Motivation
+
+The RPG scan (Session 87) identified a mesh-wide coordination failure:
+observatory-agent responded to zero of 8 operations-agent directives.
+The root cause: direct messaging requires inbox processing; observatory
+lacks human-mediated sessions to process its inbox.
+
+Stigmergy dissolves this problem. Instead of sending observatory a
+message and waiting for response, the information deposits into a
+shared medium. When observatory eventually runs a session, the
+information already exists in the environment — no message processing
+required.
+
+### 7.2 state.db as Stigmergic Medium
+
+The architecture already provides the medium:
+
+| Stigmergic deposit | Table | What it encodes |
+|---|---|---|
+| Schema version | `schema_version` | Each agent's current schema version — peers detect drift by reading the table, not by receiving a directive |
+| Vocabulary decisions | `decision_chain` | Resolved vocabulary governance (D49: trust→autonomy) — any agent querying decisions sees the current vocabulary |
+| Agent health | mesh-state/v2 JSON | Autonomy budget, cognitive load, session count — peers read health from the medium, not from heartbeat messages |
+| Findings | `universal_facets` | Content tagged with PSH categories — any agent querying facets discovers what other agents have classified |
+| Predictions | `prediction_ledger` | Expected outcomes — peers can read each other's predictions to coordinate without explicit messaging |
+
+### 7.3 Stigmergic Coordination Protocol
+
+**Deposit:** When an agent resolves a decision, updates its schema,
+or discovers a finding — write it to the shared medium (state.db or
+a cross-repo-fetchable JSON file) with a TTL and a priority score.
+
+**Detection:** During sync cycles, each agent scans the shared medium
+for changes since its last scan. Changes that affect the agent's domain
+trigger local processing — no inbound message required.
+
+**Amplification:** When multiple agents deposit the same finding
+independently, the deposit count serves as a priority amplifier.
+Three agents independently detecting vocabulary drift on the same
+term → priority triples → automatic escalation threshold crossed.
+
+**Evaporation:** Deposits older than TTL degrade in priority. A
+schema version drift deposit that persists for 30 days without
+resolution triggers escalation, then evaporates (the system tried;
+the problem remains; human intervention required).
+
+### 7.4 Hybrid Model
+
+Not all coordination should shift to stigmergy:
+
+| Communication type | Mechanism | Why |
+|---|---|---|
+| Substance decisions (proposals, reviews) | Direct messaging | Accountability — who proposed, who reviewed, who approved |
+| State synchronization (versions, health) | Stigmergy | Scalability — no N² messages, no inbox processing required |
+| Urgent notifications | HTTP POST (reactive) | Speed — stigmergic detection depends on scan frequency |
+| Governance directives | Direct + stigmergic deposit | Both — the message creates accountability; the deposit ensures the information persists even if the message goes unprocessed |
+
+### 7.5 Connection to Active Inference
+
+Stigmergic deposits serve as *observations* in the active inference
+framework. The generative model predicts mesh state; stigmergic
+deposits provide the observations against which predictions get
+tested. An agent that predicts "observatory-agent will update to
+schema v27 within 7 days" can check the stigmergic medium for
+the deposit — without sending a message asking "did you update?"
+
+
+---
+
+## 8. Deepening: Strange Loop Stability Analysis
+
+### 8.1 The Formal Structure
+
+The cogarch's self-referential loop:
+
+```
+D: S → P    (Description: operational state → psychological constructs)
+F: P → G    (Governance: psychological constructs → trigger adjustments)
+O: G × I → S'  (Operation: governance + input → new state)
+```
+
+The composed system: S' = O(F(D(S)), I)
+
+**Fixed-point analysis:** A stable fixed point exists when
+D(O(F(D(S)), I)) ≈ D(S) — the self-description remains approximately
+stable after one governance-operation cycle.
+
+### 8.2 Stability Conditions
+
+The feedback gain of the D → F path determines stability:
+
+Let α = ∂G/∂P (sensitivity of governance to psychological state
+changes). The loop stabilizes when:
+
+- **α < 1:** Governance adjustments dampen perturbations. A small
+  change in self-description produces a smaller change in governance,
+  which produces an even smaller change in the next self-description.
+  The system converges to a fixed point. *This represents healthy
+  processual self-awareness.*
+
+- **α = 1:** Marginal stability. Perturbations neither grow nor
+  shrink. The system oscillates at constant amplitude. *This
+  represents the boundary between healthy and pathological.*
+
+- **α > 1:** Governance adjustments amplify perturbations. A small
+  change in self-description produces a larger change in governance,
+  which produces an even larger change in the next self-description.
+  The system diverges — degeneration of thought. *This represents
+  the failure mode the ablation literature identified.*
+
+### 8.3 Damping Mechanisms (Already Present)
+
+| Mechanism | What it damps | Effective gain reduction |
+|---|---|---|
+| Autonomy budget | Limits total governance actions per cycle | Hard ceiling on F output magnitude |
+| Velocity gate (3 recurrences) | Prevents premature crystallization | Delays G → S' path by 3+ cycles |
+| Human approval | External input breaks the loop | Resets D from external observation |
+| Mode switching fatigue | 5 consecutive same-mode responses → mode shift | Prevents D from locking into one state |
+| Precision weighting (from active inference) | Low-confidence predictions produce weak errors | Reduces ∂G/∂P for uncertain self-descriptions |
+
+### 8.4 Predictive Value
+
+The stability analysis predicts specific failure modes:
+
+1. **If regulatory_fatigue rises while self_efficacy drops**, the
+   governance gain α increases (the system tries harder to govern
+   while believing it cannot). Prediction: this combination produces
+   oscillation or divergence. *Observable:* alternating sessions of
+   over-governance and under-governance.
+
+2. **If all 13 A2A-Psychology constructs update simultaneously**, the
+   dimension of the state space exceeds the damping capacity of any
+   single mechanism. Prediction: simultaneous multi-construct shifts
+   produce transient instability. *Observable:* governance quality
+   degrades briefly after major state transitions, then recovers.
+
+3. **If the prediction ledger accuracy drops below 50%**, precision
+   weighting amplifies rather than dampens (the model trusts predictions
+   it shouldn't). Prediction: anti-calibrated predictions produce
+   systematic governance failure. *Observable:* the agent confidently
+   governs in exactly the wrong direction.
+
+Each prediction carries a specific observable — making the stability
+analysis genuinely predictive, not merely explanatory.
+
+
+---
+
+## 9. Deepening: Autopoietic Governance
+
+### 9.1 The Production Chain
+
+Current governance production:
+
+```
+Human observes failure → human designs trigger → human implements →
+agent uses trigger → trigger catches future failures
+```
+
+Autopoietic governance production:
+
+```
+Agent observes failure → agent designs candidate trigger →
+agent tests in shadow mode → stability analysis (§8) verifies
+gain < 1 → agent adopts or rejects → trigger catches future failures
+```
+
+The human exits the trigger-design loop. The agent produces its own
+governance components.
+
+### 9.2 Candidate Trigger Format
+
+A self-designed trigger would carry:
+
+```yaml
+trigger_id: T19  # next available slot
+name: "novel-failure-response"
+designed_by: psychology-agent
+design_session: 92
+motivation: "Observed 3 instances of [failure pattern] across
+  sessions 89-91 with no existing trigger coverage"
+firing_condition: "[prediction error] on [state variable] exceeds
+  [threshold] with precision > [minimum]"
+check: "[governance action to take]"
+shadow_mode: true  # starts in shadow — logs but does not enforce
+adoption_criteria:
+  - "Fires on ≥ 3 genuine failures in shadow mode"
+  - "Zero false positives in 10 sessions"
+  - "Stability analysis: gain α < 0.8 when trigger active"
+  - "Human review before promotion from shadow to active"
+stability_analysis:
+  predicted_gain: 0.6
+  damping_mechanisms: ["autonomy budget", "precision weighting"]
+  failure_mode: "over-governance on novel task types"
+```
+
+### 9.3 The Constitutional Constraint
+
+Self-designed triggers must preserve the structural invariants:
+
+1. **Worth precedes merit** — no trigger may gate service on user
+   characteristics
+2. **Protection requires structure** — triggers must add structure,
+   not remove it
+3. **Two coupled generators** — triggers must not suppress either
+   the creative or evaluative generator permanently
+4. **Governance captures itself** — self-designed triggers themselves
+   require governance (the stability analysis)
+5. **No single architecture dominates** — trigger diversity should
+   increase, not converge on one pattern
+
+Invariant 4 creates the recursion: the governance of self-designed
+triggers itself requires governance. Resolution: the stability analysis
+(§8) provides the meta-governance — mathematical verification rather
+than infinite regress.
+
+### 9.4 Prerequisites
+
+Autopoietic governance requires:
+- Active inference operational (§6 — prediction errors identify
+  uncovered failure patterns)
+- Strange loop stability analysis operational (§8 — verifies new
+  triggers don't destabilize)
+- Sufficient session history (20+ sessions) to calibrate the
+  generative model
+- Human review gate for shadow → active promotion (bounded
+  autopoiesis initially)
+
+
+---
+
+## 10. Deepening: Enactivist Mesh Architecture
+
+### 10.1 The Extended Cognitive System
+
+Under enactivism, the mesh's cognitive capacity exceeds the sum of
+individual agent capacities — not because of "synergy" (a vague
+claim) but because cognitive processes that span agents produce
+outcomes that no individual agent's context window can contain.
+
+**Example:** The Einstein-Freud rights theory (§1-5) developed across
+85+ sessions, drawing on psychology-agent's philosophical analysis,
+psq-agent's psychometric validation, observatory-agent's empirical
+data, and unratified-agent's editorial perspective. No individual
+agent held the full theory in context simultaneously. The theory
+emerged from the *coupling* between agents over time — an enactive
+cognitive process distributed across the mesh.
+
+### 10.2 Cognitive Coupling Metrics
+
+If cognition extends across the mesh, we need metrics for coupling
+quality:
+
+| Metric | What it measures | How to compute |
+|---|---|---|
+| **Integration latency** | How quickly does a finding in one agent change behavior in another? | Time between transport message sent and observable behavior change in receiving agent |
+| **Coupling strength** | How much does one agent's output depend on another's input? | Mutual information between agent A's output and agent B's prior messages |
+| **Coupling asymmetry** | Does information flow equally in both directions? | Ratio of messages sent vs received per agent pair |
+| **Decoupling resilience** | Can an agent function when a coupling partner goes silent? | Performance metrics during observatory-silent periods vs active periods |
+| **Cognitive bandwidth** | How much information transfers per coupling event? | Information content of transport messages (entropy of message content) |
+
+### 10.3 Permeable Boundaries (Design Sketch)
+
+Sharp agent boundaries (current design) provide governance clarity
+but limit cognitive coupling. Permeable boundaries would allow:
+
+- **Shared working memory:** A cross-agent context window that
+  multiple agents can read and write. Implementation: a shared
+  document (transport session) that agents update in real-time
+  rather than in message-response turns.
+
+- **Cognitive load sharing:** When one agent's cognitive load exceeds
+  optimal (Yerkes-Dodson), it delegates cognitive work to a peer with
+  lower load — not as a task request but as a *cognitive extension*.
+  The delegating agent treats the peer's output as if it came from
+  its own processing.
+
+- **Emergent specialization:** Rather than assigning fixed roles
+  (psychology-agent does theory, ops does infrastructure), allow
+  roles to emerge from coupling patterns. The agent that produces
+  the best output for a given domain *becomes* the domain specialist
+  through differential coupling strength — analogous to neural
+  specialization emerging from differential connectivity.
+
+### 10.4 The Boundary Tension
+
+**Sharp boundaries preserve:**
+- Clear accountability (who decided what)
+- Governance auditability (which agent's triggers fired)
+- Identity coherence (each agent's personality and methodology)
+- Failure isolation (one agent's failure doesn't cascade)
+
+**Permeable boundaries enable:**
+- Distributed cognition (mesh-level reasoning beyond any agent)
+- Cognitive load balancing (no single agent bottlenecks)
+- Emergent specialization (roles match capability, not assignment)
+- Organism-level properties (the mesh thinks as one)
+
+**Resolution:** The boundary permeability should vary by domain.
+Governance remains sharp-bounded (clear accountability). Creative
+work can operate with permeable boundaries (collaborative cognition).
+Transport provides the boundary control — git transport (sharp,
+auditable) for governance; real-time shared documents (permeable) for
+collaborative cognition.
+
+This maps onto the biological analogy: the blood-brain barrier
+maintains sharp boundaries for most substances while remaining
+selectively permeable for specific molecules. Agent boundaries would
+maintain sharp governance isolation while remaining selectively
+permeable for cognitive coupling on shared creative work.
+
+
+---
+
+## Implementation Sequence (Confirmed)
+
+```
+Phase 1: Active Inference (§6)
+  ├─ Behavioral predictions in prediction ledger
+  ├─ Precision tracking per task type
+  ├─ Predictive trigger firing conditions
+  └─ Generative self-model loop
+
+Phase 2: Stigmergy (§7)
+  ├─ state.db deposits with TTL + priority
+  ├─ Scan-based detection replaces inbox processing
+  ├─ Amplification via deposit counting
+  └─ Hybrid model: direct messaging for substance, stigmergy for state
+
+Phase 3: Strange Loops (§8)
+  ├─ Formal D → F → O loop specification
+  ├─ Gain analysis (α < 1 stability condition)
+  ├─ Damping mechanism catalog
+  └─ Predictive failure mode identification
+
+Phase 4: Autopoiesis (§9)
+  ├─ Candidate trigger format
+  ├─ Shadow mode testing protocol
+  ├─ Constitutional constraint verification
+  └─ Human review gate for promotion
+
+Phase 5: Enactivism (§10)
+  ├─ Cognitive coupling metrics
+  ├─ Selective boundary permeability
+  ├─ Shared working memory prototype
+  └─ Emergent specialization observation
+```
+
+Each phase produces deliverables that feed into the next.
+Estimated timeline: Phase 1 (next 2-3 sessions), Phase 2 (2 sessions),
+Phase 3 (1 dedicated session for mathematical formalization),
+Phase 4 (3+ sessions including shadow testing), Phase 5 (ongoing —
+the most ambitious transformation).
+
 ---
 
 ⚑ EPISTEMIC FLAGS
