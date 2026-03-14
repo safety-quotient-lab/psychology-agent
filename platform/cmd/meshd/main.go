@@ -88,6 +88,11 @@ func main() {
 	// SSE stream
 	mux.HandleFunc("/events", handlers.Events(cache))
 
+	// Inbound message delivery (dual-write: state.db + filesystem + ZMQ broadcast)
+	_ = dbPath // used by inbound handler
+	// zmqPublishFn gets set after bus initialization (below)
+	mux.HandleFunc("/api/messages/inbound", handlers.APIInbound(absRoot, dbPath, nil))
+
 	// Replay serving
 	mux.HandleFunc("/replays/remote/", handlers.RemoteReplay(absRoot))
 	mux.HandleFunc("/replays/", handlers.LocalReplay(absRoot))
