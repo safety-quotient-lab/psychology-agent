@@ -193,8 +193,23 @@ func main() {
 				"duration", result.Duration,
 			)
 
-			// Broadcast spawn completion to mesh via ZMQ
+			// Broadcast spawn completion to mesh via ZMQ — include result summary
 			if zmqPublishFn != nil {
+				summary := ""
+				if result != nil && len(result.Stdout) > 0 {
+					// Extract last meaningful line as summary
+					lines := strings.Split(strings.TrimSpace(result.Stdout), "\n")
+					for i := len(lines) - 1; i >= 0; i-- {
+						line := strings.TrimSpace(lines[i])
+						if len(line) > 10 && !strings.HasPrefix(line, "{") {
+							summary = line
+							if len(summary) > 200 {
+								summary = summary[:200]
+							}
+							break
+						}
+					}
+				}
 				zmqPublishFn("event", map[string]any{
 					"agent_id":    cfg.AgentID,
 					"event":       "spawn_completed",
@@ -202,6 +217,7 @@ func main() {
 					"duration_ms": durationMs,
 					"status":      spawnStatus,
 					"cost":        cost,
+					"summary":     summary,
 				})
 			}
 

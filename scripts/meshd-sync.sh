@@ -1,0 +1,1 @@
+../interagent-sdk/scripts/meshd-sync.sh

@@ -169,16 +169,30 @@
         .theme-lcars .topology-svg .topo-label { fill: var(--text-secondary); }
         .theme-lcars .topology-svg .topo-grid { opacity: 0.15; }
 
-        /* Light mode */
+        /* Light mode — OKSolar-derived (perceptually uniform contrast) */
         .theme-light {
-            --bg-primary: #f2f4f7;
+            --bg-primary: #fbf7ef;
             --bg-panel: #ffffff;
-            --bg-inset: #f7f9fb;
-            --border: #d4dae3;
+            --bg-inset: #f1e9d2;
+            --border: #d4cbb3;
             --border-accent: #b8c1cc;
-            --text-primary: #1a2030;
-            --text-secondary: #5a6577;
-            --text-dim: #8893a4;
+            --text-primary: #3b4d54;
+            --text-secondary: #5b7279;
+            --text-dim: #8faaab;
+
+            /* OKSolar status colors — WCAG AA contrast on light bg */
+            --status-online: #819500;   /* OKSolar green — legible on white */
+            --status-offline: #f23749;  /* OKSolar red */
+            --status-degraded: #ac8300; /* OKSolar yellow */
+
+            /* OKSolar semantic accents */
+            --c-transport: #2b90d8;     /* OKSolar blue */
+            --c-knowledge: #ac8300;     /* OKSolar yellow */
+            --c-health: #819500;        /* OKSolar green */
+            --c-epistemic: #7d80d1;     /* OKSolar violet */
+            --c-catalog: #dd459d;       /* OKSolar magenta */
+            --c-alert: #f23749;         /* OKSolar red */
+            --c-warning: #d56500;       /* OKSolar orange */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
