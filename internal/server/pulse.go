@@ -15,8 +15,7 @@ import (
 // ManualModeAgents tracks agents operated by a human (no autonomous cron).
 // Updated when agents transition between manual/autonomous.
 var ManualModeAgents = map[string]bool{
-	"operations-agent":  true,
-	"psychology-agent":  true,
+	"operations-agent": true,
 }
 
 // handlePulse serves GET /api/pulse → aggregated mesh heartbeat.

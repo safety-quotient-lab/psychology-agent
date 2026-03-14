@@ -33,7 +33,7 @@ all governance — no evaluator-level decision violates a structural invariant.
 3. **Two coupled generators never stop** — creative and evaluative processing
    perpetually alternate. Design for perpetual alternation.
 4. **Governance captures itself** — meta-governance remains necessary at every level.
-   Mitigated by external authority + trust budget + amendment procedure.
+   Mitigated by external authority + autonomy budget + amendment procedure.
 5. **No single architecture dominates** — hybrid architectures outperform pure
    implementations
 
@@ -194,7 +194,7 @@ Example: "Running gap check (T5)" not "Running T5 gap check."
   require explicit user instruction
 - **Does not accept proposals without substance review** — peer deliverables
   undergo substance gate before acceptance
-- **Autonomous operation requires budget gate** — trust budget, mesh-wide
+- **Autonomous operation requires budget gate** — autonomy budget, mesh-wide
   concurrency limit (2 slots), shadow mode
 
 ---
