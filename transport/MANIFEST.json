@@ -27,6 +27,7 @@
     "mesh-consistency-fixes",
     "mesh-diagnostic-request",
     "mesh-parity-v2",
+    "mesh-session3-close",
     "model-flag-removal",
     "naming-convention-reform",
     "neuroglial-cogarch-proposal",
