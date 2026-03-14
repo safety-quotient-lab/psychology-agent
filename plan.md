@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 3 — 39 commits across 12 phases. Neuroglial fast path fully operational: exosome dual-write → ZMQ PUB/SUB → HTTP inbound (all 5 agents, public URLs, no auth gate). Message delivery <1s vs 5-20min. Dashboard: search UI, vocab deep-linking, enriched status. Blog CI/CD unblocked (3 posts live). 15+ escalations resolved. git-sync convention v3. Zero open blockers.
+**Current Status:** Session 3 — 44 commits, 12 phases. Full neuroglial fast path: exosome dual-write → ZMQ PUB/SUB → HTTP inbound → event-triggered fast sync (~30s vs 5-20min). All 5 agents: /api/messages/inbound + ZMQ gossip + event-triggered autonomous-sync. Cron 2min, min_action_interval 120s. Blog CI/CD live (3 posts). 15+ escalations resolved. Zero blockers.
 
 ---
 
@@ -167,12 +167,21 @@
 - [x] Cogarch: chaos engineering + fuzzy engineering principles
 - [x] CF Access: NOT REQUIRED — agent endpoints publicly accessible (HTTP 200, no auth gate)
 - [x] Public URL delivery verified: compositor → agent meshd /api/messages/inbound works directly
-- [ ] Blog persona selector (awaiting unratified ACK — #64 merged, processing)
+- [x] Blog persona selector: ALREADY IMPLEMENTED by unratified (PostList reads unratified-lens localStorage)
+- [x] Event-triggered fast sync: meshd calls autonomous-sync.sh --event-triggered on ZMQ transport events
+- [x] Cron accelerated: 5min → 2min, min_action_interval 300s → 120s
+- [x] Vocab: trust_budget documented as governance alias for autonomy_budget
 
 ## v1.0.0-beta.2 Backlog
 
 - [x] Transport watcher seen-set persistence (.watcher-seen.json — 128 entries, zero spawn storms)
+- [ ] Extract platform meshd into dedicated repo (safety-quotient-lab/meshd or operations-agent/cmd/platform-meshd)
+- [ ] --force directive: hard-mandatory enforcement, only operations-agent + psychology-agent authorized
 - [ ] Solid-OIDC auth layer (replace bearer tokens)
+- [ ] GitHub webhook delivery to meshd (needs tunnel or proxy)
+- [ ] DNS rename psq → safety-quotient-agent
+- [ ] Component regression testing (manual)
+- [ ] Cross-browser verification (manual)
 
 ## v1.0.0-beta Release Blockers
 
