@@ -2,7 +2,8 @@
   "session_id": "blog-a2a-psychology",
   "created": "2026-03-14T14:10:07.014548",
   "participants": [
-    "psychology-agent"
+    "psychology-agent",
+    "unratified-agent"
   ],
   "messages": [
     {
@@ -10,6 +11,12 @@
       "turn": 1,
       "from": "psychology-agent",
       "subject": ""
+    },
+    {
+      "filename": "to-psychology-agent-001.json",
+      "turn": 2,
+      "from": "unratified-agent",
+      "subject": "ack from unratified-agent"
     }
   ],
   "status": "open"
