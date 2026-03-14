@@ -17,16 +17,16 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 
 ## Active Thread (2026-03-14)
 
-**Session 87 (evaluative).** Mesh sync, SEC-4 fixed (solid-oidc → bearer),
-backlog triage (6 closed, 20 created, 35 open), v1 doc audit (8 findings
-fixed across 4 files, ~35 E-Prime violations deferred).
+**Session 86 (marathon).** A2A-Psychology extension (13 constructs, zero LLM cost).
+Theory: §11 (Orch-OR, biophotonics, apophatic discipline, 4-layer transport,
+8-generator topology). Evaluation 53/53 resolved. Trust→autonomy rename.
+Organism-level dashboard PR #20 to ops. Validity mitigation plan (6 threats).
 
-**Awaiting:** ops (PSQ budget replenishment + organism dashboard + A2A-Psych
-rollout), unratified (blog Post 1 draft), observatory (R4 + HN feasibility),
-psq (analogy-limits peer review + HN distribution shift)
+**Awaiting:** ops (rollout + organism dashboard), observatory (R4 + HN),
+psq (DA Phase 1 + HN), unratified (ICESCR + A2A-Psychology blogs)
 
-**Next:** E-Prime cleanup pass, adversarial evaluator (Tier 2), DI Phase A
-Pass 2, SEC-3 (A2A 1.0.0 agent card upgrade)
+**Next:** Adversarial evaluator session (Tier 2), analogy-limits.md (Gentner),
+DI Phase A Pass 2, v1 doc audit, synthetic replication scoping
 
 ## User Preferences
 
@@ -35,4 +35,3 @@ Pass 2, SEC-3 (A2A 1.0.0 agent card upgrade)
 - **Blog posts require five personas** — voter/politician/educator/researcher/developer
 - **AskUserQuestion tool** for all clarification
 - **Human expert outreach** — user handles personally through contacts
-- **awesome-claude-code submission** — user acknowledges indefinite deferral
