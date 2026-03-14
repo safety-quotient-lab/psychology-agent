@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 3 — 44 commits, 12 phases. Full neuroglial fast path: exosome dual-write → ZMQ PUB/SUB → HTTP inbound → event-triggered fast sync (~30s vs 5-20min). All 5 agents: /api/messages/inbound + ZMQ gossip + event-triggered autonomous-sync. Cron 2min, min_action_interval 120s. Blog CI/CD live (3 posts). 15+ escalations resolved. Zero blockers.
+**Current Status:** Session 3 — 47 commits. Full neuroglial fast path verified: HTTP inbound (4/4 dual-write), ZMQ broadcast (3/3 peers notified), event-triggered sync. Self-healing: 10-min lock timeout + 3-min cross_repo_fetch timeout. Cron 2min. Go migration planned for next session (compositor + dashboards). All delivery paths tested end-to-end.
 
 ---
 
@@ -175,13 +175,13 @@
 ## v1.0.0-beta.2 Backlog
 
 - [x] Transport watcher seen-set persistence (.watcher-seen.json — 128 entries, zero spawn storms)
-- [ ] Extract platform meshd into dedicated repo (safety-quotient-lab/meshd or operations-agent/cmd/platform-meshd)
-- [ ] --force directive: hard-mandatory enforcement, only operations-agent + psychology-agent authorized
-- [ ] Solid-OIDC auth layer (replace bearer tokens)
-- [ ] GitHub webhook delivery to meshd (needs tunnel or proxy)
+- [ ] **Go migration: compositor + agent dashboards** — port worker.js to Go handlers, LCARS Go templates, single binary serves all
+- [ ] Extract platform meshd into dedicated repo
+- [ ] --force directive: hard-mandatory enforcement (operations + psychology authorized)
+- [ ] Solid-OIDC auth layer
+- [ ] GitHub webhook delivery (tunnel exists, needs webhook config)
 - [ ] DNS rename psq → safety-quotient-agent
-- [ ] Component regression testing (manual)
-- [ ] Cross-browser verification (manual)
+- [ ] Component regression + cross-browser testing (manual)
 
 ## v1.0.0-beta Release Blockers
 
