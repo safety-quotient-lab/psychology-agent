@@ -584,6 +584,11 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>" 2>/dev/null || true
 
     log "Pulling latest from origin..."
     local pull_output
+    # fetch-reset transport before pull (git-sync-convention)
+    git fetch origin main 2>/dev/null || true
+    git checkout origin/main -- transport/ 2>/dev/null || true
+    git add transport/ 2>/dev/null || true
+
     pull_output=$(git pull --rebase origin main 2>&1)
     local pull_exit=$?
 
