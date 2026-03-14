@@ -17,18 +17,16 @@ Topic files read on demand by T1 (session start) and /cycle (Step 7).
 
 ## Active Thread (2026-03-14)
 
-**Session 87 (v1 pre-release).** Mesh sync + SEC-4 fix + v1 doc audit (8 findings)
-+ E-Prime cleanup (46 fixes) + efference copy (#196) + GWT broadcast (#195)
-+ RPG scan #002 (5 predictions, 5 governance recs) + A2A 1.0.0 agent card (SEC-3/6/7)
-+ deferred outbound (5/7 sent) + self-readiness-audit closed + CPG blog dispatched.
-GitHub: 11 issues closed, 20 created, ~24 open. v1 gate: Phase 1 complete.
+**Session 87 (evaluative).** Mesh sync, SEC-4 fixed (solid-oidc → bearer),
+backlog triage (6 closed, 20 created, 35 open), v1 doc audit (8 findings
+fixed across 4 files, ~35 E-Prime violations deferred).
 
-**Awaiting:** ops (shadow mode, governance recs PR #23/#24, organism dashboard),
-unratified (blog Post 1, CPG blog PR #71, frontmatter fix), observatory (F9/F11,
-inbox processing), psq (peer review, HN dist shift, budget replenishment)
+**Awaiting:** ops (PSQ budget replenishment + organism dashboard + A2A-Psych
+rollout), unratified (blog Post 1 draft), observatory (R4 + HN feasibility),
+psq (analogy-limits peer review + HN distribution shift)
 
-**Next:** v1 documentation pass (undergrad-accessible), §11 neural correlates review,
-adversarial evaluator Tier 2, DI Phase A Pass 2
+**Next:** E-Prime cleanup pass, adversarial evaluator (Tier 2), DI Phase A
+Pass 2, SEC-3 (A2A 1.0.0 agent card upgrade)
 
 ## User Preferences
 
@@ -37,4 +35,4 @@ adversarial evaluator Tier 2, DI Phase A Pass 2
 - **Blog posts require five personas** — voter/politician/educator/researcher/developer
 - **AskUserQuestion tool** for all clarification
 - **Human expert outreach** — user handles personally through contacts
-- **Docs must read accessible to psychology undergrads** — spotless, presentation-ready
+- **awesome-claude-code submission** — user acknowledges indefinite deferral

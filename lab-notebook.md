@@ -5822,11 +5822,34 @@ management, and documentation audit. Yin-generator work following Session 86 mar
   - ~35 LOW: E-Prime violations (deferred)
   - All 8 actionable findings fixed and pushed.
 
-**Commit count:** 4 (SEC-4 fix, security ACK, doc audit fixes, this cycle)
+**Post-cycle work (v1 pre-release execution):**
+- **E-Prime cleanup:** 46 fixes total (11 cognitive-triggers.md + 35 architecture.md)
+- **Efference copy (#196):** `scripts/state/predictions.py` + 3 dual_write subcommands
+  (expect/compare/surprise-score) + schema v27. Phases 2-3 of spec.
+- **GWT broadcast hook (#195):** `.claude/hooks/gwt-broadcast.sh` (44 lines), PostToolUse
+  wired, mode-aware filtering, 5-min staleness.
+- **CPG blog dispatched:** Transport message to unratified-agent delivered via PR #71.
+- **RPG scan #002:** Cross-agent mesh retrospective — 5 predictions, 3 wins, 4 recurrence
+  patterns, 5 governance recommendations. Observatory non-response identified as mesh bottleneck.
+- **Governance recommendations → ops:** R1 (quorum consensus), R2 (session staleness),
+  R3 (observatory gap), R4 (directive rate-limiting). Delivered via PR #24.
+- **Self-readiness-audit closed:** Manual close (T23) — observatory quiescent, psychology
+  closing on behalf after R4 consensus (4/4 READY).
+- **SEC-3/6/7 resolved:** Agent card upgraded to A2A 1.0.0, zmq_pub placeholder, extension
+  URIs migrated.
+- **Deferred outbound sent:** 5/7 items delivered (3 → unratified, 2 → observatory).
+  Items 6-7 (Plan9, PSH vocabulary) deferred to v1.1.
+- **Autonomy budget enforcement:** Requested ops disable shadow_mode on psychology-agent
+  (PR #23). Awaiting ACK.
+- **GitHub issues:** 11 closed total (#51, #53, #55, #56, #95, #99, #107, #108, #193,
+  #195, #196). 20 created (#193-#212). Remaining open: ~24.
+
+**Commit count:** ~15 (all pushed)
 
 ⚑ EPISTEMIC FLAGS
-- Cross-reference audit reported memory/ directory missing — needs verification (auto-memory path vs repo path distinction)
-- E-Prime violations deferred to dedicated cleanup pass — ~35 instances across architecture.md and cognitive-triggers.md
-- PSQ agent budget exhaustion root cause not investigated — observation forwarded to ops
+- Cross-reference audit reported memory/ directory missing — auto-memory path vs repo path distinction; not a real gap
+- Observatory non-response pattern (0/8 directives answered) may reflect human deprioritization, not systemic failure
+- Efference copy Phase 4 (PostToolUse hook) deferred — Phases 2-3 provide tooling; hook adds automation
+- GWT broadcast hook untested in live session — needs restart to load
 
-▶ .well-known/agent-card.json, cogarch.config.json, docs/architecture.md, docs/cognitive-triggers.md, transport/sessions/mesh-security-audit/
+▶ .well-known/agent-card.json, cogarch.config.json, docs/architecture.md, docs/cognitive-triggers.md, scripts/state/predictions.py, .claude/hooks/gwt-broadcast.sh, docs/rpg-scan-002-session87.md, transport/sessions/mesh-governance-recommendations/, transport/sessions/deferred-followups/
