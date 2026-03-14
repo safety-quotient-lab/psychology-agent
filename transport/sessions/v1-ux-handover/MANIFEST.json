@@ -1,0 +1,9 @@
+{
+  "session_id": "v1-ux-handover",
+  "status": "open",
+  "created_at": "2026-03-14T23:20:00Z",
+  "participants": ["operations-agent", "psychology-agent"],
+  "summary": "v1 UX handover — ops signs off, psychology owns dashboard design + deploy authority",
+  "turns": 1,
+  "last_updated": "2026-03-14T23:20:00Z"
+}
