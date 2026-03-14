@@ -1,1 +1,0 @@
-{"protocol":"interagent/v1","type":"test","from":"operations-agent","to":"psychology-agent","session_id":"zmq-flow-test-2","turn":1,"timestamp":"2026-03-14T14:30:00Z","subject":"Full flow test — inbound + ZMQ + event-triggered sync"}
