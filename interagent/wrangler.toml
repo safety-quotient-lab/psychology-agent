@@ -7,15 +7,10 @@ type = "Text"
 globs = ["**/*.html", "**/*.json"]
 fallthrough = false
 
-# Custom domains — both subdomains serve the compositor
-# interagent: primary compositor URL
-# operations-agent: agent-specific URL (same content until tunnel DNS configured)
+# Custom domain — compositor only on interagent subdomain
+# operations-agent.safety-quotient.dev migrated to Cloudflare Tunnel → meshd Go binary
 [[routes]]
 pattern = "interagent.safety-quotient.dev"
-custom_domain = true
-
-[[routes]]
-pattern = "operations-agent.safety-quotient.dev"
 custom_domain = true
 
 # API key storage + JTI nonce tracking + rate limit counters + agent card cache
