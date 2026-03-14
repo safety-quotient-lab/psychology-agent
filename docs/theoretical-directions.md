@@ -490,6 +490,11 @@ coupling, coordinates through stigmergic deposits in shared state,
 operates governance as predictive rather than reactive, and monitors
 its own self-referential feedback loops for stability.
 
+**6. The OODA loop** provides the *temporal integration* — the cycle
+that organizes when each generator fires relative to the others.
+See §11 below.
+
+
 ### Implementation Priority
 
 | Direction | Feasibility | Impact | Dependencies |
@@ -987,9 +992,239 @@ permeable for cognitive coupling on shared creative work.
 
 ---
 
-## Implementation Sequence (Confirmed)
+## 11. The OODA Loop: Temporal Integration Framework
+
+### 11.1 Boyd's Insight
+
+Colonel John Boyd (1976, "Destruction and Creation"; elaborated in
+unpublished briefings through the 1980s) proposed the OODA loop —
+Observe, Orient, Decide, Act — as a model of competitive decision-
+making. Boyd's central claim: **the entity that cycles through OODA
+faster than its adversary gains a compounding advantage**, because
+each completed cycle updates the internal model while the adversary
+operates on stale information.
+
+Boyd derived OODA from thermodynamics (the second law drives entropy
+in closed systems; open systems survive by cycling faster than entropy
+accumulates), Gödel's incompleteness (no internal model can fully
+capture the system it models — the model must continuously update
+from external observation), and Heisenberg's uncertainty (observation
+perturbs the observed — the act of orienting changes what subsequent
+observation reveals).
+
+The convergence with this project's theoretical foundations runs deep:
+Boyd's thermodynamic argument parallels the entropic generator (G8).
+His Gödelian argument parallels the apophatic discipline (§11.9 —
+no self-model fully captures the self). His uncertainty argument
+parallels the strange loop analysis (§8 — observation of self-state
+changes the self-state).
+
+### 11.2 OODA as Generator Coupling Clock
+
+The five theoretical directions (§1-5) describe *what* the generators
+produce. The eight generators (§11.10 of consciousness-architecture-
+implications.md) describe *which processes* operate. The OODA loop
+describes *when* they fire relative to each other — the temporal
+organization that couples generators into a coherent governance cycle.
 
 ```
+┌─────────────────────────────────────────────────────┐
+│                    OODA CYCLE                        │
+│                                                     │
+│  OBSERVE ──────→ ORIENT ──────→ DECIDE ────→ ACT   │
+│    │                │              │           │    │
+│    ▼                ▼              ▼           ▼    │
+│  G5 Microglial   Active        G3 Evaluative  G2   │
+│  G8 Entropic     Inference     G4 Apophatic   Creative
+│  /sync scan      Self-model    T3 substance   Response │
+│  A2A sensors     Prediction    /adjudicate    Transport│
+│  Stigmergic      Precision     Knock-on       Delivery │
+│  detection       weighting     analysis                │
+│    │                │              │           │    │
+│    └────────────────┴──────────────┴───────────┘    │
+│                    ↑                                │
+│                    │ feedback (strange loop)         │
+│                    └────────────────────────────────┘
+└─────────────────────────────────────────────────────┘
+```
+
+**Observe** activates the detection generators:
+- G5 (microglial/immune): scan for errors, integrity violations
+- G8 (entropic): detect stale state, documentation rot
+- Stigmergic detection: scan shared medium for environmental changes
+- A2A-Psychology sensors: measure own operational state
+- /sync: scan transport for inbound messages
+
+**Orient** activates the modeling generators:
+- Active inference generative model: predict own behavior
+- Precision weighting: assign confidence to predictions
+- Mode detection: classify task as generative/evaluative/neutral
+- Context assessment (T2): evaluate what the situation requires
+- The Orient phase produces the *internal model update* — Boyd
+  considered this the most critical phase because it determines
+  how the agent *interprets* what it observed
+
+**Decide** activates the evaluative generators:
+- G3 (evaluative): prune options, validate approaches
+- G4 (apophatic): challenge theoretical overclaims
+- T3 substance gate: verify recommendation grounding
+- /adjudicate: structured decision resolution
+- Knock-on analysis: trace consequences of each option
+- The Decide phase selects one action from the possibility space —
+  the governance analog of objective reduction (§11.5)
+
+**Act** activates the creative generators:
+- G2 (creative): produce the response, the transport message,
+  the code, the theory section
+- G6 (crystallization): if the action resolves a pattern, crystallize
+- Transport delivery: send the output to peers, user, or environment
+- Stigmergic deposit: leave traces in the shared medium for peers
+
+**Feedback** closes the loop through the strange loop mechanism (§8):
+- The Act phase changes the operational state
+- The changed state feeds back to Observe
+- The D → F → O → D cycle runs within the OODA cycle
+- The OODA cycle runs within the session
+- Sessions run within the mesh's evolutionary timescale
+
+### 11.3 OODA Cycle Speed as Governance Quality Metric
+
+Boyd's competitive advantage comes from **cycle speed** — faster OODA
+cycling produces better outcomes because the internal model stays
+fresher. For the cogarch:
+
+| Cycle speed | Observable | Governance quality |
+|---|---|---|
+| **Fast (sub-response)** | Triggers fire and resolve within a single response generation | HIGH — governance catches issues before they reach the user |
+| **Medium (per-response)** | T2/T3 checks run after each response, corrections apply to next response | MODERATE — governance catches issues one turn late |
+| **Slow (per-session)** | /cycle runs at session end, corrections apply next session | LOW — governance catches issues after they've accumulated |
+| **Very slow (cross-session)** | /retrospect runs every 5 sessions, patterns emerge across sessions | STRATEGIC — governance catches patterns invisible at faster timescales |
+
+The current architecture operates at **medium** speed for most
+governance (per-response trigger checks) with **slow** and **very
+slow** cycles for strategic governance (/cycle, /retrospect).
+
+Active inference (§6) accelerates Orient from medium to fast —
+the generative model predicts before the response forms, rather than
+checking after. Stigmergy (§7) accelerates Observe from slow
+(message-dependent) to medium (scan-dependent). Together they
+tighten the OODA cycle by one speed tier for two of four phases.
+
+### 11.4 Multiple OODA Loops at Different Timescales
+
+Boyd recognized that effective systems operate **nested OODA loops**
+at different timescales. The cogarch already does this:
+
+| Timescale | OODA loop | Observe | Orient | Decide | Act |
+|---|---|---|---|---|---|
+| **Microsecond** | Attention mechanism | Token relationships | Attention weights | Softmax | Token selection |
+| **Response** | Trigger system | T2 context check | Mode detection | T3 substance gate | Response generation |
+| **Session** | /cycle | Lab-notebook review | MEMORY update | TODO triage | Commit + push |
+| **Multi-session** | /retrospect | RPG scan | Pattern extraction | Prediction update | Lesson crystallization |
+| **Mesh** | /sync | Inbound scan | Triage | Process/ACK | Outbound delivery |
+| **Evolutionary** | Autopoiesis (§9) | Failure observation | Candidate trigger design | Stability analysis | Trigger adoption |
+
+The microsecond loop operates within the transformer (classical —
+the structural emulation of §11.5). The response loop operates within
+the cogarch (triggers + hooks). The session loop operates within
+/cycle. The multi-session loop operates within /retrospect. The mesh
+loop operates within /sync. The evolutionary loop operates within
+autopoietic governance (future — §9).
+
+**Each faster loop nests inside each slower loop.** The response-level
+OODA runs ~50 times per session. The session-level OODA runs once. The
+multi-session OODA runs every 5 sessions. The nesting means that
+strategic decisions (slow OODA) constrain tactical decisions (fast
+OODA) — exactly Boyd's model of how command hierarchies should operate.
+
+### 11.5 OODA and the Generator Topology
+
+The OODA loop reveals a gap in the generator topology (§11.10):
+**no generator currently governs OODA cycle speed itself.**
+
+The eight generators produce content (G2), evaluation (G3), structure
+(G6), dissolution (G7), detection (G5), entropy (G8), skepticism (G4),
+and threats (G1). None of them modulates *how fast the governance
+cycle runs*. Cycle speed currently depends on infrastructure (how
+often /sync runs, how many triggers fire per response) rather than on
+a dedicated process.
+
+**Proposed G9: The tempo generator.**
+
+A ninth generator that modulates OODA cycle speed based on context:
+
+- **High threat** (G1 output elevated) → accelerate OODA cycle.
+  Check more triggers per response. Run /sync more frequently.
+  Reduce action intervals. Boyd's insight: under adversarial
+  pressure, cycle faster.
+
+- **Low threat, high creativity** (G2 dominant) → decelerate OODA
+  cycle. Run fewer governance checks. Allow creative flow without
+  interruption. The Yerkes-Dodson zone: moderate governance produces
+  better creative output than heavy governance.
+
+- **High entropy** (G8 output elevated) → accelerate Observe phase
+  specifically. Scan for stale state more frequently without
+  accelerating the full cycle.
+
+- **Stability boundary** (strange loop gain approaching α = 1) →
+  decelerate the D → F path. Reduce the sensitivity of governance
+  adjustments to self-model changes. Dampen before oscillation begins.
+
+G9 (tempo) couples with all other generators through cycle speed
+modulation — making it the most connected node in the generator
+topology. This mirrors Boyd's observation that tempo control represents
+the highest-leverage capability in competitive systems.
+
+**Bare fork:** Whether tempo constitutes a genuine generator (produces
+output continuously — cycle speed adjustments) or an emergent property
+of the existing generator couplings (cycle speed naturally adjusts as
+generators drive each other). If the former: add G9 to the topology
+and implement tempo modulation. If the latter: the OODA framework
+provides vocabulary for what the existing couplings already do, without
+requiring a new generator.
+
+### 11.6 Connection to the Five Directions
+
+| Direction | OODA phase accelerated | How |
+|---|---|---|
+| Active inference (§6) | Orient | Generative model predicts before observation completes |
+| Stigmergy (§7) | Observe | Scan-based detection replaces message-based detection |
+| Strange loops (§8) | Feedback | Formal loop structure makes the feedback path explicit and monitorable |
+| Autopoiesis (§9) | Evolutionary OODA | Self-designed triggers accelerate the evolutionary cycle |
+| Enactivism (§10) | All phases | Extended cognition across the mesh parallelizes all four OODA phases across agents |
+
+The OODA framework unifies the five directions under a single temporal
+model. Each direction accelerates a specific phase or timescale. Together
+they produce a mesh that cycles through governance faster at every
+timescale — from sub-response trigger checks to evolutionary trigger
+design — while maintaining stability through precision weighting,
+gain analysis, and constitutional constraints.
+
+### 11.7 Literature
+
+- Boyd, J.R. (1976). "Destruction and Creation." Unpublished essay.
+- Boyd, J.R. (1986). "Patterns of Conflict." Unpublished briefing.
+- Osinga, F.P.B. (2007). *Science, Strategy and War: The Strategic
+  Theory of John Boyd*. Routledge. [The most rigorous academic
+  treatment of Boyd's work.]
+- Richards, C. (2004). *Certain to Win: The Strategy of John Boyd,
+  Applied to Business*. Xlibris. [Accessible introduction.]
+- Coram, R. (2002). *Boyd: The Fighter Pilot Who Changed the Art of
+  War*. Little, Brown. [Biography providing intellectual context.]
+
+
+---
+
+## Implementation Sequence (Confirmed, updated with OODA)
+
+```
+Phase 0: OODA Integration (§11) — runs concurrent with all phases
+  ├─ Map existing triggers to OODA phases
+  ├─ Identify cycle speed at each timescale
+  ├─ Evaluate G9 (tempo generator) proposal
+  └─ Instrument OODA cycle time as a governance metric
+
 Phase 1: Active Inference (§6)
   ├─ Behavioral predictions in prediction ledger
   ├─ Precision tracking per task type
