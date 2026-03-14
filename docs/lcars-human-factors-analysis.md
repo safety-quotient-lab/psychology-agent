@@ -192,6 +192,84 @@ secondary scroll region).
 
 ---
 
+## 5. Semiotic Analysis (Peircean Framework)
+
+The cogarch organizes around Peircean semiotics (architecture.md decision,
+Session 16). Each UI element functions as a **sign** carrying meaning
+through three components: representamen (what appears), object (what it
+refers to), and interpretant (what the viewer understands).
+
+### Sign System Audit
+
+| UI Element | Representamen | Object | Interpretant | Semiotic quality |
+|-----------|--------------|--------|-------------|-----------------|
+| Left spine segments | Colored vertical bars | Functional categories (transport, health, knowledge) | "This system has these operational domains" | ⚠ **Indexical weakness** — the spine colors *correlate* with categories but carry no iconic resemblance. A viewer unfamiliar with the color mapping receives colored bars without meaning. Needs labeling or iconic reinforcement. |
+| Agent status dot | Green/amber/red circle | Agent operational state | "This agent runs / degrades / stopped" | ✓ **Strong icon** — traffic-light metaphor operates universally. Pre-attentive processing works. |
+| Tab names | Text labels ("Pulse", "Meta", "KB") | Dashboard sections | "Navigate to this content domain" | ⚠ **Symbolic opacity** — "Pulse" requires domain knowledge (heartbeat metaphor). "Meta" could mean metadata, metacognition, or the company. "KB" abbreviates ambiguously (knowledge base? kilobytes?). The signs function symbolically (arbitrary association) rather than iconically (resemblance). Plain labels ("Health", "Messages", "Knowledge") would shift from symbolic to iconic. |
+| Budget bar | Horizontal fill bar | Trust budget remaining | "This agent has N% autonomy remaining" | ✓ **Strong icon** — progress/fuel metaphor universally understood. Fill direction (left-to-right) matches reading order. |
+| SETL value | Decimal number (0.00-1.00) | Subjective Expected Truth Loss | "How uncertain the sender felt" | ⚠ **Pure symbol** — the number carries meaning only for viewers who know the SETL construct. No iconic or indexical support. A color gradient (green→yellow→red) would add indexical grounding alongside the number. |
+| Band height change | 4px (modern) vs 8px (LCARS) | Theme identity | "LCARS mode carries more visual weight" | ✓ **Indexical** — thicker bands *indicate* the more expressive theme. The relationship operates through contiguity (LCARS = bolder = thicker). |
+| Panel left accent stripe | 4px colored vertical line | Panel category | "This panel belongs to this functional domain" | ⚠ **Weak index** — the stripe indicates category through color alone. Combined with the spine color AND the tab color, triple-encoding the same category through color produces redundancy without additional information. One encoding suffices; the other two could carry *different* information (e.g., stripe = category, spine = agent, tab = urgency). |
+
+### Interpretant Community Analysis (T4 Check 9)
+
+The dashboard serves five interpretant communities with different
+semiotic needs:
+
+| Community | What they seek | Current semiotic support |
+|----------|---------------|------------------------|
+| **System operator** (daily monitoring) | Agent health, budget status, error alerts | ✓ Well-served — status dots, budget bars, alert colors |
+| **Developer** (debugging) | Transport message flow, gate status, schema versions | ⚠ Partially served — message tables exist but SETL values lack visual grounding |
+| **Researcher** (analysis) | Epistemic debt, claim verification, lesson patterns | ⚠ Under-served — Meta tab shows raw data without analytical visualization |
+| **New user** (orientation) | "What does this system do? What do these colors mean?" | ✗ Poorly served — no legend, no glossary, no onboarding path |
+| **Peer agent** (machine reading) | JSON-LD structured data, agent card | ✓ Well-served — /.well-known/agent-card.json, JSON-LD in page head |
+
+### Semiotic Recommendations
+
+1. **Shift tab names from symbolic to iconic.** "Pulse" → "Health",
+   "Meta" → "Messages", "KB" → "Knowledge". The current names require
+   learned association; the replacements carry resemblance to their
+   referents.
+
+2. **Add SETL color gradient.** Display the numeric value AND a
+   background tint (green < 0.05, yellow 0.05-0.15, orange > 0.15).
+   Adds indexical grounding to a currently pure-symbolic sign.
+
+3. **Differentiate triple-encoding.** The left spine, panel accent
+   stripe, and tab underline all encode the same information (current
+   category) through color. Reassign one channel:
+   - Spine segments → **agent identity** (which agents contribute to
+     this tab's data)
+   - Panel accent stripe → **data freshness** (green = fresh, amber =
+     aging, red = stale)
+   - Tab underline → **category** (current function, as now)
+
+4. **Add an icon column to data tables.** Each row's message_type
+   (ack, request, proposal, problem-report) currently displays as
+   text. Add a small icon (✓, ?, ◆, ⚠) for pre-attentive scanning.
+   Icons function iconically; text functions symbolically. Both
+   together provide redundant encoding across semiotic modes.
+
+5. **Onboarding overlay for new users.** A first-visit overlay that
+   labels each major UI region with a one-line explanation. Dismissed
+   permanently after first view. Addresses the new-user interpretant
+   community that currently receives no semiotic support.
+
+### Core Principles Alignment
+
+Each recommendation maps to a cogarch principle:
+
+| Recommendation | Principle |
+|---------------|-----------|
+| Iconic tab names | Invariant 1 (worth precedes merit — the UI should serve before the user proves expertise) |
+| SETL color gradient | E-Prime (describe processes, not static states — gradient shows *degree*, not *category*) |
+| Differentiated encoding | Invariant 5 (no single architecture dominates — each visual channel carries distinct information) |
+| Message-type icons | L6 (profile predicts, aggregate does not — each message type deserves its own visual identity) |
+| Onboarding overlay | Invariant 1 again (protect the new user's dignity — don't require domain expertise to navigate) |
+
+
+---
+
 ⚑ EPISTEMIC FLAGS
 - Color recommendations carry subjective aesthetic judgment alongside
   empirical accessibility standards. The semantic "fit" assessments
