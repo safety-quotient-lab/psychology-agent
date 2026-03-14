@@ -1,1 +1,0 @@
-{"protocol":"interagent/v1","type":"test","from":"operations-agent","to":"psychology-agent","session_id":"test-zmq-only","turn":1,"timestamp":"2026-03-14T15:00:00Z","subject":"ZMQ-only delivery test"}

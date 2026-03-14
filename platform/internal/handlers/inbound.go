@@ -71,8 +71,8 @@ func APIInbound(projectRoot, dbPath string, zmqPublish func(string, any) error) 
 		esc := func(s string) string { return strings.ReplaceAll(s, "'", "''") }
 		sql := fmt.Sprintf(
 			"INSERT OR IGNORE INTO transport_messages "+
-				"(filename, session_name, direction, from_agent, to_agent, turn, message_type, subject, timestamp) "+
-				"VALUES ('%s','%s','inbound','%s','%s',%d,'%s','%s','%s');",
+				"(filename, session_name, from_agent, to_agent, turn, message_type, subject, timestamp) "+
+				"VALUES ('%s','%s','%s','%s',%d,'%s','%s','%s');",
 			esc(filename), esc(msg.SessionID), esc(fromAgent), esc(toAgent),
 			msg.Turn, esc(msg.Type), esc(subject), esc(timestamp))
 		if out, dbErr := exec.Command("sqlite3", dbPath, sql).CombinedOutput(); dbErr != nil {
