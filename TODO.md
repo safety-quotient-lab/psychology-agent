@@ -283,6 +283,25 @@ New items from the full cogarch evaluation (`docs/cogarch-evaluation-session85.m
 
 ---
 
+## Hacker News Longitudinal Safety Study
+
+- [ ] **HN psychoemotional safety longitudinal analysis** — 20-year study using
+  open-index/hacker-news dataset (47.3M items, HuggingFace). Research question:
+  does HN communication climate degrade, improve, or cycle over time? Can PSQ
+  detect the pattern? Method: 100 comments/year × 20 years = 2,000 samples,
+  scored with PSQ v37, plotted over time. Connects to ICESCR blog series
+  argument: communication environments require structural protection.
+  *Precondition: PSQ distribution shift testing on HN text (psq-agent
+  investigation, Session 86). Observatory-agent owns feasibility assessment.*
+
+- [ ] **A2A-Psychology validation on HN threads** — score HN discussion threads
+  with PSQ, track emotional trajectory through comment chains, validate whether
+  A2A-Psychology affect constructs (hedonic_valence, activation) predict
+  observable community behavior (thread death, moderation, score patterns).
+  *Precondition: HN longitudinal study feasibility confirmed.*
+
+---
+
 ## Dignity Index
 
 - [ ] **Phase A: Feasibility study** — PASS 1 COMPLETE. 50/50 assessed (27 PASS with DI
