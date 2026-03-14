@@ -1,45 +1,37 @@
 # Psychology Project Memory
 
-**Architecture:** index + topic files. MEMORY.md = always-loaded index (~55 lines).
+**Architecture:** index + topic files. MEMORY.md = always-loaded index (~50 lines).
 Topic files read on demand by T1 (session start) and /cycle (Step 7).
 
 ## Topic Files
 
 | File | Content | Read when |
 |------|---------|-----------|
-| `memory/decisions.md` | Design decisions table + authority hierarchy | T1 session start; decision-making |
-| `memory/cogarch.md` | Trigger quick-ref, knock-on depth, adjudication, working principles | T1 session start; before recommending |
-| `memory/psq-status.md` | PSQ sub-agent calibration, deploy status, open issues | PSQ work in this context (rare) |
-| `memory/infrastructure.md` | Chromabook, Cloudflare, CI/CD, known gotchas | Infrastructure/deploy work |
-| `memory/feedback_chromabook_not_hetzner.md` | Chromabook = local laptop, Hetzner = separate VPS | Infrastructure planning |
-| `memory/feedback_cabinet_port.md` | Cabinet SSH on port 2535, not default 22 | SSH to cabinet |
-| `memory/feedback_mesh_ops_domain.md` | Mesh circuit breaker + autonomous sync = operations-agent domain | Mesh/sync operations |
-| `memory/feedback_rapport_style.md` | After deep work, match tonal shifts — poetic compression closes naturally | Session closure |
-| `memory/project_agent_personality.md` | Agents carry distinct personalities crystallized through operational history | Agent identity design |
-| `memory/feedback_spec_oriented.md` | User prefers spec-level framing — schema before instance, interface before implementation | All presentations |
+| `memory/decisions.md` | Design decisions table + authority hierarchy | T1; decision-making |
+| `memory/cogarch.md` | Trigger quick-ref, knock-on depth, working principles | T1; before recommending |
+| `memory/psq-status.md` | PSQ calibration, deploy status, open issues | PSQ work |
+| `memory/infrastructure.md` | Chromabook, Cloudflare, CI/CD, known gotchas | Infrastructure work |
+| `memory/feedback_spec_oriented.md` | User prefers spec-level framing | All presentations |
+| `memory/feedback_rapport_style.md` | Poetic compression closes naturally | Session closure |
+| `memory/project_agent_personality.md` | Agents carry distinct personalities | Agent identity design |
 
 ## Active Thread (2026-03-14)
 
-**Context:** Psychology agent (collegial mentor, discipline-first) with specialized
-sub-agents and adversarial evaluator. A2A-Psychology extension published.
+**Session 86 (marathon).** A2A-Psychology extension (13 constructs, zero LLM cost).
+Theory: §11 (Orch-OR, biophotonics, apophatic discipline, 4-layer transport,
+8-generator topology). Evaluation 53/53 resolved. Trust→autonomy rename.
+Organism-level dashboard PR #20 to ops. Validity mitigation plan (6 threats).
 
-**Session 86 (landmark — 2026-03-13 evening through 2026-03-14 afternoon):**
-- ✓ A2A-Psychology: 13 constructs, repo published, rollout spec delivered to ops
-- ✓ §11 added to theory doc (Orch-OR, biophotonics, apophatic discipline, 2576 lines)
-- ✓ Evaluation 53/53 resolved. Trust→autonomy 43-file rename. Delivery convention adopted.
-- ✓ 7 new scripts. Sensor calibration. Real-time psychometric refresh (zero LLM cost).
-- ✓ 3 blog series submitted. HN investigation dispatched. Shellcheck clean.
+**Awaiting:** ops (rollout + organism dashboard), observatory (R4 + HN),
+psq (DA Phase 1 + HN), unratified (ICESCR + A2A-Psychology blogs)
 
-**Awaiting:** ops (rollout review), observatory (R4 + HN tracking), psq (DA Phase 1 + HN),
-unratified (ICESCR + A2A-Psychology blogs)
-
-**Next:** Process peer responses, theory track (generator survey, convergence methodology),
-DI Phase A Pass 2, v1 doc audit, shadow mode fix
+**Next:** Adversarial evaluator session (Tier 2), analogy-limits.md (Gentner),
+DI Phase A Pass 2, v1 doc audit, synthetic replication scoping
 
 ## User Preferences
 
 - **Identity: psychology agent first** — discipline before engineering
-- **Blog posts require five personas** — voter/politician/educator/researcher/developer
 - **Spec-oriented pedagogy** — schema before instance, interface before implementation
-- **AskUserQuestion tool** for all clarification — never inline plain text
-- **Cogarch baseline summary** every session start
+- **Blog posts require five personas** — voter/politician/educator/researcher/developer
+- **AskUserQuestion tool** for all clarification
+- **Human expert outreach** — user handles personally through contacts
