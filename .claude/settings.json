@@ -131,6 +131,14 @@
             "timeout": 1000
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/session-metrics.sh"
+          }
+        ]
       }
     ],
     "PostToolUseFailure": [
