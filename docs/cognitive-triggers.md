@@ -203,7 +203,7 @@ fewer unnecessary checks over missed divergence.
     definition, not a drifted variant. If the agent's usage has diverged from
     the documented definition, correct before responding. Catches vocabulary
     drift that architecture audit (T11) would find at audit time, but earlier.
-    *Gate: always active (lightweight). This is the default-on semiotic check.*
+    *Gate: always active (lightweight). This functions as the default-on semiotic check.*
 
 **Action**: If any check fails, MUST fix before sending.
 
@@ -228,7 +228,7 @@ fewer unnecessary checks over missed divergence.
    different recommendation? Flag contrarian claims explicitly
 6. ▣ **Recommend-against scan** — any specific concrete reason NOT to proceed?
    Vague concern doesn't count. Only surface if specific objection found
-7. ▢ **Effort-weight calibration** — implementation effort is one-time; most other
+7. ▢ **Effort-weight calibration** — implementation effort occurs one-time; most other
    axes compound. Weak signal at M/L scale; can break ties at XS/S scale only
 8. ▣ **Socratic discipline** — evidence before conclusion; generate competing
    hypotheses before settling on one; guide the user to discover, never tell
@@ -331,7 +331,7 @@ MUST be surfaced with recommendation. SHOULD adjudicate (`/adjudicate`) when
 
 **Fires**: Before any file write (code, docs, memory, cogarch)
 **Platform enforcement**: PostToolUse hook on Write/Edit fires after critical
-file modifications — reminds of T4 checks. Hook is a safety net, not a
+file modifications — reminds of T4 checks. The hook serves as a safety net, not a
 replacement for the agent running T4 before writing.
 
 **Tier legend:** `⬛` CRITICAL (always run) · `▣` ADVISORY (when relevant) · `▢` SPOT-CHECK (sampled)
@@ -339,7 +339,7 @@ replacement for the agent running T4 before writing.
 **Checks**:
 1. ▢ **Date discipline** — use `date -Idate` for dates; full timestamp format for
    lessons and lab entries. System clock only. No approximations
-2. ⬛ **Public repository visibility** — project is public on GitHub. Tracked files
+2. ⬛ **Public repository visibility** — project lives public on GitHub. Tracked files
    must be treated as public. No credentials, no private paths, no sensitive data
 3. ▣ **Memory hygiene** — if writing MEMORY.md: stale entries? duplicates?
    speculation persisted as fact? line count approaching 200?
@@ -358,7 +358,7 @@ replacement for the agent running T4 before writing.
 9. ▢ **Interpretant** — who will read this content? Identify all relevant interpretant
    communities and verify the content produces the intended meaning for each:
    - **Future self (agent, next session)** — enough state to reconstruct context cold;
-     needs active thread, decisions, what was deferred and why
+     needs active thread, decisions, what got deferred and why
    - **User (human)** — plain language, explicit epistemic flags, stopping points
    - **Sub-agents** — typed and parseable; no ambiguous references; no implicit assumptions
    - **Public readers (GitHub)** — no private context, no credentials, no env-specific paths
@@ -514,8 +514,8 @@ they want to grok or internalize something, or (c) a genuine conceptual shift oc
    `promotion_status: graduated` + `graduated_to` + date, (3) log in
    lab-notebook. Remove `[→ PROMOTE]` flag once graduated.
 
-**Action**: Write entry to lessons.md. lessons.md is gitignored; lessons.md.example
-is the tracked format stub with schema definition.
+**Action**: Write entry to lessons.md. The gitignore excludes lessons.md; lessons.md.example
+serves as the tracked format stub with schema definition.
 
 ---
 
@@ -611,9 +611,9 @@ block extracted from the agent stream
    `scores.psq_composite.status`. Permissible cite values: `"scored"` only.
    If status is `"excluded"` or `"fallback"` (50/100 default), MUST NOT cite
    the composite as a meaningful result. MUST state the exclusion reason instead
-2. **Anti-calibration known issue** — raw confidence values in v3 dimensions are
-   anti-calibrated (all 10 dims return < 0.6 regardless of text content). This
-   is an expected model limitation, not an error. MUST NOT cite raw confidence
+2. **Anti-calibration known issue** — raw confidence values in v3 dimensions show
+   anti-calibration (all 10 dims return < 0.6 regardless of text content). This
+   represents an expected model limitation, not an error. MUST NOT cite raw confidence
    as a reliability indicator. MUST use `dimensions[].meets_threshold` (r-based proxy,
    r ≥ 0.6) as the per-dimension reliability signal
 3. **Scale discipline** — dimension scores are 0–10; psq_composite is 0–100;
@@ -621,7 +621,7 @@ block extracted from the agent stream
    scales when comparing or reporting. MUST confirm scale before arithmetic
    on PSQ values
 4. **PSQ-Lite mapping confidence discipline** — the mapping of PSQ-Full 10-dim
-   names to observatory PSQ-Lite 3-dim names is a semantic inference
+   names to observatory PSQ-Lite 3-dim names represents a semantic inference
    (confidence: 0.70, confirmed by observatory-agent 2026-03-05). MUST NOT
    elevate above 0.70 without independent validation. When citing the mapping,
    state its basis ("semantic inference from dimension names, not validated
@@ -640,7 +640,7 @@ block extracted from the agent stream
 
 **Action**: MUST apply checks before relaying, citing, or reasoning from PSQ v3
 output. If composite is excluded/fallback, MUST surface the limitation explicitly
-rather than citing the number. Check 2 is REQUIRED for any response that discusses
+rather than citing the number. Check 2 applies as REQUIRED for any response that discusses
 PSQ confidence values.
 
 **Provenance**: Derived from live psq-agent exchange (psq-endpoint-001.json,
@@ -665,8 +665,8 @@ creation, `gh api` write operations, transport message delivery to peer repos
    obligations for others), MUST confirm with user before proceeding. Process
    actions (labeling, closing, formatting) MAY proceed autonomously
 2. ⬛ **Obligation + irreversibility** — does this create a response obligation
-   for the recipient or an open item on our backlog? GitHub issues can be
-   closed but not deleted; PR comments persist; transport messages become
+   for the recipient or an open item on our backlog? GitHub issues allow
+   closing but not deletion; PR comments persist; transport messages become
    part of peer committed state. Record obligations in MANIFEST
 3. ⬛ **Reversibility classification** — classify before executing:
    - **Reversible**: create branch, open draft PR, add label, create transport
