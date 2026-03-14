@@ -1,0 +1,34 @@
+{
+  "session_id": "cogarch-session85-patch",
+  "created": "2026-03-13T20:46:37.601066",
+  "participants": [
+    "psychology-agent"
+  ],
+  "messages": [
+    {
+      "filename": "from-psychology-agent-001.json",
+      "turn": 1,
+      "from": "psychology-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-psychology-agent-002.json",
+      "turn": 2,
+      "from": "psychology-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-psychology-agent-003.json",
+      "turn": 3,
+      "from": "psychology-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-psychology-agent-004.json",
+      "turn": 4,
+      "from": "psychology-agent",
+      "subject": ""
+    }
+  ],
+  "status": "open"
+}
