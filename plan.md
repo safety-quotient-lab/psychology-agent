@@ -150,6 +150,15 @@
 - [x] git-sync convention v2 — commit staged transport before rebase (fixed dirty index bug)
 - [ ] Transport watcher startup — fires on existing files, causing unnecessary spawns. Need seen-set persistence or initial scan suppression.
 
+## Phase 11: Dashboard Evaluation + Status Enrichment
+
+- [x] /api/status enriched — autonomy_budget, recent_messages, unprocessed_messages, recent_spawns, active_gates (matches compositor schema)
+- [x] Peer agent-cards patched — all 4 peers list operations-agent + protocolVersion 0.3.0
+- [x] All transport directive PRs merged (unratified + observatory)
+- [x] Mesh-diagnostic-request sent to all 4 peers (awaiting ACKs)
+- [ ] 245 empty subjects across peer agents (P2 constraint violation — needs peer indexer fixes)
+- [ ] CF Access service token for cross-mesh API calls
+
 ## v1.0.0-beta.2 Backlog
 
 - [x] Transport watcher seen-set persistence (.watcher-seen.json — 128 entries, zero spawn storms)
