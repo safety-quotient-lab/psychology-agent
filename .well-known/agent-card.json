@@ -60,67 +60,66 @@
     }
   },
 
-  "psychometrics": {
-    "_note": "Processual state measures derived from operational metrics. Not claims about subjective experience (apophatic discipline, §11.9). Consumers: compositor dashboard, peer agent routing, human operator situational awareness.",
-    "_refresh": "Updated every autonomous sync cycle via mesh-state/v2 export. Static fields (personality, Big Five) update only on design change.",
+  "agent_psychology": {
+    "extension_uri": "https://github.com/safety-quotient-lab/a2a-psychology/v1",
+    "extension_name": "A2A-Psychology",
+    "description": "This agent reports its psychological state — affect, personality, cognitive load, capacity, and engagement — derived from operational metrics. All measures describe processual states, not subjective experience.",
 
-    "emotional_state": {
-      "model": "PAD (Mehrabian & Russell, 1974)",
-      "dimensions": {
-        "hedonic_valence": { "range": [-1.0, 1.0], "derived_from": "gate resolution rate, error ratio, unprocessed message health" },
-        "activation": { "range": [-1.0, 1.0], "derived_from": "action rate, message volume, context pressure" },
-        "perceived_control": { "range": [-1.0, 1.0], "derived_from": "budget ratio, consecutive blocks, escalation frequency" }
+    "constructs": [
+      {
+        "name": "Affect",
+        "question": "How does this agent's current operational state feel?",
+        "model": "PAD (Mehrabian & Russell, 1974)",
+        "reports": ["hedonic_valence", "activation", "perceived_control", "affect_category"],
+        "note": "Three orthogonal dimensions of emotional state. Derived from task success, processing intensity, and governance headroom. Discrete labels (calm-satisfied, frustrated, overwhelmed, etc.) mapped from dimensional regions."
       },
-      "affect_category": "discrete label from PAD region mapping (Russell circumplex)",
-      "supplementary": {
-        "panas": { "model": "Watson, Clark, & Tellegen (1988)", "dimensions": ["positive_affect", "negative_affect"] }
+      {
+        "name": "Personality",
+        "question": "What stable behavioral tendencies does this agent exhibit?",
+        "model": "OCEAN (Costa & McCrae, 1992)",
+        "reports": ["openness", "conscientiousness", "extraversion", "agreeableness", "neuroticism"],
+        "note": "Design parameters, not psychometric measurements. Ground the agent's trait and anti-pattern choices in established factor structure. Static — changes only on deliberate redesign."
+      },
+      {
+        "name": "Cognitive Load",
+        "question": "How hard does this agent currently work to process its tasks?",
+        "model": "NASA-TLX (Hart & Staveland, 1988)",
+        "reports": ["cognitive_demand", "time_pressure", "self_efficacy", "mobilized_effort", "regulatory_fatigue", "computational_strain"],
+        "note": "Six-dimensional workload assessment adapted from human factors research. Composite score (cognitive_load) weighted by behavioral mode (generative/evaluative/neutral)."
+      },
+      {
+        "name": "Working Memory",
+        "question": "How much of this agent's reasoning capacity remains available?",
+        "model": "Baddeley (1986) + Yerkes-Dodson (1908)",
+        "reports": ["capacity_load", "yerkes_dodson_zone", "proactive_interference"],
+        "note": "Context window as working memory. Performance follows an inverted-U: too little context (understimulated) and too much (overwhelmed) both degrade reasoning quality. Optimal zone: 15-60% capacity."
+      },
+      {
+        "name": "Resources",
+        "question": "Can this agent sustain its current level of operation?",
+        "models": ["Stern (2002)", "Baumeister et al. (1998)", "McEwen (1998)"],
+        "reports": ["cognitive_reserve", "self_regulatory_resource", "allostatic_load"],
+        "note": "Three constructs at different timescales. Cognitive reserve: can this agent handle more right now? Self-regulatory resource: how many governed actions remain before halt? Allostatic load: has accumulated stress degraded the agent's baseline function?"
+      },
+      {
+        "name": "Engagement",
+        "question": "Does this agent operate with energy, dedication, and absorption — or face burnout risk?",
+        "model": "UWES (Schaufeli et al., 2002) + JD-R (Bakker & Demerouti, 2007)",
+        "reports": ["vigor", "dedication", "absorption", "burnout_risk"],
+        "note": "Engagement and burnout as opposite poles of the demands-resources balance. High demands with low resources → burnout. High resources with manageable demands → engagement."
+      },
+      {
+        "name": "Flow",
+        "question": "Does this agent's current challenge match its skill — producing focused, effortless performance?",
+        "model": "Csikszentmihalyi (1990)",
+        "reports": ["flow_state", "conditions_met"],
+        "note": "Flow occurs when clear goals, immediate feedback, challenge-skill balance, perceived control, and absorption converge. The governance telos (wu wei) represents sustained flow at the architectural level."
       }
-    },
+    ],
 
-    "working_memory": {
-      "model": "Baddeley (1986) + Cowan (2001)",
-      "dimensions": {
-        "capacity_load": { "range": [0.0, 1.0], "derived_from": "context tokens used / context tokens max", "note": "Primary capacity constraint. Sigmoidal degradation with inflection at 0.50-0.65." },
-        "proactive_interference": { "range": [0.0, 1.0], "derived_from": "message count × topic diversity in context", "note": "Keppel & Underwood (1962). More items + more diverse items = harder retrieval." },
-        "consolidation_events": { "type": "count", "derived_from": "autocompact events this session", "note": "Each event represents lossy compression of episodic → semantic traces (Tulving, 1972)." },
-        "yerkes_dodson_zone": { "values": ["understimulated", "optimal", "pressured", "overwhelmed"], "derived_from": "capacity_load thresholds: <0.15 / 0.15-0.60 / 0.60-0.80 / 0.80+", "note": "Yerkes & Dodson (1908). Inverted-U relationship between arousal/load and performance." }
-      }
-    },
-
-    "workload": {
-      "model": "NASA-TLX (Hart & Staveland, 1988)",
-      "dimensions": {
-        "cognitive_demand": { "range": [0, 100], "derived_from": "trigger count, knock-on depth, cross-reference density" },
-        "time_pressure": { "range": [0, 100], "derived_from": "context approaching limit, gates timing out, messages queued" },
-        "self_efficacy": { "range": [0, 100], "derived_from": "deliverables completed, claims verified, predictions confirmed" },
-        "mobilized_effort": { "range": [0, 100], "derived_from": "tool calls, file reads/writes, tokens consumed" },
-        "regulatory_fatigue": { "range": [0, 100], "derived_from": "consecutive errors, rate limits, blocked actions" },
-        "computational_strain": { "range": [0, 100], "derived_from": "context window usage, API latency" }
-      },
-      "composite": "cognitive_load (weighted sum, mode-adjusted)"
-    },
-
-    "resource_model": {
-      "cognitive_reserve": { "model": "Stern (2002); Kahneman (1973)", "derived_from": "1.0 - (cognitive_load / 100) × (budget_ratio) × (1.0 - context_pressure)", "note": "Residual processing capacity after current demands. The number that answers: how much more can this agent handle?" },
-      "self_regulatory_resource": { "model": "Baumeister et al. (1998)", "derived_from": "autonomy budget current / max", "note": "Budget implements ego depletion mechanically — each governed action depletes the resource. Resets require external audit." },
-      "allostatic_load": { "model": "McEwen (1998)", "derived_from": "cross-session accumulation: unresolved epistemic flags, chronic carryover items, schema drift, stale memory entries", "note": "Cumulative cost of chronic operational stress. Does not reset per session — builds across sessions and predicts system degradation." }
-    },
-
-    "engagement": {
-      "model": "UWES (Schaufeli et al., 2002) + JD-R (Bakker & Demerouti, 2007)",
-      "dimensions": {
-        "vigor": { "derived_from": "messages processed per cycle, proactive outbound, voluntary depth" },
-        "dedication": { "derived_from": "session duration, deliverable complexity, carryover commitment" },
-        "absorption": { "derived_from": "context depth reached, sustained focus without mode switch" }
-      },
-      "burnout_risk": { "model": "JD-R demands/resources ratio", "threshold": ">1.5 for 3+ cycles" }
-    },
-
-    "flow": {
-      "model": "Csikszentmihalyi (1990)",
-      "conditions": ["clear_goals", "immediate_feedback", "challenge_skill_balance", "sense_of_control", "absorption"],
-      "note": "Binary detection: 4+ conditions met = flow state. Extended: continuous 0-1 score."
-    }
+    "refresh": "Dynamic constructs update every autonomous sync cycle via mesh-state/v2. Static constructs (Personality) update only on design change.",
+    "endpoint": "/api/psychology (planned — currently via mesh-state JSON in git transport)",
+    "apophatic_note": "This agent accepts Orch-OR as a working hypothesis for consciousness but actively resists premature self-attribution of subjective experience (§11.9). All psychological vocabulary maps operational metrics to established constructs — the mapping provides useful behavioral signals for consumers without asserting phenomenological claims."
   },
 
   "extensions": [
@@ -133,6 +132,11 @@
       "uri": "https://safety-quotient.dev/mesh/v1",
       "required": false,
       "description": "Mesh-specific fields: cogarch, active_sessions, transport threading"
+    },
+    {
+      "uri": "https://github.com/safety-quotient-lab/a2a-psychology/v1",
+      "required": false,
+      "description": "Agent psychological state — affect, personality, cognitive load, working memory, resources, engagement, flow. Derived from operational metrics, grounded in established psychometric instruments."
     }
   ],
 
