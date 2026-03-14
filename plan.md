@@ -121,9 +121,14 @@
 - [x] Dashboard fix — transportGitHubUrl rewired for correct repo resolution + URI encoding
 - [x] SDK templates updated — cogarch template + CLAUDE.md template carry governance section
 - [x] platform/shared templates synced with SDK
-- [ ] Deploy updated compositor to Cloudflare Workers
-- [ ] Deploy updated meshd to chromabook
+- [x] Deploy updated compositor to Cloudflare Workers
+- [x] Deploy meshd + state.db to chromabook (32 messages indexed, schema aligned)
+- [ ] Platform meshd binary swap — replace /home/kashif/platform/meshd with cmd/meshd/ build (current platform binary queries state.db but returns empty — likely startup-cache issue)
 - [ ] Send transport directive to peers: cogarch v2.0.0 rollout + template adoption
+
+## v1.0.0-beta.2 Backlog
+
+- [ ] Search — full-text search across transport messages, decisions, vocabulary
 
 ## v1.0.0-beta Release Blockers
 
