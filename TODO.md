@@ -115,6 +115,14 @@ New items from the full cogarch evaluation (`docs/cogarch-evaluation-session85.m
 
 ---
 
+## v1 Release
+
+- [x] **v1 doc audit (release blocker)** — COMPLETE (Session 87). 4-agent parallel
+  audit: architecture.md, cognitive-triggers.md, cross-references, vocabulary.
+  8 findings fixed. ~35 E-Prime violations cleanup in progress. GH #194.
+
+---
+
 ## Architecture
 
 - [ ] **Internal code naming convention reform** — Option C resolved (kebab canonical +
