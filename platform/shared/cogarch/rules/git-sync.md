@@ -40,15 +40,22 @@ Replace the `git pull` step in autonomous sync scripts with:
 git fetch origin main
 # Overwrite transport cache with origin's canonical version
 git checkout origin/main -- transport/ 2>/dev/null || true
-# Stage any transport changes to prevent "untracked file" conflicts
+# Stage and COMMIT transport changes so rebase has clean index
 git add transport/ 2>/dev/null || true
-# Merge remaining changes (non-transport code)
-git merge origin/main --no-edit || {
+git diff --cached --quiet 2>/dev/null || \
+  git commit -m "autonomous: sync transport cache with origin" --no-verify 2>/dev/null || true
+# Rebase remaining changes (non-transport code)
+git pull --rebase origin main || {
   echo "Merge conflict in non-transport files — escalate"
-  git merge --abort
+  git rebase --abort 2>/dev/null
   exit 1
 }
 ```
+
+**Critical:** The `git add` stages transport changes, and `git pull --rebase`
+refuses to rebase with a dirty index. The `git commit` between them ensures
+the index stays clean. Without this commit, every cycle fails with
+"cannot pull with rebase: Your index contains uncommitted changes."
 
 ## Scope
 
