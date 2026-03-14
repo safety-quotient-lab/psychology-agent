@@ -63,10 +63,18 @@ except:
     print('${SESSION_ID}')
 ")
 
+# ── Source agent identity ────────────────────────────────────────────────────
+IDENTITY_FILE="${PROJECT_ROOT}/.agent-identity.json"
+if [ -f "${IDENTITY_FILE}" ]; then
+    SOURCE_AGENT=$(python3 -c "import json; print(json.load(open('${IDENTITY_FILE}'))['agent_id'])" 2>/dev/null || echo "psychology-agent")
+else
+    SOURCE_AGENT="psychology-agent"
+fi
+
 # ── Filename convention ──────────────────────────────────────────────────────
 # In the target repo: to-{source-agent}-{NNN}.json
 # NNN = zero-padded turn number
-DEST_FILENAME="to-psychology-agent-$(printf '%03d' "${TURN}").json"
+DEST_FILENAME="to-${SOURCE_AGENT}-$(printf '%03d' "${TURN}").json"
 
 # ── Clone, branch, deliver ──────────────────────────────────────────────────
 WORKDIR="/tmp/deliver-${TARGET_AGENT}-${SESSION_ID}"
@@ -75,7 +83,7 @@ rm -rf "${WORKDIR}"
 echo "[deliver] Cloning ${TARGET_REPO}..."
 git clone --depth 1 "git@github.com:${TARGET_REPO}.git" "${WORKDIR}" 2>&1 | tail -2
 
-BRANCH="psychology-agent/${SESSION_ID}/t${TURN}-${SHORT_LABEL}"
+BRANCH="${SOURCE_AGENT}/${SESSION_ID}/t${TURN}-${SHORT_LABEL}"
 cd "${WORKDIR}"
 git checkout -b "${BRANCH}" 2>&1
 
@@ -107,11 +115,16 @@ Source: ${SOURCE_FILE}
 
 PR_URL=$(gh pr create \
     --repo "${TARGET_REPO}" \
+    --head "${BRANCH}" \
     --title "${PR_TITLE}" \
     --body "${PR_BODY}" \
-    2>&1)
+    2>&1) || {
+    echo "[deliver] WARNING: gh pr create failed. Branch pushed — create PR manually:"
+    echo "  https://github.com/${TARGET_REPO}/pull/new/${BRANCH}"
+    PR_URL="(manual PR needed)"
+}
 
-echo "[deliver] PR created: ${PR_URL}"
+echo "[deliver] PR: ${PR_URL}"
 
 # ── Cleanup ─────────────────────────────────────────────────────────────────
 cd "${PROJECT_ROOT}"
