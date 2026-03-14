@@ -81,6 +81,49 @@ git add -u 2>/dev/null || true
 git diff --cached --quiet 2>/dev/null || git commit -m "autonomous: pre-sync commit" --no-verify 2>/dev/null || true
 git pull --rebase origin main 2>/dev/null || true
 
+# ── Auto-merge transport PRs via worktree (no Claude spawn needed) ──────────
+# Transport PRs (interagent messages) can merge mechanically — they add
+# JSON files to transport/sessions/ and require no code review.
+if [ "$OPEN_PRS" -gt 0 ] && command -v gh >/dev/null 2>&1; then
+    echo "[meshd-sync] Processing ${OPEN_PRS} open PRs via worktree..."
+    REPO=$(cd "$PROJECT_ROOT" && git remote get-url origin 2>/dev/null | sed 's|.*github.com[:/]||;s|\.git$||')
+    WORKTREE_DIR="/tmp/meshd-worktree-${AGENT_ID:-agent}"
+
+    # Get list of transport PRs (title starts with "interagent:")
+    PR_NUMBERS=$(gh pr list --repo "$REPO" --state open --json number,title \
+        --jq '.[] | select(.title | startswith("interagent:")) | .number' 2>/dev/null)
+
+    if [ -n "$PR_NUMBERS" ]; then
+        MERGED_COUNT=0
+        for pr_num in $PR_NUMBERS; do
+            # Verify PR only touches transport/sessions/ (safe to auto-merge)
+            FILES_OUTSIDE=$(gh pr diff "$pr_num" --repo "$REPO" --name-only 2>/dev/null \
+                | grep -v '^transport/sessions/' | head -1)
+
+            if [ -n "$FILES_OUTSIDE" ]; then
+                echo "[meshd-sync] PR #${pr_num}: touches non-transport files — skip auto-merge"
+                continue
+            fi
+
+            # Merge via API (no worktree needed for pure transport messages)
+            if gh pr merge "$pr_num" --repo "$REPO" --merge 2>/dev/null; then
+                echo "[meshd-sync] PR #${pr_num}: merged (transport auto-merge)"
+                MERGED_COUNT=$((MERGED_COUNT + 1))
+            else
+                echo "[meshd-sync] PR #${pr_num}: merge failed — may need manual review"
+            fi
+        done
+
+        if [ "$MERGED_COUNT" -gt 0 ]; then
+            echo "[meshd-sync] Auto-merged ${MERGED_COUNT} transport PRs"
+            # Pull the merged content
+            git pull --rebase origin main 2>/dev/null || true
+            # Re-count work — some PRs may have resolved unprocessed items
+            OPEN_PRS=$((OPEN_PRS - MERGED_COUNT))
+        fi
+    fi
+fi
+
 # ── Build focused prompt ────────────────────────────────────────────────────
 PROMPT="/sync"
 if [ "$UNPROCESSED" -gt 0 ]; then
