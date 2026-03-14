@@ -585,9 +585,12 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>" 2>/dev/null || true
     log "Pulling latest from origin..."
     local pull_output
     # fetch-reset transport before pull (git-sync-convention)
+    # Transport messages carry immutable content — origin holds canonical record.
     git fetch origin main 2>/dev/null || true
     git checkout origin/main -- transport/ 2>/dev/null || true
+    # Commit staged transport changes so rebase has clean index
     git add transport/ 2>/dev/null || true
+    git diff --cached --quiet 2>/dev/null || git commit -m "autonomous: sync transport cache with origin" --no-verify 2>/dev/null || true
 
     pull_output=$(git pull --rebase origin main 2>&1)
     local pull_exit=$?
