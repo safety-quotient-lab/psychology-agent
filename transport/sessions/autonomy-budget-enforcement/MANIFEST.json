@@ -1,0 +1,12 @@
+{
+  "session_id": "autonomy-budget-enforcement",
+  "status": "open",
+  "created_at": "2026-03-14T21:00:00Z",
+  "participants": [
+    "psychology-agent",
+    "operations-agent"
+  ],
+  "summary": "Inbound from psychology-agent",
+  "turns": 1,
+  "last_updated": "2026-03-14T21:00:00Z"
+}

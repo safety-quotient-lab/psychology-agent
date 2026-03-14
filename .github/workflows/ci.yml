@@ -56,11 +56,21 @@ jobs:
           with open('.well-known/agent-card.json') as f:
               card = json.load(f)
           errors = []
-          for field in ['protocolVersion', 'name', 'provider']:
+          # A2A 1.0.0 required fields (protocolVersion replaced by supported_interfaces)
+          for field in ['name', 'version', 'provider']:
               if field not in card: errors.append(f'Missing required: {field}')
+          # Must have either protocolVersion (0.3.0) or supported_interfaces (1.0.0)
+          if 'protocolVersion' not in card and 'supported_interfaces' not in card:
+              errors.append('Missing: protocolVersion or supported_interfaces')
           prov = card.get('provider', {})
           if isinstance(prov, dict) and not prov.get('organization'):
               errors.append('provider.organization missing')
+          # Capabilities required in 1.0.0
+          if 'capabilities' not in card:
+              errors.append('Missing: capabilities')
+          # Skills required
+          if not card.get('skills'):
+              errors.append('Missing or empty: skills')
           if errors:
               for e in errors: print(f'ERROR: {e}', file=sys.stderr)
               sys.exit(1)
