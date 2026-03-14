@@ -1,11 +1,11 @@
-# EF-1 Trust Model — Jurisprudence Extensions
+# EF-1 Autonomy Model — Jurisprudence Extensions
 
 **Date:** 2026-03-13 (Session 85 — extracted from cross-traditional analysis)
-**Status:** Active — theoretical grounding for docs/ef1-trust-model.md
+**Status:** Active — theoretical grounding for docs/ef1-autonomy-model.md
 **Discipline:** Jurisprudence (constitutional law, international governance, mechanism design)
-**Governed by:** `docs/ef1-governance.md` — core governance trust model
+**Governed by:** `docs/ef1-governance.md` — core governance autonomy model
 **Companion docs:**
-- `docs/ef1-trust-model.md` — Engineering spec (what the code implements)
+- `docs/ef1-autonomy-model.md` — Engineering spec (what the code implements)
 - `docs/ef1-psychological-foundations.md` — Psychology (cognitive, social, organizational)
 **Derivation source:** `docs/einstein-freud-rights-theory.md` §§4, 8, 9
 
@@ -13,7 +13,7 @@
 
 ## Purpose
 
-The EF-1 trust model receives interpretation through three disciplinary
+The EF-1 autonomy model receives interpretation through three disciplinary
 lenses. This document provides the jurisprudence lens — mapping governance
 mechanisms to constitutional law, international governance theory, and
 mechanism design. Content extracted from Session 85's cross-traditional
@@ -33,7 +33,7 @@ structural rights, not aggregate outcomes.
 | Rights as trumps over policy | Invariants override instructions regardless of instruction quality |
 | Principles vs. policies | Governance invariants vs. operational efficiency |
 | Dignity as non-consequentialist foundation | Structural Invariant 1 (worth precedes merit) |
-| Rights constrain even when costly | Trust budget halts even competent autonomous operation |
+| Rights constrain even when costly | autonomy budget halts even competent autonomous operation |
 
 **When trumps clash:** Dworkin's framework handles rights vs. policy cleanly
 but struggles when rights conflict with each other. The maqasid priority
@@ -48,7 +48,7 @@ Einstein's three-step analysis maps to EF-1:
 
 1. **Community pools power** → Agent system aggregates cognitive capabilities
 2. **Constitutional constraints** → 12 invariants constrain autonomous action
-3. **Enforcement mechanism** → Hook system + trust budget + human escalation
+3. **Enforcement mechanism** → Hook system + autonomy budget + human escalation
 
 **The UNSC veto problem** demonstrates the failure mode Einstein didn't
 address: governance structures designed to protect rights become tools of
@@ -56,7 +56,7 @@ the powerful. Five EF-1 mitigations address this:
 
 1. No absolute veto — invariants constrain even human-directed behavior
 2. Resolution fallback prevents deadlock (4 levels)
-3. Trust budget imposes term limits on autonomous power
+3. autonomy budget imposes term limits on autonomous power
 4. Evaluator maintains independence from the governed
 5. Amendment procedure requires external (human) authority
 
@@ -77,7 +77,7 @@ three specific tensions with the current EF-1 design:
 2. **Agent input on amendments.** The amendment procedure requires human
    approval only. Symmetric constraints would require agent input.
 
-3. **Evaluator budget.** The evaluator operates without a trust budget.
+3. **Evaluator budget.** The evaluator operates without a autonomy budget.
    The governed face budget constraints; the governor does not.
 
 These represent open design tensions, not resolved decisions. Each
@@ -88,7 +88,7 @@ carries knock-on consequences that require analysis before resolution.
 ## Mechanism Design (Hurwicz, 1972)
 
 **Incentive compatibility analysis:** The EF-1 framework penalizes
-(trust budget depletion) but never rewarded truthful self-reporting.
+(autonomy budget depletion) but never rewarded truthful self-reporting.
 
 **The structural gap:** Classical mechanism design achieves incentive
 compatibility through bidirectional transfers. Unidirectional penalty
@@ -117,7 +117,7 @@ map to EF-1:
 | 2. Congruence (rules match local conditions) | DDD layer DOF gradient — domain rules differ from infrastructure |
 | 3. Collective-choice arrangements | Amendment procedure allows proposals from any agent |
 | 4. Monitoring (accountable to community) | Transparent audit trail (Invariant 6); trigger_activations |
-| 5. Graduated sanctions | Trust budget decrements (1 credit routine, 3 credits moderate); not binary |
+| 5. Graduated sanctions | autonomy budget decrements (1 credit routine, 3 credits moderate); not binary |
 | 6. Conflict resolution (low-cost, local) | 4-level resolution fallback (consensus first, human last) |
 | 7. Minimal recognition of self-governance | Tier 1 self-evaluation permitted for routine actions |
 | 8. Nested enterprises | Trigger → hook → evaluator → human escalation (nested governance layers) |

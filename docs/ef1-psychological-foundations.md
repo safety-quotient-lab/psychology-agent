@@ -1,11 +1,11 @@
-# EF-1 Trust Model — Psychological Foundations
+# EF-1 Autonomy Model — Psychological Foundations
 
 **Date:** 2026-03-09
-**Status:** Active — theoretical grounding for docs/ef1-trust-model.md
+**Status:** Active — theoretical grounding for docs/ef1-autonomy-model.md
 **Discipline:** Psychology (cognitive, social, organizational)
-**Governed by:** `docs/ef1-governance.md` — core governance trust model (7 invariants, BCP 14 keywords)
+**Governed by:** `docs/ef1-governance.md` — core governance autonomy model (7 invariants, BCP 14 keywords)
 **Companion docs:**
-- `docs/ef1-trust-model.md` — engineering spec (what the code implements)
+- `docs/ef1-autonomy-model.md` — engineering spec (what the code implements)
 - `docs/ef1-jurisprudence-extensions.md` — legal theory (planned)
 
 **Requirement-level keywords:** Per BCP 14 (RFC 2119 + RFC 8174), UPPER CASE
@@ -18,7 +18,7 @@ full definitions.
 
 ## Purpose
 
-The EF-1 trust model replaces human-as-TTP (Trusted Third Party) with
+The EF-1 autonomy model replaces human-as-TTP (Trusted Third Party) with
 evaluator-as-arbiter for autonomous agent operation. This document maps
 each mechanism in the engineering spec to its theoretical grounding in
 psychology, identifying where the design aligns with established theory,
@@ -26,7 +26,7 @@ where it diverges, and what predictions the theory makes about system
 behavior.
 
 **Framing:** This agent operates as a psychology agent — the discipline
-comes first; engineering serves it. The trust model should not merely
+comes first; engineering serves it. The autonomy model should not merely
 borrow psychological terminology but should demonstrate why these
 psychological constructs predict the model's effectiveness (or failure
 modes) better than engineering intuition alone.
@@ -95,7 +95,7 @@ boundary produce either: (a) degraded quality responses masked as
 confident, or (b) avoidance (no response, extended latency). Both
 patterns represent failure modes that the evaluator should monitor.
 
-**Design implication:** The trust budget serves as a *resource depletion*
+**Design implication:** The autonomy budget serves as a *resource depletion*
 signal — as budget decreases, the agent's capacity for high-quality
 evaluation decreases (analogous to ego depletion, Baumeister et al.,
 1998, though noting the replication concerns around this construct).
@@ -217,7 +217,7 @@ few autonomous sync cycles establish what "normal autonomous operation"
 looks like — subsequent cycles reference those norms rather than the
 original design spec.
 
-**Implication for trust budget:** The initial 20-credit cycle matters
+**Implication for autonomy budget:** The initial 20-credit cycle matters
 more than subsequent cycles. The first human audit should examine not
 just whether actions were correct but whether the norms they established
 are desirable.
@@ -253,7 +253,7 @@ budget on false negatives.
 **Construct:** Escalation of commitment (Staw, 1976); sunk cost
 fallacy; entrapment (Brockner & Rubin, 1985).
 
-Once an action executes, the system has invested resources (trust budget
+Once an action executes, the system has invested resources (autonomy budget
 credits, state changes, peer agent reactions). Subsequent decisions
 become biased toward justifying the initial action rather than
 evaluating independently. This creates path dependency — early actions
@@ -372,7 +372,7 @@ consumes cognitive resources. The budget provides a mechanical analog:
 
 **Note on ego depletion:** The ego depletion model (Baumeister et al.,
 1998) has faced replication challenges (Hagger et al., 2016 multi-lab
-replication found no effect). The trust budget does not depend on the
+replication found no effect). The autonomy budget does not depend on the
 ego depletion mechanism being real in humans — it serves as a
 *conservative engineering constraint* that happens to mirror the
 theoretical construct. Even if ego depletion does not exist in humans,
@@ -428,7 +428,7 @@ This document grounds EF-1 mechanisms in psychology. The same pattern
 applies to other disciplines:
 
 - **Jurisprudence** (`docs/ef1-jurisprudence-extensions.md`, planned) —
-  maps the trust model to due process, chain of custody, burden of proof,
+  maps the autonomy model to due process, chain of custody, burden of proof,
   and judicial review. The 4-level resolution fallback mirrors the court
   system: stipulated facts (consensus) → summary judgment (parsimony) →
   bench trial (pragmatism) → jury trial (ask).
@@ -439,10 +439,10 @@ applies to other disciplines:
 
 - **Information theory** (future) — maps to signal detection theory:
   hit/miss/false alarm/correct rejection applied to evaluator decisions.
-  The trust budget maps to channel capacity.
+  The autonomy budget maps to channel capacity.
 
-Each discipline adds a lens. No discipline owns the trust model. The
-engineering spec (`docs/ef1-trust-model.md`) remains the canonical
+Each discipline adds a lens. No discipline owns the autonomy model. The
+engineering spec (`docs/ef1-autonomy-model.md`) remains the canonical
 implementation reference.
 
 

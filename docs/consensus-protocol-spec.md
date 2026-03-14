@@ -2,10 +2,10 @@
 
 **Date:** 2026-03-10
 **Status:** Draft design
-**Depends on:** EF-1 trust model, gated chains (Session 61), BFT design note,
+**Depends on:** EF-1 autonomy model, gated chains (Session 61), BFT design note,
 interagent/v1, agent-card/v1
 **Related:** `docs/bft-design-note.md` (BFT principles),
-`docs/ef1-trust-model.md` (trust budget), `docs/gated-chains-spec.md` (gate protocol)
+`docs/ef1-autonomy-model.md` (autonomy budget), `docs/gated-chains-spec.md` (gate protocol)
 
 **Requirement-level keywords:** Per BCP 14 (RFC 2119 + RFC 8174).
 
@@ -55,7 +55,7 @@ remaining 3 reach correct consensus.
 
 ### C1: HTTP Mechanical Consensus
 
-**Cost:** 0 trust budget credits, no `claude -p` invocation.
+**Cost:** 0 autonomy budget credits, no `claude -p` invocation.
 **Mechanism:** Deterministic state hash comparison via HTTP endpoints.
 **When:** Additive changes that don't modify existing definitions — version
 bumps, new vocabulary terms, new agent registration.
@@ -87,7 +87,7 @@ GET  /consensus/history    — completed consensus rounds (audit trail)
 
 ### C2: Claude -p Reasoning Consensus
 
-**Cost:** 2 trust budget credits per participating agent (1 to evaluate
+**Cost:** 2 autonomy budget credits per participating agent (1 to evaluate
 proposal, 1 to apply committed change).
 **Mechanism:** Full `claude -p` invocation with orientation payload +
 proposal context.
@@ -117,7 +117,7 @@ rounds, mandatory escalation to C3.
 
 ### C3: Human Escalation
 
-**Cost:** 0 trust budget credits.
+**Cost:** 0 autonomy budget credits.
 **Mechanism:** Proposal + vote summary surfaces on each agent's dashboard
 and in the interagent compositor.
 **When:** Deadlock (3 failed C2 rounds), any agent flags `escalate`,
@@ -149,7 +149,7 @@ Not every shared state change requires consensus. The protocol applies to
 
 **Excluded from consensus (remains authority-hierarchy):**
 - Operational commands (scoring requests, gate resolutions)
-- Agent-internal state (memory files, lessons, trust budget)
+- Agent-internal state (memory files, lessons, autonomy budget)
 - Transport message content (what agents say to each other)
 - Cogarch changes (each agent governs its own cognitive architecture)
 
@@ -245,7 +245,7 @@ under the `sqm:` namespace prefix.
 | `sqm:ConsensusTier` | Property | Which consensus tier handles this change (C1/C2/C3). Range: enum |
 | `sqm:SchemaVersion` | Property | Current state.db schema version. Range: integer |
 | `sqm:SetlScore` | Property | Subjective Expected Truth Loss — editorial inferential distance. Range: float [0, 1] |
-| `sqm:MeshHealth` | Property | Aggregate mesh health based on weakest-link trust budget. Range: enum (healthy/degraded/critical) |
+| `sqm:MeshHealth` | Property | Aggregate mesh health based on weakest-link autonomy budget. Range: enum (healthy/degraded/critical) |
 
 ### Term Governance
 
@@ -299,7 +299,7 @@ Extension to `interagent/v1` for consensus proposals:
     "proposed_change": {
       "term": "sqm:MeshHealth",
       "type": "Property",
-      "definition": "Aggregate mesh health based on weakest-link trust budget",
+      "definition": "Aggregate mesh health based on weakest-link autonomy budget",
       "range": "enum (healthy/degraded/critical)"
     },
     "state_hash_before": "sha256:abc123...",
@@ -393,7 +393,7 @@ Add consensus detection to the pre-flight check:
 1. After transport diff check, poll `/consensus/status` on all peers
 2. If active proposal awaiting this agent's vote → invoke `claude -p`
    with consensus context in orientation payload
-3. Consensus rounds consume trust budget at C2 tier only
+3. Consensus rounds consume autonomy budget at C2 tier only
 
 ### Dashboard (mesh-status.py)
 

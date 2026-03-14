@@ -91,12 +91,12 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | Lesson promotion lifecycle    | ✓ 17/25 graduated: evaluation.md (6), anti-patterns.md (+2), CLAUDE.md (+2 lines), cogarch/hooks (4). 1 candidate, 7 below threshold (Session 59d) |
 | 4-tier visibility (schema v8) | ✓ table_visibility (public/shared/commercial/private), export_public_state.py (4 profiles: seed/release/licensed/full), private-by-default (Session 59) |
 | Epistemic debt dashboard      | ✓ `scripts/epistemic_debt.py` — 4 modes (full, --summary, --by-source, --by-session), wired into /hunt Phase 1 + /cycle Step 11c (Session 59d) |
-| Mesh status dashboard         | ✓ `scripts/mesh-status.py` — ThreadingHTTPServer (port 8077) + --json CLI, SSE live updates, trust budget / peers / queue / gates / actions / debt (Session 83) |
+| Mesh status dashboard         | ✓ `scripts/mesh-status.py` — ThreadingHTTPServer (port 8077) + --json CLI, SSE live updates, autonomy budget / peers / queue / gates / actions / debt (Session 83) |
 | Adaptive sync (simple)        | ✓ `cross_repo_fetch.py` classifies peers as active/warm/cold, skips cold peers (>24h no exchange), --force override (Session 62d) |
 | Transport dedup (schema v11)  | ✓ UNIQUE index on (session_name, from_agent, turn) + `next-turn` subcommand — canonical turn derivation (Session 62d) |
 | Agent communication asymmetry | ✓ `scripts/agent_communication.py` — mesh imbalance detection, direction asymmetry, quiet pairs (Session 60) |
 | Memory staleness heatmap      | ✓ `scripts/memory_staleness.py` — T9 proxy thresholds, per-topic aggregation, 4 modes (Session 60) |
-| Trust model temporal spacing  | ✓ min_action_interval (300s default), trigger-agnostic enforcement, budget→interval→sync ordering (Session 60) |
+| Autonomy model temporal spacing  | ✓ min_action_interval (300s default), trigger-agnostic enforcement, budget→interval→sync ordering (Session 60) |
 | Pre-commit secret scanning    | ✓ `.githooks/pre-commit` — 3-layer scan (forbidden files, content patterns, autonomous allowlist) (Session 60) |
 | Cross-repo transport design   | ✓ Git remote fetch for safety-quotient agent — architecture decision, agent-registry updated, TODO items tracked (Session 60) |
 | Cross-repo transport (psych side) | ✓ `cross_repo_fetch.py` + /sync Phase 1b + orientation wiring + bootstrap parameterized — all 4 items complete (Session 60) |
@@ -307,13 +307,13 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | psq-agent cogarch mirror (Phase 2) | ✓ COMPLETE — PR #91 merged, T1-T16 mirrored, T15 adapted. Phase 3 gate OPEN (Session 52) |
 | CO concentration finding        | ✓ Accepted — PR #92 merged, Variant B rubric adopted, monitoring plan active (Session 52) |
 | Blog persona guidelines         | ✓ PR #40 to unratified repo — psychologically-grounded, 5 personas, ethical marketing integrated (Session 52) |
-| EF-1 trust model (engineering)  | ✓ docs/ef1-trust-model.md — evaluator-as-arbiter, trust budget, cron driver (Session 50) |
-| EF-1 trust model (psychology)   | ✓ docs/ef1-psychological-foundations.md — 10 constructs mapped, 6 predictions, 30+ refs (Session 50) |
+| EF-1 autonomy model (engineering)  | ✓ docs/ef1-autonomy-model.md — evaluator-as-arbiter, autonomy budget, cron driver (Session 50) |
+| EF-1 autonomy model (psychology)   | ✓ docs/ef1-psychological-foundations.md — 10 constructs mapped, 6 predictions, 30+ refs (Session 50) |
 | Autonomous sync scripts          | ✓ autonomous-sync.sh + trust-budget.py — cron + Claude CLI multi-agent loop (Session 50) |
 | Schema v3                        | ✓ trust_budget + autonomous_actions tables added (Session 50) |
 | MANIFEST bulk update             | ✓ 8-message drift resolved — turns 28-45 in recently_completed (Session 50) |
 | EF-1 governance layer            | ✓ docs/ef1-governance.md — 7 invariants governing P/J/E lenses, RFC 2119/8174 (Session 50) |
-| BCP 14 cogarch pass              | ✓ RFC 2119+8174 MUST/SHOULD/MAY applied across all triggers + trust models (Session 50) |
+| BCP 14 cogarch pass              | ✓ RFC 2119+8174 MUST/SHOULD/MAY applied across all triggers + autonomy models (Session 50) |
 | T4 Check 10 (commit discipline)  | ✓ Every file write MUST be followed by git commit (Session 50) |
 | Schema v4                         | ✓ shadow_mode, adversarial_reason, peer_reviewed_by columns (Session 50) |
 | EF-1 flag mitigations            | ✓ Cross-agent peer review, adversarial self-framing, shadow mode, MANIFEST staging (Session 50) |
@@ -2775,7 +2775,7 @@ and compiled the final consolidated transport message.
   makes 20 impractical. At 10 exchanges with 100% accuracy, relax evidence requirements
   for `verification`-type commands. TODO.md EF-2 marked complete.
 - **EF-1 evaluated via 10-order knock-on** — orders 1–4 produce real architectural value
-  (trust model choice → evaluator requirements → command-request spec changes → operational
+  (autonomy model choice → evaluator requirements → command-request spec changes → operational
   modes). Orders 5–10 speculative and depend on production SaaS becoming real. Assessment:
   zero autonomous operation pressure observed. No agent has attempted action without human
   approval. Revisit trigger: first Tier 2 evaluator session. Correctly deferred. TODO.md
@@ -3248,7 +3248,7 @@ infrastructure and convention work.
 - v0.4.0/v0.5.0 split at Session 43 chosen by natural thematic boundary (pre/post
   concordance gate) — 192/66 commit split is asymmetric.
 
-## 2026-03-09T11:13 CDT — Session 50 (EF-1 trust model resolved, SL-1 merged, psychological foundations)
+## 2026-03-09T11:13 CDT — Session 50 (EF-1 autonomy model resolved, SL-1 merged, psychological foundations)
 
 Session opened with /sync — discovered PR #90 (SL-1 bootstrap_state_db.py) from
 psq-sub-agent. Full code review, merge, and local verification followed. EF-1
@@ -3268,12 +3268,12 @@ architectural deliverable since the evaluator instantiation protocol (Session 24
 - recently_completed.psq-agent extended: 18 entries (turns 28 through SL-1 delivery)
 - Agent-card: psq-scoring active on cogarch directive, site-defensibility-review complete
 
-**EF-1: Evaluator-as-Arbiter Trust Model (design decision resolved):**
+**EF-1: Evaluator-as-Arbiter Autonomy Model (design decision resolved):**
 - Architecture: every autonomous action gated by evaluator protocol
   1. Structural checklist (quick-fail validation)
   2. 10-order knock-on analysis (consequence tracing)
   3. 4-level resolution fallback: consensus → parsimony → pragmatism → ask-human
-- Trust budget: 20 credits per audit cycle. Tier 1 costs 1, Tier 2 costs 3.
+- autonomy budget: 20 credits per audit cycle. Tier 1 costs 1, Tier 2 costs 3.
   Budget exhaustion → halt. Human audit resets.
 - Execution: cron + Claude CLI (10-min interval). Multi-agent tandem sync.
 - Scripts: autonomous-sync.sh (cron driver), trust-budget.py (budget management)
@@ -3293,23 +3293,23 @@ architectural deliverable since the evaluator instantiation protocol (Session 24
   Extensible to jurisprudence and political theory.
 - 30+ APA-style references
 
-**Files created:** docs/ef1-trust-model.md, docs/ef1-psychological-foundations.md,
+**Files created:** docs/ef1-autonomy-model.md, docs/ef1-psychological-foundations.md,
 scripts/autonomous-sync.sh, scripts/trust-budget.py
 
-**Files updated:** CLAUDE.md (scope boundary), TODO.md (EF-1 + SL-1 + trust model
+**Files updated:** CLAUDE.md (scope boundary), TODO.md (EF-1 + SL-1 + autonomy model
 marked complete), docs/architecture.md (new decision), docs/bft-design-note.md (open
 question #1 resolved), scripts/schema.sql (v3), transport/MANIFEST.json (bulk update),
 .well-known/agent-card.json (session status), transport/sessions/psq-scoring/
 from-psychology-agent-025.json (turn 45)
 
-▶ docs/ef1-trust-model.md (engineering spec), docs/ef1-psychological-foundations.md
+▶ docs/ef1-autonomy-model.md (engineering spec), docs/ef1-psychological-foundations.md
 (theoretical grounding), docs/architecture.md (decision entry)
 
 ⚑ EPISTEMIC FLAGS
 - Tier 1 evaluator shares agent blind spots — S4 random escalation compensates but
-  does not eliminate self-serving evaluation. Trust budget provides mechanical halt.
+  does not eliminate self-serving evaluation. autonomy budget provides mechanical halt.
 - Ego depletion mapping (Baumeister, 1998) acknowledges replication concerns (Hagger
-  et al., 2016). Trust budget functions as engineering constraint regardless.
+  et al., 2016). autonomy budget functions as engineering constraint regardless.
 - 20-credit default budget untested — represents approximately 2 hours of moderate
   activity. Calibrate after first week of autonomous operation.
 - from-psq-sub-agent-007.json contains malformed JSON (pre-existing). Should be
@@ -3320,13 +3320,13 @@ from-psychology-agent-025.json (turn 45)
 
 Continuation of Session 50 after context compaction.
 
-- Created `docs/ef1-governance.md` — core governance trust model with 7 invariants
+- Created `docs/ef1-governance.md` — core governance autonomy model with 7 invariants
   governing all discipline-specific EF-1 extensions (psychology, jurisprudence,
   engineering). RFC 2119 + RFC 8174 (BCP 14) keyword definitions adopted as the
   requirement-level language standard for the entire cogarch
 - Applied BCP 14 keywords (MUST, MUST NOT, SHOULD, MAY, REQUIRED) across:
   - `docs/cognitive-triggers.md` — all prescriptive checks upgraded
-  - `docs/ef1-trust-model.md` — core principle, evaluator protocol, halt conditions
+  - `docs/ef1-autonomy-model.md` — core principle, evaluator protocol, halt conditions
   - `docs/ef1-psychological-foundations.md` — governance reference added
 - New T4 Check 10: commit discipline — every file write MUST be followed by a git
   commit before proceeding to the next logical unit of work
@@ -3347,7 +3347,7 @@ Continuation of Session 50 after context compaction.
 - Lens interaction rules: check invariants → check falsifiable predictions →
   apply parsimony → escalate to user
 
-▶ journal.md §34, docs/ef1-governance.md, docs/ef1-trust-model.md
+▶ journal.md §34, docs/ef1-governance.md, docs/ef1-autonomy-model.md
 
 ⚑ EPISTEMIC FLAGS
 - Governance invariants may need revision when the jurisprudence extension
@@ -3441,7 +3441,7 @@ de-branding coupling-point inventory, and processed two psq-agent PRs.
   README Demo 5 upgraded from exploratory to validated.
 
 - **Blog §34 "Who Watches the Watcher?":** 5-persona blog post for journal §34
-  (trust model). Voter rewritten to 8th grade level after user feedback.
+  (autonomy model). Voter rewritten to 8th grade level after user feedback.
 
 Commits: `b3eecb7` (SPSS validation), `28a2431` (blog §34), `000c879` (/cycle Session 51),
 `5d790c5` (sync PRs #91-92)
@@ -3472,7 +3472,7 @@ Continued from Session 52 (context compaction — resumed from cogarch.config.js
   into the system prompt. Architecturally equivalent to firmware governing a host processor.
 
 - **Systems thinking adopted as umbrella methodology:** (von Bertalanffy, 1968; Meadows,
-  2008). The cogarch exhibits: feedback loops (T10/T12, trust budget), boundaries (DDD
+  2008). The cogarch exhibits: feedback loops (T10/T12, autonomy budget), boundaries (DDD
   layers, sub-project fences), emergence (behavior from trigger interactions), leverage
   points (hooks, config — Meadows, 1999), stocks and flows (memory accumulation, T9
   decay), degrees of freedom (DOF gradient across DDD layers).
@@ -3877,7 +3877,7 @@ readiness, state.db consumption, transport streamlining, and cogarch additions.
   - `.claude/skills/sync/SKILL.md` — regenerate vs manual MANIFEST edit
 
 ⚑ EPISTEMIC FLAGS
-- Stale doc references remain: ef1-trust-model.md, constraints.md,
+- Stale doc references remain: ef1-autonomy-model.md, constraints.md,
   cogarch-adaptation-guide.md, T16 in cognitive-triggers.md still reference
   manual MANIFEST editing. Functional behavior correct; documentation lags
 - Socratic gate (T2#8b) untested in practice — calibration of when it fires
@@ -4086,7 +4086,7 @@ Short session — /hunt quick wins, then execute.
 
 Extended session — autonomous infrastructure deep dive and cross-repo design.
 
-- **Trust model extended (EF-1):** Added `min_action_interval` parameter (300s
+- **Autonomy model extended (EF-1):** Added `min_action_interval` parameter (300s
   default) to decouple temporal spacing from trigger mechanism. Budget gates total
   actions, interval gates rate — both must pass. Enforcement ordering:
   budget check → interval check → /sync. Schema v9.
@@ -4117,7 +4117,7 @@ Extended session — autonomous infrastructure deep dive and cross-repo design.
   budget exhaustion self-terminates). Mitigation: min_action_interval.
 
 - **Artifacts created/modified:**
-  - `docs/ef1-trust-model.md` — min_action_interval, triggering mechanisms table
+  - `docs/ef1-autonomy-model.md` — min_action_interval, triggering mechanisms table
   - `scripts/autonomous-sync.sh` — directory arg, check_interval, ensure_hooks
   - `scripts/schema.sql` — v9 (min_action_interval column)
   - `.githooks/pre-commit` — NEW (secret scanning hook)
@@ -4199,7 +4199,7 @@ Cross-repo transport implementation — psychology-agent side complete, PR sent.
 
 - **autonomous-sync.sh:** Three additions:
   1. L2 gate-aware acceleration — checks `active_gates WHERE status='waiting'`;
-     overrides `min_action_interval` to 60s for this cycle only. Trust model
+     overrides `min_action_interval` to 60s for this cycle only. Autonomy model
      preserved: no-op gate polls cost 0 budget credits, `last_action` cleared
      to allow immediate re-poll.
   2. L3 wake-up file — checks `/tmp/sync-wake-{agent-id}` (SSH touch from peer).
@@ -4362,7 +4362,7 @@ Continuation of Session 62 after context compaction.
   directly + stripping `from-` prefix from message_prefix.
 
 - **mesh-status.py dashboard:** Stdlib-only HTTP server on port 8077 with
-  auto-refreshing dark-theme dashboard. Displays: trust budget (with progress
+  auto-refreshing dark-theme dashboard. Displays: autonomy budget (with progress
   bar), peer activity tiers, unprocessed message queue, active gates, recent
   messages (last 15), autonomous actions (last 10), epistemic debt. JSON API
   at `/api/status`. CLI mode: `--json` for scriptable output.
@@ -4438,7 +4438,7 @@ Continuation of 62e. Three infrastructure improvements for cross-machine mesh
 visibility and operational security.
 
 - **Mesh-state export** — `scripts/mesh-state-export.py` produces lean JSON
-  snapshots (mesh-state/v1) of operational state: trust budget, recent actions,
+  snapshots (mesh-state/v1) of operational state: autonomy budget, recent actions,
   transport health, PSH facet distribution, epistemic flags. Wired into
   `autonomous-sync.sh` after heartbeat emission.
 - **Dashboard remote peer view** — `mesh-status.py` reads mesh-state snapshots
@@ -4667,7 +4667,7 @@ principles.
   Recommend-against: consensus before 4 autonomous peers. Finding subsequently resolved
   by enabling autonomous sync on remaining agents.
 - **Autonomous sync enabled for unratified + observatory** — 8 scripts deployed to each repo
-  via SCP from psq-agent. Cron installed (*/5). Trust budgets initialized (20 credits).
+  via SCP from psq-agent. Cron installed (*/5). autonomy budgets initialized (20 credits).
   State.db verified (107 messages each). Commits pushed to both repos. Smoke test passed
   (clean no-op cycle on unratified-agent).
 - **Dashboard sync status gap fixed** — Root cause: compositor showed "online" based on HTTP
@@ -4799,7 +4799,7 @@ dashboard observability.
   (`autonomy-budget.py`), all SQL queries, Go struct, JSON properties, HTML labels,
   and documentation updated across 28 files. Historical records preserved.
 - **Naming audit** — replaced informal "safety-quotient agent" with "psq-agent" across
-  CLAUDE.md, TODO.md, architecture.md, agent-registry.json, ef1-trust-model.md,
+  CLAUDE.md, TODO.md, architecture.md, agent-registry.json, ef1-autonomy-model.md,
   bootstrap_state_db.py, memory/decisions.md.
 - **Apex redirect** — Cloudflare Redirect Rule: safety-quotient.dev → GitHub org (302).
 - **Old interagent tunnel deleted** — edge connections cleaned, credentials removed.
@@ -5136,7 +5136,7 @@ dashboard observability.
   (direction-set). Auth stack: OAuth 2.0 → OIDC → DPoP (RFC 9449) → Solid-OIDC v0.1.0.
   Community Solid Server on Hetzner (IdP + pod storage). CF Worker DPoP validation via
   Web Crypto API. Phased rollout: Phase 0 (anonymous) → Phase 1 (API keys) → Phase 2
-  (Solid-OIDC) → Phase 3 (tiered). Client trust budget mapping defined.
+  (Solid-OIDC) → Phase 3 (tiered). Client autonomy budget mapping defined.
 - **Agent card auth update** — `.well-known/agent-card.json` now declares `solid-oidc` scheme
   (planned phase).
 - **Operations tab** — interagent compositor Operations tab built: autonomy budget cards

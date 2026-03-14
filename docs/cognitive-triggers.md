@@ -822,7 +822,7 @@ structured format. Append FA entries to this section.
 **Governance:** Consequence tracing MUST precede resolution (Invariant 4,
 `docs/ef1-governance.md`). Depth MUST scale with irreversibility
 (Invariant 5). Beyond order 10, emergent consequences trigger escalation
-rather than further speculative analysis (`docs/ef1-trust-model.md`
+rather than further speculative analysis (`docs/ef1-autonomy-model.md`
 § Beyond order 10).
 
 ```

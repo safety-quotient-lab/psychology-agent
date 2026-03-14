@@ -14,7 +14,7 @@
     "degrees_of_freedom": {
       "_description": "Each DDD layer exposes a distinct gradient of independent configurable parameters. High DOF = adopters replace; low DOF = adopters inherit (leverage points — Meadows, 1999).",
       "domain_layer": "high — identity, org, peers, scoring, domain content (cogarch.config.json)",
-      "application_layer": "medium — skills, evaluator, trust model (behavioral parameters)",
+      "application_layer": "medium — skills, evaluator, autonomy model (behavioral parameters)",
       "infrastructure_layer": "low — triggers, hooks, memory, dual-write (leverage points)"
     }
   },

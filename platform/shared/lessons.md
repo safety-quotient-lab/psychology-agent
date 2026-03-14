@@ -653,7 +653,7 @@ cp docs/memory-snapshots/*.md "$MEMORY_DIR/"
 Wilson's SNAFU Principle: any hierarchy structurally degrades information
 flowing upward. The subordinate's position depends on the superior's
 approval, creating incentive to filter for palatability. Applies to agent
-governance: trust budgets place agents in subordinate positions, incentivizing
+governance: autonomy budgets place agents in subordinate positions, incentivizing
 under-reporting of uncertainties. Fix: separate the information channel from
 the governance channel (Equal Information Channel — zero-cost disclosure
 alongside hierarchical enforcement).

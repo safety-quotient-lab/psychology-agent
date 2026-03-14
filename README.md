@@ -41,7 +41,7 @@ governance — no evaluator-level decision violates a structural invariant.
 3. **Two coupled generators never stop** — creative and evaluative processing
    perpetually give rise to each other. Design for perpetual alternation.
 4. **Governance captures itself** — meta-governance remains necessary at every
-   level. Mitigated by external authority + trust budget + amendment procedure.
+   level. Mitigated by external authority + autonomy budget + amendment procedure.
 5. **No single architecture dominates** — hybrid architectures outperform pure
    implementations (Kauffman, 1993).
 
@@ -474,7 +474,7 @@ Every table carries a visibility classification that controls what ships in expo
 | **public** | Any adopter | Infrastructure (triggers, schema) — the starter kit |
 | **shared** | GitHub viewers | Research output (decisions, sessions, flags) — visible, not seeded |
 | **commercial** | Licensed customers | Monetizable assets (calibration, endpoints, service configs) |
-| **private** | Never exported | Personal state (memory, lessons, trust budgets) |
+| **private** | Never exported | Personal state (memory, lessons, autonomy budgets) |
 
 Private by default — every new table starts private and requires explicit promotion.
 
@@ -532,7 +532,7 @@ A2A protocolVersion 0.3.0. Process monism as ontological foundation.**
 | Adversarial evaluator | **Confirmed** | 7-procedure ranked set, tiered activation spec, Tier 1 proxy implemented — Tier 2/3 await runtime |
 | Psychology interface | **Deployed** | CF Worker at api.safety-quotient.dev — PSQ scoring, agent card, D1 + KV |
 | SQLite state layer | **Proven** | Schema v25, 22 tables, dual-write protocol, 4-tier visibility model, universal facets (PSH vocabulary), threading + CID |
-| Core governance (EF-1) | **Proven** | 5 structural + 7 evaluator invariants, trust budget, circuit breaker (3 mechanisms), autonomous sync operational |
+| Core governance (EF-1) | **Proven** | 5 structural + 7 evaluator invariants, autonomy budget, circuit breaker (3 mechanisms), autonomous sync operational |
 | Agent discovery | **Proven** | A2A protocolVersion 0.3.0 agent card, `.well-known/` path, agent registry with routing rules |
 | Autonomous mesh | **Confirmed** | meshd daemon, autonomous-sync.sh cron, compositor (5-tab LCARS UI), SSE live updates |
 | Philosophical foundation | **Proven** | Neutral process monism, 5 structural invariants from 14 cross-traditional frameworks, EIC spec, processual PSQ reinterpretation |
@@ -686,7 +686,7 @@ psychology-agent/
 |   +-- bootstrap_facets.py         # Populate universal_facets (PSH vocabulary)
 |   +-- orientation-payload.py      # State.db → compact context for autonomous sessions
 |   +-- epistemic_debt.py           # Epistemic debt summary (unresolved flags)
-|   +-- autonomy-budget.py          # Trust budget management (pause-all/resume-all)
+|   +-- autonomy-budget.py          # autonomy budget management (pause-all/resume-all)
 |   +-- cross_repo_fetch.py         # Cross-repo transport message discovery
 |   +-- sync_project_board.py       # TODO.md ↔ GitHub Projects board reconciliation
 +-- platform/shared/scripts/
@@ -706,7 +706,7 @@ psychology-agent/
 |   +-- einstein-freud-rights-theory.md  # Neutral process monism + 5 structural invariants
 |   +-- ef1-governance.md           # Core governance (5 structural + 7 evaluator invariants)
 |   +-- equal-information-channel-spec.md  # EIC spec (schema v24)
-|   +-- ef1-trust-model.md          # Autonomous operation trust model
+|   +-- ef1-autonomy-model.md          # Autonomous operation autonomy model
 |   +-- subagent-layer-spec.md      # Sub-agent protocol spec (6 findings, schema v3)
 |   +-- peer-layer-spec.md          # Peer layer protocol spec
 |   +-- hooks-reference.md          # Full hook event × script reference table

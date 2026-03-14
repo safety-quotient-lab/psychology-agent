@@ -50,7 +50,7 @@ PSYCHOLOGY_KEYWORDS = {
 }
 
 JURISPRUDENCE_KEYWORDS = {
-    "governance", "trust budget", "obligation", "gate", "fallback", "due process",
+    "governance", "autonomy budget", "obligation", "gate", "fallback", "due process",
     "authority", "hierarchy", "precedent", "adjudicate", "resolution", "arbiter",
     "autonomy", "consent", "permission", "license", "apache", "gpl", "compliance",
     "audit", "accountability", "transparency", "rights", "boundary", "scope",

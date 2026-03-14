@@ -76,7 +76,7 @@
       "@type": "DefinedTerm",
       "@id": "sqm:MeshHealth",
       "name": "Mesh Health",
-      "description": "Aggregate health indicator for the federated mesh, derived from the weakest-link trust budget across all peers. Values: healthy (all budgets above 50%), degraded (any budget 10-50%), critical (any budget below 10% or agent unreachable).",
+      "description": "Aggregate health indicator for the federated mesh, derived from the weakest-link autonomy budget across all peers. Values: healthy (all budgets above 50%), degraded (any budget 10-50%), critical (any budget below 10% or agent unreachable).",
       "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
       "termCode": "sqm:MeshHealth"
     },

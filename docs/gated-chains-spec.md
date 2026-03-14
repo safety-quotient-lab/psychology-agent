@@ -3,7 +3,7 @@
 **Date:** 2026-03-09
 **Status:** Active design
 **Resolves:** Gated autonomous chain requirement (Session 61 /knock analysis)
-**Depends on:** EF-1 trust model, cross-repo transport (Session 60), autonomous-sync.sh
+**Depends on:** EF-1 autonomy model, cross-repo transport (Session 60), autonomous-sync.sh
 
 
 ---
@@ -148,7 +148,7 @@ fi
 When `GATE_ACCELERATED=true`, the `check_interval` function uses 60s
 instead of reading `min_action_interval` from the DB.
 
-**Budget impact:** Gate-accelerated cycles consume trust budget at the
+**Budget impact:** Gate-accelerated cycles consume autonomy budget at the
 same Tier 1 rate (1 credit per cycle). A 60-minute gate with 60-second
 polling consumes up to 60 credits — exceeding the default budget of 20.
 **Mitigation:** Gate-accelerated polls that find no new inbound messages
@@ -263,7 +263,7 @@ delivery with zero shared infrastructure.
    - `retry-once`: re-send the original message (bump turn number),
      reset timeout. If already retried, treat as `halt-and-escalate`
    - `halt-and-escalate`: mark gate `timed-out`, write a halt message
-     to local-coordination, exhaust trust budget (forces human review)
+     to local-coordination, exhaust autonomy budget (forces human review)
 3. All timeout events write to `autonomous_actions` audit trail
 
 
@@ -327,7 +327,7 @@ VALUES (10, 'Add active_gates table — gated autonomous chain tracking with tim
 
 ## Constraints
 
-- **Trust budget invariant preserved** — gate-accelerated no-op polls cost 0
+- **autonomy budget invariant preserved** — gate-accelerated no-op polls cost 0
   credits. Only cycles that process responses deduct budget. A gated chain
   cannot exhaust budget faster than an ungated chain that happens to receive
   messages at the same rate
@@ -383,7 +383,7 @@ down from ~10–20 minutes. With L3 wake-up signal: ~2–3 minutes.
 
 ⚑ EPISTEMIC FLAGS
 - Gate-accelerated 0-cost polls represent a new action type not yet validated
-  against the EF-1 trust model's "no action without evaluation" invariant.
+  against the EF-1 autonomy model's "no action without evaluation" invariant.
   The 0-cost classification assumes no-op polls carry no risk — verify after
   first deployment
 - L3 SSH wake-up assumes stable LAN DNS (chromabook.local). If mDNS fails,

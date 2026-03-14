@@ -23,7 +23,7 @@
 - Construct validity (PSQ structure): 5/6 confirmed (83%)
 - Calibration/scoring: 2/3 confirmed (67%)
 - Factor structure: 1/4 confirmed (25%) — DA-related predictions cluster here
-- EF-1 trust model: 0/0 (all 12 predictions untested)
+- EF-1 autonomy model: 0/0 (all 12 predictions untested)
 
 **Key findings:**
 

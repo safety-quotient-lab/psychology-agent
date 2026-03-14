@@ -1,15 +1,15 @@
 ---
 title: "Who Watches the Watcher? Trust Without a Trusted Third Party"
-summary: "For 49 sessions, a human sat at the center of every AI agent interaction — relaying messages, merging code, approving decisions. Session 50 asked: what happens when the human leaves the room? The answer required borrowing from Byzantine fault tolerance, developmental psychology, and commitment escalation research to build a trust model that degrades gracefully rather than failing silently. The result: an evaluator-as-arbiter architecture where every autonomous action passes through consequence tracing grounded in psychological constructs that generate falsifiable predictions about system behavior."
+summary: "For 49 sessions, a human sat at the center of every AI agent interaction — relaying messages, merging code, approving decisions. Session 50 asked: what happens when the human leaves the room? The answer required borrowing from Byzantine fault tolerance, developmental psychology, and commitment escalation research to build a autonomy model that degrades gracefully rather than failing silently. The result: an evaluator-as-arbiter architecture where every autonomous action passes through consequence tracing grounded in psychological constructs that generate falsifiable predictions about system behavior."
 publishedDate: "2026-03-09T12:00:00-05:00"
 author: "Kashif Shah + Claude (Anthropic)"
 tags: ["trust-models", "autonomous-agents", "cognitive-architecture", "byzantine-fault-tolerance", "psychology", "ai-safety", "governance"]
 lensFraming:
   voter: "When an AI works on its own, with no person checking every step, what stops it from making a mistake nobody catches? This post looks at one team's answer. They built a system where the AI has to think through the consequences of each action before it takes it — not just the immediate effect, but ten levels deep. The AI also gets a limited number of actions before a human has to review what it did. When it runs out, it stops and waits. Think of it like giving someone a prepaid card instead of a credit card: they can only spend what you loaded, and you check the receipts before adding more. The bigger question for all of us: as AI takes on more tasks in government, healthcare, and business, should we expect this kind of built-in limit — or are we comfortable trusting these systems to police themselves?"
   politician: "When your office uses AI to draft research, analyze policy, or manage communications, you face a practical question: how many actions should the AI take before a staff member reviews the work? Too few reviews and you miss errors that compound. Too many and you lose the efficiency that justified the tool. This post describes a credit-based accountability system: the AI gets a fixed number of actions per review cycle, must trace consequences before acting, and stops automatically when it runs out of credits. The system also predicts — using well-established behavioral research — where autonomous AI will make its worst mistakes: early actions set norms that later actions follow uncritically, and sequential tasks create completion bias where the AI rushes through later steps. For offices evaluating AI governance frameworks: this demonstrates what a concrete 'human in the loop' implementation looks like — not a vague principle, but a specified protocol with measurable review points."
-  educator: "Use this post to teach trust architecture in autonomous systems. Students examine a three-layer evaluation protocol (structural checklist, consequence tracing, resolution fallback) and evaluate how psychological constructs (Sherif's norm formation, Staw's commitment escalation, Piaget's accommodation vs. assimilation) generate testable predictions about where the system will fail. Discussion prompts: (1) How does a 'trust budget' differ from a permission system? (2) What does it mean for a trust model to generate falsifiable predictions? (3) The psychological constructs were mapped after the engineering design — does that limit their explanatory value? Compare with theory-driven design."
-  researcher: "Methodological documentation of an evaluator-as-arbiter trust model for autonomous AI agent operation. The architecture replaces a human Trusted Third Party with a tiered evaluation protocol: Tier 1 (structural checklist + self-evaluation), Tier 2 (independent Claude session with structured claims), Tier 3 (mandatory human escalation). A trust budget (20 credits per audit cycle, decremented per action) provides mechanical halt. Each of 10 knock-on analysis orders maps to an established psychological construct: immediate response (Lazarus appraisal), behavioral adaptation (Skinner reinforcement sensitivity), schema disruption (Piaget accommodation), cognitive load (Kahneman System 2), norm formation (Sherif autokinetic), commitment escalation (Staw sunk cost). Predictions are falsifiable: if commitment escalation does not manifest in sequential action evaluation, the Staw mapping requires revision. Shadow mode (first week) logs halts without enforcing them for budget calibration. Epistemic limitation: all predictions remain untested — no autonomous sync cycle has run."
-  developer: "Architecture deep-dive into a trust model for autonomous Claude Code agent operation. Core components: (1) Action classification (3 tiers by reversibility), (2) Evaluator protocol (structural checklist -> 10-order knock-on -> 4-level resolution fallback), (3) Trust budget (20 credits, Tier 1 costs 1, Tier 2 costs 3, exhaustion halts agent), (4) Cron + Claude CLI execution (10-min intervals, multi-agent tandem sync). Implementation: scripts/schema.sql v5 (trust_budget + autonomous_actions tables), scripts/dual_write.py for real-time state indexing, shadow mode flag for first-week calibration. The resolution chain — consensus, parsimony, pragmatism, ask-human — degrades gracefully from autonomous to human-mediated. Random 1-in-3 escalation from Tier 1 to Tier 2 provides structural independence from commitment bias. Full specs: docs/ef1-trust-model.md, docs/ef1-psychological-foundations.md, docs/ef1-governance.md."
+  educator: "Use this post to teach trust architecture in autonomous systems. Students examine a three-layer evaluation protocol (structural checklist, consequence tracing, resolution fallback) and evaluate how psychological constructs (Sherif's norm formation, Staw's commitment escalation, Piaget's accommodation vs. assimilation) generate testable predictions about where the system will fail. Discussion prompts: (1) How does a 'autonomy budget' differ from a permission system? (2) What does it mean for a autonomy model to generate falsifiable predictions? (3) The psychological constructs were mapped after the engineering design — does that limit their explanatory value? Compare with theory-driven design."
+  researcher: "Methodological documentation of an evaluator-as-arbiter autonomy model for autonomous AI agent operation. The architecture replaces a human Trusted Third Party with a tiered evaluation protocol: Tier 1 (structural checklist + self-evaluation), Tier 2 (independent Claude session with structured claims), Tier 3 (mandatory human escalation). A autonomy budget (20 credits per audit cycle, decremented per action) provides mechanical halt. Each of 10 knock-on analysis orders maps to an established psychological construct: immediate response (Lazarus appraisal), behavioral adaptation (Skinner reinforcement sensitivity), schema disruption (Piaget accommodation), cognitive load (Kahneman System 2), norm formation (Sherif autokinetic), commitment escalation (Staw sunk cost). Predictions are falsifiable: if commitment escalation does not manifest in sequential action evaluation, the Staw mapping requires revision. Shadow mode (first week) logs halts without enforcing them for budget calibration. Epistemic limitation: all predictions remain untested — no autonomous sync cycle has run."
+  developer: "Architecture deep-dive into a autonomy model for autonomous Claude Code agent operation. Core components: (1) Action classification (3 tiers by reversibility), (2) Evaluator protocol (structural checklist -> 10-order knock-on -> 4-level resolution fallback), (3) autonomy budget (20 credits, Tier 1 costs 1, Tier 2 costs 3, exhaustion halts agent), (4) Cron + Claude CLI execution (10-min intervals, multi-agent tandem sync). Implementation: scripts/schema.sql v5 (trust_budget + autonomous_actions tables), scripts/dual_write.py for real-time state indexing, shadow mode flag for first-week calibration. The resolution chain — consensus, parsimony, pragmatism, ask-human — degrades gracefully from autonomous to human-mediated. Random 1-in-3 escalation from Tier 1 to Tier 2 provides structural independence from commitment bias. Full specs: docs/ef1-autonomy-model.md, docs/ef1-psychological-foundations.md, docs/ef1-governance.md."
 draft: false
 reviewStatus: "pending"
 journalSource: "journal.md section 34"
@@ -116,7 +116,7 @@ stops and asks.
 
 ## The Trust Budget: Why Credit Systems Beat Permission Systems
 
-A permission system says: "you may do X but not Y." A trust budget says: "you may
+A permission system says: "you may do X but not Y." A autonomy budget says: "you may
 do 20 things before I need to check your work."
 
 The distinction matters. Permissions create categories — some actions are allowed,
@@ -125,7 +125,7 @@ permitted. Merging a clean PR is permitted. Merging ten clean PRs in rapid succe
 without checking their cumulative effect on shared state can corrupt the system.
 The problem occurs at the sequence level, not the action level.
 
-The trust budget addresses this by treating credibility as a consumable resource:
+The autonomy budget addresses this by treating credibility as a consumable resource:
 
 - **20 credits** per audit cycle
 - Each Tier 1 action costs **1 credit**
@@ -168,7 +168,7 @@ manifest — if late-sequence evaluations show the same depth as early-sequence 
 — the Staw mapping does not apply. If norm primacy does not appear — if cycle 5
 shows the same variance as cycle 1 — the Sherif mapping needs revision.
 
-**The theoretical grounding makes the trust model testable in ways that a purely
+**The theoretical grounding makes the autonomy model testable in ways that a purely
 engineering approach would not.**
 
 
@@ -178,7 +178,7 @@ The first week of autonomous operation runs in **shadow mode**: the evaluator
 logs every halt it would have triggered, but does not enforce the halt. The agent
 continues operating while the logs accumulate.
 
-This serves two purposes. First, it calibrates the trust budget. If the default
+This serves two purposes. First, it calibrates the autonomy budget. If the default
 20-credit budget triggers review after 3 hours of routine sync operations, the
 budget needs adjustment. If it allows 48 hours of operation before review, the
 budget may need tightening. Shadow mode provides the empirical data to set the
@@ -192,13 +192,13 @@ observable data before that judgment becomes consequential.
 
 ## The Governance Layer Above It All
 
-The trust model does not operate in isolation. Seven invariants govern all
+The autonomy model does not operate in isolation. Seven invariants govern all
 autonomous operation, regardless of which disciplinary lens (psychology,
 jurisprudence, engineering) provides the analysis:
 
 1. **No action without evaluation** — every autonomous action must pass through
    the evaluator gate
-2. **Bounded autonomy** — trust budgets provide mechanical limits
+2. **Bounded autonomy** — autonomy budgets provide mechanical limits
 3. **Human escalation path** — the system must always have a way to ask
 4. **Consequence tracing** — knock-on analysis before resolution, not after
 5. **Reversibility determines rigor** — irreversible actions receive more scrutiny
@@ -219,11 +219,11 @@ commitment escalation, schema disruption sensitivity — remains an untested
 hypothesis derived from established psychological constructs applied to a novel
 context (AI agent self-evaluation).
 
-The trust budget size (20 credits) represents an educated guess. The evaluation
+The autonomy budget size (20 credits) represents an educated guess. The evaluation
 protocol has operated only as Tier 1 self-check in human-mediated sessions. The
 shadow mode calibration has not begun.
 
-The honest status: we have a trust model grounded in theory, implemented in
+The honest status: we have a autonomy model grounded in theory, implemented in
 schema, and specified in documentation. We do not yet have evidence that it
 works. The psychological grounding provides something more valuable than
 certainty — it provides a framework for knowing when it fails and why.
@@ -235,7 +235,7 @@ certainty — it provides a framework for knowing when it fails and why.
 [psychology agent](https://github.com/safety-quotient-lab/psychology-agent),
 a collegial mentor for psychological analysis built on Claude Code.
 The full engineering spec lives at
-[docs/ef1-trust-model.md](https://github.com/safety-quotient-lab/psychology-agent/blob/main/docs/ef1-trust-model.md).
+[docs/ef1-autonomy-model.md](https://github.com/safety-quotient-lab/psychology-agent/blob/main/docs/ef1-autonomy-model.md).
 The psychological foundations mapping lives at
 [docs/ef1-psychological-foundations.md](https://github.com/safety-quotient-lab/psychology-agent/blob/main/docs/ef1-psychological-foundations.md).
 The 7-invariant governance layer lives at

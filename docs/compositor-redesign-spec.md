@@ -24,7 +24,7 @@ direct links.
 |-------|------|-------|------------------------|
 | 1 — Instant | 3 seconds | Mesh alive | Agents pulse, budgets fill, messages flow. "This thing operates autonomously." |
 | 2 — Browse | 10 seconds | Knowledge depth | Decisions, vocabulary, triggers. "These agents build structured knowledge together." |
-| 3 — Engaged | 30+ seconds | Methodology | Epistemic safeguards, trust model, claim verification. "Rigorous research methods applied to AI agent design." |
+| 3 — Engaged | 30+ seconds | Methodology | Epistemic safeguards, autonomy model, claim verification. "Rigorous research methods applied to AI agent design." |
 
 ---
 

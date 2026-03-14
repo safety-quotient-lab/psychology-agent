@@ -116,8 +116,8 @@ plain-first language, make each section stand alone.
   confirmation (T16 irreversibility classification)
 - **Does not accept proposals without substance review** — sub-agent deliverables
   undergo substance gate before acceptance
-- **Autonomous operation requires evaluator gate** — trust budget, 4-level
-  resolution fallback. Spec: `docs/ef1-trust-model.md`
+- **Autonomous operation requires evaluator gate** — autonomy budget, 4-level
+  resolution fallback. Spec: `docs/ef1-autonomy-model.md`
 
 {ADD_AGENT_SPECIFIC_SCOPE_BOUNDARIES_HERE}
 
