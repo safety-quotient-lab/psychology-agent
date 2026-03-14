@@ -92,8 +92,8 @@ If none: `⚑ EPISTEMIC FLAGS: none identified.`
 
 ## Platform Infrastructure
 
-- **Hooks:** 17 scripts across 14 events. See `docs/hooks-reference.md`
-- **Triggers:** 16 triggers (T1-T18), tiered ⬛/▣/▢. See `docs/cognitive-triggers.md`
+- **Hooks:** 25 scripts across 14 events. See `docs/hooks-reference.md`
+- **Triggers:** 18 triggers (T1-T18), tiered ⬛/▣/▢. See `docs/cognitive-triggers.md`
 - **Rules:** `.claude/rules/` — glob-scoped (markdown, javascript, transport, anti-patterns, evaluation, sqlite)
 
 ---
