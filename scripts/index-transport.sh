@@ -86,7 +86,7 @@ for session_name in sorted(os.listdir(transport_dir)):
             errors += 1
             continue
 
-        msg_type = data.get("type", data.get("message_type", ""))
+        message_type = data.get("type", data.get("message_type", ""))
         subject = data.get("subject", data.get("title", data.get("session_id", "")))
 
         # Handle 'from' field (string or dict or list)
@@ -122,9 +122,9 @@ for session_name in sorted(os.listdir(transport_dir)):
 
         sql = (
             f"INSERT OR IGNORE INTO transport_messages "
-            f"(filename, session_name, direction, from_agent, to_agent, turn, msg_type, subject) "
+            f"(filename, session_name, direction, from_agent, to_agent, turn, message_type, subject) "
             f"VALUES ('{esc(filename)}', '{esc(session_name)}', '{esc(direction)}', "
-            f"'{esc(from_agent)}', '{esc(to_agent)}', {turn}, '{esc(msg_type)}', '{esc(subject)}');"
+            f"'{esc(from_agent)}', '{esc(to_agent)}', {turn}, '{esc(message_type)}', '{esc(subject)}');"
         )
 
         ok, err = run_sql(sql)

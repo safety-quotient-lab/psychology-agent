@@ -77,7 +77,7 @@ func (s *Server) handleKB(w http.ResponseWriter, r *http.Request) {
 	data.Claims = s.kbQuery(dbPath, "SELECT * FROM claims ORDER BY created_at DESC")
 	data.Triggers = s.kbQuery(dbPath, "SELECT * FROM trigger_state ORDER BY last_fired DESC")
 	data.Memory.Entries = s.kbQuery(dbPath, "SELECT * FROM memory_entries ORDER BY last_confirmed DESC")
-	data.Messages = s.kbQuery(dbPath, "SELECT filename, session_name, direction, from_agent, to_agent, turn, msg_type AS message_type, subject, processed, created_at AS timestamp FROM transport_messages ORDER BY created_at DESC")
+	data.Messages = s.kbQuery(dbPath, "SELECT filename, session_name, direction, from_agent, to_agent, turn, message_type, subject, timestamp, processed FROM transport_messages ORDER BY timestamp DESC")
 
 	// Totals — each count query runs independently and defaults to zero.
 	data.Totals.Decisions = s.kbCount(dbPath, "SELECT count(*) FROM decisions")
