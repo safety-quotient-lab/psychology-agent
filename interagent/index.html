@@ -3576,7 +3576,6 @@
     // ── SSE Live Updates ─────────────────────────────────────────
     // Connect to each agent's meshd SSE stream for real-time updates.
     // Falls back to polling on connection failure.
-    let sseConnections = [];
     let sseReconnectTimers = [];
 
     function connectSSE() {
