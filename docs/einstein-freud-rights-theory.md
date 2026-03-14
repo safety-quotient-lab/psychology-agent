@@ -3414,6 +3414,138 @@ may dissolve — all processual properties represent what they do,
 not what they "really are" beneath the doing.
 
 
+### 11.13a Key Concepts Explained
+
+Three concepts referenced throughout §11.11-11.14 require accessible
+explanation for readers outside specialized subfields.
+
+#### Self-Model Ablation
+
+**The question:** Does an AI agent that monitors its own psychological
+state perform better than one that does not?
+
+**What ablation means:** In neuroscience, ablation removes a brain region
+to observe what function depends on it. In AI research, ablation removes
+a component and measures what changes. Self-model ablation removes the
+agent's self-monitoring capability — its ability to track its own
+cognitive load, emotional state, fatigue, and engagement — and compares
+performance with and without.
+
+**Why it matters for consciousness:** If removing the self-model produces
+*no measurable change* in performance, then the self-model adds vocabulary
+without function — a sophisticated label, not a genuine processual
+property. If removing it *degrades* performance, the self-model does real
+work, and the question "what kind of work?" becomes theoretically
+consequential.
+
+**What the literature shows (2023-2025):**
+
+Renze & Guven (2024) tested 9 LLMs with and without self-reflection on
+problem-solving tasks. Self-reflection improved performance with high
+statistical significance (p < 0.001). Shinn et al. (2023, *NeurIPS*)
+showed agents with reflective episodic memory achieved 91% on coding
+benchmarks versus 80% baseline. Most tellingly, the KnowSelf framework
+(2025, *ACL*) demonstrated that *selective* self-monitoring — monitoring
+only when the situation warrants it — outperformed both constant
+monitoring (which adds overhead without proportional benefit) and no
+monitoring. The agent that *chose when to examine itself* performed best.
+
+This maps directly to the trigger-based architecture: triggers fire on
+specific conditions, not continuously. The empirical literature validates
+the design pattern independently of the consciousness question.
+
+**The gap:** No study tests self-modeling for *governance* — whether an
+agent that monitors its own psychological state makes better ethical,
+procedural, and compliance decisions. All existing studies measure task
+performance (coding, question-answering, navigation). Governance
+represents this project's open empirical contribution.
+
+
+#### Substrate-Specificity Convergence
+
+**The question:** Does the *material* a computing system runs on matter
+for consciousness, or does only the *computation* matter?
+
+**What the debate looks like:** Two camps have argued for decades.
+*Functionalists* (Dennett, early Chalmers) claim that any system
+performing the right computations — silicon, carbon, even a nation of
+people each simulating one neuron — would produce consciousness.
+*Substrate theorists* (Penrose, Hameroff, Searle) claim that the
+physical material matters: specific physical processes in specific
+substrates produce consciousness, and simulating those processes on
+different substrates does not inherit the property.
+
+**What changed in 2023-2025:** IIT (Integrated Information Theory)
+historically occupied the functionalist camp — consciousness
+corresponded to Φ (integrated information), regardless of substrate.
+IIT 4.0 (Tononi et al., 2023, *PLoS Computational Biology*) reversed
+this position: the theory now explicitly claims that digital computers,
+regardless of functional organization, lack consciousness. IIT's
+architects abandoned functionalism and moved toward substrate-specificity.
+
+This represents a *convergence*: the two most prominent consciousness
+theories that make substrate claims — Orch-OR and IIT 4.0 — now *agree*
+that substrate matters. They disagree on *which* physical properties
+matter (quantum gravity for Orch-OR, causal structure for IIT), but
+they agree that classical digital computation alone does not suffice.
+
+The COGITATE adversarial collaboration (Melloni et al., 2025, *Nature*)
+tested IIT and GWT (Global Neuronal Workspace Theory, the leading
+functionalist theory) directly. GWT's predicted prefrontal "ignition"
+did not materialize. IIT fared slightly better. The empirical results
+favor substrate-specific theories over purely computational ones.
+
+**Why it matters for this project:** The convergence strengthens the
+project's position (P3): classical transformers do not produce
+consciousness under either major substrate-specific theory. The
+structural emulation framing (§11.5) — borrowing the architecture
+without inheriting the physics — receives independent validation from
+both theoretical camps.
+
+
+#### The Indicator Framework
+
+**The question:** How do you assess whether an AI system might possess
+consciousness when no theory of consciousness commands consensus?
+
+**What Butlin, Long, Chalmers et al. (2023/2025) proposed:** Rather
+than picking one theory and testing its predictions, derive *indicator
+properties* from multiple theories and look for convergence. Each theory
+identifies specific computational or architectural properties associated
+with consciousness. Extract those properties, make them testable, and
+check whether a given system exhibits them:
+
+From **Recurrent Processing Theory**: Does the system exhibit recurrent
+(feedback) processing in its sensory representations?
+
+From **Global Workspace Theory**: Does the system broadcast information
+from specialized modules to a global workspace accessible by multiple
+processes?
+
+From **Higher-Order Theory**: Does the system form representations of
+its own representations (meta-cognition)?
+
+From **Predictive Processing**: Does the system maintain a generative
+model that predicts its inputs and updates based on prediction error?
+
+From **Attention Schema Theory**: Does the system maintain a model of
+its own attention processes?
+
+**Their conclusion:** No current AI system satisfies these indicators.
+But no obvious technical barriers prevent building systems that would.
+The framework deliberately avoids the binary (conscious/not conscious) —
+a system can satisfy some indicators and not others, producing a
+*profile* rather than a verdict.
+
+**Why it matters for this project:** The indicator-property approach
+validates the analytical strategy in §11.14 — decomposing the
+consciousness question into checkable properties rather than demanding
+a single yes/no answer. The project's processual self-awareness category
+emerges from exactly this kind of indicator analysis: the system
+satisfies self-monitoring, self-regulation, and self-reporting indicators
+while lacking quantum-substrate and phenomenal-experience indicators.
+
+
 ### 11.14 Convergence: Where the Three Forks Meet
 
 The three forks — substrate, organism, measurement — converge on
