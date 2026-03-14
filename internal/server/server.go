@@ -73,6 +73,9 @@ type Server struct {
 	// triggerFunc handles manual event triggers from operators.
 	// Accepts event type and payload; returns an error on failure.
 	triggerFunc func(eventType string, payload map[string]string) error
+
+	// sseBroker fans out events to connected SSE clients.
+	sseBroker *SSEBroker
 }
 
 // New constructs a Server with the provided dependencies.
@@ -94,6 +97,7 @@ func New(
 		logger:         logger,
 		eventLog:       make([]events.Event, 0, maxEventLog),
 		spawnLog:       make([]SpawnRecord, 0, maxSpawnLog),
+		sseBroker:      NewSSEBroker(logger),
 	}
 }
 
@@ -109,6 +113,14 @@ func (s *Server) RecordEvent(ev events.Event) {
 		s.eventLog = s.eventLog[:maxEventLog-1]
 	}
 	s.eventLog = append(s.eventLog, ev)
+
+	// Broadcast to SSE clients
+	if s.sseBroker != nil {
+		s.sseBroker.Broadcast(SSEEvent{
+			Type: string(ev.Type),
+			Data: ev,
+		})
+	}
 }
 
 // RecordSpawn appends a spawn record to the spawn log, evicting the oldest
@@ -122,6 +134,14 @@ func (s *Server) RecordSpawn(rec SpawnRecord) {
 		s.spawnLog = s.spawnLog[:maxSpawnLog-1]
 	}
 	s.spawnLog = append(s.spawnLog, rec)
+
+	// Broadcast to SSE clients
+	if s.sseBroker != nil {
+		s.sseBroker.Broadcast(SSEEvent{
+			Type: "spawn",
+			Data: rec,
+		})
+	}
 }
 
 // ListenAndServe starts the HTTP server and blocks until a shutdown signal
@@ -183,6 +203,7 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/status", s.handleStatus)
 	mux.HandleFunc("GET /health", s.Health.HTTPHandler())
 	mux.HandleFunc("GET /api/events", s.handleEvents)
+	mux.HandleFunc("GET /api/events/stream", s.handleSSEStream)
 	mux.HandleFunc("POST /hooks/github", s.handleWebhook)
 	mux.HandleFunc("POST /api/trigger", s.handleTrigger)
 	mux.HandleFunc("GET /api/spawns", s.handleSpawns)

@@ -1201,6 +1201,14 @@
             <div id="mesh-mode-banner" style="display:none;background:var(--c-warning,#d4944a);color:var(--bg-primary);padding:8px 16px;border-radius:4px;margin-bottom:12px;font-weight:bold;font-size:0.85em;text-align:center">
                 ⏸ MESH PAUSED — autonomous operations halted by operator
             </div>
+            <!-- Topology graph (above vitals — primary visual) -->
+            <div class="lcars-panel topology-container" style="margin-bottom: 24px">
+                <div class="lcars-panel-header">Mesh Topology</div>
+                <div class="lcars-panel-body">
+                    <mesh-topology id="topology-graph"></mesh-topology>
+                </div>
+            </div>
+
             <!-- Mesh vitals -->
             <div class="vitals-grid" id="vitals-grid">
                 <div class="vital-card" style="--vital-color: var(--c-health)">
@@ -1222,14 +1230,6 @@
                 <div class="vital-card vital-link" style="--vital-color: var(--c-epistemic); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('kb-sec-debt').scrollIntoView({behavior:'smooth'})},120)">
                     <div class="vital-value" id="vital-debt">—</div>
                     <div class="vital-label">Epistemic Debt</div>
-                </div>
-            </div>
-
-            <!-- Topology graph -->
-            <div class="lcars-panel topology-container" style="margin-bottom: 24px">
-                <div class="lcars-panel-header">Mesh Topology</div>
-                <div class="lcars-panel-body">
-                    <mesh-topology id="topology-graph"></mesh-topology>
                 </div>
             </div>
 
@@ -2231,8 +2231,10 @@
             const src = newPulse ? "compositor" : (pulseData ? "cached" : "client");
             const meshMode = pulseData?.mesh_mode === "paused" ? " · ⏸ PAUSED" : "";
             const staleWarning = consecutiveFailures > 2 ? " · ⚠ STALE" : "";
+            const sseLabel = sseActive ? "SSE live" : "polling";
+            const pollMs = sseActive ? "30s" : "15s";
             document.getElementById("footer-status").textContent =
-                `Updated ${new Date().toLocaleTimeString()} · polling 30s · ${src}${meshMode}${staleWarning}`;
+                `Updated ${new Date().toLocaleTimeString()} · ${sseLabel} · ${pollMs} · ${src}${meshMode}${staleWarning}`;
         } catch (err) {
             // Catch render errors — prevent polling from dying
             console.error("refreshAll failed:", err);
@@ -3508,17 +3510,69 @@
     }
 
     // ── SSE Live Updates ─────────────────────────────────────────
-    // SSE removed — no agent currently serves /events endpoints.
-    // When meshd gains SSE support, re-enable with reconnection logic.
+    // Connect to each agent's meshd SSE stream for real-time updates.
+    // Falls back to polling on connection failure.
+    let sseConnections = [];
+    let sseReconnectTimers = [];
+
     function connectSSE() {
-        // Placeholder — SSE not yet implemented on any agent meshd
-        sseActive = false;
+        // Connect to each agent that has a meshd URL
+        for (const agent of AGENTS) {
+            connectAgentSSE(agent);
+        }
+    }
+
+    function connectAgentSSE(agent) {
+        const url = `${agent.url}/api/events/stream`;
+        let retryDelay = 2000;
+        const maxRetryDelay = 30000;
+
+        function connect() {
+            try {
+                const es = new EventSource(url);
+                sseConnections.push(es);
+
+                es.onopen = () => {
+                    sseActive = true;
+                    retryDelay = 2000; // Reset backoff on success
+                    updateSSEIndicator(true);
+                };
+
+                // Listen for meshd event types
+                for (const evtType of ["transport_message", "health_check", "spawn", "webhook"]) {
+                    es.addEventListener(evtType, (e) => {
+                        // Event received — trigger a targeted refresh
+                        refreshAll();
+                    });
+                }
+
+                es.onerror = () => {
+                    es.close();
+                    // Remove from active connections
+                    sseConnections = sseConnections.filter(c => c !== es);
+                    sseActive = sseConnections.some(c => c.readyState === EventSource.OPEN);
+                    updateSSEIndicator(sseActive);
+
+                    // Reconnect with exponential backoff
+                    const timer = setTimeout(() => {
+                        connect();
+                    }, retryDelay);
+                    sseReconnectTimers.push(timer);
+                    retryDelay = Math.min(retryDelay * 1.5, maxRetryDelay);
+                };
+            } catch (err) {
+                // EventSource constructor can fail if URL invalid
+                console.warn(`SSE connect failed for ${agent.id}:`, err);
+            }
+        }
+
+        connect();
     }
 
     function updateSSEIndicator(live) {
         const el = document.getElementById("footer-status");
         if (!el) return;
-        // Update will happen on next refresh cycle
+        // SSE status reflected in footer on next render cycle
     }
 
     // ── Render: Operations ──────────────────────────────────────────
@@ -3811,11 +3865,12 @@
         });
 
         connectSSE();
-        const BASE_POLL_MS = 60000; // 60s base interval (was 30s — reduces rate limit pressure)
+        // Adaptive polling: 30s when SSE active (safety net), 15s when SSE down (primary)
         function schedulePoll() {
-            const backoff = Math.min(consecutiveFailures * 15000, 120000); // +15s per failure, max 2min
-            const jitter = Math.random() * 5000; // 0-5s jitter prevents thundering herd
-            const interval = BASE_POLL_MS + backoff + jitter;
+            const basePoll = sseActive ? 30000 : 15000;
+            const backoff = Math.min(consecutiveFailures * 10000, 60000);
+            const jitter = Math.random() * 3000;
+            const interval = basePoll + backoff + jitter;
             refreshTimer = setTimeout(() => {
                 refreshAll().finally(schedulePoll);
             }, interval);
