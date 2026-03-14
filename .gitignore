@@ -67,3 +67,6 @@ platform/meshd-*
 .env*
 !.env.example
 .agent-identity.json
+
+# Confidential specifications
+docs/biophotonic-measurement-device.md
