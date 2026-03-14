@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """
-document-audit-generator.py — Endless evaluative generator for document quality.
+microglial-audit.py — Microglial immune surveillance for document integrity.
+
+Named for microglia — the resident immune cells of the central nervous system
+that continuously patrol neural tissue, scanning for damage, debris, and
+dysfunction. They never retire. Neither does this script.
 
 Implements the Einstein-Freud "endless generator" axiom: evaluative processing
 never depletes because adversarial pressure (errors, drift, inconsistencies)
@@ -8,19 +12,20 @@ regenerates continuously. This script selects documents for audit, defines
 check categories, and produces a structured audit payload for injection into
 autonomous sync cycles.
 
-The generator rotates through the document corpus so that every auditable
-document receives periodic scrutiny. Documents modified more recently receive
-higher selection priority (recency-weighted rotation).
+The microglial layer rotates through the document corpus so that every
+auditable document receives periodic scrutiny. Documents modified more
+recently receive higher selection priority (recency-weighted rotation).
 
 Usage:
-    python3 scripts/document-audit-generator.py                # select next document
-    python3 scripts/document-audit-generator.py --status       # show audit rotation state
-    python3 scripts/document-audit-generator.py --record       # record completed audit
+    python3 scripts/microglial-audit.py                # select next document
+    python3 scripts/microglial-audit.py --status       # show audit rotation state
+    python3 scripts/microglial-audit.py --record       # record completed audit
         --document <path> --findings <count> --session <id>
 
 Integration:
-    autonomous-sync.sh calls this to generate an audit task when no inbound
-    transport messages require processing (idle cycles → evaluative work).
+    autonomous-sync.sh calls this during idle cycles (no inbound transport)
+    to convert resting state into evaluative surveillance. 1-in-3 idle
+    cycles activate — continuous patrol, not continuous consumption.
 """
 
 import json
@@ -282,7 +287,7 @@ def generate_audit_prompt(doc: dict) -> str:
     else:
         history = "\nNever previously audited."
 
-    return f"""DOCUMENT AUDIT — Evaluative Generator Cycle
+    return f"""MICROGLIAL AUDIT — Immune Surveillance Cycle
 
 Document: {doc['path']}
 Description: {doc['description']}
@@ -304,7 +309,7 @@ If zero findings: report "No findings — document passes audit." This represent
 
 After completing the audit, run:
 ```bash
-python3 scripts/document-audit-generator.py --record \\
+python3 scripts/microglial-audit.py --record \\
     --document "{doc['path']}" --findings <COUNT> --session <CURRENT_SESSION>
 ```
 

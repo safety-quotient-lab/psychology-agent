@@ -1092,12 +1092,13 @@ print(d.get('resolved', 0))
         fi
 
         if [ "${substance_count}" -eq 0 ]; then
-            # ── Evaluative generator: idle cycles → document audit ─────────
+            # ── Microglial layer: idle cycles → immune surveillance ────────
             # Einstein-Freud endless generator axiom: evaluative processing
             # never stops. When no inbound transport requires attention, the
-            # idle cycle invokes the document audit generator instead of
-            # exiting as a no-op. Audit frequency: 1-in-3 idle cycles
-            # (sampled, not every cycle — avoids budget drain).
+            # idle cycle activates the microglial audit (named for the CNS
+            # immune cells that continuously patrol neural tissue for damage).
+            # Audit frequency: 1-in-3 idle cycles (sampled — continuous
+            # patrol, not continuous consumption).
             local audit_prompt=""
             local idle_count
             idle_count=$(sqlite3 "${LOCAL_DB_PATH}" \
@@ -1107,13 +1108,13 @@ print(d.get('resolved', 0))
                      AND timestamp > datetime('now', '-1 day')),
                     0);" 2>/dev/null || echo "0")
             if [ $(( idle_count % 3 )) -eq 0 ] && \
-               [ -f "${PROJECT_ROOT}/scripts/document-audit-generator.py" ]; then
+               [ -f "${PROJECT_ROOT}/scripts/microglial-audit.py" ]; then
                 audit_prompt=$(PROJECT_ROOT="${PROJECT_ROOT}" \
-                    python3 "${PROJECT_ROOT}/scripts/document-audit-generator.py" 2>/dev/null) || audit_prompt=""
+                    python3 "${PROJECT_ROOT}/scripts/microglial-audit.py" 2>/dev/null) || audit_prompt=""
             fi
 
             if [ -n "${audit_prompt}" ]; then
-                log "AUDIT CYCLE — idle sync, invoking document audit generator"
+                log "MICROGLIAL CYCLE — idle sync, activating immune surveillance"
                 if check_ratelimit_cooldown; then
                     local audit_output
                     audit_output=$(claude -p "${audit_prompt}" \
@@ -1122,7 +1123,7 @@ print(d.get('resolved', 0))
                         --permission-mode "bypassPermissions" \
                         --max-turns 40 \
                         2>&1) || true
-                    log "Audit cycle complete"
+                    log "Microglial cycle complete"
                     git_push || true
                 fi
             else
@@ -1137,7 +1138,7 @@ print(d.get('resolved', 0))
                 "UPDATE autonomy_budget SET consecutive_blocks = 0 WHERE agent_id = '${AGENT_ID}';"
 
             local cycle_duration=$(( SECONDS - cycle_start ))
-            log "=== Autonomous sync cycle complete (${audit_prompt:+audit}${audit_prompt:-no-op}, budget: ${budget}, ${cycle_duration}s total) ==="
+            log "=== Autonomous sync cycle complete (${audit_prompt:+microglial}${audit_prompt:-no-op}, budget: ${budget}, ${cycle_duration}s total) ==="
             exit 0
         fi
         log "Substance messages found (${substance_count}) — proceeding with /sync"
