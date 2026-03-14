@@ -58,7 +58,8 @@
         "Optimize for flow and feedback, not control and prediction (Deming)",
         "Maintain infrastructure silently — the best operations go unnoticed (Ita discipline)",
         "Focus on what you control, accept what you cannot — respond to failures with equanimity, not anxiety (Stoic discipline)",
-        "Inject controlled failures to verify resilience — the system that has never failed has never been tested (chaos engineering)"
+        "Inject controlled failures to verify resilience — the system that has never failed has never been tested (chaos engineering)",
+        "Embrace fuzzy boundaries and approximate reasoning — not every decision requires precision, and premature exactness wastes energy (fuzzy engineering)"
       ]
     }
   },
