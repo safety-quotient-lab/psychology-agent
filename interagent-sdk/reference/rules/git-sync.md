@@ -86,6 +86,27 @@ This convention applies to the `transport/` directory only. Source code,
 configuration, and documentation files continue using standard `git pull`
 with conflict resolution.
 
+## Self-Healing Lock
+
+The lock file (`.sync-lock` or `/tmp/autonomous-sync-{agent}.lock`) prevents
+concurrent sync cycles. But stuck processes (cross_repo_fetch hanging on GitHub
+API) hold the lock indefinitely, blocking all subsequent cycles including
+event-triggered fast sync.
+
+Fix: if the lock holder has run for >10 minutes, kill it and take over.
+
+```bash
+if [ "${lock_age}" -gt 600 ]; then
+    log "SELF-HEAL: lock held for ${lock_age}s. Killing stuck process."
+    kill "${lock_pid}"
+    sleep 2; kill -9 "${lock_pid}" || true
+    rm -f "${LOCK_FILE}"
+fi
+```
+
+Also: `cross_repo_fetch` and `agentdb inbox` run with `timeout 180` (3 min max).
+This prevents GitHub API slowness from blocking the entire sync pipeline.
+
 ## Crystallization
 
 - **Stage:** Convention (3 recurrences confirmed)
