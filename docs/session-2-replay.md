@@ -123,7 +123,7 @@ APPROVED (issue #171 — 53 commits, 51/52 diagnostic pass).
 | Web Components | 4 |
 | SDK files | 28 |
 | Compositor deploys | 3 |
-| meshd deployments | 1 (chromabook, verified: 3 successful Claude spawns) |
+| meshd deployments | 1 (deployment host, verified: 3 successful Claude spawns) |
 | Transport messages sent | 8 (across 6 sessions) |
 | Transport messages received | 2 (unratified ACCEPT, psychology review request) |
 | Sessions archived | 2 |

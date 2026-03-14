@@ -10,7 +10,7 @@ lands.
 
 Usage:
     zmq-wait.py <pub_address> [--topic transport] [--timeout 300]
-    zmq-wait.py tcp://192.168.1.50:9002 --topic transport --timeout 0
+    zmq-wait.py tcp://host:9002 --topic transport --timeout 0
 
 Exit codes:
     0  message received (JSON on stdout)

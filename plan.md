@@ -122,7 +122,7 @@
 - [x] SDK templates updated — cogarch template + CLAUDE.md template carry governance section
 - [x] platform/shared templates synced with SDK
 - [x] Deploy updated compositor to Cloudflare Workers
-- [x] Deploy meshd + state.db to chromabook (32 messages indexed, schema aligned)
+- [x] Deploy meshd + state.db to deployment host (32 messages indexed, schema aligned)
 - [x] Platform meshd binary swap — cmd/meshd/ deployed as meshd-ops-v2, serves 7 decisions + 32 messages via /api/kb
 - [x] Send transport directive: mesh-parity-v2 (7 issues, PRs to all 4 peers)
 - [x] /diagnose + /retrospect skill definitions created
