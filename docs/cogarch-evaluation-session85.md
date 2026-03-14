@@ -20,7 +20,7 @@
 | 8. Scalability | 4 | 1 | 3 (CLAUDE.md budget added; transport O(n²), cogarch divergence, cross-agent RPG remain structural) |
 | 9. Feedback loops | 6 | 5 | 1 (EIC→trigger adjustment remains) |
 | 10. Extensions | 6 | 5 | 1 (cross-agent RPG) |
-| **Total** | **~53** | **~49** | **~4** |
+| **Total** | **~53** | **~51** | **~2** |
 
 ## What Got Fixed This Session
 
@@ -65,16 +65,20 @@
 
 ### Medium Priority (5-10 sessions)
 
-5. **Efference copy (CPG #9)** — outbound_predictions table, /sync comparison.
-   The prediction ledger (42 entries, 61.1% track record) provides partial
-   infrastructure. Remaining: connect outbound messages to predicted responses
-   and compare prediction vs actual on inbound. The /sync Phase 2c incomplete-
-   work detection provides the comparison point — extend to log predictions.
+5. ~~**Efference copy (CPG #9)** — outbound_predictions table, /sync comparison.~~
+   ✓ RESOLVED (Session 86) — scripts/efference-copy.py records predictions for
+   outbound messages and compares against actual inbound responses. Logs to both
+   efference_copies table and prediction_ledger. 4 predictions seeded, 1 confirmed
+   (blog series ACK matched). Integration: /sync calls predict after send,
+   compare after receive.
 
-6. **Cross-agent RPG** — extend /retrospect to scan peer agent transport for
-   mesh-level patterns. Partial: microglial audit scans our documents; /sync
-   processes peer messages. Missing: systematic cross-agent pattern detection
-   (e.g., do all agents under-report the same category of problem?).
+6. ~~**Cross-agent RPG** — extend /retrospect to scan peer agent transport for
+   mesh-level patterns.~~
+   ✓ RESOLVED (Session 86) — scripts/cross-agent-rpg.py scans 5 pattern types:
+   message type balance, response latency, agent participation, claim confidence,
+   epistemic flag domains. First scan found: (a) 86% of claims carry confidence
+   >= 0.9 (overconfidence signal), (b) psychology domain carries 262 epistemic
+   flags (highest uncertainty concentration). Both represent genuine findings.
 
 7. ~~**CLAUDE.md scalability** — at 221 lines with growth trend, needs a compression
    strategy.~~
