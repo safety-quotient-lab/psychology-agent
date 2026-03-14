@@ -318,7 +318,7 @@
  SQLite state layer            Phase 1: markdown = source of truth, DB =
                                queryable index. Phase 2 (autonomous): DB
                                = source of truth, markdown = derived view.
-                               Schema: scripts/schema.sql (v21, 14 shared +
+                               Schema: scripts/schema.sql (v26, 14 shared +
                                5 local tables). DB split (Session 80):
                                state.db (shared, exportable) +
                                state.local.db (machine-local, gitignored).
@@ -536,11 +536,11 @@
                                   degrees of freedom.
                                 (2) APPLICATION layer (medium DOF) —
                                   skills (/hunt, /cycle, /sync, /knock,
-                                  /iterate), evaluator protocol, trust
+                                  /iterate), evaluator protocol, autonomy
                                   model. Adopters configure behavioral
                                   parameters; structure remains.
                                 (3) INFRASTRUCTURE layer (low DOF) —
-                                  trigger system (T1-T16), hooks,
+                                  trigger system (T1-T18, T12 retired), hooks,
                                   memory pattern, dual-write, lite
                                   prompts, bootstrap. Adopters inherit
                                   as-is. Leverage points (Meadows) live
@@ -2573,7 +2573,7 @@ a family name**, not different implementations of the same construct.
                                  3 dims, 0-10            Every story scored
                                  scored during           by free LLM at
                                  eval pass               ingest. Fast.
- PSQ-Full     psq-sub-agent      DistilBERT v23         Clinical text.
+ PSQ-Full     psq-agent          DistilBERT v37         Clinical text.
                                  10 dims, 0-10           Validated on
                                  validated, r=0.684      Dreaddit. Precise.
 ────────────────────────────────────────────────────────────────────────

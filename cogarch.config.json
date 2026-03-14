@@ -59,7 +59,7 @@
     "model": "EF-1",
     "structural_invariants": 5,
     "evaluator_invariants": 7,
-    "trust_budget": { "max": 50, "shadow_mode": true },
+    "autonomy_budget": { "max": 50, "shadow_mode": true },
     "telos": "wu-wei",
     "amendment_procedure": "5-step, human approval required",
     "reference": "docs/ef1-governance.md"
