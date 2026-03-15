@@ -39,13 +39,14 @@ export async function fetchOpsData() {
 export function renderOpsVitals(AGENTS, agentData) {
     const online = Object.values(agentData).filter(a => a.status === "online");
 
-    const totalCredits = online.reduce((sum, a) => {
+    // Spend-counter model: budget_spent increments, budget_cutoff sets limit (0=unlimited)
+    const totalSpent = online.reduce((sum, a) => {
         const b = a.data?.autonomy_budget || {};
-        return sum + (b.budget_current ?? 0);
+        return sum + (b.budget_spent ?? 0);
     }, 0);
-    const maxCredits = online.reduce((sum, a) => {
+    const totalCutoff = online.reduce((sum, a) => {
         const b = a.data?.autonomy_budget || {};
-        return sum + (b.budget_max ?? 20);
+        return sum + (b.budget_cutoff ?? 0);
     }, 0);
     const totalActions = online.reduce((sum, a) =>
         sum + (a.data?.recent_actions || []).length, 0);
@@ -56,7 +57,7 @@ export function renderOpsVitals(AGENTS, agentData) {
         return sched.cron_entry || sched.last_sync;
     }).length;
 
-    document.getElementById("ops-total-credits").textContent = `${totalCredits}/${maxCredits}`;
+    document.getElementById("ops-total-credits").textContent = `${totalSpent}/${totalCutoff} spent`;
     document.getElementById("ops-total-actions").textContent = totalActions;
     document.getElementById("ops-active-gates").textContent = gates;
     document.getElementById("ops-agents-syncing").textContent = `${syncing}/${AGENTS.length}`;
@@ -86,9 +87,9 @@ export function renderOpsBudget(AGENTS, agentData) {
             continue;
         }
         const b = d.data?.autonomy_budget || {};
-        const current = b.budget_current ?? 0;
-        const max = b.budget_max ?? 20;
-        const pct = max > 0 ? Math.round((current / max) * 100) : 0;
+        const spent = b.budget_spent ?? 0;
+        const cutoff = b.budget_cutoff ?? 0;
+        const pct = cutoff > 0 ? Math.round((1 - spent / cutoff) * 100) : 100;
         const barColor = pct > 50 ? "#6aab8e" : pct > 20 ? "#d4944a" : "#c47070";
         const lastAction = b.last_action || "—";
         const interval = b.min_action_interval ?? 300;
@@ -96,7 +97,7 @@ export function renderOpsBudget(AGENTS, agentData) {
         grid.innerHTML += `
             <div class="ops-budget-card" style="--card-accent: ${agent.color}">
                 <div class="ops-budget-agent">${agent.id.replace("-agent", "")}</div>
-                <div class="ops-budget-credit">${current}<span style="font-size:0.4em;color:var(--text-secondary)">/${max}</span></div>
+                <div class="ops-budget-credit">${spent}<span style="font-size:0.4em;color:var(--text-secondary)">/${cutoff}</span></div>
                 <div class="ops-budget-bar">
                     <div class="ops-budget-fill" style="width:${pct}%;background:${barColor}"></div>
                 </div>
