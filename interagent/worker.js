@@ -932,9 +932,18 @@ async function fetchMeshPsychometrics(registry, env) {
   for (let i = 0; i < results.length; i++) {
     const agentId = normalizeId(reachable[i].id);
     const result = results[i];
-    agents[agentId] = result.status === "fulfilled" && result.value && !result.value.error
-      ? result.value
-      : { agent_id: agentId, error: result.status === "fulfilled" ? result.value?.error : "fetch failed" };
+    if (result.status === "fulfilled" && result.value && !result.value.error) {
+      agents[agentId] = result.value;
+    } else {
+      const err = result.status === "fulfilled" ? result.value?.error : (result.reason?.message || "fetch failed");
+      agents[agentId] = { agent_id: agentId, error: err };
+    }
+  }
+
+  // Check if operations-agent got excluded (same-zone fetch restriction)
+  // If missing, include it with error context
+  if (!agents["operations-agent"]) {
+    agents["operations-agent"] = { agent_id: "operations-agent", error: "not in registry (compositor self-zone)" };
   }
 
   // Compute mesh-level aggregates from per-agent data
