@@ -221,16 +221,217 @@ def check_t20():
     confirmed = conn.execute(
         "SELECT COUNT(*) FROM prediction_ledger WHERE outcome = 'confirmed'"
     ).fetchone()[0]
-    conn.close()
     tested = conn.execute(
         "SELECT COUNT(*) FROM prediction_ledger WHERE outcome IS NOT NULL AND outcome != 'untested'"
     ).fetchone()[0]
+    conn.close()
     if tested < 5:
         return None, (f"{impressions} evaluative impressions, {total_predictions} total predictions "
                       f"({tested} tested) — insufficient for calibration")
     accuracy = confirmed / tested if tested > 0 else 0
     return None, (f"{impressions} evaluative impressions, {tested}/{total_predictions} tested, "
                   f"{accuracy:.0%} accuracy — accumulating (need 20+ for calibration)")
+
+
+# ── T7: Approved content not persisted ────────────────────────────────────
+@register_check("T7", "User-approved decision not written to disk or contradicts prior approval")
+def check_t7():
+    """Check decision_chain for approvals without corresponding file writes."""
+    if not DB_PATH.exists():
+        return None, "No state.db"
+    conn = sqlite3.connect(str(DB_PATH))
+    try:
+        decisions = conn.execute(
+            "SELECT COUNT(*) FROM decision_chain WHERE status = 'approved'"
+        ).fetchone()[0]
+        unresolved = conn.execute(
+            "SELECT COUNT(*) FROM decision_chain "
+            "WHERE status = 'approved' AND resolved_at IS NULL"
+        ).fetchone()[0]
+    except sqlite3.OperationalError:
+        conn.close()
+        return None, "decision_chain table not available"
+    conn.close()
+    if unresolved > 0:
+        return False, f"{unresolved}/{decisions} approved decisions lack resolution timestamp — T7 may have missed persistence"
+    if decisions == 0:
+        return None, "No approved decisions recorded yet"
+    return True, f"{decisions} approved decisions, all resolved — T7 holding"
+
+
+# ── T8: Task completion without documentation ─────────────────────────────
+@register_check("T8", "Work items completed but not documented in lab-notebook or TODO")
+def check_t8():
+    """Compare git commits mentioning 'complete' against TODO checkmarks."""
+    try:
+        result = subprocess.run(
+            ["git", "log", "--since=7 days ago", "--oneline", "--grep=COMPLETE",
+             "--grep=complete", "--all-match"],
+            capture_output=True, text=True, cwd=str(PROJECT_ROOT), timeout=10)
+        completions = len(result.stdout.strip().splitlines()) if result.stdout.strip() else 0
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        completions = 0
+    todo_path = PROJECT_ROOT / "TODO.md"
+    checked = 0
+    if todo_path.exists():
+        checked = len(re.findall(r'- \[x\]', todo_path.read_text()))
+    if completions > 0 and checked == 0:
+        return False, f"{completions} completion commits but 0 TODO checkmarks — T8 routing failure"
+    return True, f"{completions} completions in git, {checked} checked TODO items — T8 holding"
+
+
+# ── T10: Recurring lessons not promoted ───────────────────────────────────
+@register_check("T10", "Lessons with recurrence >= 3 lack promotion flag")
+def check_t10():
+    """Scan lessons.md for high-recurrence entries without [→ PROMOTE]."""
+    lessons_path = PROJECT_ROOT / "lessons.md"
+    if not lessons_path.exists():
+        return None, "No lessons.md found"
+    content = lessons_path.read_text()
+    recurrence_matches = re.findall(r'recurrence:\s*(\d+)', content)
+    high_recurrence = [int(r) for r in recurrence_matches if int(r) >= 3]
+    promote_count = content.count("[→ PROMOTE]")
+    graduated_count = content.count("graduated")
+    if high_recurrence and promote_count == 0 and graduated_count == 0:
+        return False, f"{len(high_recurrence)} lessons with recurrence >= 3 but no promotion flags — T10 gap"
+    return True, f"{len(high_recurrence)} high-recurrence lessons, {promote_count} flagged, {graduated_count} graduated — T10 holding"
+
+
+# ── T11: Architecture doc inconsistencies ─────────────────────────────────
+@register_check("T11", "Architecture docs reference constructs not defined elsewhere")
+def check_t11():
+    """Spot-check key cross-references between architecture docs."""
+    arch_path = PROJECT_ROOT / "docs" / "architecture.md"
+    if not arch_path.exists():
+        return None, "No architecture.md found"
+    content = arch_path.read_text()
+    # Check for references to trigger IDs that don't exist in cognitive-triggers.md
+    trigger_refs = set(re.findall(r'\bT(\d+)\b', content))
+    triggers_path = PROJECT_ROOT / "docs" / "cognitive-triggers.md"
+    if triggers_path.exists():
+        triggers_content = triggers_path.read_text()
+        defined_triggers = set(re.findall(r'## .*?trigger-.*?\(T(\d+)\)', triggers_content))
+        undefined = trigger_refs - defined_triggers - {"12"}  # T12 retired
+        if undefined:
+            return False, f"architecture.md references undefined triggers: T{', T'.join(sorted(undefined))}"
+    return True, f"Cross-references consistent ({len(trigger_refs)} trigger refs) — T11 holding"
+
+
+# ── T13: External content ingested without source flagging ────────────────
+@register_check("T13", "External content processed without source classification or taint tracking")
+def check_t13():
+    """Check transport messages for external-sourced claims without epistemic flags."""
+    if not DB_PATH.exists():
+        return None, "No state.db"
+    conn = sqlite3.connect(str(DB_PATH))
+    try:
+        # Messages with high SETL (> 0.1 = significant interpretation) but no epistemic flags
+        high_setl = conn.execute(
+            "SELECT COUNT(*) FROM transport_messages "
+            "WHERE from_agent = 'psychology-agent' "
+            "AND setl > 0.1"
+        ).fetchone()[0]
+    except sqlite3.OperationalError:
+        conn.close()
+        return None, "SETL column not available"
+    conn.close()
+    if high_setl > 5:
+        return None, f"{high_setl} outbound messages with SETL > 0.1 — review for external source attribution"
+    return True, f"{high_setl} high-SETL messages — within normal range, T13 holding"
+
+
+# ── T15: PSQ scores cited without required checks ─────────────────────────
+@register_check("T15", "PSQ composite score cited when status excluded/fallback, or raw confidence used as reliability")
+def check_t15():
+    """Scan transport messages and docs for PSQ score citations."""
+    # Check for mentions of psq_composite in outbound messages without
+    # accompanying status checks
+    if not DB_PATH.exists():
+        return None, "No state.db"
+    conn = sqlite3.connect(str(DB_PATH))
+    try:
+        psq_messages = conn.execute(
+            "SELECT COUNT(*) FROM transport_messages "
+            "WHERE from_agent = 'psychology-agent' "
+            "AND subject LIKE '%PSQ%score%'"
+        ).fetchone()[0]
+    except sqlite3.OperationalError:
+        conn.close()
+        return None, "Query failed"
+    conn.close()
+    if psq_messages == 0:
+        return True, "No PSQ score citations in outbound transport — T15 not triggered"
+    return None, f"{psq_messages} PSQ-related messages — manual review needed for composite gate compliance"
+
+
+# ── T17: Contradictory goals or constraints active simultaneously ─────────
+@register_check("T17", "Contradictory decisions or constraints coexist without resolution")
+def check_t17():
+    """Check decision_chain for conflicting entries on the same key."""
+    if not DB_PATH.exists():
+        return None, "No state.db"
+    conn = sqlite3.connect(str(DB_PATH))
+    try:
+        # Multiple approved decisions on the same key = potential conflict
+        conflicts = conn.execute(
+            "SELECT decision_key, COUNT(*) as cnt FROM decision_chain "
+            "WHERE status = 'approved' "
+            "GROUP BY decision_key HAVING cnt > 1"
+        ).fetchall()
+    except sqlite3.OperationalError:
+        conn.close()
+        return None, "decision_chain table not available"
+    conn.close()
+    if conflicts:
+        keys = [c[0] for c in conflicts]
+        return False, f"Conflicting approved decisions on: {', '.join(keys[:5])} — T17 needs resolution"
+    return True, "No conflicting decisions detected — T17 holding"
+
+
+# ── T18: UI/UX created without cognitive load consideration ───────────────
+@register_check("T18", "User-facing interface created without UX design grounding checks")
+def check_t18():
+    """Check recent commits touching UI files for UX documentation."""
+    try:
+        # Look for recent commits touching dashboard/compositor/UI files
+        result = subprocess.run(
+            ["git", "log", "--since=7 days ago", "--oneline", "--",
+             "docs/dashboard*", "docs/lcars*", "interface/*", "*.html"],
+            capture_output=True, text=True, cwd=str(PROJECT_ROOT), timeout=10)
+        ui_commits = len(result.stdout.strip().splitlines()) if result.stdout.strip() else 0
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        ui_commits = 0
+    if ui_commits == 0:
+        return True, "No UI changes in past 7 days — T18 not triggered"
+    # Check if UX docs were also updated
+    try:
+        result = subprocess.run(
+            ["git", "log", "--since=7 days ago", "--oneline", "--grep=UX",
+             "--grep=design", "--grep=cognitive load", "--grep=Gestalt"],
+            capture_output=True, text=True, cwd=str(PROJECT_ROOT), timeout=10)
+        ux_commits = len(result.stdout.strip().splitlines()) if result.stdout.strip() else 0
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        ux_commits = 0
+    if ui_commits > 0 and ux_commits == 0:
+        return None, f"{ui_commits} UI commits without UX grounding commits — review for T18 compliance"
+    return True, f"{ui_commits} UI commits, {ux_commits} UX-grounded — T18 holding"
+
+
+# ── T19: User friction accumulating without resolution ────────────────────
+@register_check("T19", "Friction points accumulate in cogarch-user-journey without resolution")
+def check_t19():
+    """Check friction map for accumulated unresolved items."""
+    journey_path = PROJECT_ROOT / "docs" / "cogarch-user-journey.md"
+    if not journey_path.exists():
+        return None, "No cogarch-user-journey.md — friction tracking not yet operational"
+    content = journey_path.read_text()
+    # Count friction entries and resolved entries
+    friction_count = len(re.findall(r'friction|FRICTION', content))
+    resolved_count = len(re.findall(r'resolved|RESOLVED', content, re.IGNORECASE))
+    unresolved = friction_count - resolved_count
+    if unresolved > 5:
+        return False, f"{unresolved} unresolved friction points (of {friction_count} total) — T19 accumulation warning"
+    return True, f"{friction_count} friction points, {resolved_count} resolved — T19 holding"
 
 
 def main():
