@@ -104,6 +104,41 @@ export function hasData() {
 }
 
 /**
+ * Check whether an agent's data comes from full-fidelity sensors or
+ * approximate computation from /api/status.
+ * TNG-style: "SENSOR ESTIMATE" vs "PRIMARY READINGS"
+ * @param {string} agentId
+ * @returns {"primary"|"estimate"|"offline"}
+ */
+export function sensorFidelity(agentId) {
+    const data = getAgentPsychometrics(agentId);
+    if (!data || data.error) return "offline";
+    if (data.source && data.source.includes("approximate")) return "estimate";
+    return "primary";
+}
+
+/**
+ * Get a TNG-style fidelity label for display.
+ * @param {string} agentId
+ * @returns {string} display label
+ */
+export function fidelityLabel(agentId) {
+    const fidelity = sensorFidelity(agentId);
+    if (fidelity === "primary") return "PRIMARY READINGS";
+    if (fidelity === "estimate") return "SENSOR ESTIMATE";
+    return "NO SIGNAL";
+}
+
+/**
+ * Check whether ANY agent uses approximate data.
+ * @returns {boolean}
+ */
+export function hasApproximateData() {
+    if (!cache || !cache.agents) return false;
+    return Object.keys(cache.agents).some(id => sensorFidelity(id) === "estimate");
+}
+
+/**
  * Get the full cached payload.
  * @returns {Object|null}
  */

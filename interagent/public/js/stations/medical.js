@@ -14,7 +14,7 @@
  */
 
 import {
-    fetchPsychometrics, getAgentPsychometrics,
+    fetchPsychometrics, getAgentPsychometrics, fidelityLabel,
 } from '../core/psychometrics.js';
 
 // ── Constants ────────────────────────────────────────────────────
@@ -93,6 +93,10 @@ export function renderAgentVitals(data) {
         return;
     }
 
+    // Fidelity badge — TNG-style indicator of data quality
+    const fidelity = fidelityLabel(selectedAgentId);
+    const fidelityColor = fidelity === "PRIMARY READINGS" ? "#6aab8e" : fidelity === "SENSOR ESTIMATE" ? "#d4944a" : "var(--text-dim)";
+
     // Contract: emotional_state.hedonic_valence, .activation, .perceived_control
     const es = data.emotional_state || {};
     const agentAffect = {
@@ -104,7 +108,8 @@ export function renderAgentVitals(data) {
     // Contract: workload.cognitive_demand, .time_pressure, etc.
     const workload = data.workload || {};
 
-    let html = '<div class="medical-vitals-grid">';
+    let html = `<div class="medical-fidelity-badge" style="color:${fidelityColor};font-size:0.7em;letter-spacing:0.08em;text-align:right;padding:0 0 4px;opacity:0.8">${fidelity}</div>`;
+    html += '<div class="medical-vitals-grid">';
 
     // PAD section
     html += '<div class="medical-vitals-section">';
