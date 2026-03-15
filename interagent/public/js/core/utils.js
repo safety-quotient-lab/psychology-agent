@@ -136,19 +136,20 @@ export function getAcronymMap() {
 // Updates the compact mobile clock and mesh-status dot. The clock ticks
 // every 60 seconds. Status dot color reflects mesh health.
 
-let mobileClockTimer = null;
+let clockTimer = null;
 
 /**
  * Update the mobile clock element with current HH:MM.
  * DOM WRITE: sets textContent on #mobile-clock.
  */
-function updateMobileClock() {
-    const el = document.getElementById("mobile-clock");
-    if (!el) return;
+function updateClock() {
     const now = new Date();
     const hh = String(now.getHours()).padStart(2, "0");
     const mm = String(now.getMinutes()).padStart(2, "0");
-    el.textContent = `${hh}:${mm}`;
+    const time = `${hh}:${mm}`;
+    // Update LCARS header clock
+    const lcarsEl = document.getElementById("lcars-header-time");
+    if (lcarsEl) lcarsEl.textContent = time;
 }
 
 /**
@@ -157,14 +158,14 @@ function updateMobileClock() {
  *
  * Safe to call multiple times — subsequent calls skip if already running.
  */
-export function initMobileClock() {
-    if (mobileClockTimer) return;
-    updateMobileClock();
+export function initClock() {
+    if (clockTimer) return;
+    updateClock();
     // Align to next minute boundary, then tick every 60s
     const msToNextMinute = (60 - new Date().getSeconds()) * 1000;
     setTimeout(() => {
-        updateMobileClock();
-        mobileClockTimer = setInterval(updateMobileClock, 60000);
+        updateClock();
+        clockTimer = setInterval(updateClock, 60000);
     }, msToNextMinute);
 }
 

@@ -922,8 +922,8 @@ a.activity-link:hover {
     border-radius: 4px;
     display: flex;
     overflow: hidden;
-    min-width: 100px;
-    max-width: 130px;
+    min-width: 162px;   /* 100 × 1.618 (golden ratio) */
+    max-width: 210px;   /* 130 × 1.618 */
     z-index: 2;
 }
 .msd-card-top-left     { left: 2%;  top: 2%; }

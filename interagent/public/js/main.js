@@ -18,7 +18,7 @@ import {
 } from './core/tables.js';
 import {
     parseTS, formatTS, escapeHtml, annotateAcronyms,
-    buildAcronymMap, initMobileClock, updateMobileStatus,
+    buildAcronymMap, initClock, updateMeshStatus,
 } from './core/utils.js';
 
 // ── Station module imports ────────────────────────────────────────
@@ -150,7 +150,7 @@ async function refreshAll() {
     const onlineCount = Object.values(agentData).filter(
         a => a.status === "ok" || a.status === "online" || a.status === "healthy"
     ).length;
-    updateMobileStatus(onlineCount, AGENTS.length);
+    updateMeshStatus(onlineCount, AGENTS.length);
 
     // Fetch KB data (non-blocking — renders when ready)
     refreshKnowledge();
@@ -255,7 +255,7 @@ window.pageTable = pageTable;
     initTheme();
 
     // Start mobile status bar clock
-    initMobileClock();
+    initClock();
 
     // Restore tab from URL fragment
     const hashTab = location.hash.replace("#", "");
