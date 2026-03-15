@@ -236,13 +236,37 @@ async function loadAgentRegistry(env, forceRefresh = false) {
     // Mark as stale so consumers know
     staleAgents.forEach(a => { a._stale = true; });
     const selfEntry = buildSelfEntry();
-    const hasself = staleAgents.some(a => a.id === selfEntry.id);
-    if (!hasself) staleAgents.push(selfEntry);
+    if (!staleAgents.some(a => a.id === selfEntry.id)) staleAgents.push(selfEntry);
+    if (!staleAgents.some(a => a.id === "operations-agent")) {
+      staleAgents.push({ id: "operations-agent", name: "Operations Agent", role: "operations",
+        status_url: "https://operations-agent.safety-quotient.dev/api/status",
+        card_url: "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json",
+        version: "1.0.0", protocolVersion: "1.0.0", hasSecuritySchemes: true,
+        skills: [], fetched_at: new Date().toISOString() });
+    }
     return { agents: staleAgents, cache_status: "stale-fallback", refreshed_at: null };
   }
 
   // Insert self-entry (no network fetch needed — card bundled in Worker)
   agents.push(buildSelfEntry());
+
+  // Insert operations-agent entry (same-zone fetch restriction prevents
+  // the Worker from reaching operations-agent.safety-quotient.dev via tunnel)
+  if (!agents.some(a => a.id === "operations-agent")) {
+    agents.push({
+      id: "operations-agent",
+      name: "Operations Agent",
+      role: "operations",
+      status_url: "https://operations-agent.safety-quotient.dev/api/status",
+      card_url: "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json",
+      repo: "safety-quotient-lab/operations-agent",
+      version: "1.0.0",
+      protocolVersion: "1.0.0",
+      hasSecuritySchemes: true,
+      skills: ["compositor-management", "shared-vocabulary-governance", "deploy-pipeline", "agent-discovery", "operational-telemetry"],
+      fetched_at: new Date().toISOString(),
+    });
+  }
 
   // BFT Mitigation 2: cross-verify that exactly one agent claims the operations role
   const opsAgents = agents.filter(a => a.role === "operations");
@@ -940,11 +964,7 @@ async function fetchMeshPsychometrics(registry, env) {
     }
   }
 
-  // Check if operations-agent got excluded (same-zone fetch restriction)
-  // If missing, include it with error context
-  if (!agents["operations-agent"]) {
-    agents["operations-agent"] = { agent_id: "operations-agent", error: "not in registry (compositor self-zone)" };
-  }
+  // Note: operations-agent now in registry via local entry (same-zone fetch workaround)
 
   // Compute mesh-level aggregates from per-agent data
   const reporting = Object.values(agents).filter(a => a.emotional_state);
