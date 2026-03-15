@@ -4748,6 +4748,7 @@
         const colorVar = TAB_COLORS[tabId] || "--c-tab-pulse";
         document.documentElement.style.setProperty("--active-tab-color", `var(${colorVar})`);
         updateSpine(tabId);
+        if (tabId === "operations") refreshAll();
         if (tabId === "science") fetchScienceData();
         if (tabId === "engineering") fetchEngineeringData();
         if (tabId === "helm") fetchHelmData();
