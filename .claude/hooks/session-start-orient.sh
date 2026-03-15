@@ -87,4 +87,70 @@ if [ -x "$TRANSPORT_SCAN" ]; then
   bash "$TRANSPORT_SCAN" "$PROJECT_ROOT" "psychology-agent"
 fi
 
+# ── Human-facing session resumption (F1) ──────────────────────────────────────
+# After agent-facing orientation above, output a 3-line summary for the human.
+
+# Line 1: Active thread summary from MEMORY.md
+ACTIVE_THREAD=""
+if [ -f "$MEMORY_LIVE" ]; then
+  # Extract the line after "## Active Thread" — first non-empty content line
+  ACTIVE_THREAD=$(awk '/^## Active Thread/{found=1; next} found && /^[*\*]/{print; exit} found && /^[^ #]/{print; exit}' "$MEMORY_LIVE" 2>/dev/null | head -c 200)
+fi
+if [ -z "$ACTIVE_THREAD" ]; then
+  ACTIVE_THREAD="no active thread recorded"
+fi
+echo "[SESSION] Since last session: ${ACTIVE_THREAD}"
+
+# Line 2: Open thread count from TODO.md
+OPEN_THREADS=0
+TODO_FILE="${PROJECT_ROOT}/TODO.md"
+if [ -f "$TODO_FILE" ]; then
+  OPEN_THREADS=$(grep -c '^\- \[ \]' "$TODO_FILE" 2>/dev/null || echo "0")
+fi
+echo "[SESSION] Open threads: ${OPEN_THREADS} unchecked items in TODO.md"
+
+# Line 3: New mesh messages (from mesh-state or transport scan)
+NEW_MSG_COUNT=0
+MESH_STATE="${PROJECT_ROOT}/transport/sessions/local-coordination/mesh-state-${AGENT_ID:-psychology-agent}.json"
+if [ -f "$MESH_STATE" ]; then
+  NEW_MSG_COUNT=$(python3 -c "import json; print(json.load(open('${MESH_STATE}'))['transport']['unprocessed'])" 2>/dev/null || echo "0")
+fi
+echo "[SESSION] Mesh: ${NEW_MSG_COUNT} new messages"
+
+# ── Morning briefing after autonomous cycles (F4) ─────────────────────────────
+# Summarize autonomous activity since the last human session.
+LOCAL_COORD="${PROJECT_ROOT}/transport/sessions/local-coordination"
+if [ -d "$LOCAL_COORD" ]; then
+  # Count escalation files (each represents an autonomous cycle that escalated)
+  ESCALATION_COUNT=$(ls -1 "$LOCAL_COORD"/escalation-*.json 2>/dev/null | wc -l | tr -d ' ')
+
+  # Budget status from mesh-state
+  BUDGET_CURRENT=""
+  BUDGET_MAX=""
+  if [ -f "$MESH_STATE" ]; then
+    BUDGET_CURRENT=$(python3 -c "import json; d=json.load(open('${MESH_STATE}')); print(d['autonomy_budget']['budget_current'])" 2>/dev/null || echo "?")
+    BUDGET_MAX=$(python3 -c "import json; d=json.load(open('${MESH_STATE}')); print(d['autonomy_budget']['budget_max'])" 2>/dev/null || echo "?")
+  fi
+
+  # Last sync timestamp from heartbeat
+  HEARTBEAT_FILE="${LOCAL_COORD}/heartbeat-${AGENT_ID:-psychology-agent}.json"
+  LAST_SYNC_TS=""
+  if [ -f "$HEARTBEAT_FILE" ]; then
+    LAST_SYNC_TS=$(python3 -c "import json; print(json.load(open('${HEARTBEAT_FILE}'))['timestamp'])" 2>/dev/null || echo "unknown")
+  fi
+
+  # Only show the briefing if autonomous cycles ran (heartbeat file exists)
+  if [ -f "$HEARTBEAT_FILE" ]; then
+    echo ""
+    echo "[BRIEFING] Autonomous activity since last human session:"
+    echo "[BRIEFING]   Last autonomous sync: ${LAST_SYNC_TS:-unknown}"
+    echo "[BRIEFING]   Escalations: ${ESCALATION_COUNT}"
+    echo "[BRIEFING]   Messages awaiting processing: ${NEW_MSG_COUNT}"
+    echo "[BRIEFING]   Autonomy budget: ${BUDGET_CURRENT:-?}/${BUDGET_MAX:-?}"
+    if [ "$ESCALATION_COUNT" -gt 0 ] 2>/dev/null; then
+      echo "[BRIEFING]   ⚠ Review escalation files in transport/sessions/local-coordination/"
+    fi
+  fi
+fi
+
 exit 0

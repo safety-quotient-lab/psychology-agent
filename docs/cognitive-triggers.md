@@ -59,6 +59,10 @@ always run regardless of mode.
 | Mode | Activates When | Dominant Behavior | Suppressed ADVISORY Checks |
 |---|---|---|---|
 | **Generative** | "brainstorm", "explore", "what if", "ideas", creative work | Producing, connecting, diverging | T3 #6 recommend-against, T3 #10 rationalizations, T3 #12 evaluator proxy |
+
+Exception: T3 consciousness-related checks and the apophatic checklist
+(§11.9) fire as ADVISORY even in Generative mode. Consciousness claims
+carry the highest overclaim risk precisely during creative sessions.
 | **Evaluative** | "evaluate", "check", "verify", "audit", "review" | Checking, validating, converging | T2 #8b Socratic gate, T3 #8 Socratic discipline |
 | **Neutral** | "build", "implement", "fix", "commit", mechanical work | Balanced — both modes active | None suppressed |
 
@@ -120,7 +124,7 @@ secondary phases appear in the trigger section annotation.
 
 | Phase | Triggers | Function |
 |---|---|---|
-| **Observe** | T1 (session start), T9 (freshness), T13 (injection detection), T18 (UX design grounding) | Gather state, detect anomalies, verify inputs |
+| **Observe** | T1 (session start), T9 (freshness), T13 (injection detection), T18 (UX design grounding), T19 (UX friction monitor) | Gather state, detect anomalies, verify inputs |
 | **Orient** | T2 (context assessment), T5 (staleness), T14 (vocabulary) | Assess context, align mental model, calibrate frame |
 | **Decide** | T3 (substance gate), T6 (pushback), T7 (response quality), T15 (PSQ output) | Evaluate options, gate actions, judge quality |
 | **Act** | T4 (public visibility), T8 (lessons), T10 (pattern recognition), T11 (architecture audit), T16 (external action), T17 (conflict) | Produce artifacts, persist knowledge, enforce standards |
@@ -817,6 +821,69 @@ decisions in commit messages or inline comments.
 discipline — human factors (Norman, 1988), I/O psychology (Spector, 2021),
 information design (Tufte, 1990), perceptual psychology (Wertheimer, 1923)
 — to its own interfaces. The discipline comes first; engineering serves it.
+
+---
+
+<!-- OODA: Observe -->
+## UX Friction Monitor — trigger-ux-friction (T19)
+
+**Fires**: During /cycle (Step 11 cadence) and every 5 sessions
+alongside /retrospect. Also fires when the user expresses confusion,
+requests clarification of system behavior, or encounters governance
+that interrupts without explanation.
+
+**Tier legend:** `⬛` CRITICAL · `▣` ADVISORY · `▢` SPOT-CHECK
+
+**Theoretical grounding:** LLM-factors psychology
+(docs/llm-factors-psychology.md). The interaction between human and
+agent constitutes a dyadic cognitive system — friction in the
+interaction degrades both participants' performance. This trigger
+monitors the human side of the dyad.
+
+**Checks:**
+1. ▣ **Confusion indicators** — did the human ask "what does that
+   mean?", "why did you do that?", or express confusion about system
+   behavior this session? Each instance represents a friction point
+   where internal vocabulary leaked or governance operated without
+   explanation. Log to docs/cogarch-user-journey.md friction map.
+2. ▣ **Governance-without-explanation count** — how many times did
+   governance become visible (trigger fired, hook output appeared,
+   substance gate blocked) without the agent explaining why? Compare
+   against the governance transparency level (F9). Count > 3 per
+   session in non-evaluative mode warrants transparency level increase.
+3. ▣ **Session flow disruption** — did the human's productive flow
+   break due to system behavior (not due to the human choosing to
+   change direction)? Indicators: rapid topic switch initiated by
+   agent, verbose output interrupting creative work, governance
+   check during flow state. Each disruption represents a Yerkes-Dodson
+   overstimulation event.
+4. ▢ **Friction accumulation check** — query the friction map in
+   docs/cogarch-user-journey.md. If 3+ frictions accumulate in the
+   same category (same ID prefix, same journey type), flag for
+   resolution. Accumulated friction compounds — each additional
+   friction in the same category degrades the interaction more than
+   the previous one (diminishing tolerance).
+5. ▢ **New operator detection** — if this appears to represent the
+   human's first 3 sessions (check session count in lab-notebook.md),
+   apply progressive disclosure: explain governance behavior on first
+   encounter rather than after confusion. Reference
+   docs/first-session-guide.md.
+
+**Action**: Log friction observations to docs/cogarch-user-journey.md
+friction map with session number and severity. If accumulation check
+(#4) fires, surface the accumulated frictions to the user with fix
+recommendations. During /retrospect, include friction trend analysis
+in the session quality assessment.
+
+**Connection to generators:** Friction monitoring represents the
+evaluative generator (G3) applied to the human-agent interaction
+itself — not just to the agent's output. The microglial audit (G5)
+examines documents for errors; T19 examines interactions for friction.
+
+**Provenance**: Session 87 (2026-03-14). First crystallization of
+LLM-factors psychology into cogarch infrastructure. Friction analysis
+previously operated as a one-off manual process; T19 makes it a
+recurring governance check.
 
 ---
 
