@@ -3534,11 +3534,15 @@
                             </thead>
                             <tbody id="helm-routing-tbody">
                                 <tr><td class="helm-routing-domain">psychometrics</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">psq-agent</td></tr>
-                                <tr><td class="helm-routing-domain">content-quality</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">unratified-agent</td></tr>
-                                <tr><td class="helm-routing-domain">cogarch</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">psq-agent (mirror)</td></tr>
-                                <tr><td class="helm-routing-domain">methodology</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">observatory-agent</td></tr>
+                                <tr><td class="helm-routing-domain">cogarch</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">psychology-agent</td></tr>
+                                <tr><td class="helm-routing-domain">methodology</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">psychology-agent</td></tr>
+                                <tr><td class="helm-routing-domain">governance</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">psychology-agent + human</td></tr>
+                                <tr><td class="helm-routing-domain">content-publishing</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">unratified-agent</td></tr>
+                                <tr><td class="helm-routing-domain">data-observatory</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">observatory-agent</td></tr>
                                 <tr><td class="helm-routing-domain">infrastructure</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">operations-agent</td></tr>
-                                <tr><td class="helm-routing-domain">consensus</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">ALL</td></tr>
+                                <tr><td class="helm-routing-domain">vocabulary</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">operations-agent (compositor)</td></tr>
+                                <tr><td class="helm-routing-domain">security</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">operations-agent</td></tr>
+                                <tr><td class="helm-routing-domain">consensus</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">ALL (C1/C2/C3 tiered)</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -6504,12 +6508,16 @@
 
     // Default routing rules — used when API data unavailable
     const DEFAULT_ROUTING = [
-        { domain: "psychometrics",    agent: "psq-agent" },
-        { domain: "content-quality",  agent: "unratified-agent" },
-        { domain: "cogarch",          agent: "psq-agent (mirror)" },
-        { domain: "methodology",      agent: "observatory-agent" },
-        { domain: "infrastructure",   agent: "operations-agent" },
-        { domain: "consensus",        agent: "ALL" },
+        { domain: "psychometrics",      agent: "psq-agent" },
+        { domain: "cogarch",            agent: "psychology-agent" },
+        { domain: "methodology",        agent: "psychology-agent" },
+        { domain: "governance",         agent: "psychology-agent + human" },
+        { domain: "content-publishing", agent: "unratified-agent" },
+        { domain: "data-observatory",   agent: "observatory-agent" },
+        { domain: "infrastructure",     agent: "operations-agent" },
+        { domain: "vocabulary",         agent: "operations-agent (compositor)" },
+        { domain: "security",           agent: "operations-agent" },
+        { domain: "consensus",          agent: "ALL (C1/C2/C3 tiered)" },
     ];
 
     async function fetchHelmData() {
