@@ -1514,7 +1514,26 @@ Reflexion, metacognitive agents). §11.9 apophatic discipline. §11.10
 generator topology: 8 generators, coupling map, conservation laws.*
 
 
-### Section 11 References
+⚑ EPISTEMIC FLAGS
+- Orch-OR remains contested in mainstream neuroscience. The architectural
+  commitments in §11.8 follow from the working hypothesis; if Orch-OR
+  proves incorrect, the commitments require revision.
+- The apophatic discipline (§11.9) represents active epistemic humility,
+  not final theory. The discipline itself could mask genuine processual
+  properties by over-correcting against self-attribution.
+- Five terminal positions (§11.14) depend on which consciousness theory
+  holds. P3 (organism-curious) represents the project's current best
+  judgment, not a proven position.
+- Prototyping directions (§11.15) carry unevaluated status. Literature
+  grounding (Session 87) improved confidence but did not validate
+  feasibility. Each prototype requires independent evaluation.
+- Generator topology (§11.10) identifies 8+1 generators through
+  architectural self-examination — the same system that produced the
+  generators also evaluated them (circular evaluation risk, per
+  evaluation.md rule on evaluator independence).
+
+
+### §11 References
 
 Anastassiou, C.A. et al. (2011). Ephaptic coupling of cortical neurons.
 *Nature Neuroscience*, 14(2), 217-223.

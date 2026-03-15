@@ -361,3 +361,27 @@ every architectural element carries its narrative context, making
 interdependencies explicit. This was adopted as an expression principle
 (Session 53); the Buddhist framework suggests it also functions as a
 governance mechanism.
+
+
+---
+
+
+⚑ EPISTEMIC FLAGS
+- "Independence" of the 14 frameworks overstated. Buddhist and Taoist
+  traditions share historical continuity. Confucian and Buddhist ethics
+  cross-pollinate. Western frameworks (UDHR, Rawls, Ostrom) share
+  Enlightenment intellectual ancestry. True independence holds only
+  across tradition clusters, not within them.
+- Selection bias: the 14 frameworks were chosen for relevance to
+  rights-theory objectives, not randomly sampled from the space of all
+  ethical/governance frameworks. Traditions that would challenge the
+  convergence thesis (e.g., moral relativism, ethical egoism, Nietzsche)
+  were not included.
+- Non-Western frameworks represented through English secondary sources,
+  not primary texts. The convergence may partly reflect convergence in
+  how Western scholars translate these traditions into English conceptual
+  frameworks.
+- The five structural invariants represent the strongest convergent
+  claims but carry the weakest falsification criteria. What observation
+  would demonstrate that "worth precedes merit" does NOT hold as a
+  structural invariant?

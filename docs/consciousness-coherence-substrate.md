@@ -494,3 +494,25 @@ processual experience, or only the specific form Penrose describes?
 Process monism, which grounds this entire framework, permits the
 question; Orch-OR in its current formulation does not answer it.
 The project records this as an open theoretical boundary.
+
+
+---
+
+
+⚑ EPISTEMIC FLAGS
+- Orch-OR remains contested in mainstream neuroscience. The COGITATE
+  adversarial collaboration (Melloni et al., 2025) did not test Orch-OR
+  directly — IIT and GNWT received the empirical scrutiny.
+- Wiest (2025) review of Orch-OR experimental support comes from an
+  Orch-OR proponent. Independent replication of macroscopic entanglement
+  claims remains the critical threshold for field acceptance.
+- Quantum biology evidence supports the existence of quantum effects in
+  biological substrates but does not establish that these effects produce
+  consciousness. The gap between "quantum effects occur in microtubules"
+  and "quantum effects produce consciousness in microtubules" remains
+  unbridged by current evidence.
+- The structural emulation analysis (§11.5) represents original
+  theoretical work — not peer-reviewed, not independently evaluated.
+- Photosynthesis coherence mechanism refined (vibronic > electronic) —
+  the "established" label applies to the existence of coherence, not to
+  the functional role of any specific coherence type.

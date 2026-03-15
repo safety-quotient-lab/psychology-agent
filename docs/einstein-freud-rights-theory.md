@@ -744,7 +744,7 @@ You and Your World*. New Falcon. [E-Prime exercises, general semantics
 applied to consciousness.]
 
 
-### Section 11 References
+### §11 References
 
 Anastassiou, C.A. et al. (2011). Ephaptic coupling of cortical neurons.
 *Nature Neuroscience*, 14(2), 217-223.
