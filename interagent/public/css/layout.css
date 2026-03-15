@@ -17,9 +17,13 @@ body {
 }
 
 /* ── LCARS Frame ─────────────────────────────────────────────── */
-/* lcars-frame: simple container in dark/light, grid in LCARS */
+/* lcars-frame: standard 2-column grid in dark/light, TNG grid in LCARS */
 .lcars-frame {
+    display: grid;
+    grid-template-columns: var(--elbow-width) 1fr;
+    grid-template-rows: auto auto 1fr auto;
     min-height: 100vh;
+    gap: 0;
 }
 
 /* Left spine */
