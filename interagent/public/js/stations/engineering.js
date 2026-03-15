@@ -1,21 +1,30 @@
 /**
  * engineering.js — Engineering station (TNG: Engineering console —
- * spawn waterfall, utilization, OODA tempo, cost tracking, concurrency slots).
+ * spawn waterfall, utilization, OODA tempo, cost tracking, concurrency slots,
+ * cognitive load, Yerkes-Dodson zones).
  *
  * Renders the Engineering tab with operational performance metrics.
  * The Spawn Waterfall serves as the hero visualization — a vertical timeline
  * with one column per agent, colored droplets representing spawn events.
  *
+ * A2A-Psychology constructs (LLM-factors §2.2 Cognitive Load Management):
+ *   - Cognitive Load (NASA-TLX composite per agent)
+ *   - Yerkes-Dodson zones (working memory capacity load)
+ *
  * Data endpoints:
  *   GET {opsAgent.url}/api/tempo      — avg_cycle_ms (OODA loop timing)
  *   GET {opsAgent.url}/api/spawn-rate — agents, utilization, cost,
  *     concurrency_slots, spawn_history[]
+ *   Shared psychometrics cache (core/psychometrics.js) — cognitive load, Y-D zones
  *
  * DOM dependencies: #spawn-dynamics, #spawn-placeholder, #spawn-waterfall,
- *   utilization elements, tempo elements, cost elements, #concurrency-slots
- *
- * Global state accessed: AGENTS (for ops-agent URL)
+ *   utilization elements, tempo elements, cost elements, #concurrency-slots,
+ *   #eng-cognitive-load, #eng-yd-zones
  */
+
+import {
+    fetchPsychometrics, getAllAgentPsychometrics,
+} from '../core/psychometrics.js';
 
 // ── Module State ───────────────────────────────────────────────
 let engineeringData = null;
@@ -61,6 +70,9 @@ export async function fetchEngineeringData(AGENTS) {
         if (spawnData?.spawn_history) {
             populateSpawnHistory(spawnData.spawn_history);
         }
+
+        // Fetch psychometrics for cognitive load + Y-D panels
+        await fetchPsychometrics();
     } catch (err) {
         engineeringData = null;
     } finally {
@@ -343,6 +355,91 @@ export function renderConcurrency() {
     }).join("");
 }
 
+// ── Render: Cognitive Load (A2A-Psychology) ──────────────────
+
+/**
+ * Render per-agent cognitive load composite from NASA-TLX.
+ * LLM-factors §2.2: governance-performance curve — the inverted-U in real time.
+ * DOM WRITE: #eng-cognitive-load
+ */
+export function renderCognitiveLoad() {
+    const container = document.getElementById("eng-cognitive-load");
+    if (!container) return;
+
+    const agents = getAllAgentPsychometrics();
+    const entries = Object.entries(agents).filter(([, d]) => d && !d.error && d.workload);
+
+    if (entries.length === 0) {
+        container.innerHTML = '<div class="engineering-placeholder">Awaiting psychometrics data...</div>';
+        return;
+    }
+
+    container.innerHTML = entries.map(([agentId, data]) => {
+        const load = data.workload?.cognitive_load ?? 0;
+        const pct = Math.min(100, Math.max(0, load));
+        const label = agentId.replace("-agent", "");
+        const agent = SPAWN_AGENTS.find(a => a.id === agentId);
+        const color = agent ? agent.color : "var(--text-primary)";
+        const barColor = pct > 70 ? "var(--c-alert)" : pct > 40 ? "var(--c-warning)" : "#6aab8e";
+        const mode = data.workload?.mode || "neutral";
+
+        return `<div class="eng-load-row">
+            <span class="eng-load-agent" style="color:${color}">${label}</span>
+            <div class="eng-load-bar-track">
+                <div class="eng-load-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+            </div>
+            <span class="eng-load-value">${pct.toFixed(0)}</span>
+            <span class="eng-load-mode">${mode[0].toUpperCase()}</span>
+        </div>`;
+    }).join("");
+}
+
+// ── Render: Yerkes-Dodson Zones (A2A-Psychology) ─────────────
+
+/**
+ * Render per-agent Yerkes-Dodson zones from working memory construct.
+ * LLM-factors §2.2: context window as finite attention economy.
+ * DOM WRITE: #eng-yd-zones
+ */
+export function renderYerkesDodsonZones() {
+    const container = document.getElementById("eng-yd-zones");
+    if (!container) return;
+
+    const agents = getAllAgentPsychometrics();
+    const entries = Object.entries(agents).filter(([, d]) => d && !d.error && d.working_memory);
+
+    if (entries.length === 0) {
+        container.innerHTML = '<div class="engineering-placeholder">Awaiting psychometrics data...</div>';
+        return;
+    }
+
+    const ZONE_COLORS = {
+        understimulated: "#6688aa",
+        optimal: "#6aab8e",
+        pressured: "#d4944a",
+        overwhelmed: "#c47070",
+    };
+
+    container.innerHTML = entries.map(([agentId, data]) => {
+        const wm = data.working_memory || {};
+        const zone = wm.yerkes_dodson_zone || "unknown";
+        const load = wm.capacity_load ?? 0;
+        const loadPct = Math.min(100, load * 100);
+        const label = agentId.replace("-agent", "");
+        const agent = SPAWN_AGENTS.find(a => a.id === agentId);
+        const agentColor = agent ? agent.color : "var(--text-primary)";
+        const zoneColor = ZONE_COLORS[zone] || "var(--text-dim)";
+
+        return `<div class="eng-yd-row">
+            <span class="eng-yd-agent" style="color:${agentColor}">${label}</span>
+            <div class="eng-yd-bar-track">
+                <div class="eng-yd-bar-fill" style="width:${loadPct}%;background:${zoneColor}"></div>
+            </div>
+            <span class="eng-yd-zone" style="color:${zoneColor}">${zone.toUpperCase()}</span>
+        </div>`;
+    }).join("");
+}
+
 // ── Render: Combined Engineering ───────────────────────────────
 
 /**
@@ -354,4 +451,6 @@ export function renderEngineering() {
     renderTempo();
     renderUtilization();
     renderCost();
+    renderCognitiveLoad();
+    renderYerkesDodsonZones();
 }
