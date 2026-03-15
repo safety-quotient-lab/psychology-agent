@@ -32,8 +32,15 @@ export function setTheme(mode) {
         document.getElementById("btn-lcars-lcars").classList.toggle("active", mode === "lcars");
     }
     localStorage.setItem("theme", mode);
-    // If leaving LCARS mode while on a LCARS-only tab, switch to Pulse
-    if (mode !== "lcars") {
+    if (mode === "lcars") {
+        // Entering LCARS: switch to Engineering (first bridge station)
+        // Standard tabs (pulse, meta, kb, wisdom) are hidden in LCARS
+        const activeTab = document.querySelector('.lcars-tab.active');
+        if (activeTab && !activeTab.classList.contains('lcars-only')) {
+            if (typeof window.switchTab === "function") window.switchTab('engineering');
+        }
+    } else {
+        // Leaving LCARS: if on a LCARS-only tab, switch to Pulse
         const activeTab = document.querySelector('.lcars-tab.active');
         if (activeTab && activeTab.classList.contains('lcars-only')) {
             if (typeof window.switchTab === "function") window.switchTab('pulse');
