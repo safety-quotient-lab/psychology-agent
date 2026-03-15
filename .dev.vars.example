@@ -47,8 +47,9 @@ POLL_INTERVAL=60
 # Max concurrent Claude spawns across mesh (normal capacity)
 MAX_CONCURRENT_SPAWNS=1
 
-# Model override for spawns (sonnet, opus, haiku, or empty for CLI default)
-SPAWN_MODEL=sonnet
+# Deliberation model — which Claude model meshd spawns use
+# sonnet = balanced (default), opus = deep reasoning, haiku = fast/cheap
+DELIBERATION_MODEL=sonnet
 
 # Reserve slots — extra capacity unlocked by touching /tmp/mesh-reserve-unlock
 # Total cap when reserve active: MAX_CONCURRENT_SPAWNS + MESH_RESERVE_SLOTS

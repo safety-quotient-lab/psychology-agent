@@ -156,8 +156,8 @@ func main() {
 
 			// Model override: pass --model flag when SPAWN_MODEL configured
 			var spawnFlags []string
-			if cfg.SpawnModel != "" {
-				spawnFlags = append(spawnFlags, "--model", cfg.SpawnModel)
+			if cfg.DeliberationModel != "" {
+				spawnFlags = append(spawnFlags, "--model", cfg.DeliberationModel)
 			}
 			result, spawnErr := spawnr.Spawn(dctx, req.Prompt, spawnFlags...)
 

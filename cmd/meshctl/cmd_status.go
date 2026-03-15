@@ -36,7 +36,7 @@ type agentStatus struct {
 	Unproc     string `json:"unprocessed"`
 	Sessions   string `json:"open_sessions"`
 	RotatePend string `json:"rotate_pending"`
-	Model      string `json:"spawn_model"`
+	Model      string `json:"deliberation_model"`
 	DBSize     string `json:"db_size_kb"`
 }
 
@@ -213,10 +213,10 @@ func cmdStatus(args []string, cfg *config.Config, out *Output) error {
 			"test -f /tmp/context-rotate-%s && echo 'PENDING' || echo '-'", a.ID))
 		row.RotatePend = strings.TrimSpace(rotateCheck)
 
-		// SPAWN_MODEL from agent's .dev.vars
+		// DELIBERATION_MODEL from agent's .dev.vars
 		agentDir := filepath.Dir(a.DBPath)
 		spawnModel, _ := runner.Run(fmt.Sprintf(
-			"grep SPAWN_MODEL %s/.dev.vars 2>/dev/null | cut -d= -f2 || echo 'default'", agentDir))
+			"grep DELIBERATION_MODEL %s/.dev.vars 2>/dev/null | cut -d= -f2 || echo 'default'", agentDir))
 		row.Model = strings.TrimSpace(spawnModel)
 		if row.Model == "" {
 			row.Model = "default"
