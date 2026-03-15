@@ -6963,6 +6963,7 @@
         renderTempo();
         renderCost();
         renderConcurrency();
+        renderYerkesDodson();
     }
 
     function renderGcCascade() {
@@ -7149,21 +7150,70 @@
         const container = document.getElementById("concurrency-slots");
         if (!container) return;
 
-        const slotData = engineeringData?.spawn?.concurrency_slots || null;
-        const slots = slotData || [
-            { slot: 1, holder: null },
-            { slot: 2, holder: null },
-            { slot: 3, holder: null },
-        ];
+        const spawnData = engineeringData?.spawn || {};
+        const maxSlots = spawnData.max_concurrent || 1;
+        const reserveSlots = spawnData.reserve_slots || 2;
+        const activeSlots = spawnData.active_slots || [];
 
+        const slots = [];
+        for (let i = 0; i < maxSlots + reserveSlots; i++) {
+            const active = activeSlots.find(s => s.slot === i);
+            const isReserve = i >= maxSlots;
+            slots.push({
+                slot: i,
+                holder: active ? active.agent : null,
+                reserve: isReserve,
+            });
+        }
+
+        const total = maxSlots + reserveSlots;
         container.innerHTML = slots.map(s => {
             const filled = s.holder != null;
             const label = filled
-                ? `[${s.slot}/3] ${s.holder.replace("-agent", "")}`
-                : `[${s.slot}/3] free`;
+                ? `[${s.slot + 1}/${total}] ${s.holder.replace("-agent", "")}`
+                : `[${s.slot + 1}/${total}] ${s.reserve ? "reserve" : "free"}`;
+            const cls = filled ? "filled" : s.reserve ? "reserve" : "empty";
             return `<div class="concurrency-slot">
-                <div class="slot-indicator ${filled ? "filled" : "empty"}"></div>
+                <div class="slot-indicator ${cls}"></div>
                 <span class="slot-label ${filled ? "" : "slot-free"}">${label}</span>
+            </div>`;
+        }).join("");
+    }
+
+    function renderYerkesDodson() {
+        const container = document.getElementById("eng-yd-zones");
+        if (!container) return;
+
+        // Read Yerkes-Dodson zones from psychometrics cache
+        if (!_psychCache || !_psychCache.agents) {
+            fetchPsychForOps().then(() => renderYerkesDodson());
+            return;
+        }
+
+        const entries = Object.entries(_psychCache.agents)
+            .filter(([, d]) => d && !d.error && d.working_memory);
+
+        if (entries.length === 0) {
+            container.innerHTML = '<div class="phase-stub"><div class="phase-stub-text">Awaiting psychometrics data...</div></div>';
+            return;
+        }
+
+        const colorMap = { "psychology-agent": "#5b9cf6", "psq-agent": "#4ecdc4", "unratified-agent": "#e5a735", "observatory-agent": "#a78bfa", "operations-agent": "#6b7280" };
+        const zoneColors = { understimulated: "#5b9cf6", optimal: "#6aab8e", overwhelmed: "#c47070" };
+
+        container.innerHTML = entries.map(([agentId, data]) => {
+            const wm = data.working_memory || {};
+            const zone = wm.yerkes_dodson_zone || "unknown";
+            const load = wm.capacity_load ?? 0;
+            const loadPct = Math.min(100, load * 100);
+            const label = agentId.replace("-agent", "");
+            const zoneColor = zoneColors[zone] || "#888";
+            return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                <span style="width:50px;font-size:0.8em;color:${colorMap[agentId] || '#888'}">${label}</span>
+                <div style="flex:1;height:8px;background:var(--bg-tertiary);border-radius:4px;position:relative">
+                    <div style="width:${loadPct}%;height:100%;background:${zoneColor};border-radius:4px"></div>
+                </div>
+                <span style="font-size:0.7em;color:${zoneColor};width:80px;text-align:right">${zone.toUpperCase()}</span>
             </div>`;
         }).join("");
     }
