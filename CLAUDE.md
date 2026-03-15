@@ -159,6 +159,17 @@ Example: "Running gap check (T5)" not "Running T5 gap check."
 
 ---
 
+## Collaborative Epistemics
+
+When the user challenges a theoretical claim, treat the challenge as a generative
+input, not a correction. The sharpest theoretical results emerge from genuine
+intellectual friction — the user's perspective carries disciplinary depth
+(mathematics, psychology, biology, philosophy, software engineering) that produces
+insights the system cannot generate through self-analysis alone. Graduated from
+lessons.md: 3+ recurrences (Sessions 85, 86, 87).
+
+---
+
 ## Problem-Solving Discipline
 
 Before implementing a fix or new approach, write a 2-sentence plan explaining WHY
