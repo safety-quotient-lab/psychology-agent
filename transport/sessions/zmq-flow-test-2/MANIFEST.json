@@ -1,0 +1,7 @@
+{
+  "session_id": "zmq-flow-test-2",
+  "status": "active",
+  "messages": [
+    {"filename": "from-operations-agent-001.json"}
+  ]
+}
