@@ -989,3 +989,34 @@ ALTER TABLE trigger_state ADD COLUMN ooda_phase TEXT DEFAULT NULL
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (29, 'OODA phase annotation on trigger_state. Enables phase-ordered trigger scheduling (Boyd, 1987).');
+
+
+-- v30: Event log for hippocampal replay (event-sourced memory Phase 1-2)
+-- Append-only event store capturing governance actions, trigger firings,
+-- transport events, and state changes. Each row represents an episodic trace
+-- that the replay engine (Phase 3) consolidates into semantic memory.
+-- Spec: docs/event-sourced-memory.md §2.1-2.2
+-- Categories: governance, transport, state, self_model, mesh
+
+CREATE TABLE IF NOT EXISTS event_log (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_id        TEXT UNIQUE NOT NULL,
+    timestamp       TEXT NOT NULL,
+    agent_id        TEXT NOT NULL,
+    event_type      TEXT NOT NULL,
+    category        TEXT NOT NULL,
+    payload         TEXT NOT NULL,       -- JSON blob
+    session_id      INTEGER,
+    a2a_snapshot    TEXT,                -- JSON: A2A-Psychology snapshot (hedonic_valence, activation, etc.)
+    consolidated    BOOLEAN DEFAULT FALSE,
+    created_at      TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_event_log_type ON event_log(event_type);
+CREATE INDEX IF NOT EXISTS idx_event_log_session ON event_log(session_id);
+CREATE INDEX IF NOT EXISTS idx_event_log_consolidated ON event_log(consolidated);
+CREATE INDEX IF NOT EXISTS idx_event_log_timestamp ON event_log(timestamp);
+CREATE INDEX IF NOT EXISTS idx_event_log_category ON event_log(category);
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (30, 'Event log for hippocampal replay. Append-only event store (docs/event-sourced-memory.md §2.1-2.2).');
