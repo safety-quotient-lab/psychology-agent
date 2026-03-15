@@ -167,9 +167,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* ── LCARS Pill-Shaped Interactive Elements ──────────────────── */
 .theme-lcars .toggle-btn,
 .theme-lcars .agent-switch-btn,
-.theme-lcars .table-page-btn,
-.theme-lcars .section-jump-btn,
-.theme-lcars .lcars-tab,
+/* Pill shapes only on LCARS tab badges and status indicators — not all buttons */
 .theme-lcars .tab-badge,
 .theme-lcars .activity-type,
 .theme-lcars .ops-action-tier,
