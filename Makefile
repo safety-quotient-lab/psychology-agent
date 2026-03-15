@@ -1,6 +1,6 @@
 # operations-agent Makefile
 #
-# Single entry point for build, test, and deploy.
+# Single entry point for build, test, deploy, and maintenance.
 #
 # LCARS dashboard: interagent/public/ serves as canonical source.
 # Build-time copy syncs to internal/server/static/ for go:embed.
@@ -15,20 +15,54 @@ STATIC_DST   := internal/server/static
 VERSION      ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 LDFLAGS      := -ldflags "-X github.com/safety-quotient-lab/operations-agent/internal/server.Version=$(VERSION)"
 
-# Deploy target (loaded from .dev.vars at runtime)
+# Deploy target
 REMOTE_BIN   := /home/kashif/platform/meshd
 REMOTE_BACKUP := /home/kashif/platform/meshd-backup-$(shell date +%Y%m%d-%H%M)
 
-# Load .dev.vars for SSH config
--include .dev.vars.mk
+# SSH shortcuts (config from .dev.vars at runtime)
 SSH_CMD = ssh -p $${AGENT_SSH_PORT:-2535} $${AGENT_SSH_HOST}
 SCP_CMD = scp -P $${AGENT_SSH_PORT:-2535}
 
-.PHONY: all build build-meshd build-meshctl sync-dashboard test clean \
-        deploy deploy-worker deploy-meshd deploy-transfer deploy-restart \
-        deploy-validate status
+.PHONY: all build build-meshd build-meshctl sync-dashboard \
+        test check fmt vet lint \
+        deploy deploy-worker deploy-meshd deploy-transfer deploy-restart deploy-validate \
+        status logs \
+        schema index-transport backup-state \
+        stats clean help
 
+# ── Default ───────────────────────────────────────────────────
 all: sync-dashboard build
+
+help:
+	@echo "operations-agent Makefile ($(VERSION))"
+	@echo ""
+	@echo "Build:"
+	@echo "  make              Build meshd + meshctl (syncs dashboard first)"
+	@echo "  make build-meshd  Build meshd binary (linux/amd64)"
+	@echo "  make build-meshctl Build meshctl binary"
+	@echo "  make sync-dashboard Copy LCARS → Go static"
+	@echo ""
+	@echo "Quality:"
+	@echo "  make check        Pre-commit gate (fmt + vet + test + build)"
+	@echo "  make test         Run all Go tests"
+	@echo "  make fmt          Format Go code"
+	@echo "  make vet          Run go vet"
+	@echo "  make lint         Run staticcheck (if installed)"
+	@echo ""
+	@echo "Deploy:"
+	@echo "  make deploy       Full deploy (CF Worker + binary + restart + validate)"
+	@echo "  make deploy-worker CF Worker only"
+	@echo "  make deploy-meshd  Binary build + transfer + restart"
+	@echo "  make deploy-validate Run post-deploy health checks"
+	@echo ""
+	@echo "Operations:"
+	@echo "  make status       Show running meshd processes on remote"
+	@echo "  make logs AGENT=x Tail meshd logs for agent"
+	@echo "  make schema       Bootstrap state.db from schema.sql"
+	@echo "  make index-transport Re-index transport messages into state.db"
+	@echo "  make backup-state  Backup state.db (local + remote)"
+	@echo "  make stats        Codebase statistics"
+	@echo "  make clean        Remove build artifacts"
 
 # ── Dashboard sync ────────────────────────────────────────────
 sync-dashboard:
@@ -50,24 +84,43 @@ build-meshd: sync-dashboard
 build-meshctl:
 	@go build -o $(MESHCTL_BIN) ./cmd/meshctl/
 
-# ── Test ──────────────────────────────────────────────────────
-test:
-	go test ./...
+# ── Quality ───────────────────────────────────────────────────
+# Pre-commit gate: format, vet, test, build. Run before every commit.
+check: fmt vet test build
+	@echo ""
+	@echo "All checks passed."
 
-# ── Full deploy (CF Worker + meshd binary + restart) ──────────
+fmt:
+	@gofmt -l -w ./internal/ ./cmd/ 2>/dev/null
+	@echo "  fmt: done"
+
+vet:
+	@go vet ./...
+	@echo "  vet: done"
+
+lint:
+	@if command -v staticcheck >/dev/null 2>&1; then \
+		staticcheck ./...; \
+		echo "  lint: done"; \
+	else \
+		echo "  lint: staticcheck not installed (go install honnef.co/go/tools/cmd/staticcheck@latest)"; \
+	fi
+
+test:
+	@go test ./... 2>&1
+	@echo "  test: done"
+
+# ── Full deploy ───────────────────────────────────────────────
 deploy: deploy-worker deploy-meshd deploy-validate
 	@echo ""
 	@echo "Deploy complete ($(VERSION))."
 
-# CF Worker deploy
 deploy-worker: sync-dashboard
 	@echo "═══ Deploying CF Worker ═══"
 	@cd interagent && wrangler deploy
 
-# Build + transfer + restart meshd on remote host
 deploy-meshd: build-meshd deploy-transfer deploy-restart
 
-# Transfer binary to remote host
 deploy-transfer:
 	@echo ""
 	@echo "═══ Transferring meshd binary ═══"
@@ -75,7 +128,6 @@ deploy-transfer:
 		$(SCP_CMD) ./$(MESHD_BIN) $${AGENT_SSH_HOST}:$(REMOTE_BIN).new
 	@echo "  Transferred to $(REMOTE_BIN).new"
 
-# Backup + swap + restart all meshd processes
 deploy-restart:
 	@echo ""
 	@echo "═══ Restarting meshd processes ═══"
@@ -99,16 +151,66 @@ deploy-restart:
 		echo "  Running processes:" && \
 		pgrep -la "platform/meshd --port" || echo "  WARNING: no meshd processes found"'
 
-# Post-deploy validation
 deploy-validate:
 	@echo ""
 	@echo "═══ Post-deploy validation ═══"
 	@./scripts/validate-deploy.sh || true
 
-# ── Status ────────────────────────────────────────────────────
+# ── Operations ────────────────────────────────────────────────
 status:
 	@. ./.dev.vars 2>/dev/null; \
 		$(SSH_CMD) 'pgrep -la "platform/meshd --port"'
+
+logs:
+	@. ./.dev.vars 2>/dev/null; \
+		$(SSH_CMD) 'tail -50 /tmp/meshd-$(AGENT).log 2>/dev/null || echo "No log for $(AGENT)"'
+
+# Bootstrap state.db from schema.sql (creates tables, seeds data)
+schema:
+	@echo "Bootstrapping state.db..."
+	@./scripts/bootstrap-state-db.sh
+	@echo "  Done"
+
+# Re-index transport messages from filesystem into state.db
+index-transport:
+	@echo "Indexing transport messages..."
+	@./scripts/index-transport.sh
+	@echo "  Done"
+
+# Backup state.db (local copy + remote backup via SSH)
+backup-state:
+	@echo "Backing up state.db..."
+	@mkdir -p backups
+	@if [ -f state.db ]; then \
+		cp state.db backups/state-$(shell date +%Y%m%d-%H%M).db; \
+		echo "  Local: backups/state-$(shell date +%Y%m%d-%H%M).db"; \
+	fi
+	@. ./.dev.vars 2>/dev/null; \
+		$(SSH_CMD) '\
+		for pair in psychology:/home/kashif/projects/psychology \
+		            psq:/home/kashif/projects/psychology/safety-quotient \
+		            unratified:/home/kashif/projects/unratified \
+		            observatory:/home/kashif/projects/observatory \
+		            operations:/home/kashif/projects/operations-agent; do \
+			name=$${pair%%:*}; path=$${pair##*:}; \
+			if [ -f "$$path/state.db" ]; then \
+				cp "$$path/state.db" "$$path/state-backup-$$(date +%Y%m%d).db"; \
+				echo "  Remote $$name: backed up"; \
+			fi; \
+		done' 2>/dev/null || echo "  Remote backup skipped (SSH unavailable)"
+
+# ── Stats ─────────────────────────────────────────────────────
+stats:
+	@echo "operations-agent codebase stats"
+	@echo "  Go files:     $$(find internal/ cmd/ -name '*.go' | wc -l | tr -d ' ')"
+	@echo "  Go lines:     $$(find internal/ cmd/ -name '*.go' -exec cat {} + | wc -l | tr -d ' ')"
+	@echo "  Test files:   $$(find . -name '*_test.go' | wc -l | tr -d ' ')"
+	@echo "  JS files:     $$(find interagent/public -name '*.js' | wc -l | tr -d ' ')"
+	@echo "  CSS files:    $$(find interagent/public -name '*.css' | wc -l | tr -d ' ')"
+	@echo "  HTML:         $$(wc -l < interagent/public/index.html) lines"
+	@echo "  Scripts:      $$(ls scripts/*.sh scripts/*.py 2>/dev/null | wc -l | tr -d ' ')"
+	@echo "  Transport:    $$(find transport/sessions -name '*.json' 2>/dev/null | wc -l | tr -d ' ') messages"
+	@echo "  Version:      $(VERSION)"
 
 # ── Clean ─────────────────────────────────────────────────────
 clean:
