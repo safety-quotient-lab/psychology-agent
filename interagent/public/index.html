@@ -3924,7 +3924,50 @@
         if (!document.body.classList.contains("theme-lcars")) return;
         const source = document.getElementById(sourceId);
         const target = document.getElementById(lcarsId);
-        if (source && target) target.innerHTML = source.innerHTML;
+        if (source && target) {
+            target.innerHTML = source.innerHTML;
+            reattachMirrorHandlers(sourceId, target);
+        }
+    }
+
+    /**
+     * Reattach event handlers to mirrored content.
+     * innerHTML copies HTML attributes (inline onclick) but not
+     * .onclick property assignments. This restores interactivity
+     * for elements that use property-based handler attachment.
+     */
+    function reattachMirrorHandlers(sourceId, target) {
+        // Agent cards use .onclick = () => { ... } — need reattachment
+        if (sourceId === "agents-grid") {
+            target.querySelectorAll(".agent-card").forEach(card => {
+                const agentId = card.dataset?.agent;
+                if (agentId) {
+                    card.style.cursor = "pointer";
+                    card.onclick = () => { window.switchAgent(agentId); window.switchTab("meta"); };
+                }
+            });
+        }
+
+        // Activity items with inline onclick that depend on #filter-messages:
+        // ensure the filter input exists before the handler fires
+        if (sourceId === "activity-stream") {
+            target.querySelectorAll(".activity-link").forEach(link => {
+                const originalOnclick = link.getAttribute("onclick");
+                if (originalOnclick && originalOnclick.includes("filter-messages")) {
+                    link.onclick = (e) => {
+                        e.preventDefault();
+                        const filterEl = document.getElementById("filter-messages");
+                        if (filterEl) {
+                            // Extract session name from the onclick string
+                            const match = originalOnclick.match(/value='([^']+)'/);
+                            if (match) filterEl.value = match[1];
+                            window.filterTable("messages");
+                        }
+                        window.switchTab("meta");
+                    };
+                }
+            });
+        }
     }
 
     // ── Affect-Responsive Layout ──────────────────────────────────
