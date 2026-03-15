@@ -6156,6 +6156,53 @@
         renderOpsActions();
         renderOpsSchedule();
         renderOpsVitals();
+        renderResourceModel();
+    }
+
+    let _psychCache = null;
+    async function fetchPsychForOps() {
+        try {
+            const resp = await fetch("https://interagent.safety-quotient.dev/api/psychometrics", { signal: AbortSignal.timeout(5000) });
+            if (resp.ok) _psychCache = await resp.json();
+        } catch {}
+    }
+
+    function renderResourceModel() {
+        const container = document.getElementById("ops-resource-model");
+        if (!container) return;
+        if (!_psychCache || !_psychCache.agents) {
+            // Trigger fetch, re-render after
+            fetchPsychForOps().then(() => {
+                if (!_psychCache || !_psychCache.agents) return;
+                renderResourceModel();
+            });
+            return;
+        }
+        const entries = Object.entries(_psychCache.agents).filter(([, d]) => d && !d.error && d.resource_model);
+        if (entries.length === 0) {
+            container.innerHTML = '<div class="phase-stub"><div class="phase-stub-text">Awaiting psychometrics data...</div></div>';
+            return;
+        }
+        const colorMap = { "psychology-agent": "#5b9cf6", "psq-agent": "#4ecdc4", "unratified-agent": "#e5a735", "observatory-agent": "#a78bfa", "operations-agent": "#6b7280" };
+        container.innerHTML = '<div class="ops-budget-grid">' + entries.map(([agentId, data]) => {
+            const rm = data.resource_model || {};
+            const eng = data.engagement || {};
+            const reserve = rm.cognitive_reserve ?? 0;
+            const selfReg = rm.self_regulatory_resource ?? 0;
+            const allostatic = rm.allostatic_load ?? 0;
+            const burnout = eng.burnout_risk ?? 0;
+            const label = agentId.replace("-agent", "");
+            const color = colorMap[agentId] || "var(--text-primary)";
+            const reservePct = Math.min(100, reserve * 100);
+            const reserveColor = reserve > 0.6 ? "#6aab8e" : reserve > 0.3 ? "#d4944a" : "#c47070";
+            return '<div class="ops-budget-card" style="--card-accent: ' + color + '">' +
+                '<div class="ops-budget-agent">' + label + '</div>' +
+                '<div class="ops-budget-credit" style="font-size:1.4em">' + (reserve * 100).toFixed(0) + '%</div>' +
+                '<div class="ops-budget-bar"><div class="ops-budget-fill" style="width:' + reservePct + '%;background:' + reserveColor + '"></div></div>' +
+                '<div class="ops-budget-values" style="font-size:0.75em"><span>Self-reg: ' + (selfReg * 100).toFixed(0) + '%</span> <span>Allostatic: ' + allostatic.toFixed(2) + '</span></div>' +
+                (burnout > 0.3 ? '<div style="color:var(--c-alert);font-size:0.7em;margin-top:2px">BURNOUT: ' + (burnout * 100).toFixed(0) + '%</div>' : '') +
+                '</div>';
+        }).join("") + '</div>';
     }
 
     function renderOpsVitals() {
