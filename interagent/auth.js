@@ -17,9 +17,9 @@
  * Mirrors the autonomy budget table in the auth design document.
  */
 const TIERS = {
-  anonymous:  { rateLimit: 200,  podAccess: false, label: "Anonymous" },
-  "api-key":  { rateLimit: 100,  podAccess: false, label: "API Key" },
-  "solid-oidc": { rateLimit: 1000, podAccess: true,  label: "Solid-OIDC" },
+  anonymous:  { rateLimit: -1,   podAccess: false, label: "Anonymous" },
+  "api-key":  { rateLimit: -1,   podAccess: false, label: "API Key" },
+  "solid-oidc": { rateLimit: -1,  podAccess: true,  label: "Solid-OIDC" },
   operator:   { rateLimit: -1,   podAccess: false, label: "Operator" },
 };
 
