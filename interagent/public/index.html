@@ -7464,6 +7464,7 @@
         renderShieldStatus();
         renderAgentCompliance();
         renderTransportIntegrity();
+        fetchAndRenderTrustMatrix();
     }
 
     function renderShieldStatus() {
@@ -7559,6 +7560,70 @@
         const photoStatus = document.getElementById("transport-photonic-status");
         if (photoFill) photoFill.style.width = "0%";
         if (photoStatus) { photoStatus.textContent = "N/A"; photoStatus.className = "transport-layer-status transport-na"; }
+    }
+
+    // ── Trust Matrix Heatmap ──────────────────────────────────────
+
+    function trustColor(val) {
+        if (val >= 0.8) return "#6aab8e";
+        if (val >= 0.6) return "#89b87a";
+        if (val >= 0.4) return "#d4944a";
+        if (val >= 0.2) return "#c47070";
+        return "#993333";
+    }
+
+    async function fetchAndRenderTrustMatrix() {
+        const container = document.getElementById("trust-heatmap");
+        if (!container) return;
+        try {
+            const resp = await fetch("https://interagent.safety-quotient.dev/api/trust", {
+                signal: AbortSignal.timeout(8000),
+            });
+            if (!resp.ok) throw new Error("HTTP " + resp.status);
+            const data = await resp.json();
+            const agents = data.agents || [];
+            if (agents.length === 0) {
+                container.innerHTML = '<div class="trust-matrix-loading">No trust observations</div>';
+                return;
+            }
+            const dims = ["availability", "integrity", "compliance", "epistemic_honesty"];
+            const dimLabels = { availability: "AVAIL", integrity: "INTEG", compliance: "COMPL", epistemic_honesty: "EPIST" };
+            const labelMap = { "psychology-agent": "psych", "psq-agent": "psq", "safety-quotient-agent": "psq",
+                "unratified-agent": "unrat", "unratified": "unrat", "observatory-agent": "obs", "observatory": "obs",
+                "operations-agent": "ops" };
+
+            let html = '<div class="trust-matrix-grid" style="grid-template-columns: 56px repeat(' + agents.length + ', 1fr)">';
+            // Header row
+            html += '<div class="trust-matrix-header"></div>';
+            agents.forEach(a => {
+                html += '<div class="trust-matrix-header">' + (labelMap[a.agent_id] || a.agent_id) + '</div>';
+            });
+            // Dimension rows
+            dims.forEach(dim => {
+                html += '<div class="trust-matrix-header" style="justify-content:flex-end;padding-right:6px">' + dimLabels[dim] + '</div>';
+                agents.forEach(a => {
+                    const val = a.dimensions?.[dim] ?? 0;
+                    html += '<div class="trust-matrix-cell" style="background:' + trustColor(val) + '" title="' + a.agent_id + ': ' + dim + ' = ' + val + '">' + (val * 100).toFixed(0) + '</div>';
+                });
+            });
+            // Aggregate row
+            html += '<div class="trust-matrix-header" style="justify-content:flex-end;padding-right:6px;font-weight:700">AGG</div>';
+            agents.forEach(a => {
+                const val = a.trust_aggregate ?? 0;
+                html += '<div class="trust-matrix-cell" style="background:' + trustColor(val) + ';font-weight:700" title="' + a.agent_id + ': aggregate = ' + val + '">' + (val * 100).toFixed(0) + '</div>';
+            });
+            html += '</div>';
+            // Legend
+            html += '<div class="trust-matrix-legend">'
+                + '<span><span class="trust-legend-swatch" style="background:#6aab8e"></span> \u226580%</span>'
+                + '<span><span class="trust-legend-swatch" style="background:#d4944a"></span> 50-79%</span>'
+                + '<span><span class="trust-legend-swatch" style="background:#c47070"></span> &lt;50%</span>'
+                + '<span style="color:var(--text-dim)">Floor: ' + ((data.trust_floor || 0) * 100).toFixed(0) + '% (' + (data.mesh_trust_status || "?") + ')</span>'
+                + '</div>';
+            container.innerHTML = html;
+        } catch {
+            container.innerHTML = '<div class="trust-matrix-loading">Trust data unavailable</div>';
+        }
     }
 
     // ── Init ───────────────────────────────────────────────────────
