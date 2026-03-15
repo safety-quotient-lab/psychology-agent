@@ -164,9 +164,30 @@ def apply_adjustments(conn: sqlite3.Connection, adjustments: dict, dry_run: bool
         conn.commit()
 
 
+LAST_RUN_FILE = PROJECT_ROOT / ".eic-last-run"
+
+
+def already_ran_today() -> bool:
+    """Idempotency guard — skip if already applied today."""
+    if not LAST_RUN_FILE.exists():
+        return False
+    last_run = LAST_RUN_FILE.read_text().strip()
+    return last_run == datetime.now().strftime("%Y-%m-%d")
+
+
+def mark_ran():
+    """Record that the consumer ran today."""
+    LAST_RUN_FILE.write_text(datetime.now().strftime("%Y-%m-%d"))
+
+
 def main():
     dry_run = "--dry-run" in sys.argv
     summary_only = "--summary" in sys.argv
+    force = "--force" in sys.argv
+
+    if not force and not dry_run and not summary_only and already_ran_today():
+        print("EIC Feedback Consumer — already applied today (use --force to override)")
+        return
 
     if not LOCAL_DB_PATH.exists():
         print("No state.local.db — no disclosures to process")
@@ -204,6 +225,9 @@ def main():
     print(f"Applying adjustments ({'DRY RUN' if dry_run else 'LIVE'}):")
     apply_adjustments(conn, adjustments, dry_run)
     conn.close()
+
+    if not dry_run:
+        mark_ran()
 
 
 if __name__ == "__main__":
