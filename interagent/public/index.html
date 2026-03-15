@@ -7084,8 +7084,8 @@
 
             const kbData = kbResp.status === "fulfilled" && kbResp.value.ok ? await kbResp.value.json() : null;
 
-            // Build session list from KB messages
-            const messages = kbData?.messages || [];
+            // Build session list from KB messages (data.messages or messages)
+            const messages = kbData?.data?.messages || kbData?.messages || [];
             const sessionMap = {};
             messages.forEach(m => {
                 const sid = m.session_name || m.session_id || "unknown";
