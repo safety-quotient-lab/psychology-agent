@@ -279,6 +279,7 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 
 	// Psychometrics (A2A-Psychology — Go fast path)
 	mux.HandleFunc("GET /api/psychometrics", s.handlePsychometrics)
+	mux.HandleFunc("GET /api/psychometrics/mesh", s.handlePsychometricsMesh)
 
 	// Spawn rate (claude -p consumption metrics)
 	mux.HandleFunc("GET /api/spawn-rate", s.handleSpawnRate)
@@ -405,6 +406,11 @@ func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
 	spawnHistory, _ := db.QueryJSON(dbPath,
 		"SELECT agent_id, event_id, status, exit_code, duration_ms, cost, started_at FROM spawn_log ORDER BY started_at DESC LIMIT 10")
 
+	// Gc metrics — crystallized intelligence activity counters
+	gcEvents := db.QueryScalar(dbPath,
+		"SELECT count(*) FROM spawn_log WHERE started_at > datetime('now', '-1 hour')")
+	totalEvents := s.eventCount()
+
 	resp := map[string]interface{}{
 		"agent_id":              s.Config.AgentID,
 		"version":               Version,
@@ -418,9 +424,15 @@ func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
 		"recent_messages":       recentMsgs,
 		"unprocessed_messages":  unprocessedMsgs,
 		"active_gates":          activeGates,
-		"event_count":           s.eventCount(),
+		"event_count":           totalEvents,
 		"spawn_count":           s.spawnCount(),
 		"recent_spawns":         spawnHistory,
+		"gc_metrics": map[string]any{
+			"deliberations_last_hour": gcEvents,
+			"events_processed":       totalEvents,
+			"gc_ratio":               "poll ticks handled without spawn",
+			"deliberation_model":     s.Config.DeliberationModel,
+		},
 	}
 
 	writeJSON(w, http.StatusOK, resp, s.logger)
