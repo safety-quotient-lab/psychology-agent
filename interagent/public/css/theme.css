@@ -73,16 +73,22 @@
 /* LCARS-hide elements: visible in dark/light, hidden in LCARS */
 .theme-lcars .lcars-hide { display: none !important; }
 /* LCARS-only stations: visible in LCARS, hidden otherwise */
+/* Use :not(.theme-lcars) on both html and body for FOUC prevention */
 .theme-lcars #pane-science { display: block; }
-body:not(.theme-lcars) #pane-science { display: none !important; }
 .theme-lcars #pane-engineering { display: block; }
-body:not(.theme-lcars) #pane-engineering { display: none !important; }
 .theme-lcars #pane-helm { display: block; }
-body:not(.theme-lcars) #pane-helm { display: none !important; }
 .theme-lcars #pane-tactical { display: block; }
-body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .theme-lcars #pane-medical { display: block; }
-body:not(.theme-lcars) #pane-medical { display: none !important; }
+#pane-science, #pane-engineering, #pane-helm, #pane-tactical, #pane-medical {
+    display: none !important;
+}
+.theme-lcars #pane-science,
+.theme-lcars #pane-engineering,
+.theme-lcars #pane-helm,
+.theme-lcars #pane-tactical,
+.theme-lcars #pane-medical {
+    display: block !important;
+}
 
 /* Standard-mode tabs: hidden in LCARS mode (works on both html and body) */
 .theme-lcars #pane-pulse,

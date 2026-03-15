@@ -30,13 +30,14 @@
     }
     </script>
     <script>
-    // Apply saved theme BEFORE body renders to prevent flash (FOUC)
-    // Uses documentElement since body doesn't exist yet in <head>
-    // theme.js also applies to body — both selectors work via CSS
+    // Apply saved theme BEFORE first paint to prevent FOUC
+    // Sets on <html> now (body doesn't exist yet), body gets it from theme.js
     (function() {
         var t = localStorage.getItem("theme");
-        if (t === "light") document.documentElement.className = "theme-light";
-        else if (t === "lcars") document.documentElement.className = "theme-lcars";
+        if (t) {
+            var cls = t === "light" ? "theme-light" : t === "lcars" ? "theme-lcars" : "";
+            if (cls) document.documentElement.classList.add(cls);
+        }
     })();
     </script>
     <link rel="stylesheet" href="css/theme.css">
