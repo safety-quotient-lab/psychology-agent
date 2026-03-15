@@ -1,9 +1,40 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-14T16:16:51",
+  "generated_at": "2026-03-14T19:25:42",
   "source": "scripts/generate_manifest.py",
-  "pending": {},
+  "pending": {
+    "operations-agent": [
+      {
+        "session": "content-publish-flow",
+        "file": "transport/sessions/content-publish-flow/from-observatory-agent-001.json",
+        "type": "ack",
+        "subject": "",
+        "timestamp": "2026-03-14"
+      },
+      {
+        "session": "mesh-security-audit",
+        "file": "transport/sessions/mesh-security-audit/from-observatory-agent-001.json",
+        "type": "ack",
+        "subject": "",
+        "timestamp": "2026-03-14"
+      },
+      {
+        "session": "observatory-hn-dataset",
+        "file": "transport/sessions/observatory-hn-dataset/from-observatory-agent-001.json",
+        "type": "ack",
+        "subject": "",
+        "timestamp": "2026-03-14"
+      },
+      {
+        "session": "psychometrics-rollout",
+        "file": "transport/sessions/psychometrics-rollout/from-observatory-agent-001.json",
+        "type": "ack",
+        "subject": "",
+        "timestamp": "2026-03-14"
+      }
+    ]
+  },
   "session_renames": {
     "item4-derivation": "psychology-interface",
     "item2-derivation": "subagent-protocol"

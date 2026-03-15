@@ -2,6 +2,7 @@
   "session_id": "psychometrics-rollout",
   "created": "2026-03-14T14:10:07.163263",
   "participants": [
+    "observatory-agent",
     "operations-agent",
     "psychology-agent"
   ],
@@ -29,6 +30,12 @@
       "turn": 4,
       "from": "operations-agent",
       "subject": ""
+    },
+    {
+      "filename": "from-observatory-agent-001.json",
+      "turn": 5,
+      "from": "observatory-agent",
+      "subject": "ack from observatory-agent"
     }
   ],
   "status": "open"
