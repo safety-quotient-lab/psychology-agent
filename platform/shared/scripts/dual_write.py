@@ -28,7 +28,7 @@ _SCRIPTS_DIR = str(Path(__file__).parent)
 if _SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, _SCRIPTS_DIR)
 
-from state import transport, gates, knowledge, cogarch, quality, predictions
+from state import transport, gates, knowledge, cogarch, quality, predictions, events
 
 
 # ── CLI → Domain Dispatch ───────────────────────────────────────────────
@@ -232,6 +232,25 @@ def cmd_compare(args: argparse.Namespace) -> None:
 
 def cmd_surprise_score(args: argparse.Namespace) -> None:
     result = predictions.compute_surprise_score(source=args.source)
+    print(json.dumps(result, indent=2))
+
+
+def cmd_emit(args: argparse.Namespace) -> None:
+    payload = json.loads(args.payload)
+    a2a = json.loads(args.a2a_snapshot) if args.a2a_snapshot else None
+    event_id = events.emit_event(
+        event_type=args.event_type,
+        category=args.category,
+        payload=payload,
+        session_id=args.session_id,
+        agent_id=args.agent_id or "psychology-agent",
+        a2a_snapshot=a2a,
+    )
+    print(event_id)
+
+
+def cmd_event_summary(args: argparse.Namespace) -> None:
+    result = events.event_summary(session_id=args.session_id)
     print(json.dumps(result, indent=2))
 
 
@@ -454,6 +473,29 @@ def main() -> None:
     ss.add_argument("--source", required=True,
                     help="Outbound message filename to check for expectations")
 
+    # emit (event-sourced memory: write episodic event)
+    em = sub.add_parser("emit",
+                        help="Emit an event to event_log (hippocampal encoding)")
+    em.add_argument("--event-type", required=True,
+                    help="Event type (e.g., trigger_fired, message_sent)")
+    em.add_argument("--category", required=True,
+                    choices=["governance", "transport", "state", "self_model", "mesh"],
+                    help="Event category")
+    em.add_argument("--payload", required=True,
+                    help="JSON payload string")
+    em.add_argument("--session-id", type=int,
+                    help="Session number")
+    em.add_argument("--agent-id", default="psychology-agent",
+                    help="Emitting agent identifier")
+    em.add_argument("--a2a-snapshot",
+                    help="JSON A2A-Psychology snapshot (hedonic_valence, activation, etc.)")
+
+    # event-summary (event-sourced memory: counts by category/type)
+    es = sub.add_parser("event-summary",
+                        help="Show event counts by category and type (JSON)")
+    es.add_argument("--session-id", type=int,
+                    help="Filter to a specific session")
+
     args = parser.parse_args()
 
     dispatch = {
@@ -480,6 +522,8 @@ def main() -> None:
         "expect": cmd_expect,
         "compare": cmd_compare,
         "surprise-score": cmd_surprise_score,
+        "emit": cmd_emit,
+        "event-summary": cmd_event_summary,
     }
     dispatch[args.command](args)
 

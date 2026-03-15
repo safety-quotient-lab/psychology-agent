@@ -8,6 +8,7 @@ Bounded contexts:
     cogarch      Trigger telemetry, lessons
     quality      Claims, epistemic flags, incidents, facets
     predictions  Efference copy: outbound prediction and inbound comparison
+    events       Episodic event store for hippocampal replay
 
 Infrastructure:
     connection  DB connection, project paths, schema bootstrap
