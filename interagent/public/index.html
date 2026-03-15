@@ -86,6 +86,7 @@
         .theme-lcars .lcars-only { display: block !important; }
         /* Bridge station panes: hidden in dark/light, available in LCARS via .tab-pane.active */
         body:not(.theme-lcars) #pane-science { display: none !important; }
+        body:not(.theme-lcars) #pane-medical { display: none !important; }
         body:not(.theme-lcars) #pane-engineering { display: none !important; }
         body:not(.theme-lcars) #pane-helm { display: none !important; }
         body:not(.theme-lcars) #pane-tactical { display: none !important; }
@@ -3480,6 +3481,57 @@
                 <div class="lcars-panel kb-section" style="--panel-accent: var(--c-transport)">
                     <div class="lcars-panel-header">Discipline Catalog (PSH)</div>
                     <div class="lcars-panel-body scrollable" id="lcars-sci-catalog"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medical Tab -->
+        <div class="tab-pane" id="pane-medical">
+            <div class="lcars-status-line" id="med-status-line">Agent Diagnostics: Awaiting Data &middot; DEW: — &middot; LOA: —</div>
+
+            <div class="medical-grid">
+                <!-- Panel A: Agent Selector -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical); grid-column: 1 / -1;">
+                    <div class="lcars-panel-header">Agent Selector</div>
+                    <div class="lcars-panel-body" id="medical-agent-selector"></div>
+                </div>
+
+                <!-- Panel B: Agent Vitals (PAD + TLX) -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical); grid-column: 1 / -1;">
+                    <div class="lcars-panel-header">Agent Vitals</div>
+                    <div class="lcars-panel-body" id="medical-vitals">
+                        <div class="medical-placeholder">Awaiting psychometrics data...</div>
+                    </div>
+                </div>
+
+                <!-- Panel C: DEW Gauge -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical)">
+                    <div class="lcars-panel-header">Degradation Early Warning</div>
+                    <div class="lcars-panel-body" id="medical-dew">
+                        <div class="medical-dew-gauge">
+                            <div class="medical-dew-bar-track">
+                                <div class="medical-dew-bar-fill" style="width:0%"></div>
+                            </div>
+                            <div class="medical-dew-readout">
+                                <span class="medical-dew-value">--</span>
+                                <span class="medical-dew-label">AWAITING DATA</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel D: LOA Ladder -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical)">
+                    <div class="lcars-panel-header">Supervisory Control (LOA)</div>
+                    <div class="lcars-panel-body" id="medical-loa"></div>
+                </div>
+
+                <!-- Panel E: Agent History -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical); grid-column: 1 / -1;">
+                    <div class="lcars-panel-header">Agent History</div>
+                    <div class="lcars-panel-body" id="medical-history">
+                        <div class="medical-placeholder">Select an agent to view diagnostic history.</div>
+                    </div>
                 </div>
             </div>
         </div>
