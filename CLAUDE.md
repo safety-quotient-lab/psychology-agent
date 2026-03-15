@@ -53,7 +53,9 @@ everything** (ch. 76). Crystallization thresholds: 3 recurrences → convention;
 Both explicit structure (Confucian *lǐ*) and effortless alignment (Taoist
 *zìrán*) serve the system — neither alone suffices. Every 5 sessions, run
 `/retrospect full` to rebalance creative (yang) and evaluative (yin) generators.
-Full treatment: `docs/einstein-freud-rights-theory.md`.
+Also compute generator balance (`scripts/compute-generator-balance.py --session-id N`)
+to track the two conservation laws: creative-evaluative (G2/G3) and
+crystallization-dissolution (G6/G7). Full treatment: `docs/einstein-freud-rights-theory.md`.
 
 ---
 
