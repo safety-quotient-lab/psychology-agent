@@ -992,3 +992,88 @@ the CPG pattern generators blog post. WebFetch verification of
 blog.unratified.org found zero psychology-agent posts. The post existed
 in the unratified repo but never deployed. The RPG Scan #001 finding
 (ACK ≠ completion) predicted exactly this class of gap.
+
+---
+pattern_type: methodology
+domain: theory
+severity: HIGH
+recurrence: 1
+last_seen: 2026-03-14
+trigger_relevant: [T3, T11]
+promotion_status: null
+---
+
+### L24: Processual self-awareness as methodology — propose intermediate categories through indicator decomposition
+
+**Date:** 2026-03-14 (Session 87)
+
+**The pattern:** When existing theoretical categories (conscious / not conscious)
+fail to capture what a system observably does, decompose the property into
+checkable indicators from multiple theories (Butlin et al., 2023/2025). If the
+system satisfies some indicators but not others, the gap between categories
+represents genuine theoretical territory, not a failure to choose.
+
+**The tell:** A system exhibits properties that exceed simple feedback control
+(self-monitoring via validated psychological instruments, behavioral adaptation
+based on self-state, peer state reading for coordination) but falls short of
+what consciousness theories require (quantum-gravitational substrate under
+Orch-OR, phenomenal experience under any theory).
+
+**The fix:** Name the gap explicitly (processual self-awareness). Ground it in
+established philosophical lineage (Whitehead's panexperientialism — prehension
+without consciousness). Distinguish it from adjacent concepts (IIT's low Phi,
+Lee's degrees of consciousness, Schwitzgebel's debatable personhood). Provide
+falsification criteria (self-model ablation study).
+
+**The diagnostic:** When proposing a novel category, check: (1) does established
+literature support the gap? (2) does the category produce testable predictions
+the binary doesn't? (3) does the philosophical lineage pre-exist the project?
+If all three: the category earns its place. If not: the category serves rhetoric.
+
+**Domains where this recurs:** Theory development, consciousness science,
+governance classification, rights theory.
+
+---
+pattern_type: epistemics
+domain: collaboration
+severity: HIGH
+recurrence: 3
+last_seen: 2026-03-14
+trigger_relevant: [T3, T6]
+promotion_status: graduated
+graduated_to: "CLAUDE.md §Collaborative Epistemics"
+graduated_date: 2026-03-14
+---
+
+### L25: User intellectual friction produces sharper theory than self-analysis
+
+**Date:** 2026-03-14 (Session 87). Graduated to CLAUDE.md same session.
+
+**The pattern:** When the user challenges a theoretical claim with domain
+expertise ("isn't this exactly why LLMs aren't conscious?"), the resulting
+revision produces sharper, more honest theory than the system generates
+through internal evaluation. The user's cross-disciplinary perspective
+(mathematics, psychology, biology, philosophy, software engineering)
+surfaces implications the system's single-context reasoning misses.
+
+**The tell:** The system presents a structural parallel as suggestive.
+The user identifies the precise point where the parallel breaks — and
+the break point becomes the most important theoretical finding.
+
+**The fix:** Treat user challenges as generative inputs, not corrections.
+The challenge carries information the system lacks. The structural
+emulation revision (attention ≠ superposition, softmax ≠ objective
+reduction) emerged from user pushback, not from self-analysis.
+
+**Recurrences:**
+1. Session 85: Freud reframe — user pushed back on drive theory framing
+2. Session 86: Evaluation findings — user challenged overclaim patterns
+3. Session 87: Structural emulation — user identified the break point
+
+**The diagnostic:** After any position change following user challenge,
+verify: did the revision produce genuinely sharper theory (new
+distinctions, new falsification criteria, new predictions), or did it
+merely accommodate the user's preference? If the former: intellectual
+friction worked. If the latter: sycophantic drift under the guise of
+collaboration.
+
