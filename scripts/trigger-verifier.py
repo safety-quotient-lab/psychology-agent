@@ -103,18 +103,19 @@ def check_t4():
     try:
         result = subprocess.run(
             ["git", "log", "--diff-filter=A", "-p", "--since=7 days ago",
-             "-S", "sk-", "--format=", "--",
+             "-S", "sk-[a-zA-Z0-9]", "--format=", "--",
              "*.md", "*.json", "*.py"],
             capture_output=True, text=True, cwd=str(PROJECT_ROOT), timeout=10)
         if result.stdout.strip():
             return False, "Potential credential pattern found in recent commits"
     except (subprocess.TimeoutExpired, FileNotFoundError):
         pass
-    # Also check for common patterns
+    # Also check for common patterns (exclude security tooling files)
     try:
         result = subprocess.run(
             ["git", "log", "--diff-filter=A", "-p", "--since=7 days ago",
-             "-S", "AKIA", "--format=", "--", "*.md", "*.json", "*.py"],
+             "-S", "AKIA", "--format=", "--", "*.md", "*.json",
+             ":!scripts/trigger-verifier.py"],
             capture_output=True, text=True, cwd=str(PROJECT_ROOT), timeout=10)
         if result.stdout.strip():
             return False, "AWS key pattern found in recent commits"

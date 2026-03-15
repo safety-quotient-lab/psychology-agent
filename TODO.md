@@ -991,11 +991,28 @@ Adopt-now items from standards landscape survey (13 protocols evaluated).
   *Review cadence: quarterly (next: 2026-06-11)*
   *Reference: docs/decisions/2026-03-11-public-client-authentication.md*
 
-- [ ] **JSON-RPC method vocabulary for meshd** — map meshd HTTP routes to A2A standard
-  method names (`SendMessage`, `GetTask`, `ListTasks`, `CancelTask`). Add JSON-RPC
-  envelope support for dual-protocol serving alongside existing REST routes. M effort.
-  *Precondition: v19+v20 schema deployed to chromabook meshd*
-  *Reference: a2a-protocol.org/latest/specification/ — JSON-RPC methods section*
+- [x] **JSON-RPC method vocabulary for meshd** — MAPPED (Session 90). 36 meshd routes
+  mapped to 4 A2A core methods + 30 mesh extensions across 10 namespaces. Transport
+  request sent to ops. Implementation (Go /api/rpc multiplexer) owned by ops.
+  *Precondition: ✓ MET — v26 schema deployed.*
+
+- [ ] **Neuromodulatory mesh protocol** — 6-channel ZMQ volume transmission
+  (mesh.photonic, mesh.reward, mesh.alert, mesh.tempo, mesh.focus, mesh.inhibit).
+  Subscription weights, tonic/phasic discrimination, reuptake-as-TTL. Spec:
+  `docs/neuromodulatory-mesh-spec.md`. Grounded in Schultz 1997, Aston-Jones &
+  Cohen 2005, Agnati et al. 1995. Sent to ops (neuroglial-mesh-integration T4).
+  *Precondition: ✓ MET — photonic Phase 1 operational, ZMQ in meshd.*
+  *Effort: XS per topic (ops), S per consumer (psychology).*
+
+- [ ] **Trigger verifier expansion** — add outcome checks for T7-T13, T15, T17-T19
+  to `scripts/trigger-verifier.py`. Each trigger needs an observable failure mode
+  defined and a detection function. Currently covers T2, T3, T4, T5, T9, T16, T20.
+  *Precondition: none. Effort: M (incremental — one check at a time).*
+
+- [ ] **Adaptive generator balance** — implement task-difficulty-based ratio shifting
+  per Snell et al. 2024 (LLM test-time compute). Easy tasks → higher creative ratio,
+  hard tasks → more evaluative. Currently fixed ~2:1 empirical baseline.
+  *Precondition: generator_state table populated with 10+ sessions. Effort: M.*
 
 ---
 
