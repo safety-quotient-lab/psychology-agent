@@ -819,15 +819,28 @@ biophotons attenuate in tissue and most go undetected.
 
 | Phase | What | Effort | Owner |
 |---|---|---|---|
-| 1 | Token schema + emitter hook (PostToolUse) | S | psychology-agent |
-| 2 | UDP multicast listener in meshd | M | operations-agent |
+| 1 | Token schema + emitter hook (PostToolUse) | S | psychology-agent ✓ |
+| 2 | ZMQ topic in meshd (reuse existing pub/sub) | XS | operations-agent |
 | 3 | Dashboard visualization (LCARS photonic panel) | S | operations-agent |
 | 4 | Triage score modifier (crystallized-sync) | S | psychology-agent |
 | 5 | T2 convergent evaluation window | S | psychology-agent |
 
-Phase 1 can proceed independently — psychology-agent writes tokens to
-a local file even before meshd supports UDP multicast. Dashboard reads
-the file via the existing /api/status endpoint. Phases 2-3 require ops.
+**Transport revision (Session 90):** Original spec proposed UDP multicast.
+Revised to **ZMQ pub/sub topic** — meshd already runs ZMQ for heartbeat
+gossip and peer discovery. Adding a `"photonic"` topic to the existing
+subscriber filter avoids introducing a new transport layer entirely:
+- No UDP infrastructure needed — reuse existing ZMQ pub socket
+- No new listener — existing ZMQ subscriber adds one topic filter
+- Token format identical — photonic/v1 JSON unchanged
+- Existing mesh topology — ZMQ already handles connect/disconnect
+
+The emitter hook publishes to the local meshd's ZMQ endpoint (Phase 2).
+meshd broadcasts to all subscribers. Receiving agents write peer tokens
+to `/tmp/{peer}-photonic-state.json` (same consumer path). This collapses
+Phases 2-3 from "build new infrastructure" to "add a topic string."
+
+Phase 1 (✓ operational) writes tokens to local file. Dashboard reads
+via /api/status endpoint. Phase 2 requires ops (XS effort).
 
 **Transfer quality:** LOW-MODERATE — the biological evidence supports an
 independent information channel (Tang & Bhatt 2025 non-EEG-correlation),
