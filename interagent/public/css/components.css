@@ -318,8 +318,10 @@ a.activity-link:hover {
 }
 .topology-svg a { cursor: pointer; }
 .topology-svg a:hover circle { opacity: 0.3; }
-.topology-svg text { fill: var(--topo-label); }
-.topology-svg g:hover text { fill: var(--topo-label-hover); }
+.topology-svg text,
+.topology-svg .topo-text-label { fill: var(--topo-label) !important; }
+.topology-svg g:hover text,
+.topology-svg g:hover .topo-text-label { fill: var(--topo-label-hover) !important; }
 
 /* Topology node glow — subtle halo per agent color */
 .topology-svg .topo-node-psychology circle {
