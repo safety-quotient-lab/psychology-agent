@@ -179,7 +179,7 @@ export function initClock() {
  * DOM WRITE: sets style.color on #mobile-mesh-status,
  *            textContent on #mobile-agent-count.
  */
-export function updateMobileStatus(onlineCount, totalCount) {
+export function updateMeshStatus(onlineCount, totalCount) {
     const dot = document.getElementById("mobile-mesh-status");
     const count = document.getElementById("mobile-agent-count");
     if (dot) {
