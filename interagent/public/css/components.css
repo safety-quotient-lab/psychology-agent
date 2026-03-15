@@ -1598,6 +1598,31 @@ a.activity-link:hover {
     text-align: center;
 }
 
+/* Engineering: Cognitive Load + Y-D Zone rows */
+.eng-load-row, .eng-yd-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 0;
+    font-size: 0.82em;
+}
+.eng-load-agent, .eng-yd-agent { width: 48px; font-weight: 600; font-size: 0.9em; }
+.eng-load-bar-track, .eng-yd-bar-track {
+    flex: 1;
+    height: 8px;
+    background: var(--surface-alt, #1a1a2e);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.eng-load-bar-fill, .eng-yd-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
+.eng-load-value { width: 28px; text-align: right; font-variant-numeric: tabular-nums; }
+.eng-load-mode { width: 14px; text-align: center; opacity: 0.6; font-size: 0.85em; }
+.eng-yd-zone { width: 90px; text-align: right; font-size: 0.78em; font-weight: 600; letter-spacing: 0.04em; }
+
 /* ── Helm Station ────────────────────────────────────────────── */
 
 /* Session Timeline bars */
@@ -1729,6 +1754,50 @@ a.activity-link:hover {
     padding: 16px;
     text-align: center;
 }
+
+/* Helm: Engagement rows */
+.helm-agent-engagement {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--surface-alt, #1a1a2e);
+}
+.helm-agent-engagement:last-child { border-bottom: none; }
+.helm-eng-label { width: 44px; font-weight: 600; font-size: 0.82em; padding-top: 2px; }
+.helm-eng-bars { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.helm-eng-bar { display: flex; align-items: center; gap: 4px; font-size: 0.78em; }
+.helm-eng-dim { width: 28px; opacity: 0.7; font-size: 0.85em; }
+.helm-eng-track {
+    flex: 1;
+    height: 6px;
+    background: var(--surface-alt, #1a1a2e);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.helm-eng-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+.helm-eng-val { width: 32px; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Helm: Flow State */
+.helm-flow-agent {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 0.82em;
+}
+.helm-flow-label { width: 44px; font-weight: 600; }
+.helm-flow-dots { display: flex; gap: 4px; }
+.helm-flow-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1.5px solid var(--dot-color, var(--text-dim));
+    background: transparent;
+}
+.helm-flow-dot.filled { background: var(--dot-color, var(--c-tab-helm)); }
+.helm-flow-score { width: 32px; text-align: right; font-variant-numeric: tabular-nums; }
+.helm-flow-state { font-size: 0.85em; font-weight: 600; letter-spacing: 0.04em; }
 
 /* ── Tactical Station ────────────────────────────────────────── */
 

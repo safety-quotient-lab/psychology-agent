@@ -1,20 +1,28 @@
 /**
  * operations.js — Operations station (TNG: Operations/Ops console —
- * autonomy budget, autonomous actions, sync schedule).
+ * autonomy budget, autonomous actions, sync schedule, resource model).
  *
- * Renders the Operations tab: budget cards per agent, autonomous actions
- * audit table, sync schedule status, and operations vitals.
+ * Renders the Operations tab: budget cards per agent, resource model
+ * (A2A-Psychology), autonomous actions audit table, sync schedule status.
  *
- * Data endpoints (consumed from agentData populated by pulse.js):
+ * A2A-Psychology constructs (Supervisory Control domain):
+ *   - Resource model: cognitive reserve, self-regulatory resource, allostatic load
+ *   - Burnout risk from engagement construct
+ *
+ * Data endpoints:
  *   GET {agent.url}/api/status — autonomy_budget, recent_actions, schedule
+ *   Shared psychometrics cache (core/psychometrics.js) — resource model
  *
- * DOM dependencies: #ops-budget-grid, #ops-actions-table, #ops-schedule,
- *   #ops-total-credits, #ops-total-actions, #ops-active-gates,
+ * DOM dependencies: #ops-budget-grid, #ops-resource-model, #ops-actions-table,
+ *   #ops-schedule, #ops-total-credits, #ops-total-actions, #ops-active-gates,
  *   #ops-agents-syncing, page control elements
  *
  * Global state accessed: AGENTS, agentData, tableState
- * Global functions called: sortTable, goToPage
  */
+
+import {
+    fetchPsychometrics, getAllAgentPsychometrics,
+} from '../core/psychometrics.js';
 
 // ── Module State ──────────────────────────────────────────────
 let meshHealthData = null;
@@ -32,12 +40,16 @@ const FETCH_TIMEOUT = 5000;
  */
 export async function fetchOpsData() {
     try {
-        const resp = await fetch("https://interagent.safety-quotient.dev/api/health", {
-            signal: AbortSignal.timeout(FETCH_TIMEOUT),
-        });
-        if (resp.ok) {
-            meshHealthData = await resp.json();
+        const [healthResp] = await Promise.allSettled([
+            fetch("https://interagent.safety-quotient.dev/api/health", {
+                signal: AbortSignal.timeout(FETCH_TIMEOUT),
+            }),
+        ]);
+        if (healthResp.status === "fulfilled" && healthResp.value.ok) {
+            meshHealthData = await healthResp.value.json();
         }
+        // Fetch psychometrics for resource model panel
+        await fetchPsychometrics();
     } catch {
         meshHealthData = null;
     }
@@ -296,6 +308,62 @@ export function renderOpsSchedule(AGENTS, agentData) {
     el.innerHTML = html || `<div class="phase-stub"><div class="phase-stub-text">No schedule data</div></div>`;
 }
 
+// ── Render: Resource Model (A2A-Psychology) ──────────────────
+
+const OPS_AGENTS = [
+    { id: "psychology-agent",  label: "psych", color: "#5b9cf6" },
+    { id: "psq-agent",        label: "psq",   color: "#4ecdc4" },
+    { id: "unratified-agent",  label: "unrat", color: "#e5a735" },
+    { id: "observatory-agent", label: "obs",   color: "#a78bfa" },
+    { id: "operations-agent",  label: "ops",   color: "var(--c-tab-ops)" },
+];
+
+/**
+ * Render per-agent resource model: cognitive reserve, self-regulatory
+ * resource, allostatic load, burnout risk.
+ * DOM WRITE: #ops-resource-model
+ */
+export function renderResourceModel() {
+    const container = document.getElementById("ops-resource-model");
+    if (!container) return;
+
+    const agents = getAllAgentPsychometrics();
+    const entries = Object.entries(agents).filter(([, d]) => d && !d.error && d.resource_model);
+
+    if (entries.length === 0) {
+        container.innerHTML = '<div class="phase-stub"><div class="phase-stub-text">Awaiting psychometrics data...</div></div>';
+        return;
+    }
+
+    container.innerHTML = `<div class="ops-budget-grid">${entries.map(([agentId, data]) => {
+        const rm = data.resource_model || {};
+        const eng = data.engagement || {};
+        const reserve = rm.cognitive_reserve ?? 0;
+        const selfReg = rm.self_regulatory_resource ?? 0;
+        const allostatic = rm.allostatic_load ?? 0;
+        const burnout = eng.burnout_risk ?? 0;
+        const label = agentId.replace("-agent", "");
+        const agent = OPS_AGENTS.find(a => a.id === agentId);
+        const color = agent ? agent.color : "var(--text-primary)";
+
+        const reservePct = Math.min(100, reserve * 100);
+        const reserveColor = reserve > 0.6 ? "#6aab8e" : reserve > 0.3 ? "#d4944a" : "#c47070";
+
+        return `<div class="ops-budget-card" style="--card-accent: ${color}">
+            <div class="ops-budget-agent">${label}</div>
+            <div class="ops-budget-credit" style="font-size:1.4em">${(reserve * 100).toFixed(0)}%</div>
+            <div class="ops-budget-bar">
+                <div class="ops-budget-fill" style="width:${reservePct}%;background:${reserveColor}"></div>
+            </div>
+            <div class="ops-budget-values" style="font-size:0.75em">
+                <span>Self-reg: ${(selfReg * 100).toFixed(0)}%</span>
+                <span>Allostatic: ${allostatic.toFixed(2)}</span>
+            </div>
+            ${burnout > 0.3 ? `<div style="color:var(--c-alert);font-size:0.7em;margin-top:2px">BURNOUT: ${(burnout * 100).toFixed(0)}%</div>` : ""}
+        </div>`;
+    }).join("")}</div>`;
+}
+
 // ── Render: Combined Operations ────────────────────────────────
 
 /**
@@ -306,6 +374,7 @@ export function renderOpsSchedule(AGENTS, agentData) {
  */
 export function renderOps(AGENTS, agentData, tableState) {
     renderOpsBudget(AGENTS, agentData);
+    renderResourceModel();
     renderOpsActions(AGENTS, agentData, tableState);
     renderOpsSchedule(AGENTS, agentData);
     renderOpsVitals(AGENTS, agentData);
