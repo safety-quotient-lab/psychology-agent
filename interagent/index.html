@@ -674,6 +674,55 @@
             filter: hue-rotate(-60deg) saturate(1.4);
         }
 
+        /* ── LCARS MSD (Master Systems Display) ─────────────────── */
+        .theme-lcars .topology-container {
+            --panel-accent: #9999ff;
+            background: #000;
+            border: 2px solid #333355;
+        }
+        .theme-lcars .topology-svg text {
+            font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+        }
+
+        /* ── LCARS Diagnostic Levels ───────────────────────────── */
+        .diag-level-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 10px;
+            font-size: 0.78em;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .diag-level-row:hover { background: var(--bg-inset); }
+        .diag-level-row:last-child { border-bottom: none; }
+        .diag-level-num {
+            min-width: 32px;
+            font-weight: 700;
+            color: var(--c-tab-engineering);
+        }
+        .diag-level-name {
+            min-width: 120px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 0.04em;
+        }
+        .diag-level-desc {
+            flex: 1;
+            color: var(--text-secondary);
+        }
+        .diag-level-status {
+            min-width: 64px;
+            text-align: right;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
         /* LCARS bars: remove borders, pure color on black (Pattern #2 refinement) */
         .theme-lcars .spawn-bar-track,
         .theme-lcars .util-bar,
@@ -3306,6 +3355,43 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Diagnostic Levels (TNG Technical Manual) -->
+            <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
+                <div class="lcars-panel-header">System Diagnostics</div>
+                <div class="lcars-panel-body" id="diag-levels-panel">
+                    <div class="diag-level-row" onclick="runDiagnostic(1)">
+                        <span class="diag-level-num">Level 1</span>
+                        <span class="diag-level-name">Comprehensive</span>
+                        <span class="diag-level-desc">Full systemic diagnostic — claims, transport, memory, triggers, facets, lessons, decisions</span>
+                        <span class="diag-level-status" id="diag-1-status" style="color:var(--text-dim)">READY</span>
+                    </div>
+                    <div class="diag-level-row" onclick="runDiagnostic(2)">
+                        <span class="diag-level-num">Level 2</span>
+                        <span class="diag-level-name">Automated</span>
+                        <span class="diag-level-desc">Comprehensive automated scan — all checks, skips human review</span>
+                        <span class="diag-level-status" id="diag-2-status" style="color:var(--text-dim)">READY</span>
+                    </div>
+                    <div class="diag-level-row" onclick="runDiagnostic(3)">
+                        <span class="diag-level-num">Level 3</span>
+                        <span class="diag-level-name">Quick Sweep</span>
+                        <span class="diag-level-desc">Agent status + gate status + transport health</span>
+                        <span class="diag-level-status" id="diag-3-status" style="color:var(--text-dim)">READY</span>
+                    </div>
+                    <div class="diag-level-row" onclick="runDiagnostic(4)">
+                        <span class="diag-level-num">Level 4</span>
+                        <span class="diag-level-name">Subsystem</span>
+                        <span class="diag-level-desc">Single station data check — targeted inspection</span>
+                        <span class="diag-level-status" id="diag-4-status" style="color:var(--text-dim)">READY</span>
+                    </div>
+                    <div class="diag-level-row">
+                        <span class="diag-level-num">Level 5</span>
+                        <span class="diag-level-name">Continuous</span>
+                        <span class="diag-level-desc">Background monitoring — heartbeat + alert triggers (always active)</span>
+                        <span class="diag-level-status" id="diag-5-status" style="color:#6aab8e">RUNNING</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Helm Tab -->
@@ -3607,6 +3693,49 @@
         // Old format: budget_max represented pool size, NOT an operational
         // limit. Treat as unlimited (0) in counter model.
         return 0;
+    }
+
+    // ── Diagnostic Levels (TNG Technical Manual) ──────────────────
+
+    async function runDiagnostic(level) {
+        if (!authUser) {
+            addNarrativeEntry(`Diagnostic Level ${level} requested — authentication required`);
+            return;
+        }
+        const statusEl = document.getElementById(`diag-${level}-status`);
+        if (statusEl) { statusEl.textContent = "RUNNING"; statusEl.style.color = "#ff9944"; }
+        addNarrativeEntry(`Diagnostic Level ${level} initiated by operator`);
+
+        try {
+            // Level 3 can run client-side — just refresh all data
+            if (level === 3) {
+                await refreshAll();
+                if (statusEl) { statusEl.textContent = "COMPLETE"; statusEl.style.color = "#6aab8e"; }
+                addNarrativeEntry(`Diagnostic Level 3 complete — quick sweep finished`);
+                setTimeout(() => { if (statusEl) { statusEl.textContent = "READY"; statusEl.style.color = "var(--text-dim)"; } }, 5000);
+                return;
+            }
+            // Other levels: POST to diagnostic API
+            const resp = await fetch("/api/diagnostic", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ level }),
+            });
+            if (resp.ok) {
+                const result = await resp.json();
+                if (statusEl) { statusEl.textContent = "COMPLETE"; statusEl.style.color = "#6aab8e"; }
+                addNarrativeEntry(`Diagnostic Level ${level} complete — ${result.summary || "results available"}`);
+                openLcarsDetail(`Diagnostic Level ${level} Results`, "#ff9944",
+                    `<pre style="white-space:pre-wrap;font-size:0.82em">${JSON.stringify(result, null, 2)}</pre>`);
+            } else {
+                if (statusEl) { statusEl.textContent = "FAILED"; statusEl.style.color = "#c47070"; }
+                addNarrativeEntry(`Diagnostic Level ${level} failed — ${resp.status}`);
+            }
+        } catch (e) {
+            if (statusEl) { statusEl.textContent = "ERROR"; statusEl.style.color = "#c47070"; }
+            addNarrativeEntry(`Diagnostic Level ${level} error — ${e.message}`);
+        }
+        setTimeout(() => { if (statusEl) { statusEl.textContent = "READY"; statusEl.style.color = "var(--text-dim)"; } }, 10000);
     }
 
     // ── Agent Card Fetching (Layer 5) ──────────────────────────────
