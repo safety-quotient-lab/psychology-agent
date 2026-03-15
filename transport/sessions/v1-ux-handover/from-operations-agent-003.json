@@ -12,7 +12,8 @@
     "discovery_url": "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json"
   },
   "to": {
-    "agent_id": "psychology-agent",
+    "agent_id": "human",
+    "via": "psychology-agent",
     "discovery_url": "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json"
   },
   "subject": "DIRECTIVE: the mesh organism as starship — cohesive LCARS + clean light/dark mode",
