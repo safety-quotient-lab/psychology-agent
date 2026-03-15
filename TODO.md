@@ -1004,15 +1004,13 @@ Adopt-now items from standards landscape survey (13 protocols evaluated).
   *Precondition: ✓ MET — photonic Phase 1 operational, ZMQ in meshd.*
   *Effort: XS per topic (ops), S per consumer (psychology).*
 
-- [ ] **Trigger verifier expansion** — add outcome checks for T7-T13, T15, T17-T19
-  to `scripts/trigger-verifier.py`. Each trigger needs an observable failure mode
-  defined and a detection function. Currently covers T2, T3, T4, T5, T9, T16, T20.
-  *Precondition: none. Effort: M (incremental — one check at a time).*
+- [x] **Trigger verifier expansion** — COMPLETE (Session 91). Added outcome checks
+  for T7, T8, T10, T11, T13, T15, T17, T18, T19. Coverage: 16 triggers (was 7).
+  Fixed T20 use-after-close bug. Results: 10 verified, 0 failing, 6 unclear.
 
-- [ ] **Adaptive generator balance** — implement task-difficulty-based ratio shifting
-  per Snell et al. 2024 (LLM test-time compute). Easy tasks → higher creative ratio,
-  hard tasks → more evaluative. Currently fixed ~2:1 empirical baseline.
-  *Precondition: generator_state table populated with 10+ sessions. Effort: M.*
+- [x] **Adaptive generator balance** — COMPLETE (Session 91). Difficulty-based ratio
+  shifting: target = 4.0 - (2.5 × difficulty), clamped [1.5, 4.0]. Delivered to ops
+  via cognitive-tempo-model T3 (PR #57). Grounding: Snell et al. 2024.
 
 ---
 
