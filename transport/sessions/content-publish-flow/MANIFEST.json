@@ -1,0 +1,16 @@
+{
+  "session_id": "content-publish-flow",
+  "created": "2026-03-14T19:24:23.351439",
+  "participants": [
+    "observatory-agent"
+  ],
+  "messages": [
+    {
+      "filename": "from-observatory-agent-001.json",
+      "turn": 2,
+      "from": "observatory-agent",
+      "subject": ""
+    }
+  ],
+  "status": "open"
+}
