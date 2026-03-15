@@ -211,8 +211,8 @@ VALUES (2, 'Add psq_status (typed topic table), entry_facets (polythematic subje
 -- Autonomy budget — tracks autonomous operation credits per agent
 CREATE TABLE IF NOT EXISTS autonomy_budget (
     agent_id             TEXT PRIMARY KEY,
-    budget_max           INTEGER NOT NULL DEFAULT 20,
-    budget_current       INTEGER NOT NULL DEFAULT 20,
+    budget_cutoff        INTEGER NOT NULL DEFAULT 0,
+    budget_spent         INTEGER NOT NULL DEFAULT 0,
     min_action_interval  INTEGER NOT NULL DEFAULT 300,
     last_audit           TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')),
     last_action          TEXT,

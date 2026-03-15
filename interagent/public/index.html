@@ -326,16 +326,19 @@
             font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
         }
 
-        /* ── LCARS Responsive ──────────────────────────────────────── */
+        /* ── LCARS Responsive: Tablet ─────────────────────────────── */
         @media (max-width: 768px) {
             .theme-lcars .lcars-frame {
                 grid-template-columns: 60px 1fr;
             }
             .theme-lcars { --sidebar-width: 60px; }
+
+            /* Sidebar: show short codes only */
             .lcars-sidebar-btn {
-                font-size: 0 !important;  /* hide full text on mobile */
+                font-size: 0 !important;
                 min-height: 36px;
                 padding: 8px;
+                text-align: center;
             }
             .lcars-sidebar-btn::after {
                 content: attr(data-short);
@@ -345,8 +348,67 @@
             .lcars-sidebar-btn.active::after {
                 font-size: 11px !important;
             }
-            .lcars-header-seg { font-size: 0.6em; padding: 2px 8px; }
-            .lcars-footer-seg { font-size: 0.6em; padding: 2px 8px; }
+
+            /* Header band: wrap segments, hide non-essential */
+            .theme-lcars .lcars-header-band {
+                flex-wrap: wrap;
+                min-height: auto;
+            }
+            .lcars-header-seg {
+                font-size: 0.6em;
+                padding: 2px 8px;
+                min-height: 24px;
+            }
+
+            /* Footer band: wrap segments, hide non-essential */
+            .theme-lcars .lcars-footer-band {
+                flex-wrap: wrap;
+                min-height: auto;
+            }
+            .lcars-footer-seg {
+                font-size: 0.6em;
+                padding: 2px 8px;
+                min-height: 24px;
+            }
+
+            /* Sidebar caps: reduce height */
+            .lcars-sidebar-cap-top { min-height: 36px; }
+            .lcars-sidebar-cap-bottom { min-height: 36px; }
+        }
+
+        /* ── LCARS Responsive: Small Phone ────────────────────────── */
+        @media (max-width: 480px) {
+            .theme-lcars .lcars-frame {
+                grid-template-columns: 44px 1fr;
+            }
+            .theme-lcars { --sidebar-width: 44px; }
+
+            /* Sidebar: minimal shortcodes */
+            .lcars-sidebar-btn {
+                min-height: 28px;
+                padding: 4px;
+            }
+            .lcars-sidebar-btn::after {
+                font-size: 8px !important;
+            }
+            .lcars-sidebar-btn.active::after {
+                font-size: 9px !important;
+            }
+
+            /* Sidebar spacers: minimal */
+            .lcars-sidebar-spacer { min-height: 8px; }
+            .lcars-sidebar-cap-top { min-height: 28px; }
+            .lcars-sidebar-cap-bottom { min-height: 28px; }
+
+            /* Header band: show only first 3 segments */
+            .lcars-header-seg {
+                font-size: 0.55em;
+                padding: 2px 6px;
+            }
+            .lcars-header-seg:nth-child(n+4) { display: none; }
+
+            /* Footer band: show only first 2 segments */
+            .lcars-footer-seg:nth-child(n+3) { display: none; }
         }
 
         /* ── LCARS Layer 2+3: Hatched bars, status lines, shortcodes ── */
@@ -2489,17 +2551,30 @@
             text-align: center;
         }
 
-        /* ── Responsive ──────────────────────────────────────────────── */
+        /* ── Responsive: Phone (inline overrides) ────────────────── */
         @media (max-width: 768px) {
             .lcars-frame {
                 grid-template-columns: 12px 1fr;
             }
             :root { --elbow-width: 12px; }
+
+            /* Header: stack vertically */
             .lcars-header { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
+            .lcars-header > div:first-child { flex: 1 1 100%; }
+            .lcars-controls { flex: 1 1 100%; justify-content: flex-end; }
             .lcars-title { font-size: 1.1em; }
             .lcars-subtitle { display: none; }
-            .lcars-content { padding: 12px; }
-            .lcars-tab { padding: 8px 12px; font-size: 0.75em; }
+            .lcars-content { padding: 12px; overflow-x: hidden; }
+
+            /* Tab bar: horizontal scroll */
+            .lcars-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .lcars-tab { padding: 8px 12px; font-size: 0.75em; white-space: nowrap; flex-shrink: 0; }
+
+            /* Grids: single column */
             .agents-grid { grid-template-columns: 1fr; }
             .vitals-grid { grid-template-columns: repeat(3, 1fr); }
             .kb-vitals { grid-template-columns: repeat(3, 1fr); }
@@ -2509,11 +2584,15 @@
             .table-toolbar { padding: 6px 12px; }
             .table-filter { min-width: 120px; }
             .lcars-panel-body.scrollable { max-height: 300px; }
+
+            /* Footer: wrap */
+            .lcars-footer { flex-wrap: wrap; gap: 4px; }
         }
 
         @media (max-width: 480px) {
             .vitals-grid { grid-template-columns: repeat(2, 1fr); }
             .toggle-group { display: none; }
+            .lcars-content { padding: 8px; }
         }
 
         /* Loading state */
@@ -2947,16 +3026,18 @@
                         <div class="kb-vital-label">Deliberations</div>
                     </div>
                     <div class="kb-vital">
-                        <div class="kb-vital-value" id="ops-total-actions">—</div>
-                        <div class="kb-vital-label">Actions</div>
-                    </div>
-                    <div class="kb-vital">
-                        <div class="kb-vital-value" id="ops-active-gates">—</div>
-                        <div class="kb-vital-label">Gates</div>
-                    </div>
-                    <div class="kb-vital">
                         <div class="kb-vital-value" id="ops-agents-syncing">—</div>
                         <div class="kb-vital-label">Syncing</div>
+                    </div>
+                    <div class="kb-vital ops-vital-wide">
+                        <div class="ops-gate-stack" id="ops-gate-stack">
+                            <div class="ops-gate-chip idle"></div>
+                            <div class="ops-gate-chip idle"></div>
+                            <div class="ops-gate-chip idle"></div>
+                            <div class="ops-gate-chip idle"></div>
+                            <div class="ops-gate-chip idle"></div>
+                        </div>
+                        <div class="kb-vital-label">Gates</div>
                     </div>
                 </div>
             </div>

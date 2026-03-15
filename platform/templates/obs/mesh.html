@@ -6,7 +6,7 @@
 <div class="grid">
     <div class="card">
         <div class="card-label">Autonomy Budget</div>
-        <div class="card-value" style="color: {{budgetColor $budget}}">{{getStr $budget "budget_current"}} / {{getStr $budget "budget_max"}}</div>
+        <div class="card-value" style="color: {{budgetColor $budget}}">{{getStr $budget "budget_spent"}} / {{getStr $budget "budget_cutoff"}} spent</div>
         <div class="budget-bar"><div class="budget-fill" style="width: {{budgetPct $budget}}%; background: {{budgetColor $budget}}"></div></div>
         <div class="card-detail">Last action: {{if getStr $budget "last_action"}}{{getStr $budget "last_action"}}{{else}}never{{end}}</div>
     </div>
@@ -152,7 +152,7 @@
         {{$transport := getMap . "transport"}}
         <tr>
             <td>{{getStr . "agent_id"}}</td>
-            <td>{{if $trust}}{{getStr $trust "budget_current"}}/{{getStr $trust "budget_max"}}{{else}}&mdash;{{end}}</td>
+            <td>{{if $trust}}{{getStr $trust "budget_spent"}}/{{getStr $trust "budget_cutoff"}} spent{{else}}&mdash;{{end}}</td>
             <td>{{if $transport}}{{getStr $transport "unprocessed"}}{{else}}0{{end}}</td>
             <td>{{if $transport}}{{getStr $transport "active_gates"}}{{else}}0{{end}}</td>
             <td>{{if $transport}}{{getStr $transport "total_messages"}}{{else}}0{{end}}</td>

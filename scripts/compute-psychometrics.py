@@ -65,12 +65,12 @@ def get_metrics(db: sqlite3.Connection, local_db: sqlite3.Connection | None,
     if local_db:
         try:
             r = local_db.execute(
-                "SELECT budget_current, budget_max, consecutive_blocks, shadow_mode "
+                "SELECT budget_spent, budget_cutoff, consecutive_blocks, shadow_mode "
                 "FROM autonomy_budget WHERE agent_id = ?", (agent_id,)
             ).fetchone()
             if r:
-                m["budget_current"] = r[0]
-                m["budget_max"] = r[1]
+                m["budget_spent"] = r[0]
+                m["budget_cutoff"] = r[1]
                 m["consecutive_blocks"] = r[2]
                 m["shadow_mode"] = r[3]
         except Exception:
@@ -135,8 +135,8 @@ def get_metrics(db: sqlite3.Connection, local_db: sqlite3.Connection | None,
             pass
 
     # Defaults for missing metrics
-    m.setdefault("budget_current", 50)
-    m.setdefault("budget_max", 50)
+    m.setdefault("budget_spent", 0)
+    m.setdefault("budget_cutoff", 0)
     m.setdefault("consecutive_blocks", 0)
     m.setdefault("actions_last_hour", 0)
     m.setdefault("errors_last_hour", 0)
@@ -171,7 +171,7 @@ def compute_pad(m: dict) -> dict:
     arousal = max(-1.0, min(1.0, arousal))
 
     # Dominance: governance headroom
-    budget_ratio = m["budget_current"] / max(m["budget_max"], 1)
+    budget_ratio = 1.0 - (m["budget_spent"] / m["budget_cutoff"]) if m["budget_cutoff"] > 0 else 1.0
     block_penalty = min(1.0, m["consecutive_blocks"] / 3.0)
     dominance = budget_ratio - block_penalty
     dominance = 2.0 * dominance - 1.0
@@ -256,7 +256,7 @@ def compute_resource_model(tlx: dict, m: dict) -> dict:
     """Three-construct resource model (Stern, Baumeister, McEwen)."""
     # Cognitive reserve (Stern, 2002; Kahneman, 1973)
     workload_factor = 1.0 - (tlx["cognitive_load"] / 100.0)
-    budget_factor = m["budget_current"] / max(m["budget_max"], 1)
+    budget_factor = 1.0 - (m["budget_spent"] / m["budget_cutoff"]) if m["budget_cutoff"] > 0 else 1.0
     context_factor = 1.0 - m.get("context_pressure", 0.0)
     cognitive_reserve = workload_factor * budget_factor * context_factor
 
@@ -309,7 +309,7 @@ def main():
     # Supervisory Control (Sheridan & Verplank, 1978; Parasuraman et al., 2000)
     identity = load_identity()
     is_human_identity = identity.get("agent_id") == "human"
-    budget_ratio = m["budget_current"] / max(m["budget_max"], 1)
+    budget_ratio = 1.0 - (m["budget_spent"] / m["budget_cutoff"]) if m["budget_cutoff"] > 0 else 1.0
 
     if is_human_identity:
         loa = 5  # Interactive: human approves

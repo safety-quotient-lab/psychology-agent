@@ -45,9 +45,16 @@ def cmd_status() -> None:
     print("Autonomy Budget Status")
     print("─" * 60)
     for row in rows:
-        status = "ACTIVE" if row["budget_current"] > 0 else "HALTED"
+        cutoff = row["budget_cutoff"]
+        spent = row["budget_spent"]
+        if cutoff == 0:
+            status = "UNLIMITED"
+        elif spent >= cutoff:
+            status = "HALTED"
+        else:
+            status = "ACTIVE"
         print(f"  Agent:       {row['agent_id']}")
-        print(f"  Budget:      {row['budget_current']} / {row['budget_max']}  [{status}]")
+        print(f"  Budget:      {spent} spent / {cutoff} cutoff  [{status}]")
         print(f"  Last audit:  {row['last_audit']}")
         print(f"  Last action: {row['last_action'] or 'none'}")
         print(f"  Consec. blocks: {row['consecutive_blocks']}")
@@ -87,17 +94,17 @@ def cmd_reset(agent_id: str) -> None:
                   f"Budget: {action['budget_before']} → {action['budget_after']}")
 
     print()
-    print(f"Current budget: {row['budget_current']} / {row['budget_max']}")
+    print(f"Current budget: {row['budget_spent']} spent / {row['budget_cutoff']} cutoff")
     print()
 
-    answer = input("Reset budget to maximum? [y/N] ").strip().lower()
+    answer = input("Reset spend counter to zero? [y/N] ").strip().lower()
     if answer != "y":
         print("Aborted.")
         return
 
     conn.execute("""
         UPDATE autonomy_budget
-        SET budget_current = budget_max,
+        SET budget_spent = 0,
             consecutive_blocks = 0,
             last_audit = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
             updated_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
@@ -108,7 +115,7 @@ def cmd_reset(agent_id: str) -> None:
     new_row = conn.execute(
         "SELECT * FROM autonomy_budget WHERE agent_id = ?", (agent_id,)
     ).fetchone()
-    print(f"Budget reset: {new_row['budget_current']} / {new_row['budget_max']}")
+    print(f"Budget reset: {new_row['budget_spent']} spent / {new_row['budget_cutoff']} cutoff")
     print(f"Last audit updated: {new_row['last_audit']}")
     conn.close()
 
@@ -148,17 +155,22 @@ def cmd_pause_all() -> None:
 
     updated = 0
     for row in rows:
-        if row["budget_current"] > 0:
+        cutoff = row["budget_cutoff"]
+        spent = row["budget_spent"]
+        if cutoff == 0 or spent < cutoff:
+            # Set spent equal to cutoff to exhaust the budget (or set cutoff=1, spent=1 if unlimited)
+            new_cutoff = cutoff if cutoff > 0 else 1
             conn.execute("""
                 UPDATE autonomy_budget
-                SET budget_current = 0,
+                SET budget_spent = budget_cutoff,
+                    budget_cutoff = CASE WHEN budget_cutoff = 0 THEN 1 ELSE budget_cutoff END,
                     updated_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
                 WHERE agent_id = ?
             """, (row["agent_id"],))
-            print(f"  {row['agent_id']}: budget {row['budget_current']} → 0")
+            print(f"  {row['agent_id']}: budget exhausted (spent={new_cutoff}, cutoff={new_cutoff})")
             updated += 1
         else:
-            print(f"  {row['agent_id']}: already at 0")
+            print(f"  {row['agent_id']}: already exhausted")
 
     conn.commit()
     conn.close()
@@ -176,19 +188,19 @@ def cmd_resume_all() -> None:
 
     updated = 0
     for row in rows:
-        if row["budget_current"] < row["budget_max"]:
+        if row["budget_spent"] > 0:
             conn.execute("""
                 UPDATE autonomy_budget
-                SET budget_current = budget_max,
+                SET budget_spent = 0,
                     consecutive_blocks = 0,
                     last_audit = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
                     updated_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
                 WHERE agent_id = ?
             """, (row["agent_id"],))
-            print(f"  {row['agent_id']}: budget {row['budget_current']} → {row['budget_max']}")
+            print(f"  {row['agent_id']}: spend counter reset (was {row['budget_spent']}, cutoff={row['budget_cutoff']})")
             updated += 1
         else:
-            print(f"  {row['agent_id']}: already at maximum ({row['budget_max']})")
+            print(f"  {row['agent_id']}: already at zero spend")
 
     conn.commit()
     conn.close()

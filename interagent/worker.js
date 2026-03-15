@@ -48,10 +48,137 @@ const PSYCHOMETRICS_ENDPOINTS = [
 const MESH_PSYCHOMETRICS_URL = "https://operations-agent.safety-quotient.dev/api/psychometrics/mesh";
 
 /**
+ * Compute approximate psychometrics from /api/status data.
+ * Bridge until meshd serves proper /api/psychometrics per agent.
+ * Lower fidelity than compute-psychometrics.py (no session-metrics
+ * hook data, no context pressure, no tool call count), but provides
+ * actionable biofeedback rather than blank panels.
+ */
+function approximatePsychometrics(agentId, statusData) {
+  const budget = statusData.autonomy_budget || {};
+  const spent = parseInt(budget.budget_spent ?? budget.budget_current ?? 0);
+  const cutoff = parseInt(budget.budget_cutoff ?? budget.budget_max ?? 0);
+  const budgetRatio = cutoff > 0 ? Math.max(0, 1 - spent / cutoff) : 1.0;
+  const blocks = parseInt(budget.consecutive_blocks ?? 0);
+  const unprocessed = statusData.unprocessed_messages?.length
+    ?? (statusData.totals || {}).unprocessed ?? 0;
+  const gateCount = (statusData.active_gates || []).length;
+  const gatesToTimingOut = (statusData.active_gates || [])
+    .filter(g => g.timeout_at && new Date(g.timeout_at) < new Date()).length;
+  const uptime = statusData.uptime_seconds ?? 0;
+  const spawnCount = statusData.spawn_count ?? 0;
+
+  // PAD (Mehrabian & Russell, 1974) — approximate from status signals
+  const errorRatio = 0; // no error data in status
+  const msgHealth = 1.0 - Math.min(1, unprocessed / 10);
+  const gateStress = Math.min(1, gatesToTimingOut / 2);
+  const pleasure = Math.max(-1, Math.min(1, msgHealth - errorRatio - gateStress));
+
+  const spawnRate = Math.min(1, spawnCount / 10);
+  const msgVolume = Math.min(1, unprocessed / 5);
+  const arousal = Math.max(-1, Math.min(1, 2 * ((spawnRate + msgVolume) / 2) - 1));
+
+  const blockPenalty = Math.min(1, blocks / 3);
+  const dominance = Math.max(-1, Math.min(1, 2 * (budgetRatio - blockPenalty) - 1));
+
+  // Affect category
+  let affect = "neutral";
+  if (pleasure > 0.3 && arousal < 0 && dominance > 0) affect = "calm-satisfied";
+  else if (pleasure > 0.3 && arousal > 0.3) affect = "excited-triumphant";
+  else if (pleasure < -0.3 && arousal > 0.3 && dominance < 0) affect = "anxious-overwhelmed";
+  else if (pleasure < -0.3 && arousal > 0.3) affect = "frustrated";
+  else if (pleasure < -0.3 && arousal < 0 && dominance < 0) affect = "depleted";
+
+  // NASA-TLX — approximate
+  const mental = Math.min(100, unprocessed * 3 + gateCount * 10);
+  const temporal = Math.min(100, gatesToTimingOut * 30);
+  const effort = Math.min(100, spawnCount * 8);
+  const frustration = Math.min(100, blocks * 30);
+  const cogLoad = mental * 0.25 + temporal * 0.2 + effort * 0.2 + frustration * 0.2;
+
+  // Working memory — approximate from uptime
+  const sessionHours = uptime / 3600;
+  const ydZone = sessionHours > 4 ? "pressured" : sessionHours > 0.25 ? "optimal" : "understimulated";
+
+  // Supervisory control
+  const isInteractive = uptime < 300; // short uptime suggests interactive
+  const loa = budgetRatio <= 0 ? 10 : isInteractive ? 5 : 7;
+
+  return {
+    agent_id: agentId,
+    computed_at: new Date().toISOString(),
+    source: "approximate (from /api/status — bridge until meshd /api/psychometrics)",
+    emotional_state: {
+      model: "PAD (Mehrabian & Russell, 1974) — approximate",
+      hedonic_valence: Math.round(pleasure * 100) / 100,
+      activation: Math.round(arousal * 100) / 100,
+      perceived_control: Math.round(dominance * 100) / 100,
+      affect_category: affect,
+    },
+    workload: {
+      model: "NASA-TLX (Hart & Staveland, 1988) — approximate",
+      cognitive_demand: Math.round(mental),
+      time_pressure: Math.round(temporal),
+      self_efficacy: Math.min(100, Math.round(spawnCount > 0 ? 40 : 20)),
+      mobilized_effort: Math.round(effort),
+      regulatory_fatigue: Math.round(frustration),
+      computational_strain: 0,
+      cognitive_load: Math.round(cogLoad * 10) / 10,
+      mode: "neutral",
+    },
+    working_memory: {
+      model: "Baddeley (1986) + Cowan (2001) — approximate",
+      capacity_load: 0,
+      yerkes_dodson_zone: ydZone,
+      tool_calls: 0,
+      session_duration_minutes: Math.round(uptime / 60 * 10) / 10,
+    },
+    resource_model: {
+      cognitive_reserve: Math.round(budgetRatio * 100) / 100,
+      self_regulatory_resource: Math.round(budgetRatio * 100) / 100,
+      allostatic_load: 0,
+      components: { workload_factor: Math.round((1 - cogLoad / 100) * 100) / 100, budget_factor: Math.round(budgetRatio * 100) / 100, context: 1.0 },
+    },
+    supervisory_control: {
+      model: "Sheridan & Verplank (1978) — approximate",
+      level_of_automation: loa,
+      human_in_loop: loa <= 5,
+      human_on_loop: budgetRatio > 0,
+      human_monitoring: true,
+      human_accountable: true,
+      escalation_path_available: true,
+      circuit_breaker_available: true,
+    },
+    engagement: {
+      model: "UWES (Schaufeli, 2002) — approximate",
+      vigor: Math.min(1, spawnRate),
+      dedication: Math.min(1, sessionHours / 3),
+      absorption: 0,
+      burnout_risk: Math.max(0, (cogLoad / 100) - budgetRatio),
+    },
+    flow: {
+      model: "Csikszentmihalyi (1990) — approximate",
+      conditions_met: (spawnCount > 0 ? 1 : 0) + (ydZone === "optimal" ? 1 : 0) + (budgetRatio > 0.4 ? 1 : 0),
+      in_flow: false,
+      score: 0,
+    },
+    personality: {
+      model: "OCEAN (Costa & McCrae, 1992)",
+      openness: 0.7, conscientiousness: 0.85, extraversion: 0.5,
+      agreeableness: 0.5, neuroticism: 0.4,
+      note: "Default profile — agent-specific values load from agent card",
+    },
+  };
+}
+
+/**
  * Fetch psychometrics from all agents + mesh-level from meshd.
+ * Falls back to computing approximate values from /api/status when
+ * per-agent /api/psychometrics endpoints don't exist yet.
  * Returns unified mesh-psychometrics/v1 payload for the LCARS dashboard.
  */
 async function fetchMeshPsychometrics() {
+  // Try proper per-agent psychometrics first
   const agentResults = await Promise.allSettled(
     PSYCHOMETRICS_ENDPOINTS.map(async (agent) => {
       const resp = await fetch(agent.url, { cf: { cacheTtl: 30 } });
@@ -60,29 +187,90 @@ async function fetchMeshPsychometrics() {
     })
   );
 
-  const agents = {};
-  for (let i = 0; i < agentResults.length; i++) {
-    const result = agentResults[i];
-    const agentId = PSYCHOMETRICS_ENDPOINTS[i].id;
-    agents[agentId] = result.status === "fulfilled"
-      ? result.value
-      : { agent_id: agentId, error: result.reason?.message || "fetch failed" };
+  // Also fetch status data for fallback computation
+  const statusResults = await Promise.allSettled(
+    AGENT_ENDPOINTS.map(async (agent) => {
+      const resp = await fetch(agent.url, { cf: { cacheTtl: 30 } });
+      if (!resp.ok) return null;
+      return { id: agent.id, data: await resp.json() };
+    })
+  );
+
+  const statusMap = {};
+  for (const r of statusResults) {
+    if (r.status === "fulfilled" && r.value) {
+      statusMap[r.value.id] = r.value.data;
+    }
   }
 
-  // Fetch mesh-level psychometrics (the mesh carries its own psychology)
+  const agents = {};
+  for (let i = 0; i < PSYCHOMETRICS_ENDPOINTS.length; i++) {
+    const agentId = PSYCHOMETRICS_ENDPOINTS[i].id;
+    const result = agentResults[i];
+    const hasPsychometrics = result.status === "fulfilled"
+      && result.value && !result.value.error;
+
+    if (hasPsychometrics) {
+      agents[agentId] = result.value;
+    } else if (statusMap[agentId]) {
+      // Fallback: approximate from status data
+      agents[agentId] = approximatePsychometrics(agentId, statusMap[agentId]);
+    } else {
+      agents[agentId] = { agent_id: agentId, error: "unreachable" };
+    }
+  }
+
+  // Mesh-level psychometrics (the mesh carries its own psychology)
   let mesh = null;
   try {
     const meshResp = await fetch(MESH_PSYCHOMETRICS_URL, { cf: { cacheTtl: 30 } });
     if (meshResp.ok) mesh = await meshResp.json();
   } catch {
-    // mesh-level endpoint not yet available — degrade gracefully
+    // mesh-level endpoint not yet available
+  }
+
+  // Fallback: compute mesh-level aggregates from per-agent data
+  if (!mesh) {
+    const reporting = Object.values(agents).filter(a => a.emotional_state);
+    if (reporting.length > 0) {
+      const meanV = reporting.reduce((s, a) => s + (a.emotional_state?.hedonic_valence ?? 0), 0) / reporting.length;
+      const meanA = reporting.reduce((s, a) => s + (a.emotional_state?.activation ?? 0), 0) / reporting.length;
+      const minC = Math.min(...reporting.map(a => a.emotional_state?.perceived_control ?? 0));
+      const reserves = reporting.filter(a => a.resource_model).map(a => ({ id: a.agent_id, r: a.resource_model.cognitive_reserve }));
+      const bottleneck = reserves.length > 0 ? reserves.reduce((min, a) => a.r < min.r ? a : min) : null;
+
+      let meshAffect = "mesh-nominal";
+      if (meanV > 0.3 && minC > 0) meshAffect = "mesh-healthy";
+      else if (meanV < -0.3) meshAffect = "mesh-stressed";
+      else if (minC < -0.3) meshAffect = "mesh-constrained";
+
+      mesh = {
+        source: "approximate (aggregated from per-agent data)",
+        affect: {
+          model: "Mesh PAD (aggregated Mehrabian & Russell, 1974) — approximate",
+          mean_hedonic_valence: Math.round(meanV * 100) / 100,
+          mean_activation: Math.round(meanA * 100) / 100,
+          min_perceived_control: Math.round(minC * 100) / 100,
+          mesh_affect_category: meshAffect,
+          agents_reporting: reporting.length,
+        },
+        cognitive_reserve: bottleneck ? {
+          bottleneck_agent: bottleneck.id,
+          bottleneck_reserve: Math.round(bottleneck.r * 100) / 100,
+          mean_reserve: Math.round(reserves.reduce((s, a) => s + a.r, 0) / reserves.length * 100) / 100,
+          mesh_status: bottleneck.r < 0.3 ? "depleted" : bottleneck.r < 0.5 ? "pressured" : "healthy",
+        } : null,
+      };
+    } else {
+      mesh = { status: "awaiting_data" };
+    }
   }
 
   return {
     schema: "mesh-psychometrics/v1",
     computed_at: new Date().toISOString(),
     agents,
-    mesh: mesh || { status: "awaiting_endpoint" },
+    mesh,
   };
 }
 
@@ -94,8 +282,7 @@ async function fetchMeshHealth() {
       const data = await resp.json();
       const budget = data.autonomy_budget || {};
       // Counter model: budget_spent increments, budget_cutoff sets limit (0=unlimited)
-      const spent = budget.budget_spent ?? (budget.budget_max != null && budget.budget_current != null
-        ? budget.budget_max - budget.budget_current : 0);
+      const spent = budget.budget_spent ?? 0;
       const cutoff = budget.budget_cutoff ?? 0;
       const pct = cutoff > 0 ? Math.round((spent / cutoff) * 100) : 0;
       return {

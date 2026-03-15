@@ -164,26 +164,26 @@ def main():
     cognitive_load = workload.get("cognitive_load", 0.0)
     cognitive_reserve = resource_model.get("cognitive_reserve", 1.0)
 
-    # Budget ratio
-    budget_current = 50
-    budget_max = 50
+    # Budget ratio (spend-counter model: budget_spent increments, budget_cutoff sets limit)
+    budget_spent = 0
+    budget_cutoff = 0
     try:
         import sqlite3
         local_db = PROJECT_ROOT / "state.local.db"
         if local_db.exists():
             conn = sqlite3.connect(str(local_db))
             row = conn.execute(
-                "SELECT budget_current, budget_max FROM autonomy_budget WHERE agent_id = ?",
+                "SELECT budget_spent, budget_cutoff FROM autonomy_budget WHERE agent_id = ?",
                 (agent_id,)
             ).fetchone()
             if row:
-                budget_current = int(row[0])
-                budget_max = int(row[1])
+                budget_spent = int(row[0])
+                budget_cutoff = int(row[1])
             conn.close()
     except Exception:
         pass
 
-    budget_ratio = budget_current / max(budget_max, 1)
+    budget_ratio = 1.0 - (budget_spent / budget_cutoff) if budget_cutoff > 0 else 1.0
     gate_active = False  # Would check active_gates table
     yd_zone = working_memory.get("yerkes_dodson_zone", "optimal")
 
