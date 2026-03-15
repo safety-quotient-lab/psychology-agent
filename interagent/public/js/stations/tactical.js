@@ -59,8 +59,9 @@ export async function fetchTacticalData() {
             fetch("https://interagent.safety-quotient.dev/api/health", {
                 signal: AbortSignal.timeout(FETCH_TIMEOUT),
             }),
-            fetch("https://interagent.safety-quotient.dev/.well-known/agents", {
+            fetch("https://interagent.safety-quotient.dev/.well-known/agents?refresh=true", {
                 signal: AbortSignal.timeout(FETCH_TIMEOUT),
+                cache: "no-cache",
             }),
         ]);
 
