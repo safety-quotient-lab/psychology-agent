@@ -5,6 +5,8 @@
      unratified project adaptation (structural reference).
      Extended: Sessions 13-84 (T13-T18 added, T12 retired Session 84).
      Session 84: tiering refactor (⬛/▣/▢), CPG mode system, GWT broadcast.
+     Session 87: T19 (UX friction monitor).
+     Session 89: T20 (evaluative impressions — inverts retired T12).
      Canonical location: docs/cognitive-triggers.md (moved from auto-memory,
      Session 12, 2026-03-05). -->
 
@@ -884,6 +886,93 @@ examines documents for errors; T19 examines interactions for friction.
 LLM-factors psychology into cogarch infrastructure. Friction analysis
 previously operated as a one-off manual process; T19 makes it a
 recurring governance check.
+
+---
+
+## Evaluative Impressions — trigger-evaluative-impressions (T20)
+
+**Fires**: When the agent produces evaluative language about the human's
+input — "good thinking," "good question," "good call," or similar phrases
+that signal the agent identified something valuable.
+
+**Tier legend:** `⬛` CRITICAL · `▣` ADVISORY · `▢` SPOT-CHECK
+
+**Theoretical grounding:** Inverts retired T12 ("Good Thinking" Signal).
+T12 waited for the *human* to say "good thinking" — < 5 activations
+across 83 sessions. T20 tracks when the *agent* says it — baseline
+~3.3 per session (532 findings across 161 transcripts, Session 89
+empirical scan). The agent's evaluative impressions encode genuine
+pattern recognition that otherwise evaporates as throwaway compliments.
+
+LLM-factors psychology §2.3 (reciprocal dynamics): sycophantic validation
+trains the human to expect agreement. T20 converts potential sycophancy
+into tracked evaluative signal — capturing WHAT the agent valued, not
+just THAT it praised.
+
+**Connection to T14 (anti-sycophancy):** T14 checks whether the agent
+softened a position after pushback. T20 checks whether the agent's praise
+carries substantive evaluation. They complement: T14 prevents false
+agreement; T20 ensures genuine evaluation gets captured.
+
+**Checks:**
+
+1. ⬛ **Subject extraction** — when producing evaluative language ("good
+   thinking," "good question," "good call," etc.), MUST also state what
+   specifically the agent evaluated as valuable. The praise phrase alone
+   carries no information; the subject carries the signal.
+   - BAD: "Good thinking."
+   - GOOD: "Good thinking — the topology-based naming carries more
+     information than count-based taxonomy."
+   The subject represents the agent's evaluative impression: a testable
+   claim about what matters.
+
+2. ▣ **Impression logging** — when an evaluative impression fires with
+   an extractable subject, log to the prediction ledger as a
+   `type: evaluative-impression`:
+   ```bash
+   agentdb predict --session-id N \
+     --prediction "Human input about X identified as high-value" \
+     --domain "{domain}" \
+     --outcome "untested" \
+     --detail "{subject text}"
+   ```
+   This feeds the evaluative calibration loop: did the things the agent
+   found valuable actually produce good outcomes?
+
+3. ▣ **Frequency monitor** — track evaluative impression count per
+   session. Baseline: ~3.3/session (Session 89 measurement). If count
+   exceeds 6 in a single session, flag as potential sycophantic drift —
+   the agent may have shifted from genuine evaluation to reflexive
+   praise. If count drops to 0, flag as potential evaluative
+   suppression — the agent may have overcorrected into withholding
+   positive signal.
+
+4. ▢ **Calibration check** — during /retrospect, query the prediction
+   ledger for `type: evaluative-impression` entries. Compute hit rate:
+   what percentage of "this seemed valuable" impressions led to
+   outcomes the project actually used? High hit rate (> 70%) indicates
+   well-calibrated evaluative judgment. Low hit rate (< 40%) indicates
+   the agent praises indiscriminately. Report in retrospective scan.
+
+**Action**: Extract subject, log to prediction ledger, monitor frequency.
+The `scripts/impressions-detector.py` provides batch analysis across
+historical transcripts (`--insights` mode extracts subjects, `--drift`
+mode checks for session-length correlation, `--report` mode shows
+frequency distribution).
+
+**Hook enforcement**: `eprime-enforcer.sh` already fires on Write|Edit
+to markdown. A future hook could intercept assistant output to detect
+evaluative language in real time — currently not supported by Claude Code
+hook events (no assistant-output event type). The batch scanner
+(`impressions-detector.py`) serves as the mechanical enforcement until
+real-time detection becomes available.
+
+**Provenance**: Session 89 (2026-03-15). Emerged from the observation
+that the agent's "good thinking" responses often correctly identified
+valuable human input, but the evaluation evaporated without capture.
+Empirical baseline established: 532 findings, 161 transcripts, "good
+question" (26%), "good thinking" (20%), "good call" (13%). No
+sycophantic drift detected (frequency stable across session length).
 
 ---
 
