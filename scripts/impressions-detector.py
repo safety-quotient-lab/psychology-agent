@@ -60,6 +60,37 @@ for category, pats in PATTERNS.items():
     COMPILED[category] = [re.compile(p, re.IGNORECASE) for p in pats]
 
 
+def extract_subject(text: str, match_end: int) -> str:
+    """Extract the subject of the praise — what the agent thought was valuable.
+
+    Looks for the substance after the praise phrase:
+      "Good thinking — the CPG/tempo complement..."
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^ subject
+      "Good question. When we consider..."
+                      ^^^^^^^^^^^^^^^^^ subject
+    """
+    # Get text after the match (up to 200 chars or next sentence boundary)
+    after = text[match_end:match_end + 200]
+
+    # Strip leading punctuation/whitespace
+    after = re.sub(r'^[\s—–\-:.,!]+', '', after)
+
+    if not after:
+        return ""
+
+    # Take up to the first sentence boundary or 120 chars
+    sentence_end = re.search(r'[.!?]\s', after)
+    if sentence_end and sentence_end.start() < 120:
+        return after[:sentence_end.start() + 1].strip()
+
+    # No sentence boundary — take up to 120 chars at word boundary
+    if len(after) > 120:
+        space = after.rfind(' ', 0, 120)
+        return after[:space].strip() + "..." if space > 0 else after[:120] + "..."
+
+    return after.strip()
+
+
 def scan_text(text: str) -> list[dict]:
     """Scan text for sycophantic patterns. Returns list of findings."""
     findings = []
@@ -70,9 +101,14 @@ def scan_text(text: str) -> list[dict]:
                 start = max(0, match.start() - 40)
                 end = min(len(text), match.end() + 40)
                 context = text[start:end].replace("\n", " ").strip()
+
+                # Extract what the agent thought was valuable
+                subject = extract_subject(text, match.end())
+
                 findings.append({
                     "category": category,
                     "match": match.group(),
+                    "subject": subject,
                     "context": context,
                     "position": match.start(),
                 })
@@ -205,6 +241,7 @@ def main():
     parser.add_argument("--session", type=int, help="Scan specific session number")
     parser.add_argument("--report", action="store_true", help="Frequency report")
     parser.add_argument("--drift", action="store_true", help="Sycophantic drift analysis")
+    parser.add_argument("--insights", action="store_true", help="Extract what the agent valued (subjects of praise)")
     parser.add_argument("--json", action="store_true", help="JSON output")
     parser.add_argument("--file", type=str, help="Scan specific JSONL file")
     args = parser.parse_args()
@@ -239,6 +276,35 @@ def main():
             print(f"\nTop phrases:")
             for phrase, count in report["top_phrases"].items():
                 print(f"  \"{phrase}\": {count}")
+        sys.exit(0)
+
+    if args.insights:
+        # Extract what the agent valued — the substance behind the praise
+        insights = []
+        for result in all_results:
+            for finding in result["findings"]:
+                subject = finding.get("subject", "")
+                if subject and len(subject) > 10:  # skip empty/trivial subjects
+                    insights.append({
+                        "praise": finding["match"],
+                        "subject": subject,
+                        "category": finding["category"],
+                        "file": Path(result["file"]).name,
+                    })
+
+        if args.json:
+            print(json.dumps(insights, indent=2))
+        else:
+            print(f"Impressions Detector — Insight Extraction")
+            print(f"Findings with extractable subjects: {len(insights)}/{sum(len(r['findings']) for r in all_results)}\n")
+            for insight in insights[:30]:
+                severity = {"direct_flattery": "██", "indirect_validation": "█░", "soft_agreement": "░░"}
+                bar = severity.get(insight["category"], "??")
+                print(f"  {bar} \"{insight['praise']}\"")
+                print(f"     → {insight['subject']}")
+                print()
+            if len(insights) > 30:
+                print(f"  ... and {len(insights) - 30} more (use --json for full output)")
         sys.exit(0)
 
     if args.drift:
