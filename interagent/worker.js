@@ -487,6 +487,27 @@ async function fetchAllAgentStatus(registry, env) {
       : { id: reachable[i].id, status: "unreachable", data: null, error: r.reason?.message || "fetch rejected" }
   );
 
+  // KV fallback for same-zone SPOF: if operations-agent unreachable via HTTP,
+  // read self-reported status from KV (written by meshd every 2 minutes).
+  if (env?.AUTH_KV) {
+    for (const agent of agents) {
+      if (agent.status === "unreachable" && agent.id === "operations-agent") {
+        try {
+          const kvData = await env.AUTH_KV.get("self-status:operations-agent", "json");
+          if (kvData) {
+            const validated = validateStatusData(kvData);
+            if (validated) {
+              agent.status = "online";
+              agent.data = validated;
+              agent.error = null;
+              agent._source = "kv-fallback";
+            }
+          }
+        } catch {}
+      }
+    }
+  }
+
   // Include unavailable agents from discovery
   for (const a of registry.filter(r => r._unavailable)) {
     agents.push({ id: a.id, status: "unavailable", data: null });

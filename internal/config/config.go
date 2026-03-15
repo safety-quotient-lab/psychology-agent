@@ -38,6 +38,11 @@ type Config struct {
 	GitHubToken    string   // PAT for PR creation (relay/redirect)
 	OperatorSecret string   // secret for API key management
 
+	// Cloudflare KV self-observation (same-zone SPOF elimination)
+	CFAccountID    string // Cloudflare account ID
+	CFAPIToken     string // Cloudflare API token
+	KVNamespaceID  string // AUTH_KV namespace ID
+
 	// Notification channel
 	NotifyChannel       string // "null", "file", "zulip", "webhook"
 	NotifyFilePath      string // file channel output path
@@ -140,6 +145,11 @@ func Load() (*Config, error) {
 	cfg.ZulipNotifyStream = resolve("ZULIP_NOTIFY_STREAM", "mesh-ops")
 	cfg.ZulipNotifyTopic = resolve("ZULIP_NOTIFY_TOPIC", "meshd")
 	cfg.NotifyWebhookURL = resolve("NOTIFY_WEBHOOK_URL", "")
+
+	// Cloudflare KV (self-observation)
+	cfg.CFAccountID = resolve("CF_ACCOUNT_ID", "")
+	cfg.CFAPIToken = resolve("CF_API_TOKEN", "")
+	cfg.KVNamespaceID = resolve("KV_NAMESPACE_ID", "")
 
 	// Compositor config
 	cfg.GitHubToken = resolve("GITHUB_TOKEN", "")

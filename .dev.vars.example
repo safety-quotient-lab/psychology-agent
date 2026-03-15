@@ -25,6 +25,10 @@ JENKINS_API_TOKEN=
 # Cloudflare DNS (optional — subdomain management)
 CLOUDFLARE_DNS_TOKEN=
 
+# KV namespace for self-observation (same-zone SPOF elimination)
+# AUTH_KV namespace shared with compositor Worker
+KV_NAMESPACE_ID=
+
 # SSH host for the agent deployment machine (used by meshctl)
 # Set to "localhost" when running on the deployment machine itself
 AGENT_SSH_HOST=localhost

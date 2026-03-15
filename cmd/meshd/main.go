@@ -31,6 +31,7 @@ import (
 	"github.com/safety-quotient-lab/operations-agent/internal/db"
 	"github.com/safety-quotient-lab/operations-agent/internal/events"
 	"github.com/safety-quotient-lab/operations-agent/internal/health"
+	"github.com/safety-quotient-lab/operations-agent/internal/kvstore"
 	"github.com/safety-quotient-lab/operations-agent/internal/monitor"
 	"github.com/safety-quotient-lab/operations-agent/internal/notify"
 	"github.com/safety-quotient-lab/operations-agent/internal/server"
@@ -467,6 +468,13 @@ func main() {
 	srv.Oscillator = osc
 	osc.Start()
 	logger.Info("oscillator started (shadow mode)", "agent_id", cfg.AgentID)
+
+	// KV self-observation — write status to Cloudflare KV for compositor fallback
+	kvClient := kvstore.New(cfg.CFAccountID, cfg.KVNamespaceID, cfg.CFAPIToken, logger)
+	if kvClient != nil {
+		srv.KVClient = kvClient
+		go server.RunKVSelfObservation(ctx, srv, kvClient, cfg.AgentID, 2*time.Minute, logger)
+	}
 	sseBroadcastFn = srv.SSEBroadcast
 	if zmqBus != nil {
 		srv.ZMQPublish = zmqBus.Publish

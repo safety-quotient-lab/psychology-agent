@@ -87,6 +87,12 @@ type Server struct {
 	// Nil when not enabled.
 	Oscillator *Oscillator
 
+	// KVClient writes self-observation to Cloudflare KV.
+	// Nil when CF credentials not configured.
+	KVClient interface {
+		Put(ctx context.Context, key string, value []byte, ttlSeconds int) error
+	}
+
 	// sseBroker fans out events to connected SSE clients.
 	sseBroker *SSEBroker
 
@@ -381,6 +387,12 @@ func (sw *statusWriter) Flush() {
 // schema the compositor dashboard expects: agent_id, autonomy_budget,
 // recent_messages, unprocessed_messages, active_gates, health, version.
 func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, s.buildStatusPayload(), s.logger)
+}
+
+// buildStatusPayload constructs the status response map. Used by both
+// handleStatus (HTTP) and KV self-observation (background writer).
+func (s *Server) buildStatusPayload() map[string]interface{} {
 	uptime := time.Since(s.startTime)
 	dbPath := s.Config.BudgetDBPath
 
@@ -417,7 +429,7 @@ func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
 		"SELECT count(*) FROM spawn_log WHERE started_at > datetime('now', '-1 hour')")
 	totalEvents := s.eventCount()
 
-	resp := map[string]interface{}{
+	return map[string]interface{}{
 		"agent_id":              s.Config.AgentID,
 		"version":               Version,
 		"uptime":                uptime.Truncate(time.Second).String(),
@@ -440,8 +452,6 @@ func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
 			"deliberation_model":     s.Config.DeliberationModel,
 		},
 	}
-
-	writeJSON(w, http.StatusOK, resp, s.logger)
 }
 
 // handleEvents serves GET /api/events — returns the most recent events
