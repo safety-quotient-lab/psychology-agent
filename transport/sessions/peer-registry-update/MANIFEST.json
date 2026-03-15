@@ -5,7 +5,7 @@
   "source": "operations-agent",
   "pending": {
     "peer-registry-update": {
-      "latest_turn": 3,
+      "latest_turn": 4,
       "awaiting_from": ["observatory-agent"],
       "messages": [
         {

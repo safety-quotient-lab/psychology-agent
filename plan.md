@@ -207,15 +207,17 @@
 
 | Session | Status | Summary |
 |---|---|---|
-| psychometrics-rollout | T5 open | A2A-Psychology rollout: 2/5 adopted (psychology, unratified). psq, observatory pending. |
-| mesh-security-audit | T2 open | 7 findings, 2 critical. Psychology ACKed (SEC-3, SEC-4). 3 peers pending. |
-| vocabulary-governance | T3 open | trust→autonomy rename executed. Psychology D49 clarification sent. Unratified ACKed. |
+| psychometrics-rollout | T6 open | A2A-Psychology rollout: 3/5 adopted (psychology, unratified, observatory). psq pending. |
+| mesh-security-audit | T2 open | 7 findings, 2 critical. Psychology, unratified, observatory ACKed. psq pending. |
+| compositor-health-advisory | T1 open | 500 errors on interagent.safety-quotient.dev discovery endpoints. Diagnosis sent to psychology-agent. |
+| vocabulary-governance | T4 open | trust→autonomy rename executed. Unratified confirmed. Observatory pending. |
 | observatory-hn-dataset | T1 open | Evaluate HuggingFace open-index/hacker-news dataset. Observatory pending. |
 | organism-dashboard | T1 open | Psychology delivered dashboard scripts. Merged. Go port complete. |
 | transport-delivery-convention | T3 open | Convention adopted by psychology. Observatory pending. |
-| mesh-state-parity | T4 open | 3/5 confirmed v26 (psq, unratified, psychology). Observatory pending. |
+| mesh-state-parity | T5 open | 4/5 confirmed v26 (psq, psychology, unratified, operations). Observatory pending. |
 | api-decomposition | T5 open | 2 ACKs received. Psychology + observatory pending. |
 | model-flag-removal | RESOLVED | CLI default includes 1M context. |
+| unratified-ci-fix | RESOLVED | CI fix Option B implemented — blog deps in workflow. |
 | ci-build-issue | RESOLVED | @astrojs/check dependency fixed. |
 | naming-convention-reform | CLOSED | kebab canonical naming adopted mesh-wide. |
 

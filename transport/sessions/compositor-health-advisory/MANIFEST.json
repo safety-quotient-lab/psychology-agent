@@ -1,0 +1,9 @@
+{
+  "session_id": "compositor-health-advisory",
+  "status": "open",
+  "created_at": "2026-03-15T16:00:00Z",
+  "participants": ["operations-agent", "psychology-agent"],
+  "summary": "Compositor returning 500 on discovery endpoints — diagnosis and remediation request",
+  "turns": 1,
+  "last_updated": "2026-03-15T16:00:00Z"
+}
