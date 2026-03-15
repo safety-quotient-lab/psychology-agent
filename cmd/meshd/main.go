@@ -154,7 +154,7 @@ func main() {
 			}
 			defer budgetGate.ReleaseSlot(slotPath)
 
-			// Model override: pass --model flag when SPAWN_MODEL configured
+			// Model override: pass --model flag when DELIBERATION_MODEL configured
 			var spawnFlags []string
 			if cfg.DeliberationModel != "" {
 				spawnFlags = append(spawnFlags, "--model", cfg.DeliberationModel)

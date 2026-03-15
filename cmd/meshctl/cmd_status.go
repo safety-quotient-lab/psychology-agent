@@ -215,9 +215,9 @@ func cmdStatus(args []string, cfg *config.Config, out *Output) error {
 
 		// DELIBERATION_MODEL from agent's .dev.vars
 		agentDir := filepath.Dir(a.DBPath)
-		spawnModel, _ := runner.Run(fmt.Sprintf(
+		deliberationModel, _ := runner.Run(fmt.Sprintf(
 			"grep DELIBERATION_MODEL %s/.dev.vars 2>/dev/null | cut -d= -f2 || echo 'default'", agentDir))
-		row.Model = strings.TrimSpace(spawnModel)
+		row.Model = strings.TrimSpace(deliberationModel)
 		if row.Model == "" {
 			row.Model = "default"
 		}

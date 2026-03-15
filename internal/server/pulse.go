@@ -152,8 +152,8 @@ func (s *Server) handleOperations(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
-			// Recent spawns as actions
-			if spawns, ok := data["recent_spawns"].([]any); ok {
+			// Recent deliberations as actions
+			if spawns, ok := data["recent_deliberations"].([]any); ok {
 				for _, sp := range spawns {
 					if spMap, ok := sp.(map[string]any); ok {
 						spMap["agent_id"] = agent.ID

@@ -11,18 +11,18 @@ import (
 
 func init() {
 	register(Command{
-		Name:    "spawn stats",
-		Summary: "Spawner statistics — circuit breaker, active count",
-		Run:     cmdSpawnStats,
+		Name:    "deliberation stats",
+		Summary: "Deliberation statistics — circuit breaker, active count",
+		Run:     cmdDeliberationStats,
 	})
 	register(Command{
-		Name:    "spawn slots",
-		Summary: "Active mesh spawn slots",
-		Run:     cmdSpawnSlots,
+		Name:    "deliberation slots",
+		Summary: "Active mesh deliberation slots",
+		Run:     cmdDeliberationSlots,
 	})
 }
 
-func cmdSpawnStats(args []string, cfg *config.Config, out *Output) error {
+func cmdDeliberationStats(args []string, cfg *config.Config, out *Output) error {
 	ssh := NewRunner(cfg)
 
 	// Count active slots
@@ -74,7 +74,7 @@ func cmdSpawnStats(args []string, cfg *config.Config, out *Output) error {
 	return nil
 }
 
-func cmdSpawnSlots(args []string, cfg *config.Config, out *Output) error {
+func cmdDeliberationSlots(args []string, cfg *config.Config, out *Output) error {
 	ssh := NewRunner(cfg)
 
 	type slot struct {

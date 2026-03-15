@@ -94,7 +94,7 @@ func (s *Server) buildManifest() DashboardManifest {
 		{Type: "vitals", ID: "agent-vitals", Title: "Agent Vitals", Priority: 2, Endpoint: "/api/status", Size: "full"},
 		{Type: "budget", ID: "autonomy-budget", Title: "Autonomy Budget", Priority: 3, Endpoint: "/api/status", DataKey: "autonomy_budget", Size: "third"},
 		{Type: "messages", ID: "recent-messages", Title: "Recent Messages", Priority: 4, Endpoint: "/api/status", DataKey: "recent_messages", Size: "full", RefreshSec: 15},
-		{Type: "spawns", ID: "recent-spawns", Title: "Recent Spawns", Priority: 5, Endpoint: "/api/status", DataKey: "recent_spawns", Size: "half"},
+		{Type: "deliberations", ID: "recent-deliberations", Title: "Recent Deliberations", Priority: 5, Endpoint: "/api/status", DataKey: "recent_deliberations", Size: "half"},
 		{Type: "events", ID: "event-log", Title: "Event Log", Priority: 6, Endpoint: "/api/events", Size: "half", RefreshSec: 10},
 	}
 

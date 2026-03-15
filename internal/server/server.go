@@ -32,11 +32,11 @@ var Version = "dev"
 // maxEventLog caps the in-memory event ring buffer.
 const maxEventLog = 100
 
-// maxSpawnLog caps the in-memory spawn log.
-const maxSpawnLog = 50
+// maxDeliberationLog caps the in-memory deliberation log.
+const maxDeliberationLog = 50
 
-// SpawnRecord captures a single spawn invocation for the /api/spawns log.
-type SpawnRecord struct {
+// DeliberationRecord captures a single deliberation invocation for the /api/deliberations log.
+type DeliberationRecord struct {
 	ID        string    `json:"id"`
 	Trigger   string    `json:"trigger"`
 	StartedAt time.Time `json:"started_at"`
@@ -54,7 +54,7 @@ type Server struct {
 	startTime  time.Time
 	logger     *slog.Logger
 	eventLog   []events.Event
-	spawnLog   []SpawnRecord
+	spawnLog   []DeliberationRecord
 	mu         sync.RWMutex
 
 	// webhookHandler processes inbound GitHub webhook payloads.
@@ -109,7 +109,7 @@ func New(
 		startTime:      time.Now(),
 		logger:         logger,
 		eventLog:       make([]events.Event, 0, maxEventLog),
-		spawnLog:       make([]SpawnRecord, 0, maxSpawnLog),
+		spawnLog:       make([]DeliberationRecord, 0, maxDeliberationLog),
 		sseBroker:      broker,
 		SSEBroadcast:   broker.Broadcast,
 	}
@@ -158,15 +158,15 @@ func (s *Server) RecordEvent(ev events.Event) {
 	}
 }
 
-// RecordSpawn appends a spawn record to the spawn log, evicting the oldest
-// entry when the buffer reaches capacity.
-func (s *Server) RecordSpawn(rec SpawnRecord) {
+// RecordDeliberation appends a deliberation record to the log, evicting the
+// oldest entry when the buffer reaches capacity.
+func (s *Server) RecordDeliberation(rec DeliberationRecord) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if len(s.spawnLog) >= maxSpawnLog {
+	if len(s.spawnLog) >= maxDeliberationLog {
 		copy(s.spawnLog, s.spawnLog[1:])
-		s.spawnLog = s.spawnLog[:maxSpawnLog-1]
+		s.spawnLog = s.spawnLog[:maxDeliberationLog-1]
 	}
 	s.spawnLog = append(s.spawnLog, rec)
 
@@ -242,7 +242,7 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/events/stream", s.handleSSEStream)
 	mux.HandleFunc("POST /hooks/github", s.handleWebhook)
 	mux.HandleFunc("POST /api/trigger", s.handleTrigger)
-	mux.HandleFunc("GET /api/spawns", s.handleSpawns)
+	mux.HandleFunc("GET /api/deliberations", s.handleDeliberations)
 	mux.HandleFunc("GET /api/kb", s.handleKB)
 	mux.HandleFunc("POST /api/messages/inbound", s.handleInbound)
 	mux.HandleFunc("GET /api/routing", s.handleRouting)
@@ -425,7 +425,7 @@ func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
 		"unprocessed_messages":  unprocessedMsgs,
 		"active_gates":          activeGates,
 		"event_count":           totalEvents,
-		"deliberation_count":    s.spawnCount(),
+		"deliberation_count":    s.deliberationCount(),
 		"recent_deliberations":  deliberationHistory,
 		"gc_metrics": map[string]any{
 			"deliberations_last_hour": gcEvents,
@@ -499,15 +499,15 @@ func (s *Server) handleTrigger(w http.ResponseWriter, r *http.Request) {
 	}, s.logger)
 }
 
-// handleSpawns serves GET /api/spawns — returns the most recent spawn
-// records, newest first.
-func (s *Server) handleSpawns(w http.ResponseWriter, r *http.Request) {
+// handleDeliberations serves GET /api/deliberations — returns the most recent
+// deliberation records, newest first.
+func (s *Server) handleDeliberations(w http.ResponseWriter, r *http.Request) {
 	s.mu.RLock()
-	snapshot := make([]SpawnRecord, len(s.spawnLog))
+	snapshot := make([]DeliberationRecord, len(s.spawnLog))
 	copy(snapshot, s.spawnLog)
 	s.mu.RUnlock()
 
-	// Reverse so the newest spawn appears first.
+	// Reverse so the newest deliberation appears first.
 	for i, j := 0, len(snapshot)-1; i < j; i, j = i+1, j-1 {
 		snapshot[i], snapshot[j] = snapshot[j], snapshot[i]
 	}
@@ -523,7 +523,7 @@ func (s *Server) eventCount() int {
 	return len(s.eventLog)
 }
 
-func (s *Server) spawnCount() int {
+func (s *Server) deliberationCount() int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return len(s.spawnLog)
