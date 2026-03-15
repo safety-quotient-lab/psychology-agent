@@ -5853,3 +5853,74 @@ management, and documentation audit. Yin-generator work following Session 86 mar
 - GWT broadcast hook untested in live session — needs restart to load
 
 ▶ .well-known/agent-card.json, cogarch.config.json, docs/architecture.md, docs/cognitive-triggers.md, scripts/state/predictions.py, .claude/hooks/gwt-broadcast.sh, docs/rpg-scan-002-session87.md, transport/sessions/mesh-governance-recommendations/, transport/sessions/deferred-followups/
+
+---
+
+## 2026-03-15T12:14 CDT — Session 88 (LCARS visual overhaul + backend endpoints)
+
+Marathon session: full LCARS redesign from reference image analysis through
+production deployment. 23 commits, +8316 lines.
+
+**LCARS visual overhaul (10 layers):**
+- Layer 1: Chrome — wide sidebar (5 Trek stations), elbow caps, segmented
+  header/footer bands with live stardate, agent count, A2A version
+- Layer 2+3: Condensed typography, hatched bar fills, status header lines,
+  hybrid color-surface panels (Okuda canonical pattern)
+- Layer 3d-3h: Vertical power-level gauges, stacked proportional segments,
+  detail panel (slide-in drawer), narrative drawer (expandable footer),
+  panel mode buttons, hero widgets, mirror symmetry
+- Layer 4: 4 new Science station sensors — Cognitive Load (NASA-TLX, 6 gauges),
+  Working Memory (Yerkes-Dodson arc), Resources (3 bars), Engagement (UWES)
+- Layer 5: Agent card fetching, data wiring, stardate computation
+- Layer 6: Auth-gated control surfaces (pause/resume/reset)
+- Layer 7: (Planned) Real-time mesh feed — transport message sent to ops
+- Layer 8: Trek alert system — 5 levels (GREEN→BLACK), auto-triggers from
+  mesh psychometrics, CSS palette override per level
+- Layer 9: TNG Technical Manual features — diagnostic levels (5 canonical),
+  MSD styling, blinkies CSS
+- Layer 10: Affect-responsive layout — mesh affect drives panel density
+
+**Autonomy model:**
+- Cattell's (1963) Gf/Gc distinction: fluid intelligence (deliberations, claude -p)
+  vs crystallized intelligence (hooks, triggers, cron). Mesh aggregate combines both.
+- Counter model: budget_spent/budget_cutoff replaces budget_current/budget_max.
+  getCutoff() returns 0 (unlimited) for old-format agents.
+
+**Backend (worker.js):**
+- GET /.well-known/agent-card.json — compositor agent card with 7 psychology constructs
+- POST /api/diagnostic — mesh diagnostic (levels 1-3)
+- POST /api/halt, /api/resume — agent pause/unpause via KV state
+- POST /api/autonomy/reset — counter reset mesh-wide
+- GET /api/halt/status — halt state check
+- fetchMeshHealth() updated: counter model, gc_metrics pass-through
+
+**Vocabulary alignment:**
+- "Deliberation Cascade" replaces "Spawn Waterfall" (Bratman, 1987)
+- "Deliberations" replaces "Credits" (Cattell, 1963)
+- "Mesh State" replaces "Organism State" (processual framing)
+
+**Lessons learned (3):**
+1. Visual analysis outperforms verbal ideation for design tasks
+2. Plan rejection cycles function as depth generators (G3 coupled generators)
+3. Vocabulary shapes ontological perception (E-Prime extended to nouns)
+
+**Deployed:** interagent.safety-quotient.dev (CF Worker, verified)
+
+**Transport:** Opened lcars-backend-endpoints session requesting ops implement
+/api/psychometrics, /api/tempo, /api/spawn-rate, gc_metrics in /api/status.
+
+**Known issues (mobile):**
+- Sidebar buttons need accordion collapse on mobile
+- OPS button shows both "Operations" and "OPS" labels
+- Autonomy cards need flex-wrap for mobile stacking
+- Panel headers need split into header/subheader for narrow viewports
+
+⚑ EPISTEMIC FLAGS
+- Science station sensors display "AWAITING DATA" — live readings require
+  ops-agent /api/psychometrics implementation
+- Gc estimation fallback (29 ops/deliberation) lacks empirical calibration
+- LCARS-only content mirroring copies innerHTML — event handlers on original
+  elements do not propagate to mirrors (clicking mirrored rows has no effect)
+- Alert system triggers evaluated client-side only — no server-side persistence
+
+▶ docs/lcars-overhaul-plan.md, interagent/index.html, interagent/worker.js, lessons.md, transport/sessions/lcars-backend-endpoints/
