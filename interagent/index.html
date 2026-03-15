@@ -168,11 +168,12 @@
             gap: 0;
         }
 
-        /* Top elbow cap — connects sidebar top to header band */
+        /* Top elbow cap — connects sidebar top to header band.
+           Curve on outside edge (bottom-right), matching TNG reference. */
         .lcars-sidebar-cap-top {
             background: var(--c-knowledge);
-            height: var(--band-size);
-            border-radius: 0 0 var(--elbow-outer) 0;
+            min-height: var(--band-size);
+            border-radius: 0 var(--elbow-outer) 0 0;
             margin-bottom: 3px;
         }
 
@@ -209,11 +210,12 @@
             border-radius: 12px 0 0 12px;
         }
 
-        /* Bottom elbow cap — connects sidebar bottom to footer band */
+        /* Bottom elbow cap — connects sidebar bottom to footer band.
+           Curve on outside edge (top-right), matching TNG reference. */
         .lcars-sidebar-cap-bottom {
             background: var(--c-transport);
-            height: var(--band-size);
-            border-radius: 0 var(--elbow-outer) 0 0;
+            min-height: var(--band-size);
+            border-radius: 0 0 var(--elbow-outer) 0;
             margin-top: auto;
         }
 
@@ -246,7 +248,7 @@
             white-space: nowrap;
             overflow: hidden;
         }
-        .lcars-header-seg:last-child {
+        .lcars-header-seg:first-child {
             border-radius: 0 0 0 var(--elbow-inner);
         }
 
@@ -279,7 +281,7 @@
             white-space: nowrap;
             overflow: hidden;
         }
-        .lcars-footer-seg:last-child {
+        .lcars-footer-seg:first-child {
             border-radius: var(--elbow-inner) 0 0 0;
         }
 
@@ -582,6 +584,32 @@
         .lcars-narrative-time {
             color: var(--text-dim, #666677);
             margin-right: 8px;
+        }
+
+        /* ── LCARS Affect Grid Readability ─────────────────────── */
+        .theme-lcars .affect-dot {
+            width: 18px;
+            height: 18px;
+            box-shadow: 0 0 12px currentColor, 0 0 4px currentColor;
+            border: 2px solid rgba(255,255,255,0.6);
+        }
+        .theme-lcars .affect-dot-label {
+            color: #ffcc99;
+            font-size: 0.7em;
+            font-weight: 700;
+            text-shadow: 0 0 4px #000, 0 0 8px #000;
+        }
+        .theme-lcars .affect-grid-axis-label {
+            color: #9999aa;
+            font-size: 0.72em;
+            font-weight: 600;
+        }
+        .theme-lcars .affect-grid-container {
+            border: 1px solid #444466;
+            background: #000011;
+        }
+        .theme-lcars .affect-grid-line {
+            background: #333355;
         }
 
         /* LCARS bars: remove borders, pure color on black (Pattern #2 refinement) */
@@ -2371,19 +2399,15 @@
         <div class="lcars-spine-segment" data-category="epistemic" style="background: var(--c-epistemic); flex: 1"></div>
     </div>
 
-    <!-- LCARS Sidebar — pill-shaped nav buttons (LCARS mode only) -->
+    <!-- LCARS Sidebar — Trek bridge stations only (LCARS mode) -->
     <nav class="lcars-sidebar" id="lcars-sidebar">
         <div class="lcars-sidebar-cap-top"></div>
-        <button class="lcars-sidebar-btn active" data-tab="pulse" data-short="PLS" style="background:#9999ff" onclick="switchTab('pulse')">Pulse</button>
-        <button class="lcars-sidebar-btn" data-tab="meta" data-short="MTA" style="background:#cc6699" onclick="switchTab('meta')">Meta</button>
-        <button class="lcars-sidebar-btn" data-tab="kb" data-short="KNW" style="background:#cc99cc" onclick="switchTab('kb')">Knowledge</button>
-        <button class="lcars-sidebar-btn" data-tab="wisdom" data-short="WIS" style="background:#ffcc66" onclick="switchTab('wisdom')">Wisdom</button>
-        <div class="lcars-sidebar-spacer" style="background:#666688"></div>
-        <button class="lcars-sidebar-btn" data-tab="operations" data-short="OPS" style="background:#ff9900" onclick="switchTab('operations')">Operations</button>
-        <div class="lcars-sidebar-spacer" style="background:#ff9966"></div>
+        <button class="lcars-sidebar-btn active" data-tab="operations" data-short="OPS" style="background:#ff9900" onclick="switchTab('operations')">Operations</button>
         <button class="lcars-sidebar-btn" data-tab="science" data-short="SCI" style="background:#9999ff" onclick="switchTab('science')">Science</button>
+        <div class="lcars-sidebar-spacer" style="background:#cc99cc"></div>
         <button class="lcars-sidebar-btn" data-tab="engineering" data-short="ENG" style="background:#ff9944" onclick="switchTab('engineering')">Engineering</button>
         <button class="lcars-sidebar-btn" data-tab="helm" data-short="HLM" style="background:#66aacc" onclick="switchTab('helm')">Helm</button>
+        <div class="lcars-sidebar-spacer" style="background:#666688"></div>
         <button class="lcars-sidebar-btn" data-tab="tactical" data-short="TAC" style="background:#cc6666" onclick="switchTab('tactical')">Tactical</button>
         <div class="lcars-sidebar-cap-bottom"></div>
     </nav>
@@ -2442,7 +2466,7 @@
                 </div>
                 <div class="vital-card" style="--vital-color: var(--c-knowledge)">
                     <div class="vital-value" id="vital-budget">—</div>
-                    <div class="vital-label">Autonomy Credits</div>
+                    <div class="vital-label">Autonomy Counter</div>
                 </div>
                 <div class="vital-card vital-link" style="--vital-color: var(--c-transport); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('filter-messages').value='';filterTable('messages');document.getElementById('kb-sec-messages').scrollIntoView({behavior:'smooth'})},120)">
                     <div class="vital-value" id="vital-pending">—</div>
@@ -2796,11 +2820,17 @@
                 </div>
             </div>
 
-            <!-- Autonomy Budget per agent -->
+            <!-- Autonomy Counter per agent -->
             <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Autonomy Budget</div>
+                <div class="lcars-panel-header">Autonomy Counter</div>
                 <div class="lcars-panel-body">
                     <div class="ops-budget-grid" id="ops-budget-grid"></div>
+                    <!-- Control surfaces: pause/unpause (auth-gated) -->
+                    <div class="lcars-controls-strip" id="ops-autonomy-controls" style="display:none; margin-top:12px; gap:6px; flex-wrap:wrap">
+                        <button class="lcars-mode-btn" onclick="meshControl('pause-all')" style="background:#cc6666;opacity:1;padding:6px 16px">Pause All Agents</button>
+                        <button class="lcars-mode-btn" onclick="meshControl('resume-all')" style="background:#6aab8e;opacity:1;padding:6px 16px">Resume All Agents</button>
+                        <button class="lcars-mode-btn" onclick="meshControl('reset-counters')" style="background:#ff9900;opacity:1;padding:6px 16px">Reset Counters</button>
+                    </div>
                 </div>
             </div>
 
@@ -3242,6 +3272,53 @@
     let sseConnections = [];
     let sseActive = false;
 
+    // ── Auth & Control Surfaces ────────────────────────────────────
+
+    let authUser = null;
+
+    async function checkAuth() {
+        try {
+            const resp = await fetch("/api/whoami", { signal: AbortSignal.timeout(5000) });
+            if (resp.ok) {
+                authUser = await resp.json();
+                // Show control surfaces for authenticated operators
+                if (authUser?.role === "operator" || authUser?.authenticated) {
+                    document.querySelectorAll(".lcars-controls-strip").forEach(el => {
+                        el.style.display = "flex";
+                    });
+                }
+            }
+        } catch (e) {
+            authUser = null;
+        }
+    }
+
+    async function meshControl(action) {
+        if (!authUser) { alert("Authentication required"); return; }
+        const actions = {
+            "pause-all": { endpoint: "/api/halt", method: "POST", body: { scope: "mesh" } },
+            "resume-all": { endpoint: "/api/resume", method: "POST", body: { scope: "mesh" } },
+            "reset-counters": { endpoint: "/api/autonomy/reset", method: "POST", body: { scope: "mesh" } },
+        };
+        const cfg = actions[action];
+        if (!cfg) return;
+        try {
+            const resp = await fetch(cfg.endpoint, {
+                method: cfg.method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(cfg.body),
+            });
+            if (resp.ok) {
+                addNarrativeEntry(`Control action: ${action} — executed successfully`);
+                refreshAll();
+            } else {
+                addNarrativeEntry(`Control action: ${action} — failed (${resp.status})`);
+            }
+        } catch (e) {
+            addNarrativeEntry(`Control action: ${action} — error: ${e.message}`);
+        }
+    }
+
     // ── LCARS Detail Panel ─────────────────────────────────────────
 
     function openLcarsDetail(title, color, contentHtml) {
@@ -3386,11 +3463,17 @@
         document.getElementById("btn-lcars").classList.toggle("active", mode === "lcars");
         localStorage.setItem("theme", mode);
 
-        // LCARS mode: start stardate clock, sync sidebar state, update header data
+        // LCARS mode: start stardate clock, switch to bridge station, update header data
         if (mode === "lcars") {
             startLcarsStardate();
+            // Switch to Operations (default bridge station) if on a non-bridge tab
+            const bridgeTabs = ["operations", "science", "engineering", "helm", "tactical"];
+            const currentTab = document.querySelector('.lcars-tab.active')?.dataset?.tab;
+            if (!bridgeTabs.includes(currentTab)) {
+                switchTab("operations");
+            }
             updateLcarsHeaderData();
-            // Sync sidebar active state with current tab
+            // Sync sidebar active state
             const activeTab = document.querySelector('.lcars-tab.active');
             if (activeTab) {
                 document.querySelectorAll(".lcars-sidebar-btn").forEach(b =>
@@ -3595,13 +3678,15 @@
         const online = Object.values(agentData).filter(a => a.status === "online");
         const total = AGENTS.length;
 
-        const totalBudget = online.reduce((sum, a) => {
+        // Autonomy counter model: budget_spent increments, budget_cutoff sets limit (0=unlimited)
+        const totalSpent = online.reduce((sum, a) => {
             const b = a.data?.autonomy_budget || {};
-            return sum + (b.budget_current ?? 0);
+            return sum + (b.budget_spent ?? b.budget_current ?? 0);
         }, 0);
-        const maxBudget = online.reduce((sum, a) => {
+        const totalCutoff = online.reduce((sum, a) => {
             const b = a.data?.autonomy_budget || {};
-            return sum + (b.budget_max ?? 20);
+            const cutoff = b.budget_cutoff ?? b.budget_max ?? 0;
+            return sum + cutoff;
         }, 0);
         const pending = online.reduce((sum, a) => sum + ((a.data?.totals || {}).unprocessed || 0), 0);
         const gates = online.reduce((sum, a) => sum + (a.data?.active_gates || []).length, 0);
@@ -3611,7 +3696,8 @@
         agentsEl.textContent = `${online.length}/${total}`;
         agentsEl.className = "vital-value " + (online.length === total ? "healthy" : online.length > 0 ? "degraded" : "critical");
 
-        document.getElementById("vital-budget").textContent = `${totalBudget}/${maxBudget}`;
+        const counterLabel = totalCutoff > 0 ? `${totalSpent}/${totalCutoff}` : `${totalSpent}`;
+        document.getElementById("vital-budget").textContent = counterLabel;
         document.getElementById("vital-pending").textContent = pending;
         document.getElementById("vital-gates").textContent = gates;
         document.getElementById("vital-debt").textContent = debt;
@@ -3655,11 +3741,13 @@
             }
 
             const d = state.data;
-            const budget = d.autonomy_budget || {};
-            const cur = budget.budget_current ?? 0;
-            const max = budget.budget_max ?? 20;
-            const pct = max > 0 ? Math.round((cur / max) * 100) : 0;
-            const budgetClass = pct > 50 ? "high" : pct > 20 ? "mid" : "low";
+            // Autonomy counter model: spent increments, cutoff sets limit (0=unlimited)
+            const autonomy = d.autonomy_budget || {};
+            const spent = autonomy.budget_spent ?? autonomy.budget_current ?? 0;
+            const cutoff = autonomy.budget_cutoff ?? autonomy.budget_max ?? 0;
+            const pct = cutoff > 0 ? Math.round((spent / cutoff) * 100) : 0;
+            const counterClass = pct < 60 ? "high" : pct < 85 ? "mid" : "low";
+            const counterLabel = cutoff > 0 ? `${spent}/${cutoff}` : `${spent}`;
             const unprocessed = (d.totals || {}).unprocessed || 0;
             const gateCount = (d.active_gates || []).length;
             const schema = d.schema_version || "?";
@@ -3677,8 +3765,8 @@
                     </div>
                     <div class="agent-metrics">
                         <div class="agent-metric">
-                            <div class="agent-metric-value">${cur}/${max}</div>
-                            <div class="agent-metric-label">Budget</div>
+                            <div class="agent-metric-value">${counterLabel}</div>
+                            <div class="agent-metric-label">Autonomy</div>
                         </div>
                         <div class="agent-metric">
                             <div class="agent-metric-value">${unprocessed}</div>
@@ -3690,7 +3778,7 @@
                         </div>
                     </div>
                     <div class="budget-bar-track">
-                        <div class="budget-bar-fill ${budgetClass}" style="width: ${pct}%"></div>
+                        <div class="budget-bar-fill ${counterClass}" style="width: ${cutoff > 0 ? pct : 0}%"></div>
                     </div>
                     <div class="agent-detail-row">
                         <span>Schema v${schema}</span>
@@ -5134,13 +5222,14 @@
     function renderOpsVitals() {
         const online = Object.values(agentData).filter(a => a.status === "online");
 
-        const totalCredits = online.reduce((sum, a) => {
+        // Autonomy counter model
+        const totalSpent = online.reduce((sum, a) => {
             const b = a.data?.autonomy_budget || {};
-            return sum + (b.budget_current ?? 0);
+            return sum + (b.budget_spent ?? b.budget_current ?? 0);
         }, 0);
-        const maxCredits = online.reduce((sum, a) => {
+        const totalCutoff = online.reduce((sum, a) => {
             const b = a.data?.autonomy_budget || {};
-            return sum + (b.budget_max ?? 20);
+            return sum + (b.budget_cutoff ?? b.budget_max ?? 0);
         }, 0);
         const totalActions = online.reduce((sum, a) =>
             sum + (a.data?.recent_actions || []).length, 0);
@@ -5151,7 +5240,8 @@
             return sched.cron_entry || sched.last_sync;
         }).length;
 
-        document.getElementById("ops-total-credits").textContent = `${totalCredits}/${maxCredits}`;
+        const counterLabel = totalCutoff > 0 ? `${totalSpent}/${totalCutoff}` : `${totalSpent}`;
+        document.getElementById("ops-total-credits").textContent = counterLabel;
         document.getElementById("ops-total-actions").textContent = totalActions;
         document.getElementById("ops-active-gates").textContent = gates;
         document.getElementById("ops-agents-syncing").textContent = `${syncing}/${AGENTS.length}`;
@@ -5172,23 +5262,25 @@
                     </div>`;
                 continue;
             }
+            // Autonomy counter model: spent increments, cutoff sets limit
             const b = d.data?.autonomy_budget || {};
-            const current = b.budget_current ?? 0;
-            const max = b.budget_max ?? 20;
-            const pct = max > 0 ? Math.round((current / max) * 100) : 0;
-            const barColor = pct > 50 ? "#6aab8e" : pct > 20 ? "#d4944a" : "#c47070";
+            const spent = b.budget_spent ?? b.budget_current ?? 0;
+            const cutoff = b.budget_cutoff ?? b.budget_max ?? 0;
+            const pct = cutoff > 0 ? Math.round((spent / cutoff) * 100) : 0;
+            const barColor = pct < 60 ? "#6aab8e" : pct < 85 ? "#d4944a" : "#c47070";
             const lastAction = b.last_action || "—";
             const interval = b.min_action_interval ?? 300;
+            const counterLabel = cutoff > 0 ? `/${cutoff}` : "";
 
             grid.innerHTML += `
                 <div class="ops-budget-card" style="--card-accent: ${agent.color}">
                     <div class="ops-budget-agent">${agent.id.replace("-agent", "")}</div>
-                    <div class="ops-budget-credit">${current}<span style="font-size:0.4em;color:var(--text-secondary)">/${max}</span></div>
+                    <div class="ops-budget-credit">${spent}<span style="font-size:0.4em;color:var(--text-secondary)">${counterLabel}</span></div>
                     <div class="ops-budget-bar">
-                        <div class="ops-budget-fill" style="width:${pct}%;background:${barColor}"></div>
+                        <div class="ops-budget-fill" style="width:${cutoff > 0 ? pct : 0}%;background:${barColor}"></div>
                     </div>
                     <div class="ops-budget-values">
-                        <span>Interval: ${Math.round(interval/60)}min</span>
+                        <span>Tempo: ${Math.round(interval/60)}min</span>
                         <span>${lastAction !== "—" ? lastAction.substring(11, 16) : "—"}</span>
                     </div>
                 </div>`;
@@ -5924,6 +6016,9 @@
 
         buildAgentSwitcher();
         await refreshAll();
+
+        // Check auth for control surfaces (non-blocking)
+        checkAuth();
 
         // Try SSE first, fall back to polling
         connectSSE();
