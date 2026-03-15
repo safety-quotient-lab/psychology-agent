@@ -15,10 +15,10 @@ DB_PATH = PROJECT_ROOT / "state.db"
 
 GENERATORS = {
     "G1": (r"adversar|threat|exploit|attack|injection|security", "Adversarial/entropic"),
-    "G2": (r"add|create|implement|introduce|write|draft|propose|new\b", "Creative"),
-    "G3": (r"review|audit|evaluat|validat|refut|diagnos|assess|verify", "Evaluative"),
+    "G2": (r"add|create|implement|introduce|write|draft|propose|new\b|feat:", "Creative"),
+    "G3": (r"review|audit|evaluat|validat|refut|diagnos|assess|verify|resolve:", "Evaluative"),
     "G4": (r"question|counter|falsif|skeptic|apophatic|limit|caveat", "Apophatic/skeptical"),
-    "G5": (r"fix|error|bug|detect|integrity|stale|violation|repair", "Microglial/immune"),
+    "G5": (r"fix[:!]|error|bug|detect|integrity|stale|violation|repair|resolve|reconcil", "Microglial/immune"),
     "G6": (r"convention|hook|invariant|crystalliz|formalize|codif|standard", "Crystallization"),
     "G7": (r"retire|remove|delete|dissolve|deprecat|drop|prune", "Dissolution"),
     "G8": (r"stale|drift|rot|decay|divergen|outdated|obsolet", "Entropic decay"),
@@ -28,14 +28,47 @@ COUPLING = {"G2": "G3", "G3": "G2", "G6": "G7", "G7": "G6"}
 
 
 def get_session_commits(session_id: int) -> list[str]:
-    """Retrieve commit messages mentioning the session number."""
+    """Retrieve commit messages for a session.
+
+    Two strategies (union of results):
+    1. Grep for 'Session N' in commit messages (original)
+    2. Date-range scan using session_log timestamps from state.db
+    Strategy 2 catches commits with non-standard prefixes (feat:, fix:, etc.).
+    """
+    messages = set()
+
+    # Strategy 1: grep by session number
     try:
         result = subprocess.run(
             ["git", "log", "--all", f"--grep=[Ss]ession {session_id}", "--format=%s"],
             capture_output=True, text=True, cwd=str(PROJECT_ROOT))
-        return [l for l in result.stdout.strip().splitlines() if l]
+        messages.update(l for l in result.stdout.strip().splitlines() if l)
     except FileNotFoundError:
-        return []
+        pass
+
+    # Strategy 2: date-range from session_log
+    if DB_PATH.exists():
+        try:
+            db = sqlite3.connect(str(DB_PATH))
+            row = db.execute(
+                "SELECT timestamp FROM session_log WHERE id = ?",
+                (session_id,),
+            ).fetchone()
+            if row and row[0]:
+                # Get commits from session start date onward (same day)
+                session_date = row[0][:10]  # YYYY-MM-DD
+                result = subprocess.run(
+                    ["git", "log", "--all", f"--after={session_date}T00:00:00",
+                     f"--before={session_date}T23:59:59", "--format=%s",
+                     "--no-merges"],
+                    capture_output=True, text=True, cwd=str(PROJECT_ROOT))
+                messages.update(l for l in result.stdout.strip().splitlines() if l
+                                if "autonomous: pre-sync" not in l)  # skip cron noise
+            db.close()
+        except Exception:
+            pass
+
+    return list(messages)
 
 
 def count_generators(messages: list[str]) -> dict[str, int]:
