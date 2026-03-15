@@ -3976,8 +3976,7 @@
                 const psychExt = (firstCard.extensions || []).find(e =>
                     e.uri && e.uri.includes("psychology"));
                 const psychVer = psychExt ? "v1" : "N/A";
-                const constructs = firstCard.agent_psychology?.constructs?.length || 0;
-                hdrPsych.textContent = `A2A-Psych/${psychVer} \u00B7 ${constructs} constructs`;
+                hdrPsych.textContent = `A2A-Psych/${psychVer}`;
             }
         }
     }
