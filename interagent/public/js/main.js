@@ -144,6 +144,9 @@ async function refreshAll() {
     results.forEach((r, i) => {
         agentData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "unreachable" };
     });
+    // Prefetch psychometrics before rendering — Operations resource model needs it
+    await fetchPsychometrics();
+
     // Only render standard tabs if NOT in LCARS mode
     const isLcars = document.body.classList.contains("theme-lcars") ||
                     document.documentElement.classList.contains("theme-lcars");
@@ -160,9 +163,6 @@ async function refreshAll() {
 
     // Fetch KB data (non-blocking — renders when ready)
     refreshKnowledge();
-
-    // Prefetch psychometrics so A2A-Psychology panels have data on first tab visit
-    fetchPsychometrics();
 
     const mode = sseActive ? "\u25CF SSE live" : "\u25CB polling 30s";
     document.getElementById("footer-status").textContent =
