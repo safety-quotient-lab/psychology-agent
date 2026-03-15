@@ -24,6 +24,13 @@ export function setTheme(mode) {
     document.getElementById("btn-dark").classList.toggle("active", mode === "dark");
     document.getElementById("btn-light").classList.toggle("active", mode === "light");
     document.getElementById("btn-lcars").classList.toggle("active", mode === "lcars");
+    // Sync duplicate LCARS-mode header toggle buttons (may not exist in all views)
+    const darkLcars = document.getElementById("btn-dark-lcars");
+    if (darkLcars) {
+        darkLcars.classList.toggle("active", mode === "dark");
+        document.getElementById("btn-light-lcars").classList.toggle("active", mode === "light");
+        document.getElementById("btn-lcars-lcars").classList.toggle("active", mode === "lcars");
+    }
     localStorage.setItem("theme", mode);
     // If leaving LCARS mode while on a LCARS-only tab, switch to Pulse
     if (mode !== "lcars") {

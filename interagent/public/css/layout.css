@@ -230,6 +230,225 @@ body {
     gap: 12px;
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   LCARS TNG Frame — authentic TNG bridge frame layout
+   Active only under .theme-lcars. Dark/light modes remain untouched.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Override the default 2-column grid with the TNG frame grid */
+.theme-lcars .lcars-frame {
+    display: grid;
+    grid-template-columns: 150px 1fr 8px;
+    grid-template-rows: 52px 48px 1fr 48px 52px;
+    min-height: 100vh;
+    background: #000000;
+    gap: 0;
+}
+
+/* ── LCARS Header Band ─────────────────────────────────────── */
+.theme-lcars .lcars-frame-header {
+    grid-column: 1 / 3;
+    grid-row: 1;
+    display: flex;
+    align-items: stretch;
+    gap: 3px;
+    background: #000000;
+}
+
+.theme-lcars .lcars-header-cap {
+    width: 60px;
+    min-width: 60px;
+    background: #cc99cc;
+    border-radius: 24px 0 0 0;
+}
+
+.theme-lcars .lcars-header-title {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    background: #cc99cc;
+    color: #000000;
+    font-family: 'Helvetica Neue', 'Arial Narrow', 'SF Compact', sans-serif;
+    font-weight: 700;
+    font-stretch: condensed;
+    font-size: 1.4em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+
+.theme-lcars .lcars-header-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    color: #000000;
+    font-family: 'Helvetica Neue', 'Arial Narrow', 'SF Compact', sans-serif;
+    font-weight: 700;
+    font-stretch: condensed;
+    font-size: 0.8em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+.theme-lcars .lcars-header-seg[data-seg="status"] { background: #ff9900; flex: 1 1 80px; }
+.theme-lcars .lcars-header-seg[data-seg="agents"] { background: #9999ff; flex: 0 0 auto; }
+.theme-lcars .lcars-header-seg[data-seg="time"]   { background: #ff9966; flex: 0 0 auto; }
+
+.theme-lcars .lcars-header-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    background: #6699cc;
+    flex: 0 0 auto;
+}
+.theme-lcars .lcars-header-controls .toggle-btn {
+    background: transparent;
+    border: 1px solid rgba(0,0,0,0.3);
+    color: #000000;
+    font-size: 0.65em;
+    min-height: 32px;
+    min-width: 36px;
+    padding: 4px 8px;
+}
+.theme-lcars .lcars-header-controls .toggle-btn.active {
+    background: rgba(0,0,0,0.3);
+    color: #ffffff;
+    border-color: rgba(0,0,0,0.5);
+}
+
+/* ── LCARS Elbow Top ───────────────────────────────────────── */
+.theme-lcars .lcars-frame-elbow-top {
+    grid-column: 1;
+    grid-row: 2;
+    background:
+        linear-gradient(to bottom, #cc99cc 0%, #cc99cc 100%) no-repeat left top / 150px 100%,
+        radial-gradient(circle at 150px 48px, #000000 47px, #cc99cc 48px) no-repeat left top;
+    background-color: #000000;
+}
+
+/* ── LCARS Sidebar ─────────────────────────────────────────── */
+.theme-lcars .lcars-frame-sidebar {
+    grid-column: 1;
+    grid-row: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 3px 0;
+    background: #000000;
+}
+
+.theme-lcars .lcars-sidebar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 14px;
+    height: 36px;
+    min-height: 36px;
+    border: none;
+    border-radius: 20px 0 0 20px;
+    background: #9999cc;
+    color: #000000;
+    font-family: 'Helvetica Neue', 'Arial Narrow', 'SF Compact', sans-serif;
+    font-weight: 700;
+    font-stretch: condensed;
+    font-size: 0.75em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.15s;
+    white-space: nowrap;
+    flex: 1 1 0;
+}
+.theme-lcars .lcars-sidebar-btn:nth-child(2) { background: #cc99cc; }
+.theme-lcars .lcars-sidebar-btn:nth-child(3) { background: #ff9966; }
+.theme-lcars .lcars-sidebar-btn:nth-child(4) { background: #ffcc66; }
+.theme-lcars .lcars-sidebar-btn:nth-child(5) { background: #ff9900; }
+.theme-lcars .lcars-sidebar-btn:nth-child(6) { background: #9999ff; }
+.theme-lcars .lcars-sidebar-btn:nth-child(7) { background: #ff9944; }
+.theme-lcars .lcars-sidebar-btn:nth-child(8) { background: #66aacc; }
+.theme-lcars .lcars-sidebar-btn:nth-child(9) { background: #cc6666; }
+
+.theme-lcars .lcars-sidebar-btn:hover {
+    filter: brightness(1.2);
+}
+.theme-lcars .lcars-sidebar-btn.active {
+    filter: brightness(1.4);
+    color: #ffffff;
+}
+
+/* ── LCARS Right Bar ───────────────────────────────────────── */
+.theme-lcars .lcars-frame-right {
+    grid-column: 3;
+    grid-row: 1 / 6;
+    background: #ff9966;
+    border-radius: 0 24px 24px 0;
+}
+
+/* ── LCARS Elbow Bottom ────────────────────────────────────── */
+.theme-lcars .lcars-frame-elbow-bot {
+    grid-column: 1;
+    grid-row: 4;
+    background:
+        linear-gradient(to top, #9999cc 0%, #9999cc 100%) no-repeat left bottom / 150px 100%,
+        radial-gradient(circle at 150px 0px, #000000 47px, #9999cc 48px) no-repeat left bottom;
+    background-color: #000000;
+}
+
+/* ── LCARS Footer Band ─────────────────────────────────────── */
+.theme-lcars .lcars-frame-footer {
+    grid-column: 1 / 3;
+    grid-row: 5;
+    display: flex;
+    align-items: stretch;
+    gap: 3px;
+    background: #000000;
+}
+
+.theme-lcars .lcars-footer-cap {
+    width: 60px;
+    min-width: 60px;
+    background: #9999cc;
+    border-radius: 0 0 0 24px;
+}
+
+.theme-lcars .lcars-footer-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    color: #000000;
+    font-family: 'Helvetica Neue', 'Arial Narrow', 'SF Compact', sans-serif;
+    font-weight: 700;
+    font-stretch: condensed;
+    font-size: 0.8em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+.theme-lcars .lcars-footer-seg[data-seg="mesh"]     { background: #9999ff; flex: 1 1 80px; }
+.theme-lcars .lcars-footer-seg[data-seg="session"]  { background: #cc6699; flex: 0 0 auto; }
+.theme-lcars .lcars-footer-seg[data-seg="lab"]      { background: #ff9900; flex: 0 0 auto; }
+.theme-lcars .lcars-footer-seg[data-seg="stardate"] { background: #6699cc; flex: 0 0 auto; }
+
+/* ── LCARS Content Area Override ───────────────────────────── */
+.theme-lcars .lcars-content {
+    grid-column: 2;
+    grid-row: 2 / 5;
+    background: #000000;
+    padding: 20px 24px;
+    overflow-y: auto;
+}
+
+/* ── LCARS Footer (original) — hidden in LCARS mode ────────── */
+.theme-lcars .lcars-footer {
+    display: none;
+}
+
 /* ── Responsive ──────────────────────────────────────────────── */
 
 /* Tablet and below — panels stack, grids collapse */
@@ -260,6 +479,29 @@ body {
     .helm-grid { grid-template-columns: 1fr; }
     .tactical-grid { grid-template-columns: 1fr; }
     .ops-budget-grid { grid-template-columns: 1fr; }
+
+    /* LCARS TNG frame — narrower sidebar on tablet */
+    .theme-lcars .lcars-frame {
+        grid-template-columns: 100px 1fr 6px;
+        grid-template-rows: 44px 36px 1fr 36px 44px;
+    }
+    .theme-lcars .lcars-header-title { font-size: 1em; padding: 0 10px; }
+    .theme-lcars .lcars-header-seg { font-size: 0.65em; padding: 0 8px; }
+    .theme-lcars .lcars-sidebar-btn { font-size: 0.65em; padding: 0 8px; }
+    .theme-lcars .lcars-header-cap { width: 40px; min-width: 40px; }
+    .theme-lcars .lcars-footer-cap { width: 40px; min-width: 40px; }
+    .theme-lcars .lcars-frame-elbow-top {
+        background:
+            linear-gradient(to bottom, #cc99cc 0%, #cc99cc 100%) no-repeat left top / 100px 100%,
+            radial-gradient(circle at 100px 36px, #000000 35px, #cc99cc 36px) no-repeat left top;
+        background-color: #000000;
+    }
+    .theme-lcars .lcars-frame-elbow-bot {
+        background:
+            linear-gradient(to top, #9999cc 0%, #9999cc 100%) no-repeat left bottom / 100px 100%,
+            radial-gradient(circle at 100px 0px, #000000 35px, #9999cc 36px) no-repeat left bottom;
+        background-color: #000000;
+    }
 }
 
 /* Small phones */
@@ -267,4 +509,14 @@ body {
     .vitals-grid { grid-template-columns: repeat(2, 1fr); }
     .toggle-group { display: none; }
     .lcars-tab { font-size: 0.7em; padding: 6px 8px; }
+
+    /* LCARS TNG frame — collapse sidebar on small phones */
+    .theme-lcars .lcars-frame {
+        grid-template-columns: 60px 1fr 4px;
+        grid-template-rows: 40px 30px 1fr 30px 40px;
+    }
+    .theme-lcars .lcars-header-title { font-size: 0.8em; }
+    .theme-lcars .lcars-header-seg { display: none; }
+    .theme-lcars .lcars-sidebar-btn { font-size: 0.55em; padding: 0 4px; height: 28px; min-height: 28px; }
+    .theme-lcars .lcars-header-controls .toggle-group { display: none; }
 }
