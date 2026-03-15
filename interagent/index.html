@@ -2824,9 +2824,13 @@
                 </div>
             </div>
 
-            <!-- Autonomy Counter per agent -->
+            <!-- Autonomy: Fluid + Crystallized Intelligence -->
             <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Autonomy Counter</div>
+                <div class="lcars-panel-header">Autonomy — Fluid Intelligence (Gf)
+                    <span class="lcars-mode-btns">
+                        <span style="font-weight:400;font-size:0.85em;opacity:0.7">Deliberations — claude -p reasoning episodes</span>
+                    </span>
+                </div>
                 <div class="lcars-panel-body">
                     <div class="ops-budget-grid" id="ops-budget-grid"></div>
                     <!-- Control surfaces: pause/unpause (auth-gated) -->
@@ -2834,6 +2838,67 @@
                         <button class="lcars-mode-btn" onclick="meshControl('pause-all')" style="background:#cc6666;opacity:1;padding:6px 16px">Pause All Agents</button>
                         <button class="lcars-mode-btn" onclick="meshControl('resume-all')" style="background:#6aab8e;opacity:1;padding:6px 16px">Resume All Agents</button>
                         <button class="lcars-mode-btn" onclick="meshControl('reset-counters')" style="background:#ff9900;opacity:1;padding:6px 16px">Reset Counters</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Autonomy: Crystallized Intelligence (Gc) -->
+            <div class="lcars-panel kb-section" data-section="operations">
+                <div class="lcars-panel-header">Autonomy — Crystallized Intelligence (Gc)
+                    <span class="lcars-mode-btns">
+                        <span style="font-weight:400;font-size:0.85em;opacity:0.7">Pattern-matched operations — no LLM invocation</span>
+                    </span>
+                </div>
+                <div class="lcars-panel-body">
+                    <div class="ops-budget-grid" id="ops-gc-grid">
+                        <div class="ops-budget-card" style="--card-accent: #9999ff">
+                            <div class="ops-budget-agent">Hooks Fired</div>
+                            <div class="ops-budget-credit" id="gc-hooks">—</div>
+                            <div class="ops-budget-values"><span>24 scripts across 14 events</span></div>
+                        </div>
+                        <div class="ops-budget-card" style="--card-accent: #cc99cc">
+                            <div class="ops-budget-agent">Triggers Checked</div>
+                            <div class="ops-budget-credit" id="gc-triggers">—</div>
+                            <div class="ops-budget-values"><span>17 active (T1-T18, T12 retired)</span></div>
+                        </div>
+                        <div class="ops-budget-card" style="--card-accent: #ff9900">
+                            <div class="ops-budget-agent">Cron Cycles</div>
+                            <div class="ops-budget-credit" id="gc-cron">—</div>
+                            <div class="ops-budget-values"><span>Heartbeat + sync + maintenance</span></div>
+                        </div>
+                        <div class="ops-budget-card" style="--card-accent: #66aacc">
+                            <div class="ops-budget-agent">Gc / Gf Ratio</div>
+                            <div class="ops-budget-credit" id="gc-ratio">—</div>
+                            <div class="ops-budget-values"><span>Higher ratio = more crystallized mesh</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mesh Aggregate Processing -->
+            <div class="lcars-panel kb-section" data-section="operations">
+                <div class="lcars-panel-header">Mesh Aggregate Processing
+                    <span class="lcars-mode-btns">
+                        <span style="font-weight:400;font-size:0.85em;opacity:0.7">Combined Gf + Gc across all agents</span>
+                    </span>
+                </div>
+                <div class="lcars-panel-body">
+                    <div class="ops-budget-grid">
+                        <div class="ops-budget-card" style="--card-accent: #ff9944">
+                            <div class="ops-budget-agent">Total Processing</div>
+                            <div class="ops-budget-credit" id="mesh-total-processing">—</div>
+                            <div class="ops-budget-values"><span>Gf + Gc combined</span></div>
+                        </div>
+                        <div class="ops-budget-card" style="--card-accent: #9999ff">
+                            <div class="ops-budget-agent">Mesh Deliberations</div>
+                            <div class="ops-budget-credit" id="mesh-total-gf">—</div>
+                            <div class="ops-budget-values"><span>Fluid intelligence total</span></div>
+                        </div>
+                        <div class="ops-budget-card" style="--card-accent: #cc99cc">
+                            <div class="ops-budget-agent">Mesh Operations</div>
+                            <div class="ops-budget-credit" id="mesh-total-gc">—</div>
+                            <div class="ops-budget-values"><span>Crystallized intelligence total</span></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -5259,6 +5324,24 @@
 
         const opsCounterLabel = totalCutoffOps > 0 ? `${totalDelibOps}/${totalCutoffOps}` : `${totalDelibOps}`;
         document.getElementById("ops-total-credits").textContent = opsCounterLabel;
+
+        // Crystallized intelligence (Gc) — from session metrics if available
+        const gcHooks = online.reduce((sum, a) => sum + (a.data?.gc_metrics?.hooks_fired ?? 0), 0);
+        const gcTriggers = online.reduce((sum, a) => sum + (a.data?.gc_metrics?.triggers_checked ?? 0), 0);
+        const gcCron = online.reduce((sum, a) => sum + (a.data?.gc_metrics?.cron_cycles ?? 0), 0);
+        const totalGc = gcHooks + gcTriggers + gcCron;
+        const gcRatio = totalDelibOps > 0 ? (totalGc / totalDelibOps).toFixed(1) : "—";
+
+        const setIfExists = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        setIfExists("gc-hooks", gcHooks || "—");
+        setIfExists("gc-triggers", gcTriggers || "—");
+        setIfExists("gc-cron", gcCron || "—");
+        setIfExists("gc-ratio", gcRatio);
+
+        // Mesh aggregate
+        setIfExists("mesh-total-gf", totalDelibOps);
+        setIfExists("mesh-total-gc", totalGc || "—");
+        setIfExists("mesh-total-processing", totalGc > 0 ? totalDelibOps + totalGc : totalDelibOps);
         document.getElementById("ops-total-actions").textContent = totalActions;
         document.getElementById("ops-active-gates").textContent = gates;
         document.getElementById("ops-agents-syncing").textContent = `${syncing}/${AGENTS.length}`;
