@@ -128,6 +128,21 @@ New items from the full cogarch evaluation (`docs/cogarch-evaluation-session85.m
   independently, clickable links in all preambles.
   *Precondition: split complete (✓). Bundle with v1 documentation pass.*
 
+- [ ] **Compositor Worker sync with operations-agent** — our interagent/worker.js
+  (556 lines) diverged from ops canonical copy (1859 lines). PR #44 adds our
+  /api/psychometrics route to their worker. After merge, pull ops worker as base,
+  stop maintaining separate copy. See `docs/lcars-next-steps.md` §1.
+  *Precondition: PR #44 merged.*
+
+- [ ] **Live feed: include message contents** — compositor live feed currently
+  shows message metadata only. Add body/content preview to feed items.
+  *Precondition: compositor Worker sync with ops (live feed component lives
+  in ops' index.html, not ours).*
+
+- [ ] **Gossip: list known peers** — gossip panel not listing known peers.
+  Investigate whether the panel expects data from `/api/trust` or agent registry.
+  *Precondition: compositor Worker sync with ops.*
+
 ---
 
 ## Architecture
