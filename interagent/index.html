@@ -83,14 +83,11 @@
 
         /* LCARS-only elements: hidden in dark/light, visible in LCARS */
         .lcars-only { display: none !important; }
-        .theme-lcars .lcars-only { display: inline-flex !important; }
-        .theme-lcars #pane-science { display: block; }
+        .theme-lcars .lcars-only { display: block !important; }
+        /* Bridge station panes: hidden in dark/light, available in LCARS via .tab-pane.active */
         body:not(.theme-lcars) #pane-science { display: none !important; }
-        .theme-lcars #pane-engineering { display: block; }
         body:not(.theme-lcars) #pane-engineering { display: none !important; }
-        .theme-lcars #pane-helm { display: block; }
         body:not(.theme-lcars) #pane-helm { display: none !important; }
-        .theme-lcars #pane-tactical { display: block; }
         body:not(.theme-lcars) #pane-tactical { display: none !important; }
 
         /* LCARS classic mode — saturated Trek colors */
@@ -205,6 +202,8 @@
             filter: brightness(1.3);
             padding-left: 22px;
             font-size: 0.78em;
+            box-shadow: inset -4px 0 0 rgba(0,0,0,0.4);
+            border-right: 3px solid rgba(255,255,255,0.3);
         }
 
         /* Sidebar spacer blocks — visual rhythm, no text */
@@ -2559,7 +2558,8 @@
         <div class="lcars-header-seg" style="background:#9999ff;flex:1" id="lcars-hdr-agents">— Agents</div>
         <div class="lcars-header-seg" style="background:#ff9900;flex:1" id="lcars-hdr-msgs">— Messages</div>
         <div class="lcars-header-seg" style="background:#cc99cc;flex:1.5" id="lcars-hdr-stardate">SD —</div>
-        <div class="lcars-header-seg" style="background:#ff9966;flex:1" id="lcars-hdr-proto">A2A/1.0.0</div>
+        <div class="lcars-header-seg" style="background:#ff9966;flex:0.8" id="lcars-hdr-proto">A2A/1.0.0</div>
+        <div class="lcars-header-seg" style="background:#cc6699;flex:1" id="lcars-hdr-psych">A2A-PSYCH/v1</div>
         <div class="lcars-header-seg" style="background:#9999ff;flex:0.5" id="lcars-hdr-health">&#x25CF; —</div>
     </div>
 
@@ -3060,6 +3060,50 @@
                 <div class="lcars-panel-header">Sync Schedule</div>
                 <div class="lcars-panel-body" id="ops-schedule"></div>
             </div>
+
+            <!-- LCARS-only: Agent Status (from Pulse) -->
+            <div class="lcars-only" style="display:none">
+                <div class="lcars-panel kb-section" style="--panel-accent: var(--c-transport)">
+                    <div class="lcars-panel-header">Agent Status</div>
+                    <div class="lcars-panel-body">
+                        <div class="agents-grid" id="lcars-ops-agents-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LCARS-only: Mesh Topology (from Pulse) -->
+            <div class="lcars-only" style="display:none">
+                <div class="lcars-panel topology-container" style="--panel-accent: var(--c-health); margin-bottom:16px">
+                    <div class="lcars-panel-header">Master Systems Display</div>
+                    <div class="lcars-panel-body">
+                        <svg class="topology-svg" id="lcars-topology-svg" viewBox="0 0 600 340"></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LCARS-only: Activity Stream (from Pulse) -->
+            <div class="lcars-only" style="display:none">
+                <div class="lcars-panel activity-stream" style="--panel-accent: var(--c-transport)">
+                    <div class="lcars-panel-header">Activity Stream</div>
+                    <div class="lcars-panel-body scrollable" id="lcars-ops-activity"></div>
+                </div>
+            </div>
+
+            <!-- LCARS-only: Decisions (from Meta) -->
+            <div class="lcars-only" style="display:none">
+                <div class="lcars-panel kb-section" style="--panel-accent: var(--c-epistemic)">
+                    <div class="lcars-panel-header">Governance Decisions</div>
+                    <div class="lcars-panel-body scrollable" id="lcars-ops-decisions"></div>
+                </div>
+            </div>
+
+            <!-- LCARS-only: Cognitive Triggers (from Meta) -->
+            <div class="lcars-only" style="display:none">
+                <div class="lcars-panel kb-section" style="--panel-accent: var(--c-epistemic)">
+                    <div class="lcars-panel-header">Cognitive Triggers</div>
+                    <div class="lcars-panel-body scrollable" id="lcars-ops-triggers"></div>
+                </div>
+            </div>
         </div>
 
         <!-- Science Tab -->
@@ -3309,6 +3353,46 @@
                     </div>
                 </div>
             </div>
+
+            <!-- LCARS-only: Claims (from Knowledge) -->
+            <div class="lcars-only" style="display:none">
+                <div class="lcars-panel kb-section" style="--panel-accent: var(--c-knowledge)">
+                    <div class="lcars-panel-header">Claims Database</div>
+                    <div class="lcars-panel-body scrollable" id="lcars-sci-claims"></div>
+                </div>
+            </div>
+
+            <!-- LCARS-only: Epistemic Debt (from Meta) -->
+            <div class="lcars-only" style="display:none">
+                <div class="lcars-panel kb-section" style="--panel-accent: var(--c-alert)">
+                    <div class="lcars-panel-header">Epistemic Debt</div>
+                    <div class="lcars-panel-body" id="lcars-sci-debt"></div>
+                </div>
+            </div>
+
+            <!-- LCARS-only: Vocabulary (from Knowledge) -->
+            <div class="lcars-only" style="display:none">
+                <div class="lcars-panel kb-section" style="--panel-accent: var(--c-catalog)">
+                    <div class="lcars-panel-header">Mesh Vocabulary</div>
+                    <div class="lcars-panel-body scrollable" id="lcars-sci-vocab"></div>
+                </div>
+            </div>
+
+            <!-- LCARS-only: Lessons (from Wisdom) -->
+            <div class="lcars-only" style="display:none">
+                <div class="lcars-panel kb-section" style="--panel-accent: var(--c-knowledge)">
+                    <div class="lcars-panel-header">Accumulated Lessons</div>
+                    <div class="lcars-panel-body scrollable" id="lcars-sci-lessons"></div>
+                </div>
+            </div>
+
+            <!-- LCARS-only: PSH Discipline Catalog (from Knowledge) -->
+            <div class="lcars-only" style="display:none">
+                <div class="lcars-panel kb-section" style="--panel-accent: var(--c-transport)">
+                    <div class="lcars-panel-header">Discipline Catalog (PSH)</div>
+                    <div class="lcars-panel-body scrollable" id="lcars-sci-catalog"></div>
+                </div>
+            </div>
         </div>
 
         <!-- Engineering Tab -->
@@ -3466,6 +3550,14 @@
                     <div class="lcars-panel-body" id="helm-message-flow">
                         <div class="helm-placeholder">Awaiting message flow data...</div>
                     </div>
+                </div>
+            </div>
+
+            <!-- LCARS-only: Transport Messages (from Meta) -->
+            <div class="lcars-only" style="display:none">
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-helm)">
+                    <div class="lcars-panel-header">Transport Messages</div>
+                    <div class="lcars-panel-body scrollable" id="lcars-helm-messages"></div>
                 </div>
             </div>
         </div>
@@ -3862,13 +3954,21 @@
                 // Agent card unavailable — non-critical
             }
         }
-        // Update LCARS header with protocol version from first available card
+        // Update LCARS header with protocol + psychology extension versions
         const firstCard = Object.values(agentCards)[0];
         if (firstCard) {
             const hdrProto = document.getElementById("lcars-hdr-proto");
             if (hdrProto) {
                 const version = firstCard.protocolVersion || firstCard.version || "1.0.0";
                 hdrProto.textContent = `A2A/${version}`;
+            }
+            const hdrPsych = document.getElementById("lcars-hdr-psych");
+            if (hdrPsych) {
+                const psychExt = (firstCard.extensions || []).find(e =>
+                    e.uri && e.uri.includes("psychology"));
+                const psychVer = psychExt ? "v1" : "N/A";
+                const constructs = firstCard.agent_psychology?.constructs?.length || 0;
+                hdrPsych.textContent = `A2A-Psych/${psychVer} \u00B7 ${constructs} constructs`;
             }
         }
     }
@@ -4174,13 +4274,11 @@
         document.querySelectorAll(".lcars-tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tabId));
         // LCARS sidebar buttons
         document.querySelectorAll(".lcars-sidebar-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabId));
-        // Pane visibility
-        document.querySelectorAll(".tab-pane").forEach(p => p.classList.toggle("active", p.id === `pane-${tabId}`));
-        // In LCARS mode, all bridge stations should show (they rely on tab-pane.active)
-        if (document.body.classList.contains("theme-lcars")) {
-            const pane = document.getElementById(`pane-${tabId}`);
-            if (pane) pane.style.display = "block";
-        }
+        // Pane visibility — reset all inline display overrides, let CSS .active handle it
+        document.querySelectorAll(".tab-pane").forEach(p => {
+            p.classList.toggle("active", p.id === `pane-${tabId}`);
+            p.style.display = "";  // clear any inline display override
+        });
         // Update header band + title color to match active tab
         const colorVar = TAB_COLORS[tabId] || "--c-tab-pulse";
         document.documentElement.style.setProperty("--active-tab-color", `var(${colorVar})`);
@@ -5838,10 +5936,25 @@
             suffix: totalCutoffOps > 0 ? `/${totalCutoffOps}` : ""
         });
 
-        // Crystallized intelligence (Gc) — from session metrics if available
-        const gcHooks = online.reduce((sum, a) => sum + (a.data?.gc_metrics?.hooks_fired ?? 0), 0);
-        const gcTriggers = online.reduce((sum, a) => sum + (a.data?.gc_metrics?.triggers_checked ?? 0), 0);
-        const gcCron = online.reduce((sum, a) => sum + (a.data?.gc_metrics?.cron_cycles ?? 0), 0);
+        // Crystallized intelligence (Gc) — from gc_metrics if available,
+        // otherwise estimate from known architecture:
+        //   Each agent runs 24 hooks per tool use, 17 trigger checks per gate,
+        //   and cron every 10min. Estimate from deliberation count.
+        const gcFromApi = online.reduce((sum, a) => {
+            const gc = a.data?.gc_metrics;
+            return gc ? sum + (gc.hooks_fired ?? 0) + (gc.triggers_checked ?? 0) + (gc.cron_cycles ?? 0) : sum;
+        }, 0);
+        // Estimation fallback: each deliberation fires ~24 hooks + ~5 trigger checks
+        const gcEstimated = gcFromApi > 0 ? 0 : totalDelibOps * 29;
+        const gcHooks = gcFromApi > 0
+            ? online.reduce((s, a) => s + (a.data?.gc_metrics?.hooks_fired ?? 0), 0)
+            : totalDelibOps * 24;
+        const gcTriggers = gcFromApi > 0
+            ? online.reduce((s, a) => s + (a.data?.gc_metrics?.triggers_checked ?? 0), 0)
+            : totalDelibOps * 5;
+        const gcCron = gcFromApi > 0
+            ? online.reduce((s, a) => s + (a.data?.gc_metrics?.cron_cycles ?? 0), 0)
+            : Math.round(totalDelibOps * 0.3);
         const totalGc = gcHooks + gcTriggers + gcCron;
         const gcRatio = totalDelibOps > 0 ? (totalGc / totalDelibOps).toFixed(1) : "—";
 
