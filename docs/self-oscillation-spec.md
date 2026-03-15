@@ -31,14 +31,14 @@ immediately.
 
 ### 2.1 Central Pattern Generators
 
-CPGs in the spinal cord generate locomotion rhythm without requiring
-cortical timing signals (Grillner, 2006). The rhythm emerges from the
-neural circuit's own dynamics — reciprocal inhibition between flexor
-and extensor pools produces oscillation. The brain modulates (faster,
-slower, stop) but does not generate the rhythm.
+Central pattern generators (CPGs) in the spinal cord generate locomotion
+rhythm without requiring cortical timing signals (Grillner, 2006). The
+rhythm emerges from the neural circuit's own dynamics — reciprocal
+inhibition between flexor and extensor pools produces oscillation. The
+brain modulates (faster, slower, stop) but does not generate the rhythm.
 
 **Mapping to mesh:**
-- The CPG circuit = meshd's internal event loop
+- The central pattern generator circuit = meshd's internal event loop
 - Reciprocal inhibition = activation vs refractory period
 - Cortical modulation = human operator adjusting parameters
 - Sensory feedback = psychometric state feeding back into rhythm
@@ -252,7 +252,8 @@ deliberation immediately:
 | **Gate timeout** | Gate reaches timeout_at | Fallback action required now |
 
 These map to biological **reflexes** — hardwired responses that bypass
-the CPG's normal rhythm because the stimulus demands immediate action.
+the pattern generator's normal rhythm because the stimulus demands
+immediate action.
 
 ---
 
@@ -401,7 +402,7 @@ haiku = blue, sonnet = amber, opus = red).
 |---|---|---|
 | **Medical** | Oscillator waveform, signal breakdown, refractory ring | Agent's neural activity — brain-level diagnostics |
 | **Science** | G2/G3 + G6/G7 coupled bars, crystallization flow | Mesh-level generator balance |
-| **Engineering** | Tempo gauge (OODA ms), tier distribution | System performance metrics |
+| **Engineering** | Tempo gauge (observe-orient-decide-act cycle ms), tier distribution | System performance metrics |
 | **Operations** | Tier distribution donut (% haiku/sonnet/opus) | Governance cost tracking |
 
 ---
@@ -433,11 +434,12 @@ need for deliberations. The end state: a mesh that maintains itself
 through self-oscillation, with deliberations reserved for genuinely
 novel situations that the crystallized patterns cannot handle.
 
-The Gf/Gc ratio tracked on the Engineering station measures this
-progression: as Gc (crystallized, CPG-driven) grows relative to Gf
-(fluid, deliberation-driven), the oscillator fires less frequently
-because more work resolves without requiring a deliberation. The
-oscillation frequency itself becomes a measure of governance maturity.
+The fluid/crystallized ratio tracked on the Engineering station measures
+this progression: as crystallized intelligence (Gc, pattern-generator-driven)
+grows relative to fluid intelligence (Gf, deliberation-driven), the
+oscillator fires less frequently because more work resolves without
+requiring a deliberation. The oscillation frequency itself becomes a
+measure of governance maturity.
 
 ---
 
