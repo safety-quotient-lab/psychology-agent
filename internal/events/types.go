@@ -68,6 +68,8 @@ const (
 	EventFilesystemNew EventType = "fs-new"
 	// EventCIFailure — a CI workflow run failed on any mesh repo.
 	EventCIFailure EventType = "ci-failure"
+	// EventTransportACK — a transport ACK PR (Gc-handled, no spawn needed).
+	EventTransportACK EventType = "transport-ack"
 )
 
 // Event represents a single unit of work entering the daemon's dispatch queue.

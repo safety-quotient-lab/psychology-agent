@@ -41,8 +41,9 @@ SPAWN_COMMAND=claude
 # Spawn timeout in seconds (max wall-clock time per Claude invocation)
 SPAWN_TIMEOUT=300
 
-# Safety-net poll interval in seconds (meshd fallback polling)
-POLL_INTERVAL=60
+# Safety-net poll interval in seconds (Gc handles routine checks;
+# this fires only as a safety net — 30 minutes default)
+POLL_INTERVAL=1800
 
 # Max concurrent Claude spawns across mesh (normal capacity)
 MAX_CONCURRENT_SPAWNS=1

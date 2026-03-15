@@ -32,10 +32,16 @@ type BudgetDeductFunc func(cost int) error
 // The dispatcher calls this so human operators learn about pending work.
 type NotifyFunc func(ctx context.Context, agentID, eventType, priority, reason, session string) error
 
+// GcHandlerFunc handles an event using crystallized intelligence (Go code,
+// no LLM spawn). Returns true if handled — dispatcher skips the spawn.
+// Returns false if the event requires fluid intelligence (Claude deliberation).
+type GcHandlerFunc func(ctx context.Context, evt Event) bool
+
 // Dispatcher evaluates individual events, applies budget gating,
 // and dispatches spawn requests.
 type Dispatcher struct {
 	spawn        SpawnFunc
+	gcHandler    GcHandlerFunc // optional — Gc layer intercepts routine events
 	budgetCheck  BudgetCheckFunc
 	budgetDeduct BudgetDeductFunc
 	notify       NotifyFunc
@@ -75,7 +81,13 @@ func (d *Dispatcher) SetNotifier(agentID string, fn NotifyFunc) {
 	d.notify = fn
 }
 
-// HandleEvent processes a single event — checks budget, builds prompt, spawns.
+// SetGcHandler configures the crystallized intelligence handler.
+// Events handled by Gc skip the Claude spawn entirely.
+func (d *Dispatcher) SetGcHandler(fn GcHandlerFunc) {
+	d.gcHandler = fn
+}
+
+// HandleEvent processes a single event — tries Gc first, then budget gate + spawn.
 func (d *Dispatcher) HandleEvent(ctx context.Context, evt Event) {
 	d.logger.Info("dispatching event",
 		"type", evt.Type,
@@ -83,6 +95,18 @@ func (d *Dispatcher) HandleEvent(ctx context.Context, evt Event) {
 		"source", evt.Source,
 		"id", evt.ID,
 	)
+
+	// Gc layer — try crystallized intelligence first (no LLM cost)
+	if d.gcHandler != nil && d.gcHandler(ctx, evt) {
+		d.logger.Info("event handled by Gc layer (no spawn)",
+			"type", evt.Type,
+			"id", evt.ID,
+		)
+		d.mu.Lock()
+		d.batched++ // reuse batched counter for Gc-handled events
+		d.mu.Unlock()
+		return
+	}
 
 	cost := estimateCost(evt.Priority)
 	allowed, reason := d.budgetCheck(cost)

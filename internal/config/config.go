@@ -116,7 +116,7 @@ func Load() (*Config, error) {
 	if cfg.SpawnTimeout, err = resolveInt("SPAWN_TIMEOUT", 300); err != nil {
 		return nil, err
 	}
-	if cfg.PollInterval, err = resolveInt("POLL_INTERVAL", 60); err != nil {
+	if cfg.PollInterval, err = resolveInt("POLL_INTERVAL", 1800); err != nil {
 		return nil, err
 	}
 	if cfg.MaxConcurrent, err = resolveInt("MAX_CONCURRENT_SPAWNS", 1); err != nil {

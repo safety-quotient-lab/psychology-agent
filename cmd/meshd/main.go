@@ -263,6 +263,17 @@ func main() {
 		})
 	})
 
+	// Gc handler — crystallized intelligence layer (no LLM cost)
+	// Handles PollTick, HealthCheck, TransportACK without spawning Claude.
+	// Only events requiring fluid intelligence (Gf) proceed to the spawner.
+	gcHandler := events.NewGcHandler(events.GcConfig{
+		RepoRoot:     cfg.RepoRoot,
+		TransportDir: cfg.TransportDir,
+		AgentID:      cfg.AgentID,
+		Logger:       logger,
+	})
+	dispatcher.SetGcHandler(gcHandler)
+
 	// GitHub webhook handler
 	webhookHandler := webhook.NewGitHubHandler(cfg.GitHubSecret, eventChan, logger)
 
