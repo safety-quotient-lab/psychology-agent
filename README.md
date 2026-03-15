@@ -746,10 +746,20 @@ psychology-agent/
 
 ---
 
+## First Session
+
+New to this project? Read [`docs/first-session-guide.md`](docs/first-session-guide.md)
+before your first launch. It covers what the cognitive architecture does, what the
+hook output means, how to use the core skills, and why the agent sometimes pauses
+or pushes back.
+
+---
+
 ## Documentation
 
 | Audience               | Start here                               |
 |------------------------|------------------------------------------|
+| New operators          | `docs/first-session-guide.md`            |
 | Developers / technical | This file + `BOOTSTRAP.md`               |
 | Psychology researchers | `docs/overview-for-psychologists.md`     |
 | Current project state  | `docs/MEMORY-snapshot.md`                |

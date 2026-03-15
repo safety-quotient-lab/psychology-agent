@@ -482,7 +482,19 @@ Step 13.
 
 ### 13. Summary
 
-Report:
+**Summary-first convention:** When presenting /cycle results, lead with a 3-line
+summary:
+
+```
+/cycle complete: {N} files updated, {M} skipped, commit {hash}
+Next: {what's first next session}
+MEMORY: {line count} / 200
+```
+
+Then provide the detailed breakdown only if the user asks or the session
+produced significant changes (>5 files touched).
+
+**Detailed breakdown** (present on request or when >5 files touched):
 - **Documentation updated**: which files, what was added or changed
 - **Skipped**: which steps, with reason
 - **Git commit + push**: hash + one-line message, or reason skipped
