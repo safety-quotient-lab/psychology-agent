@@ -334,7 +334,8 @@
       "Protocol alignment — preferredTransport, schemas_supported across agents",
       "Budget accuracy — /api/status values match state.db ground truth",
       "Agent-card schema compliance — required A2A fields present",
-      "Role uniqueness — exactly one agent per declared role"
+      "Role uniqueness — exactly one agent per declared role",
+      "A2A parity — all agents at feature parity (health, budget, version, schema, agent-card, dashboard). Reference: psychology + operations. Peripheral agents checked every session via validate-deploy.sh."
     ],
     "outputs": "Transport directive (mesh-consistency-fixes session) with per-agent fix instructions",
     "first_run": "2026-03-13 — detected 4 issues across 3 agents during v1.0.0-beta.1 hardening"

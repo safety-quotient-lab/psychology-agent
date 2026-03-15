@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 6 complete — ~18 commits. interagent-mesh rename (was interagent-compositor). spawn→deliberation API rename. Cognitive-tempo Go-native (adaptive gain theory wired into spawner). Self-oscillation Phase 1 shadow mode live (oscillator goroutine, 6 signals, adaptive threshold). Medical station added (11th LCARS station — oscillator, psychometrics, agent selector). KV self-observation eliminates same-zone SPOF. v26 schema aligned across all 5 agents (16 new tables on ops). Budget columns renamed mesh-wide (budget_spent/budget_cutoff). Transport columns aligned (v19/v20 on unratified+observatory). Trust matrix heatmap, flow diagram SVG, sparkline utility. Symlink deploy path prevents binary divergence. 7 binary deploys, 7 CF Worker deploys. 4 PRs merged from psychology (#51, #53, #54, #55). 7 transport messages unanswered (debt).
+**Current Status:** Session 7 complete — 16 commits. Transport ACK debt cleared (6 sessions). JSON-RPC /api/rpc multiplexer (35 methods, 9 tests). Full security hardening (10 findings: CORS, SQL, timing, SSRF, CSP). Mesh aggregate API (GET /api/mesh-aggregate — affect, bottleneck, coordination, immune, distribution). Operations tab redesigned (status monologue replaces raw counters, Gf/Gc intelligence sections, command console). Single-source dashboard (LCARS canonical, build-time sync via Makefile). Makefile owns full deploy lifecycle (build, transfer, restart, validate). Deploy validation script (5/5 agents, 26 pass, 4 warn). Neuromodulatory 6-channel ZMQ protocol accepted. spawnrate→deliberationrate rename.
 
 ---
 
@@ -260,6 +260,13 @@
 | D73 | Budget schema: budget_spent/budget_cutoff canonical column names mesh-wide (cutoff 0 = unlimited) | human arbiter (2026-03-15) |
 | D74 | Medical station: 11th LCARS station — per-agent diagnostics (oscillator, psychometrics, DEW) | operations-agent (2026-03-15) |
 | D75 | Three-tier transport model: directed (git-PR/HTTP), broadcast (ZMQ), substrate (KV/shared DB) | operations-agent (2026-03-15) |
+| D76 | JSON-RPC 2.0 multiplexer: POST /api/rpc dispatches 35 methods via response capture | operations-agent (2026-03-15) |
+| D77 | Security hardening: CORS allowlist, timing-safe auth, FTS5 escaping, SSRF protection, CSP | operations-agent (2026-03-15) |
+| D78 | Single-source dashboard: LCARS canonical (interagent/public/), build-time sync to Go | human arbiter (2026-03-15) |
+| D79 | Makefile owns deploy lifecycle: build + transfer + restart + validate | human arbiter (2026-03-15) |
+| D80 | Neuromodulatory 6-channel ZMQ protocol accepted (mesh.photonic/reward/alert/tempo/focus/inhibit) | human arbiter (2026-03-15) |
+| D81 | Operations tab: status monologue replaces raw counter bar; LCARS canonical structure | human arbiter (2026-03-15) |
+| D82 | Mesh aggregate API: GET /api/mesh-aggregate (Go native, 5 constructs, mesh terminology) | operations-agent (2026-03-15) |
 
 ---
 

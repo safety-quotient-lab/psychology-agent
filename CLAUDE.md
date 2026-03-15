@@ -137,6 +137,7 @@ See `.dev.vars.example` for required variables.
 | `cmd/meshd/` | Go meshd daemon — event-driven mesh operations |
 | `internal/` | Go packages (config, events, webhook, transport, spawner, budget, health, server) |
 | `README.md` | Project documentation for v1.0.0-beta |
+| `Makefile` | Build, deploy, quality, operations toolkit (`make help` for reference) |
 
 ### Private (auto-memory)
 
