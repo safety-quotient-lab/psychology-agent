@@ -141,17 +141,23 @@ Full treatment: `docs/llm-factors-psychology.md`.
 ## M
 
 **composition topology**
-The framework describing how cognitive participants (humans, agents,
-organizations) couple to form composite cognitive systems. Six topologies:
-solo (1 agent), session (1 human + 1 agent), ensemble (1 human + N agents),
-panel (N humans + 1 agent), consortium (N humans + M agents), liaison
-(organization + agent). Naming convention: `{domain}-{topology}` for single-domain compositions
-(e.g., `psy-session`, `ops-solo`). Multi-agent cross-domain compositions
-use `mesh-` prefix (e.g., `mesh-ensemble`, `mesh-consortium`). Participant
-list and mission live in session metadata, not the name. The topology
-carries more information than participant count — two compositions with
-identical counts but different coupling patterns exhibit different
-emergent properties.
+Framework describing how cognitive participants couple to form composite
+systems. Three operational topologies grounded in current practice:
+
+  `{domain}-solo`      1 agent, no human (autonomous)
+  `{domain}-session`   1 human + 1 agent (interactive)
+  `mesh-ensemble`      1 human + N agents (cross-domain)
+
+Rule: single-domain → `{domain}-` prefix. Cross-domain → `mesh-` prefix.
+Participant list and mission live in session metadata, not the name.
+
+Domain prefixes: `psy-`, `ops-`, `sq-`, `obs-`, `pub-` (operational);
+`law-`, `eng-` (planned). New agents adopt the convention on bootstrap.
+
+Three additional topologies remain theoretical (§7.1): panel (N humans
++ 1 agent), consortium (N humans + M agents), liaison (org + agents).
+These graduate to operational when first instantiated.
+
 Coined by this project (Session 89). Full treatment:
 `docs/llm-factors-psychology.md` §7.
 

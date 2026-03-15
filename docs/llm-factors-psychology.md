@@ -445,27 +445,46 @@ different coupling patterns — one with a human directing two agents
 (ensemble), another with two humans sharing one agent (panel) — exhibit
 fundamentally different dynamics despite identical participant counts.
 
-**Proposed naming convention:**
+**Theoretical spectrum** (§7.1 preserves the full taxonomy for future
+research). **Operational convention** trims to three grounded topologies:
 
 ```
-{domain}-{topology}
+OPERATIONAL (grounded — in use today)
 
-domain:     psych | ops | observatory | ...
-topology:   solo | session | ensemble | panel | consortium | liaison
+  {domain}-solo      1 agent, no human.     psy-solo, ops-solo
+  {domain}-session   1 human + 1 agent.     psy-session, ops-session
+  mesh-ensemble      1 human + N agents.    mesh-ensemble
 
-Examples:
-  psy-solo           — autonomous psychology-agent
-  psy-session        — human + psychology-agent
-  ops-session        — human + operations-agent
-  mesh-ensemble      — human + multiple agents (any cross-domain combination)
-  mesh-consortium    — full mesh (all agents + all operators)
-  mesh-liaison       — organization + mesh
+  Rule: single-domain → {domain}-   cross-domain → mesh-
+  Participant list + mission live in session metadata.
+
+THEORETICAL (§7.1 — not yet grounded in operational practice)
+
+  mesh-panel         N humans + 1 agent
+  mesh-consortium    N humans + M agents
+  mesh-liaison       organization + agent(s)
+
+  These topologies await operational instances. When a panel, consortium,
+  or liaison first operates, it graduates from theoretical to operational
+  and adopts the naming convention. Until then, §7.1 documents the
+  theoretical framework; §7.4 identifies the open research questions.
 ```
 
-The topology carries more information than the count. `psych-session`
-tells you a human participates interactively with the psychology domain.
-`psych-ensemble` tells you multiple agents couple under human direction
-in the psychology domain. The naming scales without becoming unwieldy.
+**Domain prefixes** (registered and planned):
+
+| Prefix | Agent | Status |
+|---|---|---|
+| `psy-` | psychology-agent | operational |
+| `ops-` | operations-agent | operational |
+| `sq-` | safety-quotient-agent | operational |
+| `obs-` | observatory-agent | operational |
+| `pub-` | unratified-agent | operational |
+| `law-` | law-agent | planned |
+| `eng-` | engineering-agent | planned |
+| `mesh-` | compositor / cross-domain | operational |
+
+New agents adopt the convention on bootstrap. The prefix registry
+lives in `docs/glossary.md` (composition topology entry).
 
 ### 7.4 The Organizational Coupling Problem
 
