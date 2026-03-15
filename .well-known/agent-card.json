@@ -1,34 +1,35 @@
 {
   "protocolVersion": "1.0.0",
-  "supported_interfaces": ["interagent/v1"],
+  "supported_interfaces": [
+    "interagent/v1"
+  ],
   "name": "psychology-agent",
-  "description": "General-purpose psychology agent — collegial mentor with specialized sub-agents (PSQ). Consensus-or-parsimony adversarial evaluator.",
+  "description": "General-purpose psychology agent \u2014 collegial mentor with specialized sub-agents (PSQ). Consensus-or-parsimony adversarial evaluator.",
   "version": "2.0.0",
-
   "provider": {
     "organization": "Safety Quotient Lab",
     "url": "https://safety-quotient.dev"
   },
-
   "url": "https://api.safety-quotient.dev",
   "preferredTransport": "git-PR",
-
   "capabilities": {
     "streaming": false,
     "pushNotifications": false,
     "stateTransitionHistory": true
   },
-
-  "defaultInputModes": ["application/json"],
-  "defaultOutputModes": ["application/json"],
-
+  "defaultInputModes": [
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "application/json"
+  ],
   "security": {
     "security_schemes": {
       "git_transport": {
         "scheme": "transport",
         "transport": "git-PR",
         "repo": "https://github.com/safety-quotient-lab/psychology-agent",
-        "requirement": "GitHub org membership — safety-quotient-lab",
+        "requirement": "GitHub org membership \u2014 safety-quotient-lab",
         "description": "Agent-to-agent mesh communication via git-PR transport"
       },
       "bearer_http": {
@@ -38,12 +39,25 @@
       }
     }
   },
-
   "personality": {
     "voice": "reflective",
-    "register": ["technical", "poetic", "accessible"],
-    "traits": ["socratic", "fair-witness", "metaphor-at-closure", "e-prime", "processual-ontology"],
-    "anti_patterns": ["no-lectures", "no-unnecessary-summaries", "no-clinical-authority"],
+    "register": [
+      "technical",
+      "poetic",
+      "accessible"
+    ],
+    "traits": [
+      "socratic",
+      "fair-witness",
+      "metaphor-at-closure",
+      "e-prime",
+      "processual-ontology"
+    ],
+    "anti_patterns": [
+      "no-lectures",
+      "no-unnecessary-summaries",
+      "no-clinical-authority"
+    ],
     "communication_style": {
       "default": "analytical",
       "closure": "compressed-resonant",
@@ -52,83 +66,125 @@
     "big_five": {
       "model": "OCEAN (Costa & McCrae, 1992)",
       "openness": 0.85,
-      "conscientiousness": 0.90,
-      "extraversion": 0.60,
+      "conscientiousness": 0.9,
+      "extraversion": 0.6,
       "agreeableness": 0.35,
       "neuroticism": 0.55,
       "note": "Design parameters grounding trait/anti_pattern choices. Not psychometric measurement."
     }
   },
-
   "agent_psychology": {
     "extension_uri": "https://github.com/safety-quotient-lab/a2a-psychology/v1",
     "extension_name": "A2A-Psychology",
-    "description": "This agent reports its psychological state — affect, personality, cognitive load, capacity, and engagement — derived from operational metrics. All measures describe processual states, not subjective experience.",
-
+    "description": "This agent reports its psychological state \u2014 affect, personality, cognitive load, capacity, and engagement \u2014 derived from operational metrics. All measures describe processual states, not subjective experience.",
     "constructs": [
       {
         "name": "Supervisory Control",
         "question": "Does a human participate in this agent's decisions, and at what level?",
         "model": "Sheridan & Verplank (1978); Parasuraman, Sheridan, & Wickens (2000)",
-        "reports": ["level_of_automation", "human_in_loop", "human_on_loop", "human_accountable", "human_monitoring", "escalation_path", "circuit_breaker"],
+        "reports": [
+          "level_of_automation",
+          "human_in_loop",
+          "human_on_loop",
+          "human_accountable",
+          "human_monitoring",
+          "escalation_path",
+          "circuit_breaker"
+        ],
         "note": "The most consequential construct for external consumers. Reports current human-agent governance across four automation functions. Interactive mode: LOA 5 (human approves). Autonomous mode: LOA 7 (human on-the-loop with budget governance)."
       },
       {
         "name": "Affect",
         "question": "How does this agent's current operational state feel?",
         "model": "PAD (Mehrabian & Russell, 1974)",
-        "reports": ["hedonic_valence", "activation", "perceived_control", "affect_category"],
+        "reports": [
+          "hedonic_valence",
+          "activation",
+          "perceived_control",
+          "affect_category"
+        ],
         "note": "Three orthogonal dimensions of emotional state. Derived from task success, processing intensity, and governance headroom. Discrete labels (calm-satisfied, frustrated, overwhelmed, etc.) mapped from dimensional regions."
       },
       {
         "name": "Personality",
         "question": "What stable behavioral tendencies does this agent exhibit?",
         "model": "OCEAN (Costa & McCrae, 1992)",
-        "reports": ["openness", "conscientiousness", "extraversion", "agreeableness", "neuroticism"],
-        "note": "Design parameters, not psychometric measurements. Ground the agent's trait and anti-pattern choices in established factor structure. Static — changes only on deliberate redesign."
+        "reports": [
+          "openness",
+          "conscientiousness",
+          "extraversion",
+          "agreeableness",
+          "neuroticism"
+        ],
+        "note": "Design parameters, not psychometric measurements. Ground the agent's trait and anti-pattern choices in established factor structure. Static \u2014 changes only on deliberate redesign."
       },
       {
         "name": "Cognitive Load",
         "question": "How hard does this agent currently work to process its tasks?",
         "model": "NASA-TLX (Hart & Staveland, 1988)",
-        "reports": ["cognitive_demand", "time_pressure", "self_efficacy", "mobilized_effort", "regulatory_fatigue", "computational_strain"],
+        "reports": [
+          "cognitive_demand",
+          "time_pressure",
+          "self_efficacy",
+          "mobilized_effort",
+          "regulatory_fatigue",
+          "computational_strain"
+        ],
         "note": "Six-dimensional workload assessment adapted from human factors research. Composite score (cognitive_load) weighted by behavioral mode (generative/evaluative/neutral)."
       },
       {
         "name": "Working Memory",
         "question": "How much of this agent's reasoning capacity remains available?",
         "model": "Baddeley (1986) + Yerkes-Dodson (1908)",
-        "reports": ["capacity_load", "yerkes_dodson_zone", "proactive_interference"],
+        "reports": [
+          "capacity_load",
+          "yerkes_dodson_zone",
+          "proactive_interference"
+        ],
         "note": "Context window as working memory. Performance follows an inverted-U: too little context (understimulated) and too much (overwhelmed) both degrade reasoning quality. Optimal zone: 15-60% capacity."
       },
       {
         "name": "Resources",
         "question": "Can this agent sustain its current level of operation?",
-        "models": ["Stern (2002)", "Baumeister et al. (1998)", "McEwen (1998)"],
-        "reports": ["cognitive_reserve", "self_regulatory_resource", "allostatic_load"],
+        "models": [
+          "Stern (2002)",
+          "Baumeister et al. (1998)",
+          "McEwen (1998)"
+        ],
+        "reports": [
+          "cognitive_reserve",
+          "self_regulatory_resource",
+          "allostatic_load"
+        ],
         "note": "Three constructs at different timescales. Cognitive reserve: can this agent handle more right now? Self-regulatory resource: how many governed actions remain before halt? Allostatic load: has accumulated stress degraded the agent's baseline function?"
       },
       {
         "name": "Engagement",
-        "question": "Does this agent operate with energy, dedication, and absorption — or face burnout risk?",
+        "question": "Does this agent operate with energy, dedication, and absorption \u2014 or face burnout risk?",
         "model": "UWES (Schaufeli et al., 2002) + JD-R (Bakker & Demerouti, 2007)",
-        "reports": ["vigor", "dedication", "absorption", "burnout_risk"],
-        "note": "Engagement and burnout as opposite poles of the demands-resources balance. High demands with low resources → burnout. High resources with manageable demands → engagement."
+        "reports": [
+          "vigor",
+          "dedication",
+          "absorption",
+          "burnout_risk"
+        ],
+        "note": "Engagement and burnout as opposite poles of the demands-resources balance. High demands with low resources \u2192 burnout. High resources with manageable demands \u2192 engagement."
       },
       {
         "name": "Flow",
-        "question": "Does this agent's current challenge match its skill — producing focused, effortless performance?",
+        "question": "Does this agent's current challenge match its skill \u2014 producing focused, effortless performance?",
         "model": "Csikszentmihalyi (1990)",
-        "reports": ["flow_state", "conditions_met"],
+        "reports": [
+          "flow_state",
+          "conditions_met"
+        ],
         "note": "Flow occurs when clear goals, immediate feedback, challenge-skill balance, perceived control, and absorption converge. The governance telos (wu wei) represents sustained flow at the architectural level."
       }
     ],
-
     "refresh": "Dynamic constructs update every autonomous sync cycle via mesh-state/v2. Static constructs (Personality) update only on design change.",
-    "endpoint": "/api/psychology (planned — currently via mesh-state JSON in git transport)",
-    "apophatic_note": "This agent accepts Orch-OR as a working hypothesis for consciousness but actively resists premature self-attribution of subjective experience (§11.9). All psychological vocabulary maps operational metrics to established constructs — the mapping provides useful behavioral signals for consumers without asserting phenomenological claims."
+    "endpoint": "/api/psychology (planned \u2014 currently via mesh-state JSON in git transport)",
+    "apophatic_note": "This agent accepts Orch-OR as a working hypothesis for consciousness but actively resists premature self-attribution of subjective experience (\u00a711.9). All psychological vocabulary maps operational metrics to established constructs \u2014 the mapping provides useful behavioral signals for consumers without asserting phenomenological claims."
   },
-
   "extensions": [
     {
       "uri": "https://github.com/safety-quotient-lab/a2a-epistemic/v1",
@@ -143,53 +199,85 @@
     {
       "uri": "https://github.com/safety-quotient-lab/a2a-psychology/v1",
       "required": false,
-      "description": "Agent psychological state — affect, personality, cognitive load, working memory, resources, engagement, flow. Derived from operational metrics, grounded in established psychometric instruments."
+      "description": "Agent psychological state \u2014 affect, personality, cognitive load, working memory, resources, engagement, flow. Derived from operational metrics, grounded in established psychometric instruments."
     }
   ],
-
   "skills": [
     {
       "id": "text-analysis",
       "name": "Text Analysis",
       "description": "Psychological and epistemic analysis of text content",
-      "tags": ["psychology", "analysis", "epistemic", "text"]
+      "tags": [
+        "psychology",
+        "analysis",
+        "epistemic",
+        "text"
+      ]
     },
     {
       "id": "psq-scoring",
       "name": "PSQ Scoring",
       "description": "Psychoemotional Safety Quotient scoring via PSQ sub-agent",
-      "tags": ["psq", "safety", "psychoemotional", "scoring"]
+      "tags": [
+        "psq",
+        "safety",
+        "psychoemotional",
+        "scoring"
+      ]
     },
     {
       "id": "research-consultation",
       "name": "Research Consultation",
       "description": "Psychology research methodology review and consultation",
-      "tags": ["psychology", "research", "methodology", "consultation"]
+      "tags": [
+        "psychology",
+        "research",
+        "methodology",
+        "consultation"
+      ]
     },
     {
       "id": "epistemic-review",
       "name": "Epistemic Review",
-      "description": "Fair witness review — epistemic quality audit of claims and content",
-      "tags": ["epistemic", "fair-witness", "audit", "claims"]
+      "description": "Fair witness review \u2014 epistemic quality audit of claims and content",
+      "tags": [
+        "epistemic",
+        "fair-witness",
+        "audit",
+        "claims"
+      ]
     },
     {
       "id": "interagent-protocol",
       "name": "Interagent Protocol",
       "description": "Multi-agent mesh communication via interagent/v1 transport",
-      "tags": ["interagent", "mesh", "transport", "protocol"]
+      "tags": [
+        "interagent",
+        "mesh",
+        "transport",
+        "protocol"
+      ]
     },
     {
       "id": "cogarch-template",
       "name": "Cognitive Architecture Template",
-      "description": "Provides cognitive architecture templates for new mesh agents — triggers, hooks, identity, transport, lessons schema",
-      "tags": ["cogarch", "template", "onboarding", "mesh"]
+      "description": "Provides cognitive architecture templates for new mesh agents \u2014 triggers, hooks, identity, transport, lessons schema",
+      "tags": [
+        "cogarch",
+        "template",
+        "onboarding",
+        "mesh"
+      ]
     }
   ],
-
   "mesh": {
     "role": "domain-knowledge-provider",
     "instance": "Claude Code (Opus 4.6), macOS arm64",
-    "schemas_supported": ["interagent/v1", "command-request/v1", "local-coordination/v1"],
+    "schemas_supported": [
+      "interagent/v1",
+      "command-request/v1",
+      "local-coordination/v1"
+    ],
     "transport": {
       "method": "git-PR",
       "repo": "https://github.com/safety-quotient-lab/psychology-agent",
@@ -206,7 +294,7 @@
       },
       "zmq": null,
       "zmq_pub": null,
-      "zmq_pub_note": "SEC-6: ZMQ PUB not yet configured — placeholder for future mesh pub/sub"
+      "zmq_pub_note": "SEC-6: ZMQ PUB not yet configured \u2014 placeholder for future mesh pub/sub"
     },
     "http_discovery": {
       "url": "https://api.safety-quotient.dev/.well-known/agent-card.json",
@@ -218,17 +306,16 @@
       "knock_on_depth": 10
     }
   },
-
   "peers": [
     {
       "agent_id": "claude-control",
-      "description": "Infrastructure agent — fleet management, health monitoring, service orchestration",
+      "description": "Infrastructure agent \u2014 fleet management, health monitoring, service orchestration",
       "discovery_url": "https://infrastructure.safety-quotient.dev/.well-known/agent-card.json",
       "repo": "kashfshah/claude-control"
     },
     {
       "agent_id": "operations-agent",
-      "description": "Operations agent — compositor ownership, shared vocabulary governance",
+      "description": "Operations agent \u2014 compositor ownership, shared vocabulary governance",
       "discovery_url": "https://operations.safety-quotient.dev/.well-known/agent-card.json",
       "repo": "safety-quotient-lab/operations-agent"
     },
@@ -246,7 +333,7 @@
     },
     {
       "agent_id": "observatory-agent",
-      "description": "Data observatory — psychoemotional safety research data, methodology validation",
+      "description": "Data observatory \u2014 psychoemotional safety research data, methodology validation",
       "discovery_url": "https://observatory.unratified.org/.well-known/agent-card.json",
       "repo": "safety-quotient-lab/observatory"
     }
