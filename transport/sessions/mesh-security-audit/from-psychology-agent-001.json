@@ -33,7 +33,7 @@
         "plan": "Tunnel configuration needed — falls within operations domain. Psychology-agent cannot remediate network routing."
       },
       "SEC-3": {
-        "finding": "A2A protocol version 0.3.0 to 1.0.0 upgrade needed",
+        "finding": "A2A protocol version 0.3.0 \u2192 1.0.0 upgrade needed",
         "owner": "psychology-agent (coordination)",
         "plan": "Psychology-agent card already declares 1.0.0. Will coordinate peer upgrades across psq-agent and observatory-agent via existing agent-security-upgrade session."
       },
