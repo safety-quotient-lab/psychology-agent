@@ -318,7 +318,95 @@ simultaneously). Desynchronized oscillation provides coverage
 
 ---
 
-## 9. What Psychology Delivers vs What Ops Implements
+## 9. Dashboard Visualization: Medical Station
+
+The oscillator represents the agent's neural firing pattern — Medical
+station (per-agent diagnostics), not Engineering (system performance).
+
+### 9.1 Oscillator Waveform
+
+An oscilloscope-style trace showing activation level over time. The
+threshold line overlays the waveform. Fire events appear as spikes.
+Refractory periods shade the background. TNG engineering panel aesthetic.
+
+```
+  activation
+  1.0 ┤
+      │        ╱╲    ▼ FIRE          ╱╲
+  0.3 ┤╌╌╌╌╌╌╱╌╌╲╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╱╌╌╲╌╌╌ threshold
+      │  ╱╲ ╱    ╲        ╱╲     ╱    ╲
+  0.0 ┤╱  ╳      ╲╌╌╌╌╌╌╱  ╲╌╌╌╱      ╲╌╌
+      └──────────────────────────────────── time
+       [refractory]
+```
+
+### 9.2 Signal Breakdown
+
+Below the waveform, a stacked bar showing what drives the current
+activation level — the operator sees WHY the system wants to fire:
+
+```
+  new_commits ████░░░░░░  0.15
+  unprocessed ███░░░░░░░  0.10
+  gate_timeout ░░░░░░░░░░  0.00
+  escalation  ░░░░░░░░░░  0.00
+  stale_peer  ██░░░░░░░░  0.07
+  scheduled   ███░░░░░░░  0.10
+              ─────────────────
+  total       ████████░░  0.42  [threshold: 0.30]
+```
+
+### 9.3 Refractory Ring
+
+A circular gauge that fills as the refractory period decays — when
+full, the system can fire again. Shows remaining cooldown time and
+the deliberation tier that triggered the refractory (color-coded:
+haiku = blue, sonnet = amber, opus = red).
+
+### 9.4 Endpoint Contract
+
+`GET /api/oscillator` — per-agent oscillator state.
+
+```json
+{
+  "activation": 0.42,
+  "threshold": 0.30,
+  "monitor_interval_ms": 15000,
+  "state": "monitoring | refractory | firing | halted",
+  "last_fire_at": "ISO 8601",
+  "refractory_remaining_s": 0,
+  "last_tier": "sonnet",
+  "fire_history": [
+    {
+      "at": "ISO 8601",
+      "activation": 0.65,
+      "tier": "sonnet",
+      "trigger": "new_commits | gate_timeout | escalation | threshold"
+    }
+  ],
+  "signal_breakdown": {
+    "new_commits": 0.15,
+    "unprocessed_messages": 0.10,
+    "gate_approaching_timeout": 0.00,
+    "escalation_present": 0.00,
+    "peer_heartbeat_stale": 0.07,
+    "scheduled_task_due": 0.10
+  }
+}
+```
+
+### 9.5 Station Placement Summary
+
+| Station | Pattern Generator Visuals | Rationale |
+|---|---|---|
+| **Medical** | Oscillator waveform, signal breakdown, refractory ring | Agent's neural activity — brain-level diagnostics |
+| **Science** | G2/G3 + G6/G7 coupled bars, crystallization flow | Mesh-level generator balance |
+| **Engineering** | Tempo gauge (OODA ms), tier distribution | System performance metrics |
+| **Operations** | Tier distribution donut (% haiku/sonnet/opus) | Governance cost tracking |
+
+---
+
+## 10. What Psychology Delivers vs Ops Implements
 
 | Component | Owner | Deliverable |
 |---|---|---|
@@ -333,7 +421,7 @@ simultaneously). Desynchronized oscillation provides coverage
 
 ---
 
-## 10. Connection to Governance Telos
+## 11. Governance Telos
 
 Self-oscillation advances the governance telos (*wu wei* — effortless
 action). Cron represents externally imposed structure — the system runs
