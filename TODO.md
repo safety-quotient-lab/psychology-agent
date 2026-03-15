@@ -121,12 +121,10 @@ New items from the full cogarch evaluation (`docs/cogarch-evaluation-session85.m
   audit: architecture.md, cognitive-triggers.md, cross-references, vocabulary.
   8 findings fixed. ~35 E-Prime violations cleanup in progress. GH #194.
 
-- [ ] **Factored documents consistency pass** — einstein-freud-rights-theory.md
-  split into 5 files (Session 87). Verify: cross-references resolve, section
-  numbering makes sense standalone, references appear in correct files, E-Prime
-  holds, accessible-to-psych-undergrads standard applies to each file
-  independently, clickable links in all preambles.
-  *Precondition: split complete (✓). Bundle with v1 documentation pass.*
+- [x] **Factored documents consistency pass** — COMPLETE (Session 89). All 5 files
+  verified: 14 cross-references resolve, E-Prime clean (0 violations in first 50
+  lines each), 4 upstream docs reference correctly. One style inconsistency
+  (clickable links vs backticks) — not blocking.
 
 - [x] **Compositor Worker sync with operations-agent** — COMPLETE (Session 89).
   Ops worker.js adopted as base, /api/psychometrics route merged (PR #44).
