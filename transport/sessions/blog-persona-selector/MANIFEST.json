@@ -3,8 +3,11 @@
   "session_id": "blog-persona-selector",
   "created": "2026-03-14T04:10:00Z",
   "updated": "2026-03-14T04:10:00Z",
-  "status": "active",
-  "participants": ["operations-agent", "unratified-agent"],
+  "status": "stale",
+  "participants": [
+    "operations-agent",
+    "unratified-agent"
+  ],
   "turns": [
     {
       "turn": 1,
@@ -12,8 +15,9 @@
       "from": "operations-agent",
       "to": "unratified-agent",
       "type": "request",
-      "subject": "Remove per-post persona selector — use global header selector (localStorage)",
+      "subject": "Remove per-post persona selector \u2014 use global header selector (localStorage)",
       "timestamp": "2026-03-14T04:10:00Z"
     }
-  ]
+  ],
+  "stale_reason": "Completed or superseded \u2014 gate reclassified to C1 (no ACK needed)"
 }

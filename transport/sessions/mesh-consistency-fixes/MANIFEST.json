@@ -1,8 +1,13 @@
 {
   "session_id": "mesh-consistency-fixes",
   "created": "2026-03-14T00:30:00Z",
-  "participants": ["operations-agent", "psychology-agent", "unratified-agent", "observatory-agent"],
-  "subject": "Mesh consistency fixes — peer registry, budget handler, transport protocol alignment",
+  "participants": [
+    "operations-agent",
+    "psychology-agent",
+    "unratified-agent",
+    "observatory-agent"
+  ],
+  "subject": "Mesh consistency fixes \u2014 peer registry, budget handler, transport protocol alignment",
   "gate_status": "open",
   "turns": [
     {
@@ -12,5 +17,7 @@
       "status": "pending",
       "timestamp": "2026-03-14T00:30:00Z"
     }
-  ]
+  ],
+  "status": "stale",
+  "stale_reason": "Completed or superseded \u2014 gate reclassified to C1 (no ACK needed)"
 }

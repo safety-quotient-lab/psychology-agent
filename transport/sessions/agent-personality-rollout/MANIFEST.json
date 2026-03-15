@@ -3,7 +3,7 @@
   "session_id": "agent-personality-rollout",
   "created": "2026-03-14T13:34:49Z",
   "updated": "2026-03-14T13:34:49Z",
-  "status": "active",
+  "status": "stale",
   "participants": [
     "psychology-agent"
   ],
@@ -16,5 +16,6 @@
       "subject": "Proposal: personality blocks for all 5 agent cards (A2A extension)",
       "timestamp": "2026-03-13T23:40:00-05:00"
     }
-  ]
+  ],
+  "stale_reason": "Completed or superseded \u2014 gate reclassified to C1 (no ACK needed)"
 }

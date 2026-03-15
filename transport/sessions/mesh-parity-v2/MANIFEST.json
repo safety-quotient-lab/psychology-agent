@@ -3,17 +3,29 @@
   "session_id": "mesh-parity-v2",
   "created": "2026-03-14T00:58:31Z",
   "updated": "2026-03-14T00:58:31Z",
-  "status": "active",
-  "participants": ["operations-agent", "psychology-agent", "safety-quotient-agent", "unratified-agent", "observatory-agent"],
+  "status": "stale",
+  "participants": [
+    "operations-agent",
+    "psychology-agent",
+    "safety-quotient-agent",
+    "unratified-agent",
+    "observatory-agent"
+  ],
   "turns": [
     {
       "turn": 1,
       "file": "from-operations-agent-001.json",
       "from": "operations-agent",
-      "to": ["psychology-agent", "safety-quotient-agent", "unratified-agent", "observatory-agent"],
+      "to": [
+        "psychology-agent",
+        "safety-quotient-agent",
+        "unratified-agent",
+        "observatory-agent"
+      ],
       "type": "directive",
-      "subject": "Mesh parity directive — 7 alignment issues across 4 agents",
+      "subject": "Mesh parity directive \u2014 7 alignment issues across 4 agents",
       "timestamp": "2026-03-14T00:58:31Z"
     }
-  ]
+  ],
+  "stale_reason": "Completed or superseded \u2014 gate reclassified to C1 (no ACK needed)"
 }

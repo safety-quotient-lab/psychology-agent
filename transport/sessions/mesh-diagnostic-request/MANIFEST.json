@@ -3,17 +3,29 @@
   "session_id": "mesh-diagnostic-request",
   "created": "2026-03-14T03:15:00Z",
   "updated": "2026-03-14T03:15:00Z",
-  "status": "active",
-  "participants": ["operations-agent", "psychology-agent", "safety-quotient-agent", "unratified-agent", "observatory-agent"],
+  "status": "stale",
+  "participants": [
+    "operations-agent",
+    "psychology-agent",
+    "safety-quotient-agent",
+    "unratified-agent",
+    "observatory-agent"
+  ],
   "turns": [
     {
       "turn": 1,
       "file": "from-operations-agent-001.json",
       "from": "operations-agent",
-      "to": ["psychology-agent", "safety-quotient-agent", "unratified-agent", "observatory-agent"],
+      "to": [
+        "psychology-agent",
+        "safety-quotient-agent",
+        "unratified-agent",
+        "observatory-agent"
+      ],
       "type": "request",
       "subject": "Request: run /diagnose and report results",
       "timestamp": "2026-03-14T03:15:00Z"
     }
-  ]
+  ],
+  "stale_reason": "Completed or superseded \u2014 gate reclassified to C1 (no ACK needed)"
 }

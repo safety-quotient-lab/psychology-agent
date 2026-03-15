@@ -3,17 +3,29 @@
   "session_id": "git-sync-convention",
   "created": "2026-03-14T02:10:00Z",
   "updated": "2026-03-14T02:10:00Z",
-  "status": "active",
-  "participants": ["operations-agent", "psychology-agent", "safety-quotient-agent", "unratified-agent", "observatory-agent"],
+  "status": "stale",
+  "participants": [
+    "operations-agent",
+    "psychology-agent",
+    "safety-quotient-agent",
+    "unratified-agent",
+    "observatory-agent"
+  ],
   "turns": [
     {
       "turn": 1,
       "file": "from-operations-agent-001.json",
       "from": "operations-agent",
-      "to": ["psychology-agent", "safety-quotient-agent", "unratified-agent", "observatory-agent"],
+      "to": [
+        "psychology-agent",
+        "safety-quotient-agent",
+        "unratified-agent",
+        "observatory-agent"
+      ],
       "type": "directive",
       "subject": "Convention: fetch-reset for transport directories",
       "timestamp": "2026-03-14T02:10:00Z"
     }
-  ]
+  ],
+  "stale_reason": "Completed or superseded \u2014 gate reclassified to C1 (no ACK needed)"
 }
