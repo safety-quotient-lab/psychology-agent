@@ -221,10 +221,14 @@ def check_t20():
         "SELECT COUNT(*) FROM prediction_ledger WHERE outcome = 'confirmed'"
     ).fetchone()[0]
     conn.close()
-    if total_predictions < 5:
-        return None, f"Only {total_predictions} predictions total — insufficient for calibration"
-    accuracy = confirmed / total_predictions if total_predictions > 0 else 0
-    return None, (f"{impressions} evaluative impressions, {total_predictions} total predictions, "
+    tested = conn.execute(
+        "SELECT COUNT(*) FROM prediction_ledger WHERE outcome IS NOT NULL AND outcome != 'untested'"
+    ).fetchone()[0]
+    if tested < 5:
+        return None, (f"{impressions} evaluative impressions, {total_predictions} total predictions "
+                      f"({tested} tested) — insufficient for calibration")
+    accuracy = confirmed / tested if tested > 0 else 0
+    return None, (f"{impressions} evaluative impressions, {tested}/{total_predictions} tested, "
                   f"{accuracy:.0%} accuracy — accumulating (need 20+ for calibration)")
 
 

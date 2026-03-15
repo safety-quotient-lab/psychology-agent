@@ -1238,6 +1238,51 @@ print(d.get('resolved', 0))
     sqlite3 "${LOCAL_DB_PATH}" \
         "UPDATE autonomy_budget SET consecutive_blocks = 0 WHERE agent_id = '${AGENT_ID}';"
 
+    # ── Idle-cycle maintenance (glymphatic layer) ──────────────────────
+    # When no transport changes arrived, redirect processing capacity to
+    # maintenance: state reconciliation, EIC feedback intake, microglial
+    # document audit (1-in-3 idle cycles). Mirrors the biological
+    # glymphatic system — clearance activates during low-activity states.
+    if [ "${TRANSPORT_CHANGED}" = false ]; then
+        log "Idle cycle — running glymphatic maintenance"
+
+        # State reconciliation (oligodendrocyte — repair drift)
+        if [ -f "${PROJECT_ROOT}/scripts/state-reconcile.py" ]; then
+            local reconcile_out
+            reconcile_out=$(python3 "${PROJECT_ROOT}/scripts/state-reconcile.py" --summary 2>&1) || true
+            log "State reconcile: ${reconcile_out}"
+        fi
+
+        # EIC feedback consumer (disclosure → trigger adjustment)
+        if [ -f "${PROJECT_ROOT}/scripts/eic-feedback-consumer.py" ] && [ -f "${LOCAL_DB_PATH}" ]; then
+            python3 "${PROJECT_ROOT}/scripts/eic-feedback-consumer.py" 2>&1 | while IFS= read -r line; do
+                log "EIC: ${line}"
+            done
+        fi
+
+        # Microglial audit (1-in-3 idle cycles — continuous patrol, not continuous consumption)
+        if [ -f "${PROJECT_ROOT}/scripts/microglial-audit.py" ]; then
+            local idle_counter_file="/tmp/${AGENT_ID}-idle-counter"
+            local idle_count=0
+            [ -f "${idle_counter_file}" ] && idle_count=$(cat "${idle_counter_file}" 2>/dev/null || echo "0")
+            idle_count=$((idle_count + 1))
+            echo "${idle_count}" > "${idle_counter_file}"
+            if [ $((idle_count % 3)) -eq 0 ]; then
+                log "Microglial audit (cycle ${idle_count})"
+                python3 "${PROJECT_ROOT}/scripts/microglial-audit.py" --status 2>&1 | while IFS= read -r line; do
+                    log "Microglial: ${line}"
+                done
+            fi
+        fi
+
+        # Commit any maintenance changes
+        if ! git diff --quiet 2>/dev/null || ! git diff --cached --quiet 2>/dev/null; then
+            git add -A 2>/dev/null
+            git commit -m "autonomous: glymphatic maintenance (reconcile + EIC)" --no-verify 2>/dev/null || true
+            git_push || true
+        fi
+    fi
+
     local cycle_duration=$(( SECONDS - cycle_start ))
     log "=== Autonomous sync cycle complete (budget: ${budget}, ${cycle_duration}s total) ==="
 }

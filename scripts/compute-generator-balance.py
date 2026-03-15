@@ -5,6 +5,12 @@ Scans commit messages for keyword patterns mapping to generators G1-G9 (§11.10)
 Computes conservation law ratios: creative-evaluative (G2/G3, target 3:1-5:1)
 and crystallization-dissolution (G6/G7, target ~1:1).
 
+⚑ Targets (3:1-5:1 and ~1:1) represent unvalidated heuristics — no empirical
+basis or literature grounding for specific ratio values. They serve as
+directional indicators (too much creative without evaluative = unchecked output)
+rather than calibrated thresholds. Treat departures as signals to investigate,
+not as pass/fail criteria.
+
 Usage: python3 scripts/compute-generator-balance.py --session-id 86
 """
 import argparse, json, os, re, sqlite3, subprocess
