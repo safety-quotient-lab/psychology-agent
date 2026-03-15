@@ -57,6 +57,14 @@ func (s *Server) handleRelay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate session ID format — prevents path traversal
+	if !sessionIDRe.MatchString(body.SessionID) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{
+			"error": "Invalid session_id: must match [a-zA-Z0-9_-]{1,64}",
+		}, s.logger)
+		return
+	}
+
 	// Validate message structure
 	if err := validateRelayMessage(body.Message); err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{
@@ -244,7 +252,7 @@ func (s *Server) handleRedirect(w http.ResponseWriter, r *http.Request) {
 
 	// Build redirect wrapper
 	sessionID := "redirected"
-	if sid, ok := body.OriginalMessage["session_id"].(string); ok {
+	if sid, ok := body.OriginalMessage["session_id"].(string); ok && sessionIDRe.MatchString(sid) {
 		sessionID = sid
 	}
 	turn := 1

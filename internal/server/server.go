@@ -186,7 +186,7 @@ func (s *Server) ListenAndServe() error {
 	mux := http.NewServeMux()
 	s.registerRoutes(mux)
 
-	addr := fmt.Sprintf(":%d", s.Config.Port)
+	addr := fmt.Sprintf("127.0.0.1:%d", s.Config.Port)
 	s.httpServer = &http.Server{
 		Addr:              addr,
 		Handler:           s.middleware(mux),

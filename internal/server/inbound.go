@@ -12,11 +12,16 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/safety-quotient-lab/operations-agent/internal/exosome"
 )
+
+// sessionIDRe validates session IDs against path traversal and injection.
+// Allows lowercase alphanumeric, hyphens, and underscores. Max 64 chars.
+var sessionIDRe = regexp.MustCompile(`^[a-zA-Z0-9_-]{1,64}$`)
 
 // inboundMessage represents an incoming transport message.
 type inboundMessage struct {
@@ -78,6 +83,14 @@ func (s *Server) handleInbound(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate session ID format — prevents path traversal via crafted session_id
+	if !sessionIDRe.MatchString(msg.SessionID) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{
+			"error": "Invalid session_id: must match [a-zA-Z0-9_-]{1,64}",
+		}, s.logger)
+		return
+	}
+
 	// Extract from agent ID (can be string or object)
 	fromAgent := extractAgentID(msg.From)
 	toAgent := extractAgentID(msg.To)
@@ -95,9 +108,9 @@ func (s *Server) handleInbound(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Build filename
+	// Build filename — sanitize sender to prevent path traversal in filenames
 	turn := fmt.Sprintf("%03d", msg.Turn)
-	senderSlug := fromAgent
+	senderSlug := slugifyAgentID(fromAgent)
 	if senderSlug == "" {
 		senderSlug = "unknown"
 	}
@@ -200,6 +213,12 @@ func extractAgentID(v interface{}) string {
 	default:
 		return fmt.Sprintf("%v", v)
 	}
+}
+
+// slugifyAgentID reduces an agent ID to a filesystem-safe slug.
+// Strips everything except lowercase alphanumeric and hyphens.
+func slugifyAgentID(id string) string {
+	return regexp.MustCompile(`[^a-z0-9-]`).ReplaceAllString(strings.ToLower(id), "")
 }
 
 // sanitizeSQL escapes single quotes for SQL string literals.
