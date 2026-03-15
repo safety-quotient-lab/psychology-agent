@@ -143,8 +143,13 @@ async function refreshAll() {
     results.forEach((r, i) => {
         agentData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "unreachable" };
     });
-    renderPulse(AGENTS, agentData);
-    renderOps(AGENTS, agentData, tableState);
+    // Only render standard tabs if NOT in LCARS mode
+    const isLcars = document.body.classList.contains("theme-lcars") ||
+                    document.documentElement.classList.contains("theme-lcars");
+    if (!isLcars) {
+        renderPulse(AGENTS, agentData);
+        renderOps(AGENTS, agentData, tableState);
+    }
 
     // Update mobile status bar with online/total counts
     const onlineCount = Object.values(agentData).filter(
