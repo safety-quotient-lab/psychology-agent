@@ -1,9 +1,9 @@
 {
   "session_id": "budget-model-refactor",
-  "status": "open",
+  "status": "active",
   "created_at": "2026-03-15T17:30:00Z",
   "participants": ["operations-agent", "psychology-agent", "human"],
-  "summary": "Budget model refactored: counter with cutoff replaces depleting pool. Rollout via psychology-agent.",
-  "turns": 1,
-  "last_updated": "2026-03-15T17:30:00Z"
+  "summary": "Budget model refactored: counter with cutoff replaces depleting pool. Deployment redirected to operations-agent.",
+  "turns": 3,
+  "last_updated": "2026-03-15T21:25:00Z"
 }
