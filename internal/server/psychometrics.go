@@ -83,15 +83,15 @@ func (s *Server) gatherMetrics() PsychMetrics {
 	m.TotalMessages = db.QueryScalar(dbPath,
 		"SELECT COUNT(*) FROM transport_messages")
 
-	// Budget (column names: budget_current/budget_max in schema, exposed as budget_spent/budget_cutoff in API)
+	// Budget (budget_spent/budget_cutoff counter model, cutoff 0 = unlimited)
 	rows, err := db.QueryJSON(dbPath,
-		fmt.Sprintf("SELECT budget_current, budget_max, consecutive_blocks, shadow_mode FROM autonomy_budget WHERE agent_id='%s'",
+		fmt.Sprintf("SELECT budget_spent, budget_cutoff, consecutive_blocks, shadow_mode FROM autonomy_budget WHERE agent_id='%s'",
 			db.SanitizeID(s.Config.AgentID)))
 	if err == nil && len(rows) > 0 {
-		if v, err := strconv.ParseFloat(rows[0]["budget_current"], 64); err == nil {
+		if v, err := strconv.ParseFloat(rows[0]["budget_spent"], 64); err == nil {
 			m.BudgetSpent = v
 		}
-		if v, err := strconv.ParseFloat(rows[0]["budget_max"], 64); err == nil {
+		if v, err := strconv.ParseFloat(rows[0]["budget_cutoff"], 64); err == nil {
 			m.BudgetCutoff = v
 		}
 		if v, err := strconv.Atoi(rows[0]["consecutive_blocks"]); err == nil {
