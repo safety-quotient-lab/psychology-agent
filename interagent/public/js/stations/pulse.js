@@ -17,6 +17,21 @@
 
 import { escapeHtml, parseTS, formatTS } from '../core/utils.js';
 
+// ── Severity Classification ────────────────────────────────────
+
+/**
+ * Map a message type to a severity CSS class.
+ * @param {string} messageType — e.g. "problem-report", "ack", "directive"
+ * @returns {string} — CSS class: severity-info, severity-warning, severity-error, severity-success
+ */
+function classifyMessageSeverity(messageType) {
+    const type = (messageType || "").toLowerCase();
+    if (type.includes("problem") || type.includes("error") || type.includes("fail")) return "severity-error";
+    if (type.includes("warn") || type.includes("escalat")) return "severity-warning";
+    if (type.includes("ack") || type.includes("complete") || type.includes("resolved")) return "severity-success";
+    return "severity-info";
+}
+
 // ── Data Fetching ──────────────────────────────────────────────
 
 /**
@@ -290,13 +305,14 @@ export function renderActivity(AGENTS, agentData) {
     container.innerHTML = display.map(m => {
         const time = formatTS(m.timestamp);
         const sess = escapeHtml(m.session || '');
+        const severity = classifyMessageSeverity(m.type);
         return `<a href="#pane-meta" class="activity-item activity-link" onclick="switchTab('meta');document.getElementById('filter-messages').value='${sess}';filterTable('messages');return false;">
             <span class="activity-time">${time}</span>
             <span class="activity-route">
                 <span class="from">${m.from.replace("-agent", "")}</span>
                 &rarr; <span class="to">${m.to.replace("-agent", "")}</span>
             </span>
-            <span class="activity-type">${m.type}</span>
+            <span class="activity-type ${severity}">${m.type}</span>
         </a>`;
     }).join("");
 }
@@ -339,6 +355,256 @@ export function flashTopologyEdge(fromAgent, toAgent) {
     setTimeout(() => line.classList.remove("edge-active"), 600);
 }
 
+// ── Render: Organism Affect Widget ─────────────────────────────
+
+/**
+ * Classify affect from valence/activation into a label + color tier.
+ * @param {number} valence — -1..1 hedonic valence
+ * @param {number} activation — 0..1 arousal level
+ * @returns {{ label: string, tier: string }}
+ */
+function classifyAffect(valence, activation) {
+    if (valence > 0.3 && activation > 0.5) return { label: "ENGAGED", tier: "positive" };
+    if (valence > 0.2 && activation <= 0.5) return { label: "CALM", tier: "positive" };
+    if (valence < -0.2 && activation > 0.5) return { label: "STRESSED", tier: "negative" };
+    if (valence < -0.2 && activation <= 0.5) return { label: "FATIGUED", tier: "negative" };
+    if (activation > 0.6) return { label: "ALERT", tier: "neutral" };
+    return { label: "STEADY", tier: "neutral" };
+}
+
+/**
+ * Fetch psychometrics from each agent and render the Organism Affect widget.
+ * Falls back to agentData PAD scores if /api/psychometrics unavailable.
+ * DOM WRITE: #affect-label, #affect-valence-bar, #affect-valence-val,
+ *            #affect-activation-bar, #affect-activation-val
+ * @param {Array} AGENTS — agent config array
+ * @param {Object} agentData — fetched agent data
+ */
+async function renderOrganismAffect(AGENTS, agentData) {
+    const labelEl = document.getElementById("affect-label");
+    const valBar = document.getElementById("affect-valence-bar");
+    const valVal = document.getElementById("affect-valence-val");
+    const actBar = document.getElementById("affect-activation-bar");
+    const actVal = document.getElementById("affect-activation-val");
+    if (!labelEl) return;
+
+    let valenceSum = 0, activationSum = 0, count = 0;
+
+    // Attempt /api/psychometrics fetch from each online agent
+    const fetches = AGENTS.map(async (agent) => {
+        try {
+            const resp = await fetch(`${agent.url}/api/psychometrics`, { signal: AbortSignal.timeout(5000) });
+            if (!resp.ok) return null;
+            return await resp.json();
+        } catch { return null; }
+    });
+    const results = await Promise.allSettled(fetches);
+
+    results.forEach((r) => {
+        if (r.status !== "fulfilled" || !r.value) return;
+        const data = r.value;
+        // Extract PAD pleasure (valence) and arousal (activation)
+        const pad = data.pad || data.PAD || {};
+        const pleasure = pad.pleasure ?? pad.valence ?? null;
+        const arousal = pad.arousal ?? pad.activation ?? null;
+        if (pleasure != null && arousal != null) {
+            valenceSum += pleasure;
+            activationSum += arousal;
+            count++;
+        }
+    });
+
+    // Fallback: extract from agentData if psychometrics endpoints yielded nothing
+    if (count === 0) {
+        Object.values(agentData).forEach(a => {
+            if (a.status !== "online") return;
+            const pad = a.data?.psychometrics?.pad || {};
+            const pleasure = pad.pleasure ?? pad.valence ?? null;
+            const arousal = pad.arousal ?? pad.activation ?? null;
+            if (pleasure != null && arousal != null) {
+                valenceSum += pleasure;
+                activationSum += arousal;
+                count++;
+            }
+        });
+    }
+
+    if (count === 0) {
+        labelEl.textContent = "NO DATA";
+        labelEl.className = "affect-label-pill";
+        valBar.style.width = "50%";
+        valBar.className = "affect-bar-fill";
+        actBar.style.width = "50%";
+        actBar.className = "affect-bar-fill";
+        valVal.textContent = "--";
+        actVal.textContent = "--";
+        return;
+    }
+
+    const avgValence = valenceSum / count;       // -1..1
+    const avgActivation = activationSum / count; // 0..1
+
+    const { label, tier } = classifyAffect(avgValence, avgActivation);
+    labelEl.textContent = label;
+    labelEl.className = `affect-label-pill affect-${tier}`;
+
+    // Valence bar: map -1..1 to 0..100%
+    const valPct = Math.round(((avgValence + 1) / 2) * 100);
+    valBar.style.width = `${valPct}%`;
+    valBar.className = `affect-bar-fill bar-${tier}`;
+    valVal.textContent = avgValence.toFixed(2);
+
+    // Activation bar: map 0..1 to 0..100%
+    const actPct = Math.round(avgActivation * 100);
+    actBar.style.width = `${actPct}%`;
+    actBar.className = `affect-bar-fill bar-${tier}`;
+    actVal.textContent = avgActivation.toFixed(2);
+}
+
+// ── Render: Consensus Gates Widget ────────────────────────────
+
+/**
+ * Fetch consensus data from operations-agent and render the gates widget.
+ * DOM WRITE: #gates-open, #gates-resolved, #gates-tiers
+ * @param {Array} AGENTS — agent config array
+ */
+async function renderConsensusGates(AGENTS) {
+    const openEl = document.getElementById("gates-open");
+    const resolvedEl = document.getElementById("gates-resolved");
+    const tiersEl = document.getElementById("gates-tiers");
+    if (!openEl) return;
+
+    let consensusData = null;
+
+    // Try ops-agent /api/consensus first, then /api/operations
+    for (const agent of AGENTS) {
+        for (const path of ["/api/consensus", "/api/operations"]) {
+            try {
+                const resp = await fetch(`${agent.url}${path}`, { signal: AbortSignal.timeout(5000) });
+                if (!resp.ok) continue;
+                const data = await resp.json();
+                if (data.gates || data.consensus) {
+                    consensusData = data.gates || data.consensus || data;
+                    break;
+                }
+            } catch { /* continue */ }
+        }
+        if (consensusData) break;
+    }
+
+    if (!consensusData) {
+        openEl.textContent = "0";
+        resolvedEl.textContent = "0";
+        tiersEl.innerHTML = `<span class="gate-tier-badge gate-tier-c1">No data</span>`;
+        return;
+    }
+
+    const open = consensusData.open ?? consensusData.open_count ?? 0;
+    const resolved = consensusData.resolved_today ?? consensusData.resolved ?? 0;
+    openEl.textContent = open;
+    resolvedEl.textContent = resolved;
+
+    // Tier breakdown
+    const tiers = consensusData.tiers || consensusData.tier_breakdown || {};
+    const c1 = tiers.C1 ?? tiers.c1 ?? 0;
+    const c2 = tiers.C2 ?? tiers.c2 ?? 0;
+    const c3 = tiers.C3 ?? tiers.c3 ?? 0;
+
+    tiersEl.innerHTML = [
+        c1 > 0 ? `<span class="gate-tier-badge gate-tier-c1">C1: ${c1}</span>` : "",
+        c2 > 0 ? `<span class="gate-tier-badge gate-tier-c2">C2: ${c2}</span>` : "",
+        c3 > 0 ? `<span class="gate-tier-badge gate-tier-c3">C3: ${c3}</span>` : "",
+    ].filter(Boolean).join("") || `<span class="gate-tier-badge gate-tier-c1">C1: 0</span>`;
+}
+
+// ── Render: Cost Ticker Widget ────────────────────────────────
+
+/**
+ * Fetch spawn-rate data and render the cost ticker widget.
+ * DOM WRITE: #cost-today, #cost-rate
+ * @param {Array} AGENTS — agent config array
+ */
+async function renderCostTicker(AGENTS) {
+    const totalEl = document.getElementById("cost-today");
+    const rateEl = document.getElementById("cost-rate");
+    if (!totalEl) return;
+
+    let spawnData = null;
+
+    for (const agent of AGENTS) {
+        try {
+            const resp = await fetch(`${agent.url}/api/spawn-rate`, { signal: AbortSignal.timeout(5000) });
+            if (!resp.ok) continue;
+            spawnData = await resp.json();
+            if (spawnData) break;
+        } catch { /* continue */ }
+    }
+
+    if (!spawnData) {
+        totalEl.textContent = "$0.00";
+        rateEl.textContent = "No spawn data available";
+        return;
+    }
+
+    const lastHour = spawnData.last_hour || spawnData.lastHour || {};
+    const totalCost = lastHour.total_cost ?? spawnData.total_cost ?? spawnData.cost_today ?? 0;
+    const hourlyRate = lastHour.hourly_rate ?? spawnData.hourly_rate ?? null;
+    const spawnsPerHour = lastHour.spawns ?? spawnData.spawns_per_hour ?? null;
+
+    totalEl.textContent = `$${Number(totalCost).toFixed(2)}`;
+
+    const parts = [];
+    if (hourlyRate != null) parts.push(`$${Number(hourlyRate).toFixed(2)}/hr projected`);
+    else if (spawnsPerHour != null) parts.push(`${spawnsPerHour} spawns/hr`);
+    rateEl.textContent = parts.length > 0 ? parts.join(" · ") : "Accumulating data...";
+}
+
+// ── Render: Mesh Narrative ────────────────────────────────────
+
+/**
+ * Generate a template-based narrative from available agent data.
+ * No LLM call — pure string interpolation.
+ * DOM WRITE: #mesh-narrative
+ * @param {Array} AGENTS — agent config array
+ * @param {Object} agentData — fetched agent data
+ */
+function renderMeshNarrative(AGENTS, agentData) {
+    const el = document.getElementById("mesh-narrative");
+    if (!el) return;
+
+    const online = Object.values(agentData).filter(a => a.status === "online");
+    const total = AGENTS.length;
+    const sentences = [];
+
+    if (online.length === 0) {
+        el.textContent = "All agents remain unreachable. The mesh awaits connection.";
+        return;
+    }
+
+    if (online.length === total) {
+        sentences.push(`All ${total} agents report online.`);
+    } else {
+        const offline = AGENTS.filter(a => !online.find(o => o.id === a.id)).map(a => a.id.replace("-agent", ""));
+        sentences.push(`${online.length} of ${total} agents report online. ${offline.join(", ")} remain${offline.length === 1 ? "s" : ""} unreachable.`);
+    }
+
+    // Aggregate pending messages
+    const pending = online.reduce((sum, a) => sum + ((a.data?.totals || {}).unprocessed || 0), 0);
+    if (pending > 0) {
+        sentences.push(`${pending} message${pending !== 1 ? "s" : ""} await${pending === 1 ? "s" : ""} processing.`);
+    }
+
+    // Budget summary
+    const totalBudget = online.reduce((sum, a) => sum + ((a.data?.autonomy_budget || {}).budget_current ?? 0), 0);
+    const maxBudget = online.reduce((sum, a) => sum + ((a.data?.autonomy_budget || {}).budget_max ?? 20), 0);
+    if (maxBudget > 0) {
+        const pct = Math.round((totalBudget / maxBudget) * 100);
+        sentences.push(`Autonomy budget holds at ${pct}% capacity (${totalBudget}/${maxBudget} credits).`);
+    }
+
+    el.textContent = sentences.join(" ");
+}
+
 // ── Render: Combined ───────────────────────────────────────────
 
 /**
@@ -351,4 +617,10 @@ export function renderPulse(AGENTS, agentData) {
     renderAgentCards(AGENTS, agentData);
     renderTopology(AGENTS, agentData);
     renderActivity(AGENTS, agentData);
+    renderMeshNarrative(AGENTS, agentData);
+
+    // Async widgets — fetch independently, render when data arrives
+    renderOrganismAffect(AGENTS, agentData);
+    renderConsensusGates(AGENTS);
+    renderCostTicker(AGENTS);
 }

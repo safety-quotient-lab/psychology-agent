@@ -13,6 +13,7 @@ body {
     color: var(--text-primary);
     line-height: 1.5;
     min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* ── LCARS Frame ─────────────────────────────────────────────── */
@@ -96,6 +97,7 @@ body {
     grid-column: 2;
     grid-row: 2;
     display: flex;
+    flex-wrap: wrap;
     gap: 0;
     padding: 0 20px;
     border-bottom: 1px solid var(--border);
@@ -106,6 +108,7 @@ body {
     border-bottom: 3px solid transparent;
     color: var(--text-secondary);
     padding: 10px 20px;
+    min-height: 48px;
     cursor: pointer;
     font-family: inherit;
     font-size: 0.85em;
@@ -189,6 +192,9 @@ body {
     gap: 16px;
     margin-bottom: 16px;
 }
+.engineering-hero {
+    grid-column: 1 / -1;
+}
 
 /* Helm grid */
 .helm-grid {
@@ -225,26 +231,8 @@ body {
 }
 
 /* ── Responsive ──────────────────────────────────────────────── */
-@media (max-width: 768px) {
-    .science-grid { grid-template-columns: 1fr; }
-}
 
-@media (max-width: 768px) {
-    .engineering-grid { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 768px) {
-    .helm-grid { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 768px) {
-    .tactical-grid { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 600px) {
-    .lcars-tab { font-size: 0.75em; padding: 6px 8px; }
-}
-
+/* Tablet and below — panels stack, grids collapse */
 @media (max-width: 768px) {
     .lcars-frame {
         grid-template-columns: 12px 1fr;
@@ -254,8 +242,9 @@ body {
     .lcars-title { font-size: 1.1em; }
     .lcars-subtitle { display: none; }
     .lcars-content { padding: 12px; }
-    .lcars-tab { padding: 8px 12px; font-size: 0.75em; }
+    .lcars-tab { padding: 8px 12px; font-size: 0.75em; min-height: 44px; }
     .agents-grid { grid-template-columns: 1fr; }
+    .pulse-widgets { grid-template-columns: 1fr; }
     .vitals-grid { grid-template-columns: repeat(3, 1fr); }
     .kb-vitals { grid-template-columns: repeat(3, 1fr); }
     .dict-grid { grid-template-columns: 1fr; }
@@ -264,9 +253,18 @@ body {
     .table-toolbar { padding: 6px 12px; }
     .table-filter { min-width: 120px; }
     .lcars-panel-body.scrollable { max-height: 300px; }
+
+    /* Station grids stack vertically on mobile */
+    .science-grid { grid-template-columns: 1fr; }
+    .engineering-grid { grid-template-columns: 1fr; }
+    .helm-grid { grid-template-columns: 1fr; }
+    .tactical-grid { grid-template-columns: 1fr; }
+    .ops-budget-grid { grid-template-columns: 1fr; }
 }
 
+/* Small phones */
 @media (max-width: 480px) {
     .vitals-grid { grid-template-columns: repeat(2, 1fr); }
     .toggle-group { display: none; }
+    .lcars-tab { font-size: 0.7em; padding: 6px 8px; }
 }
