@@ -1315,6 +1315,33 @@
             <!-- Agent health cards -->
             <div class="agents-grid" id="agents-grid"></div>
 
+            <!-- Mesh aggregate indicators -->
+            <div class="lcars-panel" style="margin-top: 16px; --panel-accent: var(--c-health)">
+                <div class="lcars-panel-header">Mesh Health</div>
+                <div class="lcars-panel-body" id="mesh-aggregate-panel" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;padding:0.8rem">
+                    <div class="vital-card" style="--vital-color: var(--c-health)">
+                        <div class="vital-value" id="agg-affect">—</div>
+                        <div class="vital-label">Mesh Affect</div>
+                    </div>
+                    <div class="vital-card" style="--vital-color: var(--c-warning, #d4944a)">
+                        <div class="vital-value" id="agg-bottleneck">—</div>
+                        <div class="vital-label">Bottleneck</div>
+                    </div>
+                    <div class="vital-card" style="--vital-color: var(--c-transport)">
+                        <div class="vital-value" id="agg-coordination">—</div>
+                        <div class="vital-label">Coordination</div>
+                    </div>
+                    <div class="vital-card" style="--vital-color: var(--c-epistemic)">
+                        <div class="vital-value" id="agg-immune">—</div>
+                        <div class="vital-label">Immune Health</div>
+                    </div>
+                    <div class="vital-card" style="--vital-color: var(--c-catalog)">
+                        <div class="vital-value" id="agg-distribution">—</div>
+                        <div class="vital-label">Distribution</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Activity stream -->
             <div class="lcars-panel activity-stream">
                 <div class="lcars-panel-header">Recent Activity</div>
@@ -2515,7 +2542,86 @@
         renderAgentCards();
         renderTopology();
         renderActivity();
+        renderMeshAggregate();
     }
+
+    // ── Mesh Aggregate Panel ─────────────────────────────────────
+    let meshAggData = null;
+
+    async function fetchMeshAggregate() {
+        try {
+            const resp = await fetch("/api/mesh-aggregate", { signal: AbortSignal.timeout(5000) });
+            if (resp.ok) meshAggData = await resp.json();
+        } catch (e) { /* silent */ }
+    }
+
+    function renderMeshAggregate() {
+        if (!meshAggData) {
+            fetchMeshAggregate().then(renderMeshAggregate);
+            return;
+        }
+
+        const affect = meshAggData.mesh_affect || {};
+        const bn = meshAggData.bottleneck || {};
+        const coord = meshAggData.coordination || {};
+        const immune = meshAggData.immune || {};
+        const dist = meshAggData.distribution || {};
+
+        const affectEl = document.getElementById("agg-affect");
+        const bnEl = document.getElementById("agg-bottleneck");
+        const coordEl = document.getElementById("agg-coordination");
+        const immuneEl = document.getElementById("agg-immune");
+        const distEl = document.getElementById("agg-distribution");
+
+        if (affectEl) {
+            const cat = (affect.category || "unknown").replace("mesh-", "");
+            affectEl.textContent = cat;
+            affectEl.style.color = cat === "healthy" ? "var(--c-health)"
+                : cat === "stressed" ? "var(--c-error, #c44)"
+                : cat === "constrained" ? "var(--c-warning, #d4944a)"
+                : "";
+        }
+
+        if (bnEl) {
+            if (bn.bottleneck_agent) {
+                const name = bn.bottleneck_agent.replace("-agent", "");
+                bnEl.textContent = `${name} (${bn.bottleneck_reserve})`;
+                bnEl.style.color = bn.status === "depleted" ? "var(--c-error, #c44)"
+                    : bn.status === "pressured" ? "var(--c-warning, #d4944a)"
+                    : "";
+            } else {
+                bnEl.textContent = bn.status || "—";
+            }
+        }
+
+        if (coordEl) {
+            const ratio = coord.ratio != null ? coord.ratio.toFixed(1) : "—";
+            coordEl.textContent = `${ratio}x`;
+            coordEl.style.color = coord.status === "over-coordinated" ? "var(--c-error, #c44)"
+                : coord.status === "coordination-heavy" ? "var(--c-warning, #d4944a)"
+                : "";
+        }
+
+        if (immuneEl) {
+            const pct = immune.composite != null ? Math.round(immune.composite * 100) + "%" : "—";
+            immuneEl.textContent = pct;
+            immuneEl.style.color = immune.status === "compromised" ? "var(--c-error, #c44)"
+                : immune.status === "recovering" ? "var(--c-warning, #d4944a)"
+                : "";
+        }
+
+        if (distEl) {
+            if (dist.gini != null) {
+                distEl.textContent = dist.gini.toFixed(2);
+                distEl.style.color = dist.status === "concentrated" ? "var(--c-warning, #d4944a)" : "";
+            } else {
+                distEl.textContent = dist.status || "—";
+            }
+        }
+    }
+
+    // Refresh mesh aggregate data every 30 seconds
+    setInterval(() => { fetchMeshAggregate(); }, 30000);
 
     // ── Knowledge Tab ────────────────────────────────────────────
 

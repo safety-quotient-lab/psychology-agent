@@ -117,6 +117,7 @@ func (s *Server) buildMethodTable() map[string]methodRoute {
 
 		// ── Mesh ─────────────────────────────────────────────────
 		"mesh.zmq.register":       {s.handleZMQRegister, "POST"},
+		"mesh.aggregate":          {s.handleMeshAggregate, "GET"},
 	}
 }
 

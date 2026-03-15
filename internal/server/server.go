@@ -317,6 +317,9 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	// CI visibility — aggregated workflow run status across all mesh repos
 	mux.HandleFunc("GET /api/ci", s.handleCI)
 
+	// Mesh aggregate — organism-level state (affect, bottleneck, coordination, immune, distribution)
+	mux.HandleFunc("GET /api/mesh-aggregate", s.handleMeshAggregate)
+
 	// JSON-RPC 2.0 multiplexer (A2A-compatible programmatic access)
 	s.rpcMethods = s.buildMethodTable()
 	mux.HandleFunc("POST /api/rpc", s.handleRPC)

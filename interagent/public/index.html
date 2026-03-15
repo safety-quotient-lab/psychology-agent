@@ -3140,17 +3140,32 @@
 
         <!-- Operations Tab -->
         <div class="tab-pane" id="pane-operations">
-            <div class="lcars-status-line" id="ops-status-line">Autonomy Governance: Awaiting Data &middot; Counters: — &middot; Gates: —</div>
-            <!-- Operations vitals -->
+            <!-- Status monologue — auto-generated mesh state summary -->
+            <div class="lcars-panel" style="margin-bottom: 12px; --panel-accent: var(--c-health)">
+                <div class="lcars-panel-header">Status</div>
+                <div class="lcars-panel-body" id="ops-status-monologue" style="font-size: 0.92rem; line-height: 1.6; padding: 0.6rem 0.8rem; color: var(--text-primary); opacity: 0.92;">
+                    Collecting mesh state...
+                </div>
+            </div>
+
+            <!-- Mesh health aggregate indicators -->
             <div class="kb-controls-group">
                 <div class="kb-vitals" id="ops-vitals">
                     <div class="kb-vital">
-                        <div class="kb-vital-value" id="ops-total-credits">—</div>
-                        <div class="kb-vital-label">Deliberations</div>
+                        <div class="kb-vital-value" id="ops-agg-affect">—</div>
+                        <div class="kb-vital-label">Mesh Affect</div>
                     </div>
                     <div class="kb-vital">
-                        <div class="kb-vital-value" id="ops-agents-syncing">—</div>
-                        <div class="kb-vital-label">Syncing</div>
+                        <div class="kb-vital-value" id="ops-agg-bottleneck">—</div>
+                        <div class="kb-vital-label">Bottleneck</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="ops-agg-coordination">—</div>
+                        <div class="kb-vital-label">Coordination</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="ops-agg-immune">—</div>
+                        <div class="kb-vital-label">Immune</div>
                     </div>
                     <div class="kb-vital ops-vital-wide">
                         <div class="ops-gate-stack" id="ops-gate-stack">
