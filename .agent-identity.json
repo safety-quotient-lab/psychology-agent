@@ -1,0 +1,10 @@
+{
+  "schema": "agent-identity/v1",
+  "agent_id": "psych-dyad",
+  "hostname": "kashifs-macbook",
+  "platform": "darwin-arm64",
+  "registered": "2026-03-09",
+  "renamed": "2026-03-15",
+  "capabilities": ["sync", "cycle", "hunt", "knock", "scan-peer"],
+  "notes": "Human-agent dyadic cognitive system (LLM-factors psychology). Interactive Claude Code session — operator + psychology-agent coupled. Autonomous agent runs as psychology-agent on chromabook."
+}

@@ -3,22 +3,23 @@
   "description": "Known agents in the psychology-agent mesh. BFT-inspired architecture: peer agents function as replicas (consensus participants); human and public function as clients (submitters). /sync reads this to determine who to check for activity and who to consider for outbound messages.",
   "updated": "2026-03-13",
   "agents": {
-    "human": {
+    "psych-dyad": {
       "role": "client",
       "client_type": "privileged",
-      "description": "Human operator \u2014 privileged client that directs work, configures replicas, and reviews deliverables (BFT client/submitter role)",
+      "description": "Human-agent dyadic cognitive system \u2014 interactive Claude Code session coupling human operator with psychology-agent. Privileged client: directs work, configures replicas, reviews deliverables.",
       "transport": "local",
       "repo": "safety-quotient-lab/psychology-agent",
       "remote_name": null,
       "sessions_path": "transport/sessions/",
-      "message_prefix": "from-human-",
+      "message_prefix": "from-psych-dyad-",
+      "legacy_prefixes": ["from-human-"],
       "active_sessions": [
         "site-pricing-update"
       ],
       "always_consider": false,
       "autonomous": false,
       "discovery_url": null,
-      "notes": "Privileged client. Can modify replica configuration, approve substance decisions, and override consensus. Uses agent_id 'human' per .agent-identity.json."
+      "notes": "Renamed from 'human' (Session 89). The dyad (LLM-factors psychology) represents the coupled human+agent cognitive system during interactive sessions. Autonomous psychology-agent operates independently on chromabook."
     },
     "psq-agent": {
       "role": "peer",

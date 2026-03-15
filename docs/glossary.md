@@ -124,6 +124,32 @@ T9 (memory hygiene) and T6 (drift audit) function as langue-maintenance
 operations, detecting when individual session outputs (parole) have diverged
 from the shared system.
 
+**LLM-factors psychology**
+The study of interaction ergonomics between human operators and LLM-based
+cognitive systems. Extends human-factors psychology (Wickens, Proctor, &
+Gordon, 2004) by treating the LLM as a psychological participant — not
+just a tool — in a dyadic cognitive system. Five research domains:
+interaction ergonomics, cognitive load management, reciprocal dynamics,
+degradation patterns, session design. Does not claim the LLM possesses
+consciousness (apophatic discipline); claims the LLM exhibits measurable
+operational states that function analogously to psychological states and
+respond to interaction patterns. Coined by this project (Session 87).
+Full treatment: `docs/llm-factors-psychology.md`.
+
+---
+
+## M
+
+**mesh dyad**
+The coupled human-agent cognitive system that operates during an interactive
+session. Neither purely human nor purely agent — the dyad produces outcomes
+neither participant achieves alone. Distinguished from the autonomous agent
+(which operates without a human co-participant). The interactive session
+identifier (e.g., `psych-dyad`, `ops-dyad`) names the dyad to disambiguate
+from the autonomous agent identity. Grounded in LLM-factors psychology
+§2.3 (reciprocal dynamics) and enactivist cognitive science (Varela,
+Thompson, & Rosch, 1991). Coined by this project (Session 89).
+
 ---
 
 ## P
