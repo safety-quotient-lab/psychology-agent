@@ -32,7 +32,7 @@ type DashboardManifest struct {
 
 // WidgetDecl describes a single dashboard widget an agent wants displayed.
 type WidgetDecl struct {
-	Type        string `json:"type"`                  // vitals, messages, spawns, budget, topology, custom
+	Type        string `json:"type"`                  // vitals, messages, deliberations, budget, topology, tempo, cognitive-tempo, custom
 	ID          string `json:"id"`                    // unique widget ID
 	Title       string `json:"title"`                 // human-readable title
 	Priority    int    `json:"priority"`              // lower = higher on page
@@ -96,6 +96,8 @@ func (s *Server) buildManifest() DashboardManifest {
 		{Type: "messages", ID: "recent-messages", Title: "Recent Messages", Priority: 4, Endpoint: "/api/status", DataKey: "recent_messages", Size: "full", RefreshSec: 15},
 		{Type: "deliberations", ID: "recent-deliberations", Title: "Recent Deliberations", Priority: 5, Endpoint: "/api/status", DataKey: "recent_deliberations", Size: "half"},
 		{Type: "events", ID: "event-log", Title: "Event Log", Priority: 6, Endpoint: "/api/events", Size: "half", RefreshSec: 10},
+		{Type: "cognitive-tempo", ID: "cognitive-tempo", Title: "Cognitive Tempo", Priority: 7, Endpoint: "/api/cognitive-tempo", Size: "third", RefreshSec: 30},
+		{Type: "tempo", ID: "mesh-tempo", Title: "Mesh Dynamics", Priority: 8, Endpoint: "/api/tempo", Size: "half", RefreshSec: 30},
 	}
 
 	// Agent-specific widgets based on capabilities
