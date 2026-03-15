@@ -21,7 +21,9 @@
  *   *    /api/*               → authenticated API routes (rate-limited)
  */
 
-import HTML from "./index.html";
+// Dashboard HTML served as fallback — static assets (CSS/JS) served by
+// Cloudflare's [assets] directory from ./public/
+import HTML from "./public/index.html";
 import VOCAB from "./vocab.json";
 import VOCAB_SCHEMA from "./vocab.schema.json";
 import AGENT_CARD from "./agent-card.json";
@@ -1935,7 +1937,8 @@ export default {
       );
     }
 
-    // ── Static compositor ───────────────────────────────────────────
+    // ── Static compositor (index.html fallback) ──────────────────────
+    // CSS/JS served by Cloudflare [assets] from ./public/
 
     return new Response(HTML, {
       headers: {
