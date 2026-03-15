@@ -84,11 +84,15 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .theme-lcars #pane-medical { display: block; }
 body:not(.theme-lcars) #pane-medical { display: none !important; }
 
-/* Standard-mode tabs: hidden in LCARS mode */
-.theme-lcars #pane-pulse { display: none !important; }
-.theme-lcars #pane-meta { display: none !important; }
-.theme-lcars #pane-kb { display: none !important; }
-.theme-lcars #pane-wisdom { display: none !important; }
+/* Standard-mode tabs: hidden in LCARS mode (works on both html and body) */
+.theme-lcars #pane-pulse,
+.theme-lcars #pane-pulse.active,
+.theme-lcars #pane-meta,
+.theme-lcars #pane-meta.active,
+.theme-lcars #pane-kb,
+.theme-lcars #pane-kb.active,
+.theme-lcars #pane-wisdom,
+.theme-lcars #pane-wisdom.active { display: none !important; }
 
 /* LCARS classic mode — saturated Trek colors */
 .theme-lcars {

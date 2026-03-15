@@ -56,5 +56,10 @@ export function setTheme(mode) {
  */
 export function initTheme() {
     const savedTheme = localStorage.getItem("theme");
-    if (savedTheme && savedTheme !== "dark") setTheme(savedTheme);
+    if (savedTheme && savedTheme !== "dark") {
+        setTheme(savedTheme);
+    } else {
+        // Default dark mode — activate Pulse
+        if (typeof window.switchTab === "function") window.switchTab('pulse');
+    }
 }

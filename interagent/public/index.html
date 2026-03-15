@@ -29,6 +29,16 @@
         ]
     }
     </script>
+    <script>
+    // Apply saved theme BEFORE body renders to prevent flash (FOUC)
+    // Uses documentElement since body doesn't exist yet in <head>
+    // theme.js also applies to body — both selectors work via CSS
+    (function() {
+        var t = localStorage.getItem("theme");
+        if (t === "light") document.documentElement.className = "theme-light";
+        else if (t === "lcars") document.documentElement.className = "theme-lcars";
+    })();
+    </script>
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/components.css">
@@ -116,7 +126,7 @@
     <div class="lcars-content">
 
         <!-- Pulse Tab -->
-        <div class="tab-pane active" id="pane-pulse">
+        <div class="tab-pane" id="pane-pulse">
             <!-- Vitals grid -->
             <div class="vitals-grid" id="vitals-grid">
                 <div class="vital-card" style="--vital-color: var(--c-health)">
