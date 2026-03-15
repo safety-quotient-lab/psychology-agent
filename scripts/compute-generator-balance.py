@@ -91,9 +91,9 @@ def safe_ratio(a: int, b: int) -> float | None:
 def compute_balance(counts: dict[str, int]) -> dict:
     return {
         "creative_evaluative": safe_ratio(counts["G2"], counts["G3"]),
-        "creative_evaluative_target": "3:1 to 5:1",
+        "creative_evaluative_target": "~2:1 (empirical baseline from 5972 commits; prior 3:1-5:1 ungrounded)",
         "crystallization_dissolution": safe_ratio(counts["G6"], counts["G7"]),
-        "crystallization_dissolution_target": "~1:1",
+        "crystallization_dissolution_target": "~1.4:1 (empirical baseline; slight crystallization lean expected during build phase)",
     }
 
 
