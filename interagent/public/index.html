@@ -116,6 +116,77 @@
             <!-- Agent cards -->
             <div class="agents-grid" id="agents-grid"></div>
 
+            <!-- Organism status widgets -->
+            <div class="pulse-widgets" id="pulse-widgets">
+
+                <!-- Organism Affect -->
+                <div class="lcars-panel pulse-widget affect-widget" style="--panel-accent: var(--c-tab-science)">
+                    <div class="lcars-panel-header">Organism Affect</div>
+                    <div class="lcars-panel-body">
+                        <div class="affect-summary" id="organism-affect">
+                            <div class="affect-label-pill" id="affect-label">--</div>
+                            <div class="affect-bars">
+                                <div class="affect-bar-row">
+                                    <span class="affect-bar-name">Valence</span>
+                                    <div class="affect-bar-track">
+                                        <div class="affect-bar-fill" id="affect-valence-bar" style="width:50%"></div>
+                                    </div>
+                                    <span class="affect-bar-value" id="affect-valence-val">--</span>
+                                </div>
+                                <div class="affect-bar-row">
+                                    <span class="affect-bar-name">Activation</span>
+                                    <div class="affect-bar-track">
+                                        <div class="affect-bar-fill" id="affect-activation-bar" style="width:50%"></div>
+                                    </div>
+                                    <span class="affect-bar-value" id="affect-activation-val">--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Consensus Gates -->
+                <div class="lcars-panel pulse-widget gates-widget" style="--panel-accent: var(--c-catalog)">
+                    <div class="lcars-panel-header">Consensus Gates</div>
+                    <div class="lcars-panel-body">
+                        <div class="gates-readout" id="consensus-gates">
+                            <div class="gates-counts">
+                                <div class="gates-count-item">
+                                    <span class="gates-count-number" id="gates-open">--</span>
+                                    <span class="gates-count-label">Open</span>
+                                </div>
+                                <div class="gates-count-item">
+                                    <span class="gates-count-number" id="gates-resolved">--</span>
+                                    <span class="gates-count-label">Resolved Today</span>
+                                </div>
+                            </div>
+                            <div class="gates-tiers" id="gates-tiers"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cost Ticker -->
+                <div class="lcars-panel pulse-widget cost-widget" style="--panel-accent: var(--c-tab-engineering)">
+                    <div class="lcars-panel-header">Cost Ticker</div>
+                    <div class="lcars-panel-body">
+                        <div class="cost-ticker" id="cost-ticker">
+                            <div class="cost-ticker-total" id="cost-today">$--.--</div>
+                            <div class="cost-ticker-label">Total Today</div>
+                            <div class="cost-ticker-rate" id="cost-rate">-- $/hr projected</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mesh Narrative -->
+            <div class="lcars-panel mesh-narrative-panel" style="--panel-accent: var(--c-transport)">
+                <div class="lcars-panel-body">
+                    <div class="mesh-narrative" id="mesh-narrative">
+                        The mesh awaits data...
+                    </div>
+                </div>
+            </div>
+
             <!-- Activity stream -->
             <div class="lcars-panel activity-stream">
                 <div class="lcars-panel-header">Recent Activity</div>
@@ -595,11 +666,12 @@
         <!-- Engineering Tab -->
         <div class="tab-pane" id="pane-engineering">
             <div class="engineering-grid">
-                <!-- Panel A: Spawn Dynamics -->
-                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
-                    <div class="lcars-panel-header">Spawn Dynamics</div>
+                <!-- Panel A: Spawn Waterfall (hero visual — full width) -->
+                <div class="lcars-panel engineering-hero" style="--panel-accent: var(--c-tab-engineering)">
+                    <div class="lcars-panel-header">Spawn Waterfall</div>
                     <div class="lcars-panel-body" id="spawn-dynamics">
-                        <div class="engineering-placeholder" id="spawn-placeholder">Awaiting engineering data...</div>
+                        <div class="engineering-placeholder" id="spawn-placeholder">Awaiting spawn data...</div>
+                        <div class="spawn-waterfall" id="spawn-waterfall"></div>
                     </div>
                 </div>
 
