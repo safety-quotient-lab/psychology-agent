@@ -239,20 +239,34 @@ body {
    Active only under .theme-lcars. Dark/light modes remain untouched.
    ══════════════════════════════════════════════════════════════════════ */
 
-/* Override the default 2-column grid with the TNG frame grid */
+/* Override the default 2-column grid with the TNG frame grid.
+   Uses named grid-areas so hidden standard elements don't interfere. */
 .theme-lcars .lcars-frame {
     display: grid;
+    grid-template-areas:
+        "header  header  header"
+        "elbtop  elbtop  elbtop"
+        "sidebar content rightbar"
+        "elbbot  elbbot  elbbot"
+        "footer  footer  footer";
     grid-template-columns: 150px 1fr 8px;
     grid-template-rows: 52px 48px 1fr 48px 52px;
     min-height: 100vh;
     background: #000000;
     gap: 0;
 }
+/* Assign grid areas to LCARS frame elements */
+.theme-lcars .lcars-frame-header  { grid-area: header; }
+.theme-lcars .lcars-frame-elbow-top { grid-area: elbtop; }
+.theme-lcars .lcars-frame-sidebar { grid-area: sidebar; }
+.theme-lcars .lcars-frame-right   { grid-area: rightbar; }
+.theme-lcars .lcars-frame-elbow-bot { grid-area: elbbot; }
+.theme-lcars .lcars-frame-footer  { grid-area: footer; }
+/* Content area: all tab panes live here */
+.theme-lcars .lcars-content       { grid-area: content; }
 
 /* ── LCARS Header Band ─────────────────────────────────────── */
 .theme-lcars .lcars-frame-header {
-    grid-column: 1 / 3;
-    grid-row: 1;
     display: flex;
     align-items: stretch;
     gap: 2px;
@@ -326,8 +340,6 @@ body {
 
 /* ── LCARS Elbow Top ───────────────────────────────────────── */
 .theme-lcars .lcars-frame-elbow-top {
-    grid-column: 1;
-    grid-row: 2;
     background:
         linear-gradient(to bottom, #cc99cc 0%, #cc99cc 100%) no-repeat left top / 150px 100%,
         radial-gradient(circle at 150px 48px, #000000 47px, #cc99cc 48px) no-repeat left top;
@@ -336,8 +348,6 @@ body {
 
 /* ── LCARS Sidebar ─────────────────────────────────────────── */
 .theme-lcars .lcars-frame-sidebar {
-    grid-column: 1;
-    grid-row: 3;
     display: flex;
     flex-direction: column;
     gap: 3px;
@@ -386,16 +396,12 @@ body {
 
 /* ── LCARS Right Bar ───────────────────────────────────────── */
 .theme-lcars .lcars-frame-right {
-    grid-column: 3;
-    grid-row: 1 / 6;
     background: #ff9966;
     border-radius: 0 24px 24px 0;
 }
 
 /* ── LCARS Elbow Bottom ────────────────────────────────────── */
 .theme-lcars .lcars-frame-elbow-bot {
-    grid-column: 1;
-    grid-row: 4;
     background:
         linear-gradient(to top, #9999cc 0%, #9999cc 100%) no-repeat left bottom / 150px 100%,
         radial-gradient(circle at 150px 0px, #000000 47px, #9999cc 48px) no-repeat left bottom;
@@ -404,8 +410,6 @@ body {
 
 /* ── LCARS Footer Band ─────────────────────────────────────── */
 .theme-lcars .lcars-frame-footer {
-    grid-column: 1 / 3;
-    grid-row: 5;
     display: flex;
     align-items: stretch;
     gap: 2px;
