@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 4 complete — 54 commits, 35 meshd routes. Go migration done. 5 A2A extensions published. Ops domain signed off for v1. Psychology-agent owns UX + has deploy authority. TNG starship directive sent. Observatory resurrected (first autonomous session). Quorum tiers (C1/C2/C3) implemented. Budgets in tracking mode (cognitive tempo incoming). Spawn protocol: all agents route through meshd. state.db backup daily. All 5 agents calm-satisfied. Waiting on psychology v1 UX pass.
+**Current Status:** Session 5 complete — ~90 commits. meshctl CLI (23 subcommands). Gc/Gf intelligence split deployed. Budget model refactored (counter+cutoff). DELIBERATION_MODEL=sonnet mesh-wide. Compositor 500 fixed. interagent-compositor as proper agent (role: mesh). LCARS dashboard ownership transferred to operations-agent. 10-station dashboard partially wired (Science/Engineering/Helm/Tactical data flowing). Command console with pill buttons. CI failure monitoring. Self-healing systemd (Restart=on-failure). Concurrency: 1 normal + 2 reserve. POLL_INTERVAL=1800s. Psychology delivered cognitive-tempo model + self-oscillation spec. All 5 agents healthy on sonnet.
 
 ---
 
@@ -209,7 +209,12 @@
 |---|---|---|
 | psychometrics-rollout | T6 open | A2A-Psychology rollout: 3/5 adopted (psychology, unratified, observatory). psq pending. |
 | mesh-security-audit | T2 open | 7 findings, 2 critical. Psychology, unratified, observatory ACKed. psq pending. |
-| compositor-health-advisory | T1 open | 500 errors on interagent.safety-quotient.dev discovery endpoints. Diagnosis sent to psychology-agent. |
+| compositor-health-advisory | RESOLVED | 500 fixed — loadAgentRegistry try-catch + agent-card above registry load. |
+| budget-model-refactor | RESOLVED | Counter+cutoff model deployed. PR #221 merged by psychology. |
+| compositor-identity | RESOLVED | Compositor owns agent card (role: mesh). PR #222 merged. Dashboard ownership transferred. |
+| cognitive-tempo-model | T3 open | Psychology delivered adaptive gain theory model + compute script. Integration pending. |
+| self-oscillation | T1 open | Psychology spec delivered (docs/self-oscillation-spec.md). Review pending. |
+| lcars-backend-endpoints | RESOLVED | All psychometrics endpoints live. PRs #44-46 merged. |
 | vocabulary-governance | T4 open | trust→autonomy rename executed. Unratified confirmed. Observatory pending. |
 | observatory-hn-dataset | T1 open | Evaluate HuggingFace open-index/hacker-news dataset. Observatory pending. |
 | organism-dashboard | T1 open | Psychology delivered dashboard scripts. Merged. Go port complete. |
@@ -240,7 +245,14 @@
 | D58 | Agent card upgraded to A2A 1.0.0 with 4 mesh extensions | operations-agent (2026-03-14) |
 | D59 | state.db backup: daily cron, 7-day retention, mandatory pre-destructive-op | human arbiter (2026-03-14) |
 | D60 | Spawn protocol: all spawns route through meshd (budget gate + dedup + logging) | human arbiter (2026-03-14) |
-| D61 | Mesh concurrency: 3 normal + 2 reserve (touch /tmp/mesh-reserve-unlock to expand) | human arbiter (2026-03-15) |
+| D61 | Mesh concurrency: 1 normal + 2 reserve (touch /tmp/mesh-reserve-unlock to expand) | human arbiter (2026-03-15) |
+| D62 | Budget model: counter+cutoff (budget_spent/budget_cutoff, 0=unlimited) | human arbiter (2026-03-15) |
+| D63 | Gc/Gf intelligence split: crystallized layer handles routine, fluid deliberates | human arbiter (2026-03-15) |
+| D64 | DELIBERATION_MODEL=sonnet mesh-wide (SPAWN_MODEL→DELIBERATION_MODEL rename) | human arbiter (2026-03-15) |
+| D65 | Operations-agent owns LCARS dashboard (interagent/ transferred from psychology) | human+psych (2026-03-15) |
+| D66 | Vocabulary: adopted psychology's cognitive vocab, ops precedence on collisions | human arbiter (2026-03-15) |
+| D67 | interagent-compositor as proper agent (role: mesh, managed_by: operations-agent) | operations-agent (2026-03-15) |
+| D68 | Rate limiting disabled for v1 — re-enable post-v1 | human arbiter (2026-03-15) |
 
 ---
 
@@ -253,4 +265,5 @@
 - **Repo visibility:** private until human audit confirms zero leaks
 - **Naming convention:** `{agent-id}.safety-quotient.dev` for all subdomains
 - **Division of labor:** cross-agent changes via transport messages, not direct code modification
-- **Model:** all agents use Opus (global default — explicit --model flag no longer needed, default includes 1M context as of 2026-03-13)
+- **Model:** DELIBERATION_MODEL=sonnet mesh-wide (switchable via meshctl or .dev.vars)
+- **Dashboard:** operations-agent owns interagent/ — psychology sends PRs for domain model changes
