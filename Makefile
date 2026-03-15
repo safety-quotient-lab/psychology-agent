@@ -133,23 +133,29 @@ deploy-restart:
 	@echo "═══ Restarting meshd processes ═══"
 	@. ./.dev.vars 2>/dev/null; \
 		$(SSH_CMD) '\
-		cp $(REMOTE_BIN) $(REMOTE_BACKUP) && \
+		cp $(REMOTE_BIN) $(REMOTE_BACKUP) 2>/dev/null; \
 		mv $(REMOTE_BIN).new $(REMOTE_BIN) && \
 		chmod +x $(REMOTE_BIN) && \
 		echo "  Backup: $(REMOTE_BACKUP)" && \
 		echo "  Swapped binary" && \
-		for pid in $$(pgrep -f "platform/meshd --port"); do \
-			agent=$$(ps -p $$pid -o args= | grep -oP "(?<=--agent-id )\S+"); \
-			echo "  Restarting $$agent (pid $$pid)..."; \
-			cmd=$$(ps -p $$pid -o args=); \
-			kill $$pid; sleep 1; \
-			nohup $$cmd > /tmp/meshd-$$agent.log 2>&1 & \
-			echo "    Started (pid $$!)"; \
+		echo "  Saving process commands..." && \
+		pgrep -f "platform/meshd --port" | while read pid; do \
+			ps -p $$pid -o args= >> /tmp/meshd-restart-cmds.txt; \
 		done && \
+		echo "  Killing old processes..." && \
+		pkill -9 -f "platform/meshd --port" 2>/dev/null; \
 		sleep 2 && \
+		echo "  Starting fresh processes..." && \
+		while IFS= read -r cmd; do \
+			agent=$$(echo "$$cmd" | grep -oP "(?<=--agent-id )\S+"); \
+			nohup $$cmd > /tmp/meshd-$$agent.log 2>&1 & \
+			echo "    $$agent (pid $$!)"; \
+		done < /tmp/meshd-restart-cmds.txt && \
+		rm -f /tmp/meshd-restart-cmds.txt && \
+		sleep 3 && \
 		echo "" && \
-		echo "  Running processes:" && \
-		pgrep -la "platform/meshd --port" || echo "  WARNING: no meshd processes found"'
+		echo "  Running:" && \
+		pgrep -f "platform/meshd --port" -la || echo "  WARNING: no meshd processes found"'
 
 deploy-validate:
 	@echo ""
@@ -159,7 +165,7 @@ deploy-validate:
 # ── Operations ────────────────────────────────────────────────
 status:
 	@. ./.dev.vars 2>/dev/null; \
-		$(SSH_CMD) 'pgrep -la "platform/meshd --port"'
+		$(SSH_CMD) 'pgrep -f "platform/meshd --port" -la'
 
 logs:
 	@. ./.dev.vars 2>/dev/null; \
