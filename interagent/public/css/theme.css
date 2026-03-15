@@ -74,19 +74,19 @@
 .theme-lcars .lcars-hide { display: none !important; }
 /* LCARS-only stations: visible in LCARS, hidden otherwise */
 /* Use :not(.theme-lcars) on both html and body for FOUC prevention */
-.theme-lcars #pane-science { display: block; }
-.theme-lcars #pane-engineering { display: block; }
-.theme-lcars #pane-helm { display: block; }
-.theme-lcars #pane-tactical { display: block; }
-.theme-lcars #pane-medical { display: block; }
+/* LCARS stations: hidden by default, shown only when .active */
+/* The base rule #pane-* { display: none !important } hides them.
+   Override ONLY when .active — tab switching controls visibility. */
 #pane-science, #pane-engineering, #pane-helm, #pane-tactical, #pane-medical {
     display: none !important;
 }
-.theme-lcars #pane-science,
-.theme-lcars #pane-engineering,
-.theme-lcars #pane-helm,
-.theme-lcars #pane-tactical,
-.theme-lcars #pane-medical {
+/* LCARS panes: override the default hide ONLY when active */
+.theme-lcars #pane-science.active,
+.theme-lcars #pane-engineering.active,
+.theme-lcars #pane-helm.active,
+.theme-lcars #pane-tactical.active,
+.theme-lcars #pane-medical.active,
+.theme-lcars #pane-operations.active {
     display: block !important;
 }
 
