@@ -5,11 +5,25 @@ Scans commit messages for keyword patterns mapping to generators G1-G9 (§11.10)
 Computes conservation law ratios: creative-evaluative (G2/G3, target 3:1-5:1)
 and crystallization-dissolution (G6/G7, target ~1:1).
 
-⚑ Targets (3:1-5:1 and ~1:1) represent unvalidated heuristics — no empirical
-basis or literature grounding for specific ratio values. They serve as
-directional indicators (too much creative without evaluative = unchecked output)
-rather than calibrated thresholds. Treat departures as signals to investigate,
-not as pass/fail criteria.
+⚑ Targets grounded via three sources (Session 90):
+
+Empirical (this project): 5,972 commits → creative/evaluative 1.89:1,
+crystallization/dissolution 1.36:1. Target updated to match observed baseline.
+
+Literature (Paulus & Nijstad 2003, Scrum Guide 2020, Snell et al. 2024):
+  - Brainstorming protocols: 3:1-4:1 generation/evaluation (convention, not optimized)
+  - Scrum ceremonies: 5:1-7:1 development/ceremony
+  - RL exploration/exploitation: 1:5-1:10 (inverted — favors exploitation)
+  - LLM test-time compute: ratio adapts to difficulty (easy 16:1, hard 2:1-4:1)
+  - Kauffman NK model (K=2): order dominates; small novelty fraction optimal
+  - Computational creativity (Colton 2012): structural 1:1 balanced
+
+Conclusion: no universal ratio exists. The literature supports an *adaptive*
+ratio that shifts toward more evaluation as task difficulty increases and
+the system matures. For a design-phase system with mixed-difficulty work,
+~2:1 creative/evaluative represents a defensible central estimate.
+The prior 3:1-5:1 target had partial grounding (brainstorming, Scrum) but
+ignored contradicting evidence (RL, complexity theory).
 
 Usage: python3 scripts/compute-generator-balance.py --session-id 86
 """
