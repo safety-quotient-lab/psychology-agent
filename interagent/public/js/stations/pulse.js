@@ -76,13 +76,14 @@ export function renderVitals(AGENTS, agentData) {
     const online = Object.values(agentData).filter(a => a.status === "online");
     const total = AGENTS.length;
 
-    const totalBudget = online.reduce((sum, a) => {
+    // Spend-counter model: budget_spent increments, budget_cutoff sets limit (0=unlimited)
+    const totalSpent = online.reduce((sum, a) => {
         const b = a.data?.autonomy_budget || {};
-        return sum + (b.budget_current ?? 0);
+        return sum + (b.budget_spent ?? 0);
     }, 0);
-    const maxBudget = online.reduce((sum, a) => {
+    const totalCutoff = online.reduce((sum, a) => {
         const b = a.data?.autonomy_budget || {};
-        return sum + (b.budget_max ?? 20);
+        return sum + (b.budget_cutoff ?? 0);
     }, 0);
     const pending = online.reduce((sum, a) => sum + ((a.data?.totals || {}).unprocessed || 0), 0);
     const gates = online.reduce((sum, a) => sum + (a.data?.active_gates || []).length, 0);
@@ -92,7 +93,7 @@ export function renderVitals(AGENTS, agentData) {
     agentsEl.textContent = `${online.length}/${total}`;
     agentsEl.className = "vital-value " + (online.length === total ? "healthy" : online.length > 0 ? "degraded" : "critical");
 
-    document.getElementById("vital-budget").textContent = `${totalBudget}/${maxBudget}`;
+    document.getElementById("vital-budget").textContent = `${totalSpent}/${totalCutoff} spent`;
     document.getElementById("vital-pending").textContent = pending;
     document.getElementById("vital-gates").textContent = gates;
     document.getElementById("vital-debt").textContent = debt;
@@ -145,9 +146,9 @@ export function renderAgentCards(AGENTS, agentData) {
 
         const d = state.data;
         const budget = d.autonomy_budget || {};
-        const cur = budget.budget_current ?? 0;
-        const max = budget.budget_max ?? 20;
-        const pct = max > 0 ? Math.round((cur / max) * 100) : 0;
+        const spent = budget.budget_spent ?? 0;
+        const cutoff = budget.budget_cutoff ?? 0;
+        const pct = cutoff > 0 ? Math.round((1 - spent / cutoff) * 100) : 100;
         const budgetClass = pct > 50 ? "high" : pct > 20 ? "mid" : "low";
         const unprocessed = (d.totals || {}).unprocessed || 0;
         const gateCount = (d.active_gates || []).length;
@@ -166,8 +167,8 @@ export function renderAgentCards(AGENTS, agentData) {
                 </div>
                 <div class="agent-metrics">
                     <div class="agent-metric">
-                        <div class="agent-metric-value">${cur}/${max}</div>
-                        <div class="agent-metric-label">Budget</div>
+                        <div class="agent-metric-value">${spent}/${cutoff}</div>
+                        <div class="agent-metric-label">Spent</div>
                     </div>
                     <div class="agent-metric">
                         <div class="agent-metric-value">${unprocessed}</div>
@@ -596,11 +597,13 @@ function renderMeshNarrative(AGENTS, agentData) {
     }
 
     // Budget summary
-    const totalBudget = online.reduce((sum, a) => sum + ((a.data?.autonomy_budget || {}).budget_current ?? 0), 0);
-    const maxBudget = online.reduce((sum, a) => sum + ((a.data?.autonomy_budget || {}).budget_max ?? 20), 0);
-    if (maxBudget > 0) {
-        const pct = Math.round((totalBudget / maxBudget) * 100);
-        sentences.push(`Autonomy budget holds at ${pct}% capacity (${totalBudget}/${maxBudget} credits).`);
+    const totalBudgetSpent = online.reduce((sum, a) => sum + ((a.data?.autonomy_budget || {}).budget_spent ?? 0), 0);
+    const totalBudgetCutoff = online.reduce((sum, a) => sum + ((a.data?.autonomy_budget || {}).budget_cutoff ?? 0), 0);
+    if (totalBudgetCutoff > 0) {
+        const pct = Math.round((1 - totalBudgetSpent / totalBudgetCutoff) * 100);
+        sentences.push(`Autonomy budget holds at ${pct}% capacity (${totalBudgetSpent}/${totalBudgetCutoff} spent).`);
+    } else {
+        sentences.push(`Autonomy budget: unlimited (${totalBudgetSpent} deliberations, no cutoff).`);
     }
 
     el.textContent = sentences.join(" ");

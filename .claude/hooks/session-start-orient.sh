@@ -125,11 +125,11 @@ if [ -d "$LOCAL_COORD" ]; then
   ESCALATION_COUNT=$(ls -1 "$LOCAL_COORD"/escalation-*.json 2>/dev/null | wc -l | tr -d ' ')
 
   # Budget status from mesh-state
-  BUDGET_CURRENT=""
-  BUDGET_MAX=""
+  BUDGET_SPENT=""
+  BUDGET_CUTOFF=""
   if [ -f "$MESH_STATE" ]; then
-    BUDGET_CURRENT=$(python3 -c "import json; d=json.load(open('${MESH_STATE}')); print(d['autonomy_budget']['budget_current'])" 2>/dev/null || echo "?")
-    BUDGET_MAX=$(python3 -c "import json; d=json.load(open('${MESH_STATE}')); print(d['autonomy_budget']['budget_max'])" 2>/dev/null || echo "?")
+    BUDGET_SPENT=$(python3 -c "import json; d=json.load(open('${MESH_STATE}')); print(d['autonomy_budget']['budget_spent'])" 2>/dev/null || echo "?")
+    BUDGET_CUTOFF=$(python3 -c "import json; d=json.load(open('${MESH_STATE}')); print(d['autonomy_budget']['budget_cutoff'])" 2>/dev/null || echo "?")
   fi
 
   # Last sync timestamp from heartbeat
@@ -146,7 +146,7 @@ if [ -d "$LOCAL_COORD" ]; then
     echo "[BRIEFING]   Last autonomous sync: ${LAST_SYNC_TS:-unknown}"
     echo "[BRIEFING]   Escalations: ${ESCALATION_COUNT}"
     echo "[BRIEFING]   Messages awaiting processing: ${NEW_MSG_COUNT}"
-    echo "[BRIEFING]   Autonomy budget: ${BUDGET_CURRENT:-?}/${BUDGET_MAX:-?}"
+    echo "[BRIEFING]   Autonomy budget: ${BUDGET_SPENT:-?}/${BUDGET_CUTOFF:-?} spent (0=unlimited)"
     if [ "$ESCALATION_COUNT" -gt 0 ] 2>/dev/null; then
       echo "[BRIEFING]   ⚠ Review escalation files in transport/sessions/local-coordination/"
     fi
