@@ -6523,12 +6523,37 @@
         if (scienceFetchPending) return;
         scienceFetchPending = true;
         try {
-            // Operations-agent hosts the psychometrics endpoint
-            const opsAgent = AGENTS.find(a => a.id === "operations-agent");
-            const baseUrl = opsAgent ? opsAgent.url : "https://psychology-agent.safety-quotient.dev";
-            const resp = await fetch(`${baseUrl}/api/psychometrics`, { signal: AbortSignal.timeout(8000) });
+            // Fetch unified psychometrics from compositor
+            const resp = await fetch("https://interagent.safety-quotient.dev/api/psychometrics", { signal: AbortSignal.timeout(8000) });
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-            scienceData = await resp.json();
+            const meshPsych = await resp.json();
+
+            // Also fetch per-agent data from operations-agent for self-report
+            const opsAgent = AGENTS.find(a => a.id === "operations-agent");
+            let opsPsych = null;
+            if (opsAgent) {
+                try {
+                    const opsResp = await fetch(`${opsAgent.url}/api/psychometrics`, { signal: AbortSignal.timeout(5000) });
+                    if (opsResp.ok) opsPsych = await opsResp.json();
+                } catch {}
+            }
+
+            // Build scienceData with the shape renderers expect
+            // Use operations-agent as the primary "self" view, mesh data for aggregate
+            const primary = opsPsych || Object.values(meshPsych.agents || {}).find(a => a && !a.error) || {};
+            scienceData = {
+                psychometrics: {
+                    cognitive_load: primary.workload || null,
+                    working_memory: primary.working_memory || null,
+                    emotional_state: primary.emotional_state || null,
+                    engagement: primary.engagement || null,
+                    flow: primary.flow || null,
+                    resource_model: primary.resource_model || null,
+                    supervisory_control: primary.supervisory_control || null,
+                },
+                mesh: meshPsych.mesh || null,
+                agents: meshPsych.agents || {},
+            };
         } catch (err) {
             scienceData = null;
         } finally {
@@ -6552,27 +6577,28 @@
 
     // ── Sensor: Cognitive Load (NASA-TLX) ─────────────────────────
     function renderCognitiveLoad() {
-        const psych = scienceData?.psychometrics?.cognitive_load || null;
+        const wl = scienceData?.psychometrics?.cognitive_load || null;
         const dims = [
-            { id: "cogload-demand-gauge", key: "cognitive_demand", val: psych?.cognitive_demand },
-            { id: "cogload-pressure-gauge", key: "time_pressure", val: psych?.time_pressure },
-            { id: "cogload-efficacy-gauge", key: "self_efficacy", val: psych?.self_efficacy },
-            { id: "cogload-effort-gauge", key: "mobilized_effort", val: psych?.mobilized_effort },
-            { id: "cogload-fatigue-gauge", key: "regulatory_fatigue", val: psych?.regulatory_fatigue },
-            { id: "cogload-strain-gauge", key: "computational_strain", val: psych?.computational_strain },
+            { id: "cogload-demand-gauge", val: wl?.cognitive_demand },
+            { id: "cogload-pressure-gauge", val: wl?.time_pressure },
+            { id: "cogload-efficacy-gauge", val: wl?.self_efficacy },
+            { id: "cogload-effort-gauge", val: wl?.mobilized_effort },
+            { id: "cogload-fatigue-gauge", val: wl?.regulatory_fatigue },
+            { id: "cogload-strain-gauge", val: wl?.computational_strain },
         ];
         dims.forEach(d => {
             const el = document.getElementById(d.id);
-            if (el) el.innerHTML = renderVlevelGauge(d.val ?? 0, 7);
+            if (!el) return;
+            if (d.val == null) { el.innerHTML = '<span style="opacity:0.3">—</span>'; return; }
+            el.innerHTML = renderVlevelGauge(d.val, 7);
         });
-        const composite = psych?.composite ?? null;
-        const compositeEl = document.getElementById("cogload-composite");
+        const composite = wl?.cognitive_load ?? null;
         const statusEl = document.getElementById("cogload-status");
         setTrackedValue("cogload-composite", composite, { format: "float", inverted: true });
         if (statusEl) {
             if (composite === null) statusEl.textContent = "AWAITING DATA";
-            else if (composite < 0.4) { statusEl.textContent = "LOW"; statusEl.style.color = "#6aab8e"; }
-            else if (composite < 0.7) { statusEl.textContent = "MODERATE"; statusEl.style.color = "#d4944a"; }
+            else if (composite < 40) { statusEl.textContent = "LOW"; statusEl.style.color = "#6aab8e"; }
+            else if (composite < 70) { statusEl.textContent = "MODERATE"; statusEl.style.color = "#d4944a"; }
             else { statusEl.textContent = "HIGH"; statusEl.style.color = "#c47070"; }
         }
     }
@@ -6603,7 +6629,7 @@
 
     // ── Sensor: Resources ─────────────────────────────────────────
     function renderResources() {
-        const res = scienceData?.psychometrics?.resources || null;
+        const res = scienceData?.psychometrics?.resource_model || null;
 
         const setBar = (fillId, valId, value, inverted) => {
             const fill = document.getElementById(fillId);
@@ -6666,8 +6692,9 @@
 
         const dots = agents ? AGENTS.map((agent, i) => {
             const agentState = agents[agent.id] || {};
-            const valence = agentState.valence ?? 0;
-            const arousal = agentState.arousal ?? 0;
+            const es = agentState.emotional_state || {};
+            const valence = es.hedonic_valence ?? es.valence ?? 0;
+            const arousal = es.activation ?? es.arousal ?? 0;
             // Map -1..1 to 0..100 percent (valence = x, arousal = y inverted)
             const leftPct = ((valence + 1) / 2) * 100;
             const topPct = ((1 - (arousal + 1) / 2)) * 100;
@@ -6707,13 +6734,15 @@
         const coordEl = document.getElementById("organism-coord");
         if (!labelEl) return;
 
-        const org = scienceData?.organism || null;
-        const stateLabel = org?.state_label || "—";
+        const mesh = scienceData?.mesh || null;
+        const affect = mesh?.affect || {};
+        const stateLabel = affect.mesh_affect_category?.replace("mesh-", "")?.toUpperCase() || "—";
         labelEl.textContent = stateLabel;
-        setTrackedValue("organism-valence", org?.valence ?? null, { format: "float", prefix: org?.valence >= 0 ? "+" : "" });
-        setTrackedValue("organism-activation", org?.activation ?? null, { format: "float" });
-        if (bottEl) bottEl.textContent = org?.bottleneck_agent?.replace("-agent", "") || "—";
-        setTrackedValue("organism-coord", org?.coordination_ratio ?? null, { format: "float" });
+        setTrackedValue("organism-valence", affect.mean_hedonic_valence ?? null, { format: "float", prefix: (affect.mean_hedonic_valence ?? 0) >= 0 ? "+" : "" });
+        setTrackedValue("organism-activation", affect.mean_activation ?? null, { format: "float" });
+        const reserve = mesh?.cognitive_reserve || {};
+        if (bottEl) bottEl.textContent = reserve.bottleneck_agent?.replace("-agent", "") || "—";
+        setTrackedValue("organism-coord", reserve.mean_reserve ?? null, { format: "float" });
 
         // Apply affect-responsive layout mode based on organism state
         if (stateLabel !== "—" && document.body.classList.contains("theme-lcars")) {
@@ -6764,11 +6793,13 @@
         const statusEl = document.getElementById("flow-status-label");
         if (!listEl) return;
 
-        const flow = scienceData?.flow || null;
-        const conditions = flow?.conditions || [false, false, false, false, false];
+        const flow = scienceData?.psychometrics?.flow || {};
+        const inFlow = flow.in_flow || false;
+        const condsMet = flow.conditions_met ?? 0;
+        // Derive condition booleans from conditions_met count
+        const conditions = [condsMet >= 1, condsMet >= 2, condsMet >= 3, condsMet >= 4, condsMet >= 5];
         const labels = ["Clear goals", "Immediate feedback", "Challenge-skill balance", "Sense of control", "Absorption"];
-        const met = conditions.filter(Boolean).length;
-        const inFlow = met >= 5;
+        const met = condsMet;
 
         listEl.innerHTML = labels.map((label, i) => {
             const pass = conditions[i];
@@ -6790,7 +6821,13 @@
         const statusEl = document.getElementById("dew-status");
         if (!scoreEl) return;
 
-        const dew = scienceData?.dew || null;
+        // DEW computed from engagement burnout_risk + workload composite
+        const eng = scienceData?.psychometrics?.engagement || {};
+        const wl = scienceData?.psychometrics?.cognitive_load || {};
+        const burnout = eng.burnout_risk ?? 0;
+        const load = (wl.cognitive_load ?? 0) / 100;
+        const dewScore = Math.min(100, Math.round((burnout * 60 + load * 40)));
+        const dew = { score: (burnout > 0 || load > 0) ? dewScore : null };
         const score = dew?.score ?? null;
 
         if (score == null) {
@@ -6819,9 +6856,9 @@
         const budgetEl = document.getElementById("loa-budget-val");
         if (!ladderEl) return;
 
-        const loa = scienceData?.supervisory || null;
-        const currentLevel = loa?.loa_level ?? 5;
-        const remaining = loa?.budget_remaining ?? null;
+        const sc = scienceData?.psychometrics?.supervisory_control || {};
+        const currentLevel = sc.level_of_automation ?? 5;
+        const remaining = null; // budget_remaining not in current schema
 
         ladderEl.innerHTML = LOA_DESCRIPTIONS.map((desc, i) => {
             const level = 10 - i;
