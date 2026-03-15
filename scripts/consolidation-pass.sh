@@ -9,8 +9,10 @@
 # consolidation, self-monitoring. This script provides the equivalent
 # for inter-session processing.
 #
-# Does NOT modify source-of-truth files (markdown). Reads state.db
-# and writes a report. Read-only on everything except the report.
+# Combines two functions:
+# (a) Consolidation report — read-only analysis written to docs/consolidation-report.md
+# (b) State reconciliation — automated repair of state.db column drift
+#     (oligodendrocyte layer: scripts/state-reconcile.py)
 #
 # Usage: */30 * * * * /path/to/consolidation-pass.sh
 
@@ -119,6 +121,26 @@ LIMIT 5;
     echo "- ${topic}/${key}: ${days} days stale" >> "${REPORT_PATH}"
 done
 echo "" >> "${REPORT_PATH}"
+
+# 7. State reconciliation (oligodendrocyte layer — automated repair)
+echo "## State Reconciliation" >> "${REPORT_PATH}"
+if [ -f "${PROJECT_ROOT}/scripts/state-reconcile.py" ]; then
+    RECONCILE_OUTPUT=$(python3 "${PROJECT_ROOT}/scripts/state-reconcile.py" --summary 2>&1)
+    echo "- ${RECONCILE_OUTPUT}" >> "${REPORT_PATH}"
+else
+    echo "- state-reconcile.py not found — skipped" >> "${REPORT_PATH}"
+fi
+echo "" >> "${REPORT_PATH}"
+
+# 8. EIC feedback intake (disclosure → trigger adjustment)
+if [ -f "${PROJECT_ROOT}/scripts/eic-feedback-consumer.py" ] && [ -f "${LOCAL_DB_PATH}" ]; then
+    echo "## EIC Feedback Intake" >> "${REPORT_PATH}"
+    EIC_OUTPUT=$(python3 "${PROJECT_ROOT}/scripts/eic-feedback-consumer.py" 2>&1)
+    echo "${EIC_OUTPUT}" | while IFS= read -r line; do
+        echo "- ${line}" >> "${REPORT_PATH}"
+    done
+    echo "" >> "${REPORT_PATH}"
+fi
 
 echo "---" >> "${REPORT_PATH}"
 echo "*Next session: T1 loads this report as orientation context.*" >> "${REPORT_PATH}"
