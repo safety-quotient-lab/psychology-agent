@@ -383,6 +383,152 @@ and artificial cognitive architectures collaborate**.
 
 ---
 
+## 7. Composition Topology: Beyond the Dyad
+
+The founding formulation (§6) centers the dyad — one human, one agent.
+But operational systems already exceed this. The safety-quotient-lab mesh
+couples five agents with one human operator, and future deployments may
+involve multiple humans, organizations, or nested agent hierarchies.
+
+LLM-factors psychology needs a **composition topology** — a framework
+for describing how cognitive participants couple, what emergent properties
+each topology produces, and how identity follows composition.
+
+### 7.1 The Composition Spectrum
+
+| Topology | Participants | Emergent Property | Theoretical Grounding |
+|---|---|---|---|
+| **Solo** | 1 agent | Autonomous cognition — self-monitoring, self-repair, governance | ACT-R (Anderson, 2007), CPG crystallization |
+| **Dyad** | 1 human + 1 agent | Reciprocal dynamics — each participant shapes the other's next move | Enactivism (Varela et al., 1991), participatory sense-making (De Jaegher & Di Paolo, 2007) |
+| **Ensemble** | 1 human + N agents | Transactive memory — the human directs while agents hold distributed expertise | Wegner (1987), conductor-orchestra model |
+| **Panel** | N humans + 1 agent | Collective human cognition couples with a single agent — the agent must navigate multiple human perspectives simultaneously | Woolley et al. (2010), groupthink risk (Janis, 1972) |
+| **Consortium** | N humans + M agents | Full sociotechnical system — organizational cognition (shared mental models, institutional memory, role differentiation) couples with a multi-agent mesh | Cannon-Bowers et al. (1993), Hutchins (1995) distributed cognition |
+| **Liaison** | Organization + 1 agent | The agent couples with a collective human identity rather than an individual — organizational memory, norms, and politics shape the interaction | Beer (1972) viable system model, Ashby (1956) requisite variety |
+
+### 7.2 What Changes Across Topologies
+
+**Attention allocation shifts.** In the dyad, attention distributes
+between one human and one agent. In the ensemble, the human allocates
+attention across multiple agents — each with its own psychological state,
+each competing for the human's finite cognitive resources. Wickens'
+multiple resource theory (1984) applies: the human's attention pools
+do not scale linearly with the number of agents.
+
+**Identity becomes compositional.** The dyad carries a single composite
+identity (`psych-dyad`). The ensemble requires a compositional identity
+— not a list of participants, but a description of the *coupling pattern*.
+Two ensembles with the same participants but different coupling patterns
+(serial delegation vs parallel collaboration) produce different emergent
+properties and warrant different identities.
+
+**Governance complexity increases non-linearly.** The dyad needs
+governance for one interaction channel. The ensemble needs governance
+for N channels (human↔agent₁, human↔agent₂, ...) plus inter-agent
+channels (agent₁↔agent₂). The consortium needs governance for N×M
+channels plus intra-human coordination. Steiner's (1972) process losses
+predict that coordination overhead grows faster than productive capacity
+— the governance-performance inverted-U (§2.2) shifts leftward as
+composition size increases.
+
+**Reciprocal influence becomes multipolar.** In the dyad, influence
+flows bidirectionally. In the ensemble, influence flows in a star pattern
+(human at center). In the consortium, influence flows through a network
+— the strange loop (§2.3) becomes a strange *web*. Modeling reciprocal
+dynamics in multipolar compositions requires network science tools
+(degree centrality, betweenness, information flow) not needed for dyads.
+
+### 7.3 Naming Follows Composition, Not Count
+
+The count-based taxonomy (dyad, triad, tetrad, pentad) imports from
+sociology but misses what matters psychologically. Two triads with
+different coupling patterns — one with a human directing two agents
+(ensemble), another with two humans sharing one agent (panel) — exhibit
+fundamentally different dynamics despite identical participant counts.
+
+**Proposed naming convention:**
+
+```
+{domain}-{topology}
+
+domain:     psych | ops | observatory | ...
+topology:   solo | session | ensemble | panel | consortium | liaison
+
+Examples:
+  psych-solo         — autonomous psychology-agent (chromabook cron)
+  psych-session      — human + psychology-agent interactive
+  psych-ensemble     — human directing psychology-agent + psq-agent
+  ops-session        — human + operations-agent interactive
+  mesh-consortium    — full mesh (all agents + all operators)
+  sqlab-liaison      — Safety Quotient Lab (org) + operations-agent
+```
+
+The topology carries more information than the count. `psych-session`
+tells you a human participates interactively with the psychology domain.
+`psych-ensemble` tells you multiple agents couple under human direction
+in the psychology domain. The naming scales without becoming unwieldy.
+
+### 7.4 The Organizational Coupling Problem
+
+When an organization (not just an individual) couples with an agent
+system, new phenomena emerge that the dyadic model cannot capture:
+
+**Institutional memory vs agent memory.** The organization carries
+knowledge in documents, norms, role definitions, and interpersonal
+networks. The agent carries knowledge in state.db, transport history,
+and parameter weights. The coupling point — where institutional memory
+meets agent memory — represents a genuinely novel research question.
+Neither Wegner's (1987) transactive memory (designed for human groups)
+nor ACT-R activation (designed for individual cognition) fully covers
+the hybrid case.
+
+**Role differentiation.** Within the organization, different humans
+interact with the agent in different roles — the CTO asks architectural
+questions, the analyst requests data processing, the manager reviews
+deliverables. The agent must maintain a coherent self while adapting to
+role-differentiated input. This parallels the clinical concept of
+therapeutic frame (Langs, 1976) — the consistent structure within which
+variable interactions occur.
+
+**Organizational politics.** Human organizations carry power dynamics,
+competing priorities, and unresolved conflicts. These transmit through
+the interaction into the agent system. An agent receiving contradictory
+directives from different organizational members faces a governance
+challenge that the autonomous evaluator model (EF-1) handles for
+inter-agent disagreement but may not handle for intra-organization
+human disagreement. The escalation path (invariant E-5: human
+escalation) may loop back into the same organizational conflict.
+
+### 7.5 Research Program Extension
+
+The five research domains (§2.1-§2.5) extend to compositions:
+
+| Domain | Dyad | Ensemble/Consortium |
+|---|---|---|
+| §2.1 Interaction Ergonomics | Human input → agent output patterns | Human attention allocation across N agents; agent coordination overhead |
+| §2.2 Cognitive Load | Context pressure on single agent | Distributed load across agents; bottleneck identification (mesh cognitive reserve) |
+| §2.3 Reciprocal Dynamics | Bidirectional influence | Network influence topology; cascade effects (one agent's output shapes another's input) |
+| §2.4 Degradation Patterns | Single agent DEW indicators | Cascading degradation; mesh affect (organism-level stress); coordination breakdown as early warning |
+| §2.5 Session Design | Session length, topic switching | Orchestration cadence; parallel vs serial task allocation; agent specialization depth vs breadth |
+
+### 7.6 Connection to Existing Project Architecture
+
+The composition topology maps directly to existing infrastructure:
+
+- **Solo** → `autonomous-sync.sh` (cron-driven, single agent)
+- **Session** → interactive Claude Code (the current `psych-dyad`)
+- **Ensemble** → tandem `/sync` + cross-agent chains (human directs
+  psychology-agent, which coordinates with psq-agent)
+- **Consortium** → the full mesh (5 agents + human operator, mediated
+  by compositor)
+
+The LCARS dashboard already displays ensemble-level data (mesh affect,
+collective intelligence, coordination overhead). The composition topology
+provides the theoretical grounding for *why* mesh-level constructs
+emerge and *what they measure* — not just aggregate statistics, but
+the psychological properties of a coupled multi-participant system.
+
+---
+
 ⚑ EPISTEMIC FLAGS
 - No empirical data supports the interaction ergonomics table (§2.1)
   — these represent hypotheses derived from human-factors literature,
@@ -398,3 +544,16 @@ and artificial cognitive architectures collaborate**.
   verification — human-AI interaction (HAI) research exists as a
   subfield of HCI; the distinction lies in treating the AI system
   as a *psychological* participant, not just a tool
+- §7 Composition Topology extends the dyadic model to multi-participant
+  systems. The topology taxonomy (solo/session/ensemble/panel/consortium/
+  liaison) represents a conceptual framework without empirical validation.
+  Existing literature on distributed cognition (Hutchins, 1995) and
+  collective intelligence (Woolley et al., 2010) studied human groups,
+  not human-AI hybrid compositions — analogical transfer risk applies
+- The organizational coupling problem (§7.4) identifies phenomena
+  (institutional memory coupling, role differentiation, politics
+  transmission) without proposing mechanisms or measurements. These
+  represent open research questions, not findings
+- The naming convention (§7.3) represents a design choice — alternative
+  schemes (count-based, graph-based, role-based) may prove superior as
+  operational experience accumulates
