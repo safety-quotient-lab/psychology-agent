@@ -1,9 +1,19 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-14T22:24:50",
+  "generated_at": "2026-03-15T08:57:54",
   "source": "scripts/generate_manifest.py",
-  "pending": {},
+  "pending": {
+    "human": [
+      {
+        "session": "budget-model-refactor",
+        "file": "transport/sessions/budget-model-refactor/to-human-001.json",
+        "type": "directive",
+        "subject": "DIRECTIVE: budget model refactored \u2014 counter with cutoff replaces depleting pool",
+        "timestamp": "2026-03-15T17:30:00Z"
+      }
+    ]
+  },
   "session_renames": {
     "item4-derivation": "psychology-interface",
     "item2-derivation": "subagent-protocol"
