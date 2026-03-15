@@ -254,7 +254,7 @@ body {
     grid-row: 1;
     display: flex;
     align-items: stretch;
-    gap: 3px;
+    gap: 2px;
     background: #000000;
 }
 
@@ -407,7 +407,7 @@ body {
     grid-row: 5;
     display: flex;
     align-items: stretch;
-    gap: 3px;
+    gap: 2px;
     background: #000000;
 }
 
