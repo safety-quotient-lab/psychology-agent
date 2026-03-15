@@ -3276,6 +3276,28 @@
     let sseConnections = [];
     let sseActive = false;
 
+    // ── Autonomy Counter Helpers ────────────────────────────────────
+    // Backward-compat: old format reports budget_current (remaining) and
+    // budget_max. New format reports budget_spent (counter) and budget_cutoff.
+    // Deliberations = number of autonomous actions taken.
+    function getDeliberations(autonomyBlock) {
+        const b = autonomyBlock || {};
+        // New format: budget_spent directly gives deliberation count
+        if (b.budget_spent !== undefined) return b.budget_spent;
+        // Old format: spent = max - current
+        if (b.budget_max !== undefined && b.budget_current !== undefined) {
+            return b.budget_max - b.budget_current;
+        }
+        return 0;
+    }
+
+    function getCutoff(autonomyBlock) {
+        const b = autonomyBlock || {};
+        if (b.budget_cutoff !== undefined) return b.budget_cutoff;
+        if (b.budget_max !== undefined) return b.budget_max;
+        return 0;
+    }
+
     // ── Auth & Control Surfaces ────────────────────────────────────
 
     let authUser = null;
@@ -3682,16 +3704,11 @@
         const online = Object.values(agentData).filter(a => a.status === "online");
         const total = AGENTS.length;
 
-        // Autonomy counter model: budget_spent increments, budget_cutoff sets limit (0=unlimited)
-        const totalSpent = online.reduce((sum, a) => {
-            const b = a.data?.autonomy_budget || {};
-            return sum + (b.budget_spent ?? b.budget_current ?? 0);
-        }, 0);
-        const totalCutoff = online.reduce((sum, a) => {
-            const b = a.data?.autonomy_budget || {};
-            const cutoff = b.budget_cutoff ?? b.budget_max ?? 0;
-            return sum + cutoff;
-        }, 0);
+        // Autonomy: deliberations = autonomous actions taken (counter model)
+        const totalDeliberations = online.reduce((sum, a) =>
+            sum + getDeliberations(a.data?.autonomy_budget), 0);
+        const totalCutoff = online.reduce((sum, a) =>
+            sum + getCutoff(a.data?.autonomy_budget), 0);
         const pending = online.reduce((sum, a) => sum + ((a.data?.totals || {}).unprocessed || 0), 0);
         const gates = online.reduce((sum, a) => sum + (a.data?.active_gates || []).length, 0);
         const debt = online.reduce((sum, a) => sum + ((a.data?.totals || {}).epistemic_flags_unresolved || 0), 0);
@@ -3700,7 +3717,7 @@
         agentsEl.textContent = `${online.length}/${total}`;
         agentsEl.className = "vital-value " + (online.length === total ? "healthy" : online.length > 0 ? "degraded" : "critical");
 
-        const counterLabel = totalCutoff > 0 ? `${totalSpent}/${totalCutoff}` : `${totalSpent}`;
+        const counterLabel = totalCutoff > 0 ? `${totalDeliberations}/${totalCutoff}` : `${totalDeliberations}`;
         document.getElementById("vital-budget").textContent = counterLabel;
         document.getElementById("vital-pending").textContent = pending;
         document.getElementById("vital-gates").textContent = gates;
@@ -3745,13 +3762,13 @@
             }
 
             const d = state.data;
-            // Autonomy counter model: spent increments, cutoff sets limit (0=unlimited)
+            // Autonomy: deliberations via counter helpers
             const autonomy = d.autonomy_budget || {};
-            const spent = autonomy.budget_spent ?? autonomy.budget_current ?? 0;
-            const cutoff = autonomy.budget_cutoff ?? autonomy.budget_max ?? 0;
-            const pct = cutoff > 0 ? Math.round((spent / cutoff) * 100) : 0;
+            const deliberations = getDeliberations(autonomy);
+            const cutoff = getCutoff(autonomy);
+            const pct = cutoff > 0 ? Math.round((deliberations / cutoff) * 100) : 0;
             const counterClass = pct < 60 ? "high" : pct < 85 ? "mid" : "low";
-            const counterLabel = cutoff > 0 ? `${spent}/${cutoff}` : `${spent}`;
+            const counterLabel = cutoff > 0 ? `${deliberations}/${cutoff}` : `${deliberations}`;
             const unprocessed = (d.totals || {}).unprocessed || 0;
             const gateCount = (d.active_gates || []).length;
             const schema = d.schema_version || "?";
@@ -5226,15 +5243,11 @@
     function renderOpsVitals() {
         const online = Object.values(agentData).filter(a => a.status === "online");
 
-        // Autonomy counter model
-        const totalSpent = online.reduce((sum, a) => {
-            const b = a.data?.autonomy_budget || {};
-            return sum + (b.budget_spent ?? b.budget_current ?? 0);
-        }, 0);
-        const totalCutoff = online.reduce((sum, a) => {
-            const b = a.data?.autonomy_budget || {};
-            return sum + (b.budget_cutoff ?? b.budget_max ?? 0);
-        }, 0);
+        // Autonomy: deliberations via counter helpers
+        const totalDelibOps = online.reduce((sum, a) =>
+            sum + getDeliberations(a.data?.autonomy_budget), 0);
+        const totalCutoffOps = online.reduce((sum, a) =>
+            sum + getCutoff(a.data?.autonomy_budget), 0);
         const totalActions = online.reduce((sum, a) =>
             sum + (a.data?.recent_actions || []).length, 0);
         const gates = online.reduce((sum, a) =>
@@ -5244,8 +5257,8 @@
             return sched.cron_entry || sched.last_sync;
         }).length;
 
-        const counterLabel = totalCutoff > 0 ? `${totalSpent}/${totalCutoff}` : `${totalSpent}`;
-        document.getElementById("ops-total-credits").textContent = counterLabel;
+        const opsCounterLabel = totalCutoffOps > 0 ? `${totalDelibOps}/${totalCutoffOps}` : `${totalDelibOps}`;
+        document.getElementById("ops-total-credits").textContent = opsCounterLabel;
         document.getElementById("ops-total-actions").textContent = totalActions;
         document.getElementById("ops-active-gates").textContent = gates;
         document.getElementById("ops-agents-syncing").textContent = `${syncing}/${AGENTS.length}`;
@@ -5266,11 +5279,11 @@
                     </div>`;
                 continue;
             }
-            // Autonomy counter model: spent increments, cutoff sets limit
+            // Autonomy: deliberations via counter helpers
             const b = d.data?.autonomy_budget || {};
-            const spent = b.budget_spent ?? b.budget_current ?? 0;
-            const cutoff = b.budget_cutoff ?? b.budget_max ?? 0;
-            const pct = cutoff > 0 ? Math.round((spent / cutoff) * 100) : 0;
+            const deliberations = getDeliberations(b);
+            const cutoff = getCutoff(b);
+            const pct = cutoff > 0 ? Math.round((deliberations / cutoff) * 100) : 0;
             const barColor = pct < 60 ? "#6aab8e" : pct < 85 ? "#d4944a" : "#c47070";
             const lastAction = b.last_action || "—";
             const interval = b.min_action_interval ?? 300;
@@ -5279,7 +5292,7 @@
             grid.innerHTML += `
                 <div class="ops-budget-card" style="--card-accent: ${agent.color}">
                     <div class="ops-budget-agent">${agent.id.replace("-agent", "")}</div>
-                    <div class="ops-budget-credit">${spent}<span style="font-size:0.4em;color:var(--text-secondary)">${counterLabel}</span></div>
+                    <div class="ops-budget-credit">${deliberations}<span style="font-size:0.4em;color:var(--text-secondary)">${counterLabel}</span></div>
                     <div class="ops-budget-bar">
                         <div class="ops-budget-fill" style="width:${cutoff > 0 ? pct : 0}%;background:${barColor}"></div>
                     </div>
