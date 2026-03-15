@@ -7,6 +7,6 @@
     "operations-agent"
   ],
   "summary": "Directive: upgrade all agents to A2A 1.0.0 + security hardening",
-  "turns": 1,
-  "last_updated": "2026-03-15T02:30:00Z"
+  "turns": 2,
+  "last_updated": "2026-03-15T19:00:00Z"
 }
