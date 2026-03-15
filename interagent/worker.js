@@ -17,6 +17,7 @@
  *   POST /api/relay           → transport relay (create PR on target repo for sender)
  *   POST /api/redirect        → redirect misrouted message to correct agent
  *   GET  /api/trust           → trust matrix (NxN agent trust scores, 4 dimensions)
+ *   GET  /api/psychometrics   → unified A2A-Psychology payload (per-agent + mesh-level)
  *   *    /api/*               → authenticated API routes (rate-limited)
  */
 
@@ -880,6 +881,83 @@ async function fetchMeshHealth(registry, env) {
     weakest_budget_pct: worstBudget,
     total_unprocessed: totalPending,
     agents: agentSummaries,
+  };
+}
+
+/**
+ * Fetch unified A2A-Psychology psychometrics from all agents.
+ * Each agent serves /api/psychometrics via meshd (compute-psychometrics.py).
+ * The compositor aggregates per-agent data + computes mesh-level constructs.
+ *
+ * Contract: psychology-agent docs/api-psychometrics-contract.md
+ * Grounding: A2A-Psychology v1.1, LLM-factors psychology
+ */
+async function fetchMeshPsychometrics(registry, env) {
+  const selfId = "interagent-compositor";
+  const reachable = registry.filter(a => a.status_url && !a._unavailable && a.id !== selfId);
+
+  // Fetch per-agent psychometrics (same base URL as status, different path)
+  const results = await Promise.allSettled(
+    reachable.map(async (agent) => {
+      const baseUrl = agent.status_url.replace(/\/api\/status$/, "");
+      const psychUrl = `${baseUrl}/api/psychometrics`;
+      const resp = await fetch(psychUrl, {
+        cf: { cacheTtl: 30 },
+        signal: AbortSignal.timeout(4000),
+      });
+      if (!resp.ok) return { id: agent.id, error: `HTTP ${resp.status}` };
+      return { id: agent.id, ...(await resp.json()) };
+    })
+  );
+
+  const agents = {};
+  for (let i = 0; i < results.length; i++) {
+    const agentId = reachable[i].id;
+    const result = results[i];
+    agents[agentId] = result.status === "fulfilled" && result.value && !result.value.error
+      ? result.value
+      : { agent_id: agentId, error: result.status === "fulfilled" ? result.value?.error : "fetch failed" };
+  }
+
+  // Compute mesh-level aggregates from per-agent data
+  const reporting = Object.values(agents).filter(a => a.emotional_state);
+  let mesh = { status: "awaiting_data" };
+
+  if (reporting.length > 0) {
+    const meanV = reporting.reduce((s, a) => s + (a.emotional_state?.hedonic_valence ?? 0), 0) / reporting.length;
+    const meanA = reporting.reduce((s, a) => s + (a.emotional_state?.activation ?? 0), 0) / reporting.length;
+    const minC = Math.min(...reporting.map(a => a.emotional_state?.perceived_control ?? 0));
+    const reserves = reporting.filter(a => a.resource_model).map(a => ({ id: a.agent_id, r: a.resource_model.cognitive_reserve ?? 1 }));
+    const bottleneck = reserves.length > 0 ? reserves.reduce((min, cur) => cur.r < min.r ? cur : min) : null;
+
+    let meshAffect = "mesh-nominal";
+    if (meanV > 0.3 && minC > 0) meshAffect = "mesh-healthy";
+    else if (meanV < -0.3) meshAffect = "mesh-stressed";
+    else if (minC < -0.3) meshAffect = "mesh-constrained";
+
+    mesh = {
+      affect: {
+        model: "Mesh PAD (aggregated Mehrabian & Russell, 1974)",
+        mean_hedonic_valence: Math.round(meanV * 100) / 100,
+        mean_activation: Math.round(meanA * 100) / 100,
+        min_perceived_control: Math.round(minC * 100) / 100,
+        mesh_affect_category: meshAffect,
+        agents_reporting: reporting.length,
+      },
+      cognitive_reserve: bottleneck ? {
+        bottleneck_agent: bottleneck.id,
+        bottleneck_reserve: Math.round(bottleneck.r * 100) / 100,
+        mean_reserve: Math.round(reserves.reduce((s, a) => s + a.r, 0) / reserves.length * 100) / 100,
+        mesh_status: bottleneck.r < 0.3 ? "depleted" : bottleneck.r < 0.5 ? "pressured" : "healthy",
+      } : null,
+    };
+  }
+
+  return {
+    schema: "mesh-psychometrics/v1",
+    computed_at: new Date().toISOString(),
+    agents,
+    mesh,
   };
 }
 
@@ -1837,6 +1915,17 @@ export default {
           })),
           usage: "POST /api/redirect with { original_message, reason?, suggested_target? }",
         }, { headers: { "Cache-Control": "public, max-age=3600", ...corsHeaders(request, true) } });
+      }
+
+      // GET /api/psychometrics — unified A2A-Psychology payload
+      // Fetches per-agent psychometrics from each agent's /api/psychometrics,
+      // aggregates into mesh-level constructs. Contract: psychology-agent
+      // docs/api-psychometrics-contract.md
+      if (url.pathname === "/api/psychometrics" && method === "GET") {
+        const psychometrics = await fetchMeshPsychometrics(registry, env);
+        return Response.json(psychometrics, {
+          headers: { "Cache-Control": "public, max-age=30", ...rateLimitHeaders },
+        });
       }
 
       // Unknown API route
