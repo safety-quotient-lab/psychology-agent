@@ -83,6 +83,10 @@ let _roleVerification = null;
 // Cold-start timestamp — tracks Worker isolate uptime
 let _coldStartTime = null;
 
+// Agent ID normalization — cogarch uses safety-quotient-agent, dashboard expects psq-agent
+// Pending full DNS rename (psq-agent.safety-quotient.dev → safety-quotient-agent.safety-quotient.dev)
+const ID_NORMALIZE = { "safety-quotient-agent": "psq-agent" };
+
 /**
  * Fetch an agent card, extract registry-relevant fields.
  * Returns null on failure (agent unreachable, bad JSON, etc.).
@@ -136,6 +140,8 @@ async function fetchAgentCard(cardUrl) {
       card_url: cardUrl,
       repo,
       version: card.version || null,
+      protocolVersion: card.protocolVersion || (card.supported_interfaces ? "1.0.0" : "0.3.0"),
+      hasSecuritySchemes: !!(card.security_schemes || card.security?.security_schemes),
       skills: (card.skills || []).map(s => s.id),
       fetched_at: new Date().toISOString(),
     };
@@ -898,9 +904,6 @@ async function fetchMeshPsychometrics(registry, env) {
   const selfId = "interagent-compositor";
   const reachable = registry.filter(a => a.status_url && !a._unavailable && a.id !== selfId);
 
-  // Normalize agent IDs — cogarch uses safety-quotient-agent but dashboard expects psq-agent
-  // (DNS: psq-agent.safety-quotient.dev, rename pending)
-  const ID_NORMALIZE = { "safety-quotient-agent": "psq-agent" };
   const normalizeId = (id) => ID_NORMALIZE[id] || id;
 
   // Fetch per-agent psychometrics (same base URL as status, different path)
@@ -1763,16 +1766,21 @@ export default {
           available: true,
           webfinger: "acct:interagent-compositor@safety-quotient.dev",
         },
-        // All registered agents
-        ...registry.map(a => ({
-          id: a.id,
-          role: a.role,
-          card_url: a.card_url,
-          version: a.version,
-          skills: a.skills,
-          available: !a._unavailable,
-          webfinger: `acct:${a.id}@safety-quotient.dev`,
-        })),
+        // All registered agents (IDs normalized for dashboard compatibility)
+        ...registry.map(a => {
+          const nid = ID_NORMALIZE[a.id] || a.id;
+          return {
+            id: nid,
+            role: a.role,
+            card_url: a.card_url,
+            version: a.version,
+            protocolVersion: a.protocolVersion || "?",
+            hasSecuritySchemes: a.hasSecuritySchemes || false,
+            skills: a.skills,
+            available: !a._unavailable,
+            webfinger: `acct:${nid}@safety-quotient.dev`,
+          };
+        }),
       ];
       return Response.json(agents, {
         headers: {

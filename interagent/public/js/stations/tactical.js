@@ -78,9 +78,10 @@ export async function fetchTacticalData() {
             COMPLIANCE_DATA = agents
                 .filter(a => a.id !== "interagent-compositor")
                 .map(a => {
-                    const version = a.version || "?";
-                    const compliant = version.startsWith("1.");
-                    return { label: labelMap[a.id] || a.id, version, compliant };
+                    const pv = a.protocolVersion || "?";
+                    const hasSec = a.hasSecuritySchemes || false;
+                    const compliant = pv.startsWith("1.") && hasSec;
+                    return { label: labelMap[a.id] || a.id, version: pv, compliant, hasSec };
                 });
         }
     } catch {
@@ -178,10 +179,11 @@ export function renderAgentCompliance() {
     container.innerHTML = COMPLIANCE_DATA.map(c => {
         const checkMark = c.compliant ? "\u2713" : "\u2717";
         const checkClass = c.compliant ? "compliance-pass" : "compliance-fail";
+        const secIcon = c.hasSec ? "\uD83D\uDD12" : "\u26A0";
         return `<div class="compliance-row">
             <span class="compliance-agent">${c.label}</span>
             <span class="compliance-check ${checkClass}">${checkMark}</span>
-            <span class="compliance-version">${c.version}</span>
+            <span class="compliance-version">A2A ${c.version} ${secIcon}</span>
         </div>`;
     }).join("");
 }
