@@ -30,19 +30,22 @@
     }
     </script>
     <script>
-    // Apply saved theme BEFORE first paint to prevent FOUC
-    // Sets on <html> now (body doesn't exist yet), body gets it from theme.js
+    // Apply saved theme BEFORE first paint — prevents FOUC
+    // Sets on html immediately + body via DOMContentLoaded
     (function() {
         var t = localStorage.getItem("theme");
-        if (t) {
-            var cls = t === "light" ? "theme-light" : t === "lcars" ? "theme-lcars" : "";
-            if (cls) document.documentElement.classList.add(cls);
-        }
+        if (!t) return;
+        var cls = t === "light" ? "theme-light" : t === "lcars" ? "theme-lcars" : "";
+        if (!cls) return;
+        document.documentElement.classList.add(cls);
+        document.addEventListener("DOMContentLoaded", function() {
+            document.body.classList.add(cls);
+        });
     })();
     </script>
-    <link rel="stylesheet" href="css/theme.css?v=1773581516">
-    <link rel="stylesheet" href="css/layout.css?v=1773581516">
-    <link rel="stylesheet" href="css/components.css?v=1773581516">
+    <link rel="stylesheet" href="css/theme.css?v=1773582266">
+    <link rel="stylesheet" href="css/layout.css?v=1773582266">
+    <link rel="stylesheet" href="css/components.css?v=1773582266">
 </head>
 <body>
 
@@ -989,6 +992,6 @@
     </div>
 </div>
 
-<script type="module" src="js/main.js?v=1773581516"></script>
+<script type="module" src="js/main.js?v=1773582266"></script>
 </body>
 </html>
