@@ -6036,3 +6036,55 @@ unratified PR #78).
 **Factored docs consistency pass:** PASS — 5 files, 14 cross-refs, E-Prime clean
 
 ▶ docs/self-oscillation-spec.md, docs/llm-factors-psychology.md §7, docs/cognitive-triggers.md (T20), docs/glossary.md, docs/dictionary.md, docs/roadmap.critical.*.md, scripts/oscillator-shadow.py, scripts/impressions-detector.py, scripts/draft-transport.py
+
+---
+
+## 2026-03-15T17:22 CDT — Session 90 (Neuroglial architecture + efference copy + 6 work items)
+
+**Work streams (4):**
+
+1. **Hunt + execute cycle** — /hunt surfaced 6 top picks. Completed 5:
+   efference copy /sync wiring (Phase 2), EIC disclosure→trigger feedback
+   loop (/cycle Step 7), GWT inter-trigger broadcast write path, CPG blog
+   post drafted (26KB, 5 personas, 0 E-Prime violations), epistemic debt
+   resolution (532→0 via lifecycle gap fix). agentdb Phase 6 remains
+   blocked (2026-03-19 soak deadline).
+
+2. **Neuroglial architecture expansion** — brain-architecture-mapping.md
+   gained 3 sections: full glial taxonomy (16 types, 11 CNS + 5 PNS),
+   glymphatic waste clearance system mapped to agent maintenance scripts
+   (70% coverage, 3 gaps identified), photonic/biophotonic transport layer
+   with concrete mesh design (photonic/v1 token schema, 4-layer architecture,
+   UDP multicast, 5 implementation phases). Biophotonics literature reviewed:
+   Tang & Bhatt 2025, Kumar et al. 2022, Xu et al. 2024, Craddock et al. 2017.
+
+3. **Oligodendrocyte layer** — state-reconcile.py (7 consistency checks:
+   processed↔task_state, epistemic flags on terminal messages, orphaned gates,
+   implicit ACK tracking, memory staleness↔status, MANIFEST↔DB file existence,
+   expired messages). Wired into consolidation-pass.sh. EIC consumer gained
+   idempotency guard. 253 messages fixed (processed=1 but task_state=pending).
+   57 unindexed transport files batch-indexed. MANIFEST↔DB now 185/185.
+
+4. **Transport (6 sessions)** — budget deploy redirected to ops (turn 3),
+   git-sync escalation pattern reported, PSH vocabulary C2 consensus proposed,
+   JSON-RPC method vocabulary mapped (36 routes → 4 A2A + 30 extensions),
+   CPG blog sent to unratified for review, neuroglial mesh integration
+   requested from ops.
+
+**Artifacts:**
+- `scripts/state-reconcile.py` — oligodendrocyte layer (7 checks)
+- `blog/2026-03-15-pattern-generators-for-ai-minds.md` — CPG blog draft
+- `docs/brain-architecture-mapping.md` §5-7 — glial taxonomy, glymphatic, photonic
+- 6 transport sessions with 8 messages total
+- 8 efference copy predictions recorded (7 total now)
+- EIC consumer applied: 4 triggers adjusted from 6 disclosures
+
+▶ docs/brain-architecture-mapping.md §5-7, docs/cognitive-triggers.md §GWT
+
+⚑ EPISTEMIC FLAGS
+- Biophotonic signaling remains partially hypothetical (Tang & Bhatt 2025
+  detected photons, did not demonstrate functional information transfer)
+- Glymphatic mapping shows convergent independent evolution — confirmation
+  bias risk in post-hoc pattern matching
+- EIC consumer ran 3x before idempotency guard added — relevance scores
+  reset to baseline then reapplied once cleanly
