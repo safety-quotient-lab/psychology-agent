@@ -4,20 +4,16 @@
 
 ## Active Thread (2026-03-15)
 
-**Session 89.** A2A-Psychology mesh state upgrade complete. API contract
-(`docs/api-psychometrics-contract.md`) defines 3 levels of `/api/psychometrics`:
-per-agent (8 constructs), mesh (5 emergent), compositor (unified). All 5 dashboard
-stations wired with a2a-psych panels. Approximate psychometrics bridge deployed
-(computes from /api/status until meshd endpoints activate). TNG-style "SENSOR
-ESTIMATE" fidelity indicators. Cognitive-tempo model delivered (adaptive gain
-theory, haiku/sonnet/opus selection). Budget model migrated to spend-counter.
-Mobile responsive fixes + content mirroring event handlers complete.
-Ops deploying psychometrics endpoints to agents now.
+**Session 88.** LCARS visual overhaul complete (v1-beta.3). 10-layer redesign
+deployed to interagent.safety-quotient.dev. 23 commits, +8316 lines. Five Trek
+bridge stations (Operations, Science, Engineering, Helm, Tactical). Gf/Gc
+intelligence model (Cattell, 1963). Delta tracker on all numerics. Trek alert
+system (5 levels). Worker backend: agent card, diagnostic, halt/resume, autonomy
+reset. Transport request sent to ops for psychometrics/tempo/spawn-rate/gc_metrics.
 
-**Next session:** Monitor ops psychometrics deployment (panels should switch from
-SENSOR ESTIMATE to PRIMARY READINGS). Deploy compositor Worker (`wrangler deploy`).
-Deploy budget model to chromabook (steps 1-5 from ops directive). v1 tag after
-psychometrics + budget deploy verified.
+**Next session:** Mobile responsive fixes (sidebar accordion, flex-wrap, header
+split). Ops backend endpoint implementation. Content mirroring event handlers.
+v1 tag after mobile + psychometrics land.
 
 ## User Preferences
 
