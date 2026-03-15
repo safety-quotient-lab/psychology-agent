@@ -132,6 +132,7 @@ export function switchTab(tabId, updateHash = true) {
     if (tabId === "knowledge") tabId = "meta"; // backward compat
     if (!VALID_TABS.includes(tabId)) tabId = "pulse";
     document.querySelectorAll(".lcars-tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tabId));
+    document.querySelectorAll(".lcars-sidebar-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabId));
     document.querySelectorAll(".tab-pane").forEach(p => p.classList.toggle("active", p.id === `pane-${tabId}`));
     // Update header band + title color to match active tab
     const colorVar = TAB_COLORS[tabId] || "--c-tab-pulse";

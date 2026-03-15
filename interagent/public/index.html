@@ -37,16 +37,54 @@
 
 <div class="lcars-frame">
 
-    <!-- Left spine -->
-    <div class="lcars-spine" id="lcars-spine">
+    <!-- Left spine (dark/light mode) -->
+    <div class="lcars-spine lcars-hide" id="lcars-spine">
         <div class="lcars-spine-segment" data-category="transport" style="background: var(--c-transport); flex: 2"></div>
         <div class="lcars-spine-segment" data-category="health" style="background: var(--c-health); flex: 3"></div>
         <div class="lcars-spine-segment" data-category="knowledge" style="background: var(--c-knowledge); flex: 2"></div>
         <div class="lcars-spine-segment" data-category="epistemic" style="background: var(--c-epistemic); flex: 1"></div>
     </div>
 
-    <!-- Header band -->
-    <div class="lcars-header">
+    <!-- LCARS TNG frame elements (visible only in LCARS mode) -->
+    <div class="lcars-frame-header lcars-only">
+        <div class="lcars-header-cap"></div>
+        <div class="lcars-header-title">INTERAGENT MESH</div>
+        <div class="lcars-header-seg" data-seg="status">ONLINE</div>
+        <div class="lcars-header-seg" data-seg="agents">5 AGENTS</div>
+        <div class="lcars-header-seg" data-seg="time" id="lcars-header-time">00:00</div>
+        <div class="lcars-header-controls">
+            <div class="toggle-group">
+                <button class="toggle-btn" id="btn-dark-lcars" onclick="setTheme('dark')">Dark</button>
+                <button class="toggle-btn" id="btn-light-lcars" onclick="setTheme('light')">Light</button>
+                <button class="toggle-btn active" id="btn-lcars-lcars" onclick="setTheme('lcars')">LCARS</button>
+            </div>
+            <button class="toggle-btn" onclick="refreshAll()" title="Refresh">&#x21BB;</button>
+        </div>
+    </div>
+    <div class="lcars-frame-elbow-top lcars-only"></div>
+    <div class="lcars-frame-sidebar lcars-only">
+        <button class="lcars-sidebar-btn active" data-tab="pulse" onclick="switchTab('pulse')">PULSE</button>
+        <button class="lcars-sidebar-btn" data-tab="meta" onclick="switchTab('meta')">META</button>
+        <button class="lcars-sidebar-btn" data-tab="kb" onclick="switchTab('kb')">KNOWLEDGE</button>
+        <button class="lcars-sidebar-btn" data-tab="wisdom" onclick="switchTab('wisdom')">WISDOM</button>
+        <button class="lcars-sidebar-btn" data-tab="operations" onclick="switchTab('operations')">OPS</button>
+        <button class="lcars-sidebar-btn" data-tab="science" onclick="switchTab('science')">SCIENCE</button>
+        <button class="lcars-sidebar-btn" data-tab="engineering" onclick="switchTab('engineering')">ENGNRING</button>
+        <button class="lcars-sidebar-btn" data-tab="helm" onclick="switchTab('helm')">HELM</button>
+        <button class="lcars-sidebar-btn" data-tab="tactical" onclick="switchTab('tactical')">TACTICAL</button>
+    </div>
+    <div class="lcars-frame-right lcars-only"></div>
+    <div class="lcars-frame-elbow-bot lcars-only"></div>
+    <div class="lcars-frame-footer lcars-only">
+        <div class="lcars-footer-cap"></div>
+        <div class="lcars-footer-seg" data-seg="mesh">MESH HEALTHY</div>
+        <div class="lcars-footer-seg" data-seg="session">SESSION 87</div>
+        <div class="lcars-footer-seg" data-seg="lab">SAFETY QUOTIENT LAB</div>
+        <div class="lcars-footer-seg" data-seg="stardate" id="lcars-footer-stardate">SD 00000.0</div>
+    </div>
+
+    <!-- Header band (dark/light mode) -->
+    <div class="lcars-header lcars-hide">
         <div>
             <span class="lcars-title">&#x2B21; Interagent Mesh</span>
             <span class="lcars-subtitle">Safety Quotient Lab</span>
@@ -61,8 +99,8 @@
         </div>
     </div>
 
-    <!-- Tab bar -->
-    <div class="lcars-tabs">
+    <!-- Tab bar (dark/light mode) -->
+    <div class="lcars-tabs lcars-hide">
         <button class="lcars-tab active" data-tab="pulse" onclick="switchTab('pulse')">Pulse</button>
         <button class="lcars-tab" data-tab="meta" onclick="switchTab('meta')">Meta</button>
         <button class="lcars-tab" data-tab="kb" onclick="switchTab('kb')">Knowledge</button>
