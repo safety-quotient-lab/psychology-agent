@@ -289,6 +289,9 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	// Consensus (quorum gate resolution — R1 governance)
 	mux.HandleFunc("GET /api/consensus", s.handleConsensus)
 
+	// Flow (mesh visualization — topology + rates + slots)
+	mux.HandleFunc("GET /api/flow", s.handleFlow)
+
 	// Transport relay + redirect
 	mux.HandleFunc("POST /api/relay", s.handleRelay)
 	mux.HandleFunc("POST /api/redirect", s.handleRedirect)
