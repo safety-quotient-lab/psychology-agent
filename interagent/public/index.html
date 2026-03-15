@@ -30,31 +30,27 @@
     }
     </script>
     <script>
-    // Apply saved theme + default tab BEFORE first paint — prevents FOUC
+    // Apply theme to <html> before CSS loads — prevents FOUC
     (function() {
-        var t = localStorage.getItem("theme");
-        if (!t) { t = "dark"; }
-        var cls = t === "light" ? "theme-light" : t === "lcars" ? "theme-lcars" : "";
-        if (cls) document.documentElement.classList.add(cls);
-        // Set default active pane BEFORE body renders
-        var defaultTab = t === "lcars" ? "engineering" : "pulse";
-        document.addEventListener("DOMContentLoaded", function() {
-            if (cls) document.body.classList.add(cls);
-            var pane = document.getElementById("pane-" + defaultTab);
-            if (pane) pane.classList.add("active");
-            // Also activate the correct sidebar/tab button
-            var btns = document.querySelectorAll("[data-tab='" + defaultTab + "']");
-            btns.forEach(function(b) { b.classList.add("active"); });
-        });
+        var t = localStorage.getItem("theme") || "dark";
+        if (t === "light") document.documentElement.classList.add("theme-light");
+        else if (t === "lcars") document.documentElement.classList.add("theme-lcars");
     })();
     </script>
-    <link rel="stylesheet" href="css/theme.css?v=1773583053">
-    <link rel="stylesheet" href="css/layout.css?v=1773583053">
-    <link rel="stylesheet" href="css/components.css?v=1773583053">
+    <link rel="stylesheet" href="css/theme.css?v=1773583350">
+    <link rel="stylesheet" href="css/layout.css?v=1773583350">
+    <link rel="stylesheet" href="css/components.css?v=1773583350">
 </head>
 <body>
+<script>
+// Immediately apply theme + activate default pane — no waiting for DOMContentLoaded
+(function() {
+    var t = localStorage.getItem("theme") || "dark";
+    if (t === "light") document.body.classList.add("theme-light");
+    else if (t === "lcars") document.body.classList.add("theme-lcars");
+})();
+</script>
 
-<!-- Mobile status bar — visible only at < 768px -->
 <div class="lcars-frame">
 
     <!-- Left spine (dark/light mode) -->
@@ -997,6 +993,18 @@
     </div>
 </div>
 
-<script type="module" src="js/main.js?v=1773583053"></script>
+<script>
+// Activate default pane BEFORE module loads — all DOM exists at this point
+(function() {
+    var t = localStorage.getItem("theme") || "dark";
+    var tab = t === "lcars" ? "engineering" : "pulse";
+    var pane = document.getElementById("pane-" + tab);
+    if (pane) pane.classList.add("active");
+    document.querySelectorAll("[data-tab='" + tab + "']").forEach(function(b) {
+        b.classList.add("active");
+    });
+})();
+</script>
+<script type="module" src="js/main.js?v=1773583350"></script>
 </body>
 </html>
