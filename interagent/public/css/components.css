@@ -2177,3 +2177,5 @@ a.activity-link:hover {
 .freshness-fresh { background: var(--status-online); }
 .freshness-stale { background: var(--status-offline); }
 .freshness-aging { background: var(--status-degraded); }
+.lcars-footer-link { text-decoration: none; color: #000; cursor: pointer; }
+.lcars-footer-link:hover { filter: brightness(1.2); }
