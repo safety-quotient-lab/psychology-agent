@@ -1542,45 +1542,31 @@
 
         <!-- Operations Tab -->
         <div class="tab-pane" id="pane-operations">
-            <!-- Operations vitals -->
-            <div class="kb-controls-group">
-                <div class="kb-vitals" id="ops-vitals">
-                    <div class="kb-vital">
-                        <div class="kb-vital-value" id="ops-total-credits">—</div>
-                        <div class="kb-vital-label">Credits</div>
-                    </div>
-                    <div class="kb-vital">
-                        <div class="kb-vital-value" id="ops-total-actions">—</div>
-                        <div class="kb-vital-label">Actions</div>
-                    </div>
-                    <div class="kb-vital">
-                        <div class="kb-vital-value" id="ops-active-gates">—</div>
-                        <div class="kb-vital-label">Gates</div>
-                    </div>
-                    <div class="kb-vital">
-                        <div class="kb-vital-value" id="ops-agents-syncing">—</div>
-                        <div class="kb-vital-label">Syncing</div>
-                    </div>
+            <!-- Status summary — auto-generated natural language monologue -->
+            <div class="lcars-panel kb-section" data-section="operations" style="margin-bottom: 1.2rem;">
+                <div class="lcars-panel-header">Status</div>
+                <div class="lcars-panel-body" id="ops-status-monologue" style="font-size: 0.95rem; line-height: 1.6; padding: 0.8rem 1rem; color: var(--lcars-text); opacity: 0.92;">
+                    Collecting mesh state...
                 </div>
             </div>
 
-            <!-- Autonomy Budget per agent -->
+            <!-- Budget overview — per-agent spending + limits -->
             <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Autonomy Budget</div>
+                <div class="lcars-panel-header">Budget</div>
                 <div class="lcars-panel-body">
                     <div class="ops-budget-grid" id="ops-budget-grid"></div>
                 </div>
             </div>
 
-            <!-- Autonomous Actions Audit Trail -->
+            <!-- Recent activity — deliberation audit trail -->
             <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Autonomous Actions</div>
+                <div class="lcars-panel-header">Recent Activity</div>
                 <mesh-data-table id="table-actions"></mesh-data-table>
             </div>
 
-            <!-- Sync Schedule -->
+            <!-- Sync status — per-agent health -->
             <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Sync Schedule</div>
+                <div class="lcars-panel-header">Sync Status</div>
                 <div class="lcars-panel-body" id="ops-schedule"></div>
             </div>
         </div>
@@ -3890,42 +3876,72 @@
     // ── Render: Operations ──────────────────────────────────────────
 
     function renderOperations() {
+        renderStatusMonologue();
         renderOpsBudget();
         renderOpsActions();
         renderOpsSchedule();
-        renderOpsVitals();
     }
 
-    function renderOpsVitals() {
-        // Prefer compositor-aggregated operations data
-        if (opsData?.vitals) {
-            const v = opsData.vitals;
-            document.getElementById("ops-total-credits").textContent = `${v.total_credits}/${v.max_credits}`;
-            document.getElementById("ops-total-actions").textContent = v.total_actions;
-            document.getElementById("ops-active-gates").textContent = v.active_gates;
-            document.getElementById("ops-agents-syncing").textContent = `${v.agents_syncing}/${v.agents_total}`;
-            return;
+    function renderStatusMonologue() {
+        const el = document.getElementById("ops-status-monologue");
+        if (!el) return;
+
+        const online = Object.values(agentData).filter(a => a.status === "online");
+        const total = AGENTS.length;
+        const onlineCount = online.length;
+
+        // Budget summary
+        const withBudget = online.filter(a => a.data?.autonomy_budget?.budget_spent != null);
+        const totalSpent = withBudget.reduce((s, a) => s + (parseFloat(a.data.autonomy_budget.budget_spent) || 0), 0);
+        const totalCutoff = withBudget.reduce((s, a) => s + (parseFloat(a.data.autonomy_budget.budget_cutoff) || 0), 0);
+        const nearLimit = withBudget.filter(a => {
+            const spent = parseFloat(a.data.autonomy_budget.budget_spent) || 0;
+            const cutoff = parseFloat(a.data.autonomy_budget.budget_cutoff) || 0;
+            return cutoff > 0 && spent / cutoff > 0.8;
+        });
+
+        // Activity
+        const actionCount = online.reduce((s, a) => s + (a.data?.recent_deliberations || []).length, 0);
+        const unprocessed = online.reduce((s, a) => s + (a.data?.unprocessed_messages || []).length, 0);
+
+        // Build monologue sentences
+        const parts = [];
+
+        // Sentence 1: mesh status
+        if (onlineCount === total) {
+            parts.push(`All ${total} agents online.`);
+        } else {
+            const offline = AGENTS.filter(a => !online.find(o => o.id === a.id)).map(a => a.id.replace("-agent", ""));
+            parts.push(`${onlineCount}/${total} agents online${offline.length ? " — " + offline.join(", ") + " offline" : ""}.`);
         }
 
-        // Client-side fallback
-        const online = Object.values(agentData).filter(a => a.status === "online");
+        // Sentence 2: budget
+        if (totalCutoff > 0) {
+            const pct = Math.round(totalSpent / totalCutoff * 100);
+            parts.push(`Budget: ${Math.round(totalSpent)} of ${Math.round(totalCutoff)} credits used (${pct}%).`);
+        } else if (withBudget.length > 0) {
+            parts.push(`Budget: ${Math.round(totalSpent)} credits spent (unlimited mode).`);
+        }
 
-        const opsWithBudget = online.filter(a => a.data?.autonomy_budget?.budget_spent != null);
-        const totalCredits = opsWithBudget.reduce((sum, a) => sum + (parseInt(a.data.autonomy_budget.budget_spent) || 0), 0);
-        const maxCredits = opsWithBudget.reduce((sum, a) => sum + (parseInt(a.data.autonomy_budget.budget_cutoff) || 0), 0);
-        const totalActions = online.reduce((sum, a) =>
-            sum + (a.data?.recent_actions || []).length, 0);
-        const gates = online.reduce((sum, a) =>
-            sum + (a.data?.active_gates || []).length, 0);
-        const syncing = online.filter(a => {
-            const sched = a.data?.schedule || {};
-            return sched.cron_entry || sched.last_sync;
-        }).length;
+        // Sentence 3: budget warnings
+        if (nearLimit.length > 0) {
+            const names = nearLimit.map(a => (a.data.agent_id || "").replace("-agent", ""));
+            parts.push(`⚠ ${names.join(", ")} approaching budget limit.`);
+        }
 
-        document.getElementById("ops-total-credits").textContent = `${totalCredits}/${maxCredits}`;
-        document.getElementById("ops-total-actions").textContent = totalActions;
-        document.getElementById("ops-active-gates").textContent = gates;
-        document.getElementById("ops-agents-syncing").textContent = `${syncing}/${AGENTS.length}`;
+        // Sentence 4: recent activity
+        if (actionCount > 0) {
+            parts.push(`${actionCount} deliberation${actionCount !== 1 ? "s" : ""} recorded recently.`);
+        } else {
+            parts.push("No recent deliberations.");
+        }
+
+        // Sentence 5: pending items
+        if (unprocessed > 0) {
+            parts.push(`${unprocessed} transport message${unprocessed !== 1 ? "s" : ""} awaiting processing.`);
+        }
+
+        el.textContent = parts.join(" ");
     }
 
     // ── Render: Ops Budget (delegates to <ops-budget-card> components) ──
