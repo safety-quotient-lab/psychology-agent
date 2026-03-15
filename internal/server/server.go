@@ -283,6 +283,9 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	// Spawn rate (claude -p consumption metrics)
 	mux.HandleFunc("GET /api/spawn-rate", s.handleSpawnRate)
 
+	// Tempo (mesh dynamics — differential calculus model)
+	mux.HandleFunc("GET /api/tempo", s.handleTempo)
+
 	// Transport relay + redirect
 	mux.HandleFunc("POST /api/relay", s.handleRelay)
 	mux.HandleFunc("POST /api/redirect", s.handleRedirect)
