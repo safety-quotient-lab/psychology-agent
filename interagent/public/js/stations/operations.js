@@ -16,15 +16,31 @@
  * Global functions called: sortTable, goToPage
  */
 
+// ── Module State ──────────────────────────────────────────────
+let meshHealthData = null;
+
+/** Timeout for all fetches (5 seconds per task spec) */
+const FETCH_TIMEOUT = 5000;
+
 // ── Data Fetching ──────────────────────────────────────────────
 
 /**
- * Operations station consumes agentData from pulse.js — no separate fetch.
- * Exists for interface consistency with other stations.
+ * Fetch mesh health from /api/health to supplement budget data.
+ * Operations primarily consumes agentData from pulse.js; this adds
+ * mesh-level budget_pct and gate data from the interagent endpoint.
  * @returns {Promise<void>}
  */
 export async function fetchOpsData() {
-    // No-op: Operations tab renders from agentData populated by pulse.js
+    try {
+        const resp = await fetch("https://interagent.safety-quotient.dev/api/health", {
+            signal: AbortSignal.timeout(FETCH_TIMEOUT),
+        });
+        if (resp.ok) {
+            meshHealthData = await resp.json();
+        }
+    } catch {
+        meshHealthData = null;
+    }
 }
 
 // ── Render: Operations Vitals ──────────────────────────────────

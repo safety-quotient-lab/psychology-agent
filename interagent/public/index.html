@@ -37,9 +37,9 @@
         else if (t === "lcars") document.documentElement.classList.add("theme-lcars");
     })();
     </script>
-    <link rel="stylesheet" href="css/theme.css?v=1773583544">
-    <link rel="stylesheet" href="css/layout.css?v=1773583544">
-    <link rel="stylesheet" href="css/components.css?v=1773583544">
+    <link rel="stylesheet" href="css/theme.css?v=1773584061">
+    <link rel="stylesheet" href="css/layout.css?v=1773584061">
+    <link rel="stylesheet" href="css/components.css?v=1773584061">
 </head>
 <body>
 <script>
@@ -994,10 +994,16 @@
 </div>
 
 <script>
-// Activate default pane BEFORE module loads — all DOM exists at this point
+// Activate saved tab (or default) BEFORE module loads — all DOM exists
 (function() {
     var t = localStorage.getItem("theme") || "dark";
-    var tab = t === "lcars" ? "engineering" : "pulse";
+    var hash = location.hash.replace("#", "");
+    var tab;
+    if (hash && document.getElementById("pane-" + hash)) {
+        tab = hash; // URL hash takes priority
+    } else {
+        tab = t === "lcars" ? "engineering" : "pulse";
+    }
     var pane = document.getElementById("pane-" + tab);
     if (pane) pane.classList.add("active");
     document.querySelectorAll("[data-tab='" + tab + "']").forEach(function(b) {
@@ -1005,6 +1011,6 @@
     });
 })();
 </script>
-<script type="module" src="js/main.js?v=1773583544"></script>
+<script type="module" src="js/main.js?v=1773584061"></script>
 </body>
 </html>
