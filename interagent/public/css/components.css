@@ -16,12 +16,17 @@
     background: var(--bg-inset);
     border: 1px solid var(--border);
     color: var(--text-secondary);
-    padding: 3px 8px;
+    padding: 6px 12px;
+    min-height: 48px;
+    min-width: 48px;
     border-radius: 4px;
     cursor: pointer;
     font-family: inherit;
     font-size: 0.7em;
     transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 .toggle-btn:hover { border-color: var(--text-secondary); }
 .toggle-btn.active {
@@ -48,6 +53,7 @@
     border-radius: 0 8px 8px 0;
     position: relative;
     overflow: hidden;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 .lcars-panel::before {
     content: '';
@@ -108,11 +114,16 @@
     background: var(--bg-inset);
     border: 1px solid var(--border);
     color: var(--text-secondary);
-    padding: 2px 8px;
+    padding: 4px 10px;
+    min-height: 48px;
+    min-width: 48px;
     border-radius: 3px;
     cursor: pointer;
     font-family: inherit;
     font-size: 0.7em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 .table-page-btn:hover { border-color: var(--text-secondary); }
 .table-page-btn:disabled { opacity: 0.3; cursor: default; }
@@ -134,6 +145,7 @@
     text-align: center;
     position: relative;
     overflow: hidden;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 .vital-link:hover {
     border-color: var(--vital-color, var(--c-transport));
@@ -295,7 +307,7 @@ a.activity-link:hover {
     color: var(--text-secondary);
 }
 
-/* Topology placeholder */
+/* Topology wireframe */
 .topology-container {
     --panel-accent: var(--c-health);
     min-height: 360px;
@@ -308,6 +320,24 @@ a.activity-link:hover {
 .topology-svg a:hover circle { opacity: 0.3; }
 .topology-svg text { fill: var(--topo-label); }
 .topology-svg g:hover text { fill: var(--topo-label-hover); }
+
+/* Topology node glow — subtle halo per agent color */
+.topology-svg .topo-node-psychology circle {
+    filter: drop-shadow(0 0 6px var(--c-psychology));
+}
+.topology-svg .topo-node-psq circle {
+    filter: drop-shadow(0 0 6px var(--c-psq));
+}
+.topology-svg .topo-node-unratified circle {
+    filter: drop-shadow(0 0 6px var(--c-unratified));
+}
+.topology-svg .topo-node-observatory circle {
+    filter: drop-shadow(0 0 6px var(--c-observatory));
+}
+/* Hub node glow */
+.topology-svg .topo-node-hub circle {
+    filter: drop-shadow(0 0 4px var(--c-health));
+}
 
 /* ── Knowledge Tab ───────────────────────────────────────────── */
 
@@ -346,12 +376,15 @@ a.activity-link:hover {
     background: var(--bg-panel);
     border: 1px solid var(--border);
     color: var(--text-secondary);
-    padding: 5px 14px;
+    padding: 8px 16px;
+    min-height: 48px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.85em;
     font-family: inherit;
     transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
 }
 .agent-switch-btn:hover { border-color: var(--text-dim); }
 .agent-switch-btn.active {
@@ -634,13 +667,16 @@ a.activity-link:hover {
     background: var(--bg-inset);
     border: 1px solid var(--border);
     color: var(--text-dim);
-    padding: 3px 10px;
+    padding: 6px 12px;
+    min-height: 48px;
     border-radius: 3px;
     cursor: pointer;
     font-family: inherit;
     font-size: 0.7em;
     text-decoration: none;
     transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
 }
 .section-jump-btn:hover { color: var(--text-primary); border-color: var(--text-secondary); }
 
@@ -1014,7 +1050,44 @@ a.activity-link:hover {
 
 /* ── Engineering Station ────────────────────────────────────── */
 
-/* Spawn Dynamics — horizontal bars */
+/* Spawn Waterfall — vertical timeline, one column per agent */
+.spawn-waterfall {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    max-height: 300px;
+    overflow-y: hidden;
+}
+.spawn-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.spawn-column-header {
+    text-align: center;
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+}
+.spawn-droplet {
+    border-radius: 4px;
+    min-height: 8px;
+    opacity: 0;
+    animation: droplet-appear 300ms ease-out forwards;
+}
+.spawn-droplet.ok { background: var(--status-online, #6aab8e); }
+.spawn-droplet.fail { background: var(--status-offline, #c47070); }
+.spawn-droplet.running { background: var(--status-degraded, #d4944a); }
+@keyframes droplet-appear {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Spawn Dynamics — horizontal bars (legacy fallback) */
 .spawn-bar-row {
     display: flex;
     align-items: center;
@@ -1473,6 +1546,214 @@ a.activity-link:hover {
     text-align: center;
 }
 
+/* ── Topology Glow ──────────────────────────────────────────── */
+.topology-container {
+    box-shadow: 0 0 20px rgba(106, 171, 142, 0.08), inset 0 0 30px rgba(106, 171, 142, 0.03);
+}
+.topology-svg {
+    filter: drop-shadow(0 0 6px rgba(106, 171, 142, 0.15));
+}
+.theme-lcars .topology-container {
+    box-shadow: 0 0 24px rgba(153, 153, 255, 0.12), inset 0 0 30px rgba(153, 153, 255, 0.04);
+}
+.theme-lcars .topology-svg {
+    filter: drop-shadow(0 0 8px rgba(153, 153, 255, 0.2));
+}
+
+/* ── Activity Severity Colors ───────────────────────────────── */
+.activity-type.severity-info {
+    border-color: var(--c-transport);
+    color: var(--c-transport);
+}
+.activity-type.severity-warning {
+    border-color: var(--c-warning);
+    color: var(--c-warning);
+    background: rgba(212, 148, 74, 0.08);
+}
+.activity-type.severity-error {
+    border-color: var(--c-alert);
+    color: var(--c-alert);
+    background: rgba(196, 112, 112, 0.1);
+}
+.activity-type.severity-success {
+    border-color: var(--c-health);
+    color: var(--c-health);
+    background: rgba(106, 171, 142, 0.08);
+}
+
+/* ── Pulse Status Widgets ───────────────────────────────────── */
+.pulse-widgets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+}
+
+.pulse-widget {
+    min-height: 120px;
+}
+
+/* Organism Affect Widget */
+.affect-summary {
+    text-align: center;
+}
+.affect-label-pill {
+    display: inline-block;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-size: 1.1em;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    transition: background 0.4s, color 0.4s, border-color 0.4s;
+}
+.affect-label-pill.affect-positive {
+    background: rgba(106, 171, 142, 0.12);
+    border-color: rgba(106, 171, 142, 0.4);
+    color: #6aab8e;
+}
+.affect-label-pill.affect-neutral {
+    background: rgba(212, 148, 74, 0.1);
+    border-color: rgba(212, 148, 74, 0.35);
+    color: #d4944a;
+}
+.affect-label-pill.affect-negative {
+    background: rgba(196, 112, 112, 0.1);
+    border-color: rgba(196, 112, 112, 0.35);
+    color: #c47070;
+}
+.affect-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.affect-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78em;
+}
+.affect-bar-name {
+    min-width: 68px;
+    text-align: right;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.85em;
+}
+.affect-bar-track {
+    flex: 1;
+    height: 10px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+}
+.affect-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    background: var(--c-tab-science);
+    transition: width 0.6s ease, background 0.4s ease;
+}
+.affect-bar-fill.bar-positive { background: #6aab8e; }
+.affect-bar-fill.bar-neutral { background: #d4944a; }
+.affect-bar-fill.bar-negative { background: #c47070; }
+.affect-bar-value {
+    min-width: 36px;
+    text-align: right;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9em;
+}
+
+/* Consensus Gates Widget */
+.gates-readout {
+    text-align: center;
+}
+.gates-counts {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 12px;
+}
+.gates-count-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.gates-count-number {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.1;
+}
+.gates-count-label {
+    font-size: 0.65em;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+}
+.gates-tiers {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.gate-tier-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 0.72em;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+.gate-tier-c1 { background: rgba(106, 171, 142, 0.15); color: #6aab8e; }
+.gate-tier-c2 { background: rgba(107, 138, 175, 0.15); color: #6b8aaf; }
+.gate-tier-c3 { background: rgba(196, 149, 106, 0.15); color: #c4956a; }
+
+/* Cost Ticker Widget */
+.cost-ticker {
+    text-align: center;
+    padding: 4px 0;
+}
+.cost-ticker-total {
+    font-size: 2.2em;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--c-tab-engineering);
+    font-variant-numeric: tabular-nums;
+}
+.cost-ticker-label {
+    font-size: 0.65em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 4px;
+}
+.cost-ticker-rate {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-top: 10px;
+}
+
+/* Mesh Narrative Panel */
+.mesh-narrative-panel {
+    margin-bottom: 24px;
+}
+.mesh-narrative {
+    font-size: 0.82em;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    padding: 4px 0;
+    font-style: italic;
+}
+
 /* ── Topology Activity Indicators ────────────────────────────── */
 
 /* Node pulse — fires when SSE reports agent activity */
@@ -1507,3 +1788,71 @@ a.activity-link:hover {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
 }
+
+/* ── Light Mode Component Refinements ────────────────────────── */
+
+/* Panels: subtle border reinforcement — visible without background contrast */
+.theme-light .lcars-panel {
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.theme-light .vital-card {
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.theme-light .kb-vital {
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.theme-light .dict-card {
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.theme-light .ops-budget-card {
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.theme-light .kb-controls-group {
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+/* Light mode topology — softer glow */
+.theme-light .topology-container {
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.theme-light .topology-svg {
+    filter: none;
+}
+
+/* Light mode activity hover */
+.theme-light a.activity-link:hover {
+    background: rgba(0,0,0,0.03);
+}
+
+/* ── Cross-Mode Transition Smoothing ─────────────────────────── */
+.lcars-panel,
+.vital-card,
+.kb-vital,
+.dict-card,
+.ops-budget-card,
+.kb-controls-group,
+.agent-metric,
+.lcars-header,
+.lcars-footer,
+.lcars-tabs,
+.lcars-spine-segment,
+.table-filter,
+.toggle-btn,
+.agent-switch-btn,
+.section-jump-btn,
+.table-page-btn {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* ── Status Colors — Semantic Variables (identical across all modes) ── */
+.agent-status-dot.online { background: var(--status-online); }
+.agent-status-dot.offline { background: var(--status-offline); }
+.freshness-fresh { background: var(--status-online); }
+.freshness-stale { background: var(--status-offline); }
+.freshness-aging { background: var(--status-degraded); }

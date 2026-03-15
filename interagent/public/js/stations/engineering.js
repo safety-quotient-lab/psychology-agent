@@ -1,18 +1,18 @@
 /**
  * engineering.js — Engineering station (TNG: Engineering console —
- * spawn dynamics, utilization, OODA tempo, cost tracking, concurrency slots).
+ * spawn waterfall, utilization, OODA tempo, cost tracking, concurrency slots).
  *
  * Renders the Engineering tab with operational performance metrics.
- * Fetches data from the operations-agent's /api/tempo and /api/spawn-rate
- * endpoints.
+ * The Spawn Waterfall serves as the hero visualization — a vertical timeline
+ * with one column per agent, colored droplets representing spawn events.
  *
  * Data endpoints:
  *   GET {opsAgent.url}/api/tempo      — avg_cycle_ms (OODA loop timing)
  *   GET {opsAgent.url}/api/spawn-rate — agents, utilization, cost,
- *     concurrency_slots
+ *     concurrency_slots, spawn_history[]
  *
- * DOM dependencies: #spawn-dynamics, #spawn-placeholder, utilization elements,
- *   tempo elements, cost elements, #concurrency-slots
+ * DOM dependencies: #spawn-dynamics, #spawn-placeholder, #spawn-waterfall,
+ *   utilization elements, tempo elements, cost elements, #concurrency-slots
  *
  * Global state accessed: AGENTS (for ops-agent URL)
  */
@@ -20,6 +20,10 @@
 // ── Module State ───────────────────────────────────────────────
 let engineeringData = null;
 let engineeringFetchPending = false;
+
+/** Per-agent spawn history buffer, capped at MAX_DROPLETS_PER_AGENT */
+const spawnHistoryBuffer = new Map();
+const MAX_DROPLETS_PER_AGENT = 20;
 
 const SPAWN_AGENTS = [
     { id: "psychology-agent",  label: "psych", color: "var(--c-psychology)" },
@@ -52,6 +56,11 @@ export async function fetchEngineeringData(AGENTS) {
         const spawnData = spawnResp.status === "fulfilled" && spawnResp.value.ok
             ? await spawnResp.value.json() : null;
         engineeringData = { tempo: tempoData, spawn: spawnData };
+
+        // Populate spawn history buffer from API response
+        if (spawnData?.spawn_history) {
+            populateSpawnHistory(spawnData.spawn_history);
+        }
     } catch (err) {
         engineeringData = null;
     } finally {
@@ -60,7 +69,140 @@ export async function fetchEngineeringData(AGENTS) {
     renderEngineering();
 }
 
-// ── Render: Spawn Dynamics ─────────────────────────────────────
+// ── Spawn History Management ─────────────────────────────────
+
+/**
+ * Populate the spawn history buffer from an array of spawn events.
+ * Each event carries { agent_id, status, duration_ms, timestamp }.
+ * @param {Array} history — spawn event array from API
+ */
+function populateSpawnHistory(history) {
+    // Clear existing buffers
+    spawnHistoryBuffer.clear();
+    SPAWN_AGENTS.forEach(agent => spawnHistoryBuffer.set(agent.id, []));
+
+    // Group events by agent, most recent first
+    const sorted = [...history].sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+    );
+
+    for (const event of sorted) {
+        const agentBuffer = spawnHistoryBuffer.get(event.agent_id);
+        if (agentBuffer && agentBuffer.length < MAX_DROPLETS_PER_AGENT) {
+            agentBuffer.push(event);
+        }
+    }
+}
+
+/**
+ * Add a single spawn droplet from a real-time SSE event.
+ * Prepends to the agent's buffer (newest at top) and trims overflow.
+ * @param {string} agentId — agent identifier
+ * @param {Object} spawn — { status, duration_ms, timestamp }
+ */
+export function addSpawnDroplet(agentId, spawn) {
+    if (!spawnHistoryBuffer.has(agentId)) {
+        spawnHistoryBuffer.set(agentId, []);
+    }
+    const buffer = spawnHistoryBuffer.get(agentId);
+    buffer.unshift(spawn);
+
+    // Trim to max capacity
+    while (buffer.length > MAX_DROPLETS_PER_AGENT) {
+        buffer.pop();
+    }
+
+    // Re-render just the waterfall for responsiveness
+    renderSpawnWaterfall();
+}
+
+// ── Render: Spawn Waterfall ──────────────────────────────────
+
+/**
+ * Classify a spawn status string into a CSS class.
+ * @param {string} status — "ok", "fail", "running", or similar
+ * @returns {string} CSS class name
+ */
+function statusClass(status) {
+    if (!status) return "ok";
+    const normalized = status.toLowerCase();
+    if (normalized === "fail" || normalized === "failed" || normalized === "error") return "fail";
+    if (normalized === "running" || normalized === "pending" || normalized === "in_progress") return "running";
+    return "ok";
+}
+
+/**
+ * Compute droplet height from spawn duration.
+ * Maps duration_ms to a pixel height (8px minimum, 40px maximum).
+ * @param {number|null} durationMs — spawn duration in milliseconds
+ * @returns {number} height in pixels
+ */
+function dropletHeight(durationMs) {
+    if (!durationMs || durationMs <= 0) return 8;
+    // Log scale: 100ms -> 8px, 10000ms -> 40px
+    const minH = 8;
+    const maxH = 40;
+    const clamped = Math.max(100, Math.min(60000, durationMs));
+    const ratio = (Math.log(clamped) - Math.log(100)) / (Math.log(60000) - Math.log(100));
+    return Math.round(minH + ratio * (maxH - minH));
+}
+
+/**
+ * Format duration for hover tooltip.
+ * @param {number|null} durationMs — spawn duration in milliseconds
+ * @returns {string} human-readable duration
+ */
+function formatDuration(durationMs) {
+    if (!durationMs) return "duration unknown";
+    if (durationMs < 1000) return `${Math.round(durationMs)}ms`;
+    if (durationMs < 60000) return `${(durationMs / 1000).toFixed(1)}s`;
+    return `${(durationMs / 60000).toFixed(1)}min`;
+}
+
+/**
+ * Render the spawn waterfall — vertical timeline with colored droplets.
+ * DOM WRITE: #spawn-waterfall (innerHTML replacement),
+ *   #spawn-placeholder visibility
+ */
+export function renderSpawnWaterfall() {
+    const container = document.getElementById("spawn-waterfall");
+    const placeholder = document.getElementById("spawn-placeholder");
+    if (!container) return;
+
+    // Determine whether any spawn data exists
+    const hasData = SPAWN_AGENTS.some(agent => {
+        const buffer = spawnHistoryBuffer.get(agent.id);
+        return buffer && buffer.length > 0;
+    });
+
+    if (!hasData) {
+        // Show placeholder, hide waterfall
+        if (placeholder) placeholder.style.display = "block";
+        container.style.display = "none";
+        return;
+    }
+
+    // Hide placeholder, show waterfall
+    if (placeholder) placeholder.style.display = "none";
+    container.style.display = "";
+
+    container.innerHTML = SPAWN_AGENTS.map(agent => {
+        const buffer = spawnHistoryBuffer.get(agent.id) || [];
+        const dropletsHtml = buffer.map(spawn => {
+            const cls = statusClass(spawn.status);
+            const height = dropletHeight(spawn.duration_ms);
+            const tooltip = `${agent.label}: ${formatDuration(spawn.duration_ms)} (${spawn.status || "ok"})`;
+            return `<div class="spawn-droplet ${cls}" style="height:${height}px" title="${tooltip}"></div>`;
+        }).join("");
+
+        return `<div class="spawn-column">
+            <div class="spawn-column-header" style="color:${agent.color}">${agent.label}</div>
+            ${dropletsHtml}
+        </div>`;
+    }).join("");
+}
+
+// ── Render: Spawn Dynamics (legacy bars — kept as fallback) ──
 
 /**
  * Render per-agent spawn count bars.
@@ -68,40 +210,9 @@ export async function fetchEngineeringData(AGENTS) {
  *   #spawn-placeholder visibility
  */
 export function renderSpawnDynamics() {
-    const container = document.getElementById("spawn-dynamics");
-    const placeholder = document.getElementById("spawn-placeholder");
-    if (!container) return;
-
-    const spawnCounts = engineeringData?.spawn?.agents || null;
-
-    // Clear existing bar rows
-    container.querySelectorAll(".spawn-bar-row").forEach(r => r.remove());
-
-    if (!spawnCounts) {
-        if (placeholder) placeholder.style.display = "block";
-        SPAWN_AGENTS.forEach(agent => {
-            const row = document.createElement("div");
-            row.className = "spawn-bar-row";
-            row.innerHTML = `<span class="spawn-bar-label">${agent.label}</span>
-                <div class="spawn-bar-track"><div class="spawn-bar-fill" style="width:0%;background:${agent.color};opacity:0.3"></div></div>
-                <span class="spawn-bar-count">\u2014</span>`;
-            container.appendChild(row);
-        });
-        return;
-    }
-
-    if (placeholder) placeholder.style.display = "none";
-    const maxCount = Math.max(1, ...SPAWN_AGENTS.map(a => spawnCounts[a.id] || 0));
-    SPAWN_AGENTS.forEach(agent => {
-        const count = spawnCounts[agent.id] || 0;
-        const pct = (count / maxCount) * 100;
-        const row = document.createElement("div");
-        row.className = "spawn-bar-row";
-        row.innerHTML = `<span class="spawn-bar-label">${agent.label}</span>
-            <div class="spawn-bar-track"><div class="spawn-bar-fill" style="width:${pct}%;background:${agent.color}"></div></div>
-            <span class="spawn-bar-count">${count}</span>`;
-        container.appendChild(row);
-    });
+    // The waterfall now serves as the primary visualization.
+    // Legacy bar rows no longer render — renderSpawnWaterfall handles display.
+    renderSpawnWaterfall();
 }
 
 // ── Render: Utilization ────────────────────────────────────────
@@ -238,7 +349,7 @@ export function renderConcurrency() {
  * Render all Engineering station sub-sections.
  */
 export function renderEngineering() {
-    renderSpawnDynamics();
+    renderSpawnWaterfall();
     renderUtilization();
     renderTempo();
     renderCost();
