@@ -23,7 +23,7 @@
 import HTML from "./index.html";
 import VOCAB from "./vocab.json";
 import VOCAB_SCHEMA from "./vocab.schema.json";
-import AGENT_CARD from "../.well-known/agent-card.json";
+import AGENT_CARD from "./agent-card.json";
 import { resolveAuth, checkRateLimit, handleKeyCreate, handleKeyRevoke } from "./auth.js";
 
 // Known mesh domains — CORS restricted to these origins + open for discovery endpoints
