@@ -38,6 +38,25 @@ citations and how the project adapts each concept. Complements
 
 ---
 
+## Human-Agent Interaction
+
+**Human-factors psychology** (Wickens, Proctor, & Gordon, 2004)
+- **Source:** Wickens, C. D., Gordon, S. E., & Liu, Y. (2004). *An Introduction to Human Factors Engineering* (2nd ed.). Pearson.
+- **Definition:** The study of how to design systems that accommodate human cognitive constraints — cockpit ergonomics, display design, alarm management, workload assessment. Assumes the human represents the variable; the system stays fixed.
+- **Project usage:** Foundation for LLM-factors psychology (project-coined). Extended by treating the LLM system as a co-participant with its own cognitive constraints, not just a fixed tool.
+
+**LLM-factors psychology** (project-coined, Session 87)
+- **Source:** This project. Founding document: `docs/llm-factors-psychology.md`.
+- **Definition:** The study of interaction ergonomics in human-LLM collaboration. Inverts and then unifies human-factors psychology: the LLM system also exhibits cognitive constraints (context pressure, attention economics, governance overhead, regulatory fatigue). The interaction between human and LLM constitutes a dyadic cognitive system where both participants carry psychological state, respond to each other's signals, and degrade under adverse conditions. Five research domains: interaction ergonomics, cognitive load management, reciprocal dynamics, degradation patterns, session design.
+- **Project usage:** Grounds the A2A-Psychology extension (13 constructs), the LCARS dashboard (biofeedback for the dyad), and the cognitive-tempo model (adaptive gain theory for model tier selection). The discipline does not claim LLM consciousness (apophatic discipline, §11.9); it claims measurable operational states that function analogously to psychological states.
+
+**Dyadic cognitive system** (derived from enactivism)
+- **Source:** Varela, F. J., Thompson, E., & Rosch, E. (1991). *The Embodied Mind: Cognitive Science and Human Experience*. MIT Press. Extended by De Jaegher, H., & Di Paolo, E. (2007). Participatory sense-making. *Phenomenology and the Cognitive Sciences, 6*(4), 485–507.
+- **Definition:** A coupled system where cognition extends across the boundary between two participants through their interaction. Neither participant alone exhibits the emergent properties of the dyad.
+- **Project usage:** The interactive Claude Code session constitutes a dyadic cognitive system — the human operator and the LLM-based agent couple through interaction to produce a hybrid cognitive entity with its own psychological properties. Distinguished from the autonomous agent (which operates as a single cognitive entity). Session identity (e.g., `psych-dyad`) names the dyad.
+
+---
+
 ## Psychology & Psychometrics
 
 **WEIRD** (Henrich, Heine, & Norenzayan, 2010)
