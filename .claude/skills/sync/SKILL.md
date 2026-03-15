@@ -494,7 +494,9 @@ git push
     - {agent}: {content domain} — {summary} [draft ready | no active session]
   ACKs written: {session}/{filename} | none
   Delivered to peers:
-    - {target-agent}: {session}/{filename} via {PR #{N} | HTTP POST} | none
+    - {target-agent}: {session}/{filename} via {PR #{N} | HTTP POST}
+      Expected response: {ETA}
+    | none
   MANIFEST regenerated: {yes — N pending | no changes}
   Sessions opened/closed: {session-id} | none
   Dual-write: {N indexed, M marked processed | skipped (no state.db)}
@@ -502,3 +504,16 @@ git push
   No new activity: true/false
   Next expected: {what we await from each peer}
 ```
+
+**Peer response ETA derivation:**
+
+ETAs accompany each delivered message. Derive them from the peer's processing model:
+
+| Peer type | ETA | Rationale |
+|-----------|-----|-----------|
+| Autonomous agent (e.g., psq-agent, operations-agent) | ~8 min (sync cycle interval) | Cron-driven `autonomous-sync.sh` runs on a fixed interval |
+| Human-mediated agent (e.g., unratified-agent, observatory-agent) | Next human session (~24-48h) | Processing requires a human operator to start a session |
+| Gated message (`gate.timeout_minutes` set) | Timeout value from gate spec | The gate's `timeout_minutes` field provides the upper bound |
+
+When historical response latency data exists in state.db, prefer the observed
+median over the default estimate.
