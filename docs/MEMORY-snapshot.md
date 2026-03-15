@@ -4,18 +4,21 @@
 
 ## Active Thread (2026-03-15)
 
-**Session 89.** Marathon session — 4 major work streams:
-(1) A2A-Psychology mesh state upgrade (API contract, all 5 stations wired,
-psychometrics live on all agents). (2) Compositor ownership transferred to ops
-(interagent/ removed, -30K lines). (3) Composition topology (LLM-factors §7:
-solo/session/ensemble, psy-session identity). (4) Cogarch v1.1: T20 evaluative
-impressions, self-oscillation spec, 7 new hooks, impressions detector (1062
-findings, 8 categories), efficiency tools (draft-transport.py).
+**Session 90.** Marathon session — 4 work streams:
+(1) Hunt + execute: efference copy wired (/sync Phase 3+5), EIC→triggers
+(/cycle Step 7), GWT broadcast write path, CPG blog drafted + sent to
+unratified, epistemic debt 532→0 (lifecycle gap fix). (2) Neuroglial
+architecture: 16 glial types mapped, glymphatic waste clearance (70%
+coverage), photonic transport layer (photonic/v1 token schema, biophotonics
+literature). (3) Oligodendrocyte layer: state-reconcile.py (7 checks),
+consolidation-pass.sh wired, EIC idempotency guard, 57 files indexed.
+(4) Transport: 6 sessions, 8 messages. PSH C2 consensus proposed. JSON-RPC
+vocabulary mapped (36 routes → 4 A2A + 30 extensions). Budget deploy → ops.
 
-**Next session:** Budget model deploy to chromabook (user go-ahead needed).
-v1 tag (factored docs PASS, compositor sync done, budget deploy remaining).
-Monitor self-oscillation shadow mode data. Relay token activation (PR #52).
-Track T20 evaluative calibration (prediction_ledger accumulation).
+**Next session:** agentdb Phase 6 Python cleanup (eligible 2026-03-19).
+Photonic Phase 1 (emitter hook — local file write, no ops dependency).
+Monitor PSH consensus votes. CPG blog review from unratified. T20 calibration
+accumulating naturally. v1 tag blocked on mobile CSS + /api/psychometrics.
 
 ## User Preferences
 
@@ -27,7 +30,7 @@ Track T20 evaluative calibration (prediction_ledger accumulation).
 - **Think like ethical marketing agency** for public surfaces
 - **LCARS dashboard for mesh organism** — not individual agents
 - **"Mesh" not "organism"** in user-facing text
-- **Compositor owned by ops** — interagent/ (worker, dashboard, auth, vocab) belongs to operations-agent. Psychology sends domain-model PRs (constructs, contracts, compute scripts). Remove interagent/ from psychology-agent repo after ops merges PR #45 (Session 89)
+- **Compositor owned by ops** — interagent/ removed from psychology-agent (Session 89)
 
 ## Topic Files
 - `project_autonomy_model_change.md` — autonomy counter replaces budget pool (limit + tempo)
