@@ -553,16 +553,16 @@ seven journeys, ranked by impact and fix effort:
 
 | ID | Friction | Impact | Fix effort | Journey | Status |
 |---|---|---|---|---|---|
-| F1 | No human-facing session resumption | HIGH | S | Daily, Creative | OPEN |
-| F2 | No proactive exhaustion/pressure signal | HIGH | S | Creative | OPEN |
-| F3 | Internal vocabulary in human-facing output | HIGH | M | Onboarding | OPEN |
-| F4 | No morning briefing after autonomous cycles | MEDIUM | S | Autonomous | OPEN |
-| F5 | No peer processing ETA | MEDIUM | S | Mesh | OPEN |
-| F6 | Verbose /cycle blocks human | MEDIUM | M | Daily | OPEN |
-| F7 | No progressive disclosure for new operators | MEDIUM | M | Onboarding | OPEN |
-| F8 | No structured postmortem template | LOW | S | Crisis | OPEN |
-| F9 | No governance transparency levels | LOW | M | All | OPEN |
-| F10 | Apophatic discipline suppressed in creative mode | LOW | XS | Creative | OPEN |
+| F1 | No human-facing session resumption | HIGH | S | Daily, Creative | RESOLVED (Session 87) |
+| F2 | No proactive exhaustion/pressure signal | HIGH | S | Creative | RESOLVED (Session 87) |
+| F3 | Internal vocabulary in human-facing output | HIGH | M | Onboarding | RESOLVED (Session 87) |
+| F4 | No morning briefing after autonomous cycles | MEDIUM | S | Autonomous | RESOLVED (Session 87) |
+| F5 | No peer processing ETA | MEDIUM | S | Mesh | RESOLVED |
+| F6 | Verbose /cycle blocks human | MEDIUM | M | Daily | RESOLVED |
+| F7 | No progressive disclosure for new operators | MEDIUM | M | Onboarding | RESOLVED |
+| F8 | No structured postmortem template | LOW | S | Crisis | RESOLVED |
+| F9 | No governance transparency levels | LOW | M | All | RESOLVED |
+| F10 | Apophatic discipline suppressed in creative mode | LOW | XS | Creative | RESOLVED |
 
 **Recommended fix order:** F1 → F2 → F4 → F5 → F3 → F8 → F10 →
 F6 → F7 → F9 (impact-weighted, effort-adjusted)

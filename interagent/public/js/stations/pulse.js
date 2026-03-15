@@ -196,16 +196,18 @@ export function renderTopology(AGENTS, agentData) {
 
     let html = "";
 
-    // Draw edges between all pairs
+    // Draw edges between all pairs — each edge carries a data-edge id for activity highlighting
     for (let i = 0; i < AGENTS.length; i++) {
         for (let j = i + 1; j < AGENTS.length; j++) {
             const a = positions[i], b = positions[j];
+            const edgeId = `${AGENTS[i].id}--${AGENTS[j].id}`;
             html += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"
+                data-edge="${edgeId}"
                 stroke="var(--topo-edge)" stroke-width="5" opacity="var(--topo-edge-opacity)"/>`;
         }
     }
 
-    // Draw nodes — linked to agent dashboards
+    // Draw nodes — linked to agent dashboards, with activity indicator classes
     for (let i = 0; i < AGENTS.length; i++) {
         const agent = AGENTS[i];
         const pos = positions[i];
@@ -213,7 +215,8 @@ export function renderTopology(AGENTS, agentData) {
         const online = state?.status === "online";
         const fill = online ? agent.color : "var(--c-inactive)";
 
-        html += `<g style="cursor:pointer" onclick="switchAgent('${agent.id}');switchTab('meta')">
+        html += `<g class="node-idle" data-agent-node="${agent.id}"
+                style="cursor:pointer" onclick="switchAgent('${agent.id}');switchTab('meta')">
             <circle cx="${pos.x}" cy="${pos.y}" r="45"
                 fill="${fill}" opacity="${online ? 0.12 : 0.05}"
                 stroke="${fill}" stroke-width="5"/>
@@ -296,6 +299,44 @@ export function renderActivity(AGENTS, agentData) {
             <span class="activity-type">${m.type}</span>
         </a>`;
     }).join("");
+}
+
+// ── Topology Activity Indicators ──────────────────────────────
+
+/**
+ * Pulse a topology node when SSE reports agent activity.
+ * Applies .node-active for 3 seconds, then reverts to .node-idle.
+ * @param {string} agentId — the agent whose node should pulse
+ */
+export function pulseTopologyNode(agentId) {
+    const node = document.querySelector(`[data-agent-node="${agentId}"]`);
+    if (!node) return;
+    node.classList.replace("node-idle", "node-active");
+    clearTimeout(node._pulseTimer);
+    node._pulseTimer = setTimeout(() => {
+        node.classList.replace("node-active", "node-idle");
+    }, 3000);
+}
+
+/**
+ * Flash a topology edge when SSE reports a message delivery between agents.
+ * Applies .edge-active for ~500ms (CSS animation handles the timing).
+ * @param {string} fromAgent — sender agent id
+ * @param {string} toAgent — receiver agent id
+ */
+export function flashTopologyEdge(fromAgent, toAgent) {
+    const svg = document.getElementById("topology-svg");
+    if (!svg) return;
+    // Edge data-edge uses alphabetical agent ordering
+    const pair = [fromAgent, toAgent].sort();
+    const edgeId = `${pair[0]}--${pair[1]}`;
+    const line = svg.querySelector(`[data-edge="${edgeId}"]`);
+    if (!line) return;
+    line.classList.remove("edge-active");
+    // Force reflow to restart animation
+    void line.offsetWidth;
+    line.classList.add("edge-active");
+    setTimeout(() => line.classList.remove("edge-active"), 600);
 }
 
 // ── Render: Combined ───────────────────────────────────────────

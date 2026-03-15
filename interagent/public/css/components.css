@@ -1473,6 +1473,30 @@ a.activity-link:hover {
     text-align: center;
 }
 
+/* ── Topology Activity Indicators ────────────────────────────── */
+
+/* Node pulse — fires when SSE reports agent activity */
+@keyframes node-pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1.0; }
+}
+.node-active circle:first-of-type {
+    animation: node-pulse 1.8s ease-in-out infinite;
+}
+.node-idle circle:first-of-type {
+    animation: none;
+}
+
+/* Edge highlight — flashes when a message delivery occurs */
+@keyframes edge-flash {
+    0% { opacity: var(--topo-edge-opacity, 0.15); }
+    30% { opacity: 0.8; }
+    100% { opacity: var(--topo-edge-opacity, 0.15); }
+}
+.edge-active {
+    animation: edge-flash 0.5s ease-out forwards;
+}
+
 /* ── Loading State ───────────────────────────────────────────── */
 .loading-shimmer {
     background: linear-gradient(90deg, var(--bg-panel) 25%, var(--border) 50%, var(--bg-panel) 75%);

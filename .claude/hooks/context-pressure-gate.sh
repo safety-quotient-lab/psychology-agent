@@ -20,10 +20,12 @@ if [ -z "$USED_PCT" ]; then
   exit 0
 fi
 
-if [ "$USED_PCT" -ge 75 ] 2>/dev/null; then
+if [ "$USED_PCT" -ge 80 ] 2>/dev/null; then
   echo "[CONTEXT] ${USED_PCT}% — CRITICAL. Run /doc NOW to persist findings. Prepare for compaction."
+  echo "[CONTEXT] ⚠ Pressure at ${USED_PCT}% — recommend /cycle and session wrap-up"
 elif [ "$USED_PCT" -ge 60 ] 2>/dev/null; then
   echo "[CONTEXT] ${USED_PCT}% — PRESSURE. Consider /doc to persist important findings before context fills."
+  echo "[CONTEXT] Pressure at ${USED_PCT}% — consider consolidating before continuing"
 fi
 
 exit 0
