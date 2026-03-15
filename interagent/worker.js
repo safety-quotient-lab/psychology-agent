@@ -71,11 +71,14 @@ const AGENT_CACHE_KEY = "agent-registry-cache";
 const AGENT_CACHE_TTL = 300; // 5 minutes
 const TRUST_MATRIX_KEY = "trust-matrix-v1";
 
-// Track fetch errors for self-reporting in /api/pulse
+// Track fetch errors for self-reporting in /api/pulse and /api/status
 let _lastFetchErrors = [];
 
 // BFT Mitigation 2: store role-verification result for /api/pulse
 let _roleVerification = null;
+
+// Cold-start timestamp — tracks Worker isolate uptime
+let _coldStartTime = null;
 
 /**
  * Fetch an agent card, extract registry-relevant fields.
@@ -141,20 +144,17 @@ async function fetchAgentCard(cardUrl) {
 
 /**
  * Build self-entry from the bundled agent card (avoids self-fetch loop).
+ * The compositor identifies as interagent-compositor with role: mesh.
  */
 function buildSelfEntry() {
   const card = JSON.parse(AGENT_CARD);
   return {
-    id: card.name || "operations-agent",
-    name: card.name || "operations-agent",
-    role: card.mesh?.role || card.description?.slice(0, 60) || "operations",
-    status_url: "https://operations-agent.safety-quotient.dev/api/status",
-    card_url: "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json",
-    repo: card.mesh?.transport?.repo
-      ? card.mesh.transport.repo.replace("https://github.com/", "").replace(/\.git$/, "")
-      : card.provider?.url?.startsWith("https://github.com/")
-        ? card.provider.url.replace("https://github.com/", "")
-        : null,
+    id: card.name || "interagent-compositor",
+    name: card.name || "interagent-compositor",
+    role: card.mesh?.role || "mesh",
+    status_url: "https://interagent.safety-quotient.dev/api/status",
+    card_url: "https://interagent.safety-quotient.dev/.well-known/agent-card.json",
+    repo: "safety-quotient-lab/operations-agent",
     version: card.version || null,
     skills: (card.skills || []).map(s => s.id),
     fetched_at: new Date().toISOString(),
@@ -356,25 +356,56 @@ function validateStatusData(raw) {
 }
 
 /**
- * Build local status data for operations-agent (avoids self-fetch loop).
+ * Build local status data for interagent-compositor (avoids self-fetch loop).
+ * Reports real compositor state: KV health, registry cache, fetch errors.
  */
-function buildLocalStatus() {
+async function buildLocalStatus(env) {
   const card = JSON.parse(AGENT_CARD);
+  const now = Date.now();
+  const uptimeS = _coldStartTime ? Math.floor((now - _coldStartTime) / 1000) : 0;
+
+  // KV health probe
+  let kvHealthy = false;
+  if (env?.AUTH_KV) {
+    try { await env.AUTH_KV.get("__health_probe"); kvHealthy = true; } catch {}
+  }
+
+  // Registry cache state from KV
+  let cacheStatus = "unknown", cacheAgeS = null, agentsCount = 0;
+  if (env?.AUTH_KV) {
+    try {
+      const cached = await env.AUTH_KV.get(AGENT_CACHE_KEY, "json");
+      if (cached) {
+        cacheStatus = cached.expires_at > now ? "hit" : "stale";
+        cacheAgeS = Math.floor((now - cached.refreshed_at) / 1000);
+        agentsCount = (cached.agents || []).length;
+      } else { cacheStatus = "empty"; }
+    } catch { cacheStatus = "error"; }
+  }
+
   return {
-    agent_id: "operations-agent",
-    status: "online",
-    version: card.version || "0.1.0",
-    schema_version: 1,
+    agent_id: "interagent-compositor",
+    status: kvHealthy ? "online" : "degraded",
+    version: card.version || "1.0.0",
+    role: "mesh",
+    managed_by: "operations-agent",
     collected_at: new Date().toISOString(),
-    autonomy_budget: { budget_spent: 0, budget_cutoff: 0, last_action: null, min_action_interval: 300 },
+    uptime_estimate_s: uptimeS,
+    compositor_state: {
+      registry_cache_status: cacheStatus,
+      registry_cache_age_s: cacheAgeS,
+      registry_agents_count: agentsCount,
+      fetch_error_count: _lastFetchErrors.length,
+      fetch_errors_recent: _lastFetchErrors.slice(-5),
+      role_verification: _roleVerification,
+      kv_healthy: kvHealthy,
+      deploy_version: DEPLOY_VERSION,
+    },
+    autonomy_budget: { budget_spent: 0, budget_cutoff: 0 },
     totals: { unprocessed: 0, epistemic_debt: null },
     active_gates: [],
-    recent_actions: [],
-    recent_messages: [],
-    schedule: { cron_entry: null, last_sync: null, autonomous: false },
     manual_mode: true,
     skills: (card.skills || []).map(s => s.id),
-    tabs: (card.tabs || []).map(t => t.name),
   };
 }
 
@@ -383,8 +414,8 @@ function buildLocalStatus() {
  * { id, status, data, error? } objects (data contains validated status payload).
  * Operations-agent status built locally to avoid self-fetch loop.
  */
-async function fetchAllAgentStatus(registry) {
-  const selfId = "operations-agent";
+async function fetchAllAgentStatus(registry, env) {
+  const selfId = "interagent-compositor";
   const reachable = registry.filter(a => a.status_url && !a._unavailable && a.id !== selfId);
 
   const results = await Promise.allSettled(
@@ -422,11 +453,9 @@ async function fetchAllAgentStatus(registry) {
     agents.push({ id: a.id, status: "unavailable", data: null });
   }
 
-  // Include self (local, no network fetch)
-  if (registry.some(a => a.id === selfId)) {
-    const localData = buildLocalStatus();
-    agents.push({ id: selfId, status: "online", data: validateStatusData(localData) });
-  }
+  // Include compositor self-entry (local, no network fetch)
+  const localData = await buildLocalStatus(env);
+  agents.push({ id: selfId, status: "online", data: validateStatusData(localData) });
 
   // Tag agents in manual mode
   for (const a of agents) {
@@ -547,7 +576,7 @@ function updateTrustMatrix(matrix, agentResults) {
  * Build /api/trust response — NxN trust matrix with per-agent scores.
  */
 async function buildTrustData(env, registry) {
-  const agents = await fetchAllAgentStatus(registry);
+  const agents = await fetchAllAgentStatus(registry, env);
   let matrix = await loadTrustMatrix(env);
   matrix = updateTrustMatrix(matrix, agents);
   await saveTrustMatrix(env, matrix);
@@ -607,7 +636,7 @@ async function buildTrustData(env, registry) {
  * Includes compositor self-diagnostics (cache status, fetch errors).
  */
 async function buildPulseData(registry, cacheStatus, refreshedAt, env) {
-  const agents = await fetchAllAgentStatus(registry);
+  const agents = await fetchAllAgentStatus(registry, env);
 
   // Piggyback trust matrix update on every pulse observation (neuroglial: ambient state)
   if (env) {
@@ -727,8 +756,8 @@ async function buildPulseData(registry, cacheStatus, refreshedAt, env) {
  * Build /api/operations response — autonomy budgets, actions audit trail,
  * active gates, sync schedules.
  */
-async function buildOperationsData(registry) {
-  const agents = await fetchAllAgentStatus(registry);
+async function buildOperationsData(registry, env) {
+  const agents = await fetchAllAgentStatus(registry, env);
   const online = agents.filter(a => a.status === "online");
 
   // Autonomy budgets per agent
@@ -807,8 +836,8 @@ async function buildOperationsData(registry) {
 /**
  * Build /api/health response — reuses fetchAllAgentStatus with validation.
  */
-async function fetchMeshHealth(registry) {
-  const agents = await fetchAllAgentStatus(registry);
+async function fetchMeshHealth(registry, env) {
+  const agents = await fetchAllAgentStatus(registry, env);
   const online = agents.filter(a => a.status === "online");
 
   const agentSummaries = agents.map(a => {
@@ -1510,13 +1539,26 @@ export default {
 
     // ── Unauthenticated routes ──────────────────────────────────────
 
+    // Track cold-start for uptime estimation
+    if (!_coldStartTime) _coldStartTime = Date.now();
+
     if (url.pathname === "/health") {
-      return Response.json({ status: "ok", timestamp: Date.now() });
+      let kvOk = false;
+      if (env.AUTH_KV) {
+        try { await env.AUTH_KV.get("__health_probe"); kvOk = true; } catch {}
+      }
+      const status = kvOk ? "ok" : "degraded";
+      return Response.json({
+        status,
+        kv_connected: kvOk,
+        fetch_errors: _lastFetchErrors.length,
+        timestamp: Date.now(),
+      }, { status: kvOk ? 200 : 503 });
     }
 
-    // Operations-agent status — reuses buildLocalStatus() for consistency
+    // Compositor status — reports real state (KV health, cache, errors)
     if (url.pathname === "/api/status") {
-      return Response.json(buildLocalStatus(), {
+      return Response.json(await buildLocalStatus(env), {
         headers: { "Cache-Control": "public, max-age=30", ...corsHeaders(request, true) },
       });
     }
@@ -1611,15 +1653,29 @@ export default {
 
     // Agent registry listing — all known agents (dynamic from agent cards)
     if (url.pathname === "/.well-known/agents") {
-      const agents = registry.map(a => ({
-        id: a.id,
-        role: a.role,
-        card_url: a.card_url,
-        version: a.version,
-        skills: a.skills,
-        available: !a._unavailable,
-        webfinger: `acct:${a.id}@safety-quotient.dev`,
-      }));
+      const compositorCard = JSON.parse(AGENT_CARD);
+      const agents = [
+        // Compositor self-entry (always first)
+        {
+          id: "interagent-compositor",
+          role: "mesh",
+          card_url: "https://interagent.safety-quotient.dev/.well-known/agent-card.json",
+          version: compositorCard.version || "1.0.0",
+          skills: (compositorCard.skills || []).map(s => s.id),
+          available: true,
+          webfinger: "acct:interagent-compositor@safety-quotient.dev",
+        },
+        // All registered agents
+        ...registry.map(a => ({
+          id: a.id,
+          role: a.role,
+          card_url: a.card_url,
+          version: a.version,
+          skills: a.skills,
+          available: !a._unavailable,
+          webfinger: `acct:${a.id}@safety-quotient.dev`,
+        })),
+      ];
       return Response.json(agents, {
         headers: {
           "Cache-Control": "public, max-age=300",
@@ -1697,7 +1753,7 @@ export default {
 
       // Mesh health
       if (url.pathname === "/api/health") {
-        const health = await fetchMeshHealth(registry);
+        const health = await fetchMeshHealth(registry, env);
         return Response.json(health, {
           headers: { "Cache-Control": "public, max-age=30", ...rateLimitHeaders },
         });
@@ -1724,7 +1780,7 @@ export default {
 
       // Operations — autonomy budgets, actions, gates, sync schedules
       if (url.pathname === "/api/operations") {
-        const ops = await buildOperationsData(registry);
+        const ops = await buildOperationsData(registry, env);
         return Response.json(ops, {
           headers: { "Cache-Control": "public, max-age=30", ...rateLimitHeaders },
         });

@@ -79,7 +79,7 @@
   ],
 
   "mesh": {
-    "role": "compositor",
+    "role": "mesh",
     "managed_by": "operations-agent",
     "schemas_supported": ["interagent/v1"],
     "mesh_discovery": "/.well-known/agents",
