@@ -2436,8 +2436,8 @@ does NOT function as a generic protocol.
   adversarial evaluator (Architecture Item 3)
 
 **Capability discovery convention:**
-Agents SHOULD publish their capabilities at `/.well-known/agent.json` on their
-primary domain. observatory.unratified.org/.well-known/agent.json returns 404
+Agents SHOULD publish their capabilities at `/.well-known/agent-card.json` on their
+primary domain. observatory.unratified.org/.well-known/agent-card.json returns 404
 (not yet declared). This represents a gap for observatory-agent to fill.
 
 **Handshake procedure:**
@@ -2506,7 +2506,7 @@ communicate using A2A core; epistemic fields function as additive.
 
 **Discovery path delta:**
 A2A canonical: `/.well-known/a2a/agent-card`
-Observatory current: `/.well-known/agent.json`
+Observatory current: `/.well-known/agent-card.json`
 These represent different paths. Observatory's agent.json follows A2A structure but
 not at the canonical path. Full A2A discovery compliance requires either
 moving the file or adding an alias.
