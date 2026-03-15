@@ -68,6 +68,7 @@ at session start.
 │  ├─ Lesson recurrence updates (increment recurrence counters)    │
 │  ├─ Promotion candidates (3+ recurrences → flag for promotion)   │
 │  ├─ Win/loss ledger (predictions → outcomes → delta)             │
+│  ├─ Generator balance report (G1-G9, conservation law ratios)    │
 │  └─ Surface queue (lessons relevant to current active thread)    │
 └──────────────────────────────────────────────────────────────────┘
 ```
@@ -158,6 +159,29 @@ Compare epistemic debt levels across sessions:
 
 **Pattern:** Rising debt in a specific domain suggests systematic under-
 investment in evaluative processing for that area.
+
+
+### 6. Generator Balance (every 5 sessions)
+
+Compute generator output balance using `scripts/compute-generator-balance.py`.
+This scan runs on the same 5-session cadence as `/retrospect full` (see
+CLAUDE.md Governance Telos section). The script analyzes git commit messages
+for keyword heuristics mapping to each generator (G1-G9, §11.10) and
+computes the two conservation law ratios:
+
+- **Creative-evaluative balance** (G2/G3): target 3:1 to 5:1. Ratios above
+  5:1 indicate under-evaluation; below 3:1 indicate evaluative overhead
+  choking creative output.
+- **Crystallization-dissolution balance** (G6/G7): target ~1:1. Persistent
+  imbalance toward G6 signals over-rigidification (Laozi ch. 76); toward
+  G7 signals infrastructure erosion.
+
+```bash
+python3 scripts/compute-generator-balance.py --session-id $SESSION
+```
+
+Results write to the `generator_state` table in state.db (schema v28).
+Surface trends across 5-session windows in the RPG orientation block.
 
 
 ## Surface Protocol (T1 Integration)
