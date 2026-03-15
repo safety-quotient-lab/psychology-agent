@@ -949,3 +949,43 @@ CREATE INDEX IF NOT EXISTS idx_predictions_source_doc
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (27, 'Efference copy: likelihood column + source_doc index on prediction_ledger. Spec: docs/efference-copy-spec.md');
+
+
+-- v28: Generator balance tracking (§11.10 generator topology)
+-- Tracks per-session output counts for each generator (G1-G9), coupling
+-- partner ratios, and conservation law balance. Computed by
+-- scripts/compute-generator-balance.py from git log heuristics.
+
+CREATE TABLE IF NOT EXISTS generator_state (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id INTEGER NOT NULL,
+    generator_id TEXT NOT NULL,       -- G1 through G9
+    generator_name TEXT NOT NULL,
+    output_count INTEGER DEFAULT 0,   -- how many outputs this generator produced this session
+    coupling_partner TEXT,            -- primary coupled generator (e.g., G2↔G3)
+    balance_ratio REAL,               -- ratio of this generator's output to its coupling partner's output
+    notes TEXT,
+    measured_at TEXT DEFAULT (datetime('now')),
+    created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_generator_state_session
+    ON generator_state(session_id);
+
+CREATE INDEX IF NOT EXISTS idx_generator_state_generator
+    ON generator_state(generator_id);
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (28, 'Generator balance tracking table (§11.10 topology). Tracks per-session output counts for G1-G9, coupling ratios, conservation laws.');
+
+
+-- v29: OODA phase annotation for trigger_state
+-- Maps each trigger to its primary OODA loop phase (Boyd, 1987).
+-- Enables phase-aware scheduling: Observe → Orient → Decide → Act.
+-- Values: 'observe', 'orient', 'decide', 'act'
+
+ALTER TABLE trigger_state ADD COLUMN ooda_phase TEXT DEFAULT NULL
+    CHECK (ooda_phase IN ('observe', 'orient', 'decide', 'act'));
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (29, 'OODA phase annotation on trigger_state. Enables phase-ordered trigger scheduling (Boyd, 1987).');
