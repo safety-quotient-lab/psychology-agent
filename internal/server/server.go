@@ -98,6 +98,10 @@ type Server struct {
 
 	// SSEBroadcast exposes the broker's Broadcast for external callers (ZMQ handler).
 	SSEBroadcast func(SSEEvent)
+
+	// rpcMethods maps JSON-RPC method names to HTTP handlers.
+	// Built once during route registration via buildMethodTable().
+	rpcMethods map[string]methodRoute
 }
 
 // New constructs a Server with the provided dependencies.
@@ -311,6 +315,11 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 
 	// CI visibility — aggregated workflow run status across all mesh repos
 	mux.HandleFunc("GET /api/ci", s.handleCI)
+
+	// JSON-RPC 2.0 multiplexer (A2A-compatible programmatic access)
+	s.rpcMethods = s.buildMethodTable()
+	mux.HandleFunc("POST /api/rpc", s.handleRPC)
+	mux.HandleFunc("GET /api/rpc", s.handleRPCInfo)
 }
 
 // middleware chains recovery, CORS, request logging, and version header

@@ -8,6 +8,14 @@
       "protocol": "https",
       "url": "https://operations-agent.safety-quotient.dev",
       "content_type": "application/json"
+    },
+    {
+      "protocol": "jsonrpc",
+      "version": "2.0",
+      "url": "https://operations-agent.safety-quotient.dev/api/rpc",
+      "content_type": "application/json",
+      "description": "JSON-RPC 2.0 multiplexer — 35 methods across 10 namespaces. GET /api/rpc for method listing.",
+      "methods_endpoint": "https://operations-agent.safety-quotient.dev/api/rpc"
     }
   ],
 
