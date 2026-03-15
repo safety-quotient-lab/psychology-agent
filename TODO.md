@@ -1012,3 +1012,27 @@ Adopt-now items from standards landscape survey (13 protocols evaluated).
     project. Cogarch portability guide exists but lacks independent verification.
   - **Community contributors** — the project operates as a solo effort with AI agents.
     Human contributors would strengthen review, testing, and domain coverage.
+
+---
+
+## LCARS Dashboard v1-beta.3 (Session 88)
+
+- [x] **LCARS visual overhaul** — 10-layer redesign. Plan: `docs/lcars-overhaul-plan.md`.
+  Deployed to interagent.safety-quotient.dev. Commit range: e11a8d07..497986c7.
+- [x] **Worker backend endpoints** — agent card, diagnostic, halt/resume, autonomy reset.
+- [x] **Gf/Gc intelligence model** — fluid (deliberations) + crystallized (hooks/triggers/cron).
+- [x] **Delta tracker** — directional change indicators on all numeric displays.
+- [x] **Trek alert system** — 5 levels with auto-triggers and CSS palette override.
+- [ ] **Mobile responsive fixes** — sidebar accordion collapse, OPS button label,
+  flex-wrap on autonomy cards, header/subheader split for narrow viewports.
+  *Precondition: none — CSS only*
+- [ ] **Ops backend: /api/psychometrics** — 7 sensor constructs. Transport request sent.
+  *Precondition: operations-agent implements endpoint*
+- [ ] **Ops backend: /api/tempo + /api/spawn-rate** — engineering station data.
+  *Precondition: operations-agent implements endpoints*
+- [ ] **Ops backend: gc_metrics in /api/status** — crystallized intelligence counts.
+  *Precondition: all agents add gc_metrics to status response*
+- [ ] **LCARS content mirroring event handlers** — mirrored panels lack click handlers.
+  *Precondition: none — JS fix*
+- [ ] **v1 tag** — tag release after mobile fixes + ops backend endpoints land.
+  *Precondition: mobile fixes + at least /api/psychometrics responding*

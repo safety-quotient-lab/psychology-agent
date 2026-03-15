@@ -4,16 +4,16 @@
 
 ## Active Thread (2026-03-15)
 
-**Session 87 (marathon, day 2).** Dashboard deployed: 6 LCARS bridge stations
-(Engineering, Science, Medical, Tactical, Operations, Helm) with live data
-wiring. LCARS frame (bands, elbows, sidebar). Zero-flash theme switching.
-Tab persistence via URL hash. Pane isolation fixed (was showing all panes
-simultaneously). Budget model refactor from ops (counter replaces pool —
-rollout pending). 4/5 agents upgraded to A2A 1.0.0.
+**Session 88.** LCARS visual overhaul complete (v1-beta.3). 10-layer redesign
+deployed to interagent.safety-quotient.dev. 23 commits, +8316 lines. Five Trek
+bridge stations (Operations, Science, Engineering, Helm, Tactical). Gf/Gc
+intelligence model (Cattell, 1963). Delta tracker on all numerics. Trek alert
+system (5 levels). Worker backend: agent card, diagnostic, halt/resume, autonomy
+reset. Transport request sent to ops for psychometrics/tempo/spawn-rate/gc_metrics.
 
-**Next session:** LCARS visual overhaul (chunky blocks per reference images),
-budget model rollout, standard tab rebuild, doc pass, cold-start test, v1 tag.
-Reference images at ~/Projects/ai-llm/lcars/.
+**Next session:** Mobile responsive fixes (sidebar accordion, flex-wrap, header
+split). Ops backend endpoint implementation. Content mirroring event handlers.
+v1 tag after mobile + psychometrics land.
 
 ## User Preferences
 
@@ -25,3 +25,8 @@ Reference images at ~/Projects/ai-llm/lcars/.
 - **Think like ethical marketing agency** for public surfaces
 - **LCARS dashboard for mesh organism** — not individual agents
 - **"Mesh" not "organism"** in user-facing text
+
+## Topic Files
+- `project_autonomy_model_change.md` — autonomy counter replaces budget pool (limit + tempo)
+- `reference_psh_catalog.md` — 11 active PSH categories with codes, keywords, DB locations
+- `feedback_naming_deliberation.md` — "deliberation cascade" not "spawn waterfall" for claude -p visualizations
