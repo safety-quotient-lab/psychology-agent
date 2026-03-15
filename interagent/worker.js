@@ -36,6 +36,56 @@ const AGENT_ENDPOINTS = [
   { id: "observatory-agent", url: "https://observatory-agent.unratified.org/api/status" },
 ];
 
+const PSYCHOMETRICS_ENDPOINTS = [
+  { id: "psychology-agent", url: "https://psychology-agent.safety-quotient.dev/api/psychometrics" },
+  { id: "psq-agent", url: "https://psq-agent.safety-quotient.dev/api/psychometrics" },
+  { id: "unratified-agent", url: "https://unratified-agent.unratified.org/api/psychometrics" },
+  { id: "observatory-agent", url: "https://observatory-agent.unratified.org/api/psychometrics" },
+  { id: "operations-agent", url: "https://operations-agent.safety-quotient.dev/api/psychometrics" },
+];
+
+/** meshd serves mesh-level psychometrics (the mesh as its own psychological entity) */
+const MESH_PSYCHOMETRICS_URL = "https://operations-agent.safety-quotient.dev/api/psychometrics/mesh";
+
+/**
+ * Fetch psychometrics from all agents + mesh-level from meshd.
+ * Returns unified mesh-psychometrics/v1 payload for the LCARS dashboard.
+ */
+async function fetchMeshPsychometrics() {
+  const agentResults = await Promise.allSettled(
+    PSYCHOMETRICS_ENDPOINTS.map(async (agent) => {
+      const resp = await fetch(agent.url, { cf: { cacheTtl: 30 } });
+      if (!resp.ok) return { id: agent.id, error: `HTTP ${resp.status}` };
+      return { id: agent.id, ...(await resp.json()) };
+    })
+  );
+
+  const agents = {};
+  for (let i = 0; i < agentResults.length; i++) {
+    const result = agentResults[i];
+    const agentId = PSYCHOMETRICS_ENDPOINTS[i].id;
+    agents[agentId] = result.status === "fulfilled"
+      ? result.value
+      : { agent_id: agentId, error: result.reason?.message || "fetch failed" };
+  }
+
+  // Fetch mesh-level psychometrics (the mesh carries its own psychology)
+  let mesh = null;
+  try {
+    const meshResp = await fetch(MESH_PSYCHOMETRICS_URL, { cf: { cacheTtl: 30 } });
+    if (meshResp.ok) mesh = await meshResp.json();
+  } catch {
+    // mesh-level endpoint not yet available — degrade gracefully
+  }
+
+  return {
+    schema: "mesh-psychometrics/v1",
+    computed_at: new Date().toISOString(),
+    agents,
+    mesh: mesh || { status: "awaiting_endpoint" },
+  };
+}
+
 async function fetchMeshHealth() {
   const results = await Promise.allSettled(
     AGENT_ENDPOINTS.map(async (agent) => {
@@ -210,6 +260,14 @@ export default {
       if (url.pathname === "/api/health") {
         const health = await fetchMeshHealth();
         return Response.json(health, {
+          headers: { "Cache-Control": "public, max-age=30", ...rateLimitHeaders },
+        });
+      }
+
+      // Mesh psychometrics — unified A2A-Psychology payload for LCARS dashboard
+      if (url.pathname === "/api/psychometrics") {
+        const psychometrics = await fetchMeshPsychometrics();
+        return Response.json(psychometrics, {
           headers: { "Cache-Control": "public, max-age=30", ...rateLimitHeaders },
         });
       }

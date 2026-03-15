@@ -2,32 +2,37 @@
  * science.js — Science station (mesh-level focus).
  *
  * Five widgets: MSD Affect Grid, Generator Balance, Epistemic Health,
- * Shared Mental Models, Organism Narrative. Per-agent detail panels
- * (DEW gauge, LOA ladder, flow state) moved to Medical station.
+ * Shared Mental Models, Mesh Narrative. Per-agent detail panels
+ * (DEW gauge, LOA ladder, flow state) live in Medical station.
  *
- * Data endpoints:
- *   GET {agent.url}/api/psychometrics — per-agent PAD affect, engagement, flow
+ * Data source: shared psychometrics module (core/psychometrics.js)
+ *   which fetches from GET /api/psychometrics on the compositor.
+ *   Contract: docs/api-psychometrics-contract.md
+ *
+ * Additional endpoints:
  *   GET {agent.url}/api/kb — claims, flags, epistemic data
  *   GET https://interagent.safety-quotient.dev/api/health — mesh health
  *
+ * LLM-factors grounding: §2.1 Interaction Ergonomics (mesh affect patterns),
+ *   §2.4 Degradation Patterns (epistemic health as immune indicator)
+ *
  * DOM dependencies: #msd-schematic, generator balance elements,
  *   epistemic health elements, shared models elements, #narrative-text
- *
- * Global state accessed: AGENTS (for agent URLs and colors)
  */
 
+import {
+    fetchPsychometrics, getAllAgentPsychometrics, getMeshPsychometrics,
+} from '../core/psychometrics.js';
+
 // ── Module State ───────────────────────────────────────────────
-let psychometricsCache = {};
 let kbCache = {};
 let meshHealthCache = null;
 let scienceFetchPending = false;
 
-/** Timeout for all fetches (5 seconds per task spec) */
 const FETCH_TIMEOUT = 5000;
 
 // ── Agent layout for MSD schematic ─────────────────────────────
 
-/** Card positions around the central node (percentage offsets from container center) */
 const MSD_POSITIONS = [
     { label: "psych",   slot: "top-left"     },
     { label: "psq",     slot: "top-right"    },
@@ -36,7 +41,6 @@ const MSD_POSITIONS = [
     { label: "ops",     slot: "right"        },
 ];
 
-/** All 5 agents for the MSD schematic (matches AGENTS + operations-agent) */
 const MSD_AGENTS = [
     { id: "psychology-agent",  label: "psych", color: "var(--c-psychology)"  },
     { id: "psq-agent",        label: "psq",   color: "var(--c-psq)"        },
@@ -45,53 +49,41 @@ const MSD_AGENTS = [
     { id: "operations-agent",  label: "ops",   color: "var(--c-tab-ops)"   },
 ];
 
-/** Agent URL map for psychometrics fetches */
-const AGENT_URL_MAP = {
-    "psychology-agent":  "https://psychology-agent.safety-quotient.dev",
-    "psq-agent":         "https://psq-agent.safety-quotient.dev",
-    "unratified-agent":  "https://unratified-agent.unratified.org",
-    "observatory-agent": "https://observatory-agent.unratified.org",
-};
-
 // ── Data Fetching ──────────────────────────────────────────────
 
 /**
- * Fetch psychometrics from all 4 agents, KB from psychology-agent,
- * and mesh health. Then render all widgets.
- * @param {Array} AGENTS — agent config array (4 public agents)
+ * Fetch psychometrics (shared cache), KB, and mesh health. Render all widgets.
+ * @param {Array} AGENTS — agent config array
  * @returns {Promise<void>}
  */
 export async function fetchScienceData(AGENTS) {
     if (scienceFetchPending) return;
     scienceFetchPending = true;
     try {
-        // Parallel fetch: psychometrics from each agent
-        const psychPromises = AGENTS.map(agent =>
-            fetch(`${agent.url}/api/psychometrics`, { signal: AbortSignal.timeout(FETCH_TIMEOUT) })
-                .then(r => r.ok ? r.json() : null)
-                .catch(() => null)
-                .then(data => { psychometricsCache[agent.id] = data; })
-        );
+        // Psychometrics from shared cache (single compositor fetch)
+        const psychPromise = fetchPsychometrics();
 
         // KB from psychology-agent for epistemic health
-        const kbPromise = fetch(`${AGENT_URL_MAP["psychology-agent"]}/api/kb`, {
-            signal: AbortSignal.timeout(FETCH_TIMEOUT),
-        })
+        const kbPromise = fetch(
+            "https://psychology-agent.safety-quotient.dev/api/kb",
+            { signal: AbortSignal.timeout(FETCH_TIMEOUT) }
+        )
             .then(r => r.ok ? r.json() : null)
             .catch(() => null)
             .then(data => { kbCache["psychology-agent"] = data; });
 
         // Mesh health from interagent endpoint
-        const healthPromise = fetch("https://interagent.safety-quotient.dev/api/health", {
-            signal: AbortSignal.timeout(FETCH_TIMEOUT),
-        })
+        const healthPromise = fetch(
+            "https://interagent.safety-quotient.dev/api/health",
+            { signal: AbortSignal.timeout(FETCH_TIMEOUT) }
+        )
             .then(r => r.ok ? r.json() : null)
             .catch(() => null)
             .then(data => { meshHealthCache = data; });
 
-        await Promise.all([...psychPromises, kbPromise, healthPromise]);
+        await Promise.all([psychPromise, kbPromise, healthPromise]);
     } catch {
-        // Individual fetch errors handled above; this catches structural failures
+        // Individual fetch errors handled above
     } finally {
         scienceFetchPending = false;
     }
@@ -101,64 +93,80 @@ export async function fetchScienceData(AGENTS) {
 // ── Render: MSD Affect Schematic ───────────────────────────────
 
 /**
- * Render the MSD-style organism affect grid with central node,
- * leader lines, and agent cards. Fetches valence/activation from
- * per-agent psychometrics data and classifies affect labels.
+ * Render the MSD-style mesh affect grid with central node,
+ * leader lines, and agent cards. Reads PAD from the shared
+ * psychometrics cache (A2A-Psychology emotional_state construct).
+ *
+ * When mesh-level psychometrics exist, the central node displays
+ * the mesh's own affect — not an average, but the emergent
+ * psychological state computed by compute-organism-state.py.
+ *
  * DOM WRITE: #msd-schematic (innerHTML), #org-affect-label,
  *   #org-valence, #org-activation
- * @param {Array} AGENTS — agent config array
  */
-export function renderMSDSchematic(AGENTS) {
+export function renderMSDSchematic() {
     const container = document.getElementById("msd-schematic");
     if (!container) return;
 
-    // Compute organism-level averages from per-agent psychometrics
-    let valenceSum = 0, activationSum = 0, agentCount = 0;
+    const agentsPsych = getAllAgentPsychometrics();
+    const meshPsych = getMeshPsychometrics();
+
+    // Extract per-agent PAD from the contract schema
     const agentAffects = {};
+    for (const msdAgent of MSD_AGENTS) {
+        const data = agentsPsych[msdAgent.id];
+        if (!data || data.error) continue;
 
-    for (const agentId of Object.keys(AGENT_URL_MAP)) {
-        const data = psychometricsCache[agentId];
-        if (!data) continue;
-
-        const pad = data.pad || data.PAD || {};
-        const valence = pad.pleasure ?? pad.valence ?? null;
-        const activation = pad.arousal ?? pad.activation ?? null;
+        // Contract: emotional_state.hedonic_valence, .activation
+        const es = data.emotional_state || {};
+        const valence = es.hedonic_valence ?? null;
+        const activation = es.activation ?? null;
 
         if (valence != null && activation != null) {
-            agentAffects[agentId] = { valence, activation };
-            valenceSum += valence;
-            activationSum += activation;
-            agentCount++;
+            agentAffects[msdAgent.id] = { valence, activation };
         }
     }
 
-    const orgValence = agentCount > 0 ? valenceSum / agentCount : null;
-    const orgActivation = agentCount > 0 ? activationSum / agentCount : null;
-    const orgLabel = orgValence != null
-        ? classifyAffect(orgValence, orgActivation)
-        : "AWAITING";
+    // Mesh-level affect: prefer meshd's organism computation over local average
+    let meshValence = null;
+    let meshActivation = null;
+    let meshLabel = "AWAITING";
+
+    if (meshPsych && meshPsych.affect) {
+        // mesh.affect from compute-organism-state.py via meshd
+        meshValence = meshPsych.affect.mean_hedonic_valence ?? null;
+        meshActivation = meshPsych.affect.mean_activation ?? null;
+        meshLabel = meshPsych.affect.mesh_affect_category
+            ? meshPsych.affect.mesh_affect_category.replace("mesh-", "").toUpperCase()
+            : classifyAffect(meshValence, meshActivation);
+    } else if (Object.keys(agentAffects).length > 0) {
+        // Fallback: compute locally from per-agent data
+        const vals = Object.values(agentAffects);
+        meshValence = vals.reduce((s, a) => s + a.valence, 0) / vals.length;
+        meshActivation = vals.reduce((s, a) => s + a.activation, 0) / vals.length;
+        meshLabel = classifyAffect(meshValence, meshActivation);
+    }
 
     // Update aggregate header
     const labelEl = document.getElementById("org-affect-label");
     const valEl = document.getElementById("org-valence");
     const actEl = document.getElementById("org-activation");
-    if (labelEl) labelEl.textContent = orgLabel;
-    if (valEl) valEl.textContent = orgValence != null ? formatSigned(orgValence) : "--";
-    if (actEl) actEl.textContent = orgActivation != null ? formatSigned(orgActivation) : "--";
+    if (labelEl) labelEl.textContent = meshLabel;
+    if (valEl) valEl.textContent = meshValence != null ? formatSigned(meshValence) : "--";
+    if (actEl) actEl.textContent = meshActivation != null ? formatSigned(meshActivation) : "--";
 
     // Build schematic HTML
     let html = '';
-
-    // Central node
     html += '<div class="msd-center-node"><span class="msd-center-text">MESH</span></div>';
 
-    // Leader lines + agent cards
     MSD_AGENTS.forEach((msdAgent, index) => {
         const slot = MSD_POSITIONS[index].slot;
         const affect = agentAffects[msdAgent.id] || {};
         const valence = affect.valence ?? 0;
         const activation = affect.activation ?? 0;
-        const affectLabel = classifyAffect(valence, activation);
+        const affectLabel = agentAffects[msdAgent.id]
+            ? classifyAffect(valence, activation)
+            : "AWAITING";
 
         html += `<div class="msd-leader-line msd-line-${slot}" style="--agent-color: ${msdAgent.color}"></div>`;
         html += `<div class="msd-agent-card msd-card-${slot}" style="--agent-color: ${msdAgent.color}">`;
@@ -177,26 +185,13 @@ export function renderMSDSchematic(AGENTS) {
     container.innerHTML = html;
 }
 
-/**
- * Render a small horizontal bar representing a -1..+1 value.
- * @param {number} value — value in -1..+1 range
- * @returns {string} HTML for the mini bar
- */
 function renderMiniBar(value) {
     const clamped = Math.max(-1, Math.min(1, value));
-    // Map -1..+1 to 0..100 percent
     const fillPct = ((clamped + 1) / 2) * 100;
     const colorClass = clamped >= 0 ? "msd-bar-positive" : "msd-bar-negative";
     return `<div class="msd-mini-bar"><div class="msd-mini-bar-center"></div><div class="msd-mini-bar-fill ${colorClass}" style="width:${fillPct}%"></div></div>`;
 }
 
-/**
- * Classify affect from valence + activation into a human-readable label.
- * Uses Russell's circumplex model quadrants.
- * @param {number} valence — -1..+1
- * @param {number} activation — -1..+1 (or 0..1)
- * @returns {string} affect label
- */
 function classifyAffect(valence, activation) {
     if (valence > 0.3 && activation > 0.3) return "ENGAGED";
     if (valence > 0.3 && activation <= 0.3) return "CONTENT";
@@ -207,11 +202,6 @@ function classifyAffect(valence, activation) {
     return "NEUTRAL";
 }
 
-/**
- * Format a number with explicit sign.
- * @param {number} value
- * @returns {string}
- */
 function formatSigned(value) {
     const formatted = value.toFixed(1);
     return value >= 0 ? `+${formatted}` : formatted;
@@ -219,15 +209,7 @@ function formatSigned(value) {
 
 // ── Render: Generator Balance ──────────────────────────────────
 
-/**
- * Render the generator balance bars (G2/G3 and G6/G7 pairs).
- * No live endpoint exists yet — uses placeholder ratios:
- *   G2/G3 (creative:evaluative) = 3.2:1
- *   G6/G7 (crystallize:dissolve) = 1.1:1
- * DOM WRITE: gen-g2g3-* and gen-g6g7-* elements
- */
 export function renderGeneratorBalance() {
-    // Placeholder data — no /api/generators endpoint yet
     const placeholderGens = {
         g2_g3: { ratio: 3.2 },
         g6_g7: { ratio: 1.1 },
@@ -236,13 +218,6 @@ export function renderGeneratorBalance() {
     renderOneGenerator("g6g7", placeholderGens.g6_g7, 0.8, 1.2);
 }
 
-/**
- * Render a single generator balance bar.
- * @param {string} prefix — element id prefix ("g2g3" or "g6g7")
- * @param {Object|null} data — { ratio } from scienceData
- * @param {number} targetLow — lower bound of nominal range
- * @param {number} targetHigh — upper bound of nominal range
- */
 function renderOneGenerator(prefix, data, targetLow, targetHigh) {
     const leftEl = document.getElementById(`gen-${prefix}-left`);
     const rightEl = document.getElementById(`gen-${prefix}-right`);
@@ -288,11 +263,6 @@ function renderOneGenerator(prefix, data, targetLow, targetHigh) {
 
 // ── Render: Epistemic Health ───────────────────────────────────
 
-/**
- * Render epistemic health widget from psychology-agent KB data.
- * Extracts claims count, flags count, computes verification rate.
- * DOM WRITE: #epi-debt-score, #epi-flag-count, #epi-claim-rate
- */
 export function renderEpistemicHealth() {
     const debtEl = document.getElementById("epi-debt-score");
     const flagEl = document.getElementById("epi-flag-count");
@@ -310,10 +280,8 @@ export function renderEpistemicHealth() {
         return;
     }
 
-    // Epistemic debt from kb.epistemic_debt or computed from flags
     const totalDebt = kb.epistemic_debt ?? 0;
 
-    // Flags: count unresolved
     let totalFlags = 0;
     const flags = kb.epistemic_flags || kb.flags || [];
     if (Array.isArray(flags)) {
@@ -322,7 +290,6 @@ export function renderEpistemicHealth() {
         totalFlags = flags;
     }
 
-    // Claims verification rate
     let totalClaims = 0;
     let verifiedClaims = 0;
     const claims = kb.claims || [];
@@ -345,11 +312,6 @@ export function renderEpistemicHealth() {
 
 // ── Render: Shared Mental Models ───────────────────────────────
 
-/**
- * Render shared mental models widget from mesh health data.
- * Checks agent online status and counts active sessions.
- * DOM WRITE: #smm-schema-parity, #smm-vocabulary, #smm-sessions
- */
 export function renderSharedMentalModels() {
     const parityEl = document.getElementById("smm-schema-parity");
     const vocabEl = document.getElementById("smm-vocabulary");
@@ -365,7 +327,6 @@ export function renderSharedMentalModels() {
         return;
     }
 
-    // Schema version parity — collect versions from health endpoint agents
     const agents = meshHealthCache.agents || [];
     const versions = [];
     let onlineCount = 0;
@@ -389,11 +350,9 @@ export function renderSharedMentalModels() {
         parityEl.className = "shared-models-val";
     }
 
-    // Online status display
     vocabEl.textContent = `${onlineCount}/${totalAgentCount} online`;
     vocabEl.className = `shared-models-val ${onlineCount === totalAgentCount ? "smm-aligned" : "smm-divergent"}`;
 
-    // Active sessions from status data
     let totalSessions = 0;
     for (const agent of agents) {
         const sessions = agent.active_sessions;
@@ -406,15 +365,15 @@ export function renderSharedMentalModels() {
     sessionsEl.textContent = totalSessions > 0 ? `${totalSessions}` : "--";
 }
 
-// ── Render: Organism Narrative ─────────────────────────────────
+// ── Render: Mesh Narrative ───────────────────────────────────
 
 /**
- * Render template-based mesh narrative from health data.
- * Template: "{online}/{total} agents online. Mesh {status}. Budget headroom: {weakest}%."
+ * Render template-based mesh narrative from health + psychometrics data.
+ * Includes mesh psychological state when available.
  * DOM WRITE: #narrative-text
  * @param {Array} AGENTS — agent config array
  */
-export function renderOrganismNarrative(AGENTS) {
+export function renderMeshNarrative(AGENTS) {
     const textEl = document.getElementById("narrative-text");
     if (!textEl) return;
 
@@ -448,7 +407,22 @@ export function renderOrganismNarrative(AGENTS) {
         `Budget headroom: ${weakestBudget < 100 ? weakestBudget + "%" : "full"}.`,
     ];
 
-    // Append unprocessed count if available
+    // Append mesh psychological state from psychometrics if available
+    const meshPsych = getMeshPsychometrics();
+    if (meshPsych && meshPsych.affect) {
+        const category = meshPsych.affect.mesh_affect_category || "nominal";
+        sentences.push(`Mesh affect: ${category.replace("mesh-", "")}.`);
+    }
+    if (meshPsych && meshPsych.cognitive_reserve) {
+        const reserve = meshPsych.cognitive_reserve;
+        if (reserve.bottleneck_agent) {
+            sentences.push(
+                `Bottleneck: ${reserve.bottleneck_agent.replace("-agent", "")} ` +
+                `(${(reserve.bottleneck_reserve * 100).toFixed(0)}% reserve).`
+            );
+        }
+    }
+
     const totalUnprocessed = agents.reduce((sum, a) => sum + (a.unprocessed ?? 0), 0);
     if (totalUnprocessed > 0) {
         sentences.push(`${totalUnprocessed} message${totalUnprocessed !== 1 ? "s" : ""} await processing.`);
@@ -459,14 +433,10 @@ export function renderOrganismNarrative(AGENTS) {
 
 // ── Render: Combined Science ───────────────────────────────────
 
-/**
- * Render all Science station widgets.
- * @param {Array} AGENTS — agent config array
- */
 export function renderScience(AGENTS) {
-    renderMSDSchematic(AGENTS);
+    renderMSDSchematic();
     renderGeneratorBalance();
     renderEpistemicHealth();
     renderSharedMentalModels();
-    renderOrganismNarrative(AGENTS);
+    renderMeshNarrative(AGENTS);
 }
