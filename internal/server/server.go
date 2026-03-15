@@ -402,8 +402,8 @@ func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
 			"WHERE processed=0 AND message_type IN ('directive','proposal','request') "+
 			"ORDER BY timestamp DESC LIMIT 10")
 
-	// Spawn history
-	spawnHistory, _ := db.QueryJSON(dbPath,
+	// Deliberation history (Gf episodes — queries spawn_log table, renamed in API)
+	deliberationHistory, _ := db.QueryJSON(dbPath,
 		"SELECT agent_id, event_id, status, exit_code, duration_ms, cost, started_at FROM spawn_log ORDER BY started_at DESC LIMIT 10")
 
 	// Gc metrics — crystallized intelligence activity counters
@@ -425,8 +425,8 @@ func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
 		"unprocessed_messages":  unprocessedMsgs,
 		"active_gates":          activeGates,
 		"event_count":           totalEvents,
-		"spawn_count":           s.spawnCount(),
-		"recent_spawns":         spawnHistory,
+		"deliberation_count":    s.spawnCount(),
+		"recent_deliberations":  deliberationHistory,
 		"gc_metrics": map[string]any{
 			"deliberations_last_hour": gcEvents,
 			"events_processed":       totalEvents,

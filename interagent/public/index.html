@@ -6312,8 +6312,8 @@
             // Try recent_actions first (old format), fallback to recent_spawns (meshd format)
             const actions = d.data?.recent_actions || [];
             actions.forEach(a => allActions.push({ ...a, agent_id: agent.id, agent_color: agent.color }));
-            // Map recent_spawns to action format
-            const spawns = d.data?.recent_spawns || [];
+            // Map deliberations (recent_deliberations or legacy recent_spawns)
+            const spawns = d.data?.recent_deliberations || d.data?.recent_spawns || [];
             spawns.forEach(s => allActions.push({
                 created_at: s.started_at || s.created_at,
                 action_type: "deliberation",
