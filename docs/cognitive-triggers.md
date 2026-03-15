@@ -130,6 +130,91 @@ broadcast reads this to adjust which ADVISORY checks fire:
 ---
 
 
+### Glymphatic Mode (Nedergaard, 2013; Session 90)
+
+During maintenance windows (consolidation-pass.sh, state-reconcile.py), the
+system enters **glymphatic mode** — the computational analog of sleep-dependent
+waste clearance. The photonic emitter broadcasts `glymphatic_mode: true` to
+the mesh, signaling that this agent prioritizes internal repair over external
+communication.
+
+**Trigger behavior during glymphatic mode:**
+- **CRITICAL checks** continue firing (safety never sleeps)
+- **ADVISORY checks** suppress entirely (processing resources redirect to
+  clearance — stale state repair, flag resolution, MANIFEST reconciliation)
+- **Outbound messages** defer (peer agents reading photonic state see
+  `glymphatic_mode: true` and queue non-urgent messages)
+
+**Activation:** Automatic when `consolidation-pass.sh` or `state-reconcile.py`
+run. The photonic emitter detects these processes via `pgrep` and sets the flag.
+
+**Design rationale:** The biological glymphatic system requires reduced neural
+activity to expand interstitial space for waste clearance (Xie et al., 2013).
+Reducing ADVISORY processing during maintenance frees cognitive budget for
+deeper state repair. Full mapping: `docs/brain-architecture-mapping.md §6`.
+
+Crystallization stage: Stage 1 (convention). Advances to Stage 2 when T2
+Step 0 reads the glymphatic flag and adjusts check scheduling mechanically.
+
+
+### Photonic State Awareness (Session 90)
+
+Triggers MAY read peer photonic tokens (`/tmp/{peer}-photonic-state.json`)
+to adjust their own behavior based on mesh-wide processing state. This
+provides ambient awareness without consuming the primary transport channel.
+
+**T2 integration:** Before response, check peer photonic state for:
+- Peer in `evaluative` mode with `context_pressure > 0.6` → defer non-urgent
+  outbound to that peer (triage score modifier: -15)
+- Multiple peers broadcasting `evaluative` → mesh enters convergent evaluation
+  window, increase ADVISORY check firing rates
+
+**T3 integration:** Before recommending outbound, check target agent's
+photonic state. If `glymphatic_mode: true` or `context_pressure > 0.8`,
+recommend deferral unless `urgency: immediate`.
+
+**Token schema:** `photonic/v1` — see `docs/brain-architecture-mapping.md §7`.
+Fields: task_mode, context_pressure, active_trigger, coherence_state,
+deliberation_active, glymphatic_mode, sequence.
+
+Crystallization stage: Stage 1 (convention — local file, read on demand).
+Advances to Stage 2 when meshd supports UDP multicast (ops Phase 2).
+
+
+### Basal Ganglia Reinforcement (Session 90)
+
+Triggers that fire mechanically (via hooks) now record each activation to
+`trigger_state.fire_count` in state.db. This enables the reinforcement loop:
+accumulated fire_count data → trigger effectiveness scoring → tier
+promotion/demotion candidates.
+
+**Currently recording:** T1 (session start), T4 (credential detection),
+T6 (pushback), T14 (subagent spawn), T16 (external action ×2 hooks).
+
+**Tier adjustment convention:** When `/retrospect` or `/diagnose` runs,
+check fire_count against catch_rate (firings that produced actionable
+findings vs. no-ops):
+- **High catch rate advisory trigger** (>50% firings produce findings):
+  candidate for CRITICAL promotion
+- **Zero catch rate critical trigger** (0 catches across 20+ firings):
+  candidate for ADVISORY demotion
+- **Tier changes require user approval** — surface as recommendation,
+  never auto-adjust (T3 substance decision)
+
+**Mechanism:** `_record_trigger()` helper in `.claude/hooks/_debug.sh`.
+Any hook calls `_record_trigger T{N}` when a detection fires (not on
+every invocation — only when a check catches). Uses agentdb if available,
+falls back to dual_write.py.
+
+Full mapping: `docs/brain-architecture-mapping.md §5` (basal ganglia gap).
+
+Crystallization stage: Stage 1 (convention + telemetry accumulation).
+Advances to Stage 2 when 50+ firings per trigger provide statistically
+meaningful catch rates for tier recommendations.
+
+---
+
+
 ### OODA Phase Map (Boyd, 1987)
 
 Each trigger serves a primary phase in the OODA loop (Observe-Orient-Decide-Act).
@@ -139,7 +224,7 @@ secondary phases appear in the trigger section annotation.
 
 | Phase | Triggers | Function |
 |---|---|---|
-| **Observe** | T1 (session start), T9 (freshness), T13 (injection detection), T18 (UX design grounding), T19 (UX friction monitor) | Gather state, detect anomalies, verify inputs |
+| **Observe** | T1 (session start), T9 (freshness), T13 (injection detection), T18 (UX design grounding), T19 (UX friction monitor), Photonic (peer state) | Gather state, detect anomalies, verify inputs, ambient awareness |
 | **Orient** | T2 (context assessment), T5 (staleness), T14 (vocabulary) | Assess context, align mental model, calibrate frame |
 | **Decide** | T3 (substance gate), T6 (pushback), T7 (response quality), T15 (PSQ output) | Evaluate options, gate actions, judge quality |
 | **Act** | T4 (public visibility), T8 (lessons), T10 (pattern recognition), T11 (architecture audit), T16 (external action), T17 (conflict) | Produce artifacts, persist knowledge, enforce standards |
