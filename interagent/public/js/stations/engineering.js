@@ -350,8 +350,8 @@ export function renderConcurrency() {
  */
 export function renderEngineering() {
     renderSpawnWaterfall();
-    renderUtilization();
-    renderTempo();
-    renderCost();
     renderConcurrency();
+    renderTempo();
+    renderUtilization();
+    renderCost();
 }
