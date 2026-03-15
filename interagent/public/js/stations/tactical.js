@@ -3,7 +3,7 @@
  * transport integrity, threat assessment, compliance monitoring).
  *
  * Three widgets: Shield Status (from /api/health), Transport Integrity
- * (hardcoded), Agent Card Compliance (hardcoded).
+ * (hardcoded — no live endpoint), Agent Card Compliance (live from /.well-known/agents).
  *
  * Data endpoints:
  *   GET https://interagent.safety-quotient.dev/api/health — per-agent online/offline
@@ -36,14 +36,8 @@ const TRANSPORT_LAYERS = [
     { id: "photonic", name: "photonic", pct: null },
 ];
 
-/** Hardcoded agent card compliance versions */
-const COMPLIANCE_DATA = [
-    { label: "psych", version: "1.0.0", compliant: true },
-    { label: "ops",   version: "1.0.0", compliant: true },
-    { label: "unrat", version: "1.0.0", compliant: true },
-    { label: "obs",   version: "1.0.0", compliant: true },
-    { label: "psq",   version: "0.3.0", compliant: false },
-];
+/** Agent card compliance — fetched live from /.well-known/agents */
+let COMPLIANCE_DATA = [];
 
 // ── Module State ───────────────────────────────────────────────
 let tacticalData = null;
@@ -60,11 +54,35 @@ export async function fetchTacticalData() {
     if (tacticalFetchPending) return;
     tacticalFetchPending = true;
     try {
-        const resp = await fetch("https://interagent.safety-quotient.dev/api/health", {
-            signal: AbortSignal.timeout(FETCH_TIMEOUT),
-        });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        tacticalData = await resp.json();
+        // Fetch health + agent cards in parallel
+        const [healthResp, agentsResp] = await Promise.allSettled([
+            fetch("https://interagent.safety-quotient.dev/api/health", {
+                signal: AbortSignal.timeout(FETCH_TIMEOUT),
+            }),
+            fetch("https://interagent.safety-quotient.dev/.well-known/agents", {
+                signal: AbortSignal.timeout(FETCH_TIMEOUT),
+            }),
+        ]);
+
+        if (healthResp.status === "fulfilled" && healthResp.value.ok) {
+            tacticalData = await healthResp.value.json();
+        }
+
+        // Build compliance from live agent card data
+        if (agentsResp.status === "fulfilled" && agentsResp.value.ok) {
+            const agents = await agentsResp.value.json();
+            const labelMap = { "psychology-agent": "psych", "psq-agent": "psq", "safety-quotient-agent": "psq",
+                "unratified-agent": "unrat", "unratified": "unrat", "observatory-agent": "obs", "observatory": "obs",
+                "operations-agent": "ops", "interagent-compositor": "mesh" };
+
+            COMPLIANCE_DATA = agents
+                .filter(a => a.id !== "interagent-compositor")
+                .map(a => {
+                    const version = a.version || "?";
+                    const compliant = version.startsWith("1.");
+                    return { label: labelMap[a.id] || a.id, version, compliant };
+                });
+        }
     } catch {
         tacticalData = null;
     } finally {
@@ -150,7 +168,7 @@ export function renderTransportIntegrity() {
 // ── Render: Agent Card Compliance ──────────────────────────────
 
 /**
- * Render agent card compliance with hardcoded versions.
+ * Render agent card compliance from live /.well-known/agents data.
  * DOM WRITE: #agent-compliance (innerHTML replacement)
  */
 export function renderAgentCompliance() {
