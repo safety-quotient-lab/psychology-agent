@@ -582,7 +582,10 @@ body {
     }
     .theme-lcars .lcars-header-title { font-size: 0.85em; padding: 0 8px; }
     .theme-lcars .lcars-header-seg { display: none; }
-    .theme-lcars .lcars-header-seg[data-seg="status"] { display: flex; font-size: 0.6em; }
+    .theme-lcars .lcars-header-seg[data-seg="status"] { display: flex; font-size: 0.6em; padding: 0 6px; }
+    .theme-lcars .lcars-header-controls { display: flex !important; }
+    .theme-lcars .lcars-header-controls .toggle-group { display: flex; }
+    .theme-lcars .lcars-header-controls .toggle-btn { font-size: 0.6em; padding: 2px 6px; min-height: 28px; }
     .theme-lcars .lcars-sidebar-btn { font-size: 0.55em; padding: 0 4px; height: 28px; min-height: 28px; }
     .theme-lcars .lcars-header-cap { width: 30px; min-width: 30px; }
     .theme-lcars .lcars-footer-cap { width: 30px; min-width: 30px; }
@@ -621,7 +624,7 @@ body {
     }
     .theme-lcars .lcars-header-title { font-size: 0.75em; }
     .theme-lcars .lcars-sidebar-btn { font-size: 0.5em; padding: 0 2px; height: 24px; min-height: 24px; }
-    .theme-lcars .lcars-header-controls .toggle-group { display: none; }
+    .theme-lcars .lcars-header-controls .toggle-btn { font-size: 0.55em; padding: 1px 4px; min-height: 24px; }
 
     /* Elbow radii match 44px sidebar */
     .theme-lcars .lcars-frame-elbow-top {
