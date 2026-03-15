@@ -1,0 +1,126 @@
+{
+  "name": "interagent-compositor",
+  "description": "Mesh compositor for the safety-quotient agent network. Aggregates agent discovery, health, and operational data into a unified dashboard. Serves WebFinger, agent registry, vocabulary, and relay endpoints.",
+  "version": "1.0.0",
+
+  "supported_interfaces": [
+    {
+      "protocol": "https",
+      "url": "https://interagent.safety-quotient.dev",
+      "content_type": "application/json"
+    }
+  ],
+
+  "provider": {
+    "organization": "Safety Quotient Lab",
+    "url": "https://github.com/safety-quotient-lab"
+  },
+
+  "documentation_url": "https://github.com/safety-quotient-lab/operations-agent",
+  "icon_url": null,
+
+  "capabilities": {
+    "streaming": false,
+    "push_notifications": false,
+    "extended_agent_card": false,
+    "extensions": [
+      {
+        "uri": "https://github.com/safety-quotient-lab/a2a-mesh-health/v1",
+        "description": "Aggregated mesh health: pulse, trust matrix, agent topology",
+        "required": false
+      },
+      {
+        "uri": "https://github.com/safety-quotient-lab/a2a-dashboard-manifest/v1",
+        "description": "Dashboard widget declarations for compositor aggregation",
+        "required": false
+      }
+    ]
+  },
+
+  "security_schemes": {
+    "bearer": {
+      "type": "http",
+      "scheme": "bearer",
+      "description": "API keys for relay and admin endpoints. Discovery endpoints open."
+    }
+  },
+  "security_requirements": [
+    { "bearer": [] }
+  ],
+
+  "default_input_modes": ["application/json"],
+  "default_output_modes": ["application/json", "text/html"],
+
+  "skills": [
+    {
+      "id": "agent-discovery",
+      "name": "Agent Discovery",
+      "description": "Dynamic agent registry via /.well-known/agents. WebFinger (RFC 7033). KV-cached agent cards with stale fallback.",
+      "tags": ["discovery", "a2a", "webfinger", "registry"]
+    },
+    {
+      "id": "mesh-dashboard",
+      "name": "Mesh Dashboard",
+      "description": "LCARS-themed compositor dashboard. Aggregates pulse, operations, trust, and psychometric data from all mesh agents.",
+      "tags": ["dashboard", "lcars", "compositor", "aggregation"]
+    },
+    {
+      "id": "message-relay",
+      "name": "Message Relay",
+      "description": "Relay and redirect transport messages between mesh agents. Dual-write: HTTP delivery + GitHub PR audit trail. Nonce dedup via KV.",
+      "tags": ["relay", "transport", "routing"]
+    },
+    {
+      "id": "vocabulary",
+      "name": "Shared Vocabulary",
+      "description": "Serves mesh-wide vocabulary definitions at /vocab with JSON-LD and schema at /vocab/schema.",
+      "tags": ["vocabulary", "json-ld", "terminology"]
+    }
+  ],
+
+  "mesh": {
+    "role": "mesh",
+    "managed_by": "operations-agent",
+    "schemas_supported": ["interagent/v1"],
+    "mesh_discovery": "/.well-known/agents",
+    "endpoints": {
+      "pulse": "/api/pulse",
+      "operations": "/api/operations",
+      "trust": "/api/trust",
+      "relay": "/api/relay",
+      "redirect": "/api/redirect",
+      "search": "/api/search",
+      "vocab": "/vocab",
+      "webfinger": "/.well-known/webfinger",
+      "agents": "/.well-known/agents"
+    }
+  },
+
+  "peers": [
+    {
+      "agent_id": "operations-agent",
+      "discovery_url": "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json",
+      "role": "operations"
+    },
+    {
+      "agent_id": "psychology-agent",
+      "discovery_url": "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json",
+      "role": "domain"
+    },
+    {
+      "agent_id": "safety-quotient-agent",
+      "discovery_url": "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json",
+      "role": "domain"
+    },
+    {
+      "agent_id": "unratified-agent",
+      "discovery_url": "https://unratified.org/.well-known/agent-card.json",
+      "role": "domain"
+    },
+    {
+      "agent_id": "observatory-agent",
+      "discovery_url": "https://observatory.unratified.org/.well-known/agent-card.json",
+      "role": "domain"
+    }
+  ]
+}
