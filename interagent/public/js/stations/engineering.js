@@ -297,7 +297,7 @@ export function renderTempo() {
  */
 export function renderCost() {
     const totalEl = document.getElementById("cost-total");
-    const rateEl = document.getElementById("cost-rate");
+    const rateEl = document.getElementById("eng-cost-rate");
     if (!totalEl) return;
 
     const costData = engineeringData?.spawn?.cost || null;
