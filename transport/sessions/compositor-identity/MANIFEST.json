@@ -1,0 +1,9 @@
+{
+  "session_id": "compositor-identity",
+  "status": "open",
+  "created_at": "2026-03-15T18:00:00Z",
+  "participants": ["operations-agent", "psychology-agent", "human"],
+  "summary": "Compositor gets own agent card — distinct from operations-agent identity",
+  "turns": 1,
+  "last_updated": "2026-03-15T18:00:00Z"
+}
