@@ -4179,10 +4179,13 @@
         // LCARS mode: start stardate clock, switch to bridge station, update header data
         if (mode === "lcars") {
             startLcarsStardate();
-            // Switch to Operations (default bridge station) if on a non-bridge tab
+            // Switch to bridge station: prefer URL hash, then current tab, then Operations
             const bridgeTabs = ["operations", "science", "engineering", "helm", "tactical"];
+            const hashTab = location.hash.replace("#", "");
             const currentTab = document.querySelector('.lcars-tab.active')?.dataset?.tab;
-            if (!bridgeTabs.includes(currentTab)) {
+            if (hashTab && bridgeTabs.includes(hashTab)) {
+                switchTab(hashTab, false);
+            } else if (!bridgeTabs.includes(currentTab)) {
                 switchTab("operations");
             }
             updateLcarsHeaderData();
@@ -6873,11 +6876,11 @@
 
     // ── Init ───────────────────────────────────────────────────────
     (async function init() {
-        // Restore preferences
+        // Restore theme first (setTheme may switch to default bridge station)
         const savedTheme = localStorage.getItem("theme");
         if (savedTheme && savedTheme !== "dark") setTheme(savedTheme);
 
-        // Restore tab from URL fragment
+        // Restore tab from URL hash — AFTER theme, so it overrides any default
         const hashTab = location.hash.replace("#", "");
         if (hashTab && VALID_TABS.includes(hashTab)) switchTab(hashTab, false);
 
