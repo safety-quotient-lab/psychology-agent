@@ -4,67 +4,48 @@
  * Five widgets: Agent Selector, Agent Vitals (PAD + NASA-TLX),
  * DEW Gauge, Supervisory Control (LOA ladder), Agent History.
  *
- * Data endpoint:
- *   GET {agent.url}/api/psychometrics — affect, workload, DEW, LOA
+ * Data source: shared psychometrics module (core/psychometrics.js)
+ *   Contract: docs/api-psychometrics-contract.md
+ *   Grounding: LLM-factors §2.4 Degradation Patterns (DEW),
+ *     §2.2 Cognitive Load Management (TLX)
  *
  * DOM dependencies: #medical-agent-selector, #medical-vitals,
  *   #medical-dew, #medical-loa, #medical-history
  */
 
+import {
+    fetchPsychometrics, getAgentPsychometrics,
+} from '../core/psychometrics.js';
+
 // ── Constants ────────────────────────────────────────────────────
 
 const MEDICAL_AGENTS = [
-    { id: "psychology-agent",   label: "PSYCH",  color: "var(--c-psychology)",  url: "https://psychology-agent.safety-quotient.dev" },
-    { id: "psq-agent",          label: "PSQ",    color: "var(--c-psq)",        url: "https://psq-agent.safety-quotient.dev" },
-    { id: "unratified-agent",   label: "UNRAT",  color: "var(--c-unratified)", url: "https://unratified-agent.unratified.org" },
-    { id: "observatory-agent",  label: "OBS",    color: "var(--c-observatory)", url: "https://observatory-agent.unratified.org" },
-    { id: "operations-agent",   label: "OPS",    color: "var(--c-tab-ops)",    url: "https://psychology-agent.safety-quotient.dev" },
+    { id: "psychology-agent",   label: "PSYCH",  color: "var(--c-psychology)" },
+    { id: "psq-agent",          label: "PSQ",    color: "var(--c-psq)" },
+    { id: "unratified-agent",   label: "UNRAT",  color: "var(--c-unratified)" },
+    { id: "observatory-agent",  label: "OBS",    color: "var(--c-observatory)" },
+    { id: "operations-agent",   label: "OPS",    color: "var(--c-tab-ops)" },
 ];
 
-const PAD_LABELS = ["Valence", "Activation", "Control"];
 const TLX_LABELS = ["Mental", "Temporal", "Performance", "Effort", "Frustration", "Physical"];
-
-/** Timeout for all fetches (5 seconds per task spec) */
-const FETCH_TIMEOUT = 5000;
 
 // ── Module State ─────────────────────────────────────────────────
 
 let selectedAgentId = "psychology-agent";
-let medicalCache = {};
 let medicalFetchPending = false;
 
 // ── Data Fetching ────────────────────────────────────────────────
 
 /**
- * Fetch psychometrics data for a specific agent.
- * @param {string} agentId — agent identifier
- * @returns {Promise<Object|null>}
- */
-async function fetchAgentPsychometrics(agentId) {
-    const agent = MEDICAL_AGENTS.find(a => a.id === agentId);
-    const baseUrl = agent ? agent.url : "https://psychology-agent.safety-quotient.dev";
-    try {
-        const response = await fetch(`${baseUrl}/api/psychometrics`, {
-            signal: AbortSignal.timeout(FETCH_TIMEOUT),
-        });
-        if (!response.ok) return null;
-        return await response.json();
-    } catch {
-        return null;
-    }
-}
-
-/**
- * Fetch medical data for the selected agent and render all widgets.
- * @param {Array} AGENTS — main agent config array (used for URL lookup)
+ * Fetch psychometrics for all agents via shared cache, render for selected.
+ * @param {Array} AGENTS — main agent config array
  * @returns {Promise<void>}
  */
 export async function fetchMedicalData(AGENTS) {
     if (medicalFetchPending) return;
     medicalFetchPending = true;
     try {
-        const data = await fetchAgentPsychometrics(selectedAgentId);
-        medicalCache[selectedAgentId] = data;
+        await fetchPsychometrics();
         renderMedical();
     } finally {
         medicalFetchPending = false;
@@ -73,10 +54,9 @@ export async function fetchMedicalData(AGENTS) {
 
 // ── Rendering ────────────────────────────────────────────────────
 
-/** Render all 5 medical widgets. */
 export function renderMedical() {
     renderAgentSelector();
-    const data = medicalCache[selectedAgentId];
+    const data = getAgentPsychometrics(selectedAgentId);
     renderAgentVitals(data);
     renderAgentDEW(data);
     renderAgentLOA(data);
@@ -101,28 +81,28 @@ export function renderAgentSelector() {
 
 /**
  * Widget 2: Agent Vitals — PAD affect + NASA-TLX workload bars.
- * Renders PAD bars: valence -1 to +1, activation 0 to 1, control 0 to 1.
- * @param {Object|null} data — psychometrics payload
+ * Reads from contract schema: emotional_state.*, workload.*
+ * @param {Object|null} data — per-agent psychometrics from contract
  */
 export function renderAgentVitals(data) {
     const container = document.getElementById("medical-vitals");
     if (!container) return;
 
-    if (!data) {
-        container.innerHTML = '<div class="medical-placeholder">Awaiting data...</div>';
+    if (!data || data.error) {
+        container.innerHTML = '<div class="medical-placeholder">Awaiting psychometrics data...</div>';
         return;
     }
 
-    // Extract PAD from psychometrics response
-    const pad = data.pad || data.PAD || {};
+    // Contract: emotional_state.hedonic_valence, .activation, .perceived_control
+    const es = data.emotional_state || {};
     const agentAffect = {
-        valence: pad.pleasure ?? pad.valence ?? 0,
-        activation: pad.arousal ?? pad.activation ?? 0,
-        control: pad.dominance ?? pad.control ?? 0,
+        valence: es.hedonic_valence ?? 0,
+        activation: es.activation ?? 0,
+        control: es.perceived_control ?? 0,
     };
 
-    // Extract workload (NASA-TLX) if available
-    const workload = data.workload || data.nasa_tlx || data.tlx || {};
+    // Contract: workload.cognitive_demand, .time_pressure, etc.
+    const workload = data.workload || {};
 
     let html = '<div class="medical-vitals-grid">';
 
@@ -130,9 +110,8 @@ export function renderAgentVitals(data) {
     html += '<div class="medical-vitals-section">';
     html += '<div class="medical-section-label">PAD AFFECT</div>';
 
-    // Valence: -1 to +1
     const valence = agentAffect.valence;
-    const valPct = ((valence + 1) / 2) * 100; // map -1..+1 to 0..100
+    const valPct = ((valence + 1) / 2) * 100;
     const valColor = valence >= 0 ? "var(--c-tab-medical)" : "var(--c-alert)";
     html += `<div class="medical-bar-row">
         <span class="medical-bar-label">Valence</span>
@@ -142,8 +121,7 @@ export function renderAgentVitals(data) {
         <span class="medical-bar-value">${valence >= 0 ? "+" : ""}${valence.toFixed(2)}</span>
     </div>`;
 
-    // Activation: 0 to 1
-    const activation = Math.max(0, Math.min(1, agentAffect.activation));
+    const activation = Math.max(0, Math.min(1, (agentAffect.activation + 1) / 2));
     const actPct = activation * 100;
     const actColor = activation > 0.7 ? "var(--c-warning)" : "var(--c-tab-medical)";
     html += `<div class="medical-bar-row">
@@ -151,11 +129,10 @@ export function renderAgentVitals(data) {
         <div class="medical-bar-track">
             <div class="medical-bar-fill" style="width:${actPct}%;background:${actColor}"></div>
         </div>
-        <span class="medical-bar-value">${activation.toFixed(2)}</span>
+        <span class="medical-bar-value">${agentAffect.activation.toFixed(2)}</span>
     </div>`;
 
-    // Control: 0 to 1
-    const control = Math.max(0, Math.min(1, agentAffect.control));
+    const control = Math.max(0, Math.min(1, (agentAffect.control + 1) / 2));
     const ctrlPct = control * 100;
     const ctrlColor = control < 0.3 ? "var(--c-alert)" : "var(--c-tab-medical)";
     html += `<div class="medical-bar-row">
@@ -163,24 +140,24 @@ export function renderAgentVitals(data) {
         <div class="medical-bar-track">
             <div class="medical-bar-fill" style="width:${ctrlPct}%;background:${ctrlColor}"></div>
         </div>
-        <span class="medical-bar-value">${control.toFixed(2)}</span>
+        <span class="medical-bar-value">${agentAffect.control.toFixed(2)}</span>
     </div>`;
     html += '</div>';
 
-    // TLX section
+    // TLX section — contract: workload.cognitive_demand, .time_pressure, etc.
     html += '<div class="medical-vitals-section">';
     html += '<div class="medical-section-label">NASA-TLX WORKLOAD</div>';
     const tlxValues = [
-        workload.mental ?? 0,
-        workload.temporal ?? 0,
-        workload.performance ?? 0,
-        workload.effort ?? 0,
-        workload.frustration ?? 0,
-        workload.physical ?? 0,
+        workload.cognitive_demand ?? 0,
+        workload.time_pressure ?? 0,
+        workload.self_efficacy ?? 0,
+        workload.mobilized_effort ?? 0,
+        workload.regulatory_fatigue ?? 0,
+        workload.computational_strain ?? 0,
     ];
     TLX_LABELS.forEach((label, i) => {
         const val = tlxValues[i];
-        const pct = val; // 0-100 scale
+        const pct = val;
         const barColor = val > 70 ? "var(--c-alert)"
                        : val > 40 ? "var(--c-warning)"
                        : "var(--c-tab-medical)";
@@ -200,14 +177,15 @@ export function renderAgentVitals(data) {
 
 /**
  * Widget 3: DEW gauge — degradation early warning 0-100.
- * Computed from psychometrics: burnout_risk, cognitive load, workload.
- * @param {Object|null} data — psychometrics payload
+ * Computed from contract fields: workload, resource_model, emotional_state, engagement.
+ * LLM-factors §2.4: biofeedback for the human operator.
+ * @param {Object|null} data — per-agent psychometrics from contract
  */
 export function renderAgentDEW(data) {
     const container = document.getElementById("medical-dew");
     if (!container) return;
 
-    if (!data) {
+    if (!data || data.error) {
         container.innerHTML = `
             <div class="medical-dew-gauge">
                 <div class="medical-dew-bar-track">
@@ -221,40 +199,32 @@ export function renderAgentDEW(data) {
         return;
     }
 
-    // Compute DEW from psychometrics signals
     let dewValue = 0;
     const factors = [];
 
-    // Check burnout_risk directly if provided
-    const burnoutRisk = data.burnout_risk ?? data.burnout ?? null;
-    if (burnoutRisk != null && burnoutRisk > 0.5) {
+    // Burnout risk from engagement construct
+    const burnoutRisk = data.engagement?.burnout_risk ?? null;
+    if (burnoutRisk != null && burnoutRisk > 0.3) {
         dewValue += burnoutRisk * 50;
         factors.push("burnout risk");
     }
 
-    // Check cognitive load
-    const cogLoad = data.cognitive_load ?? data.working_memory?.load ?? null;
-    if (cogLoad != null && cogLoad > 0.7) {
+    // Cognitive load from workload construct
+    const cogLoad = (data.workload?.cognitive_load ?? 0) / 100;
+    if (cogLoad > 0.5) {
         dewValue += (cogLoad - 0.5) * 40;
         factors.push("cognitive load");
     }
 
-    // Check workload aggregate
-    const workload = data.workload || data.nasa_tlx || {};
-    const avgWorkload = [
-        workload.mental ?? 0,
-        workload.temporal ?? 0,
-        workload.effort ?? 0,
-        workload.frustration ?? 0,
-    ].reduce((a, b) => a + b, 0) / 4;
-    if (avgWorkload > 50) {
-        dewValue += (avgWorkload - 50) * 0.6;
-        factors.push("workload");
+    // Cognitive reserve depletion from resource_model
+    const reserve = data.resource_model?.cognitive_reserve ?? 1;
+    if (reserve < 0.4) {
+        dewValue += (1 - reserve) * 30;
+        factors.push("low reserve");
     }
 
-    // Check negative valence
-    const pad = data.pad || data.PAD || {};
-    const valence = pad.pleasure ?? pad.valence ?? 0;
+    // Negative valence from emotional_state
+    const valence = data.emotional_state?.hedonic_valence ?? 0;
     if (valence < -0.3) {
         dewValue += Math.abs(valence) * 20;
         factors.push("negative affect");
@@ -282,17 +252,19 @@ export function renderAgentDEW(data) {
 
 /**
  * Widget 4: LOA ladder — levels of automation 1-10.
- * Reads supervisory_control from psychometrics response.
- * @param {Object|null} data — psychometrics payload
+ * Reads from contract: supervisory_control.level_of_automation
+ * @param {Object|null} data — per-agent psychometrics from contract
  */
 export function renderAgentLOA(data) {
     const container = document.getElementById("medical-loa");
     if (!container) return;
 
-    // Extract LOA from supervisory_control in psychometrics
-    const supervisory = data?.supervisory_control || data?.loa || {};
-    const currentLevel = supervisory.level ?? supervisory.current_level ?? 1;
-    const budget = supervisory.budget ?? supervisory.autonomy_budget ?? 0;
+    const supervisory = data?.supervisory_control || {};
+    const currentLevel = supervisory.level_of_automation ?? 1;
+
+    // Budget from resource_model
+    const budget = data?.resource_model?.self_regulatory_resource ?? 0;
+    const budgetDisplay = (budget * 100).toFixed(0);
 
     const LOA_NAMES = [
         "Manual",           // 1
@@ -320,7 +292,7 @@ export function renderAgentLOA(data) {
     html += '</div>';
     html += `<div class="medical-loa-budget">
         <span class="medical-loa-budget-label">BUDGET</span>
-        <span class="medical-loa-budget-value">${budget}</span>
+        <span class="medical-loa-budget-value">${budgetDisplay}%</span>
     </div>`;
     html += '</div>';
     container.innerHTML = html;
@@ -330,17 +302,11 @@ export function renderAgentLOA(data) {
 function renderAgentHistory() {
     const container = document.getElementById("medical-history");
     if (!container) return;
-    // Preserve placeholder content; future sessions populate from /diagnose
 }
 
 // ── Agent Selection Handler ──────────────────────────────────────
 
-/**
- * Handle agent selection button click.
- * @param {string} agentId — selected agent identifier
- */
 export function selectAgent(agentId) {
     selectedAgentId = agentId;
-    // Re-fetch and render for the newly selected agent
     fetchMedicalData([]);
 }
