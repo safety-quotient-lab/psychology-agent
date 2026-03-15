@@ -161,7 +161,8 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .theme-lcars .ops-budget-credit,
 .theme-lcars .kb-vital-value,
 .theme-lcars .cost-total,
-.theme-lcars .dew-score,
+.theme-lcars .msd-value,
+.theme-lcars .epistemic-val,
 .theme-lcars .util-rho,
 .theme-lcars .tempo-value {
     font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;

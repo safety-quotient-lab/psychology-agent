@@ -177,12 +177,15 @@ body {
     margin-bottom: 24px;
 }
 
-/* Science grid */
-.science-grid {
+/* Science grid (v2 — organism-level) */
+.science-grid-v2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
     margin-bottom: 16px;
+}
+.science-hero {
+    grid-column: 1 / -1;
 }
 
 /* Engineering grid */
@@ -474,7 +477,7 @@ body {
     .lcars-panel-body.scrollable { max-height: 300px; }
 
     /* Station grids stack vertically on mobile */
-    .science-grid { grid-template-columns: 1fr; }
+    .science-grid-v2 { grid-template-columns: 1fr; }
     .engineering-grid { grid-template-columns: 1fr; }
     .helm-grid { grid-template-columns: 1fr; }
     .tactical-grid { grid-template-columns: 1fr; }

@@ -795,103 +795,221 @@ a.activity-link:hover {
 .ops-schedule-stale { background: rgba(212,149,74,0.15); color: #d4944a; }
 .ops-schedule-offline { background: rgba(196,112,112,0.15); color: #c47070; }
 
-/* ── Science Station ─────────────────────────────────────────── */
+/* ── Science Station (v2 — organism-level) ──────────────────── */
 
-/* Affect Grid (2D scatter) */
-.affect-grid-container {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1;
-    max-width: 320px;
+/* MSD Affect Grid — aggregate header */
+.msd-affect-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.msd-aggregate {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
     background: var(--bg-inset);
     border: 1px solid var(--border);
     border-radius: 4px;
-    margin: 8px auto;
+    font-size: 0.82em;
+    flex-wrap: wrap;
 }
-.affect-grid-axis-label {
-    position: absolute;
-    font-size: 0.65em;
-    color: var(--text-dim);
+.msd-label {
     text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    font-weight: 600;
+    font-size: 0.85em;
+}
+.msd-value {
+    color: var(--c-tab-science);
+    font-weight: 700;
     letter-spacing: 0.06em;
+    font-size: 1.1em;
 }
-.affect-grid-axis-label.x-axis {
-    bottom: 4px; right: 8px;
-}
-.affect-grid-axis-label.y-axis {
-    top: 4px; left: 8px;
-}
-.affect-grid-line {
-    position: absolute;
-    background: var(--border);
-}
-.affect-grid-line.horizontal {
-    left: 0; right: 0;
-    top: 50%; height: 1px;
-}
-.affect-grid-line.vertical {
-    top: 0; bottom: 0;
-    left: 50%; width: 1px;
-}
-.affect-dot {
-    position: absolute;
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 8px currentColor;
-    transition: left 0.6s ease, top 0.6s ease;
-}
-.affect-dot-label {
-    position: absolute;
-    font-size: 0.6em;
+.msd-metric {
     color: var(--text-secondary);
-    white-space: nowrap;
-    transform: translate(-50%, 0);
-    left: 50%;
-    top: 18px;
+    font-size: 0.9em;
+    font-family: monospace;
 }
 
-/* Organism State pill */
-.organism-state-pill {
-    background: var(--bg-inset);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 20px 24px;
-    text-align: center;
+/* MSD Schematic — central node + leader lines + cards */
+.msd-schematic {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    min-height: 220px;
+    max-height: 320px;
 }
-.organism-state-label {
-    font-size: 1.6em;
+
+/* Central node */
+.msd-center-node {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--bg-inset);
+    border: 2px solid var(--c-tab-science);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 12px rgba(153, 153, 255, 0.25);
+    z-index: 2;
+}
+.msd-center-text {
+    font-size: 0.6em;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--c-tab-science);
+    text-transform: uppercase;
+}
+
+/* Leader lines — thin colored lines from center to card */
+.msd-leader-line {
+    position: absolute;
+    background: var(--agent-color);
+    opacity: 0.5;
+    z-index: 1;
+}
+.msd-line-top-left {
+    width: 2px;
+    height: 30%;
+    left: 30%;
+    top: 10%;
+    transform: rotate(-30deg);
+    transform-origin: bottom center;
+}
+.msd-line-top-right {
+    width: 2px;
+    height: 30%;
+    right: 30%;
+    top: 10%;
+    transform: rotate(30deg);
+    transform-origin: bottom center;
+}
+.msd-line-bottom-left {
+    width: 2px;
+    height: 30%;
+    left: 30%;
+    bottom: 10%;
+    transform: rotate(30deg);
+    transform-origin: top center;
+}
+.msd-line-bottom-right {
+    width: 2px;
+    height: 30%;
+    right: 30%;
+    bottom: 10%;
+    transform: rotate(-30deg);
+    transform-origin: top center;
+}
+.msd-line-right {
+    height: 2px;
+    width: 20%;
+    right: 2%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Agent cards — positioned around center */
+.msd-agent-card {
+    position: absolute;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex;
+    overflow: hidden;
+    min-width: 100px;
+    max-width: 130px;
+    z-index: 2;
+}
+.msd-card-top-left     { left: 2%;  top: 2%; }
+.msd-card-top-right    { right: 2%; top: 2%; }
+.msd-card-bottom-left  { left: 2%;  bottom: 2%; }
+.msd-card-bottom-right { right: 2%; bottom: 2%; }
+.msd-card-right        { right: 2%; top: 50%; transform: translateY(-50%); }
+
+/* Left color bar on each card */
+.msd-card-bar {
+    width: 4px;
+    flex-shrink: 0;
+    background: var(--agent-color);
+}
+.msd-card-content {
+    padding: 6px 8px;
+    flex: 1;
+    min-width: 0;
+}
+.msd-card-name {
+    font-size: 0.65em;
     font-weight: 700;
     letter-spacing: 0.08em;
-    color: var(--c-tab-science);
-    margin-bottom: 12px;
-}
-.organism-readout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px 16px;
-    font-size: 0.78em;
-}
-.organism-readout-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 4px 0;
-    border-bottom: 1px solid var(--border);
-}
-.organism-readout-key {
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    font-size: 0.9em;
-}
-.organism-readout-val {
     color: var(--text-primary);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+.msd-card-affect {
+    font-size: 0.6em;
+    color: var(--agent-color);
     font-weight: 600;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
 }
 
-/* Generator Balance bars */
+/* Mini valence/activation bars inside cards */
+.msd-card-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.msd-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.msd-bar-label {
+    font-size: 0.55em;
+    color: var(--text-dim);
+    font-weight: 600;
+    width: 8px;
+    text-transform: lowercase;
+}
+.msd-mini-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--bg-inset);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+}
+.msd-mini-bar-center {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+}
+.msd-mini-bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+}
+.msd-bar-positive { background: #6aab8e; }
+.msd-bar-negative { background: #c47070; }
+
+/* Generator Balance bars (simplified) */
 .gen-balance-row {
     margin-bottom: 16px;
+}
+.gen-balance-row:last-child {
+    margin-bottom: 0;
 }
 .gen-balance-label {
     font-size: 0.72em;
@@ -919,126 +1037,91 @@ a.activity-link:hover {
     transition: width 0.6s ease;
     opacity: 0.5;
 }
+.gen-balance-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
 .gen-balance-ratio {
     font-size: 0.78em;
     color: var(--text-primary);
-    margin-top: 4px;
     font-weight: 600;
 }
 .gen-balance-status {
     font-size: 0.68em;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    margin-top: 2px;
 }
 .gen-status-nominal { color: #6aab8e; }
 .gen-status-drift { color: #d4944a; }
+.gen-status-imbalanced { color: #c47070; }
 
-/* Flow State checklist */
-.flow-checklist {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-.flow-checklist li {
-    padding: 6px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.78em;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.flow-checklist li:last-child { border-bottom: none; }
-.flow-check { font-size: 1.1em; }
-.flow-check-pass { color: #6aab8e; }
-.flow-check-fail { color: #c47070; }
-.flow-status-label {
-    margin-top: 12px;
-    font-size: 1.1em;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-align: center;
-    padding: 8px;
-    border-radius: 4px;
-}
-.flow-in { color: #6aab8e; background: rgba(106,171,142,0.1); }
-.flow-out { color: var(--text-dim); background: rgba(74,82,97,0.1); }
-
-/* DEW Gauge */
-.dew-gauge {
-    text-align: center;
-    padding: 12px;
-}
-.dew-score {
-    font-size: 2.4em;
-    font-weight: 700;
-    line-height: 1;
-    margin-bottom: 8px;
-}
-.dew-bar {
-    height: 10px;
-    background: var(--bg-inset);
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    overflow: hidden;
-    margin: 8px auto;
-    max-width: 200px;
-}
-.dew-bar-fill {
-    height: 100%;
-    border-radius: 5px;
-    transition: width 0.6s ease, background 0.6s ease;
-}
-.dew-status {
-    font-size: 0.78em;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-top: 8px;
-}
-.dew-green { color: #6aab8e; }
-.dew-amber { color: #d4944a; }
-.dew-red { color: #c47070; }
-
-/* Supervisory Control Ladder */
-.loa-ladder {
+/* Epistemic Health widget */
+.epistemic-health {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 0;
 }
-.loa-rung {
+.epistemic-row {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 10px;
-    padding: 4px 10px;
-    border-radius: 3px;
-    font-size: 0.72em;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+}
+.epistemic-row:last-child { border-bottom: none; }
+.epistemic-key {
+    font-size: 0.68em;
     color: var(--text-dim);
-    background: var(--bg-inset);
-    min-height: 28px;
-    transition: background 0.3s ease, color 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
-.loa-rung.active {
-    background: rgba(153,153,255,0.15);
-    color: var(--c-tab-science);
-    font-weight: 700;
-}
-.loa-rung-level {
-    min-width: 48px;
-    font-weight: 600;
-}
-.loa-rung-desc {
-    flex: 1;
-}
-.loa-budget {
-    margin-top: 10px;
-    font-size: 0.78em;
-    color: var(--text-secondary);
-}
-.loa-budget-val {
+.epistemic-val {
+    font-size: 1.1em;
     font-weight: 700;
     color: var(--text-primary);
+}
+.epi-ok { color: #6aab8e; }
+.epi-warn { color: #d4944a; }
+
+/* Shared Mental Models widget */
+.shared-models {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.shared-models-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+}
+.shared-models-row:last-child { border-bottom: none; }
+.shared-models-key {
+    font-size: 0.68em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.shared-models-val {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.smm-aligned { color: #6aab8e; }
+.smm-divergent { color: #d4944a; }
+
+/* Organism Narrative widget */
+.organism-narrative {
+    padding: 4px 0;
+}
+.narrative-text {
+    font-size: 0.82em;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
 }
 
 /* Science placeholder text */
