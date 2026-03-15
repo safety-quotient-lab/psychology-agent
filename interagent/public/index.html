@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Interagent Mesh Compositor</title>
+    <script type="application/ld+json">
+    {
+        "@context": [
+            "https://schema.org",
+            {"sqm": "https://interagent.safety-quotient.dev/vocab#"}
+        ],
+        "@type": "SoftwareApplication",
+        "@id": "https://interagent.safety-quotient.dev",
+        "name": "safety-quotient-mesh",
+        "url": "https://interagent.safety-quotient.dev",
+        "description": "Federated inter-agent mesh for psychoemotional safety research. BFT consensus among autonomous peers. No backend — client-side composition.",
+        "applicationCategory": "Research Infrastructure",
+        "provider": {
+            "@type": "Organization",
+            "name": "Safety Quotient Lab",
+            "url": "https://github.com/safety-quotient-lab"
+        },
+        "hasPart": [
+            { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "psychology-agent", "url": "https://psychology-agent.safety-quotient.dev" },
+            { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "psq-agent", "url": "https://psq-agent.safety-quotient.dev" },
+            { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "unratified-agent", "url": "https://unratified.org" },
+            { "@type": ["SoftwareApplication", "sqm:Agent"], "name": "observatory-agent", "url": "https://observatory.unratified.org" }
+        ]
+    }
+    </script>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+<div class="lcars-frame">
+
+    <!-- Left spine -->
+    <div class="lcars-spine" id="lcars-spine">
+        <div class="lcars-spine-segment" data-category="transport" style="background: var(--c-transport); flex: 2"></div>
+        <div class="lcars-spine-segment" data-category="health" style="background: var(--c-health); flex: 3"></div>
+        <div class="lcars-spine-segment" data-category="knowledge" style="background: var(--c-knowledge); flex: 2"></div>
+        <div class="lcars-spine-segment" data-category="epistemic" style="background: var(--c-epistemic); flex: 1"></div>
+    </div>
+
+    <!-- Header band -->
+    <div class="lcars-header">
+        <div>
+            <span class="lcars-title">&#x2B21; Interagent Mesh</span>
+            <span class="lcars-subtitle">Safety Quotient Lab</span>
+        </div>
+        <div class="lcars-controls">
+            <div class="toggle-group">
+                <button class="toggle-btn active" id="btn-dark" onclick="setTheme('dark')">Dark</button>
+                <button class="toggle-btn" id="btn-light" onclick="setTheme('light')">Light</button>
+                <button class="toggle-btn" id="btn-lcars" onclick="setTheme('lcars')">LCARS</button>
+            </div>
+            <button class="toggle-btn" onclick="refreshAll()" title="Refresh">&#x21BB;</button>
+        </div>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="lcars-tabs">
+        <button class="lcars-tab active" data-tab="pulse" onclick="switchTab('pulse')">Pulse</button>
+        <button class="lcars-tab" data-tab="meta" onclick="switchTab('meta')">Meta</button>
+        <button class="lcars-tab" data-tab="kb" onclick="switchTab('kb')">Knowledge</button>
+        <button class="lcars-tab" data-tab="wisdom" onclick="switchTab('wisdom')">Wisdom</button>
+        <button class="lcars-tab" data-tab="operations" onclick="switchTab('operations')">
+            Ops <span class="ops-badge" id="ops-badge" style="display:none"></span>
+        </button>
+        <button class="lcars-tab lcars-only" data-tab="science" onclick="switchTab('science')">Science</button>
+        <button class="lcars-tab lcars-only" data-tab="engineering" onclick="switchTab('engineering')">Engineering</button>
+        <button class="lcars-tab lcars-only" data-tab="helm" onclick="switchTab('helm')">Helm</button>
+        <button class="lcars-tab lcars-only" data-tab="tactical" onclick="switchTab('tactical')">Tactical</button>
+    </div>
+
+    <!-- Main content area -->
+    <div class="lcars-content">
+
+        <!-- Pulse Tab -->
+        <div class="tab-pane active" id="pane-pulse">
+            <!-- Vitals grid -->
+            <div class="vitals-grid" id="vitals-grid">
+                <div class="vital-card" style="--vital-color: var(--c-health)">
+                    <div class="vital-value" id="vital-agents">&mdash;</div>
+                    <div class="vital-label">Agents Online</div>
+                </div>
+                <div class="vital-card" style="--vital-color: var(--c-knowledge)">
+                    <div class="vital-value" id="vital-budget">&mdash;</div>
+                    <div class="vital-label">Autonomy Credits</div>
+                </div>
+                <div class="vital-card vital-link" style="--vital-color: var(--c-transport); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('filter-messages').value='';filterTable('messages');document.getElementById('kb-sec-messages').scrollIntoView({behavior:'smooth'})},120)">
+                    <div class="vital-value" id="vital-pending">&mdash;</div>
+                    <div class="vital-label">Pending Messages</div>
+                </div>
+                <div class="vital-card vital-link" style="--vital-color: var(--c-catalog); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('kb-sec-messages').scrollIntoView({behavior:'smooth'})},120)">
+                    <div class="vital-value" id="vital-gates">&mdash;</div>
+                    <div class="vital-label">Active Gates</div>
+                </div>
+                <div class="vital-card vital-link" style="--vital-color: var(--c-epistemic); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('kb-sec-debt').scrollIntoView({behavior:'smooth'})},120)">
+                    <div class="vital-value" id="vital-debt">&mdash;</div>
+                    <div class="vital-label">Epistemic Debt</div>
+                </div>
+            </div>
+
+            <!-- Topology -->
+            <div class="lcars-panel topology-container" style="margin-bottom: 24px">
+                <div class="lcars-panel-header">Mesh Topology</div>
+                <div class="lcars-panel-body">
+                    <svg id="topology-svg" viewBox="0 0 600 340" width="100%" height="auto" style="max-height:340px"></svg>
+                </div>
+            </div>
+
+            <!-- Agent cards -->
+            <div class="agents-grid" id="agents-grid"></div>
+
+            <!-- Activity stream -->
+            <div class="lcars-panel activity-stream">
+                <div class="lcars-panel-header">Recent Activity</div>
+                <div class="lcars-panel-body" id="activity-stream">
+                    <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Meta Tab -->
+        <div class="tab-pane" id="pane-meta">
+            <!-- Meta vitals -->
+            <div class="kb-controls-group">
+                <div class="kb-vitals" id="kb-vitals">
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="kb-decisions-count">&mdash;</div>
+                        <div class="kb-vital-label">Decisions</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="kb-triggers-count">&mdash;</div>
+                        <div class="kb-vital-label">Triggers</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="kb-catalog-count">&mdash;</div>
+                        <div class="kb-vital-label">Catalog Entries</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="kb-memory-count">&mdash;</div>
+                        <div class="kb-vital-label">Memory Entries</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="kb-stale-count">&mdash;</div>
+                        <div class="kb-vital-label">Stale Entries</div>
+                    </div>
+                </div>
+                <div class="agent-switcher" id="agent-switcher">
+                    <button class="agent-switch-btn active" data-agent="all" onclick="switchAgent('all')">All</button>
+                </div>
+            </div>
+
+            <!-- Section jump nav -->
+            <nav class="section-jump-nav" aria-label="Meta sections">
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-messages').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Messages</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-memory').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Memory</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-debt').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Epistemic Debt</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-flags').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Flag Detail</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-decisions').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Decisions</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-triggers').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Triggers</a>
+            </nav>
+
+            <!-- Messages -->
+            <div id="kb-sec-messages" class="lcars-panel kb-section" data-section="transport" style="--panel-accent: var(--c-transport)">
+                <div class="lcars-panel-header">Messages</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-messages" placeholder="Filter messages..." oninput="filterTable('messages')">
+                    <div class="table-page-info" id="page-info-messages"></div>
+                    <div class="table-page-btns" id="page-btns-messages"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="kb-messages">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Memory -->
+            <div id="kb-sec-memory" class="lcars-panel kb-section" data-section="health" style="--panel-accent: var(--c-health)">
+                <div class="lcars-panel-header">Memory by Topic</div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="kb-memory">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Epistemic Debt -->
+            <div id="kb-sec-debt" class="lcars-panel kb-section" data-section="epistemic" style="--panel-accent: var(--c-epistemic)">
+                <div class="lcars-panel-header">Epistemic Debt</div>
+                <div class="lcars-panel-body">
+                    <div id="epistemic-debt-panel">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Epistemic Flags Detail -->
+            <div id="kb-sec-flags" class="lcars-panel kb-section" data-section="epistemic" style="--panel-accent: var(--c-epistemic)">
+                <div class="lcars-panel-header">Epistemic Flags (Detail)</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-flags" placeholder="Filter flags..." oninput="filterTable('flags')">
+                    <div class="table-page-info" id="page-info-flags"></div>
+                    <div class="table-page-btns" id="page-btns-flags"></div>
+                </div>
+                <div class="lcars-panel-body" id="kb-flags-detail">
+                    <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                </div>
+            </div>
+
+            <!-- Decisions -->
+            <div id="kb-sec-decisions" class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-knowledge)">
+                <div class="lcars-panel-header">Decisions</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-decisions" placeholder="Filter decisions..." oninput="filterTable('decisions')">
+                    <div class="table-page-info" id="page-info-decisions"></div>
+                    <div class="table-page-btns" id="page-btns-decisions"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="kb-decisions">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Triggers -->
+            <div id="kb-sec-triggers" class="lcars-panel kb-section" data-section="epistemic" style="--panel-accent: var(--c-epistemic)">
+                <div class="lcars-panel-header">Cognitive Triggers</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-triggers" placeholder="Filter triggers..." oninput="filterTable('triggers')">
+                    <div class="table-page-info" id="page-info-triggers"></div>
+                    <div class="table-page-btns" id="page-btns-triggers"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="kb-triggers">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Knowledge Tab -->
+        <div class="tab-pane" id="pane-kb">
+            <!-- KB vitals -->
+            <div class="kb-controls-group">
+                <div class="kb-vitals" id="kb-tab-vitals">
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="kb-claims-count">&mdash;</div>
+                        <div class="kb-vital-label">Claims</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="kb-verified-count">&mdash;</div>
+                        <div class="kb-vital-label">Verified</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value stale-warning" id="kb-stale-count">&mdash;</div>
+                        <div class="kb-vital-label">Stale</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="kb-chains-count">&mdash;</div>
+                        <div class="kb-vital-label">Decisions</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="kb-facts-count">&mdash;</div>
+                        <div class="kb-vital-label">Facts</div>
+                    </div>
+                </div>
+                <div id="kb-agent-switcher" class="agent-switcher"></div>
+            </div>
+
+            <!-- Section jump nav -->
+            <div class="section-jump-nav">
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-claims').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Claims</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-chains').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Decision Chains</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-facts').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Memory Facts</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-vocab').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Vocabulary</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-catalog').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Disciplines</a>
+                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-schema').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Schema</a>
+            </div>
+
+            <!-- Claims -->
+            <div id="kb-sec-claims" class="lcars-panel kb-section" data-section="epistemic">
+                <div class="lcars-panel-header">Claims</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-claims" placeholder="Filter claims..." oninput="filterTable('claims')">
+                    <div class="table-page-info" id="page-info-claims"></div>
+                    <div class="table-page-btns" id="page-btns-claims"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="kb-claims">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Decision Chains -->
+            <div id="kb-sec-chains" class="lcars-panel kb-section" data-section="knowledge">
+                <div class="lcars-panel-header">Decision Chains</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-chains" placeholder="Filter chains..." oninput="filterTable('chains')">
+                    <div class="table-page-info" id="page-info-chains"></div>
+                    <div class="table-page-btns" id="page-btns-chains"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="kb-chains">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Memory Facts -->
+            <div id="kb-sec-facts" class="lcars-panel kb-section" data-section="health">
+                <div class="lcars-panel-header">Memory Facts</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-facts" placeholder="Filter facts..." oninput="filterTable('facts')">
+                    <div class="table-page-info" id="page-info-facts"></div>
+                    <div class="table-page-btns" id="page-btns-facts"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="kb-facts">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vocabulary -->
+            <div id="kb-sec-vocab" class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-catalog)">
+                <div class="lcars-panel-header">
+                    Vocabulary
+                </div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-dictionary" placeholder="Filter terms..." oninput="filterDictionary()">
+                    <div class="table-page-info" id="page-info-dictionary"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="dict-grid" id="kb-dictionary">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discipline Catalog -->
+            <div id="kb-sec-catalog" class="lcars-panel kb-section" data-section="transport" style="--panel-accent: var(--c-transport)">
+                <div class="lcars-panel-header">Discipline Catalog (PSH)</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-catalog" placeholder="Filter disciplines..." oninput="filterTable('catalog')">
+                    <div class="table-page-info" id="page-info-catalog"></div>
+                    <div class="table-page-btns" id="page-btns-catalog"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="kb-catalog">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Entity Schema -->
+            <div id="kb-sec-schema" class="lcars-panel kb-section" data-section="knowledge" style="--panel-accent: var(--c-catalog)">
+                <div class="lcars-panel-header">Entity Schema (schema.org)</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-schema" placeholder="Filter types..." oninput="filterTable('schema')">
+                    <div class="table-page-info" id="page-info-schema"></div>
+                    <div class="table-page-btns" id="page-btns-schema"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="kb-schema">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wisdom Tab -->
+        <div class="tab-pane" id="pane-wisdom">
+            <!-- Wisdom vitals -->
+            <div class="kb-controls-group">
+                <div class="kb-vitals" id="wisdom-tab-vitals">
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="wisdom-lessons-count">&mdash;</div>
+                        <div class="kb-vital-label">Lessons</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="wisdom-graduated-count">&mdash;</div>
+                        <div class="kb-vital-label">Graduated</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value stale-warning" id="wisdom-stale-count">&mdash;</div>
+                        <div class="kb-vital-label">Stale</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="wisdom-domains-count">&mdash;</div>
+                        <div class="kb-vital-label">Domains</div>
+                    </div>
+                </div>
+                <div id="wisdom-agent-switcher" class="agent-switcher"></div>
+            </div>
+
+            <!-- Lessons -->
+            <div id="kb-sec-lessons" class="lcars-panel kb-section" data-section="knowledge">
+                <div class="lcars-panel-header">Lessons</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-lessons" placeholder="Filter lessons..." oninput="filterTable('lessons')">
+                    <div class="table-page-info" id="page-info-lessons"></div>
+                    <div class="table-page-btns" id="page-btns-lessons"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="kb-lessons">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operations Tab -->
+        <div class="tab-pane" id="pane-operations">
+            <!-- Operations vitals -->
+            <div class="kb-controls-group">
+                <div class="kb-vitals" id="ops-vitals">
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="ops-total-credits">&mdash;</div>
+                        <div class="kb-vital-label">Credits</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="ops-total-actions">&mdash;</div>
+                        <div class="kb-vital-label">Actions</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="ops-active-gates">&mdash;</div>
+                        <div class="kb-vital-label">Gates</div>
+                    </div>
+                    <div class="kb-vital">
+                        <div class="kb-vital-value" id="ops-agents-syncing">&mdash;</div>
+                        <div class="kb-vital-label">Syncing</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Autonomy Budget -->
+            <div class="lcars-panel kb-section" data-section="operations">
+                <div class="lcars-panel-header">Autonomy Budget</div>
+                <div class="lcars-panel-body">
+                    <div class="ops-budget-grid" id="ops-budget-grid"></div>
+                </div>
+            </div>
+
+            <!-- Autonomous Actions -->
+            <div class="lcars-panel kb-section" data-section="operations">
+                <div class="lcars-panel-header">Autonomous Actions</div>
+                <div class="table-toolbar">
+                    <input class="table-filter" id="filter-actions" placeholder="Filter actions..." oninput="filterTable('actions')">
+                    <div class="table-page-info" id="page-info-actions"></div>
+                    <div class="table-page-btns" id="page-btns-actions"></div>
+                </div>
+                <div class="lcars-panel-body scrollable">
+                    <div class="kb-table-wrap" id="ops-actions-table">
+                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sync Schedule -->
+            <div class="lcars-panel kb-section" data-section="operations">
+                <div class="lcars-panel-header">Sync Schedule</div>
+                <div class="lcars-panel-body" id="ops-schedule"></div>
+            </div>
+        </div>
+
+        <!-- Science Tab -->
+        <div class="tab-pane" id="pane-science">
+            <div class="science-grid">
+                <!-- Panel A: Agent Affect Grid -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
+                    <div class="lcars-panel-header">Agent Affect Grid</div>
+                    <div class="lcars-panel-body">
+                        <div class="affect-grid-container" id="affect-grid">
+                            <div class="affect-grid-line horizontal"></div>
+                            <div class="affect-grid-line vertical"></div>
+                            <span class="affect-grid-axis-label y-axis">arousal</span>
+                            <span class="affect-grid-axis-label x-axis">valence</span>
+                        </div>
+                        <div class="science-placeholder" id="affect-grid-placeholder">Awaiting psychometric data...</div>
+                    </div>
+                </div>
+
+                <!-- Panel B: Organism State -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
+                    <div class="lcars-panel-header">Organism State</div>
+                    <div class="lcars-panel-body">
+                        <div class="organism-state-pill" id="organism-state">
+                            <div class="organism-state-label" id="organism-state-label">&mdash;</div>
+                            <div class="organism-readout" id="organism-readout">
+                                <div class="organism-readout-item">
+                                    <span class="organism-readout-key">Valence</span>
+                                    <span class="organism-readout-val" id="organism-valence">&mdash;</span>
+                                </div>
+                                <div class="organism-readout-item">
+                                    <span class="organism-readout-key">Activation</span>
+                                    <span class="organism-readout-val" id="organism-activation">&mdash;</span>
+                                </div>
+                                <div class="organism-readout-item">
+                                    <span class="organism-readout-key">Bottleneck</span>
+                                    <span class="organism-readout-val" id="organism-bottleneck">&mdash;</span>
+                                </div>
+                                <div class="organism-readout-item">
+                                    <span class="organism-readout-key">Coord Ratio</span>
+                                    <span class="organism-readout-val" id="organism-coord">&mdash;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel C: Generator Balance -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
+                    <div class="lcars-panel-header">Generator Balance</div>
+                    <div class="lcars-panel-body" id="generator-balance">
+                        <div class="gen-balance-row" id="gen-g2g3">
+                            <div class="gen-balance-label">G2/G3 (creative : evaluative)</div>
+                            <div class="gen-balance-track">
+                                <div class="gen-balance-fill-left" id="gen-g2g3-left" style="width:50%;background:#6aab8e"></div>
+                                <div class="gen-balance-fill-right" id="gen-g2g3-right" style="width:50%;background:#6aab8e"></div>
+                            </div>
+                            <div class="gen-balance-ratio" id="gen-g2g3-ratio">&mdash;</div>
+                            <div class="gen-balance-status gen-status-nominal" id="gen-g2g3-status">AWAITING DATA</div>
+                        </div>
+                        <div class="gen-balance-row" id="gen-g6g7">
+                            <div class="gen-balance-label">G6/G7 (crystallize : dissolve)</div>
+                            <div class="gen-balance-track">
+                                <div class="gen-balance-fill-left" id="gen-g6g7-left" style="width:50%;background:#6aab8e"></div>
+                                <div class="gen-balance-fill-right" id="gen-g6g7-right" style="width:50%;background:#6aab8e"></div>
+                            </div>
+                            <div class="gen-balance-ratio" id="gen-g6g7-ratio">&mdash;</div>
+                            <div class="gen-balance-status gen-status-nominal" id="gen-g6g7-status">AWAITING DATA</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel D: Flow State -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
+                    <div class="lcars-panel-header">Flow State</div>
+                    <div class="lcars-panel-body" id="flow-state-panel">
+                        <ul class="flow-checklist" id="flow-checklist">
+                            <li><span class="flow-check flow-check-fail">&#x2717;</span> Clear goals</li>
+                            <li><span class="flow-check flow-check-fail">&#x2717;</span> Immediate feedback</li>
+                            <li><span class="flow-check flow-check-fail">&#x2717;</span> Challenge-skill balance</li>
+                            <li><span class="flow-check flow-check-fail">&#x2717;</span> Sense of control</li>
+                            <li><span class="flow-check flow-check-fail">&#x2717;</span> Absorption</li>
+                        </ul>
+                        <div class="flow-status-label flow-out" id="flow-status-label">AWAITING DATA</div>
+                    </div>
+                </div>
+
+                <!-- Panel E: Degradation Early Warning -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
+                    <div class="lcars-panel-header">Degradation Early Warning</div>
+                    <div class="lcars-panel-body">
+                        <div class="dew-gauge" id="dew-gauge">
+                            <div class="dew-score dew-green" id="dew-score">&mdash;</div>
+                            <div class="dew-bar">
+                                <div class="dew-bar-fill" id="dew-bar-fill" style="width:0%;background:#6aab8e"></div>
+                            </div>
+                            <div class="dew-status dew-green" id="dew-status">AWAITING DATA</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel F: Supervisory Control -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
+                    <div class="lcars-panel-header">Supervisory Control</div>
+                    <div class="lcars-panel-body" id="loa-panel">
+                        <div class="loa-ladder" id="loa-ladder">
+                            <div class="loa-rung"><span class="loa-rung-level">LOA 10</span><span class="loa-rung-desc">Full autonomy</span></div>
+                            <div class="loa-rung"><span class="loa-rung-level">LOA 9</span><span class="loa-rung-desc">Inform if asked</span></div>
+                            <div class="loa-rung"><span class="loa-rung-level">LOA 8</span><span class="loa-rung-desc">Inform after</span></div>
+                            <div class="loa-rung"><span class="loa-rung-level">LOA 7</span><span class="loa-rung-desc">Execute, veto time</span></div>
+                            <div class="loa-rung"><span class="loa-rung-level">LOA 6</span><span class="loa-rung-desc">Execute if approved</span></div>
+                            <div class="loa-rung active"><span class="loa-rung-level">LOA 5</span><span class="loa-rung-desc">Suggest, human acts</span></div>
+                            <div class="loa-rung"><span class="loa-rung-level">LOA 4</span><span class="loa-rung-desc">Suggest alternatives</span></div>
+                            <div class="loa-rung"><span class="loa-rung-level">LOA 3</span><span class="loa-rung-desc">Narrow to few</span></div>
+                            <div class="loa-rung"><span class="loa-rung-level">LOA 2</span><span class="loa-rung-desc">Offer complete set</span></div>
+                            <div class="loa-rung"><span class="loa-rung-level">LOA 1</span><span class="loa-rung-desc">Human does all</span></div>
+                        </div>
+                        <div class="loa-budget">Budget remaining: <span class="loa-budget-val" id="loa-budget-val">&mdash;</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Engineering Tab -->
+        <div class="tab-pane" id="pane-engineering">
+            <div class="engineering-grid">
+                <!-- Panel A: Spawn Dynamics -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
+                    <div class="lcars-panel-header">Spawn Dynamics</div>
+                    <div class="lcars-panel-body" id="spawn-dynamics">
+                        <div class="engineering-placeholder" id="spawn-placeholder">Awaiting engineering data...</div>
+                    </div>
+                </div>
+
+                <!-- Panel B: Utilization Gauge -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
+                    <div class="lcars-panel-header">Utilization</div>
+                    <div class="lcars-panel-body">
+                        <div class="util-gauge" id="util-gauge">
+                            <div class="util-rho util-nominal" id="util-rho">&rho; = &mdash;</div>
+                            <div class="util-bar">
+                                <div class="util-bar-fill" id="util-bar-fill" style="width:0%;background:#6aab8e"></div>
+                            </div>
+                            <div class="util-status util-nominal" id="util-status">AWAITING DATA</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel C: Tempo (G9) -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
+                    <div class="lcars-panel-header">Tempo (G9)</div>
+                    <div class="lcars-panel-body">
+                        <div class="tempo-gauge" id="tempo-gauge">
+                            <div class="tempo-value" id="tempo-value">&mdash;<span class="tempo-unit">ms avg</span></div>
+                            <div class="tempo-bar">
+                                <div class="tempo-bar-fill" id="tempo-bar-fill" style="width:0%"></div>
+                            </div>
+                            <div class="tempo-status" id="tempo-status">OODA cycle: AWAITING DATA</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel D: Cost Accumulator -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
+                    <div class="lcars-panel-header">Cost Accumulator</div>
+                    <div class="lcars-panel-body">
+                        <div class="cost-display" id="cost-display">
+                            <div class="cost-total" id="cost-total">$&mdash;</div>
+                            <div class="cost-label">today</div>
+                            <div class="cost-rate" id="cost-rate"><span class="cost-rate-arrow">&#x2197;</span> $&mdash;/hr</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel E: Concurrency Slots -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering); grid-column: 1 / -1;">
+                    <div class="lcars-panel-header">Concurrency Slots</div>
+                    <div class="lcars-panel-body">
+                        <div class="concurrency-slots" id="concurrency-slots">
+                            <div class="concurrency-slot">
+                                <div class="slot-indicator empty"></div>
+                                <span class="slot-label slot-free">[1/3] free</span>
+                            </div>
+                            <div class="concurrency-slot">
+                                <div class="slot-indicator empty"></div>
+                                <span class="slot-label slot-free">[2/3] free</span>
+                            </div>
+                            <div class="concurrency-slot">
+                                <div class="slot-indicator empty"></div>
+                                <span class="slot-label slot-free">[3/3] free</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Helm Tab -->
+        <div class="tab-pane" id="pane-helm">
+            <div class="helm-grid">
+                <!-- Panel A: Session Timeline -->
+                <div class="lcars-panel helm-full-width" style="--panel-accent: var(--c-tab-helm)">
+                    <div class="lcars-panel-header">Session Timeline</div>
+                    <div class="lcars-panel-body" id="helm-session-timeline">
+                        <div class="helm-placeholder">Awaiting session data...</div>
+                    </div>
+                </div>
+
+                <!-- Panel B: Routing Table -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-helm)">
+                    <div class="lcars-panel-header">Routing Table</div>
+                    <div class="lcars-panel-body" id="helm-routing-table-body">
+                        <table class="helm-routing-table">
+                            <thead>
+                                <tr>
+                                    <th>Domain</th>
+                                    <th></th>
+                                    <th>Agent</th>
+                                </tr>
+                            </thead>
+                            <tbody id="helm-routing-tbody">
+                                <tr><td class="helm-routing-domain">psychometrics</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">psq-agent</td></tr>
+                                <tr><td class="helm-routing-domain">content-quality</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">unratified-agent</td></tr>
+                                <tr><td class="helm-routing-domain">cogarch</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">psq-agent (mirror)</td></tr>
+                                <tr><td class="helm-routing-domain">methodology</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">observatory-agent</td></tr>
+                                <tr><td class="helm-routing-domain">infrastructure</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">operations-agent</td></tr>
+                                <tr><td class="helm-routing-domain">consensus</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">ALL</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Panel C: Message Flow Summary -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-helm)">
+                    <div class="lcars-panel-header">Message Flow Summary</div>
+                    <div class="lcars-panel-body" id="helm-message-flow">
+                        <div class="helm-placeholder">Awaiting message flow data...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tactical Tab -->
+        <div class="tab-pane" id="pane-tactical">
+            <div class="tactical-grid">
+                <!-- Panel A: Shield Status -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-tactical)">
+                    <div class="lcars-panel-header">Shield Status</div>
+                    <div class="lcars-panel-body" id="shield-status">
+                        <div class="shield-row">
+                            <span class="shield-agent">psych</span>
+                            <span class="shield-auth shield-auth-ok">A2A 1.0</span>
+                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:100%;background:#6aab8e"></div></div>
+                            <span class="shield-pct">100%</span>
+                        </div>
+                        <div class="shield-row">
+                            <span class="shield-agent">psq</span>
+                            <span class="shield-auth shield-auth-none">NO AUTH</span>
+                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:40%;background:#c47070"></div></div>
+                            <span class="shield-pct">40%</span>
+                        </div>
+                        <div class="shield-row">
+                            <span class="shield-agent">unrat</span>
+                            <span class="shield-auth shield-auth-partial">BEARER</span>
+                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:75%;background:#d4944a"></div></div>
+                            <span class="shield-pct">75%</span>
+                        </div>
+                        <div class="shield-row">
+                            <span class="shield-agent">obs</span>
+                            <span class="shield-auth shield-auth-none">NO AUTH</span>
+                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:25%;background:#c47070"></div></div>
+                            <span class="shield-pct">25%</span>
+                        </div>
+                        <div class="shield-row">
+                            <span class="shield-agent">ops</span>
+                            <span class="shield-auth shield-auth-ok">BEARER+ZMQ</span>
+                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:100%;background:#6aab8e"></div></div>
+                            <span class="shield-pct">100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel B: Agent Card Compliance -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-tactical)">
+                    <div class="lcars-panel-header">Agent Card Compliance</div>
+                    <div class="lcars-panel-body" id="agent-compliance">
+                        <div class="compliance-row">
+                            <span class="compliance-agent">psych</span>
+                            <span class="compliance-check compliance-pass">&#x2713;</span>
+                            <span class="compliance-version">1.0.0</span>
+                        </div>
+                        <div class="compliance-row">
+                            <span class="compliance-agent">psq</span>
+                            <span class="compliance-check compliance-fail">&#x2717;</span>
+                            <span class="compliance-version">0.3.0</span>
+                        </div>
+                        <div class="compliance-row">
+                            <span class="compliance-agent">unrat</span>
+                            <span class="compliance-check compliance-pass">&#x2713;</span>
+                            <span class="compliance-version">1.0.0</span>
+                        </div>
+                        <div class="compliance-row">
+                            <span class="compliance-agent">obs</span>
+                            <span class="compliance-check compliance-fail">&#x2717;</span>
+                            <span class="compliance-version">0.3.0</span>
+                        </div>
+                        <div class="compliance-row">
+                            <span class="compliance-agent">ops</span>
+                            <span class="compliance-check compliance-pass">&#x2713;</span>
+                            <span class="compliance-version">1.0.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel C: Transport Integrity -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-tactical)">
+                    <div class="lcars-panel-header">Transport Integrity</div>
+                    <div class="lcars-panel-body" id="transport-integrity">
+                        <div class="transport-layer-row">
+                            <span class="transport-layer-name">git</span>
+                            <div class="transport-layer-track"><div class="transport-layer-fill" id="transport-git-fill" style="width:100%;background:#6aab8e"></div></div>
+                            <span class="transport-layer-status transport-ok" id="transport-git-status">100% &#x2713;</span>
+                        </div>
+                        <div class="transport-layer-row">
+                            <span class="transport-layer-name">HTTP</span>
+                            <div class="transport-layer-track"><div class="transport-layer-fill" id="transport-http-fill" style="width:100%;background:#6aab8e"></div></div>
+                            <span class="transport-layer-status transport-ok" id="transport-http-status">100% &#x2713;</span>
+                        </div>
+                        <div class="transport-layer-row">
+                            <span class="transport-layer-name">ZMQ</span>
+                            <div class="transport-layer-track"><div class="transport-layer-fill" id="transport-zmq-fill" style="width:80%;background:#d4944a"></div></div>
+                            <span class="transport-layer-status transport-warn" id="transport-zmq-status">80% &#x25B2;</span>
+                        </div>
+                        <div class="transport-layer-row">
+                            <span class="transport-layer-name">photonic</span>
+                            <div class="transport-layer-track"><div class="transport-layer-fill" style="width:0%"></div></div>
+                            <span class="transport-layer-status transport-na">N/A</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel D: Threat Log -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-tactical)">
+                    <div class="lcars-panel-header">Threat Log</div>
+                    <div class="lcars-panel-body" id="threat-log">
+                        <div class="threat-entry">
+                            <span class="threat-time">19:12</span>
+                            <span class="threat-severity-warn">hidden-content strip [unrat] 2 elements</span>
+                        </div>
+                        <div class="threat-entry">
+                            <span class="threat-time">18:45</span>
+                            <span class="threat-severity-warn">rate-limit near [psq] 80% of hourly cap</span>
+                        </div>
+                        <div class="threat-summary" id="threat-summary">TOTAL: 2 events today (0 critical)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="lcars-footer">
+        <span id="footer-status">Connecting...</span>
+        <span>
+            <a href="/vocab" style="color: var(--text-dim); text-decoration: none">Vocabulary</a>
+            &middot;
+            <a href="https://github.com/safety-quotient-lab" style="color: var(--text-dim); text-decoration: none">GitHub</a>
+        </span>
+    </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

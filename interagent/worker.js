@@ -5,7 +5,7 @@
  * aggregation, and authenticated API endpoints.
  *
  * Routes:
- *   GET  /                    → interagent mesh compositor (index.html)
+ *   GET  /                    → interagent mesh compositor (static assets)
  *   GET  /vocab[.json]        → shared JSON-LD vocabulary
  *   GET  /health              → worker health check (local only)
  *   GET  /api/health          → mesh health (aggregates all agent /api/status)
@@ -14,7 +14,6 @@
  *   *    /api/*               → authenticated API routes (rate-limited)
  */
 
-import HTML from "./index.html";
 import VOCAB from "./vocab.json";
 import { resolveAuth, checkRateLimit, handleKeyCreate, handleKeyRevoke } from "./auth.js";
 
@@ -175,13 +174,9 @@ export default {
       );
     }
 
-    // ── Static compositor ───────────────────────────────────────────
-
-    return new Response(HTML, {
-      headers: {
-        "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "public, max-age=60",
-      },
-    });
+    // ── Static assets ─────────────────────────────────────────────
+    // Non-API routes fall through to Wrangler's [assets] static serving.
+    // public/index.html, CSS, and JS files served automatically.
+    return env.ASSETS.fetch(request);
   },
 };
