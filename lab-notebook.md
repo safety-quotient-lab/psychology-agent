@@ -6088,3 +6088,20 @@ unratified PR #78).
   bias risk in post-hoc pattern matching
 - EIC consumer ran 3x before idempotency guard added — relevance scores
   reset to baseline then reapplied once cleanly
+
+**Session 90 addendum (18:23 CDT):**
+
+Additional work after initial /cycle:
+- Photonic emitter hook operational (Phase 1, 70+ tokens emitted)
+- Neuromodulatory mesh spec written (6-channel ZMQ volume transmission, 527 lines)
+- Generator balance empirically calibrated: 2:1 creative/evaluative (5,972 commits)
+- Literature grounded: 9 domains surveyed, adaptive ratio supported (Snell et al. 2024)
+- T20 impressions seeded: 1,085 findings, 17.4:1 positive/negative ratio
+- ACK triage: 11 → 1 (v1-ux-handover pending background agent)
+- SEC-4 fixed: solid-oidc removed from agent-card.json
+- Cognitive-tempo model reviewed: LC-NE system mapping recommended
+- Trigger verifier calibrated: self-detection false positives excluded
+- Idle-cycle glymphatic maintenance wired into autonomous-sync.sh
+- Theory audit: 7 gaps found, 5 fixed, 2 documented
+- Ops PRs: #55 (git-sync watcher), #56 (ACKs + neuromod spec)
+- Unratified PR: #79 (CPG blog)
