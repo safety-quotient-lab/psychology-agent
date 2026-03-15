@@ -3,7 +3,7 @@
   "description": "Known agents in the psychology-agent mesh. BFT-inspired architecture: peer agents function as replicas (consensus participants); human and public function as clients (submitters). /sync reads this to determine who to check for activity and who to consider for outbound messages.",
   "updated": "2026-03-13",
   "agents": {
-    "psych-session": {
+    "psy-session": {
       "role": "client",
       "client_type": "privileged",
       "description": "Human-agent dyadic cognitive system \u2014 interactive Claude Code session coupling human operator with psychology-agent. Privileged client: directs work, configures replicas, reviews deliverables.",
@@ -11,7 +11,7 @@
       "repo": "safety-quotient-lab/psychology-agent",
       "remote_name": null,
       "sessions_path": "transport/sessions/",
-      "message_prefix": "from-psych-session-",
+      "message_prefix": "from-psy-session-",
       "legacy_prefixes": ["from-human-"],
       "active_sessions": [
         "site-pricing-update"
