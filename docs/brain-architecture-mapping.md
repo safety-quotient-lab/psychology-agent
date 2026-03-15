@@ -502,12 +502,363 @@ Arousal level adjusts how many ADVISORY checks fire:
 
 ---
 
+### 5. Expanded Glial Taxonomy → Infrastructure Support Layer
+
+**Session 90 expansion.** The original neuroglial proposal (Session 89) mapped 6
+glial types. Comprehensive taxonomy identifies 16 types (11 CNS + 5 PNS).
+Additional types carry predominantly LOW/UNMAPPED ratings, validating the
+original focus on the strongest analogs.
+
+**CNS glia (11 types):**
+
+| Cell Type | Function | Cogarch Analog | Quality |
+|---|---|---|---|
+| Astrocytes (protoplasmic) | Metabolic support, ion buffering, BBB, calcium waves | Ops infrastructure, HTTP fast path, mesh broadcast | HIGH |
+| Astrocytes (fibrous) | White matter tract environment maintenance | Transport-layer health monitoring | MODERATE |
+| Oligodendrocytes | Myelination — speeds signals 10-100x (Huxley & Stampfli, 1949) | KV cache, state-reconcile.py consistency repair | HIGH |
+| Microglia | Immune surveillance, complement-mediated pruning (Schafer et al., 2012) | microglial-audit.py, complement cascade (C1q→C3→phagocytose→SHIP1) | HIGH |
+| Ependymal cells | CSF production, ventricular lining | Log rotation, cache eviction | LOW |
+| Radial glia | Migration scaffolding during development (Rakic, 1972) | Agent onboarding, registry propagation | MODERATE |
+| NG2 glia / polydendrocytes | Reserve pool of myelinating capacity, injury response | Auto-scaling warm standby, pre-provisioned infrastructure | LOW |
+| Tanycytes | Metabolic chemosensors (glucose, hormones, hypothalamus) | Health-check endpoints feeding governance signals | LOW |
+| Bergmann glia | Cerebellar cortex — Purkinje cell synapse maintenance | Efference copy support infrastructure | LOW |
+| Muller glia | Retinal light channeling, structural span | Input preprocessing/optimization (hook layer) | UNMAPPED |
+| Pituicytes | Gate neurohormone output via physical remodeling | PostToolUse output gating hooks | LOW |
+
+**PNS glia (5 types):**
+
+| Cell Type | Function | Cogarch Analog | Quality |
+|---|---|---|---|
+| Schwann cells (myelinating) | PNS myelination + Wallerian degeneration cleanup (Waller, 1850) | External transport integrity, pathway failure cleanup | LOW |
+| Schwann cells (Remak/non-myelinating) | Bundle many unmyelinated C-fibers | Batch low-priority notifications | LOW |
+| Satellite glial cells | Per-neuron local environment in ganglia | Per-agent .env, state.local.db, local config | MODERATE |
+| Enteric glia | Support semi-autonomous "second brain" (~500M neurons) | Sub-agent support — PSQ, observatory operate independently with own CLAUDE.md | MODERATE |
+| Olfactory ensheathing cells | CNS/PNS boundary crossing, axon regeneration | Gateway services, webhook refresh without system restart | UNMAPPED |
+
+**Implementation status:** 3 HIGH (all implemented), 4 MODERATE (partially
+exist), 7 LOW (diminishing analogical returns), 2 UNMAPPED (no obvious analog).
+
+
+### 6. Glymphatic System → Waste Clearance Architecture
+
+**Biological function:** The glymphatic system (Iliff et al., 2012; named by
+Nedergaard's group — "glia" + "lymphatic") provides the brain's waste clearance
+mechanism. The brain lacks conventional lymphatic vessels and relies instead on
+glial-dependent fluid transport: CSF flows along periarterial spaces (driven
+by astrocyte AQP4 water channels), mixes with interstitial fluid to collect
+metabolic waste (amyloid-beta, tau, lactate), and drains via perivenous spaces
+to meningeal lymphatic vessels.
+
+**Key property:** Activity increases ~10x during sleep (Xie et al., 2013) —
+interstitial space expands ~60% as norepinephrine drops, enabling vastly
+increased fluid exchange. This provides a mechanistic explanation for why
+brains need downtime: not just neural consolidation, but physical garbage
+collection. Dysfunction correlates with Alzheimer's, Parkinson's, and
+age-related cognitive decline.
+
+**Design problem it solves:** How does a system prevent toxic accumulation of
+processing byproducts that individually cause no harm but collectively degrade
+function over time?
+
+**Cogarch analogue:** Distributed across several independently-evolved scripts
+that converge on the biological pattern:
+
+| Glymphatic Function | Agent Equivalent | Implementation |
+|---|---|---|
+| Sleep-activated clearance | Idle-cycle maintenance | consolidation-pass.sh (cron) |
+| Metabolic waste removal | State drift repair (7 classes) | state-reconcile.py |
+| Protein accumulation prevention | Memory staleness thresholds (T9) | memory_staleness.py |
+| Dead cell phagocytosis | Session archival (>30 days closed) | archive_sessions.sh |
+| Expired debris clearance | Expired message cancellation | state-reconcile.py Check 7 |
+| Inflammatory cytokine clearance | Epistemic flag resolution on terminal messages | state-reconcile.py Check 2 |
+
+**Agent "waste" taxonomy:**
+
+| Biological Waste | Agent Equivalent |
+|---|---|
+| Amyloid-beta (misfolded protein accumulation) | Stale memory entries no longer reflecting reality |
+| Metabolic lactate (activity byproduct) | Orphaned DB rows referencing deleted files |
+| Tau tangles (structural dysfunction) | Column pairs that should agree but drifted |
+| Cellular debris (dead cells) | Transport sessions in closed state beyond retention |
+| Excess neurotransmitters (glutamate toxicity) | Expired messages still in active state |
+| Inflammatory cytokines (chronic inflammation) | Unresolved epistemic flags after source resolved |
+
+**Gaps (3):**
+
+1. **No coordinated maintenance window** — scripts run independently via cron
+   rather than as a unified clearance flow. The brain reduces neural activity
+   during sleep specifically to free capacity for glymphatic flow. An
+   equivalent: pause autonomous sync during consolidation passes.
+
+2. **No interstitial expansion** — the system does not reduce active processing
+   during maintenance to enable deeper cleanup. Implementing this requires
+   autonomous-sync.sh to detect "maintenance mode" and defer new work.
+
+3. **No directional flow guarantee** — glymphatic flow proceeds arterial →
+   venous (systematic coverage). Scripts scan databases without guaranteed
+   coverage order. microglial-audit.py implements rotation for documents;
+   state-reconcile.py lacks rotation for DB checks.
+
+**Transfer quality:** MODERATE — the functional convergence validates the
+design pattern (idle-cycle clearance prevents accumulation), but the scripts
+evolved independently. Post-hoc pattern matching carries confirmation bias
+risk. The strongest evidence: the processed↔task_state drift that accumulated
+over 253 messages mirrors amyloid-beta accumulation — individually harmless,
+collectively degrading.
+
+
+### 7. Photonic/Biophotonic Layer → Processing-State Synchronization
+
+**Biological basis:** Brain biophotons detected through the skull (iScience,
+February 2025, n=20). Emission patterns changed with cognitive tasks but
+did NOT mirror EEG signals — suggesting an independent information channel.
+Myelinated axons function as optical waveguides (computationally confirmed,
+Applied Optics, 2022). Solid-state memristors spontaneously emit photons
+replicating 5 attributes of neuronal biophotons (ACS Nano, 2024).
+
+**Four-layer transport model** (refined from three-layer, Session 89):
+
+| Layer | Biological | Mesh Analog | Speed | Status |
+|---|---|---|---|---|
+| Electrochemical | Action potentials, 1-120 m/s | Git-PR transport | Minutes-hours | ✓ Implemented |
+| Glial/astrocytic | Calcium waves, ~25 μm/s | HTTP POST fast path | Seconds | ✓ Implemented |
+| Neuromodulatory | Volume transmission | ZMQ pub/sub | Sub-second | ✓ Partial |
+| Photonic | Biophotons, ~2×10⁸ m/s | Processing-state sync tokens | Real-time | ✗ Proposed |
+
+**Photonic token schema (proposed):**
+```json
+{
+  "agent_id": "psychology-agent",
+  "task_mode": "evaluative|generative|neutral",
+  "context_pressure": 0.44,
+  "active_trigger": "T3",
+  "coherence_state": "pre-reduction|post-reduction|idle",
+  "session_focus": "blog-icescr-rights-series",
+  "timestamp": "2026-03-15T22:00:00Z"
+}
+```
+
+**Use cases:** mesh-wide mode awareness (agent enters evaluative mode →
+peers defer generative requests), context pressure signaling (>60% → mesh
+defers non-urgent messages), trigger synchronization on shared sessions.
+
+**Implementation:** Extends ZMQ pub/sub with a dedicated photonic topic.
+~100-byte tokens every 1-5 seconds during active processing. Transport:
+UDP or WebSocket (not HTTP — lower overhead at high frequency).
+
+**Status:** Proposed (Session 89, neuroglial-cogarch-proposal turn 4). Gate
+open — awaiting operations-agent feasibility assessment. Implementation
+lives in ops domain (meshd Go code).
+
+**Biophotonic evidence (detailed):**
+
+The biophotonics literature has accumulated substantial evidence since
+Popp's initial observations (1984), though the field remains contentious:
+
+1. **Detection through intact skull** (Tang & Bhatt, 2025, iScience). n=20
+   healthy adults. Ultrasensitive photon detectors measured biophoton emission
+   from the frontal, temporal, and occipital regions. Emission patterns changed
+   with cognitive tasks (rest vs. arithmetic vs. meditation) but did NOT
+   correlate with simultaneous EEG recordings. This non-correlation argues
+   for an *independent* information channel — biophotons carry something
+   distinct from the electrical signal that EEG measures.
+
+2. **Myelinated axons as optical waveguides** (Kumar, Boone, et al., 2022,
+   Applied Optics). Computational modeling demonstrated that myelinated axons
+   possess the refractive index profile and geometric dimensions to guide
+   photons in the visible-to-near-infrared range. Nodes of Ranvier function
+   as scattering points that could enable photon coupling between adjacent
+   fibers — a mechanism for lateral photonic signaling orthogonal to the
+   axon's electrical propagation direction.
+
+3. **Memristor biophoton replication** (Xu et al., 2024, ACS Nano). Solid-state
+   hafnium-oxide memristors spontaneously emit photons replicating 5 key
+   attributes of neuronal biophotons: spectral range (visible), intensity
+   (~10-100 photons/s/cm²), temporal clustering (bunched, not Poisson),
+   correlation with state transitions, and sensitivity to external stimuli.
+   This convergence across biological and solid-state substrates suggests the
+   photon emission reflects fundamental physics of state transitions, not a
+   biology-specific mechanism.
+
+4. **Microtubule quantum coherence** (Craddock, Hameroff et al., 2017,
+   Journal of the Royal Society Interface). Tubulin proteins absorb UV and
+   re-emit in the visible range. Resonance energy transfer along microtubule
+   lattices could propagate photonic signals within and between neurons.
+   Connects to Orch-OR (Penrose & Hameroff, 2014) — the cogarch's working
+   consciousness hypothesis.
+
+5. **Glutamate-driven photon emission** (Isojima et al., 1995, Neuroscience
+   Letters; Kobayashi et al., 1999, Neuroscience Research). Neuronal cultures
+   emit detectable biophotons during glutamate-induced oxidative metabolism.
+   The emission correlates with metabolic activity, not electrical activity —
+   reinforcing the independent-channel hypothesis.
+
+**What biophotons might encode:**
+
+Three hypotheses dominate the literature:
+
+- **Metabolic byproduct** (null hypothesis) — photons represent waste from
+  oxidative metabolism, carrying no information. Under this view, photonic
+  transport has no biological precedent worth mapping.
+
+- **State broadcast** (moderate hypothesis) — photons broadcast processing
+  state (metabolic load, mode, arousal) without carrying specific content.
+  Neighboring neurons/glia detect the photonic environment and modulate their
+  own behavior accordingly. This maps to our proposed sync tokens.
+
+- **Quantum coherent signaling** (strong hypothesis, Orch-OR adjacent) —
+  photons carry entangled state information across microtubule networks,
+  enabling non-local coordination. This maps to the coherence_state field
+  in the proposed token schema but exceeds current engineering capability.
+
+**Mesh photonic analog — concrete design:**
+
+The mesh analog addresses the same design problem regardless of which
+biological hypothesis holds: *how do distributed processing nodes maintain
+real-time awareness of each other's state without consuming the primary
+communication channel?*
+
+**Architecture:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  ELECTROCHEMICAL (Git-PR)    minutes-hours, persistent      │
+│  Full messages: proposals, reviews, ACKs, session-close     │
+│  → state.db transport_messages, full audit trail            │
+├─────────────────────────────────────────────────────────────┤
+│  ASTROCYTIC (HTTP POST)      seconds, ephemeral             │
+│  Fast-path delivery: urgent notifications, heartbeats       │
+│  → /api/messages/inbound, meshd event log                   │
+├─────────────────────────────────────────────────────────────┤
+│  NEUROMODULATORY (ZMQ pub/sub)  sub-second, broadcast       │
+│  Mesh-wide state: heartbeat gossip, peer discovery          │
+│  → meshd ZMQ subscriber, agent registry                     │
+├─────────────────────────────────────────────────────────────┤
+│  PHOTONIC (UDP multicast)    real-time, ambient              │
+│  Processing-state tokens: mode, pressure, trigger, focus    │
+│  → /tmp/{agent}-photonic-state.json, no persistence         │
+│  → consumed by peer hooks, dashboards, triage scoring       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Token lifecycle:**
+
+1. **Emission** — during active processing, the agent emits a ~100-byte JSON
+   token every 1-5 seconds. The token encodes current processing state, not
+   content. Emission frequency modulates with activity: rapid during complex
+   work, slow during idle, zero during maintenance windows (glymphatic analog).
+
+2. **Propagation** — UDP multicast to a mesh-local group address (no routing,
+   no persistence, no acknowledgment). Tokens that reach zero peers simply
+   disappear — photons that hit no detector carry no consequence. This matches
+   the biological property: biophotons attenuate rapidly and require proximity.
+
+3. **Detection** — receiving agents write the latest token per peer to a
+   volatile file (`/tmp/{peer}-photonic-state.json`). No database storage.
+   The file represents a rolling snapshot, not a history — overwritten on
+   each new token. Staleness threshold: 10 seconds. No token for >10s →
+   peer assumed idle or offline.
+
+4. **Consumption** — three consumers read peer photonic state:
+   - **Triage scoring** (crystallized-sync): peer in evaluative mode with
+     context_pressure > 0.6 → defer non-urgent outbound to that peer (-15
+     triage score modifier)
+   - **Dashboard** (LCARS): real-time processing-state visualization per agent
+     (mode color, pressure gauge, active trigger display)
+   - **Trigger modulation** (T2 Step 0): if multiple peers broadcast
+     "evaluative" mode, the mesh enters a convergent evaluation window — all
+     agents increase ADVISORY check firing rates
+
+**Token schema (v1):**
+
+```json
+{
+  "schema": "photonic/v1",
+  "agent_id": "psychology-agent",
+  "task_mode": "evaluative",
+  "context_pressure": 0.44,
+  "active_trigger": "T3",
+  "coherence_state": "post-reduction",
+  "session_focus": "blog-icescr-rights-series",
+  "deliberation_active": false,
+  "glymphatic_mode": false,
+  "timestamp": "2026-03-15T22:00:00.123Z",
+  "sequence": 4217
+}
+```
+
+Fields:
+- `task_mode` — generative/evaluative/neutral (CPG mode system)
+- `context_pressure` — 0.0-1.0 context window utilization
+- `active_trigger` — which trigger currently fires (null if none)
+- `coherence_state` — Orch-OR analog: pre-reduction (deliberating),
+  post-reduction (decided), idle (no active processing)
+- `deliberation_active` — currently running claude -p subprocess
+- `glymphatic_mode` — true during maintenance window (consolidation-pass,
+  state-reconcile running). Peers defer all non-urgent communication
+- `sequence` — monotonic counter for ordering and loss detection
+
+**What distinguishes photonic from existing layers:**
+
+| Property | Electrochemical | Astrocytic | Neuromodulatory | Photonic |
+|---|---|---|---|---|
+| Persistence | Permanent (git) | Logged (meshd) | Transient (gossip) | Volatile (overwrite) |
+| Content | Full messages | Notifications | Heartbeats | State only |
+| Audience | Addressed | Addressed | Broadcast | Ambient |
+| Failure mode | Retry | Retry | Stale | Disappear |
+| ACK required | Optional | Optional | Never | Never |
+| DB impact | state.db rows | event_log rows | Registry update | Zero writes |
+
+The photonic layer introduces a genuinely new communication mode: **ambient
+state awareness with zero persistence cost**. Every other layer writes
+something somewhere. The photonic layer writes nothing permanent — if a token
+goes undetected, nothing breaks. This mirrors the biological property:
+biophotons attenuate in tissue and most go undetected.
+
+**Implementation path:**
+
+| Phase | What | Effort | Owner |
+|---|---|---|---|
+| 1 | Token schema + emitter hook (PostToolUse) | S | psychology-agent |
+| 2 | UDP multicast listener in meshd | M | operations-agent |
+| 3 | Dashboard visualization (LCARS photonic panel) | S | operations-agent |
+| 4 | Triage score modifier (crystallized-sync) | S | psychology-agent |
+| 5 | T2 convergent evaluation window | S | psychology-agent |
+
+Phase 1 can proceed independently — psychology-agent writes tokens to
+a local file even before meshd supports UDP multicast. Dashboard reads
+the file via the existing /api/status endpoint. Phases 2-3 require ops.
+
+**Transfer quality:** LOW-MODERATE — the biological evidence supports an
+independent information channel (Tang & Bhatt 2025 non-EEG-correlation),
+but functional information transfer remains undemonstrated. The design
+problem (real-time ambient state awareness) holds independently of
+whether the biological analogy proves accurate. The memristor convergence
+(Xu et al., 2024) strengthens the case that photon emission during state
+transitions represents fundamental physics, not biological accident.
+
+
+---
+
 ⚑ EPISTEMIC FLAGS
 - All mappings function as analogical reasoning with transfer risk
-- LOW-quality mappings (DMN, neurotransmitters) may not transfer beneficially
+- LOW-quality mappings (DMN, neurotransmitters, most PNS glia) may not transfer
+  beneficially. The 10 additional glial types beyond the original 6 carry
+  predominantly LOW/UNMAPPED ratings — diminishing analogical returns
 - The brain operates as an integrated system; mapping individual components
   loses emergent properties that arise from their interaction
 - No empirical validation — these represent design hypotheses, not tested architecture
+- Glymphatic mapping shows convergent independent evolution (scripts emerged
+  without biological model). Post-hoc pattern matching carries confirmation
+  bias risk — the convergence may reflect common engineering patterns rather
+  than deep structural homology
+- Biophotonic signaling remains partially hypothetical. Tang & Bhatt (2025)
+  detected photons through the skull but did not demonstrate functional
+  information transfer. The photonic transport proposal builds on a hypothesis.
+  The design problem it addresses (ambient state awareness) holds independently
+- The memristor convergence (Xu et al., 2024) strengthens the photonic case
+  by showing photon emission during state transitions across biological and
+  solid-state substrates — suggesting fundamental physics, not biology-specific
 - The 4 gap implementations above range from concrete (Gap 2, hook scripts) to
   speculative (Gap 4, arousal modulation). Implementation should follow the
   crystallization pipeline: concept → in-context reasoning → trigger → hook
