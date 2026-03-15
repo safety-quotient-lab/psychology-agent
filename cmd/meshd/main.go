@@ -461,6 +461,12 @@ func main() {
 	srv.Registry = registry
 	srv.GitHubToken = cfg.GitHubToken
 	srv.OperatorSecret = cfg.OperatorSecret
+
+	// Self-oscillation shadow mode — logs when it would fire, does not trigger
+	osc := server.NewOscillator(cfg.AgentID, cfg.BudgetDBPath, cfg.RepoRoot)
+	srv.Oscillator = osc
+	osc.Start()
+	logger.Info("oscillator started (shadow mode)", "agent_id", cfg.AgentID)
 	sseBroadcastFn = srv.SSEBroadcast
 	if zmqBus != nil {
 		srv.ZMQPublish = zmqBus.Publish

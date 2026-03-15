@@ -83,6 +83,10 @@ type Server struct {
 	// Accepts event type and payload; returns an error on failure.
 	triggerFunc func(eventType string, payload map[string]string) error
 
+	// Oscillator runs the self-oscillation shadow mode goroutine.
+	// Nil when not enabled.
+	Oscillator *Oscillator
+
 	// sseBroker fans out events to connected SSE clients.
 	sseBroker *SSEBroker
 
@@ -244,6 +248,7 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/trigger", s.handleTrigger)
 	mux.HandleFunc("GET /api/deliberations", s.handleDeliberations)
 	mux.HandleFunc("GET /api/cognitive-tempo", s.handleCognitiveTempo)
+	mux.HandleFunc("GET /api/oscillator", s.handleOscillator)
 	mux.HandleFunc("GET /api/kb", s.handleKB)
 	mux.HandleFunc("POST /api/messages/inbound", s.handleInbound)
 	mux.HandleFunc("GET /api/routing", s.handleRouting)
