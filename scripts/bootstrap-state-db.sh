@@ -13,12 +13,39 @@ set -eo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-DB_PATH="${1:-${BUDGET_DB_PATH:-$REPO_ROOT/state.db}}"
+
+# Parse args
+FORCE=false
+DB_ARG=""
+for arg in "$@"; do
+  case "$arg" in
+    --force) FORCE=true ;;
+    *) DB_ARG="$arg" ;;
+  esac
+done
+
+DB_PATH="${DB_ARG:-${BUDGET_DB_PATH:-$REPO_ROOT/state.db}}"
 SCHEMA="$SCRIPT_DIR/schema.sql"
 
 if [ ! -f "$SCHEMA" ]; then
   echo "ERROR: schema.sql not found at $SCHEMA" >&2
   exit 1
+fi
+
+# Guard: refuse to clobber non-empty state.db without --force
+if [ -f "$DB_PATH" ]; then
+  SIZE=$(stat -f%z "$DB_PATH" 2>/dev/null || stat -c%s "$DB_PATH" 2>/dev/null || echo "0")
+  if [ "$SIZE" -gt 0 ] && [ "$FORCE" != "true" ]; then
+    echo "REFUSED: state.db exists and contains data (${SIZE} bytes)" >&2
+    echo "Use --force to overwrite: $0 --force [path]" >&2
+    exit 1
+  fi
+  if [ "$SIZE" -gt 0 ] && [ "$FORCE" = "true" ]; then
+    # Auto-backup before overwrite
+    BACKUP="${DB_PATH}.pre-bootstrap.$(date -u +%Y%m%d%H%M%S)"
+    cp "$DB_PATH" "$BACKUP"
+    echo "Backed up existing state.db → $BACKUP (${SIZE} bytes)"
+  fi
 fi
 
 echo "Bootstrapping state.db at: $DB_PATH"

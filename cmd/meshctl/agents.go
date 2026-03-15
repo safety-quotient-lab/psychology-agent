@@ -20,9 +20,11 @@ type AgentEntry struct {
 
 // dirMap overrides for agent repos whose directory names differ from the
 // last segment of the GitHub repo path.
+// dirMap maps GitHub repo paths to local directory names under AGENT_BASE_DIR.
+// These match the actual directory names on gray-box (~/Projects/).
 var dirMap = map[string]string{
-	"safety-quotient-lab/psychology-agent": "psychology",
-	"safety-quotient-lab/safety-quotient":  "psychology/safety-quotient",
+	"safety-quotient-lab/psychology-agent": "psychology-agent",
+	"safety-quotient-lab/safety-quotient":  "safety-quotient",
 	"safety-quotient-lab/unratified":       "unratified",
 	"safety-quotient-lab/observatory":      "observatory",
 	"safety-quotient-lab/operations-agent": "operations-agent",
