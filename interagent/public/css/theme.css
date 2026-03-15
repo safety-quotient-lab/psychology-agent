@@ -190,12 +190,14 @@ body:not(.theme-lcars) #pane-medical { display: none !important; }
     border-radius: 50vh;
 }
 
-/* ── LCARS Panel Accent — thicker left bar ───────────────────── */
+/* ── LCARS Panel — no left bar, clean inside the frame ────────── */
 .theme-lcars .lcars-panel::before {
-    width: 6px;
+    display: none;  /* Frame provides structure, not panel accents */
 }
 .theme-lcars .lcars-panel {
-    border-radius: 0 12px 12px 0;
+    border-radius: 4px;
+    border-color: rgba(153, 153, 255, 0.15);
+    background: rgba(0, 0, 0, 0.6);
 }
 
 /* Light mode — OKSolar warm cream */
