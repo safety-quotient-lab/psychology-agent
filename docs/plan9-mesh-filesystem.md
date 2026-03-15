@@ -315,11 +315,16 @@ locations:
 | `mesh/governance/*` | `origin:docs/ef1-*` (psychology-agent repo) |
 | `mesh/standards/*` | `origin:docs/*-spec.md` |
 
-### Phase 2: Canonical Directory Structure
+### Phase 2: Canonical Directory Structure (initiated 2026-03-14)
 
 Each agent creates a `mesh/` directory at its repo root following the
 namespace specification. Cross-repo-fetch resolves paths through the
 agent-registry, which maps agent-id to repo + mesh/ subdirectory.
+
+**Status:** psychology-agent `mesh/` directory created with all
+subdirectories and README pointers. Content remains in original
+locations — migration happens incrementally as each subdirectory
+gains real content.
 
 ### Phase 3: Unified Access Layer
 
