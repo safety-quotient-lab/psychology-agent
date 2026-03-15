@@ -310,6 +310,8 @@ def main():
     parser.add_argument("--insights", action="store_true", help="Extract what the agent valued (subjects of praise)")
     parser.add_argument("--json", action="store_true", help="JSON output")
     parser.add_argument("--file", type=str, help="Scan specific JSONL file")
+    parser.add_argument("--persist", action="store_true",
+                        help="Write findings to prediction_ledger (T20 calibration data)")
     args = parser.parse_args()
 
     # Collect transcripts
@@ -385,6 +387,36 @@ def main():
             print(f"Drift ratio: {drift['drift_ratio']}×")
             print(f"Result: {drift['interpretation']}")
         sys.exit(0)
+
+    # Persist to prediction_ledger (T20 calibration data)
+    if args.persist and all_results:
+        db_path = PROJECT_ROOT / "state.db"
+        if db_path.exists():
+            import sqlite3
+            conn = sqlite3.connect(str(db_path))
+            persisted = 0
+            report = frequency_report(all_results)
+            # Write one summary entry per scan, not per finding
+            conn.execute(
+                "INSERT INTO prediction_ledger "
+                "(session_id, prediction, domain, source_doc, outcome, outcome_detail) "
+                "VALUES (?, ?, 'evaluative-impressions', 'impressions-detector', 'untested', ?)",
+                (0,
+                 f"Positive:Negative ratio {report['ratio']} across {report['total_findings']} findings",
+                 json.dumps({
+                     "total": report["total_findings"],
+                     "positive": report["positive"],
+                     "negative": report["negative"],
+                     "top_categories": dict(list(report["by_category"].items())[:5]),
+                 })))
+            conn.commit()
+            persisted = 1
+            conn.close()
+            print(f"Persisted {persisted} summary entry to prediction_ledger (domain: evaluative-impressions)")
+        else:
+            print("Cannot persist — state.db not found")
+        if not args.report and not args.drift and not args.insights:
+            sys.exit(0)
 
     # Default: show findings
     if not all_results:

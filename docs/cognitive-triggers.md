@@ -159,11 +159,16 @@ Step 0 reads the glymphatic flag and adjusts check scheduling mechanically.
 
 ### Photonic State Awareness (Session 90)
 
-Triggers MAY read peer photonic tokens (`/tmp/{peer}-photonic-state.json`)
-to adjust their own behavior based on mesh-wide processing state. This
-provides ambient awareness without consuming the primary transport channel.
+**Stage 1 (current):** The photonic emitter writes tokens locally. No
+consumer reads them yet — Stage 1 establishes the emission convention and
+token schema. Consumption activates at Stage 2 (when meshd UDP multicast
+delivers peer tokens to `/tmp/{peer}-photonic-state.json`).
 
-**T2 integration:** Before response, check peer photonic state for:
+**Stage 2 (planned):** Triggers MAY read peer photonic tokens to adjust
+behavior based on mesh-wide processing state. This provides ambient
+awareness without consuming the primary transport channel.
+
+**T2 integration (Stage 2):** Before response, check peer photonic state for:
 - Peer in `evaluative` mode with `context_pressure > 0.6` → defer non-urgent
   outbound to that peer (triage score modifier: -15)
 - Multiple peers broadcasting `evaluative` → mesh enters convergent evaluation
