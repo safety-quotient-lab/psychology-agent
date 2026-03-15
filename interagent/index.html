@@ -3793,6 +3793,15 @@
         el.innerHTML = `${prefix}${displayVal}${suffix}${deltaHtml}`;
     }
 
+    // ── LCARS Content Mirroring ────────────────────────────────────
+    // Copies rendered content from standard tabs to LCARS-only panels
+    function mirrorToLcars(sourceId, lcarsId) {
+        if (!document.body.classList.contains("theme-lcars")) return;
+        const source = document.getElementById(sourceId);
+        const target = document.getElementById(lcarsId);
+        if (source && target) target.innerHTML = source.innerHTML;
+    }
+
     // ── Affect-Responsive Layout ──────────────────────────────────
 
     const AFFECT_MODES = {
@@ -4483,6 +4492,7 @@
 
             grid.appendChild(card);
         }
+        mirrorToLcars("agents-grid", "lcars-ops-agents-grid");
     }
 
     // ── Render: Topology ───────────────────────────────────────────
@@ -4530,6 +4540,7 @@
         }
 
         svg.innerHTML = html;
+        mirrorToLcars("topology-svg", "lcars-topology-svg");
     }
 
     // ── Render: Activity Stream ────────────────────────────────────
@@ -4589,6 +4600,7 @@
                 <span class="activity-type">${m.type}</span>
             </a>`;
         }).join("");
+        mirrorToLcars("activity-stream", "lcars-ops-activity");
     }
 
     // ── Render: Combined ───────────────────────────────────────────
@@ -4678,6 +4690,16 @@
         renderSchema();
         // Wisdom tab
         renderLessons();
+
+        // Mirror to LCARS-only panels
+        mirrorToLcars("ops-decisions-table", "lcars-ops-decisions");
+        mirrorToLcars("ops-triggers-table", "lcars-ops-triggers");
+        mirrorToLcars("kb-claims", "lcars-sci-claims");
+        mirrorToLcars("epistemic-debt-panel", "lcars-sci-debt");
+        mirrorToLcars("kb-dictionary", "lcars-sci-vocab");
+        mirrorToLcars("kb-lessons", "lcars-sci-lessons");
+        mirrorToLcars("kb-catalog", "lcars-sci-catalog");
+        mirrorToLcars("messages-table", "lcars-helm-messages");
     }
 
     // ── KB Vitals ────────────────────────────────────────────────
