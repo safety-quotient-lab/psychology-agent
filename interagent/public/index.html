@@ -4003,6 +4003,10 @@
         <!-- Medical Tab -->
         <div class="tab-pane" id="pane-medical">
             <div class="lcars-status-line" id="med-status-line">Oscillator: Shadow Mode &middot; Activation: — &middot; State: —</div>
+
+            <!-- Agent Selector -->
+            <div style="padding:8px 0;display:flex;gap:6px;flex-wrap:wrap" id="med-agent-selector"></div>
+
             <div class="tactical-grid">
                 <!-- Panel A: Oscillator State -->
                 <div class="lcars-panel" style="--panel-accent: #66ccaa">
@@ -4020,15 +4024,31 @@
                     </div>
                 </div>
 
-                <!-- Panel C: Fire History -->
-                <div class="lcars-panel" style="--panel-accent: #66ccaa; grid-column: 1 / -1;">
-                    <div class="lcars-panel-header">Fire History (Shadow)</div>
-                    <div class="lcars-panel-body" id="med-fire-history">
-                        <div class="trust-matrix-loading">No fire events yet</div>
+                <!-- Panel C: Cognitive Load (NASA-TLX) -->
+                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                    <div class="lcars-panel-header">Cognitive Load (TLX)</div>
+                    <div class="lcars-panel-body" id="med-cognitive-load">
+                        <div class="trust-matrix-loading">Awaiting psychometrics...</div>
                     </div>
                 </div>
 
-                <!-- Panel D: Cognitive Tempo -->
+                <!-- Panel D: Working Memory -->
+                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                    <div class="lcars-panel-header">Working Memory</div>
+                    <div class="lcars-panel-body" id="med-working-memory">
+                        <div class="trust-matrix-loading">Awaiting psychometrics...</div>
+                    </div>
+                </div>
+
+                <!-- Panel E: Resources -->
+                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                    <div class="lcars-panel-header">Resources</div>
+                    <div class="lcars-panel-body" id="med-resources">
+                        <div class="trust-matrix-loading">Awaiting psychometrics...</div>
+                    </div>
+                </div>
+
+                <!-- Panel F: Cognitive Tempo + Refractory -->
                 <div class="lcars-panel" style="--panel-accent: #66ccaa">
                     <div class="lcars-panel-header">Cognitive Tempo</div>
                     <div class="lcars-panel-body" id="med-tempo">
@@ -4036,11 +4056,27 @@
                     </div>
                 </div>
 
-                <!-- Panel E: Refractory State -->
+                <!-- Panel G: DEW (Degradation Early Warning) -->
+                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                    <div class="lcars-panel-header">DEW (Degradation)</div>
+                    <div class="lcars-panel-body" id="med-dew">
+                        <div class="trust-matrix-loading">Awaiting psychometrics...</div>
+                    </div>
+                </div>
+
+                <!-- Panel H: Refractory State -->
                 <div class="lcars-panel" style="--panel-accent: #66ccaa">
                     <div class="lcars-panel-header">Refractory</div>
                     <div class="lcars-panel-body" id="med-refractory">
                         <div class="trust-matrix-loading">—</div>
+                    </div>
+                </div>
+
+                <!-- Panel I: Fire History (full width) -->
+                <div class="lcars-panel" style="--panel-accent: #66ccaa; grid-column: 1 / -1;">
+                    <div class="lcars-panel-header">Fire History (Shadow)</div>
+                    <div class="lcars-panel-body" id="med-fire-history">
+                        <div class="trust-matrix-loading">No fire events yet</div>
                     </div>
                 </div>
             </div>
@@ -7676,26 +7712,58 @@
 
     // ── Medical Station ────────────────────────────────────────────
 
-    async function fetchMedicalData() {
-        try {
-            const resp = await fetch("https://operations-agent.safety-quotient.dev/api/oscillator", {
-                signal: AbortSignal.timeout(8000),
-            });
-            if (!resp.ok) throw new Error("HTTP " + resp.status);
-            const osc = await resp.json();
-            renderMedicalOscillator(osc);
+    let medSelectedAgent = "operations-agent";
+    let medPsychData = {};
 
-            // Also fetch cognitive-tempo
-            const tempoResp = await fetch("https://operations-agent.safety-quotient.dev/api/cognitive-tempo", {
-                signal: AbortSignal.timeout(8000),
-            });
-            if (tempoResp.ok) {
-                const tempo = await tempoResp.json();
-                renderMedicalTempo(tempo);
-            }
-        } catch {
+    function renderMedAgentSelector() {
+        const sel = document.getElementById("med-agent-selector");
+        if (!sel) return;
+        sel.innerHTML = AGENTS.map(function(a) {
+            const active = a.id === medSelectedAgent;
+            return '<button class="lcars-pill-btn' + (active ? ' lcars-pill-active' : '') + '" style="font-size:0.72em;padding:4px 10px;background:' + (active ? a.color : 'var(--surface)') + '" onclick="selectMedAgent(\'' + a.id + '\')">' + a.id.replace("-agent", "") + '</button>';
+        }).join("");
+    }
+    window.selectMedAgent = function(agentId) {
+        medSelectedAgent = agentId;
+        renderMedAgentSelector();
+        fetchMedicalData();
+    };
+
+    async function fetchMedicalData() {
+        renderMedAgentSelector();
+        const agent = AGENTS.find(function(a) { return a.id === medSelectedAgent; });
+        if (!agent) return;
+
+        // Fetch oscillator + tempo + psychometrics in parallel
+        const [oscResp, tempoResp, psychResp] = await Promise.allSettled([
+            fetch(agent.url + "/api/oscillator", { signal: AbortSignal.timeout(8000) }),
+            fetch(agent.url + "/api/cognitive-tempo", { signal: AbortSignal.timeout(8000) }),
+            fetch("https://interagent.safety-quotient.dev/api/psychometrics", { signal: AbortSignal.timeout(8000) }),
+        ]);
+
+        // Oscillator
+        if (oscResp.status === "fulfilled" && oscResp.value.ok) {
+            renderMedicalOscillator(await oscResp.value.json());
+        } else {
             const el = document.getElementById("med-oscillator");
-            if (el) el.innerHTML = '<div class="trust-matrix-loading">Oscillator data unavailable</div>';
+            if (el) el.innerHTML = '<div class="trust-matrix-loading">Oscillator not available for this agent</div>';
+            ["med-signals", "med-fire-history", "med-refractory"].forEach(function(id) {
+                const e = document.getElementById(id);
+                if (e) e.innerHTML = '<div class="trust-matrix-loading">—</div>';
+            });
+        }
+
+        // Cognitive tempo
+        if (tempoResp.status === "fulfilled" && tempoResp.value.ok) {
+            renderMedicalTempo(await tempoResp.value.json());
+        }
+
+        // Psychometrics (per-agent from compositor)
+        if (psychResp.status === "fulfilled" && psychResp.value.ok) {
+            const meshPsych = await psychResp.value.json();
+            const agentPsych = meshPsych.agents?.[medSelectedAgent] || {};
+            medPsychData = agentPsych;
+            renderMedPsychometrics(agentPsych);
         }
     }
 
@@ -7785,6 +7853,75 @@
             + '<div style="color:var(--text-dim)">gain=' + (tempo.gain || 0).toFixed(3) + ' complexity=' + (tempo.task_complexity || 0).toFixed(3) + '</div>'
             + (tempo.override_reason ? '<div style="color:#d4944a;margin-top:4px">' + tempo.override_reason + '</div>' : '')
             + '</div>';
+    }
+
+    function medBar(label, val, max, color) {
+        const pct = max > 0 ? Math.min(100, (val / max) * 100) : 0;
+        return '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:0.78em">'
+            + '<span style="min-width:48px;color:var(--text-secondary)">' + label + '</span>'
+            + '<div style="flex:1;height:10px;background:var(--surface);border-radius:3px;overflow:hidden"><div style="height:100%;width:' + pct.toFixed(0) + '%;background:' + color + ';border-radius:3px"></div></div>'
+            + '<span style="min-width:28px;text-align:right;font-size:0.9em">' + (typeof val === "number" ? val.toFixed(1) : "—") + '</span></div>';
+    }
+
+    function renderMedPsychometrics(data) {
+        // Cognitive Load (NASA-TLX)
+        const clEl = document.getElementById("med-cognitive-load");
+        if (clEl) {
+            const wl = data.workload || {};
+            if (wl.cognitive_load != null) {
+                clEl.innerHTML = medBar("Demand", wl.task_demand || 0, 100, "#9999ff")
+                    + medBar("Pressure", wl.time_pressure || 0, 100, "#d4944a")
+                    + medBar("Efficacy", wl.self_efficacy || 0, 1, "#6aab8e")
+                    + medBar("Effort", wl.effort || 0, 100, "#cc99cc")
+                    + medBar("Fatigue", wl.fatigue || 0, 100, "#c47070")
+                    + medBar("Strain", wl.strain || 0, 100, "#c47070")
+                    + '<div style="margin-top:4px;font-size:0.78em;color:var(--text-dim)">Composite: ' + (wl.cognitive_load || 0).toFixed(1) + '</div>';
+            } else {
+                clEl.innerHTML = '<div class="trust-matrix-loading">No TLX data</div>';
+            }
+        }
+
+        // Working Memory
+        const wmEl = document.getElementById("med-working-memory");
+        if (wmEl) {
+            const wm = data.working_memory || {};
+            if (wm.capacity_load != null) {
+                const zone = wm.yerkes_dodson_zone || "?";
+                const zoneColor = zone === "optimal" ? "#6aab8e" : zone === "overwhelmed" ? "#c47070" : zone === "understimulated" ? "#9999ff" : "var(--text-dim)";
+                wmEl.innerHTML = medBar("Load", wm.capacity_load || 0, 1, "#d4944a")
+                    + '<div style="margin-top:6px;text-align:center;font-size:0.82em">Zone: <strong style="color:' + zoneColor + '">' + zone.toUpperCase() + '</strong></div>';
+            } else {
+                wmEl.innerHTML = '<div class="trust-matrix-loading">No WM data</div>';
+            }
+        }
+
+        // Resources
+        const resEl = document.getElementById("med-resources");
+        if (resEl) {
+            const rm = data.resource_model || {};
+            if (rm.cognitive_reserve != null) {
+                resEl.innerHTML = medBar("Reserve", rm.cognitive_reserve || 0, 1, "#6aab8e")
+                    + medBar("Self-Reg", rm.self_regulatory_resource || 0, 1, "#66ccaa")
+                    + medBar("Allostatic", rm.allostatic_load || 0, 1, "#c47070");
+            } else {
+                resEl.innerHTML = '<div class="trust-matrix-loading">No resource data</div>';
+            }
+        }
+
+        // DEW (Degradation Early Warning)
+        const dewEl = document.getElementById("med-dew");
+        if (dewEl) {
+            const dew = data.degradation_early_warning || data.dew || {};
+            if (dew.risk != null || dew.level != null) {
+                const risk = dew.risk || dew.level || 0;
+                const riskColor = risk > 0.7 ? "#c47070" : risk > 0.4 ? "#d4944a" : "#6aab8e";
+                dewEl.innerHTML = '<div style="text-align:center;font-size:0.82em">'
+                    + '<div style="font-size:1.8em;font-weight:700;color:' + riskColor + '">' + (risk * 100).toFixed(0) + '%</div>'
+                    + '<div style="color:var(--text-dim)">Degradation Risk</div></div>';
+            } else {
+                dewEl.innerHTML = '<div class="trust-matrix-loading">No DEW data</div>';
+            }
+        }
     }
 
     // ── Init ───────────────────────────────────────────────────────
