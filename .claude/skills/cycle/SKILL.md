@@ -254,6 +254,18 @@ python scripts/dual_write.py memory-entry \
 - Check MEMORY.md line count: target < 60 lines (hard limit 200, but the index
   should stay lean; detail goes to topic files)
 
+**EIC feedback intake (disclosure → trigger adjustment):**
+After memory updates, run the EIC feedback consumer to close the disclosure →
+trigger sensitivity loop. Disclosures from agent_disclosures (state.local.db)
+adjust trigger relevance_score and decay_rate in trigger_state (state.db):
+```bash
+python3 scripts/eic-feedback-consumer.py          # apply adjustments
+# or --dry-run to preview without writing
+# or --summary to display current disclosure→trigger map
+```
+Report the summary in Step 13 output: how many disclosures processed, which
+triggers adjusted, and in which domains.
+
 ### 8. Update docs/cognitive-triggers.md
 
 Update when cogarch itself was modified — triggers added, changed, or retired;
@@ -502,6 +514,8 @@ produced significant changes (>5 files touched).
 - **Next session**: what's first, what's blocked
 - **MEMORY.md line count**: current / 200
 - **Epistemic debt**: one-line summary from Step 11c
+- **Feedback intake**: {N} trigger adjustments from {M} disclosures (domains: {list})
+  — from EIC feedback consumer run in Step 7
 
 ---
 

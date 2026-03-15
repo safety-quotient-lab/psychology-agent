@@ -107,6 +107,19 @@ This costs ~1 line per trigger fired (~3-5 lines per response). The broadcast
 medium already exists — the agent's working context. This convention formalizes
 what to carry forward between trigger evaluations.
 
+**Write path:** After completing a CRITICAL check, append the finding to the
+broadcast file:
+```bash
+echo "[BROADCAST T{n}#{check}] {finding}" >> /tmp/psychology-agent-gwt-broadcast
+```
+The `gwt-broadcast.sh` PostToolUse hook reads this file and surfaces active
+broadcasts as context reminders on subsequent tool calls. Stale broadcasts
+(older than 5 minutes) clear automatically between response cycles.
+
+**Read path:** Subsequent triggers read the broadcast file (via hook output)
+and incorporate findings. Example: T3 reads a T2 broadcast about context
+pressure and adjusts recommendation complexity accordingly.
+
 Crystallization stage: Stage 2 (convention with mechanical support). The
 mode-detection hook writes task type to `/tmp/{agent-id}-task-mode`. GWT
 broadcast reads this to adjust which ADVISORY checks fire:

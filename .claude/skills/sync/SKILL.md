@@ -301,7 +301,20 @@ processing.
    ```
    The gate resolution check runs automatically — no user confirmation needed
    (process decision, not substance).
-8. **Dual-write (SL-2):** After processing, mark as processed:
+8. **Efference copy comparison:** If this inbound message's `in_response_to`
+   field references an outbound message we sent, check whether a prediction
+   exists and compare:
+   ```bash
+   python3 scripts/efference-copy.py compare \
+     --session "{session_name}" \
+     --outbound "{in_response_to filename}" \
+     --inbound "{current_inbound_filename}" \
+     --actual "{1-sentence summary of response disposition}"
+   ```
+   Skip if no prediction exists for that outbound message (the script handles
+   gracefully). Match results feed the prediction_ledger for /retrospect analysis
+   and the crystallized sync triage surprise modifier.
+9. **Dual-write (SL-2):** After processing, mark as processed:
    ```bash
    python scripts/dual_write.py mark-processed --session "{session_name}" --filename "{filename}"
    ```
@@ -443,20 +456,31 @@ as a safety net, not the primary delivery mechanism.
      --from-agent psychology-agent --to-agent "{target}" \
      --timestamp "{timestamp}" --subject "{subject}"
    ```
-2. **Regenerate MANIFEST.json** — auto-generated from state.db (pending only):
+2. **Efference copy prediction:** For each outbound message that expects a
+   response (requests, proposals, reviews — not ACKs), record a prediction:
+   ```bash
+   python3 scripts/efference-copy.py predict \
+     --session "{session}" --outbound "{outbound_filename}" \
+     --expected-type "{ack|response|review}" \
+     --expected-agent "{target_agent_id}" \
+     --prediction "{1-sentence expected response summary}"
+   ```
+   This completes the forward model: every outbound message carries an
+   expectation that /sync Phase 3 step 8 compares against actual responses.
+3. **Regenerate MANIFEST.json** — auto-generated from state.db (pending only):
    ```bash
    python scripts/generate_manifest.py
    ```
    MANIFEST.json is a thin, git-transportable addressing file for peer agents.
    Completed message history lives in state.db (queryable) and git history
    (auditable). Do NOT manually edit MANIFEST.json — always regenerate.
-3. **agent-card.json** — update `active_sessions` if sessions opened or closed
-4. **agent-registry.json** — update `active_sessions` for agents if changed
-5. **Deliver outbound messages** — for each message written this cycle,
+4. **agent-card.json** — update `active_sessions` if sessions opened or closed
+5. **agent-registry.json** — update `active_sessions` for agents if changed
+6. **Deliver outbound messages** — for each message written this cycle,
    deliver to the target repo via Phase 4b (git-PR or HTTP POST).
    Delivery happens AFTER local commit so the source file exists in our
    git history regardless of delivery outcome.
-6. **Git** — stage, commit, push:
+7. **Git** — stage, commit, push:
 
 ```bash
 git add transport/ .well-known/agent-card.json

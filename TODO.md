@@ -71,25 +71,25 @@ found 3 critical defects, 2 high-severity issues, 39 structural weaknesses,
 
 New items from the full cogarch evaluation (`docs/cogarch-evaluation-session85.md`):
 
-- [ ] **GWT inter-trigger broadcast (Stage 2→3)** — implement one-line broadcast
-  summaries between CRITICAL trigger checks. Convention exists; needs hook or
-  script to carry forward findings between T2→T3→T4 within a response.
-  *Effort: S. Precondition: mode-detection hook operational (✓).*
+- [x] **GWT inter-trigger broadcast (Stage 2→3)** — COMPLETE (Session 90). Write
+  path documented in cognitive-triggers.md GWT section. Hook `gwt-broadcast.sh`
+  reads/clears `/tmp/psychology-agent-gwt-broadcast`. Agent appends `[BROADCAST]`
+  lines during CRITICAL checks; subsequent triggers read via hook output.
 
-- [ ] **Efference copy implementation** — link prediction_ledger to transport
-  outbound. Surprise-driven triage modifier (+25 for contradictions, -15 for
-  confirmations). Spec: `docs/efference-copy-spec.md`.
-  *Effort: S. Precondition: prediction_ledger schema v25 (✓).*
+- [x] **Efference copy implementation** — COMPLETE (Session 90). /sync Phase 3
+  step 8 compares inbound against predictions; Phase 5 step 2 records predictions
+  for outbound. Script: `scripts/efference-copy.py` (predict/compare/report).
+  4 predictions recorded, 1 confirmed. Spec: `docs/efference-copy-spec.md`.
 
 - [ ] **--thorough flag implementation** — multi-pass self-consistency scoring.
   Remove confidence from PSQ scoring prompt; replace with SD across N+1 passes.
   Spec: `docs/thorough-scoring-spec.md`.
   *Effort: S-M. Precondition: spec complete (✓). Requires PSQ agent scoring prompt edit.*
 
-- [ ] **EIC disclosure → trigger adjustment** — close the feedback loop from
-  disclosures (especially `dissent` and `uncertainty`) to trigger sensitivity.
-  Currently write-only; no consumer adjusts behavior based on disclosures.
-  *Effort: S. Precondition: EIC operational (✓).*
+- [x] **EIC disclosure → trigger adjustment** — COMPLETE (Session 90). Script:
+  `scripts/eic-feedback-consumer.py` (apply/--dry-run/--summary). Wired into
+  /cycle Step 7 (after memory updates). 6 disclosures processed, 4 triggers
+  adjusted. Disclosure → domain classification → trigger relevance/decay.
 
 - [ ] **DMN consolidation cron** — inter-session background processing via
   `consolidation-pass.sh`. Analyze trigger_activations, identify chronic
@@ -199,7 +199,7 @@ New items from the full cogarch evaluation (`docs/cogarch-evaluation-session85.m
 
 ## Blog Posts
 
-- [ ] **CPG pattern generators blog post** — five-persona route via unratified-agent.
+- [x] **CPG pattern generators blog post** — DRAFTED (Session 90). five-persona route via unratified-agent.
   Topic: how biological central pattern generators inform AI cognitive architecture.
   **Voter persona (8th grade):** Explain the basic science simply — your brain has
   circuits that make you walk without thinking about it; we use the same idea to make
@@ -771,9 +771,9 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   responses existed in peer repos. Root cause: cross_repo_fetch.py reads but
   does not copy inbound response messages to local session directories.*
 
-- [ ] **PSH vocabulary consensus (C2)** — second consensus test. Each agent
-  develops internal understanding of PSH vocabulary, then mesh negotiates
-  shared definitions.
+- [ ] **PSH vocabulary consensus (C2)** — PROPOSED (Session 90, turn 1). Each
+  agent develops internal understanding of PSH vocabulary, then mesh negotiates
+  shared definitions. Consensus proposal sent to all 4 agents.
   *Precondition: ✓ MET — Plan9 directory consensus resolved (2026-03-10)*
 
 - [x] **Enable autonomous sync on peer repos** — COMPLETE (Session 68).
