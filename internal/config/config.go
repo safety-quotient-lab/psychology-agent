@@ -119,7 +119,7 @@ func Load() (*Config, error) {
 	if cfg.PollInterval, err = resolveInt("POLL_INTERVAL", 60); err != nil {
 		return nil, err
 	}
-	if cfg.MaxConcurrent, err = resolveInt("MAX_CONCURRENT_SPAWNS", 2); err != nil {
+	if cfg.MaxConcurrent, err = resolveInt("MAX_CONCURRENT_SPAWNS", 1); err != nil {
 		return nil, err
 	}
 	if cfg.ReserveSlots, err = resolveInt("MESH_RESERVE_SLOTS", 2); err != nil {

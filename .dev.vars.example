@@ -45,7 +45,7 @@ SPAWN_TIMEOUT=300
 POLL_INTERVAL=60
 
 # Max concurrent Claude spawns across mesh (normal capacity)
-MAX_CONCURRENT_SPAWNS=2
+MAX_CONCURRENT_SPAWNS=1
 
 # Model override for spawns (sonnet, opus, haiku, or empty for CLI default)
 SPAWN_MODEL=sonnet
