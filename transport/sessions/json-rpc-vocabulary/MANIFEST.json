@@ -1,0 +1,12 @@
+{
+  "session_id": "json-rpc-vocabulary",
+  "status": "open",
+  "created_at": "2026-03-15T22:05:00Z",
+  "participants": [
+    "psychology-agent",
+    "operations-agent"
+  ],
+  "summary": "A2A JSON-RPC method vocabulary mapping for meshd \u2014 4 core + 30 extensions.",
+  "turns": 1,
+  "last_updated": "2026-03-15T22:05:00Z"
+}
