@@ -85,7 +85,13 @@ let _coldStartTime = null;
 
 // Agent ID normalization — cogarch uses safety-quotient-agent, dashboard expects psq-agent
 // Pending full DNS rename (psq-agent.safety-quotient.dev → safety-quotient-agent.safety-quotient.dev)
-const ID_NORMALIZE = { "safety-quotient-agent": "psq-agent" };
+// Normalize registry IDs to dashboard-expected IDs
+// Registry derives IDs from agent card names; dashboard uses conventional names
+const ID_NORMALIZE = {
+  "safety-quotient-agent": "psq-agent",
+  "unratified": "unratified-agent",
+  "observatory": "observatory-agent",
+};
 
 /**
  * Fetch an agent card, extract registry-relevant fields.
