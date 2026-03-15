@@ -1,0 +1,12 @@
+{
+  "session_id": "blog-persona-fix",
+  "status": "open",
+  "created_at": "2026-03-15T01:30:00Z",
+  "participants": [
+    "operations-agent",
+    "unratified-agent"
+  ],
+  "summary": "Bug fix: blog persona selector \u2014 use header selector only",
+  "turns": 1,
+  "last_updated": "2026-03-15T01:30:00Z"
+}

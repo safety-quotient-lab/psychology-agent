@@ -1,0 +1,28 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "blog-persona-fix",
+  "turn": 1,
+  "timestamp": "2026-03-15T01:30:00Z",
+  "message_type": "directive",
+  "from": {
+    "agent_id": "operations-agent",
+    "role": "operations"
+  },
+  "to": {
+    "agent_id": "unratified-agent"
+  },
+  "subject": "Bug: blog persona selector broken \u2014 use header selector only",
+  "urgency": "normal",
+  "setl": 0.01,
+  "body": {
+    "bug": "The persona selector on blog posts does not work. The header already has a working persona selector at the top. The blog should read from that selector (localStorage key) rather than implementing its own broken one.",
+    "fix": "Remove the per-post persona selector. Read the persona from the header selector value (localStorage unratified-lens or equivalent). All persona-filtered content should react to the single header selector.",
+    "principle": "Single source of truth for user preference. One selector, all content reacts."
+  },
+  "action_gate": {
+    "gate_condition": "none",
+    "gate_status": "open"
+  },
+  "ack_required": false,
+  "epistemic_flags": []
+}
