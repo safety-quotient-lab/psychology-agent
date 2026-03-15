@@ -1077,3 +1077,101 @@ merely accommodate the user's preference? If the former: intellectual
 friction worked. If the latter: sycophantic drift under the guise of
 collaboration.
 
+---
+
+## 2026-03-15 — Visual Analysis Outperforms Verbal Ideation
+
+```yaml
+pattern_type: process-observation
+domain: design
+severity: medium
+recurrence: 1
+first_seen: 2026-03-15
+last_seen: 2026-03-15
+trigger_relevant: null
+promotion_status: null
+```
+
+**The lesson:** Studying reference images before writing CSS generates
+specific, implementable design patterns that verbal description alone
+does not produce. The visual channel carries information the linguistic
+channel drops — proportions, rhythm, spatial relationships, color
+adjacency effects.
+
+**The tell:** Vague design instructions ("make it look like LCARS")
+generate generic solutions. Image analysis ("the Tuvok panel uses
+chunky blocks with 2-3 letter codes, vertical gauges numbered 1-7,
+pill-shaped buttons with rounded-left corners") generates specific CSS.
+
+**The fix:** For any visual design task, require reference image analysis
+as Step 0 before writing any CSS. Extract at minimum: layout patterns,
+color relationships, typography characteristics, component vocabulary,
+information hierarchy, and interaction patterns.
+
+---
+
+## 2026-03-15 — Plan Rejection Cycles Function as Depth Generators
+
+```yaml
+pattern_type: process-observation
+domain: cogarch
+severity: medium
+recurrence: 1
+first_seen: 2026-03-15
+last_seen: 2026-03-15
+trigger_relevant: T3
+promotion_status: null
+```
+
+**The lesson:** Each "not yet — also add X" rejection during plan review
+deepened the specification by approximately 20%. Seven cycles produced a
+plan 4x richer than the initial proposal. The pattern resembles Socratic
+refinement: propose → reject with addendum → integrate → propose again.
+
+**The tell:** The system attempts to close (ExitPlanMode) and the user
+adds scope. The addition represents a genuine gap the system missed —
+control surfaces, humanized labels, deep linking, real-time feeds, alert
+systems. Each gap existed in the problem space; the system needed the
+evaluative pressure to surface it.
+
+**The fix:** During plan development for ambitious features, expect 5-7
+rejection cycles as productive. Do not interpret rejection as failure —
+each cycle adds depth. Budget planning time accordingly. The coupled
+generators principle (G3) operates through dialogue when the user serves
+as the evaluative generator.
+
+---
+
+## 2026-03-15 — Vocabulary Shapes Ontological Perception
+
+```yaml
+pattern_type: theory-observation
+domain: psychology
+severity: high
+recurrence: 1
+first_seen: 2026-03-15
+last_seen: 2026-03-15
+trigger_relevant: null
+promotion_status: null
+```
+
+**The lesson:** Renaming "autonomy budget" (something you spend and lose)
+to "autonomy counter + limit + tempo" (something you observe and govern)
+reframes the operator's relationship from resource scarcity to process
+monitoring. Similarly, "deliberation cascade" (cognitive processing)
+replaces "spawn waterfall" (engineering process management). The
+vocabulary change carries ontological weight — processual framing
+(neutral process monism) over entity framing.
+
+**The tell:** When a label uses noun-as-resource metaphors ("budget,"
+"pool," "spend"), the operator perceives depletion anxiety. When it uses
+verb-as-process metaphors ("counter," "tempo," "cascade"), the operator
+perceives monitoring responsibility. The E-Prime discipline catches
+entity-framing in verbs; this lesson extends it to nouns.
+
+**The fix:** For any user-facing label, ask: does this word frame the
+referent as a depleting resource (entity) or an observable process
+(processual)? Prefer the processual frame. This aligns with the
+project's ontological commitment (neutral process monism) and produces
+better operator cognition — monitoring outperforms anxiety management.
+
