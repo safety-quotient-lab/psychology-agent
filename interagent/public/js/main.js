@@ -20,6 +20,7 @@ import {
     parseTS, formatTS, escapeHtml, annotateAcronyms,
     buildAcronymMap, initClock, updateMeshStatus,
 } from './core/utils.js';
+import { fetchPsychometrics } from './core/psychometrics.js';
 
 // ── Station module imports ────────────────────────────────────────
 import {
@@ -159,6 +160,9 @@ async function refreshAll() {
 
     // Fetch KB data (non-blocking — renders when ready)
     refreshKnowledge();
+
+    // Prefetch psychometrics so A2A-Psychology panels have data on first tab visit
+    fetchPsychometrics();
 
     const mode = sseActive ? "\u25CF SSE live" : "\u25CB polling 30s";
     document.getElementById("footer-status").textContent =
