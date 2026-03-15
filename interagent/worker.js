@@ -898,6 +898,11 @@ async function fetchMeshPsychometrics(registry, env) {
   const selfId = "interagent-compositor";
   const reachable = registry.filter(a => a.status_url && !a._unavailable && a.id !== selfId);
 
+  // Normalize agent IDs — cogarch uses safety-quotient-agent but dashboard expects psq-agent
+  // (DNS: psq-agent.safety-quotient.dev, rename pending)
+  const ID_NORMALIZE = { "safety-quotient-agent": "psq-agent" };
+  const normalizeId = (id) => ID_NORMALIZE[id] || id;
+
   // Fetch per-agent psychometrics (same base URL as status, different path)
   const results = await Promise.allSettled(
     reachable.map(async (agent) => {
@@ -907,14 +912,15 @@ async function fetchMeshPsychometrics(registry, env) {
         cf: { cacheTtl: 30 },
         signal: AbortSignal.timeout(4000),
       });
-      if (!resp.ok) return { id: agent.id, error: `HTTP ${resp.status}` };
-      return { id: agent.id, ...(await resp.json()) };
+      const nid = normalizeId(agent.id);
+      if (!resp.ok) return { id: nid, error: `HTTP ${resp.status}` };
+      return { id: nid, ...(await resp.json()) };
     })
   );
 
   const agents = {};
   for (let i = 0; i < results.length; i++) {
-    const agentId = reachable[i].id;
+    const agentId = normalizeId(reachable[i].id);
     const result = results[i];
     agents[agentId] = result.status === "fulfilled" && result.value && !result.value.error
       ? result.value
