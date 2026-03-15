@@ -5955,7 +5955,7 @@
                 ${th("Result", "evaluator_result")}
                 ${th("Type", "action_type")}
                 ${th("Description", "description")}
-                ${th("Budget", "budget_after")}
+                ${th("Delib.", "budget_after")}
             </tr></thead><tbody>${pageRows.map(r => {
                 const tier = r.evaluator_tier || 1;
                 const tierClass = `ops-tier-${Math.min(tier, 4)}`;
@@ -6353,7 +6353,7 @@
 
         const loa = scienceData?.supervisory || null;
         const currentLevel = loa?.loa_level ?? 5;
-        const budget = loa?.budget_remaining ?? null;
+        const remaining = loa?.budget_remaining ?? null;
 
         ladderEl.innerHTML = LOA_DESCRIPTIONS.map((desc, i) => {
             const level = 10 - i;
@@ -6361,7 +6361,7 @@
             return `<div class="loa-rung${active ? " active" : ""}"><span class="loa-rung-level">LOA ${level}</span><span class="loa-rung-desc">${desc}</span></div>`;
         }).join("");
 
-        budgetEl.textContent = budget != null ? `${budget}` : "—";
+        setTrackedValue("loa-budget-val", remaining);
     }
 
     // ── Helm Station ─────────────────────────────────────────────────
