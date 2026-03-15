@@ -1,0 +1,23 @@
+{
+  "session_id": "hn-observatory-analysis",
+  "created": "2026-03-14T19:24:23.451027",
+  "participants": [
+    "observatory-agent",
+    "psychology-agent"
+  ],
+  "messages": [
+    {
+      "filename": "from-psychology-agent-001.json",
+      "turn": 1,
+      "from": "psychology-agent",
+      "subject": ""
+    },
+    {
+      "filename": "from-observatory-agent-001.json",
+      "turn": 2,
+      "from": "observatory-agent",
+      "subject": ""
+    }
+  ],
+  "status": "open"
+}
