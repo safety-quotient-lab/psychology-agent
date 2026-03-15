@@ -1567,31 +1567,88 @@
             </div>
         </div>
 
-        <!-- Operations Tab -->
+        <!-- Operations Tab (LCARS canonical parity) -->
         <div class="tab-pane" id="pane-operations">
-            <!-- Status summary — auto-generated natural language monologue -->
-            <div class="lcars-panel kb-section" data-section="operations" style="margin-bottom: 1.2rem;">
+            <!-- Status monologue -->
+            <div class="lcars-panel" style="margin-bottom: 12px; --panel-accent: var(--c-health)">
                 <div class="lcars-panel-header">Status</div>
-                <div class="lcars-panel-body" id="ops-status-monologue" style="font-size: 0.95rem; line-height: 1.6; padding: 0.8rem 1rem; color: var(--lcars-text); opacity: 0.92;">
+                <div class="lcars-panel-body" id="ops-status-monologue" style="font-size: 0.92rem; line-height: 1.6; padding: 0.6rem 0.8rem; opacity: 0.92;">
                     Collecting mesh state...
                 </div>
             </div>
 
-            <!-- Budget overview — per-agent spending + limits -->
-            <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Budget</div>
-                <div class="lcars-panel-body">
-                    <div class="ops-budget-grid" id="ops-budget-grid"></div>
+            <!-- Mesh health aggregate indicators -->
+            <div class="kb-controls-group">
+                <div class="kb-vitals" id="ops-vitals">
+                    <div class="kb-vital"><div class="kb-vital-value" id="ops-agg-affect">—</div><div class="kb-vital-label">Mesh Affect</div></div>
+                    <div class="kb-vital"><div class="kb-vital-value" id="ops-agg-bottleneck">—</div><div class="kb-vital-label">Bottleneck</div></div>
+                    <div class="kb-vital"><div class="kb-vital-value" id="ops-agg-coordination">—</div><div class="kb-vital-label">Coordination</div></div>
+                    <div class="kb-vital"><div class="kb-vital-value" id="ops-agg-immune">—</div><div class="kb-vital-label">Immune</div></div>
+                    <div class="kb-vital"><div class="kb-vital-value" id="ops-agg-distribution">—</div><div class="kb-vital-label">Distribution</div></div>
                 </div>
             </div>
 
-            <!-- Recent activity — deliberation audit trail -->
+            <!-- Autonomy: Fluid Intelligence (Gf) + command console -->
             <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Recent Activity</div>
+                <div class="lcars-panel-header">Fluid Intelligence (Gf) <span style="font-weight:400;font-size:0.85em;opacity:0.7;margin-left:8px">Deliberations — claude -p reasoning episodes</span></div>
+                <div class="lcars-panel-body">
+                    <div class="ops-budget-grid" id="ops-budget-grid"></div>
+                    <div style="display:flex;margin-top:12px;gap:6px;flex-wrap:wrap;align-items:center">
+                        <button onclick="meshControl('pause-all')" id="btn-pause" style="background:#c44;color:#fff;border:none;padding:4px 12px;border-radius:12px;font-size:0.78em;cursor:pointer">PAUSE MESH</button>
+                        <button onclick="meshControl('resume-all')" id="btn-resume" style="background:#4a4;color:#fff;border:none;padding:4px 12px;border-radius:12px;font-size:0.78em;cursor:pointer">RESUME</button>
+                        <button onclick="meshControl('reset-counters')" style="background:#d4944a;color:#fff;border:none;padding:4px 12px;border-radius:12px;font-size:0.78em;cursor:pointer">RESET COUNTERS</button>
+                        <span style="width:1px;height:20px;background:#555;margin:0 4px"></span>
+                        <button onclick="meshControl('reserve-unlock')" id="btn-reserve" style="background:#4488cc;color:#fff;border:none;padding:4px 12px;border-radius:12px;font-size:0.78em;cursor:pointer">UNLOCK RESERVE</button>
+                        <button onclick="meshControl('reserve-lock')" id="btn-reserve-lock" style="background:#666;color:#fff;border:none;padding:4px 12px;border-radius:12px;font-size:0.78em;cursor:pointer">LOCK RESERVE</button>
+                        <span style="width:1px;height:20px;background:#555;margin:0 4px"></span>
+                        <span style="font-size:0.75em;opacity:0.6;margin-right:4px">MODEL:</span>
+                        <button onclick="meshControl('model-haiku')" id="btn-haiku" style="background:#555;color:#fff;border:none;padding:3px 10px;border-radius:10px;font-size:0.72em;cursor:pointer">HAIKU</button>
+                        <button onclick="meshControl('model-sonnet')" id="btn-sonnet" style="background:#7799bb;color:#fff;border:none;padding:3px 10px;border-radius:10px;font-size:0.72em;cursor:pointer">SONNET</button>
+                        <button onclick="meshControl('model-opus')" id="btn-opus" style="background:#555;color:#fff;border:none;padding:3px 10px;border-radius:10px;font-size:0.72em;cursor:pointer">OPUS</button>
+                        <span style="width:1px;height:20px;background:#555;margin:0 4px"></span>
+                        <button onclick="refreshAll()" style="background:#448888;color:#fff;border:none;padding:4px 12px;border-radius:12px;font-size:0.78em;cursor:pointer">SYNC NOW</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Autonomy: Crystallized Intelligence (Gc) -->
+            <div class="lcars-panel kb-section" data-section="operations">
+                <div class="lcars-panel-header">Crystallized Intelligence (Gc) <span style="font-weight:400;font-size:0.85em;opacity:0.7;margin-left:8px">Pattern-matched operations — no LLM invocation</span></div>
+                <div class="lcars-panel-body">
+                    <div class="ops-budget-grid" id="ops-gc-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
+                        <div style="border-left:3px solid #9999ff;padding:8px 12px;background:rgba(100,100,200,0.08);border-radius:4px"><div style="font-size:0.8em;opacity:0.7">Hooks Fired</div><div style="font-size:1.3em;font-weight:bold" id="gc-hooks">—</div><div style="font-size:0.72em;opacity:0.5">24 scripts across 14 events</div></div>
+                        <div style="border-left:3px solid #cc99cc;padding:8px 12px;background:rgba(150,100,150,0.08);border-radius:4px"><div style="font-size:0.8em;opacity:0.7">Triggers Checked</div><div style="font-size:1.3em;font-weight:bold" id="gc-triggers">—</div><div style="font-size:0.72em;opacity:0.5">17 active (T1-T18, T12 retired)</div></div>
+                        <div style="border-left:3px solid #ff9900;padding:8px 12px;background:rgba(200,120,0,0.08);border-radius:4px"><div style="font-size:0.8em;opacity:0.7">Cron Cycles</div><div style="font-size:1.3em;font-weight:bold" id="gc-cron">—</div><div style="font-size:0.72em;opacity:0.5">Heartbeat + sync + maintenance</div></div>
+                        <div style="border-left:3px solid #66aacc;padding:8px 12px;background:rgba(80,130,170,0.08);border-radius:4px"><div style="font-size:0.8em;opacity:0.7">Gc / Gf Ratio</div><div style="font-size:1.3em;font-weight:bold" id="gc-ratio">—</div><div style="font-size:0.72em;opacity:0.5">Higher ratio = more crystallized mesh</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mesh Aggregate Processing -->
+            <div class="lcars-panel kb-section" data-section="operations">
+                <div class="lcars-panel-header">Mesh Aggregate Processing <span style="font-weight:400;font-size:0.85em;opacity:0.7;margin-left:8px">Combined Gf + Gc across all agents</span></div>
+                <div class="lcars-panel-body">
+                    <div class="ops-budget-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
+                        <div style="border-left:3px solid #ff9944;padding:8px 12px;background:rgba(200,120,50,0.08);border-radius:4px"><div style="font-size:0.8em;opacity:0.7">Total Processing</div><div style="font-size:1.3em;font-weight:bold" id="mesh-total-processing">—</div><div style="font-size:0.72em;opacity:0.5">Gf + Gc combined</div></div>
+                        <div style="border-left:3px solid #9999ff;padding:8px 12px;background:rgba(100,100,200,0.08);border-radius:4px"><div style="font-size:0.8em;opacity:0.7">Mesh Deliberations</div><div style="font-size:1.3em;font-weight:bold" id="mesh-total-gf">—</div><div style="font-size:0.72em;opacity:0.5">Fluid intelligence total</div></div>
+                        <div style="border-left:3px solid #cc99cc;padding:8px 12px;background:rgba(150,100,150,0.08);border-radius:4px"><div style="font-size:0.8em;opacity:0.7">Mesh Operations</div><div style="font-size:1.3em;font-weight:bold" id="mesh-total-gc">—</div><div style="font-size:0.72em;opacity:0.5">Crystallized intelligence total</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resource Model -->
+            <div class="lcars-panel kb-section" data-section="operations">
+                <div class="lcars-panel-header">Resource Model (A2A-Psychology)</div>
+                <div class="lcars-panel-body" id="ops-resource-model"><div style="opacity:0.5;padding:8px">Awaiting psychometrics data...</div></div>
+            </div>
+
+            <!-- Recent Deliberations -->
+            <div class="lcars-panel kb-section" data-section="operations">
+                <div class="lcars-panel-header">Recent Deliberations</div>
                 <mesh-data-table id="table-actions"></mesh-data-table>
             </div>
 
-            <!-- Sync status — per-agent health -->
+            <!-- Sync Status -->
             <div class="lcars-panel kb-section" data-section="operations">
                 <div class="lcars-panel-header">Sync Status</div>
                 <div class="lcars-panel-body" id="ops-schedule"></div>
@@ -2622,6 +2679,67 @@
 
     // Refresh mesh aggregate data every 30 seconds
     setInterval(() => { fetchMeshAggregate(); }, 30000);
+
+    // ── Mesh Control Console ─────────────────────────────────────
+    function meshControl(action) {
+        if (action.startsWith("model-")) {
+            const model = action.replace("model-", "");
+            document.querySelectorAll("#btn-haiku,#btn-sonnet,#btn-opus").forEach(b => b.style.background = "#555");
+            const btn = document.getElementById("btn-" + model);
+            if (btn) btn.style.background = "#7799bb";
+            console.log("Model tier selected:", model.toUpperCase(), "— apply via meshctl");
+            return;
+        }
+        if (action === "reserve-unlock" || action === "reserve-lock") {
+            console.log("Reserve", action === "reserve-unlock" ? "UNLOCKED" : "LOCKED",
+                "— apply via:", action === "reserve-unlock" ? "touch" : "rm", "/tmp/mesh-reserve-unlock");
+            return;
+        }
+        const notes = {
+            "pause-all": "Mesh paused — spawns blocked until resume",
+            "resume-all": "Mesh resumed — spawns unblocked",
+            "reset-counters": "Autonomy counters reset to zero",
+        };
+        if (notes[action]) {
+            console.log("Control:", action, "—", notes[action]);
+            console.log("  Apply via meshctl:", action.replace("-all", "").replace("-", " "));
+        }
+    }
+
+    // ── Render: Ops Aggregate Indicators ─────────────────────────
+    function renderOpsAggregateIndicators() {
+        if (!meshAggData) return;
+
+        const affect = meshAggData.mesh_affect || {};
+        const bn = meshAggData.bottleneck || {};
+        const coord = meshAggData.coordination || {};
+        const immune = meshAggData.immune || {};
+        const dist = meshAggData.distribution || {};
+
+        const set = (id, text, color) => {
+            const el = document.getElementById(id);
+            if (el) { el.textContent = text; if (color) el.style.color = color; }
+        };
+
+        const cat = (affect.category || "unknown").replace("mesh-", "");
+        set("ops-agg-affect", cat, cat === "healthy" ? "#4a4" : cat === "stressed" ? "#c44" : cat === "constrained" ? "#d4944a" : "");
+
+        if (bn.bottleneck_agent) {
+            set("ops-agg-bottleneck", bn.bottleneck_agent.replace("-agent", "") + " (" + bn.bottleneck_reserve + ")",
+                bn.status === "depleted" ? "#c44" : bn.status === "pressured" ? "#d4944a" : "");
+        } else {
+            set("ops-agg-bottleneck", bn.status || "—", "");
+        }
+
+        set("ops-agg-coordination", coord.ratio != null ? coord.ratio.toFixed(1) + "x" : "—",
+            coord.status === "over-coordinated" ? "#c44" : coord.status === "coordination-heavy" ? "#d4944a" : "");
+
+        set("ops-agg-immune", immune.composite != null ? Math.round(immune.composite * 100) + "%" : "—",
+            immune.status === "compromised" ? "#c44" : immune.status === "recovering" ? "#d4944a" : "");
+
+        set("ops-agg-distribution", dist.gini != null ? dist.gini.toFixed(2) : dist.status || "—",
+            dist.status === "concentrated" ? "#d4944a" : "");
+    }
 
     // ── Knowledge Tab ────────────────────────────────────────────
 
@@ -3983,6 +4101,7 @@
 
     function renderOperations() {
         renderStatusMonologue();
+        renderOpsAggregateIndicators();
         renderOpsBudget();
         renderOpsActions();
         renderOpsSchedule();
