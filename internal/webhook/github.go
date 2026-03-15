@@ -175,6 +175,7 @@ func (h *GitHubHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type prPayload struct {
 	Action      string `json:"action"`
 	PullRequest struct {
+		Number int    `json:"number"`
 		Title  string `json:"title"`
 		Body   string `json:"body"`
 		Head   struct {
@@ -191,30 +192,32 @@ func (h *GitHubHandler) handlePullRequest(body []byte) {
 		return
 	}
 
+	// Only process opened/synchronize — ignore closed/merged
+	if pr.Action != "opened" && pr.Action != "synchronize" && pr.Action != "reopened" {
+		return
+	}
+
 	evtType, priority := classifyPR(pr)
 
 	h.emit(events.NewEvent(evtType, priority, "github", map[string]string{
 		"action":        pr.Action,
 		"title":         pr.PullRequest.Title,
 		"branch":        pr.PullRequest.Head.Ref,
+		"pr_number":     fmt.Sprintf("%d", pr.PullRequest.Number),
 		"changed_files": fmt.Sprintf("%d", pr.PullRequest.ChangedFiles),
 	}))
 }
 
 // classifyPR examines branch name, title, and body to determine the event
-// type and priority.
+// type and priority. ACKs route to Gc (no spawn). Substantive messages
+// route to Gf (Claude deliberation).
 func classifyPR(pr prPayload) (events.EventType, events.Priority) {
 	branch := pr.PullRequest.Head.Ref
 	title := strings.ToLower(pr.PullRequest.Title)
 	body := strings.ToLower(pr.PullRequest.Body)
 
-	// Transport-message branch pattern or transport session files.
-	if strings.Contains(branch, "/transport-message/") ||
-		strings.Contains(title, "transport/sessions/") {
-		return events.EventTransportMessage, events.PriorityHigh
-	}
-
-	// Directive — check enforcement level in body.
+	// Directive — always Gf (requires reasoning). Check before ACK pattern
+	// since a directive with "ack" in the title still needs deliberation.
 	if strings.Contains(title, "directive") {
 		pri := events.PriorityHigh
 		if strings.Contains(body, "hard-mandatory") {
@@ -223,13 +226,50 @@ func classifyPR(pr prPayload) (events.EventType, events.Priority) {
 		return events.EventDirective, pri
 	}
 
+	// Transport ACK — Gc handles (auto-merge, no spawn).
+	// Pattern: branch contains "t[N]-ack" or title contains "ACK"
+	// and the PR only touches transport/ files.
+	if isTransportACK(branch, title) {
+		return events.EventTransportACK, events.PriorityLow
+	}
+
+	// Transport message (non-ACK) — Gf needed to reason about content.
+	if strings.Contains(branch, "/transport-message/") ||
+		strings.Contains(title, "transport/sessions/") {
+		return events.EventTransportMessage, events.PriorityHigh
+	}
+
 	// Context rotation request.
 	if strings.Contains(title, "context-rotate") {
 		return events.EventContextRotate, events.PriorityHigh
 	}
 
-	// Generic PR — low priority.
+	// Proposal or request — Gf needed.
+	if strings.Contains(title, "proposal") || strings.Contains(title, "request") {
+		return events.EventTransportMessage, events.PriorityHigh
+	}
+
+	// Generic PR — low priority, still Gf.
 	return events.EventWebhookPR, events.PriorityLow
+}
+
+// isTransportACK detects transport acknowledgment PRs that the Gc layer
+// can auto-merge without Claude deliberation.
+func isTransportACK(branch, title string) bool {
+	// Branch patterns: */t2-ack, */t3-fix-ack, */t4-deploy-correction
+	branchACK := strings.Contains(branch, "-ack") ||
+		strings.Contains(branch, "/ack") ||
+		strings.Contains(branch, "t2-") ||
+		strings.Contains(branch, "t3-") ||
+		strings.Contains(branch, "t4-")
+
+	// Title patterns
+	titleACK := strings.Contains(title, "ack") ||
+		strings.Contains(title, "acknowledged") ||
+		strings.Contains(title, "compliance") ||
+		strings.Contains(title, "remediation")
+
+	return branchACK && titleACK
 }
 
 // --------------------------------------------------------------------------

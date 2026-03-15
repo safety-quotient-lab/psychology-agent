@@ -228,6 +228,11 @@ func buildPrompt(evt Event) string {
 		return "/sync --quick"
 	case EventHealthCheck:
 		return "/sync --health-only"
+	case EventTransportACK:
+		// Should not reach here — Gc handles ACKs. Fallback to sync.
+		return "/sync --quick"
+	case EventCIFailure:
+		return fmt.Sprintf("/sync --ci-failure --repo %s", evt.Payload["repo"])
 	default:
 		return "/sync"
 	}
