@@ -360,16 +360,16 @@ func LoadPsychometrics(agentID string) PsychometricInputs {
 	return defaults
 }
 
-// LoadBudgetRatio reads budget_spent/budget_cutoff from state.db.
+// LoadBudgetRatio reads budget from state.db (supports both column naming conventions).
 func LoadBudgetRatio(dbPath, agentID string) float64 {
 	rows, err := db.QueryJSON(dbPath,
-		"SELECT budget_spent, budget_cutoff FROM autonomy_budget WHERE agent_id='"+db.SanitizeID(agentID)+"'")
+		"SELECT budget_current, budget_max FROM autonomy_budget WHERE agent_id='"+db.SanitizeID(agentID)+"'")
 	if err != nil || len(rows) == 0 {
 		return 1.0
 	}
 	var spent, cutoff float64
-	fmt.Sscanf(rows[0]["budget_spent"], "%f", &spent)
-	fmt.Sscanf(rows[0]["budget_cutoff"], "%f", &cutoff)
+	fmt.Sscanf(rows[0]["budget_current"], "%f", &spent)
+	fmt.Sscanf(rows[0]["budget_max"], "%f", &cutoff)
 	if cutoff <= 0 {
 		return 1.0 // unlimited budget
 	}

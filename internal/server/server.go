@@ -396,12 +396,22 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 	uptime := time.Since(s.startTime)
 	dbPath := s.Config.BudgetDBPath
 
-	// Budget from state.db
+	// Budget from state.db — normalize column names to counter model API
 	budgetRows, _ := db.QueryJSON(dbPath,
-		"SELECT agent_id, budget_spent, budget_cutoff, shadow_mode, consecutive_blocks, last_audit, updated_at FROM autonomy_budget WHERE agent_id='"+db.SanitizeID(s.Config.AgentID)+"'")
+		"SELECT agent_id, budget_current, budget_max, shadow_mode, consecutive_blocks, last_audit, updated_at FROM autonomy_budget WHERE agent_id='"+db.SanitizeID(s.Config.AgentID)+"'")
 	var budget interface{}
 	if len(budgetRows) > 0 {
-		budget = budgetRows[0]
+		row := budgetRows[0]
+		// Normalize: budget_current→budget_spent, budget_max→budget_cutoff
+		if v, ok := row["budget_current"]; ok {
+			row["budget_spent"] = v
+			delete(row, "budget_current")
+		}
+		if v, ok := row["budget_max"]; ok {
+			row["budget_cutoff"] = v
+			delete(row, "budget_max")
+		}
+		budget = row
 	} else {
 		budget = map[string]interface{}{}
 	}
