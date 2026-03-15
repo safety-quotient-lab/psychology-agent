@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://interagent.safety-quotient.dev/vocab.schema.json",
+  "title": "Safety Quotient Mesh Vocabulary",
+  "description": "JSON Schema for the shared vocabulary of the safety-quotient federated agent mesh. Validates vocab.json structure and individual term entries.",
+  "type": "object",
+  "required": ["@context", "@id", "@type", "name", "version", "hasDefinedTerm"],
+  "properties": {
+    "@context": {
+      "type": "object",
+      "required": ["@vocab", "sqm"],
+      "properties": {
+        "@vocab": {
+          "type": "string",
+          "const": "https://schema.org/"
+        },
+        "sqm": {
+          "type": "string",
+          "const": "https://interagent.safety-quotient.dev/vocab#"
+        }
+      }
+    },
+    "@id": {
+      "type": "string",
+      "format": "uri"
+    },
+    "@type": {
+      "type": "string",
+      "const": "DefinedTermSet"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "dateModified": {
+      "type": "string",
+      "format": "date"
+    },
+    "publisher": {
+      "type": "object",
+      "required": ["@type", "name"],
+      "properties": {
+        "@type": { "type": "string" },
+        "name": { "type": "string" },
+        "url": { "type": "string", "format": "uri" }
+      }
+    },
+    "hasDefinedTerm": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/DefinedTerm" }
+    }
+  },
+
+  "$defs": {
+    "DefinedTerm": {
+      "type": "object",
+      "required": ["@type", "@id", "name", "description", "inDefinedTermSet", "termCode"],
+      "properties": {
+        "@type": {
+          "type": "string",
+          "const": "DefinedTerm"
+        },
+        "@id": {
+          "type": "string",
+          "pattern": "^sqm:[A-Z][a-zA-Z0-9]+$",
+          "description": "Term identifier in sqm: namespace. PascalCase."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable term name."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 20,
+          "description": "Clear, complete definition. Minimum 20 characters to prevent stub entries."
+        },
+        "inDefinedTermSet": {
+          "type": "string",
+          "const": "https://interagent.safety-quotient.dev/vocab"
+        },
+        "termCode": {
+          "type": "string",
+          "pattern": "^sqm:[A-Z][a-zA-Z0-9]+$",
+          "description": "Must match @id."
+        },
+        "sameAs": {
+          "type": "string",
+          "format": "uri",
+          "description": "Optional link to equivalent external definition (schema.org, W3C, etc.)."
+        },
+        "isPartOf": {
+          "type": "string",
+          "pattern": "^sqm:[A-Z][a-zA-Z0-9]+$",
+          "description": "Optional parent term for hierarchical vocabulary."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "proposed", "deprecated"],
+          "default": "active",
+          "description": "Lifecycle status. Proposed terms await consensus; deprecated terms remain for backwards compatibility."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
