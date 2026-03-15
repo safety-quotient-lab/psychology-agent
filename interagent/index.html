@@ -344,6 +344,110 @@
             .lcars-footer-seg { font-size: 0.6em; padding: 2px 8px; }
         }
 
+        /* ── LCARS Layer 2+3: Hatched bars, status lines, shortcodes ── */
+
+        /* Hatched/striped bar fills — sensor readout aesthetic (Pattern #2) */
+        .theme-lcars .spawn-bar-fill,
+        .theme-lcars .util-bar-fill,
+        .theme-lcars .tempo-bar-fill,
+        .theme-lcars .shield-bar-fill,
+        .theme-lcars .budget-bar-fill,
+        .theme-lcars .ops-budget-fill,
+        .theme-lcars .dew-bar-fill,
+        .theme-lcars .gen-balance-fill-left,
+        .theme-lcars .gen-balance-fill-right,
+        .theme-lcars .transport-layer-fill,
+        .theme-lcars .session-timeline-bar-fill,
+        .theme-lcars .catalog-bar-fill,
+        .theme-lcars .debt-hist-bar {
+            background-image: repeating-linear-gradient(
+                90deg,
+                transparent 0px,
+                transparent 4px,
+                rgba(0,0,0,0.35) 4px,
+                rgba(0,0,0,0.35) 6px
+            ) !important;
+        }
+
+        /* Status header line — validity check at top of each station panel */
+        .lcars-status-line {
+            display: none;
+        }
+        .theme-lcars .lcars-status-line {
+            display: block;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.68em;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 8px 0 12px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        /* Agent shortcodes in LCARS mode (Pattern #5) */
+        .theme-lcars .agent-name {
+            font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+            letter-spacing: 0.06em;
+        }
+
+        /* LCARS panel footer — status band at bottom of panels */
+        .lcars-panel-status {
+            display: none;
+        }
+        .theme-lcars .lcars-panel-status {
+            display: block;
+            background: var(--panel-accent, var(--c-transport));
+            color: #000;
+            padding: 4px 16px;
+            border-radius: 0 0 12px 0;
+            font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+            font-size: 0.68em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* LCARS bars: remove borders, pure color on black (Pattern #2 refinement) */
+        .theme-lcars .spawn-bar-track,
+        .theme-lcars .util-bar,
+        .theme-lcars .tempo-bar,
+        .theme-lcars .shield-bar-track,
+        .theme-lcars .dew-bar,
+        .theme-lcars .gen-balance-track,
+        .theme-lcars .transport-layer-track,
+        .theme-lcars .session-timeline-bar-track {
+            border: none;
+            background: #111122;
+            border-radius: 0;
+        }
+        .theme-lcars .spawn-bar-fill,
+        .theme-lcars .util-bar-fill,
+        .theme-lcars .tempo-bar-fill,
+        .theme-lcars .shield-bar-fill,
+        .theme-lcars .dew-bar-fill,
+        .theme-lcars .transport-layer-fill,
+        .theme-lcars .session-timeline-bar-fill {
+            border-radius: 0;
+        }
+
+        /* LCARS vital cards: colored top bar thicker, no border */
+        .theme-lcars .vital-card {
+            border: none;
+            border-radius: 0;
+            background: #111122;
+        }
+        .theme-lcars .vital-card::before {
+            height: 6px;
+        }
+
+        /* LCARS agent cards: colored header band style */
+        .theme-lcars .agent-card {
+            border: none;
+            border-radius: 0;
+            background: #000;
+        }
+
         /* Light mode */
         .theme-light {
             --topo-edge: #b8c1cc;
@@ -2153,6 +2257,7 @@
     <div class="lcars-content">
         <!-- Pulse Tab -->
         <div class="tab-pane active" id="pane-pulse">
+            <div class="lcars-status-line" id="pulse-status-line">Mesh Status: Connecting &middot; Agents: — &middot; Last Sync: —</div>
             <!-- Mesh vitals -->
             <div class="vitals-grid" id="vitals-grid">
                 <div class="vital-card" style="--vital-color: var(--c-health)">
@@ -2492,6 +2597,7 @@
 
         <!-- Operations Tab -->
         <div class="tab-pane" id="pane-operations">
+            <div class="lcars-status-line" id="ops-status-line">Autonomy Governance: Awaiting Data &middot; Counters: — &middot; Gates: —</div>
             <!-- Operations vitals -->
             <div class="kb-controls-group">
                 <div class="kb-vitals" id="ops-vitals">
@@ -2546,6 +2652,7 @@
 
         <!-- Science Tab -->
         <div class="tab-pane" id="pane-science">
+            <div class="lcars-status-line" id="science-status-line">Psychometric Sensors: Awaiting Data &middot; Constructs: 7 &middot; Model: PAD + NASA-TLX + UWES</div>
 
             <div class="science-grid">
                 <!-- Panel A: Agent Affect Grid -->
@@ -2669,6 +2776,7 @@
 
         <!-- Engineering Tab -->
         <div class="tab-pane" id="pane-engineering">
+            <div class="lcars-status-line" id="eng-status-line">Deliberation Cascade: Awaiting Data &middot; Utilization: — &middot; Tempo: —</div>
 
             <div class="engineering-grid">
                 <!-- Panel A: Spawn Dynamics -->
@@ -2744,6 +2852,7 @@
 
         <!-- Helm Tab -->
         <div class="tab-pane" id="pane-helm">
+            <div class="lcars-status-line" id="helm-status-line">Transport Routing: Awaiting Data &middot; Active Sessions: — &middot; Channels: Git, HTTP</div>
             <div class="helm-grid">
                 <!-- Panel A: Session Timeline -->
                 <div class="lcars-panel helm-full-width" style="--panel-accent: var(--c-tab-helm)">
@@ -2789,6 +2898,7 @@
 
         <!-- Tactical Tab -->
         <div class="tab-pane" id="pane-tactical">
+            <div class="lcars-status-line" id="tac-status-line">Security Status: Awaiting Data &middot; Shields: — &middot; Threat Level: —</div>
 
             <div class="tactical-grid">
                 <!-- Panel A: Shield Status -->
@@ -3429,6 +3539,16 @@
         renderAgentCards();
         renderTopology();
         renderActivity();
+        // Update Pulse status line (LCARS)
+        const pulseStatus = document.getElementById("pulse-status-line");
+        if (pulseStatus) {
+            const agents = Object.values(agentData);
+            const online = agents.filter(a => a?.status === "online").length;
+            const total = AGENTS.length;
+            const time = new Date().toLocaleTimeString();
+            const health = online === total ? "Nominal" : "Degraded";
+            pulseStatus.textContent = `Mesh Status: ${health} \u00B7 Agents: ${online}/${total} Online \u00B7 Last Sync: ${time}`;
+        }
     }
 
     // ── Knowledge Tab ────────────────────────────────────────────
