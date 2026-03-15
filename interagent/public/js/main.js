@@ -48,6 +48,7 @@ import { fetchScienceData, renderScience } from './stations/science.js';
 import { fetchEngineeringData, renderEngineering } from './stations/engineering.js';
 import { fetchHelmData, renderHelm } from './stations/helm.js';
 import { fetchTacticalData, renderTactical } from './stations/tactical.js';
+import { fetchMedicalData, selectAgent, renderMedical } from './stations/medical.js';
 
 // ── Shared state ──────────────────────────────────────────────────
 const AGENTS = [
@@ -226,6 +227,7 @@ window.switchTab = (tabId, updateHash) => {
     switchTab(tabId, updateHash);
     // Wire station-specific fetches that switchTab references via typeof checks
     if (tabId === "science") fetchScienceData(AGENTS);
+    if (tabId === "medical") fetchMedicalData(AGENTS);
     if (tabId === "engineering") fetchEngineeringData(AGENTS);
     if (tabId === "helm") fetchHelmData();
     if (tabId === "tactical") fetchTacticalData();
@@ -236,6 +238,7 @@ window.sortTable = sortTable;
 window.filterTable = filterTable;
 window.goToPage = goToPage;
 window.filterDictionary = filterDictionary;
+window.selectAgent = selectAgent;
 window.toggleDecisionRow = toggleDecisionRow;
 window.pageTable = pageTable;
 

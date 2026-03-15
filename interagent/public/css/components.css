@@ -1133,6 +1133,242 @@ a.activity-link:hover {
     text-align: center;
 }
 
+/* ── Medical Station ────────────────────────────────────────── */
+
+.medical-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 12px;
+}
+.medical-full-width { grid-column: 1 / -1; }
+
+/* Agent selector — row of colored buttons */
+.medical-agent-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.medical-agent-btn {
+    background: var(--bg-inset);
+    border: 2px solid var(--agent-color, var(--border));
+    color: var(--text-secondary);
+    padding: 10px 18px;
+    min-height: 48px;
+    min-width: 80px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.78em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: all 0.2s;
+}
+.medical-agent-btn:hover {
+    background: color-mix(in srgb, var(--agent-color) 20%, var(--bg-inset));
+    border-color: var(--agent-color);
+}
+.medical-agent-btn.active {
+    background: var(--agent-color);
+    color: var(--bg-primary);
+    border-color: var(--agent-color);
+}
+.theme-lcars .medical-agent-btn {
+    border-radius: 50vh;
+    letter-spacing: 0.14em;
+}
+
+/* Placeholder text */
+.medical-placeholder {
+    color: var(--text-dim);
+    font-size: 0.82em;
+    font-style: italic;
+    padding: 16px;
+    text-align: center;
+}
+
+/* Vitals grid — PAD and TLX side by side */
+.medical-vitals-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+@media (max-width: 600px) {
+    .medical-vitals-grid { grid-template-columns: 1fr; }
+    .medical-grid { grid-template-columns: 1fr; }
+}
+.medical-vitals-section { display: flex; flex-direction: column; gap: 6px; }
+.medical-section-label {
+    font-size: 0.7em;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 4px;
+}
+
+/* Bar rows — shared by PAD and TLX */
+.medical-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.medical-bar-label {
+    font-size: 0.72em;
+    color: var(--text-secondary);
+    width: 80px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+}
+.medical-bar-track {
+    flex: 1;
+    height: 10px;
+    background: var(--bg-inset);
+    border-radius: 2px;
+    overflow: hidden;
+}
+.medical-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+}
+.medical-bar-value {
+    font-size: 0.72em;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text-primary);
+    width: 42px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+/* DEW gauge */
+.medical-dew-gauge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+}
+.medical-dew-bar-track {
+    width: 100%;
+    height: 18px;
+    background: var(--bg-inset);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.medical-dew-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+.medical-dew-readout {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+.medical-dew-value {
+    font-size: 2em;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-weight: 700;
+}
+.medical-dew-label {
+    font-size: 0.82em;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+.medical-dew-factors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+}
+.medical-dew-factor {
+    font-size: 0.7em;
+    color: var(--text-dim);
+    background: var(--bg-inset);
+    padding: 2px 8px;
+    border-radius: 3px;
+}
+
+/* LOA ladder */
+.medical-loa-container {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+.medical-loa-ladder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.medical-loa-rung {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    border-radius: 3px;
+    background: var(--bg-inset);
+    transition: background 0.2s;
+}
+.medical-loa-rung.reachable {
+    background: color-mix(in srgb, var(--c-tab-medical) 10%, var(--bg-inset));
+}
+.medical-loa-rung.active {
+    background: var(--c-tab-medical);
+    color: var(--bg-primary);
+}
+.medical-loa-level {
+    font-size: 0.78em;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-weight: 700;
+    width: 20px;
+    text-align: center;
+}
+.medical-loa-name {
+    font-size: 0.72em;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.medical-loa-rung.active .medical-loa-level,
+.medical-loa-rung.active .medical-loa-name {
+    color: var(--bg-primary);
+}
+.medical-loa-budget {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    background: var(--bg-inset);
+    border-radius: 4px;
+}
+.medical-loa-budget-label {
+    font-size: 0.68em;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+.medical-loa-budget-value {
+    font-size: 1.6em;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-weight: 700;
+    color: var(--c-tab-medical);
+}
+
+/* LCARS overrides for medical */
+.theme-lcars .medical-bar-track { border-radius: 50vh; }
+.theme-lcars .medical-bar-fill { border-radius: 50vh; }
+.theme-lcars .medical-dew-bar-track { border-radius: 50vh; }
+.theme-lcars .medical-dew-bar-fill { border-radius: 50vh; }
+.theme-lcars .medical-loa-rung { border-radius: 50vh; }
+.theme-lcars .medical-loa-budget { border-radius: 12px; }
+.theme-lcars .medical-dew-factor { border-radius: 50vh; }
+
 /* ── Engineering Station ────────────────────────────────────── */
 
 /* Spawn Waterfall — vertical timeline, one column per agent */
