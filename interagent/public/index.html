@@ -582,50 +582,26 @@
 
         <!-- Science Tab -->
         <div class="tab-pane" id="pane-science">
-            <div class="science-grid">
-                <!-- Panel A: Agent Affect Grid -->
-                <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
-                    <div class="lcars-panel-header">Agent Affect Grid</div>
+            <div class="science-grid-v2">
+                <!-- Widget 1: Organism Affect Grid (MSD-style) — full width -->
+                <div class="lcars-panel science-hero" style="--panel-accent: var(--c-tab-science)">
+                    <div class="lcars-panel-header">Organism Affect</div>
                     <div class="lcars-panel-body">
-                        <div class="affect-grid-container" id="affect-grid">
-                            <div class="affect-grid-line horizontal"></div>
-                            <div class="affect-grid-line vertical"></div>
-                            <span class="affect-grid-axis-label y-axis">arousal</span>
-                            <span class="affect-grid-axis-label x-axis">valence</span>
-                        </div>
-                        <div class="science-placeholder" id="affect-grid-placeholder">Awaiting psychometric data...</div>
-                    </div>
-                </div>
-
-                <!-- Panel B: Organism State -->
-                <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
-                    <div class="lcars-panel-header">Organism State</div>
-                    <div class="lcars-panel-body">
-                        <div class="organism-state-pill" id="organism-state">
-                            <div class="organism-state-label" id="organism-state-label">&mdash;</div>
-                            <div class="organism-readout" id="organism-readout">
-                                <div class="organism-readout-item">
-                                    <span class="organism-readout-key">Valence</span>
-                                    <span class="organism-readout-val" id="organism-valence">&mdash;</span>
-                                </div>
-                                <div class="organism-readout-item">
-                                    <span class="organism-readout-key">Activation</span>
-                                    <span class="organism-readout-val" id="organism-activation">&mdash;</span>
-                                </div>
-                                <div class="organism-readout-item">
-                                    <span class="organism-readout-key">Bottleneck</span>
-                                    <span class="organism-readout-val" id="organism-bottleneck">&mdash;</span>
-                                </div>
-                                <div class="organism-readout-item">
-                                    <span class="organism-readout-key">Coord Ratio</span>
-                                    <span class="organism-readout-val" id="organism-coord">&mdash;</span>
-                                </div>
+                        <div class="msd-affect-grid">
+                            <div class="msd-aggregate">
+                                <span class="msd-label">ORGANISM</span>
+                                <span class="msd-value" id="org-affect-label">ENGAGED</span>
+                                <span class="msd-metric">v:<span id="org-valence">+0.4</span></span>
+                                <span class="msd-metric">a:<span id="org-activation">+0.5</span></span>
+                            </div>
+                            <div class="msd-schematic" id="msd-schematic">
+                                <!-- JS renders: central node + leader lines + agent cards -->
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Panel C: Generator Balance -->
+                <!-- Widget 2: Generator Balance -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
                     <div class="lcars-panel-header">Generator Balance</div>
                     <div class="lcars-panel-body" id="generator-balance">
@@ -635,8 +611,10 @@
                                 <div class="gen-balance-fill-left" id="gen-g2g3-left" style="width:50%;background:#6aab8e"></div>
                                 <div class="gen-balance-fill-right" id="gen-g2g3-right" style="width:50%;background:#6aab8e"></div>
                             </div>
-                            <div class="gen-balance-ratio" id="gen-g2g3-ratio">&mdash;</div>
-                            <div class="gen-balance-status gen-status-nominal" id="gen-g2g3-status">AWAITING DATA</div>
+                            <div class="gen-balance-inline">
+                                <span class="gen-balance-ratio" id="gen-g2g3-ratio">&mdash;</span>
+                                <span class="gen-balance-status gen-status-nominal" id="gen-g2g3-status">AWAITING DATA</span>
+                            </div>
                         </div>
                         <div class="gen-balance-row" id="gen-g6g7">
                             <div class="gen-balance-label">G6/G7 (crystallize : dissolve)</div>
@@ -644,58 +622,63 @@
                                 <div class="gen-balance-fill-left" id="gen-g6g7-left" style="width:50%;background:#6aab8e"></div>
                                 <div class="gen-balance-fill-right" id="gen-g6g7-right" style="width:50%;background:#6aab8e"></div>
                             </div>
-                            <div class="gen-balance-ratio" id="gen-g6g7-ratio">&mdash;</div>
-                            <div class="gen-balance-status gen-status-nominal" id="gen-g6g7-status">AWAITING DATA</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Panel D: Flow State -->
-                <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
-                    <div class="lcars-panel-header">Flow State</div>
-                    <div class="lcars-panel-body" id="flow-state-panel">
-                        <ul class="flow-checklist" id="flow-checklist">
-                            <li><span class="flow-check flow-check-fail">&#x2717;</span> Clear goals</li>
-                            <li><span class="flow-check flow-check-fail">&#x2717;</span> Immediate feedback</li>
-                            <li><span class="flow-check flow-check-fail">&#x2717;</span> Challenge-skill balance</li>
-                            <li><span class="flow-check flow-check-fail">&#x2717;</span> Sense of control</li>
-                            <li><span class="flow-check flow-check-fail">&#x2717;</span> Absorption</li>
-                        </ul>
-                        <div class="flow-status-label flow-out" id="flow-status-label">AWAITING DATA</div>
-                    </div>
-                </div>
-
-                <!-- Panel E: Degradation Early Warning -->
-                <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
-                    <div class="lcars-panel-header">Degradation Early Warning</div>
-                    <div class="lcars-panel-body">
-                        <div class="dew-gauge" id="dew-gauge">
-                            <div class="dew-score dew-green" id="dew-score">&mdash;</div>
-                            <div class="dew-bar">
-                                <div class="dew-bar-fill" id="dew-bar-fill" style="width:0%;background:#6aab8e"></div>
+                            <div class="gen-balance-inline">
+                                <span class="gen-balance-ratio" id="gen-g6g7-ratio">&mdash;</span>
+                                <span class="gen-balance-status gen-status-nominal" id="gen-g6g7-status">AWAITING DATA</span>
                             </div>
-                            <div class="dew-status dew-green" id="dew-status">AWAITING DATA</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Panel F: Supervisory Control -->
+                <!-- Widget 3: Epistemic Health -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
-                    <div class="lcars-panel-header">Supervisory Control</div>
-                    <div class="lcars-panel-body" id="loa-panel">
-                        <div class="loa-ladder" id="loa-ladder">
-                            <div class="loa-rung"><span class="loa-rung-level">LOA 10</span><span class="loa-rung-desc">Full autonomy</span></div>
-                            <div class="loa-rung"><span class="loa-rung-level">LOA 9</span><span class="loa-rung-desc">Inform if asked</span></div>
-                            <div class="loa-rung"><span class="loa-rung-level">LOA 8</span><span class="loa-rung-desc">Inform after</span></div>
-                            <div class="loa-rung"><span class="loa-rung-level">LOA 7</span><span class="loa-rung-desc">Execute, veto time</span></div>
-                            <div class="loa-rung"><span class="loa-rung-level">LOA 6</span><span class="loa-rung-desc">Execute if approved</span></div>
-                            <div class="loa-rung active"><span class="loa-rung-level">LOA 5</span><span class="loa-rung-desc">Suggest, human acts</span></div>
-                            <div class="loa-rung"><span class="loa-rung-level">LOA 4</span><span class="loa-rung-desc">Suggest alternatives</span></div>
-                            <div class="loa-rung"><span class="loa-rung-level">LOA 3</span><span class="loa-rung-desc">Narrow to few</span></div>
-                            <div class="loa-rung"><span class="loa-rung-level">LOA 2</span><span class="loa-rung-desc">Offer complete set</span></div>
-                            <div class="loa-rung"><span class="loa-rung-level">LOA 1</span><span class="loa-rung-desc">Human does all</span></div>
+                    <div class="lcars-panel-header">Epistemic Health</div>
+                    <div class="lcars-panel-body">
+                        <div class="epistemic-health" id="epistemic-health">
+                            <div class="epistemic-row">
+                                <span class="epistemic-key">DEBT SCORE</span>
+                                <span class="epistemic-val" id="epi-debt-score">&mdash;</span>
+                            </div>
+                            <div class="epistemic-row">
+                                <span class="epistemic-key">UNRESOLVED FLAGS</span>
+                                <span class="epistemic-val" id="epi-flag-count">&mdash;</span>
+                            </div>
+                            <div class="epistemic-row">
+                                <span class="epistemic-key">CLAIM VERIFICATION</span>
+                                <span class="epistemic-val" id="epi-claim-rate">&mdash;</span>
+                            </div>
                         </div>
-                        <div class="loa-budget">Budget remaining: <span class="loa-budget-val" id="loa-budget-val">&mdash;</span></div>
+                    </div>
+                </div>
+
+                <!-- Widget 4: Shared Mental Models -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
+                    <div class="lcars-panel-header">Shared Mental Models</div>
+                    <div class="lcars-panel-body">
+                        <div class="shared-models" id="shared-models">
+                            <div class="shared-models-row">
+                                <span class="shared-models-key">SCHEMA PARITY</span>
+                                <span class="shared-models-val" id="smm-schema-parity">&mdash;</span>
+                            </div>
+                            <div class="shared-models-row">
+                                <span class="shared-models-key">VOCABULARY</span>
+                                <span class="shared-models-val" id="smm-vocabulary">&mdash;</span>
+                            </div>
+                            <div class="shared-models-row">
+                                <span class="shared-models-key">ACTIVE SESSIONS</span>
+                                <span class="shared-models-val" id="smm-sessions">&mdash;</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Widget 5: Organism Narrative -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
+                    <div class="lcars-panel-header">Organism Narrative</div>
+                    <div class="lcars-panel-body">
+                        <div class="organism-narrative" id="organism-narrative">
+                            <p class="narrative-text" id="narrative-text">Awaiting organism data...</p>
+                        </div>
                     </div>
                 </div>
             </div>
