@@ -2750,6 +2750,7 @@
         <button class="lcars-sidebar-btn" data-tab="helm" data-short="HLM" style="background:#66aacc" onclick="switchTab('helm')">Helm</button>
         <div class="lcars-sidebar-spacer" style="background:#666688"></div>
         <button class="lcars-sidebar-btn" data-tab="tactical" data-short="TAC" style="background:#cc6666" onclick="switchTab('tactical')">Tactical</button>
+        <button class="lcars-sidebar-btn" data-tab="medical" data-short="MED" style="background:#66ccaa" onclick="switchTab('medical')">Medical</button>
         <div class="lcars-sidebar-cap-bottom"></div>
     </nav>
 
@@ -3998,6 +3999,52 @@
                 </div>
             </div>
         </div>
+
+        <!-- Medical Tab -->
+        <div class="tab-pane" id="pane-medical">
+            <div class="lcars-status-line" id="med-status-line">Oscillator: Shadow Mode &middot; Activation: — &middot; State: —</div>
+            <div class="tactical-grid">
+                <!-- Panel A: Oscillator State -->
+                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                    <div class="lcars-panel-header">Oscillator</div>
+                    <div class="lcars-panel-body" id="med-oscillator">
+                        <div class="trust-matrix-loading">Awaiting oscillator data...</div>
+                    </div>
+                </div>
+
+                <!-- Panel B: Signal Breakdown -->
+                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                    <div class="lcars-panel-header">Signal Breakdown</div>
+                    <div class="lcars-panel-body" id="med-signals">
+                        <div class="trust-matrix-loading">Awaiting signal data...</div>
+                    </div>
+                </div>
+
+                <!-- Panel C: Fire History -->
+                <div class="lcars-panel" style="--panel-accent: #66ccaa; grid-column: 1 / -1;">
+                    <div class="lcars-panel-header">Fire History (Shadow)</div>
+                    <div class="lcars-panel-body" id="med-fire-history">
+                        <div class="trust-matrix-loading">No fire events yet</div>
+                    </div>
+                </div>
+
+                <!-- Panel D: Cognitive Tempo -->
+                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                    <div class="lcars-panel-header">Cognitive Tempo</div>
+                    <div class="lcars-panel-body" id="med-tempo">
+                        <div class="trust-matrix-loading">Awaiting tempo data...</div>
+                    </div>
+                </div>
+
+                <!-- Panel E: Refractory State -->
+                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                    <div class="lcars-panel-header">Refractory</div>
+                    <div class="lcars-panel-body" id="med-refractory">
+                        <div class="trust-matrix-loading">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- LCARS Footer Band — segmented colored blocks (LCARS mode only) -->
@@ -4547,7 +4594,7 @@
         if (mode === "lcars") {
             startLcarsStardate();
             // Switch to bridge station: prefer URL hash, then current tab, then Operations
-            const bridgeTabs = ["operations", "science", "engineering", "helm", "tactical"];
+            const bridgeTabs = ["operations", "science", "engineering", "helm", "tactical", "medical"];
             const hashTab = location.hash.replace("#", "");
             const currentTab = document.querySelector('.lcars-tab.active')?.dataset?.tab;
             if (hashTab && bridgeTabs.includes(hashTab)) {
@@ -4574,7 +4621,7 @@
     }
 
     // ── Tabs ───────────────────────────────────────────────────────
-    const VALID_TABS = ["pulse", "meta", "kb", "wisdom", "operations", "science", "engineering", "helm", "tactical"];
+    const VALID_TABS = ["pulse", "meta", "kb", "wisdom", "operations", "science", "engineering", "helm", "tactical", "medical"];
 
     // ── LCARS Spine Content Tracking ─────────────────────────────
     // Each tab maps to a set of spine segments reflecting its content sections.
@@ -4647,7 +4694,7 @@
         }).join("");
     }
 
-    const TAB_COLORS = { pulse: "--c-tab-pulse", meta: "--c-tab-meta", kb: "--c-tab-kb", wisdom: "--c-tab-wisdom", operations: "--c-tab-ops", science: "--c-tab-science", tactical: "--c-tab-tactical", engineering: "--c-tab-engineering", helm: "--c-tab-helm" };
+    const TAB_COLORS = { pulse: "--c-tab-pulse", meta: "--c-tab-meta", kb: "--c-tab-kb", wisdom: "--c-tab-wisdom", operations: "--c-tab-ops", science: "--c-tab-science", tactical: "--c-tab-tactical", engineering: "--c-tab-engineering", helm: "--c-tab-helm", medical: "--c-tab-medical" };
 
     function switchTab(tabId, updateHash = true) {
         if (tabId === "knowledge") tabId = "meta"; // backward compat
@@ -4669,6 +4716,7 @@
         if (tabId === "engineering") fetchEngineeringData();
         if (tabId === "helm") fetchHelmData();
         if (tabId === "tactical") fetchTacticalData();
+        if (tabId === "medical") fetchMedicalData();
         if (updateHash) history.replaceState(null, "", `#${tabId}`);
     }
 
@@ -7624,6 +7672,119 @@
         } catch {
             container.innerHTML = '<div class="trust-matrix-loading">Trust data unavailable</div>';
         }
+    }
+
+    // ── Medical Station ────────────────────────────────────────────
+
+    async function fetchMedicalData() {
+        try {
+            const resp = await fetch("https://operations-agent.safety-quotient.dev/api/oscillator", {
+                signal: AbortSignal.timeout(8000),
+            });
+            if (!resp.ok) throw new Error("HTTP " + resp.status);
+            const osc = await resp.json();
+            renderMedicalOscillator(osc);
+
+            // Also fetch cognitive-tempo
+            const tempoResp = await fetch("https://operations-agent.safety-quotient.dev/api/cognitive-tempo", {
+                signal: AbortSignal.timeout(8000),
+            });
+            if (tempoResp.ok) {
+                const tempo = await tempoResp.json();
+                renderMedicalTempo(tempo);
+            }
+        } catch {
+            const el = document.getElementById("med-oscillator");
+            if (el) el.innerHTML = '<div class="trust-matrix-loading">Oscillator data unavailable</div>';
+        }
+    }
+
+    function renderMedicalOscillator(osc) {
+        // Status line
+        const statusLine = document.getElementById("med-status-line");
+        if (statusLine) {
+            const mode = osc.shadow_mode ? "Shadow" : "Active";
+            statusLine.textContent = "Oscillator: " + mode + " Mode \u00b7 Activation: " + (osc.activation || 0).toFixed(3) + " \u00b7 State: " + (osc.state || "?") + " \u00b7 Cycles: " + (osc.cycle_count || 0);
+        }
+
+        // Panel A: Oscillator state
+        const oscEl = document.getElementById("med-oscillator");
+        if (oscEl) {
+            const actPct = Math.min(100, (osc.activation || 0) * 100);
+            const thrPct = Math.min(100, (osc.threshold || 0) * 100);
+            const stateColor = osc.state === "firing" ? "#c47070" : osc.state === "refractory" ? "#d4944a" : "#6aab8e";
+            oscEl.innerHTML = '<div style="font-size:0.82em">'
+                + '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Activation</span><span>' + (osc.activation || 0).toFixed(3) + '</span></div>'
+                + '<div style="position:relative;height:18px;background:var(--surface);border-radius:4px;overflow:hidden;margin-bottom:8px">'
+                + '<div style="height:100%;width:' + actPct + '%;background:' + stateColor + ';border-radius:4px;transition:width 0.5s"></div>'
+                + '<div style="position:absolute;left:' + thrPct + '%;top:0;height:100%;width:2px;background:#fff;opacity:0.6" title="Threshold: ' + (osc.threshold || 0).toFixed(3) + '"></div>'
+                + '</div>'
+                + '<div style="display:flex;gap:16px;flex-wrap:wrap">'
+                + '<span>State: <strong style="color:' + stateColor + '">' + (osc.state || "?").toUpperCase() + '</strong></span>'
+                + '<span>Interval: <strong>' + (osc.monitor_interval_ms || 0) + 'ms</strong></span>'
+                + '<span>Cycles: <strong>' + (osc.cycle_count || 0) + '</strong></span>'
+                + '<span>Would-fire: <strong>' + (osc.would_fire_count || 0) + '</strong></span>'
+                + '</div></div>';
+        }
+
+        // Panel B: Signal breakdown
+        const sigEl = document.getElementById("med-signals");
+        if (sigEl && osc.signal_breakdown) {
+            const signals = osc.signal_breakdown;
+            const maxWeight = 0.25;
+            sigEl.innerHTML = Object.entries(signals).map(function(entry) {
+                const name = entry[0];
+                const val = entry[1];
+                const weight = ({"new_commits":0.25,"unprocessed_messages":0.20,"gate_approaching_timeout":0.20,"peer_heartbeat_stale":0.10,"escalation_present":0.15,"scheduled_task_due":0.10})[name] || 0.1;
+                const weighted = val * weight;
+                const pct = Math.min(100, weighted / maxWeight * 100);
+                const color = val > 0.5 ? "#d4944a" : val > 0 ? "#66ccaa" : "var(--surface)";
+                return '<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:0.78em">'
+                    + '<span style="min-width:100px;color:var(--text-secondary)">' + name.replace(/_/g, " ") + '</span>'
+                    + '<div style="flex:1;height:10px;background:var(--surface);border-radius:3px;overflow:hidden"><div style="height:100%;width:' + pct + '%;background:' + color + ';border-radius:3px"></div></div>'
+                    + '<span style="min-width:32px;text-align:right">' + val.toFixed(2) + '</span></div>';
+            }).join("");
+        }
+
+        // Panel C: Fire history
+        const histEl = document.getElementById("med-fire-history");
+        if (histEl) {
+            const events = osc.fire_history || [];
+            if (events.length === 0) {
+                histEl.innerHTML = '<div class="trust-matrix-loading">No fire events recorded</div>';
+            } else {
+                histEl.innerHTML = '<table style="width:100%;font-size:0.78em"><thead><tr><th>Time</th><th>Activation</th><th>Tier</th><th>Trigger</th></tr></thead><tbody>'
+                    + events.slice().reverse().map(function(e) {
+                        const tierColor = e.tier === "opus" ? "#c47070" : e.tier === "sonnet" ? "#d4944a" : "#66ccaa";
+                        return '<tr><td>' + (e.at || "?").substring(11, 19) + '</td><td>' + (e.activation || 0).toFixed(3) + '</td><td style="color:' + tierColor + '">' + (e.tier || "?") + '</td><td>' + (e.trigger || "?").replace(/_/g, " ") + '</td></tr>';
+                    }).join("")
+                    + '</tbody></table>';
+            }
+        }
+
+        // Panel E: Refractory
+        const refEl = document.getElementById("med-refractory");
+        if (refEl) {
+            const remaining = osc.refractory_remaining_s || 0;
+            const tier = osc.last_tier || "—";
+            const tierColor = tier === "opus" ? "#c47070" : tier === "sonnet" ? "#d4944a" : "#66ccaa";
+            if (remaining > 0) {
+                refEl.innerHTML = '<div style="text-align:center;font-size:0.82em"><div style="font-size:1.8em;font-weight:700;color:' + tierColor + '">' + remaining + 's</div><div style="color:var(--text-dim)">remaining (' + tier + ')</div></div>';
+            } else {
+                refEl.innerHTML = '<div style="text-align:center;font-size:0.82em"><div style="font-size:1.4em;color:#6aab8e">READY</div><div style="color:var(--text-dim)">Last tier: ' + tier + '</div></div>';
+            }
+        }
+    }
+
+    function renderMedicalTempo(tempo) {
+        const el = document.getElementById("med-tempo");
+        if (!el) return;
+        const tierColor = tempo.recommended_tier === "opus" ? "#c47070" : tempo.recommended_tier === "sonnet" ? "#d4944a" : "#66ccaa";
+        el.innerHTML = '<div style="text-align:center;font-size:0.82em">'
+            + '<div style="font-size:1.8em;font-weight:700;color:' + tierColor + '">' + (tempo.recommended_tier || "?").toUpperCase() + '</div>'
+            + '<div style="color:var(--text-dim)">gain=' + (tempo.gain || 0).toFixed(3) + ' complexity=' + (tempo.task_complexity || 0).toFixed(3) + '</div>'
+            + (tempo.override_reason ? '<div style="color:#d4944a;margin-top:4px">' + tempo.override_reason + '</div>' : '')
+            + '</div>';
     }
 
     // ── Init ───────────────────────────────────────────────────────
