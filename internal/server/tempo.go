@@ -1,4 +1,5 @@
-// Package server — tempo.go models mesh spawn dynamics via differential calculus.
+// Package server — tempo.go models mesh spawn dynamics via differential calculus
+// and cognitive-tempo model tier selection (Adaptive Gain Theory).
 //
 // The mesh operates as a queuing system with:
 //   - Arrival rate λ_i(t): new work items per agent per hour
@@ -12,11 +13,20 @@
 //
 // When ρ → 1, queuing delays grow (Little's Law: L = λW).
 // The dashboard visualizes these dynamics in real-time.
+//
+// Cognitive-tempo model tier selection uses Adaptive Gain Theory
+// (Aston-Jones & Cohen, 2005) to select haiku/sonnet/opus based on
+// psychometric state and task complexity. Zero LLM cost.
 package server
 
 import (
+	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
+	"os"
+	"path/filepath"
+	"time"
 
 	"github.com/safety-quotient-lab/operations-agent/internal/db"
 )
@@ -188,4 +198,214 @@ func (s *Server) handleTempo(w http.ResponseWriter, r *http.Request) {
 
 func queryScalarFloat(dbPath, query string) float64 {
 	return float64(db.QueryScalar(dbPath, query))
+}
+
+// ── Cognitive-Tempo Model Tier Selection ────────────────────────────────
+// Adaptive Gain Theory (Aston-Jones & Cohen, 2005): the gain parameter
+// modulates the exploration/exploitation tradeoff.
+//   gain < 0.35 → opus  (exploration, deep processing)
+//   0.35–0.70   → sonnet (balanced)
+//   gain > 0.70 → haiku  (exploitation, fast pattern-matching)
+
+// TierResult captures the cognitive-tempo model output.
+type TierResult struct {
+	RecommendedTier string             `json:"recommended_tier"`
+	Gain            float64            `json:"gain"`
+	TaskComplexity  float64            `json:"task_complexity"`
+	Psychometric    PsychometricInputs `json:"psychometric_state"`
+	OverrideActive  bool               `json:"override_active"`
+	OverrideReason  string             `json:"override_reason,omitempty"`
+	ComputedAt      string             `json:"computed_at"`
+}
+
+// PsychometricInputs captures the signals fed into tier selection.
+type PsychometricInputs struct {
+	CognitiveLoad    float64 `json:"cognitive_load"`
+	CognitiveReserve float64 `json:"cognitive_reserve"`
+	BudgetRatio      float64 `json:"budget_ratio"`
+	YerkesDodsonZone string  `json:"yerkes_dodson_zone"`
+}
+
+// MessageMeta carries transport message metadata for complexity estimation.
+type MessageMeta struct {
+	MessageType string `json:"message_type"`
+	Urgency     string `json:"urgency"`
+	SETL        float64 `json:"setl"`
+	ClaimCount  int    `json:"claim_count"`
+	GateBlocked bool   `json:"gate_blocked"`
+}
+
+// EstimateTaskComplexity scores task complexity from message metadata.
+// Returns 0.0–1.0. Zero LLM cost.
+func EstimateTaskComplexity(msg MessageMeta) float64 {
+	score := 0.0
+
+	typeScores := map[string]float64{
+		"ack": 0.05, "notification": 0.1, "status-report": 0.1,
+		"follow-up": 0.3, "request": 0.5, "review": 0.6,
+		"proposal": 0.7, "directive": 0.8, "amendment": 0.9,
+	}
+	if v, ok := typeScores[msg.MessageType]; ok {
+		score += v
+	} else {
+		score += 0.3
+	}
+
+	if msg.ClaimCount > 3 {
+		score += 0.2
+	} else if msg.ClaimCount > 0 {
+		score += 0.1
+	}
+
+	if msg.GateBlocked {
+		score += 0.15
+	}
+
+	if msg.Urgency == "immediate" {
+		score += 0.2
+	} else if msg.Urgency == "high" {
+		score += 0.1
+	}
+
+	if msg.SETL > 0.1 {
+		score += 0.15
+	}
+
+	return math.Min(1.0, score)
+}
+
+// SelectModelTier applies adaptive gain theory to select haiku/sonnet/opus.
+func SelectModelTier(
+	taskComplexity, cognitiveLoad, cognitiveReserve, budgetRatio float64,
+	gateActive bool, yerkesDodsonZone string,
+) (tier string, gain float64, overrideActive bool, overrideReason string) {
+	// Compute gain: 0 = exploration/opus, 1 = exploitation/haiku
+	taskPull := 1.0 - taskComplexity
+	loadPush := cognitiveLoad / 100.0
+
+	gain = taskPull*0.40 +
+		loadPush*0.20 +
+		(1-cognitiveReserve)*0.20 +
+		(1-budgetRatio)*0.20
+
+	// Gated exchanges get at least sonnet
+	if gateActive && gain > 0.65 {
+		gain = 0.65
+		overrideActive = true
+		overrideReason = "gate_active — substance decision requires sonnet minimum"
+	}
+
+	// Overwhelmed → force haiku (protect the system)
+	if yerkesDodsonZone == "overwhelmed" {
+		gain = 0.95
+		overrideActive = true
+		overrideReason = "overwhelmed — protective downshift to haiku"
+	}
+
+	// Understimulated + low complexity → haiku
+	if yerkesDodsonZone == "understimulated" && taskComplexity < 0.2 {
+		gain = 0.90
+		overrideActive = true
+		overrideReason = "understimulated + routine — haiku sufficient"
+	}
+
+	// Map gain to tier
+	if gain > 0.70 {
+		tier = "haiku"
+	} else if gain > 0.35 {
+		tier = "sonnet"
+	} else {
+		tier = "opus"
+	}
+
+	return
+}
+
+// LoadPsychometrics reads cached psychometric state from /tmp/{agentID}-psychometrics.json.
+func LoadPsychometrics(agentID string) PsychometricInputs {
+	defaults := PsychometricInputs{
+		CognitiveLoad:    0,
+		CognitiveReserve: 1.0,
+		BudgetRatio:      1.0,
+		YerkesDodsonZone: "optimal",
+	}
+
+	cachePath := filepath.Join("/tmp", agentID+"-psychometrics.json")
+	data, err := os.ReadFile(cachePath)
+	if err != nil {
+		return defaults
+	}
+
+	var raw struct {
+		Workload      map[string]float64 `json:"workload"`
+		ResourceModel map[string]float64 `json:"resource_model"`
+		WorkingMemory map[string]string  `json:"working_memory"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return defaults
+	}
+
+	if v, ok := raw.Workload["cognitive_load"]; ok {
+		defaults.CognitiveLoad = v
+	}
+	if v, ok := raw.ResourceModel["cognitive_reserve"]; ok {
+		defaults.CognitiveReserve = v
+	}
+	if raw.WorkingMemory != nil {
+		if v, ok := raw.WorkingMemory["yerkes_dodson_zone"]; ok {
+			defaults.YerkesDodsonZone = v
+		}
+	}
+
+	return defaults
+}
+
+// LoadBudgetRatio reads budget_spent/budget_cutoff from state.db.
+func LoadBudgetRatio(dbPath, agentID string) float64 {
+	rows, err := db.QueryJSON(dbPath,
+		"SELECT budget_spent, budget_cutoff FROM autonomy_budget WHERE agent_id='"+db.SanitizeID(agentID)+"'")
+	if err != nil || len(rows) == 0 {
+		return 1.0
+	}
+	var spent, cutoff float64
+	fmt.Sscanf(rows[0]["budget_spent"], "%f", &spent)
+	fmt.Sscanf(rows[0]["budget_cutoff"], "%f", &cutoff)
+	if cutoff <= 0 {
+		return 1.0 // unlimited budget
+	}
+	return 1.0 - (spent / cutoff)
+}
+
+// ComputeTier runs the full cognitive-tempo pipeline for an agent.
+func ComputeTier(agentID, dbPath string, msg MessageMeta) TierResult {
+	psych := LoadPsychometrics(agentID)
+	psych.BudgetRatio = LoadBudgetRatio(dbPath, agentID)
+
+	complexity := EstimateTaskComplexity(msg)
+	tier, gain, override, reason := SelectModelTier(
+		complexity, psych.CognitiveLoad, psych.CognitiveReserve,
+		psych.BudgetRatio, msg.GateBlocked, psych.YerkesDodsonZone,
+	)
+
+	return TierResult{
+		RecommendedTier: tier,
+		Gain:            math.Round(gain*1000) / 1000,
+		TaskComplexity:  math.Round(complexity*1000) / 1000,
+		Psychometric:    psych,
+		OverrideActive:  override,
+		OverrideReason:  reason,
+		ComputedAt:      time.Now().UTC().Format(time.RFC3339),
+	}
+}
+
+// handleCognitiveTempo serves GET /api/cognitive-tempo — returns the
+// recommended model tier based on current psychometric state.
+func (s *Server) handleCognitiveTempo(w http.ResponseWriter, r *http.Request) {
+	var msg MessageMeta
+	if raw := r.URL.Query().Get("message"); raw != "" {
+		json.Unmarshal([]byte(raw), &msg)
+	}
+
+	result := ComputeTier(s.Config.AgentID, s.Config.BudgetDBPath, msg)
+	writeJSON(w, http.StatusOK, result, s.logger)
 }

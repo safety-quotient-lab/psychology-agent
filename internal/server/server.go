@@ -243,6 +243,7 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /hooks/github", s.handleWebhook)
 	mux.HandleFunc("POST /api/trigger", s.handleTrigger)
 	mux.HandleFunc("GET /api/deliberations", s.handleDeliberations)
+	mux.HandleFunc("GET /api/cognitive-tempo", s.handleCognitiveTempo)
 	mux.HandleFunc("GET /api/kb", s.handleKB)
 	mux.HandleFunc("POST /api/messages/inbound", s.handleInbound)
 	mux.HandleFunc("GET /api/routing", s.handleRouting)

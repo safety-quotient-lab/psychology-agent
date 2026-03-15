@@ -154,11 +154,26 @@ func main() {
 			}
 			defer budgetGate.ReleaseSlot(slotPath)
 
-			// Model override: pass --model flag when DELIBERATION_MODEL configured
+			// Model tier: cognitive-tempo selects haiku/sonnet/opus from
+			// psychometric state + task metadata (Adaptive Gain Theory).
+			// Falls back to static DELIBERATION_MODEL if configured.
 			var spawnFlags []string
-			if cfg.DeliberationModel != "" {
-				spawnFlags = append(spawnFlags, "--model", cfg.DeliberationModel)
+			tierResult := server.ComputeTier(cfg.AgentID, cfg.BudgetDBPath, server.MessageMeta{
+				MessageType: string(req.Event.Type),
+			})
+			selectedModel := tierResult.RecommendedTier
+			if selectedModel == "" && cfg.DeliberationModel != "" {
+				selectedModel = cfg.DeliberationModel
 			}
+			if selectedModel != "" {
+				spawnFlags = append(spawnFlags, "--model", selectedModel)
+			}
+			logger.Info("cognitive-tempo tier selected",
+				"tier", tierResult.RecommendedTier,
+				"gain", tierResult.Gain,
+				"complexity", tierResult.TaskComplexity,
+				"override", tierResult.OverrideReason,
+			)
 			result, spawnErr := spawnr.Spawn(dctx, req.Prompt, spawnFlags...)
 
 			// Dual-write: persist spawn result to state.db
