@@ -66,6 +66,8 @@ const (
 	EventPush EventType = "push"
 	// EventFilesystemNew — a new transport file detected by the watcher.
 	EventFilesystemNew EventType = "fs-new"
+	// EventCIFailure — a CI workflow run failed on any mesh repo.
+	EventCIFailure EventType = "ci-failure"
 )
 
 // Event represents a single unit of work entering the daemon's dispatch queue.

@@ -68,12 +68,17 @@ func (rl *rateLimiter) allow(repo string) bool {
 // GitHubHandler
 // --------------------------------------------------------------------------
 
+// OnCIFailure callback fires when a workflow run fails on any mesh repo.
+// Receiver handles notification (log, Zulip, webhook, etc.).
+type OnCIFailure func(repo, workflow, branch, url string)
+
 // GitHubHandler receives POST /hooks/github deliveries, verifies the
 // HMAC-SHA256 signature, classifies the event, and forwards an Event into
 // the meshd queue.
 type GitHubHandler struct {
 	Secret      string
 	EventChan   chan<- events.Event
+	CIFailureFn OnCIFailure // optional — fires on workflow_run failure
 	rateLimiter *rateLimiter
 	logger      *slog.Logger
 }
@@ -152,6 +157,8 @@ func (h *GitHubHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.handlePullRequest(body)
 	case "push":
 		h.handlePush(body)
+	case "workflow_run":
+		h.handleWorkflowRun(body, repo)
 	default:
 		h.logger.Debug("ignoring unhandled event type", "event_type", eventType)
 	}
@@ -271,6 +278,72 @@ func pushTouchesTransport(p pushPayload) bool {
 		}
 	}
 	return false
+}
+
+// --------------------------------------------------------------------------
+// Workflow run handling — CI failure detection across all mesh repos
+// --------------------------------------------------------------------------
+
+type workflowRunPayload struct {
+	Action      string `json:"action"`
+	WorkflowRun struct {
+		Name       string `json:"name"`
+		Conclusion string `json:"conclusion"`
+		HTMLURL    string `json:"html_url"`
+		HeadBranch string `json:"head_branch"`
+		RunNumber  int    `json:"run_number"`
+	} `json:"workflow_run"`
+	Repository struct {
+		FullName string `json:"full_name"`
+	} `json:"repository"`
+}
+
+func (h *GitHubHandler) handleWorkflowRun(body []byte, repo string) {
+	var wf workflowRunPayload
+	if err := json.Unmarshal(body, &wf); err != nil {
+		h.logger.Error("failed to parse workflow_run payload", "err", err)
+		return
+	}
+
+	// Only act on completed runs
+	if wf.Action != "completed" {
+		return
+	}
+
+	// Log all completions for visibility
+	h.logger.Info("CI workflow completed",
+		"repo", repo,
+		"workflow", wf.WorkflowRun.Name,
+		"conclusion", wf.WorkflowRun.Conclusion,
+		"branch", wf.WorkflowRun.HeadBranch,
+		"run", wf.WorkflowRun.RunNumber,
+	)
+
+	// Only emit events + notify on failure
+	if wf.WorkflowRun.Conclusion != "failure" {
+		return
+	}
+
+	h.logger.Warn("CI FAILURE detected",
+		"repo", repo,
+		"workflow", wf.WorkflowRun.Name,
+		"branch", wf.WorkflowRun.HeadBranch,
+		"url", wf.WorkflowRun.HTMLURL,
+	)
+
+	h.emit(events.NewEvent(events.EventCIFailure, events.PriorityHigh, "github", map[string]string{
+		"repo":       repo,
+		"workflow":   wf.WorkflowRun.Name,
+		"conclusion": wf.WorkflowRun.Conclusion,
+		"branch":     wf.WorkflowRun.HeadBranch,
+		"url":        wf.WorkflowRun.HTMLURL,
+		"run_number": fmt.Sprintf("%d", wf.WorkflowRun.RunNumber),
+	}))
+
+	// Notify operator if callback configured
+	if h.CIFailureFn != nil {
+		h.CIFailureFn(repo, wf.WorkflowRun.Name, wf.WorkflowRun.HeadBranch, wf.WorkflowRun.HTMLURL)
+	}
 }
 
 // --------------------------------------------------------------------------

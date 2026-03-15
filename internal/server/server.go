@@ -295,6 +295,9 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	// Transport relay + redirect
 	mux.HandleFunc("POST /api/relay", s.handleRelay)
 	mux.HandleFunc("POST /api/redirect", s.handleRedirect)
+
+	// CI visibility — aggregated workflow run status across all mesh repos
+	mux.HandleFunc("GET /api/ci", s.handleCI)
 }
 
 // middleware chains recovery, CORS, request logging, and version header

@@ -266,6 +266,17 @@ func main() {
 	// GitHub webhook handler
 	webhookHandler := webhook.NewGitHubHandler(cfg.GitHubSecret, eventChan, logger)
 
+	// Wire CI failure notifications through the notifier
+	webhookHandler.CIFailureFn = func(repo, workflow, branch, url string) {
+		notifier.Notify(context.Background(), notify.Message{
+			AgentID:   cfg.AgentID,
+			EventType: "ci-failure",
+			Priority:  "high",
+			Reason:    fmt.Sprintf("CI FAILED: %s/%s on %s — %s", repo, workflow, branch, url),
+			Timestamp: time.Now(),
+		})
+	}
+
 	// Transport filesystem watcher (with persisted seen-set to prevent spawn storms)
 	watcher := transport.NewWatcher(
 		cfg.TransportDir,
