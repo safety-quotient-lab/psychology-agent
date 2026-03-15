@@ -193,6 +193,15 @@
         "hooks": [
           {
             "type": "command",
+            "command": ".claude/hooks/photonic-emitter.sh",
+            "timeout": 1000
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
             "command": ".claude/hooks/governance-transparency.sh",
             "timeout": 1000
           }
