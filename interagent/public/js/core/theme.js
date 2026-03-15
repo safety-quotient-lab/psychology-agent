@@ -56,6 +56,8 @@ export function setTheme(mode) {
  */
 export function initTheme() {
     const savedTheme = localStorage.getItem("theme");
+    // Remove class from html (inline script set it) — setTheme manages body only
+    document.documentElement.classList.remove("theme-light", "theme-lcars");
     if (savedTheme && savedTheme !== "dark") {
         setTheme(savedTheme);
     } else {
