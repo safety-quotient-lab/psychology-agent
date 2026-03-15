@@ -6891,10 +6891,33 @@
         if (helmFetchPending) return;
         helmFetchPending = true;
         try {
-            // Attempt to fetch session and routing data from health endpoint
-            const resp = await fetch("/api/health", { signal: AbortSignal.timeout(8000) });
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-            helmData = await resp.json();
+            // Fetch KB data from operations-agent (has transport messages)
+            const opsAgent = AGENTS.find(a => a.id === "operations-agent");
+            const baseUrl = opsAgent ? opsAgent.url : "https://operations-agent.safety-quotient.dev";
+            const [kbResp, psychResp] = await Promise.allSettled([
+                fetch(`${baseUrl}/api/kb`, { signal: AbortSignal.timeout(8000) }),
+                fetch(`${baseUrl}/api/psychometrics`, { signal: AbortSignal.timeout(5000) }),
+            ]);
+
+            const kbData = kbResp.status === "fulfilled" && kbResp.value.ok ? await kbResp.value.json() : null;
+
+            // Build session list from KB messages
+            const messages = kbData?.messages || [];
+            const sessionMap = {};
+            messages.forEach(m => {
+                const sid = m.session_name || m.session_id || "unknown";
+                if (!sessionMap[sid]) {
+                    sessionMap[sid] = { name: sid, turns: 0, last_activity: m.timestamp, status: "active", from: [] };
+                }
+                sessionMap[sid].turns++;
+                if (m.timestamp > sessionMap[sid].last_activity) sessionMap[sid].last_activity = m.timestamp;
+                if (m.from_agent && !sessionMap[sid].from.includes(m.from_agent)) sessionMap[sid].from.push(m.from_agent);
+            });
+
+            helmData = {
+                sessions: Object.values(sessionMap),
+                messages: messages,
+            };
         } catch (err) {
             helmData = null;
         } finally {
@@ -6969,7 +6992,20 @@
         const container = document.getElementById("helm-message-flow");
         if (!container) return;
 
-        const flow = helmData?.message_flow || helmData?.flow_summary || null;
+        // Compute message flow from KB messages
+        const messages = helmData?.messages || [];
+        const flowMap = {};
+        messages.forEach(m => {
+            const from = m.from_agent || "?";
+            const to = m.to_agent || "?";
+            const key = `${from}->${to}`;
+            flowMap[key] = (flowMap[key] || 0) + 1;
+        });
+        const flow = Object.keys(flowMap).length > 0
+            ? Object.entries(flowMap).map(([key, count]) => {
+                const [from, to] = key.split("->"); return { from, to, count };
+              }).sort((a, b) => b.count - a.count)
+            : null;
         if (!flow || (!Array.isArray(flow) && typeof flow !== "object")) {
             container.innerHTML = '<div class="helm-placeholder">Awaiting message flow data...</div>';
             return;
