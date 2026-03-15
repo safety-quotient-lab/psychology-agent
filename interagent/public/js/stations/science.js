@@ -22,6 +22,7 @@
 
 import {
     fetchPsychometrics, getAllAgentPsychometrics, getMeshPsychometrics,
+    hasApproximateData,
 } from '../core/psychometrics.js';
 
 // ── Module State ───────────────────────────────────────────────
@@ -426,6 +427,11 @@ export function renderMeshNarrative(AGENTS) {
     const totalUnprocessed = agents.reduce((sum, a) => sum + (a.unprocessed ?? 0), 0);
     if (totalUnprocessed > 0) {
         sentences.push(`${totalUnprocessed} message${totalUnprocessed !== 1 ? "s" : ""} await processing.`);
+    }
+
+    // Fidelity indicator — TNG-style when using approximate data
+    if (hasApproximateData()) {
+        sentences.push("Sensor readings: ESTIMATE — derived from status telemetry, not primary psychometric sensors.");
     }
 
     textEl.textContent = sentences.join(" ");
