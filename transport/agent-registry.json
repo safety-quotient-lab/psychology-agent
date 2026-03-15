@@ -94,7 +94,10 @@
         "mesh-diagnostic-request",
         "git-sync-convention",
         "infrastructure-separation",
-        "model-upgrade"
+        "model-upgrade",
+        "cognitive-tempo-model",
+        "agent-security-upgrade",
+        "compositor-identity"
       ],
       "always_consider": true,
       "autonomous": true,
