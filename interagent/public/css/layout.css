@@ -1,0 +1,272 @@
+/* ══════════════════════════════════════════════════════════════════════
+   layout.css — Structural layout rules
+
+   Contains reset, typography, LCARS frame grid, navigation (spine,
+   header, tabs, footer), content area, and responsive breakpoints.
+   ══════════════════════════════════════════════════════════════════════ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+/* ── LCARS Frame ─────────────────────────────────────────────── */
+.lcars-frame {
+    display: grid;
+    grid-template-columns: var(--elbow-width) 1fr;
+    grid-template-rows: auto auto 1fr auto;
+    min-height: 100vh;
+    gap: 0;
+}
+
+/* Left spine */
+.lcars-spine {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.lcars-spine-segment {
+    flex: 1;
+    min-height: 30px;
+    transition: flex 0.4s ease, background 0.4s ease;
+    cursor: default;
+    position: relative;
+}
+.lcars-spine-segment:hover::after {
+    content: attr(title);
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--bg-panel);
+    color: var(--text-primary);
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 0.65em;
+    white-space: nowrap;
+    z-index: 10;
+    border: 1px solid var(--border);
+    pointer-events: none;
+}
+.lcars-spine-segment:first-child {
+    border-radius: var(--elbow-radius) 0 0 0;
+}
+.lcars-spine-segment:last-child {
+    border-radius: 0 0 0 var(--elbow-radius);
+}
+
+/* Header band */
+.lcars-header {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: var(--band-height) solid var(--active-tab-color, var(--c-transport));
+}
+
+.lcars-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: var(--active-tab-color, var(--c-transport));
+    letter-spacing: 0.05em;
+}
+.lcars-subtitle {
+    font-size: 0.75em;
+    color: var(--text-secondary);
+    margin-left: 12px;
+}
+
+.lcars-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Tab bar */
+.lcars-tabs {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    gap: 0;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--border);
+}
+.lcars-tab {
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--text-secondary);
+    padding: 10px 20px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85em;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+.lcars-tab:hover { color: var(--text-primary); }
+.lcars-tab.active { color: var(--c-tab-pulse); border-bottom-color: var(--c-tab-pulse); }
+.lcars-tab[data-tab="pulse"].active  { color: var(--c-tab-pulse); border-bottom-color: var(--c-tab-pulse); }
+.lcars-tab[data-tab="meta"].active   { color: var(--c-tab-meta);  border-bottom-color: var(--c-tab-meta); }
+.lcars-tab[data-tab="kb"].active     { color: var(--c-tab-kb);    border-bottom-color: var(--c-tab-kb); }
+.lcars-tab[data-tab="wisdom"].active { color: var(--c-tab-wisdom); border-bottom-color: var(--c-tab-wisdom); }
+.lcars-tab[data-tab="operations"].active { color: var(--c-tab-ops); border-bottom-color: var(--c-tab-ops); }
+.lcars-tab[data-tab="science"].active { color: var(--c-tab-science); border-bottom-color: var(--c-tab-science); }
+.lcars-tab[data-tab="engineering"].active { color: var(--c-tab-engineering); border-bottom-color: var(--c-tab-engineering); }
+.lcars-tab[data-tab="helm"].active { color: var(--c-tab-helm); border-bottom-color: var(--c-tab-helm); }
+.lcars-tab[data-tab="tactical"].active { color: var(--c-tab-tactical); border-bottom-color: var(--c-tab-tactical); }
+
+/* Content area */
+.lcars-content {
+    grid-column: 2;
+    grid-row: 3;
+    padding: 20px;
+    overflow-y: auto;
+}
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* Footer */
+.lcars-footer {
+    grid-column: 2;
+    grid-row: 4;
+    padding: 8px 20px;
+    border-top: var(--band-height) solid var(--c-transport);
+    font-size: 0.7em;
+    color: var(--text-dim);
+    display: flex;
+    justify-content: space-between;
+}
+
+/* ── Grid Layouts ────────────────────────────────────────────── */
+
+/* Mesh vitals row */
+.vitals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+/* Agent cards grid */
+.agents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+/* Knowledge vitals row */
+.kb-vitals {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+/* Science grid */
+.science-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+/* Engineering grid */
+.engineering-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+/* Helm grid */
+.helm-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.helm-grid .helm-full-width {
+    grid-column: 1 / -1;
+}
+
+/* Tactical grid */
+.tactical-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+/* Ops budget grid */
+.ops-budget-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+/* Dictionary cards grid */
+.dict-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .science-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .engineering-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .helm-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .tactical-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+    .lcars-tab { font-size: 0.75em; padding: 6px 8px; }
+}
+
+@media (max-width: 768px) {
+    .lcars-frame {
+        grid-template-columns: 12px 1fr;
+    }
+    :root { --elbow-width: 12px; }
+    .lcars-header { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
+    .lcars-title { font-size: 1.1em; }
+    .lcars-subtitle { display: none; }
+    .lcars-content { padding: 12px; }
+    .lcars-tab { padding: 8px 12px; font-size: 0.75em; }
+    .agents-grid { grid-template-columns: 1fr; }
+    .vitals-grid { grid-template-columns: repeat(3, 1fr); }
+    .kb-vitals { grid-template-columns: repeat(3, 1fr); }
+    .dict-grid { grid-template-columns: 1fr; }
+    .catalog-bar-label { width: 100px; font-size: 0.75em; }
+    .kb-table { font-size: 0.7em; }
+    .table-toolbar { padding: 6px 12px; }
+    .table-filter { min-width: 120px; }
+    .lcars-panel-body.scrollable { max-height: 300px; }
+}
+
+@media (max-width: 480px) {
+    .vitals-grid { grid-template-columns: repeat(2, 1fr); }
+    .toggle-group { display: none; }
+}

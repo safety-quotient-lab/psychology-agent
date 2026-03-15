@@ -2,9 +2,12 @@ name = "interagent-mesh"
 main = "worker.js"
 compatibility_date = "2026-03-06"
 
+[assets]
+directory = "./public"
+
 [[rules]]
 type = "Text"
-globs = ["**/*.html", "**/*.json"]
+globs = ["**/*.json"]
 fallthrough = false
 
 # API key storage + JTI nonce tracking + rate limit counters

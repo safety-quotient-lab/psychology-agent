@@ -1,0 +1,131 @@
+/* ══════════════════════════════════════════════════════════════════════
+   theme.css — CSS custom property definitions for all visual themes
+
+   Contains :root (dark default), .theme-light, .theme-lcars overrides,
+   and theme guard rules that control LCARS-only element visibility.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Design System ────────────────────────────────────────────── */
+:root {
+    /* Modern palette (default) — muted, desaturated, pleasing */
+    --c-transport: #6b8aaf;
+    --c-knowledge: #c4956a;
+    --c-health: #6aab8e;
+    --c-epistemic: #9b8ec4;
+    --c-catalog: #c48a9e;
+    --c-alert: #c47070;
+    --c-inactive: #6b7280;
+    --c-warning: #d4944a;
+
+    /* Tab identity — semantic color per tab */
+    --c-tab-pulse: #6aab8e;       /* green — operational health */
+    --c-tab-meta: #9b8ec4;        /* purple — thought, reflection */
+    --c-tab-kb: #c4956a;          /* amber — structured knowledge */
+    --c-tab-wisdom: #b8956a;      /* warm bronze — accumulated insight */
+    --c-tab-ops: #6b8aaf;         /* blue — transport, operations */
+    --c-tab-science: #9999ff;     /* blue-purple — psychometrics, science */
+    --c-tab-engineering: #ff9944; /* warm orange — system health, tempo */
+    --c-tab-tactical: #cc6666;    /* alert red — security, threat display */
+    --c-tab-helm: #66aacc;        /* navigation blue — routing, sessions */
+
+    /* Agent identity palette — subtle, distinguishable */
+    --c-psychology: #6b8aaf;
+    --c-psq: #5da8a0;
+    --c-unratified: #c4956a;
+    --c-observatory: #9b8ec4;
+
+    /* Topology — mesh graph elements */
+    --topo-edge: #333c49;
+    --topo-edge-opacity: 0.5;
+    --topo-label: #7d8694;
+    --topo-label-hover: #dce1e8;
+
+    /* Surface */
+    --bg-primary: #0f1318;
+    --bg-panel: #181d25;
+    --bg-inset: #0f1318;
+    --border: #252b35;
+    --border-accent: #333c49;
+    --text-primary: #dce1e8;
+    --text-secondary: #7d8694;
+    --text-dim: #4a5261;
+
+    /* Geometry */
+    --elbow-width: 20px;
+    --elbow-radius: 16px;
+    --band-height: 4px;
+}
+
+/* LCARS-only elements: hidden in dark/light, visible in LCARS */
+.lcars-only { display: none !important; }
+.theme-lcars .lcars-only { display: inline-flex !important; }
+.theme-lcars #pane-science { display: block; }
+body:not(.theme-lcars) #pane-science { display: none !important; }
+.theme-lcars #pane-engineering { display: block; }
+body:not(.theme-lcars) #pane-engineering { display: none !important; }
+.theme-lcars #pane-helm { display: block; }
+body:not(.theme-lcars) #pane-helm { display: none !important; }
+.theme-lcars #pane-tactical { display: block; }
+body:not(.theme-lcars) #pane-tactical { display: none !important; }
+
+/* LCARS classic mode — saturated Trek colors */
+.theme-lcars {
+    --c-transport: #ff9900;
+    --c-knowledge: #cc99cc;
+    --c-health: #9999ff;
+    --c-epistemic: #cc6699;
+    --c-catalog: #ff9966;
+    --c-alert: #cc6666;
+    --c-inactive: #666688;
+    --c-warning: #ff9944;
+
+    --c-tab-pulse: #9999ff;
+    --c-tab-meta: #cc6699;
+    --c-tab-kb: #cc99cc;
+    --c-tab-wisdom: #ffcc66;
+    --c-tab-ops: #ff9900;
+    --c-tab-science: #9999ff;
+    --c-tab-engineering: #ff9944;
+    --c-tab-tactical: #cc6666;
+    --c-tab-helm: #66aacc;
+
+    --c-psychology: #ff9900;
+    --c-psq: #cc99cc;
+    --c-unratified: #9999ff;
+    --c-observatory: #cc6699;
+
+    --bg-primary: #000000;
+    --bg-panel: #111122;
+    --bg-inset: #000011;
+    --border: #333355;
+    --border-accent: #444466;
+    --text-primary: #ffcc99;
+    --text-secondary: #9999aa;
+    --text-dim: #666677;
+
+    --topo-edge: #444466;
+    --topo-edge-opacity: 0.6;
+    --topo-label: #9999aa;
+    --topo-label-hover: #ffcc99;
+
+    --band-height: 8px;
+    --elbow-width: 28px;
+    --elbow-radius: 20px;
+}
+
+/* Light mode */
+.theme-light {
+    --topo-edge: #b8c1cc;
+    --topo-edge-opacity: 0.5;
+    --topo-label: #5a6577;
+    --topo-label-hover: #1a2030;
+
+    --bg-primary: #f2f4f7;
+    --bg-panel: #ffffff;
+    --bg-inset: #f7f9fb;
+    --border: #d4dae3;
+    --border-accent: #b8c1cc;
+    --text-primary: #1a2030;
+    --text-secondary: #5a6577;
+    --text-dim: #8893a4;
+}
