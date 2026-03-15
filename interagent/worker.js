@@ -59,8 +59,8 @@ const AGENT_CARD_URLS = [
   "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json",
   "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json",
   "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json",
-  "https://unratified.org/.well-known/agent-card.json",
-  "https://observatory.unratified.org/.well-known/agent-card.json",
+  "https://unratified-agent.unratified.org/.well-known/agent-card.json",
+  "https://observatory-agent.unratified.org/.well-known/agent-card.json",
 ];
 
 const DEPLOY_VERSION = "2026-03-13T22:00";
