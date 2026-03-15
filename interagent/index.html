@@ -168,16 +168,16 @@
             gap: 0;
         }
 
-        /* Top elbow cap — the sidebar's top block aligns with the header band.
-           The curve appears at the BOTTOM-RIGHT of this block: the wide
-           header-band row narrows into the sidebar column below it.
-           ████████████████████
-           ████████╯            ← curve here (bottom-right radius)
-           ████ ┃  content      */
+        /* Top elbow cap — outer corner of the frame rounds off at top-left.
+           ╭████████████████████
+           │████ HEADER BAND
+           │████╯                 ← inner cutout (via header seg radius)
+           │BTN
+           The cap's top-left corner carries the frame's outer radius. */
         .lcars-sidebar-cap-top {
             background: var(--c-knowledge);
             min-height: var(--band-size);
-            border-radius: 0 0 var(--elbow-outer) 0;
+            border-radius: var(--elbow-outer) 0 0 0;
             margin-bottom: 3px;
         }
 
@@ -214,16 +214,16 @@
             border-radius: 12px 0 0 12px;
         }
 
-        /* Bottom elbow cap — the sidebar's bottom block aligns with the footer band.
-           The curve appears at the TOP-RIGHT: the sidebar narrows up from
-           the wide footer-band row.
-           ████ ┃  content
-           ████████╮            ← curve here (top-right radius)
-           ████████████████████ */
+        /* Bottom elbow cap — outer corner of the frame rounds off at bottom-left.
+           │BTN
+           │████╮                 ← inner cutout (via footer seg radius)
+           │████ FOOTER BAND
+           ╰████████████████████
+           The cap's bottom-left corner carries the frame's outer radius. */
         .lcars-sidebar-cap-bottom {
             background: var(--c-transport);
             min-height: var(--band-size);
-            border-radius: 0 var(--elbow-outer) 0 0;
+            border-radius: 0 0 0 var(--elbow-outer);
             margin-top: auto;
         }
 
