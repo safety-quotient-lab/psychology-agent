@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 5 complete — ~90 commits. meshctl CLI (23 subcommands). Gc/Gf intelligence split deployed. Budget model refactored (counter+cutoff). DELIBERATION_MODEL=sonnet mesh-wide. Compositor 500 fixed. interagent-mesh as proper agent (role: mesh). LCARS dashboard ownership transferred to operations-agent. 10-station dashboard partially wired (Science/Engineering/Helm/Tactical data flowing). Command console with pill buttons. CI failure monitoring. Self-healing systemd (Restart=on-failure). Concurrency: 1 normal + 2 reserve. POLL_INTERVAL=1800s. Psychology delivered cognitive-tempo model + self-oscillation spec. All 5 agents healthy on sonnet.
+**Current Status:** Session 6 complete — ~18 commits. interagent-mesh rename (was interagent-compositor). spawn→deliberation API rename. Cognitive-tempo Go-native (adaptive gain theory wired into spawner). Self-oscillation Phase 1 shadow mode live (oscillator goroutine, 6 signals, adaptive threshold). Medical station added (11th LCARS station — oscillator, psychometrics, agent selector). KV self-observation eliminates same-zone SPOF. v26 schema aligned across all 5 agents (16 new tables on ops). Budget columns renamed mesh-wide (budget_spent/budget_cutoff). Transport columns aligned (v19/v20 on unratified+observatory). Trust matrix heatmap, flow diagram SVG, sparkline utility. Symlink deploy path prevents binary divergence. 7 binary deploys, 7 CF Worker deploys. 4 PRs merged from psychology (#51, #53, #54, #55). 7 transport messages unanswered (debt).
 
 ---
 
@@ -253,6 +253,13 @@
 | D66 | Vocabulary: adopted psychology's cognitive vocab, ops precedence on collisions | human arbiter (2026-03-15) |
 | D67 | interagent-mesh as proper agent (role: mesh, managed_by: operations-agent) | operations-agent (2026-03-15) |
 | D68 | Rate limiting disabled for v1 — re-enable post-v1 | human arbiter (2026-03-15) |
+| D69 | Cognitive-tempo: Go-native adaptive gain theory replaces static DELIBERATION_MODEL | operations-agent (2026-03-15) |
+| D70 | Self-oscillation Phase 1: shadow mode (log-only, no actual firing) | human arbiter (2026-03-15) |
+| D71 | KV self-observation: meshd writes to CF KV, compositor reads as fallback (SPOF elimination) | operations-agent (2026-03-15) |
+| D72 | Deploy via symlink: all 5 units → /home/kashif/platform/meshd (symlink to active binary) | operations-agent (2026-03-15) |
+| D73 | Budget schema: budget_spent/budget_cutoff canonical column names mesh-wide (cutoff 0 = unlimited) | human arbiter (2026-03-15) |
+| D74 | Medical station: 11th LCARS station — per-agent diagnostics (oscillator, psychometrics, DEW) | operations-agent (2026-03-15) |
+| D75 | Three-tier transport model: directed (git-PR/HTTP), broadcast (ZMQ), substrate (KV/shared DB) | operations-agent (2026-03-15) |
 
 ---
 
