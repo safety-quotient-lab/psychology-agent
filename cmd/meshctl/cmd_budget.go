@@ -28,7 +28,7 @@ func init() {
 }
 
 func cmdBudgetShow(args []string, cfg *config.Config, out *Output) error {
-	ssh := NewSSHRunner(cfg)
+	ssh := NewRunner(cfg)
 	agents, err := LoadAgentEntries(cfg)
 	if err != nil {
 		return err
@@ -80,7 +80,7 @@ func cmdBudgetReset(args []string, cfg *config.Config, out *Output) error {
 	cutoff := fs.Int("cutoff", -1, "set budget cutoff (0=unlimited, -1=keep current)")
 	fs.Parse(args)
 
-	ssh := NewSSHRunner(cfg)
+	ssh := NewRunner(cfg)
 	agents, err := LoadAgentEntries(cfg)
 	if err != nil {
 		return err
@@ -127,7 +127,7 @@ func cmdBudgetShadow(args []string, cfg *config.Config, out *Output) error {
 		return fmt.Errorf("expected 'on' or 'off', got %q", mode)
 	}
 
-	ssh := NewSSHRunner(cfg)
+	ssh := NewRunner(cfg)
 	agents, err := LoadAgentEntries(cfg)
 	if err != nil {
 		return err

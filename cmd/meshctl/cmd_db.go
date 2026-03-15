@@ -43,7 +43,7 @@ func cmdDBInit(args []string, cfg *config.Config, out *Output) error {
 }
 
 func cmdDBBackup(args []string, cfg *config.Config, out *Output) error {
-	ssh := NewSSHRunner(cfg)
+	ssh := NewRunner(cfg)
 	agents, err := LoadAgentEntries(cfg)
 	if err != nil {
 		return err

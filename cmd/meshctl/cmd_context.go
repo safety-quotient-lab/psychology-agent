@@ -27,7 +27,7 @@ func init() {
 }
 
 func cmdContextRotate(args []string, cfg *config.Config, out *Output) error {
-	ssh := NewSSHRunner(cfg)
+	ssh := NewRunner(cfg)
 	agents, err := LoadAgentEntries(cfg)
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func cmdContextRotate(args []string, cfg *config.Config, out *Output) error {
 }
 
 func cmdContextStatus(args []string, cfg *config.Config, out *Output) error {
-	ssh := NewSSHRunner(cfg)
+	ssh := NewRunner(cfg)
 	agents, _ := LoadAgentEntries(cfg)
 
 	type rotateInfo struct {
@@ -97,7 +97,7 @@ func cmdContextStatus(args []string, cfg *config.Config, out *Output) error {
 }
 
 func cmdContextClear(args []string, cfg *config.Config, out *Output) error {
-	ssh := NewSSHRunner(cfg)
+	ssh := NewRunner(cfg)
 	_, err := ssh.Run("rm -f /tmp/context-rotate-* 2>/dev/null")
 	if err != nil {
 		return fmt.Errorf("failed to clear rotation sentinels: %w", err)

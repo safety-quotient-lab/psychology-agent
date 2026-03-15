@@ -21,7 +21,7 @@ func init() {
 }
 
 func cmdPause(args []string, cfg *config.Config, out *Output) error {
-	ssh := NewSSHRunner(cfg)
+	ssh := NewRunner(cfg)
 	ts := time.Now().UTC().Format(time.RFC3339)
 	_, err := ssh.Run(fmt.Sprintf("echo 'paused by meshctl %s' > /tmp/mesh-pause", ts))
 	if err != nil {
@@ -32,7 +32,7 @@ func cmdPause(args []string, cfg *config.Config, out *Output) error {
 }
 
 func cmdUnpause(args []string, cfg *config.Config, out *Output) error {
-	ssh := NewSSHRunner(cfg)
+	ssh := NewRunner(cfg)
 	_, err := ssh.Run("rm -f /tmp/mesh-pause")
 	if err != nil {
 		return fmt.Errorf("failed to remove pause sentinel: %w", err)

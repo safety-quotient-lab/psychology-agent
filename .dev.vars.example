@@ -25,7 +25,8 @@ JENKINS_API_TOKEN=
 # Cloudflare DNS (optional — subdomain management)
 CLOUDFLARE_DNS_TOKEN=
 
-# SSH host for the agent deployment machine (used by ops scripts)
+# SSH host for the agent deployment machine (used by meshctl)
+# Set to "localhost" when running on the deployment machine itself
 AGENT_SSH_HOST=localhost
 AGENT_SSH_PORT=22
 

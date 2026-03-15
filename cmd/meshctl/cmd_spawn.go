@@ -23,7 +23,7 @@ func init() {
 }
 
 func cmdSpawnStats(args []string, cfg *config.Config, out *Output) error {
-	ssh := NewSSHRunner(cfg)
+	ssh := NewRunner(cfg)
 
 	// Count active slots
 	slotsOut, _ := ssh.Run("ls /tmp/mesh-spawn-slot-* 2>/dev/null | wc -l")
@@ -75,7 +75,7 @@ func cmdSpawnStats(args []string, cfg *config.Config, out *Output) error {
 }
 
 func cmdSpawnSlots(args []string, cfg *config.Config, out *Output) error {
-	ssh := NewSSHRunner(cfg)
+	ssh := NewRunner(cfg)
 
 	type slot struct {
 		Path    string `json:"path"`

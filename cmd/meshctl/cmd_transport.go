@@ -44,7 +44,7 @@ func cmdTransportSync(args []string, cfg *config.Config, out *Output) error {
 }
 
 func cmdTransportQueue(args []string, cfg *config.Config, out *Output) error {
-	ssh := NewSSHRunner(cfg)
+	ssh := NewRunner(cfg)
 	agents, err := LoadAgentEntries(cfg)
 	if err != nil {
 		return err
