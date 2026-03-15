@@ -49,6 +49,9 @@
             --c-tab-wisdom: #b8956a;      /* warm bronze — accumulated insight */
             --c-tab-ops: #6b8aaf;         /* blue — transport, operations */
             --c-tab-science: #9999ff;     /* blue-purple — psychometrics, science */
+            --c-tab-engineering: #ff9944; /* warm orange — system health, tempo */
+            --c-tab-tactical: #cc6666;    /* alert red — security, threat display */
+            --c-tab-helm: #66aacc;        /* navigation blue — routing, sessions */
 
             /* Agent identity palette — subtle, distinguishable */
             --c-psychology: #6b8aaf;
@@ -83,6 +86,12 @@
         .theme-lcars .lcars-only { display: inline-flex !important; }
         .theme-lcars #pane-science { display: block; }
         body:not(.theme-lcars) #pane-science { display: none !important; }
+        .theme-lcars #pane-engineering { display: block; }
+        body:not(.theme-lcars) #pane-engineering { display: none !important; }
+        .theme-lcars #pane-helm { display: block; }
+        body:not(.theme-lcars) #pane-helm { display: none !important; }
+        .theme-lcars #pane-tactical { display: block; }
+        body:not(.theme-lcars) #pane-tactical { display: none !important; }
 
         /* LCARS classic mode — saturated Trek colors */
         .theme-lcars {
@@ -101,6 +110,9 @@
             --c-tab-wisdom: #ffcc66;
             --c-tab-ops: #ff9900;
             --c-tab-science: #9999ff;
+            --c-tab-engineering: #ff9944;
+            --c-tab-tactical: #cc6666;
+            --c-tab-helm: #66aacc;
 
             --c-psychology: #ff9900;
             --c-psq: #cc99cc;
@@ -284,6 +296,9 @@
         .lcars-tab[data-tab="wisdom"].active { color: var(--c-tab-wisdom); border-bottom-color: var(--c-tab-wisdom); }
         .lcars-tab[data-tab="operations"].active { color: var(--c-tab-ops); border-bottom-color: var(--c-tab-ops); }
         .lcars-tab[data-tab="science"].active { color: var(--c-tab-science); border-bottom-color: var(--c-tab-science); }
+        .lcars-tab[data-tab="engineering"].active { color: var(--c-tab-engineering); border-bottom-color: var(--c-tab-engineering); }
+        .lcars-tab[data-tab="helm"].active { color: var(--c-tab-helm); border-bottom-color: var(--c-tab-helm); }
+        .lcars-tab[data-tab="tactical"].active { color: var(--c-tab-tactical); border-bottom-color: var(--c-tab-tactical); }
         .tab-badge {
             background: var(--c-alert);
             color: var(--bg-primary);
@@ -1329,6 +1344,497 @@
             text-align: center;
         }
 
+        /* ── Engineering Station ────────────────────────────────────── */
+        .engineering-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        @media (max-width: 768px) {
+            .engineering-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Spawn Dynamics — horizontal bars */
+        .spawn-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 0.78em;
+        }
+        .spawn-bar-label {
+            min-width: 64px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-size: 0.85em;
+        }
+        .spawn-bar-track {
+            flex: 1;
+            height: 14px;
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            overflow: hidden;
+        }
+        .spawn-bar-fill {
+            height: 100%;
+            border-radius: 7px;
+            transition: width 0.6s ease;
+        }
+        .spawn-bar-count {
+            min-width: 28px;
+            text-align: right;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        /* Utilization Gauge */
+        .util-gauge {
+            padding: 12px 0;
+        }
+        .util-rho {
+            font-size: 2.2em;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .util-bar {
+            height: 14px;
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .util-bar-fill {
+            height: 100%;
+            border-radius: 7px;
+            transition: width 0.6s ease, background 0.6s ease;
+        }
+        .util-status {
+            font-size: 0.78em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 4px;
+        }
+        .util-nominal { color: #6aab8e; }
+        .util-elevated { color: #d4944a; }
+        .util-critical { color: #c47070; }
+
+        /* Tempo (G9) gauge */
+        .tempo-gauge {
+            padding: 12px 0;
+        }
+        .tempo-value {
+            font-size: 2.2em;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .tempo-unit {
+            font-size: 0.34em;
+            font-weight: 400;
+            color: var(--text-secondary);
+            margin-left: 4px;
+        }
+        .tempo-bar {
+            height: 14px;
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .tempo-bar-fill {
+            height: 100%;
+            border-radius: 7px;
+            transition: width 0.6s ease;
+            background: var(--c-tab-engineering);
+        }
+        .tempo-status {
+            font-size: 0.78em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 4px;
+            color: var(--text-secondary);
+        }
+
+        /* Cost Accumulator */
+        .cost-display {
+            text-align: center;
+            padding: 16px 0;
+        }
+        .cost-total {
+            font-size: 2.8em;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--c-tab-engineering);
+        }
+        .cost-label {
+            font-size: 0.72em;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 4px;
+        }
+        .cost-rate {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-top: 12px;
+        }
+        .cost-rate-arrow {
+            color: var(--c-tab-engineering);
+            margin-right: 4px;
+        }
+
+        /* Concurrency Slots */
+        .concurrency-slots {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 8px 0;
+        }
+        .concurrency-slot {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.78em;
+            min-width: 120px;
+        }
+        .slot-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+        }
+        .slot-indicator.filled {
+            background: var(--c-tab-engineering);
+            border-color: var(--c-tab-engineering);
+            box-shadow: 0 0 6px var(--c-tab-engineering);
+        }
+        .slot-indicator.empty {
+            background: transparent;
+        }
+        .slot-label {
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-size: 0.9em;
+        }
+        .slot-label.slot-free {
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        /* Engineering placeholder */
+        .engineering-placeholder {
+            color: var(--text-dim);
+            font-size: 0.82em;
+            font-style: italic;
+            padding: 16px;
+            text-align: center;
+        }
+
+        /* ── Helm Station ────────────────────────────────────────────── */
+        .helm-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .helm-grid .helm-full-width {
+            grid-column: 1 / -1;
+        }
+        @media (max-width: 768px) {
+            .helm-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Session Timeline bars */
+        .session-timeline-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .session-timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.82em;
+        }
+        .session-timeline-item:last-child { border-bottom: none; }
+        .session-timeline-name {
+            min-width: 160px;
+            font-weight: 600;
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .session-timeline-bar-track {
+            flex: 1;
+            height: 14px;
+            background: var(--bg-inset);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+        .session-timeline-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.4s ease;
+            min-width: 4px;
+        }
+        .session-timeline-bar-fill.status-active  { background: var(--c-tab-helm); }
+        .session-timeline-bar-fill.status-closing { background: var(--c-warning); }
+        .session-timeline-bar-fill.status-closed  { background: var(--c-inactive); }
+        .session-timeline-bar-fill.status-open    { background: var(--c-health); }
+        .session-timeline-meta {
+            min-width: 80px;
+            text-align: right;
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+        .session-timeline-status {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .session-timeline-status.status-active  { color: var(--c-tab-helm); border: 1px solid var(--c-tab-helm); }
+        .session-timeline-status.status-closing { color: var(--c-warning); border: 1px solid var(--c-warning); }
+        .session-timeline-status.status-closed  { color: var(--c-inactive); border: 1px solid var(--c-inactive); }
+        .session-timeline-status.status-open    { color: var(--c-health); border: 1px solid var(--c-health); }
+
+        /* Routing Table */
+        .helm-routing-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82em;
+        }
+        .helm-routing-table th {
+            text-align: left;
+            padding: 6px 10px;
+            color: var(--c-tab-helm);
+            font-size: 0.85em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border-bottom: 2px solid var(--c-tab-helm);
+        }
+        .helm-routing-table td {
+            padding: 5px 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        .helm-routing-table tr:last-child td { border-bottom: none; }
+        .helm-routing-domain {
+            font-weight: 600;
+            color: var(--c-tab-helm);
+        }
+        .helm-routing-arrow {
+            color: var(--text-dim);
+            padding: 0 4px;
+        }
+        .helm-routing-agent {
+            color: var(--text-secondary);
+        }
+
+        /* Message Flow Summary */
+        .helm-flow-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82em;
+        }
+        .helm-flow-table th {
+            text-align: left;
+            padding: 6px 10px;
+            color: var(--c-tab-helm);
+            font-size: 0.85em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border-bottom: 2px solid var(--c-tab-helm);
+        }
+        .helm-flow-table td {
+            padding: 5px 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        .helm-flow-table tr:last-child td { border-bottom: none; }
+        .helm-flow-count {
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .helm-placeholder {
+            color: var(--text-dim);
+            font-size: 0.82em;
+            font-style: italic;
+            padding: 16px;
+            text-align: center;
+        }
+
+        /* ── Tactical Station ────────────────────────────────────────── */
+        .tactical-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        @media (max-width: 768px) {
+            .tactical-grid { grid-template-columns: 1fr; }
+        }
+
+        .shield-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.78em;
+        }
+        .shield-row:last-child { border-bottom: none; }
+        .shield-agent {
+            min-width: 64px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .shield-auth {
+            min-width: 96px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .shield-auth-ok { color: #6aab8e; }
+        .shield-auth-partial { color: #d4944a; }
+        .shield-auth-none { color: #c47070; }
+        .shield-bar-track {
+            flex: 1;
+            height: 10px;
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .shield-bar-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.6s ease;
+        }
+        .shield-pct {
+            min-width: 36px;
+            text-align: right;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .compliance-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.78em;
+        }
+        .compliance-row:last-child { border-bottom: none; }
+        .compliance-agent {
+            min-width: 64px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .compliance-check { font-size: 1.1em; }
+        .compliance-pass { color: #6aab8e; }
+        .compliance-fail { color: #c47070; }
+        .compliance-version {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .transport-layer-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.78em;
+        }
+        .transport-layer-row:last-child { border-bottom: none; }
+        .transport-layer-name {
+            min-width: 64px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-primary);
+        }
+        .transport-layer-track {
+            flex: 1;
+            height: 10px;
+            background: var(--bg-inset);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .transport-layer-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.6s ease;
+        }
+        .transport-layer-status {
+            min-width: 48px;
+            text-align: right;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        .transport-ok { color: #6aab8e; }
+        .transport-warn { color: #d4944a; }
+        .transport-na { color: var(--text-dim); }
+
+        .threat-entry {
+            display: flex;
+            gap: 10px;
+            padding: 5px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.75em;
+            color: var(--text-secondary);
+        }
+        .threat-entry:last-child { border-bottom: none; }
+        .threat-time {
+            min-width: 40px;
+            color: var(--text-dim);
+        }
+        .threat-severity-warn { color: #d4944a; }
+        .threat-severity-info { color: var(--text-dim); }
+        .threat-severity-crit { color: #c47070; font-weight: 700; }
+        .threat-summary {
+            margin-top: 8px;
+            font-size: 0.72em;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .tactical-placeholder {
+            color: var(--text-dim);
+            font-size: 0.82em;
+            font-style: italic;
+            padding: 16px;
+            text-align: center;
+        }
+
         /* ── Responsive ──────────────────────────────────────────────── */
         @media (max-width: 768px) {
             .lcars-frame {
@@ -1405,6 +1911,9 @@
             Operations<span class="tab-badge" id="ops-badge" style="display:none">0</span>
         </button>
         <button class="lcars-tab lcars-only" data-tab="science" onclick="switchTab('science')">Science</button>
+        <button class="lcars-tab lcars-only" data-tab="engineering" onclick="switchTab('engineering')">Engineering</button>
+        <button class="lcars-tab lcars-only" data-tab="helm" onclick="switchTab('helm')">Helm</button>
+        <button class="lcars-tab lcars-only" data-tab="tactical" onclick="switchTab('tactical')">Tactical</button>
     </div>
 
     <!-- Content -->
@@ -1924,6 +2433,244 @@
                 </div>
             </div>
         </div>
+
+        <!-- Engineering Tab -->
+        <div class="tab-pane" id="pane-engineering">
+
+            <div class="engineering-grid">
+                <!-- Panel A: Spawn Dynamics -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
+                    <div class="lcars-panel-header">Spawn Dynamics</div>
+                    <div class="lcars-panel-body" id="spawn-dynamics">
+                        <div class="engineering-placeholder" id="spawn-placeholder">Awaiting engineering data...</div>
+                    </div>
+                </div>
+
+                <!-- Panel B: Utilization Gauge -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
+                    <div class="lcars-panel-header">Utilization</div>
+                    <div class="lcars-panel-body">
+                        <div class="util-gauge" id="util-gauge">
+                            <div class="util-rho util-nominal" id="util-rho">&rho; = —</div>
+                            <div class="util-bar">
+                                <div class="util-bar-fill" id="util-bar-fill" style="width:0%;background:#6aab8e"></div>
+                            </div>
+                            <div class="util-status util-nominal" id="util-status">AWAITING DATA</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel C: Tempo (G9) -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
+                    <div class="lcars-panel-header">Tempo (G9)</div>
+                    <div class="lcars-panel-body">
+                        <div class="tempo-gauge" id="tempo-gauge">
+                            <div class="tempo-value" id="tempo-value">—<span class="tempo-unit">ms avg</span></div>
+                            <div class="tempo-bar">
+                                <div class="tempo-bar-fill" id="tempo-bar-fill" style="width:0%"></div>
+                            </div>
+                            <div class="tempo-status" id="tempo-status">OODA cycle: AWAITING DATA</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel D: Cost Accumulator -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
+                    <div class="lcars-panel-header">Cost Accumulator</div>
+                    <div class="lcars-panel-body">
+                        <div class="cost-display" id="cost-display">
+                            <div class="cost-total" id="cost-total">$—</div>
+                            <div class="cost-label">today</div>
+                            <div class="cost-rate" id="cost-rate"><span class="cost-rate-arrow">&#x2197;</span> $—/hr</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel E: Concurrency Slots (full width) -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering); grid-column: 1 / -1;">
+                    <div class="lcars-panel-header">Concurrency Slots</div>
+                    <div class="lcars-panel-body">
+                        <div class="concurrency-slots" id="concurrency-slots">
+                            <div class="concurrency-slot">
+                                <div class="slot-indicator empty"></div>
+                                <span class="slot-label slot-free">[1/3] free</span>
+                            </div>
+                            <div class="concurrency-slot">
+                                <div class="slot-indicator empty"></div>
+                                <span class="slot-label slot-free">[2/3] free</span>
+                            </div>
+                            <div class="concurrency-slot">
+                                <div class="slot-indicator empty"></div>
+                                <span class="slot-label slot-free">[3/3] free</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Helm Tab -->
+        <div class="tab-pane" id="pane-helm">
+            <div class="helm-grid">
+                <!-- Panel A: Session Timeline -->
+                <div class="lcars-panel helm-full-width" style="--panel-accent: var(--c-tab-helm)">
+                    <div class="lcars-panel-header">Session Timeline</div>
+                    <div class="lcars-panel-body" id="helm-session-timeline">
+                        <div class="helm-placeholder">Awaiting session data...</div>
+                    </div>
+                </div>
+
+                <!-- Panel B: Routing Table -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-helm)">
+                    <div class="lcars-panel-header">Routing Table</div>
+                    <div class="lcars-panel-body" id="helm-routing-table-body">
+                        <table class="helm-routing-table">
+                            <thead>
+                                <tr>
+                                    <th>Domain</th>
+                                    <th></th>
+                                    <th>Agent</th>
+                                </tr>
+                            </thead>
+                            <tbody id="helm-routing-tbody">
+                                <tr><td class="helm-routing-domain">psychometrics</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">psq-agent</td></tr>
+                                <tr><td class="helm-routing-domain">content-quality</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">unratified-agent</td></tr>
+                                <tr><td class="helm-routing-domain">cogarch</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">psq-agent (mirror)</td></tr>
+                                <tr><td class="helm-routing-domain">methodology</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">observatory-agent</td></tr>
+                                <tr><td class="helm-routing-domain">infrastructure</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">operations-agent</td></tr>
+                                <tr><td class="helm-routing-domain">consensus</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">ALL</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Panel C: Message Flow Summary -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-helm)">
+                    <div class="lcars-panel-header">Message Flow Summary</div>
+                    <div class="lcars-panel-body" id="helm-message-flow">
+                        <div class="helm-placeholder">Awaiting message flow data...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tactical Tab -->
+        <div class="tab-pane" id="pane-tactical">
+
+            <div class="tactical-grid">
+                <!-- Panel A: Shield Status -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-tactical)">
+                    <div class="lcars-panel-header">Shield Status</div>
+                    <div class="lcars-panel-body" id="shield-status">
+                        <div class="shield-row">
+                            <span class="shield-agent">psych</span>
+                            <span class="shield-auth shield-auth-ok">A2A 1.0</span>
+                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:100%;background:#6aab8e"></div></div>
+                            <span class="shield-pct">100%</span>
+                        </div>
+                        <div class="shield-row">
+                            <span class="shield-agent">psq</span>
+                            <span class="shield-auth shield-auth-none">NO AUTH</span>
+                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:40%;background:#c47070"></div></div>
+                            <span class="shield-pct">40%</span>
+                        </div>
+                        <div class="shield-row">
+                            <span class="shield-agent">unrat</span>
+                            <span class="shield-auth shield-auth-partial">BEARER</span>
+                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:75%;background:#d4944a"></div></div>
+                            <span class="shield-pct">75%</span>
+                        </div>
+                        <div class="shield-row">
+                            <span class="shield-agent">obs</span>
+                            <span class="shield-auth shield-auth-none">NO AUTH</span>
+                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:25%;background:#c47070"></div></div>
+                            <span class="shield-pct">25%</span>
+                        </div>
+                        <div class="shield-row">
+                            <span class="shield-agent">ops</span>
+                            <span class="shield-auth shield-auth-ok">BEARER+ZMQ</span>
+                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:100%;background:#6aab8e"></div></div>
+                            <span class="shield-pct">100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel B: Agent Card Compliance -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-tactical)">
+                    <div class="lcars-panel-header">Agent Card Compliance</div>
+                    <div class="lcars-panel-body" id="agent-compliance">
+                        <div class="compliance-row">
+                            <span class="compliance-agent">psych</span>
+                            <span class="compliance-check compliance-pass">&#x2713;</span>
+                            <span class="compliance-version">1.0.0</span>
+                        </div>
+                        <div class="compliance-row">
+                            <span class="compliance-agent">psq</span>
+                            <span class="compliance-check compliance-fail">&#x2717;</span>
+                            <span class="compliance-version">0.3.0</span>
+                        </div>
+                        <div class="compliance-row">
+                            <span class="compliance-agent">unrat</span>
+                            <span class="compliance-check compliance-pass">&#x2713;</span>
+                            <span class="compliance-version">1.0.0</span>
+                        </div>
+                        <div class="compliance-row">
+                            <span class="compliance-agent">obs</span>
+                            <span class="compliance-check compliance-fail">&#x2717;</span>
+                            <span class="compliance-version">0.3.0</span>
+                        </div>
+                        <div class="compliance-row">
+                            <span class="compliance-agent">ops</span>
+                            <span class="compliance-check compliance-pass">&#x2713;</span>
+                            <span class="compliance-version">1.0.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel C: Transport Integrity -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-tactical)">
+                    <div class="lcars-panel-header">Transport Integrity</div>
+                    <div class="lcars-panel-body" id="transport-integrity">
+                        <div class="transport-layer-row">
+                            <span class="transport-layer-name">git</span>
+                            <div class="transport-layer-track"><div class="transport-layer-fill" id="transport-git-fill" style="width:100%;background:#6aab8e"></div></div>
+                            <span class="transport-layer-status transport-ok" id="transport-git-status">100% &#x2713;</span>
+                        </div>
+                        <div class="transport-layer-row">
+                            <span class="transport-layer-name">HTTP</span>
+                            <div class="transport-layer-track"><div class="transport-layer-fill" id="transport-http-fill" style="width:100%;background:#6aab8e"></div></div>
+                            <span class="transport-layer-status transport-ok" id="transport-http-status">100% &#x2713;</span>
+                        </div>
+                        <div class="transport-layer-row">
+                            <span class="transport-layer-name">ZMQ</span>
+                            <div class="transport-layer-track"><div class="transport-layer-fill" id="transport-zmq-fill" style="width:80%;background:#d4944a"></div></div>
+                            <span class="transport-layer-status transport-warn" id="transport-zmq-status">80% &#x25B2;</span>
+                        </div>
+                        <div class="transport-layer-row">
+                            <span class="transport-layer-name">photonic</span>
+                            <div class="transport-layer-track"><div class="transport-layer-fill" style="width:0%"></div></div>
+                            <span class="transport-layer-status transport-na">N/A</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel D: Threat Log -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-tactical)">
+                    <div class="lcars-panel-header">Threat Log</div>
+                    <div class="lcars-panel-body" id="threat-log">
+                        <div class="threat-entry">
+                            <span class="threat-time">19:12</span>
+                            <span class="threat-severity-warn">hidden-content strip [unrat] 2 elements</span>
+                        </div>
+                        <div class="threat-entry">
+                            <span class="threat-time">18:45</span>
+                            <span class="threat-severity-warn">rate-limit near [psq] 80% of hourly cap</span>
+                        </div>
+                        <div class="threat-summary" id="threat-summary">TOTAL: 2 events today (0 critical)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Footer -->
@@ -1972,7 +2719,7 @@
     }
 
     // ── Tabs ───────────────────────────────────────────────────────
-    const VALID_TABS = ["pulse", "meta", "kb", "wisdom", "operations", "science"];
+    const VALID_TABS = ["pulse", "meta", "kb", "wisdom", "operations", "science", "engineering", "helm", "tactical"];
 
     // ── LCARS Spine Content Tracking ─────────────────────────────
     // Each tab maps to a set of spine segments reflecting its content sections.
@@ -2013,6 +2760,24 @@
             { label: "DEW",        color: "var(--c-alert)",       flex: 1 },
             { label: "Control",    color: "var(--c-transport)",   flex: 1 },
         ],
+        engineering: [
+            { label: "Spawn",       color: "var(--c-tab-engineering)", flex: 2 },
+            { label: "Utilization", color: "var(--c-health)",          flex: 2 },
+            { label: "Tempo",       color: "var(--c-tab-engineering)", flex: 2 },
+            { label: "Cost",        color: "var(--c-warning)",         flex: 1 },
+            { label: "Concurrency", color: "var(--c-transport)",       flex: 1 },
+        ],
+        helm: [
+            { label: "Sessions", color: "var(--c-tab-helm)",    flex: 3 },
+            { label: "Routing",  color: "var(--c-tab-helm)",    flex: 2 },
+            { label: "Flow",     color: "var(--c-transport)",   flex: 2 },
+        ],
+        tactical: [
+            { label: "Shields",    color: "var(--c-tab-tactical)", flex: 2 },
+            { label: "Compliance", color: "var(--c-warning)",      flex: 2 },
+            { label: "Transport",  color: "var(--c-transport)",    flex: 2 },
+            { label: "Threats",    color: "var(--c-alert)",        flex: 2 },
+        ],
     };
 
     function updateSpine(tabId) {
@@ -2027,7 +2792,7 @@
         }).join("");
     }
 
-    const TAB_COLORS = { pulse: "--c-tab-pulse", meta: "--c-tab-meta", kb: "--c-tab-kb", wisdom: "--c-tab-wisdom", operations: "--c-tab-ops", science: "--c-tab-science" };
+    const TAB_COLORS = { pulse: "--c-tab-pulse", meta: "--c-tab-meta", kb: "--c-tab-kb", wisdom: "--c-tab-wisdom", operations: "--c-tab-ops", science: "--c-tab-science", tactical: "--c-tab-tactical", engineering: "--c-tab-engineering", helm: "--c-tab-helm" };
 
     function switchTab(tabId, updateHash = true) {
         if (tabId === "knowledge") tabId = "meta"; // backward compat
@@ -2039,6 +2804,9 @@
         document.documentElement.style.setProperty("--active-tab-color", `var(${colorVar})`);
         updateSpine(tabId);
         if (tabId === "science") fetchScienceData();
+        if (tabId === "engineering") fetchEngineeringData();
+        if (tabId === "helm") fetchHelmData();
+        if (tabId === "tactical") fetchTacticalData();
         if (updateHash) history.replaceState(null, "", `#${tabId}`);
     }
 
@@ -4060,6 +4828,371 @@
         }).join("");
 
         budgetEl.textContent = budget != null ? `${budget}` : "—";
+    }
+
+    // ── Helm Station ─────────────────────────────────────────────────
+    let helmData = null;
+    let helmFetchPending = false;
+
+    // Default routing rules — used when API data unavailable
+    const DEFAULT_ROUTING = [
+        { domain: "psychometrics",    agent: "psq-agent" },
+        { domain: "content-quality",  agent: "unratified-agent" },
+        { domain: "cogarch",          agent: "psq-agent (mirror)" },
+        { domain: "methodology",      agent: "observatory-agent" },
+        { domain: "infrastructure",   agent: "operations-agent" },
+        { domain: "consensus",        agent: "ALL" },
+    ];
+
+    async function fetchHelmData() {
+        if (helmFetchPending) return;
+        helmFetchPending = true;
+        try {
+            // Attempt to fetch session and routing data from health endpoint
+            const resp = await fetch("/api/health", { signal: AbortSignal.timeout(8000) });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            helmData = await resp.json();
+        } catch (err) {
+            helmData = null;
+        } finally {
+            helmFetchPending = false;
+        }
+        renderHelm();
+    }
+
+    function renderHelm() {
+        renderSessionTimeline();
+        renderRoutingTable();
+        renderMessageFlow();
+    }
+
+    function renderSessionTimeline() {
+        const container = document.getElementById("helm-session-timeline");
+        if (!container) return;
+
+        const sessions = helmData?.sessions || helmData?.active_sessions || null;
+        if (!sessions || !Array.isArray(sessions) || sessions.length === 0) {
+            container.innerHTML = '<div class="helm-placeholder">Awaiting session data...</div>';
+            return;
+        }
+
+        // Sort by most recent activity, take top 8
+        const sorted = [...sessions]
+            .sort((a, b) => (b.last_activity || "").localeCompare(a.last_activity || ""))
+            .slice(0, 8);
+
+        const maxTurns = Math.max(...sorted.map(s => s.turn_count || s.turns || 1), 1);
+
+        const html = '<ul class="session-timeline-list">' + sorted.map(s => {
+            const name = s.name || s.session_name || s.session_id || "unknown";
+            const turns = s.turn_count || s.turns || 0;
+            const status = (s.status || "active").toLowerCase();
+            const widthPct = Math.max((turns / maxTurns) * 100, 5);
+            return `<li class="session-timeline-item">
+                <span class="session-timeline-name" title="${name}">${name}</span>
+                <div class="session-timeline-bar-track">
+                    <div class="session-timeline-bar-fill status-${status}" style="width:${widthPct}%"></div>
+                </div>
+                <span class="session-timeline-meta">T${turns}</span>
+                <span class="session-timeline-status status-${status}">${status}</span>
+            </li>`;
+        }).join("") + '</ul>';
+
+        container.innerHTML = html;
+    }
+
+    function renderRoutingTable() {
+        const tbody = document.getElementById("helm-routing-tbody");
+        if (!tbody) return;
+
+        const routing = helmData?.routing || helmData?.outbound_routing || null;
+        if (!routing || !Array.isArray(routing) || routing.length === 0) {
+            // Keep default static HTML routing table
+            return;
+        }
+
+        tbody.innerHTML = routing.map(r => {
+            const domain = r.domain || r.keyword || "—";
+            const agent = r.agent || r.target || "—";
+            return `<tr>
+                <td class="helm-routing-domain">${domain}</td>
+                <td class="helm-routing-arrow">&rarr;</td>
+                <td class="helm-routing-agent">${agent}</td>
+            </tr>`;
+        }).join("");
+    }
+
+    function renderMessageFlow() {
+        const container = document.getElementById("helm-message-flow");
+        if (!container) return;
+
+        const flow = helmData?.message_flow || helmData?.flow_summary || null;
+        if (!flow || (!Array.isArray(flow) && typeof flow !== "object")) {
+            container.innerHTML = '<div class="helm-placeholder">Awaiting message flow data...</div>';
+            return;
+        }
+
+        // Accept either array of {from, to, count} or object keyed by pair
+        const pairs = Array.isArray(flow) ? flow : Object.entries(flow).map(([key, count]) => {
+            const [from, to] = key.split("->").map(s => s.trim());
+            return { from, to, count };
+        });
+
+        if (pairs.length === 0) {
+            container.innerHTML = '<div class="helm-placeholder">No message flow recorded today.</div>';
+            return;
+        }
+
+        const html = `<table class="helm-flow-table">
+            <thead><tr><th>From</th><th>To</th><th>Messages</th></tr></thead>
+            <tbody>${pairs.map(p =>
+                `<tr>
+                    <td>${(p.from || "—").replace("-agent", "")}</td>
+                    <td>${(p.to || "—").replace("-agent", "")}</td>
+                    <td class="helm-flow-count">${p.count || 0}</td>
+                </tr>`
+            ).join("")}</tbody>
+        </table>`;
+
+        container.innerHTML = html;
+    }
+
+
+    // ── Engineering Station ─────────────────────────────────────────
+    let engineeringData = null;
+    let engineeringFetchPending = false;
+
+    const SPAWN_AGENTS = [
+        { id: "psychology-agent",  label: "psych", color: "var(--c-psychology)" },
+        { id: "psq-agent",        label: "psq",   color: "var(--c-psq)" },
+        { id: "unratified-agent",  label: "unrat", color: "var(--c-unratified)" },
+        { id: "observatory-agent", label: "obs",   color: "var(--c-observatory)" },
+        { id: "operations-agent",  label: "ops",   color: "var(--c-tab-ops)" },
+    ];
+
+    async function fetchEngineeringData() {
+        if (engineeringFetchPending) return;
+        engineeringFetchPending = true;
+        try {
+            const opsAgent = AGENTS.find(a => a.id === "operations-agent");
+            const baseUrl = opsAgent ? opsAgent.url : "https://psychology-agent.safety-quotient.dev";
+            const [tempoResp, spawnResp] = await Promise.allSettled([
+                fetch(`${baseUrl}/api/tempo`, { signal: AbortSignal.timeout(8000) }),
+                fetch(`${baseUrl}/api/spawn-rate`, { signal: AbortSignal.timeout(8000) }),
+            ]);
+            const tempoData = tempoResp.status === "fulfilled" && tempoResp.value.ok
+                ? await tempoResp.value.json() : null;
+            const spawnData = spawnResp.status === "fulfilled" && spawnResp.value.ok
+                ? await spawnResp.value.json() : null;
+            engineeringData = { tempo: tempoData, spawn: spawnData };
+        } catch (err) {
+            engineeringData = null;
+        } finally {
+            engineeringFetchPending = false;
+        }
+        renderEngineering();
+    }
+
+    function renderEngineering() {
+        renderSpawnDynamics();
+        renderUtilization();
+        renderTempo();
+        renderCost();
+        renderConcurrency();
+    }
+
+    function renderSpawnDynamics() {
+        const container = document.getElementById("spawn-dynamics");
+        const placeholder = document.getElementById("spawn-placeholder");
+        if (!container) return;
+
+        const spawnCounts = engineeringData?.spawn?.agents || null;
+
+        // Clear existing bar rows
+        container.querySelectorAll(".spawn-bar-row").forEach(r => r.remove());
+
+        if (!spawnCounts) {
+            if (placeholder) placeholder.style.display = "block";
+            SPAWN_AGENTS.forEach(agent => {
+                const row = document.createElement("div");
+                row.className = "spawn-bar-row";
+                row.innerHTML = `<span class="spawn-bar-label">${agent.label}</span>
+                    <div class="spawn-bar-track"><div class="spawn-bar-fill" style="width:0%;background:${agent.color};opacity:0.3"></div></div>
+                    <span class="spawn-bar-count">\u2014</span>`;
+                container.appendChild(row);
+            });
+            return;
+        }
+
+        if (placeholder) placeholder.style.display = "none";
+        const maxCount = Math.max(1, ...SPAWN_AGENTS.map(a => spawnCounts[a.id] || 0));
+        SPAWN_AGENTS.forEach(agent => {
+            const count = spawnCounts[agent.id] || 0;
+            const pct = (count / maxCount) * 100;
+            const row = document.createElement("div");
+            row.className = "spawn-bar-row";
+            row.innerHTML = `<span class="spawn-bar-label">${agent.label}</span>
+                <div class="spawn-bar-track"><div class="spawn-bar-fill" style="width:${pct}%;background:${agent.color}"></div></div>
+                <span class="spawn-bar-count">${count}</span>`;
+            container.appendChild(row);
+        });
+    }
+
+    function renderUtilization() {
+        const rhoEl = document.getElementById("util-rho");
+        const fillEl = document.getElementById("util-bar-fill");
+        const statusEl = document.getElementById("util-status");
+        if (!rhoEl) return;
+
+        const rho = engineeringData?.spawn?.utilization ?? null;
+
+        if (rho == null) {
+            rhoEl.textContent = "\u03C1 = \u2014";
+            rhoEl.className = "util-rho util-nominal";
+            fillEl.style.width = "0%";
+            fillEl.style.background = "#6aab8e";
+            statusEl.textContent = "AWAITING DATA";
+            statusEl.className = "util-status util-nominal";
+            return;
+        }
+
+        const pct = Math.min(100, Math.max(0, rho * 100));
+        rhoEl.textContent = `\u03C1 = ${rho.toFixed(2)}`;
+
+        let color, label, cls;
+        if (pct < 50) {
+            color = "#6aab8e"; label = "NOMINAL"; cls = "util-nominal";
+        } else if (pct < 80) {
+            color = "#d4944a"; label = "ELEVATED"; cls = "util-elevated";
+        } else {
+            color = "#c47070"; label = "CRITICAL"; cls = "util-critical";
+        }
+
+        rhoEl.className = `util-rho ${cls}`;
+        fillEl.style.width = `${pct}%`;
+        fillEl.style.background = color;
+        statusEl.textContent = label;
+        statusEl.className = `util-status ${cls}`;
+    }
+
+    function renderTempo() {
+        const valueEl = document.getElementById("tempo-value");
+        const fillEl = document.getElementById("tempo-bar-fill");
+        const statusEl = document.getElementById("tempo-status");
+        if (!valueEl) return;
+
+        const avgMs = engineeringData?.tempo?.avg_cycle_ms ?? null;
+
+        if (avgMs == null) {
+            valueEl.innerHTML = `\u2014<span class="tempo-unit">ms avg</span>`;
+            fillEl.style.width = "0%";
+            statusEl.textContent = "OODA cycle: AWAITING DATA";
+            return;
+        }
+
+        valueEl.innerHTML = `${Math.round(avgMs)}<span class="tempo-unit">ms avg</span>`;
+        const pct = Math.min(100, (avgMs / 2000) * 100);
+        fillEl.style.width = `${pct}%`;
+
+        let label = "NOMINAL";
+        if (avgMs > 1500) label = "SLOW";
+        else if (avgMs > 800) label = "MODERATE";
+        statusEl.textContent = `OODA cycle: ${label}`;
+    }
+
+    function renderCost() {
+        const totalEl = document.getElementById("cost-total");
+        const rateEl = document.getElementById("cost-rate");
+        if (!totalEl) return;
+
+        const costData = engineeringData?.spawn?.cost || null;
+
+        if (!costData) {
+            totalEl.textContent = "$\u2014";
+            rateEl.innerHTML = `<span class="cost-rate-arrow">\u2197</span> $\u2014/hr`;
+            return;
+        }
+
+        const total = costData.total_today ?? 0;
+        const hourlyRate = costData.hourly_rate ?? 0;
+        totalEl.textContent = `$${total.toFixed(2)}`;
+        rateEl.innerHTML = `<span class="cost-rate-arrow">\u2197</span> $${hourlyRate.toFixed(2)}/hr`;
+    }
+
+    function renderConcurrency() {
+        const container = document.getElementById("concurrency-slots");
+        if (!container) return;
+
+        const slotData = engineeringData?.spawn?.concurrency_slots || null;
+        const slots = slotData || [
+            { slot: 1, holder: null },
+            { slot: 2, holder: null },
+            { slot: 3, holder: null },
+        ];
+
+        container.innerHTML = slots.map(s => {
+            const filled = s.holder != null;
+            const label = filled
+                ? `[${s.slot}/3] ${s.holder.replace("-agent", "")}`
+                : `[${s.slot}/3] free`;
+            return `<div class="concurrency-slot">
+                <div class="slot-indicator ${filled ? "filled" : "empty"}"></div>
+                <span class="slot-label ${filled ? "" : "slot-free"}">${label}</span>
+            </div>`;
+        }).join("");
+    }
+
+    // ── Tactical Station ─────────────────────────────────────────────
+    let tacticalData = null;
+    let tacticalFetchPending = false;
+
+    async function fetchTacticalData() {
+        if (tacticalFetchPending) return;
+        tacticalFetchPending = true;
+        try {
+            const resp = await fetch("/api/health", { signal: AbortSignal.timeout(8000) });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            tacticalData = await resp.json();
+        } catch (err) {
+            tacticalData = null;
+        } finally {
+            tacticalFetchPending = false;
+        }
+        renderTactical();
+    }
+
+    function renderTactical() {
+        renderTransportIntegrity();
+    }
+
+    function renderTransportIntegrity() {
+        // Update transport layer bars from health data if available
+        if (!tacticalData) return;
+
+        const layers = [
+            { id: "git",  field: "git_transport" },
+            { id: "http", field: "http_transport" },
+            { id: "zmq",  field: "zmq_transport" },
+        ];
+
+        layers.forEach(layer => {
+            const fill = document.getElementById(`transport-${layer.id}-fill`);
+            const status = document.getElementById(`transport-${layer.id}-status`);
+            if (!fill || !status) return;
+
+            const health = tacticalData[layer.field] ?? tacticalData[`${layer.id}_status`];
+            if (health == null) return;
+
+            const pct = typeof health === "number" ? health : (health.healthy ? 100 : 0);
+            const color = pct >= 90 ? "#6aab8e" : pct >= 50 ? "#d4944a" : "#c47070";
+            const symbol = pct >= 90 ? "✓" : pct >= 50 ? "▲" : "✗";
+            const cssClass = pct >= 90 ? "transport-ok" : pct >= 50 ? "transport-warn" : "transport-na";
+
+            fill.style.width = pct + "%";
+            fill.style.background = color;
+            status.textContent = pct + "% " + symbol;
+            status.className = "transport-layer-status " + cssClass;
+        });
     }
 
     // ── Init ───────────────────────────────────────────────────────
