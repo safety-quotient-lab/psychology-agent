@@ -7412,7 +7412,7 @@
             "unratified-agent": "unrat", "observatory-agent": "obs",
             "operations-agent": "ops" };
         const entries = agents
-            .filter(a => a.id !== "interagent-compositor")
+            .filter(a => a.id !== "interagent-mesh")
             .map(a => {
                 const pv = a.protocolVersion || "?";
                 const hasSec = a.hasSecuritySchemes || false;

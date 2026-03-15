@@ -162,10 +162,10 @@
         "transport": "cross-repo-pr",
         "discovery_url": "https://observatory.unratified.org/.well-known/agent-card.json"
       },
-      "interagent-compositor": {
+      "interagent-mesh": {
         "repo": "safety-quotient-lab/operations-agent",
         "role": "mesh",
-        "display_name": "Interagent Compositor",
+        "display_name": "Interagent Mesh",
         "description": "Mesh compositor Worker — discovery, health, trust, and operational dashboard",
         "transport": "cloudflare-worker",
         "discovery_url": "https://interagent.safety-quotient.dev/.well-known/agent-card.json"

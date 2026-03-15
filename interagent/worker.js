@@ -159,13 +159,13 @@ async function fetchAgentCard(cardUrl) {
 
 /**
  * Build self-entry from the bundled agent card (avoids self-fetch loop).
- * The compositor identifies as interagent-compositor with role: mesh.
+ * The compositor identifies as interagent-mesh with role: mesh.
  */
 function buildSelfEntry() {
   const card = JSON.parse(AGENT_CARD);
   return {
-    id: card.name || "interagent-compositor",
-    name: card.name || "interagent-compositor",
+    id: card.name || "interagent-mesh",
+    name: card.name || "interagent-mesh",
     role: card.mesh?.role || "mesh",
     status_url: "https://interagent.safety-quotient.dev/api/status",
     card_url: "https://interagent.safety-quotient.dev/.well-known/agent-card.json",
@@ -395,7 +395,7 @@ function validateStatusData(raw) {
 }
 
 /**
- * Build local status data for interagent-compositor (avoids self-fetch loop).
+ * Build local status data for interagent-mesh (avoids self-fetch loop).
  * Reports real compositor state: KV health, registry cache, fetch errors.
  */
 async function buildLocalStatus(env) {
@@ -423,7 +423,7 @@ async function buildLocalStatus(env) {
   }
 
   return {
-    agent_id: "interagent-compositor",
+    agent_id: "interagent-mesh",
     status: kvHealthy ? "online" : "degraded",
     version: card.version || "1.0.0",
     role: "mesh",
@@ -454,7 +454,7 @@ async function buildLocalStatus(env) {
  * Operations-agent status built locally to avoid self-fetch loop.
  */
 async function fetchAllAgentStatus(registry, env) {
-  const selfId = "interagent-compositor";
+  const selfId = "interagent-mesh";
   const reachable = registry.filter(a => a.status_url && !a._unavailable && a.id !== selfId);
 
   const results = await Promise.allSettled(
@@ -932,7 +932,7 @@ async function fetchMeshHealth(registry, env) {
  * Grounding: A2A-Psychology v1.1, LLM-factors psychology
  */
 async function fetchMeshPsychometrics(registry, env) {
-  const selfId = "interagent-compositor";
+  const selfId = "interagent-mesh";
   const reachable = registry.filter(a => a.status_url && !a._unavailable && a.id !== selfId);
 
   const normalizeId = (id) => ID_NORMALIZE[id] || id;
@@ -1794,13 +1794,13 @@ export default {
       const agents = [
         // Compositor self-entry (always first)
         {
-          id: "interagent-compositor",
+          id: "interagent-mesh",
           role: "mesh",
           card_url: "https://interagent.safety-quotient.dev/.well-known/agent-card.json",
           version: compositorCard.version || "1.0.0",
           skills: (compositorCard.skills || []).map(s => s.id),
           available: true,
-          webfinger: "acct:interagent-compositor@safety-quotient.dev",
+          webfinger: "acct:interagent-mesh@safety-quotient.dev",
         },
         // All registered agents (IDs normalized for dashboard compatibility)
         ...registry.map(a => {

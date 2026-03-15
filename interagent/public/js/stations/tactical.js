@@ -74,10 +74,10 @@ export async function fetchTacticalData() {
             const agents = await agentsResp.value.json();
             const labelMap = { "psychology-agent": "psych", "psq-agent": "psq", "safety-quotient-agent": "psq",
                 "unratified-agent": "unrat", "unratified": "unrat", "observatory-agent": "obs", "observatory": "obs",
-                "operations-agent": "ops", "interagent-compositor": "mesh" };
+                "operations-agent": "ops", "interagent-mesh": "mesh" };
 
             COMPLIANCE_DATA = agents
-                .filter(a => a.id !== "interagent-compositor")
+                .filter(a => a.id !== "interagent-mesh")
                 .map(a => {
                     const pv = a.protocolVersion || "?";
                     const hasSec = a.hasSecuritySchemes || false;

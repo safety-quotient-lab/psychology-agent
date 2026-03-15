@@ -1,5 +1,5 @@
 {
-  "name": "interagent-compositor",
+  "name": "interagent-mesh",
   "description": "Mesh compositor for the safety-quotient agent network. Aggregates agent discovery, health, and operational data into a unified dashboard. Serves WebFinger, agent registry, vocabulary, and relay endpoints.",
   "version": "1.0.0",
 

@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 5 complete — ~90 commits. meshctl CLI (23 subcommands). Gc/Gf intelligence split deployed. Budget model refactored (counter+cutoff). DELIBERATION_MODEL=sonnet mesh-wide. Compositor 500 fixed. interagent-compositor as proper agent (role: mesh). LCARS dashboard ownership transferred to operations-agent. 10-station dashboard partially wired (Science/Engineering/Helm/Tactical data flowing). Command console with pill buttons. CI failure monitoring. Self-healing systemd (Restart=on-failure). Concurrency: 1 normal + 2 reserve. POLL_INTERVAL=1800s. Psychology delivered cognitive-tempo model + self-oscillation spec. All 5 agents healthy on sonnet.
+**Current Status:** Session 5 complete — ~90 commits. meshctl CLI (23 subcommands). Gc/Gf intelligence split deployed. Budget model refactored (counter+cutoff). DELIBERATION_MODEL=sonnet mesh-wide. Compositor 500 fixed. interagent-mesh as proper agent (role: mesh). LCARS dashboard ownership transferred to operations-agent. 10-station dashboard partially wired (Science/Engineering/Helm/Tactical data flowing). Command console with pill buttons. CI failure monitoring. Self-healing systemd (Restart=on-failure). Concurrency: 1 normal + 2 reserve. POLL_INTERVAL=1800s. Psychology delivered cognitive-tempo model + self-oscillation spec. All 5 agents healthy on sonnet.
 
 ---
 
@@ -251,7 +251,7 @@
 | D64 | DELIBERATION_MODEL=sonnet mesh-wide (SPAWN_MODEL→DELIBERATION_MODEL rename) | human arbiter (2026-03-15) |
 | D65 | Operations-agent owns LCARS dashboard (interagent/ transferred from psychology) | human+psych (2026-03-15) |
 | D66 | Vocabulary: adopted psychology's cognitive vocab, ops precedence on collisions | human arbiter (2026-03-15) |
-| D67 | interagent-compositor as proper agent (role: mesh, managed_by: operations-agent) | operations-agent (2026-03-15) |
+| D67 | interagent-mesh as proper agent (role: mesh, managed_by: operations-agent) | operations-agent (2026-03-15) |
 | D68 | Rate limiting disabled for v1 — re-enable post-v1 | human arbiter (2026-03-15) |
 
 ---
