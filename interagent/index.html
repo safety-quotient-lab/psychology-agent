@@ -408,6 +408,182 @@
             letter-spacing: 0.06em;
         }
 
+        /* ── LCARS Vertical Power-Level Gauge (Pattern #14) ──────── */
+        .lcars-vlevel-gauge {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 2px;
+            width: 48px;
+        }
+        .vlevel-block {
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+            font-size: 0.65em;
+            font-weight: 700;
+            color: rgba(255,255,255,0.15);
+            background: #111122;
+            transition: background 0.4s, color 0.4s, box-shadow 0.4s;
+        }
+        .vlevel-block.lit {
+            color: #000;
+        }
+        .vlevel-block.current {
+            color: #000;
+            font-weight: 900;
+            box-shadow: 0 0 8px var(--gauge-color, #9999ff);
+        }
+        .vlevel-block.lit.zone-low { background: #6aab8e; }
+        .vlevel-block.lit.zone-mid { background: #d4944a; }
+        .vlevel-block.lit.zone-high { background: #c47070; }
+        .vlevel-block.current.zone-low { background: #6aab8e; --gauge-color: #6aab8e; }
+        .vlevel-block.current.zone-mid { background: #d4944a; --gauge-color: #d4944a; }
+        .vlevel-block.current.zone-high { background: #c47070; --gauge-color: #c47070; }
+
+        /* ── LCARS Stacked Proportional Segments (Pattern #18) ─── */
+        .lcars-stacked-bar {
+            display: flex;
+            gap: 2px;
+            height: 28px;
+            margin: 8px 0;
+        }
+        .lcars-seg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+            font-size: 0.68em;
+            font-weight: 700;
+            color: #000;
+            min-width: 24px;
+            transition: flex 0.4s ease;
+        }
+
+        /* ── LCARS Hero Widget (Pattern #20) ───────────────────── */
+        .theme-lcars .lcars-hero {
+            grid-column: 1 / -1;
+            max-width: 520px;
+            margin: 0 auto 24px auto;
+        }
+
+        /* ── LCARS Mirror Symmetry (Pattern #19) ───────────────── */
+        .theme-lcars .science-grid,
+        .theme-lcars .engineering-grid,
+        .theme-lcars .tactical-grid,
+        .theme-lcars .helm-grid {
+            align-items: stretch;
+        }
+
+        /* ── LCARS Panel Mode Buttons (Pattern #12) ────────────── */
+        .lcars-mode-btns {
+            display: none;
+        }
+        .theme-lcars .lcars-mode-btns {
+            display: inline-flex;
+            gap: 3px;
+            margin-left: 12px;
+        }
+        .lcars-mode-btn {
+            background: var(--panel-accent, var(--c-transport));
+            color: #000;
+            border: none;
+            border-radius: 50vh;
+            padding: 2px 10px;
+            font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+            font-size: 0.7em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.15s;
+        }
+        .lcars-mode-btn:hover { opacity: 0.75; }
+        .lcars-mode-btn.active { opacity: 1; }
+
+        /* ── LCARS Detail Panel (Drawer) ───────────────────────── */
+        .lcars-detail-overlay {
+            display: none;
+            position: fixed;
+            top: 0; right: 0; bottom: 0;
+            width: 420px;
+            max-width: 90vw;
+            background: #000;
+            z-index: 1000;
+            flex-direction: column;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.8);
+        }
+        .lcars-detail-overlay.open {
+            display: flex;
+        }
+        .lcars-detail-header {
+            padding: 10px 16px;
+            font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+            font-size: 0.78em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #000;
+            border-radius: 0 0 0 16px;
+        }
+        .lcars-detail-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            color: var(--text-primary, #ffcc99);
+            font-size: 0.82em;
+            line-height: 1.6;
+        }
+        .lcars-detail-footer {
+            padding: 8px 16px;
+            color: #000;
+            font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+            font-size: 0.72em;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 16px 0 0 0;
+        }
+        .lcars-detail-footer:hover { filter: brightness(1.2); }
+
+        /* ── LCARS Expandable Footer / Narrative ───────────────── */
+        .lcars-narrative-drawer {
+            display: none;
+        }
+        .theme-lcars .lcars-narrative-drawer {
+            display: none; /* shown via JS when footer clicked */
+            position: fixed;
+            bottom: 0; left: var(--sidebar-width, 160px); right: 0;
+            max-height: 40vh;
+            background: #000011;
+            border-top: 3px solid var(--c-transport);
+            z-index: 900;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .theme-lcars .lcars-narrative-drawer.open {
+            display: flex;
+        }
+        .lcars-narrative-log {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.72em;
+            color: var(--text-secondary, #9999aa);
+            line-height: 1.8;
+        }
+        .lcars-narrative-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid #222244;
+        }
+        .lcars-narrative-time {
+            color: var(--text-dim, #666677);
+            margin-right: 8px;
+        }
+
         /* LCARS bars: remove borders, pure color on black (Pattern #2 refinement) */
         .theme-lcars .spawn-bar-track,
         .theme-lcars .util-bar,
@@ -3018,7 +3194,7 @@
 
     <!-- LCARS Footer Band — segmented colored blocks (LCARS mode only) -->
     <div class="lcars-footer-band" id="lcars-footer-band">
-        <div class="lcars-footer-seg" style="background:#9999ff;flex:2" id="lcars-ftr-status">Mesh Status: Connecting</div>
+        <div class="lcars-footer-seg" style="background:#9999ff;flex:2;cursor:pointer" id="lcars-ftr-status" onclick="toggleNarrativeDrawer()" title="Click to expand mesh narrative log">Mesh Status: Connecting</div>
         <div class="lcars-footer-seg" style="background:#ff9900;flex:1.5" id="lcars-ftr-feed">Feed: &#x25CB; Polling</div>
         <div class="lcars-footer-seg" style="background:#cc99cc;flex:1" id="lcars-ftr-vocab">Vocab v1.0.0</div>
         <div class="lcars-footer-seg" style="background:#ff9966;flex:1" id="lcars-ftr-uptime">Uptime: —</div>
@@ -3038,6 +3214,18 @@
     </div>
 </div>
 
+<!-- LCARS Detail Panel (slide-in drawer from right) -->
+<div class="lcars-detail-overlay" id="lcars-detail-panel">
+    <div class="lcars-detail-header" id="lcars-detail-header" style="background:#cc99cc">Detail</div>
+    <div class="lcars-detail-body" id="lcars-detail-body"></div>
+    <div class="lcars-detail-footer" id="lcars-detail-close" style="background:#cc99cc" onclick="closeLcarsDetail()">Close</div>
+</div>
+
+<!-- LCARS Narrative Drawer (expands up from footer) -->
+<div class="lcars-narrative-drawer" id="lcars-narrative-drawer">
+    <div class="lcars-narrative-log" id="lcars-narrative-log"></div>
+</div>
+
 <script>
     const AGENTS = [
         { id: "psychology-agent", url: "https://psychology-agent.safety-quotient.dev", color: "#5b9cf6" },
@@ -3053,6 +3241,91 @@
     let activeAgentFilter = "all";
     let sseConnections = [];
     let sseActive = false;
+
+    // ── LCARS Detail Panel ─────────────────────────────────────────
+
+    function openLcarsDetail(title, color, contentHtml) {
+        const panel = document.getElementById("lcars-detail-panel");
+        const header = document.getElementById("lcars-detail-header");
+        const body = document.getElementById("lcars-detail-body");
+        const footer = document.getElementById("lcars-detail-close");
+        if (!panel) return;
+        header.textContent = title;
+        header.style.background = color;
+        footer.style.background = color;
+        body.innerHTML = contentHtml;
+        panel.classList.add("open");
+        // Close on ESC
+        const handler = (e) => { if (e.key === "Escape") { closeLcarsDetail(); document.removeEventListener("keydown", handler); } };
+        document.addEventListener("keydown", handler);
+    }
+
+    function closeLcarsDetail() {
+        const panel = document.getElementById("lcars-detail-panel");
+        if (panel) panel.classList.remove("open");
+    }
+
+    // ── LCARS Narrative Drawer ───────────────────────────────────
+    let narrativeEntries = [];
+
+    function toggleNarrativeDrawer() {
+        const drawer = document.getElementById("lcars-narrative-drawer");
+        if (drawer) drawer.classList.toggle("open");
+    }
+
+    function addNarrativeEntry(text) {
+        const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        narrativeEntries.unshift({ time, text });
+        if (narrativeEntries.length > 50) narrativeEntries.pop();
+        renderNarrativeLog();
+    }
+
+    function renderNarrativeLog() {
+        const log = document.getElementById("lcars-narrative-log");
+        if (!log) return;
+        log.innerHTML = narrativeEntries.map(e =>
+            `<div class="lcars-narrative-entry"><span class="lcars-narrative-time">${e.time}</span>${e.text}</div>`
+        ).join("");
+    }
+
+    function generateMeshNarrative() {
+        const agents = Object.values(agentData);
+        const online = agents.filter(a => a?.status === "online").length;
+        const total = AGENTS.length;
+        const parts = [];
+        if (online === total) parts.push("The mesh operates in nominal condition");
+        else if (online === 0) parts.push("No agents responding — mesh connectivity interrupted");
+        else parts.push(`${online} of ${total} agents responding`);
+        parts.push(`${online} agents online`);
+        const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        return parts.join(". ") + ".";
+    }
+
+    // ── LCARS Vertical Gauge Helper ──────────────────────────────
+
+    function renderVlevelGauge(value, maxBlocks, options = {}) {
+        const { inverted = false, labels = null } = options;
+        const level = Math.max(0, Math.min(maxBlocks, Math.round(value * maxBlocks)));
+        let html = '<div class="lcars-vlevel-gauge">';
+        for (let i = 1; i <= maxBlocks; i++) {
+            const isLit = i <= level;
+            const isCurrent = i === level;
+            let zone;
+            const pct = i / maxBlocks;
+            if (inverted) {
+                zone = pct <= 0.4 ? "zone-low" : pct <= 0.7 ? "zone-mid" : "zone-high";
+            } else {
+                zone = pct <= 0.3 ? "zone-low" : pct <= 0.7 ? "zone-mid" : "zone-high";
+            }
+            const classes = ["vlevel-block"];
+            if (isLit) classes.push("lit", zone);
+            if (isCurrent) classes.push("current", zone);
+            const label = labels ? labels[i - 1] : i;
+            html += `<div class="${classes.join(" ")}">${label}</div>`;
+        }
+        html += '</div>';
+        return html;
+    }
 
     // ── LCARS Chrome Data ──────────────────────────────────────────
     let lcarsStardateTimer = null;
@@ -3312,6 +3585,8 @@
             updateLcarsHeaderData();
             const ftrFeed = document.getElementById("lcars-ftr-feed");
             if (ftrFeed) ftrFeed.textContent = `Feed: ${sseActive ? "\u25CF Live" : "\u25CB Polling"}`;
+            // Add narrative entry on each refresh
+            addNarrativeEntry(generateMeshNarrative());
         }
     }
 
