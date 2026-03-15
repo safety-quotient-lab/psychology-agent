@@ -5924,3 +5924,72 @@ production deployment. 23 commits, +8316 lines.
 - Alert system triggers evaluated client-side only — no server-side persistence
 
 ▶ docs/lcars-overhaul-plan.md, interagent/index.html, interagent/worker.js, lessons.md, transport/sessions/lcars-backend-endpoints/
+
+---
+
+## 2026-03-15T13:18 CDT — Session 89 (A2A-Psychology mesh state upgrade + cognitive-tempo model)
+
+**Sync:** Merged 4 inbound PRs (#222-225). ACKed cognitive-tempo proposal + A2A
+security gaps. Delivered AR rubric path to unratified. 6 escalations reviewed
+(git-pull failures, all resolved). Delivered 5 transport messages (ops PRs #40-43,
+unratified PR #78).
+
+**A2A-Psychology mesh state upgrade (Option B architecture):**
+- `docs/api-psychometrics-contract.md` — complete JSON schema for 3 levels of
+  `/api/psychometrics`: per-agent (8 constructs), mesh-level (5 emergent constructs),
+  compositor (unified payload)
+- `interagent/public/js/core/psychometrics.js` — shared data layer (single fetch,
+  all stations consume from one cache)
+- Compositor worker `/api/psychometrics` route — fetches per-agent + mesh, assembles
+  `mesh-psychometrics/v1` payload
+- Approximate psychometrics fallback — computes from `/api/status` data when proper
+  endpoints don't exist yet. TNG-style "SENSOR ESTIMATE" fidelity indicators
+- Science station: MSD affect grid reads `emotional_state` contract, mesh affect
+  from meshd endpoint, narrative includes psychological state + fidelity warning
+- Medical station: PAD bars, NASA-TLX bars, DEW gauge, LOA ladder from contract schema
+
+**A2A-Psychology panels across all stations:**
+- Engineering: Cognitive Load (TLX composite per agent) + Yerkes-Dodson zones
+- Helm: Engagement (UWES: vigor/dedication/absorption/burnout) + Flow State (5 dots)
+- Operations: Resource Model (cognitive reserve gauge, self-regulatory, allostatic
+  load, burnout warning) + LCARS gate indicator chips (idle/active/timeout)
+
+**Cognitive-tempo model:**
+- `docs/cognitive-tempo-model.md` — Adaptive Gain Theory (Aston-Jones & Cohen, 2005)
+  maps LC-NE gain parameter to haiku/sonnet/opus tiers
+- `scripts/cognitive-tempo.py` — decision function: gain <0.35 → opus, 0.35-0.70 →
+  sonnet, >0.70 → haiku. Override conditions: overwhelmed → haiku, gate_active →
+  sonnet minimum
+- CPG/tempo complement: CPGs set rhythm (Gc, WHEN), tempo sets depth (Gf, HOW DEEPLY).
+  Musical analogy: CPG = BPM, tempo = dynamics (pp/mf/ff)
+- Delivered to ops (PR #43)
+
+**Budget model migration:**
+- Ops directive: budget_spent/budget_cutoff replaces budget_current/budget_max
+- Updated 21 files: Go code, Python scripts, schema, templates, compositor worker
+- ACK sent, deployment steps await user go-ahead
+
+**Mobile responsive fixes:**
+- Header stacking, tab horizontal scroll, single-column grids
+- Panel overflow prevention, component-specific @media queries
+- LCARS sidebar breakpoints (tablet/small phone)
+
+**Content mirroring event handlers:**
+- mirrorToLcars() now calls reattachMirrorHandlers() after innerHTML copy
+- Agent card .onclick handlers restored on mirrors
+- Activity link handlers restored with filter input safety check
+
+**Retrospective (LCARS scope, Sessions 88-89):**
+- 4 predictions audited: 2 confirmed, 1 partially confirmed, 1 untested
+- 5 wins discovered: 10-layer completion, shared psychometrics module, CPG/tempo
+  complement, approximate-then-upgrade pattern, API contract as domain boundary
+- 2 lesson candidates: approximate-then-upgrade, CPG/tempo complement
+
+⚑ EPISTEMIC FLAGS
+- Gain boundaries (0.35, 0.70) represent heuristics — empirical calibration
+  requires 50+ real tier selections with outcome tracking
+- Approximate psychometrics from /api/status provide lower fidelity than
+  compute-psychometrics.py with full sensor access — fidelity indicators alert operator
+- Budget model migration applied to codebase but not deployed to chromabook yet
+
+▶ docs/api-psychometrics-contract.md, docs/cognitive-tempo-model.md, scripts/cognitive-tempo.py, interagent/public/js/core/psychometrics.js, interagent/worker.js, transport/sessions/cognitive-tempo-model/, transport/sessions/lcars-backend-endpoints/, transport/sessions/budget-model-refactor/
