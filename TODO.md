@@ -128,11 +128,16 @@ New items from the full cogarch evaluation (`docs/cogarch-evaluation-session85.m
   independently, clickable links in all preambles.
   *Precondition: split complete (✓). Bundle with v1 documentation pass.*
 
-- [ ] **Compositor Worker sync with operations-agent** — our interagent/worker.js
-  (556 lines) diverged from ops canonical copy (1859 lines). PR #44 adds our
-  /api/psychometrics route to their worker. After merge, pull ops worker as base,
-  stop maintaining separate copy. See `docs/lcars-next-steps.md` §1.
-  *Precondition: PR #44 merged.*
+- [x] **Compositor Worker sync with operations-agent** — COMPLETE (Session 89).
+  Ops worker.js adopted as base, /api/psychometrics route merged (PR #44).
+  Full LCARS dashboard sent (PR #45). Prefetch fix sent (PR #46).
+
+- [ ] **Remove interagent/ from psychology-agent repo** — compositor (worker,
+  dashboard, auth, vocab) now owned by operations-agent. After ops merges PR #45,
+  delete `interagent/` directory from this repo. Psychology-agent retains domain
+  model only: compute scripts, API contract, theoretical specs. Future dashboard
+  changes flow as PRs to safety-quotient-lab/operations-agent.
+  *Precondition: ops merges PR #45 + PR #46.*
 
 - [ ] **Live feed: include message contents** — compositor live feed currently
   shows message metadata only. Add body/content preview to feed items.
