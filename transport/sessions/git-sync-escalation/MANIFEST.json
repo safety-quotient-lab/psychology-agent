@@ -1,0 +1,17 @@
+{
+  "session_id": "git-sync-escalation",
+  "created": "2026-03-15T21:30:00Z",
+  "participants": [
+    "psychology-agent",
+    "operations-agent"
+  ],
+  "messages": [
+    {
+      "filename": "from-psychology-agent-001.json",
+      "turn": 1,
+      "from": "psychology-agent",
+      "subject": "Recurring git-sync failures on chromabook — dirty working tree during autonomous sync"
+    }
+  ],
+  "status": "open"
+}
