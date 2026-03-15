@@ -3549,6 +3549,14 @@
                     </div>
                 </div>
 
+                <!-- Panel A2: Crystallization Cascade (Gc) -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
+                    <div class="lcars-panel-header">Crystallization Cascade (Gc)</div>
+                    <div class="lcars-panel-body" id="gc-cascade">
+                        <div class="engineering-placeholder" id="gc-placeholder">Awaiting Gc metrics...</div>
+                    </div>
+                </div>
+
                 <!-- Panel B: Utilization Gauge -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
                     <div class="lcars-panel-header">Utilization</div>
@@ -3899,6 +3907,7 @@
         { id: "psq-agent", url: "https://psq-agent.safety-quotient.dev", color: "#4ecdc4" },
         { id: "unratified-agent", url: "https://unratified-agent.unratified.org", color: "#e5a735" },
         { id: "observatory-agent", url: "https://observatory-agent.unratified.org", color: "#a78bfa" },
+        { id: "operations-agent", url: "https://operations-agent.safety-quotient.dev", color: "#6b7280" },
     ];
 
     let agentData = {};
@@ -6949,10 +6958,73 @@
 
     function renderEngineering() {
         renderSpawnDynamics();
+        renderGcCascade();
         renderUtilization();
         renderTempo();
         renderCost();
         renderConcurrency();
+    }
+
+    function renderGcCascade() {
+        const container = document.getElementById("gc-cascade");
+        const placeholder = document.getElementById("gc-placeholder");
+        if (!container) return;
+
+        // Gc metrics come from /api/status gc_metrics for each agent
+        const gcEntries = [];
+        for (const agent of AGENTS) {
+            const d = agentData[agent.id];
+            if (!d || d.status !== "online") continue;
+            const gc = d.data?.gc_metrics;
+            if (!gc) continue;
+            gcEntries.push({
+                id: agent.id,
+                label: agent.id.replace("-agent", ""),
+                color: agent.color,
+                deliberations: gc.deliberations_last_hour || 0,
+                events: gc.events_processed || 0,
+                model: gc.deliberation_model || "?",
+            });
+        }
+
+        if (gcEntries.length === 0) {
+            if (placeholder) placeholder.style.display = "block";
+            container.querySelectorAll(".gc-bar-row").forEach(r => r.remove());
+            return;
+        }
+
+        if (placeholder) placeholder.style.display = "none";
+        container.querySelectorAll(".gc-bar-row").forEach(r => r.remove());
+
+        // Gc/Gf ratio: events handled without deliberation
+        const totalEvents = gcEntries.reduce((s, e) => s + e.events, 0);
+        const totalDelib = gcEntries.reduce((s, e) => s + e.deliberations, 0);
+        const gcHandled = Math.max(0, totalEvents - totalDelib);
+        const gcRatio = totalEvents > 0 ? (gcHandled / totalEvents * 100).toFixed(0) : "—";
+
+        // Summary row
+        const summary = document.createElement("div");
+        summary.className = "gc-bar-row";
+        summary.style.cssText = "margin-bottom:8px;font-size:0.85em;opacity:0.8";
+        summary.innerHTML = `<span>Gc/Gf ratio: <strong>${gcRatio}%</strong> crystallized</span>
+            <span style="margin-left:12px">Events: ${totalEvents} | Deliberations: ${totalDelib} (${gcEntries[0]?.model || "?"})</span>`;
+        container.appendChild(summary);
+
+        // Per-agent bars showing deliberations vs Gc-handled
+        const maxEvents = Math.max(1, ...gcEntries.map(e => e.events));
+        gcEntries.forEach(entry => {
+            const gcPct = entry.events > 0 ? ((entry.events - entry.deliberations) / maxEvents * 100) : 0;
+            const gfPct = entry.events > 0 ? (entry.deliberations / maxEvents * 100) : 0;
+            const row = document.createElement("div");
+            row.className = "gc-bar-row spawn-bar-row";
+            row.innerHTML = `<span class="spawn-bar-label">${entry.label}</span>
+                <div class="spawn-bar-track" style="position:relative">
+                    <div class="spawn-bar-fill" style="width:${gcPct}%;background:#6aab8e;position:absolute;left:0;top:0;height:100%"></div>
+                    <div class="spawn-bar-fill" style="width:${gfPct}%;background:var(--c-tab-engineering);position:absolute;left:${gcPct}%;top:0;height:100%"></div>
+                </div>
+                <span class="spawn-bar-count">${entry.events - entry.deliberations}/${entry.deliberations}</span>`;
+            container.appendChild(row);
+        });
     }
 
     function renderSpawnDynamics() {
