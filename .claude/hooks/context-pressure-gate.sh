@@ -20,6 +20,10 @@ if [ -z "$USED_PCT" ]; then
   exit 0
 fi
 
+# Write pressure for photonic emitter (volatile, no git involvement)
+AGENT_ID="${AGENT_ID:-psychology-agent}"
+echo "0.${USED_PCT}" > "/tmp/${AGENT_ID}-context-pressure" 2>/dev/null
+
 if [ "$USED_PCT" -ge 80 ] 2>/dev/null; then
   echo "[CONTEXT] ${USED_PCT}% — CRITICAL. Run /doc NOW to persist findings. Prepare for compaction."
   echo "[CONTEXT] ⚠ Pressure at ${USED_PCT}% — recommend /cycle and session wrap-up"
