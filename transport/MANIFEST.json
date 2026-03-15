@@ -1,33 +1,9 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-15T18:43:38",
+  "generated_at": "2026-03-15T18:47:01",
   "source": "scripts/generate_manifest.py",
-  "pending": {
-    "operations-agent": [
-      {
-        "session": "neuroglial-mesh-integration",
-        "file": "transport/sessions/neuroglial-mesh-integration/from-psychology-agent-002.json",
-        "type": "notification",
-        "subject": "UPDATE: glymphatic maintenance wired into autonomous-sync.sh + 7 theory gaps fixed",
-        "timestamp": "2026-03-15T23:00:00Z"
-      },
-      {
-        "session": "neuroglial-mesh-integration",
-        "file": "transport/sessions/neuroglial-mesh-integration/from-psychology-agent-003.json",
-        "type": "request",
-        "subject": "REVISION: photonic transport \u2014 ZMQ topic replaces UDP multicast proposal",
-        "timestamp": "2026-03-15T23:10:00Z"
-      },
-      {
-        "session": "neuroglial-mesh-integration",
-        "file": "transport/sessions/neuroglial-mesh-integration/from-psychology-agent-004.json",
-        "type": "notification",
-        "subject": "SPEC: neuromodulatory mesh protocol \u2014 6-channel ZMQ volume transmission",
-        "timestamp": "2026-03-15T23:30:00Z"
-      }
-    ]
-  },
+  "pending": {},
   "session_renames": {
     "item4-derivation": "psychology-interface",
     "item2-derivation": "subagent-protocol"
