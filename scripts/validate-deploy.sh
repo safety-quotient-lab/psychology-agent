@@ -9,24 +9,25 @@
 #   ./scripts/validate-deploy.sh                # Check all agents
 #   ./scripts/validate-deploy.sh --expected-version v1.0.0  # Also verify version
 #
-set -euo pipefail
+set -eo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/agents.conf.sh"
+# Load .dev.vars for any overrides (optional — works without it using public URLs)
+if [ -f "${SCRIPT_DIR}/../.dev.vars" ]; then
+  set -a; . "${SCRIPT_DIR}/../.dev.vars" 2>/dev/null; set +a
+fi
 
 EXPECTED_VERSION="${1:-}"
 if [ "$EXPECTED_VERSION" = "--expected-version" ]; then
   EXPECTED_VERSION="${2:-}"
 fi
 
-# Agent endpoints (public URLs from agent-card discovery)
-declare -A AGENT_URLS=(
-  [operations-agent]="https://operations-agent.safety-quotient.dev"
-  [psychology-agent]="https://psychology-agent.safety-quotient.dev"
-  [safety-quotient-agent]="https://psq-agent.safety-quotient.dev"
-  [unratified-agent]="https://unratified.org"
-  [observatory-agent]="https://observatory.unratified.org"
-)
+# Agent endpoints (colon-separated pairs — bash 3.x compatible)
+AGENTS="operations-agent:https://operations-agent.safety-quotient.dev
+psychology-agent:https://psychology-agent.safety-quotient.dev
+safety-quotient-agent:https://psq-agent.safety-quotient.dev
+unratified-agent:https://unratified.org
+observatory-agent:https://observatory.unratified.org"
 
 PASS=0
 FAIL=0
@@ -37,21 +38,20 @@ check() {
   local result="$2"
   if [ "$result" = "PASS" ]; then
     printf "  ✓ %-40s %s\n" "$label" "$result"
-    ((PASS++))
+    PASS=$((PASS + 1))
   elif [ "$result" = "WARN" ]; then
     printf "  ⚠ %-40s %s\n" "$label" "$3"
-    ((WARN++))
+    WARN=$((WARN + 1))
   else
     printf "  ✗ %-40s %s\n" "$label" "$result"
-    ((FAIL++))
+    FAIL=$((FAIL + 1))
   fi
 }
 
 echo "═══ Mesh Deploy Validation ═══"
 echo ""
 
-for agent_id in operations-agent psychology-agent safety-quotient-agent unratified-agent observatory-agent; do
-  base_url="${AGENT_URLS[$agent_id]}"
+while IFS=: read -r agent_id base_url; do
   status_url="${base_url}/api/status"
 
   echo "── ${agent_id} ──"
@@ -119,7 +119,7 @@ else:
   fi
 
   echo ""
-done
+done <<< "$AGENTS"
 
 # Summary
 echo "═══ Summary ═══"
