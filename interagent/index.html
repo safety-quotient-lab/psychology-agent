@@ -136,6 +136,212 @@
             --band-height: 8px;
             --elbow-width: 28px;
             --elbow-radius: 20px;
+
+            /* LCARS sidebar geometry */
+            --sidebar-width: 160px;
+            --band-size: 52px;
+            --elbow-outer: 48px;
+            --elbow-inner: 24px;
+        }
+
+        /* ── LCARS Chrome: Frame Override ──────────────────────────── */
+        .theme-lcars .lcars-frame {
+            grid-template-columns: var(--sidebar-width) 1fr;
+            grid-template-rows: auto 1fr auto;  /* header | content | footer */
+        }
+
+        /* Hide standard spine + tabs in LCARS mode */
+        .theme-lcars .lcars-spine { display: none; }
+        .theme-lcars .lcars-tabs { display: none; }
+
+        /* ── LCARS Sidebar ─────────────────────────────────────────── */
+        .lcars-sidebar {
+            display: none;  /* hidden in dark/light */
+        }
+        .theme-lcars .lcars-sidebar {
+            display: flex;
+            flex-direction: column;
+            grid-column: 1;
+            grid-row: 1 / -1;
+            background: #000;
+            padding-top: 0;
+            gap: 0;
+        }
+
+        /* Top elbow cap — connects sidebar top to header band */
+        .lcars-sidebar-cap-top {
+            background: var(--c-knowledge);
+            height: var(--band-size);
+            border-radius: 0 0 var(--elbow-outer) 0;
+            margin-bottom: 3px;
+        }
+
+        /* Sidebar navigation buttons */
+        .lcars-sidebar-btn {
+            display: block;
+            width: 100%;
+            border: none;
+            border-radius: 24px 0 0 24px;
+            padding: 10px 12px 10px 16px;
+            min-height: 44px;
+            font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+            font-size: 0.72em;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: left;
+            color: #000;
+            cursor: pointer;
+            margin-bottom: 3px;
+            transition: filter 0.15s, padding-left 0.15s;
+        }
+        .lcars-sidebar-btn:hover { filter: brightness(1.15); }
+        .lcars-sidebar-btn.active {
+            filter: brightness(1.3);
+            padding-left: 22px;
+            font-size: 0.78em;
+        }
+
+        /* Sidebar spacer blocks — visual rhythm, no text */
+        .lcars-sidebar-spacer {
+            min-height: 20px;
+            margin-bottom: 3px;
+            border-radius: 12px 0 0 12px;
+        }
+
+        /* Bottom elbow cap — connects sidebar bottom to footer band */
+        .lcars-sidebar-cap-bottom {
+            background: var(--c-transport);
+            height: var(--band-size);
+            border-radius: 0 var(--elbow-outer) 0 0;
+            margin-top: auto;
+        }
+
+        /* ── LCARS Header Band (Segmented) ─────────────────────────── */
+        .lcars-header-band {
+            display: none; /* hidden in dark/light */
+        }
+        .theme-lcars .lcars-header-band {
+            display: flex;
+            grid-column: 2;
+            grid-row: 1;
+            gap: 3px;
+            align-items: stretch;
+            min-height: var(--band-size);
+        }
+        .theme-lcars .lcars-header {
+            display: none; /* hide standard header in LCARS */
+        }
+
+        .lcars-header-seg {
+            display: flex;
+            align-items: center;
+            padding: 4px 14px;
+            font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+            font-size: 0.72em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #000;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .lcars-header-seg:last-child {
+            border-radius: 0 0 0 var(--elbow-inner);
+        }
+
+        /* ── LCARS Footer Band (Segmented) ─────────────────────────── */
+        .lcars-footer-band {
+            display: none;
+        }
+        .theme-lcars .lcars-footer-band {
+            display: flex;
+            grid-column: 2;
+            grid-row: 3;
+            gap: 3px;
+            align-items: stretch;
+            min-height: var(--band-size);
+        }
+        .theme-lcars .lcars-footer {
+            display: none; /* hide standard footer in LCARS */
+        }
+
+        .lcars-footer-seg {
+            display: flex;
+            align-items: center;
+            padding: 4px 14px;
+            font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+            font-size: 0.72em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #000;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .lcars-footer-seg:last-child {
+            border-radius: var(--elbow-inner) 0 0 0;
+        }
+
+        /* ── LCARS Content Override ────────────────────────────────── */
+        .theme-lcars .lcars-content {
+            grid-row: 2;
+            background: #000;
+        }
+
+        /* ── LCARS Panel Hybrid Style ──────────────────────────────── */
+        .theme-lcars .lcars-panel {
+            background: #000;
+            border: none;
+            border-radius: 0;
+        }
+        .theme-lcars .lcars-panel::before {
+            display: none;
+        }
+        .theme-lcars .lcars-panel-header {
+            background: var(--panel-accent, var(--c-transport));
+            color: #000;
+            border-bottom: none;
+            border-radius: 0 12px 0 0;
+            font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+        }
+
+        /* ── LCARS Typography Override ─────────────────────────────── */
+        .theme-lcars {
+            font-family: 'Arial Narrow', 'Helvetica Neue', system-ui, sans-serif;
+        }
+        .theme-lcars .vital-value,
+        .theme-lcars .agent-metric-value,
+        .theme-lcars .kb-vital-value,
+        .theme-lcars .dew-score,
+        .theme-lcars .util-rho,
+        .theme-lcars .tempo-value,
+        .theme-lcars .cost-total,
+        .theme-lcars .ops-budget-credit {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        }
+
+        /* ── LCARS Responsive ──────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .theme-lcars .lcars-frame {
+                grid-template-columns: 60px 1fr;
+            }
+            .theme-lcars { --sidebar-width: 60px; }
+            .lcars-sidebar-btn {
+                font-size: 0;        /* hide text */
+                min-height: 36px;
+                padding: 8px;
+            }
+            .lcars-sidebar-btn::after {
+                content: attr(data-short);
+                font-size: 10px;
+                display: block;
+            }
+            .lcars-sidebar-btn.active::after {
+                font-size: 11px;
+            }
+            .lcars-header-seg { font-size: 0.6em; padding: 2px 8px; }
+            .lcars-footer-seg { font-size: 0.6em; padding: 2px 8px; }
         }
 
         /* Light mode */
@@ -1877,7 +2083,7 @@
 <body>
 
 <div class="lcars-frame">
-    <!-- Left spine — segments map to content categories -->
+    <!-- Left spine — segments map to content categories (standard mode) -->
     <div class="lcars-spine" id="lcars-spine">
         <div class="lcars-spine-segment" data-category="transport" style="background: var(--c-transport); flex: 2"></div>
         <div class="lcars-spine-segment" data-category="health" style="background: var(--c-health); flex: 3"></div>
@@ -1885,7 +2091,34 @@
         <div class="lcars-spine-segment" data-category="epistemic" style="background: var(--c-epistemic); flex: 1"></div>
     </div>
 
-    <!-- Header -->
+    <!-- LCARS Sidebar — pill-shaped nav buttons (LCARS mode only) -->
+    <nav class="lcars-sidebar" id="lcars-sidebar">
+        <div class="lcars-sidebar-cap-top"></div>
+        <button class="lcars-sidebar-btn active" data-tab="pulse" data-short="PLS" style="background:#9999ff" onclick="switchTab('pulse')">Pulse</button>
+        <button class="lcars-sidebar-btn" data-tab="meta" data-short="MTA" style="background:#cc6699" onclick="switchTab('meta')">Meta</button>
+        <button class="lcars-sidebar-btn" data-tab="kb" data-short="KNW" style="background:#cc99cc" onclick="switchTab('kb')">Knowledge</button>
+        <button class="lcars-sidebar-btn" data-tab="wisdom" data-short="WIS" style="background:#ffcc66" onclick="switchTab('wisdom')">Wisdom</button>
+        <div class="lcars-sidebar-spacer" style="background:#666688"></div>
+        <button class="lcars-sidebar-btn" data-tab="operations" data-short="OPS" style="background:#ff9900" onclick="switchTab('operations')">Operations</button>
+        <div class="lcars-sidebar-spacer" style="background:#ff9966"></div>
+        <button class="lcars-sidebar-btn" data-tab="science" data-short="SCI" style="background:#9999ff" onclick="switchTab('science')">Science</button>
+        <button class="lcars-sidebar-btn" data-tab="engineering" data-short="ENG" style="background:#ff9944" onclick="switchTab('engineering')">Engineering</button>
+        <button class="lcars-sidebar-btn" data-tab="helm" data-short="HLM" style="background:#66aacc" onclick="switchTab('helm')">Helm</button>
+        <button class="lcars-sidebar-btn" data-tab="tactical" data-short="TAC" style="background:#cc6666" onclick="switchTab('tactical')">Tactical</button>
+        <div class="lcars-sidebar-cap-bottom"></div>
+    </nav>
+
+    <!-- LCARS Header Band — segmented colored blocks (LCARS mode only) -->
+    <div class="lcars-header-band" id="lcars-header-band">
+        <div class="lcars-header-seg" style="background:#cc99cc;flex:3">&#x2B21; Interagent Mesh</div>
+        <div class="lcars-header-seg" style="background:#9999ff;flex:1" id="lcars-hdr-agents">— Agents</div>
+        <div class="lcars-header-seg" style="background:#ff9900;flex:1" id="lcars-hdr-msgs">— Messages</div>
+        <div class="lcars-header-seg" style="background:#cc99cc;flex:1.5" id="lcars-hdr-stardate">SD —</div>
+        <div class="lcars-header-seg" style="background:#ff9966;flex:1" id="lcars-hdr-proto">A2A/1.0.0</div>
+        <div class="lcars-header-seg" style="background:#9999ff;flex:0.5" id="lcars-hdr-health">&#x25CF; —</div>
+    </div>
+
+    <!-- Standard Header (dark/light mode) -->
     <div class="lcars-header">
         <div>
             <span class="lcars-title">&#x2B21; Interagent Mesh</span>
@@ -1901,7 +2134,7 @@
         </div>
     </div>
 
-    <!-- Tabs -->
+    <!-- Tabs (dark/light mode — hidden in LCARS) -->
     <div class="lcars-tabs">
         <button class="lcars-tab active" data-tab="pulse" onclick="switchTab('pulse')">Pulse</button>
         <button class="lcars-tab" data-tab="meta" onclick="switchTab('meta')">Meta</button>
@@ -2673,7 +2906,18 @@
         </div>
     </div>
 
-    <!-- Footer -->
+    <!-- LCARS Footer Band — segmented colored blocks (LCARS mode only) -->
+    <div class="lcars-footer-band" id="lcars-footer-band">
+        <div class="lcars-footer-seg" style="background:#9999ff;flex:2" id="lcars-ftr-status">Mesh Status: Connecting</div>
+        <div class="lcars-footer-seg" style="background:#ff9900;flex:1.5" id="lcars-ftr-feed">Feed: &#x25CB; Polling</div>
+        <div class="lcars-footer-seg" style="background:#cc99cc;flex:1" id="lcars-ftr-vocab">Vocab v1.0.0</div>
+        <div class="lcars-footer-seg" style="background:#ff9966;flex:1" id="lcars-ftr-uptime">Uptime: —</div>
+        <div class="lcars-footer-seg" style="background:#666688;flex:0.5">
+            <button class="toggle-btn" onclick="setTheme('dark')" style="background:transparent;border:1px solid #000;color:#000;font-size:0.85em;padding:2px 6px;cursor:pointer" title="Exit LCARS mode">&#x2716;</button>
+        </div>
+    </div>
+
+    <!-- Standard Footer (dark/light mode) -->
     <div class="lcars-footer">
         <span id="footer-status">Connecting...</span>
         <span>
@@ -2700,6 +2944,55 @@
     let sseConnections = [];
     let sseActive = false;
 
+    // ── LCARS Chrome Data ──────────────────────────────────────────
+    let lcarsStardateTimer = null;
+
+    function formatStardate(date) {
+        const year = date.getFullYear();
+        const start = new Date(year, 0, 0);
+        const dayOfYear = Math.floor((date - start) / 86400000);
+        const hours = String(date.getHours()).padStart(2, '0');
+        const mins = String(date.getMinutes()).padStart(2, '0');
+        return `SD ${year}.${String(dayOfYear).padStart(3, '0')}.${hours}${mins}`;
+    }
+
+    function updateLcarsHeaderData() {
+        const hdrAgents = document.getElementById("lcars-hdr-agents");
+        const hdrMsgs = document.getElementById("lcars-hdr-msgs");
+        const hdrHealth = document.getElementById("lcars-hdr-health");
+        const ftrStatus = document.getElementById("lcars-ftr-status");
+        if (!hdrAgents) return;
+
+        const agents = Object.values(agentData);
+        const online = agents.filter(a => a && a.online !== false).length;
+        const total = AGENTS.length;
+        hdrAgents.textContent = `${online} Agents Online`;
+
+        const totalMsgs = agents.reduce((sum, a) => sum + (a?.messages?.total || 0), 0);
+        hdrMsgs.textContent = `${totalMsgs} Messages`;
+
+        const allHealthy = online === total && agents.every(a => !a || a.health !== "critical");
+        hdrHealth.textContent = allHealthy ? "\u25CF Nominal" : "\u25CF Degraded";
+        hdrHealth.style.background = allHealthy ? "#9999ff" : "#cc6666";
+
+        ftrStatus.textContent = allHealthy
+            ? "Mesh Status: Nominal"
+            : `Mesh Status: ${online}/${total} Agents`;
+    }
+
+    function startLcarsStardate() {
+        if (lcarsStardateTimer) return;
+        const el = document.getElementById("lcars-hdr-stardate");
+        if (!el) return;
+        function tick() { el.textContent = formatStardate(new Date()); }
+        tick();
+        lcarsStardateTimer = setInterval(tick, 1000);
+    }
+
+    function stopLcarsStardate() {
+        if (lcarsStardateTimer) { clearInterval(lcarsStardateTimer); lcarsStardateTimer = null; }
+    }
+
     // ── Theme ──────────────────────────────────────────────────────
     function setTheme(mode) {
         document.body.classList.remove("theme-light", "theme-lcars");
@@ -2709,8 +3002,21 @@
         document.getElementById("btn-light").classList.toggle("active", mode === "light");
         document.getElementById("btn-lcars").classList.toggle("active", mode === "lcars");
         localStorage.setItem("theme", mode);
-        // If leaving LCARS mode while on a LCARS-only tab, switch to Pulse
-        if (mode !== "lcars") {
+
+        // LCARS mode: start stardate clock, sync sidebar state, update header data
+        if (mode === "lcars") {
+            startLcarsStardate();
+            updateLcarsHeaderData();
+            // Sync sidebar active state with current tab
+            const activeTab = document.querySelector('.lcars-tab.active');
+            if (activeTab) {
+                document.querySelectorAll(".lcars-sidebar-btn").forEach(b =>
+                    b.classList.toggle("active", b.dataset.tab === activeTab.dataset.tab)
+                );
+            }
+        } else {
+            stopLcarsStardate();
+            // If leaving LCARS mode while on a LCARS-only tab, switch to Pulse
             const activeTab = document.querySelector('.lcars-tab.active');
             if (activeTab && activeTab.classList.contains('lcars-only')) {
                 switchTab('pulse');
@@ -2797,8 +3103,17 @@
     function switchTab(tabId, updateHash = true) {
         if (tabId === "knowledge") tabId = "meta"; // backward compat
         if (!VALID_TABS.includes(tabId)) tabId = "pulse";
+        // Standard tabs
         document.querySelectorAll(".lcars-tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tabId));
+        // LCARS sidebar buttons
+        document.querySelectorAll(".lcars-sidebar-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabId));
+        // Pane visibility
         document.querySelectorAll(".tab-pane").forEach(p => p.classList.toggle("active", p.id === `pane-${tabId}`));
+        // In LCARS mode, all bridge stations should show (they rely on tab-pane.active)
+        if (document.body.classList.contains("theme-lcars")) {
+            const pane = document.getElementById(`pane-${tabId}`);
+            if (pane) pane.style.display = "block";
+        }
         // Update header band + title color to match active tab
         const colorVar = TAB_COLORS[tabId] || "--c-tab-pulse";
         document.documentElement.style.setProperty("--active-tab-color", `var(${colorVar})`);
@@ -2881,6 +3196,13 @@
         const mode = sseActive ? "● SSE live" : "○ polling 30s";
         document.getElementById("footer-status").textContent =
             `Updated ${new Date().toLocaleTimeString()} · ${mode}`;
+
+        // Update LCARS header/footer band data if in LCARS mode
+        if (document.body.classList.contains("theme-lcars")) {
+            updateLcarsHeaderData();
+            const ftrFeed = document.getElementById("lcars-ftr-feed");
+            if (ftrFeed) ftrFeed.textContent = `Feed: ${sseActive ? "\u25CF Live" : "\u25CB Polling"}`;
+        }
     }
 
     // ── Render: Vitals ─────────────────────────────────────────────
