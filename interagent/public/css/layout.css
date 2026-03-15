@@ -457,53 +457,7 @@ body {
    Desktop > 1024px | Tablet 768-1024px | Phone < 768px | Small Phone < 480px
    ══════════════════════════════════════════════════════════════════════ */
 
-/* ── Mobile Status Bar (base styles) ──────────────────────────── */
-.mobile-status-bar {
-    display: none;  /* hidden by default — shown via phone media query */
-    align-items: center;
-    justify-content: space-between;
-    padding: 6px 12px;
-    background: var(--bg-panel);
-    border-bottom: 1px solid var(--border);
-    font-size: 0.8em;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-.mobile-status-bar .status-dot {
-    font-size: 1.2em;
-    color: var(--status-online);
-}
-.mobile-status-bar .status-count {
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-left: 4px;
-}
-.mobile-status-bar .status-clock {
-    color: var(--text-secondary);
-    font-variant-numeric: tabular-nums;
-}
-.mobile-status-bar .theme-icons {
-    display: flex;
-    gap: 4px;
-}
-.mobile-status-bar .theme-icons button {
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    width: 32px;
-    height: 32px;
-    font-size: 0.9em;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    line-height: 1;
-}
-.mobile-status-bar .theme-icons button:hover {
-    border-color: var(--text-secondary);
-}
+/* Mobile status bar removed — status info integrates into LCARS frame */
 
 /* ── Responsive: Desktop ──────────────────────────────────────── */
 @media (min-width: 1025px) {
@@ -571,7 +525,7 @@ body {
 /* ── Responsive: Phone ────────────────────────────────────────── */
 @media (max-width: 767px) {
     /* Show mobile status bar */
-    .mobile-status-bar { display: flex; }
+    
 
     /* Standard frame: collapse spine */
     .lcars-frame { grid-template-columns: 12px 1fr; }
@@ -684,6 +638,4 @@ body {
     }
 
     /* Mobile status bar: tighter padding */
-    .mobile-status-bar { padding: 4px 8px; font-size: 0.75em; }
-    .mobile-status-bar .theme-icons button { width: 28px; height: 28px; font-size: 0.8em; }
 }
