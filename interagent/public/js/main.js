@@ -55,8 +55,8 @@ import { fetchMedicalData, selectAgent, renderMedical } from './stations/medical
 const AGENTS = [
     { id: "psychology-agent", url: "https://psychology-agent.safety-quotient.dev", color: "#5b9cf6" },
     { id: "psq-agent", url: "https://psq-agent.safety-quotient.dev", color: "#4ecdc4" },
-    { id: "unratified-agent", url: "https://unratified-agent.unratified.org", color: "#e5a735" },
-    { id: "observatory-agent", url: "https://observatory-agent.unratified.org", color: "#a78bfa" },
+    { id: "unratified-agent", url: "https://unratified.org", color: "#e5a735" },
+    { id: "observatory-agent", url: "https://observatory.unratified.org", color: "#a78bfa" },
 ];
 
 let agentData = {};

@@ -466,8 +466,9 @@ async function fetchAllAgentStatus(registry, env) {
   const localData = await buildLocalStatus(env);
   agents.push({ id: selfId, status: "online", data: validateStatusData(localData) });
 
-  // Tag agents in manual mode
+  // Normalize IDs + tag manual mode
   for (const a of agents) {
+    a.id = ID_NORMALIZE[a.id] || a.id;
     a.manual_mode = MANUAL_MODE_AGENTS.has(a.id);
   }
 
