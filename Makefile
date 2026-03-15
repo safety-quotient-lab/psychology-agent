@@ -128,34 +128,18 @@ deploy-transfer:
 		$(SCP_CMD) ./$(MESHD_BIN) $${AGENT_SSH_HOST}:$(REMOTE_BIN).new
 	@echo "  Transferred to $(REMOTE_BIN).new"
 
+# Restart: transfer restart script, swap binary, run detached (avoids SSH kill)
 deploy-restart:
 	@echo ""
 	@echo "═══ Restarting meshd processes ═══"
 	@. ./.dev.vars 2>/dev/null; \
-		$(SSH_CMD) '\
-		cp $(REMOTE_BIN) $(REMOTE_BACKUP) 2>/dev/null; \
-		mv $(REMOTE_BIN).new $(REMOTE_BIN) && \
-		chmod +x $(REMOTE_BIN) && \
-		echo "  Backup: $(REMOTE_BACKUP)" && \
-		echo "  Swapped binary" && \
-		echo "  Saving process commands..." && \
-		pgrep -f "platform/meshd --port" | while read pid; do \
-			ps -p $$pid -o args= >> /tmp/meshd-restart-cmds.txt; \
-		done && \
-		echo "  Killing old processes..." && \
-		pkill -9 -f "platform/meshd --port" 2>/dev/null; \
-		sleep 2 && \
-		echo "  Starting fresh processes..." && \
-		while IFS= read -r cmd; do \
-			agent=$$(echo "$$cmd" | grep -oP "(?<=--agent-id )\S+"); \
-			nohup $$cmd > /tmp/meshd-$$agent.log 2>&1 & \
-			echo "    $$agent (pid $$!)"; \
-		done < /tmp/meshd-restart-cmds.txt && \
-		rm -f /tmp/meshd-restart-cmds.txt && \
-		sleep 3 && \
-		echo "" && \
-		echo "  Running:" && \
-		pgrep -f "platform/meshd --port" -la || echo "  WARNING: no meshd processes found"'
+		$(SSH_CMD) 'cp $(REMOTE_BIN) $(REMOTE_BACKUP) 2>/dev/null; mv $(REMOTE_BIN).new $(REMOTE_BIN) && chmod +x $(REMOTE_BIN)' && \
+		echo "  Binary swapped (backup: $(REMOTE_BACKUP))" && \
+		$(SCP_CMD) scripts/remote-restart.sh $${AGENT_SSH_HOST}:/tmp/remote-restart.sh && \
+		$(SSH_CMD) 'chmod +x /tmp/remote-restart.sh && nohup /tmp/remote-restart.sh > /tmp/meshd-restart.log 2>&1 &' && \
+		echo "  Restart script launched (detached)" && \
+		sleep 8 && \
+		$(SSH_CMD) 'cat /tmp/meshd-restart.log 2>/dev/null'
 
 deploy-validate:
 	@echo ""
