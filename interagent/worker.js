@@ -1563,9 +1563,16 @@ export default {
       });
     }
 
-    // Load dynamic agent registry (cached in KV)
-    const forceRefresh = url.searchParams.get("refresh") === "true";
-    const { agents: registry, cache_status: registryCacheStatus, refreshed_at: registryRefreshedAt } = await loadAgentRegistry(env, forceRefresh);
+    // Serve compositor agent card — static, no registry needed
+    if (url.pathname === "/.well-known/agent-card.json") {
+      return new Response(AGENT_CARD, {
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "public, max-age=3600",
+          ...corsHeaders(request, true),
+        },
+      });
+    }
 
     // Public endpoint rate limiting — 60 req/min per IP for discovery endpoints
     const isDiscovery = url.pathname.startsWith("/.well-known/") || url.pathname.startsWith("/vocab");
@@ -1582,15 +1589,20 @@ export default {
       await env.AUTH_KV.put(rlKey, String(count + 1), { expirationTtl: 120 });
     }
 
-    // Serve operations-agent card at /.well-known/agent-card.json
-    if (url.pathname === "/.well-known/agent-card.json") {
-      return new Response(AGENT_CARD, {
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          "Cache-Control": "public, max-age=3600",
-          ...corsHeaders(request, true),
-        },
-      });
+    // Load dynamic agent registry (cached in KV)
+    // Wrapped in try-catch so routes degrade gracefully when registry fails
+    const forceRefresh = url.searchParams.get("refresh") === "true";
+    let registry = [];
+    let registryCacheStatus = "error";
+    let registryRefreshedAt = null;
+    try {
+      const result = await loadAgentRegistry(env, forceRefresh);
+      registry = result.agents;
+      registryCacheStatus = result.cache_status;
+      registryRefreshedAt = result.refreshed_at;
+    } catch (err) {
+      _lastFetchErrors.push({ url: "loadAgentRegistry", error: String(err), at: new Date().toISOString() });
+      // Registry-dependent routes will operate on empty array — degraded but not 500
     }
 
     // WebFinger (RFC 7033) — agent identity resolution
