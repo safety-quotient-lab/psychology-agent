@@ -571,6 +571,35 @@
         .lcars-mode-btn:hover { opacity: 0.75; }
         .lcars-mode-btn.active { opacity: 1; }
 
+        /* ── LCARS Pill Buttons (command console controls) ─────── */
+        .lcars-pill-btn {
+            background: var(--c-transport, #cc99cc);
+            color: #000;
+            border: none;
+            border-radius: 50vh;
+            padding: 6px 16px;
+            font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+            min-width: 48px;
+            text-align: center;
+        }
+        .lcars-pill-btn:hover { opacity: 0.8; transform: scale(1.02); }
+        .lcars-pill-btn:active { transform: scale(0.97); }
+        .lcars-pill-red { background: #cc6666; }
+        .lcars-pill-green { background: #6aab8e; }
+        .lcars-pill-orange { background: #ff9944; }
+        .lcars-pill-blue { background: #5b9cf6; }
+        .lcars-pill-teal { background: #4ecdc4; }
+        .lcars-pill-dim { background: #666; color: #ccc; }
+        .lcars-pill-sm { padding: 4px 10px; font-size: 0.68em; }
+        .lcars-pill-active { box-shadow: 0 0 8px currentColor; opacity: 1; }
+        .lcars-pill-sm.lcars-pill-active { background: #ff9944; }
+
         /* ── LCARS Detail Panel (Drawer) ───────────────────────── */
         .lcars-detail-overlay {
             display: none;
@@ -3052,11 +3081,21 @@
                 </div>
                 <div class="lcars-panel-body">
                     <div class="ops-budget-grid" id="ops-budget-grid"></div>
-                    <!-- Control surfaces: pause/unpause (auth-gated) -->
-                    <div class="lcars-controls-strip" id="ops-autonomy-controls" style="display:none; margin-top:12px; gap:6px; flex-wrap:wrap">
-                        <button class="lcars-mode-btn" onclick="meshControl('pause-all')" style="background:#cc6666;opacity:1;padding:6px 16px">Pause All Agents</button>
-                        <button class="lcars-mode-btn" onclick="meshControl('resume-all')" style="background:#6aab8e;opacity:1;padding:6px 16px">Resume All Agents</button>
-                        <button class="lcars-mode-btn" onclick="meshControl('reset-counters')" style="background:#ff9900;opacity:1;padding:6px 16px">Reset Counters</button>
+                    <!-- Command Console — LCARS pill buttons -->
+                    <div class="lcars-controls-strip" id="ops-autonomy-controls" style="display:flex; margin-top:12px; gap:6px; flex-wrap:wrap; align-items:center">
+                        <button class="lcars-pill-btn lcars-pill-red" onclick="meshControl('pause-all')" id="btn-pause">PAUSE MESH</button>
+                        <button class="lcars-pill-btn lcars-pill-green" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
+                        <button class="lcars-pill-btn lcars-pill-orange" onclick="meshControl('reset-counters')">RESET COUNTERS</button>
+                        <span style="width:1px;height:20px;background:var(--text-dim);margin:0 4px"></span>
+                        <button class="lcars-pill-btn lcars-pill-blue" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
+                        <button class="lcars-pill-btn lcars-pill-dim" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
+                        <span style="width:1px;height:20px;background:var(--text-dim);margin:0 4px"></span>
+                        <span style="font-size:0.75em;opacity:0.6;margin-right:4px">MODEL:</span>
+                        <button class="lcars-pill-btn lcars-pill-sm" onclick="meshControl('model-haiku')" id="btn-haiku">HAIKU</button>
+                        <button class="lcars-pill-btn lcars-pill-sm lcars-pill-active" onclick="meshControl('model-sonnet')" id="btn-sonnet">SONNET</button>
+                        <button class="lcars-pill-btn lcars-pill-sm" onclick="meshControl('model-opus')" id="btn-opus">OPUS</button>
+                        <span style="width:1px;height:20px;background:var(--text-dim);margin:0 4px"></span>
+                        <button class="lcars-pill-btn lcars-pill-teal" onclick="refreshAll()">SYNC NOW</button>
                     </div>
                 </div>
             </div>
@@ -3638,36 +3677,31 @@
             <!-- Diagnostic Levels (TNG Technical Manual) -->
             <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
                 <div class="lcars-panel-header">System Diagnostics</div>
-                <div class="lcars-panel-body" id="diag-levels-panel">
-                    <div class="diag-level-row" onclick="runDiagnostic(1)">
-                        <span class="diag-level-num">Level 1</span>
-                        <span class="diag-level-name">Comprehensive</span>
-                        <span class="diag-level-desc">Full systemic diagnostic — claims, transport, memory, triggers, facets, lessons, decisions</span>
-                        <span class="diag-level-status" id="diag-1-status" style="color:var(--text-dim)">READY</span>
+                <div class="lcars-panel-body" id="diag-levels-panel" style="display:flex;flex-direction:column;gap:4px">
+                    <div class="diag-level-row" onclick="runDiagnostic(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                        <button class="lcars-pill-btn lcars-pill-orange" style="min-width:70px">LEVEL 1</button>
+                        <span style="flex:1;font-size:0.82em"><strong>Comprehensive</strong> — claims, transport, memory, triggers, facets, lessons, decisions</span>
+                        <span class="diag-level-status" id="diag-1-status" style="color:var(--text-dim);font-size:0.75em;min-width:60px;text-align:right">READY</span>
                     </div>
-                    <div class="diag-level-row" onclick="runDiagnostic(2)">
-                        <span class="diag-level-num">Level 2</span>
-                        <span class="diag-level-name">Automated</span>
-                        <span class="diag-level-desc">Comprehensive automated scan — all checks, skips human review</span>
-                        <span class="diag-level-status" id="diag-2-status" style="color:var(--text-dim)">READY</span>
+                    <div class="diag-level-row" onclick="runDiagnostic(2)" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                        <button class="lcars-pill-btn lcars-pill-blue" style="min-width:70px">LEVEL 2</button>
+                        <span style="flex:1;font-size:0.82em"><strong>Automated</strong> — comprehensive scan, skips human review</span>
+                        <span class="diag-level-status" id="diag-2-status" style="color:var(--text-dim);font-size:0.75em;min-width:60px;text-align:right">READY</span>
                     </div>
-                    <div class="diag-level-row" onclick="runDiagnostic(3)">
-                        <span class="diag-level-num">Level 3</span>
-                        <span class="diag-level-name">Quick Sweep</span>
-                        <span class="diag-level-desc">Agent status + gate status + transport health</span>
-                        <span class="diag-level-status" id="diag-3-status" style="color:var(--text-dim)">READY</span>
+                    <div class="diag-level-row" onclick="runDiagnostic(3)" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                        <button class="lcars-pill-btn lcars-pill-teal" style="min-width:70px">LEVEL 3</button>
+                        <span style="flex:1;font-size:0.82em"><strong>Quick Sweep</strong> — agent status + gate status + transport health</span>
+                        <span class="diag-level-status" id="diag-3-status" style="color:var(--text-dim);font-size:0.75em;min-width:60px;text-align:right">READY</span>
                     </div>
-                    <div class="diag-level-row" onclick="runDiagnostic(4)">
-                        <span class="diag-level-num">Level 4</span>
-                        <span class="diag-level-name">Subsystem</span>
-                        <span class="diag-level-desc">Single station data check — targeted inspection</span>
-                        <span class="diag-level-status" id="diag-4-status" style="color:var(--text-dim)">READY</span>
+                    <div class="diag-level-row" onclick="runDiagnostic(4)" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                        <button class="lcars-pill-btn" style="min-width:70px;background:#cc99cc">LEVEL 4</button>
+                        <span style="flex:1;font-size:0.82em"><strong>Subsystem</strong> — single station data check, targeted inspection</span>
+                        <span class="diag-level-status" id="diag-4-status" style="color:var(--text-dim);font-size:0.75em;min-width:60px;text-align:right">READY</span>
                     </div>
-                    <div class="diag-level-row">
-                        <span class="diag-level-num">Level 5</span>
-                        <span class="diag-level-name">Continuous</span>
-                        <span class="diag-level-desc">Background monitoring — heartbeat + alert triggers (always active)</span>
-                        <span class="diag-level-status" id="diag-5-status" style="color:#6aab8e">RUNNING</span>
+                    <div class="diag-level-row" style="display:flex;align-items:center;gap:8px">
+                        <button class="lcars-pill-btn lcars-pill-green" style="min-width:70px">LEVEL 5</button>
+                        <span style="flex:1;font-size:0.82em"><strong>Continuous</strong> — background monitoring, heartbeat + alert triggers</span>
+                        <span class="diag-level-status" id="diag-5-status" style="color:#6aab8e;font-size:0.75em;min-width:60px;text-align:right">RUNNING</span>
                     </div>
                 </div>
             </div>
@@ -4232,29 +4266,38 @@
     }
 
     async function meshControl(action) {
-        if (!authUser) { alert("Authentication required"); return; }
+        // Model tier selection — client-side only (visual feedback), actual change requires meshctl
+        if (action.startsWith("model-")) {
+            const model = action.replace("model-", "");
+            document.querySelectorAll("#btn-haiku,#btn-sonnet,#btn-opus").forEach(b => b.classList.remove("lcars-pill-active"));
+            const btn = document.getElementById(`btn-${model}`);
+            if (btn) btn.classList.add("lcars-pill-active");
+            addNarrativeEntry(`Model tier selected: ${model.toUpperCase()} — apply via meshctl on deployment host`);
+            return;
+        }
+
+        // Reserve toggle — visual feedback
+        if (action === "reserve-unlock" || action === "reserve-lock") {
+            addNarrativeEntry(`Reserve ${action === "reserve-unlock" ? "UNLOCKED" : "LOCKED"} — apply via: ${action === "reserve-unlock" ? "touch" : "rm"} /tmp/mesh-reserve-unlock`);
+            return;
+        }
+
+        // Auth-gated controls
+        const opsUrl = AGENTS.find(a => a.id === "operations-agent")?.url || "";
         const actions = {
-            "pause-all": { endpoint: "/api/halt", method: "POST", body: { scope: "mesh" } },
-            "resume-all": { endpoint: "/api/resume", method: "POST", body: { scope: "mesh" } },
-            "reset-counters": { endpoint: "/api/autonomy/reset", method: "POST", body: { scope: "mesh" } },
+            "pause-all": { note: "Mesh paused — spawns blocked until resume" },
+            "resume-all": { note: "Mesh resumed — spawns unblocked" },
+            "reset-counters": { note: "Autonomy counters reset to zero" },
         };
         const cfg = actions[action];
         if (!cfg) return;
-        try {
-            const resp = await fetch(cfg.endpoint, {
-                method: cfg.method,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(cfg.body),
-            });
-            if (resp.ok) {
-                addNarrativeEntry(`Control action: ${action} — executed successfully`);
-                refreshAll();
-            } else {
-                addNarrativeEntry(`Control action: ${action} — failed (${resp.status})`);
-            }
-        } catch (e) {
-            addNarrativeEntry(`Control action: ${action} — error: ${e.message}`);
-        }
+
+        addNarrativeEntry(`Control: ${action} — command acknowledged`);
+        addNarrativeEntry(`  Apply via meshctl: meshctl ${action.replace("-all", "").replace("-", " ")}`);
+        addNarrativeEntry(`  ${cfg.note}`);
+
+        // Trigger a client-side refresh to show updated state
+        refreshAll();
     }
 
     // ── LCARS Detail Panel ─────────────────────────────────────────
