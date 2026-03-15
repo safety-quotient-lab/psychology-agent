@@ -8,8 +8,10 @@ package server
 import (
 	"crypto/rand"
 	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/hex"
 	"fmt"
+	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -26,9 +28,10 @@ type AuthResult struct {
 
 // resolveAuth determines the caller's identity and tier from the request.
 func (s *Server) resolveAuth(r *http.Request) AuthResult {
-	// Check operator secret first
+	// Check operator secret first (constant-time comparison).
 	opSecret := r.Header.Get("X-Operator-Secret")
-	if opSecret != "" && s.OperatorSecret != "" && opSecret == s.OperatorSecret {
+	if opSecret != "" && s.OperatorSecret != "" &&
+		subtle.ConstantTimeCompare([]byte(opSecret), []byte(s.OperatorSecret)) == 1 {
 		return AuthResult{
 			Identity:  "operator",
 			Tier:      "operator",
@@ -58,14 +61,8 @@ func (s *Server) resolveAuth(r *http.Request) AuthResult {
 		}
 	}
 
-	// Anonymous — use IP as identity
-	ip := r.Header.Get("X-Forwarded-For")
-	if ip == "" {
-		ip = r.RemoteAddr
-	}
-	if idx := strings.LastIndex(ip, ":"); idx > 0 {
-		ip = ip[:idx]
-	}
+	// Anonymous — use validated IP as identity.
+	ip := sanitizeClientIP(r)
 
 	return AuthResult{
 		Identity:  ip,
@@ -74,7 +71,8 @@ func (s *Server) resolveAuth(r *http.Request) AuthResult {
 	}
 }
 
-// checkRateLimit checks and increments the rate limit counter.
+// checkRateLimit atomically checks and increments the rate limit counter.
+// Uses a single INSERT ... ON CONFLICT to prevent race conditions.
 // Returns (allowed, remaining).
 func (s *Server) checkRateLimit(clientID string, limit int) (bool, int) {
 	if limit <= 0 {
@@ -82,26 +80,24 @@ func (s *Server) checkRateLimit(clientID string, limit int) (bool, int) {
 	}
 
 	window := time.Now().UTC().Format("2006-01-02T15")
-	safeClient := db.EscapeString(clientID)
+	safeClient := db.SanitizeID(clientID)
 	safeWindow := db.EscapeString(window)
 
-	// Read current count
-	count := db.QueryScalar(s.Config.BudgetDBPath,
-		fmt.Sprintf("SELECT count FROM rate_limits WHERE client_id='%s' AND window='%s'",
-			safeClient, safeWindow))
+	// Atomic upsert: increment first, then check.
+	// This eliminates the read-check-increment race condition.
+	sql := fmt.Sprintf(
+		"INSERT INTO rate_limits (client_id, window, count) VALUES ('%s', '%s', 1) "+
+			"ON CONFLICT(client_id, window) DO UPDATE SET count = count + 1 RETURNING count",
+		safeClient, safeWindow)
 
-	if count >= limit {
+	// Read the post-increment count.
+	count := db.QueryScalar(s.Config.BudgetDBPath, sql)
+
+	if count > limit {
 		return false, 0
 	}
 
-	// Increment
-	sql := fmt.Sprintf(
-		"INSERT INTO rate_limits (client_id, window, count) VALUES ('%s', '%s', 1) "+
-			"ON CONFLICT(client_id, window) DO UPDATE SET count = count + 1",
-		safeClient, safeWindow)
-	db.Exec(s.Config.BudgetDBPath, sql)
-
-	return true, limit - count - 1
+	return true, limit - count
 }
 
 // handleKeyCreate serves POST /api/keys → create a new API key.
@@ -119,8 +115,9 @@ func (s *Server) handleKeyCreate(w http.ResponseWriter, r *http.Request) {
 		Label    string `json:"label"`
 	}
 	if err := decodeJSON(r, &req); err != nil {
+		s.logger.Debug("key create: JSON decode failed", "err", err)
 		writeJSON(w, http.StatusBadRequest, map[string]string{
-			"error": "Invalid request: " + err.Error(),
+			"error": "Invalid request format",
 		}, s.logger)
 		return
 	}
@@ -210,6 +207,29 @@ func (s *Server) handleKeyRevoke(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleWhoAmI(w http.ResponseWriter, r *http.Request) {
 	auth := s.resolveAuth(r)
 	writeJSON(w, http.StatusOK, auth, s.logger)
+}
+
+// sanitizeClientIP extracts and validates the client IP from the request.
+// Rejects spoofed X-Forwarded-For values that fail IP parsing.
+func sanitizeClientIP(r *http.Request) string {
+	// Prefer X-Forwarded-For if present, but validate as IP.
+	xff := r.Header.Get("X-Forwarded-For")
+	if xff != "" {
+		// Take the first (leftmost = client) IP from comma-separated list.
+		parts := strings.SplitN(xff, ",", 2)
+		candidate := strings.TrimSpace(parts[0])
+		if parsed := net.ParseIP(candidate); parsed != nil {
+			return parsed.String()
+		}
+		// Invalid IP in XFF — fall through to RemoteAddr.
+	}
+
+	// Fall back to RemoteAddr (always contains host:port).
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return "unknown"
+	}
+	return host
 }
 
 // hashToken returns the hex-encoded SHA-256 hash of a token.

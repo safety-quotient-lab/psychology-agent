@@ -52,7 +52,19 @@ func (s *Server) handleSpawnRate(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, resp, s.logger)
 }
 
+// validWindows restricts SQL datetime offsets to known-safe values.
+var validWindows = map[string]bool{
+	"-1 hour":    true,
+	"-24 hours":  true,
+	"-7 days":    true,
+	"-30 days":   true,
+	"-100 years": true,
+}
+
 func spawnWindow(dbPath, window string) map[string]any {
+	if !validWindows[window] {
+		return map[string]any{"error": "invalid window", "total": 0}
+	}
 	total := db.QueryScalar(dbPath,
 		fmt.Sprintf("SELECT count(*) FROM spawn_log WHERE started_at > datetime('now', '%s')", window))
 	completed := db.QueryScalar(dbPath,

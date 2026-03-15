@@ -9,10 +9,22 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/safety-quotient-lab/operations-agent/internal/db"
 )
+
+// ftsSpecialRe matches FTS5 special characters that need escaping.
+var ftsSpecialRe = regexp.MustCompile(`[*"():^{}~]`)
+
+// escapeFTS5 wraps the query in double quotes to prevent FTS5 operator injection.
+func escapeFTS5(q string) string {
+	// Remove any existing double quotes, then wrap in quotes for exact phrase match.
+	safe := strings.ReplaceAll(q, `"`, ``)
+	return `"` + safe + `"`
+}
 
 // handleSearch serves GET /api/search?q={query}&scope={messages|decisions|vocab|all}
 func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
@@ -29,13 +41,18 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 		scope = "all"
 	}
 
-	limit := r.URL.Query().Get("limit")
-	if limit == "" {
-		limit = "50"
+	limitStr := r.URL.Query().Get("limit")
+	limitVal := 50
+	if limitStr != "" {
+		if v, err := strconv.Atoi(limitStr); err == nil && v > 0 && v <= 200 {
+			limitVal = v
+		}
 	}
+	limit := strconv.Itoa(limitVal)
 
 	dbPath := s.Config.BudgetDBPath
 	escapedQuery := db.EscapeString(query)
+	ftsQuery := escapeFTS5(query)
 
 	results := make(map[string]interface{})
 
@@ -44,7 +61,7 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 		// Try FTS5 first, fall back to LIKE
 		msgs, err := db.QueryJSON(dbPath,
 			"SELECT session_name, filename, from_agent, to_agent, message_type, subject, timestamp "+
-				"FROM fts_messages WHERE fts_messages MATCH '"+escapedQuery+"' "+
+				"FROM fts_messages WHERE fts_messages MATCH "+ftsQuery+" "+
 				"ORDER BY rank LIMIT "+limit)
 		if err != nil || len(msgs) == 0 {
 			msgs, _ = db.QueryJSON(dbPath,
@@ -63,7 +80,7 @@ func (s *Server) handleSearch(w http.ResponseWriter, r *http.Request) {
 	if scope == "all" || scope == "decisions" {
 		decs, err := db.QueryJSON(dbPath,
 			"SELECT decision_key, title, source, status, created_at "+
-				"FROM fts_decisions WHERE fts_decisions MATCH '"+escapedQuery+"' "+
+				"FROM fts_decisions WHERE fts_decisions MATCH "+ftsQuery+" "+
 				"ORDER BY rank LIMIT "+limit)
 		if err != nil || len(decs) == 0 {
 			decs, _ = db.QueryJSON(dbPath,

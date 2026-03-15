@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime/debug"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -341,10 +342,14 @@ func (s *Server) middleware(next http.Handler) http.Handler {
 			}
 		}()
 
-		// CORS headers for dashboard access.
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		// CORS headers — restricted to known mesh origins.
+		origin := r.Header.Get("Origin")
+		if isAllowedOrigin(origin) {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		}
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Operator-Secret")
+		w.Header().Set("Vary", "Origin")
 
 		// Version header.
 		w.Header().Set("X-Meshd-Version", Version)
@@ -355,11 +360,15 @@ func (s *Server) middleware(next http.Handler) http.Handler {
 			return
 		}
 
+		// CSP for HTML responses (prevents XSS via injected scripts).
+		w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+
 		// Wrap the ResponseWriter to capture the status code.
 		sw := &statusWriter{ResponseWriter: w, code: http.StatusOK}
 		next.ServeHTTP(sw, r)
 
-		// Structured request log.
+		// Structured request log — Authorization header redacted.
 		s.logger.Info("http request",
 			"method", r.Method,
 			"path", r.URL.Path,
@@ -444,8 +453,7 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 		"uptime":                uptime.Truncate(time.Second).String(),
 		"uptime_seconds":        int64(uptime.Seconds()),
 		"collected_at":          time.Now().UTC().Format(time.RFC3339),
-		"db_path":               dbPath,
-		"db_exists":             true,
+		"db_available":          true,
 		"health":                s.Health.OverallStatus().String(),
 		"autonomy_budget":       budget,
 		"recent_messages":       recentMsgs,
@@ -538,6 +546,32 @@ func (s *Server) handleDeliberations(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, snapshot, s.logger)
+}
+
+// allowedOrigins lists domains permitted for CORS access.
+// Localhost origins allowed for development.
+var allowedOrigins = []string{
+	"https://interagent.safety-quotient.dev",
+	"https://operations-agent.safety-quotient.dev",
+	"https://psychology-agent.safety-quotient.dev",
+	"https://psq-agent.safety-quotient.dev",
+	"https://observatory.unratified.org",
+	"https://unratified.org",
+	"http://localhost",
+	"http://127.0.0.1",
+}
+
+// isAllowedOrigin checks whether origin matches an allowed prefix.
+func isAllowedOrigin(origin string) bool {
+	if origin == "" {
+		return false
+	}
+	for _, allowed := range allowedOrigins {
+		if origin == allowed || strings.HasPrefix(origin, allowed+":") {
+			return true
+		}
+	}
+	return false
 }
 
 // --- Helpers ---

@@ -7,6 +7,7 @@
 package server
 
 import (
+	"crypto/subtle"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -55,9 +56,11 @@ func (s *Server) handleInbound(w http.ResponseWriter, r *http.Request) {
 	expectedToken := os.Getenv("MESHD_INBOUND_TOKEN")
 	if expectedToken != "" {
 		auth := r.Header.Get("Authorization")
-		if auth == "" || auth != "Bearer "+expectedToken {
+		expected := "Bearer " + expectedToken
+		// Constant-time comparison prevents timing attacks.
+		if subtle.ConstantTimeCompare([]byte(auth), []byte(expected)) != 1 {
 			writeJSON(w, http.StatusUnauthorized, map[string]string{
-				"error": "Missing or invalid Authorization header. Provide Bearer token.",
+				"error": "Authentication required",
 			}, s.logger)
 			return
 		}
@@ -69,8 +72,9 @@ func (s *Server) handleInbound(w http.ResponseWriter, r *http.Request) {
 
 	var msg inboundMessage
 	if err := json.NewDecoder(r.Body).Decode(&msg); err != nil {
+		s.logger.Debug("inbound: JSON decode failed", "err", err)
 		writeJSON(w, http.StatusBadRequest, map[string]string{
-			"error": "Invalid JSON body: " + err.Error(),
+			"error": "Invalid request format",
 		}, s.logger)
 		return
 	}

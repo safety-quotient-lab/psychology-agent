@@ -11,11 +11,50 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
 )
+
+// validateFetchURL rejects URLs that could enable SSRF attacks.
+// Requires HTTPS (or localhost HTTP for development).
+// Rejects private/loopback IPs in non-localhost hostnames.
+func validateFetchURL(rawURL string) error {
+	parsed, err := url.Parse(rawURL)
+	if err != nil {
+		return fmt.Errorf("malformed URL: %w", err)
+	}
+
+	// Allow HTTP only for localhost development.
+	host := parsed.Hostname()
+	if parsed.Scheme == "http" {
+		if host != "localhost" && host != "127.0.0.1" {
+			return fmt.Errorf("HTTPS required for non-localhost URLs")
+		}
+		return nil
+	}
+
+	if parsed.Scheme != "https" {
+		return fmt.Errorf("scheme %q not allowed (use https)", parsed.Scheme)
+	}
+
+	// Reject private IP ranges in HTTPS URLs (SSRF protection).
+	ips, err := net.LookupIP(host)
+	if err != nil {
+		// DNS resolution failure — allow (may resolve later via different DNS).
+		return nil
+	}
+	for _, ip := range ips {
+		if ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
+			return fmt.Errorf("URL resolves to private/loopback address %s", ip)
+		}
+	}
+
+	return nil
+}
 
 // AgentInfo holds parsed agent card data for compositor use.
 type AgentInfo struct {
@@ -205,7 +244,12 @@ func (r *AgentRegistry) FetchAllStatuses() map[string]map[string]any {
 }
 
 // fetchCard retrieves and parses a single agent card.
+// Validates URL scheme (HTTPS required in production) to prevent SSRF.
 func (r *AgentRegistry) fetchCard(cardURL string) (AgentInfo, error) {
+	if err := validateFetchURL(cardURL); err != nil {
+		return AgentInfo{}, fmt.Errorf("URL validation failed: %w", err)
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
