@@ -6,6 +6,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -125,16 +126,30 @@ func (s *Server) handleOperations(w http.ResponseWriter, r *http.Request) {
 	statuses := s.Registry.FetchAllStatuses()
 
 	type budgetEntry struct {
-		AgentID      string  `json:"agent_id"`
-		Spent        float64 `json:"budget_spent"`
-		Cutoff       float64 `json:"budget_cutoff"`
-		ShadowMode   bool    `json:"shadow_mode"`
-		ManualMode   bool    `json:"manual_mode"`
+		AgentID           string  `json:"agent_id"`
+		Spent             float64 `json:"budget_spent"`
+		Cutoff            float64 `json:"budget_cutoff"`
+		ShadowMode        bool    `json:"shadow_mode"`
+		ManualMode        bool    `json:"manual_mode"`
+		MinActionInterval float64 `json:"min_action_interval"`
+		LastAction        string  `json:"last_action"`
+	}
+
+	type scheduleEntry struct {
+		AgentID   string `json:"agent_id"`
+		Status    string `json:"status"`
+		CronEntry string `json:"cron_entry,omitempty"`
+		LastSync  string `json:"last_sync,omitempty"`
 	}
 
 	budgets := make([]budgetEntry, 0, len(agents))
 	recentActions := []map[string]any{}
 	allGates := []map[string]any{}
+	schedules := make([]scheduleEntry, 0, len(agents))
+
+	totalSpent := 0.0
+	totalCutoff := 0.0
+	agentsSyncing := 0
 
 	for _, agent := range agents {
 		entry := budgetEntry{
@@ -142,15 +157,29 @@ func (s *Server) handleOperations(w http.ResponseWriter, r *http.Request) {
 			ManualMode: ManualModeAgents[agent.ID],
 		}
 
+		sched := scheduleEntry{
+			AgentID: agent.ID,
+			Status:  "offline",
+		}
+
 		data, ok := statuses[agent.ID]
 		if ok {
+			sched.Status = "active"
+
 			if budget, ok := data["autonomy_budget"].(map[string]any); ok {
 				entry.Spent = floatFromMap(budget, "budget_spent")
 				entry.Cutoff = floatFromMap(budget, "budget_cutoff")
+				entry.MinActionInterval = floatFromMap(budget, "min_action_interval")
+				if la, ok := budget["last_action"]; ok {
+					entry.LastAction = fmt.Sprintf("%v", la)
+				}
 				if sm, ok := budget["shadow_mode"]; ok {
 					entry.ShadowMode = sm == true || sm == "1" || sm == 1.0
 				}
 			}
+
+			totalSpent += entry.Spent
+			totalCutoff += entry.Cutoff
 
 			// Recent deliberations as actions
 			if spawns, ok := data["recent_deliberations"].([]any); ok {
@@ -171,15 +200,29 @@ func (s *Server) handleOperations(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			}
+
+			agentsSyncing++
 		}
 
 		budgets = append(budgets, entry)
+		schedules = append(schedules, sched)
+	}
+
+	vitals := map[string]any{
+		"total_credits":  totalSpent,
+		"max_credits":    totalCutoff,
+		"total_actions":  len(recentActions),
+		"active_gates":   len(allGates),
+		"agents_syncing": agentsSyncing,
+		"agents_total":   len(agents),
 	}
 
 	ops := map[string]any{
+		"vitals":         vitals,
 		"budgets":        budgets,
 		"recent_actions": recentActions,
 		"active_gates":   allGates,
+		"schedules":      schedules,
 		"collected_at":   time.Now().UTC().Format(time.RFC3339),
 	}
 
