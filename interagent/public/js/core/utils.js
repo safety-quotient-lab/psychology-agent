@@ -132,6 +132,57 @@ export function getAcronymMap() {
     return { ...acronymMap };
 }
 
+// ── Sparkline SVG Generator ──────────────────────────────────────────
+// Generates inline SVG sparklines for trend visualization. No external
+// deps — pure SVG path construction from numeric arrays.
+
+/**
+ * Generate an inline SVG sparkline from an array of numeric values.
+ * Returns an SVG element string suitable for innerHTML insertion.
+ *
+ * @param {number[]} values — data points (oldest first)
+ * @param {Object} opts — options
+ * @param {number} opts.width — SVG width in px (default 60)
+ * @param {number} opts.height — SVG height in px (default 16)
+ * @param {string} opts.stroke — line color (default "#9999ff")
+ * @param {string} opts.fill — area fill (default "none")
+ * @returns {string} — SVG element HTML string
+ */
+export function sparklineSVG(values, opts = {}) {
+    const w = opts.width || 60;
+    const h = opts.height || 16;
+    const stroke = opts.stroke || "#9999ff";
+    const fill = opts.fill || "none";
+
+    if (!values || values.length < 2) {
+        return `<svg class="sparkline-svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"></svg>`;
+    }
+
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+    const pad = 1;
+
+    const points = values.map((v, i) => {
+        const x = (i / (values.length - 1)) * (w - 2 * pad) + pad;
+        const y = h - pad - ((v - min) / range) * (h - 2 * pad);
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+    });
+
+    const polyline = points.join(" ");
+
+    let fillPath = "";
+    if (fill !== "none") {
+        fillPath = `<polygon points="${pad},${h - pad} ${polyline} ${w - pad},${h - pad}" fill="${fill}" opacity="0.2"/>`;
+    }
+
+    return `<svg class="sparkline-svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+        ${fillPath}
+        <polyline points="${polyline}" fill="none" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+        <circle cx="${points[points.length - 1].split(",")[0]}" cy="${points[points.length - 1].split(",")[1]}" r="2" fill="${stroke}"/>
+    </svg>`;
+}
+
 // ── Mobile Status Bar ────────────────────────────────────────────────
 // Updates the compact mobile clock and mesh-status dot. The clock ticks
 // every 60 seconds. Status dot color reflects mesh health.

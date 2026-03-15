@@ -254,12 +254,13 @@ function renderFlowFromData(container, flow) {
 }
 
 /**
- * Render flow pairs as a table.
+ * Render flow pairs as SVG diagram + table.
  * @param {HTMLElement} container — target element
  * @param {Array} pairs — { from, to, count } array
  */
 function renderFlowTable(container, pairs) {
-    container.innerHTML = `<table class="helm-flow-table">
+    const svg = buildFlowDiagram(pairs);
+    const table = `<table class="helm-flow-table">
         <thead><tr><th>From</th><th>To</th><th>Messages</th></tr></thead>
         <tbody>${pairs.map(p =>
             `<tr>
@@ -269,6 +270,89 @@ function renderFlowTable(container, pairs) {
             </tr>`
         ).join("")}</tbody>
     </table>`;
+    container.innerHTML = svg + table;
+}
+
+/** Agent positions for flow diagram (pentagon layout) */
+const FLOW_AGENTS = [
+    { id: "psychology-agent", label: "psych", color: "#6b8aaf" },
+    { id: "psq-agent", label: "psq", color: "#5da8a0" },
+    { id: "safety-quotient-agent", label: "psq", color: "#5da8a0" },
+    { id: "unratified-agent", label: "unrat", color: "#c4956a" },
+    { id: "observatory-agent", label: "obs", color: "#9b8ec4" },
+    { id: "operations-agent", label: "ops", color: "#7a9b6b" },
+];
+
+/**
+ * Build SVG flow diagram showing agent-to-agent message paths.
+ * Nodes arranged in a pentagon, edges show message counts.
+ * @param {Array} pairs — { from, to, count } array
+ * @returns {string} — SVG HTML string
+ */
+function buildFlowDiagram(pairs) {
+    const w = 320, h = 180;
+    const cx = w / 2, cy = h / 2 + 5;
+    const rx = 120, ry = 65;
+
+    // Unique agents from pairs, map to known agents
+    const seen = new Set();
+    for (const p of pairs) {
+        seen.add(p.from);
+        seen.add(p.to);
+    }
+
+    // Place known agents on an ellipse
+    const knownIds = ["psychology-agent", "psq-agent", "unratified-agent", "observatory-agent", "operations-agent"];
+    const placed = knownIds.filter(id => seen.has(id));
+    const nodeMap = {};
+    placed.forEach((id, i) => {
+        const angle = -Math.PI / 2 + (2 * Math.PI * i) / placed.length;
+        const agent = FLOW_AGENTS.find(a => a.id === id) || { label: id.replace("-agent", ""), color: "#888" };
+        nodeMap[id] = {
+            x: cx + rx * Math.cos(angle),
+            y: cy + ry * Math.sin(angle),
+            label: agent.label,
+            color: agent.color,
+        };
+    });
+
+    // Also map safety-quotient-agent to psq position
+    if (nodeMap["psq-agent"]) {
+        nodeMap["safety-quotient-agent"] = nodeMap["psq-agent"];
+    }
+
+    const maxCount = Math.max(...pairs.map(p => p.count), 1);
+
+    // Draw edges
+    let edges = "";
+    for (const p of pairs) {
+        const from = nodeMap[p.from];
+        const to = nodeMap[p.to];
+        if (!from || !to || from === to) continue;
+
+        const thickness = Math.max(1, (p.count / maxCount) * 4);
+        const midX = (from.x + to.x) / 2;
+        const midY = (from.y + to.y) / 2;
+
+        // Offset curve control point slightly toward center
+        const cpX = midX + (cx - midX) * 0.3;
+        const cpY = midY + (cy - midY) * 0.3;
+
+        edges += `<path class="flow-edge" d="M${from.x.toFixed(0)},${from.y.toFixed(0)} Q${cpX.toFixed(0)},${cpY.toFixed(0)} ${to.x.toFixed(0)},${to.y.toFixed(0)}" stroke="${from.color}" stroke-width="${thickness.toFixed(1)}" marker-end="url(#arrow)"/>`;
+        edges += `<text class="flow-edge-label" x="${cpX.toFixed(0)}" y="${(cpY - 4).toFixed(0)}">${p.count}</text>`;
+    }
+
+    // Draw nodes
+    let nodes = "";
+    for (const [, node] of Object.entries(nodeMap)) {
+        nodes += `<circle cx="${node.x.toFixed(0)}" cy="${node.y.toFixed(0)}" r="14" fill="${node.color}" opacity="0.85"/>`;
+        nodes += `<text class="flow-node-label" x="${node.x.toFixed(0)}" y="${(node.y + 28).toFixed(0)}">${node.label}</text>`;
+    }
+
+    return `<svg class="flow-diagram-svg" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="arrow" viewBox="0 0 10 10" refX="22" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#888"/></marker></defs>
+        ${edges}${nodes}
+    </svg>`;
 }
 
 // ── Render: Engagement (A2A-Psychology) ──────────────────────

@@ -189,6 +189,94 @@ export function renderAgentCompliance() {
     }).join("");
 }
 
+// ── Render: Trust Matrix Heatmap ─────────────────────────────
+
+/** Trust data cache */
+let trustData = null;
+
+/**
+ * Fetch trust matrix from compositor and render as heatmap.
+ * DOM WRITE: #trust-heatmap (innerHTML replacement)
+ */
+export async function fetchAndRenderTrustMatrix() {
+    const container = document.getElementById("trust-heatmap");
+    if (!container) return;
+
+    try {
+        const resp = await fetch("https://interagent.safety-quotient.dev/api/trust", {
+            signal: AbortSignal.timeout(FETCH_TIMEOUT),
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        trustData = await resp.json();
+    } catch {
+        container.innerHTML = '<div class="trust-matrix-loading">Trust data unavailable</div>';
+        return;
+    }
+
+    const agents = trustData.agents || [];
+    if (agents.length === 0) {
+        container.innerHTML = '<div class="trust-matrix-loading">No trust observations</div>';
+        return;
+    }
+
+    const dims = ["availability", "integrity", "compliance", "epistemic_honesty"];
+    const dimLabels = { availability: "AVAIL", integrity: "INTEG", compliance: "COMPL", epistemic_honesty: "EPIST" };
+    const labelMap = { "psychology-agent": "psych", "psq-agent": "psq", "safety-quotient-agent": "psq",
+        "unratified-agent": "unrat", "observatory-agent": "obs", "operations-agent": "ops" };
+
+    // Grid: dim-label column + one column per agent
+    let html = `<div class="trust-matrix-grid" style="grid-template-columns: 56px repeat(${agents.length}, 1fr)">`;
+
+    // Header row — blank corner + agent labels
+    html += '<div class="trust-matrix-header"></div>';
+    for (const a of agents) {
+        html += `<div class="trust-matrix-header">${labelMap[a.agent_id] || a.agent_id}</div>`;
+    }
+
+    // Dimension rows
+    for (const dim of dims) {
+        html += `<div class="trust-matrix-header" style="justify-content:flex-end;padding-right:6px">${dimLabels[dim]}</div>`;
+        for (const a of agents) {
+            const val = a.dimensions?.[dim] ?? 0;
+            const color = trustColor(val);
+            const display = (val * 100).toFixed(0);
+            html += `<div class="trust-matrix-cell" style="background:${color}" title="${a.agent_id}: ${dim} = ${val}">${display}</div>`;
+        }
+    }
+
+    // Aggregate row
+    html += '<div class="trust-matrix-header" style="justify-content:flex-end;padding-right:6px;font-weight:700">AGG</div>';
+    for (const a of agents) {
+        const val = a.trust_aggregate ?? 0;
+        const color = trustColor(val);
+        const display = (val * 100).toFixed(0);
+        html += `<div class="trust-matrix-cell" style="background:${color};font-weight:700" title="${a.agent_id}: aggregate = ${val}">${display}</div>`;
+    }
+
+    html += '</div>';
+
+    // Legend
+    html += `<div class="trust-matrix-legend">
+        <span><span class="trust-legend-swatch" style="background:#6aab8e"></span> &ge;80%</span>
+        <span><span class="trust-legend-swatch" style="background:#d4944a"></span> 50-79%</span>
+        <span><span class="trust-legend-swatch" style="background:#c47070"></span> &lt;50%</span>
+        <span style="color:var(--text-dim)">Floor: ${((trustData.trust_floor || 0) * 100).toFixed(0)}% (${trustData.mesh_trust_status || "?"})</span>
+    </div>`;
+
+    container.innerHTML = html;
+}
+
+/**
+ * Map trust value (0-1) to LCARS color.
+ */
+function trustColor(val) {
+    if (val >= 0.8) return "#6aab8e";
+    if (val >= 0.6) return "#89b87a";
+    if (val >= 0.4) return "#d4944a";
+    if (val >= 0.2) return "#c47070";
+    return "#993333";
+}
+
 // ── Render: Combined Tactical ──────────────────────────────────
 
 /**
@@ -198,4 +286,5 @@ export function renderTactical() {
     renderShieldStatus();
     renderTransportIntegrity();
     renderAgentCompliance();
+    fetchAndRenderTrustMatrix();
 }

@@ -2591,6 +2591,88 @@
             text-align: center;
         }
 
+        /* ── Trust Matrix Heatmap ─────────────────────────────────── */
+        .trust-matrix-grid {
+            display: grid;
+            gap: 2px;
+            font-size: 0.72em;
+        }
+        .trust-matrix-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #000;
+            min-height: 32px;
+            transition: opacity 0.3s;
+        }
+        .trust-matrix-cell:hover { opacity: 0.85; }
+        .trust-matrix-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .trust-matrix-loading {
+            color: var(--text-dim);
+            font-size: 0.82em;
+            font-style: italic;
+            padding: 16px;
+            text-align: center;
+        }
+        .trust-matrix-legend {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 8px;
+            font-size: 0.68em;
+            color: var(--text-dim);
+        }
+        .trust-legend-swatch {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            vertical-align: middle;
+            margin-right: 3px;
+        }
+
+        /* ── Sparklines ───────────────────────────────────────────── */
+        .sparkline-container {
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 6px;
+        }
+        .sparkline-svg { display: block; }
+
+        /* ── Message Flow Diagram ─────────────────────────────────── */
+        .flow-diagram-svg {
+            width: 100%;
+            max-height: 200px;
+        }
+        .flow-node-label {
+            font-size: 10px;
+            font-weight: 600;
+            fill: var(--text-primary, #ccc);
+            text-anchor: middle;
+        }
+        .flow-edge {
+            stroke-width: 2;
+            fill: none;
+            opacity: 0.7;
+        }
+        .flow-edge-label {
+            font-size: 8px;
+            fill: var(--text-dim, #888);
+            text-anchor: middle;
+        }
+
         /* ── Responsive: Phone (inline overrides) ────────────────── */
         @media (max-width: 768px) {
             .lcars-frame {
@@ -3904,6 +3986,14 @@
                             <span class="threat-severity-warn">rate-limit near [psq] 80% of hourly cap</span>
                         </div>
                         <div class="threat-summary" id="threat-summary">TOTAL: 2 events today (0 critical)</div>
+                    </div>
+                </div>
+
+                <!-- Panel E: Trust Matrix Heatmap -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-tactical); grid-column: 1 / -1;">
+                    <div class="lcars-panel-header">Trust Matrix</div>
+                    <div class="lcars-panel-body" id="trust-heatmap">
+                        <div class="trust-matrix-loading">Fetching trust data...</div>
                     </div>
                 </div>
             </div>
