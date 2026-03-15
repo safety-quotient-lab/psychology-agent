@@ -36,8 +36,8 @@ func (s *Server) handlePulse(w http.ResponseWriter, r *http.Request) {
 		Version        string  `json:"version"`
 		Health         string  `json:"health"`
 		ManualMode     bool    `json:"manual_mode"`
-		BudgetCurrent  float64 `json:"budget_current"`
-		BudgetMax      float64 `json:"budget_max"`
+		BudgetSpent    float64 `json:"budget_spent"`
+		BudgetCutoff   float64 `json:"budget_cutoff"`
 		Unprocessed    int     `json:"unprocessed_messages"`
 		EpistemicDebt  int     `json:"epistemic_debt"`
 		Uptime         string  `json:"uptime,omitempty"`
@@ -64,10 +64,10 @@ func (s *Server) handlePulse(w http.ResponseWriter, r *http.Request) {
 
 			// Budget
 			if budget, ok := data["autonomy_budget"].(map[string]any); ok {
-				summary.BudgetCurrent = floatFromMap(budget, "budget_current")
-				summary.BudgetMax = floatFromMap(budget, "budget_max")
-				totalBudgetCurrent += summary.BudgetCurrent
-				totalBudgetMax += summary.BudgetMax
+				summary.BudgetSpent = floatFromMap(budget, "budget_spent")
+				summary.BudgetCutoff = floatFromMap(budget, "budget_cutoff")
+				totalBudgetCurrent += summary.BudgetSpent
+				totalBudgetMax += summary.BudgetCutoff
 			}
 
 			// Unprocessed messages
@@ -108,8 +108,8 @@ func (s *Server) handlePulse(w http.ResponseWriter, r *http.Request) {
 		"pending_messages": pendingMessages,
 		"active_gates":    activeGates,
 		"autonomy_credits": map[string]any{
-			"current": totalBudgetCurrent,
-			"max":     totalBudgetMax,
+			"total_spent":  totalBudgetCurrent,
+			"total_cutoff": totalBudgetMax,
 		},
 		"agents":       summaries,
 		"collected_at": time.Now().UTC().Format(time.RFC3339),
@@ -126,8 +126,8 @@ func (s *Server) handleOperations(w http.ResponseWriter, r *http.Request) {
 
 	type budgetEntry struct {
 		AgentID      string  `json:"agent_id"`
-		Current      float64 `json:"budget_current"`
-		Max          float64 `json:"budget_max"`
+		Spent        float64 `json:"budget_spent"`
+		Cutoff       float64 `json:"budget_cutoff"`
 		ShadowMode   bool    `json:"shadow_mode"`
 		ManualMode   bool    `json:"manual_mode"`
 	}
@@ -145,8 +145,8 @@ func (s *Server) handleOperations(w http.ResponseWriter, r *http.Request) {
 		data, ok := statuses[agent.ID]
 		if ok {
 			if budget, ok := data["autonomy_budget"].(map[string]any); ok {
-				entry.Current = floatFromMap(budget, "budget_current")
-				entry.Max = floatFromMap(budget, "budget_max")
+				entry.Spent = floatFromMap(budget, "budget_spent")
+				entry.Cutoff = floatFromMap(budget, "budget_cutoff")
 				if sm, ok := budget["shadow_mode"]; ok {
 					entry.ShadowMode = sm == true || sm == "1" || sm == 1.0
 				}

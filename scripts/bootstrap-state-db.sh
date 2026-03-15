@@ -34,10 +34,10 @@ EXISTING=$(sqlite3 "$DB_PATH" "SELECT count(*) FROM autonomy_budget WHERE agent_
 if [ "$EXISTING" = "0" ]; then
   TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S")
   sqlite3 "$DB_PATH" "
-    INSERT INTO autonomy_budget (agent_id, budget_current, budget_max, shadow_mode, last_audit, updated_at)
-    VALUES ('operations-agent', 50, 50, 0, '$TIMESTAMP', '$TIMESTAMP');
+    INSERT INTO autonomy_budget (agent_id, budget_spent, budget_cutoff, shadow_mode, last_audit, updated_at)
+    VALUES ('operations-agent', 0, 0, 0, '$TIMESTAMP', '$TIMESTAMP');
   "
-  echo "Seeded: operations-agent budget 50/50"
+  echo "Seeded: operations-agent budget (spent=0, cutoff=0/unlimited)"
 fi
 
 # Seed decisions from plan.md if decisions table empty

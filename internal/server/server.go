@@ -376,7 +376,7 @@ func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
 
 	// Budget from state.db
 	budgetRows, _ := db.QueryJSON(dbPath,
-		"SELECT agent_id, budget_current, budget_max, shadow_mode, consecutive_blocks, last_audit, updated_at FROM autonomy_budget WHERE agent_id='"+db.SanitizeID(s.Config.AgentID)+"'")
+		"SELECT agent_id, budget_spent, budget_cutoff, shadow_mode, consecutive_blocks, last_audit, updated_at FROM autonomy_budget WHERE agent_id='"+db.SanitizeID(s.Config.AgentID)+"'")
 	var budget interface{}
 	if len(budgetRows) > 0 {
 		budget = budgetRows[0]

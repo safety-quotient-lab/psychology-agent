@@ -329,8 +329,9 @@
             hEl.className = "vital-value " + (health === "healthy" ? "healthy" : health === "degraded" ? "degraded" : "");
 
             const b = data.autonomy_budget || {};
+            const cutoffLabel = (b.budget_cutoff > 0) ? `/${b.budget_cutoff}` : "";
             document.getElementById("v-budget").textContent =
-                (b.budget_current != null) ? `${b.budget_current}/${b.budget_max || "?"}` : "—";
+                (b.budget_spent != null) ? `${b.budget_spent}${cutoffLabel} spent` : "—";
 
             const unproc = Array.isArray(data.unprocessed_messages) ? data.unprocessed_messages.length : 0;
             document.getElementById("v-messages").textContent = unproc;

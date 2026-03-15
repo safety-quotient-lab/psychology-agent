@@ -28,7 +28,7 @@
       "@type": "DefinedTerm",
       "@id": "sqm:AutonomyBudget",
       "name": "Autonomy Budget",
-      "description": "Integer count of remaining autonomy credits for autonomous operation. Decrements per autonomous action; human audit resets to maximum. When zero, agent halts autonomous operation. Wire format: autonomy_budget. Formerly aliased as trust_budget (deprecated — autonomy budget describes the mechanism; trust describes a relationship that does not exist in the mechanism).",
+      "description": "Spend counter for autonomous operations. Increments per autonomous action (budget_spent). Optional cutoff (budget_cutoff) halts operation when reached; cutoff 0 means unlimited (counter-only). Wire format: autonomy_budget { budget_spent, budget_cutoff }. Formerly aliased as trust_budget (deprecated).",
       "inDefinedTermSet": "https://interagent.safety-quotient.dev/vocab",
       "termCode": "sqm:AutonomyBudget",
       "status": "active"

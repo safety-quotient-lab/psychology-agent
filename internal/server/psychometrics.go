@@ -32,8 +32,8 @@ type PsychMetrics struct {
 	TotalMessages       int     `json:"total_messages"`
 	ActiveGates         int     `json:"active_gates"`
 	GatesTimingOut      int     `json:"gates_timing_out"`
-	BudgetCurrent       float64 `json:"budget_current"`
-	BudgetMax           float64 `json:"budget_max"`
+	BudgetSpent         float64 `json:"budget_spent"`
+	BudgetCutoff        float64 `json:"budget_cutoff"`
 	ConsecutiveBlocks   int     `json:"consecutive_blocks"`
 	ShadowMode          int     `json:"shadow_mode"`
 	ActionsLastHour     int     `json:"actions_last_hour"`
@@ -73,8 +73,8 @@ func (s *Server) handlePsychometrics(w http.ResponseWriter, r *http.Request) {
 func (s *Server) gatherMetrics() PsychMetrics {
 	dbPath := s.Config.BudgetDBPath
 	m := PsychMetrics{
-		BudgetCurrent: 50,
-		BudgetMax:     50,
+		BudgetSpent:  0,
+		BudgetCutoff: 0,
 	}
 
 	// Transport metrics
@@ -85,14 +85,14 @@ func (s *Server) gatherMetrics() PsychMetrics {
 
 	// Budget
 	rows, err := db.QueryJSON(dbPath,
-		fmt.Sprintf("SELECT budget_current, budget_max, consecutive_blocks, shadow_mode FROM autonomy_budget WHERE agent_id='%s'",
+		fmt.Sprintf("SELECT budget_spent, budget_cutoff, consecutive_blocks, shadow_mode FROM autonomy_budget WHERE agent_id='%s'",
 			db.SanitizeID(s.Config.AgentID)))
 	if err == nil && len(rows) > 0 {
-		if v, err := strconv.ParseFloat(rows[0]["budget_current"], 64); err == nil {
-			m.BudgetCurrent = v
+		if v, err := strconv.ParseFloat(rows[0]["budget_spent"], 64); err == nil {
+			m.BudgetSpent = v
 		}
-		if v, err := strconv.ParseFloat(rows[0]["budget_max"], 64); err == nil {
-			m.BudgetMax = v
+		if v, err := strconv.ParseFloat(rows[0]["budget_cutoff"], 64); err == nil {
+			m.BudgetCutoff = v
 		}
 		if v, err := strconv.Atoi(rows[0]["consecutive_blocks"]); err == nil {
 			m.ConsecutiveBlocks = v
@@ -140,7 +140,7 @@ func computePAD(m PsychMetrics) map[string]any {
 	msgVolume := clamp01(float64(m.UnprocessedMessages) / 5.0)
 	arousal := clamp(2.0*(activity+m.ContextPressure+msgVolume)/3.0-1.0, -1, 1)
 
-	budgetRatio := m.BudgetCurrent / math.Max(m.BudgetMax, 1)
+	budgetRatio := budgetHeadroom(m.BudgetSpent, m.BudgetCutoff)
 	blockPenalty := clamp01(float64(m.ConsecutiveBlocks) / 3.0)
 	dominance := clamp(2.0*(budgetRatio-blockPenalty)-1.0, -1, 1)
 
@@ -211,7 +211,7 @@ func computeTLX(m PsychMetrics) map[string]any {
 func computeResources(tlx map[string]any, m PsychMetrics) map[string]any {
 	cogLoad := tlx["cognitive_load"].(float64)
 	workloadFactor := 1.0 - cogLoad/100.0
-	budgetFactor := m.BudgetCurrent / math.Max(m.BudgetMax, 1)
+	budgetFactor := budgetHeadroom(m.BudgetSpent, m.BudgetCutoff)
 	contextFactor := 1.0 - m.ContextPressure
 	cogReserve := workloadFactor * budgetFactor * contextFactor
 	selfReg := budgetFactor
@@ -227,7 +227,7 @@ func computeResources(tlx map[string]any, m PsychMetrics) map[string]any {
 // ── Supervisory Control (Sheridan & Verplank, 1978) ─────────────────────────
 
 func computeSupervisoryControl(m PsychMetrics) map[string]any {
-	budgetRatio := m.BudgetCurrent / math.Max(m.BudgetMax, 1)
+	budgetRatio := budgetHeadroom(m.BudgetSpent, m.BudgetCutoff)
 	loa := 7
 	humanInLoop := false
 	humanMonitoring := true
@@ -322,6 +322,15 @@ func computeFlow(m PsychMetrics, resources map[string]any) map[string]any {
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
+
+// budgetHeadroom returns 0..1 representing available budget capacity.
+// Cutoff 0 means unlimited — always returns 1.0 (full headroom).
+func budgetHeadroom(spent, cutoff float64) float64 {
+	if cutoff <= 0 {
+		return 1.0
+	}
+	return math.Max(0, 1.0-spent/cutoff)
+}
 
 func clamp(v, lo, hi float64) float64   { return math.Max(lo, math.Min(hi, v)) }
 func clamp01(v float64) float64          { return clamp(v, 0, 1) }

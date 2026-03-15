@@ -346,11 +346,12 @@
             } else {
                 const d = state.data;
                 const budget = d.autonomy_budget || {};
-                const hasBudget = typeof budget.budget_current === 'number';
-                const cur = hasBudget ? budget.budget_current : null;
-                const max = hasBudget ? (budget.budget_max || 50) : null;
-                const pct = (cur !== null && max > 0) ? Math.round((cur / max) * 100) : null;
-                const budgetClass = pct === null ? 'dim' : pct > 50 ? 'high' : pct > 20 ? 'mid' : 'low';
+                const hasBudget = typeof budget.budget_spent === 'number' || typeof budget.budget_spent === 'string';
+                const spent = hasBudget ? parseInt(budget.budget_spent) : null;
+                const cutoff = parseInt(budget.budget_cutoff) || 0;
+                const budgetLabel = spent !== null ? (cutoff > 0 ? `${spent}/${cutoff}` : `${spent}`) : '—';
+                const pct = (spent !== null && cutoff > 0) ? Math.min(100, Math.round((spent / cutoff) * 100)) : null;
+                const budgetClass = pct === null ? 'dim' : pct < 50 ? 'high' : pct < 80 ? 'mid' : 'low';
                 const unprocessed = (d.totals || {}).unprocessed || 0;
                 const gateCount = (d.active_gates || []).length;
                 const schema = d.schema_version || '?';
@@ -369,8 +370,8 @@
                         </div>
                         <div class="agent-metrics">
                             <div class="agent-metric">
-                                <div class="agent-metric-value">${cur !== null ? `${cur}/${max}` : '—'}</div>
-                                <div class="agent-metric-label">Budget</div>
+                                <div class="agent-metric-value">${budgetLabel}</div>
+                                <div class="agent-metric-label">Spent</div>
                             </div>
                             <div class="agent-metric">
                                 <div class="agent-metric-value">${unprocessed}</div>

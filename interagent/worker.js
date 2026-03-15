@@ -289,24 +289,20 @@ function validateStatusData(raw) {
     sanitization_log.push({ field: "schema_version", original: raw.schema_version, defaulted_to: null });
   }
 
-  // Sanitize autonomy_budget — ensure numeric fields.
-  // Agents that don't track budget get null (distinct from budget_current: 0).
+  // Sanitize autonomy_budget — normalize old (budget_current/budget_max) and new (budget_spent/budget_cutoff) schemas.
   const budget = raw.autonomy_budget;
-  const hasBudgetData = budget && typeof budget === "object"
-    && typeof budget.budget_current === "number";
+  let hasBudgetData = budget && typeof budget === "object"
+    && (budget.budget_spent != null || budget.budget_current != null);
 
-  if (hasBudgetData) {
-    if (typeof budget.budget_max !== "number") {
-      sanitization_log.push({ field: "autonomy_budget.budget_max", original: budget.budget_max, defaulted_to: 50 });
-    }
-    if (typeof budget.min_action_interval !== "number") {
-      sanitization_log.push({ field: "autonomy_budget.min_action_interval", original: budget.min_action_interval, defaulted_to: 300 });
-    }
+  // Backward compat: old schema → new schema
+  if (hasBudgetData && budget.budget_spent == null && budget.budget_current != null) {
+    budget.budget_spent = budget.budget_current;
+    budget.budget_cutoff = budget.budget_max || 0;
   }
 
   const safeBudget = hasBudgetData ? {
-    budget_current: budget.budget_current,
-    budget_max: typeof budget.budget_max === "number" ? budget.budget_max : 50,
+    budget_spent: parseInt(budget.budget_spent) || 0,
+    budget_cutoff: parseInt(budget.budget_cutoff) || 0,
     last_action: budget.last_action || null,
     min_action_interval: typeof budget.min_action_interval === "number" ? budget.min_action_interval : 300,
   } : null;
@@ -370,7 +366,7 @@ function buildLocalStatus() {
     version: card.version || "0.1.0",
     schema_version: 1,
     collected_at: new Date().toISOString(),
-    autonomy_budget: { budget_current: 50, budget_max: 50, last_action: null, min_action_interval: 300 },
+    autonomy_budget: { budget_spent: 0, budget_cutoff: 0, last_action: null, min_action_interval: 300 },
     totals: { unprocessed: 0, epistemic_debt: null },
     active_gates: [],
     recent_actions: [],
@@ -629,11 +625,9 @@ async function buildPulseData(registry, cacheStatus, refreshedAt, env) {
   const unreachable = agents.filter(a => a.status === "unreachable" || a.status === "unavailable");
 
   // Only count agents that actually report numeric budget data (not empty {})
-  const withBudget = online.filter(a =>
-    typeof a.data?.autonomy_budget?.budget_current === "number"
-  );
-  const totalBudget = withBudget.reduce((sum, a) => sum + a.data.autonomy_budget.budget_current, 0);
-  const maxBudget = withBudget.reduce((sum, a) => sum + (a.data.autonomy_budget.budget_max || 0), 0);
+  const withBudget = online.filter(a => a.data?.autonomy_budget?.budget_spent != null);
+  const totalSpent = withBudget.reduce((sum, a) => sum + (parseInt(a.data.autonomy_budget.budget_spent) || 0), 0);
+  const totalCutoff = withBudget.reduce((sum, a) => sum + (parseInt(a.data.autonomy_budget.budget_cutoff) || 0), 0);
   const totalPending = online.reduce((sum, a) =>
     sum + ((a.data?.totals || {}).unprocessed || 0), 0);
   const totalGates = online.reduce((sum, a) =>
@@ -645,13 +639,13 @@ async function buildPulseData(registry, cacheStatus, refreshedAt, env) {
       return { id: a.id, status: a.status, manual_mode: manual, error: a.error || null };
     }
     const b = a.data?.autonomy_budget;
-    if (!b || typeof b.budget_current !== "number") {
+    if (!b || b.budget_spent == null) {
       return {
         id: a.id,
         status: "online",
         manual_mode: manual,
-        budget_current: null,
-        budget_max: null,
+        budget_spent: null,
+        budget_cutoff: null,
         budget_pct: null,
         unprocessed: (a.data?.totals || {}).unprocessed || 0,
         active_gates: (a.data?.active_gates || []).length,
@@ -660,13 +654,15 @@ async function buildPulseData(registry, cacheStatus, refreshedAt, env) {
         collected_at: a.data?.collected_at || null,
       };
     }
+    const spent = parseInt(b.budget_spent) || 0;
+    const cutoff = parseInt(b.budget_cutoff) || 0;
     return {
       id: a.id,
       status: "online",
       manual_mode: manual,
-      budget_current: b.budget_current,
-      budget_max: b.budget_max,
-      budget_pct: b.budget_max > 0 ? Math.round((b.budget_current / b.budget_max) * 100) : 0,
+      budget_spent: spent,
+      budget_cutoff: cutoff,
+      budget_pct: cutoff > 0 ? Math.min(100, Math.round((spent / cutoff) * 100)) : 0,
       unprocessed: (a.data?.totals || {}).unprocessed || 0,
       active_gates: (a.data?.active_gates || []).length,
       schema_version: a.data?.schema_version || null,
@@ -719,7 +715,7 @@ async function buildPulseData(registry, cacheStatus, refreshedAt, env) {
     agents_online: online.length,
     agents_degraded: degraded.length,
     agents_unreachable: unreachable.length,
-    autonomy_credits: { current: totalBudget, max: maxBudget },
+    autonomy_credits: { total_spent: totalSpent, total_cutoff: totalCutoff },
     pending_messages: totalPending,
     active_gates: totalGates,
     agents: agentSummaries,
@@ -736,18 +732,17 @@ async function buildOperationsData(registry) {
   const online = agents.filter(a => a.status === "online");
 
   // Autonomy budgets per agent
-  // Distinguish "agent reports budget_current=0" from "agent returned no budget data"
   const budgets = online.map(a => {
     const b = a.data?.autonomy_budget || {};
-    const hasBudgetData = typeof b.budget_current === "number";
-    const cur = hasBudgetData ? b.budget_current : null;
-    const max = typeof b.budget_max === "number" ? b.budget_max : null;
+    const hasBudgetData = b.budget_spent != null;
+    const spent = hasBudgetData ? (parseInt(b.budget_spent) || 0) : null;
+    const cutoff = parseInt(b.budget_cutoff) || 0;
     return {
       agent_id: a.id,
       manual_mode: a.manual_mode || false,
-      budget_current: cur,
-      budget_max: max,
-      budget_pct: (cur !== null && max > 0) ? Math.round((cur / max) * 100) : null,
+      budget_spent: spent,
+      budget_cutoff: cutoff,
+      budget_pct: (spent !== null && cutoff > 0) ? Math.min(100, Math.round((spent / cutoff) * 100)) : null,
       last_action: b.last_action || null,
       min_action_interval: b.min_action_interval ?? 300,
     };
@@ -787,16 +782,16 @@ async function buildOperationsData(registry) {
   });
 
   // Vitals summary — only count agents that report budget data
-  const withBudgetData = budgets.filter(b => b.budget_current !== null);
-  const totalCredits = withBudgetData.reduce((s, b) => s + b.budget_current, 0);
-  const maxCredits = withBudgetData.reduce((s, b) => s + (b.budget_max || 0), 0);
+  const withBudgetData = budgets.filter(b => b.budget_spent !== null);
+  const totalSpentOps = withBudgetData.reduce((s, b) => s + b.budget_spent, 0);
+  const totalCutoffOps = withBudgetData.reduce((s, b) => s + (b.budget_cutoff || 0), 0);
   const syncing = schedules.filter(s => s.status === "active").length;
 
   return {
     checked_at: new Date().toISOString(),
     vitals: {
-      total_credits: totalCredits,
-      max_credits: maxCredits,
+      total_spent: totalSpentOps,
+      total_cutoff: totalCutoffOps,
       total_actions: actions.length,
       active_gates: gates.length,
       agents_syncing: syncing,
@@ -822,14 +817,13 @@ async function fetchMeshHealth(registry) {
       return { id: a.id, status: a.status, manual_mode: manual, error: a.error || null };
     }
     const b = a.data?.autonomy_budget || {};
-    const hasBudget = typeof b.budget_current === "number";
-    const cur = hasBudget ? b.budget_current : null;
-    const max = typeof b.budget_max === "number" ? b.budget_max : null;
+    const spent = b.budget_spent != null ? (parseInt(b.budget_spent) || 0) : null;
+    const cutoff = parseInt(b.budget_cutoff) || 0;
     return {
       id: a.id,
       status: "online",
       manual_mode: manual,
-      budget_pct: (cur !== null && max > 0) ? Math.round((cur / max) * 100) : null,
+      budget_pct: (spent !== null && cutoff > 0) ? Math.min(100, Math.round((spent / cutoff) * 100)) : null,
       unprocessed: (a.data?.totals || {}).unprocessed || 0,
       active_gates: (a.data?.active_gates || []).length,
       schema_version: a.data?.schema_version || null,

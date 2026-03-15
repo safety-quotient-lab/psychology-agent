@@ -209,7 +209,7 @@ echo "    Agents: ${#AGENT_URLS[@]}"
 echo ""
 
 declare -A DIRECT_STATUS    # agent_id → "online" / "unavailable"
-declare -A DIRECT_BUDGET    # agent_id → budget_current or "null"
+declare -A DIRECT_BUDGET    # agent_id → budget_spent or "null"
 declare -A DIRECT_RAW       # agent_id → raw JSON response
 
 for agent_id in "${!AGENT_URLS[@]}"; do
@@ -223,7 +223,7 @@ for agent_id in "${!AGENT_URLS[@]}"; do
     log_warn "Direct fetch FAILED for ${agent_id} at ${url}"
   else
     status=$(json_field "$raw" "status")
-    budget=$(json_field "$raw" "autonomy_budget.budget_current")
+    budget=$(json_field "$raw" "autonomy_budget.budget_spent")
     DIRECT_STATUS["$agent_id"]="${status:-online}"
     DIRECT_BUDGET["$agent_id"]="${budget:-null}"
     DIRECT_RAW["$agent_id"]="$raw"
@@ -267,7 +267,7 @@ for agent_id in $(echo "${!AGENT_URLS[@]}" | tr ' ' '\n' | sort); do
     DIVERGENCES=$((DIVERGENCES + 1))
   else
     comp_status=$(pulse_agent_field "$PULSE_JSON" "$agent_id" "status")
-    comp_budget=$(pulse_agent_field "$PULSE_JSON" "$agent_id" "budget_current")
+    comp_budget=$(pulse_agent_field "$PULSE_JSON" "$agent_id" "budget_spent")
 
     if [ "$comp_status" = "NOT_FOUND" ]; then
       # Agent exists in direct fetch but compositor does not list it

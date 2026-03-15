@@ -229,7 +229,7 @@ func main() {
 			return nil
 		},
 		func(cost int) (bool, string) { return budgetGate.CanSpawn(cost) },
-		func(cost int) error { return budgetGate.Deduct(cost) },
+		func(cost int) error { return budgetGate.Record(cost) },
 		logger,
 	)
 

@@ -61,14 +61,14 @@ case "${1:-status}" in
         psq) path="${BASE}/psychology/safety-quotient" ;;
         *) path="${BASE}/${dir}" ;;
       esac
-      result=$(/usr/bin/ssh "$SSH_HOST" "sqlite3 -separator '|' ${path}/state.db 'SELECT budget_current, budget_max, shadow_mode FROM autonomy_budget WHERE agent_id=\"${name}\";'" 2>/dev/null || echo "?|?|?")
+      result=$(/usr/bin/ssh "$SSH_HOST" "sqlite3 -separator '|' ${path}/state.db 'SELECT budget_spent, budget_cutoff, shadow_mode FROM autonomy_budget WHERE agent_id=\"${name}\";'" 2>/dev/null || echo "?|?|?")
       printf "  %-22s %s\n" "$name" "$result"
     done
     ;;
 
   budget)
-    printf "%-22s %8s %8s %8s\n" "AGENT" "CURRENT" "MAX" "SHADOW"
-    printf "%-22s %8s %8s %8s\n" "-----" "-------" "---" "------"
+    printf "%-22s %8s %8s %8s\n" "AGENT" "SPENT" "CUTOFF" "SHADOW"
+    printf "%-22s %8s %8s %8s\n" "-----" "-----" "------" "------"
     for entry in $AGENTS; do
       dir="${entry%%:*}"
       name="${entry#*:}"
@@ -77,15 +77,15 @@ case "${1:-status}" in
         psq) path="${BASE}/psychology/safety-quotient" ;;
         *) path="${BASE}/${dir}" ;;
       esac
-      result=$(/usr/bin/ssh "$SSH_HOST" "sqlite3 -separator '|' ${path}/state.db 'SELECT budget_current, budget_max, shadow_mode FROM autonomy_budget WHERE agent_id=\"${name}\";'" 2>/dev/null || echo "?|?|?")
-      IFS='|' read -r cur max shadow <<< "$result"
-      printf "%-22s %8s %8s %8s\n" "$name" "$cur" "$max" "$shadow"
+      result=$(/usr/bin/ssh "$SSH_HOST" "sqlite3 -separator '|' ${path}/state.db 'SELECT budget_spent, budget_cutoff, shadow_mode FROM autonomy_budget WHERE agent_id=\"${name}\";'" 2>/dev/null || echo "?|?|?")
+      IFS='|' read -r spent cutoff shadow <<< "$result"
+      label="$cutoff"; [ "$cutoff" = "0" ] && label="∞"
+      printf "%-22s %8s %8s %8s\n" "$name" "$spent" "$label" "$shadow"
     done
     ;;
 
   budget-reset)
-    AMOUNT="${2:-50}"
-    echo "Resetting all budgets to ${AMOUNT}/${AMOUNT}..."
+    echo "Resetting all budget counters to 0..."
     for entry in $AGENTS; do
       dir="${entry%%:*}"
       name="${entry#*:}"
@@ -94,7 +94,7 @@ case "${1:-status}" in
         psq) path="${BASE}/psychology/safety-quotient" ;;
         *) path="${BASE}/${dir}" ;;
       esac
-      /usr/bin/ssh "$SSH_HOST" "sqlite3 ${path}/state.db \"UPDATE autonomy_budget SET budget_current = ${AMOUNT}, budget_max = ${AMOUNT}, updated_at = datetime('now') WHERE agent_id = '${name}';\"" 2>/dev/null && echo "  ${name}: ${AMOUNT}/${AMOUNT}" || echo "  ${name}: FAILED"
+      /usr/bin/ssh "$SSH_HOST" "sqlite3 ${path}/state.db \"UPDATE autonomy_budget SET budget_spent = 0, updated_at = datetime('now') WHERE agent_id = '${name}';\"" 2>/dev/null && echo "  ${name}: reset" || echo "  ${name}: FAILED"
     done
     ;;
 

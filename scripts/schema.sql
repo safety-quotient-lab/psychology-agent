@@ -32,8 +32,8 @@ VALUES (1, 'Initial schema — budget, kb tables, cogarch state, transport index
 
 CREATE TABLE IF NOT EXISTS autonomy_budget (
     agent_id           TEXT PRIMARY KEY,
-    budget_current     INTEGER NOT NULL DEFAULT 50,
-    budget_max         INTEGER NOT NULL DEFAULT 50,
+    budget_spent       INTEGER NOT NULL DEFAULT 0,
+    budget_cutoff      INTEGER NOT NULL DEFAULT 0,  -- 0 = unlimited
     shadow_mode        INTEGER NOT NULL DEFAULT 0,
     consecutive_blocks INTEGER NOT NULL DEFAULT 0,
     last_audit         TEXT NOT NULL DEFAULT (datetime('now')),

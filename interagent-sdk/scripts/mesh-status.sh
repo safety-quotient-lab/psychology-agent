@@ -34,7 +34,7 @@ for pair in '"${REMOTE_PAIRS}"'; do
   db="${project_dir}/state.db"
 
   # Budget
-  budget=$(sqlite3 "$db" "SELECT budget_current || '"'"'/'"'"' || budget_max FROM autonomy_budget WHERE agent_id='"'"'$agent_id'"'"';" 2>/dev/null || echo "n/a")
+  budget=$(sqlite3 "$db" "SELECT budget_spent || '"'"' spent (cutoff: '"'"' || CASE WHEN budget_cutoff=0 THEN '"'"'unlimited'"'"' ELSE budget_cutoff END || '"'"')'"'"' FROM autonomy_budget WHERE agent_id='"'"'$agent_id'"'"';" 2>/dev/null || echo "n/a")
 
   # Cron status (check if cron job exists for this agent)
   cron_active=$(crontab -l 2>/dev/null | grep -c "$agent_id" || true)

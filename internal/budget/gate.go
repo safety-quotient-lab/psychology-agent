@@ -99,8 +99,8 @@ func (g *Gate) meshSlots() int {
 
 // BudgetState captures a point-in-time snapshot of spawn eligibility.
 type BudgetState struct {
-	Current       int  `json:"current"`
-	Max           int  `json:"max"`
+	Spent         int  `json:"spent"`
+	Cutoff        int  `json:"cutoff"` // 0 = unlimited
 	ShadowMode    bool `json:"shadow_mode"`
 	MeshPaused    bool `json:"mesh_paused"`
 	RotatePending bool `json:"rotate_pending"`
@@ -121,14 +121,14 @@ func NewGate(dbPath, agentID string, logger *slog.Logger) *Gate {
 // Check reads the full budget state: SQLite row, mesh-pause sentinel,
 // and context-rotate sentinel.
 func (g *Gate) Check() (*BudgetState, error) {
-	current, max, shadow, err := g.queryBudget()
+	spent, cutoff, shadow, err := g.queryBudget()
 	if err != nil {
 		return nil, fmt.Errorf("budget query failed: %w", err)
 	}
 
 	return &BudgetState{
-		Current:       current,
-		Max:           max,
+		Spent:         spent,
+		Cutoff:        cutoff,
 		ShadowMode:    shadow,
 		MeshPaused:    fileExists("/tmp/mesh-pause"),
 		RotatePending: fileExists(fmt.Sprintf("/tmp/context-rotate-%s", g.AgentID)),
@@ -157,19 +157,21 @@ func (g *Gate) CanSpawn(cost int) (bool, string) {
 		return false, fmt.Sprintf("context rotation pending for %s", g.AgentID)
 	}
 
-	if state.Current < cost {
-		g.logger.Warn("insufficient budget — refusing spawn",
-			"current", state.Current,
+	// Check budget cutoff — 0 means unlimited (counter-only mode)
+	if state.Cutoff > 0 && state.Spent+cost > state.Cutoff {
+		g.logger.Warn("budget cutoff reached — refusing spawn",
+			"spent", state.Spent,
+			"cutoff", state.Cutoff,
 			"cost", cost,
 			"agent_id", g.AgentID,
 		)
-		return false, fmt.Sprintf("insufficient budget: have %d, need %d", state.Current, cost)
+		return false, fmt.Sprintf("budget cutoff reached: spent %d + cost %d exceeds cutoff %d", state.Spent, cost, state.Cutoff)
 	}
 
 	if state.ShadowMode {
 		g.logger.Info("shadow mode — logging spawn decision without executing",
 			"cost", cost,
-			"current", state.Current,
+			"spent", state.Spent,
 			"agent_id", g.AgentID,
 		)
 		return false, "shadow mode active — spawn logged but not executed"
@@ -255,26 +257,26 @@ func execDate() string {
 	return string(out)
 }
 
-// Deduct subtracts the given cost from the agent's budget in state.db.
-func (g *Gate) Deduct(cost int) error {
+// Record increments the spent counter by the given cost.
+func (g *Gate) Record(cost int) error {
 	query := fmt.Sprintf(
-		"UPDATE autonomy_budget SET budget_current = budget_current - %d WHERE agent_id = '%s' AND budget_current >= %d;",
-		cost, sanitizeID(g.AgentID), cost,
+		"UPDATE autonomy_budget SET budget_spent = budget_spent + %d, updated_at = datetime('now') WHERE agent_id = '%s';",
+		cost, sanitizeID(g.AgentID),
 	)
 	output, err := g.execSQL(query)
 	if err != nil {
-		return fmt.Errorf("budget deduction failed: %w (output: %s)", err, output)
+		return fmt.Errorf("budget record failed: %w (output: %s)", err, output)
 	}
 
-	// Verify the update affected a row by re-reading.
-	current, _, _, readErr := g.queryBudget()
+	// Verify by re-reading.
+	spent, _, _, readErr := g.queryBudget()
 	if readErr != nil {
-		return fmt.Errorf("post-deduction verification failed: %w", readErr)
+		return fmt.Errorf("post-record verification failed: %w", readErr)
 	}
 
-	g.logger.Info("budget deducted",
+	g.logger.Info("budget recorded",
 		"cost", cost,
-		"remaining", current,
+		"total_spent", spent,
 		"agent_id", g.AgentID,
 	)
 	return nil
@@ -290,9 +292,9 @@ func (g *Gate) EstimateCost(priority Priority) int {
 }
 
 // queryBudget shells out to sqlite3 to read the autonomy_budget row.
-func (g *Gate) queryBudget() (current, max int, shadow bool, err error) {
+func (g *Gate) queryBudget() (spent, cutoff int, shadow bool, err error) {
 	query := fmt.Sprintf(
-		"SELECT budget_current, budget_max, shadow_mode FROM autonomy_budget WHERE agent_id = '%s';",
+		"SELECT budget_spent, budget_cutoff, shadow_mode FROM autonomy_budget WHERE agent_id = '%s';",
 		sanitizeID(g.AgentID),
 	)
 
@@ -312,20 +314,20 @@ func (g *Gate) queryBudget() (current, max int, shadow bool, err error) {
 		return 0, 0, false, fmt.Errorf("unexpected sqlite3 output format: %q", output)
 	}
 
-	current, err = strconv.Atoi(strings.TrimSpace(parts[0]))
+	spent, err = strconv.Atoi(strings.TrimSpace(parts[0]))
 	if err != nil {
-		return 0, 0, false, fmt.Errorf("failed to parse budget_current %q: %w", parts[0], err)
+		return 0, 0, false, fmt.Errorf("failed to parse budget_spent %q: %w", parts[0], err)
 	}
 
-	max, err = strconv.Atoi(strings.TrimSpace(parts[1]))
+	cutoff, err = strconv.Atoi(strings.TrimSpace(parts[1]))
 	if err != nil {
-		return 0, 0, false, fmt.Errorf("failed to parse budget_max %q: %w", parts[1], err)
+		return 0, 0, false, fmt.Errorf("failed to parse budget_cutoff %q: %w", parts[1], err)
 	}
 
 	shadowVal := strings.TrimSpace(parts[2])
 	shadow = shadowVal == "1" || strings.EqualFold(shadowVal, "true")
 
-	return current, max, shadow, nil
+	return spent, cutoff, shadow, nil
 }
 
 // execSQL runs a query against the state.db file using the sqlite3 CLI.
