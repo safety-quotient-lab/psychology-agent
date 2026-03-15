@@ -1,0 +1,313 @@
+/**
+ * pulse.js — Pulse station (TNG: Main Bridge viewscreen status overview).
+ *
+ * Renders the primary dashboard: agent vitals, agent cards, mesh topology,
+ * and activity stream. Fetches agent status from each agent's /api/status
+ * endpoint.
+ *
+ * Data endpoints:
+ *   GET {agent.url}/api/status — per-agent health, budget, gates, messages
+ *
+ * DOM dependencies: #vital-agents, #vital-budget, #vital-pending, #vital-gates,
+ *   #vital-debt, #ops-badge, #agents-grid, #topology-svg, #activity-stream
+ *
+ * Global state accessed: AGENTS, agentData, activeAgentFilter
+ * Global functions called: switchTab, switchAgent, filterTable, parseTS (via utils)
+ */
+
+import { escapeHtml, parseTS, formatTS } from '../core/utils.js';
+
+// ── Data Fetching ──────────────────────────────────────────────
+
+/**
+ * Fetch status from a single agent's /api/status endpoint.
+ * @param {Object} agent — { id, url, color }
+ * @returns {Promise<Object>} — { id, status: "online"|"unreachable", data?, error? }
+ */
+export async function fetchAgentStatus(agent) {
+    try {
+        const resp = await fetch(`${agent.url}/api/status`, { signal: AbortSignal.timeout(8000) });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return { id: agent.id, status: "online", data: await resp.json() };
+    } catch (err) {
+        return { id: agent.id, status: "unreachable", error: err.message };
+    }
+}
+
+/**
+ * Fetch all agent statuses and store results into agentData.
+ * Triggers renderPulse and renderOperations after completion.
+ * @param {Array} AGENTS — agent config array
+ * @param {Object} agentData — mutable store keyed by agent id
+ * @returns {Promise<void>}
+ */
+export async function fetchPulseData(AGENTS, agentData) {
+    const results = await Promise.allSettled(AGENTS.map(fetchAgentStatus));
+    results.forEach((r, i) => {
+        agentData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "unreachable" };
+    });
+}
+
+// ── Render: Vitals ─────────────────────────────────────────────
+
+/**
+ * Update the vitals bar at the top of the Pulse pane.
+ * DOM WRITE: #vital-agents, #vital-budget, #vital-pending, #vital-gates,
+ *            #vital-debt, #ops-badge
+ * @param {Array} AGENTS — agent config array
+ * @param {Object} agentData — fetched agent data
+ */
+export function renderVitals(AGENTS, agentData) {
+    const online = Object.values(agentData).filter(a => a.status === "online");
+    const total = AGENTS.length;
+
+    const totalBudget = online.reduce((sum, a) => {
+        const b = a.data?.autonomy_budget || {};
+        return sum + (b.budget_current ?? 0);
+    }, 0);
+    const maxBudget = online.reduce((sum, a) => {
+        const b = a.data?.autonomy_budget || {};
+        return sum + (b.budget_max ?? 20);
+    }, 0);
+    const pending = online.reduce((sum, a) => sum + ((a.data?.totals || {}).unprocessed || 0), 0);
+    const gates = online.reduce((sum, a) => sum + (a.data?.active_gates || []).length, 0);
+    const debt = online.reduce((sum, a) => sum + ((a.data?.totals || {}).epistemic_flags_unresolved || 0), 0);
+
+    const agentsEl = document.getElementById("vital-agents");
+    agentsEl.textContent = `${online.length}/${total}`;
+    agentsEl.className = "vital-value " + (online.length === total ? "healthy" : online.length > 0 ? "degraded" : "critical");
+
+    document.getElementById("vital-budget").textContent = `${totalBudget}/${maxBudget}`;
+    document.getElementById("vital-pending").textContent = pending;
+    document.getElementById("vital-gates").textContent = gates;
+    document.getElementById("vital-debt").textContent = debt;
+
+    // Update ops badge
+    if (pending > 0) {
+        const badge = document.getElementById("ops-badge");
+        badge.textContent = pending;
+        badge.style.display = "inline";
+    }
+}
+
+// ── Render: Agent Cards ────────────────────────────────────────
+
+/**
+ * Render agent status cards in the agents grid.
+ * DOM WRITE: #agents-grid (innerHTML replacement)
+ * NOTE: onclick handlers reference global switchAgent and switchTab.
+ * @param {Array} AGENTS — agent config array
+ * @param {Object} agentData — fetched agent data
+ */
+export function renderAgentCards(AGENTS, agentData) {
+    const grid = document.getElementById("agents-grid");
+    grid.innerHTML = "";
+
+    for (const agent of AGENTS) {
+        const state = agentData[agent.id] || { status: "unreachable" };
+        const card = document.createElement("div");
+        card.className = "lcars-panel agent-card";
+        card.dataset.agent = agent.id;
+        card.style.cursor = "pointer";
+        card.onclick = () => { switchAgent(agent.id); switchTab('meta'); };
+
+        if (state.status !== "online") {
+            card.innerHTML = `
+                <div class="lcars-panel-header">${agent.id}</div>
+                <div class="lcars-panel-body">
+                    <div class="agent-identity">
+                        <span class="agent-name">${agent.id}</span>
+                        <span class="agent-status-dot offline" aria-label="offline"></span>
+                        <span style="font-size:0.7em;color:var(--c-alert);margin-left:4px">offline</span>
+                    </div>
+                    <div style="color: var(--c-alert); font-size: 0.8em; margin-top: 8px">
+                        Unreachable${state.error ? ` — ${state.error}` : ""}
+                    </div>
+                </div>`;
+            grid.appendChild(card);
+            continue;
+        }
+
+        const d = state.data;
+        const budget = d.autonomy_budget || {};
+        const cur = budget.budget_current ?? 0;
+        const max = budget.budget_max ?? 20;
+        const pct = max > 0 ? Math.round((cur / max) * 100) : 0;
+        const budgetClass = pct > 50 ? "high" : pct > 20 ? "mid" : "low";
+        const unprocessed = (d.totals || {}).unprocessed || 0;
+        const gateCount = (d.active_gates || []).length;
+        const schema = d.schema_version || "?";
+        const schedule = d.schedule || {};
+        const lastSync = schedule.last_sync_time || d.collected_at || "—";
+        const syncShort = lastSync !== "—" ? lastSync.split("T")[1]?.substring(0, 8) || lastSync : "—";
+
+        card.innerHTML = `
+            <div class="lcars-panel-header">${agent.id}</div>
+            <div class="lcars-panel-body">
+                <div class="agent-identity">
+                    <span class="agent-name">${agent.id}</span>
+                    <span class="agent-status-dot online" aria-label="online"></span>
+                    <span style="font-size:0.7em;color:var(--c-health);margin-left:4px">online</span>
+                </div>
+                <div class="agent-metrics">
+                    <div class="agent-metric">
+                        <div class="agent-metric-value">${cur}/${max}</div>
+                        <div class="agent-metric-label">Budget</div>
+                    </div>
+                    <div class="agent-metric">
+                        <div class="agent-metric-value">${unprocessed}</div>
+                        <div class="agent-metric-label">Pending</div>
+                    </div>
+                    <div class="agent-metric">
+                        <div class="agent-metric-value">${gateCount}</div>
+                        <div class="agent-metric-label">Gates</div>
+                    </div>
+                </div>
+                <div class="budget-bar-track">
+                    <div class="budget-bar-fill ${budgetClass}" style="width: ${pct}%"></div>
+                </div>
+                <div class="agent-detail-row">
+                    <span>Schema v${schema}</span>
+                    <span>Last sync: ${syncShort}</span>
+                </div>
+            </div>`;
+
+        grid.appendChild(card);
+    }
+}
+
+// ── Render: Topology ───────────────────────────────────────────
+
+/**
+ * Render the mesh topology SVG showing agent nodes and edges.
+ * DOM WRITE: #topology-svg (innerHTML replacement)
+ * NOTE: onclick handlers reference global switchAgent and switchTab.
+ * @param {Array} AGENTS — agent config array
+ * @param {Object} agentData — fetched agent data
+ */
+export function renderTopology(AGENTS, agentData) {
+    const svg = document.getElementById("topology-svg");
+    const positions = [
+        { x: 300, y: 55 },   // top
+        { x: 520, y: 160 },  // right
+        { x: 300, y: 265 },  // bottom
+        { x: 80, y: 160 },   // left
+    ];
+
+    let html = "";
+
+    // Draw edges between all pairs
+    for (let i = 0; i < AGENTS.length; i++) {
+        for (let j = i + 1; j < AGENTS.length; j++) {
+            const a = positions[i], b = positions[j];
+            html += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"
+                stroke="var(--topo-edge)" stroke-width="5" opacity="var(--topo-edge-opacity)"/>`;
+        }
+    }
+
+    // Draw nodes — linked to agent dashboards
+    for (let i = 0; i < AGENTS.length; i++) {
+        const agent = AGENTS[i];
+        const pos = positions[i];
+        const state = agentData[agent.id];
+        const online = state?.status === "online";
+        const fill = online ? agent.color : "var(--c-inactive)";
+
+        html += `<g style="cursor:pointer" onclick="switchAgent('${agent.id}');switchTab('meta')">
+            <circle cx="${pos.x}" cy="${pos.y}" r="45"
+                fill="${fill}" opacity="${online ? 0.12 : 0.05}"
+                stroke="${fill}" stroke-width="5"/>
+            <circle cx="${pos.x}" cy="${pos.y}" r="16" fill="${fill}"
+                opacity="${online ? 1 : 0.3}">
+                ${online ? `<animate attributeName="r" values="15;19;15" dur="3s" repeatCount="indefinite"/>` : ""}
+            </circle>
+            <text x="${pos.x}" y="${pos.y + 72}" text-anchor="middle"
+                font-size="21" font-family="inherit" font-weight="bold">
+                ${agent.id.replace("-agent", "")}
+            </text>
+        </g>`;
+    }
+
+    svg.innerHTML = html;
+}
+
+// ── Render: Activity Stream ────────────────────────────────────
+
+/**
+ * Render the recent activity stream with deduplication.
+ * DOM WRITE: #activity-stream (innerHTML replacement)
+ * NOTE: onclick handlers reference global switchTab and filterTable.
+ * @param {Array} AGENTS — agent config array
+ * @param {Object} agentData — fetched agent data
+ */
+export function renderActivity(AGENTS, agentData) {
+    const container = document.getElementById("activity-stream");
+    const allMessages = [];
+
+    for (const agent of AGENTS) {
+        const state = agentData[agent.id];
+        if (state?.status !== "online") continue;
+        const messages = state.data?.recent_messages || [];
+        messages.forEach(m => {
+            allMessages.push({
+                timestamp: m.timestamp || "",
+                from: m.from_agent || "?",
+                to: m.to_agent || "?",
+                type: m.message_type || "—",
+                subject: m.subject || "",
+                session: m.session_name || "",
+            });
+        });
+    }
+
+    // Deduplicate: exact match by session+from+timestamp, plus
+    // near-duplicate suppression (same session+subject within 5 seconds)
+    const seen = new Set();
+    const recentKeys = new Map(); // contentKey -> timestamp for 5s dedup
+    const unique = allMessages.filter(m => {
+        const key = `${m.session}-${m.from}-${m.timestamp}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        // 5-second content dedup: same session + subject within 5s window
+        const contentKey = `${m.session}-${m.subject}`;
+        const ts = parseTS(m.timestamp);
+        const prev = recentKeys.get(contentKey);
+        if (prev != null && Math.abs(ts - prev) < 5000) return false;
+        recentKeys.set(contentKey, ts);
+        return true;
+    });
+    unique.sort((a, b) => parseTS(b.timestamp) - parseTS(a.timestamp));
+    const display = unique.slice(0, 8);
+
+    if (display.length === 0) {
+        container.innerHTML = `<div style="color: var(--text-dim); font-size: 0.85em; padding: 8px">No recent messages</div>`;
+        return;
+    }
+
+    container.innerHTML = display.map(m => {
+        const time = formatTS(m.timestamp);
+        const sess = escapeHtml(m.session || '');
+        return `<a href="#pane-meta" class="activity-item activity-link" onclick="switchTab('meta');document.getElementById('filter-messages').value='${sess}';filterTable('messages');return false;">
+            <span class="activity-time">${time}</span>
+            <span class="activity-route">
+                <span class="from">${m.from.replace("-agent", "")}</span>
+                &rarr; <span class="to">${m.to.replace("-agent", "")}</span>
+            </span>
+            <span class="activity-type">${m.type}</span>
+        </a>`;
+    }).join("");
+}
+
+// ── Render: Combined ───────────────────────────────────────────
+
+/**
+ * Render all Pulse station sub-sections.
+ * @param {Array} AGENTS — agent config array
+ * @param {Object} agentData — fetched agent data
+ */
+export function renderPulse(AGENTS, agentData) {
+    renderVitals(AGENTS, agentData);
+    renderAgentCards(AGENTS, agentData);
+    renderTopology(AGENTS, agentData);
+    renderActivity(AGENTS, agentData);
+}
