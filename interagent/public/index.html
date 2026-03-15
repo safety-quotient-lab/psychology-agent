@@ -756,16 +756,23 @@
                     </div>
                 </div>
 
-                <!-- Panel B: Utilization Gauge -->
-                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
-                    <div class="lcars-panel-header">Utilization</div>
+                <!-- Panel B: Concurrency Slots -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering); grid-column: 1 / -1;">
+                    <div class="lcars-panel-header">Concurrency Slots</div>
                     <div class="lcars-panel-body">
-                        <div class="util-gauge" id="util-gauge">
-                            <div class="util-rho util-nominal" id="util-rho">&rho; = &mdash;</div>
-                            <div class="util-bar">
-                                <div class="util-bar-fill" id="util-bar-fill" style="width:0%;background:#6aab8e"></div>
+                        <div class="concurrency-slots" id="concurrency-slots">
+                            <div class="concurrency-slot">
+                                <div class="slot-indicator empty"></div>
+                                <span class="slot-label slot-free">[1/3] free</span>
                             </div>
-                            <div class="util-status util-nominal" id="util-status">AWAITING DATA</div>
+                            <div class="concurrency-slot">
+                                <div class="slot-indicator empty"></div>
+                                <span class="slot-label slot-free">[2/3] free</span>
+                            </div>
+                            <div class="concurrency-slot">
+                                <div class="slot-indicator empty"></div>
+                                <span class="slot-label slot-free">[3/3] free</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -784,7 +791,21 @@
                     </div>
                 </div>
 
-                <!-- Panel D: Cost Accumulator -->
+                <!-- Panel D: Utilization Gauge -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
+                    <div class="lcars-panel-header">Utilization</div>
+                    <div class="lcars-panel-body">
+                        <div class="util-gauge" id="util-gauge">
+                            <div class="util-rho util-nominal" id="util-rho">&rho; = &mdash;</div>
+                            <div class="util-bar">
+                                <div class="util-bar-fill" id="util-bar-fill" style="width:0%;background:#6aab8e"></div>
+                            </div>
+                            <div class="util-status util-nominal" id="util-status">AWAITING DATA</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel E: Cost Accumulator -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
                     <div class="lcars-panel-header">Cost Accumulator</div>
                     <div class="lcars-panel-body">
@@ -792,27 +813,6 @@
                             <div class="cost-total" id="cost-total">$&mdash;</div>
                             <div class="cost-label">today</div>
                             <div class="cost-rate" id="eng-cost-rate"><span class="cost-rate-arrow">&#x2197;</span> $&mdash;/hr</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Panel E: Concurrency Slots -->
-                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering); grid-column: 1 / -1;">
-                    <div class="lcars-panel-header">Concurrency Slots</div>
-                    <div class="lcars-panel-body">
-                        <div class="concurrency-slots" id="concurrency-slots">
-                            <div class="concurrency-slot">
-                                <div class="slot-indicator empty"></div>
-                                <span class="slot-label slot-free">[1/3] free</span>
-                            </div>
-                            <div class="concurrency-slot">
-                                <div class="slot-indicator empty"></div>
-                                <span class="slot-label slot-free">[2/3] free</span>
-                            </div>
-                            <div class="concurrency-slot">
-                                <div class="slot-indicator empty"></div>
-                                <span class="slot-label slot-free">[3/3] free</span>
-                            </div>
                         </div>
                     </div>
                 </div>
