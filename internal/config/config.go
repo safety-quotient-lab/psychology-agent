@@ -31,6 +31,7 @@ type Config struct {
 	LogLevel       string // logging verbosity: debug, info, warn, error
 	MaxConcurrent  int    // max concurrent claude spawns (normal capacity)
 	ReserveSlots   int    // extra slots unlocked via /tmp/mesh-reserve-unlock
+	SpawnModel     string // model override for spawns (e.g. "sonnet", "opus", "" = CLI default)
 
 	// Compositor (ported from CF Worker)
 	AgentCardURLs  []string // bootstrap agent card URLs for discovery
@@ -124,6 +125,7 @@ func Load() (*Config, error) {
 	if cfg.ReserveSlots, err = resolveInt("MESH_RESERVE_SLOTS", 2); err != nil {
 		return nil, err
 	}
+	cfg.SpawnModel = resolve("SPAWN_MODEL", "")
 
 	// Paths that derive from RepoRoot when no explicit value appears
 	cfg.BudgetDBPath = resolve("BUDGET_DB_PATH", filepath.Join(repoRoot, "state.db"))

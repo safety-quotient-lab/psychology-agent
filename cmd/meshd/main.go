@@ -154,7 +154,12 @@ func main() {
 			}
 			defer budgetGate.ReleaseSlot(slotPath)
 
-			result, spawnErr := spawnr.Spawn(dctx, req.Prompt)
+			// Model override: pass --model flag when SPAWN_MODEL configured
+			var spawnFlags []string
+			if cfg.SpawnModel != "" {
+				spawnFlags = append(spawnFlags, "--model", cfg.SpawnModel)
+			}
+			result, spawnErr := spawnr.Spawn(dctx, req.Prompt, spawnFlags...)
 
 			// Dual-write: persist spawn result to state.db
 			spawnStatus := "completed"
