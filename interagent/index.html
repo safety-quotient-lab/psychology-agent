@@ -168,12 +168,16 @@
             gap: 0;
         }
 
-        /* Top elbow cap — connects sidebar top to header band.
-           Curve on outside edge (bottom-right), matching TNG reference. */
+        /* Top elbow cap — the sidebar's top block aligns with the header band.
+           The curve appears at the BOTTOM-RIGHT of this block: the wide
+           header-band row narrows into the sidebar column below it.
+           ████████████████████
+           ████████╯            ← curve here (bottom-right radius)
+           ████ ┃  content      */
         .lcars-sidebar-cap-top {
             background: var(--c-knowledge);
             min-height: var(--band-size);
-            border-radius: 0 var(--elbow-outer) 0 0;
+            border-radius: 0 0 var(--elbow-outer) 0;
             margin-bottom: 3px;
         }
 
@@ -210,12 +214,16 @@
             border-radius: 12px 0 0 12px;
         }
 
-        /* Bottom elbow cap — connects sidebar bottom to footer band.
-           Curve on outside edge (top-right), matching TNG reference. */
+        /* Bottom elbow cap — the sidebar's bottom block aligns with the footer band.
+           The curve appears at the TOP-RIGHT: the sidebar narrows up from
+           the wide footer-band row.
+           ████ ┃  content
+           ████████╮            ← curve here (top-right radius)
+           ████████████████████ */
         .lcars-sidebar-cap-bottom {
             background: var(--c-transport);
             min-height: var(--band-size);
-            border-radius: 0 0 var(--elbow-outer) 0;
+            border-radius: 0 var(--elbow-outer) 0 0;
             margin-top: auto;
         }
 
@@ -2803,7 +2811,7 @@
                 <div class="kb-vitals" id="ops-vitals">
                     <div class="kb-vital">
                         <div class="kb-vital-value" id="ops-total-credits">—</div>
-                        <div class="kb-vital-label">Credits</div>
+                        <div class="kb-vital-label">Deliberations</div>
                     </div>
                     <div class="kb-vital">
                         <div class="kb-vital-value" id="ops-total-actions">—</div>
