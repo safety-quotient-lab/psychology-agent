@@ -333,17 +333,17 @@
             }
             .theme-lcars { --sidebar-width: 60px; }
             .lcars-sidebar-btn {
-                font-size: 0;        /* hide text */
+                font-size: 0 !important;  /* hide full text on mobile */
                 min-height: 36px;
                 padding: 8px;
             }
             .lcars-sidebar-btn::after {
                 content: attr(data-short);
-                font-size: 10px;
+                font-size: 10px !important;
                 display: block;
             }
             .lcars-sidebar-btn.active::after {
-                font-size: 11px;
+                font-size: 11px !important;
             }
             .lcars-header-seg { font-size: 0.6em; padding: 2px 8px; }
             .lcars-footer-seg { font-size: 0.6em; padding: 2px 8px; }
