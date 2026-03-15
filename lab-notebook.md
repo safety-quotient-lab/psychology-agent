@@ -5992,4 +5992,47 @@ unratified PR #78).
   compute-psychometrics.py with full sensor access — fidelity indicators alert operator
 - Budget model migration applied to codebase but not deployed to chromabook yet
 
-▶ docs/api-psychometrics-contract.md, docs/cognitive-tempo-model.md, scripts/cognitive-tempo.py, interagent/public/js/core/psychometrics.js, interagent/worker.js, transport/sessions/cognitive-tempo-model/, transport/sessions/lcars-backend-endpoints/, transport/sessions/budget-model-refactor/
+**Post-retrospective work (continued Session 89):**
+
+**Compositor ownership transfer:**
+- interagent/ removed from psychology-agent (-30,810 lines, 45 files)
+- Ops owns dashboard + worker. Psychology owns domain model (compute, specs, contracts)
+- PRs #44-46 merged by ops. PR #48: formal ownership notification
+
+**Composition topology (LLM-factors §7):**
+- 6 topologies: solo, session, ensemble, panel, consortium, liaison
+- Operational: `{domain}-solo`, `{domain}-session`, `mesh-ensemble`
+- Theoretical: panel, consortium, liaison (graduate on first use)
+- Identity renamed: human → psy-session (topology-based)
+- Domain prefixes: psy/ops/sq/obs/pub (active), law/eng (planned)
+
+**Self-oscillation spec:**
+- `docs/self-oscillation-spec.md` — demand-driven rhythm replaces cron
+- Activation model (6 signals), threshold adaptation, refractory period
+- Medical station visualization: oscillator waveform, signal breakdown
+- `scripts/oscillator-shadow.py` — Phase 1 shadow mode validator
+- First test: activation 0.65 > threshold 0.30 → FIRE
+- Delivered to ops: PRs #49, #50
+
+**T20 evaluative impressions (cogarch v1.1):**
+- New trigger: tracks when agent identifies valuable human input
+- `scripts/impressions-detector.py` — 8 categories (5 positive, 3 negative)
+- Baseline: 1062 findings, 253 transcripts, positive:negative ratio 17:1
+- `--insights` mode extracts subjects (what the agent valued)
+- 3 evaluative impressions logged to prediction_ledger
+
+**Hooks (7 new):**
+- Claude Code: transport-schema-validate, eprime-enforcer, prediction-detector,
+  manifest-regenerate (bug fix), auto dual-write
+- Git: commit-msg (auto Co-Authored-By), pre-commit (broken cross-refs),
+  post-merge (transport message detection + MANIFEST regen)
+
+**Efficiency tools:**
+- `scripts/draft-transport.py` — message authoring from CLI one-liner
+- `docs/roadmap.critical.capabilities.md` — capability chain analysis
+- `docs/roadmap.critical.efficiency.md` — efficiency chain analysis
+- Cogarch v1.1 patch bundled for mesh-wide rollout (PR #51)
+
+**Factored docs consistency pass:** PASS — 5 files, 14 cross-refs, E-Prime clean
+
+▶ docs/self-oscillation-spec.md, docs/llm-factors-psychology.md §7, docs/cognitive-triggers.md (T20), docs/glossary.md, docs/dictionary.md, docs/roadmap.critical.*.md, scripts/oscillator-shadow.py, scripts/impressions-detector.py, scripts/draft-transport.py
