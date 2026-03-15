@@ -146,7 +146,7 @@ organizations) couple to form composite cognitive systems. Six topologies:
 solo (1 agent), session (1 human + 1 agent), ensemble (1 human + N agents),
 panel (N humans + 1 agent), consortium (N humans + M agents), liaison
 (organization + agent). Naming convention: `{domain}-{topology}` (e.g.,
-`psych-session`, `ops-ensemble`, `mesh-consortium`). The topology carries
+`psy-session`, `ops-ensemble`, `mesh-consortium`). The topology carries
 more information than participant count — two compositions with identical
 counts but different coupling patterns exhibit different emergent properties.
 Coined by this project (Session 89). Full treatment:

@@ -1,6 +1,6 @@
 {
   "schema": "agent-identity/v1",
-  "agent_id": "psych-session",
+  "agent_id": "psy-session",
   "hostname": "kashifs-macbook",
   "platform": "darwin-arm64",
   "registered": "2026-03-09",

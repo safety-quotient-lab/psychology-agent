@@ -454,9 +454,9 @@ domain:     psych | ops | observatory | ...
 topology:   solo | session | ensemble | panel | consortium | liaison
 
 Examples:
-  psych-solo         — autonomous psychology-agent (chromabook cron)
-  psych-session      — human + psychology-agent interactive
-  psych-ensemble     — human directing psychology-agent + psq-agent
+  psy-solo           — autonomous psychology-agent (chromabook cron)
+  psy-session        — human + psychology-agent interactive
+  psy-ensemble       — human directing psychology-agent + psq-agent
   ops-session        — human + operations-agent interactive
   mesh-consortium    — full mesh (all agents + all operators)
   sqlab-liaison      — Safety Quotient Lab (org) + operations-agent
