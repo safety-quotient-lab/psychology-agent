@@ -1,5 +1,5 @@
 /**
- * science.js — Science station (organism-level focus).
+ * science.js — Science station (mesh-level focus).
  *
  * Five widgets: MSD Affect Grid, Generator Balance, Epistemic Health,
  * Shared Mental Models, Organism Narrative. Per-agent detail panels
@@ -382,7 +382,7 @@ export function renderOrganismNarrative(AGENTS) {
 
     const org = scienceData?.organism || null;
     if (!org) {
-        textEl.textContent = "Awaiting organism data...";
+        textEl.textContent = "Awaiting mesh data...";
         return;
     }
 

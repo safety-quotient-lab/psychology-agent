@@ -16,7 +16,7 @@
 /** All recognized tab identifiers, ordered by navigation sequence. */
 export const VALID_TABS = [
     "pulse", "meta", "kb", "wisdom", "operations",
-    "science", "engineering", "helm", "tactical"
+    "science", "medical", "engineering", "helm", "tactical"
 ];
 
 /**
@@ -31,6 +31,7 @@ export const TAB_COLORS = {
     operations: "--c-tab-ops",
     science: "--c-tab-science",
     tactical: "--c-tab-tactical",
+    medical: "--c-tab-medical",
     engineering: "--c-tab-engineering",
     helm: "--c-tab-helm",
 };
@@ -78,6 +79,13 @@ export const SPINE_CONFIG = {
         { label: "Flow",       color: "var(--c-tab-science)", flex: 1 },
         { label: "DEW",        color: "var(--c-alert)",       flex: 1 },
         { label: "Control",    color: "var(--c-transport)",   flex: 1 },
+    ],
+    medical: [
+        { label: "Selector", color: "var(--c-tab-medical)", flex: 1 },
+        { label: "Vitals",   color: "var(--c-tab-medical)", flex: 3 },
+        { label: "DEW",      color: "var(--c-alert)",       flex: 2 },
+        { label: "Control",  color: "var(--c-transport)",   flex: 2 },
+        { label: "History",  color: "var(--c-tab-medical)", flex: 1 },
     ],
     engineering: [
         { label: "Spawn",       color: "var(--c-tab-engineering)", flex: 2 },
