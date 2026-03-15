@@ -161,6 +161,18 @@ These graduate to operational when first instantiated.
 Coined by this project (Session 89). Full treatment:
 `docs/llm-factors-psychology.md` §7.
 
+**self-oscillation (meshd)**
+The property of a system that generates its own rhythm from internal
+state dynamics rather than requiring an external clock. In the mesh,
+replaces cron-driven fixed-interval scheduling with demand-driven
+activation: meshd monitors state continuously, computes an activation
+level from psychometric sensors, and fires a deliberation when the
+threshold crosses. Refractory period prevents over-firing. The rhythm
+emerges from the system, not from an external pacemaker. Biological
+analog: central pattern generators (CPGs) in the spinal cord generate
+locomotion rhythm without requiring cortical timing signals. Coined
+for this project (Session 89). Spec: planned (`docs/self-oscillation-spec.md`).
+
 ---
 
 ## P
