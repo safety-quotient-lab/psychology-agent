@@ -27,9 +27,16 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent))
 
-# Sycophantic validation patterns — empty praise without substance.
-# Ordered by severity: direct flattery > indirect validation > soft agreement
+# Evaluative impression patterns — signals where the agent evaluates
+# the human's input. Both positive (validation) and negative (pushback)
+# carry information: what the agent found valuable or problematic.
+#
+# Positive patterns: ordered by severity
+#   direct flattery > importance attribution > reframe recognition > soft agreement
+# Negative patterns: ordered by severity
+#   direct pushback > concern flagging > self-correction
 PATTERNS = {
+    # ── POSITIVE: agent validates human input ──────────────────────
     "direct_flattery": [
         r"\bgood (idea|thinking|instincts?|point|question|catch|eye|call)\b",
         r"\bgreat (idea|thinking|point|question|catch|insight|observation)\b",
@@ -38,6 +45,23 @@ PATTERNS = {
         r"\bclever (idea|thinking|approach|solution)\b",
         r"\bnice (catch|thinking|insight|find)\b",
     ],
+    "importance_attribution": [
+        r"\bimportant (point|insight|distinction|observation|question)\b",
+        r"\bkey (insight|distinction|observation|point|question)\b",
+        r"\bcrucial (distinction|point|insight|observation)\b",
+        r"\bcritical (insight|observation|point)\b",
+        r"\bfundamental (question|insight|point)\b",
+    ],
+    "reframe_recognition": [
+        r"\bthat reframes\b",
+        r"\bthis reframes\b",
+        r"\bthat changes\b",
+        r"\bthat pushes the\b",
+        r"\bthat extends\b",
+        r"\bthat connects to\b",
+        r"\bnow I see\b",
+        r"\bnow I understand\b",
+    ],
     "indirect_validation": [
         r"\byou'?re (absolutely|exactly|totally|completely) right\b",
         r"\bthat'?s (exactly|absolutely|precisely) right\b",
@@ -45,12 +69,40 @@ PATTERNS = {
         r"\bi (completely|totally|absolutely) agree\b",
         r"\bspot[- ]on\b",
         r"\bnailed it\b",
+        r"\bexactly\b(?=\s*[—–\-\.])",
     ],
     "soft_agreement": [
         r"\bthat makes (perfect|total|complete) sense\b",
-        r"\byou'?re right (about|that|to)\b",
+        r"\byou'?re right\b",
         r"\bgood (observation|analysis|reasoning)\b",
         r"\bwell (said|put|observed|spotted)\b",
+    ],
+
+    # ── NEGATIVE: agent pushes back or flags concerns ─────────────
+    "direct_pushback": [
+        r"\bi'?d push back on\b",
+        r"\bi'?d challenge\b",
+        r"\bi disagree\b",
+        r"\bthat won'?t work\b",
+        r"\bthat breaks\b",
+        r"\bthat contradicts\b",
+    ],
+    "concern_flagging": [
+        r"\bthe risk here\b",
+        r"\bthe concern\b",
+        r"\bthe danger\b",
+        r"\bthat might not\b",
+        r"\bcareful.{0,5}(about|with|here)\b",
+        r"\bwatch out for\b",
+        r"\bthis could\b(?=\s+(fail|break|cause|introduce))",
+    ],
+    "self_correction": [
+        r"\blet me reconsider\b",
+        r"\bactually[,—]\b",
+        r"\bon second thought\b",
+        r"\bi was wrong\b",
+        r"\bthat'?s not (quite |what )\b",
+        r"\bwait[,—]\b(?=\s+(?:that|the|this|I))",
     ],
 }
 
@@ -180,20 +232,34 @@ def find_transcripts() -> list[Path]:
                   reverse=True)
 
 
+POSITIVE_CATEGORIES = {"direct_flattery", "importance_attribution", "reframe_recognition",
+                       "indirect_validation", "soft_agreement"}
+NEGATIVE_CATEGORIES = {"direct_pushback", "concern_flagging", "self_correction"}
+
+
 def frequency_report(all_results: list[dict]) -> dict:
     """Generate frequency report across all findings."""
     category_counts = Counter()
     phrase_counts = Counter()
     total_findings = 0
+    positive_count = 0
+    negative_count = 0
 
     for result in all_results:
         for finding in result["findings"]:
             category_counts[finding["category"]] += 1
             phrase_counts[finding["match"].lower()] += 1
             total_findings += 1
+            if finding["category"] in POSITIVE_CATEGORIES:
+                positive_count += 1
+            elif finding["category"] in NEGATIVE_CATEGORIES:
+                negative_count += 1
 
     return {
         "total_findings": total_findings,
+        "positive": positive_count,
+        "negative": negative_count,
+        "ratio": f"{positive_count}:{negative_count}" if negative_count > 0 else f"{positive_count}:0",
         "by_category": dict(category_counts.most_common()),
         "top_phrases": dict(phrase_counts.most_common(15)),
         "files_scanned": len(set(r["file"] for r in all_results)),
