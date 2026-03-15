@@ -29,7 +29,8 @@ type Config struct {
 	BudgetDBPath   string // path to the budget state database
 	TransportDir   string // path to transport/sessions/ directory
 	LogLevel       string // logging verbosity: debug, info, warn, error
-	MaxConcurrent  int    // max concurrent claude spawns
+	MaxConcurrent  int    // max concurrent claude spawns (normal capacity)
+	ReserveSlots   int    // extra slots unlocked via /tmp/mesh-reserve-unlock
 
 	// Compositor (ported from CF Worker)
 	AgentCardURLs  []string // bootstrap agent card URLs for discovery
@@ -117,7 +118,10 @@ func Load() (*Config, error) {
 	if cfg.PollInterval, err = resolveInt("POLL_INTERVAL", 60); err != nil {
 		return nil, err
 	}
-	if cfg.MaxConcurrent, err = resolveInt("MAX_CONCURRENT_SPAWNS", 2); err != nil {
+	if cfg.MaxConcurrent, err = resolveInt("MAX_CONCURRENT_SPAWNS", 3); err != nil {
+		return nil, err
+	}
+	if cfg.ReserveSlots, err = resolveInt("MESH_RESERVE_SLOTS", 2); err != nil {
 		return nil, err
 	}
 

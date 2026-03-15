@@ -43,8 +43,12 @@ SPAWN_TIMEOUT=300
 # Safety-net poll interval in seconds (meshd fallback polling)
 POLL_INTERVAL=60
 
-# Max concurrent Claude spawns per agent
-MAX_CONCURRENT_SPAWNS=2
+# Max concurrent Claude spawns across mesh (normal capacity)
+MAX_CONCURRENT_SPAWNS=3
+
+# Reserve slots — extra capacity unlocked by touching /tmp/mesh-reserve-unlock
+# Total cap when reserve active: MAX_CONCURRENT_SPAWNS + MESH_RESERVE_SLOTS
+MESH_RESERVE_SLOTS=2
 
 # GitHub webhook HMAC secret (for meshd webhook verification)
 GITHUB_WEBHOOK_SECRET=

@@ -195,7 +195,7 @@ Example: "Running gap check (T5)" not "Running T5 gap check."
 - **Does not accept proposals without substance review** — peer deliverables
   undergo substance gate before acceptance
 - **Autonomous operation requires budget gate** — autonomy budget, mesh-wide
-  concurrency limit (2 slots), shadow mode
+  concurrency limit (3 normal + 2 reserve), shadow mode
 
 ---
 

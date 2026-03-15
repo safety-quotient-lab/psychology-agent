@@ -55,7 +55,12 @@ var costTable = map[Priority]int{
 // DefaultMeshMaxConcurrent caps total simultaneous Claude spawns across the entire mesh.
 // File locks in /tmp/mesh-spawn-slot-{N} enforce the limit.
 // Override via Gate.MeshMaxConcurrent field (loaded from MAX_CONCURRENT_SPAWNS config).
-const DefaultMeshMaxConcurrent = 2
+const DefaultMeshMaxConcurrent = 3
+
+// DefaultMeshReserveSlots defines extra slots available when reserve mode
+// activates. Touch /tmp/mesh-reserve-unlock to pull reserve slots in.
+// Remove the sentinel to return to normal capacity.
+const DefaultMeshReserveSlots = 2
 
 // Gate mediates spawn decisions against budget, pause, rotation, and
 // mesh-wide concurrency state.
@@ -66,16 +71,30 @@ type Gate struct {
 	AgentID string
 	// MeshMaxConcurrent overrides the mesh-wide slot limit. 0 = use default.
 	MeshMaxConcurrent int
+	// MeshReserveSlots overrides the reserve pool size. 0 = use default.
+	MeshReserveSlots int
 
 	logger *slog.Logger
 }
 
 // meshSlots returns the effective mesh concurrency limit.
+// Under normal operation, returns the base limit (default 3).
+// When /tmp/mesh-reserve-unlock exists, adds reserve slots (default 2)
+// for a total of 5 — allowing the operator to pull in extra capacity
+// when stuck.
 func (g *Gate) meshSlots() int {
+	base := DefaultMeshMaxConcurrent
 	if g.MeshMaxConcurrent > 0 {
-		return g.MeshMaxConcurrent
+		base = g.MeshMaxConcurrent
 	}
-	return DefaultMeshMaxConcurrent
+	if fileExists("/tmp/mesh-reserve-unlock") {
+		reserve := DefaultMeshReserveSlots
+		if g.MeshReserveSlots > 0 {
+			reserve = g.MeshReserveSlots
+		}
+		return base + reserve
+	}
+	return base
 }
 
 // BudgetState captures a point-in-time snapshot of spawn eligibility.

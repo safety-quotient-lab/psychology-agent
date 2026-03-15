@@ -240,7 +240,7 @@
 | D58 | Agent card upgraded to A2A 1.0.0 with 4 mesh extensions | operations-agent (2026-03-14) |
 | D59 | state.db backup: daily cron, 7-day retention, mandatory pre-destructive-op | human arbiter (2026-03-14) |
 | D60 | Spawn protocol: all spawns route through meshd (budget gate + dedup + logging) | human arbiter (2026-03-14) |
-| D61 | Mesh concurrency: 5 slots (temporary), drop to 3 after backlog clears | human arbiter (2026-03-14) |
+| D61 | Mesh concurrency: 3 normal + 2 reserve (touch /tmp/mesh-reserve-unlock to expand) | human arbiter (2026-03-15) |
 
 ---
 
