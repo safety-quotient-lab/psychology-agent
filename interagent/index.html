@@ -78,6 +78,12 @@
             --band-height: 4px;
         }
 
+        /* LCARS-only elements: hidden in dark/light, visible in LCARS */
+        .lcars-only { display: none !important; }
+        .theme-lcars .lcars-only { display: inline-flex !important; }
+        .theme-lcars #pane-science { display: block; }
+        body:not(.theme-lcars) #pane-science { display: none !important; }
+
         /* LCARS classic mode — saturated Trek colors */
         .theme-lcars {
             --c-transport: #ff9900;
@@ -1398,7 +1404,7 @@
         <button class="lcars-tab" data-tab="operations" onclick="switchTab('operations')">
             Operations<span class="tab-badge" id="ops-badge" style="display:none">0</span>
         </button>
-        <button class="lcars-tab" data-tab="science" onclick="switchTab('science')">Science</button>
+        <button class="lcars-tab lcars-only" data-tab="science" onclick="switchTab('science')">Science</button>
     </div>
 
     <!-- Content -->
@@ -1956,6 +1962,13 @@
         document.getElementById("btn-light").classList.toggle("active", mode === "light");
         document.getElementById("btn-lcars").classList.toggle("active", mode === "lcars");
         localStorage.setItem("theme", mode);
+        // If leaving LCARS mode while on a LCARS-only tab, switch to Pulse
+        if (mode !== "lcars") {
+            const activeTab = document.querySelector('.lcars-tab.active');
+            if (activeTab && activeTab.classList.contains('lcars-only')) {
+                switchTab('pulse');
+            }
+        }
     }
 
     // ── Tabs ───────────────────────────────────────────────────────
