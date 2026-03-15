@@ -41,7 +41,7 @@ import {
 } from './stations/knowledge.js';
 import { renderLessons, renderWisdom } from './stations/wisdom.js';
 import {
-    renderOpsVitals, renderOpsBudget, renderOpsActions,
+    fetchOpsData, renderOpsVitals, renderOpsBudget, renderOpsActions,
     renderActionsTable, renderOpsSchedule, renderOps,
 } from './stations/operations.js';
 import { fetchScienceData, renderScience } from './stations/science.js';
@@ -242,6 +242,7 @@ window.switchTab = (tabId, updateHash) => {
     if (tabId === "engineering") fetchEngineeringData(AGENTS);
     if (tabId === "helm") fetchHelmData();
     if (tabId === "tactical") fetchTacticalData();
+    if (tabId === "operations") fetchOpsData();
 };
 window.refreshAll = refreshAll;
 window.switchAgent = switchAgent;

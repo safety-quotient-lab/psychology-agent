@@ -55,18 +55,43 @@ export async function fetchOpsData() {
 export function renderOpsVitals(AGENTS, agentData) {
     const online = Object.values(agentData).filter(a => a.status === "online");
 
-    const totalCredits = online.reduce((sum, a) => {
+    let totalCredits = online.reduce((sum, a) => {
         const b = a.data?.autonomy_budget || {};
         return sum + (b.budget_current ?? 0);
     }, 0);
-    const maxCredits = online.reduce((sum, a) => {
+    let maxCredits = online.reduce((sum, a) => {
         const b = a.data?.autonomy_budget || {};
         return sum + (b.budget_max ?? 20);
     }, 0);
+
+    // Supplement from mesh health data if per-agent status lacked budget info
+    if (meshHealthData && totalCredits === 0) {
+        const healthAgents = meshHealthData.agents || [];
+        for (const agent of healthAgents) {
+            const budgetPct = agent.budget_pct ?? null;
+            if (budgetPct != null) {
+                // Estimate credits from percentage (assume 20 max per agent)
+                totalCredits += Math.round((budgetPct / 100) * 20);
+                maxCredits += 20;
+            }
+        }
+    }
+
     const totalActions = online.reduce((sum, a) =>
         sum + (a.data?.recent_actions || []).length, 0);
-    const gates = online.reduce((sum, a) =>
+
+    let gates = online.reduce((sum, a) =>
         sum + (a.data?.active_gates || []).length, 0);
+
+    // Supplement gates from mesh health
+    if (meshHealthData && gates === 0) {
+        const healthAgents = meshHealthData.agents || [];
+        gates = healthAgents.reduce((sum, a) => {
+            const agentGates = a.gates ?? a.active_gates ?? 0;
+            return sum + (typeof agentGates === "number" ? agentGates : (Array.isArray(agentGates) ? agentGates.length : 0));
+        }, 0);
+    }
+
     const syncing = online.filter(a => {
         const sched = a.data?.schedule || {};
         return sched.cron_entry || sched.last_sync;
