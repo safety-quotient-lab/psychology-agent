@@ -3130,9 +3130,9 @@
                 </div>
             </div>
 
-            <!-- Autonomous Actions Audit Trail -->
+            <!-- Recent Deliberations Audit Trail -->
             <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Autonomous Actions</div>
+                <div class="lcars-panel-header">Recent Deliberations</div>
                 <div class="table-toolbar">
                     <input class="table-filter" id="filter-actions" placeholder="Filter actions..." oninput="filterTable('actions')">
                     <div class="table-page-info" id="page-info-actions"></div>
@@ -6304,13 +6304,25 @@
     }
 
     function renderOpsActions() {
-        // Collect all actions from all agents
+        // Collect actions from all agents — check both recent_actions and recent_spawns
         const allActions = [];
         for (const agent of AGENTS) {
             const d = agentData[agent.id];
             if (!d || d.status !== "online") continue;
+            // Try recent_actions first (old format), fallback to recent_spawns (meshd format)
             const actions = d.data?.recent_actions || [];
             actions.forEach(a => allActions.push({ ...a, agent_id: agent.id, agent_color: agent.color }));
+            // Map recent_spawns to action format
+            const spawns = d.data?.recent_spawns || [];
+            spawns.forEach(s => allActions.push({
+                created_at: s.started_at || s.created_at,
+                action_type: "deliberation",
+                description: `claude -p (${s.status || "?"}, ${((s.duration_ms || 0) / 1000).toFixed(0)}s, cost ${s.cost || 0})`,
+                evaluator_tier: s.cost >= 5 ? "critical" : s.cost >= 3 ? "high" : "normal",
+                evaluator_result: s.exit_code === 0 ? "completed" : s.status === "resolved-stale" ? "stale" : "failed",
+                agent_id: s.agent_id || agent.id,
+                agent_color: agent.color,
+            }));
         }
         allActions.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
 
@@ -6350,7 +6362,7 @@
         };
 
         if (rows.length === 0) {
-            wrap.innerHTML = `<div class="phase-stub"><div class="phase-stub-text">No autonomous actions recorded</div></div>`;
+            wrap.innerHTML = `<div class="phase-stub"><div class="phase-stub-text">No recent deliberations recorded</div></div>`;
         } else {
             wrap.innerHTML = `<table class="kb-table"><thead><tr>
                 ${th("Time", "created_at")}
