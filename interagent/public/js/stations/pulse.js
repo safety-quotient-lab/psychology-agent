@@ -356,7 +356,7 @@ export function flashTopologyEdge(fromAgent, toAgent) {
     setTimeout(() => line.classList.remove("edge-active"), 600);
 }
 
-// ── Render: Organism Affect Widget ─────────────────────────────
+// ── Render: Mesh Affect Widget ─────────────────────────────
 
 /**
  * Classify affect from valence/activation into a label + color tier.
@@ -374,7 +374,7 @@ function classifyAffect(valence, activation) {
 }
 
 /**
- * Fetch psychometrics from each agent and render the Organism Affect widget.
+ * Fetch psychometrics from each agent and render the Mesh Affect widget.
  * Falls back to agentData PAD scores if /api/psychometrics unavailable.
  * DOM WRITE: #affect-label, #affect-valence-bar, #affect-valence-val,
  *            #affect-activation-bar, #affect-activation-val

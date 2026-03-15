@@ -63,15 +63,12 @@
     </div>
     <div class="lcars-frame-elbow-top lcars-only"></div>
     <div class="lcars-frame-sidebar lcars-only">
-        <button class="lcars-sidebar-btn active" data-tab="pulse" onclick="switchTab('pulse')">PULSE</button>
-        <button class="lcars-sidebar-btn" data-tab="meta" onclick="switchTab('meta')">META</button>
-        <button class="lcars-sidebar-btn" data-tab="kb" onclick="switchTab('kb')">KNOWLEDGE</button>
-        <button class="lcars-sidebar-btn" data-tab="wisdom" onclick="switchTab('wisdom')">WISDOM</button>
-        <button class="lcars-sidebar-btn" data-tab="operations" onclick="switchTab('operations')">OPS</button>
-        <button class="lcars-sidebar-btn" data-tab="science" onclick="switchTab('science')">SCIENCE</button>
         <button class="lcars-sidebar-btn" data-tab="engineering" onclick="switchTab('engineering')">ENGNRING</button>
-        <button class="lcars-sidebar-btn" data-tab="helm" onclick="switchTab('helm')">HELM</button>
+        <button class="lcars-sidebar-btn active" data-tab="science" onclick="switchTab('science')">SCIENCE</button>
+        <button class="lcars-sidebar-btn" data-tab="medical" onclick="switchTab('medical')">MEDICAL</button>
         <button class="lcars-sidebar-btn" data-tab="tactical" onclick="switchTab('tactical')">TACTICAL</button>
+        <button class="lcars-sidebar-btn" data-tab="operations" onclick="switchTab('operations')">OPS</button>
+        <button class="lcars-sidebar-btn" data-tab="helm" onclick="switchTab('helm')">HELM</button>
     </div>
     <div class="lcars-frame-right lcars-only"></div>
     <div class="lcars-frame-elbow-bot lcars-only"></div>
@@ -154,14 +151,14 @@
             <!-- Agent cards -->
             <div class="agents-grid" id="agents-grid"></div>
 
-            <!-- Organism status widgets -->
+            <!-- Mesh status widgets -->
             <div class="pulse-widgets" id="pulse-widgets">
 
-                <!-- Organism Affect -->
+                <!-- Mesh Affect -->
                 <div class="lcars-panel pulse-widget affect-widget" style="--panel-accent: var(--c-tab-science)">
-                    <div class="lcars-panel-header">Organism Affect</div>
+                    <div class="lcars-panel-header">Mesh Affect</div>
                     <div class="lcars-panel-body">
-                        <div class="affect-summary" id="organism-affect">
+                        <div class="affect-summary" id="mesh-affect">
                             <div class="affect-label-pill" id="affect-label">--</div>
                             <div class="affect-bars">
                                 <div class="affect-bar-row">
@@ -583,13 +580,13 @@
         <!-- Science Tab -->
         <div class="tab-pane" id="pane-science">
             <div class="science-grid-v2">
-                <!-- Widget 1: Organism Affect Grid (MSD-style) — full width -->
+                <!-- Widget 1: Mesh Affect Grid (MSD-style) — full width -->
                 <div class="lcars-panel science-hero" style="--panel-accent: var(--c-tab-science)">
-                    <div class="lcars-panel-header">Organism Affect</div>
+                    <div class="lcars-panel-header">Mesh Affect</div>
                     <div class="lcars-panel-body">
                         <div class="msd-affect-grid">
                             <div class="msd-aggregate">
-                                <span class="msd-label">ORGANISM</span>
+                                <span class="msd-label">MESH</span>
                                 <span class="msd-value" id="org-affect-label">ENGAGED</span>
                                 <span class="msd-metric">v:<span id="org-valence">+0.4</span></span>
                                 <span class="msd-metric">a:<span id="org-activation">+0.5</span></span>
@@ -672,13 +669,60 @@
                     </div>
                 </div>
 
-                <!-- Widget 5: Organism Narrative -->
+                <!-- Widget 5: Mesh Narrative -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
-                    <div class="lcars-panel-header">Organism Narrative</div>
+                    <div class="lcars-panel-header">Mesh Narrative</div>
                     <div class="lcars-panel-body">
-                        <div class="organism-narrative" id="organism-narrative">
-                            <p class="narrative-text" id="narrative-text">Awaiting organism data...</p>
+                        <div class="mesh-narrative" id="mesh-narrative">
+                            <p class="narrative-text" id="narrative-text">Awaiting mesh data...</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medical Tab — per-agent diagnostic station -->
+        <div class="tab-pane" id="pane-medical">
+            <div class="medical-grid">
+                <!-- Widget 1: Agent Selector -->
+                <div class="lcars-panel medical-full-width" style="--panel-accent: var(--c-tab-medical)">
+                    <div class="lcars-panel-header">Agent Selector</div>
+                    <div class="lcars-panel-body">
+                        <div class="medical-agent-selector" id="medical-agent-selector">
+                            <!-- JS renders: 5 agent buttons -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Widget 2: Agent Vitals — PAD + TLX -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical)">
+                    <div class="lcars-panel-header">Agent Vitals</div>
+                    <div class="lcars-panel-body" id="medical-vitals">
+                        <div class="medical-placeholder">Select an agent to view vitals...</div>
+                    </div>
+                </div>
+
+                <!-- Widget 3: DEW Gauge -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical)">
+                    <div class="lcars-panel-header">Degradation Early Warning</div>
+                    <div class="lcars-panel-body" id="medical-dew">
+                        <div class="medical-placeholder">Awaiting DEW data...</div>
+                    </div>
+                </div>
+
+                <!-- Widget 4: Supervisory Control — LOA ladder -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical)">
+                    <div class="lcars-panel-header">Supervisory Control</div>
+                    <div class="lcars-panel-body" id="medical-loa">
+                        <div class="medical-placeholder">Awaiting LOA data...</div>
+                    </div>
+                </div>
+
+                <!-- Widget 5: Agent History -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical)">
+                    <div class="lcars-panel-header">Agent History</div>
+                    <div class="lcars-panel-body" id="medical-history">
+                        <div class="medical-placeholder">Recent diagnostics and audit findings appear here</div>
                     </div>
                 </div>
             </div>
