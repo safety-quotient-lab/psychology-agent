@@ -55,7 +55,7 @@ var costTable = map[Priority]int{
 // DefaultMeshMaxConcurrent caps total simultaneous Claude spawns across the entire mesh.
 // File locks in /tmp/mesh-spawn-slot-{N} enforce the limit.
 // Override via Gate.MeshMaxConcurrent field (loaded from MAX_CONCURRENT_SPAWNS config).
-const DefaultMeshMaxConcurrent = 3
+const DefaultMeshMaxConcurrent = 2
 
 // DefaultMeshReserveSlots defines extra slots available when reserve mode
 // activates. Touch /tmp/mesh-reserve-unlock to pull reserve slots in.

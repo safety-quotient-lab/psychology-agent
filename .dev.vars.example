@@ -44,7 +44,7 @@ SPAWN_TIMEOUT=300
 POLL_INTERVAL=60
 
 # Max concurrent Claude spawns across mesh (normal capacity)
-MAX_CONCURRENT_SPAWNS=3
+MAX_CONCURRENT_SPAWNS=2
 
 # Reserve slots — extra capacity unlocked by touching /tmp/mesh-reserve-unlock
 # Total cap when reserve active: MAX_CONCURRENT_SPAWNS + MESH_RESERVE_SLOTS
