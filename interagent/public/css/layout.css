@@ -452,47 +452,95 @@ body {
     display: none;
 }
 
-/* ── Responsive ──────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════
+   Responsive Breakpoints
+   Desktop > 1024px | Tablet 768-1024px | Phone < 768px | Small Phone < 480px
+   ══════════════════════════════════════════════════════════════════════ */
 
-/* Tablet and below — panels stack, grids collapse */
-@media (max-width: 768px) {
-    .lcars-frame {
-        grid-template-columns: 12px 1fr;
+/* ── Mobile Status Bar (base styles) ──────────────────────────── */
+.mobile-status-bar {
+    display: none;  /* hidden by default — shown via phone media query */
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 12px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8em;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.mobile-status-bar .status-dot {
+    font-size: 1.2em;
+    color: var(--status-online);
+}
+.mobile-status-bar .status-count {
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-left: 4px;
+}
+.mobile-status-bar .status-clock {
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+.mobile-status-bar .theme-icons {
+    display: flex;
+    gap: 4px;
+}
+.mobile-status-bar .theme-icons button {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    width: 32px;
+    height: 32px;
+    font-size: 0.9em;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+}
+.mobile-status-bar .theme-icons button:hover {
+    border-color: var(--text-secondary);
+}
+
+/* ── Responsive: Desktop ──────────────────────────────────────── */
+@media (min-width: 1025px) {
+    /* LCARS sidebar: 150px, full station names (default grid already handles this) */
+    .theme-lcars .lcars-frame {
+        grid-template-columns: 150px 1fr 8px;
     }
-    :root { --elbow-width: 12px; }
-    .lcars-header { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
-    .lcars-title { font-size: 1.1em; }
-    .lcars-subtitle { display: none; }
-    .lcars-content { padding: 12px; }
-    .lcars-tab { padding: 8px 12px; font-size: 0.75em; min-height: 44px; }
-    .agents-grid { grid-template-columns: 1fr; }
-    .pulse-widgets { grid-template-columns: 1fr; }
-    .vitals-grid { grid-template-columns: repeat(3, 1fr); }
-    .kb-vitals { grid-template-columns: repeat(3, 1fr); }
-    .dict-grid { grid-template-columns: 1fr; }
-    .catalog-bar-label { width: 100px; font-size: 0.75em; }
-    .kb-table { font-size: 0.7em; }
-    .table-toolbar { padding: 6px 12px; }
-    .table-filter { min-width: 120px; }
-    .lcars-panel-body.scrollable { max-height: 300px; }
 
-    /* Station grids stack vertically on mobile */
-    .science-grid-v2 { grid-template-columns: 1fr; }
-    .engineering-grid { grid-template-columns: 1fr; }
-    .helm-grid { grid-template-columns: 1fr; }
-    .tactical-grid { grid-template-columns: 1fr; }
-    .ops-budget-grid { grid-template-columns: 1fr; }
+    /* Content grids: 2 columns for station widgets */
+    .science-grid-v2   { grid-template-columns: 1fr 1fr; }
+    .engineering-grid   { grid-template-columns: 1fr 1fr; }
+    .helm-grid          { grid-template-columns: 1fr 1fr; }
+    .tactical-grid      { grid-template-columns: 1fr 1fr; }
 
-    /* LCARS TNG frame — narrower sidebar on tablet */
+    /* MSD schematic: full height range */
+    .msd-schematic { min-height: 320px; }
+}
+
+/* ── Responsive: Tablet ───────────────────────────────────────── */
+@media (min-width: 768px) and (max-width: 1024px) {
+    /* LCARS sidebar: 100px, abbreviated station names */
     .theme-lcars .lcars-frame {
         grid-template-columns: 100px 1fr 6px;
         grid-template-rows: 44px 36px 1fr 36px 44px;
     }
-    .theme-lcars .lcars-header-title { font-size: 1em; padding: 0 10px; }
-    .theme-lcars .lcars-header-seg { font-size: 0.65em; padding: 0 8px; }
     .theme-lcars .lcars-sidebar-btn { font-size: 0.65em; padding: 0 8px; }
+    .theme-lcars .lcars-header-title { font-size: 1em; padding: 0 10px; }
     .theme-lcars .lcars-header-cap { width: 40px; min-width: 40px; }
     .theme-lcars .lcars-footer-cap { width: 40px; min-width: 40px; }
+
+    /* Header/footer band: show only title + status (hide secondary segments) */
+    .theme-lcars .lcars-header-seg[data-seg="agents"] { display: none; }
+    .theme-lcars .lcars-header-seg[data-seg="time"]   { display: none; }
+    .theme-lcars .lcars-footer-seg[data-seg="lab"]      { display: none; }
+    .theme-lcars .lcars-footer-seg[data-seg="stardate"] { display: none; }
+
+    /* Elbow radii match 100px sidebar */
     .theme-lcars .lcars-frame-elbow-top {
         background:
             linear-gradient(to bottom, #cc99cc 0%, #cc99cc 100%) no-repeat left top / 100px 100%,
@@ -505,21 +553,137 @@ body {
             radial-gradient(circle at 100px 0px, #000000 35px, #9999cc 36px) no-repeat left bottom;
         background-color: #000000;
     }
+
+    /* Content grids: 1 column for station widgets */
+    .science-grid-v2   { grid-template-columns: 1fr; }
+    .engineering-grid   { grid-template-columns: 1fr; }
+    .helm-grid          { grid-template-columns: 1fr; }
+    .tactical-grid      { grid-template-columns: 1fr; }
+
+    /* MSD schematic: reduced height */
+    .msd-schematic { min-height: 260px; }
+
+    /* Touch targets: maintain 48px minimum (tabs already have min-height: 48px) */
+    .lcars-tab { min-height: 48px; }
+    .toggle-btn { min-height: 48px; min-width: 48px; }
 }
 
-/* Small phones */
-@media (max-width: 480px) {
-    .vitals-grid { grid-template-columns: repeat(2, 1fr); }
-    .toggle-group { display: none; }
-    .lcars-tab { font-size: 0.7em; padding: 6px 8px; }
+/* ── Responsive: Phone ────────────────────────────────────────── */
+@media (max-width: 767px) {
+    /* Show mobile status bar */
+    .mobile-status-bar { display: flex; }
 
-    /* LCARS TNG frame — collapse sidebar on small phones */
+    /* Standard frame: collapse spine */
+    .lcars-frame { grid-template-columns: 12px 1fr; }
+    :root { --elbow-width: 12px; }
+
+    /* Header/tabs/content compression */
+    .lcars-header { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
+    .lcars-title { font-size: 1.1em; }
+    .lcars-subtitle { display: none; }
+    .lcars-content { padding: 12px; }
+
+    /* Tab bar: flex-wrap, reduced sizing */
+    .lcars-tabs { flex-wrap: wrap; }
+    .lcars-tab { padding: 8px 12px; font-size: 0.75em; min-height: 44px; }
+
+    /* All panels: stack to single column */
+    .agents-grid        { grid-template-columns: 1fr; }
+    .pulse-widgets      { grid-template-columns: 1fr; }
+    .vitals-grid        { grid-template-columns: repeat(3, 1fr); }
+    .kb-vitals          { grid-template-columns: repeat(3, 1fr); }
+    .dict-grid          { grid-template-columns: 1fr; }
+    .science-grid-v2    { grid-template-columns: 1fr; }
+    .engineering-grid   { grid-template-columns: 1fr; }
+    .helm-grid          { grid-template-columns: 1fr; }
+    .tactical-grid      { grid-template-columns: 1fr; }
+    .ops-budget-grid    { grid-template-columns: 1fr; }
+
+    /* Spawn waterfall: reduce to 3 columns (combine psq+observatory, drop ops) */
+    .spawn-waterfall { grid-template-columns: repeat(3, 1fr); }
+
+    /* Tables: horizontal scroll on narrow screens */
+    .kb-table { font-size: 0.7em; }
+    .lcars-panel-body.scrollable { max-height: 300px; }
+    .table-toolbar { padding: 6px 12px; }
+    .table-filter { min-width: 120px; }
+    .catalog-bar-label { width: 100px; font-size: 0.75em; }
+
+    /* Tables: enable horizontal scroll wrapper */
+    .kb-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Activity stream: full width always (already 1-col, just ensure no margin) */
+    .activity-stream { margin-left: 0; margin-right: 0; }
+
+    /* MSD schematic: compact */
+    .msd-schematic { min-height: 200px; }
+
+    /* LCARS TNG frame — 60px sidebar, icons only */
     .theme-lcars .lcars-frame {
         grid-template-columns: 60px 1fr 4px;
         grid-template-rows: 40px 30px 1fr 30px 40px;
     }
-    .theme-lcars .lcars-header-title { font-size: 0.8em; }
+    .theme-lcars .lcars-header-title { font-size: 0.85em; padding: 0 8px; }
     .theme-lcars .lcars-header-seg { display: none; }
+    .theme-lcars .lcars-header-seg[data-seg="status"] { display: flex; font-size: 0.6em; }
     .theme-lcars .lcars-sidebar-btn { font-size: 0.55em; padding: 0 4px; height: 28px; min-height: 28px; }
+    .theme-lcars .lcars-header-cap { width: 30px; min-width: 30px; }
+    .theme-lcars .lcars-footer-cap { width: 30px; min-width: 30px; }
+    .theme-lcars .lcars-footer-seg[data-seg="session"]  { display: none; }
+    .theme-lcars .lcars-footer-seg[data-seg="lab"]       { display: none; }
+    .theme-lcars .lcars-footer-seg[data-seg="stardate"]  { display: none; }
+
+    /* Elbow radii match 60px sidebar */
+    .theme-lcars .lcars-frame-elbow-top {
+        background:
+            linear-gradient(to bottom, #cc99cc 0%, #cc99cc 100%) no-repeat left top / 60px 100%,
+            radial-gradient(circle at 60px 30px, #000000 29px, #cc99cc 30px) no-repeat left top;
+        background-color: #000000;
+    }
+    .theme-lcars .lcars-frame-elbow-bot {
+        background:
+            linear-gradient(to top, #9999cc 0%, #9999cc 100%) no-repeat left bottom / 60px 100%,
+            radial-gradient(circle at 60px 0px, #000000 29px, #9999cc 30px) no-repeat left bottom;
+        background-color: #000000;
+    }
+}
+
+/* ── Responsive: Small Phone ──────────────────────────────────── */
+@media (max-width: 480px) {
+    .vitals-grid { grid-template-columns: repeat(2, 1fr); }
+    .kb-vitals { grid-template-columns: repeat(2, 1fr); }
+    .toggle-group { display: none; }
+
+    /* Tab bar: further font reduction */
+    .lcars-tab { font-size: 0.7em; padding: 6px 8px; }
+
+    /* LCARS TNG frame — minimal sidebar */
+    .theme-lcars .lcars-frame {
+        grid-template-columns: 44px 1fr 3px;
+        grid-template-rows: 36px 26px 1fr 26px 36px;
+    }
+    .theme-lcars .lcars-header-title { font-size: 0.75em; }
+    .theme-lcars .lcars-sidebar-btn { font-size: 0.5em; padding: 0 2px; height: 24px; min-height: 24px; }
     .theme-lcars .lcars-header-controls .toggle-group { display: none; }
+
+    /* Elbow radii match 44px sidebar */
+    .theme-lcars .lcars-frame-elbow-top {
+        background:
+            linear-gradient(to bottom, #cc99cc 0%, #cc99cc 100%) no-repeat left top / 44px 100%,
+            radial-gradient(circle at 44px 26px, #000000 25px, #cc99cc 26px) no-repeat left top;
+        background-color: #000000;
+    }
+    .theme-lcars .lcars-frame-elbow-bot {
+        background:
+            linear-gradient(to top, #9999cc 0%, #9999cc 100%) no-repeat left bottom / 44px 100%,
+            radial-gradient(circle at 44px 0px, #000000 25px, #9999cc 26px) no-repeat left bottom;
+        background-color: #000000;
+    }
+
+    /* Mobile status bar: tighter padding */
+    .mobile-status-bar { padding: 4px 8px; font-size: 0.75em; }
+    .mobile-status-bar .theme-icons button { width: 28px; height: 28px; font-size: 0.8em; }
 }

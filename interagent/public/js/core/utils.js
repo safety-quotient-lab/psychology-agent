@@ -131,3 +131,64 @@ export function annotateAcronyms(escapedText) {
 export function getAcronymMap() {
     return { ...acronymMap };
 }
+
+// ── Mobile Status Bar ────────────────────────────────────────────────
+// Updates the compact mobile clock and mesh-status dot. The clock ticks
+// every 60 seconds. Status dot color reflects mesh health.
+
+let mobileClockTimer = null;
+
+/**
+ * Update the mobile clock element with current HH:MM.
+ * DOM WRITE: sets textContent on #mobile-clock.
+ */
+function updateMobileClock() {
+    const el = document.getElementById("mobile-clock");
+    if (!el) return;
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, "0");
+    const mm = String(now.getMinutes()).padStart(2, "0");
+    el.textContent = `${hh}:${mm}`;
+}
+
+/**
+ * Start the mobile status bar clock. Runs once immediately, then
+ * ticks every 60 seconds aligned to the next minute boundary.
+ *
+ * Safe to call multiple times — subsequent calls skip if already running.
+ */
+export function initMobileClock() {
+    if (mobileClockTimer) return;
+    updateMobileClock();
+    // Align to next minute boundary, then tick every 60s
+    const msToNextMinute = (60 - new Date().getSeconds()) * 1000;
+    setTimeout(() => {
+        updateMobileClock();
+        mobileClockTimer = setInterval(updateMobileClock, 60000);
+    }, msToNextMinute);
+}
+
+/**
+ * Update the mobile status dot color and agent count.
+ * Call after each data refresh to reflect current mesh health.
+ *
+ * @param {number} onlineCount — agents currently online
+ * @param {number} totalCount — total expected agents
+ *
+ * DOM WRITE: sets style.color on #mobile-mesh-status,
+ *            textContent on #mobile-agent-count.
+ */
+export function updateMobileStatus(onlineCount, totalCount) {
+    const dot = document.getElementById("mobile-mesh-status");
+    const count = document.getElementById("mobile-agent-count");
+    if (dot) {
+        if (onlineCount === totalCount) {
+            dot.style.color = "var(--status-online)";
+        } else if (onlineCount === 0) {
+            dot.style.color = "var(--status-offline)";
+        } else {
+            dot.style.color = "var(--status-degraded)";
+        }
+    }
+    if (count) count.textContent = String(onlineCount);
+}
