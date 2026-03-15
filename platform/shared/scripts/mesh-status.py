@@ -256,8 +256,8 @@ def _collect_peer_sync_recency(registry_agents: dict, remote_states: list) -> li
             "last_ran": age_str,
             "last_ran_raw": last_ran,
             "next_due": next_due,
-            "budget_current": budget.get("budget_current", "?"),
-            "budget_max": budget.get("budget_max", "?"),
+            "budget_spent": budget.get("budget_spent", "?"),
+            "budget_cutoff": budget.get("budget_cutoff", "?"),
         })
 
     return peers
@@ -789,8 +789,8 @@ def _build_jsonld(status: dict) -> dict:
             {"@type": "PropertyValue", "name": "unprocessed_messages", "value": totals.get("unprocessed", 0)},
             {"@type": "PropertyValue", "name": "active_gates", "value": totals.get("active_gates", 0)},
             {"@type": "PropertyValue", "name": "epistemic_flags_unresolved", "value": totals.get("epistemic_flags_unresolved", 0)},
-            {"@type": "PropertyValue", "name": "autonomy_budget_current", "value": budget.get("budget_current", "?")},
-            {"@type": "PropertyValue", "name": "autonomy_budget_max", "value": budget.get("budget_max", "?")},
+            {"@type": "PropertyValue", "name": "autonomy_budget_spent", "value": budget.get("budget_spent", "?")},
+            {"@type": "PropertyValue", "name": "autonomy_budget_cutoff", "value": budget.get("budget_cutoff", "?")},
             {"@type": "PropertyValue", "name": "collected_at", "value": collected_at},
             {"@type": "PropertyValue", "name": "crystallization_rate", "value": crystal.get("rate_percent", 0)},
             {"@type": "PropertyValue", "name": "crystallized_count", "value": crystal.get("crystallized_count", 0)},
@@ -892,7 +892,7 @@ def _render_state_of_play(status: dict) -> str:
     peer_rows_html = ""
     if peer_sync:
         for peer in peer_sync:
-            budget_str = f"{peer.get('budget_current', '?')}/{peer.get('budget_max', '?')}"
+            budget_str = f"{peer.get('budget_spent', '?')}/{peer.get('budget_cutoff', '?')} spent"
             peer_rows_html += f"""
             <tr>
                 <td>{peer['agent_id']}</td>
@@ -1156,22 +1156,27 @@ def render_html(status: dict) -> str:
     totals = status.get("totals", {})
     schedule = status.get("schedule", {})
 
-    budget_current = budget.get("budget_current", "?")
-    budget_max = budget.get("budget_max", "?")
+    budget_spent = budget.get("budget_spent", "?")
+    budget_cutoff = budget.get("budget_cutoff", "?")
     last_action = budget.get("last_action", "never")
     consecutive_blocks = budget.get("consecutive_blocks", 0)
     shadow_mode = budget.get("shadow_mode", 0)
     crystal = status.get("crystallization", {})
 
     # Budget bar
-    if isinstance(budget_current, (int, float)) and isinstance(budget_max, (int, float)) and budget_max > 0:
-        budget_pct = int((budget_current / budget_max) * 100)
+    if isinstance(budget_spent, (int, float)) and isinstance(budget_cutoff, (int, float)) and budget_cutoff > 0:
+        budget_ratio = 1.0 - (budget_spent / budget_cutoff)
+        budget_pct = int(budget_ratio * 100)
         if budget_pct > 60:
             budget_color = "#4caf50"
         elif budget_pct > 30:
             budget_color = "#ff9800"
         else:
             budget_color = "#f44336"
+    elif isinstance(budget_cutoff, (int, float)) and budget_cutoff == 0:
+        # Unlimited
+        budget_pct = 100
+        budget_color = "#4caf50"
     else:
         budget_pct = 0
         budget_color = "#666"
@@ -1272,7 +1277,7 @@ def render_html(status: dict) -> str:
         source = rs.get("_source", "?")
         trust = rs.get("autonomy_budget", {})
         transport = rs.get("transport", {})
-        budget_str = f"{trust.get('budget_current', '?')}/{trust.get('budget_max', '?')}" if trust else "—"
+        budget_str = f"{trust.get('budget_spent', '?')}/{trust.get('budget_cutoff', '?')} spent" if trust else "—"
         unprocessed = transport.get("unprocessed", 0)
         active_gates = transport.get("active_gates", 0)
         total_msgs = transport.get("total_messages", 0)
@@ -1608,8 +1613,8 @@ def render_html(status: dict) -> str:
             <div class="nav-title">⬡ {status['agent_id']}</div>
             <div class="nav-status">
                 <div class="indicator">
-                    <span class="dot {'dot-green' if isinstance(budget_current, (int, float)) and budget_current > 10 else 'dot-yellow' if isinstance(budget_current, (int, float)) and budget_current > 5 else 'dot-red'}"></span>
-                    budget {budget_current}/{budget_max}
+                    <span class="dot {'dot-green' if budget_pct > 60 else 'dot-yellow' if budget_pct > 30 else 'dot-red'}"></span>
+                    budget {budget_spent}/{budget_cutoff} spent
                 </div>
                 <div class="indicator">
                     <span class="dot {'dot-red' if totals.get('unprocessed', 0) > 0 else 'dot-green'}"></span>
@@ -1646,7 +1651,7 @@ def render_html(status: dict) -> str:
     <div class="grid">
         <div class="card">
             <div class="card-label">Autonomy Budget</div>
-            <div class="card-value" style="color: {budget_color}">{budget_current} / {budget_max}</div>
+            <div class="card-value" style="color: {budget_color}">{budget_spent} / {budget_cutoff} spent</div>
             <div class="budget-bar"><div class="budget-fill" style="width: {budget_pct}%; background: {budget_color}"></div></div>
             <div class="card-detail">Last action: {last_action or 'never'}</div>
         </div>

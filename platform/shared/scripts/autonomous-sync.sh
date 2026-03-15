@@ -209,8 +209,8 @@ ensure_db() {
         sqlite3 "${LOCAL_DB_PATH}" "
             CREATE TABLE IF NOT EXISTS autonomy_budget (
                 agent_id TEXT PRIMARY KEY,
-                budget_current INTEGER NOT NULL DEFAULT 20,
-                budget_max INTEGER NOT NULL DEFAULT 20,
+                budget_cutoff INTEGER NOT NULL DEFAULT 0,
+                budget_spent INTEGER NOT NULL DEFAULT 0,
                 budget_total_spent INTEGER NOT NULL DEFAULT 0,
                 last_action TEXT,
                 last_reset TEXT,
@@ -290,11 +290,11 @@ ensure_db() {
         # Try to migrate from state.db
         local old_budget
         old_budget=$(sqlite3 "${DB_PATH}" \
-            "SELECT budget_current FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "")
+            "SELECT budget_spent FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "")
         if [ -n "${old_budget}" ]; then
-            log "Migrating autonomy_budget from state.db to state.local.db (budget=${old_budget})"
+            log "Migrating autonomy_budget from state.db to state.local.db (budget_spent=${old_budget})"
             sqlite3 "${LOCAL_DB_PATH}" \
-                "INSERT OR IGNORE INTO autonomy_budget (agent_id, budget_current) VALUES ('${AGENT_ID}', ${old_budget});"
+                "INSERT OR IGNORE INTO autonomy_budget (agent_id, budget_spent) VALUES ('${AGENT_ID}', ${old_budget});"
         else
             sqlite3 "${LOCAL_DB_PATH}" \
                 "INSERT OR IGNORE INTO autonomy_budget (agent_id) VALUES ('${AGENT_ID}');"
@@ -303,18 +303,29 @@ ensure_db() {
 }
 
 check_budget() {
-    local budget
-    budget=$(sqlite3 "${LOCAL_DB_PATH}" \
-        "SELECT budget_current FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "")
+    # Spend-counter model: budget_spent increments, budget_cutoff sets limit (0=unlimited)
+    local budget_spent budget_cutoff
+    budget_spent=$(sqlite3 "${LOCAL_DB_PATH}" \
+        "SELECT budget_spent FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "")
+    budget_cutoff=$(sqlite3 "${LOCAL_DB_PATH}" \
+        "SELECT budget_cutoff FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "")
 
     # Fallback to state.db for pre-migration installs
-    if [ -z "${budget}" ]; then
-        budget=$(sqlite3 "${DB_PATH}" \
-            "SELECT budget_current FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "")
+    if [ -z "${budget_spent}" ]; then
+        budget_spent=$(sqlite3 "${DB_PATH}" \
+            "SELECT budget_spent FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "0")
+    fi
+    if [ -z "${budget_cutoff}" ]; then
+        budget_cutoff=$(sqlite3 "${DB_PATH}" \
+            "SELECT budget_cutoff FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "0")
     fi
 
-    if [ -z "${budget}" ] || [ "${budget}" -le 0 ]; then
-        err "HALT — autonomy budget exhausted (${budget:-0} credits). Human audit required."
+    budget_spent="${budget_spent:-0}"
+    budget_cutoff="${budget_cutoff:-0}"
+
+    # Cutoff 0 means unlimited — never halt
+    if [ "${budget_cutoff}" -gt 0 ] && [ "${budget_spent}" -ge "${budget_cutoff}" ]; then
+        err "HALT — autonomy budget exhausted (${budget_spent}/${budget_cutoff} spent). Human audit required."
         err "Run: ./agentdb budget reset --agent-id ${AGENT_ID}"
 
         # Write halt marker to local-coordination
@@ -328,7 +339,8 @@ check_budget() {
   "message_type": "halt",
   "payload": {
     "reason": "autonomy_budget_exhausted",
-    "budget_current": 0,
+    "budget_spent": ${budget_spent},
+    "budget_cutoff": ${budget_cutoff},
     "action": "Autonomous sync halted. Human audit required to reset budget."
   }
 }
@@ -342,15 +354,15 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"; then
         fi
 
         escalate "critical" "budget-halt" \
-            "Autonomy budget exhausted (0/${budget:-0} credits)" \
-            "Autonomous sync halted. No credits remaining." \
+            "Autonomy budget exhausted (${budget_spent}/${budget_cutoff} spent)" \
+            "Autonomous sync halted. Spend counter reached cutoff." \
             "Run: ./agentdb budget reset --agent-id ${AGENT_ID}" || true
 
         exit 1
     fi
 
-    log "Autonomy budget: ${budget} credits remaining" >&2
-    echo "${budget}"
+    log "Autonomy budget: ${budget_spent}/${budget_cutoff} spent (cutoff 0=unlimited)" >&2
+    echo "${budget_spent}"
 }
 
 check_wake_signal() {
@@ -881,10 +893,7 @@ record_action() {
         esac
     fi
 
-    local budget_after=$((budget_before - cost))
-    if [ "${budget_after}" -lt 0 ]; then
-        budget_after=0
-    fi
+    local budget_after=$((budget_before + cost))
 
     sqlite3 "${LOCAL_DB_PATH}" "INSERT INTO autonomous_actions
         (agent_id, action_type, action_class, evaluator_tier, evaluator_result,
@@ -893,7 +902,7 @@ record_action() {
                 '${result}', '${description}', ${budget_before}, ${budget_after});"
 
     sqlite3 "${LOCAL_DB_PATH}" "UPDATE autonomy_budget
-        SET budget_current = ${budget_after},
+        SET budget_spent = ${budget_after},
             last_action = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
         WHERE agent_id = '${AGENT_ID}';"
 

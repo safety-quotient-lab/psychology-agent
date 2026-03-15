@@ -110,9 +110,50 @@ export function renderOpsVitals(AGENTS, agentData) {
     }).length;
 
     document.getElementById("ops-total-credits").textContent = `${totalCredits}/${maxCredits}`;
-    document.getElementById("ops-total-actions").textContent = totalActions;
-    document.getElementById("ops-active-gates").textContent = gates;
     document.getElementById("ops-agents-syncing").textContent = `${syncing}/${AGENTS.length}`;
+
+    // Gate stack — render LCARS indicator chips
+    const gateStack = document.getElementById("ops-gate-stack");
+    if (gateStack) {
+        // Collect gate details from agent data
+        const allGates = [];
+        for (const agent of AGENTS) {
+            const d = agentData[agent.id];
+            if (!d || d.status !== "online") continue;
+            const agentGates = d.data?.active_gates || [];
+            for (const g of agentGates) {
+                allGates.push({ ...g, agent_id: agent.id });
+            }
+        }
+        // Supplement from mesh health
+        if (meshHealthData && allGates.length === 0) {
+            for (const a of (meshHealthData.agents || [])) {
+                const ag = a.active_gates ?? a.gates ?? [];
+                if (typeof ag === "number") {
+                    for (let i = 0; i < ag; i++) allGates.push({ agent_id: a.id });
+                } else if (Array.isArray(ag)) {
+                    for (const g of ag) allGates.push({ ...g, agent_id: a.id });
+                }
+            }
+        }
+
+        const MAX_CHIPS = 5;
+        const chips = [];
+        for (let i = 0; i < MAX_CHIPS; i++) {
+            if (i < allGates.length) {
+                const gate = allGates[i];
+                const timedOut = gate.timeout_at && new Date(gate.timeout_at) < new Date();
+                const cls = timedOut ? "timeout" : "active";
+                const title = gate.gate_id
+                    ? `${gate.gate_id} (${(gate.agent_id || "").replace("-agent", "")})`
+                    : `Gate ${i + 1}`;
+                chips.push(`<div class="ops-gate-chip ${cls}" title="${title}"></div>`);
+            } else {
+                chips.push('<div class="ops-gate-chip idle"></div>');
+            }
+        }
+        gateStack.innerHTML = chips.join("");
+    }
 }
 
 // ── Render: Budget Cards ───────────────────────────────────────

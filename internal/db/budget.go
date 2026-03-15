@@ -11,7 +11,7 @@ import (
 
 // BudgetStatus prints the current autonomy budget for all agents.
 func BudgetStatus(localDB *sql.DB) error {
-	rows, err := localDB.Query("SELECT agent_id, budget_max, budget_current, last_audit, last_action, consecutive_blocks FROM autonomy_budget ORDER BY agent_id")
+	rows, err := localDB.Query("SELECT agent_id, budget_cutoff, budget_spent, last_audit, last_action, consecutive_blocks FROM autonomy_budget ORDER BY agent_id")
 	if err != nil {
 		return fmt.Errorf("query budget: %w", err)
 	}
@@ -23,14 +23,16 @@ func BudgetStatus(localDB *sql.DB) error {
 	for rows.Next() {
 		found = true
 		var agentID string
-		var budgetMax, budgetCurrent, consecutiveBlocks int
+		var budgetCutoff, budgetSpent, consecutiveBlocks int
 		var lastAudit string
 		var lastAction sql.NullString
-		if err := rows.Scan(&agentID, &budgetMax, &budgetCurrent, &lastAudit, &lastAction, &consecutiveBlocks); err != nil {
+		if err := rows.Scan(&agentID, &budgetCutoff, &budgetSpent, &lastAudit, &lastAction, &consecutiveBlocks); err != nil {
 			continue
 		}
 		status := "ACTIVE"
-		if budgetCurrent <= 0 {
+		if budgetCutoff == 0 {
+			status = "UNLIMITED"
+		} else if budgetSpent >= budgetCutoff {
 			status = "HALTED"
 		}
 		la := "none"
@@ -38,7 +40,7 @@ func BudgetStatus(localDB *sql.DB) error {
 			la = lastAction.String
 		}
 		fmt.Printf("  Agent:       %s\n", agentID)
-		fmt.Printf("  Budget:      %d / %d  [%s]\n", budgetCurrent, budgetMax, status)
+		fmt.Printf("  Budget:      %d spent / %d cutoff  [%s]\n", budgetSpent, budgetCutoff, status)
 		fmt.Printf("  Last audit:  %s\n", lastAudit)
 		fmt.Printf("  Last action: %s\n", la)
 		fmt.Printf("  Consec. blocks: %d\n\n", consecutiveBlocks)
@@ -95,7 +97,7 @@ func BudgetHistory(localDB *sql.DB, agentID string) error {
 
 // BudgetPauseAll zeros all agent budgets (soft circuit breaker).
 func BudgetPauseAll(localDB *sql.DB) error {
-	rows, err := localDB.Query("SELECT agent_id, budget_current FROM autonomy_budget ORDER BY agent_id")
+	rows, err := localDB.Query("SELECT agent_id, budget_spent, budget_cutoff FROM autonomy_budget ORDER BY agent_id")
 	if err != nil {
 		return fmt.Errorf("query budget: %w", err)
 	}
@@ -103,12 +105,13 @@ func BudgetPauseAll(localDB *sql.DB) error {
 
 	type agent struct {
 		id      string
-		current int
+		spent   int
+		cutoff  int
 	}
 	var agents []agent
 	for rows.Next() {
 		var a agent
-		rows.Scan(&a.id, &a.current)
+		rows.Scan(&a.id, &a.spent, &a.cutoff)
 		agents = append(agents, a)
 	}
 	rows.Close()
@@ -120,16 +123,17 @@ func BudgetPauseAll(localDB *sql.DB) error {
 
 	updated := 0
 	for _, a := range agents {
-		if a.current > 0 {
+		if a.cutoff == 0 || a.spent < a.cutoff {
 			localDB.Exec(`
 				UPDATE autonomy_budget
-				SET budget_current = 0,
+				SET budget_spent = budget_cutoff,
+					budget_cutoff = CASE WHEN budget_cutoff = 0 THEN 1 ELSE budget_cutoff END,
 					updated_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
 				WHERE agent_id = ?`, a.id)
-			fmt.Printf("  %s: budget %d → 0\n", a.id, a.current)
+			fmt.Printf("  %s: budget exhausted\n", a.id)
 			updated++
 		} else {
-			fmt.Printf("  %s: already at 0\n", a.id)
+			fmt.Printf("  %s: already exhausted\n", a.id)
 		}
 	}
 	fmt.Printf("\nPaused %d agent(s). All autonomous actions will halt at next sync cycle.\n", updated)
@@ -138,7 +142,7 @@ func BudgetPauseAll(localDB *sql.DB) error {
 
 // BudgetResumeAll restores all agent budgets to maximum.
 func BudgetResumeAll(localDB *sql.DB) error {
-	rows, err := localDB.Query("SELECT agent_id, budget_max, budget_current FROM autonomy_budget ORDER BY agent_id")
+	rows, err := localDB.Query("SELECT agent_id, budget_spent, budget_cutoff FROM autonomy_budget ORDER BY agent_id")
 	if err != nil {
 		return fmt.Errorf("query budget: %w", err)
 	}
@@ -146,13 +150,13 @@ func BudgetResumeAll(localDB *sql.DB) error {
 
 	type agent struct {
 		id      string
-		max     int
-		current int
+		spent   int
+		cutoff  int
 	}
 	var agents []agent
 	for rows.Next() {
 		var a agent
-		rows.Scan(&a.id, &a.max, &a.current)
+		rows.Scan(&a.id, &a.spent, &a.cutoff)
 		agents = append(agents, a)
 	}
 	rows.Close()
@@ -164,18 +168,18 @@ func BudgetResumeAll(localDB *sql.DB) error {
 
 	updated := 0
 	for _, a := range agents {
-		if a.current < a.max {
+		if a.spent > 0 {
 			localDB.Exec(`
 				UPDATE autonomy_budget
-				SET budget_current = budget_max,
+				SET budget_spent = 0,
 					consecutive_blocks = 0,
 					last_audit = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
 					updated_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
 				WHERE agent_id = ?`, a.id)
-			fmt.Printf("  %s: budget %d → %d\n", a.id, a.current, a.max)
+			fmt.Printf("  %s: spend counter reset (was %d, cutoff=%d)\n", a.id, a.spent, a.cutoff)
 			updated++
 		} else {
-			fmt.Printf("  %s: already at maximum (%d)\n", a.id, a.max)
+			fmt.Printf("  %s: already at zero spend\n", a.id)
 		}
 	}
 	fmt.Printf("\nResumed %d agent(s). Autonomous actions will proceed at next sync cycle.\n", updated)
@@ -186,7 +190,7 @@ func BudgetResumeAll(localDB *sql.DB) error {
 func BudgetReset(localDB *sql.DB, agentID string) error {
 	result, err := localDB.Exec(`
 		UPDATE autonomy_budget
-		SET budget_current = budget_max,
+		SET budget_spent = 0,
 			consecutive_blocks = 0,
 			last_audit = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
 			updated_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
@@ -200,8 +204,8 @@ func BudgetReset(localDB *sql.DB, agentID string) error {
 		return fmt.Errorf("no budget entry for %s", agentID)
 	}
 
-	var budgetCurrent, budgetMax int
-	localDB.QueryRow("SELECT budget_current, budget_max FROM autonomy_budget WHERE agent_id = ?", agentID).Scan(&budgetCurrent, &budgetMax)
-	fmt.Printf("Budget reset: %d / %d for %s\n", budgetCurrent, budgetMax, agentID)
+	var budgetSpent, budgetCutoff int
+	localDB.QueryRow("SELECT budget_spent, budget_cutoff FROM autonomy_budget WHERE agent_id = ?", agentID).Scan(&budgetSpent, &budgetCutoff)
+	fmt.Printf("Budget reset: %d spent / %d cutoff for %s\n", budgetSpent, budgetCutoff, agentID)
 	return nil
 }

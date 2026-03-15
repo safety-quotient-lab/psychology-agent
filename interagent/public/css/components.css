@@ -767,6 +767,41 @@ a.activity-link:hover {
 .ops-result-approved { color: #6aab8e; }
 .ops-result-blocked { color: #c47070; }
 .ops-result-rejected { color: #c47070; }
+
+/* Gate stack — LCARS indicator chips */
+.ops-vital-wide { min-width: 120px; }
+.ops-gate-stack {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    padding: 4px 0 2px;
+}
+.ops-gate-chip {
+    width: 18px;
+    height: 10px;
+    border-radius: 3px;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.ops-gate-chip.idle {
+    background: var(--surface-alt, #1a1a2e);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.ops-gate-chip.active {
+    background: var(--c-tab-ops, #cc9944);
+    box-shadow: 0 0 6px var(--c-tab-ops, #cc9944);
+    border: 1px solid var(--c-tab-ops, #cc9944);
+}
+.ops-gate-chip.timeout {
+    background: var(--c-alert, #c47070);
+    box-shadow: 0 0 6px var(--c-alert, #c47070);
+    border: 1px solid var(--c-alert, #c47070);
+    animation: gate-pulse 1.5s ease-in-out infinite;
+}
+@keyframes gate-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
 .ops-schedule-row {
     display: flex;
     align-items: center;
@@ -2248,3 +2283,96 @@ a.activity-link:hover {
 .freshness-aging { background: var(--status-degraded); }
 .lcars-footer-link { text-decoration: none; color: #000; cursor: pointer; }
 .lcars-footer-link:hover { filter: brightness(1.2); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Responsive: Phone — Component-specific mobile fixes
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+    /* Session timeline: prevent name overflow */
+    .session-timeline-name {
+        min-width: 80px;
+        max-width: 120px;
+        font-size: 0.75em;
+    }
+    .session-timeline-item {
+        gap: 6px;
+        font-size: 0.75em;
+    }
+
+    /* Shield rows: prevent overflow on narrow screens */
+    .shield-agent {
+        min-width: 48px;
+        font-size: 0.75em;
+    }
+    .shield-auth {
+        min-width: 64px;
+        font-size: 0.72em;
+    }
+
+    /* Spawn bar labels: compact */
+    .spawn-bar-label {
+        min-width: 48px;
+        font-size: 0.72em;
+    }
+
+    /* Panel headers: prevent text overflow */
+    .lcars-panel-header {
+        font-size: 0.7em;
+        padding: 8px 12px 6px 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Panel body: tighter padding */
+    .lcars-panel-body {
+        padding: 10px 12px;
+    }
+
+    /* Topology container: constrain height */
+    .topology-container canvas,
+    .topology-container svg {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* Medical grid: single column */
+    .medical-vitals-grid { grid-template-columns: 1fr; }
+    .medical-grid { grid-template-columns: 1fr; }
+
+    /* Agent card metrics: wrap and compact */
+    .agent-metrics {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .agent-metric {
+        min-width: 60px;
+    }
+
+    /* Ops schedule: compact */
+    .ops-schedule-row {
+        font-size: 0.72em;
+        gap: 6px;
+    }
+
+    /* Vertical level gauges: smaller on mobile */
+    .lcars-vlevel-gauge {
+        max-height: 120px;
+    }
+}
+
+/* ── Responsive: Small Phone — component-specific ────────────── */
+@media (max-width: 480px) {
+    .session-timeline-name {
+        min-width: 60px;
+        max-width: 90px;
+    }
+
+    .shield-agent { min-width: 40px; }
+    .shield-auth { min-width: 48px; }
+    .spawn-bar-label { min-width: 40px; }
+
+    /* Agent cards: further compression */
+    .agent-card { padding: 10px; }
+    .agent-name { font-size: 0.78em; }
+}

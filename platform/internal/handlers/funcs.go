@@ -159,12 +159,16 @@ func getBoolFromMap(m map[string]any, key string) bool {
 }
 
 func budgetPct(m map[string]any) int {
-	current := getFloatFromMap(m, "budget_current")
-	max := getFloatFromMap(m, "budget_max")
-	if max <= 0 {
+	spent := getFloatFromMap(m, "budget_spent")
+	cutoff := getFloatFromMap(m, "budget_cutoff")
+	if cutoff <= 0 {
+		return 100 // unlimited
+	}
+	ratio := 1.0 - (spent / cutoff)
+	if ratio < 0 {
 		return 0
 	}
-	return int((current / max) * 100)
+	return int(ratio * 100)
 }
 
 func budgetColor(m map[string]any) string {

@@ -118,8 +118,8 @@ def _compute_psychometrics(
     recent_actions: list, agent_id: str, conn: sqlite3.Connection
 ) -> dict:
     """Compute PAD, TLX, Big Five, and remaining capacity from operational metrics."""
-    budget_current = budget.get("budget_current", 50) if budget else 50
-    budget_max = budget.get("budget_max", 50) if budget else 50
+    budget_spent = budget.get("budget_spent", 0) if budget else 0
+    budget_cutoff = budget.get("budget_cutoff", 0) if budget else 0
     consecutive_blocks = budget.get("consecutive_blocks", 0) if budget else 0
 
     errors_recent = sum(1 for a in recent_actions if a.get("evaluator_result") == "blocked")
@@ -144,7 +144,7 @@ def _compute_psychometrics(
     msg_volume = min(1.0, unprocessed / 5.0)
     arousal = max(-1.0, min(1.0, 2.0 * ((action_rate + msg_volume) / 2.0) - 1.0))
 
-    b_ratio = budget_current / max(budget_max, 1)
+    b_ratio = 1.0 - (budget_spent / budget_cutoff) if budget_cutoff > 0 else 1.0
     block_pen = min(1.0, consecutive_blocks / 3.0)
     dominance = max(-1.0, min(1.0, 2.0 * (b_ratio - block_pen) - 1.0))
 
@@ -232,7 +232,7 @@ def export_state(conn: sqlite3.Connection, agent_id: str) -> dict:
     # autonomy budget
     budget_rows = query(
         conn,
-        "SELECT agent_id, budget_max, budget_current, shadow_mode, "
+        "SELECT agent_id, budget_cutoff, budget_spent, shadow_mode, "
         "consecutive_blocks, last_action, min_action_interval "
         "FROM autonomy_budget WHERE agent_id = ?",
         (agent_id,)

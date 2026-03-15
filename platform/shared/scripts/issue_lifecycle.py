@@ -266,15 +266,21 @@ def cmd_list(args):
 
 
 def _budget_positive() -> bool:
-    """Check if autonomy budget has credits remaining."""
+    """Check if autonomy budget has headroom remaining (cutoff=0 means unlimited)."""
     if not DB_PATH.exists():
         return False
     conn = sqlite3.connect(str(DB_PATH))
     row = conn.execute(
-        "SELECT budget_current FROM autonomy_budget LIMIT 1"
+        "SELECT budget_spent, budget_cutoff FROM autonomy_budget LIMIT 1"
     ).fetchone()
     conn.close()
-    return row is not None and row[0] > 0
+    if row is None:
+        return False
+    spent, cutoff = row[0], row[1]
+    # Cutoff 0 means unlimited — always positive
+    if cutoff == 0:
+        return True
+    return spent < cutoff
 
 
 def _all_gates_resolved() -> bool:

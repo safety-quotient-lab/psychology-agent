@@ -224,9 +224,16 @@ def format_payload(
     # Trust budget
     lines.append("## Autonomy Budget")
     if budget:
-        status = "ACTIVE" if budget["budget_current"] > 0 else "HALTED"
+        cutoff = budget.get("budget_cutoff", 0)
+        spent = budget.get("budget_spent", 0)
+        if cutoff == 0:
+            status = "UNLIMITED"
+        elif spent >= cutoff:
+            status = "HALTED"
+        else:
+            status = "ACTIVE"
         lines.append(
-            f"  {budget['budget_current']}/{budget['budget_max']} credits [{status}]"
+            f"  {spent}/{cutoff} spent [{status}]"
         )
         lines.append(f"  Last audit: {budget['last_audit']}")
         lines.append(

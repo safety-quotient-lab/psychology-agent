@@ -155,7 +155,7 @@ def collect_status() -> dict:
             "agent_id": agent_id,
             "collected_at": now_iso,
             "schema_version": 0,
-            "autonomy_budget": {"budget_current": 20, "budget_max": 20},
+            "autonomy_budget": {"budget_spent": 0, "budget_cutoff": 0},
             "active_gates": [],
             "totals": {"sessions": 0, "messages": 0, "unprocessed": 0,
                         "epistemic_flags_unresolved": 0},
@@ -177,9 +177,9 @@ def collect_status() -> dict:
     try:
         rows = _query(db, "SELECT * FROM autonomy_budget WHERE agent_id = ?",
                        (agent_id,))
-        budget = rows[0] if rows else {"budget_current": 20, "budget_max": 20}
+        budget = rows[0] if rows else {"budget_spent": 0, "budget_cutoff": 0}
     except sqlite3.OperationalError:
-        budget = {"budget_current": 20, "budget_max": 20}
+        budget = {"budget_spent": 0, "budget_cutoff": 0}
 
     # Active gates
     try:

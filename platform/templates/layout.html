@@ -12,9 +12,9 @@
             <div class="nav-title">&#x2B21; {{.AgentID}}</div>
             <div class="nav-status">
                 <div class="indicator">
-                    {{$bc := getFloat .AutonomyBudget "budget_current"}}
-                    <span class="dot {{if gt $bc 10.0}}dot-green{{else if gt $bc 5.0}}dot-yellow{{else}}dot-red{{end}}"></span>
-                    budget {{getStr .AutonomyBudget "budget_current"}}/{{getStr .AutonomyBudget "budget_max"}}
+                    {{$bpct := budgetPct .AutonomyBudget}}
+                    <span class="dot {{if gt $bpct 60}}dot-green{{else if gt $bpct 30}}dot-yellow{{else}}dot-red{{end}}"></span>
+                    budget {{getStr .AutonomyBudget "budget_spent"}}/{{getStr .AutonomyBudget "budget_cutoff"}} spent
                 </div>
                 <div class="indicator">
                     <span class="dot {{if gt .Totals.Unprocessed 0}}dot-red{{else}}dot-green{{end}}"></span>

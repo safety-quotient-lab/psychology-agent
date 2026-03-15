@@ -529,22 +529,42 @@ body {
 
 /* ── Responsive: Phone ────────────────────────────────────────── */
 @media (max-width: 767px) {
-    /* Show mobile status bar */
-    
 
     /* Standard frame: collapse spine */
     .lcars-frame { grid-template-columns: 12px 1fr; }
     :root { --elbow-width: 12px; }
 
-    /* Header/tabs/content compression */
-    .lcars-header { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
+    /* Header: stack title and controls vertically */
+    .lcars-header {
+        padding: 10px 12px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .lcars-header > div:first-child {
+        flex: 1 1 100%;
+    }
+    .lcars-controls {
+        flex: 1 1 100%;
+        justify-content: flex-end;
+    }
     .lcars-title { font-size: 1.1em; }
     .lcars-subtitle { display: none; }
     .lcars-content { padding: 12px; }
 
-    /* Tab bar: flex-wrap, reduced sizing */
-    .lcars-tabs { flex-wrap: wrap; }
-    .lcars-tab { padding: 8px 12px; font-size: 0.75em; min-height: 44px; }
+    /* Tab bar: horizontal scroll instead of wrapping to avoid overflow */
+    .lcars-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+    .lcars-tab {
+        padding: 8px 12px;
+        font-size: 0.75em;
+        min-height: 44px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
 
     /* All panels: stack to single column */
     .agents-grid        { grid-template-columns: 1fr; }
@@ -557,6 +577,13 @@ body {
     .helm-grid          { grid-template-columns: 1fr; }
     .tactical-grid      { grid-template-columns: 1fr; }
     .ops-budget-grid    { grid-template-columns: 1fr; }
+
+    /* Hero panels: reset column span to single-column context */
+    .science-hero,
+    .engineering-hero,
+    .helm-grid .helm-full-width {
+        grid-column: 1;
+    }
 
     /* Spawn waterfall: reduce to 3 columns (combine psq+observatory, drop ops) */
     .spawn-waterfall { grid-template-columns: repeat(3, 1fr); }
@@ -574,11 +601,31 @@ body {
         -webkit-overflow-scrolling: touch;
     }
 
+    /* Prevent horizontal overflow globally */
+    .lcars-content {
+        overflow-x: hidden;
+    }
+    .lcars-panel {
+        overflow: hidden;
+        max-width: 100%;
+    }
+    .lcars-panel-body {
+        overflow-x: auto;
+        word-break: break-word;
+    }
+
     /* Activity stream: full width always (already 1-col, just ensure no margin) */
     .activity-stream { margin-left: 0; margin-right: 0; }
 
     /* MSD schematic: compact */
     .msd-schematic { min-height: 200px; }
+
+    /* Footer: stack on mobile */
+    .lcars-footer {
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 8px 12px;
+    }
 
     /* LCARS TNG frame — 60px sidebar, icons only */
     .theme-lcars .lcars-frame {
@@ -622,6 +669,12 @@ body {
     /* Tab bar: further font reduction */
     .lcars-tab { font-size: 0.7em; padding: 6px 8px; }
 
+    /* Spawn waterfall: stack to 2 columns */
+    .spawn-waterfall { grid-template-columns: repeat(2, 1fr); }
+
+    /* Content: tighter padding */
+    .lcars-content { padding: 8px; }
+
     /* LCARS TNG frame — minimal sidebar */
     .theme-lcars .lcars-frame {
         grid-template-columns: 44px 1fr 3px;
@@ -644,6 +697,4 @@ body {
             radial-gradient(circle at 44px 0px, #000000 25px, #9999cc 26px) no-repeat left bottom;
         background-color: #000000;
     }
-
-    /* Mobile status bar: tighter padding */
 }
