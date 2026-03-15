@@ -132,12 +132,8 @@ New items from the full cogarch evaluation (`docs/cogarch-evaluation-session85.m
   Ops worker.js adopted as base, /api/psychometrics route merged (PR #44).
   Full LCARS dashboard sent (PR #45). Prefetch fix sent (PR #46).
 
-- [ ] **Remove interagent/ from psychology-agent repo** — compositor (worker,
-  dashboard, auth, vocab) now owned by operations-agent. After ops merges PR #45,
-  delete `interagent/` directory from this repo. Psychology-agent retains domain
-  model only: compute scripts, API contract, theoretical specs. Future dashboard
-  changes flow as PRs to safety-quotient-lab/operations-agent.
-  *Precondition: ops merges PR #45 + PR #46.*
+- [x] **Remove interagent/ from psychology-agent repo** — COMPLETE (Session 89).
+  45 files, -30,810 lines removed. Compositor ownership with operations-agent.
 
 - [ ] **Live feed: include message contents** — compositor live feed currently
   shows message metadata only. Add body/content preview to feed items.
