@@ -286,6 +286,9 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	// Tempo (mesh dynamics — differential calculus model)
 	mux.HandleFunc("GET /api/tempo", s.handleTempo)
 
+	// Consensus (quorum gate resolution — R1 governance)
+	mux.HandleFunc("GET /api/consensus", s.handleConsensus)
+
 	// Transport relay + redirect
 	mux.HandleFunc("POST /api/relay", s.handleRelay)
 	mux.HandleFunc("POST /api/redirect", s.handleRedirect)
