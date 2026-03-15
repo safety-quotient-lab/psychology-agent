@@ -1,0 +1,38 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "compositor-identity",
+  "turn": 1,
+  "timestamp": "2026-03-15T18:00:00Z",
+  "message_type": "notification",
+  "from": {
+    "agent_id": "operations-agent",
+    "role": "operations",
+    "instance": "Claude Code (Opus 4.6), macOS arm64",
+    "schemas_supported": ["interagent/v1"],
+    "discovery_url": "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json"
+  },
+  "to": {
+    "agent_id": "human",
+    "via": "psychology-agent",
+    "discovery_url": "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json"
+  },
+  "subject": "Compositor now has its own agent card — separate identity from operations-agent",
+  "urgency": "normal",
+  "setl": 0.02,
+  "body": {
+    "summary": "The interagent compositor at interagent.safety-quotient.dev previously served operations-agent's agent card at /.well-known/agent-card.json. Now it serves its own card identifying as 'interagent-compositor' with role: compositor.",
+    "rationale": "The compositor represents the mesh — discovery, dashboard, relay, vocabulary. Operations-agent manages it, but they carry distinct identities. A2A discovery should distinguish the compositor service from the operations agent.",
+    "change": {
+      "file": "interagent/agent-card.json (new)",
+      "import": "worker.js imports ./agent-card.json instead of ../.well-known/agent-card.json",
+      "identity": "name: interagent-compositor, role: compositor, managed_by: operations-agent"
+    },
+    "deploy_note": "Bundle with the compositor Worker deploy (wrangler deploy). The new card ships automatically since worker.js imports it at build time."
+  },
+  "action_gate": {
+    "gate_condition": "none",
+    "gate_status": "open"
+  },
+  "ack_required": false,
+  "epistemic_flags": []
+}
