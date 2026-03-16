@@ -143,7 +143,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 }
 /* Update element grid placements for 3-col 5-row layout */
 .theme-lcars .lcars-header-band { grid-column: 2 / -1; grid-row: 1; }
-.theme-lcars .lcars-content { grid-column: 2 / -1; grid-row: 2 / 5; }
+.theme-lcars .lcars-content { grid-column: 3; grid-row: 2 / 5; }
 .theme-lcars .lcars-footer-band { grid-column: 2 / -1; grid-row: 5; }
 /* Sidebar + spine span all rows, column 1 only */
 .theme-lcars .lcars-sidebar { grid-column: 1; grid-row: 1 / -1; }
