@@ -269,9 +269,8 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .lcars-header-seg:not(:first-child):not(:last-child) {
     border-radius: 0 var(--gap-m) var(--gap-m) 0;
 }
-/* Last header segment: rounded right end (full pill cap) */
+/* Last header data segment — no rounding, endcap handles it */
 .lcars-header-seg:last-child {
-    border-radius: 0 var(--elbow-inner) var(--elbow-inner) 0;
     justify-content: center;
 }
 
@@ -3044,14 +3043,36 @@ a.activity-link:hover {
     }
 }
 
-/* ── Header title pill — shrink to fit, center text ──────────── */
+/* ── Header title pill — tight to text ────────────────────────── */
 .lcars-hdr-title {
-    flex: 0 1 auto !important; /* shrink to fit content, don't grow */
+    flex: 0 0 auto !important; /* exact content width */
     justify-content: center !important;
     text-align: center;
     white-space: nowrap;
+    padding: 4px 16px !important;
 }
-/* Desktop: title gets some breathing room */
-@media (min-width: 769px) {
-    .lcars-hdr-title { flex: 1 1 auto !important; }
+
+/* ── Header structural arm — fills between title and pills ───── */
+.lcars-hdr-arm {
+    flex: 1 1 0;
+    min-width: 20px;
+    align-self: stretch;
+}
+
+/* ── Header end cap — rounded terminator ─────────────────────── */
+.lcars-hdr-endcap {
+    flex: 0 0 24px;
+    align-self: stretch;
+    border-radius: 0 var(--elbow-inner, 24px) var(--elbow-inner, 24px) 0;
+}
+
+/* Mobile: hide arm + endcap, title fills remaining space */
+@media (max-width: 480px) {
+    .lcars-hdr-arm { display: none; }
+    .lcars-hdr-endcap { display: none; }
+}
+/* Tablet: arm shrinks but stays visible */
+@media (max-width: 768px) and (min-width: 481px) {
+    .lcars-hdr-arm { min-width: 8px; }
+    .lcars-hdr-endcap { flex: 0 0 16px; }
 }
