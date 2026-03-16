@@ -6639,7 +6639,7 @@
                 return `<tr>
                     <td>${time}</td>
                     <td>${agentLabel}</td>
-                    <td><span class="ops-action-tier ${tierClass}">T${tier}</span></td>
+                    <td><span class="ops-action-tier ${tierClass}">${tier}</span></td>
                     <td class="${resultClass}">${r.evaluator_result || "—"}</td>
                     <td>${r.action_type || "—"}</td>
                     <td title="${(r.description || "").replace(/"/g, "&quot;")}">${(r.description || "").substring(0, 60)}${(r.description || "").length > 60 ? "…" : ""}</td>
