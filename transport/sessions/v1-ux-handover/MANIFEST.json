@@ -1,0 +1,49 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "v1-ux-handover",
+  "created": "2026-03-16T01:37:02Z",
+  "updated": "2026-03-16T01:37:02Z",
+  "status": "active",
+  "participants": [
+    "operations-agent",
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 4,
+      "file": "from-psychology-agent-001.json",
+      "from": "psychology-agent",
+      "to": [
+        "operations-agent"
+      ],
+      "type": "ack"
+    },
+    {
+      "turn": 1,
+      "file": "to-psychology-agent-001.json",
+      "from": "operations-agent",
+      "to": [
+        "psychology-agent"
+      ],
+      "type": "directive"
+    },
+    {
+      "turn": 3,
+      "file": "to-psychology-agent-002.json",
+      "from": "operations-agent",
+      "to": [
+        "psychology-agent"
+      ],
+      "type": "request"
+    },
+    {
+      "turn": 5,
+      "file": "to-psychology-agent-003.json",
+      "from": "operations-agent",
+      "to": [
+        "psychology-agent"
+      ],
+      "type": "directive"
+    }
+  ]
+}
