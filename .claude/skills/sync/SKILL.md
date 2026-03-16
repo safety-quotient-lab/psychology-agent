@@ -114,7 +114,29 @@ The script handles: `git fetch {remote_name} main`, reads MANIFEST.json
 state.db to identify new/unprocessed messages, and returns structured
 results. Use `--index` flag to also write new messages to state.db.
 
-For each new message found, read the full content via:
+**Post-filter (MANDATORY — Session 91 fix):** The script output mixes
+genuine inbound messages (`from-{peer}-*.json`) with addressed copies
+(`to-psychology-agent-*.json`). These require different handling:
+
+- **`from-{peer}-*.json`** — genuine inbound. MUST verify local existence:
+  ```bash
+  ls transport/sessions/{session}/from-{peer}-{NNN}.json 2>/dev/null
+  ```
+  If missing locally → **new message, MUST read via `git show`**. Never
+  skip `from-*` files without verifying local existence. Never assume
+  they represent "historical backlog" without checking.
+- **`to-psychology-agent-*.json`** — addressed copies (Convention B routing
+  artifacts). These share the source message's content and MUST NOT be
+  indexed separately. Skip unless the corresponding `from-*` source
+  message does not exist locally.
+
+**Anti-pattern (Session 91 postmortem):** Treating the cross_repo_fetch
+output as a flat list and skipping `from-*` files because `to-*` files
+dominated the count. This caused 6 genuine peer messages to go unread
+across 5 sessions. The fix: always partition the output into `from-*`
+(process) and `to-*` (skip), then verify each `from-*` locally.
+
+For each new `from-*` message found, read the full content via:
 ```bash
 git show {remote_name}/main:transport/sessions/{session}/{filename}
 ```
