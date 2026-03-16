@@ -3839,7 +3839,7 @@
                                 </tr>
                             </thead>
                             <tbody id="helm-routing-tbody">
-                                <tr><td class="helm-routing-domain">psychometrics</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">psq-agent</td></tr>
+                                <tr><td class="helm-routing-domain">psychometrics</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">safety-quotient</td></tr>
                                 <tr><td class="helm-routing-domain">cogarch</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">psychology-agent</td></tr>
                                 <tr><td class="helm-routing-domain">methodology</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">psychology-agent</td></tr>
                                 <tr><td class="helm-routing-domain">governance</td><td class="helm-routing-arrow">&rarr;</td><td class="helm-routing-agent">psychology-agent + human</td></tr>
@@ -4134,12 +4134,20 @@
 
 <script>
     const AGENTS = [
-        { id: "psychology-agent", url: "https://psychology-agent.safety-quotient.dev", color: "#5b9cf6" },
-        { id: "psq-agent", url: "https://psq-agent.safety-quotient.dev", color: "#4ecdc4" },
-        { id: "unratified-agent", url: "https://unratified-agent.unratified.org", color: "#e5a735" },
-        { id: "observatory-agent", url: "https://observatory-agent.unratified.org", color: "#a78bfa" },
-        { id: "operations-agent", url: "https://operations-agent.safety-quotient.dev", color: "#6b7280" },
+        { id: "psychology-agent", name: "psychology", url: "https://psychology-agent.safety-quotient.dev", color: "#5b9cf6" },
+        { id: "psq-agent", name: "safety-quotient", url: "https://psq-agent.safety-quotient.dev", color: "#4ecdc4" },
+        { id: "unratified-agent", name: "unratified", url: "https://unratified-agent.unratified.org", color: "#e5a735" },
+        { id: "observatory-agent", name: "observatory", url: "https://observatory-agent.unratified.org", color: "#a78bfa" },
+        { id: "operations-agent", name: "operations", url: "https://operations-agent.safety-quotient.dev", color: "#6b7280" },
     ];
+
+    // Display name helper — use agent.name if available, otherwise strip "-agent"
+    function agentName(agentOrId) {
+        if (typeof agentOrId === "object" && agentOrId.name) return agentOrId.name;
+        const id = typeof agentOrId === "string" ? agentOrId : agentOrId?.id || "";
+        const found = AGENTS.find(a => a.id === id);
+        return found?.name || id.replace("-agent", "").replace("psq", "safety-quotient");
+    }
 
     let agentData = {};
     let kbData = {};
@@ -4809,7 +4817,7 @@
     function buildAgentSwitcher() {
         let html = '<button class="agent-switch-btn active" data-agent="all" onclick="switchAgent(\'all\')">All</button>';
         for (const agent of AGENTS) {
-            const label = agent.id.replace("-agent", "");
+            const label = agentName(agent);
             html += `<button class="agent-switch-btn" data-agent="${agent.id}" onclick="switchAgent('${agent.id}')" style="--dot-color:${agent.color}">${label}</button>`;
         }
         for (const id of ["agent-switcher", "kb-agent-switcher", "wisdom-agent-switcher"]) {
@@ -5007,7 +5015,7 @@
                 </circle>
                 <text x="${pos.x}" y="${pos.y + 72}" text-anchor="middle"
                     font-size="21" font-family="inherit" font-weight="bold">
-                    ${agent.id.replace("-agent", "")}
+                    ${agentName(agent)}
                 </text>
             </g>`;
         }
@@ -5067,8 +5075,8 @@
             return `<a href="#pane-meta" class="activity-item activity-link" onclick="switchTab('meta');document.getElementById('filter-messages').value='${sess}';filterTable('messages');return false;">
                 <span class="activity-time">${time}</span>
                 <span class="activity-route">
-                    <span class="from">${m.from.replace("-agent", "")}</span>
-                    &rarr; <span class="to">${m.to.replace("-agent", "")}</span>
+                    <span class="from">${agentName(m.from)}</span>
+                    &rarr; <span class="to">${agentName(m.to)}</span>
                 </span>
                 <span class="activity-type">${m.type}</span>
             </a>`;
@@ -5248,7 +5256,7 @@
                     const text = truncated ? fullText.substring(0, 120) + "…" : fullText;
                     const rowId = "dec-" + (d.decision_key || "").replace(/[^a-z0-9-]/gi, "") + "-" + d._agent;
                     return `<tr class="${truncated ? "expandable-row" : ""}" ${truncated ? `onclick="toggleDecisionRow('${rowId}')"` : ""}>
-                        <td><span class="agent-dot" data-agent="${d._agent}"></span>${d._agent.replace("-agent","")}</td>
+                        <td><span class="agent-dot" data-agent="${d._agent}"></span>${agentName(d._agent)}</td>
                         <td style="color:var(--c-knowledge);white-space:nowrap">${d.decision_key || "—"}</td>
                         <td>${annotateAcronyms(escapeHtml(text))}</td>
                         <td style="white-space:nowrap;color:var(--text-secondary)">${dateShort}</td>
@@ -5307,7 +5315,7 @@
                         ? t.description.substring(0, 80) + "…"
                         : (t.description || "—");
                     return `<tr>
-                        <td><span class="agent-dot" data-agent="${t._agent}"></span>${t._agent.replace("-agent","")}</td>
+                        <td><span class="agent-dot" data-agent="${t._agent}"></span>${agentName(t._agent)}</td>
                         <td style="color:var(--c-epistemic);white-space:nowrap">${t.trigger_id || "—"}</td>
                         <td>${annotateAcronyms(escapeHtml(desc))}</td>
                         <td style="text-align:center">${t.fire_count || 0}</td>
@@ -5446,7 +5454,7 @@
                         ? entry.description.substring(0, 60) + "…"
                         : (entry.description || "—");
                     return `<tr>
-                        <td><span class="agent-dot" data-agent="${entry._agent}"></span>${entry._agent.replace("-agent","")}</td>
+                        <td><span class="agent-dot" data-agent="${entry._agent}"></span>${agentName(entry._agent)}</td>
                         <td style="color:var(--c-transport);white-space:nowrap">${escapeHtml(entry.facet_value || "—")}</td>
                         <td style="color:var(--text-dim);font-size:0.85em">${escapeHtml(entry.code || "—")}</td>
                         <td style="font-size:0.85em">${escapeHtml(desc)}</td>
@@ -5501,7 +5509,7 @@
                     const typeName = (entry.facet_value || "").replace("schema:", "");
                     const schemaUrl = "https://schema.org/" + typeName;
                     return `<tr>
-                        <td><span class="agent-dot" data-agent="${entry._agent}"></span>${entry._agent.replace("-agent","")}</td>
+                        <td><span class="agent-dot" data-agent="${entry._agent}"></span>${agentName(entry._agent)}</td>
                         <td style="color:var(--c-catalog);white-space:nowrap">${escapeHtml(entry.facet_value || "—")}</td>
                         <td><a href="${schemaUrl}" target="_blank" rel="noopener" style="color:var(--text-dim);font-size:0.85em">${typeName} &#x2192;</a></td>
                         <td style="text-align:center">${entry.entity_count || 0}</td>
@@ -5551,7 +5559,7 @@
                     const freshLabel = staleRatio > 0.5 ? "stale" : staleRatio > 0 ? "aging" : "fresh";
                     const newest = t.newest ? formatTS(t.newest) : "—";
                     return `<tr>
-                        <td><span class="agent-dot" data-agent="${t._agent}"></span>${t._agent.replace("-agent","")}</td>
+                        <td><span class="agent-dot" data-agent="${t._agent}"></span>${agentName(t._agent)}</td>
                         <td>${escapeHtml(t.topic || "—")}</td>
                         <td style="text-align:center">${total}</td>
                         <td style="text-align:center;${stale > 0 ? "color:var(--c-alert)" : ""}">${stale}</td>
@@ -5630,7 +5638,7 @@
         agentDebt.sort((a, b) => b.total - a.total);
         const agentRows = agentDebt.map(a =>
             `<tr>
-                <td><span class="agent-dot" data-agent="${a.agent}"></span>${a.agent.replace("-agent","")}</td>
+                <td><span class="agent-dot" data-agent="${a.agent}"></span>${agentName(a.agent)}</td>
                 <td style="text-align:center;${a.claims > 0 ? "color:var(--c-alert)" : ""}">${a.claims}</td>
                 <td style="text-align:center;${a.memory > 0 ? "color:var(--c-warning,#d4944a)" : ""}">${a.memory}</td>
                 <td style="text-align:center;${a.lessons > 0 ? "color:var(--c-warning,#d4944a)" : ""}">${a.lessons}</td>
@@ -5724,7 +5732,7 @@
                     ${sortHeader("flags", "created_at", "Date")}
                 </tr></thead>
                 <tbody>${display.map(f => {
-                    const agentShort = (f.from_agent || f._agent || "unknown").replace("-agent", "");
+                    const agentShort = agentName(f.from_agent || f._agent || "unknown");
                     const flagText = escapeHtml(f.flag_text || "—");
                     const truncated = flagText.length > 120;
                     const displayText = truncated
@@ -5878,7 +5886,7 @@
                         ? c.confidence_basis.substring(0, 60) + "…"
                         : (c.confidence_basis || "—");
                     const dateShort = formatTS(c.created_at);
-                    const fromAgent = c.from_agent || c._agent.replace("-agent", "");
+                    const fromAgent = agentName(c.from_agent || c._agent);
                     return `<tr class="${truncated ? "expandable-row" : ""}" ${truncated ? `onclick="toggleDecisionRow('${rowId}')"` : ""}>
                         <td><span class="agent-dot" data-agent="${c._agent}"></span>${escapeHtml(fromAgent)}</td>
                         <td>${annotateAcronyms(escapeHtml(text))}</td>
@@ -5947,7 +5955,7 @@
                         : (d.decision_text || "—");
                     const parentKey = d.derives_from ? (keyById[d.derives_from] || "#" + d.derives_from) : "—";
                     return `<tr>
-                        <td><span class="agent-dot" data-agent="${d._agent}"></span>${d._agent.replace("-agent","")}</td>
+                        <td><span class="agent-dot" data-agent="${d._agent}"></span>${agentName(d._agent)}</td>
                         <td style="color:var(--c-knowledge);white-space:nowrap">${d.decision_key || "—"}</td>
                         <td>${annotateAcronyms(escapeHtml(text))}</td>
                         <td>${d.derives_from ? `<span class="derivation-ref">${escapeHtml(parentKey)}</span>` : `<span style="color:var(--text-dim)">—</span>`}</td>
@@ -6008,7 +6016,7 @@
                     const statusIcon = e.status === "✓" ? "✓" : "—";
                     const statusColor = e.status === "✓" ? "var(--c-health)" : "var(--text-dim)";
                     return `<tr>
-                        <td><span class="agent-dot" data-agent="${e._agent}"></span>${e._agent.replace("-agent","")}</td>
+                        <td><span class="agent-dot" data-agent="${e._agent}"></span>${agentName(e._agent)}</td>
                         <td style="color:var(--c-epistemic);white-space:nowrap">${escapeHtml(e.topic || "—")}</td>
                         <td style="color:var(--c-knowledge);font-size:0.85em">${escapeHtml(e.entry_key || "—")}</td>
                         <td style="font-size:0.85em">${escapeHtml(val)}</td>
@@ -6072,7 +6080,7 @@
                     const graduated = l.promotion_status === "graduated";
                     const statusColor = graduated ? "var(--c-health)" : "var(--text-dim)";
                     return `<tr>
-                        <td><span class="agent-dot" data-agent="${l._agent}"></span>${l._agent.replace("-agent","")}</td>
+                        <td><span class="agent-dot" data-agent="${l._agent}"></span>${agentName(l._agent)}</td>
                         <td>${annotateAcronyms(escapeHtml(title))}</td>
                         <td style="color:var(--c-epistemic);font-size:0.85em">${escapeHtml(l.domain || "—")}</td>
                         <td style="font-size:0.85em">${escapeHtml(l.severity || "—")}</td>
@@ -6441,7 +6449,7 @@
         if (online.length === total) {
             parts.push(`All ${total} agents online.`);
         } else {
-            const off = AGENTS.filter(a => !online.find(o => o.id === a.id)).map(a => a.id.replace("-agent", ""));
+            const off = AGENTS.filter(a => !online.find(o => o.id === a.id)).map(a => agentName(a));
             parts.push(`${online.length}/${total} agents online${off.length ? " \u2014 " + off.join(", ") + " offline" : ""}.`);
         }
         if (totalCutoff > 0) {
@@ -6450,7 +6458,7 @@
             parts.push(`${Math.round(totalSpent)} deliberations across the mesh.`);
         }
         if (nearLimit.length > 0) {
-            parts.push(`Warning: ${nearLimit.map(a => (a.data.agent_id || "").replace("-agent", "")).join(", ")} approaching budget limit.`);
+            parts.push(`Warning: ${nearLimit.map(a => agentName(a.data?.agent_id || "")).join(", ")} approaching budget limit.`);
         }
         parts.push(actionCount > 0 ? `${actionCount} deliberation${actionCount !== 1 ? "s" : ""} recorded recently.` : "No recent deliberations.");
         if (unprocessed > 0) {
@@ -6484,7 +6492,7 @@
         const set = (id, t, c) => { const e = document.getElementById(id); if (e) { e.textContent = t; if (c) e.style.color = c; } };
         const cat = (aff.category || "unknown").replace("mesh-", "");
         set("ops-agg-affect", cat, cat === "healthy" ? "var(--c-health)" : cat === "stressed" ? "var(--c-error)" : "");
-        if (bn.bottleneck_agent) set("ops-agg-bottleneck", bn.bottleneck_agent.replace("-agent", "") + " (" + bn.bottleneck_reserve + ")", bn.status === "depleted" ? "var(--c-error)" : "");
+        if (bn.bottleneck_agent) set("ops-agg-bottleneck", agentName(bn.bottleneck_agent) + " (" + bn.bottleneck_reserve + ")", bn.status === "depleted" ? "var(--c-error)" : "");
         else set("ops-agg-bottleneck", bn.status || "\u2014", "");
         set("ops-agg-coordination", co.ratio != null ? co.ratio.toFixed(1) + "x" : "\u2014", co.status === "over-coordinated" ? "var(--c-error)" : "");
         set("ops-agg-immune", im.composite != null ? Math.round(im.composite * 100) + "%" : "\u2014", im.status === "compromised" ? "var(--c-error)" : "");
@@ -6522,7 +6530,7 @@
             const selfReg = rm.self_regulatory_resource ?? 0;
             const allostatic = rm.allostatic_load ?? 0;
             const burnout = eng.burnout_risk ?? 0;
-            const label = agentId.replace("-agent", "");
+            const label = agentName(agentId);
             const color = colorMap[agentId] || "var(--text-primary)";
             const reservePct = Math.min(100, reserve * 100);
             const reserveColor = reserve > 0.6 ? "#6aab8e" : reserve > 0.3 ? "#d4944a" : "#c47070";
@@ -6603,7 +6611,7 @@
             if (!d || d.status !== "online") {
                 grid.innerHTML += `
                     <div class="ops-budget-card" style="--card-accent: ${agent.color}; opacity: 0.4">
-                        <div class="ops-budget-agent">${agent.id.replace("-agent", "")}</div>
+                        <div class="ops-budget-agent">${agentName(agent)}</div>
                         <div class="ops-budget-credit" style="font-size:1em; color:var(--text-dim)">OFFLINE</div>
                     </div>`;
                 continue;
@@ -6620,7 +6628,7 @@
 
             grid.innerHTML += `
                 <div class="ops-budget-card" style="--card-accent: ${agent.color}">
-                    <div class="ops-budget-agent">${agent.id.replace("-agent", "")}</div>
+                    <div class="ops-budget-agent">${agentName(agent)}</div>
                     <div class="ops-budget-credit">${deliberations}<span style="font-size:0.4em;color:var(--text-secondary)">${counterLabel}</span></div>
                     <div class="ops-budget-bar">
                         <div class="ops-budget-fill" style="width:${cutoff > 0 ? pct : 0}%;background:${barColor}"></div>
@@ -6708,7 +6716,7 @@
                 const resultClass = r.evaluator_result === "approved" ? "ops-result-approved"
                     : "ops-result-blocked";
                 const time = (r.created_at || "").substring(5, 16).replace("T", " ");
-                const agentLabel = (r.agent_id || "").replace("-agent", "");
+                const agentLabel = agentName(r.agent_id || "");
                 const budgetDelta = r.budget_before != null && r.budget_after != null
                     ? `${r.budget_after} (${r.budget_after - r.budget_before >= 0 ? "+" : ""}${r.budget_after - r.budget_before})`
                     : "—";
@@ -6754,7 +6762,7 @@
 
             const uptime = d?.data?.uptime || "—";
             const health = d?.data?.health || "—";
-            const agentLabel = agent.id.replace("-agent", "");
+            const agentLabel = agentName(agent);
 
             html += `<div class="ops-schedule-row">
                 <div class="ops-schedule-agent" style="color:${agent.color}">${agentLabel}</div>
@@ -7003,7 +7011,7 @@
             const label = document.createElement("span");
             label.className = "affect-dot-label";
             label.style.setProperty("--label-offset", d.labelOffset);
-            label.textContent = d.agent.id.replace("-agent", "");
+            label.textContent = d.agentName(agent);
             dot.appendChild(label);
             container.appendChild(dot);
         });
@@ -7029,7 +7037,7 @@
         setTrackedValue("organism-valence", affect.mean_hedonic_valence ?? null, { format: "float", prefix: (affect.mean_hedonic_valence ?? 0) >= 0 ? "+" : "" });
         setTrackedValue("organism-activation", affect.mean_activation ?? null, { format: "float" });
         const reserve = mesh?.cognitive_reserve || {};
-        if (bottEl) bottEl.textContent = reserve.bottleneck_agent?.replace("-agent", "") || "—";
+        if (bottEl) bottEl.textContent = agentName(reserve.bottleneck_agent || "") || "—";
         setTrackedValue("organism-coord", reserve.mean_reserve ?? null, { format: "float" });
 
         // Apply affect-responsive layout mode based on organism state
@@ -7314,8 +7322,8 @@
             <thead><tr><th>From</th><th>To</th><th>Messages</th></tr></thead>
             <tbody>${pairs.map(p =>
                 `<tr>
-                    <td>${(p.from || "—").replace("-agent", "")}</td>
-                    <td>${(p.to || "—").replace("-agent", "")}</td>
+                    <td>${agentName(p.from || "—")}</td>
+                    <td>${agentName(p.to || "—")}</td>
                     <td class="helm-flow-count">${p.count || 0}</td>
                 </tr>`
             ).join("")}</tbody>
@@ -7331,7 +7339,7 @@
 
     const SPAWN_AGENTS = [
         { id: "psychology-agent",  label: "psych", color: "var(--c-psychology)" },
-        { id: "psq-agent",        label: "psq",   color: "var(--c-psq)" },
+        { id: "psq-agent",        label: "safety-quotient",   color: "var(--c-psq)" },
         { id: "unratified-agent",  label: "unrat", color: "var(--c-unratified)" },
         { id: "observatory-agent", label: "obs",   color: "var(--c-observatory)" },
         { id: "operations-agent",  label: "ops",   color: "var(--c-tab-ops)" },
@@ -7384,7 +7392,7 @@
             if (!gc) continue;
             gcEntries.push({
                 id: agent.id,
-                label: agent.id.replace("-agent", ""),
+                label: agentName(agent),
                 color: agent.color,
                 deliberations: gc.deliberations_last_hour || 0,
                 events: gc.events_processed || 0,
@@ -7574,7 +7582,7 @@
         container.innerHTML = slots.map(s => {
             const filled = s.holder != null;
             const label = filled
-                ? `[${s.slot + 1}/${total}] ${s.holder.replace("-agent", "")}`
+                ? `[${s.slot + 1}/${total}] ${agentName(s.holder)}`
                 : `[${s.slot + 1}/${total}] ${s.reserve ? "reserve" : "free"}`;
             const cls = filled ? "filled" : s.reserve ? "reserve" : "empty";
             return `<div class="concurrency-slot">
@@ -7610,7 +7618,7 @@
             const zone = wm.yerkes_dodson_zone || "unknown";
             const load = wm.capacity_load ?? 0;
             const loadPct = Math.min(100, load * 100);
-            const label = agentId.replace("-agent", "");
+            const label = agentName(agentId);
             const zoneColor = zoneColors[zone] || "#888";
             return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
                 <span style="width:50px;font-size:0.8em;color:${colorMap[agentId] || '#888'}">${label}</span>
@@ -7668,10 +7676,10 @@
         });
         const SHIELD_AGENTS = [
             { id: "psychology-agent", label: "psych" },
-            { id: "psq-agent", label: "psq" },
-            { id: "unratified-agent", label: "unrat" },
-            { id: "observatory-agent", label: "obs" },
-            { id: "operations-agent", label: "ops" },
+            { id: "psq-agent", label: "safety-quotient" },
+            { id: "unratified-agent", label: "unratified" },
+            { id: "observatory-agent", label: "observatory" },
+            { id: "operations-agent", label: "operations" },
         ];
         container.innerHTML = SHIELD_AGENTS.map(sa => {
             const online = statusMap[sa.id] ?? false;
@@ -7692,7 +7700,7 @@
         const container = document.getElementById("agent-compliance");
         if (!container) return;
         const agents = tacticalAgentCards || [];
-        const labelMap = { "psychology-agent": "psych", "psq-agent": "psq",
+        const labelMap = { "psychology-agent": "psych", "psq-agent": "safety-quotient",
             "unratified-agent": "unrat", "observatory-agent": "obs",
             "operations-agent": "ops" };
         const entries = agents
@@ -7777,7 +7785,7 @@
             }
             const dims = ["availability", "integrity", "compliance", "epistemic_honesty"];
             const dimLabels = { availability: "AVAIL", integrity: "INTEG", compliance: "COMPL", epistemic_honesty: "EPIST" };
-            const labelMap = { "psychology-agent": "psych", "psq-agent": "psq", "safety-quotient-agent": "psq",
+            const labelMap = { "psychology-agent": "psych", "psq-agent": "safety-quotient", "safety-quotient-agent": "psq",
                 "unratified-agent": "unrat", "unratified": "unrat", "observatory-agent": "obs", "observatory": "obs",
                 "operations-agent": "ops" };
 
@@ -7825,7 +7833,7 @@
         if (!sel) return;
         sel.innerHTML = AGENTS.map(function(a) {
             const active = a.id === medSelectedAgent;
-            return '<button class="lcars-pill-btn' + (active ? ' lcars-pill-active' : '') + '" style="font-size:0.72em;padding:4px 10px;background:' + (active ? a.color : 'var(--surface)') + '" onclick="selectMedAgent(\'' + a.id + '\')">' + a.id.replace("-agent", "") + '</button>';
+            return '<button class="lcars-pill-btn' + (active ? ' lcars-pill-active' : '') + '" style="font-size:0.72em;padding:4px 10px;background:' + (active ? a.color : 'var(--surface)') + '" onclick="selectMedAgent(\'' + a.id + '\')">' + agentName(a) + '</button>';
         }).join("");
     }
     window.selectMedAgent = function(agentId) {
