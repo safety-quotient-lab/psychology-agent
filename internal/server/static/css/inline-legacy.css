@@ -405,7 +405,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     .lcars-sidebar-cap-bottom { min-height: 36px; }
 }
 
-/* ── LCARS Responsive: Small Phone ────────────────────────── */
+/* ── LCARS Responsive: Large Phone Portrait (430-480px, iPhone Pro Max) ── */
 @media (max-width: 480px) {
     .theme-lcars .lcars-frame {
         grid-template-columns: 44px 1fr;
@@ -429,15 +429,45 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     .lcars-sidebar-cap-top { min-height: 28px; }
     .lcars-sidebar-cap-bottom { min-height: 28px; }
 
-    /* Header band: show only first 3 segments */
-    .lcars-header-seg {
-        font-size: 0.55em;
-        padding: 2px 6px;
-    }
-    .lcars-header-seg:nth-child(n+4) { display: none; }
+    /* Header: compact, hide arms + endcap + desktop pills */
+    .lcars-hdr-arm { display: none; }
+    .lcars-hdr-endcap { display: none; }
+    .lcars-header-seg { font-size: 0.55em; padding: 2px 6px; }
 
-    /* Footer band: show only first 2 segments */
+    /* Footer band: compact */
+    .lcars-footer-seg { font-size: 0.55em; padding: 2px 6px; }
     .lcars-footer-seg:nth-child(n+3) { display: none; }
+
+    /* Elbow cap: smaller to fit 44px sidebar */
+    .lcars-sidebar-cap-top {
+        border-radius: 28px 0 0 0;
+    }
+}
+
+/* ── LCARS Responsive: Landscape (short viewport) ───────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+    /* Sidebar: compact buttons, no overlap with elbow */
+    .lcars-sidebar-btn {
+        min-height: 28px;
+        padding: 4px 8px;
+        font-size: 0 !important;
+    }
+    .lcars-sidebar-btn::after {
+        font-size: 9px !important;
+    }
+    .lcars-sidebar-cap-top { min-height: 32px; }
+    .lcars-sidebar-cap-bottom { min-height: 32px; }
+    .lcars-sidebar-arm { min-height: 4px; }
+    .lcars-sidebar-spacer { min-height: 4px; }
+
+    /* Header/footer: compact */
+    .lcars-header-band { min-height: 32px !important; }
+    .lcars-footer-band { min-height: 32px !important; }
+    .lcars-header-seg { font-size: 0.6em; padding: 2px 8px; }
+    .lcars-footer-seg { font-size: 0.6em; padding: 2px 8px; }
+
+    /* Content: reduced padding */
+    .lcars-content { padding: 8px 12px; }
 }
 
 /* ── LCARS Layer 2+3: Hatched bars, status lines, shortcodes ── */
