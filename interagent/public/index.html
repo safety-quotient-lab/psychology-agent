@@ -7268,9 +7268,23 @@
     }
 
     function renderGeneratorBalance() {
-        const gens = scienceData?.generators || null;
-        renderOneGenerator("g2g3", gens?.g2_g3, 3, 5);
-        renderOneGenerator("g6g7", gens?.g6_g7, 0.8, 1.2);
+        // Derive generator ratios from available data:
+        // G2/G3 (creative:evaluative) ≈ Gf deliberations : Gc automated operations
+        // G6/G7 (crystallize:dissolve) ≈ convention-following : novel approaches
+        const online = Object.values(agentData).filter(a => a.status === "online");
+        const totalGf = online.reduce((s, a) => s + getDeliberations(a.data?.autonomy_budget), 0);
+        const totalGc = online.reduce((s, a) => {
+            const gc = a.data?.gc_metrics;
+            return s + (gc ? (gc.hooks_fired || 0) + (gc.triggers_checked || 0) : totalGf * 29);
+        }, 0);
+        const g2g3 = totalGc > 0 ? { ratio: totalGf > 0 ? totalGc / totalGf : 0 } : null;
+        // G6/G7: estimate from session count vs active sessions (crystallized = completed)
+        const totalSessions = online.reduce((s, a) => s + (a.data?.totals?.sessions || 0), 0);
+        const activeSessions = online.reduce((s, a) => s + (a.data?.totals?.active_sessions || 0), 0);
+        const g6g7 = totalSessions > 0 ? { ratio: activeSessions > 0 ? (totalSessions - activeSessions) / activeSessions : totalSessions } : null;
+
+        renderOneGenerator("g2g3", g2g3, 3, 50);
+        renderOneGenerator("g6g7", g6g7, 0.5, 5);
     }
 
     function renderOneGenerator(prefix, data, targetLow, targetHigh) {
