@@ -1011,6 +1011,70 @@ Adopt-now items from standards landscape survey (13 protocols evaluated).
 
 ## D1 Cost Optimization
 
+---
+
+## Microglial Audit Findings (Session 91)
+
+4-doc parallel audit. Mechanical fixes applied same session. Substance
+findings require dedicated resolution.
+
+### ef1-governance.md (4 HIGH, 4 MOD)
+
+- [ ] **Unstated premise: hybrid > pure** — the conclusion "no single discipline
+  dominates" does not follow from "each discipline has trade-offs." Requires explicit
+  premise: lens complementarity compensates individual weaknesses.
+  *Severity: HIGH. Check: LOGICAL.*
+
+- [ ] **Ostrom mapping undefended** — claims Ostrom's design principles apply to agent
+  governance without mapping from institutional analysis to computational substrates.
+  *Severity: HIGH. Check: LOGICAL.*
+
+- [ ] **Governance recursion termination** — Invariant 4 asserts meta-governance at every
+  level but does not defend why human authority breaks the self-reference cycle. Humans
+  bear accountability to external stakeholders — needs explicit statement.
+  *Severity: HIGH. Check: SELF-REFERENCE.*
+
+- [ ] **Audit trail circularity** — Invariant 6 requires transparent audit trail. Violation
+  logging uses the same trail. If the trail mechanism itself fails, no secondary audit
+  path catches it. Needs fallback mechanism.
+  *Severity: HIGH. Check: SELF-REFERENCE.*
+
+- [ ] **Dual amendment procedures** — structural invariant amendments (extraordinary
+  process) vs evaluator invariant amendments (lightweight) defined separately with
+  ambiguous scope. Consolidate or clarify which procedure applies to which class.
+  *Severity: MOD. Check: CONSISTENCY.*
+
+- [ ] **"Retired" invariant semantics undefined** — does a retired invariant still bind?
+  Operationalize: retired = ceases to bind new decisions, remains auditable historically.
+  *Severity: MOD. Check: CONSISTENCY.*
+
+### cognitive-triggers.md (3 HIGH, 8 MOD)
+
+- [ ] **T3#12c RNG independence** — claims agent-controlled 1-in-5 escalation provides
+  "probabilistic independence." Agent controls the RNG and can bias selection. Requires
+  external or cryptographically-bound randomness, or downgrade the independence claim.
+  *Severity: HIGH. Check: SELF-REFERENCE.*
+
+- [ ] **T3#12 self-argument rationalization** — agent constructs counter-arguments then
+  judges whether they "survive scrutiny." Motivated reasoning can rationalize dismissal.
+  Needs external verification gate or frequency audit.
+  *Severity: HIGH. Check: SELF-REFERENCE.*
+
+- [ ] **T2#8b Socratic gate enforcement** — meta-check for asking clarifying questions
+  lacks mechanical enforcement. Agent can rationalize that no questions needed. Add
+  frequency audit: flag sessions where T2#8b fires zero times despite domain shifts.
+  *Severity: HIGH. Check: SELF-REFERENCE.*
+
+- [ ] **Glymphatic "cognitive budget" undefined** — claims reducing ADVISORY frees budget
+  for repair, but never defines what "cognitive budget" measures operationally.
+  *Severity: MOD. Check: LOGICAL.*
+
+- [ ] **Mode-stickiness counter unspecified** — 5-response fatigue threshold described
+  but execution mechanism (counter, reset, tracking) not defined.
+  *Severity: MOD. Check: LOGICAL.*
+
+---
+
 - [ ] **D1 aggregation pipeline on cabinet** — pull-aggregate-purge cycle: D1 raw
   data → cabinet SQLite (daily rollups), then purge raw rows past retention window
   (7 days story_snapshots, 14 days events). Scoped via transport message to
