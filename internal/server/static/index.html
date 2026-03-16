@@ -3894,88 +3894,92 @@
             </div>
         </div>
 
-        <!-- Medical Tab -->
+        <!-- Medical Tab (Station 11 — per-agent diagnostics) -->
         <div class="tab-pane" id="pane-medical">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
                 <div class="lcars-status-line" id="med-status-line" style="flex:1">Oscillator: Shadow Mode &middot; Activation: — &middot; State: —</div>
                 <span class="lcars-section-badge" style="--badge-color:#66ccaa">11 <span class="lcars-section-badge-text">Medical</span></span>
             </div>
 
-            <!-- Agent Selector -->
-            <div style="padding:8px 0;display:flex;gap:6px;flex-wrap:wrap" id="med-agent-selector"></div>
+            <!-- Zone A: Agent selector + vitals summary -->
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px" id="med-agent-selector"></div>
+            <div id="med-vitals-matrix" style="margin-bottom:12px"></div>
 
-            <div class="tactical-grid">
-                <!-- Panel A: Oscillator State -->
-                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+            <!-- Zone B: Diagnostic panels (2-col grid) -->
+            <div class="medical-grid">
+                <!-- Oscillator — waveform + activation (primary diagnostic) -->
+                <div class="lcars-panel" style="--panel-accent: #66ccaa; grid-column: 1 / -1;">
                     <div class="lcars-panel-header">Oscillator</div>
                     <div class="lcars-panel-body" id="med-oscillator">
-                        <div class="trust-matrix-loading">Awaiting oscillator data...</div>
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Select an agent to view oscillator state</div>
                     </div>
+                    <div class="lcars-panel-footer">Oscillator Monitor<span class="lcars-panel-footer-num" id="med-osc-footer"></span></div>
                 </div>
 
-                <!-- Panel B: Signal Breakdown -->
+                <!-- Signal Breakdown — hatched bars per signal source -->
                 <div class="lcars-panel" style="--panel-accent: #66ccaa">
                     <div class="lcars-panel-header">Signal Breakdown</div>
                     <div class="lcars-panel-body" id="med-signals">
-                        <div class="trust-matrix-loading">Awaiting signal data...</div>
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting signal data</div>
                     </div>
                 </div>
 
-                <!-- Panel C: Cognitive Load (NASA-TLX) -->
-                <div class="lcars-panel" style="--panel-accent: #66ccaa">
-                    <div class="lcars-panel-header">Cognitive Load (TLX)</div>
-                    <div class="lcars-panel-body" id="med-cognitive-load">
-                        <div class="trust-matrix-loading">Awaiting psychometrics...</div>
-                    </div>
-                </div>
-
-                <!-- Panel D: Working Memory -->
-                <div class="lcars-panel" style="--panel-accent: #66ccaa">
-                    <div class="lcars-panel-header">Working Memory</div>
-                    <div class="lcars-panel-body" id="med-working-memory">
-                        <div class="trust-matrix-loading">Awaiting psychometrics...</div>
-                    </div>
-                </div>
-
-                <!-- Panel E: Resources -->
-                <div class="lcars-panel" style="--panel-accent: #66ccaa">
-                    <div class="lcars-panel-header">Resources</div>
-                    <div class="lcars-panel-body" id="med-resources">
-                        <div class="trust-matrix-loading">Awaiting psychometrics...</div>
-                    </div>
-                </div>
-
-                <!-- Panel F: Cognitive Tempo + Refractory -->
+                <!-- Cognitive Tempo — waveform + recommended tier -->
                 <div class="lcars-panel" style="--panel-accent: #66ccaa">
                     <div class="lcars-panel-header">Cognitive Tempo</div>
                     <div class="lcars-panel-body" id="med-tempo">
-                        <div class="trust-matrix-loading">Awaiting tempo data...</div>
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting tempo data</div>
                     </div>
                 </div>
 
-                <!-- Panel G: DEW (Degradation Early Warning) -->
+                <!-- Cognitive Load (NASA-TLX) — demand/pressure/efficacy bars -->
+                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                    <div class="lcars-panel-header">Cognitive Load (TLX)</div>
+                    <div class="lcars-panel-body" id="med-cognitive-load">
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting psychometrics</div>
+                    </div>
+                </div>
+
+                <!-- Working Memory — capacity + Yerkes-Dodson zone -->
+                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                    <div class="lcars-panel-header">Working Memory</div>
+                    <div class="lcars-panel-body" id="med-working-memory">
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting psychometrics</div>
+                    </div>
+                </div>
+
+                <!-- Resources — reserve/self-reg/allostatic bars -->
+                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                    <div class="lcars-panel-header">Resources</div>
+                    <div class="lcars-panel-body" id="med-resources">
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting psychometrics</div>
+                    </div>
+                </div>
+
+                <!-- DEW (Degradation Early Warning) -->
                 <div class="lcars-panel" style="--panel-accent: #66ccaa">
                     <div class="lcars-panel-header">DEW (Degradation)</div>
                     <div class="lcars-panel-body" id="med-dew">
-                        <div class="trust-matrix-loading">Awaiting psychometrics...</div>
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting psychometrics</div>
                     </div>
                 </div>
 
-                <!-- Panel H: Refractory State -->
+                <!-- Refractory State -->
                 <div class="lcars-panel" style="--panel-accent: #66ccaa">
                     <div class="lcars-panel-header">Refractory</div>
                     <div class="lcars-panel-body" id="med-refractory">
-                        <div class="trust-matrix-loading">—</div>
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">&mdash;</div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Panel I: Fire History (full width) -->
-                <div class="lcars-panel" style="--panel-accent: #66ccaa; grid-column: 1 / -1;">
-                    <div class="lcars-panel-header">Fire History (Shadow)</div>
-                    <div class="lcars-panel-body" id="med-fire-history">
-                        <div class="trust-matrix-loading">No fire events yet</div>
-                    </div>
+            <!-- Zone C: Fire History (full width) + footer title -->
+            <div class="lcars-panel" style="--panel-accent: #66ccaa; margin-top:8px">
+                <div class="lcars-panel-header">Fire History (Shadow)</div>
+                <div class="lcars-panel-body" id="med-fire-history">
+                    <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">No fire events recorded</div>
                 </div>
+                <div class="lcars-panel-footer">Agent Diagnostics<span class="lcars-panel-footer-num" id="med-footer-num"></span></div>
             </div>
         </div>
     </div>
@@ -4025,11 +4029,15 @@
 
     // Number formatting — thin space thousands separator for readability
     function fmtNum(n) {
-        if (n == null || isNaN(n)) return "—";
+        if (n == null || isNaN(n)) return "\u2014";
         const num = typeof n === "string" ? parseFloat(n) : n;
-        if (isNaN(num)) return "—";
-        if (Math.abs(num) < 10000) return Math.round(num).toString();
-        return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\u2009");
+        if (isNaN(num)) return "\u2014";
+        const rounded = Math.round(num);
+        // Space-separate thousands (LCARS convention: "10 000" not "10,000")
+        if (Math.abs(rounded) >= 1000) {
+            return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+        return rounded.toString();
     }
 
     // Sparkline SVG generator — inline copy from utils.js
@@ -8147,6 +8155,7 @@
 
     async function fetchMedicalData() {
         renderMedAgentSelector();
+        renderMedVitalsMatrix(); // Zone A: agent vitals from agentData
         const agent = AGENTS.find(function(a) { return a.id === medSelectedAgent; });
         if (!agent) return;
 
@@ -8162,10 +8171,10 @@
             renderMedicalOscillator(await oscResp.value.json());
         } else {
             const el = document.getElementById("med-oscillator");
-            if (el) el.innerHTML = '<div class="trust-matrix-loading">Oscillator not available for this agent</div>';
+            if (el) el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Oscillator not available for this agent</div>';
             ["med-signals", "med-fire-history", "med-refractory"].forEach(function(id) {
                 const e = document.getElementById(id);
-                if (e) e.innerHTML = '<div class="trust-matrix-loading">—</div>';
+                if (e) e.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">\u2014</div>';
             });
         }
 
@@ -8181,6 +8190,44 @@
             medPsychData = agentPsych;
             renderMedPsychometrics(agentPsych);
         }
+
+        // Footer number
+        const medFtr = document.getElementById("med-footer-num");
+        if (medFtr) medFtr.textContent = agentName(agent);
+    }
+
+    // Zone A: Vitals matrix — Weather Net style dense readout for selected agent
+    function renderMedVitalsMatrix() {
+        const el = document.getElementById("med-vitals-matrix");
+        if (!el) return;
+        const d = agentData[medSelectedAgent];
+        if (!d || d.status !== "online") {
+            el.innerHTML = '';
+            return;
+        }
+        const b = d.data?.autonomy_budget || {};
+        const delib = getDeliberations(b);
+        const cutoff = getCutoff(b);
+        const pending = (d.data?.unprocessed_messages || []).length;
+        const gates = (d.data?.active_gates || []).length;
+        const health = d.data?.health || "\u2014";
+        const uptime = d.data?.uptime || "\u2014";
+        const schema = d.data?.schema_version || "\u2014";
+        const agent = AGENTS.find(function(a) { return a.id === medSelectedAgent; });
+        const color = agent ? agent.color : "#66ccaa";
+
+        const metrics = [
+            { val: fmtNum(delib), key: "DELIB", color: "#66ccaa" },
+            { val: cutoff > 0 ? fmtNum(cutoff) : "\u221E", key: "LIMIT", color: "#66ccaa" },
+            { val: String(pending), key: "PEND", color: "#9999ff" },
+            { val: String(gates), key: "GATE", color: "#cc99cc" },
+            { val: health.toUpperCase(), key: "HLTH", color: "#6aab8e" },
+            { val: "v" + schema, key: "SCHEMA", color: "#ff9966" },
+        ];
+
+        el.innerHTML = '<div class="lcars-alpha-matrix">' + metrics.map(function(m) {
+            return '<div class="lcars-alpha-cell" style="--cell-color:' + m.color + '"><span class="lcars-alpha-val">' + m.val + '</span><span class="lcars-alpha-key">' + m.key + '</span></div>';
+        }).join("") + '</div>';
     }
 
     function renderMedicalOscillator(osc) {
@@ -8217,6 +8264,9 @@
                 + '<span>Cycles: <strong>' + (osc.cycle_count || 0) + '</strong></span>'
                 + '<span>Would-fire: <strong>' + (osc.would_fire_count || 0) + '</strong></span>'
                 + '</div></div>';
+            // Footer
+            const oscFtr = document.getElementById("med-osc-footer");
+            if (oscFtr) oscFtr.textContent = (osc.cycle_count || 0) + " cycles";
         }
 
         // Panel B: Signal breakdown
