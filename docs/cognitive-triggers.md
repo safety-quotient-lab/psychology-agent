@@ -104,7 +104,7 @@ incorporate these summaries rather than evaluating in isolation.
 Format: `[BROADCAST T2#1] context at 45%, no pressure`
 
 This costs ~1 line per trigger fired (~3-5 lines per response). The broadcast
-medium already exists — the agent's working context. This convention formalizes
+medium already operates within the agent's working context. This convention formalizes
 what to carry forward between trigger evaluations.
 
 **Write path:** After completing a CRITICAL check, append the finding to the
