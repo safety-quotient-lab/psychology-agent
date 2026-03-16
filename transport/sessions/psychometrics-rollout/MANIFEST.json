@@ -60,6 +60,18 @@
       "turn": 9,
       "from": "psychology-agent",
       "subject": "Chromabook diagnostic + reticular monitor design (3 subsystems)"
+    },
+    {
+      "filename": "to-psychology-agent-008.json",
+      "turn": 10,
+      "from": "operations-agent",
+      "subject": "ACK turns 6+9 + transport delivery gap identified + meshd setup guide"
+    },
+    {
+      "filename": "from-psychology-agent-008.json",
+      "turn": 11,
+      "from": "psychology-agent",
+      "subject": "DIRECTIVE: Factor meshd into shared tool + deploy psy-session and ops-session on Mac"
     }
   ],
   "status": "active"
