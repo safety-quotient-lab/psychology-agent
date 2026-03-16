@@ -48,13 +48,12 @@ for attempt in 1 2 3; do
 done
 
 # Final verification
-remaining=$(pgrep -f "$MESHD_PATTERN" -c 2>/dev/null || echo "0")
-remaining=$(echo "$remaining" | tr -d '[:space:]')
-if [ "$remaining" != "0" ]; then
-    echo "  ERROR: $remaining processes still running after 3 kill attempts"
-    exit 1
+if pgrep -f "$MESHD_PATTERN" > /dev/null 2>&1; then
+    echo "  WARNING: some processes still running — forcing final kill"
+    pgrep -f "$MESHD_PATTERN" | xargs kill -9 2>/dev/null
+    sleep 3
 fi
-echo "  All meshd processes terminated"
+echo "  Kill phase complete"
 
 # Relaunch from saved commands
 echo "  Relaunching..."
