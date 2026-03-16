@@ -6932,15 +6932,16 @@
                 const agentLabel = agentName(r.agent_id || "");
                 const budgetDelta = r.budget_before != null && r.budget_after != null
                     ? `${r.budget_after} (${r.budget_after - r.budget_before >= 0 ? "+" : ""}${r.budget_after - r.budget_before})`
-                    : "—";
+                    : "\u2014";
+                // Ohniaka Pattern B: purple agent, yellow tier, white description
                 return `<tr>
-                    <td>${time}</td>
-                    <td>${agentLabel}</td>
+                    <td style="color:var(--text-dim)">${time}</td>
+                    <td style="color:var(--lcars-secondary)">${agentLabel}</td>
                     <td><span class="ops-action-tier ${tierClass}">${tier}</span></td>
-                    <td class="${resultClass}">${r.evaluator_result || "—"}</td>
-                    <td>${r.action_type || "—"}</td>
-                    <td title="${(r.description || "").replace(/"/g, "&quot;")}">${(r.description || "").substring(0, 60)}${(r.description || "").length > 60 ? "…" : ""}</td>
-                    <td>${budgetDelta}</td>
+                    <td class="${resultClass}">${r.evaluator_result || "\u2014"}</td>
+                    <td style="color:var(--lcars-title)">${r.action_type || "\u2014"}</td>
+                    <td title="${(r.description || "").replace(/"/g, "&quot;")}">${(r.description || "").substring(0, 60)}${(r.description || "").length > 60 ? "\u2026" : ""}</td>
+                    <td style="color:var(--lcars-accent)">${budgetDelta}</td>
                 </tr>`;
             }).join("")}</tbody></table>`;
         }
@@ -8262,12 +8263,19 @@
             renderMedicalTempo(await tempoResp.value.json());
         }
 
-        // Psychometrics (per-agent from compositor)
+        // Psychometrics (per-agent from compositor — works for all agents)
         if (psychResp.status === "fulfilled" && psychResp.value.ok) {
             const meshPsych = await psychResp.value.json();
             const agentPsych = meshPsych.agents?.[medSelectedAgent] || {};
             medPsychData = agentPsych;
             renderMedPsychometrics(agentPsych);
+        } else {
+            // Fallback: try to extract from agentData status
+            const statusData = agentData[medSelectedAgent]?.data?.psychometrics || {};
+            if (Object.keys(statusData).length > 0) {
+                medPsychData = statusData;
+                renderMedPsychometrics(statusData);
+            }
         }
 
         // Footer number
