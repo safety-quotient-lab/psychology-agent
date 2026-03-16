@@ -743,10 +743,9 @@
 
         /* ── LCARS Affect Grid Readability ─────────────────────── */
         .theme-lcars .affect-dot {
-            width: 18px;
-            height: 18px;
-            box-shadow: 0 0 12px currentColor, 0 0 4px currentColor;
-            border: 2px solid rgba(255,255,255,0.6);
+            /* LCARS canonical: small diamond markers, no glow */
+            border-radius: 1px;
+            border: none;
         }
         .theme-lcars .affect-dot-label {
             color: #ffcc99;
@@ -1955,10 +1954,9 @@
         }
         .affect-dot {
             position: absolute;
-            width: 14px; height: 14px;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 8px currentColor;
+            width: 10px; height: 10px;
+            border-radius: 1px;
+            transform: translate(-50%, -50%) rotate(45deg);
             transition: left 0.6s ease, top 0.6s ease;
         }
         .affect-dot-label {
@@ -3327,15 +3325,21 @@
                     </div>
                 </div>
 
-                <!-- Panel B: Agent Affect Grid (per-agent detail) -->
+                <!-- Panel B: Agent Affect Grid (per-agent PAD projection) -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
                     <div class="lcars-panel-header">Agent Affect Grid</div>
                     <div class="lcars-panel-body">
+                        <!-- PAD projection selector — LCARS mode buttons -->
+                        <div style="display:flex;gap:3px;margin-bottom:6px">
+                            <button class="lcars-pill-btn lcars-pill-sm lcars-pill-active" id="pad-view-pa" onclick="setPadView('pa')" style="font-size:0.65em">P &times; A</button>
+                            <button class="lcars-pill-btn lcars-pill-sm" id="pad-view-pd" onclick="setPadView('pd')" style="font-size:0.65em">P &times; D</button>
+                            <button class="lcars-pill-btn lcars-pill-sm" id="pad-view-ad" onclick="setPadView('ad')" style="font-size:0.65em">A &times; D</button>
+                        </div>
                         <div class="affect-grid-container" id="affect-grid">
                             <div class="affect-grid-line horizontal"></div>
                             <div class="affect-grid-line vertical"></div>
-                            <span class="affect-grid-axis-label y-axis">arousal</span>
-                            <span class="affect-grid-axis-label x-axis">valence</span>
+                            <span class="affect-grid-axis-label y-axis" id="affect-y-label">arousal</span>
+                            <span class="affect-grid-axis-label x-axis" id="affect-x-label">valence</span>
                         </div>
                         <div class="science-placeholder" id="affect-grid-placeholder">Awaiting psychometric data...</div>
                     </div>
@@ -7184,6 +7188,16 @@
         }
     }
 
+    let padView = "pa"; // Current PAD projection: pa, pd, ad
+    window.setPadView = function(view) {
+        padView = view;
+        ["pa", "pd", "ad"].forEach(v => {
+            const btn = document.getElementById("pad-view-" + v);
+            if (btn) btn.className = "lcars-pill-btn lcars-pill-sm" + (v === view ? " lcars-pill-active" : "");
+        });
+        renderAffectGrid();
+    };
+
     function renderAffectGrid() {
         const container = document.getElementById("affect-grid");
         const placeholder = document.getElementById("affect-grid-placeholder");
@@ -7191,6 +7205,15 @@
 
         // Remove existing dots
         container.querySelectorAll(".affect-dot").forEach(d => d.remove());
+
+        // Update axis labels based on projection
+        const xLabel = document.getElementById("affect-x-label");
+        const yLabel = document.getElementById("affect-y-label");
+        if (xLabel && yLabel) {
+            const labels = { pa: ["valence", "arousal"], pd: ["valence", "dominance"], ad: ["arousal", "dominance"] };
+            xLabel.textContent = labels[padView][0];
+            yLabel.textContent = labels[padView][1];
+        }
 
         const agents = scienceData?.agents || null;
         if (placeholder) placeholder.style.display = agents ? "none" : "block";
@@ -7201,12 +7224,27 @@
             const valence = es.hedonic_valence ?? es.valence ?? 0;
             const arousal = es.activation ?? es.arousal ?? 0;
             const dominance = es.perceived_control ?? es.dominance ?? 0.5;
-            // Map -1..1 to 0..100 percent (valence = x, arousal = y inverted)
-            // Dominance maps to dot size (0→small, 1→large)
-            const leftPct = ((valence + 1) / 2) * 100;
-            const topPct = ((1 - (arousal + 1) / 2)) * 100;
-            const size = 8 + dominance * 10; // 8-18px
-            return { agent, left: leftPct, top: topPct, size, dominance };
+
+            // Project based on selected view — map each axis to 0..100%
+            // Missing dimension → dot size
+            let leftPct, topPct, size, sizeLabel;
+            if (padView === "pa") {
+                leftPct = ((valence + 1) / 2) * 100;
+                topPct = ((1 - (arousal + 1) / 2)) * 100;
+                size = 8 + dominance * 10;
+                sizeLabel = "D";
+            } else if (padView === "pd") {
+                leftPct = ((valence + 1) / 2) * 100;
+                topPct = (1 - dominance) * 100;
+                size = 8 + ((arousal + 1) / 2) * 10;
+                sizeLabel = "A";
+            } else {
+                leftPct = ((arousal + 1) / 2) * 100;
+                topPct = (1 - dominance) * 100;
+                size = 8 + ((valence + 1) / 2) * 10;
+                sizeLabel = "P";
+            }
+            return { agent, left: leftPct, top: topPct, size, dominance, valence, arousal, sizeLabel };
         }) : AGENT_DOT_DEFAULTS.map(d => ({
             agent: AGENTS[d.agentIdx],
             left: d.left,
@@ -7233,11 +7271,11 @@
             dot.style.top = `${d.top}%`;
             dot.style.background = d.agent.color;
             dot.style.color = d.agent.color;
-            // PAD Dominance → dot size (3rd dimension)
+            // Missing PAD dimension → dot size
             if (d.size) {
                 dot.style.width = `${d.size}px`;
                 dot.style.height = `${d.size}px`;
-                dot.title = `P:${((d.left / 50) - 1).toFixed(2)} A:${(1 - d.top / 50).toFixed(2)} D:${(d.dominance || 0).toFixed(2)}`;
+                dot.title = `P:${(d.valence || 0).toFixed(2)} A:${(d.arousal || 0).toFixed(2)} D:${(d.dominance || 0).toFixed(2)} (size=${d.sizeLabel || "?"})`;
             }
             const label = document.createElement("span");
             label.className = "affect-dot-label";
