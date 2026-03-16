@@ -17,14 +17,21 @@ LOG="/tmp/meshd-restart.log"
 
 echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) — meshd restart initiated"
 
-# Save running command lines
-rm -f "$CMDS_FILE"
-for pid in $(pgrep -f "$MESHD_PATTERN"); do
-    ps -p "$pid" -o args= >> "$CMDS_FILE"
+# Save running command lines (deduplicated by --port to avoid relaunching duplicates)
+rm -f "$CMDS_FILE" /tmp/meshd-seen-ports.tmp
+touch /tmp/meshd-seen-ports.tmp
+for pid in $(pgrep -f "$MESHD_PATTERN" | sort -n); do
+    cmd=$(ps -p "$pid" -o args= 2>/dev/null)
+    port=$(echo "$cmd" | grep -oP '(?<=--port )\d+' 2>/dev/null || echo "")
+    if [ -n "$port" ] && ! grep -q "^${port}$" /tmp/meshd-seen-ports.tmp 2>/dev/null; then
+        echo "$cmd" >> "$CMDS_FILE"
+        echo "$port" >> /tmp/meshd-seen-ports.tmp
+    fi
 done
+rm -f /tmp/meshd-seen-ports.tmp
 
-saved=$(wc -l < "$CMDS_FILE" 2>/dev/null || echo 0)
-echo "  Saved $saved process command lines"
+saved=$(cat "$CMDS_FILE" 2>/dev/null | wc -l | tr -d ' ')
+echo "  Saved $saved unique process command lines"
 
 if [ "$saved" -eq 0 ]; then
     echo "  ERROR: no meshd processes found to restart"
@@ -37,12 +44,19 @@ for pid in $(pgrep -f "$MESHD_PATTERN"); do
     kill -9 "$pid" 2>/dev/null
 done
 
-sleep 2
+# Wait for processes to fully terminate and ports to release
+for i in 1 2 3 4 5; do
+    remaining=$(pgrep -f "$MESHD_PATTERN" -c 2>/dev/null || echo 0)
+    if [ "$remaining" -eq 0 ]; then break; fi
+    echo "  Waiting for $remaining processes to terminate ($i/5)..."
+    sleep 2
+done
 
-# Verify all killed
 remaining=$(pgrep -f "$MESHD_PATTERN" -c 2>/dev/null || echo 0)
 if [ "$remaining" -gt 0 ]; then
-    echo "  WARNING: $remaining processes survived kill"
+    echo "  FORCE: $remaining processes survived — killing again"
+    pgrep -f "$MESHD_PATTERN" | xargs kill -9 2>/dev/null
+    sleep 3
 fi
 
 # Relaunch from saved commands

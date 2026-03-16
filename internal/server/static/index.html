@@ -1892,7 +1892,7 @@
             white-space: nowrap;
             transform: translate(-50%, 0);
             left: 50%;
-            top: 18px;
+            top: calc(var(--label-offset, 0) * 14px + 18px);
         }
 
         /* Organism State pill */
@@ -6977,6 +6977,18 @@
             top: d.top,
         }));
 
+        // Assign label offsets to avoid overlap (stack when dots cluster)
+        const PROXIMITY = 12; // percent threshold for "too close"
+        dots.forEach((d, i) => {
+            let offset = 0;
+            for (let j = 0; j < i; j++) {
+                const dx = Math.abs(d.left - dots[j].left);
+                const dy = Math.abs(d.top - dots[j].top);
+                if (dx < PROXIMITY && dy < PROXIMITY) offset++;
+            }
+            d.labelOffset = offset;
+        });
+
         dots.forEach(d => {
             if (!d.agent) return;
             const dot = document.createElement("div");
@@ -6987,6 +6999,7 @@
             dot.style.color = d.agent.color;
             const label = document.createElement("span");
             label.className = "affect-dot-label";
+            label.style.setProperty("--label-offset", d.labelOffset);
             label.textContent = d.agent.id.replace("-agent", "");
             dot.appendChild(label);
             container.appendChild(dot);
