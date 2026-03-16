@@ -135,8 +135,9 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 
 /* ── LCARS Chrome: Frame Override ──────────────────────────── */
 .theme-lcars .lcars-frame {
-    grid-template-columns: var(--sidebar-width) 1fr;
-    grid-template-rows: auto 1fr auto;  /* header | content | footer */
+    grid-template-columns: var(--sidebar-width) var(--elbow-inner, 24px) 1fr;
+    grid-template-rows: auto var(--elbow-inner, 24px) 1fr var(--elbow-inner, 24px) auto;
+    /* row 1: header | row 2: top margin | row 3: content | row 4: bottom margin | row 5: footer */
 }
 
 /* Hide standard spine + tabs in LCARS mode */
@@ -214,6 +215,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     height: var(--elbow-inner, 24px);
     z-index: 10;
     pointer-events: none;
+    transform: rotate(180deg);
     background: radial-gradient(
         circle at 0% 0%,
         transparent 0%,
@@ -230,12 +232,31 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     height: var(--elbow-inner, 24px);
     z-index: 10;
     pointer-events: none;
+    transform: rotate(180deg);
     background: radial-gradient(
         circle at 0% 100%,
         transparent 0%,
         transparent calc(var(--elbow-inner, 24px) - 1px),
         var(--c-knowledge) var(--elbow-inner, 24px)
     );
+}
+
+/* Mobile: translate north to abut LCARS edge */
+@media (max-width: 480px) {
+    .theme-lcars .lcars-elbow-connector-top {
+        top: calc(var(--band-size, 52px) - var(--elbow-inner, 24px));
+    }
+    .theme-lcars .lcars-elbow-connector-bottom {
+        bottom: calc(var(--band-size, 52px) - var(--elbow-inner, 24px));
+    }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+    .theme-lcars .lcars-elbow-connector-top {
+        top: calc(32px - var(--elbow-inner, 24px));
+    }
+    .theme-lcars .lcars-elbow-connector-bottom {
+        bottom: calc(32px - var(--elbow-inner, 24px));
+    }
 }
 
 /* Alert: connectors follow structural chrome */
