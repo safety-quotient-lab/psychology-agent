@@ -50,6 +50,17 @@ def get_metrics(db: sqlite3.Connection, local_db: sqlite3.Connection | None,
         m["unprocessed_messages"] = 0
         m["total_messages"] = 0
 
+    # Engineering incidents in the last hour — feeds errors_last_hour
+    incidents_last_hour = 0
+    try:
+        r = db.execute(
+            "SELECT COUNT(*) FROM engineering_incidents "
+            "WHERE created_at > datetime('now', '-1 hour')"
+        ).fetchone()
+        incidents_last_hour = r[0] if r and r[0] else 0
+    except Exception:
+        pass
+
     # Gate metrics
     try:
         r = db.execute("SELECT COUNT(*) FROM active_gates WHERE status = 'waiting'").fetchone()
@@ -60,6 +71,13 @@ def get_metrics(db: sqlite3.Connection, local_db: sqlite3.Connection | None,
     except Exception:
         m["active_gates"] = 0
         m["gates_timing_out"] = 0
+
+    # Trigger fire count — aggregate from trigger_state table
+    try:
+        r = db.execute("SELECT SUM(fire_count) FROM trigger_state").fetchone()
+        m["triggers_fired"] = r[0] if r and r[0] else 0
+    except Exception:
+        m["triggers_fired"] = 0
 
     # Budget metrics (from local DB)
     if local_db:
@@ -89,10 +107,10 @@ def get_metrics(db: sqlite3.Connection, local_db: sqlite3.Connection | None,
                 WHERE agent_id = ? AND evaluator_result = 'blocked'
                 AND created_at > datetime('now', '-1 hour')
             """, (agent_id,)).fetchone()
-            m["errors_last_hour"] = r[0] if r else 0
+            m["_blocked_actions"] = r[0] if r else 0
         except Exception:
             m["actions_last_hour"] = 0
-            m["errors_last_hour"] = 0
+            m["_blocked_actions"] = 0
 
     # Session sensor files (written by hooks during interactive sessions)
     import os as _os
@@ -133,6 +151,26 @@ def get_metrics(db: sqlite3.Connection, local_db: sqlite3.Connection | None,
             m["pushbacks_session"] = int(pb_file.read_text().strip())
         except (ValueError, OSError):
             pass
+
+    # Deliverables completed — read from hook-written JSONL file
+    completed_file = Path(f"/tmp/{agent_for_files}-completed-tasks.jsonl")
+    if completed_file.exists():
+        try:
+            lines = completed_file.read_text().strip().splitlines()
+            m["deliverables_completed"] = len(lines)
+        except OSError:
+            pass
+
+    # Errors last hour — merge blocked actions, engineering incidents, and consecutive failures
+    consecutive_failures = 0
+    failures_file = Path(f"/tmp/{agent_for_files}-consecutive-failures")
+    if failures_file.exists():
+        try:
+            consecutive_failures = int(failures_file.read_text().strip())
+        except (ValueError, OSError):
+            pass
+    blocked_actions = m.pop("_blocked_actions", 0)
+    m["errors_last_hour"] = max(blocked_actions, incidents_last_hour, consecutive_failures)
 
     # Defaults for missing metrics
     m.setdefault("budget_spent", 0)
