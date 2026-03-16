@@ -1858,13 +1858,22 @@
         flashIfChanged(hdrHealth, healthText);
         if (hdrHealth) hdrHealth.style.background = healthBg;
 
-        // Update mobile tray pills (mirror)
+        // Update mobile tray pills (mirror) + flash stardate cell
         const trayAgents = document.getElementById("lcars-tray-agents");
         const trayMsgs = document.getElementById("lcars-tray-msgs");
         const trayHealth = document.getElementById("lcars-tray-health");
         if (trayAgents) trayAgents.textContent = agentsText;
         if (trayMsgs) trayMsgs.textContent = msgsText;
         if (trayHealth) { trayHealth.textContent = healthText; trayHealth.style.background = healthBg; }
+
+        // Flash the stardate cell on mobile when data changes
+        const sdCell = document.getElementById("lcars-hdr-stardate");
+        if (sdCell && (_hdrFirstRender || _hdrPrev["_tray_hash"] !== agentsText + msgsText + healthText)) {
+            sdCell.classList.remove("hdr-changed");
+            void sdCell.offsetWidth;
+            sdCell.classList.add("hdr-changed");
+            _hdrPrev["_tray_hash"] = agentsText + msgsText + healthText;
+        }
 
         if (ftrStatus) ftrStatus.textContent = allHealthy
             ? "Mesh Status: Nominal"
