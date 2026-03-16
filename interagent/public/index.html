@@ -6417,6 +6417,12 @@
         const el = document.getElementById("ops-status-monologue");
         if (!el) return;
 
+        // Guard: if no agent data yet, show loading state
+        if (Object.keys(agentData).length === 0) {
+            el.textContent = "Fetching agent status...";
+            return;
+        }
+
         const online = Object.values(agentData).filter(a => a.status === "online");
         const total = AGENTS.length;
         const withBudget = online.filter(a => a.data?.autonomy_budget?.budget_spent != null);
