@@ -3174,128 +3174,20 @@
                     </div>
             </div>
 
-            <!-- Mesh health aggregate indicators -->
-            <div class="kb-controls-group">
-                <div class="kb-vitals" id="ops-vitals">
-                    <div class="kb-vital">
-                        <div class="kb-vital-value" id="ops-agg-affect">—</div>
-                        <div class="kb-vital-label">Mesh Affect</div>
-                    </div>
-                    <div class="kb-vital">
-                        <div class="kb-vital-value" id="ops-agg-bottleneck">—</div>
-                        <div class="kb-vital-label">Bottleneck</div>
-                    </div>
-                    <div class="kb-vital">
-                        <div class="kb-vital-value" id="ops-agg-coordination">—</div>
-                        <div class="kb-vital-label">Coordination</div>
-                    </div>
-                    <div class="kb-vital">
-                        <div class="kb-vital-value" id="ops-agg-immune">—</div>
-                        <div class="kb-vital-label">Immune</div>
-                    </div>
-                    <div class="kb-vital ops-vital-wide">
-                        <div class="ops-gate-stack" id="ops-gate-stack">
-                            <div class="ops-gate-chip idle"></div>
-                            <div class="ops-gate-chip idle"></div>
-                            <div class="ops-gate-chip idle"></div>
-                            <div class="ops-gate-chip idle"></div>
-                            <div class="ops-gate-chip idle"></div>
-                        </div>
-                        <div class="kb-vital-label">Gates</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Deliberations (Gf) -->
+            <!-- Budget — per-agent deliberation spending -->
             <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Deliberations (Gf)
-                    <span class="lcars-mode-btns">
-                        <span style="font-weight:400;font-size:0.85em;opacity:0.7">Claude reasoning episodes — fluid intelligence</span>
-                    </span>
-                </div>
+                <div class="lcars-panel-header">Budget</div>
                 <div class="lcars-panel-body">
                     <div class="ops-budget-grid" id="ops-budget-grid"></div>
                 </div>
             </div>
 
-            <!-- Crystallizations (Gc) -->
+            <!-- Activity — recent deliberations + coordination overhead -->
             <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Crystallizations (Gc)
-                    <span class="lcars-mode-btns">
-                        <span style="font-weight:400;font-size:0.85em;opacity:0.7">Pattern-matched operations — zero LLM cost</span>
-                    </span>
-                </div>
+                <div class="lcars-panel-header">Activity</div>
                 <div class="lcars-panel-body">
-                    <div class="ops-budget-grid" id="ops-gc-grid">
-                        <div class="ops-budget-card" style="--card-accent: #9999ff">
-                            <div class="ops-budget-agent">Hooks Fired</div>
-                            <div class="ops-budget-credit" id="gc-hooks">—</div>
-                            <div class="ops-budget-values"><span>24 scripts across 14 events</span></div>
-                        </div>
-                        <div class="ops-budget-card" style="--card-accent: #cc99cc">
-                            <div class="ops-budget-agent">Triggers Checked</div>
-                            <div class="ops-budget-credit" id="gc-triggers">—</div>
-                            <div class="ops-budget-values"><span>17 active (T1-T18, T12 retired)</span></div>
-                        </div>
-                        <div class="ops-budget-card" style="--card-accent: #ff9900">
-                            <div class="ops-budget-agent">Tempo Cycles</div>
-                            <div class="ops-budget-credit" id="gc-cron">—</div>
-                            <div class="ops-budget-values"><span>Tempo cycles + sync + maintenance</span></div>
-                        </div>
-                        <div class="ops-budget-card" style="--card-accent: #66aacc">
-                            <div class="ops-budget-agent">Gc / Gf Ratio</div>
-                            <div class="ops-budget-credit" id="gc-ratio">—</div>
-                            <div class="ops-budget-values"><span>Higher ratio = more crystallized mesh</span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Mesh Aggregate Processing -->
-            <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Mesh Aggregate Processing
-                    <span class="lcars-mode-btns">
-                        <span style="font-weight:400;font-size:0.85em;opacity:0.7">Combined Gf + Gc across all agents</span>
-                    </span>
-                </div>
-                <div class="lcars-panel-body">
-                    <div class="ops-budget-grid">
-                        <div class="ops-budget-card" style="--card-accent: #ff9944">
-                            <div class="ops-budget-agent">Total Processing</div>
-                            <div class="ops-budget-credit" id="mesh-total-processing">—</div>
-                            <div class="ops-budget-values"><span>Gf + Gc combined</span></div>
-                        </div>
-                        <div class="ops-budget-card" style="--card-accent: #9999ff">
-                            <div class="ops-budget-agent">Deliberations</div>
-                            <div class="ops-budget-credit" id="mesh-total-gf">—</div>
-                            <div class="ops-budget-values"><span>Claude reasoning episodes (Gf)</span></div>
-                        </div>
-                        <div class="ops-budget-card" style="--card-accent: #cc99cc">
-                            <div class="ops-budget-agent">Crystallizations</div>
-                            <div class="ops-budget-credit" id="mesh-total-gc">—</div>
-                            <div class="ops-budget-values"><span>Hooks + triggers + tempo (Gc)</span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Resource Model (A2A-Psychology) -->
-            <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Resource Model (A2A-Psychology)</div>
-                <div class="lcars-panel-body" id="ops-resource-model">
-                    <div class="phase-stub"><div class="phase-stub-text">Awaiting psychometrics data...</div></div>
-                </div>
-            </div>
-
-            <!-- Recent Deliberations Audit Trail -->
-            <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Recent Deliberations</div>
-                <div class="table-toolbar">
-                    <input class="table-filter" id="filter-actions" placeholder="Filter actions..." oninput="filterTable('actions')">
-                    <div class="table-page-info" id="page-info-actions"></div>
-                    <div class="table-page-btns" id="page-btns-actions"></div>
-                </div>
-                <div class="lcars-panel-body scrollable">
+                    <!-- Coordination ratio inline -->
+                    <div id="ops-coordination-inline" style="font-size:0.82em;opacity:0.8;margin-bottom:8px;padding:0 4px"></div>
                     <div class="kb-table-wrap" id="ops-actions-table">
                         <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
                     </div>
@@ -3318,38 +3210,18 @@
                 </div>
             </div>
 
-            <!-- LCARS-only: Mesh Topology (from Pulse) -->
-            <div class="lcars-only" style="display:none">
-                <div class="lcars-panel topology-container" style="--panel-accent: var(--c-health); margin-bottom:16px">
-                    <div class="lcars-panel-header">Master Systems Display</div>
-                    <div class="lcars-panel-body">
-                        <svg class="topology-svg" id="lcars-topology-svg" viewBox="0 0 600 340"></svg>
-                    </div>
+            <!-- Topology -->
+            <div class="lcars-panel topology-container" style="--panel-accent: var(--c-health); margin-bottom:16px">
+                <div class="lcars-panel-header">Mesh Topology</div>
+                <div class="lcars-panel-body">
+                    <svg class="topology-svg" id="lcars-topology-svg" viewBox="0 0 600 340"></svg>
                 </div>
             </div>
 
-            <!-- LCARS-only: Activity Stream (from Pulse) -->
-            <div class="lcars-only" style="display:none">
-                <div class="lcars-panel activity-stream" style="--panel-accent: var(--c-transport)">
-                    <div class="lcars-panel-header">Activity Stream</div>
-                    <div class="lcars-panel-body scrollable" id="lcars-ops-activity"></div>
-                </div>
-            </div>
-
-            <!-- LCARS-only: Decisions (from Meta) -->
-            <div class="lcars-only" style="display:none">
-                <div class="lcars-panel kb-section" style="--panel-accent: var(--c-epistemic)">
-                    <div class="lcars-panel-header">Governance Decisions</div>
-                    <div class="lcars-panel-body scrollable" id="lcars-ops-decisions"></div>
-                </div>
-            </div>
-
-            <!-- LCARS-only: Cognitive Triggers (from Meta) -->
-            <div class="lcars-only" style="display:none">
-                <div class="lcars-panel kb-section" style="--panel-accent: var(--c-epistemic)">
-                    <div class="lcars-panel-header">Cognitive Triggers</div>
-                    <div class="lcars-panel-body scrollable" id="lcars-ops-triggers"></div>
-                </div>
+            <!-- Governance -->
+            <div class="lcars-panel kb-section" style="--panel-accent: var(--c-epistemic)">
+                <div class="lcars-panel-header">Governance</div>
+                <div class="lcars-panel-body scrollable" id="lcars-ops-decisions"></div>
             </div>
         </div>
 
@@ -6429,13 +6301,25 @@
     // ── Render: Operations ──────────────────────────────────────────
 
     function renderOperations() {
-        renderOpsMonologue();
-        renderOpsAggIndicators();
         renderOpsBudget();
-        renderOpsActions();
+        renderOpsActivity();
         renderOpsSchedule();
         renderOpsVitals();
-        renderResourceModel();
+    }
+
+    // Coordination ratio inline in Activity section
+    function renderOpsActivity() {
+        const el = document.getElementById("ops-coordination-inline");
+        if (el && _meshAggData) {
+            const co = _meshAggData.coordination || {};
+            if (co.ratio != null) {
+                const color = co.status === "over-coordinated" ? "var(--c-error)" : co.status === "coordination-heavy" ? "var(--c-warning)" : "var(--c-health)";
+                el.innerHTML = `Coordination: <strong style="color:${color}">${co.ratio.toFixed(1)}x</strong> (${co.process_messages || 0} process / ${co.substance_messages || 0} substance)`;
+            }
+        } else if (el) {
+            fetchMeshAgg().then(renderOpsActivity);
+        }
+        renderOpsActions();
     }
 
     // ── Status Monologue ─────────────────────────────────────
