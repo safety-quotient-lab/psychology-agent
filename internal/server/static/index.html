@@ -91,31 +91,45 @@
         body:not(.theme-lcars) #pane-helm { display: none !important; }
         body:not(.theme-lcars) #pane-tactical { display: none !important; }
 
-        /* LCARS classic mode — saturated Trek colors */
+        /* LCARS 47988 — canonical TNG color semantics */
         .theme-lcars {
-            --c-transport: #ff9900;
-            --c-knowledge: #cc99cc;
-            --c-health: #9999ff;
-            --c-epistemic: #cc6699;
-            --c-catalog: #ff9966;
-            --c-alert: #cc6666;
+            /* ── Semantic palette (from design reference) ── */
+            --lcars-frame: #ff9966;       /* salmon — structural bars, separators */
+            --lcars-accent: #ff9900;      /* orange — active data, emphasis */
+            --lcars-secondary: #cc99cc;   /* purple — subsystem info, identifiers */
+            --lcars-tertiary: #9999ff;    /* violet — secondary identifiers */
+            --lcars-title: #ffcc00;       /* gold — section headers, warnings */
+            --lcars-science: #5b9cf6;     /* blue — navigational, science */
+            --lcars-alert: #cc6666;       /* red — emergency, critical */
+            --lcars-medical: #66ccaa;     /* green/cyan — health, nominal */
+            --lcars-neutral: #ccaa88;     /* tan — spacers, neutral frame */
+            --lcars-highlight: #cc6699;   /* magenta — epistemic, attention */
+
+            /* ── Mapped to existing variable names ── */
+            --c-transport: var(--lcars-accent);
+            --c-knowledge: var(--lcars-secondary);
+            --c-health: var(--lcars-tertiary);
+            --c-epistemic: var(--lcars-highlight);
+            --c-catalog: var(--lcars-frame);
+            --c-alert: var(--lcars-alert);
             --c-inactive: #666688;
             --c-warning: #ff9944;
 
-            --c-tab-pulse: #9999ff;
-            --c-tab-meta: #cc6699;
-            --c-tab-kb: #cc99cc;
-            --c-tab-wisdom: #ffcc66;
-            --c-tab-ops: #ff9900;
-            --c-tab-science: #9999ff;
+            --c-tab-pulse: var(--lcars-tertiary);
+            --c-tab-meta: var(--lcars-highlight);
+            --c-tab-kb: var(--lcars-secondary);
+            --c-tab-wisdom: var(--lcars-title);
+            --c-tab-ops: var(--lcars-accent);
+            --c-tab-science: var(--lcars-tertiary);
             --c-tab-engineering: #ff9944;
-            --c-tab-tactical: #cc6666;
+            --c-tab-tactical: var(--lcars-alert);
             --c-tab-helm: #66aacc;
+            --c-tab-medical: var(--lcars-medical);
 
-            --c-psychology: #ff9900;
-            --c-psq: #cc99cc;
-            --c-unratified: #9999ff;
-            --c-observatory: #cc6699;
+            --c-psychology: var(--lcars-accent);
+            --c-psq: var(--lcars-secondary);
+            --c-unratified: var(--lcars-tertiary);
+            --c-observatory: var(--lcars-highlight);
 
             --bg-primary: #000000;
             --bg-panel: #111122;
@@ -2793,30 +2807,30 @@
         <div class="lcars-spine-segment" data-category="epistemic" style="background: var(--c-epistemic); flex: 1"></div>
     </div>
 
-    <!-- LCARS Sidebar — Trek bridge stations only (LCARS mode) -->
+    <!-- LCARS Sidebar — Trek bridge stations (semantic colors) -->
     <nav class="lcars-sidebar" id="lcars-sidebar">
         <div class="lcars-sidebar-cap-top"></div>
-        <button class="lcars-sidebar-btn active" data-tab="operations" data-short="OPS" style="background:#ff9900" onclick="switchTab('operations')">Operations</button>
-        <button class="lcars-sidebar-btn" data-tab="science" data-short="SCI" style="background:#9999ff" onclick="switchTab('science')">Science</button>
-        <div class="lcars-sidebar-spacer" style="background:#cc99cc"></div>
-        <button class="lcars-sidebar-btn" data-tab="engineering" data-short="ENG" style="background:#ff9944" onclick="switchTab('engineering')">Engineering</button>
-        <button class="lcars-sidebar-btn" data-tab="helm" data-short="HLM" style="background:#66aacc" onclick="switchTab('helm')">Helm</button>
-        <div class="lcars-sidebar-spacer" style="background:#666688"></div>
-        <button class="lcars-sidebar-btn" data-tab="tactical" data-short="TAC" style="background:#cc6666" onclick="switchTab('tactical')">Tactical</button>
-        <button class="lcars-sidebar-btn" data-tab="medical" data-short="MED" style="background:#66ccaa" onclick="switchTab('medical')">Medical</button>
+        <button class="lcars-sidebar-btn active" data-tab="operations" data-short="OPS" style="background:var(--lcars-accent)" onclick="switchTab('operations')">Operations</button>
+        <button class="lcars-sidebar-btn" data-tab="science" data-short="SCI" style="background:var(--lcars-tertiary)" onclick="switchTab('science')">Science</button>
+        <div class="lcars-sidebar-spacer" style="background:var(--lcars-secondary)"></div>
+        <button class="lcars-sidebar-btn" data-tab="engineering" data-short="ENG" style="background:var(--c-tab-engineering)" onclick="switchTab('engineering')">Engineering</button>
+        <button class="lcars-sidebar-btn" data-tab="helm" data-short="HLM" style="background:var(--c-tab-helm)" onclick="switchTab('helm')">Helm</button>
+        <div class="lcars-sidebar-spacer" style="background:var(--c-inactive)"></div>
+        <button class="lcars-sidebar-btn" data-tab="tactical" data-short="TAC" style="background:var(--lcars-alert)" onclick="switchTab('tactical')">Tactical</button>
+        <button class="lcars-sidebar-btn" data-tab="medical" data-short="MED" style="background:var(--lcars-medical)" onclick="switchTab('medical')">Medical</button>
         <div class="lcars-sidebar-arm"></div>
         <div class="lcars-sidebar-cap-bottom"></div>
     </nav>
 
-    <!-- LCARS Header Band — segmented colored blocks (LCARS mode only) -->
+    <!-- LCARS Header Band — semantic colors -->
     <div class="lcars-header-band" id="lcars-header-band">
-        <div class="lcars-header-seg" style="background:#cc99cc;flex:3">&#x2B21; Interagent Mesh</div>
-        <div class="lcars-header-seg" style="background:#9999ff;flex:1" id="lcars-hdr-agents">— Agents</div>
-        <div class="lcars-header-seg" style="background:#ff9900;flex:1" id="lcars-hdr-msgs">— Messages</div>
-        <div class="lcars-header-seg" style="background:#cc99cc;flex:1.5" id="lcars-hdr-stardate">SD —</div>
-        <div class="lcars-header-seg" style="background:#ff9966;flex:0.8" id="lcars-hdr-proto">A2A/1.0.0</div>
-        <div class="lcars-header-seg" style="background:#cc6699;flex:1" id="lcars-hdr-psych">A2A-PSYCH/v1</div>
-        <div class="lcars-header-seg" style="background:#9999ff;flex:0.5" id="lcars-hdr-health">&#x25CF; —</div>
+        <div class="lcars-header-seg" style="background:var(--lcars-secondary);flex:3">&#x2B21; Interagent Mesh</div>
+        <div class="lcars-header-seg" style="background:var(--lcars-tertiary);flex:1" id="lcars-hdr-agents">— Agents</div>
+        <div class="lcars-header-seg" style="background:var(--lcars-accent);flex:1" id="lcars-hdr-msgs">— Messages</div>
+        <div class="lcars-header-seg" style="background:var(--lcars-secondary);flex:1.5" id="lcars-hdr-stardate">SD —</div>
+        <div class="lcars-header-seg" style="background:var(--lcars-frame);flex:0.8" id="lcars-hdr-proto">A2A/1.0.0</div>
+        <div class="lcars-header-seg" style="background:var(--lcars-highlight);flex:1" id="lcars-hdr-psych">A2A-PSYCH/v1</div>
+        <div class="lcars-header-seg" style="background:var(--lcars-tertiary);flex:0.5" id="lcars-hdr-health">&#x25CF; —</div>
     </div>
 
     <!-- Standard Header (dark/light mode) -->
@@ -3992,13 +4006,13 @@
         </div>
     </div>
 
-    <!-- LCARS Footer Band — segmented colored blocks (LCARS mode only) -->
+    <!-- LCARS Footer Band — semantic colors -->
     <div class="lcars-footer-band" id="lcars-footer-band">
-        <div class="lcars-footer-seg" style="background:#9999ff;flex:2;cursor:pointer" id="lcars-ftr-status" onclick="toggleNarrativeDrawer()" title="Click to expand mesh narrative log">Mesh Status: Connecting</div>
-        <div class="lcars-footer-seg" style="background:#ff9900;flex:1.5" id="lcars-ftr-feed">Feed: &#x25CB; Polling</div>
-        <div class="lcars-footer-seg" style="background:#cc99cc;flex:1" id="lcars-ftr-vocab">Vocab v1.0.0</div>
-        <div class="lcars-footer-seg" style="background:#ff9966;flex:1" id="lcars-ftr-uptime">Uptime: —</div>
-        <div class="lcars-footer-seg" style="background:#666688;flex:0.5">
+        <div class="lcars-footer-seg" style="background:var(--lcars-tertiary);flex:2;cursor:pointer" id="lcars-ftr-status" onclick="toggleNarrativeDrawer()" title="Click to expand mesh narrative log">Mesh Status: Connecting</div>
+        <div class="lcars-footer-seg" style="background:var(--lcars-accent);flex:1.5" id="lcars-ftr-feed">Feed: &#x25CB; Polling</div>
+        <div class="lcars-footer-seg" style="background:var(--lcars-secondary);flex:1" id="lcars-ftr-vocab">Vocab v1.0.0</div>
+        <div class="lcars-footer-seg" style="background:var(--lcars-frame);flex:1" id="lcars-ftr-uptime">Uptime: —</div>
+        <div class="lcars-footer-seg" style="background:var(--c-inactive);flex:0.5">
             <button class="toggle-btn" onclick="setTheme('dark')" style="background:transparent;border:1px solid #000;color:#000;font-size:0.85em;padding:2px 6px;cursor:pointer" title="Exit LCARS mode">&#x2716;</button>
         </div>
     </div>
@@ -4027,12 +4041,17 @@
 </div>
 
 <script>
+    // Agent registry — daemon processes serving /api/status
+    // Note: operations-agent meshd runs infrastructure but does not deliberate
+    // autonomously. Interactive sessions (ops-session, psy-session) represent
+    // the human operator working through Claude Code. Full identity separation
+    // tracked in docs/todo-lcars-next.md.
     const AGENTS = [
         { id: "psychology-agent", name: "psychology", url: "https://psychology-agent.safety-quotient.dev", color: "#5b9cf6" },
         { id: "psq-agent", name: "safety-quotient", url: "https://psq-agent.safety-quotient.dev", color: "#4ecdc4" },
         { id: "unratified-agent", name: "unratified", url: "https://unratified-agent.unratified.org", color: "#e5a735" },
         { id: "observatory-agent", name: "observatory", url: "https://observatory-agent.unratified.org", color: "#a78bfa" },
-        { id: "operations-agent", name: "operations", url: "https://operations-agent.safety-quotient.dev", color: "#6b7280" },
+        { id: "operations-agent", name: "ops-session", url: "https://operations-agent.safety-quotient.dev", color: "#6b7280" },
     ];
 
     // Number formatting — thin space thousands separator for readability
