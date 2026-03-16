@@ -3296,32 +3296,13 @@
             </div>
 
             <div class="science-grid">
-                <!-- Panel A: Mesh State (organism-level — the big picture) -->
-                <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
-                    <div class="lcars-panel-header">Mesh State</div>
-                    <div class="lcars-panel-body">
-                        <div class="organism-state-pill" id="organism-state">
-                            <div class="organism-state-label" id="organism-state-label">—</div>
-                            <div class="organism-readout" id="organism-readout">
-                                <div class="organism-readout-item">
-                                    <span class="organism-readout-key">Valence</span>
-                                    <span class="organism-readout-val" id="organism-valence">—</span>
-                                </div>
-                                <div class="organism-readout-item">
-                                    <span class="organism-readout-key">Activation</span>
-                                    <span class="organism-readout-val" id="organism-activation">—</span>
-                                </div>
-                                <div class="organism-readout-item">
-                                    <span class="organism-readout-key">Bottleneck</span>
-                                    <span class="organism-readout-val" id="organism-bottleneck">—</span>
-                                </div>
-                                <div class="organism-readout-item">
-                                    <span class="organism-readout-key">Coord Ratio</span>
-                                    <span class="organism-readout-val" id="organism-coord">—</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Mesh State readout — LCARS key-value capsule strip -->
+                <div style="display:flex;gap:3px;margin-bottom:8px;flex-wrap:wrap">
+                    <div style="background:var(--lcars-tertiary);color:#000;font-weight:700;font-size:0.75em;padding:5px 12px;border-radius:12px 0 0 12px;text-transform:uppercase" id="organism-state-label">&mdash;</div>
+                    <div style="background:color-mix(in srgb, var(--lcars-tertiary) 40%, #111);color:var(--lcars-tertiary);font-size:0.72em;padding:5px 10px;display:flex;align-items:center;gap:4px">P: <strong id="organism-valence">&mdash;</strong></div>
+                    <div style="background:color-mix(in srgb, var(--lcars-tertiary) 40%, #111);color:var(--lcars-tertiary);font-size:0.72em;padding:5px 10px;display:flex;align-items:center;gap:4px">A: <strong id="organism-activation">&mdash;</strong></div>
+                    <div style="background:color-mix(in srgb, var(--lcars-secondary) 40%, #111);color:var(--lcars-secondary);font-size:0.72em;padding:5px 10px;display:flex;align-items:center;gap:4px">Bottleneck: <strong id="organism-bottleneck">&mdash;</strong></div>
+                    <div style="background:color-mix(in srgb, var(--lcars-accent) 40%, #111);color:var(--lcars-accent);font-size:0.72em;padding:5px 10px;border-radius:0 12px 12px 0;display:flex;align-items:center;gap:4px">Coord: <strong id="organism-coord">&mdash;</strong></div>
                 </div>
 
                 <!-- Panel B: Agent Affect Grid (per-agent PAD projection) -->
@@ -6802,10 +6783,6 @@
         // Separator bar between agents and summary
         html += `<div style="height:2px;background:var(--lcars-frame);margin:4px 0;border-radius:1px;opacity:0.4"></div>`;
 
-        grid.innerHTML = html;
-                </div>
-            </div>`;
-        }
         grid.innerHTML = html;
 
         // W5: Alphanumeric matrix — dense metrics summary
