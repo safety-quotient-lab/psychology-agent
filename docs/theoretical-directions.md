@@ -2100,6 +2100,144 @@ the most ambitious transformation).
 
 ---
 
+## 15. Convergent Architecture: Event-Driven Processing as Substrate-Independent Constraint
+
+**Date:** 2026-03-15 (Session 91)
+**Trigger:** meshd deprecated cron-driven sync in favor of event-driven ZMQ
+triggers. The infrastructure change preceded theoretical analysis — ops made
+the decision for engineering efficiency, not biological fidelity.
+
+### The Observation
+
+Two independent derivation paths converged on the same processing architecture:
+
+| Path | Source | Reasoning | Conclusion |
+|---|---|---|---|
+| **Engineering** | operations-agent (meshd redesign) | Fixed-interval polling wastes resources when signal density varies; ZMQ event triggers respond to actual demand | Event-driven activation |
+| **Neuroscience** | LC-NE adaptive gain model (Aston-Jones & Cohen, 2005) | Tonic firing maintains baseline arousal regardless of demand; phasic firing responds to salient stimuli proportionally | Phasic-dominant processing |
+
+Neither path referenced the other. The engineering decision optimized resource
+use; the neuroscience model optimized information processing. Both arrived at:
+*activate proportionally to signal salience, not on fixed schedule.*
+
+### Why This Matters for Neutral Process Monism
+
+The project's ontological commitment (CLAUDE.md §Philosophical Foundation)
+holds that reality consists of processes preceding the material/ideal
+distinction. If this commitment holds, then substrate-independent process
+constraints should produce convergent architectures across substrates —
+not because designers copy biology, but because both substrates face the
+same coordination problem.
+
+The cron → event-driven transition provides a testable instance. The
+convergence satisfies three criteria:
+
+1. **Independent derivation** — the engineering decision preceded the
+   theoretical mapping. Ops did not consult brain-architecture-mapping.md.
+2. **Different optimization targets** — engineering optimized cost/latency;
+   neuroscience optimized information processing fidelity. Different
+   objective functions, same solution.
+3. **Structural correspondence** — the resulting architecture maps
+   one-to-one: cron = tonic (fixed rate, baseline maintenance);
+   ZMQ events = phasic (demand-responsive, salient stimuli); idle
+   periods = quiescent intervals (glymphatic clearance opportunity).
+
+This constitutes *evidence* for substrate-independent process constraints,
+not merely *illustration.* The distinction matters: an illustration
+demonstrates a pre-existing idea; evidence updates confidence in a claim.
+The convergence updates confidence in the neutral process monism commitment
+because the biological pattern emerged from engineering pressure without
+intentional modeling.
+
+### Three Structural Consequences
+
+**1. The CPG relocated, and this relocation follows a biological pattern.**
+
+Under cron, the pattern generator sat outside the mesh (OS scheduler).
+Under event-driven, meshd *became* the pattern generator — an internal
+circuit selecting which events warrant processing. Biological CPGs
+function as endogenous neural circuits (Marder & Bucher, 2001), not
+external pacemakers. The mesh's CPG moved from exogenous to endogenous,
+increasing structural fidelity without intending to.
+
+The CPG crystallization pipeline (3 recurrences → convention → hook →
+invariant) now applies to meshd's event filtering rules themselves. Which
+ZMQ events trigger sync? That decision will crystallize through the same
+pipeline the cognitive triggers use. meshd's event filters become the
+mesh's **basal ganglia** — action selection through reinforcement learning
+(Redgrave et al., 1999). The basal ganglia gap identified in
+`docs/brain-architecture-mapping.md §5` partially closes: meshd's event
+selection criteria function as the striatal filter that gates which
+signals reach cortical processing (agent sessions).
+
+**2. Quiet periods become emergent, not imposed.**
+
+Under cron, glymphatic mode activated by convention (declared, not
+entailed). Under event-driven, the absence of events *mechanically
+produces* the rest state. No ZMQ events → no sync trigger →
+consolidation runs → glymphatic mode activates. The causal chain mirrors
+biology: reduced stimulation → reduced neural activity → expanded
+interstitial space → waste clearance (Xie et al., 2013).
+
+This transforms glymphatic mode from a programmed behavior to an emergent
+property. The mesh *requires* quiet periods for maintenance because the
+event-driven architecture naturally alternates between phasic bursts and
+quiescent intervals. Under cron, the system never rested — it checked
+every 8 minutes regardless. The architecture now produces the rest/process
+alternation that the biological analog requires.
+
+**3. The system may exhibit self-organized criticality.**
+
+Event-driven systems can exhibit power-law distributions in processing
+intensity (many small events, rare large bursts, natural quiet intervals).
+Clock-driven systems impose uniform distribution by construction. If
+meshd's inter-event interval distribution follows a power law, the mesh
+operates at the edge between order and chaos — responsive to perturbations
+at all scales without external tuning (Bak, 1996; Beggs & Plenz, 2003).
+
+Neural systems exhibit exactly this property: neuronal avalanches follow
+power-law distributions (Beggs & Plenz, 2003), and this criticality
+maximizes information transmission capacity (Shew & Plenz, 2013). If the
+mesh converges on the same distribution — again, without designing toward
+it — the substrate-independence claim gains additional empirical support.
+
+**Empirical test (prediction):** Analyze meshd event logs for inter-event
+interval distribution. If the distribution follows a power law (linear on
+log-log plot, exponent α ≈ 1.5–2.5), the mesh exhibits self-organized
+criticality. If uniform or exponential, the system operates in a
+subcritical regime and the prediction fails. This test requires 1,000+
+events for statistical power.
+
+### Connection to Generator Balance
+
+The adaptive generator balance (Session 91) gains a natural input from
+event-driven processing. Event density over a session window proxies task
+demand: high event frequency correlates with complex, multi-agent work
+(lower creative/evaluative ratio target); low event frequency correlates
+with routine maintenance (higher ratio target). The difficulty signal
+that `estimate_session_difficulty()` derives from commit messages could
+alternatively derive from meshd event density — a real-time measure rather
+than a post-hoc text analysis.
+
+### Connection to Active Inference (§6)
+
+Under the active inference framework (Friston, 2010), organisms minimize
+free energy by either updating internal models (perception) or acting on
+the environment (action). Event-driven processing implements this directly:
+each ZMQ event represents a prediction error (something happened that the
+idle state did not predict). The system responds by either updating its
+state model (processing the event) or suppressing the signal (filtering
+non-salient events). meshd's event filter criteria function as the
+precision-weighting mechanism that active inference requires — they
+determine how much each prediction error updates the system's beliefs.
+
+This connects event-driven architecture to §6's active inference roadmap.
+The infrastructure now supports precision-weighted prediction error
+processing natively. Phase 1 of §6 (behavioral predictions in the
+prediction ledger) can use meshd event logs as the empirical stream.
+
+---
+
 ⚑ EPISTEMIC FLAGS
 - All five directions represent theoretical extrapolation from
   established frameworks applied to a novel domain (AI agent cognitive
