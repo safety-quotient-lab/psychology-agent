@@ -241,6 +241,8 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     gap: 3px;
     align-items: stretch;
     min-height: var(--band-size);
+    position: relative;
+    z-index: 300; /* above content area so tray doesn't clip */
 }
 .theme-lcars .lcars-header {
     display: none; /* hide standard header in LCARS */
@@ -267,11 +269,13 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     letter-spacing: 0.1em;
     border-radius: var(--elbow-inner) 0 0 var(--elbow-inner);
 }
-/* Data pills: flat edges, uniform width — endcap handles rounding */
+/* Data pills: flat edges, uniform width, centered text */
 .lcars-header-seg:not(.lcars-hdr-title) {
     border-radius: 0;
     flex: 0 0 auto;
     min-width: 80px;
+    justify-content: center;
+    text-align: center;
 }
 /* Last header data segment */
 .lcars-header-seg:last-child {
