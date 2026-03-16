@@ -2806,3 +2806,14 @@ a.activity-link:hover {
     .lcars-subsystem-grid { grid-template-columns: 1fr; }
     .lcars-alpha-matrix { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); }
 }
+
+/* Mobile landscape: single-column cards, maximize viewport width */
+@media (max-height: 500px) and (orientation: landscape) {
+    .agents-grid { grid-template-columns: 1fr !important; }
+    .vitals-grid { grid-template-columns: 1fr !important; }
+    .science-grid { grid-template-columns: 1fr !important; }
+    .engineering-grid { grid-template-columns: 1fr !important; }
+    .medical-grid { grid-template-columns: 1fr !important; }
+    .tactical-grid { grid-template-columns: 1fr !important; }
+    .helm-grid { grid-template-columns: 1fr !important; }
+}

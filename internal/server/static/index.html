@@ -2830,7 +2830,7 @@
 
     <!-- LCARS Header Band — semantic colors -->
     <div class="lcars-header-band" id="lcars-header-band">
-        <div class="lcars-header-seg" style="background:var(--lcars-secondary);flex:3">&#x2B21; Interagent Mesh</div>
+        <div class="lcars-header-seg" style="background:transparent;flex:3;color:var(--lcars-title);font-size:0.95em;letter-spacing:0.12em;justify-content:flex-start">&#x2B21; INTERAGENT MESH</div>
         <div class="lcars-header-seg" style="background:var(--lcars-tertiary);flex:1" id="lcars-hdr-agents">— Agents</div>
         <div class="lcars-header-seg" style="background:var(--lcars-accent);flex:1" id="lcars-hdr-msgs">— Messages</div>
         <div class="lcars-header-seg" style="background:var(--lcars-secondary);flex:1.5" id="lcars-hdr-stardate">SD —</div>
@@ -6767,16 +6767,16 @@
             const gates = online ? (d.data?.active_gates || []).length : 0;
             const schema = d?.data?.schema_version || "\u2014";
 
-            // Agent row: [orange leader] [purple delib] [purple limit] [med pending] [med gates] [light health] [light mood]
+            // Agent row: grid-aligned capsules (Button 52 pattern — fixed columns)
             const opacity = online ? 1 : 0.35;
-            html += `<div style="display:flex;gap:3px;margin-bottom:3px;align-items:stretch;opacity:${opacity};flex-wrap:wrap">
-                <div style="background:${agent.color};color:#000;font-weight:700;font-size:0.72em;padding:5px 12px;border-radius:12px 0 0 12px;min-width:90px;display:flex;align-items:center;letter-spacing:0.06em;text-transform:uppercase">${agentName(agent)}</div>
-                <div style="background:${purpleDark};color:#000;font-weight:700;font-size:0.82em;padding:5px 10px;min-width:48px;text-align:right;display:flex;align-items:center;justify-content:flex-end" title="Deliberations">${online ? fmtNum(deliberations) : "\u2014"}</div>
-                <div style="background:${purpleDark};color:#000;font-size:0.65em;padding:5px 8px;display:flex;align-items:center;opacity:0.7" title="Cutoff">${cutoff > 0 ? "/" + fmtNum(cutoff) : "\u221E"}</div>
-                <div style="background:${purpleMed};color:#000;font-weight:700;font-size:0.82em;padding:5px 10px;min-width:32px;text-align:right;display:flex;align-items:center;justify-content:flex-end" title="Pending messages">${online ? pending : "\u2014"}</div>
-                <div style="background:${purpleMed};color:#000;font-size:0.82em;padding:5px 10px;min-width:32px;text-align:right;display:flex;align-items:center;justify-content:flex-end" title="Active gates">${online ? gates : "\u2014"}</div>
-                <div style="background:${purpleLight};color:var(--text-primary);font-size:0.68em;padding:5px 10px;display:flex;align-items:center;text-transform:uppercase;letter-spacing:0.04em" title="Health">${online ? health : "OFF"}</div>
-                <div style="background:${purpleLight};color:var(--text-primary);font-size:0.68em;padding:5px 10px;border-radius:0 12px 12px 0;display:flex;align-items:center" title="Mood">${mood}</div>
+            html += `<div style="display:grid;grid-template-columns:minmax(80px,1fr) 60px 40px 40px 40px 60px 70px;gap:3px;margin-bottom:3px;opacity:${opacity}">
+                <div style="background:${agent.color};color:#000;font-weight:700;font-size:0.72em;padding:5px 12px;border-radius:12px 0 0 12px;letter-spacing:0.06em;text-transform:uppercase;display:flex;align-items:center">${agentName(agent)}</div>
+                <div style="background:${purpleDark};color:#000;font-weight:700;font-size:0.82em;padding:5px 8px;text-align:right;display:flex;align-items:center;justify-content:flex-end" title="Deliberations">${online ? fmtNum(deliberations) : "\u2014"}</div>
+                <div style="background:${purpleDark};color:#000;font-size:0.65em;padding:5px 6px;display:flex;align-items:center;justify-content:flex-end;opacity:0.7" title="Cutoff">${cutoff > 0 ? "/" + fmtNum(cutoff) : "\u221E"}</div>
+                <div style="background:${purpleMed};color:#000;font-weight:700;font-size:0.82em;padding:5px 8px;text-align:right;display:flex;align-items:center;justify-content:flex-end" title="Pending">${online ? pending : "\u2014"}</div>
+                <div style="background:${purpleMed};color:#000;font-size:0.82em;padding:5px 8px;text-align:right;display:flex;align-items:center;justify-content:flex-end" title="Gates">${online ? gates : "\u2014"}</div>
+                <div style="background:${purpleLight};color:var(--text-primary);font-size:0.68em;padding:5px 8px;display:flex;align-items:center;text-transform:uppercase;letter-spacing:0.04em" title="Health">${online ? health : "OFF"}</div>
+                <div style="background:${purpleLight};color:var(--text-primary);font-size:0.68em;padding:5px 8px;border-radius:0 12px 12px 0;display:flex;align-items:center" title="Mood">${mood}</div>
             </div>`;
         }
 
