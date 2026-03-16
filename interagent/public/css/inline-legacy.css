@@ -173,13 +173,15 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 
 /* Sidebar navigation buttons */
 .lcars-sidebar-btn {
-    display: block;
+    display: flex;
+    align-items: flex-end; /* text sits at bottom — TNG canonical */
+    justify-content: flex-start;
     width: 100%;
     border: none;
     border-radius: 24px 0 0 24px;
-    padding: 10px 12px 10px 16px;
+    padding: 6px 8px 6px 16px;
     min-height: 44px;
-    flex-shrink: 0;  /* bulky but never stretch to fill */
+    flex-shrink: 0;
     font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.72em;
     font-weight: 700;
@@ -471,6 +473,8 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     .lcars-footer-seg { font-size: 0.6em; padding: 2px 8px; }
     /* SD pill: flat right in landscape too */
     .lcars-stardate-cell { border-radius: 0 !important; }
+    /* Endcap: grows to fill */
+    .lcars-hdr-endcap { flex: 1 0 12px !important; }
 
     /* Content: reduced padding */
     .lcars-content { padding: 8px 12px; }
@@ -3121,3 +3125,24 @@ a.activity-link:hover {
     .lcars-hdr-arm { min-width: 8px; }
     .lcars-hdr-endcap { flex: 0 0 16px; }
 }
+
+/* ── Sidebar drop — structural block below elbow, before nav buttons ── */
+.lcars-sidebar-drop {
+    min-height: var(--gap-2xl, 34px); /* φ spacing */
+    flex-shrink: 0;
+    margin-bottom: var(--gap-xs, 3px);
+    border-radius: 0;
+}
+@media (max-width: 768px) {
+    .lcars-sidebar-drop { min-height: var(--gap-xl, 21px); }
+}
+@media (max-width: 480px) {
+    .lcars-sidebar-drop { min-height: var(--gap-l, 13px); }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+    .lcars-sidebar-drop { min-height: var(--gap-m, 8px); }
+}
+
+/* Alert: sidebar drop follows structural chrome color */
+body[data-alert-level="3"] .lcars-sidebar-drop { background: #ffcc00 !important; }
+body[data-alert-level="2"] .lcars-sidebar-drop { background: #cc3333 !important; }
