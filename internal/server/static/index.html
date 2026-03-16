@@ -59,16 +59,25 @@
         <div class="lcars-sidebar-cap-bottom"></div>
     </nav>
 
-    <!-- LCARS Header Band — accordion on mobile portrait -->
-    <input type="checkbox" id="hdr-accordion-toggle" class="hdr-accordion-input" aria-hidden="true">
+    <!-- LCARS Header Band — stardate tray on mobile portrait -->
     <div class="lcars-header-band" id="lcars-header-band">
-        <label for="hdr-accordion-toggle" class="lcars-header-seg lcars-header-title" style="background:transparent;flex:3;color:var(--lcars-title);font-size:0.95em;letter-spacing:0.12em;justify-content:flex-start;cursor:pointer">&#x2B21; INTERAGENT MESH <span class="hdr-accordion-arrow">&#x25BC;</span></label>
-        <div class="lcars-header-seg lcars-header-indicator" style="background:var(--lcars-tertiary);flex:1" id="lcars-hdr-agents">— Agents</div>
-        <div class="lcars-header-seg lcars-header-indicator" style="background:var(--lcars-accent);flex:1" id="lcars-hdr-msgs">— Messages</div>
-        <div class="lcars-header-seg lcars-header-indicator" style="background:var(--lcars-secondary);flex:1.5" id="lcars-hdr-stardate">SD —</div>
-        <div class="lcars-header-seg lcars-header-indicator" style="background:var(--lcars-frame);flex:0.8" id="lcars-hdr-proto">A2A/1.0.0</div>
-        <div class="lcars-header-seg lcars-header-indicator" style="background:var(--lcars-highlight);flex:1" id="lcars-hdr-psych">A2A-PSYCH/v1</div>
-        <div class="lcars-header-seg lcars-header-indicator" style="background:var(--lcars-tertiary);flex:0.5" id="lcars-hdr-health">&#x25CF; —</div>
+        <div class="lcars-header-seg" style="background:transparent;flex:3;color:var(--lcars-title);font-size:0.95em;letter-spacing:0.12em;justify-content:flex-start">&#x2B21; INTERAGENT MESH</div>
+        <div class="lcars-header-seg lcars-stardate-cell" style="background:var(--lcars-secondary);flex:1.5;position:relative" id="lcars-hdr-stardate">
+            <input type="checkbox" id="stardate-tray-toggle" class="stardate-tray-input" aria-hidden="true">
+            <label for="stardate-tray-toggle" class="stardate-tray-label">SD —</label>
+            <div class="stardate-tray">
+                <div class="stardate-tray-pill" style="background:var(--lcars-tertiary)" id="lcars-tray-agents">— Agents</div>
+                <div class="stardate-tray-pill" style="background:var(--lcars-accent)" id="lcars-tray-msgs">— Messages</div>
+                <div class="stardate-tray-pill" style="background:var(--lcars-frame)" id="lcars-tray-proto">A2A/1.0.0</div>
+                <div class="stardate-tray-pill" style="background:var(--lcars-highlight)" id="lcars-tray-psych">A2A-PSYCH/v1</div>
+                <div class="stardate-tray-pill" style="background:var(--lcars-tertiary)" id="lcars-tray-health">&#x25CF; —</div>
+            </div>
+        </div>
+        <div class="lcars-header-seg lcars-header-desktop-only" style="background:var(--lcars-tertiary);flex:1" id="lcars-hdr-agents">— Agents</div>
+        <div class="lcars-header-seg lcars-header-desktop-only" style="background:var(--lcars-accent);flex:1" id="lcars-hdr-msgs">— Messages</div>
+        <div class="lcars-header-seg lcars-header-desktop-only" style="background:var(--lcars-frame);flex:0.8" id="lcars-hdr-proto">A2A/1.0.0</div>
+        <div class="lcars-header-seg lcars-header-desktop-only" style="background:var(--lcars-highlight);flex:1" id="lcars-hdr-psych">A2A-PSYCH/v1</div>
+        <div class="lcars-header-seg lcars-header-desktop-only" style="background:var(--lcars-tertiary);flex:0.5" id="lcars-hdr-health">&#x25CF; —</div>
     </div>
 
     <!-- Standard Header (dark/light mode) -->
@@ -1827,26 +1836,34 @@
     }
 
     function updateLcarsHeaderData() {
-        const hdrAgents = document.getElementById("lcars-hdr-agents");
-        const hdrMsgs = document.getElementById("lcars-hdr-msgs");
-        const hdrHealth = document.getElementById("lcars-hdr-health");
         const ftrStatus = document.getElementById("lcars-ftr-status");
-        if (!hdrAgents) return;
 
         const agents = Object.values(agentData);
         const online = agents.filter(a => a && a.online !== false).length;
         const total = AGENTS.length;
-        flashIfChanged(hdrAgents, `${online} Agents Online`);
-
+        const agentsText = `${online} Agents Online`;
         const totalMsgs = agents.reduce((sum, a) => sum + (a?.messages?.total || 0), 0);
-        flashIfChanged(hdrMsgs, `${totalMsgs} Messages`);
-
+        const msgsText = `${totalMsgs} Messages`;
         const allHealthy = online === total && agents.every(a => !a || a.health !== "critical");
         const healthText = allHealthy ? "\u25CF Nominal" : "\u25CF Degraded";
-        flashIfChanged(hdrHealth, healthText);
-        hdrHealth.style.background = allHealthy ? "var(--c-knowledge, #9999ff)" : "var(--c-alert, #cc6666)";
+        const healthBg = allHealthy ? "var(--c-knowledge, #9999ff)" : "var(--c-alert, #cc6666)";
 
-        ftrStatus.textContent = allHealthy
+        // Update desktop pills
+        flashIfChanged(document.getElementById("lcars-hdr-agents"), agentsText);
+        flashIfChanged(document.getElementById("lcars-hdr-msgs"), msgsText);
+        const hdrHealth = document.getElementById("lcars-hdr-health");
+        flashIfChanged(hdrHealth, healthText);
+        if (hdrHealth) hdrHealth.style.background = healthBg;
+
+        // Update mobile tray pills (mirror)
+        const trayAgents = document.getElementById("lcars-tray-agents");
+        const trayMsgs = document.getElementById("lcars-tray-msgs");
+        const trayHealth = document.getElementById("lcars-tray-health");
+        if (trayAgents) trayAgents.textContent = agentsText;
+        if (trayMsgs) trayMsgs.textContent = msgsText;
+        if (trayHealth) { trayHealth.textContent = healthText; trayHealth.style.background = healthBg; }
+
+        if (ftrStatus) ftrStatus.textContent = allHealthy
             ? "Mesh Status: Nominal"
             : `Mesh Status: ${online}/${total} Agents`;
         _hdrFirstRender = false;

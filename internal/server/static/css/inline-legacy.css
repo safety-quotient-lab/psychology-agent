@@ -2964,3 +2964,73 @@ a.activity-link:hover {
     75%  { filter: brightness(1.4); }
     100% { filter: brightness(1); }
 }
+
+/* ── Stardate Tray (mobile portrait) ─────────────────────────── */
+.stardate-tray-input { display: none; }
+.stardate-tray-label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: default; /* desktop: not interactive */
+}
+.stardate-tray {
+    display: none; /* desktop: hidden, pills show in main band */
+}
+.lcars-header-desktop-only { display: flex; } /* desktop: show inline pills */
+
+/* Mobile portrait: stardate becomes tray trigger */
+@media (max-width: 480px) {
+    .lcars-header-desktop-only {
+        display: none !important; /* hide inline pills — they live in the tray */
+    }
+    .stardate-tray-label {
+        cursor: pointer;
+    }
+    .lcars-stardate-cell {
+        overflow: visible; /* allow tray to extend below */
+    }
+    .stardate-tray {
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap-xs, 3px);
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 200;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease, padding 0.2s ease;
+        padding: 0;
+    }
+    .stardate-tray-pill {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0 14px;
+        height: 0;
+        opacity: 0;
+        font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+        font-size: 0.72em;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #000;
+        white-space: nowrap;
+        transition: height 0.3s ease, opacity 0.2s ease, padding 0.3s ease;
+    }
+    .stardate-tray-pill:last-child {
+        border-radius: 0 0 var(--gap-m, 8px) var(--gap-m, 8px);
+    }
+
+    /* Expanded state */
+    .stardate-tray-input:checked ~ .stardate-tray {
+        max-height: 200px;
+        padding-top: var(--gap-xs, 3px);
+    }
+    .stardate-tray-input:checked ~ .stardate-tray .stardate-tray-pill {
+        height: 32px;
+        padding: 4px 14px;
+        opacity: 1;
+    }
+}
