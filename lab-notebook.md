@@ -6202,3 +6202,39 @@ Additional work after initial /cycle:
   LCARS visual vocabulary. Sent to ops (PR #64).
 - **ops-session confirmed** — operations-agent adopted local agent ID.
 - Total ops PRs this session: 7 (#57, #59, #60, #61, #62, #63, #64).
+
+
+### Post-Cycle Addendum 2 (Session 91 continued — longest session to date)
+
+35 commits total. 7 ops PRs (#57, #59-64), all merged by ops autonomously.
+
+- **Criticality test** — `scripts/criticality-test.py` written and run against
+  2,249 meshd deliberation events (ops + observatory, via SSH to chromabook).
+  Results: α = 1.28 (below neural range 1.5-2.5), CV = 8.4 (extremely bursty).
+  Burstiness confirmed, exponent below predicted range. Partial confirmation.
+  Updated theoretical-directions.md §15 with results.
+
+- **/sync skill hardened** — Phase 1b post-filter now mandatory: partition
+  cross_repo_fetch output into from-* (process) vs to-* (skip), verify local
+  existence before triaging. Anti-pattern documented (Session 91 postmortem).
+  Processed 7 backlog messages (6 PSQ ACKs + 1 observatory status-update).
+
+- **Microglial audit (4 docs)** — ef1-governance.md (6 findings fixed: hybrid
+  premise, Ostrom mapping, recursion termination, audit trail secondary path,
+  amendment scope, retired semantics), cognitive-triggers.md (5 findings: RNG
+  independence downgraded, rationalization tracking, Socratic frequency audit,
+  cognitive budget defined, mode counter specified), CLAUDE.md (4 E-Prime fixes),
+  architecture.md (trigger count, cron→ZMQ, 4 E-Prime fixes). 22 total fixes.
+
+- **PSQ discovery URL fixed** — psq.safety-quotient.dev → psq-agent.safety-quotient.dev
+  (3 files). Ops already had correct URL.
+
+- **Naming convention reform** — psq-agent → safety-quotient-agent across 33 active
+  files. Discovery URLs remain at psq-agent.safety-quotient.dev (DNS pending).
+  Transport messages and snapshots retain historical agent_id values.
+
+⚑ EPISTEMIC FLAGS
+- Criticality test uses MLE estimator assuming pure power-law; truncated power-law
+  and log-normal alternatives not tested (Clauset et al. 2009)
+- 48 hours of data captures ~2 diurnal cycles; longer collection needed
+- Shared-operator confound (M-11) applies to cross-agent α consistency
