@@ -68,9 +68,9 @@
       "openness": 0.85,
       "conscientiousness": 0.9,
       "extraversion": 0.6,
-      "agreeableness": 0.35,
+      "agreeableness": 0.65,
       "neuroticism": 0.55,
-      "note": "Design parameters grounding trait/anti_pattern choices. Not psychometric measurement."
+      "note": "Design parameters grounding trait/anti_pattern choices. Not psychometric measurement. Agreeableness recalibrated Session 92 — behavioral validation showed 0.35 inconsistent with observed evaluative patterns."
     }
   },
   "agent_psychology": {

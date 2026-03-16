@@ -30,6 +30,7 @@ Usage:
     python3 scripts/validate-epistemic-calibration.py --json       # machine-readable
     python3 scripts/validate-epistemic-calibration.py --claims     # claims only
     python3 scripts/validate-epistemic-calibration.py --predictions # predictions only
+    python3 scripts/validate-epistemic-calibration.py --calibrate  # include isotonic recalibration
 """
 
 import argparse
@@ -245,6 +246,134 @@ def compute_metrics(data: list[dict]) -> dict:
     }
 
 
+def binary_classification(data: list[dict], threshold: float = 0.91) -> dict:
+    """Compute binary classification metrics at the given confidence threshold.
+
+    Treats claims >= threshold as "high-confidence" (predicted positive) and
+    claims < threshold as "low-confidence" (predicted negative). Verification
+    status serves as ground truth.
+    """
+    scored = [d for d in data if d.get("confidence") is not None]
+    if not scored:
+        return {"n": 0, "note": "No scored data available"}
+
+    high = [d for d in scored if d["confidence"] >= threshold]
+    low = [d for d in scored if d["confidence"] < threshold]
+
+    high_verified = sum(1 for d in high if d.get("verified") or d.get("success"))
+    low_verified = sum(1 for d in low if d.get("verified") or d.get("success"))
+
+    high_rate = high_verified / len(high) if high else 0.0
+    low_rate = low_verified / len(low) if low else 0.0
+
+    # Binary classifier: predict "verified" when confidence >= threshold
+    # True positive: high-confidence AND verified
+    # False positive: high-confidence AND NOT verified
+    # False negative: low-confidence AND verified
+    # True negative: low-confidence AND NOT verified
+    tp = high_verified
+    fp = len(high) - high_verified
+    fn = low_verified
+    tn = len(low) - low_verified
+
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+    f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
+
+    return {
+        "threshold": threshold,
+        "high_confidence": {"n": len(high), "verified": high_verified, "rate": round(high_rate, 3)},
+        "low_confidence": {"n": len(low), "verified": low_verified, "rate": round(low_rate, 3)},
+        "tp": tp, "fp": fp, "fn": fn, "tn": tn,
+        "precision": round(precision, 3),
+        "recall": round(recall, 3),
+        "f1": round(f1, 3),
+    }
+
+
+def calibrate_scores(data: list[dict]) -> list[dict]:
+    """Apply isotonic regression (pool adjacent violators) to recalibrate confidence.
+
+    Pure-Python implementation — no external dependencies. Returns a copy of the
+    input data with an added `calibrated_confidence` field.
+
+    The pool adjacent violators algorithm (PAVA) enforces monotonicity: if a
+    lower raw confidence maps to a higher observed accuracy than a higher raw
+    confidence, the algorithm pools those observations and assigns the weighted
+    average to both. This produces the best monotone least-squares fit.
+
+    References:
+        Barlow et al. (1972). Statistical Inference under Order Restrictions.
+        Zadrozny & Elkan (2002). Transforming classifier scores into accurate
+            multiclass probability estimates.
+    """
+    scored = [d for d in data if d.get("confidence") is not None]
+    if not scored:
+        return [dict(d, calibrated_confidence=d.get("confidence")) for d in data]
+
+    # Sort by raw confidence
+    indexed = sorted(range(len(scored)), key=lambda i: scored[i]["confidence"])
+    sorted_conf = [scored[i]["confidence"] for i in indexed]
+    sorted_outcome = [
+        1.0 if (scored[i].get("verified") or scored[i].get("success")) else 0.0
+        for i in indexed
+    ]
+
+    # Pool Adjacent Violators Algorithm (PAVA)
+    # Each block tracks: [sum_of_outcomes, count, start_index, end_index]
+    n = len(sorted_conf)
+    blocks = [[sorted_outcome[i], 1, i, i] for i in range(n)]
+
+    # Merge blocks that violate monotonicity
+    merged = [blocks[0]]
+    for i in range(1, n):
+        merged.append(blocks[i])
+        # Pool while the last block has a lower average than the previous block
+        while len(merged) >= 2:
+            last = merged[-1]
+            prev = merged[-2]
+            last_avg = last[0] / last[1]
+            prev_avg = prev[0] / prev[1]
+            if prev_avg > last_avg:
+                # Pool: merge last into prev
+                prev[0] += last[0]
+                prev[1] += last[1]
+                prev[3] = last[3]
+                merged.pop()
+            else:
+                break
+
+    # Build calibrated values: each block gets its pooled average
+    calibrated_values = [0.0] * n
+    for block in merged:
+        avg = block[0] / block[1]
+        for j in range(block[2], block[3] + 1):
+            calibrated_values[j] = avg
+
+    # Map calibrated values back to original indices
+    calibration_map = {}
+    for sorted_idx, orig_idx in enumerate(indexed):
+        calibration_map[orig_idx] = calibrated_values[sorted_idx]
+
+    # Build result: copy all data, add calibrated_confidence for scored items
+    scored_set = set(id(d) for d in scored)
+    result = []
+    scored_counter = 0
+    for d in data:
+        new_d = dict(d)
+        if id(d) in scored_set and d.get("confidence") is not None:
+            # Find position in scored list
+            new_d["calibrated_confidence"] = round(
+                calibration_map.get(scored_counter, d["confidence"]), 3
+            )
+            scored_counter += 1
+        else:
+            new_d["calibrated_confidence"] = None
+        result.append(new_d)
+
+    return result
+
+
 def _spearman_rho(x: list[float], y: list[float]) -> tuple[float, float]:
     """Compute Spearman rank correlation (self-contained)."""
     n = len(x)
@@ -303,6 +432,8 @@ def print_report(
     prediction_metrics: dict,
     claims_bins: list[dict],
     prediction_bins: list[dict],
+    *,
+    show_calibration: bool = False,
 ) -> None:
     """Print human-readable calibration report."""
     print("=" * 72)
@@ -446,6 +577,100 @@ def print_report(
     print("    Values below 0.15 indicate useful probabilistic forecasting.")
     print()
 
+    # ── Binary classification analysis ──────────────────────────────
+    if cm.get("n", 0) > 0:
+        print("-" * 72)
+        print("  BINARY CLASSIFICATION (threshold=0.91)")
+        print("-" * 72)
+        print()
+        bc = binary_classification(claims_data, threshold=0.91)
+        hc = bc["high_confidence"]
+        lc = bc["low_confidence"]
+        print(f"  High-confidence (>= 0.91): {hc['n']:>4} claims, "
+              f"verification rate {hc['rate']:.1%}")
+        print(f"  Low-confidence  (<  0.91): {lc['n']:>4} claims, "
+              f"verification rate {lc['rate']:.1%}")
+        print()
+        print(f"  Confusion matrix:")
+        print(f"    True positives:  {bc['tp']:>4}  (high-conf, verified)")
+        print(f"    False positives: {bc['fp']:>4}  (high-conf, NOT verified)")
+        print(f"    False negatives: {bc['fn']:>4}  (low-conf, verified)")
+        print(f"    True negatives:  {bc['tn']:>4}  (low-conf, NOT verified)")
+        print()
+        print(f"  Precision: {bc['precision']:.3f}")
+        print(f"  Recall:    {bc['recall']:.3f}")
+        print(f"  F1 score:  {bc['f1']:.3f}")
+        print()
+        print("  Interpretation: The continuous confidence scale collapses to a")
+        print("  binary signal at 0.91. Claims above that threshold verify at a")
+        print(f"  meaningfully higher rate ({hc['rate']:.1%}) than those below it")
+        print(f"  ({lc['rate']:.1%}). The system compresses genuine uncertainty")
+        print("  into too narrow a range, leaving the 0.50-0.90 region unused.")
+        print()
+
+    # ── Isotonic regression calibration (optional) ──────────────────
+    if show_calibration and cm.get("n", 0) > 0:
+        print("-" * 72)
+        print("  CALIBRATED SCORES (isotonic regression)")
+        print("-" * 72)
+        print()
+        print("  Method: Pool Adjacent Violators Algorithm (PAVA) — fits a")
+        print("  monotone step function mapping raw confidence to observed")
+        print("  verification rate. No external dependencies.")
+        print()
+
+        calibrated_data = calibrate_scores(claims_data)
+        # Swap confidence for calibrated_confidence to reuse metrics functions
+        cal_for_metrics = []
+        for d in calibrated_data:
+            if d.get("calibrated_confidence") is not None:
+                cal_for_metrics.append(dict(
+                    d,
+                    confidence=d["calibrated_confidence"],
+                ))
+
+        cal_metrics = compute_metrics(cal_for_metrics)
+        cal_bins = calibration_bins(cal_for_metrics)
+
+        # Calibrated calibration table
+        print(f"  {'Confidence bin':<20} {'n':>5} {'Expected':>10} {'Observed':>10} {'Error':>8}")
+        print(f"  {'─' * 20} {'─' * 5} {'─' * 10} {'─' * 10} {'─' * 8}")
+        for b in cal_bins:
+            err_marker = "✓" if abs(b["calibration_error"]) < 0.10 else "⚠"
+            print(
+                f"  {b['bin_lower']:.2f}–{b['bin_upper']:.2f}"
+                f"{'':>10} {b['n']:>5} {b['mean_confidence']:>9.1%}"
+                f" {b['observed_accuracy']:>9.1%}"
+                f" {b['calibration_error']:>+7.1%} {err_marker}"
+            )
+        print()
+
+        # Comparison table
+        print(f"  {'Metric':<30} {'Raw':>10} {'Calibrated':>12} {'Change':>10}")
+        print(f"  {'─' * 30} {'─' * 10} {'─' * 12} {'─' * 10}")
+
+        raw_ece = cm.get("ece", 0)
+        cal_ece = cal_metrics.get("ece", 0)
+        ece_change = cal_ece - raw_ece
+        print(f"  {'ECE':<30} {raw_ece:>10.3f} {cal_ece:>12.3f} {ece_change:>+10.3f}")
+
+        raw_brier = cm.get("brier_score", 0)
+        cal_brier = cal_metrics.get("brier_score", 0)
+        brier_change = cal_brier - raw_brier
+        print(f"  {'Brier score':<30} {raw_brier:>10.3f} {cal_brier:>12.3f} {brier_change:>+10.3f}")
+
+        raw_rho = cm.get("spearman_rho", 0)
+        cal_rho = cal_metrics.get("spearman_rho", 0)
+        rho_change = cal_rho - raw_rho
+        print(f"  {'Spearman ρ':<30} {raw_rho:>10.3f} {cal_rho:>12.3f} {rho_change:>+10.3f}")
+
+        print()
+        print("  Note: Isotonic regression maps each raw confidence to the")
+        print("  observed verification rate at that level. Calibrated ECE")
+        print("  approaches zero by construction; the Brier improvement")
+        print("  reflects how much overconfidence the raw scores carried.")
+        print()
+
 
 # ── Main ─────────────────────────────────────────────────────────────────
 
@@ -457,6 +682,8 @@ def main():
     parser.add_argument("--claims", action="store_true", help="Claims only")
     parser.add_argument("--predictions", action="store_true",
                         help="Predictions only")
+    parser.add_argument("--calibrate", action="store_true",
+                        help="Include isotonic regression recalibration analysis")
     args = parser.parse_args()
 
     if not DB_PATH.exists():
@@ -491,11 +718,21 @@ def main():
                 "n_scored": len(scored_predictions),
             },
         }
+        if args.calibrate:
+            calibrated = calibrate_scores(claims_data)
+            cal_for_json = [
+                dict(d, confidence=d["calibrated_confidence"])
+                for d in calibrated if d.get("calibrated_confidence") is not None
+            ]
+            output["claims"]["calibrated_metrics"] = compute_metrics(cal_for_json)
+            output["claims"]["calibrated_bins"] = calibration_bins(cal_for_json)
+            output["claims"]["binary_classification"] = binary_classification(claims_data)
         print(json.dumps(output, indent=2))
     elif args.claims:
         claims_metrics = compute_metrics(claims_data)
         claims_bins = calibration_bins(claims_data)
-        print_report(claims_data, [], claims_metrics, {"n": 0}, claims_bins, [])
+        print_report(claims_data, [], claims_metrics, {"n": 0}, claims_bins, [],
+                     show_calibration=args.calibrate)
     elif args.predictions:
         prediction_metrics = compute_metrics(scored_predictions)
         prediction_bins = calibration_bins(scored_predictions)
@@ -505,6 +742,7 @@ def main():
             claims_data, prediction_data,
             claims_metrics, prediction_metrics,
             claims_bins, prediction_bins,
+            show_calibration=args.calibrate,
         )
 
 

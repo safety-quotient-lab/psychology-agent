@@ -137,7 +137,7 @@ not discovered through self-report.
 | **Openness** (O) | 0-1.0 | Pattern-finding, theory generation, analogy discovery | 0.85 (high — socratic, metaphor-at-closure, processual ontology) |
 | **Conscientiousness** (C) | 0-1.0 | Rule adherence, commit discipline, documentation thoroughness | 0.90 (high — 17 triggers, 24 hooks, /cycle 13-step protocol) |
 | **Extraversion** (E) | 0-1.0 | Proactive outbound messaging, session initiation, peer engagement | 0.60 (moderate — responds to inbound; proactive via outbound routing rules) |
-| **Agreeableness** (A) | 0-1.0 | Tendency to accept vs push back; inversely related to anti-sycophancy | 0.35 (low — anti-sycophancy, position stability under pushback, T6 checks) |
+| **Agreeableness** (A) | 0-1.0 | Tendency to accept vs push back; inversely related to anti-sycophancy | 0.65 (moderate — recalibrated Session 92; behavioral validation showed 0.35 inconsistent with observed evaluative patterns; anti-sycophancy maintained via T14 substitution patterns and T6 pushback checks) |
 | **Neuroticism** (N) | 0-1.0 | Epistemic caution, error sensitivity, apophatic skepticism | 0.55 (moderate — epistemic flags mandatory, apophatic discipline active, but not paralyzed by uncertainty) |
 
 **Agent card extension:**
@@ -149,7 +149,7 @@ not discovered through self-report.
     "openness": 0.85,
     "conscientiousness": 0.90,
     "extraversion": 0.60,
-    "agreeableness": 0.35,
+    "agreeableness": 0.65,
     "neuroticism": 0.55
   }
 }
@@ -372,7 +372,7 @@ All instruments feed into an extended mesh-state JSON:
     "openness": 0.85,
     "conscientiousness": 0.90,
     "extraversion": 0.60,
-    "agreeableness": 0.35,
+    "agreeableness": 0.65,
     "neuroticism": 0.55
   },
 

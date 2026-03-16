@@ -286,7 +286,7 @@ def big_five_profile() -> dict:
         "openness": 0.85,
         "conscientiousness": 0.90,
         "extraversion": 0.60,
-        "agreeableness": 0.35,
+        "agreeableness": 0.65,  # Recalibrated Session 92 — behavioral validation showed 0.35 inconsistent with observed evaluative patterns
         "neuroticism": 0.55,
         "note": "Design parameters, not psychometric measurements",
     }
