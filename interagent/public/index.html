@@ -227,8 +227,9 @@
             border-radius: 12px 0 0 12px;
         }
 
+        /* Bottom cap matches top cap (purple) for continuous sidebar frame */
         .lcars-sidebar-cap-bottom {
-            background: var(--c-transport);
+            background: var(--c-knowledge);
             min-height: var(--band-size);
             border-radius: 0 0 0 var(--elbow-outer);
         }
@@ -780,8 +781,13 @@
             color: #000 !important;
         }
         body[data-alert-level="3"] .lcars-sidebar-cap-top,
-        body[data-alert-level="3"] .lcars-sidebar-cap-bottom {
+        body[data-alert-level="3"] .lcars-sidebar-cap-bottom,
+        body[data-alert-level="3"] .lcars-sidebar-arm {
             background: #ffcc00 !important;
+        }
+        body[data-alert-level="3"] .lcars-sidebar-btn {
+            background: #ffcc00 !important;
+            color: #000 !important;
         }
         body[data-alert-level="2"] .lcars-header-seg,
         body[data-alert-level="2"] .lcars-footer-seg {
@@ -789,10 +795,13 @@
             color: #fff !important;
         }
         body[data-alert-level="2"] .lcars-sidebar-cap-top,
-        body[data-alert-level="2"] .lcars-sidebar-cap-bottom {
+        body[data-alert-level="2"] .lcars-sidebar-cap-bottom,
+        body[data-alert-level="2"] .lcars-sidebar-arm {
             background: #cc3333 !important;
         }
         body[data-alert-level="2"] .lcars-sidebar-btn {
+            background: #cc3333 !important;
+            color: #fff !important;
             animation: red-alert-pulse 1.5s ease-in-out infinite;
         }
         @keyframes red-alert-pulse {
