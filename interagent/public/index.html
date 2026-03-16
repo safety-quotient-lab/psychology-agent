@@ -2809,7 +2809,7 @@
                 </div>
                 <div class="vital-card" style="--vital-color: var(--c-knowledge)">
                     <div class="vital-value" id="vital-budget">—</div>
-                    <div class="vital-label">Autonomy Counter</div>
+                    <div class="vital-label">Deliberations</div>
                 </div>
                 <div class="vital-card vital-link" style="--vital-color: var(--c-transport); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('filter-messages').value='';filterTable('messages');document.getElementById('kb-sec-messages').scrollIntoView({behavior:'smooth'})},120)">
                     <div class="vital-value" id="vital-pending">—</div>
@@ -3180,11 +3180,11 @@
                 </div>
             </div>
 
-            <!-- Autonomy: Fluid + Crystallized Intelligence -->
+            <!-- Deliberations (Gf) -->
             <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Autonomy — Fluid Intelligence (Gf)
+                <div class="lcars-panel-header">Deliberations (Gf)
                     <span class="lcars-mode-btns">
-                        <span style="font-weight:400;font-size:0.85em;opacity:0.7">Deliberations — claude -p reasoning episodes</span>
+                        <span style="font-weight:400;font-size:0.85em;opacity:0.7">Claude reasoning episodes — fluid intelligence</span>
                     </span>
                 </div>
                 <div class="lcars-panel-body">
@@ -3208,11 +3208,11 @@
                 </div>
             </div>
 
-            <!-- Autonomy: Crystallized Intelligence (Gc) -->
+            <!-- Crystallizations (Gc) -->
             <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Autonomy — Crystallized Intelligence (Gc)
+                <div class="lcars-panel-header">Crystallizations (Gc)
                     <span class="lcars-mode-btns">
-                        <span style="font-weight:400;font-size:0.85em;opacity:0.7">Pattern-matched operations — no LLM invocation</span>
+                        <span style="font-weight:400;font-size:0.85em;opacity:0.7">Pattern-matched operations — zero LLM cost</span>
                     </span>
                 </div>
                 <div class="lcars-panel-body">
@@ -3256,14 +3256,14 @@
                             <div class="ops-budget-values"><span>Gf + Gc combined</span></div>
                         </div>
                         <div class="ops-budget-card" style="--card-accent: #9999ff">
-                            <div class="ops-budget-agent">Mesh Deliberations</div>
+                            <div class="ops-budget-agent">Deliberations</div>
                             <div class="ops-budget-credit" id="mesh-total-gf">—</div>
-                            <div class="ops-budget-values"><span>Fluid intelligence total</span></div>
+                            <div class="ops-budget-values"><span>Claude reasoning episodes (Gf)</span></div>
                         </div>
                         <div class="ops-budget-card" style="--card-accent: #cc99cc">
-                            <div class="ops-budget-agent">Mesh Operations</div>
+                            <div class="ops-budget-agent">Crystallizations</div>
                             <div class="ops-budget-credit" id="mesh-total-gc">—</div>
-                            <div class="ops-budget-values"><span>Crystallized intelligence total</span></div>
+                            <div class="ops-budget-values"><span>Hooks + triggers + cron (Gc)</span></div>
                         </div>
                     </div>
                 </div>
@@ -4348,10 +4348,10 @@
     function getDeliberations(autonomyBlock) {
         const b = autonomyBlock || {};
         // New format: budget_spent directly gives deliberation count
-        if (b.budget_spent !== undefined) return b.budget_spent;
+        if (b.budget_spent !== undefined) return Math.round(parseFloat(b.budget_spent) || 0);
         // Old format: spent = max - current
         if (b.budget_max !== undefined && b.budget_current !== undefined) {
-            return b.budget_max - b.budget_current;
+            return Math.round((parseFloat(b.budget_max) || 0) - (parseFloat(b.budget_current) || 0));
         }
         return 0;
     }
@@ -4359,7 +4359,7 @@
     function getCutoff(autonomyBlock) {
         const b = autonomyBlock || {};
         // New format: budget_cutoff (0 = unlimited)
-        if (b.budget_cutoff !== undefined) return b.budget_cutoff;
+        if (b.budget_cutoff !== undefined) return Math.round(parseFloat(b.budget_cutoff) || 0);
         // Old format: budget_max represented pool size, NOT an operational
         // limit. Treat as unlimited (0) in counter model.
         return 0;
@@ -6445,9 +6445,9 @@
             parts.push(`${online.length}/${total} agents online${off.length ? " \u2014 " + off.join(", ") + " offline" : ""}.`);
         }
         if (totalCutoff > 0) {
-            parts.push(`Budget: ${Math.round(totalSpent)} of ${Math.round(totalCutoff)} credits used (${Math.round(totalSpent / totalCutoff * 100)}%).`);
+            parts.push(`${Math.round(totalSpent)} of ${Math.round(totalCutoff)} deliberations (${Math.round(totalSpent / totalCutoff * 100)}% of limit).`);
         } else if (withBudget.length > 0) {
-            parts.push(`Budget: ${Math.round(totalSpent)} credits spent (unlimited mode).`);
+            parts.push(`${Math.round(totalSpent)} deliberations across the mesh.`);
         }
         if (nearLimit.length > 0) {
             parts.push(`Warning: ${nearLimit.map(a => (a.data.agent_id || "").replace("-agent", "")).join(", ")} approaching budget limit.`);
@@ -6568,27 +6568,26 @@
         }, 0);
         // Estimation fallback: each deliberation fires ~24 hooks + ~5 trigger checks
         const gcEstimated = gcFromApi > 0 ? 0 : totalDelibOps * 29;
-        const gcHooks = gcFromApi > 0
+        const gcHooks = Math.round(gcFromApi > 0
             ? online.reduce((s, a) => s + (a.data?.gc_metrics?.hooks_fired ?? 0), 0)
-            : totalDelibOps * 24;
-        const gcTriggers = gcFromApi > 0
+            : totalDelibOps * 24);
+        const gcTriggers = Math.round(gcFromApi > 0
             ? online.reduce((s, a) => s + (a.data?.gc_metrics?.triggers_checked ?? 0), 0)
-            : totalDelibOps * 5;
-        const gcCron = gcFromApi > 0
+            : totalDelibOps * 5);
+        const gcCron = Math.round(gcFromApi > 0
             ? online.reduce((s, a) => s + (a.data?.gc_metrics?.cron_cycles ?? 0), 0)
-            : Math.round(totalDelibOps * 0.3);
+            : totalDelibOps * 0.3);
         const totalGc = gcHooks + gcTriggers + gcCron;
-        const gcRatio = totalDelibOps > 0 ? (totalGc / totalDelibOps).toFixed(1) : "—";
 
         setTrackedValue("gc-hooks", gcHooks || null);
         setTrackedValue("gc-triggers", gcTriggers || null);
         setTrackedValue("gc-cron", gcCron || null);
-        setTrackedValue("gc-ratio", totalDelibOps > 0 ? totalGc / totalDelibOps : null, { format: "ratio" });
+        setTrackedValue("gc-ratio", totalDelibOps > 0 ? totalGc / totalDelibOps : null, { format: "float" });
 
         // Mesh aggregate
-        setTrackedValue("mesh-total-gf", totalDelibOps);
+        setTrackedValue("mesh-total-gf", Math.round(totalDelibOps));
         setTrackedValue("mesh-total-gc", totalGc || null);
-        setTrackedValue("mesh-total-processing", totalGc > 0 ? totalDelibOps + totalGc : totalDelibOps);
+        setTrackedValue("mesh-total-processing", totalGc > 0 ? Math.round(totalDelibOps) + totalGc : Math.round(totalDelibOps));
         setTrackedValue("ops-total-actions", totalActions);
         setTrackedValue("ops-active-gates", gates);
         setTrackedValue("ops-agents-syncing", syncing, { suffix: `/${AGENTS.length}` });
