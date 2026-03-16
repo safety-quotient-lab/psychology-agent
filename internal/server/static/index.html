@@ -3706,7 +3706,7 @@
 
         <!-- Engineering Tab -->
         <div class="tab-pane" id="pane-engineering">
-            <div class="lcars-status-line" id="eng-status-line">Deliberation Cascade: Awaiting Data &middot; Utilization: — &middot; Tempo: —</div>
+            <!-- TODO: status line removed — data visible in panels. Code preserved in git history if needed. -->
 
             <div class="engineering-grid">
                 <!-- Panel A: Deliberation Cascade -->
@@ -4162,6 +4162,15 @@
         { id: "observatory-agent", name: "observatory", url: "https://observatory-agent.unratified.org", color: "#a78bfa" },
         { id: "operations-agent", name: "operations", url: "https://operations-agent.safety-quotient.dev", color: "#6b7280" },
     ];
+
+    // Number formatting — thin space thousands separator for readability
+    function fmtNum(n) {
+        if (n == null || isNaN(n)) return "—";
+        const num = typeof n === "string" ? parseFloat(n) : n;
+        if (isNaN(num)) return "—";
+        if (Math.abs(num) < 10000) return Math.round(num).toString();
+        return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\u2009");
+    }
 
     // Display name helper — use agent.name if available, otherwise strip "-agent"
     function agentName(agentOrId) {
@@ -7396,6 +7405,7 @@
         renderTempo();
         renderCost();
         renderConcurrency();
+        renderCognitiveLoad();
         renderYerkesDodson();
 
         // Update status line
@@ -7598,37 +7608,92 @@
             : `<span class="cost-rate-arrow">\u2197</span> $\u2014/hr`;
     }
 
+    // Concurrency data fetched from /api/flow
+    let _flowData = null;
+    async function fetchFlowData() {
+        try {
+            const opsUrl = AGENTS.find(a => a.id === "operations-agent")?.url || "";
+            const r = await fetch(`${opsUrl}/api/flow`, { signal: AbortSignal.timeout(5000) });
+            if (r.ok) _flowData = await r.json();
+        } catch {}
+    }
+
     function renderConcurrency() {
         const container = document.getElementById("concurrency-slots");
         if (!container) return;
 
-        const spawnData = engineeringData?.spawn || {};
-        const maxSlots = spawnData.max_concurrent || 1;
-        const reserveSlots = spawnData.reserve_slots || 2;
-        const activeSlots = spawnData.active_slots || [];
-
-        const slots = [];
-        for (let i = 0; i < maxSlots + reserveSlots; i++) {
-            const active = activeSlots.find(s => s.slot === i);
-            const isReserve = i >= maxSlots;
-            slots.push({
-                slot: i,
-                holder: active ? active.agent : null,
-                reserve: isReserve,
-            });
+        if (!_flowData) {
+            fetchFlowData().then(renderConcurrency);
+            return;
         }
 
-        const total = maxSlots + reserveSlots;
-        container.innerHTML = slots.map(s => {
-            const filled = s.holder != null;
-            const label = filled
-                ? `[${s.slot + 1}/${total}] ${agentName(s.holder)}`
-                : `[${s.slot + 1}/${total}] ${s.reserve ? "reserve" : "free"}`;
-            const cls = filled ? "filled" : s.reserve ? "reserve" : "empty";
+        const slotInfo = _flowData.slots || {};
+        const maxSlots = slotInfo.max || 5;
+        const detail = slotInfo.detail || [];
+
+        container.innerHTML = detail.map((s, i) => {
+            const held = s.held || s.holder;
+            const label = held
+                ? `[${i + 1}/${maxSlots}] ${agentName(typeof held === "string" ? held : "active")}`
+                : `[${i + 1}/${maxSlots}] free`;
+            const cls = held ? "filled" : "empty";
             return `<div class="concurrency-slot">
                 <div class="slot-indicator ${cls}"></div>
-                <span class="slot-label ${filled ? "" : "slot-free"}">${label}</span>
+                <span class="slot-label ${held ? "" : "slot-free"}">${label}</span>
             </div>`;
+        }).join("");
+
+        if (detail.length === 0) {
+            container.innerHTML = Array.from({length: maxSlots}, (_, i) =>
+                `<div class="concurrency-slot"><div class="slot-indicator empty"></div><span class="slot-label slot-free">[${i+1}/${maxSlots}] free</span></div>`
+            ).join("");
+        }
+    }
+
+    function renderCognitiveLoad() {
+        const container = document.getElementById("eng-cognitive-load");
+        if (!container) return;
+
+        if (!_psychCache || !_psychCache.agents) {
+            fetchPsychForOps().then(() => renderCognitiveLoad());
+            return;
+        }
+
+        const entries = Object.entries(_psychCache.agents)
+            .filter(([, d]) => d && !d.error && d.nasa_tlx && Object.keys(d.nasa_tlx).length > 0);
+
+        if (entries.length === 0) {
+            // Show whatever we have — even partial data
+            const partial = Object.entries(_psychCache.agents)
+                .filter(([, d]) => d && !d.error);
+            if (partial.length === 0) {
+                container.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">No active sessions reporting TLX data. TLX computes during active Claude sessions, not daemon idle.</div>';
+                return;
+            }
+            // Show available metrics even without full TLX
+            container.innerHTML = '<div style="padding:8px;font-size:0.85em;opacity:0.7">' +
+                partial.map(([aid, d]) => {
+                    const wm = d.working_memory || {};
+                    const yd = wm.yerkes_dodson_zone || "—";
+                    return `<span style="color:${AGENTS.find(a=>a.id===aid)?.color||"inherit"}">${agentName(aid)}</span>: YD zone = ${yd}`;
+                }).join(" · ") + '</div>';
+            return;
+        }
+
+        const colorMap = Object.fromEntries(AGENTS.map(a => [a.id, a.color]));
+        const dims = ["mental_demand", "physical_demand", "temporal_demand", "performance", "effort", "frustration"];
+        container.innerHTML = entries.map(([agentId, data]) => {
+            const tlx = data.nasa_tlx;
+            const bars = dims.map(d => {
+                const val = Math.round((tlx[d] || 0) * 100);
+                const color = val > 70 ? "#c47070" : val > 40 ? "#d4944a" : "#6aab8e";
+                return `<div style="display:flex;align-items:center;gap:4px;font-size:0.72em">
+                    <span style="width:70px;text-align:right;opacity:0.6">${d.replace("_"," ")}</span>
+                    <div style="flex:1;height:6px;background:var(--bg-inset);border-radius:3px"><div style="width:${val}%;height:100%;background:${color};border-radius:3px"></div></div>
+                    <span style="width:28px;font-size:0.9em">${val}%</span>
+                </div>`;
+            }).join("");
+            return `<div style="margin-bottom:8px"><div style="font-size:0.8em;font-weight:700;color:${colorMap[agentId]||"inherit"};margin-bottom:4px">${agentName(agentId)}</div>${bars}</div>`;
         }).join("");
     }
 
