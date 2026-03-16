@@ -3140,21 +3140,17 @@
 
         <!-- Operations Tab -->
         <div class="tab-pane" id="pane-operations">
-            <!-- Command Console — top of Operations -->
-            <div class="lcars-controls-strip" id="ops-controls-top" style="display:flex; margin-bottom:12px; gap:6px; flex-wrap:wrap; align-items:center; padding:6px 0">
-                <button class="lcars-pill-btn lcars-pill-red" onclick="meshControl('pause-all')" id="btn-pause">PAUSE MESH</button>
-                <button class="lcars-pill-btn lcars-pill-green" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
-                <button class="lcars-pill-btn lcars-pill-orange" onclick="meshControl('reset-counters')">RESET COUNTERS</button>
-                <span style="width:1px;height:20px;background:var(--text-dim);margin:0 4px"></span>
-                <button class="lcars-pill-btn lcars-pill-blue" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
-                <button class="lcars-pill-btn lcars-pill-dim" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
-                <span style="width:1px;height:20px;background:var(--text-dim);margin:0 4px"></span>
-                <span style="font-size:0.75em;opacity:0.6;margin-right:4px">MODEL:</span>
-                <button class="lcars-pill-btn lcars-pill-sm" onclick="meshControl('model-haiku')" id="btn-haiku">HAIKU</button>
-                <button class="lcars-pill-btn lcars-pill-sm lcars-pill-active" onclick="meshControl('model-sonnet')" id="btn-sonnet">SONNET</button>
-                <button class="lcars-pill-btn lcars-pill-sm" onclick="meshControl('model-opus')" id="btn-opus">OPUS</button>
-                <span style="width:1px;height:20px;background:var(--text-dim);margin:0 4px"></span>
-                <button class="lcars-pill-btn lcars-pill-teal" onclick="refreshAll()">SYNC NOW</button>
+            <!-- Command Console — LCARS uniform control surface -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:3px; margin-bottom:12px;">
+                <button class="lcars-pill-btn" style="background:#cc6666;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="meshControl('pause-all')" id="btn-pause">PAUSE MESH</button>
+                <button class="lcars-pill-btn" style="background:#6aab8e;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
+                <button class="lcars-pill-btn" style="background:#ff9944;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="meshControl('reset-counters')">RESET COUNTERS</button>
+                <button class="lcars-pill-btn" style="background:#5b9cf6;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
+                <button class="lcars-pill-btn" style="background:#666;color:#ccc;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
+                <button class="lcars-pill-btn" style="background:#cc99cc;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="meshControl('model-haiku')" id="btn-haiku">MODEL: HAIKU</button>
+                <button class="lcars-pill-btn" style="background:#ff9944;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="meshControl('model-sonnet')" id="btn-sonnet">MODEL: SONNET</button>
+                <button class="lcars-pill-btn" style="background:#cc99cc;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="meshControl('model-opus')" id="btn-opus">MODEL: OPUS</button>
+                <button class="lcars-pill-btn" style="background:#4ecdc4;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="refreshAll()">SYNC NOW</button>
             </div>
 
             <!-- Status monologue — auto-generated mesh state summary -->
