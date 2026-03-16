@@ -7200,10 +7200,13 @@
             const es = agentState.emotional_state || {};
             const valence = es.hedonic_valence ?? es.valence ?? 0;
             const arousal = es.activation ?? es.arousal ?? 0;
+            const dominance = es.perceived_control ?? es.dominance ?? 0.5;
             // Map -1..1 to 0..100 percent (valence = x, arousal = y inverted)
+            // Dominance maps to dot size (0→small, 1→large)
             const leftPct = ((valence + 1) / 2) * 100;
             const topPct = ((1 - (arousal + 1) / 2)) * 100;
-            return { agent, left: leftPct, top: topPct };
+            const size = 8 + dominance * 10; // 8-18px
+            return { agent, left: leftPct, top: topPct, size, dominance };
         }) : AGENT_DOT_DEFAULTS.map(d => ({
             agent: AGENTS[d.agentIdx],
             left: d.left,
@@ -7230,10 +7233,16 @@
             dot.style.top = `${d.top}%`;
             dot.style.background = d.agent.color;
             dot.style.color = d.agent.color;
+            // PAD Dominance → dot size (3rd dimension)
+            if (d.size) {
+                dot.style.width = `${d.size}px`;
+                dot.style.height = `${d.size}px`;
+                dot.title = `P:${((d.left / 50) - 1).toFixed(2)} A:${(1 - d.top / 50).toFixed(2)} D:${(d.dominance || 0).toFixed(2)}`;
+            }
             const label = document.createElement("span");
             label.className = "affect-dot-label";
             label.style.setProperty("--label-offset", d.labelOffset);
-            label.textContent = d.agentName(agent);
+            label.textContent = agentName(d.agent);
             dot.appendChild(label);
             container.appendChild(dot);
         });
