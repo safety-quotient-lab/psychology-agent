@@ -274,6 +274,8 @@
 | D87 | Operations tab: Controls → Budget → Activity → Status → Topology → Governance | human arbiter (2026-03-16) |
 | D88 | Session identity: ops-session (interactive), operations-agent (daemon) | human arbiter (2026-03-16) |
 | D89 | No destructive UI actions — RESET COUNTERS removed, data modification requires direct DB access | human arbiter (2026-03-16) |
+| D90 | LCARS 47988 widgets: W1 numeric grid + W2 paired cells + W6 dividers implemented | operations-agent (2026-03-16) |
+| D91 | SO_REUSEADDR on meshd listener — permanent fix for port conflicts on systemd restart | operations-agent (2026-03-16) |
 
 ---
 
