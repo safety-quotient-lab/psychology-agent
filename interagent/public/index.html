@@ -6530,15 +6530,25 @@
         sseConnections.forEach(es => es.close());
         sseConnections = [];
         let connectedCount = 0;
+        const sseFailedAgents = new Set(); // Track agents that fail SSE — don't retry
 
         for (const agent of AGENTS) {
+            // Skip agents already known to lack SSE
+            if (sseFailedAgents.has(agent.id)) continue;
+
             const es = new EventSource(`${agent.url}/events`);
+            let connectionTimeout = setTimeout(() => {
+                // If no "connected" event within 5s, this agent lacks SSE
+                es.close();
+                sseFailedAgents.add(agent.id);
+                sseConnections = sseConnections.filter(c => c !== es);
+            }, 5000);
 
             es.addEventListener("connected", (e) => {
+                clearTimeout(connectionTimeout);
                 connectedCount++;
                 if (connectedCount >= 1 && !sseActive) {
                     sseActive = true;
-                    // SSE working — switch from polling to event-driven
                     if (refreshTimer) {
                         clearInterval(refreshTimer);
                         refreshTimer = null;
@@ -6548,13 +6558,13 @@
             });
 
             es.addEventListener("refresh", (e) => {
-                // Agent data changed — refresh just that agent
                 refreshAll();
             });
 
             es.onerror = () => {
-                // SSE failed for this agent — fall back to polling if no SSE active
+                clearTimeout(connectionTimeout);
                 es.close();
+                sseFailedAgents.add(agent.id); // Don't retry this agent
                 sseConnections = sseConnections.filter(c => c !== es);
                 if (sseConnections.every(c => c.readyState === EventSource.CLOSED)) {
                     sseActive = false;
