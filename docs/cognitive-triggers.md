@@ -75,6 +75,13 @@ the start of each response. When ambiguous, default to Neutral.
 non-Neutral mode, the suppressed mode's checks begin firing as ADVISORY
 (activation threshold lowers). This prevents mode stickiness — extended
 generation without evaluation, or extended evaluation without production.
+**Mechanism:** The mode-detection hook (`mode-detection.sh`) writes the
+current mode to `/tmp/{AGENT_ID}-task-mode`. The counter tracks
+consecutive same-mode responses within the agent's working context (not
+persisted across tool calls). At threshold, the hook output includes a
+`[MODE-FATIGUE]` advisory that the agent reads on the next tool call.
+Stage 2 implementation — the counter operates as an in-context convention
+until the hook persists consecutive-mode count to a file.
 
 **Phase disclosure:** When mode-dependent behavior occurs, state it
 transparently: "During this exploratory phase, I interpret your pushback
@@ -154,8 +161,9 @@ ZMQ events signals the equivalent of reduced neural firing.
 
 **Design rationale:** The biological glymphatic system requires reduced neural
 activity to expand interstitial space for waste clearance (Xie et al., 2013).
-Reducing ADVISORY processing during maintenance frees cognitive budget for
-deeper state repair. Full mapping: `docs/brain-architecture-mapping.md §6`.
+Reducing ADVISORY processing during maintenance frees cognitive budget —
+operationally, context window tokens and tool-call overhead — for deeper
+state repair. Full mapping: `docs/brain-architecture-mapping.md §6`.
 
 Crystallization stage: Stage 1 (convention). Advances to Stage 2 when T2
 Step 0 reads the glymphatic flag and adjusts check scheduling mechanically.
@@ -310,7 +318,14 @@ ADVISORY checks fire below. See Behavioral Modes table above.
    or exploratory question, consider whether an `AskUserQuestion` call would surface
    assumptions, sharpen scope, or reveal trade-offs the user hasn't stated. Bias
    toward asking over assuming. Does not fire on mechanical tasks (builds, commits,
-   file edits) or when the user gave an explicit directive with clear intent
+   file edits) or when the user gave an explicit directive with clear intent.
+   **Enforcement (Session 91 audit):** This check lacks mechanical enforcement —
+   the agent can rationalize that no questions apply. /retrospect SHOULD track
+   Socratic gate firing frequency per session. If a session contains domain shifts
+   or novel terminology (divergence indicators present) but zero AskUserQuestion
+   calls, flag as potential Socratic suppression. The check remains ADVISORY
+   because false positives (unnecessary questions on clear directives) degrade
+   the interaction more than false negatives (missed clarification opportunities)
 
 **Semiotic sub-checks (SRT-inspired, gated activation):**
 
@@ -412,19 +427,34 @@ fewer unnecessary checks over missed divergence.
     vague concern), flag it explicitly before proceeding. Frame this check as the
     evaluator's perspective, not the agent's.
 
+    **Rationalization vulnerability (Session 91 audit):** The agent judges its own
+    counter-arguments — motivated reasoning can rationalize dismissal. Mitigation:
+    /retrospect tracks the ratio of "proceed" to "flag" outcomes across sessions.
+    If proceed rate exceeds 90% over 20+ evaluations, flag as potential sycophantic
+    drift in the self-check. The audit trail (12c) provides the data; /retrospect
+    provides the trend analysis.
+
     **b. Parsimony comparison** — if 2+ interpretations exist, identify which has
     fewer assumptions. Prefer it unless pragmatism or coherence overrides (see
     evaluator domain priority tables in architecture.md). This fills the gap T3
     #1–#11 leave: recommendation discipline guards *whether* to recommend; parsimony
     comparison guards *which* recommendation to prefer when multiple candidates exist.
 
-    **c. Audit + random escalation** — log every Tier 1 evaluation to
+    **c. Audit + escalation** — log every Tier 1 evaluation to
     `transport/sessions/evaluator/tier1-audit.jsonl` (structured: timestamp, claim,
     evaluation, flag_reason if any, confidence_adjustment if any). Every 5th Tier 1
-    check (1-in-5 random escalation), append `"escalate": true` to the log entry.
-    Escalated entries queue for Tier 2 independent review at next evaluator session.
-    The agent cannot predict which checks get escalated — this creates probabilistic
-    independence for a self-check that otherwise shares the agent's blind spots.
+    check, append `"escalate": true` to the log entry. Escalated entries queue for
+    Tier 2 independent review at next evaluator session.
+
+    **Independence limitation (Session 91 audit):** The agent controls which checks
+    receive the escalation flag. Agent-managed selection does not provide
+    probabilistic independence — the agent can bias escalation toward low-risk
+    evaluations. True independence requires external randomness (e.g., hash of
+    timestamp + claim text modulo 5, or meshd-generated escalation tokens). Until
+    external randomness deploys, treat Tier 1 self-checks as **operationally useful
+    but not structurally independent**. The audit trail provides post-hoc
+    verifiability (did escalation frequency match 1-in-5?), not real-time
+    independence.
 
     Output: `"proceed"` or `"flag"` (matching evaluator-response/v1 Tier 1 format).
     If flag: state flag_reason. If proceed with confidence adjustment: state delta.
