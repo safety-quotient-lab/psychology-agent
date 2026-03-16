@@ -38,26 +38,23 @@ if [ "$saved" -eq 0 ]; then
     exit 1
 fi
 
-# Kill all meshd processes by PID (not pkill -f, which can match this script)
-for pid in $(pgrep -f "$MESHD_PATTERN"); do
-    echo "  Killing pid $pid"
-    kill -9 "$pid" 2>/dev/null
-done
-
-# Wait for processes to fully terminate and ports to release
-for i in 1 2 3 4 5; do
-    remaining=$(pgrep -f "$MESHD_PATTERN" -c 2>/dev/null || echo 0)
-    if [ "$remaining" -eq 0 ]; then break; fi
-    echo "  Waiting for $remaining processes to terminate ($i/5)..."
-    sleep 2
-done
-
-remaining=$(pgrep -f "$MESHD_PATTERN" -c 2>/dev/null || echo 0)
-if [ "$remaining" -gt 0 ]; then
-    echo "  FORCE: $remaining processes survived — killing again"
-    pgrep -f "$MESHD_PATTERN" | xargs kill -9 2>/dev/null
+# Kill ALL meshd processes (iterative until zero remain)
+for attempt in 1 2 3; do
+    pids=$(pgrep -f "$MESHD_PATTERN" 2>/dev/null || true)
+    if [ -z "$pids" ]; then break; fi
+    echo "  Kill attempt $attempt: $(echo "$pids" | wc -w | tr -d ' ') processes"
+    echo "$pids" | xargs kill -9 2>/dev/null
     sleep 3
+done
+
+# Final verification
+remaining=$(pgrep -f "$MESHD_PATTERN" -c 2>/dev/null || echo "0")
+remaining=$(echo "$remaining" | tr -d '[:space:]')
+if [ "$remaining" != "0" ]; then
+    echo "  ERROR: $remaining processes still running after 3 kill attempts"
+    exit 1
 fi
+echo "  All meshd processes terminated"
 
 # Relaunch from saved commands
 echo "  Relaunching..."
