@@ -185,27 +185,53 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
    ████████ ╭ ← black quarter-circle
    ████████╯
 */
-.lcars-elbow-connector-top {
-    width: calc(100% + var(--elbow-inner, 24px)); /* extends into content area */
-    height: var(--elbow-inner, 24px);
-    flex-shrink: 0;
-    background: radial-gradient(
-        circle at 100% 100%,
-        transparent 0%,
-        transparent calc(var(--elbow-inner, 24px) - 1px),
-        var(--c-knowledge) var(--elbow-inner, 24px)
-    );
-}
+/* ── Elbow connectors — grid-placed at content area corners ──── */
+/* Colored square with quarter-circle transparent cutout.
+   Placed in content column (2), aligned to header/footer boundary.
+
+   Top connector:   ╮  cutout at top-left (circle at 0% 0%)
+                    █  structural color fills remaining 3 quadrants
+
+   Bottom connector: █  structural color fills remaining 3 quadrants
+                     ╯  cutout at bottom-left (circle at 0% 100%)
+*/
+.lcars-elbow-connector-top,
 .lcars-elbow-connector-bottom {
-    width: calc(100% + var(--elbow-inner, 24px)); /* extends into content area */
+    display: none; /* hidden in dark/light */
+}
+.theme-lcars .lcars-elbow-connector-top {
+    display: block;
+    grid-column: 2;
+    grid-row: 2; /* content row — sits at very top */
+    width: var(--elbow-inner, 24px);
     height: var(--elbow-inner, 24px);
-    flex-shrink: 0;
+    align-self: start;
+    z-index: 10;
+    pointer-events: none;
     background: radial-gradient(
-        circle at 100% 0%,
+        circle at 0% 0%,
         transparent 0%,
         transparent calc(var(--elbow-inner, 24px) - 1px),
         var(--c-knowledge) var(--elbow-inner, 24px)
     );
+    margin-top: calc(var(--elbow-inner, 24px) * -1); /* pull up to overlap header/content boundary */
+}
+.theme-lcars .lcars-elbow-connector-bottom {
+    display: block;
+    grid-column: 2;
+    grid-row: 2; /* content row — sits at very bottom */
+    width: var(--elbow-inner, 24px);
+    height: var(--elbow-inner, 24px);
+    align-self: end;
+    z-index: 10;
+    pointer-events: none;
+    background: radial-gradient(
+        circle at 0% 100%,
+        transparent 0%,
+        transparent calc(var(--elbow-inner, 24px) - 1px),
+        var(--c-knowledge) var(--elbow-inner, 24px)
+    );
+    margin-bottom: calc(var(--elbow-inner, 24px) * -1); /* pull down to overlap content/footer boundary */
 }
 
 /* Alert: connectors follow structural chrome */
