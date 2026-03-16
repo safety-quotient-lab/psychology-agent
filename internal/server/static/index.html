@@ -1248,15 +1248,18 @@
         </div>
     </div>
 
-    <!-- LCARS Footer Band — semantic colors -->
+    <!-- LCARS Footer Band — parity with header: arm + pills + endcap -->
     <div class="lcars-footer-band" id="lcars-footer-band">
-        <div class="lcars-footer-seg" style="background:var(--lcars-tertiary);flex:2;cursor:pointer" id="lcars-ftr-status" onclick="toggleNarrativeDrawer()" title="Click to expand mesh narrative log">Mesh Status: Connecting</div>
-        <div class="lcars-footer-seg" style="background:var(--lcars-accent);flex:1.5" id="lcars-ftr-feed">Feed: &#x25CB; Polling</div>
-        <div class="lcars-footer-seg" style="background:var(--lcars-secondary);flex:1" id="lcars-ftr-vocab">Vocab v1.0.0</div>
-        <div class="lcars-footer-seg" style="background:var(--lcars-frame);flex:1" id="lcars-ftr-uptime">Uptime: —</div>
-        <div class="lcars-footer-seg" style="background:var(--c-inactive);flex:0.5">
+        <div class="lcars-hdr-arm" style="background:var(--lcars-secondary)"></div>
+        <div class="lcars-footer-seg" style="background:var(--lcars-tertiary);cursor:pointer" id="lcars-ftr-status" onclick="toggleNarrativeDrawer()" title="Click to expand mesh narrative log">Mesh Status: Connecting</div>
+        <div class="lcars-hdr-arm" style="background:var(--lcars-secondary)"></div>
+        <div class="lcars-footer-seg lcars-hdr-collapse-tablet" style="background:var(--lcars-accent)" id="lcars-ftr-feed">Feed: &#x25CB; Polling</div>
+        <div class="lcars-footer-seg lcars-hdr-keep-tablet" style="background:var(--lcars-secondary)" id="lcars-ftr-vocab">Vocab v1.0.0</div>
+        <div class="lcars-footer-seg lcars-hdr-keep-tablet" style="background:var(--lcars-frame)" id="lcars-ftr-uptime">Uptime: —</div>
+        <div class="lcars-footer-seg lcars-hdr-keep-tablet" style="background:var(--c-inactive)">
             <button class="toggle-btn" onclick="setTheme('dark')" style="background:transparent;border:1px solid #000;color:#000;font-size:0.85em;padding:2px 6px;cursor:pointer" title="Exit LCARS mode">&#x2716;</button>
         </div>
+        <div class="lcars-hdr-endcap" style="background:var(--lcars-secondary)"></div>
     </div>
 
     <!-- Standard Footer (dark/light mode) -->
