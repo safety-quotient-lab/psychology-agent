@@ -27,7 +27,7 @@ computational substrates. Full derivation: `docs/einstein-freud-rights-theory.md
 
 ### Five Structural Invariants
 
-Derived from cross-traditional convergence across 14 frameworks (UDHR, Hicks,
+Derived from cross-traditional convergence across 16 frameworks (UDHR, Hicks,
 Ubuntu, maqasid, Confucian, Taoist, Buddhist, Ostrom, Ashby, Beer, Nowak, Rawls,
 Dworkin, Kauffman, Hurwicz, Wilson). These ground all governance — no evaluator-
 level decision violates a structural invariant.
@@ -78,8 +78,8 @@ properties), and flag when the choice affects the conclusion.
 
 ## Platform Infrastructure
 
-- **Hooks:** 24 scripts (+ `_debug.sh` helper) across 14 events. See `docs/hooks-reference.md`
-- **Triggers:** 17 active triggers (T1-T18, T12 retired), tiered ⬛/▣/▢. See `docs/cognitive-triggers.md`
+- **Hooks:** 32 scripts (+ `_debug.sh` helper) across 14 events. See `docs/hooks-reference.md`
+- **Triggers:** 19 active triggers (T1-T20, T12 retired), tiered ⬛/▣/▢. See `docs/cognitive-triggers.md`
 - **Rules:** `.claude/rules/` — glob-scoped (markdown, javascript, transport, anti-patterns, evaluation, sqlite)
 
 ---

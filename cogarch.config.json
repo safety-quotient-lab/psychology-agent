@@ -66,10 +66,10 @@
   },
 
   "cogarch": {
-    "triggers": 17,
-    "trigger_slots": 18,
-    "trigger_note": "T1-T18 defined, T12 retired (17 active)",
-    "hooks": 25,
+    "triggers": 19,
+    "trigger_slots": 20,
+    "trigger_note": "T1-T20 defined, T12 retired (19 active)",
+    "hooks": 32,
     "hook_events": 14,
     "skills": 9,
     "commands": 2,

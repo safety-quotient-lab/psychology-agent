@@ -217,7 +217,7 @@
     {
       "id": "psq-scoring",
       "name": "PSQ Scoring",
-      "description": "Psychoemotional Safety Quotient scoring via PSQ sub-agent",
+      "description": "Psychological Safety Quotient scoring via PSQ sub-agent",
       "tags": [
         "psq",
         "safety",
@@ -321,7 +321,7 @@
     },
     {
       "agent_id": "psq-agent",
-      "description": "PSQ (Psychoemotional Safety Quotient) scoring peer agent",
+      "description": "PSQ (Psychological Safety Quotient) scoring peer agent",
       "discovery_url": "https://psq.safety-quotient.dev/.well-known/agent-card.json",
       "repo": "safety-quotient-lab/safety-quotient"
     },
