@@ -3228,7 +3228,7 @@
                             <div class="ops-budget-values"><span>17 active (T1-T18, T12 retired)</span></div>
                         </div>
                         <div class="ops-budget-card" style="--card-accent: #ff9900">
-                            <div class="ops-budget-agent">Cron Cycles</div>
+                            <div class="ops-budget-agent">Tempo Cycles</div>
                             <div class="ops-budget-credit" id="gc-cron">—</div>
                             <div class="ops-budget-values"><span>Heartbeat + sync + maintenance</span></div>
                         </div>
@@ -3263,7 +3263,7 @@
                         <div class="ops-budget-card" style="--card-accent: #cc99cc">
                             <div class="ops-budget-agent">Crystallizations</div>
                             <div class="ops-budget-credit" id="mesh-total-gc">—</div>
-                            <div class="ops-budget-values"><span>Hooks + triggers + cron (Gc)</span></div>
+                            <div class="ops-budget-values"><span>Hooks + triggers + tempo (Gc)</span></div>
                         </div>
                     </div>
                 </div>
@@ -3292,9 +3292,9 @@
                 </div>
             </div>
 
-            <!-- Sync Schedule -->
+            <!-- Agent Sync Status -->
             <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Sync Schedule</div>
+                <div class="lcars-panel-header">Agent Status</div>
                 <div class="lcars-panel-body" id="ops-schedule"></div>
             </div>
 
@@ -6747,24 +6747,21 @@
             if (!isOnline) {
                 statusClass = "ops-schedule-offline";
                 statusLabel = "OFFLINE";
-            } else if (sched.cron_entry) {
-                statusClass = "ops-schedule-active";
-                statusLabel = "ACTIVE";
             } else {
-                statusClass = "ops-schedule-stale";
-                statusLabel = "NO CRON";
+                statusClass = "ops-schedule-active";
+                statusLabel = "ONLINE";
             }
 
-            const cronText = sched.cron_entry || "—";
-            const lastSync = sched.last_sync ? sched.last_sync.substring(5, 16).replace("T", " ") : "—";
+            const uptime = d?.data?.uptime || "—";
+            const health = d?.data?.health || "—";
             const agentLabel = agent.id.replace("-agent", "");
 
             html += `<div class="ops-schedule-row">
                 <div class="ops-schedule-agent" style="color:${agent.color}">${agentLabel}</div>
                 <div class="ops-schedule-detail">
-                    <span style="color:var(--text-dim)">cron:</span> ${cronText}
+                    <span style="color:var(--text-dim)">uptime:</span> ${uptime}
                     &nbsp;&nbsp;
-                    <span style="color:var(--text-dim)">last:</span> ${lastSync}
+                    <span style="color:var(--text-dim)">health:</span> ${health}
                 </div>
                 <span class="ops-schedule-status ${statusClass}">${statusLabel}</span>
             </div>`;
