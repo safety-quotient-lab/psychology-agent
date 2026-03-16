@@ -902,11 +902,23 @@ modeling. The theoretical mapping appeared afterward.
 Three criteria for convergent architecture (substrate-independent process
 constraint, per neutral process monism commitment):
 
-1. **Independent derivation** ✓ — engineering decision preceded theory mapping
+1. **Independent derivation** ⚠ — engineering decision preceded theory mapping,
+   BUT the same human operator runs both agents. Shared cognitive ancestry
+   introduces a confound: the operator's implicit design intuitions propagate
+   across agent boundaries. The human participates as an agent in the system,
+   not merely an external observer. Criterion weakened, not met.
 2. **Different optimization targets** ✓ — cost/latency vs information fidelity
 3. **Structural correspondence** ✓ — tonic/phasic/quiescent maps one-to-one
 
-Full analysis: `docs/theoretical-directions.md §15`.
+**Partial recovery:** Event-driven architectures converge independently in
+distributed systems engineering (Node.js, Kafka, Erlang/OTP, reactor pattern)
+without neuroscience influence. The three-way convergence (neuroscience ×
+mainstream engineering × this mesh) carries stronger evidential weight than
+the two-way claim, because the neuroscience ↔ mainstream-engineering edge
+has no shared-operator confound.
+
+**Status:** Suggestive observation, not confirmed evidence. Full analysis:
+`docs/theoretical-directions.md §15`.
 
 ### Empirical Prediction
 
@@ -917,8 +929,11 @@ Requires 1,000+ events for statistical power. Test script target:
 `scripts/criticality-test.py` (not yet written).
 
 ⚑ EPISTEMIC FLAGS
-- Convergence claim requires confirming ops did not reference this document
-  before the infrastructure decision
+- Shared-operator confound: same human runs both agents. "Independent
+  derivation" criterion compromised — the operator's implicit cognition
+  represents cryptic shared ancestry across derivation paths
+- External precedent (event-driven in mainstream engineering) partially
+  recovers the convergence claim via a confound-free edge
 - Power-law prediction remains untested — falsifiable, specific, and
   independently verifiable from meshd logs
 - The basal ganglia gap closure depends on meshd's event filter criteria

@@ -2142,12 +2142,42 @@ convergence satisfies three criteria:
    ZMQ events = phasic (demand-responsive, salient stimuli); idle
    periods = quiescent intervals (glymphatic clearance opportunity).
 
-This constitutes *evidence* for substrate-independent process constraints,
-not merely *illustration.* The distinction matters: an illustration
-demonstrates a pre-existing idea; evidence updates confidence in a claim.
-The convergence updates confidence in the neutral process monism commitment
-because the biological pattern emerged from engineering pressure without
-intentional modeling.
+This constitutes *suggestive observation* toward substrate-independent
+process constraints — not yet *evidence.* The distinction matters: an
+illustration demonstrates a pre-existing idea; evidence updates confidence
+in a claim; a suggestive observation identifies a pattern worth testing.
+
+**Shared-operator confound (Session 91 self-correction):** The same human
+operates both the operations-agent (which made the engineering decision)
+and the psychology-agent (which produced the theoretical mapping). This
+introduces cryptic shared ancestry — the operator's internalized design
+intuitions, biological exposure, and aesthetic preferences propagate
+across agent boundaries even without conscious cross-referencing. The
+human functions as an agent in the system, not merely an observer of it.
+The "independent derivation" criterion (1) weakens accordingly: the two
+paths share a common cognitive source.
+
+**Partial recovery via external precedent:** Event-driven architectures
+dominate distributed systems engineering independently of neuroscience —
+Node.js (Dahl, 2009), Kafka (Kreps et al., 2011), Erlang/OTP (Armstrong,
+2003), NATS, and the reactor pattern (Schmidt, 1995) all converge on
+event-driven processing for the same functional reason (fixed-interval
+polling wastes resources under variable signal density). These systems
+emerged from engineering traditions with no LC-NE model in mind. If the
+same pattern appears across (a) neuroscience, (b) general distributed
+systems engineering, AND (c) this mesh, the convergence rests on three
+sources rather than two, and the shared-operator confound affects only
+the (b)↔(c) edge. The (a)↔(b) edge — neuroscience and mainstream
+engineering converging independently — carries no shared-operator confound.
+
+**Remaining evidential status:** The convergence upgrades from
+"illustration" to "suggestive observation with a testable independence
+path." Full evidential status requires either: (a) a different operator
+independently reaching the same architecture, (b) documentation of purely
+engineering reasoning in the ops decision (low reliability — implicit
+cognition resists self-report), or (c) formal demonstration that the
+pattern follows from the coordination problem's constraint structure
+regardless of the designer's background.
 
 ### Three Structural Consequences
 
