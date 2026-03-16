@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -203,10 +204,23 @@ func (s *Server) ListenAndServe() error {
 
 	addr := fmt.Sprintf("127.0.0.1:%d", s.Config.Port)
 	s.httpServer = &http.Server{
-		Addr:              addr,
 		Handler:           s.middleware(mux),
 		ReadHeaderTimeout: 10 * time.Second,
 		IdleTimeout:       60 * time.Second,
+	}
+
+	// Use SO_REUSEADDR to prevent "address already in use" on restart.
+	// Allows binding even when the old socket lingers in TIME_WAIT.
+	lc := net.ListenConfig{
+		Control: func(network, address string, c syscall.RawConn) error {
+			return c.Control(func(fd uintptr) {
+				syscall.SetsockoptInt(int(fd), syscall.SOL_SOCKET, syscall.SO_REUSEADDR, 1)
+			})
+		},
+	}
+	ln, err := lc.Listen(context.Background(), "tcp", addr)
+	if err != nil {
+		return fmt.Errorf("listen %s failed: %w", addr, err)
 	}
 
 	// Listen for shutdown signals.
@@ -216,7 +230,7 @@ func (s *Server) ListenAndServe() error {
 	errCh := make(chan error, 1)
 	go func() {
 		s.logger.Info("meshd server starting", "addr", addr, "version", Version)
-		if err := s.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := s.httpServer.Serve(ln); err != nil && err != http.ErrServerClosed {
 			errCh <- err
 		}
 		close(errCh)

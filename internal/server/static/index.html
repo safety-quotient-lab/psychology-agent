@@ -3154,31 +3154,35 @@
 
         <!-- Operations Tab -->
         <div class="tab-pane" id="pane-operations">
-            <!-- Command Console — grouped control stacks -->
-            <div style="display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
-                <!-- Mesh State (red/green family) -->
-                <div style="display:flex; flex-direction:column; gap:3px; min-width:120px;">
-                    <button class="lcars-pill-btn ops-ctrl" style="background:#cc6666" onclick="meshControl('pause-all')" id="btn-pause">PAUSE</button>
-                    <button class="lcars-pill-btn ops-ctrl ops-ctrl-active" style="background:#6aab8e" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
+            <!-- Status + Controls side by side -->
+            <div style="display:flex; gap:16px; margin-bottom:12px; flex-wrap:wrap;">
+                <!-- Status (left, fills available space) -->
+                <div class="lcars-panel" style="flex:1; min-width:240px; --panel-accent:var(--c-health)">
+                    <div class="lcars-panel-header">Status</div>
+                    <div class="lcars-panel-body" id="ops-status-monologue" style="font-size:0.88rem; line-height:1.6; padding:0.5rem 0.8rem; opacity:0.92;">
+                        Collecting mesh state...
+                    </div>
                 </div>
-                <!-- Capacity (blue family) -->
-                <div style="display:flex; flex-direction:column; gap:3px; min-width:120px;">
-                    <button class="lcars-pill-btn ops-ctrl" style="background:#5b9cf6" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
-                    <button class="lcars-pill-btn ops-ctrl ops-ctrl-active" style="background:#3a6ca8" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
-                </div>
-                <!-- Model Tier (warm family) -->
-                <div style="display:flex; flex-direction:column; gap:3px; min-width:120px;">
-                    <button class="lcars-pill-btn ops-ctrl ops-model-btn" style="background:#cc99cc" onclick="meshControl('model-haiku')" id="btn-haiku">HAIKU</button>
-                    <button class="lcars-pill-btn ops-ctrl ops-model-btn ops-ctrl-active" style="background:#ff9944" onclick="meshControl('model-sonnet')" id="btn-sonnet">SONNET</button>
-                    <button class="lcars-pill-btn ops-ctrl ops-model-btn" style="background:#cc99cc" onclick="meshControl('model-opus')" id="btn-opus">OPUS</button>
-                </div>
-                <!-- Actions (teal — standalone) -->
-                <div style="display:flex; flex-direction:column; gap:3px; min-width:120px;">
-                    <button class="lcars-pill-btn ops-ctrl" style="background:#4ecdc4" onclick="refreshAll()">SYNC NOW</button>
+                <!-- Controls (right, grouped stacks) -->
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <div style="display:flex; flex-direction:column; gap:3px; min-width:110px;">
+                        <button class="lcars-pill-btn ops-ctrl" style="background:#cc6666" onclick="meshControl('pause-all')" id="btn-pause">PAUSE</button>
+                        <button class="lcars-pill-btn ops-ctrl ops-ctrl-active" style="background:#6aab8e" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:3px; min-width:110px;">
+                        <button class="lcars-pill-btn ops-ctrl" style="background:#5b9cf6" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
+                        <button class="lcars-pill-btn ops-ctrl ops-ctrl-active" style="background:#3a6ca8" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:3px; min-width:110px;">
+                        <button class="lcars-pill-btn ops-ctrl ops-model-btn" style="background:#cc99cc" onclick="meshControl('model-haiku')" id="btn-haiku">HAIKU</button>
+                        <button class="lcars-pill-btn ops-ctrl ops-model-btn ops-ctrl-active" style="background:#ff9944" onclick="meshControl('model-sonnet')" id="btn-sonnet">SONNET</button>
+                        <button class="lcars-pill-btn ops-ctrl ops-model-btn" style="background:#cc99cc" onclick="meshControl('model-opus')" id="btn-opus">OPUS</button>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:3px; min-width:110px;">
+                        <button class="lcars-pill-btn ops-ctrl" style="background:#4ecdc4" onclick="refreshAll()">SYNC NOW</button>
+                    </div>
                 </div>
             </div>
-
-            <!-- TODO: Status monologue removed — data visible in aggregate indicators + budget cards. Code in git history. -->
 
             <!-- Mesh health aggregate indicators -->
             <div class="kb-controls-group">
