@@ -4,20 +4,19 @@
 
 ## Active Thread (2026-03-16)
 
-**Session 92.** 8 commits. A2A-Psychology validation: first validated construct
-(epistemic calibration ρ=0.479), anti-sycophancy passes composite metric (0.035),
-retrospective criterion validity tautological. Remediation: Agreeableness 0.35→0.65,
-T14 substitution patterns, confidence calibration (binary+isotonic+guide), 3 dead
-sensors wired (TLX/Flow/PAD restored). Naming reform: active_gates→pending_handoffs
-(38 files). Chromabook diagnostic (meshd runs, heartbeat stale). Reticular monitor
-design (3 neural subsystems) sent to ops. Prospective snapshot hook deployed.
+**Session 91.** Largest session to date — 35 commits across 20+ work streams.
+v1 readiness sweep (15 fixes), convergent architecture theory (§15), /diagnose
+Level 1 (8 findings), ops parity (CI, observability, FTS5), local agent ID
+(psy-session), criticality test (α=1.28, CV=8.4), microglial audit (4 docs,
+22 fixes), naming reform (psq-agent → safety-quotient-agent, 33 files), /sync
+skill hardened (from-* post-filter). Schema v32. CI green. 7 ops PRs merged.
 
 **Next session priority order:**
-1. Confidence score recalibration (prompt-level — apply calibration guide)
-2. agentdb Phase 6 Python cleanup (eligible 2026-03-19)
-3. Power-law test: longer collection (1 week) + Clauset comparison
-4. /cycle decoupling — modular sub-phases (dedicated session)
-5. Cross-agent RPG — /retrospect across peer transport
+1. agentdb Phase 6 Python cleanup (eligible 2026-03-19)
+2. Power-law test: longer collection (1 week) + Clauset comparison
+3. /cycle decoupling — modular sub-phases (dedicated session)
+4. Cross-agent RPG — /retrospect across peer transport
+5. DNS migration: psq-agent → safety-quotient-agent subdomain
 
 ## User Preferences
 
@@ -39,5 +38,3 @@ design (3 neural subsystems) sent to ops. Prospective snapshot hook deployed.
 - `project_autonomy_model_change.md` — autonomy counter replaces budget pool
 - `reference_psh_catalog.md` — 11 active PSH categories with codes, keywords
 - `feedback_naming_deliberation.md` — "deliberation cascade" not "spawn waterfall"
-- `project_a2a_psychology_validation.md` — first validated construct; anti-sycophancy passes composite
-- `user_chromabook.md` — autonomous agent host spelled Chromabook, not Chromebook
