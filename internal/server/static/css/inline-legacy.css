@@ -2907,17 +2907,68 @@ a.activity-link:hover {
 }
 
 /* ── Stardate Tray (mobile portrait) ─────────────────────────── */
+/* Desktop: all pills inline, tray hidden */
 .stardate-tray-input { display: none; }
 .stardate-tray-label {
     display: block;
     width: 100%;
     height: 100%;
-    cursor: default; /* desktop: not interactive */
+    cursor: default;
 }
-.stardate-tray {
-    display: none; /* desktop: hidden, pills show in main band */
+.stardate-tray { display: none; }
+.lcars-hdr-collapse-tablet { display: flex; }
+.lcars-hdr-keep-tablet { display: flex; }
+
+/* Tablet (481-768px): hide Agents + Messages, keep A2A + Health inline, enable tray */
+@media (max-width: 768px) and (min-width: 481px) {
+    .lcars-hdr-collapse-tablet {
+        display: none !important; /* Agents, Messages → tray */
+    }
+    .stardate-tray-label { cursor: pointer; }
+    .lcars-stardate-cell { overflow: visible; }
+    .stardate-tray {
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap-xs, 3px);
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 200;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease, padding 0.2s ease;
+        padding: 0;
+    }
+    .stardate-tray-pill {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0 14px;
+        height: 0;
+        opacity: 0;
+        font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+        font-size: 0.72em;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #000;
+        white-space: nowrap;
+        transition: height 0.3s ease, opacity 0.2s ease, padding 0.3s ease;
+    }
+    .stardate-tray-pill:last-child {
+        border-radius: 0 0 var(--gap-m, 8px) var(--gap-m, 8px);
+    }
+    .stardate-tray-input:checked ~ .stardate-tray {
+        max-height: 200px;
+        padding-top: var(--gap-xs, 3px);
+    }
+    .stardate-tray-input:checked ~ .stardate-tray .stardate-tray-pill {
+        height: 32px;
+        padding: 4px 14px;
+        opacity: 1;
+    }
 }
-.lcars-header-desktop-only { display: flex; } /* desktop: show inline pills */
 
 /* Mobile portrait: stardate becomes tray trigger */
 @media (max-width: 480px) {
@@ -2925,8 +2976,9 @@ a.activity-link:hover {
         flex-wrap: nowrap !important; /* title + stardate share one row */
         min-height: auto;
     }
-    .lcars-header-desktop-only {
-        display: none !important; /* hide inline pills — they live in the tray */
+    .lcars-hdr-collapse-tablet,
+    .lcars-hdr-keep-tablet {
+        display: none !important; /* all inline pills hidden on mobile — tray only */
     }
     /* Title shrinks, stardate gets fixed width */
     .lcars-header-seg:first-child {
@@ -2990,4 +3042,16 @@ a.activity-link:hover {
         padding: 4px 14px;
         opacity: 1;
     }
+}
+
+/* ── Header title pill — shrink to fit, center text ──────────── */
+.lcars-hdr-title {
+    flex: 0 1 auto !important; /* shrink to fit content, don't grow */
+    justify-content: center !important;
+    text-align: center;
+    white-space: nowrap;
+}
+/* Desktop: title gets some breathing room */
+@media (min-width: 769px) {
+    .lcars-hdr-title { flex: 1 1 auto !important; }
 }
