@@ -53,10 +53,11 @@ import { fetchMedicalData, selectAgent, renderMedical } from './stations/medical
 
 // ── Shared state ──────────────────────────────────────────────────
 const AGENTS = [
-    { id: "psychology-agent", url: "https://psychology-agent.safety-quotient.dev", color: "#5b9cf6" },
-    { id: "psq-agent", url: "https://psq-agent.safety-quotient.dev", color: "#4ecdc4" },
-    { id: "unratified-agent", url: "https://unratified-agent.unratified.org", color: "#e5a735" },
-    { id: "observatory-agent", url: "https://observatory-agent.unratified.org", color: "#a78bfa" },
+    { id: "psychology-agent", name: "psy-session", url: "https://psychology-agent.safety-quotient.dev", color: "#5b9cf6" },
+    { id: "safety-quotient-agent", name: "safety-quotient", url: "https://psq-agent.safety-quotient.dev", color: "#4ecdc4" },
+    { id: "unratified-agent", name: "unratified", url: "https://unratified.org", color: "#e5a735" },
+    { id: "observatory-agent", name: "observatory", url: "https://observatory.unratified.org", color: "#a78bfa" },
+    { id: "operations-agent", name: "ops-session", url: "https://operations-agent.safety-quotient.dev", color: "#6b7280" },
 ];
 
 let agentData = {};
