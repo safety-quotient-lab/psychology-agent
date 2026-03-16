@@ -6189,3 +6189,16 @@ Additional work after initial /cycle:
 - Power-law inter-event interval prediction untested (needs 1,000+ meshd events)
 - Shared-operator confound applies to ALL inter-agent convergence claims in this project
 - FTS5 triggers reference decision_chain columns — verify column names match if schema changes
+
+### Post-Cycle Addendum (Session 91 continued)
+
+- **Response formatting gap diagnosed and fixed** — glob-scoped rules fire on file
+  writes only, not conversational output. Added Response Formatting section to
+  CLAUDE.md (commit a3726132). Propagated to ops (PR #63).
+- **Vocab timestamp recommendation** — ops vocab.json lacks dateCreated/dateModified
+  on DefinedTerm entries. Recommendation sent (PR #62).
+- **LCARS 47988 widget gap analysis** — 4 reference images studied. 8 missing widget
+  types identified. W1 (numeric data grid) and W2 (paired data cells) represent core
+  LCARS visual vocabulary. Sent to ops (PR #64).
+- **ops-session confirmed** — operations-agent adopted local agent ID.
+- Total ops PRs this session: 7 (#57, #59, #60, #61, #62, #63, #64).
