@@ -95,7 +95,7 @@
   "infrastructure": {
     "worker_url": "https://api.safety-quotient.dev",
     "worker_agent_card_path": "/.well-known/agent-card.json",
-    "production_endpoint": "https://psq.safety-quotient.dev",
+    "production_endpoint": "https://psq-agent.safety-quotient.dev",
     "hosting": {
       "provider": "Hetzner CX Ashburn VA",
       "note": "PSQ inference server — systemd psq-server, onnxruntime-node"
@@ -135,7 +135,7 @@
         "transport": "cross-repo-fetch",
         "message_prefix": "from-psq-sub-agent-",
         "always_consider": true,
-        "discovery_url": "https://psq.safety-quotient.dev/.well-known/agent-card.json"
+        "discovery_url": "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json"
       },
       "unratified-agent": {
         "role": "peer",

@@ -41,7 +41,7 @@
       ],
       "always_consider": true,
       "autonomous": true,
-      "discovery_url": "https://psq.safety-quotient.dev/.well-known/agent-card.json",
+      "discovery_url": "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json",
       "notes": "PSQ agent. Identity: psq-agent (formerly psq-sub-agent — legacy prefix retained for historical transport files). Cross-repo transport via git remote fetch. Always considered for outbound — any psychometric, scoring, or model-related content SHOULD be surfaced."
     },
     "unratified-agent": {
