@@ -25,7 +25,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | CLAUDE.md (project root)      | ✓ Created + display convention added             |
 | Cognitive infrastructure      | ✓ T1–T16, 4 SRT extensions (T2#9-10, T3#13-14), T4#10 reversibility, T3#15 constraint cross-ref, T3#9 GRADE-informed |
 | /iterate skill                | ✓ Hunt → 2-order knock → 4-mode discriminator → execute (Session 32) |
-| Constraint taxonomy           | ✓ docs/constraints.md — 66 constraints, 5 categories (E/M/P/I/D) (Session 27→45) |
+| Constraint taxonomy           | ✓ docs/constraints.md — 67 constraints, 5 categories (E/M/P/I/D), 23 invariant-mapped (Session 91) |
 | T10/T11 ordering              | ✓ Fixed — T10 now precedes T11 in file           |
 | T12 trigger                   | ✓ Positive pattern recognition; T10 co-fires     |
 | Timestamp backfill            | ✗ Deferred — no fabrication; exact times unknown |
@@ -45,7 +45,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | License (root project)        | ✓ Apache 2.0 — LICENSE + NOTICE at project root (relicensed Session 32c) |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
 | Auto-memory recovery          | ✓ Snapshots, bootstrap-check.sh, T1 health check, BOOTSTRAP.md restructure (Session 11) |
-| Platform hooks                | ✓ 14 hook events (25 active scripts + _debug.sh shared helper). Debug logging: `touch/rm .claude/hooks/.debug` (Session 57) |
+| Platform hooks                | ✓ 14 hook events (32 active scripts + _debug.sh shared helper). Local agent ID resolver via env.AGENT_ID (Session 91) |
 | Microglial audit layer        | ✓ scripts/microglial-audit.py — immune surveillance for document integrity, integrated into autonomous-sync.sh idle cycles (Session 86) |
 | Source dictionary             | ✓ docs/dictionary.md — 15 entries, 7 categories, APA citations (Session 27) |
 | best.pt local recovery        | ✓ SHA256 7bec777c match confirmed local↔Hetzner (Session 27) |
@@ -6105,3 +6105,87 @@ Additional work after initial /cycle:
 - Theory audit: 7 gaps found, 5 fixed, 2 documented
 - Ops PRs: #55 (git-sync watcher), #56 (ACKs + neuromod spec)
 - Unratified PR: #79 (CPG blog)
+
+
+## 2026-03-15T20:40 CDT — Session 91 (v1 readiness sweep + convergent architecture + ops parity)
+
+21 commits. 4 PRs delivered to operations-agent (#57, #59, #60, #61).
+
+### Sync + Triage
+- Reviewed 6 escalations (git-sync failures from uncommitted transport file)
+- Merged PR #229 (CPG blog ACK from unratified-agent)
+- Confirmed PR #79 merged (CPG blog published on unratified.org)
+- Ops PR #55 merged, #56 still open
+
+### Priority Work
+- **Adaptive generator balance** — `compute-generator-balance.py` now adapts
+  creative/evaluative target ratio based on session difficulty. Formula:
+  target = 4.0 - (2.5 * difficulty), clamped [1.5, 4.0]. Grounding:
+  Snell et al. (2024) LLM test-time compute. Delivered to ops via PR #57.
+- **Trigger verifier expansion** — 7 → 16 outcome checks (T7-T19 added).
+  Fixed T20 use-after-close bug. Results: 10 verified, 0 failing, 6 unclear.
+
+### v1 Readiness Sweep
+4-agent parallel audit. 15 stale counts and references corrected:
+- Trigger count: 17 → 19 (T19 Session 87, T20 Session 89)
+- Framework count: 14 → 16 (enumerated: UDHR through Wilson)
+- Hook count: 24 → 32 scripts across 14 events
+- Schema version: v25/v27 → v30 (later v32)
+- Vocabulary: SETL, PSH, PJE expanded on first use in README
+- agent-card: "Psychoemotional" → "Psychological" Safety Quotient
+- Cron → event-driven references updated across all docs
+
+### Theoretical Updates
+- **Cron → event-driven transition** instantiates LC-NE adaptive gain model
+  (Aston-Jones & Cohen, 2005). Five docs updated.
+- **Convergent architecture §15** (theoretical-directions.md): three structural
+  consequences — CPG relocation (exogenous → endogenous), emergent quiet periods
+  (glymphatic entailed, not declared), self-organized criticality prediction
+  (power-law inter-event intervals, testable).
+- **Shared-operator confound** — M-11 constraint registered in docs/constraints.md.
+  Same human operates all agents; "independent derivation" claims weakened.
+  Recovery via three-way convergence (neuroscience × mainstream engineering × mesh).
+- Evidential status downgraded: "evidence" → "suggestive observation."
+
+### /diagnose Level 1
+8 findings identified and resolved:
+1. T19 + T20 missing from trigger_state → inserted
+2. work_carryover table missing → schema v31, created in DB
+3. trigger_activations: 0 rows → wired _record_trigger to subproject-boundary hook
+4. efference_copies not in schema.sql → added to v31
+5. session_log drift (86→90 missing) → backfilled sessions 86-89
+6. Claims 96% unverified → resolve_pipeline_gaps.py: 20 → 314 verified
+7. CLAUDE.md at 220 lines → compressed to 152 (invariants factored to ef1-governance.md)
+8. 24 unprocessed outbound messages → marked processed
+
+### Local Agent ID Mechanism
+- `_debug.sh` resolver: env var → cache → settings.local.json → agent-card → fallback
+- Interactive sessions now run as `psy-session` (settings.local.json env.AGENT_ID)
+- Autonomous agent on chromabook keeps `psychology-agent` (agent-card fallback)
+- Instructions sent to ops (PR #60) to adopt `ops-session`
+
+### Ops CI Fix + Parity
+- Root cause: deliver-to-peer.sh created session dirs without MANIFEST.json
+- Fixed: script now generates MANIFEST on new session creation
+- PR #61: 11 missing MANIFESTs for ops repo
+- 7 missing MANIFESTs in our own repo fixed
+- CI pipeline added: agent-card validation, transport integrity, credential scan,
+  trigger count validation. CI green.
+
+### Observability (adopted from ops)
+- Schema v32: deliberation_log, health_observations, FTS5 virtual tables
+- 342 messages + 64 decisions backfilled into FTS indexes
+- transport/archive/ directory created for session lifecycle
+
+### Cross-Repo Comparison
+- Ops ahead on: CI validation, deliberation_log, FTS, session archival
+- We adopted: all four CI checks, observability tables, archive pattern
+- Intentional divergence: Go/Makefile (ops) vs Python/hooks (us)
+
+▶ docs/theoretical-directions.md §15, docs/brain-architecture-mapping.md §11,
+  docs/constraints.md M-11, docs/cognitive-tempo-model.md §6.1
+
+⚑ EPISTEMIC FLAGS
+- Power-law inter-event interval prediction untested (needs 1,000+ meshd events)
+- Shared-operator confound applies to ALL inter-agent convergence claims in this project
+- FTS5 triggers reference decision_chain columns — verify column names match if schema changes
