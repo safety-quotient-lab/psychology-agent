@@ -56,6 +56,7 @@ canonical sources where each constraint receives its mechanical enforcement.
 | M-8 | Validation basis declared — held-out n=1897 (isotonic calibration); model r=0.684 (Dreaddit, n=2760) | subagent-layer-spec.md §Gap #5; scope_declaration |
 | M-9 | Evidence-bearing responses mandatory — claims linked to evidence in all substantive outputs | T2 Check 7 |
 | M-10 | Speculation never persisted as fact in memory — only confirmed decisions land in MEMORY files | T9 Check 4 |
+| M-11 | Shared-operator confound — the same human operates all agents in the mesh; no inter-agent derivation path qualifies as "independent" without external verification. The human participates as an agent within the system, not an observer of it. Claims of convergent architecture across agents require either: (a) external replication by a different operator, (b) tracing the pattern to mainstream engineering precedent outside this project (confound-free edge), or (c) formal demonstration from the coordination problem's constraint structure. Self-report about implicit cognition carries low reliability — the operator cannot reliably distinguish "I chose this for engineering reasons" from "my biological intuitions shaped my engineering judgment." | Session 91; theoretical-directions.md §15 |
 
 ---
 
@@ -154,17 +155,17 @@ rules that supplement the invariants.
 | **1. Worth precedes merit** | E-1 (no clinical authority), E-4 (no verdict delivery), E-5 (no persona adoption), E-7 (preserve disagreement shape) | 4 |
 | **2. Protection requires structure** | P-5 (bootstrap restoration), P-6 (context pressure), P-11 (pre-commit gate), P-14 (triggers need firing conditions), P-17 (reversibility before external), P-18 (data integrity), P-21 (hook health) | 7 |
 | **3. Two coupled generators** | P-3 (gap check before boundary — yin), P-4 (epistemic sweep — yin), P-22 (lesson promotion — crystallization) | 3 |
-| **4. Governance captures itself** | M-9 (evidence-bearing), M-10 (no speculation as fact), E-6 (no fabricated confidence), E-8 (systematic error declared), P-13 (pushback accumulator) | 5 |
+| **4. Governance captures itself** | M-9 (evidence-bearing), M-10 (no speculation as fact), M-11 (shared-operator confound), E-6 (no fabricated confidence), E-8 (systematic error declared), P-13 (pushback accumulator) | 6 |
 | **5. No single architecture dominates** | I-10 (no averaging conflicts), I-11 (no unverifiable state), E-2 (WEIRD flag) | 3 |
 | **Domain-specific (no invariant reduction)** | M-1 through M-8, I-1 through I-9, I-12 through I-15, D-1 through D-8, P-1, P-2, P-7 through P-10, P-12, P-15, P-16, P-19, P-20, P-23, E-3, E-9, E-10 | 44 |
 
-**Result:** 22 of 66 constraints (33%) reduce to structural invariant instances.
+**Result:** 23 of 67 constraints (34%) reduce to structural invariant instances.
 The remaining 44 represent domain-specific rules (PSQ methodology, transport
 protocol, platform mechanics) that supplement the invariants with operational
 detail. No constraints conflict with the invariants.
 
-**Recommendation:** The 22 invariant-mapped constraints function as enforcement
-instances. T3 Check 15 can prioritize these 22 when scanning — they represent
+**Recommendation:** The 23 invariant-mapped constraints function as enforcement
+instances. T3 Check 15 can prioritize these 23 when scanning — they represent
 the governance-critical subset. The remaining 44 provide operational guardrails
 that the 4-level resolution fallback handles when questions arise.
 
