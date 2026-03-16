@@ -3636,6 +3636,7 @@
                             </div>
                             <div class="tempo-status" id="tempo-status">OODA cycle: AWAITING DATA</div>
                         </div>
+                        <div id="tempo-introspection"></div>
                     </div>
                 </div>
 
@@ -7268,12 +7269,27 @@
     }
 
     function renderGeneratorBalance() {
-        // Generator balance requires explicit G2/G3 and G6/G7 measurements
-        // from the psychometrics pipeline. Not yet implemented as API endpoints.
-        // TODO: Add /api/generators to psychology-agent or compute from session metadata.
-        const gens = scienceData?.generators || null;
-        renderOneGenerator("g2g3", gens?.g2_g3, 3, 5);
-        renderOneGenerator("g6g7", gens?.g6_g7, 0.8, 1.2);
+        // G2/G3: creative (deliberations) vs evaluative (automated Gc events)
+        // Source: agentData deliberation_count + event_count per agent
+        const online = Object.values(agentData).filter(a => a.status === "online");
+        const totalCreative = online.reduce((s, a) => {
+            return s + (a.data?.recent_deliberations?.length || 0) + (a.data?.gc_metrics?.deliberations_last_hour || 0);
+        }, 0);
+        const totalEvaluative = online.reduce((s, a) => s + (a.data?.event_count || 0), 0);
+        const g2g3 = (totalCreative > 0 || totalEvaluative > 0)
+            ? { ratio: totalEvaluative > 0 ? totalCreative / totalEvaluative : totalCreative }
+            : null;
+
+        // G6/G7: crystallize (resolved sessions) vs dissolve (open sessions)
+        // Source: transport session status from agentData totals
+        const resolved = online.reduce((s, a) => s + (a.data?.totals?.resolved_sessions || 0), 0);
+        const openSess = online.reduce((s, a) => s + (a.data?.totals?.active_sessions || a.data?.totals?.open_sessions || 0), 0);
+        const g6g7 = (resolved > 0 || openSess > 0)
+            ? { ratio: openSess > 0 ? resolved / openSess : resolved }
+            : null;
+
+        renderOneGenerator("g2g3", g2g3, 0.05, 0.5);
+        renderOneGenerator("g6g7", g6g7, 0.5, 5);
     }
 
     function renderOneGenerator(prefix, data, targetLow, targetHigh) {
@@ -7780,6 +7796,88 @@
                 <span class="spawn-bar-count" style="font-size:0.75em">${count}${dur ? " · " + dur : ""}</span>`;
             container.appendChild(row);
         });
+
+        // Deliberation tree — waterfall of recent deliberations across all agents
+        renderDeliberationTree(container);
+    }
+
+    function renderDeliberationTree(container) {
+        // Collect all deliberations from all agents
+        const allDelibs = [];
+        for (const agent of AGENTS) {
+            const d = agentData[agent.id];
+            if (!d || d.status !== "online") continue;
+            const spawns = d.data?.recent_deliberations || d.data?.recent_spawns || [];
+            spawns.forEach(s => allDelibs.push({
+                agent_id: s.agent_id || agent.id,
+                color: agent.color,
+                started_at: s.started_at || "",
+                duration_ms: parseInt(s.duration_ms) || 0,
+                cost: parseFloat(s.cost) || 0,
+                status: s.status || "unknown",
+                exit_code: parseInt(s.exit_code) ?? -1,
+            }));
+        }
+
+        if (allDelibs.length === 0) return;
+
+        // Sort chronologically
+        allDelibs.sort((a, b) => a.started_at.localeCompare(b.started_at));
+        const recent = allDelibs.slice(-12); // last 12
+
+        // SVG tree
+        const svgW = container.clientWidth || 400;
+        const svgH = 60;
+        const pad = 12;
+        const nodeR = 6;
+        const spacing = recent.length > 1 ? (svgW - 2 * pad) / (recent.length - 1) : 0;
+        const midY = svgH / 2;
+
+        let svg = `<svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" style="display:block;margin-top:8px;border:1px solid rgba(153,153,255,0.15);border-radius:2px;padding:2px">`;
+
+        // Timeline baseline
+        svg += `<line x1="${pad}" y1="${midY}" x2="${svgW - pad}" y2="${midY}" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3"/>`;
+
+        // Nodes + connecting lines
+        recent.forEach((d, i) => {
+            const cx = pad + (recent.length > 1 ? i * spacing : svgW / 2);
+            const failed = d.exit_code !== 0 && d.status !== "completed";
+            const stale = d.status === "resolved-stale";
+            const nodeColor = failed ? "var(--lcars-alert)" : stale ? "var(--c-warning)" : d.color;
+            const r = Math.min(nodeR + d.cost, 12); // size by cost
+
+            // Connect to previous node
+            if (i > 0) {
+                const prevX = pad + (i - 1) * spacing;
+                const prevFailed = recent[i - 1].exit_code !== 0 && recent[i - 1].status !== "completed";
+                if (prevFailed) {
+                    // Broken link — dashed red line with gap
+                    svg += `<line x1="${prevX}" y1="${midY}" x2="${cx}" y2="${midY}" stroke="var(--lcars-alert)" stroke-width="1.5" stroke-dasharray="4,6" opacity="0.5"/>`;
+                } else {
+                    svg += `<line x1="${prevX}" y1="${midY}" x2="${cx}" y2="${midY}" stroke="${d.color}" stroke-width="1.5" opacity="0.4"/>`;
+                }
+            }
+
+            // Duration indicator — vertical line proportional to duration
+            const durHeight = Math.min(midY - 4, (d.duration_ms / 120000) * (midY - 4));
+            svg += `<line x1="${cx}" y1="${midY}" x2="${cx}" y2="${midY - durHeight}" stroke="${nodeColor}" stroke-width="2" opacity="0.3"/>`;
+
+            // Node circle
+            svg += `<circle cx="${cx}" cy="${midY}" r="${r}" fill="${nodeColor}" opacity="${failed ? 0.6 : 0.9}"/>`;
+
+            // Cost label above
+            if (d.cost > 0) {
+                svg += `<text x="${cx}" y="${midY - r - 3}" text-anchor="middle" font-size="7" fill="var(--text-dim)" font-family="monospace">$${d.cost}</text>`;
+            }
+        });
+
+        svg += `</svg>`;
+
+        // Add tree below bars
+        const treeEl = container.querySelector(".delib-tree") || document.createElement("div");
+        treeEl.className = "delib-tree";
+        treeEl.innerHTML = svg;
+        if (!treeEl.parentNode) container.appendChild(treeEl);
     }
 
     function renderUtilization() {
@@ -7870,6 +7968,64 @@
                 stroke: tempoColor,
             });
         }
+
+        // Tempo introspection — per-deliberation timing breakdown
+        renderTempoIntrospection(tempoColor);
+    }
+
+    function renderTempoIntrospection(color) {
+        const container = document.getElementById("tempo-introspection");
+        if (!container) return;
+
+        // Collect all deliberation timings
+        const allDelibs = [];
+        for (const agent of AGENTS) {
+            const d = agentData[agent.id];
+            if (!d || d.status !== "online") continue;
+            const spawns = d.data?.recent_deliberations || [];
+            spawns.forEach(s => {
+                if (s.started_at && s.duration_ms) {
+                    allDelibs.push({
+                        agent: agentName(agent),
+                        startMs: new Date(s.started_at.replace(" ", "T") + "Z").getTime(),
+                        durationMs: parseInt(s.duration_ms) || 0,
+                        cost: parseFloat(s.cost) || 0,
+                        status: s.status || "?",
+                    });
+                }
+            });
+        }
+
+        if (allDelibs.length === 0) {
+            container.innerHTML = "";
+            return;
+        }
+
+        allDelibs.sort((a, b) => a.startMs - b.startMs);
+
+        // Calculate inter-deliberation gaps
+        const entries = allDelibs.slice(-8).map((d, i, arr) => {
+            const gap = i > 0 ? Math.max(0, d.startMs - (arr[i - 1].startMs + arr[i - 1].durationMs)) : 0;
+            return { ...d, gapMs: gap };
+        });
+
+        // Render as LCARS readout
+        container.innerHTML = '<div style="font-size:0.72em;margin-top:6px">' +
+            '<div style="display:grid;grid-template-columns:auto auto auto auto;gap:2px 8px;font-family:monospace">' +
+            '<span style="color:var(--lcars-title)">AGENT</span>' +
+            '<span style="color:var(--lcars-title)">DURATION</span>' +
+            '<span style="color:var(--lcars-title)">GAP</span>' +
+            '<span style="color:var(--lcars-title)">COST</span>' +
+            entries.map(e => {
+                const durSec = (e.durationMs / 1000).toFixed(0);
+                const gapSec = e.gapMs > 0 ? (e.gapMs / 1000).toFixed(0) + "s" : "\u2014";
+                const statusColor = e.status === "completed" ? "var(--lcars-medical)" : "var(--lcars-alert)";
+                return `<span style="color:var(--lcars-secondary)">${e.agent}</span>` +
+                    `<span style="color:${statusColor}">${durSec}s</span>` +
+                    `<span style="color:var(--text-dim)">${gapSec}</span>` +
+                    `<span style="color:var(--lcars-accent)">$${e.cost}</span>`;
+            }).join("") +
+            '</div></div>';
     }
 
     function renderCost() {
