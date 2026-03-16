@@ -333,6 +333,8 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .theme-lcars .lcars-content {
     grid-row: 2;
     background: #000;
+    padding: var(--gap-2xl, 34px) var(--gap-xl, 21px) var(--gap-xl, 21px) var(--gap-xl, 21px);
+    /* top: 2φ (34px) below header, sides: φ (21px), bottom: φ (21px) */
 }
 
 /* ── LCARS Panel Hybrid Style ──────────────────────────────── */
@@ -3119,10 +3121,10 @@ a.activity-link:hover {
     border-radius: 0 var(--elbow-inner, 24px) var(--elbow-inner, 24px) 0;
 }
 
-/* Mobile: hide arms, endcap grows to fill */
+/* Mobile: arms shrink, endcap grows to fill */
 @media (max-width: 480px) {
-    .lcars-hdr-arm { display: none; }
-    .lcars-hdr-endcap { flex: 1 0 12px !important; } /* grows — do NOT hide */
+    .lcars-hdr-arm { flex: 0 0 var(--gap-m, 8px) !important; min-width: var(--gap-m, 8px) !important; display: flex !important; }
+    .lcars-hdr-endcap { flex: 1 0 12px !important; }
 }
 /* Tablet: arm shrinks but stays visible */
 @media (max-width: 768px) and (min-width: 481px) {
