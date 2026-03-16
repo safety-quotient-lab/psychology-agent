@@ -7397,6 +7397,16 @@
         renderCost();
         renderConcurrency();
         renderYerkesDodson();
+
+        // Update status line
+        const statusEl = document.getElementById("eng-status-line");
+        if (statusEl && engineeringData) {
+            const mesh = engineeringData.tempo?.mesh || {};
+            const rho = mesh.utilization != null ? (mesh.utilization * 100).toFixed(0) + "%" : "—";
+            const dur = mesh.mean_duration_sec != null ? Math.round(mesh.mean_duration_sec) + "s" : "—";
+            const cost = mesh.cost_per_hour != null ? "$" + mesh.cost_per_hour + "/hr" : "—";
+            statusEl.textContent = `Utilization: ${rho} · Tempo: ${dur} avg · Cost: ${cost}`;
+        }
     }
 
     function renderGcCascade() {
@@ -7466,12 +7476,16 @@
         const placeholder = document.getElementById("spawn-placeholder");
         if (!container) return;
 
-        const spawnCounts = engineeringData?.spawn?.agents || null;
+        // Per-agent deliberation counts from /api/tempo agents array
+        const tempoAgents = engineeringData?.tempo?.agents || [];
+        const agentCounts = {};
+        tempoAgents.forEach(a => { agentCounts[a.agent_id] = a.spawns_60min || 0; });
 
         // Clear existing bar rows
         container.querySelectorAll(".spawn-bar-row").forEach(r => r.remove());
 
-        if (!spawnCounts) {
+        const hasData = tempoAgents.length > 0;
+        if (!hasData) {
             if (placeholder) placeholder.style.display = "block";
             SPAWN_AGENTS.forEach(agent => {
                 const row = document.createElement("div");
@@ -7485,9 +7499,9 @@
         }
 
         if (placeholder) placeholder.style.display = "none";
-        const maxCount = Math.max(1, ...SPAWN_AGENTS.map(a => spawnCounts[a.id] || 0));
+        const maxCount = Math.max(1, ...SPAWN_AGENTS.map(a => agentCounts[a.id] || 0));
         SPAWN_AGENTS.forEach(agent => {
-            const count = spawnCounts[agent.id] || 0;
+            const count = agentCounts[agent.id] || 0;
             const pct = (count / maxCount) * 100;
             const row = document.createElement("div");
             row.className = "spawn-bar-row";
@@ -7504,7 +7518,7 @@
         const statusEl = document.getElementById("util-status");
         if (!rhoEl) return;
 
-        const rho = engineeringData?.spawn?.utilization ?? null;
+        const rho = engineeringData?.tempo?.mesh?.utilization ?? engineeringData?.spawn?.utilization ?? null;
 
         if (rho == null) {
             rhoEl.textContent = "\u03C1 = \u2014";
@@ -7541,7 +7555,9 @@
         const statusEl = document.getElementById("tempo-status");
         if (!valueEl) return;
 
-        const avgMs = engineeringData?.tempo?.avg_cycle_ms ?? null;
+        const avgMs = engineeringData?.tempo?.mesh?.mean_duration_sec != null
+            ? Math.round(engineeringData.tempo.mesh.mean_duration_sec * 1000)
+            : engineeringData?.tempo?.avg_cycle_ms ?? null;
 
         if (avgMs == null) {
             valueEl.innerHTML = `\u2014<span class="tempo-unit">ms avg</span>`;
@@ -7565,18 +7581,21 @@
         const rateEl = document.getElementById("cost-rate");
         if (!totalEl) return;
 
-        const costData = engineeringData?.spawn?.cost || null;
+        const meshData = engineeringData?.tempo?.mesh || {};
+        const spawnCost = engineeringData?.spawn || {};
+        const hourlyRate = meshData.cost_per_hour ?? spawnCost?.cost?.hourly_rate ?? null;
+        const totalCost = spawnCost?.last_hour?.total_cost ?? spawnCost?.cost?.total_today ?? null;
 
-        if (!costData) {
+        if (hourlyRate == null && totalCost == null) {
             totalEl.textContent = "$\u2014";
             rateEl.innerHTML = `<span class="cost-rate-arrow">\u2197</span> $\u2014/hr`;
             return;
         }
 
-        const total = costData.total_today ?? 0;
-        const hourlyRate = costData.hourly_rate ?? 0;
-        totalEl.textContent = `$${total.toFixed(2)}`;
-        rateEl.innerHTML = `<span class="cost-rate-arrow">\u2197</span> $${hourlyRate.toFixed(2)}/hr`;
+        totalEl.textContent = totalCost != null ? `$${parseFloat(totalCost).toFixed(2)}` : "$\u2014";
+        rateEl.innerHTML = hourlyRate != null
+            ? `<span class="cost-rate-arrow">\u2197</span> $${parseFloat(hourlyRate).toFixed(2)}/hr`
+            : `<span class="cost-rate-arrow">\u2197</span> $\u2014/hr`;
     }
 
     function renderConcurrency() {
