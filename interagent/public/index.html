@@ -3286,7 +3286,7 @@
         <div class="tab-pane" id="pane-science">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
                 <div class="lcars-status-line" id="science-status-line" style="flex:1">Psychometric Sensors: Awaiting Data &middot; Constructs: 7 &middot; Model: PAD + NASA-TLX + UWES</div>
-                <span class="lcars-section-badge" style="--badge-color:#9999ff">03 <span class="lcars-section-badge-text">Science</span></span>
+                <span class="lcars-section-badge" style="--badge-color:var(--lcars-tertiary)">03 <span class="lcars-section-badge-text">Science</span></span>
             </div>
 
             <div class="science-grid">
@@ -3339,8 +3339,8 @@
                         <div class="gen-balance-row" id="gen-g2g3">
                             <div class="gen-balance-label">G2/G3 (creative : evaluative)</div>
                             <div class="gen-balance-track">
-                                <div class="gen-balance-fill-left" id="gen-g2g3-left" style="width:50%;background:#6aab8e"></div>
-                                <div class="gen-balance-fill-right" id="gen-g2g3-right" style="width:50%;background:#6aab8e"></div>
+                                <div class="gen-balance-fill-left" id="gen-g2g3-left" style="width:50%;background:var(--lcars-medical, #6aab8e)"></div>
+                                <div class="gen-balance-fill-right" id="gen-g2g3-right" style="width:50%;background:var(--lcars-medical, #6aab8e)"></div>
                             </div>
                             <div class="gen-balance-ratio" id="gen-g2g3-ratio">—</div>
                             <div class="gen-balance-status gen-status-nominal" id="gen-g2g3-status">AWAITING DATA</div>
@@ -3348,8 +3348,8 @@
                         <div class="gen-balance-row" id="gen-g6g7">
                             <div class="gen-balance-label">G6/G7 (crystallize : dissolve)</div>
                             <div class="gen-balance-track">
-                                <div class="gen-balance-fill-left" id="gen-g6g7-left" style="width:50%;background:#6aab8e"></div>
-                                <div class="gen-balance-fill-right" id="gen-g6g7-right" style="width:50%;background:#6aab8e"></div>
+                                <div class="gen-balance-fill-left" id="gen-g6g7-left" style="width:50%;background:var(--lcars-medical, #6aab8e)"></div>
+                                <div class="gen-balance-fill-right" id="gen-g6g7-right" style="width:50%;background:var(--lcars-medical, #6aab8e)"></div>
                             </div>
                             <div class="gen-balance-ratio" id="gen-g6g7-ratio">—</div>
                             <div class="gen-balance-status gen-status-nominal" id="gen-g6g7-status">AWAITING DATA</div>
@@ -3379,7 +3379,7 @@
                         <div class="dew-gauge" id="dew-gauge">
                             <div class="dew-score dew-green" id="dew-score">—</div>
                             <div class="dew-bar">
-                                <div class="dew-bar-fill" id="dew-bar-fill" style="width:0%;background:#6aab8e"></div>
+                                <div class="dew-bar-fill" id="dew-bar-fill" style="width:0%;background:var(--lcars-medical, #6aab8e)"></div>
                             </div>
                             <div class="dew-status dew-green" id="dew-status">AWAITING DATA</div>
                         </div>
@@ -3451,13 +3451,13 @@
                             <div style="font-size:2em;font-weight:700;line-height:1" id="workmem-load">—</div>
                             <div style="font-size:0.72em;color:var(--text-secondary);margin-top:4px">CAPACITY LOAD</div>
                             <div style="margin:12px auto; max-width:240px">
-                                <div style="display:flex; height:14px; border-radius:7px; overflow:hidden; background:#111122">
-                                    <div style="width:15%;background:#66aacc;opacity:0.4" title="Understimulated"></div>
-                                    <div style="width:45%;background:#6aab8e;opacity:0.4" title="Optimal"></div>
-                                    <div style="width:40%;background:#c47070;opacity:0.4" title="Overwhelmed"></div>
+                                <div style="display:flex; height:14px; border-radius:7px; overflow:hidden; background:var(--bg-panel, #111122)">
+                                    <div style="width:15%;background:var(--c-tab-helm, #66aacc);opacity:0.4" title="Understimulated"></div>
+                                    <div style="width:45%;background:var(--lcars-medical, #6aab8e);opacity:0.4" title="Optimal"></div>
+                                    <div style="width:40%;background:var(--lcars-alert, #c47070);opacity:0.4" title="Overwhelmed"></div>
                                 </div>
                                 <div style="position:relative;height:8px">
-                                    <div id="workmem-indicator" style="position:absolute;top:-14px;width:3px;height:20px;background:#ffcc99;transition:left 0.6s" title="Current load"></div>
+                                    <div id="workmem-indicator" style="position:absolute;top:-14px;width:3px;height:20px;background:var(--text-primary, #ffcc99);transition:left 0.6s" title="Current load"></div>
                                 </div>
                             </div>
                             <div style="font-size:0.85em;font-weight:600;margin-top:8px" id="workmem-zone">AWAITING DATA</div>
@@ -3477,8 +3477,8 @@
                         <div style="margin-bottom:12px">
                             <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:0.78em">
                                 <span style="min-width:100px;color:var(--text-secondary);text-transform:uppercase;font-size:0.85em">Cognitive Reserve</span>
-                                <div style="flex:1;height:14px;background:#111122;border-radius:0;overflow:hidden">
-                                    <div id="res-reserve-fill" style="height:100%;width:0%;background:#6aab8e;transition:width 0.6s"></div>
+                                <div style="flex:1;height:14px;background:var(--bg-panel, #111122);border-radius:0;overflow:hidden">
+                                    <div id="res-reserve-fill" style="height:100%;width:0%;background:var(--lcars-medical, #6aab8e);transition:width 0.6s"></div>
                                 </div>
                                 <span style="min-width:32px;text-align:right;font-weight:600" id="res-reserve-val">—</span>
                             </div>
@@ -3487,8 +3487,8 @@
                         <div style="margin-bottom:12px">
                             <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:0.78em">
                                 <span style="min-width:100px;color:var(--text-secondary);text-transform:uppercase;font-size:0.85em">Self-Regulatory</span>
-                                <div style="flex:1;height:14px;background:#111122;border-radius:0;overflow:hidden">
-                                    <div id="res-regulatory-fill" style="height:100%;width:0%;background:#6aab8e;transition:width 0.6s"></div>
+                                <div style="flex:1;height:14px;background:var(--bg-panel, #111122);border-radius:0;overflow:hidden">
+                                    <div id="res-regulatory-fill" style="height:100%;width:0%;background:var(--lcars-medical, #6aab8e);transition:width 0.6s"></div>
                                 </div>
                                 <span style="min-width:32px;text-align:right;font-weight:600" id="res-regulatory-val">—</span>
                             </div>
@@ -3497,8 +3497,8 @@
                         <div>
                             <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:0.78em">
                                 <span style="min-width:100px;color:var(--text-secondary);text-transform:uppercase;font-size:0.85em">Allostatic Load</span>
-                                <div style="flex:1;height:14px;background:#111122;border-radius:0;overflow:hidden">
-                                    <div id="res-allostatic-fill" style="height:100%;width:0%;background:#c47070;transition:width 0.6s"></div>
+                                <div style="flex:1;height:14px;background:var(--bg-panel, #111122);border-radius:0;overflow:hidden">
+                                    <div id="res-allostatic-fill" style="height:100%;width:0%;background:var(--lcars-alert, #c47070);transition:width 0.6s"></div>
                                 </div>
                                 <span style="min-width:32px;text-align:right;font-weight:600" id="res-allostatic-val">—</span>
                             </div>
@@ -3577,7 +3577,7 @@
         <div class="tab-pane" id="pane-engineering">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
                 <div class="lcars-status-line" id="eng-status-line" style="flex:1">Engineering Systems: Awaiting Data</div>
-                <span class="lcars-section-badge" style="--badge-color:#ff9944">04 <span class="lcars-section-badge-text">Engineering</span></span>
+                <span class="lcars-section-badge" style="--badge-color:var(--c-tab-engineering)">04 <span class="lcars-section-badge-text">Engineering</span></span>
             </div>
 
             <div class="engineering-grid">
@@ -3605,7 +3605,7 @@
                             <div class="util-gauge" id="util-gauge" style="flex:1;">
                                 <div class="util-rho util-nominal" id="util-rho">&rho; = —</div>
                                 <div class="util-bar">
-                                    <div class="util-bar-fill" id="util-bar-fill" style="width:0%;background:#6aab8e"></div>
+                                    <div class="util-bar-fill" id="util-bar-fill" style="width:0%;background:var(--lcars-medical, #6aab8e)"></div>
                                 </div>
                                 <div class="util-status util-nominal" id="util-status">AWAITING DATA</div>
                             </div>
@@ -3717,7 +3717,7 @@
         <div class="tab-pane" id="pane-helm">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
                 <div class="lcars-status-line" id="helm-status-line" style="flex:1">Transport Routing: Awaiting Data &middot; Active Sessions: — &middot; Channels: Git, HTTP</div>
-                <span class="lcars-section-badge" style="--badge-color:#66aacc">05 <span class="lcars-section-badge-text">Helm</span></span>
+                <span class="lcars-section-badge" style="--badge-color:var(--c-tab-helm)">05 <span class="lcars-section-badge-text">Helm</span></span>
             </div>
             <div class="helm-grid">
                 <!-- Panel A: Session Timeline -->
@@ -3794,7 +3794,7 @@
         <div class="tab-pane" id="pane-tactical">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
                 <div class="lcars-status-line" id="tac-status-line" style="flex:1">Security Status: Awaiting Data &middot; Shields: — &middot; Threat Level: —</div>
-                <span class="lcars-section-badge" style="--badge-color:#cc6666">06 <span class="lcars-section-badge-text">Tactical</span></span>
+                <span class="lcars-section-badge" style="--badge-color:var(--lcars-alert)">06 <span class="lcars-section-badge-text">Tactical</span></span>
             </div>
 
             <div class="tactical-grid">
@@ -3805,31 +3805,31 @@
                         <div class="shield-row">
                             <span class="shield-agent">psych</span>
                             <span class="shield-auth shield-auth-ok">A2A 1.0</span>
-                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:100%;background:#6aab8e"></div></div>
+                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:100%;background:var(--lcars-medical, #6aab8e)"></div></div>
                             <span class="shield-pct">100%</span>
                         </div>
                         <div class="shield-row">
                             <span class="shield-agent">psq</span>
                             <span class="shield-auth shield-auth-none">NO AUTH</span>
-                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:40%;background:#c47070"></div></div>
+                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:40%;background:var(--lcars-alert, #c47070)"></div></div>
                             <span class="shield-pct">40%</span>
                         </div>
                         <div class="shield-row">
                             <span class="shield-agent">unrat</span>
                             <span class="shield-auth shield-auth-partial">BEARER</span>
-                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:75%;background:#d4944a"></div></div>
+                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:75%;background:var(--c-warning, #d4944a)"></div></div>
                             <span class="shield-pct">75%</span>
                         </div>
                         <div class="shield-row">
                             <span class="shield-agent">obs</span>
                             <span class="shield-auth shield-auth-none">NO AUTH</span>
-                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:25%;background:#c47070"></div></div>
+                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:25%;background:var(--lcars-alert, #c47070)"></div></div>
                             <span class="shield-pct">25%</span>
                         </div>
                         <div class="shield-row">
                             <span class="shield-agent">ops</span>
                             <span class="shield-auth shield-auth-ok">BEARER+ZMQ</span>
-                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:100%;background:#6aab8e"></div></div>
+                            <div class="shield-bar-track"><div class="shield-bar-fill" style="width:100%;background:var(--lcars-medical, #6aab8e)"></div></div>
                             <span class="shield-pct">100%</span>
                         </div>
                     </div>
@@ -3873,17 +3873,17 @@
                     <div class="lcars-panel-body" id="transport-integrity">
                         <div class="transport-layer-row">
                             <span class="transport-layer-name">git</span>
-                            <div class="transport-layer-track"><div class="transport-layer-fill" id="transport-git-fill" style="width:100%;background:#6aab8e"></div></div>
+                            <div class="transport-layer-track"><div class="transport-layer-fill" id="transport-git-fill" style="width:100%;background:var(--lcars-medical, #6aab8e)"></div></div>
                             <span class="transport-layer-status transport-ok" id="transport-git-status">100% &#x2713;</span>
                         </div>
                         <div class="transport-layer-row">
                             <span class="transport-layer-name">HTTP</span>
-                            <div class="transport-layer-track"><div class="transport-layer-fill" id="transport-http-fill" style="width:100%;background:#6aab8e"></div></div>
+                            <div class="transport-layer-track"><div class="transport-layer-fill" id="transport-http-fill" style="width:100%;background:var(--lcars-medical, #6aab8e)"></div></div>
                             <span class="transport-layer-status transport-ok" id="transport-http-status">100% &#x2713;</span>
                         </div>
                         <div class="transport-layer-row">
                             <span class="transport-layer-name">ZMQ</span>
-                            <div class="transport-layer-track"><div class="transport-layer-fill" id="transport-zmq-fill" style="width:80%;background:#d4944a"></div></div>
+                            <div class="transport-layer-track"><div class="transport-layer-fill" id="transport-zmq-fill" style="width:80%;background:var(--c-warning, #d4944a)"></div></div>
                             <span class="transport-layer-status transport-warn" id="transport-zmq-status">80% &#x25B2;</span>
                         </div>
                         <div class="transport-layer-row">
@@ -3924,7 +3924,7 @@
         <div class="tab-pane" id="pane-medical">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
                 <div class="lcars-status-line" id="med-status-line" style="flex:1">Oscillator: Shadow Mode &middot; Activation: — &middot; State: —</div>
-                <span class="lcars-section-badge" style="--badge-color:#66ccaa">11 <span class="lcars-section-badge-text">Medical</span></span>
+                <span class="lcars-section-badge" style="--badge-color:var(--lcars-medical)">11 <span class="lcars-section-badge-text">Medical</span></span>
             </div>
 
             <!-- Zone A: Agent selector + vitals summary -->
@@ -3934,7 +3934,7 @@
             <!-- Zone B: Diagnostic panels (2-col grid) -->
             <div class="medical-grid">
                 <!-- Oscillator — waveform + activation (primary diagnostic) -->
-                <div class="lcars-panel" style="--panel-accent: #66ccaa; grid-column: 1 / -1;">
+                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa); grid-column: 1 / -1;">
                     <div class="lcars-panel-header">Oscillator</div>
                     <div class="lcars-panel-body" id="med-oscillator">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Select an agent to view oscillator state</div>
@@ -3943,7 +3943,7 @@
                 </div>
 
                 <!-- Signal Breakdown — hatched bars per signal source -->
-                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
                     <div class="lcars-panel-header">Signal Breakdown</div>
                     <div class="lcars-panel-body" id="med-signals">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting signal data</div>
@@ -3951,7 +3951,7 @@
                 </div>
 
                 <!-- Cognitive Tempo — waveform + recommended tier -->
-                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
                     <div class="lcars-panel-header">Cognitive Tempo</div>
                     <div class="lcars-panel-body" id="med-tempo">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting tempo data</div>
@@ -3959,7 +3959,7 @@
                 </div>
 
                 <!-- Cognitive Load (NASA-TLX) — demand/pressure/efficacy bars -->
-                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
                     <div class="lcars-panel-header">Cognitive Load (TLX)</div>
                     <div class="lcars-panel-body" id="med-cognitive-load">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting psychometrics</div>
@@ -3967,7 +3967,7 @@
                 </div>
 
                 <!-- Working Memory — capacity + Yerkes-Dodson zone -->
-                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
                     <div class="lcars-panel-header">Working Memory</div>
                     <div class="lcars-panel-body" id="med-working-memory">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting psychometrics</div>
@@ -3975,7 +3975,7 @@
                 </div>
 
                 <!-- Resources — reserve/self-reg/allostatic bars -->
-                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
                     <div class="lcars-panel-header">Resources</div>
                     <div class="lcars-panel-body" id="med-resources">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting psychometrics</div>
@@ -3983,7 +3983,7 @@
                 </div>
 
                 <!-- DEW (Degradation Early Warning) -->
-                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
                     <div class="lcars-panel-header">DEW (Degradation)</div>
                     <div class="lcars-panel-body" id="med-dew">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting psychometrics</div>
@@ -3991,7 +3991,7 @@
                 </div>
 
                 <!-- Refractory State -->
-                <div class="lcars-panel" style="--panel-accent: #66ccaa">
+                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
                     <div class="lcars-panel-header">Refractory</div>
                     <div class="lcars-panel-body" id="med-refractory">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">&mdash;</div>
@@ -4000,7 +4000,7 @@
             </div>
 
             <!-- Zone C: Fire History (full width) + footer title -->
-            <div class="lcars-panel" style="--panel-accent: #66ccaa; margin-top:8px">
+            <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa); margin-top:8px">
                 <div class="lcars-panel-header">Fire History (Shadow)</div>
                 <div class="lcars-panel-body" id="med-fire-history">
                     <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">No fire events recorded</div>
@@ -4034,9 +4034,9 @@
 
 <!-- LCARS Detail Panel (slide-in drawer from right) -->
 <div class="lcars-detail-overlay" id="lcars-detail-panel">
-    <div class="lcars-detail-header" id="lcars-detail-header" style="background:#cc99cc">Detail</div>
+    <div class="lcars-detail-header" id="lcars-detail-header" style="background:var(--lcars-secondary, #cc99cc)">Detail</div>
     <div class="lcars-detail-body" id="lcars-detail-body"></div>
-    <div class="lcars-detail-footer" id="lcars-detail-close" style="background:#cc99cc" onclick="closeLcarsDetail()">Close</div>
+    <div class="lcars-detail-footer" id="lcars-detail-close" style="background:var(--lcars-secondary, #cc99cc)" onclick="closeLcarsDetail()">Close</div>
 </div>
 
 <!-- LCARS Narrative Drawer (expands up from footer) -->
@@ -7692,7 +7692,7 @@
         const summary = document.createElement("div");
         summary.className = "gc-bar-row";
         summary.style.cssText = "margin-bottom:8px;font-size:0.82em;display:flex;gap:12px;flex-wrap:wrap";
-        summary.innerHTML = `<span style="color:#cc99cc">Gc Total: <strong>${fmtNum(totalGc)}</strong></span>
+        summary.innerHTML = `<span style="color:var(--lcars-secondary)">Gc Total: <strong>${fmtNum(totalGc)}</strong></span>
             <span style="color:var(--text-dim)">hooks ${fmtNum(gcEntries.reduce((s,e)=>s+e.hooks,0))}</span>
             <span style="color:var(--text-dim)">triggers ${fmtNum(gcEntries.reduce((s,e)=>s+e.triggers,0))}</span>
             <span style="color:var(--text-dim)">events ${fmtNum(gcEntries.reduce((s,e)=>s+e.events,0))}</span>
@@ -8190,9 +8190,9 @@
             html += '</div>';
             // Legend
             html += '<div class="trust-matrix-legend">'
-                + '<span><span class="trust-legend-swatch" style="background:#6aab8e"></span> \u226580%</span>'
-                + '<span><span class="trust-legend-swatch" style="background:#d4944a"></span> 50-79%</span>'
-                + '<span><span class="trust-legend-swatch" style="background:#c47070"></span> &lt;50%</span>'
+                + '<span><span class="trust-legend-swatch" style="background:var(--lcars-medical, #6aab8e)"></span> \u226580%</span>'
+                + '<span><span class="trust-legend-swatch" style="background:var(--c-warning, #d4944a)"></span> 50-79%</span>'
+                + '<span><span class="trust-legend-swatch" style="background:var(--lcars-alert, #c47070)"></span> &lt;50%</span>'
                 + '<span style="color:var(--text-dim)">Floor: ' + ((data.trust_floor || 0) * 100).toFixed(0) + '% (' + (data.mesh_trust_status || "?") + ')</span>'
                 + '</div>';
             container.innerHTML = html;
@@ -8383,7 +8383,7 @@
             if (remaining > 0) {
                 refEl.innerHTML = '<div style="text-align:center;font-size:0.82em"><div style="font-size:1.8em;font-weight:700;color:' + tierColor + '">' + remaining + 's</div><div style="color:var(--text-dim)">remaining (' + tier + ')</div></div>';
             } else {
-                refEl.innerHTML = '<div style="text-align:center;font-size:0.82em"><div style="font-size:1.4em;color:#6aab8e">READY</div><div style="color:var(--text-dim)">Last tier: ' + tier + '</div></div>';
+                refEl.innerHTML = '<div style="text-align:center;font-size:0.82em"><div style="font-size:1.4em;color:var(--lcars-medical)">READY</div><div style="color:var(--text-dim)">Last tier: ' + tier + '</div></div>';
             }
         }
     }
@@ -8395,7 +8395,7 @@
         el.innerHTML = '<div style="text-align:center;font-size:0.82em">'
             + '<div style="font-size:1.8em;font-weight:700;color:' + tierColor + '">' + (tempo.recommended_tier || "?").toUpperCase() + '</div>'
             + '<div style="color:var(--text-dim)">gain=' + (tempo.gain || 0).toFixed(3) + ' complexity=' + (tempo.task_complexity || 0).toFixed(3) + '</div>'
-            + (tempo.override_reason ? '<div style="color:#d4944a;margin-top:4px">' + tempo.override_reason + '</div>' : '')
+            + (tempo.override_reason ? '<div style="color:var(--c-warning);margin-top:4px">' + tempo.override_reason + '</div>' : '')
             + '</div>';
     }
 
