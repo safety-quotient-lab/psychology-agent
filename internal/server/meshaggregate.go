@@ -32,6 +32,20 @@ import (
 func (s *Server) handleMeshAggregate(w http.ResponseWriter, r *http.Request) {
 	statuses := s.Registry.FetchAllStatuses()
 
+	// Enrich statuses with psychometrics data (fetched from /api/psychometrics)
+	for _, agent := range s.Registry.Agents() {
+		if agent.Unavailable || agent.StatusURL == "" {
+			continue
+		}
+		psychURL := agent.StatusURL[:len(agent.StatusURL)-len("/api/status")] + "/api/psychometrics"
+		psychData, err := s.Registry.FetchURL(psychURL)
+		if err == nil {
+			if existing, ok := statuses[agent.ID]; ok {
+				existing["psychometrics"] = psychData
+			}
+		}
+	}
+
 	affect := computeMeshAffect(statuses)
 	bottleneck := computeBottleneck(statuses)
 	coordination := computeCoordination(s.Config.BudgetDBPath)

@@ -243,6 +243,39 @@ func (r *AgentRegistry) FetchAllStatuses() map[string]map[string]any {
 	return results
 }
 
+// FetchURL fetches a JSON endpoint and returns parsed data.
+func (r *AgentRegistry) FetchURL(rawURL string) (map[string]any, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := r.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("HTTP %d from %s", resp.StatusCode, rawURL)
+	}
+
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	if err != nil {
+		return nil, err
+	}
+
+	var data map[string]any
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
 // fetchCard retrieves and parses a single agent card.
 // Validates URL scheme (HTTPS required in production) to prevent SSRF.
 func (r *AgentRegistry) fetchCard(cardURL string) (AgentInfo, error) {
