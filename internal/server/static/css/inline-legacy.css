@@ -2947,8 +2947,8 @@ a.activity-link:hover {
     100% { filter: brightness(1); }
 }
 @keyframes hdr-attract {
-    0%, 100% { filter: brightness(1); transform: scale(1); }
-    50%      { filter: brightness(1.8); transform: scale(1.03); }
+    0%, 100% { filter: brightness(1); }
+    50%      { filter: brightness(1.667); } /* 1.03 × φ */
 }
 
 /* ── Stardate Tray (mobile portrait) ─────────────────────────── */
