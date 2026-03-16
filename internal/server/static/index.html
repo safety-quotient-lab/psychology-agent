@@ -3140,6 +3140,23 @@
 
         <!-- Operations Tab -->
         <div class="tab-pane" id="pane-operations">
+            <!-- Command Console — top of Operations -->
+            <div class="lcars-controls-strip" id="ops-controls-top" style="display:flex; margin-bottom:12px; gap:6px; flex-wrap:wrap; align-items:center; padding:6px 0">
+                <button class="lcars-pill-btn lcars-pill-red" onclick="meshControl('pause-all')" id="btn-pause">PAUSE MESH</button>
+                <button class="lcars-pill-btn lcars-pill-green" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
+                <button class="lcars-pill-btn lcars-pill-orange" onclick="meshControl('reset-counters')">RESET COUNTERS</button>
+                <span style="width:1px;height:20px;background:var(--text-dim);margin:0 4px"></span>
+                <button class="lcars-pill-btn lcars-pill-blue" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
+                <button class="lcars-pill-btn lcars-pill-dim" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
+                <span style="width:1px;height:20px;background:var(--text-dim);margin:0 4px"></span>
+                <span style="font-size:0.75em;opacity:0.6;margin-right:4px">MODEL:</span>
+                <button class="lcars-pill-btn lcars-pill-sm" onclick="meshControl('model-haiku')" id="btn-haiku">HAIKU</button>
+                <button class="lcars-pill-btn lcars-pill-sm lcars-pill-active" onclick="meshControl('model-sonnet')" id="btn-sonnet">SONNET</button>
+                <button class="lcars-pill-btn lcars-pill-sm" onclick="meshControl('model-opus')" id="btn-opus">OPUS</button>
+                <span style="width:1px;height:20px;background:var(--text-dim);margin:0 4px"></span>
+                <button class="lcars-pill-btn lcars-pill-teal" onclick="refreshAll()">SYNC NOW</button>
+            </div>
+
             <!-- Status monologue — auto-generated mesh state summary -->
             <div class="lcars-panel" style="margin-bottom: 12px; --panel-accent: var(--c-health)">
                 <div class="lcars-panel-header">Status</div>
@@ -3189,22 +3206,6 @@
                 </div>
                 <div class="lcars-panel-body">
                     <div class="ops-budget-grid" id="ops-budget-grid"></div>
-                    <!-- Command Console — LCARS pill buttons -->
-                    <div class="lcars-controls-strip" id="ops-autonomy-controls" style="display:flex; margin-top:12px; gap:6px; flex-wrap:wrap; align-items:center">
-                        <button class="lcars-pill-btn lcars-pill-red" onclick="meshControl('pause-all')" id="btn-pause">PAUSE MESH</button>
-                        <button class="lcars-pill-btn lcars-pill-green" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
-                        <button class="lcars-pill-btn lcars-pill-orange" onclick="meshControl('reset-counters')">RESET COUNTERS</button>
-                        <span style="width:1px;height:20px;background:var(--text-dim);margin:0 4px"></span>
-                        <button class="lcars-pill-btn lcars-pill-blue" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
-                        <button class="lcars-pill-btn lcars-pill-dim" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
-                        <span style="width:1px;height:20px;background:var(--text-dim);margin:0 4px"></span>
-                        <span style="font-size:0.75em;opacity:0.6;margin-right:4px">MODEL:</span>
-                        <button class="lcars-pill-btn lcars-pill-sm" onclick="meshControl('model-haiku')" id="btn-haiku">HAIKU</button>
-                        <button class="lcars-pill-btn lcars-pill-sm lcars-pill-active" onclick="meshControl('model-sonnet')" id="btn-sonnet">SONNET</button>
-                        <button class="lcars-pill-btn lcars-pill-sm" onclick="meshControl('model-opus')" id="btn-opus">OPUS</button>
-                        <span style="width:1px;height:20px;background:var(--text-dim);margin:0 4px"></span>
-                        <button class="lcars-pill-btn lcars-pill-teal" onclick="refreshAll()">SYNC NOW</button>
-                    </div>
                 </div>
             </div>
 
@@ -7338,11 +7339,11 @@
     let engineeringFetchPending = false;
 
     const SPAWN_AGENTS = [
-        { id: "psychology-agent",  label: "psych", color: "var(--c-psychology)" },
+        { id: "psychology-agent",  label: "psychology", color: "var(--c-psychology)" },
         { id: "psq-agent",        label: "safety-quotient",   color: "var(--c-psq)" },
-        { id: "unratified-agent",  label: "unrat", color: "var(--c-unratified)" },
-        { id: "observatory-agent", label: "obs",   color: "var(--c-observatory)" },
-        { id: "operations-agent",  label: "ops",   color: "var(--c-tab-ops)" },
+        { id: "unratified-agent",  label: "unratified", color: "var(--c-unratified)" },
+        { id: "observatory-agent", label: "observatory",   color: "var(--c-observatory)" },
+        { id: "operations-agent",  label: "operations",   color: "var(--c-tab-ops)" },
     ];
 
     async function fetchEngineeringData() {
