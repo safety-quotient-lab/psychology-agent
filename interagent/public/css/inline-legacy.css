@@ -3111,10 +3111,10 @@ a.activity-link:hover {
     border-radius: 0 var(--elbow-inner, 24px) var(--elbow-inner, 24px) 0;
 }
 
-/* Mobile: hide arm + endcap, title fills remaining space */
+/* Mobile: hide arms, endcap grows to fill */
 @media (max-width: 480px) {
     .lcars-hdr-arm { display: none; }
-    .lcars-hdr-endcap { display: none; }
+    .lcars-hdr-endcap { flex: 1 0 12px !important; } /* grows — do NOT hide */
 }
 /* Tablet: arm shrinks but stays visible */
 @media (max-width: 768px) and (min-width: 481px) {
