@@ -174,26 +174,45 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* ── Elbow connector — square with circle stamped out of corner ── */
 /* Sits between cap and drop. Colored square + radial-gradient
    creates concave sweep: structural color remains, void curves in. */
+/* Connector: colored square, circle stamped out of inner corner.
+   What remains = concave L-shape bridging header arm ↔ sidebar drop.
+
+   Top: circle at bottom-right (void enters from content area)
+   ████████╮
+   ████████ ╰ ← black quarter-circle
+
+   Bottom: circle at top-right (void enters from content area)
+   ████████ ╭ ← black quarter-circle
+   ████████╯
+*/
 .lcars-elbow-connector-top {
-    width: 100%;
-    height: var(--elbow-inner, 24px);
-    flex-shrink: 0;
-    background: radial-gradient(
-        circle at 100% 0%,
-        #000 calc(var(--elbow-inner, 24px) - 1px),
-        var(--c-knowledge) var(--elbow-inner, 24px)
-    );
-}
-.lcars-elbow-connector-bottom {
-    width: 100%;
+    width: calc(100% + var(--elbow-inner, 24px)); /* extends into content area */
     height: var(--elbow-inner, 24px);
     flex-shrink: 0;
     background: radial-gradient(
         circle at 100% 100%,
-        #000 calc(var(--elbow-inner, 24px) - 1px),
+        transparent 0%,
+        transparent calc(var(--elbow-inner, 24px) - 1px),
         var(--c-knowledge) var(--elbow-inner, 24px)
     );
 }
+.lcars-elbow-connector-bottom {
+    width: calc(100% + var(--elbow-inner, 24px)); /* extends into content area */
+    height: var(--elbow-inner, 24px);
+    flex-shrink: 0;
+    background: radial-gradient(
+        circle at 100% 0%,
+        transparent 0%,
+        transparent calc(var(--elbow-inner, 24px) - 1px),
+        var(--c-knowledge) var(--elbow-inner, 24px)
+    );
+}
+
+/* Alert: connectors follow structural chrome */
+body[data-alert-level="3"] .lcars-elbow-connector-top { background: radial-gradient(circle at 100% 100%, transparent 23px, #ffcc00 24px); }
+body[data-alert-level="3"] .lcars-elbow-connector-bottom { background: radial-gradient(circle at 100% 0%, transparent 23px, #ffcc00 24px); }
+body[data-alert-level="2"] .lcars-elbow-connector-top { background: radial-gradient(circle at 100% 100%, transparent 23px, #cc3333 24px); }
+body[data-alert-level="2"] .lcars-elbow-connector-bottom { background: radial-gradient(circle at 100% 0%, transparent 23px, #cc3333 24px); }
 
 /* Sidebar navigation buttons */
 .lcars-sidebar-btn {
