@@ -303,7 +303,7 @@ Layer 1: CPG (rhythm)            Layer 2: Tempo (depth)
 ═══════════════════              ═══════════════════════
 "WHEN to process"                "HOW DEEPLY to process"
 
-cron fires every 8 min    →     tempo function selects
+ZMQ event arrives         →     tempo function selects
 session-metrics hook      →       haiku / sonnet / opus
   fires every tool call          based on what the CPG
 triage script scores      →       surfaced
@@ -314,16 +314,28 @@ Runs without LLM cost            Determines LLM cost
 Pattern-matched operations       Novel reasoning depth
 ```
 
+**Session 91 update:** The mesh transitioned from clock-driven (cron,
+fixed 8-min interval) to event-driven operation (meshd ZMQ transport
+events trigger autonomous-sync.sh via `--event-triggered` flag). This
+transition instantiates the LC-NE gain model mechanically: cron represented
+**tonic** firing (fixed-rate baseline, regardless of demand); event-driven
+represents **phasic** firing (responsive bursts proportional to actual
+signal load). The biological LC-NE system operates precisely this way —
+tonic mode maintains baseline arousal, phasic mode responds to salient
+events (Aston-Jones & Cohen, 2005). The mesh now implements phasic-dominant
+processing natively, making the analogy structural rather than aspirational.
+
 The CPG generates **tempo** in the musical sense — the rhythmic cadence
 of processing (breathing rate of the mesh). The cognitive-tempo model
 determines **dynamics** — how much force (computational depth) applies
-to each beat. In musical terms: the CPG sets 120 BPM; the tempo model
-selects *pianissimo* (haiku), *mezzo-forte* (sonnet), or *fortissimo*
-(opus) per phrase.
+to each beat. In musical terms: ZMQ events set the rhythm (phasic — beats
+arrive when needed, not on fixed schedule); the tempo model selects
+*pianissimo* (haiku), *mezzo-forte* (sonnet), or *fortissimo* (opus)
+per phrase.
 
 This maps to Cattell's (1963) Gf/Gc distinction already displayed in
 the Engineering station:
-- **Gc (crystallized):** CPGs, hooks, cron, triage — run without LLM cost
+- **Gc (crystallized):** CPGs, hooks, event-driven triage — run without LLM cost
 - **Gf (fluid):** deliberations — the tempo model allocates how much
   fluid intelligence each deliberation receives
 

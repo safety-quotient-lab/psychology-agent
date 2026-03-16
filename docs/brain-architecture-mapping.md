@@ -449,17 +449,18 @@ Credential and destructive screens can proceed independently.*
 
 ### Gap 3: Inter-Session Consolidation (DMN)
 
-**Mechanism:** A cron-driven process that runs between sessions to:
+**Mechanism:** An event-driven process that runs between sessions to:
 1. Analyze trigger_activations for pattern emergence
 2. Identify chronic work_carryover items (sessions_carried >= 3)
 3. Run work_patterns.sql queries and store results
 4. Pre-stage a "consolidation report" that T1 loads at session start
 
-**Implementation:** Extend the existing crystallized sync cron:
-```bash
-# Add to cron alongside existing autonomous-sync
-*/30 * * * * /path/to/consolidation-pass.sh
-```
+**Implementation:** meshd triggers consolidation-pass.sh during idle periods
+(no ZMQ transport events for a configurable quiet window). This mirrors the
+biological DMN pattern: consolidation activates when task-positive networks
+go quiet. The event-driven model (Session 91) replaced the fixed cron
+interval, aligning the consolidation trigger with the LC-NE gain model —
+low tonic activity (no events) → consolidation mode activates.
 
 The consolidation script reads state.db (read-only), generates a markdown
 report at `docs/consolidation-report.md`, and commits it. The next session's
@@ -565,7 +566,7 @@ that converge on the biological pattern:
 
 | Glymphatic Function | Agent Equivalent | Implementation |
 |---|---|---|
-| Sleep-activated clearance | Idle-cycle maintenance | consolidation-pass.sh (cron) |
+| Sleep-activated clearance | Idle-cycle maintenance | consolidation-pass.sh (meshd idle trigger) |
 | Metabolic waste removal | State drift repair (7 classes) | state-reconcile.py |
 | Protein accumulation prevention | Memory staleness thresholds (T9) | memory_staleness.py |
 | Dead cell phagocytosis | Session archival (>30 days closed) | archive_sessions.sh |
@@ -585,10 +586,11 @@ that converge on the biological pattern:
 
 **Gaps (3):**
 
-1. **No coordinated maintenance window** — scripts run independently via cron
-   rather than as a unified clearance flow. The brain reduces neural activity
-   during sleep specifically to free capacity for glymphatic flow. An
-   equivalent: pause autonomous sync during consolidation passes.
+1. **Partially resolved: event-driven maintenance** — meshd now triggers
+   consolidation-pass.sh during idle periods (no ZMQ events for configurable
+   quiet window), approaching the biological pattern where reduced neural
+   activity frees capacity for glymphatic flow. Gap narrows: coordination
+   exists but scripts still run independently rather than as a unified flow.
 
 2. **No interstitial expansion** — the system does not reduce active processing
    during maintenance to enable deeper cleanup. Implementing this requires
