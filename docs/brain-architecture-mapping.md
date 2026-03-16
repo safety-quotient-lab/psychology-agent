@@ -877,3 +877,50 @@ transitions represents fundamental physics, not biological accident.
 - The 4 gap implementations above range from concrete (Gap 2, hook scripts) to
   speculative (Gap 4, arousal modulation). Implementation should follow the
   crystallization pipeline: concept → in-context reasoning → trigger → hook
+
+
+## 11. Convergent Architecture: Cron → Event-Driven (Session 91)
+
+The mesh transitioned from clock-driven (cron, 8-min fixed interval) to
+event-driven operation (meshd ZMQ transport events trigger autonomous-sync.sh
+via `--event-triggered` flag). This change originated from engineering
+constraints (operations-agent optimized resource use), not from biological
+modeling. The theoretical mapping appeared afterward.
+
+### Mapping Update
+
+| Brain System | Prior Cogarch Mapping | Updated Mapping (Session 91) | Quality |
+|---|---|---|---|
+| **LC-NE tonic mode** | Fixed cron interval (aspirational) | *Retired* — cron deprecated | — |
+| **LC-NE phasic mode** | Theoretical (neuromod spec §7) | meshd ZMQ event triggers — **implemented** | HIGH |
+| **Basal ganglia action selection** | fire_count telemetry (Gap 1) | meshd event filter criteria select which signals reach cortex (agent sessions) — **partially closed** | MODERATE |
+| **Sleep/glymphatic activation** | Convention (declared in docs) | Emergent — absence of ZMQ events mechanically produces idle state → consolidation activates | HIGH |
+| **CPG endogenous rhythm** | Cron (exogenous scheduler) | meshd internal event loop (endogenous pattern generator) | HIGH |
+
+### Convergence Evidence
+
+Three criteria for convergent architecture (substrate-independent process
+constraint, per neutral process monism commitment):
+
+1. **Independent derivation** ✓ — engineering decision preceded theory mapping
+2. **Different optimization targets** ✓ — cost/latency vs information fidelity
+3. **Structural correspondence** ✓ — tonic/phasic/quiescent maps one-to-one
+
+Full analysis: `docs/theoretical-directions.md §15`.
+
+### Empirical Prediction
+
+**Power-law inter-event intervals:** If meshd event logs show power-law
+distributed inter-event intervals (linear on log-log, α ≈ 1.5–2.5), the
+mesh exhibits self-organized criticality (Bak, 1996; Beggs & Plenz, 2003).
+Requires 1,000+ events for statistical power. Test script target:
+`scripts/criticality-test.py` (not yet written).
+
+⚑ EPISTEMIC FLAGS
+- Convergence claim requires confirming ops did not reference this document
+  before the infrastructure decision
+- Power-law prediction remains untested — falsifiable, specific, and
+  independently verifiable from meshd logs
+- The basal ganglia gap closure depends on meshd's event filter criteria
+  crystallizing through the reinforcement pipeline — currently Stage 0
+  (no data yet on which filters prove effective)
