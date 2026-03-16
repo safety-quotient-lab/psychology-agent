@@ -2893,3 +2893,74 @@ a.activity-link:hover {
         grid-template-columns: 1fr;
     }
 }
+
+/* ── Header Accordion (mobile portrait) ──────────────────────── */
+.hdr-accordion-input {
+    display: none; /* hidden checkbox drives the accordion */
+}
+.hdr-accordion-arrow {
+    display: none; /* hidden on desktop */
+}
+
+/* Desktop: normal horizontal band, no accordion behavior */
+@media (min-width: 481px) {
+    .lcars-header-indicator { display: flex; }
+}
+
+/* Mobile portrait: accordion behavior */
+@media (max-width: 480px) {
+    .theme-lcars .lcars-header-band {
+        flex-direction: column;
+        min-height: auto;
+        position: relative;
+        z-index: 100;
+    }
+    .lcars-header-title {
+        min-height: 40px;
+        border-radius: var(--elbow-inner, 24px) var(--elbow-inner, 24px) 0 0;
+        z-index: 101;
+    }
+    .hdr-accordion-arrow {
+        display: inline;
+        font-size: 0.6em;
+        margin-left: auto;
+        transition: transform 0.3s ease;
+    }
+
+    /* Collapsed: hide indicators */
+    .lcars-header-indicator {
+        max-height: 0;
+        overflow: hidden;
+        padding: 0 14px;
+        margin: 0;
+        opacity: 0;
+        transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.2s ease;
+        border-radius: 0;
+    }
+    /* Last indicator rounds bottom */
+    .lcars-header-indicator:last-child {
+        border-radius: 0 0 var(--gap-m) var(--gap-m);
+    }
+
+    /* Expanded: show indicators stacked */
+    .hdr-accordion-input:checked ~ .lcars-header-band .lcars-header-indicator {
+        max-height: 44px;
+        padding: 6px 14px;
+        opacity: 1;
+    }
+    .hdr-accordion-input:checked ~ .lcars-header-band .hdr-accordion-arrow {
+        transform: rotate(180deg);
+    }
+}
+
+/* ── Header change flash ─────────────────────────────────────── */
+.lcars-header-seg.hdr-changed {
+    animation: hdr-flash 2s ease-in-out 1;
+}
+@keyframes hdr-flash {
+    0%   { filter: brightness(1); }
+    25%  { filter: brightness(1.6); }
+    50%  { filter: brightness(1); }
+    75%  { filter: brightness(1.4); }
+    100% { filter: brightness(1); }
+}

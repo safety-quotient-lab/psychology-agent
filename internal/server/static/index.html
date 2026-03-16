@@ -59,15 +59,16 @@
         <div class="lcars-sidebar-cap-bottom"></div>
     </nav>
 
-    <!-- LCARS Header Band — semantic colors -->
+    <!-- LCARS Header Band — accordion on mobile portrait -->
+    <input type="checkbox" id="hdr-accordion-toggle" class="hdr-accordion-input" aria-hidden="true">
     <div class="lcars-header-band" id="lcars-header-band">
-        <div class="lcars-header-seg" style="background:transparent;flex:3;color:var(--lcars-title);font-size:0.95em;letter-spacing:0.12em;justify-content:flex-start">&#x2B21; INTERAGENT MESH</div>
-        <div class="lcars-header-seg" style="background:var(--lcars-tertiary);flex:1" id="lcars-hdr-agents">— Agents</div>
-        <div class="lcars-header-seg" style="background:var(--lcars-accent);flex:1" id="lcars-hdr-msgs">— Messages</div>
-        <div class="lcars-header-seg" style="background:var(--lcars-secondary);flex:1.5" id="lcars-hdr-stardate">SD —</div>
-        <div class="lcars-header-seg" style="background:var(--lcars-frame);flex:0.8" id="lcars-hdr-proto">A2A/1.0.0</div>
-        <div class="lcars-header-seg" style="background:var(--lcars-highlight);flex:1" id="lcars-hdr-psych">A2A-PSYCH/v1</div>
-        <div class="lcars-header-seg" style="background:var(--lcars-tertiary);flex:0.5" id="lcars-hdr-health">&#x25CF; —</div>
+        <label for="hdr-accordion-toggle" class="lcars-header-seg lcars-header-title" style="background:transparent;flex:3;color:var(--lcars-title);font-size:0.95em;letter-spacing:0.12em;justify-content:flex-start;cursor:pointer">&#x2B21; INTERAGENT MESH <span class="hdr-accordion-arrow">&#x25BC;</span></label>
+        <div class="lcars-header-seg lcars-header-indicator" style="background:var(--lcars-tertiary);flex:1" id="lcars-hdr-agents">— Agents</div>
+        <div class="lcars-header-seg lcars-header-indicator" style="background:var(--lcars-accent);flex:1" id="lcars-hdr-msgs">— Messages</div>
+        <div class="lcars-header-seg lcars-header-indicator" style="background:var(--lcars-secondary);flex:1.5" id="lcars-hdr-stardate">SD —</div>
+        <div class="lcars-header-seg lcars-header-indicator" style="background:var(--lcars-frame);flex:0.8" id="lcars-hdr-proto">A2A/1.0.0</div>
+        <div class="lcars-header-seg lcars-header-indicator" style="background:var(--lcars-highlight);flex:1" id="lcars-hdr-psych">A2A-PSYCH/v1</div>
+        <div class="lcars-header-seg lcars-header-indicator" style="background:var(--lcars-tertiary);flex:0.5" id="lcars-hdr-health">&#x25CF; —</div>
     </div>
 
     <!-- Standard Header (dark/light mode) -->
@@ -1811,6 +1812,20 @@
         return `SD ${year}.${String(dayOfYear).padStart(3, '0')}.${hours}${mins}`;
     }
 
+    const _hdrPrev = {};
+    let _hdrFirstRender = true;
+    function flashIfChanged(el, newText) {
+        if (!el) return;
+        const prev = _hdrPrev[el.id];
+        el.textContent = newText;
+        if (_hdrFirstRender || (prev !== undefined && prev !== newText)) {
+            el.classList.remove("hdr-changed");
+            void el.offsetWidth; // Force reflow to restart animation
+            el.classList.add("hdr-changed");
+        }
+        _hdrPrev[el.id] = newText;
+    }
+
     function updateLcarsHeaderData() {
         const hdrAgents = document.getElementById("lcars-hdr-agents");
         const hdrMsgs = document.getElementById("lcars-hdr-msgs");
@@ -1821,18 +1836,20 @@
         const agents = Object.values(agentData);
         const online = agents.filter(a => a && a.online !== false).length;
         const total = AGENTS.length;
-        hdrAgents.textContent = `${online} Agents Online`;
+        flashIfChanged(hdrAgents, `${online} Agents Online`);
 
         const totalMsgs = agents.reduce((sum, a) => sum + (a?.messages?.total || 0), 0);
-        hdrMsgs.textContent = `${totalMsgs} Messages`;
+        flashIfChanged(hdrMsgs, `${totalMsgs} Messages`);
 
         const allHealthy = online === total && agents.every(a => !a || a.health !== "critical");
-        hdrHealth.textContent = allHealthy ? "\u25CF Nominal" : "\u25CF Degraded";
+        const healthText = allHealthy ? "\u25CF Nominal" : "\u25CF Degraded";
+        flashIfChanged(hdrHealth, healthText);
         hdrHealth.style.background = allHealthy ? "var(--c-knowledge, #9999ff)" : "var(--c-alert, #cc6666)";
 
         ftrStatus.textContent = allHealthy
             ? "Mesh Status: Nominal"
             : `Mesh Status: ${online}/${total} Agents`;
+        _hdrFirstRender = false;
     }
 
     function startLcarsStardate() {
