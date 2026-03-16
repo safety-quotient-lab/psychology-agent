@@ -169,22 +169,30 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     flex-shrink: 0;
     border-radius: var(--elbow-outer) 0 0 0;
     margin-bottom: 0;
-    position: relative;
-    overflow: hidden;
 }
-/* Inner concave cutout — black circle positioned so only the
-   top-left quadrant overlaps the cap's bottom-right corner.
-   Creates the canonical TNG concave sweep. */
-.lcars-sidebar-cap-top::after {
-    content: "";
-    position: absolute;
-    bottom: calc(var(--elbow-inner, 24px) * -1);
-    right: calc(var(--elbow-inner, 24px) * -1);
-    width: calc(var(--elbow-inner, 24px) * 2);
-    height: calc(var(--elbow-inner, 24px) * 2);
-    border-radius: 50%;
-    background: #000;
-    pointer-events: none;
+
+/* ── Elbow connector — square with circle stamped out of corner ── */
+/* Sits between cap and drop. Colored square + radial-gradient
+   creates concave sweep: structural color remains, void curves in. */
+.lcars-elbow-connector-top {
+    width: 100%;
+    height: var(--elbow-inner, 24px);
+    flex-shrink: 0;
+    background: radial-gradient(
+        circle at 100% 0%,
+        #000 calc(var(--elbow-inner, 24px) - 1px),
+        var(--c-knowledge) var(--elbow-inner, 24px)
+    );
+}
+.lcars-elbow-connector-bottom {
+    width: 100%;
+    height: var(--elbow-inner, 24px);
+    flex-shrink: 0;
+    background: radial-gradient(
+        circle at 100% 100%,
+        #000 calc(var(--elbow-inner, 24px) - 1px),
+        var(--c-knowledge) var(--elbow-inner, 24px)
+    );
 }
 
 /* Sidebar navigation buttons */
@@ -244,20 +252,6 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     background: var(--c-knowledge);
     min-height: var(--band-size);
     border-radius: 0 0 0 var(--elbow-outer);
-    position: relative;
-    overflow: hidden;
-}
-/* Inner concave cutout — mirror of top cap, at top-right corner */
-.lcars-sidebar-cap-bottom::after {
-    content: "";
-    position: absolute;
-    top: calc(var(--elbow-inner, 24px) * -1);
-    right: calc(var(--elbow-inner, 24px) * -1);
-    width: calc(var(--elbow-inner, 24px) * 2);
-    height: calc(var(--elbow-inner, 24px) * 2);
-    border-radius: 50%;
-    background: #000;
-    pointer-events: none;
 }
 
 /* ── LCARS Header Band (Segmented) ─────────────────────────── */
