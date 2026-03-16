@@ -208,10 +208,10 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .theme-lcars .lcars-elbow-connector-top {
     display: block;
     position: absolute;
-    left: calc(var(--sidebar-width, 160px) - var(--elbow-inner, 24px));
+    left: var(--sidebar-width, 160px);
     top: var(--band-size, 52px);
-    width: calc(var(--elbow-inner, 24px) * 2);
-    height: calc(var(--elbow-inner, 24px) * 2);
+    width: var(--elbow-inner, 24px);
+    height: var(--elbow-inner, 24px);
     z-index: 10;
     pointer-events: none;
     background: radial-gradient(
@@ -224,10 +224,10 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .theme-lcars .lcars-elbow-connector-bottom {
     display: block;
     position: absolute;
-    left: calc(var(--sidebar-width, 160px) - var(--elbow-inner, 24px));
+    left: var(--sidebar-width, 160px);
     bottom: var(--band-size, 52px);
-    width: calc(var(--elbow-inner, 24px) * 2);
-    height: calc(var(--elbow-inner, 24px) * 2);
+    width: var(--elbow-inner, 24px);
+    height: var(--elbow-inner, 24px);
     z-index: 10;
     pointer-events: none;
     background: radial-gradient(
