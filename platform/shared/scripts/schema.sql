@@ -1020,3 +1020,47 @@ CREATE INDEX IF NOT EXISTS idx_event_log_category ON event_log(category);
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (30, 'Event log for hippocampal replay. Append-only event store (docs/event-sourced-memory.md §2.1-2.2).');
+
+
+-- v31: Efference copies + work carryover (Session 91 diagnostic fix)
+-- Efference copies: forward model predictions for outbound transport messages.
+-- Each outbound message optionally carries an expectation of the response.
+-- /sync Phase 3 step 8 compares inbound against predictions.
+-- Spec: docs/efference-copy-spec.md
+
+CREATE TABLE IF NOT EXISTS efference_copies (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_name    TEXT NOT NULL,
+    outbound_file   TEXT NOT NULL,
+    expected_type   TEXT,
+    expected_agent  TEXT,
+    prediction      TEXT NOT NULL,
+    inbound_file    TEXT,
+    actual          TEXT,
+    match_result    TEXT,
+    delta           TEXT,
+    predicted_at    TEXT DEFAULT (datetime('now')),
+    compared_at     TEXT,
+    UNIQUE(session_name, outbound_file)
+);
+
+-- Work carryover: tracks work items that span multiple sessions.
+-- T1 Check 9 queries this at session start. /cycle writes resolved items.
+-- sessions_carried increments each session the item remains open.
+
+CREATE TABLE IF NOT EXISTS work_carryover (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id      INTEGER NOT NULL,
+    work_item       TEXT NOT NULL,
+    status          TEXT NOT NULL DEFAULT 'planned',
+    sessions_carried INTEGER NOT NULL DEFAULT 1,
+    reason          TEXT,
+    resolved_session INTEGER,
+    created_at      TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_work_carryover_open
+ON work_carryover(resolved_session) WHERE resolved_session IS NULL;
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (31, 'Efference copies + work carryover tables. Diagnostic fix Session 91.');
