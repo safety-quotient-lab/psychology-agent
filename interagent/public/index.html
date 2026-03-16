@@ -4834,8 +4834,8 @@
         results.forEach((r, i) => {
             agentData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "unreachable" };
         });
-        renderPulse();
-        renderOperations();
+        try { renderPulse(); } catch(e) { console.error("renderPulse failed:", e); }
+        try { renderOperations(); } catch(e) { console.error("renderOperations failed:", e); }
 
         // Fetch KB data (non-blocking — renders when ready)
         refreshKnowledge();
@@ -6418,8 +6418,9 @@
         if (!el) return;
 
         // Guard: if no agent data yet, show loading state
-        if (Object.keys(agentData).length === 0) {
-            el.textContent = "Fetching agent status...";
+        const agentKeys = Object.keys(agentData);
+        if (agentKeys.length === 0) {
+            el.textContent = "Waiting for agent data (0 agents fetched)...";
             return;
         }
 
