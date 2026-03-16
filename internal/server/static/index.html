@@ -223,7 +223,7 @@
         .lcars-sidebar-cap-bottom {
             background: var(--c-transport);
             min-height: var(--band-size);
-            border-radius: 0 !important;
+            border-radius: 0 0 0 var(--elbow-outer);
             margin-top: auto;
         }
 
@@ -256,7 +256,14 @@
             white-space: nowrap;
             overflow: hidden;
         }
-        /* Header segments: all flat rectangles, no curves */
+        /* Header: first segment carries inner elbow cutout (bottom-left radius) */
+        .lcars-header-seg:first-child {
+            border-radius: 0 0 0 var(--elbow-inner);
+        }
+        /* Last header segment: rounded right end (pill cap) */
+        .lcars-header-seg:last-child {
+            border-radius: 0 var(--elbow-inner) var(--elbow-inner) 0;
+        }
 
         /* ── LCARS Footer Band (Segmented) ─────────────────────────── */
         .lcars-footer-band {
@@ -287,7 +294,14 @@
             white-space: nowrap;
             overflow: hidden;
         }
-        /* Footer segments: all flat rectangles, no curves */
+        /* Footer: first segment carries inner elbow cutout (top-left radius) */
+        .lcars-footer-seg:first-child {
+            border-radius: var(--elbow-inner) 0 0 0;
+        }
+        /* Last footer segment: rounded right end (pill cap) */
+        .lcars-footer-seg:last-child {
+            border-radius: 0 var(--elbow-inner) var(--elbow-inner) 0;
+        }
 
         /* ── LCARS Content Override ────────────────────────────────── */
         .theme-lcars .lcars-content {
@@ -3579,6 +3593,7 @@
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
                     <div class="lcars-panel-header">Tempo (G9)</div>
                     <div class="lcars-panel-body">
+                        <div id="tempo-waveform" style="margin-bottom:6px"></div>
                         <div class="tempo-gauge" id="tempo-gauge">
                             <div class="tempo-value" id="tempo-value">—<span class="tempo-unit">ms avg</span></div>
                             <div class="tempo-bar">
@@ -4031,6 +4046,34 @@
         const polyline = points.join(" ");
         let fillPath = fill !== "none" ? `<polygon points="${pad},${h - pad} ${polyline} ${w - pad},${h - pad}" fill="${fill}" opacity="0.2"/>` : "";
         return `<svg class="sparkline-svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${fillPath}<polyline points="${polyline}" fill="none" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${points[points.length - 1].split(",")[0]}" cy="${points[points.length - 1].split(",")[1]}" r="2" fill="${stroke}"/></svg>`;
+    }
+
+    // Waveform SVG generator — Com Link (J/K) pattern
+    // Renders oscillating signal between horizontal framing bars
+    function waveformSVG(opts = {}) {
+        const w = opts.width || 200, h = opts.height || 40;
+        const amplitude = opts.amplitude || 0.5; // 0-1 signal strength
+        const frequency = opts.frequency || 3;   // wave cycles
+        const stroke = opts.stroke || "#ff9966";
+        const barColor = opts.barColor || "rgba(153,153,255,0.3)";
+        const points = [];
+        const pad = 2;
+        const midY = h / 2;
+        const maxAmp = (h / 2 - pad) * Math.min(1, amplitude);
+        const steps = Math.max(40, w);
+        for (let i = 0; i <= steps; i++) {
+            const x = pad + (i / steps) * (w - 2 * pad);
+            // Composite wave: primary + harmonic + noise
+            const t = (i / steps) * Math.PI * 2 * frequency;
+            const wave = Math.sin(t) * 0.7 + Math.sin(t * 2.3) * 0.2 + Math.sin(t * 5.1) * 0.1;
+            const y = midY - wave * maxAmp;
+            points.push(x.toFixed(1) + "," + y.toFixed(1));
+        }
+        return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block">
+            <line x1="${pad}" y1="${pad}" x2="${w - pad}" y2="${pad}" stroke="${barColor}" stroke-width="2"/>
+            <line x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" stroke="${barColor}" stroke-width="2"/>
+            <polyline points="${points.join(" ")}" fill="none" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round" opacity="${Math.max(0.3, amplitude)}"/>
+        </svg>`;
     }
 
     // Sparkline history — accumulates values across refreshes for trend display
@@ -4947,39 +4990,72 @@
 
         let html = "";
 
-        // Draw edges between all pairs
+        // Grid overlay — Ohniaka Comm Traffic pattern
+        const gridColor = "rgba(153,153,255,0.08)";
+        const labelColor = "rgba(153,153,255,0.25)";
+        for (let x = 60; x < 580; x += 60) {
+            html += `<line x1="${x}" y1="0" x2="${x}" y2="340" stroke="${gridColor}" stroke-width="0.5" stroke-dasharray="2,4"/>`;
+        }
+        for (let y = 40; y < 340; y += 60) {
+            html += `<line x1="0" y1="${y}" x2="600" y2="${y}" stroke="${gridColor}" stroke-width="0.5" stroke-dasharray="2,4"/>`;
+        }
+        // Sector labels along bottom
+        const sectors = ["001", "002", "003", "004", "005", "006", "007", "008", "009"];
+        sectors.forEach((s, i) => {
+            html += `<text x="${60 + i * 60}" y="335" fill="${labelColor}" font-size="8" text-anchor="middle" font-family="monospace">${s}</text>`;
+        });
+
+        // Draw edges — curved arcs instead of straight lines
         for (let i = 0; i < AGENTS.length; i++) {
             for (let j = i + 1; j < AGENTS.length; j++) {
                 const a = positions[i], b = positions[j];
-                html += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"
-                    stroke="var(--topo-edge)" stroke-width="5" opacity="var(--topo-edge-opacity)"/>`;
+                // Quadratic bezier with control point offset from midpoint
+                const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+                const dx = b.x - a.x, dy = b.y - a.y;
+                const cx = mx - dy * 0.15, cy = my + dx * 0.15;
+                html += `<path d="M${a.x},${a.y} Q${cx},${cy} ${b.x},${b.y}"
+                    fill="none" stroke="var(--topo-edge)" stroke-width="2" opacity="var(--topo-edge-opacity)"/>`;
             }
         }
 
-        // Draw nodes — linked to agent dashboards
+        // Draw nodes
         for (let i = 0; i < AGENTS.length; i++) {
             const agent = AGENTS[i];
             const pos = positions[i];
             const state = agentData[agent.id];
             const online = state?.status === "online";
             const fill = online ? agent.color : "var(--c-inactive)";
+            const delib = online ? getDeliberations(state.data?.autonomy_budget) : 0;
 
             html += `<g style="cursor:pointer" onclick="switchAgent('${agent.id}');switchTab('meta')">
                 <circle cx="${pos.x}" cy="${pos.y}" r="45"
-                    fill="${fill}" opacity="${online ? 0.12 : 0.05}"
-                    stroke="${fill}" stroke-width="5"/>
+                    fill="${fill}" opacity="${online ? 0.10 : 0.04}"
+                    stroke="${fill}" stroke-width="2"/>
                 <circle cx="${pos.x}" cy="${pos.y}" r="16" fill="${fill}"
                     opacity="${online ? 1 : 0.3}">
                     ${online ? `<animate attributeName="r" values="15;19;15" dur="3s" repeatCount="indefinite"/>` : ""}
                 </circle>
-                <text x="${pos.x}" y="${pos.y + 72}" text-anchor="middle"
-                    font-size="21" font-family="inherit" font-weight="bold">
+                <text x="${pos.x}" y="${pos.y + 56}" text-anchor="middle"
+                    font-size="16" font-family="inherit" font-weight="bold"
+                    fill="currentColor">
                     ${agentName(agent)}
                 </text>
+                ${online ? `<text x="${pos.x}" y="${pos.y + 70}" text-anchor="middle"
+                    font-size="9" font-family="monospace" fill="${labelColor}">
+                    ${delib} delib
+                </text>` : ""}
             </g>`;
         }
 
         svg.innerHTML = html;
+
+        // Update topology footer
+        const topoFtr = document.getElementById("topo-footer-num");
+        if (topoFtr) {
+            const onlineCount = Object.values(agentData).filter(a => a.status === "online").length;
+            topoFtr.textContent = onlineCount + "/" + AGENTS.length;
+        }
+
         mirrorToLcars("topology-svg", "lcars-topology-svg");
     }
 
@@ -7333,29 +7409,50 @@
             return;
         }
 
-        // Sort by most recent activity, take top 8
+        // Sort by most recent activity, take top 6
         const sorted = [...sessions]
             .sort((a, b) => (b.last_activity || "").localeCompare(a.last_activity || ""))
-            .slice(0, 8);
+            .slice(0, 6);
 
-        const maxTurns = Math.max(...sorted.map(s => s.turn_count || s.turns || 1), 1);
+        const statusColors = {
+            active: "#ff9966", open: "#ff9900", resolved: "#6aab8e",
+            closed: "#666688", tombstoned: "#cc6666"
+        };
 
-        const html = '<ul class="session-timeline-list">' + sorted.map(s => {
+        // Molecular chain: each session = a row with linked circles
+        const html = sorted.map(s => {
             const name = s.name || s.session_name || s.session_id || "unknown";
-            const turns = s.turn_count || s.turns || 0;
+            const turns = Math.min(s.turn_count || s.turns || 1, 12);
             const status = (s.status || "active").toLowerCase();
-            const widthPct = Math.max((turns / maxTurns) * 100, 5);
-            return `<li class="session-timeline-item">
-                <span class="session-timeline-name" title="${name}">${name}</span>
-                <div class="session-timeline-bar-track">
-                    <div class="session-timeline-bar-fill status-${status}" style="width:${widthPct}%"></div>
-                </div>
-                <span class="session-timeline-meta">T${turns}</span>
-                <span class="session-timeline-status status-${status}">${status}</span>
-            </li>`;
-        }).join("") + '</ul>';
+            const color = statusColors[status] || "#cc99cc";
 
-        container.innerHTML = html;
+            // SVG chain
+            const svgW = 200, svgH = 20, pad = 8;
+            const nodeR = 5, spacing = turns > 1 ? (svgW - 2 * pad) / (turns - 1) : 0;
+            let chainSvg = `<svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" style="display:block">`;
+            // Connection line
+            if (turns > 1) {
+                chainSvg += `<line x1="${pad}" y1="${svgH/2}" x2="${pad + spacing * (turns - 1)}" y2="${svgH/2}" stroke="${color}" stroke-width="1.5" opacity="0.5"/>`;
+            }
+            // Nodes
+            for (let i = 0; i < turns; i++) {
+                const cx = pad + (turns > 1 ? i * spacing : svgW / 2);
+                const isLast = i === turns - 1;
+                const r = isLast ? nodeR + 2 : nodeR;
+                const opacity = isLast ? 1 : 0.6;
+                chainSvg += `<circle cx="${cx}" cy="${svgH/2}" r="${r}" fill="${color}" opacity="${opacity}"/>`;
+            }
+            chainSvg += `</svg>`;
+
+            return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)">
+                <span style="min-width:100px;max-width:140px;font-size:0.75em;font-weight:600;color:${color};overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${name}">${name}</span>
+                <div style="flex:1">${chainSvg}</div>
+                <span style="font-size:0.68em;color:var(--text-dim);min-width:24px;text-align:right">T${turns}</span>
+                <span style="font-size:0.62em;font-weight:600;text-transform:uppercase;color:${color};min-width:50px;text-align:right">${status}</span>
+            </div>`;
+        }).join("");
+
+        container.innerHTML = html || '<div class="helm-placeholder">No session data</div>';
     }
 
     function renderRoutingTable() {
@@ -7669,9 +7766,22 @@
         fillEl.style.width = `${pct}%`;
 
         let label = "NOMINAL";
-        if (avgMs > 1500) label = "SLOW";
-        else if (avgMs > 800) label = "MODERATE";
+        let tempoColor = "#6aab8e";
+        if (avgMs > 1500) { label = "SLOW"; tempoColor = "#c47070"; }
+        else if (avgMs > 800) { label = "MODERATE"; tempoColor = "#d4944a"; }
         statusEl.textContent = `OODA cycle: ${label}`;
+
+        // Waveform visualization — frequency inversely proportional to cycle time
+        const tempoWaveEl = document.getElementById("tempo-waveform");
+        if (tempoWaveEl) {
+            const freq = Math.max(1, 6 - (avgMs / 500));
+            tempoWaveEl.innerHTML = waveformSVG({
+                width: tempoWaveEl.clientWidth || 200, height: 30,
+                amplitude: Math.min(1, avgMs / 1000),
+                frequency: freq,
+                stroke: tempoColor,
+            });
+        }
     }
 
     function renderCost() {
@@ -8087,7 +8197,15 @@
             const actPct = Math.min(100, (osc.activation || 0) * 100);
             const thrPct = Math.min(100, (osc.threshold || 0) * 100);
             const stateColor = osc.state === "firing" ? "#c47070" : osc.state === "refractory" ? "#d4944a" : "#6aab8e";
+            // Waveform visualization — Com Link pattern
+            const waveHtml = waveformSVG({
+                width: oscEl.clientWidth || 280, height: 36,
+                amplitude: osc.activation || 0,
+                frequency: 3 + (osc.cycle_count || 0) % 4,
+                stroke: stateColor,
+            });
             oscEl.innerHTML = '<div style="font-size:0.82em">'
+                + '<div style="margin-bottom:6px">' + waveHtml + '</div>'
                 + '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Activation</span><span>' + (osc.activation || 0).toFixed(3) + '</span></div>'
                 + '<div style="position:relative;height:18px;background:var(--surface);border-radius:4px;overflow:hidden;margin-bottom:8px">'
                 + '<div style="height:100%;width:' + actPct + '%;background:' + stateColor + ';border-radius:4px;transition:width 0.5s"></div>'
