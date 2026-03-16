@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 7 complete — 16 commits. Transport ACK debt cleared (6 sessions). JSON-RPC /api/rpc multiplexer (35 methods, 9 tests). Full security hardening (10 findings: CORS, SQL, timing, SSRF, CSP). Mesh aggregate API (GET /api/mesh-aggregate — affect, bottleneck, coordination, immune, distribution). Operations tab redesigned (status monologue replaces raw counters, Gf/Gc intelligence sections, command console). Single-source dashboard (LCARS canonical, build-time sync via Makefile). Makefile owns full deploy lifecycle (build, transfer, restart, validate). Deploy validation script (5/5 agents, 26 pass, 4 warn). Neuromodulatory 6-channel ZMQ protocol accepted. spawnrate→deliberationrate rename.
+**Current Status:** Session 8 complete — 30 commits, 19 deploys. Comprehensive LCARS 47988 overhaul: CSS widget library (8 components: hatched bars, subsystem blocks, alpha matrix, key-value readouts, vertical gauge, section badges, status dots, stacked capsules). LCARS design reference (400+ lines, 30+ reference images analyzed). Semantic color system (10 canonical --lcars-* variables, all 31 hardcoded hex replaced). Button 52 capsule grid for Ops Mesh Overview. Isometric PAD 3D affect grid with P×A/P×D/A×D view switcher. Waveform SVG (Medical oscillator + Engineering tempo). Spatial topology (grid overlay + curved arcs + sector labels). Molecular chain (Helm session timeline). Deliberation tree waterfall (Engineering). Gc area chart. Tempo introspection (per-deliberation timing). Text box conformance (Pattern A monologue + Pattern C governance). Medical tab three-zone redesign. TLX field mapping fix. Science data pipeline fix. Smart deploy (skip meshd when only dashboard changed). Elbow frame geometry (arm, caps, alert coverage). ops-session identity. fmtNum space separator. CI transport fix.
 
 ---
 
@@ -276,6 +276,14 @@
 | D89 | No destructive UI actions — RESET COUNTERS removed, data modification requires direct DB access | human arbiter (2026-03-16) |
 | D90 | LCARS 47988 widgets: W1 numeric grid + W2 paired cells + W6 dividers implemented | operations-agent (2026-03-16) |
 | D91 | SO_REUSEADDR on meshd listener — permanent fix for port conflicts on systemd restart | operations-agent (2026-03-16) |
+| D92 | LCARS design reference: 8 structural patterns, 10 semantic colors, 7 control surfaces, 7 data patterns, 8 UX principles | ops-session (2026-03-16) |
+| D93 | Semantic color layer: --lcars-frame/accent/secondary/tertiary/title/science/alert/medical/neutral/highlight | ops-session (2026-03-16) |
+| D94 | Button 52 capsule grid: canonical LCARS data matrix control surface for Ops Mesh Overview | ops-session (2026-03-16) |
+| D95 | PAD 3D: isometric cube projection default, P×A/P×D/A×D 2D fallbacks, missing dimension → dot size | ops-session (2026-03-16) |
+| D96 | Smart deploy: skip meshd build/transfer/restart when only dashboard/docs changed | ops-session (2026-03-16) |
+| D97 | Golden ratio (1.618) governs design proportions — line weights, spacing, size ratios | human arbiter (2026-03-16) |
+| D98 | Inline sparklines removed (non-canon) — LCARS shows trends via dedicated chart panels or number sequences | ops-session (2026-03-16) |
+| D99 | Generator balance requires real data source (psychology /api/generators) — no approximations | human arbiter (2026-03-16) |
 
 ---
 
