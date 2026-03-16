@@ -64,6 +64,15 @@
     --elbow-width: 20px;
     --elbow-radius: 16px;
     --band-height: 4px;
+
+    /* Golden ratio spacing scale (φ = 1.618) */
+    --gap-xs: 3px;
+    --gap-s: 5px;
+    --gap-m: 8px;
+    --gap-l: 13px;
+    --gap-xl: 21px;
+    --gap-2xl: 34px;
+    --gap-3xl: 55px;
 }
 
 /* LCARS-only elements: hidden in dark/light, visible in LCARS */
@@ -148,6 +157,12 @@
     --band-height: 8px;
     --elbow-width: 28px;
     --elbow-radius: 20px;
+
+    /* LCARS geometry (TNG canonical) */
+    --band-size: 52px;
+    --elbow-outer: 48px;
+    --elbow-inner: 24px;
+    --sidebar-width: 160px;
 }
 
 /* ── LCARS Elbow Connector ───────────────────────────────────── */

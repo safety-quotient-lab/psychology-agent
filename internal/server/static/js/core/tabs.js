@@ -2,21 +2,22 @@
  * tabs.js — Tab navigation and LCARS spine rendering for the Interagent Mesh.
  *
  * The dashboard organizes content into stations (tabs). Five appear in all
- * themes; four additional stations (science, engineering, helm, tactical)
- * appear only in LCARS mode — modeled after Trek bridge stations.
+ * themes; five additional stations (science, engineering, helm, tactical,
+ * medical) appear only in LCARS mode — modeled after Trek bridge stations.
  *
  * The LCARS spine (left-side vertical bar) reflects the active tab's content
  * sections through colored segments with proportional flex values, providing
  * a structural map of what each station contains.
  *
- * DOM dependencies: .lcars-tab elements, .tab-pane elements, #lcars-spine,
+ * DOM dependencies: .lcars-tab elements, .lcars-sidebar-btn elements,
+ *                   .tab-pane elements, #lcars-spine,
  *                   document.documentElement style properties.
  */
 
 /** All recognized tab identifiers, ordered by navigation sequence. */
 export const VALID_TABS = [
     "pulse", "meta", "kb", "wisdom", "operations",
-    "science", "medical", "engineering", "helm", "tactical"
+    "science", "engineering", "helm", "tactical", "medical"
 ];
 
 /**
@@ -31,9 +32,9 @@ export const TAB_COLORS = {
     operations: "--c-tab-ops",
     science: "--c-tab-science",
     tactical: "--c-tab-tactical",
-    medical: "--c-tab-medical",
     engineering: "--c-tab-engineering",
     helm: "--c-tab-helm",
+    medical: "--c-tab-medical",
 };
 
 /**
@@ -74,21 +75,14 @@ export const SPINE_CONFIG = {
     ],
     science: [
         { label: "Affect",     color: "var(--c-tab-science)", flex: 2 },
-        { label: "Organism",   color: "var(--c-epistemic)",   flex: 2 },
+        { label: "Mesh",       color: "var(--c-epistemic)",   flex: 2 },
         { label: "Generators", color: "var(--c-health)",      flex: 2 },
         { label: "Flow",       color: "var(--c-tab-science)", flex: 1 },
         { label: "DEW",        color: "var(--c-alert)",       flex: 1 },
         { label: "Control",    color: "var(--c-transport)",   flex: 1 },
     ],
-    medical: [
-        { label: "Selector", color: "var(--c-tab-medical)", flex: 1 },
-        { label: "Vitals",   color: "var(--c-tab-medical)", flex: 3 },
-        { label: "DEW",      color: "var(--c-alert)",       flex: 2 },
-        { label: "Control",  color: "var(--c-transport)",   flex: 2 },
-        { label: "History",  color: "var(--c-tab-medical)", flex: 1 },
-    ],
     engineering: [
-        { label: "Spawn",       color: "var(--c-tab-engineering)", flex: 2 },
+        { label: "Deliberation", color: "var(--c-tab-engineering)", flex: 2 },
         { label: "Utilization", color: "var(--c-health)",          flex: 2 },
         { label: "Tempo",       color: "var(--c-tab-engineering)", flex: 2 },
         { label: "Cost",        color: "var(--c-warning)",         flex: 1 },
@@ -104,6 +98,13 @@ export const SPINE_CONFIG = {
         { label: "Compliance", color: "var(--c-warning)",      flex: 2 },
         { label: "Transport",  color: "var(--c-transport)",    flex: 2 },
         { label: "Threats",    color: "var(--c-alert)",        flex: 2 },
+    ],
+    medical: [
+        { label: "Selector", color: "var(--c-tab-medical)", flex: 1 },
+        { label: "Vitals",   color: "var(--c-tab-medical)", flex: 3 },
+        { label: "DEW",      color: "var(--c-alert)",       flex: 2 },
+        { label: "Control",  color: "var(--c-transport)",   flex: 2 },
+        { label: "History",  color: "var(--c-tab-medical)", flex: 1 },
     ],
 };
 
@@ -131,22 +132,38 @@ export function updateSpine(tabId) {
  * @param {string} tabId — target tab identifier (accepts "knowledge" as legacy alias for "meta")
  * @param {boolean} [updateHash=true] — whether to update the URL fragment
  *
- * DOM WRITE: toggles .active on .lcars-tab and .tab-pane elements,
+ * DOM WRITE: toggles .active on .lcars-tab, .lcars-sidebar-btn, and .tab-pane elements,
+ *            clears inline display overrides on .tab-pane elements,
  *            sets --active-tab-color CSS property, updates browser history.
- * GLOBAL STATE: calls station-specific fetch functions (fetchScienceData, etc.)
- *               which must exist in global scope or get injected during integration.
+ *
+ * NOTE: Station-specific fetch calls (refreshAll, fetchScienceData, etc.) remain
+ * in the inline script. The caller should wire those via a wrapper or callback
+ * registry. See inline switchTab for the authoritative call list.
  */
 export function switchTab(tabId, updateHash = true) {
     if (tabId === "knowledge") tabId = "meta"; // backward compat
     if (!VALID_TABS.includes(tabId)) tabId = "pulse";
+    // Standard tabs
     document.querySelectorAll(".lcars-tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tabId));
+    // LCARS sidebar buttons
     document.querySelectorAll(".lcars-sidebar-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabId));
-    document.querySelectorAll(".tab-pane").forEach(p => p.classList.toggle("active", p.id === `pane-${tabId}`));
+    // Pane visibility — reset all inline display overrides, let CSS .active handle it
+    document.querySelectorAll(".tab-pane").forEach(p => {
+        p.classList.toggle("active", p.id === `pane-${tabId}`);
+        p.style.display = "";  // clear any inline display override
+    });
     // Update header band + title color to match active tab
     const colorVar = TAB_COLORS[tabId] || "--c-tab-pulse";
     document.documentElement.style.setProperty("--active-tab-color", `var(${colorVar})`);
     updateSpine(tabId);
-    // Station-specific fetch calls handled by main.js window.switchTab wrapper
+    // TODO: wire to module render functions — station-specific fetches
+    // The inline version calls these directly:
+    //   if (tabId === "operations") refreshAll();
+    //   if (tabId === "science") fetchScienceData();
+    //   if (tabId === "engineering") fetchEngineeringData();
+    //   if (tabId === "helm") fetchHelmData();
+    //   if (tabId === "tactical") fetchTacticalData();
+    //   if (tabId === "medical") fetchMedicalData();
     if (updateHash) history.replaceState(null, "", `#${tabId}`);
 }
 
@@ -159,8 +176,6 @@ export function switchTab(tabId, updateHash = true) {
 export function initHashNavigation() {
     window.addEventListener("hashchange", () => {
         const tab = location.hash.replace("#", "") || "pulse";
-        // Use window.switchTab if available (wired by main.js with station fetch logic)
-        const fn = typeof window.switchTab === "function" ? window.switchTab : switchTab;
-        fn(tab, false);
+        switchTab(tab, false);
     });
 }

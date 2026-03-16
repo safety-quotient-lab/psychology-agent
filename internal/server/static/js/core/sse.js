@@ -11,16 +11,14 @@
  * incremental patches.
  *
  * DOM dependencies: #footer-status element for mode indicator.
- * Global state dependencies: AGENTS array, refreshAll function,
- *                            sseConnections array, sseActive flag,
- *                            refreshTimer interval handle.
+ * Injected dependencies: AGENTS array, refreshAll function (via configureSse).
  */
 
-// Module-level state
-// NOTE: these mirror globals in index.html. During integration, the
-// caller should pass or share these references.
-let sseConnections = [];
-let sseActive = false;
+// Module-level connection state
+export let sseConnections = [];
+export let sseActive = false;
+
+// Polling timer — shared with the caller so SSE can cancel/restart it
 let refreshTimer = null;
 
 // Injected dependencies — set via configureSse before calling connectSSE.
@@ -33,12 +31,12 @@ let _refreshAll = null;
  * @param {Object} deps
  * @param {Array} deps.agents — AGENTS array
  * @param {Function} deps.refreshAll — full dashboard refresh function
- * @param {number|null} deps.refreshTimer — current polling interval handle
+ * @param {number|null} [deps.refreshTimer] — current polling interval handle
  */
 export function configureSse({ agents, refreshAll, refreshTimer: timer }) {
     _agents = agents;
     _refreshAll = refreshAll;
-    refreshTimer = timer;
+    if (timer !== undefined) refreshTimer = timer;
 }
 
 /**
@@ -47,11 +45,13 @@ export function configureSse({ agents, refreshAll, refreshTimer: timer }) {
  *
  * DOM WRITE: sets dataset.sseMode on #footer-status.
  */
-function updateSSEIndicator(live) {
+export function updateSSEIndicator(live) {
     const el = document.getElementById("footer-status");
     if (!el) return;
+    const dot = live ? "●" : "○";
+    const label = live ? "SSE live" : "polling 30s";
     el.dataset.sseMode = live ? "live" : "poll";
-    // Actual text update happens on next refresh cycle
+    // Update will happen on next refresh cycle
 }
 
 /**
@@ -60,7 +60,7 @@ function updateSSEIndicator(live) {
  * event-driven updates. On total SSE failure, falls back to 30s polling.
  *
  * DOM READ: none directly (delegates to updateSSEIndicator and _refreshAll).
- * GLOBAL STATE WRITE: sseConnections, sseActive, refreshTimer.
+ * MODULE STATE WRITE: sseConnections, sseActive, refreshTimer.
  */
 export function connectSSE() {
     sseConnections.forEach(es => es.close());
@@ -70,7 +70,7 @@ export function connectSSE() {
     for (const agent of _agents) {
         const es = new EventSource(`${agent.url}/events`);
 
-        es.addEventListener("connected", () => {
+        es.addEventListener("connected", (e) => {
             connectedCount++;
             if (connectedCount >= 1 && !sseActive) {
                 sseActive = true;
@@ -83,13 +83,13 @@ export function connectSSE() {
             }
         });
 
-        es.addEventListener("refresh", () => {
-            // Agent data changed — trigger full refresh
+        es.addEventListener("refresh", (e) => {
+            // Agent data changed — refresh just that agent
             if (_refreshAll) _refreshAll();
         });
 
         es.onerror = () => {
-            // SSE failed for this agent — fall back to polling if no SSE remains active
+            // SSE failed for this agent — fall back to polling if no SSE active
             es.close();
             sseConnections = sseConnections.filter(c => c !== es);
             if (sseConnections.every(c => c.readyState === EventSource.CLOSED)) {
