@@ -14,7 +14,7 @@
 # Phase 2 (UDP multicast via meshd) requires operations-agent.
 source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
-AGENT_ID="${AGENT_ID:-psychology-agent}"
+# AGENT_ID resolved by _debug.sh from settings.local.json → agent-card.json → fallback
 TOKEN_FILE="/tmp/${AGENT_ID}-photonic-state.json"
 MODE_FILE="/tmp/${AGENT_ID}-task-mode"
 SEQUENCE_FILE="/tmp/${AGENT_ID}-photonic-seq"
