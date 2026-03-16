@@ -128,18 +128,14 @@ deploy-transfer:
 		$(SCP_CMD) ./$(MESHD_BIN) $${AGENT_SSH_HOST}:$(REMOTE_BIN).new
 	@echo "  Transferred to $(REMOTE_BIN).new"
 
-# Restart: transfer restart script, swap binary, run detached (avoids SSH kill)
+# Restart: swap binary, restart via systemd --user units
 deploy-restart:
 	@echo ""
 	@echo "═══ Restarting meshd processes ═══"
 	@. ./.dev.vars 2>/dev/null; \
 		$(SSH_CMD) 'cp $(REMOTE_BIN) $(REMOTE_BACKUP) 2>/dev/null; mv $(REMOTE_BIN).new $(REMOTE_BIN) && chmod +x $(REMOTE_BIN)' && \
 		echo "  Binary swapped (backup: $(REMOTE_BACKUP))" && \
-		$(SCP_CMD) scripts/remote-restart.sh $${AGENT_SSH_HOST}:/tmp/remote-restart.sh && \
-		$(SSH_CMD) 'chmod +x /tmp/remote-restart.sh && nohup /tmp/remote-restart.sh > /tmp/meshd-restart.log 2>&1 &' && \
-		echo "  Restart script launched (detached)" && \
-		sleep 8 && \
-		$(SSH_CMD) 'cat /tmp/meshd-restart.log 2>/dev/null'
+		$(SSH_CMD) 'for svc in $$(systemctl --user list-units --type=service --state=running 2>/dev/null | grep meshd | awk "{print \$$1}"); do systemctl --user restart "$$svc" && echo "  Restarted $$svc"; done; sleep 2; echo ""; echo "  Processes:"; pgrep -f "/home/kashif/platform/meshd --port" -la 2>/dev/null | head -5'
 
 deploy-validate:
 	@echo ""
