@@ -3158,7 +3158,6 @@
             <div class="ops-control-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:3px; margin-bottom:12px;">
                 <button class="lcars-pill-btn ops-ctrl" style="background:#cc6666" onclick="meshControl('pause-all')" id="btn-pause">PAUSE MESH</button>
                 <button class="lcars-pill-btn ops-ctrl" style="background:#6aab8e" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
-                <button class="lcars-pill-btn ops-ctrl" style="background:#ff9944" onclick="meshControl('reset-counters')">RESET COUNTERS</button>
                 <button class="lcars-pill-btn ops-ctrl" style="background:#5b9cf6" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
                 <button class="lcars-pill-btn ops-ctrl" style="background:#666;color:#ccc" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
                 <button class="lcars-pill-btn ops-ctrl ops-model-btn" style="background:#cc99cc" onclick="meshControl('model-haiku')" id="btn-haiku">MODEL: HAIKU</button>
@@ -4503,7 +4502,6 @@
         const actions = {
             "pause-all": { note: "Mesh paused — spawns blocked until resume" },
             "resume-all": { note: "Mesh resumed — spawns unblocked" },
-            "reset-counters": { note: "Autonomy counters reset to zero" },
         };
         const cfg = actions[action];
         if (!cfg) return;
