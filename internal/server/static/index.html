@@ -29,6 +29,10 @@
         ]
     }
     </script>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <!-- TODO Session 9: remove inline <style> after full audit confirms external CSS coverage -->
     <style>
         /* ── Design System ────────────────────────────────────────────── */
         :root {
@@ -79,6 +83,15 @@
             --elbow-width: 20px;
             --elbow-radius: 16px;
             --band-height: 4px;
+
+            /* Golden ratio spacing scale (φ = 1.618) */
+            --gap-xs: 3px;
+            --gap-s: 5px;
+            --gap-m: 8px;
+            --gap-l: 13px;
+            --gap-xl: 21px;
+            --gap-2xl: 34px;
+            --gap-3xl: 55px;
         }
 
         /* LCARS-only elements: hidden in dark/light, visible in LCARS */
@@ -189,8 +202,9 @@
         .lcars-sidebar-cap-top {
             background: var(--c-knowledge);
             min-height: var(--band-size);
+            flex-shrink: 0;
             border-radius: var(--elbow-outer) 0 0 0;
-            margin-bottom: 3px;
+            margin-bottom: var(--gap-xs);
         }
 
         /* Sidebar navigation buttons */
@@ -201,6 +215,7 @@
             border-radius: 24px 0 0 24px;
             padding: 10px 12px 10px 16px;
             min-height: 44px;
+            flex-shrink: 0;  /* bulky but never stretch to fill */
             font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
             font-size: 0.72em;
             font-weight: 700;
@@ -209,7 +224,7 @@
             text-align: left;
             color: #000;
             cursor: pointer;
-            margin-bottom: 3px;
+            margin-bottom: var(--gap-xs);
             transition: filter 0.15s, padding-left 0.15s;
         }
         .lcars-sidebar-btn:hover { filter: brightness(1.15); }
@@ -221,7 +236,8 @@
         /* Sidebar spacer blocks — visual rhythm, no text */
         .lcars-sidebar-spacer {
             min-height: 20px;
-            margin-bottom: 3px;
+            flex-shrink: 0;
+            margin-bottom: var(--gap-xs);
             border-radius: 12px 0 0 12px;
         }
 
@@ -278,13 +294,18 @@
             overflow: hidden;
             justify-content: flex-end;
         }
-        /* First header segment: title — left-aligned */
+        /* First header segment: title — left pill cap */
         .lcars-header-seg:first-child {
             justify-content: flex-start;
             font-size: 0.85em;
             letter-spacing: 0.1em;
+            border-radius: var(--elbow-inner) 0 0 var(--elbow-inner);
         }
-        /* Last header segment: rounded right end (pill cap) */
+        /* Middle header segments: mini right cap */
+        .lcars-header-seg:not(:first-child):not(:last-child) {
+            border-radius: 0 var(--gap-m) var(--gap-m) 0;
+        }
+        /* Last header segment: rounded right end (full pill cap) */
         .lcars-header-seg:last-child {
             border-radius: 0 var(--elbow-inner) var(--elbow-inner) 0;
             justify-content: center;
@@ -320,7 +341,15 @@
             white-space: nowrap;
             overflow: hidden;
         }
-        /* Last footer segment: rounded right end (pill cap) */
+        /* First footer segment: left pill cap */
+        .lcars-footer-seg:first-child {
+            border-radius: var(--elbow-inner) 0 0 var(--elbow-inner);
+        }
+        /* Middle footer segments: mini right cap */
+        .lcars-footer-seg:not(:first-child):not(:last-child) {
+            border-radius: 0 var(--gap-m) var(--gap-m) 0;
+        }
+        /* Last footer segment: rounded right end (full pill cap) */
         .lcars-footer-seg:last-child {
             border-radius: 0 var(--elbow-inner) var(--elbow-inner) 0;
         }
