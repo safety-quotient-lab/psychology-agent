@@ -13,9 +13,11 @@ REL_PATH="${FILE_PATH#"$PROJECT_ROOT"/}"
 
 case "$REL_PATH" in
   safety-quotient/*)
+    _record_trigger T3
     echo "[BOUNDARY] Sub-project crossed: safety-quotient/. This work normally routes to the psq-agent context. Switch context or defer unless explicitly integrating."
     ;;
   pje-framework/*)
+    _record_trigger T3
     echo "[BOUNDARY] Sub-project crossed: pje-framework/. This work normally routes to the pje context. Switch context or defer unless explicitly integrating."
     ;;
 esac
