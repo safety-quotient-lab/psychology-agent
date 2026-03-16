@@ -2894,65 +2894,6 @@ a.activity-link:hover {
     }
 }
 
-/* ── Header Accordion (mobile portrait) ──────────────────────── */
-.hdr-accordion-input {
-    display: none; /* hidden checkbox drives the accordion */
-}
-.hdr-accordion-arrow {
-    display: none; /* hidden on desktop */
-}
-
-/* Desktop: normal horizontal band, no accordion behavior */
-@media (min-width: 481px) {
-    .lcars-header-indicator { display: flex; }
-}
-
-/* Mobile portrait: accordion behavior */
-@media (max-width: 480px) {
-    .theme-lcars .lcars-header-band {
-        flex-direction: column;
-        min-height: auto;
-        position: relative;
-        z-index: 100;
-    }
-    .lcars-header-title {
-        min-height: 40px;
-        border-radius: var(--elbow-inner, 24px) var(--elbow-inner, 24px) 0 0;
-        z-index: 101;
-    }
-    .hdr-accordion-arrow {
-        display: inline;
-        font-size: 0.6em;
-        margin-left: auto;
-        transition: transform 0.3s ease;
-    }
-
-    /* Collapsed: hide indicators */
-    .lcars-header-indicator {
-        max-height: 0;
-        overflow: hidden;
-        padding: 0 14px;
-        margin: 0;
-        opacity: 0;
-        transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.2s ease;
-        border-radius: 0;
-    }
-    /* Last indicator rounds bottom */
-    .lcars-header-indicator:last-child {
-        border-radius: 0 0 var(--gap-m) var(--gap-m);
-    }
-
-    /* Expanded: show indicators stacked */
-    .hdr-accordion-input:checked ~ .lcars-header-band .lcars-header-indicator {
-        max-height: 44px;
-        padding: 6px 14px;
-        opacity: 1;
-    }
-    .hdr-accordion-input:checked ~ .lcars-header-band .hdr-accordion-arrow {
-        transform: rotate(180deg);
-    }
-}
-
 /* ── Header change flash ─────────────────────────────────────── */
 .lcars-header-seg.hdr-changed {
     animation: hdr-flash 2s ease-in-out 1;
@@ -2980,14 +2921,30 @@ a.activity-link:hover {
 
 /* Mobile portrait: stardate becomes tray trigger */
 @media (max-width: 480px) {
+    .theme-lcars .lcars-header-band {
+        flex-wrap: nowrap !important; /* title + stardate share one row */
+        min-height: auto;
+    }
     .lcars-header-desktop-only {
         display: none !important; /* hide inline pills — they live in the tray */
     }
-    .stardate-tray-label {
-        cursor: pointer;
+    /* Title shrinks, stardate gets fixed width */
+    .lcars-header-seg:first-child {
+        flex: 1 1 0 !important;
+        min-width: 0;
+        overflow: hidden;
     }
     .lcars-stardate-cell {
+        flex: 0 0 auto !important;
         overflow: visible; /* allow tray to extend below */
+    }
+    .stardate-tray-label {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        height: 100%;
+        padding: 0 8px;
+        font-size: 0.68em;
     }
     .stardate-tray {
         display: flex;
