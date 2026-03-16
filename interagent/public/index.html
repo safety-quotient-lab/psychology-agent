@@ -2848,6 +2848,9 @@
                 </div>
             </div>
 
+            <!-- W1: Numeric Data Grid (LCARS 47988 pattern) -->
+            <div id="lcars-data-grid" style="display:flex; flex-wrap:wrap; gap:3px; margin-bottom:16px;"></div>
+
             <!-- Agent health cards -->
             <div class="agents-grid" id="agents-grid"></div>
 
@@ -4771,6 +4774,39 @@
     }
 
     // ── Render: Agent Cards ────────────────────────────────────────
+    // W1: LCARS Numeric Data Grid — alternating color capsules with mesh metrics
+    function renderLcarsDataGrid() {
+        const el = document.getElementById("lcars-data-grid");
+        if (!el) return;
+
+        const online = Object.values(agentData).filter(a => a.status === "online");
+        const totalDelib = online.reduce((s, a) => s + getDeliberations(a.data?.autonomy_budget), 0);
+        const totalMsgs = online.reduce((s, a) => s + (a.data?.recent_messages?.length || 0), 0);
+        const pending = online.reduce((s, a) => s + (a.data?.unprocessed_messages?.length || 0), 0);
+        const decisions = online.reduce((s, a) => s + (a.data?.active_gates?.length || 0), 0);
+        const events = online.reduce((s, a) => s + (a.data?.event_count || 0), 0);
+
+        // LCARS capsule colors — alternating from the palette
+        const colors = ["#cc99cc", "#ff9966", "#9999ff", "#cc6699", "#ff9900", "#6aab8e", "#5b9cf6"];
+
+        const metrics = [
+            { val: fmtNum(totalDelib), label: "DELIB" },
+            { val: fmtNum(totalMsgs), label: "MSG" },
+            { val: fmtNum(pending), label: "PEND" },
+            { val: fmtNum(decisions), label: "GATE" },
+            { val: fmtNum(events), label: "EVT" },
+            { val: online.length + "/" + AGENTS.length, label: "AGENTS" },
+        ];
+
+        el.innerHTML = metrics.map((m, i) => {
+            const bg = colors[i % colors.length];
+            return `<div style="display:inline-flex; gap:2px;">
+                <div style="background:${bg}; border-radius:10px 0 0 10px; padding:4px 8px; color:#000; font-weight:700; font-size:0.82em; min-width:36px; text-align:right;">${m.val}</div>
+                <div style="background:color-mix(in srgb, ${bg} 40%, #111); border-radius:0 10px 10px 0; padding:4px 8px; color:${bg}; font-size:0.65em; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; display:flex; align-items:center;">${m.label}</div>
+            </div>`;
+        }).join("");
+    }
+
     function renderAgentCards() {
         const grid = document.getElementById("agents-grid");
         grid.innerHTML = "";
@@ -4962,6 +4998,7 @@
     // ── Render: Combined ───────────────────────────────────────────
     function renderPulse() {
         renderVitals();
+        renderLcarsDataGrid();
         renderAgentCards();
         renderTopology();
         renderActivity();
