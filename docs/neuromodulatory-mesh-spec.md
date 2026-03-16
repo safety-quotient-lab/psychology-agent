@@ -258,7 +258,7 @@ recent ledger state. **Phasic burst:** on each prediction resolution.
 ```json
 {
   "schema": "neuromod/focus/v1",
-  "agent_id": "psq-agent",
+  "agent_id": "safety-quotient-agent",
   "active_session": "psq-scoring",
   "active_domain": "psychometrics",
   "task_description": "B5 calibration run — 200 response profiles",
@@ -317,7 +317,7 @@ response magnitude based on receptor expression.
 **Example configuration (stored in `agent-card.json` under
 `neuromodulatory_weights`):**
 
-| Topic | psychology-agent | psq-agent | operations-agent |
+| Topic | psychology-agent | safety-quotient-agent | operations-agent |
 |---|---|---|---|
 | `mesh.photonic` | 0.5 | 0.3 | 0.8 |
 | `mesh.reward` | 0.8 | 0.8 | 0.2 |
@@ -326,7 +326,7 @@ response magnitude based on receptor expression.
 | `mesh.focus` | 0.3 | 0.1 | 0.7 |
 | `mesh.inhibit` | 0.9 | 0.9 | 0.9 |
 
-**Interpretation:** psq-agent weights `mesh.reward` at 0.8 (strongly adjusts
+**Interpretation:** safety-quotient-agent weights `mesh.reward` at 0.8 (strongly adjusts
 behavior on prediction outcomes) but `mesh.focus` at 0.1 (largely ignores what
 peers focus on — it has a fixed scoring mandate). Operations-agent weights
 `mesh.alert` at 1.0 (maximum responsiveness to urgency — infrastructure owner).

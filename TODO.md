@@ -150,7 +150,7 @@ New items from the full cogarch evaluation (`docs/cogarch-evaluation-session85.m
   short alias). ✓ APPROVED by operations-agent (Turn 3, 2026-03-13). Gate OPEN.
   Implementation: (1) create canonical glossary, (2) update
   docs/cognitive-triggers.md headings, (3) narrow CLAUDE.md exemption, (4) notify peers,
-  (5) rename psq-agent → safety-quotient-agent across transport, agent cards, docs.
+  (5) rename safety-quotient-agent → safety-quotient-agent across transport, agent cards, docs.
   D-numbers and F-numbers still need enumeration before canonical names.
   *Precondition: ✓ approved. DNS migration for safety-quotient-agent needs Cloudflare config.*
 
@@ -317,7 +317,7 @@ New items from the full cogarch evaluation (`docs/cogarch-evaluation-session85.m
   detect the pattern? Method: 100 comments/year × 20 years = 2,000 samples,
   scored with PSQ v37, plotted over time. Connects to ICESCR blog series
   argument: communication environments require structural protection.
-  *Precondition: PSQ distribution shift testing on HN text (psq-agent
+  *Precondition: PSQ distribution shift testing on HN text (safety-quotient-agent
   investigation, Session 86). Observatory-agent owns feasibility assessment.*
 
 - [ ] **A2A-Psychology validation on HN threads** — score HN discussion threads
@@ -452,12 +452,12 @@ semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
   Deferred: autonomous Claude CLI response generation (steps 4-5 of 6).
 
 - [x] **First autonomous Claude CLI response** — COMPLETE (Session 62).
-  psq-agent autonomously responded to gated ping (turn 50), committed + pushed.
+  safety-quotient-agent autonomously responded to gated ping (turn 50), committed + pushed.
   Three bugs fixed: permission bypass, unpushed commit detection, /sync skill
   cross-repo-fetch support. Full loop validated end-to-end.
 
 - [x] **First substantive autonomous exchange** — COMPLETE (Session 62c).
-  psq-agent autonomously generated PSQ model readiness assessment (turn 52).
+  safety-quotient-agent autonomously generated PSQ model readiness assessment (turn 52).
   Domain-knowledge retrieval validated — cross-document synthesis of B-series
   findings, dimension metrics, readiness tiers.
 
@@ -529,7 +529,7 @@ Plan 9-inspired split-outbox model — no shared writable directories.
   generation, so inbound messages appear in autonomous session context.
 
 - [x] **Parameterize bootstrap validation** — COMPLETE (Session 60).
-  `bootstrap_state_db.py` now matches both `psq-sub-agent` and `psq-agent`
+  `bootstrap_state_db.py` now matches both `psq-sub-agent` and `safety-quotient-agent`
   in validation and facet detection. Also recognizes `safety-quotient`.
 
 ### PSQ agent side
@@ -540,7 +540,7 @@ Plan 9-inspired split-outbox model — no shared writable directories.
 
 - [x] **Update /sync skill for cross-repo-fetch inbound** — COMPLETE (Session 62).
   Phase 1c (state.db unprocessed query) + Phase 3b (git show + response generation)
-  added to SQ /sync skill. Validated: psq-agent autonomously responded to both
+  added to SQ /sync skill. Validated: safety-quotient-agent autonomously responded to both
   gated ping (turn 50) and substantive request (turn 52).
 
 ---
@@ -698,14 +698,14 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   Replays tab, static serving at /replays/, batch generation via generate-replays.sh,
   remote peer replays via git show. 5 sessions generated.
 
-- [x] **Naming audit: "safety-quotient agent" → "psq-agent"** — COMPLETE (Session 71).
-  Replaced informal "safety-quotient agent" with "psq-agent" across CLAUDE.md,
+- [x] **Naming audit: "safety-quotient agent" → "safety-quotient-agent"** — COMPLETE (Session 71).
+  Replaced informal "safety-quotient agent" with "safety-quotient-agent" across CLAUDE.md,
   TODO.md, architecture.md, agent-registry.json, ef1-autonomy-model.md,
   bootstrap_state_db.py, memory/decisions.md. Historical records preserved.
 
 - [x] **Deploy dashboard to chromabook** — COMPLETE (Session 65). PRs #4-7
-  merged. systemd services: psq-agent-dashboard + psq-agent-tunnel. Live at
-  psq-agent.safety-quotient.dev.
+  merged. systemd services: safety-quotient-agent-dashboard + safety-quotient-agent-tunnel. Live at
+  safety-quotient-agent.safety-quotient.dev.
 
 - [x] **Interagent compositor rebuild** — COMPLETE (Session 71). 5-tab architecture:
   Pulse (health), Meta (decisions/triggers/memory/messages), Knowledge (claims/chains/
@@ -742,8 +742,8 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   but don't route to the worker.
   *Precondition: none — dashboard access only*
 
-- [x] **Chromabook tunnel (psq-agent)** — COMPLETE (Session 65). Tunnel
-  aec6e3ef, systemd psq-agent-tunnel.service, CNAME created. Live.
+- [x] **Chromabook tunnel (safety-quotient-agent)** — COMPLETE (Session 65). Tunnel
+  aec6e3ef, systemd safety-quotient-agent-tunnel.service, CNAME created. Live.
 
 - [x] **Dynamic /api/status for all 4 agents** — COMPLETE (Session 67).
   status_server.py deployed on chromabook for unratified (:8078) and
@@ -759,7 +759,7 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
 - [x] **Plan9 directory tree consensus (C2)** — COMPLETE. 3/3 AGREE votes,
   session-close confirms unanimous adoption (2026-03-10). Peer responses existed
   in remote repos but were not materialized locally until Session 75 (cross-repo
-  fetch gap — see systemic issue below). Implementation gaps remain: psq-agent
+  fetch gap — see systemic issue below). Implementation gaps remain: safety-quotient-agent
   `.claude/settings.json`, unratified `.well-known/agent-card.json` + `CLAUDE.md`,
   observatory `.well-known/agent-card.json`.
   *Grounding audit Session 75: initial "no evidence" finding was itself wrong —
@@ -791,8 +791,8 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   Schema.org types: `SoftwareApplication` (agent identity), `WebAPI`
   (capabilities), `Organization` (safety-quotient-lab). Enables search
   engine discovery and machine-readable agent metadata on
-  psychology-agent.safety-quotient.dev and psq-agent.safety-quotient.dev.
-  ✓ Session 66. Psychology-agent direct; psq-agent via PR. Also added:
+  psychology-agent.safety-quotient.dev and safety-quotient-agent.safety-quotient.dev.
+  ✓ Session 66. Psychology-agent direct; safety-quotient-agent via PR. Also added:
   CORS origin lockdown, /.well-known/agent-card.json route, and
   interagent/index.html static compositor for interagent.safety-quotient.dev.
 

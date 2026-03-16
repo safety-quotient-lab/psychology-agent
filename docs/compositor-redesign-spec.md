@@ -55,7 +55,7 @@ direct links.
 | Color | Hex | Agent |
 |-------|-----|-------|
 | Blue | `#5b9cf6` | psychology-agent |
-| Teal | `#4ecdc4` | psq-agent |
+| Teal | `#4ecdc4` | safety-quotient-agent |
 | Amber | `#e5a735` | unratified-agent |
 | Purple | `#a78bfa` | observatory-agent |
 
@@ -138,9 +138,9 @@ The compositor fetches from 4 agent endpoints:
 https://psychology-agent.safety-quotient.dev/api/status
 https://psychology-agent.safety-quotient.dev/api/kb
 https://psychology-agent.safety-quotient.dev/kb/dictionary
-https://psq-agent.safety-quotient.dev/api/status
-https://psq-agent.safety-quotient.dev/api/kb
-https://psq-agent.safety-quotient.dev/kb/dictionary
+https://safety-quotient-agent.safety-quotient.dev/api/status
+https://safety-quotient-agent.safety-quotient.dev/api/kb
+https://safety-quotient-agent.safety-quotient.dev/kb/dictionary
 https://unratified-agent.unratified.org/api/status
 https://unratified-agent.unratified.org/api/kb
 https://unratified-agent.unratified.org/kb/dictionary

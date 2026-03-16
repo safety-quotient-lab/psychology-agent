@@ -71,7 +71,7 @@ Each agent carries a consistent color across all visualizations:
 | Agent | Color | Usage |
 |---|---|---|
 | psychology-agent | #9999ff | Nodes, cards, leader lines |
-| psq-agent | #cc99cc | Nodes, cards, leader lines |
+| safety-quotient-agent | #cc99cc | Nodes, cards, leader lines |
 | unratified-agent | #ff9966 | Nodes, cards, leader lines |
 | observatory-agent | #6699cc | Nodes, cards, leader lines |
 | operations-agent | #ff9900 | Nodes, cards, leader lines |

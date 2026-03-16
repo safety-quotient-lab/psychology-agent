@@ -92,7 +92,7 @@ warranted only if an agent needs its own operator-facing display:
 
 | Agent | Dashboard need | Rationale |
 |---|---|---|
-| psq-agent | LOW | Scoring pipeline monitoring — could use compositor |
+| safety-quotient-agent | LOW | Scoring pipeline monitoring — could use compositor |
 | unratified-agent | LOW | Content publishing — existing monitor worker covers health |
 | observatory-agent | MEDIUM | HN longitudinal study may need research-specific display |
 | operations-agent | LOW | meshd ops console — CLI (`meshctl`) covers most needs |

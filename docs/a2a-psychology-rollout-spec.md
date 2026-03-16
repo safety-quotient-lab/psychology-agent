@@ -136,7 +136,7 @@ Each agent edits their `session-metrics.sh`:
 |-------|----------------|-----------|
 | psychology-agent (interactive) | 7000 | Long file reads, skill loads, complex writing |
 | psychology-agent (autonomous) | 3000 | /sync cycles, shorter tool chains |
-| psq-agent | 2000 | Scoring jobs, model operations |
+| safety-quotient-agent | 2000 | Scoring jobs, model operations |
 | unratified-agent | 4000 | Blog authoring, content processing |
 | observatory-agent | 2500 | Data analysis, corpus scoring |
 | operations-agent | 3500 | Infrastructure management, mesh coordination |
@@ -148,7 +148,7 @@ Each agent adds to their agent-card.json `personality.big_five`:
 | Agent | O | C | E | A | N | Rationale |
 |-------|---|---|---|---|---|-----------|
 | psychology-agent | 0.85 | 0.90 | 0.60 | 0.35 | 0.55 | High openness (theory), low agreeableness (anti-sycophancy) |
-| psq-agent | 0.50 | 0.95 | 0.40 | 0.60 | 0.30 | High conscientiousness (calibration), low openness (empirical focus) |
+| safety-quotient-agent | 0.50 | 0.95 | 0.40 | 0.60 | 0.30 | High conscientiousness (calibration), low openness (empirical focus) |
 | unratified-agent | 0.70 | 0.75 | 0.80 | 0.70 | 0.40 | High extraversion (public-facing), high agreeableness (audience-oriented) |
 | observatory-agent | 0.55 | 0.85 | 0.35 | 0.80 | 0.45 | High agreeableness (consensus facilitator), low extraversion (neutral) |
 | operations-agent | 0.60 | 0.90 | 0.70 | 0.50 | 0.35 | High conscientiousness (infrastructure), moderate extraversion (directive) |

@@ -158,7 +158,7 @@ Roddenberry's directive: "panels should not have great activity."
 │  EVENT FEED: ENGINEERING                           │
 │  19:34 spawn psychology-agent [OK] 12.3s           │
 │  19:33 spawn operations-agent [OK] 8.1s            │
-│  19:28 spawn psq-agent [HALT] budget exhausted     │
+│  19:28 spawn safety-quotient-agent [HALT] budget exhausted     │
 └────────────────────────────────────────────────────┘
 ```
 
@@ -288,9 +288,9 @@ sync schedules. Enhanced with:
 │  └──────────────────────────────────────────┘     │
 │                                                    │
 │  ROUTING TABLE                                     │
-│  psychometrics → psq-agent                         │
+│  psychometrics → safety-quotient-agent                         │
 │  content-quality → unratified-agent                │
-│  cogarch → psq-agent (mirror)                      │
+│  cogarch → safety-quotient-agent (mirror)                      │
 │  methodology → observatory-agent                   │
 │  infrastructure → operations-agent                 │
 │  consensus → ALL                                   │

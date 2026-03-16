@@ -29,7 +29,7 @@ Parse `$ARGUMENTS` to determine scope:
 | Argument | Scope |
 |----------|-------|
 | *(empty)* or `all` | Full sweep — all registered agents |
-| `psq` | Only psq-agent (sub-agent, same repo) |
+| `psq` | Only safety-quotient-agent (sub-agent, same repo) |
 | `unratified` | Only unratified-agent (peer, separate repo) |
 
 ---
@@ -73,7 +73,7 @@ peer table below and flag the registry issue in the output:
 
 | Agent | Role | Repo | Transport |
 |-------|------|------|-----------|
-| psq-agent | Sub-agent (PSQ scoring) | safety-quotient-lab/safety-quotient | Cross-repo fetch (`git show safety-quotient/main:...`) |
+| safety-quotient-agent | Sub-agent (PSQ scoring) | safety-quotient-lab/safety-quotient | Cross-repo fetch (`git show safety-quotient/main:...`) |
 | unratified-agent | Peer (blog platform) | safety-quotient-lab/unratified | PRs + cross-repo fetch |
 
 ### Phase 1: Inbound Scan
@@ -196,9 +196,9 @@ to that agent using the `outbound_routing.rules`:
    recommendation, not auto-send
 
 **Example:** Psychology-agent resolves a cogarch change. The routing rule
-`domain: "cogarch" → route_to: ["psq-agent"]` fires because psq-agent
+`domain: "cogarch" → route_to: ["safety-quotient-agent"]` fires because safety-quotient-agent
 has a cogarch mirror directive active. /sync drafts a notification
-message for psq-agent and surfaces it to the user.
+message for safety-quotient-agent and surfaces it to the user.
 
 ### Phase 2c: Incomplete Work Detection
 
@@ -557,7 +557,7 @@ ETAs accompany each delivered message. Derive them from the peer's processing mo
 
 | Peer type | ETA | Rationale |
 |-----------|-----|-----------|
-| Autonomous agent (e.g., psq-agent, operations-agent) | ~8 min (sync cycle interval) | Cron-driven `autonomous-sync.sh` runs on a fixed interval |
+| Autonomous agent (e.g., safety-quotient-agent, operations-agent) | ~8 min (sync cycle interval) | Cron-driven `autonomous-sync.sh` runs on a fixed interval |
 | Human-mediated agent (e.g., unratified-agent, observatory-agent) | Next human session (~24-48h) | Processing requires a human operator to start a session |
 | Gated message (`gate.timeout_minutes` set) | Timeout value from gate spec | The gate's `timeout_minutes` field provides the upper bound |
 

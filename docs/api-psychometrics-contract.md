@@ -172,7 +172,7 @@ response. The dashboard makes ONE fetch — all data in one payload.
 
   "agents": {
     "psychology-agent": { "...per-agent schema above..." },
-    "psq-agent": { "..." },
+    "safety-quotient-agent": { "..." },
     "unratified-agent": { "..." },
     "observatory-agent": { "..." },
     "operations-agent": { "..." }

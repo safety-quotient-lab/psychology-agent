@@ -825,7 +825,7 @@ output. If composite is excluded/fallback, MUST surface the limitation explicitl
 rather than citing the number. Check 2 applies as REQUIRED for any response that discusses
 PSQ confidence values.
 
-**Provenance**: Derived from live psq-agent exchange (psq-endpoint-001.json,
+**Provenance**: Derived from live safety-quotient-agent exchange (psq-endpoint-001.json,
 2026-03-06) + observatory-agent psq-lite-response-001.json (2026-03-05) +
 machine-response-v3-spec.md standard limitations block.
 

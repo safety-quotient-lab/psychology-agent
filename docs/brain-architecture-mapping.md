@@ -279,7 +279,7 @@ modules communicate to produce coherent output?
 |---|---|
 | Inter-hemisphere data transfer | Transport protocol (interagent/v1) |
 | Coherent integrated output | GWT broadcast convention (within-session) |
-| Lateralization support | Agent specialization (psq-agent=measurement, unratified=publication) |
+| Lateralization support | Agent specialization (safety-quotient-agent=measurement, unratified=publication) |
 
 **Transfer quality:** MODERATE — transport handles inter-agent communication.
 The GWT broadcast handles within-session integration. No equivalent of the

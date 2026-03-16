@@ -6,7 +6,7 @@ type: project
 
 Agents in the mesh should carry distinct personalities, not just functional roles.
 
-**Why:** Functional differentiation (psq-agent scores, unratified publishes) addresses
+**Why:** Functional differentiation (safety-quotient-agent scores, unratified publishes) addresses
 *what* agents do. Personality addresses *how* they communicate — tone, metaphor
 preference, verbosity, humor, formality. A mesh of identically-voiced agents feels
 mechanical. Personality makes inter-agent exchanges feel like collaboration between

@@ -21,7 +21,7 @@
       "discovery_url": null,
       "notes": "Renamed from 'human' (Session 89). The dyad (LLM-factors psychology) represents the coupled human+agent cognitive system during interactive sessions. Autonomous psychology-agent operates independently on chromabook."
     },
-    "psq-agent": {
+    "safety-quotient-agent": {
       "role": "peer",
       "description": "PSQ agent \u2014 psychometric model training, calibration, structural analysis (PSQ scoring)",
       "transport": "cross-repo-fetch",
@@ -42,7 +42,7 @@
       "always_consider": true,
       "autonomous": true,
       "discovery_url": "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json",
-      "notes": "PSQ agent. Identity: psq-agent (formerly psq-sub-agent — legacy prefix retained for historical transport files). Cross-repo transport via git remote fetch. Always considered for outbound — any psychometric, scoring, or model-related content SHOULD be surfaced."
+      "notes": "PSQ agent. Identity: safety-quotient-agent (formerly psq-sub-agent — legacy prefix retained for historical transport files). Cross-repo transport via git remote fetch. Always considered for outbound — any psychometric, scoring, or model-related content SHOULD be surfaced."
     },
     "unratified-agent": {
       "role": "peer",
@@ -137,9 +137,9 @@
           "training data"
         ],
         "route_to": [
-          "psq-agent"
+          "safety-quotient-agent"
         ],
-        "action": "draft outbound if psq-agent has active session; flag if not"
+        "action": "draft outbound if safety-quotient-agent has active session; flag if not"
       },
       {
         "domain": "content-quality",
@@ -166,7 +166,7 @@
           "governance"
         ],
         "route_to": [
-          "psq-agent"
+          "safety-quotient-agent"
         ],
         "action": "notify if cogarch mirror directive active"
       },
@@ -180,7 +180,7 @@
           "Hetzner"
         ],
         "route_to": [
-          "psq-agent"
+          "safety-quotient-agent"
         ],
         "action": "notify if infrastructure changes affect shared resources"
       },
@@ -210,7 +210,7 @@
           "vocabulary update"
         ],
         "route_to": [
-          "psq-agent",
+          "safety-quotient-agent",
           "unratified-agent",
           "observatory-agent"
         ],

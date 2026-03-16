@@ -128,7 +128,7 @@
   "peers": {
     "_description": "Registered agents in the mesh. Mirrors agent-registry.json structure but scoped to identity fields that adopters must change. The full registry (transport/agent-registry.json) derives from these values.",
     "agents": {
-      "psq-agent": {
+      "safety-quotient-agent": {
         "role": "peer",
         "display_name": "PSQ Agent",
         "description": "Psychometric model training, calibration, structural analysis",
@@ -181,7 +181,7 @@
       {
         "domain": "psychometrics",
         "keywords": ["PSQ", "scoring", "calibration", "model", "dimension", "bifactor", "concordance", "training data"],
-        "route_to": ["psq-agent"]
+        "route_to": ["safety-quotient-agent"]
       },
       {
         "domain": "content-quality",
@@ -191,12 +191,12 @@
       {
         "domain": "cogarch",
         "keywords": ["trigger", "cognitive architecture", "hook", "evaluator", "governance"],
-        "route_to": ["psq-agent"]
+        "route_to": ["safety-quotient-agent"]
       },
       {
         "domain": "infrastructure",
         "keywords": ["state layer", "schema", "bootstrap", "deployment"],
-        "route_to": ["psq-agent"]
+        "route_to": ["safety-quotient-agent"]
       }
     ]
   },
@@ -204,8 +204,8 @@
   "sub_projects": [
     {
       "path": "safety-quotient/",
-      "agent_id": "psq-agent",
-      "boundary_message": "This work normally routes to the psq-agent context. Switch context or defer unless explicitly integrating."
+      "agent_id": "safety-quotient-agent",
+      "boundary_message": "This work normally routes to the safety-quotient-agent context. Switch context or defer unless explicitly integrating."
     },
     {
       "path": "pje-framework/",
@@ -234,7 +234,7 @@
     "agent_detection_patterns": {
       "_description": "Substring patterns matched against entry_key + value to assign agent facets. Order matters — first match wins.",
       "patterns": [
-        { "match": ["psq-sub-agent", "psq sub-agent", "psq-agent", "psq agent"], "agent": "psq-agent" },
+        { "match": ["psq-sub-agent", "psq sub-agent", "safety-quotient-agent", "psq agent"], "agent": "safety-quotient-agent" },
         { "match": ["unratified"], "agent": "unratified-agent" }
       ],
       "default_agent": "psychology-agent"

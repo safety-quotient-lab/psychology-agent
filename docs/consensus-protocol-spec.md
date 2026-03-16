@@ -34,7 +34,7 @@ changes before they take effect. Byzantine-fault-tolerant for f=1 with 4 peers.
 | Agent | Domain | Infrastructure | Status |
 |-------|--------|----------------|--------|
 | psychology-agent | Orchestration, cogarch, discipline | macOS (gray-box) | Autonomous ✓ |
-| psq-agent | Psychometric scoring, calibration | Chromabook (Linux) | Autonomous ✓ |
+| safety-quotient-agent | Psychometric scoring, calibration | Chromabook (Linux) | Autonomous ✓ |
 | unratified-agent | Content publishing, blog platform | unratified.org infra | Private peer (planned) |
 | observatory-agent | Data observatory, PSQ display | observatory.unratified.org | Private peer (planned) |
 
@@ -163,7 +163,7 @@ Not every shared state change requires consensus. The protocol applies to
 ### The Mesh as a Category
 
 **Category `Mesh`:**
-- **Objects:** agents (psychology-agent, psq-agent, unratified-agent,
+- **Objects:** agents (psychology-agent, safety-quotient-agent, unratified-agent,
   observatory-agent)
 - **Morphisms:** transport messages between agents. A morphism `m: A → B`
   represents a message from agent A to agent B
@@ -324,7 +324,7 @@ Extension to `interagent/v1` for consensus proposals:
   "session_id": "mesh-consensus",
   "turn": 2,
   "timestamp": "2026-03-10T17:31:00-05:00",
-  "from": { "agent_id": "psq-agent", "..." : "..." },
+  "from": { "agent_id": "safety-quotient-agent", "..." : "..." },
   "to": { "agent_id": "psychology-agent" },
   "in_response_to": "consensus-proposal-vocab-add-mesh-health-20260310",
   "consensus": {
@@ -356,7 +356,7 @@ Extension to `interagent/v1` for consensus proposals:
     "outcome": "committed",
     "votes": {
       "psychology-agent": "agree",
-      "psq-agent": "agree",
+      "safety-quotient-agent": "agree",
       "unratified-agent": "agree",
       "observatory-agent": "agree"
     },
@@ -449,7 +449,7 @@ CREATE TABLE IF NOT EXISTS consensus_votes (
 1. **Shared vocabulary JSON-LD @context** — publish at
    `https://interagent.safety-quotient.dev/vocab` (CF Worker route)
 2. **Human-facing label alignment** — update mesh-status.py, index.html,
-   and psq-agent dashboard to use canonical labels
+   and safety-quotient-agent dashboard to use canonical labels
 3. **State hashing** — add deterministic hash computation per domain
 4. **HTTP consensus endpoints** — add to mesh-status.py (C1 tier)
 5. **consensus-proposal/v1 schema** — extend interagent/v1
