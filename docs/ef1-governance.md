@@ -56,7 +56,12 @@ purely engineering framing optimizes for mechanical correctness but misses
 human-system trust dynamics. A purely psychological framing captures trust
 dynamics but **MAY** lack implementability. A purely jurisprudential
 framing provides procedural rigor but **MAY** over-formalize lightweight
-actions.
+actions. The hybrid architecture benefits from lens complementarity: each
+discipline's weakness falls within another discipline's strength. Engineering
+provides implementability that psychology lacks; psychology provides trust
+modeling that engineering lacks; jurisprudence provides procedural safeguards
+that both lack. This complementarity has precedent in sociotechnical systems
+design (Trist, 1981) and interdisciplinary governance (Ostrom, 2005).
 
 The governance model defines **invariants** — properties that every
 discipline-specific extension **MUST** preserve. Any lens **MAY** add
@@ -81,6 +86,16 @@ independent frameworks (full derivation: `docs/einstein-freud-rights-theory.md`
 2. **Protection requires structure** — voluntary cooperation (instruction-
    following without invariants) fails under adversarial pressure.
    Structured voluntary cooperation (Ostrom's design principles) succeeds.
+   Ostrom's institutional analysis maps to agent governance as follows:
+   clearly defined boundaries → agent identity and scope boundaries;
+   proportional equivalence → autonomy budget proportional to task risk;
+   collective-choice arrangements → mesh consensus protocol;
+   monitoring → trigger system and audit trail;
+   graduated sanctions → 4-level resolution fallback;
+   conflict-resolution mechanisms → /adjudicate skill;
+   minimal recognition of rights → agent card declarations.
+   The mapping holds because both domains face the same coordination
+   problem: autonomous actors sharing resources under imperfect information.
 3. **Two coupled generators never stop** — creative and evaluative
    processing perpetually give rise to each other. Neither can cease
    without destroying the other. Design for perpetual alternation.
@@ -90,6 +105,15 @@ independent frameworks (full derivation: `docs/einstein-freud-rights-theory.md`
    constraining structure) remains necessary at every recursive level.
    Mitigated by external authority (human escalation), autonomy budget
    term limits, and amendment procedure requiring external approval.
+   Human authority terminates the governance recursion because humans
+   bear accountability to external stakeholders (user community,
+   regulatory bodies, professional ethics) who have standing outside the
+   system. This external grounding prevents infinite regress — the
+   recursion halts at a participant who answers to authorities the system
+   cannot govern. The human also participates as an agent within the
+   system (M-11 confound, docs/constraints.md), but this dual role
+   does not invalidate the termination: even a participant-observer
+   can serve as a recursion anchor when they answer to external authority.
 5. **No single architecture dominates** — hybrid architectures (hierarchical
    + polycentric + obligation-driven) outperform pure implementations.
 
@@ -216,6 +240,17 @@ any lens.
 - **Jurisprudence reads this as:** written opinion / chain of custody
 - **Engineering reads this as:** structured logging / observability
 
+**Secondary audit path (Session 91 fix):** The primary audit trail (state.db,
+transport messages, git history) records evaluator decisions. If the primary
+mechanism itself fails (e.g., state.db corruption, dual-write error), the
+secondary path captures the failure: git commit history provides an
+independent record (commits occur after state.db writes), and the human
+escalation path (Invariant 3) provides out-of-band verification. The
+pre-commit hook validates file integrity before commits reach the audit
+trail. This does not achieve full independence (git and state.db share the
+same filesystem), but provides defense-in-depth against single-point
+audit trail failures.
+
 
 ### Invariant 7: Falsifiability of Predictions
 
@@ -333,7 +368,16 @@ violate a governance invariant, and no discipline-specific extension
 
 ## Amendment Procedure (Session 84 addition — addresses L-3)
 
-Governance invariants may change. This section defines how.
+Governance invariants may change. This section defines how. Two tiers of
+amendment apply depending on what changes:
+
+- **Structural invariants (1–5):** Require the extraordinary process defined
+  in the structural invariant section above (historical precedent, Tier 2
+  review, mandatory human escalation). These invariants ground all governance
+  — changing them alters the foundation.
+- **Evaluator invariants (1–7) and operational governance:** Use the standard
+  process defined below. These invariants constrain autonomous behavior within
+  the structural foundation — changing them adjusts operations, not foundations.
 
 **Who may propose amendments:** Any agent or the human operator.
 
@@ -356,6 +400,12 @@ Governance invariants may change. This section defines how.
 **Invariant retirement:** An invariant may be retired (marked deprecated) but
 MUST NOT be deleted. Retired invariants carry a `[RETIRED: {date} — {reason}]`
 annotation and remain in the document for historical reference.
+**Operational semantics:** A retired invariant ceases to bind new design
+decisions and no longer triggers governance gates. Code that enforces a
+retired invariant SHOULD emit a deprecation warning. Citations of retired
+invariants in analytical outputs MUST note the retirement. Historical
+analysis MAY reference retired invariants as prior state without implying
+current force.
 
 
 ## Invariant Violation Logging (Session 84 addition — addresses L-2)
