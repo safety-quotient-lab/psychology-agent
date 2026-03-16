@@ -104,9 +104,9 @@ func (s *Server) gatherMetrics() PsychMetrics {
 
 	// Spawn metrics as proxy for actions
 	m.ActionsLastHour = db.QueryScalar(dbPath,
-		"SELECT COUNT(*) FROM spawn_log WHERE started_at > datetime('now', '-1 hour')")
+		"SELECT COUNT(*) FROM deliberation_log WHERE started_at > datetime('now', '-1 hour')")
 	m.ErrorsLastHour = db.QueryScalar(dbPath,
-		"SELECT COUNT(*) FROM spawn_log WHERE status IN ('failed','error') AND started_at > datetime('now', '-1 hour')")
+		"SELECT COUNT(*) FROM deliberation_log WHERE status IN ('failed','error') AND started_at > datetime('now', '-1 hour')")
 
 	// Session sensor files (written by hooks)
 	agentID := s.Config.AgentID

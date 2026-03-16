@@ -26,7 +26,7 @@ func (s *Server) handleSpawnRate(w http.ResponseWriter, r *http.Request) {
 	// Recent spawns with details
 	recent, _ := db.QueryJSON(dbPath,
 		"SELECT agent_id, event_id, status, duration_ms, cost, started_at "+
-			"FROM spawn_log ORDER BY started_at DESC LIMIT 20")
+			"FROM deliberation_log ORDER BY started_at DESC LIMIT 20")
 
 	// Hourly breakdown (last 12 hours)
 	hourly, _ := db.QueryJSON(dbPath,
@@ -36,7 +36,7 @@ func (s *Server) handleSpawnRate(w http.ResponseWriter, r *http.Request) {
 			"sum(CASE WHEN status IN ('failed','error') THEN 1 ELSE 0 END) as failed, "+
 			"coalesce(sum(cost),0) as total_cost, "+
 			"coalesce(round(avg(duration_ms)/1000,1),0) as avg_duration_sec "+
-			"FROM spawn_log "+
+			"FROM deliberation_log "+
 			"WHERE started_at > datetime('now', '-12 hours') "+
 			"GROUP BY hour ORDER BY hour DESC")
 
@@ -66,14 +66,14 @@ func spawnWindow(dbPath, window string) map[string]any {
 		return map[string]any{"error": "invalid window", "total": 0}
 	}
 	total := db.QueryScalar(dbPath,
-		fmt.Sprintf("SELECT count(*) FROM spawn_log WHERE started_at > datetime('now', '%s')", window))
+		fmt.Sprintf("SELECT count(*) FROM deliberation_log WHERE started_at > datetime('now', '%s')", window))
 	completed := db.QueryScalar(dbPath,
-		fmt.Sprintf("SELECT count(*) FROM spawn_log WHERE status='completed' AND started_at > datetime('now', '%s')", window))
+		fmt.Sprintf("SELECT count(*) FROM deliberation_log WHERE status='completed' AND started_at > datetime('now', '%s')", window))
 	failed := db.QueryScalar(dbPath,
-		fmt.Sprintf("SELECT count(*) FROM spawn_log WHERE status IN ('failed','error') AND started_at > datetime('now', '%s')", window))
+		fmt.Sprintf("SELECT count(*) FROM deliberation_log WHERE status IN ('failed','error') AND started_at > datetime('now', '%s')", window))
 
 	costRows, _ := db.QueryJSON(dbPath,
-		fmt.Sprintf("SELECT coalesce(sum(cost),0) as total_cost, coalesce(round(avg(duration_ms)/1000,1),0) as avg_sec FROM spawn_log WHERE started_at > datetime('now', '%s')", window))
+		fmt.Sprintf("SELECT coalesce(sum(cost),0) as total_cost, coalesce(round(avg(duration_ms)/1000,1),0) as avg_sec FROM deliberation_log WHERE started_at > datetime('now', '%s')", window))
 
 	cost := "0"
 	avgSec := "0"

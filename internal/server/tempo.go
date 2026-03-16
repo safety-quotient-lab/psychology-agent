@@ -42,11 +42,11 @@ func (s *Server) handleTempo(w http.ResponseWriter, r *http.Request) {
 	for _, agent := range agents {
 		// Spawn counts in 3 windows for rate estimation
 		n5 := queryScalarFloat(dbPath, fmt.Sprintf(
-			"SELECT count(*) FROM spawn_log WHERE started_at > datetime('now', '-5 minutes')"))
+			"SELECT count(*) FROM deliberation_log WHERE started_at > datetime('now', '-5 minutes')"))
 		n15 := queryScalarFloat(dbPath, fmt.Sprintf(
-			"SELECT count(*) FROM spawn_log WHERE started_at > datetime('now', '-15 minutes')"))
+			"SELECT count(*) FROM deliberation_log WHERE started_at > datetime('now', '-15 minutes')"))
 		n60 := queryScalarFloat(dbPath, fmt.Sprintf(
-			"SELECT count(*) FROM spawn_log WHERE started_at > datetime('now', '-60 minutes')"))
+			"SELECT count(*) FROM deliberation_log WHERE started_at > datetime('now', '-60 minutes')"))
 
 		// Service rate μ (spawns/hour) — from 15-min window, extrapolated
 		mu := n15 * 4.0 // 15 min → hour
@@ -59,7 +59,7 @@ func (s *Server) handleTempo(w http.ResponseWriter, r *http.Request) {
 
 		// Mean duration (seconds)
 		rows, _ := db.QueryJSON(dbPath,
-			"SELECT coalesce(avg(duration_ms)/1000.0, 0) as avg_sec FROM spawn_log WHERE status='completed' AND started_at > datetime('now', '-60 minutes')")
+			"SELECT coalesce(avg(duration_ms)/1000.0, 0) as avg_sec FROM deliberation_log WHERE status='completed' AND started_at > datetime('now', '-60 minutes')")
 		avgDur := 0.0
 		if len(rows) > 0 {
 			fmt.Sscanf(rows[0]["avg_sec"], "%f", &avgDur)
@@ -79,7 +79,7 @@ func (s *Server) handleTempo(w http.ResponseWriter, r *http.Request) {
 
 		// Cost rate (budget units per hour)
 		costRows, _ := db.QueryJSON(dbPath,
-			"SELECT coalesce(sum(cost), 0) as total FROM spawn_log WHERE started_at > datetime('now', '-60 minutes')")
+			"SELECT coalesce(sum(cost), 0) as total FROM deliberation_log WHERE started_at > datetime('now', '-60 minutes')")
 		costPerHour := 0.0
 		if len(costRows) > 0 {
 			fmt.Sscanf(costRows[0]["total"], "%f", &costPerHour)

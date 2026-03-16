@@ -441,13 +441,13 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 			"WHERE processed=0 AND message_type IN ('directive','proposal','request') "+
 			"ORDER BY timestamp DESC LIMIT 10")
 
-	// Deliberation history (Gf episodes — queries spawn_log table, renamed in API)
+	// Deliberation history (Gf episodes — queries deliberation_log table, renamed in API)
 	deliberationHistory, _ := db.QueryJSON(dbPath,
-		"SELECT agent_id, event_id, status, exit_code, duration_ms, cost, started_at FROM spawn_log ORDER BY started_at DESC LIMIT 10")
+		"SELECT agent_id, event_id, status, exit_code, duration_ms, cost, started_at FROM deliberation_log ORDER BY started_at DESC LIMIT 10")
 
 	// Gc metrics — crystallized intelligence activity counters
 	gcEvents := db.QueryScalar(dbPath,
-		"SELECT count(*) FROM spawn_log WHERE started_at > datetime('now', '-1 hour')")
+		"SELECT count(*) FROM deliberation_log WHERE started_at > datetime('now', '-1 hour')")
 	totalEvents := s.eventCount()
 
 	return map[string]interface{}{

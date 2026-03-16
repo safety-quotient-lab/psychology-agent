@@ -195,7 +195,7 @@ func main() {
 			}
 			cost := budgetGate.EstimateCost(budget.Priority(req.Event.Priority))
 			logSQL := fmt.Sprintf(
-				"INSERT INTO spawn_log (agent_id, event_id, prompt, exit_code, duration_ms, cost, status, error, started_at) "+
+				"INSERT INTO deliberation_log (agent_id, event_id, prompt, exit_code, duration_ms, cost, status, error, started_at) "+
 					"VALUES ('%s', '%s', '%s', %d, %d, %d, '%s', '%s', datetime('now'));",
 				db.SanitizeID(cfg.AgentID),
 				db.EscapeString(req.Event.ID),

@@ -86,9 +86,9 @@ func cmdStatus(args []string, cfg *config.Config, out *Output) error {
 	totalFails24h := "?"
 	if opsDB != "" {
 		totalSpawns24h, _ = runner.Run(fmt.Sprintf(
-			"sqlite3 %s \"SELECT count(*) FROM spawn_log WHERE started_at > datetime('now', '-24 hours');\" 2>/dev/null || echo '?'", opsDB))
+			"sqlite3 %s \"SELECT count(*) FROM deliberation_log WHERE started_at > datetime('now', '-24 hours');\" 2>/dev/null || echo '?'", opsDB))
 		totalFails24h, _ = runner.Run(fmt.Sprintf(
-			"sqlite3 %s \"SELECT count(*) FROM spawn_log WHERE started_at > datetime('now', '-24 hours') AND exit_code != 0;\" 2>/dev/null || echo '?'", opsDB))
+			"sqlite3 %s \"SELECT count(*) FROM deliberation_log WHERE started_at > datetime('now', '-24 hours') AND exit_code != 0;\" 2>/dev/null || echo '?'", opsDB))
 	}
 
 	// Transport session summary
@@ -173,7 +173,7 @@ func cmdStatus(args []string, cfg *config.Config, out *Output) error {
 
 		// Spawns
 		lastSpawn, _ := runner.Run(fmt.Sprintf(
-			"sqlite3 %s \"SELECT started_at FROM spawn_log WHERE agent_id='%s' ORDER BY started_at DESC LIMIT 1;\" 2>/dev/null",
+			"sqlite3 %s \"SELECT started_at FROM deliberation_log WHERE agent_id='%s' ORDER BY started_at DESC LIMIT 1;\" 2>/dev/null",
 			a.DBPath, a.ID))
 		row.LastSpawn = strings.TrimSpace(lastSpawn)
 		if row.LastSpawn == "" {
@@ -183,12 +183,12 @@ func cmdStatus(args []string, cfg *config.Config, out *Output) error {
 		}
 
 		spawnCount, _ := runner.Run(fmt.Sprintf(
-			"sqlite3 %s \"SELECT count(*) FROM spawn_log WHERE agent_id='%s' AND started_at > datetime('now', '-24 hours');\" 2>/dev/null || echo '?'",
+			"sqlite3 %s \"SELECT count(*) FROM deliberation_log WHERE agent_id='%s' AND started_at > datetime('now', '-24 hours');\" 2>/dev/null || echo '?'",
 			a.DBPath, a.ID))
 		row.Spawns24h = strings.TrimSpace(spawnCount)
 
 		failCount, _ := runner.Run(fmt.Sprintf(
-			"sqlite3 %s \"SELECT count(*) FROM spawn_log WHERE agent_id='%s' AND started_at > datetime('now', '-24 hours') AND exit_code != 0;\" 2>/dev/null || echo '?'",
+			"sqlite3 %s \"SELECT count(*) FROM deliberation_log WHERE agent_id='%s' AND started_at > datetime('now', '-24 hours') AND exit_code != 0;\" 2>/dev/null || echo '?'",
 			a.DBPath, a.ID))
 		if row.Spawns24h != "?" && row.Spawns24h != "0" && failCount != "?" {
 			row.FailRate = failCount + " fail"

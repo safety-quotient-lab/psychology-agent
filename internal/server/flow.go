@@ -53,9 +53,9 @@ func (s *Server) handleFlow(w http.ResponseWriter, r *http.Request) {
 		// For local agent, query state.db directly
 		if agent.ID == s.Config.AgentID {
 			af.SpawnsHr = db.QueryScalar(dbPath,
-				"SELECT count(*) FROM spawn_log WHERE started_at > datetime('now', '-1 hour')")
+				"SELECT count(*) FROM deliberation_log WHERE started_at > datetime('now', '-1 hour')")
 			af.Spawns10m = db.QueryScalar(dbPath,
-				"SELECT count(*) FROM spawn_log WHERE started_at > datetime('now', '-10 minutes')")
+				"SELECT count(*) FROM deliberation_log WHERE started_at > datetime('now', '-10 minutes')")
 			af.TotalMsgs = db.QueryScalar(dbPath,
 				"SELECT count(*) FROM transport_messages")
 			af.Unprocessed = db.QueryScalar(dbPath,
@@ -63,7 +63,7 @@ func (s *Server) handleFlow(w http.ResponseWriter, r *http.Request) {
 
 			rows, _ := db.QueryJSON(dbPath,
 				"SELECT coalesce(round(avg(duration_ms)/1000.0,1),0) as dur, coalesce(sum(cost),0) as cost "+
-					"FROM spawn_log WHERE started_at > datetime('now', '-1 hour')")
+					"FROM deliberation_log WHERE started_at > datetime('now', '-1 hour')")
 			if len(rows) > 0 {
 				fmt.Sscanf(rows[0]["dur"], "%f", &af.AvgDurSec)
 				fmt.Sscanf(rows[0]["cost"], "%d", &af.CostHr)

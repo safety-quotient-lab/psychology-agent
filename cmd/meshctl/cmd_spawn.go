@@ -41,11 +41,11 @@ func cmdDeliberationStats(args []string, cfg *config.Config, out *Output) error 
 	var infos []spawnInfo
 	for _, a := range agents {
 		count, _ := ssh.Run(fmt.Sprintf(
-			"sqlite3 %s \"SELECT count(*) FROM spawn_log WHERE agent_id='%s' AND started_at > datetime('now', '-24 hours');\" 2>/dev/null || echo '?'",
+			"sqlite3 %s \"SELECT count(*) FROM deliberation_log WHERE agent_id='%s' AND started_at > datetime('now', '-24 hours');\" 2>/dev/null || echo '?'",
 			a.DBPath, a.ID,
 		))
 		last, _ := ssh.Run(fmt.Sprintf(
-			"sqlite3 %s \"SELECT started_at FROM spawn_log WHERE agent_id='%s' ORDER BY started_at DESC LIMIT 1;\" 2>/dev/null || echo '?'",
+			"sqlite3 %s \"SELECT started_at FROM deliberation_log WHERE agent_id='%s' ORDER BY started_at DESC LIMIT 1;\" 2>/dev/null || echo '?'",
 			a.DBPath, a.ID,
 		))
 		infos = append(infos, spawnInfo{AgentID: a.ID, LastSpawn: last, SpawnCount: count})

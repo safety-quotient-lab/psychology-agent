@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS universal_facets (
 -- ── Spawn log ─────────────────────────────────────────────────
 -- Records every Claude spawn attempt for observability and cost tracking.
 
-CREATE TABLE IF NOT EXISTS spawn_log (
+CREATE TABLE IF NOT EXISTS deliberation_log (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     agent_id     TEXT NOT NULL,
     event_id     TEXT,
@@ -213,8 +213,8 @@ CREATE INDEX IF NOT EXISTS idx_mos_domain ON mos_scores(scoring_domain);
 CREATE INDEX IF NOT EXISTS idx_mos_run_at ON mos_scores(run_at);
 CREATE INDEX IF NOT EXISTS idx_facets_entity ON universal_facets(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_facets_type_value ON universal_facets(facet_type, facet_value);
-CREATE INDEX IF NOT EXISTS idx_spawn_agent ON spawn_log(agent_id);
-CREATE INDEX IF NOT EXISTS idx_spawn_started ON spawn_log(started_at);
+CREATE INDEX IF NOT EXISTS idx_deliberation_agent ON deliberation_log(agent_id);
+CREATE INDEX IF NOT EXISTS idx_deliberation_started ON deliberation_log(started_at);
 CREATE INDEX IF NOT EXISTS idx_health_agent ON health_observations(agent_id);
 CREATE INDEX IF NOT EXISTS idx_health_observed ON health_observations(observed_at);
 
