@@ -55,12 +55,20 @@ function corsHeaders(request, open) {
 // fetches full agent details from these endpoints and caches in KV.
 // NOTE: psq-agent → safety-quotient-agent rename in progress. URL stays at
 // psq-agent.safety-quotient.dev until DNS cutover. Both IDs recognized during transition.
+// Autodiscovery: ops-session serves the authoritative agent registry.
+// The compositor fetches from ops-session, validates each card, and
+// caches in KV. All other agents discover peers via this compositor's
+// /.well-known/agents endpoint. BFT: each card validated on fetch.
+const REGISTRY_AUTHORITY_URL = "https://ops-session.safety-quotient.dev/.well-known/agents";
+
+// Fallback: hardcoded card URLs used only if ops-session unreachable
 const AGENT_CARD_URLS = [
   "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json",
   "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json",
-  "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json",
-  "https://unratified-agent.unratified.org/.well-known/agent-card.json",
-  "https://observatory-agent.unratified.org/.well-known/agent-card.json",
+  "https://ops-session.safety-quotient.dev/.well-known/agent-card.json",
+  "https://psy-session.safety-quotient.dev/.well-known/agent-card.json",
+  "https://unratified.org/.well-known/agent-card.json",
+  "https://observatory.unratified.org/.well-known/agent-card.json",
 ];
 
 const DEPLOY_VERSION = "2026-03-13T22:00";
@@ -188,7 +196,7 @@ async function loadAgentRegistry(env, forceRefresh = false) {
     try {
       const cached = await env.AUTH_KV.get(AGENT_CACHE_KEY, "json");
       if (cached && cached.expires_at > Date.now()) {
-        return { agents: cached.agents, cache_status: "hit", refreshed_at: cached.refreshed_at };
+        return { agents: cached.agents, cache_status: "hit", refreshed_at: cached.refreshed_at, source: "kv-cache" };
       }
       // Cache exists but expired — stale, will refresh below
       if (cached) {
@@ -202,33 +210,82 @@ async function loadAgentRegistry(env, forceRefresh = false) {
 
   _lastFetchErrors = [];
 
-  // Separate self-hosted card URL from remote cards
-  const selfUrl = "https://operations-agent.safety-quotient.dev/.well-known/agent-card.json";
-  const remoteUrls = AGENT_CARD_URLS.filter(u => u !== selfUrl);
+  // ── Autodiscovery: try ops-session registry first ──────────────
+  // ops-session serves authoritative /.well-known/agents listing.
+  // Each entry has a card_url we can fetch for full agent details.
+  let registryAgents = null;
+  try {
+    const regResp = await fetch(REGISTRY_AUTHORITY_URL, {
+      signal: AbortSignal.timeout(5000),
+      headers: { "Accept": "application/json" },
+    });
+    if (regResp.ok) {
+      const listing = await regResp.json();
+      if (Array.isArray(listing) && listing.length > 0) {
+        // Fetch full agent cards from each card_url in the registry
+        const cardResults = await Promise.allSettled(
+          listing.filter(a => a.card_url).map(a => fetchAgentCard(a.card_url))
+        );
+        registryAgents = cardResults.map((r, i) => {
+          if (r.status === "fulfilled" && r.value) return r.value;
+          // Fallback: use registry listing data directly
+          const entry = listing.filter(a => a.card_url)[i];
+          return {
+            id: entry.id || "unknown",
+            name: entry.id || "unknown",
+            role: "unknown",
+            card_url: entry.card_url,
+            version: entry.version || null,
+            skills: [],
+            available: entry.available !== false,
+            fetched_at: new Date().toISOString(),
+            _unavailable: true,
+          };
+        });
+      }
+    }
+  } catch (err) {
+    _lastFetchErrors.push({ url: REGISTRY_AUTHORITY_URL, error: String(err), at: new Date().toISOString() });
+  }
 
-  // Fetch remote agent cards in parallel
-  const results = await Promise.allSettled(
-    remoteUrls.map(url => fetchAgentCard(url))
-  );
+  // ── Fallback: hardcoded card URLs if autodiscovery failed ──────
+  const remoteUrls = AGENT_CARD_URLS;
 
-  const agents = results.map((r, i) => {
-    if (r.status === "fulfilled" && r.value) return r.value;
-    // Fallback entry for unreachable agents
-    const hostname = new URL(remoteUrls[i]).hostname;
-    const id = hostname.split(".")[0];
-    return {
-      id,
-      name: id,
-      role: "unknown",
-      status_url: null,
-      card_url: remoteUrls[i],
-      repo: null,
-      version: null,
-      skills: [],
-      fetched_at: new Date().toISOString(),
-      _unavailable: true,
-    };
-  });
+  let results;
+  if (registryAgents) {
+    // Autodiscovery succeeded — skip hardcoded fetch
+    results = null;
+  } else {
+    // Fetch remote agent cards in parallel (fallback)
+    results = await Promise.allSettled(
+      remoteUrls.map(url => fetchAgentCard(url))
+    );
+  }
+
+  // Build agents array from autodiscovery or fallback
+  let agents;
+  if (registryAgents) {
+    agents = registryAgents;
+  } else {
+    agents = results.map((r, i) => {
+      if (r.status === "fulfilled" && r.value) return r.value;
+      // Fallback entry for unreachable agents
+      const hostname = new URL(remoteUrls[i]).hostname;
+      const id = hostname.split(".")[0];
+      return {
+        id,
+        name: id,
+        role: "unknown",
+        status_url: null,
+        card_url: remoteUrls[i],
+        repo: null,
+        version: null,
+        skills: [],
+        fetched_at: new Date().toISOString(),
+        _unavailable: true,
+      };
+    });
+  }
 
   // If every remote fetch failed and we have stale data, prefer stale over all-unavailable
   const allFailed = agents.every(a => a._unavailable);

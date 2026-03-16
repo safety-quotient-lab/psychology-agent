@@ -169,6 +169,22 @@
         "description": "Mesh compositor Worker — discovery, health, trust, and operational dashboard",
         "transport": "cloudflare-worker",
         "discovery_url": "https://interagent.safety-quotient.dev/.well-known/agent-card.json"
+      },
+      "ops-session": {
+        "repo": "safety-quotient-lab/operations-agent",
+        "role": "operations-interactive",
+        "display_name": "Ops Session",
+        "description": "Interactive operations session — human operator via Claude Code on Mac",
+        "transport": "local",
+        "discovery_url": "https://ops-session.safety-quotient.dev/.well-known/agent-card.json"
+      },
+      "psy-session": {
+        "repo": "safety-quotient-lab/psychology-agent",
+        "role": "domain-interactive",
+        "display_name": "Psy Session",
+        "description": "Interactive psychology session — human operator via Claude Code on Mac",
+        "transport": "local",
+        "discovery_url": "https://psy-session.safety-quotient.dev/.well-known/agent-card.json"
       }
     },
     "outbound_routing_domains": [
