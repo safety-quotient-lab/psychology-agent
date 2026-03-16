@@ -1,8 +1,9 @@
 """
-gates — Gated autonomous chain management.
+gates — Gated autonomous chain management (pending handoffs).
 
 Aggregate root: Gate (gate_id).
 Operations: open, resolve, timeout, query status.
+Table: pending_handoffs (formerly active_gates — renamed Session 93).
 """
 
 import json
@@ -12,10 +13,10 @@ import sys
 from .connection import get_connection
 
 
-def _ensure_gates_table(conn: sqlite3.Connection) -> None:
-    """Create active_gates table if missing (schema v10 migration safety)."""
+def _ensure_handoffs_table(conn: sqlite3.Connection) -> None:
+    """Create pending_handoffs table if missing (schema v10 migration safety)."""
     conn.execute("""
-        CREATE TABLE IF NOT EXISTS active_gates (
+        CREATE TABLE IF NOT EXISTS pending_handoffs (
             gate_id             TEXT PRIMARY KEY,
             sending_agent       TEXT NOT NULL,
             receiving_agent     TEXT NOT NULL,
@@ -46,11 +47,11 @@ def open_gate(
 ) -> None:
     """Open a gated chain — blocks until response, ACK, or timeout."""
     conn = get_connection()
-    _ensure_gates_table(conn)
+    _ensure_handoffs_table(conn)
 
     capped_timeout = min(timeout_minutes, 1440)  # cap at 24h
     conn.execute("""
-        INSERT OR REPLACE INTO active_gates
+        INSERT OR REPLACE INTO pending_handoffs
             (gate_id, sending_agent, receiving_agent, session_name,
              outbound_filename, blocks_until, timeout_minutes,
              fallback_action, status, timeout_at)
@@ -66,16 +67,16 @@ def open_gate(
     ))
     conn.commit()
     conn.close()
-    print(f"gate opened: {gate_id} "
+    print(f"handoff opened: {gate_id} "
           f"({sending_agent} → {receiving_agent}, "
           f"timeout {capped_timeout}min)")
 
 
 def resolve_gate(*, gate_id: str, resolved_by: str) -> int:
-    """Resolve a waiting gate. Returns rows affected."""
+    """Resolve a waiting handoff. Returns rows affected."""
     conn = get_connection()
     cursor = conn.execute("""
-        UPDATE active_gates
+        UPDATE pending_handoffs
         SET status = 'resolved',
             resolved_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
             resolved_by = ?
@@ -86,18 +87,18 @@ def resolve_gate(*, gate_id: str, resolved_by: str) -> int:
     conn.close()
 
     if affected == 0:
-        print(f"warning: no waiting gate found for gate_id={gate_id}",
+        print(f"warning: no waiting handoff found for gate_id={gate_id}",
               file=sys.stderr)
     else:
-        print(f"gate resolved: {gate_id} by {resolved_by}")
+        print(f"handoff resolved: {gate_id} by {resolved_by}")
     return affected
 
 
 def timeout_gate(*, gate_id: str) -> int:
-    """Mark a gate as timed out. Returns rows affected."""
+    """Mark a handoff as timed out. Returns rows affected."""
     conn = get_connection()
     cursor = conn.execute("""
-        UPDATE active_gates
+        UPDATE pending_handoffs
         SET status = 'timed-out',
             resolved_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
         WHERE gate_id = ? AND status = 'waiting'
@@ -107,31 +108,31 @@ def timeout_gate(*, gate_id: str) -> int:
     conn.close()
 
     if affected == 0:
-        print(f"warning: no waiting gate found for gate_id={gate_id}",
+        print(f"warning: no waiting handoff found for gate_id={gate_id}",
               file=sys.stderr)
     else:
-        print(f"gate timed out: {gate_id}")
+        print(f"handoff timed out: {gate_id}")
     return affected
 
 
 def query_status(*, agent_id: str | None = None) -> dict:
-    """Query active (waiting) gates. Returns structured result dict."""
+    """Query active (waiting) handoffs. Returns structured result dict."""
     conn = get_connection()
     conn.row_factory = sqlite3.Row
 
     tables = [r[0] for r in conn.execute(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='active_gates'"
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='pending_handoffs'"
     ).fetchall()]
-    if "active_gates" not in tables:
+    if "pending_handoffs" not in tables:
         conn.close()
-        return {"active_gates": 0, "gates": []}
+        return {"pending_handoffs": 0, "handoffs": []}
 
     query = """
         SELECT gate_id, sending_agent, receiving_agent, session_name,
                outbound_filename, blocks_until, timeout_minutes,
                fallback_action, status, created_at, timeout_at,
                resolved_at, resolved_by
-        FROM active_gates
+        FROM pending_handoffs
         WHERE status = 'waiting'
     """
     params: tuple = ()
@@ -141,7 +142,7 @@ def query_status(*, agent_id: str | None = None) -> dict:
     query += " ORDER BY created_at"
 
     rows = conn.execute(query, params).fetchall()
-    gates = [dict(r) for r in rows]
+    handoffs = [dict(r) for r in rows]
     conn.close()
 
-    return {"active_gates": len(gates), "gates": gates}
+    return {"pending_handoffs": len(handoffs), "handoffs": handoffs}

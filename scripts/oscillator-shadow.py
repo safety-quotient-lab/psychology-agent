@@ -95,7 +95,7 @@ def check_gate_timeout() -> float:
     try:
         conn = sqlite3.connect(str(DB_PATH))
         row = conn.execute("""
-            SELECT COUNT(*) FROM active_gates
+            SELECT COUNT(*) FROM pending_handoffs
             WHERE status = 'waiting'
             AND timeout_at < datetime('now', '+5 minutes')
         """).fetchone()

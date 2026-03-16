@@ -184,7 +184,7 @@ def main():
         pass
 
     budget_ratio = 1.0 - (budget_spent / budget_cutoff) if budget_cutoff > 0 else 1.0
-    gate_active = False  # Would check active_gates table
+    gate_active = False  # Would check pending_handoffs table
     yd_zone = working_memory.get("yerkes_dodson_zone", "optimal")
 
     task_complexity = estimate_task_complexity(message)

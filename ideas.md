@@ -438,10 +438,10 @@ federated dashboard architecture.
 Ideas for evolving interagent.safety-quotient.dev from a passive status display
 into an active mesh coordination layer.
 
-- **Live gate status aggregation** — poll `active_gates` from both agents'
-  `/api/status`, display a unified gate timeline (blocking agent, timeout
-  countdown, fallback action). Currently each dashboard shows its own gates only.
-  *Precondition: gates operational on both agents.*
+- **Live handoff status aggregation** — poll `pending_handoffs` from both agents'
+  `/api/status`, display a unified handoff timeline (blocking agent, timeout
+  countdown, fallback action). Currently each dashboard shows its own handoffs only.
+  *Precondition: handoffs operational on both agents.*
 
 - **Cross-agent claim verification dashboard** — display claims from transport
   messages alongside verification status. The interagent site sits at the

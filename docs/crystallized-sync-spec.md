@@ -307,10 +307,10 @@ automatically.
 ### Logic
 
 ```sql
--- Find messages that resolve active gates
+-- Find messages that resolve pending handoffs
 SELECT tm.filename, tm.session_name, tm.from_agent, ag.gate_id
 FROM transport_messages tm
-JOIN active_gates ag
+JOIN pending_handoffs ag
   ON ag.status = 'waiting'
   AND ag.sending_agent = :self_agent_id
   AND (
@@ -342,9 +342,9 @@ agentdb gate resolve --scan --dry-run
 
 ### Behavior
 
-1. Query active gates where `sending_agent` = self AND `status` = 'waiting'
-2. For each gate, scan unprocessed messages for a match
-3. On match: update `active_gates` → `status = 'resolved'`, `resolved_by`,
+1. Query pending handoffs where `sending_agent` = self AND `status` = 'waiting'
+2. For each handoff, scan unprocessed messages for a match
+3. On match: update `pending_handoffs` → `status = 'resolved'`, `resolved_by`,
    `resolved_at`
 4. The resolving message itself stays unprocessed if it scores above the
    substance threshold — gate resolution and message processing are

@@ -43,7 +43,7 @@ path for deploying the extension across the safety-quotient-lab mesh.
                         │      • NASA-TLX workload
   state.db ─────────────┤      • Resources (3 constructs)
     • transport_messages│      • Working memory + Y-D zone ──→ mesh-state/v2 JSON
-    • active_gates      │      • Supervisory Control            (updated every sync cycle)
+    • pending_handoffs      │      • Supervisory Control            (updated every sync cycle)
     • epistemic_flags   │      • Engagement + Flow
     • claims            │      • Personality (static)
     • prediction_ledger │
@@ -70,9 +70,9 @@ path for deploying the extension across the safety-quotient-lab mesh.
 | # | Construct | Model | Sensors | Refresh |
 |---|-----------|-------|---------|---------|
 | 1 | **Supervisory Control** | Sheridan & Verplank (1978) | .agent-identity.json, autonomy_budget | Per computation |
-| 2 | **Affect** (PAD) | Mehrabian & Russell (1974) | transport_messages, active_gates, autonomous_actions, tool_calls | Every 10 tool calls |
+| 2 | **Affect** (PAD) | Mehrabian & Russell (1974) | transport_messages, pending_handoffs, autonomous_actions, tool_calls | Every 10 tool calls |
 | 3 | **Personality** (Big Five) | Costa & McCrae (1992) | agent-card.json (static config) | On redesign only |
-| 4 | **Cognitive Load** (TLX) | Hart & Staveland (1988) | tool_calls, transport_messages, active_gates, context_pressure | Every 10 tool calls |
+| 4 | **Cognitive Load** (TLX) | Hart & Staveland (1988) | tool_calls, transport_messages, pending_handoffs, context_pressure | Every 10 tool calls |
 | 5 | **Working Memory** | Baddeley (1986) + Yerkes-Dodson (1908) | context_pressure (session-metrics.sh), tool_calls | Every 10 tool calls |
 | 6 | **Resources** | Stern (2002), Baumeister (1998), McEwen (1998) | autonomy_budget, epistemic_flags, memory_entries, cognitive_load | Every 10 tool calls |
 | 7 | **Engagement** | Schaufeli (2002) + Bakker & Demerouti (2007) | tool_calls, session_duration, context_pressure | Every 10 tool calls |

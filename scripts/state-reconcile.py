@@ -10,7 +10,7 @@ preventing silent drift that accumulates across sessions.
 Detects and repairs six classes of state inconsistency:
   1. processed ↔ task_state alignment
   2. Epistemic flag resolution on terminal messages
-  3. Orphaned gate detection
+  3. Orphaned handoff detection
   4. ACK tracking (implicit ACK from in_response_to)
   5. Memory staleness ↔ status alignment
   6. MANIFEST.json ↔ state.db file existence
@@ -116,29 +116,29 @@ def check_epistemic_flags_terminal(conn: sqlite3.Connection) -> dict:
     }
 
 
-# ── Check 3: Orphaned gates ────────────────────────────────────────────────
-def check_orphaned_gates(conn: sqlite3.Connection) -> dict:
-    """Detect active_gates referencing nonexistent messages or agents."""
-    # Check if active_gates table exists
+# ── Check 3: Orphaned handoffs ─────────────────────────────────────────────
+def check_orphaned_handoffs(conn: sqlite3.Connection) -> dict:
+    """Detect pending_handoffs referencing nonexistent messages or agents."""
+    # Check if pending_handoffs table exists (formerly active_gates)
     table_exists = conn.execute(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='active_gates'"
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='pending_handoffs'"
     ).fetchone()
 
     if not table_exists:
-        return {"name": "orphaned gates", "orphaned": 0, "note": "table absent"}
+        return {"name": "orphaned handoffs", "orphaned": 0, "note": "table absent"}
 
     orphaned = conn.execute(
-        "SELECT ag.gate_id, ag.session_name FROM active_gates ag "
-        "WHERE ag.status = 'waiting' "
+        "SELECT ph.gate_id, ph.session_name FROM pending_handoffs ph "
+        "WHERE ph.status = 'waiting' "
         "AND NOT EXISTS ("
         "  SELECT 1 FROM transport_messages tm "
-        "  WHERE tm.session_name = ag.session_name"
+        "  WHERE tm.session_name = ph.session_name"
         ")"
     ).fetchall()
 
-    # Also check for expired gates (timeout_at in the past)
+    # Also check for expired handoffs (timeout_at in the past)
     expired = conn.execute(
-        "SELECT gate_id, session_name FROM active_gates "
+        "SELECT gate_id, session_name FROM pending_handoffs "
         "WHERE status = 'waiting' "
         "AND timeout_at IS NOT NULL "
         "AND timeout_at < ?",
@@ -147,7 +147,7 @@ def check_orphaned_gates(conn: sqlite3.Connection) -> dict:
 
     if expired and not DRY_RUN:
         conn.execute(
-            "UPDATE active_gates SET status = 'resolved', resolved_at = ?, "
+            "UPDATE pending_handoffs SET status = 'resolved', resolved_at = ?, "
             "resolved_by = 'timeout-reconciled' "
             "WHERE status = 'waiting' AND timeout_at IS NOT NULL AND timeout_at < ?",
             (now_iso(), now_iso()),
@@ -155,7 +155,7 @@ def check_orphaned_gates(conn: sqlite3.Connection) -> dict:
         conn.commit()
 
     return {
-        "name": "orphaned gates",
+        "name": "orphaned handoffs",
         "orphaned": len(orphaned),
         "expired": len(expired),
         "repaired": not DRY_RUN and len(expired) > 0,
@@ -313,7 +313,7 @@ def main():
     checks = [
         check_processed_task_state,
         check_epistemic_flags_terminal,
-        check_orphaned_gates,
+        check_orphaned_handoffs,
         check_implicit_acks,
         check_memory_staleness,
         check_manifest_drift,

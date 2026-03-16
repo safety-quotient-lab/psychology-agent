@@ -61,16 +61,16 @@ def get_metrics(db: sqlite3.Connection, local_db: sqlite3.Connection | None,
     except Exception:
         pass
 
-    # Gate metrics
+    # Pending handoff metrics (formerly active_gates)
     try:
-        r = db.execute("SELECT COUNT(*) FROM active_gates WHERE status = 'waiting'").fetchone()
-        m["active_gates"] = r[0] if r else 0
-        r = db.execute("""SELECT COUNT(*) FROM active_gates
+        r = db.execute("SELECT COUNT(*) FROM pending_handoffs WHERE status = 'waiting'").fetchone()
+        m["pending_handoffs"] = r[0] if r else 0
+        r = db.execute("""SELECT COUNT(*) FROM pending_handoffs
             WHERE status = 'waiting' AND timeout_at < datetime('now')""").fetchone()
-        m["gates_timing_out"] = r[0] if r else 0
+        m["handoffs_timing_out"] = r[0] if r else 0
     except Exception:
-        m["active_gates"] = 0
-        m["gates_timing_out"] = 0
+        m["pending_handoffs"] = 0
+        m["handoffs_timing_out"] = 0
 
     # Trigger fire count — aggregate from trigger_state table
     try:
@@ -193,8 +193,8 @@ def compute_pad(m: dict) -> dict:
     # Pleasure: task alignment
     error_ratio = min(1.0, m["errors_last_hour"] / 3.0)
     msg_health = 1.0 - min(1.0, m["unprocessed_messages"] / 10.0)
-    gate_stress = min(1.0, m["gates_timing_out"] / 2.0)
-    pleasure = msg_health - error_ratio - gate_stress
+    handoff_stress = min(1.0, m["handoffs_timing_out"] / 2.0)
+    pleasure = msg_health - error_ratio - handoff_stress
     pleasure = max(-1.0, min(1.0, pleasure))
 
     # Activation: processing intensity
@@ -252,9 +252,9 @@ def compute_tlx(m: dict, mode: str = "neutral") -> dict:
     mental = min(100, m.get("triggers_fired", 0) * 5 +
                       m.get("unprocessed_messages", 0) * 3 +
                       min(50, m.get("tool_calls", 0)))
-    # time_pressure: context approaching limit + gates timing out
+    # time_pressure: context approaching limit + handoffs timing out
     temporal = min(100, m.get("context_pressure", 0) * 100 +
-                        m.get("gates_timing_out", 0) * 20)
+                        m.get("handoffs_timing_out", 0) * 20)
     # self_efficacy: deliverables + total message health
     performance = min(100, m.get("deliverables_completed", 0) * 15 +
                            (m["total_messages"] > 0) * 30 +

@@ -156,7 +156,7 @@ def collect_status() -> dict:
             "collected_at": now_iso,
             "schema_version": 0,
             "autonomy_budget": {"budget_spent": 0, "budget_cutoff": 0},
-            "active_gates": [],
+            "pending_handoffs": [],
             "totals": {"sessions": 0, "messages": 0, "unprocessed": 0,
                         "epistemic_flags_unresolved": 0},
             "peers": [],
@@ -181,9 +181,9 @@ def collect_status() -> dict:
     except sqlite3.OperationalError:
         budget = {"budget_spent": 0, "budget_cutoff": 0}
 
-    # Active gates
+    # Pending handoffs (formerly active_gates)
     try:
-        gates = _query(db, "SELECT * FROM active_gates WHERE status = 'waiting'")
+        gates = _query(db, "SELECT * FROM pending_handoffs WHERE status = 'waiting'")
     except sqlite3.OperationalError:
         gates = []
 
@@ -250,7 +250,7 @@ def collect_status() -> dict:
         "collected_at": now_iso,
         "schema_version": schema_ver,
         "autonomy_budget": budget,
-        "active_gates": gates,
+        "pending_handoffs": gates,
         "totals": {
             "sessions": total_sessions,
             "messages": total_messages,

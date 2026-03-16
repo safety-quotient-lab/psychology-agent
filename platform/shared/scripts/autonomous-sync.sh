@@ -233,7 +233,7 @@ ensure_db() {
                 timestamp TEXT DEFAULT (datetime('now')),
                 created_at TEXT DEFAULT (datetime('now'))
             );
-            CREATE TABLE IF NOT EXISTS active_gates (
+            CREATE TABLE IF NOT EXISTS pending_handoffs (
                 gate_id TEXT PRIMARY KEY,
                 sending_agent TEXT NOT NULL,
                 receiving_agent TEXT NOT NULL,
@@ -399,28 +399,28 @@ check_ratelimit_cooldown() {
     return 0
 }
 
-check_active_gates() {
-    # L2 fallback: if any gates await a response, accelerate polling interval
-    # Gate check runs BEFORE interval check — active gates override the standard
-    # min_action_interval with GATE_ACCELERATED_INTERVAL (60s)
-    local active_gates
-    active_gates=$(sqlite3 "${LOCAL_DB_PATH}" \
-        "SELECT COUNT(*) FROM active_gates
+check_pending_handoffs() {
+    # L2 fallback: if any handoffs await a response, accelerate polling interval
+    # Handoff check runs BEFORE interval check — pending handoffs override the
+    # standard min_action_interval with GATE_ACCELERATED_INTERVAL (60s)
+    local pending_count
+    pending_count=$(sqlite3 "${LOCAL_DB_PATH}" \
+        "SELECT COUNT(*) FROM pending_handoffs
          WHERE status = 'waiting'
          AND datetime(timeout_at) > datetime('now', 'localtime')
          AND sending_agent = '${AGENT_ID}';" 2>/dev/null || echo "0")
 
-    if [ "${active_gates}" -gt 0 ]; then
-        log "GATE-ACCELERATED — ${active_gates} active gate(s), using ${GATE_ACCELERATED_INTERVAL}s interval"
+    if [ "${pending_count}" -gt 0 ]; then
+        log "HANDOFF-ACCELERATED — ${pending_count} pending handoff(s), using ${GATE_ACCELERATED_INTERVAL}s interval"
         GATE_ACCELERATED=true
     fi
 }
 
-handle_gate_timeouts() {
-    # Process any gates that have exceeded their timeout_at
+handle_handoff_timeouts() {
+    # Process any handoffs that have exceeded their timeout_at
     local timed_out
     timed_out=$(sqlite3 "${LOCAL_DB_PATH}" \
-        "SELECT gate_id, fallback_action FROM active_gates
+        "SELECT gate_id, fallback_action FROM pending_handoffs
          WHERE status = 'waiting'
          AND datetime(timeout_at) <= datetime('now', 'localtime')
          AND sending_agent = '${AGENT_ID}';" 2>/dev/null || echo "")
@@ -960,12 +960,12 @@ main() {
     # L3: Check for wake-up signal from peer (SSH touch)
     check_wake_signal
 
-    # L2: Check for active gates that need accelerated polling
-    check_active_gates
+    # L2: Check for pending handoffs that need accelerated polling
+    check_pending_handoffs
 
-    # Handle any gates that have timed out (before budget check —
+    # Handle any handoffs that have timed out (before budget check —
     # timeout handling may write halt markers that consume budget)
-    handle_gate_timeouts
+    handle_handoff_timeouts
 
     # Check budget before doing anything (halt if exhausted)
     local budget

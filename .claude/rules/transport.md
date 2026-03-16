@@ -225,7 +225,7 @@ preserving explicit ACK files for gated operations (`ack_required: true`).
 - The response does not address the original message's substance
 - The gate system blocks on receiver acknowledgment
 
-## Action Gate
+## Action Gate (legacy field name — retained for interagent protocol compatibility)
 
 Every message should include `action_gate` with:
 - `gate_condition` — what must happen before acting

@@ -88,7 +88,7 @@ additional LLM cost to compute.
 | `cognitive_load` | `workload.cognitive_load` from compute-psychometrics.py | 0-100 | Current processing burden |
 | `cognitive_reserve` | `resource_model.cognitive_reserve` | 0-1 | Remaining processing capacity |
 | `budget_ratio` | `autonomy_budget.budget_current / budget_max` | 0-1 | Governance headroom |
-| `gate_active` | `active_gates` count > 0 | bool | Gated exchange in progress |
+| `gate_active` | `pending_handoffs` count > 0 | bool | Handoff exchange in progress |
 | `yerkes_dodson_zone` | `working_memory.yerkes_dodson_zone` | enum | Current performance zone |
 | `message_type` | Inbound message `message_type` field | enum | ack, request, proposal, directive |
 | `session_urgency` | Message `urgency` field | enum | immediate, high, normal, low |

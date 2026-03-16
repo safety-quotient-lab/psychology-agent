@@ -289,7 +289,7 @@ def _all_gates_resolved() -> bool:
         return True
     conn = sqlite3.connect(str(DB_PATH))
     row = conn.execute(
-        "SELECT COUNT(*) FROM active_gates WHERE resolved_at IS NULL"
+        "SELECT COUNT(*) FROM pending_handoffs WHERE resolved_at IS NULL"
     ).fetchone()
     conn.close()
     return row[0] == 0

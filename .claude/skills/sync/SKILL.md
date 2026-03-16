@@ -209,10 +209,10 @@ effort or send contradictory messages.
 
 **Detection heuristics:**
 
-1. **Orphaned gates:** Query `active_gates` for gates where `timeout_at`
+1. **Orphaned handoffs:** Query `pending_handoffs` for handoffs where `timeout_at`
    has passed but no resolution or fallback executed:
    ```sql
-   SELECT * FROM active_gates
+   SELECT * FROM pending_handoffs
    WHERE resolved_at IS NULL
      AND timeout_at < datetime('now');
    ```

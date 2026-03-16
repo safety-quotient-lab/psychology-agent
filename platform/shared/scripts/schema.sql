@@ -327,11 +327,12 @@ VALUES (9, 'Add min_action_interval to autonomy_budget — temporal spacing guar
 
 
 -- ── Schema v10: Gated autonomous chains ─────────────────────────────
+-- (Naming reform: active_gates renamed to pending_handoffs — Session 93)
 
--- Active gates — tracks gated message exchanges where the sender blocks
--- until the receiver responds. Gate-aware polling accelerates delivery;
+-- Pending handoffs — tracks gated message exchanges where the sender blocks
+-- until the receiver responds. Handoff-aware polling accelerates delivery;
 -- timeout handling prevents indefinite blocking.
-CREATE TABLE IF NOT EXISTS active_gates (
+CREATE TABLE IF NOT EXISTS pending_handoffs (
     gate_id             TEXT PRIMARY KEY,
     sending_agent       TEXT NOT NULL,
     receiving_agent     TEXT NOT NULL,
@@ -347,14 +348,14 @@ CREATE TABLE IF NOT EXISTS active_gates (
     timeout_at          TEXT NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_gates_status
-    ON active_gates (status) WHERE status = 'waiting';
+CREATE INDEX IF NOT EXISTS idx_handoffs_status
+    ON pending_handoffs (status) WHERE status = 'waiting';
 
 INSERT OR IGNORE INTO table_visibility (table_name, default_visibility, description)
-VALUES ('active_gates', 'private', 'Gate state — machine-specific operational state');
+VALUES ('pending_handoffs', 'private', 'Handoff state — machine-specific operational state');
 
 INSERT OR IGNORE INTO schema_version (version, description)
-VALUES (10, 'Add active_gates table — gated autonomous chain tracking with timeout and fallback cascade');
+VALUES (10, 'Add pending_handoffs table (formerly active_gates) — gated autonomous chain tracking with timeout and fallback cascade');
 
 
 -- ── Schema v11: Transport duplicate prevention ──────────────────────
@@ -481,7 +482,7 @@ INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, d
     ('schema_type', 'schema:LearningResource', NULL, 'schema.org', 'Lessons — transferable patterns',             'lessons'),
     ('schema_type', 'schema:HowToStep',        NULL, 'schema.org', 'Cognitive triggers — operational procedures', 'trigger_state'),
     ('schema_type', 'schema:Action',           NULL, 'schema.org', 'Autonomous actions audit trail',              'autonomous_actions'),
-    ('schema_type', 'schema:SuspendAction',    NULL, 'schema.org', 'Active gates — blocking operations',          'active_gates'),
+    ('schema_type', 'schema:SuspendAction',    NULL, 'schema.org', 'Pending handoffs — blocking operations',       'pending_handoffs'),
     ('schema_type', 'schema:Comment',          NULL, 'schema.org', 'Epistemic flags — quality concerns',          'epistemic_flags');
 
 -- Seed inactive PSH categories (the remaining 33 of 44) — available for

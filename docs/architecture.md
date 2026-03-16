@@ -703,7 +703,8 @@
                                  Autonomy model preserved: min_action_interval
                                  remains authoritative for ungated ops;
                                  gate-accelerated polls cost 0 credits.
-                                 Schema v10 (active_gates table).
+                                 Schema v10 (pending_handoffs table,
+                                 formerly active_gates).
                                  Spec: docs/gated-chains-spec.md
                                  Derives from: cross-repo transport
                                    (Session 60); EF-1 autonomy model;
@@ -870,7 +871,7 @@
                                 engineering_incidents promoted from
                                 private → shared (exportable knowledge).
                                 autonomy_budget, autonomous_actions,
-                                active_gates, memory_entries, entry_facets
+                                pending_handoffs, memory_entries, entry_facets
                                 moved to state.local.db.
                                 No cross-DB JOINs needed (audit confirmed).
                                 Full narrative: journal.md §56.
