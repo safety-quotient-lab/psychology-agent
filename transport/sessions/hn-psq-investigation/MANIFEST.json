@@ -1,0 +1,22 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "hn-psq-investigation",
+  "created": "2026-03-16T01:28:34Z",
+  "updated": "2026-03-16T01:28:34Z",
+  "status": "active",
+  "participants": [
+    "psq-agent",
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 1,
+      "file": "from-psychology-agent-001.json",
+      "from": "psychology-agent",
+      "to": [
+        "psq-agent"
+      ],
+      "type": "request"
+    }
+  ]
+}
