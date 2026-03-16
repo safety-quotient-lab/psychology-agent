@@ -571,10 +571,11 @@
         .lcars-mode-btn:hover { opacity: 0.75; }
         .lcars-mode-btn.active { opacity: 1; }
 
-        /* ── LCARS Pill Buttons (command console controls) ─────── */
+        /* ── Pill Buttons (command console controls) ─────────── */
+        /* Theme-aware: standard mode uses muted tones, LCARS uses TNG palette */
         .lcars-pill-btn {
-            background: var(--c-transport, #cc99cc);
-            color: #000;
+            background: var(--c-transport);
+            color: var(--bg-primary, #000);
             border: none;
             border-radius: 50vh;
             padding: 6px 16px;
@@ -590,15 +591,23 @@
         }
         .lcars-pill-btn:hover { opacity: 0.8; transform: scale(1.02); }
         .lcars-pill-btn:active { transform: scale(0.97); }
-        .lcars-pill-red { background: #cc6666; }
-        .lcars-pill-green { background: #6aab8e; }
-        .lcars-pill-orange { background: #ff9944; }
-        .lcars-pill-blue { background: #5b9cf6; }
-        .lcars-pill-teal { background: #4ecdc4; }
-        .lcars-pill-dim { background: #666; color: #ccc; }
+        .lcars-pill-red { background: var(--c-alert); }
+        .lcars-pill-green { background: var(--c-health); }
+        .lcars-pill-orange { background: var(--c-warning, #d4944a); }
+        .lcars-pill-blue { background: var(--c-knowledge, #5b9cf6); }
+        .lcars-pill-teal { background: var(--c-catalog, #4ecdc4); }
+        .lcars-pill-dim { background: var(--bg-inset, #666); color: var(--text-secondary, #ccc); }
         .lcars-pill-sm { padding: 4px 10px; font-size: 0.68em; }
         .lcars-pill-active { box-shadow: 0 0 8px currentColor; opacity: 1; }
-        .lcars-pill-sm.lcars-pill-active { background: #ff9944; }
+        .lcars-pill-sm.lcars-pill-active { background: var(--c-warning, #d4944a); }
+        /* LCARS-specific pill overrides — TNG saturated palette */
+        .theme-lcars .lcars-pill-btn { color: #000; }
+        .theme-lcars .lcars-pill-red { background: #cc6666; }
+        .theme-lcars .lcars-pill-green { background: #6aab8e; }
+        .theme-lcars .lcars-pill-orange { background: #ff9944; }
+        .theme-lcars .lcars-pill-blue { background: #5b9cf6; }
+        .theme-lcars .lcars-pill-teal { background: #4ecdc4; }
+        .theme-lcars .lcars-pill-sm.lcars-pill-active { background: #ff9944; }
 
         /* Operations control surface — LCARS interactive buttons (full pill) */
         .ops-ctrl {
@@ -2829,18 +2838,22 @@
                 <div class="vital-card" style="--vital-color: var(--c-health)">
                     <div class="vital-value" id="vital-agents">—</div>
                     <div class="vital-label">Agents Online</div>
+                    <div class="sparkline-container" id="spark-online"></div>
                 </div>
                 <div class="vital-card" style="--vital-color: var(--c-knowledge)">
                     <div class="vital-value" id="vital-budget">—</div>
                     <div class="vital-label">Deliberations</div>
+                    <div class="sparkline-container" id="spark-delib"></div>
                 </div>
                 <div class="vital-card vital-link" style="--vital-color: var(--c-transport); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('filter-messages').value='';filterTable('messages');document.getElementById('kb-sec-messages').scrollIntoView({behavior:'smooth'})},120)">
                     <div class="vital-value" id="vital-pending">—</div>
                     <div class="vital-label">Pending Messages</div>
+                    <div class="sparkline-container" id="spark-pending"></div>
                 </div>
                 <div class="vital-card vital-link" style="--vital-color: var(--c-catalog); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('kb-sec-messages').scrollIntoView({behavior:'smooth'})},120)">
                     <div class="vital-value" id="vital-gates">—</div>
                     <div class="vital-label">Active Gates</div>
+                    <div class="sparkline-container" id="spark-gates"></div>
                 </div>
                 <div class="vital-card vital-link" style="--vital-color: var(--c-epistemic); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('kb-sec-debt').scrollIntoView({behavior:'smooth'})},120)">
                     <div class="vital-value" id="vital-debt">—</div>
@@ -2853,6 +2866,8 @@
                 <div class="lcars-panel-header">Mesh Topology</div>
                 <div class="lcars-panel-body">
                     <svg class="topology-svg" id="topology-svg" viewBox="0 0 600 340"></svg>
+                    <!-- Status indicator dots — system subsystems -->
+                    <div class="lcars-status-dots" id="mesh-status-dots" style="margin-top:8px;"></div>
                 </div>
             </div>
 
@@ -3169,30 +3184,33 @@
             <!-- Controls — grouped stacks -->
             <div style="display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
                     <div style="display:flex; flex-direction:column; gap:3px; min-width:110px;">
-                        <button class="lcars-pill-btn ops-ctrl" style="background:#cc6666" onclick="meshControl('pause-all')" id="btn-pause">PAUSE</button>
-                        <button class="lcars-pill-btn ops-ctrl ops-ctrl-active" style="background:#6aab8e" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
+                        <button class="lcars-pill-btn ops-ctrl lcars-pill-red" onclick="meshControl('pause-all')" id="btn-pause">PAUSE</button>
+                        <button class="lcars-pill-btn ops-ctrl ops-ctrl-active lcars-pill-green" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
                     </div>
                     <div style="display:flex; flex-direction:column; gap:3px; min-width:110px;">
-                        <button class="lcars-pill-btn ops-ctrl" style="background:#5b9cf6" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
-                        <button class="lcars-pill-btn ops-ctrl ops-ctrl-active" style="background:#3a6ca8" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
+                        <button class="lcars-pill-btn ops-ctrl lcars-pill-blue" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
+                        <button class="lcars-pill-btn ops-ctrl ops-ctrl-active" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
                     </div>
                     <div style="display:flex; flex-direction:column; gap:3px; min-width:110px;">
-                        <button class="lcars-pill-btn ops-ctrl ops-model-btn" style="background:#cc99cc" onclick="meshControl('model-haiku')" id="btn-haiku">HAIKU</button>
-                        <button class="lcars-pill-btn ops-ctrl ops-model-btn ops-ctrl-active" style="background:#ff9944" onclick="meshControl('model-sonnet')" id="btn-sonnet">SONNET</button>
-                        <button class="lcars-pill-btn ops-ctrl ops-model-btn" style="background:#cc99cc" onclick="meshControl('model-opus')" id="btn-opus">OPUS</button>
+                        <button class="lcars-pill-btn ops-ctrl ops-model-btn" onclick="meshControl('model-haiku')" id="btn-haiku">HAIKU</button>
+                        <button class="lcars-pill-btn ops-ctrl ops-model-btn ops-ctrl-active lcars-pill-orange" onclick="meshControl('model-sonnet')" id="btn-sonnet">SONNET</button>
+                        <button class="lcars-pill-btn ops-ctrl ops-model-btn" onclick="meshControl('model-opus')" id="btn-opus">OPUS</button>
                     </div>
                     <div style="display:flex; flex-direction:column; gap:3px; min-width:110px;">
-                        <button class="lcars-pill-btn ops-ctrl" style="background:#4ecdc4" onclick="refreshAll()">SYNC NOW</button>
+                        <button class="lcars-pill-btn ops-ctrl lcars-pill-teal" onclick="refreshAll()">SYNC NOW</button>
                     </div>
             </div>
 
-            <!-- Budget — per-agent deliberation spending -->
+            <!-- Mesh Overview — W4 subsystem blocks per agent (budget + mood + health) -->
             <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Budget</div>
+                <div class="lcars-panel-header">Mesh Overview</div>
                 <div class="lcars-panel-body">
-                    <div class="ops-budget-grid" id="ops-budget-grid"></div>
+                    <div class="lcars-subsystem-grid" id="ops-subsystem-grid"></div>
                 </div>
             </div>
+
+            <!-- W5: Alphanumeric Matrix — dense state.db summary -->
+            <div id="ops-alpha-matrix" style="margin-bottom:12px;"></div>
 
             <!-- Activity — recent deliberations + coordination overhead -->
             <div class="lcars-panel kb-section" data-section="operations">
@@ -3223,7 +3241,10 @@
 
         <!-- Science Tab -->
         <div class="tab-pane" id="pane-science">
-            <div class="lcars-status-line" id="science-status-line">Psychometric Sensors: Awaiting Data &middot; Constructs: 7 &middot; Model: PAD + NASA-TLX + UWES</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <div class="lcars-status-line" id="science-status-line" style="flex:1">Psychometric Sensors: Awaiting Data &middot; Constructs: 7 &middot; Model: PAD + NASA-TLX + UWES</div>
+                <span class="lcars-section-badge" style="--badge-color:#9999ff">03 <span class="lcars-section-badge-text">Science</span></span>
+            </div>
 
             <div class="science-grid">
                 <!-- Panel A: Mesh State (organism-level — the big picture) -->
@@ -3509,60 +3530,12 @@
             </div>
         </div>
 
-        <!-- Medical Tab -->
-        <div class="tab-pane" id="pane-medical">
-            <div class="lcars-status-line" id="med-status-line">Agent Diagnostics: Awaiting Data &middot; DEW: — &middot; LOA: —</div>
-
-            <div class="medical-grid">
-                <!-- Panel A: Agent Selector -->
-                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical); grid-column: 1 / -1;">
-                    <div class="lcars-panel-header">Agent Selector</div>
-                    <div class="lcars-panel-body" id="medical-agent-selector"></div>
-                </div>
-
-                <!-- Panel B: Agent Vitals (PAD + TLX) -->
-                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical); grid-column: 1 / -1;">
-                    <div class="lcars-panel-header">Agent Vitals</div>
-                    <div class="lcars-panel-body" id="medical-vitals">
-                        <div class="medical-placeholder">Awaiting psychometrics data...</div>
-                    </div>
-                </div>
-
-                <!-- Panel C: DEW Gauge -->
-                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical)">
-                    <div class="lcars-panel-header">Degradation Early Warning</div>
-                    <div class="lcars-panel-body" id="medical-dew">
-                        <div class="medical-dew-gauge">
-                            <div class="medical-dew-bar-track">
-                                <div class="medical-dew-bar-fill" style="width:0%"></div>
-                            </div>
-                            <div class="medical-dew-readout">
-                                <span class="medical-dew-value">--</span>
-                                <span class="medical-dew-label">AWAITING DATA</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Panel D: LOA Ladder -->
-                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical)">
-                    <div class="lcars-panel-header">Supervisory Control (LOA)</div>
-                    <div class="lcars-panel-body" id="medical-loa"></div>
-                </div>
-
-                <!-- Panel E: Agent History -->
-                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical); grid-column: 1 / -1;">
-                    <div class="lcars-panel-header">Agent History</div>
-                    <div class="lcars-panel-body" id="medical-history">
-                        <div class="medical-placeholder">Select an agent to view diagnostic history.</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Engineering Tab -->
         <div class="tab-pane" id="pane-engineering">
-            <!-- TODO: status line removed — data visible in panels. Code preserved in git history if needed. -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <div class="lcars-status-line" id="eng-status-line" style="flex:1">Engineering Systems: Awaiting Data</div>
+                <span class="lcars-section-badge" style="--badge-color:#ff9944">04 <span class="lcars-section-badge-text">Engineering</span></span>
+            </div>
 
             <div class="engineering-grid">
                 <!-- Panel A: Deliberation Cascade -->
@@ -3585,12 +3558,16 @@
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
                     <div class="lcars-panel-header">Utilization</div>
                     <div class="lcars-panel-body">
-                        <div class="util-gauge" id="util-gauge">
-                            <div class="util-rho util-nominal" id="util-rho">&rho; = —</div>
-                            <div class="util-bar">
-                                <div class="util-bar-fill" id="util-bar-fill" style="width:0%;background:#6aab8e"></div>
+                        <div style="display:flex;gap:16px;align-items:center;">
+                            <div class="util-gauge" id="util-gauge" style="flex:1;">
+                                <div class="util-rho util-nominal" id="util-rho">&rho; = —</div>
+                                <div class="util-bar">
+                                    <div class="util-bar-fill" id="util-bar-fill" style="width:0%;background:#6aab8e"></div>
+                                </div>
+                                <div class="util-status util-nominal" id="util-status">AWAITING DATA</div>
                             </div>
-                            <div class="util-status util-nominal" id="util-status">AWAITING DATA</div>
+                            <!-- W3+vertical: Tuvok-style numbered level gauge -->
+                            <div class="lcars-vlevel-gauge" id="util-vlevel-gauge"></div>
                         </div>
                     </div>
                 </div>
@@ -3679,7 +3656,7 @@
                         <span class="diag-level-status" id="diag-3-status" style="color:var(--text-dim);font-size:0.75em;min-width:60px;text-align:right">READY</span>
                     </div>
                     <div class="diag-level-row" onclick="runDiagnostic(4)" style="display:flex;align-items:center;gap:8px;cursor:pointer">
-                        <button class="lcars-pill-btn" style="min-width:70px;background:#cc99cc">LEVEL 4</button>
+                        <button class="lcars-pill-btn" style="min-width:70px">LEVEL 4</button>
                         <span style="flex:1;font-size:0.82em"><strong>Subsystem</strong> — single station data check, targeted inspection</span>
                         <span class="diag-level-status" id="diag-4-status" style="color:var(--text-dim);font-size:0.75em;min-width:60px;text-align:right">READY</span>
                     </div>
@@ -3694,7 +3671,10 @@
 
         <!-- Helm Tab -->
         <div class="tab-pane" id="pane-helm">
-            <div class="lcars-status-line" id="helm-status-line">Transport Routing: Awaiting Data &middot; Active Sessions: — &middot; Channels: Git, HTTP</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <div class="lcars-status-line" id="helm-status-line" style="flex:1">Transport Routing: Awaiting Data &middot; Active Sessions: — &middot; Channels: Git, HTTP</div>
+                <span class="lcars-section-badge" style="--badge-color:#66aacc">05 <span class="lcars-section-badge-text">Helm</span></span>
+            </div>
             <div class="helm-grid">
                 <!-- Panel A: Session Timeline -->
                 <div class="lcars-panel helm-full-width" style="--panel-accent: var(--c-tab-helm)">
@@ -3768,7 +3748,10 @@
 
         <!-- Tactical Tab -->
         <div class="tab-pane" id="pane-tactical">
-            <div class="lcars-status-line" id="tac-status-line">Security Status: Awaiting Data &middot; Shields: — &middot; Threat Level: —</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <div class="lcars-status-line" id="tac-status-line" style="flex:1">Security Status: Awaiting Data &middot; Shields: — &middot; Threat Level: —</div>
+                <span class="lcars-section-badge" style="--badge-color:#cc6666">06 <span class="lcars-section-badge-text">Tactical</span></span>
+            </div>
 
             <div class="tactical-grid">
                 <!-- Panel A: Shield Status -->
@@ -3895,7 +3878,10 @@
 
         <!-- Medical Tab -->
         <div class="tab-pane" id="pane-medical">
-            <div class="lcars-status-line" id="med-status-line">Oscillator: Shadow Mode &middot; Activation: — &middot; State: —</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <div class="lcars-status-line" id="med-status-line" style="flex:1">Oscillator: Shadow Mode &middot; Activation: — &middot; State: —</div>
+                <span class="lcars-section-badge" style="--badge-color:#66ccaa">11 <span class="lcars-section-badge-text">Medical</span></span>
+            </div>
 
             <!-- Agent Selector -->
             <div style="padding:8px 0;display:flex;gap:6px;flex-wrap:wrap" id="med-agent-selector"></div>
@@ -4026,6 +4012,31 @@
         if (isNaN(num)) return "—";
         if (Math.abs(num) < 10000) return Math.round(num).toString();
         return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\u2009");
+    }
+
+    // Sparkline SVG generator — inline copy from utils.js
+    function sparklineSVG(values, opts = {}) {
+        const w = opts.width || 60, h = opts.height || 16;
+        const stroke = opts.stroke || "#9999ff", fill = opts.fill || "none";
+        if (!values || values.length < 2) return `<svg class="sparkline-svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"></svg>`;
+        const min = Math.min(...values), max = Math.max(...values), range = max - min || 1, pad = 1;
+        const points = values.map((v, i) => {
+            const x = (i / (values.length - 1)) * (w - 2 * pad) + pad;
+            const y = h - pad - ((v - min) / range) * (h - 2 * pad);
+            return `${x.toFixed(1)},${y.toFixed(1)}`;
+        });
+        const polyline = points.join(" ");
+        let fillPath = fill !== "none" ? `<polygon points="${pad},${h - pad} ${polyline} ${w - pad},${h - pad}" fill="${fill}" opacity="0.2"/>` : "";
+        return `<svg class="sparkline-svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${fillPath}<polyline points="${polyline}" fill="none" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${points[points.length - 1].split(",")[0]}" cy="${points[points.length - 1].split(",")[1]}" r="2" fill="${stroke}"/></svg>`;
+    }
+
+    // Sparkline history — accumulates values across refreshes for trend display
+    const sparkHistory = {};
+    function pushSparkValue(key, value) {
+        if (value == null || isNaN(value)) return;
+        if (!sparkHistory[key]) sparkHistory[key] = [];
+        sparkHistory[key].push(value);
+        if (sparkHistory[key].length > 20) sparkHistory[key].shift();
     }
 
     // Display name helper — use agent.name if available, otherwise strip "-agent"
@@ -4268,7 +4279,7 @@
             return;
         }
         const statusEl = document.getElementById(`diag-${level}-status`);
-        if (statusEl) { statusEl.textContent = "RUNNING"; statusEl.style.color = "#ff9944"; }
+        if (statusEl) { statusEl.textContent = "RUNNING"; statusEl.style.color = "var(--c-warning, #d4944a)"; }
         addNarrativeEntry(`Diagnostic Level ${level} initiated by operator`);
 
         try {
@@ -4505,7 +4516,7 @@
 
         const allHealthy = online === total && agents.every(a => !a || a.health !== "critical");
         hdrHealth.textContent = allHealthy ? "\u25CF Nominal" : "\u25CF Degraded";
-        hdrHealth.style.background = allHealthy ? "#9999ff" : "#cc6666";
+        hdrHealth.style.background = allHealthy ? "var(--c-knowledge, #9999ff)" : "var(--c-alert, #cc6666)";
 
         ftrStatus.textContent = allHealthy
             ? "Mesh Status: Nominal"
@@ -4773,6 +4784,32 @@
         setTrackedValue("vital-gates", gates);
         setTrackedValue("vital-debt", debt, { inverted: true });
 
+        // Accumulate sparkline history
+        pushSparkValue("mesh-delib", totalDeliberations);
+        pushSparkValue("mesh-pending", pending);
+        pushSparkValue("mesh-gates", gates);
+        pushSparkValue("mesh-online", online.length);
+        for (const agent of AGENTS) {
+            const d = agentData[agent.id];
+            if (d?.status === "online") {
+                pushSparkValue(`delib-${agent.id}`, getDeliberations(d.data?.autonomy_budget));
+            }
+        }
+
+        // Render sparklines into vitals cards
+        const sparkMap = [
+            ["spark-online", "mesh-online", "var(--c-health)"],
+            ["spark-delib", "mesh-delib", "var(--c-knowledge)"],
+            ["spark-pending", "mesh-pending", "var(--c-transport)"],
+            ["spark-gates", "mesh-gates", "var(--c-catalog)"],
+        ];
+        for (const [elId, key, color] of sparkMap) {
+            const el = document.getElementById(elId);
+            if (el && sparkHistory[key]?.length >= 2) {
+                el.innerHTML = sparklineSVG(sparkHistory[key], { width: 56, height: 14, stroke: color, fill: color });
+            }
+        }
+
         // Update ops badge
         if (pending > 0) {
             const badge = document.getElementById("ops-badge");
@@ -5010,6 +5047,7 @@
         renderAgentCards();
         renderTopology();
         renderActivity();
+        renderMeshStatusDots();
         // Update Pulse status line (LCARS)
         const pulseStatus = document.getElementById("pulse-status-line");
         if (pulseStatus) {
@@ -5020,6 +5058,30 @@
             const health = online === total ? "Nominal" : "Degraded";
             pulseStatus.textContent = `Mesh Status: ${health} \u00B7 Agents: ${online}/${total} Online \u00B7 Last Sync: ${time}`;
         }
+    }
+
+    function renderMeshStatusDots() {
+        const el = document.getElementById("mesh-status-dots");
+        if (!el) return;
+        const online = Object.values(agentData).filter(a => a.status === "online");
+        const total = AGENTS.length;
+        const pending = online.reduce((s, a) => s + ((a.data?.totals || {}).unprocessed || 0), 0);
+        const gates = online.reduce((s, a) => s + (a.data?.active_gates || []).length, 0);
+
+        const subsystems = [
+            { label: "TRANSPORT LINK", color: online.length === total ? "green" : online.length > 0 ? "amber" : "red" },
+            { label: "AGENT DISCOVERY", color: online.length >= Math.ceil(total * 0.8) ? "green" : "amber" },
+            { label: "VOCABULARY DATABASE", color: "green" },
+            { label: "MESSAGE QUEUE", color: pending > 5 ? "amber" : pending > 0 ? "blue" : "green" },
+            { label: "CONSENSUS GATES", color: gates > 3 ? "amber" : gates > 0 ? "blue" : "green" },
+        ];
+
+        el.innerHTML = subsystems.map(s =>
+            `<div class="lcars-status-dot-row">
+                <span class="lcars-status-dot-indicator ${s.color}"></span>
+                <span class="lcars-status-dot-label">${s.label}</span>
+            </div>`
+        ).join("");
     }
 
     // ── Knowledge Tab ────────────────────────────────────────────
@@ -6353,7 +6415,12 @@
             decs.forEach(d => decisions.push({ ...d, _agent: agent.id, _color: agent.color }));
         }
         if (decisions.length === 0) {
-            el.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Decisions load after Meta tab renders. Switch to Meta first, then back.</div>';
+            // Eager fetch — load KB data without requiring Meta tab visit
+            el.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Loading governance data...</div>';
+            const hasAnyKb = Object.values(kbData).some(kb => kb && kb.status === "ok");
+            if (!hasAnyKb) {
+                refreshKnowledge().then(() => renderOpsGovernance());
+            }
             return;
         }
         // Show most recent 10 decisions
@@ -6566,40 +6633,100 @@
     }
 
     function renderOpsBudget() {
-        const grid = document.getElementById("ops-budget-grid");
+        // W4: Subsystem status blocks — per-agent panels with budget bar, health, mood
+        const grid = document.getElementById("ops-subsystem-grid");
         if (!grid) return;
 
-        // W2: LCARS paired data cells — [LABEL capsule] [VALUE capsule]
-        // Two per row max, stacked pairs per agent
-        let html = '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:6px; max-width:640px;">';
+        let html = "";
         for (const agent of AGENTS) {
             const d = agentData[agent.id];
             const online = d?.status === "online";
             const b = online ? (d.data?.autonomy_budget || {}) : {};
             const deliberations = getDeliberations(b);
-            const health = d?.data?.health || "—";
+            const cutoff = getCutoff(b);
+            const pct = cutoff > 0 ? Math.round((1 - deliberations / cutoff) * 100) : 100;
+            const barColor = pct > 50 ? "#6aab8e" : pct > 20 ? "#d4944a" : "#c47070";
+            const health = d?.data?.health || "\u2014";
 
             const psych = d?.data?.psychometrics || {};
             const es = psych.emotional_state || {};
             const mood = es.affect_category || (online ? "nominal" : "offline");
 
-            const opacity = online ? 1 : 0.3;
-            const valColor = online ? agent.color : "var(--text-dim)";
+            const statusClass = online ? "online" : "offline";
+            const statusLabel = online ? health.toUpperCase() : "OFFLINE";
+            const pending = online ? (d.data?.unprocessed_messages || []).length : 0;
+            const gates = online ? (d.data?.active_gates || []).length : 0;
 
-            // Each agent = a block of paired capsules
-            html += `<div style="opacity:${opacity};">
-                <div style="display:flex; gap:3px; margin-bottom:2px;">
-                    <div style="background:${agent.color}; border-radius:12px 0 0 12px; padding:5px 10px; color:#000; font-weight:700; font-size:0.72em; letter-spacing:0.06em; text-transform:uppercase; min-width:100px;">${agentName(agent)}</div>
-                    <div style="background:color-mix(in srgb, ${agent.color} 25%, #111); border-radius:0 12px 12px 0; padding:5px 10px; color:${valColor}; font-weight:700; font-size:0.9em; min-width:50px; text-align:right;">${online ? fmtNum(deliberations) : "—"}</div>
+            html += `<div class="lcars-subsystem-block" style="--block-accent:${agent.color};${online ? "" : "opacity:0.4;"}">
+                <div class="lcars-subsystem-header">
+                    <span class="lcars-subsystem-name">${agentName(agent)}</span>
+                    <span class="lcars-subsystem-status ${statusClass}">${statusLabel}</span>
                 </div>
-                <div style="display:flex; gap:3px;">
-                    <div style="background:color-mix(in srgb, ${agent.color} 30%, #222); border-radius:12px 0 0 12px; padding:3px 10px; color:var(--text-secondary); font-size:0.65em; text-transform:uppercase; letter-spacing:0.05em; min-width:100px;">${health}</div>
-                    <div style="background:color-mix(in srgb, ${agent.color} 15%, #111); border-radius:0 12px 12px 0; padding:3px 10px; color:var(--text-dim); font-size:0.65em; min-width:50px; text-align:right;">${mood}</div>
+                <div class="lcars-subsystem-metrics">
+                    <div class="lcars-subsystem-metric">
+                        <span class="lcars-subsystem-metric-val">${online ? fmtNum(deliberations) : "\u2014"}</span>
+                        <span class="lcars-subsystem-metric-label">Delib</span>
+                    </div>
+                    <div class="lcars-subsystem-metric">
+                        <span class="lcars-subsystem-metric-val">${online ? pending : "\u2014"}</span>
+                        <span class="lcars-subsystem-metric-label">Pending</span>
+                    </div>
+                    <div class="lcars-subsystem-metric">
+                        <span class="lcars-subsystem-metric-val">${online ? gates : "\u2014"}</span>
+                        <span class="lcars-subsystem-metric-label">Gates</span>
+                    </div>
+                    <div class="lcars-subsystem-metric">
+                        <span class="lcars-subsystem-metric-val" style="font-size:0.82em;color:var(--text-secondary)">${mood}</span>
+                        <span class="lcars-subsystem-metric-label">Mood</span>
+                    </div>
+                </div>
+                <div class="lcars-subsystem-bar">
+                    <div class="lcars-subsystem-bar-fill" style="width:${online ? pct : 0}%;background:${barColor}"></div>
+                </div>
+                <div style="display:flex;justify-content:flex-end;margin-top:2px;">
+                    <span class="sparkline-container">${sparklineSVG(sparkHistory[\`delib-\${agent.id}\`] || [], { width: 64, height: 14, stroke: agent.color, fill: agent.color })}</span>
                 </div>
             </div>`;
         }
-        html += '</div>';
         grid.innerHTML = html;
+
+        // W5: Alphanumeric matrix — dense metrics summary
+        renderOpsAlphaMatrix();
+    }
+
+    function renderOpsAlphaMatrix() {
+        const el = document.getElementById("ops-alpha-matrix");
+        if (!el) return;
+
+        const online = Object.values(agentData).filter(a => a.status === "online");
+        const totalDelib = online.reduce((s, a) => s + getDeliberations(a.data?.autonomy_budget), 0);
+        const totalCutoff = online.reduce((s, a) => s + getCutoff(a.data?.autonomy_budget), 0);
+        const totalMsgs = online.reduce((s, a) => s + (a.data?.recent_messages?.length || 0), 0);
+        const pending = online.reduce((s, a) => s + (a.data?.unprocessed_messages?.length || 0), 0);
+        const gates = online.reduce((s, a) => s + (a.data?.active_gates?.length || 0), 0);
+        const events = online.reduce((s, a) => s + (a.data?.event_count || 0), 0);
+        const sessions = online.reduce((s, a) => s + (a.data?.totals?.sessions || 0), 0);
+        const decisions = online.reduce((s, a) => s + (a.data?.totals?.decisions || 0), 0);
+
+        const colors = ["#cc99cc", "#ff9966", "#9999ff", "#cc6699", "#ff9900", "#6aab8e", "#5b9cf6", "#e5a735"];
+        const metrics = [
+            { val: fmtNum(totalDelib), key: "DELIB" },
+            { val: totalCutoff > 0 ? fmtNum(totalCutoff) : "\u221E", key: "LIMIT" },
+            { val: fmtNum(totalMsgs), key: "MSG" },
+            { val: fmtNum(pending), key: "PEND" },
+            { val: fmtNum(gates), key: "GATE" },
+            { val: fmtNum(events), key: "EVT" },
+            { val: fmtNum(sessions), key: "SESS" },
+            { val: fmtNum(decisions), key: "DEC" },
+        ];
+
+        el.innerHTML = `<div class="lcars-alpha-matrix">${metrics.map((m, i) => {
+            const c = colors[i % colors.length];
+            return `<div class="lcars-alpha-cell" style="--cell-color:${c}">
+                <span class="lcars-alpha-val">${m.val}</span>
+                <span class="lcars-alpha-key">${m.key}</span>
+            </div>`;
+        }).join("")}</div>`;
     }
 
     function renderOpsActions() {
@@ -6709,30 +6836,27 @@
         let html = "";
         for (const agent of AGENTS) {
             const d = agentData[agent.id];
-            const sched = d?.data?.schedule || {};
             const isOnline = d?.status === "online";
+            const uptime = d?.data?.uptime || "\u2014";
+            const health = d?.data?.health || "\u2014";
+            const schema = d?.data?.schema_version || "\u2014";
+            const lastSync = d?.data?.schedule?.last_sync_time || d?.data?.collected_at || "\u2014";
+            const syncShort = lastSync !== "\u2014" ? lastSync.split("T")[1]?.substring(0, 8) || lastSync : "\u2014";
 
-            let statusClass, statusLabel;
-            if (!isOnline) {
-                statusClass = "ops-schedule-offline";
-                statusLabel = "OFFLINE";
-            } else {
-                statusClass = "ops-schedule-active";
-                statusLabel = "ONLINE";
-            }
+            const statusClass = isOnline ? "online" : "offline";
+            const statusLabel = isOnline ? "ONLINE" : "OFFLINE";
 
-            const uptime = d?.data?.uptime || "—";
-            const health = d?.data?.health || "—";
-            const agentLabel = agentName(agent);
-
-            html += `<div class="ops-schedule-row">
-                <div class="ops-schedule-agent" style="color:${agent.color}">${agentLabel}</div>
-                <div class="ops-schedule-detail">
-                    <span style="color:var(--text-dim)">uptime:</span> ${uptime}
-                    &nbsp;&nbsp;
-                    <span style="color:var(--text-dim)">health:</span> ${health}
+            html += `<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border);opacity:${isOnline ? 1 : 0.4}">
+                <div style="min-width:80px;">
+                    <div style="color:${agent.color};font-weight:700;font-size:0.78em;text-transform:uppercase;letter-spacing:0.06em">${agentName(agent)}</div>
+                    <span class="lcars-subsystem-status ${statusClass}" style="margin-top:2px">${statusLabel}</span>
                 </div>
-                <span class="ops-schedule-status ${statusClass}">${statusLabel}</span>
+                <div class="lcars-readout" style="flex:1;">
+                    <span class="lcars-readout-key">Health</span><span class="lcars-readout-val">${health}</span>
+                    <span class="lcars-readout-key">Uptime</span><span class="lcars-readout-val">${uptime}</span>
+                    <span class="lcars-readout-key">Last Sync</span><span class="lcars-readout-val">${syncShort}</span>
+                    <span class="lcars-readout-key">Schema</span><span class="lcars-readout-val">v${schema}</span>
+                </div>
             </div>`;
         }
         el.innerHTML = html || `<div class="phase-stub"><div class="phase-stub-text">No schedule data</div></div>`;
@@ -7498,6 +7622,19 @@
         fillEl.style.background = color;
         statusEl.textContent = label;
         statusEl.className = `util-status ${cls}`;
+
+        // Tuvok-style numbered vertical gauge (7 segments)
+        const vlg = document.getElementById("util-vlevel-gauge");
+        if (vlg) {
+            const segments = 7;
+            const activeLevel = Math.round((pct / 100) * segments);
+            const segColors = ["#6aab8e","#6aab8e","#6aab8e","#d4944a","#d4944a","#c47070","#c47070"];
+            vlg.innerHTML = Array.from({ length: segments }, (_, i) => {
+                const level = i + 1;
+                const active = level <= activeLevel;
+                return `<div class="lcars-vlevel-segment ${active ? "active" : "inactive"}" style="background:${active ? segColors[i] : "var(--bg-inset)"}">${level}</div>`;
+            }).join("");
+        }
     }
 
     function renderTempo() {

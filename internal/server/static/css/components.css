@@ -1985,6 +1985,40 @@ a.activity-link:hover {
     filter: drop-shadow(0 0 8px rgba(153, 153, 255, 0.2));
 }
 
+/* ── W3: LCARS Hatched Bar Overlays (TNG tick marks) ─────────── */
+/* Applied automatically to gauge fills in LCARS theme */
+.theme-lcars .util-bar-fill,
+.theme-lcars .tempo-bar-fill,
+.theme-lcars .budget-bar-fill,
+.theme-lcars .ops-budget-fill,
+.theme-lcars .gen-balance-fill-left,
+.theme-lcars .gen-balance-fill-right,
+.theme-lcars .medical-bar-fill,
+.theme-lcars .medical-dew-bar-fill {
+    position: relative;
+}
+.theme-lcars .util-bar-fill::after,
+.theme-lcars .tempo-bar-fill::after,
+.theme-lcars .budget-bar-fill::after,
+.theme-lcars .ops-budget-fill::after,
+.theme-lcars .gen-balance-fill-left::after,
+.theme-lcars .gen-balance-fill-right::after,
+.theme-lcars .medical-bar-fill::after,
+.theme-lcars .medical-dew-bar-fill::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 6px,
+        rgba(0,0,0,0.28) 6px,
+        rgba(0,0,0,0.28) 8px
+    );
+    border-radius: inherit;
+    pointer-events: none;
+}
+
 /* ── Activity Severity Colors ───────────────────────────────── */
 .activity-type.severity-info {
     border-color: var(--c-transport);
@@ -2375,4 +2409,322 @@ a.activity-link:hover {
     /* Agent cards: further compression */
     .agent-card { padding: 10px; }
     .agent-name { font-size: 0.78em; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   LCARS 47988 Widget Library — W3, W4, W5, key-value readouts,
+   numbered vertical gauges, section badges
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── W3: Hatched Sensor Bars ─────────────────────────────────── */
+/* TNG-style bars with vertical tick marks inside gauge fills.
+   Apply .lcars-hatched to any bar fill element. */
+.lcars-hatched {
+    position: relative;
+}
+.lcars-hatched::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 5px,
+        rgba(0,0,0,0.35) 5px,
+        rgba(0,0,0,0.35) 7px
+    );
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+/* Wider tick variant for larger bars */
+.lcars-hatched-wide::after {
+    background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 10px,
+        rgba(0,0,0,0.30) 10px,
+        rgba(0,0,0,0.30) 13px
+    );
+}
+
+/* ── W4: Subsystem Status Blocks ─────────────────────────────── */
+/* Bordered inset per-agent panels — Tuvok-style rectangles with
+   label, status indicator, and optional metric slots */
+.lcars-subsystem-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+}
+.lcars-subsystem-block {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--block-accent, var(--c-transport));
+    border-radius: 0 6px 6px 0;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    transition: border-color 0.3s ease;
+}
+.lcars-subsystem-block:hover {
+    border-color: var(--block-accent, var(--c-transport));
+}
+.lcars-subsystem-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.lcars-subsystem-name {
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-primary);
+}
+.lcars-subsystem-status {
+    font-size: 0.65em;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.lcars-subsystem-status.online {
+    background: rgba(106,171,142,0.15);
+    color: #6aab8e;
+}
+.lcars-subsystem-status.offline {
+    background: rgba(196,112,112,0.15);
+    color: #c47070;
+}
+.lcars-subsystem-status.degraded {
+    background: rgba(212,148,74,0.15);
+    color: #d4944a;
+}
+.lcars-subsystem-metrics {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.lcars-subsystem-metric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 48px;
+}
+.lcars-subsystem-metric-val {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.lcars-subsystem-metric-label {
+    font-size: 0.6em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+}
+/* Hatched bar inside subsystem block */
+.lcars-subsystem-bar {
+    height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.lcars-subsystem-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    position: relative;
+    transition: width 0.6s ease;
+}
+.lcars-subsystem-bar-fill::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 4px,
+        rgba(0,0,0,0.30) 4px,
+        rgba(0,0,0,0.30) 6px
+    );
+    border-radius: inherit;
+}
+
+/* ── W5: Alphanumeric Matrix ─────────────────────────────────── */
+/* Dense monospace number grid — USS Centurion / LCARS 47988 pattern */
+.lcars-alpha-matrix {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: 2px;
+    font-family: "Lucida Console", "Menlo", "Monaco", monospace;
+    font-size: 0.72em;
+    line-height: 1;
+}
+.lcars-alpha-cell {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px 0;
+}
+.lcars-alpha-val {
+    background: var(--cell-color, #cc99cc);
+    color: #000;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 8px 0 0 8px;
+    min-width: 32px;
+    text-align: right;
+}
+.lcars-alpha-key {
+    background: color-mix(in srgb, var(--cell-color, #cc99cc) 30%, #111);
+    color: var(--cell-color, #cc99cc);
+    font-size: 0.82em;
+    font-weight: 600;
+    padding: 3px 6px;
+    border-radius: 0 8px 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+/* ── Key-Value Readout ───────────────────────────────────────── */
+/* LCARS-style label: value pairs — maxresdefault pattern */
+.lcars-readout {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2px 12px;
+    font-size: 0.78em;
+    padding: 4px 0;
+}
+.lcars-readout-key {
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.88em;
+    white-space: nowrap;
+}
+.lcars-readout-val {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-family: "Lucida Console", "Menlo", "Monaco", monospace;
+}
+
+/* ── Numbered Vertical Gauge ─────────────────────────────────── */
+/* Tuvok-style 1-7 segmented vertical bar with horizontal tick rules */
+.lcars-vlevel-gauge {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 2px;
+    width: 36px;
+    max-height: 160px;
+}
+.lcars-vlevel-segment {
+    position: relative;
+    flex: 1;
+    min-height: 14px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6em;
+    font-weight: 700;
+    color: rgba(0,0,0,0.6);
+    transition: background 0.3s ease, opacity 0.3s ease;
+}
+.lcars-vlevel-segment.active {
+    opacity: 1;
+}
+.lcars-vlevel-segment.inactive {
+    opacity: 0.15;
+}
+/* Horizontal tick inside each segment */
+.lcars-vlevel-segment::after {
+    content: "";
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    top: 50%;
+    height: 1px;
+    background: rgba(0,0,0,0.25);
+}
+
+/* ── Section Badge ───────────────────────────────────────────── */
+/* Holodeck-style numbered corner identifier */
+.lcars-section-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--badge-color, #ff9966);
+    color: #000;
+    font-weight: 700;
+    font-size: 0.72em;
+    padding: 3px 10px;
+    border-radius: 0 10px 10px 0;
+    letter-spacing: 0.04em;
+}
+.lcars-section-badge-text {
+    font-size: 0.82em;
+    font-weight: 500;
+    color: rgba(0,0,0,0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* ── Status Indicator Dots ───────────────────────────────────── */
+/* Colored dots with labels for system state */
+.lcars-status-dots {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.72em;
+}
+.lcars-status-dot-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.lcars-status-dot-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.lcars-status-dot-indicator.green { background: #6aab8e; box-shadow: 0 0 4px #6aab8e; }
+.lcars-status-dot-indicator.amber { background: #d4944a; box-shadow: 0 0 4px #d4944a; }
+.lcars-status-dot-indicator.red { background: #c47070; box-shadow: 0 0 4px #c47070; }
+.lcars-status-dot-indicator.blue { background: #5b9cf6; box-shadow: 0 0 4px #5b9cf6; }
+.lcars-status-dot-label {
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* ── Stacked Decreasing Capsules ─────────────────────────────── */
+/* Navigational Reference pattern — capsules shrinking in size */
+.lcars-stack-capsules {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+}
+.lcars-stack-capsule {
+    display: inline-flex;
+    align-items: center;
+    font-weight: 700;
+    color: #000;
+    border-radius: 6px;
+    padding: 2px 10px;
+    white-space: nowrap;
+}
+.lcars-stack-capsule.size-lg { font-size: 1.4em; padding: 4px 14px; }
+.lcars-stack-capsule.size-md { font-size: 1.0em; padding: 3px 12px; }
+.lcars-stack-capsule.size-sm { font-size: 0.78em; padding: 2px 10px; }
+
+/* ── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .lcars-subsystem-grid { grid-template-columns: 1fr; }
+    .lcars-alpha-matrix { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); }
 }
