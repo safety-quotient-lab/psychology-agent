@@ -61,6 +61,7 @@
 
     <!-- LCARS Header Band — stardate tray on mobile portrait -->
     <div class="lcars-header-band" id="lcars-header-band">
+        <div class="lcars-hdr-arm" style="background:var(--lcars-secondary)"></div>
         <div class="lcars-header-seg lcars-hdr-title" style="background:transparent;color:var(--lcars-title);font-size:0.95em;letter-spacing:0.12em">INTERAGENT MESH</div>
         <div class="lcars-hdr-arm" style="background:var(--lcars-secondary)"></div>
         <div class="lcars-header-seg lcars-stardate-cell" style="background:var(--lcars-secondary);position:relative" id="lcars-hdr-stardate">
@@ -1873,9 +1874,12 @@
 
     function startLcarsStardate() {
         if (lcarsStardateTimer) return;
-        const el = document.getElementById("lcars-hdr-stardate");
-        if (!el) return;
-        function tick() { el.textContent = formatStardate(new Date()); }
+        const cell = document.getElementById("lcars-hdr-stardate");
+        if (!cell) return;
+        // Update the label text, not the cell — preserve checkbox + tray structure
+        const label = cell.querySelector(".stardate-tray-label");
+        const target = label || cell;
+        function tick() { target.textContent = formatStardate(new Date()); }
         tick();
         lcarsStardateTimer = setInterval(tick, 1000);
     }

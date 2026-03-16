@@ -3052,10 +3052,11 @@ a.activity-link:hover {
     padding: 4px 16px !important;
 }
 
-/* ── Header structural arm — fills between title and pills ───── */
+/* ── Header structural arm — short connector between title and pills ── */
 .lcars-hdr-arm {
-    flex: 1 1 0;
-    min-width: 20px;
+    flex: 0 1 60px; /* shrinks from 60px, doesn't grow beyond it */
+    min-width: 12px;
+    max-width: 60px;
     align-self: stretch;
 }
 
