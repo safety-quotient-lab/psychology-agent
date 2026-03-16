@@ -168,7 +168,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     min-height: var(--band-size);
     flex-shrink: 0;
     border-radius: var(--elbow-outer) 0 0 0;
-    margin-bottom: var(--gap-xs);
+    margin-bottom: 0; /* no gap — flows seamlessly into drop block */
 }
 
 /* Sidebar navigation buttons */
@@ -3134,13 +3134,13 @@ a.activity-link:hover {
 
 /* ── Sidebar drop — structural block below elbow, before nav buttons ── */
 .lcars-sidebar-drop {
-    min-height: var(--gap-2xl, 34px); /* φ spacing */
+    min-height: var(--gap-3xl, 55px); /* 2φ — taller for visual weight */
     flex-shrink: 0;
     margin-bottom: var(--gap-xs, 3px);
     border-radius: 0;
 }
 @media (max-width: 768px) {
-    .lcars-sidebar-drop { min-height: var(--gap-xl, 21px); }
+    .lcars-sidebar-drop { min-height: var(--gap-2xl, 34px); }
 }
 @media (max-width: 480px) {
     .lcars-sidebar-drop { min-height: var(--gap-l, 13px); }
