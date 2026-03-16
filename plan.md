@@ -267,6 +267,8 @@
 | D80 | Neuromodulatory 6-channel ZMQ protocol accepted (mesh.photonic/reward/alert/tempo/focus/inhibit) | human arbiter (2026-03-15) |
 | D81 | Operations tab: status monologue replaces raw counter bar; LCARS canonical structure | human arbiter (2026-03-15) |
 | D82 | Mesh aggregate API: GET /api/mesh-aggregate (Go native, 5 constructs, mesh terminology) | operations-agent (2026-03-15) |
+| D83 | Cron removal: meshd-sync + mesh-heartbeat removed — meshd handles internally | human arbiter (2026-03-15) |
+| D84 | Single-source dashboard: LCARS index.html canonical, build-time sync via Makefile | human arbiter (2026-03-15) |
 
 ---
 
