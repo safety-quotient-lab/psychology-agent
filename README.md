@@ -437,7 +437,7 @@ its markdown documentation. Markdown remains the source of truth for prose-heavy
 documents; the database provides structured queries over transport messages, design
 decisions, memory entries, session history, and more.
 
-**Schema:** `scripts/schema.sql` (v30, 25 tables). **Bootstrap:** `scripts/bootstrap_state_db.py`
+**Schema:** `scripts/schema.sql` (v32, 28 tables). **Bootstrap:** `scripts/bootstrap_state_db.py`
 rebuilds the entire database from source files. **Incremental writes:** `scripts/dual_write.py`
 keeps the database in sync during normal operation.
 
@@ -532,7 +532,7 @@ A2A protocolVersion 0.3.0. Process monism as ontological foundation.**
 | Peer mesh | **Proven** | 5 peer agents (PSQ, unratified, observatory, operations, claude-control), 260+ messages across 39 sessions, self-readiness audit completed (R4: all READY) |
 | Adversarial evaluator | **Confirmed** | 7-procedure ranked set, tiered activation spec, Tier 1 proxy implemented — Tier 2/3 await runtime |
 | Psychology interface | **Deployed** | CF Worker at api.safety-quotient.dev — PSQ scoring, agent card, D1 + KV |
-| SQLite state layer | **Proven** | Schema v30, 25 tables, dual-write protocol, 4-tier visibility model, universal facets (PSH vocabulary), threading + CID |
+| SQLite state layer | **Proven** | Schema v32, 28 tables, dual-write protocol, 4-tier visibility model, universal facets (PSH vocabulary), threading + CID |
 | Core governance (EF-1) | **Proven** | 5 structural + 7 evaluator invariants, autonomy budget, circuit breaker (3 mechanisms), autonomous sync operational |
 | Agent discovery | **Proven** | A2A protocolVersion 0.3.0 agent card, `.well-known/` path, agent registry with routing rules |
 | Autonomous mesh | **Confirmed** | meshd daemon (event-driven ZMQ triggers), autonomous-sync.sh, compositor (5-tab LCARS UI), SSE live updates |
@@ -642,12 +642,12 @@ claude-replay ~/.claude/projects/<project>/<session>.jsonl \
 ```
 
 **Queryable state layer with 4-tier visibility** — A SQLite database (state.db)
-indexes 25 tables of structured state alongside the markdown documentation.
+indexes 28 tables of structured state alongside the markdown documentation.
 A 4-tier visibility model (public/shared/commercial/private) controls what
 ships in exports. The universal facets system provides polythematic classification
 using PSH (Polythematic Structured Subject Heading) vocabulary across 11 L1
 disciplines. Private by default; explicit promotion required.
-- [scripts/schema.sql](scripts/schema.sql) — the full schema (v30, 25 tables)
+- [scripts/schema.sql](scripts/schema.sql) — the full schema (v32, 28 tables)
 - [scripts/export_public_state.py](scripts/export_public_state.py) — filtered exports by visibility tier
 - [.claude/rules/sqlite.md](.claude/rules/sqlite.md) — conventions, deterministic keys, facet system
 - [journal.md #39](journal.md) — Private by Default: How Data Governance Emerges in Agent Systems
@@ -677,7 +677,7 @@ psychology-agent/
 +-- lessons.md                      # Transferable pattern errors and insights
 +-- ideas.md                        # Speculative directions
 +-- scripts/
-|   +-- schema.sql                  # SQLite state layer schema (v30, 25 tables)
+|   +-- schema.sql                  # SQLite state layer schema (v32, 28 tables)
 |   +-- migrate_v*.sql              # Schema migrations
 |   +-- bootstrap_state_db.py       # Rebuild state.db from source files
 |   +-- dual_write.py               # Incremental state.db writes (/sync, /cycle)
