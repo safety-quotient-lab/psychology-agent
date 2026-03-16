@@ -1,5 +1,5 @@
-// Package gates manages gated autonomous chain operations.
-// Gates live in state.local.db (machine-local state).
+// Package gates manages gated autonomous chain operations (pending handoffs).
+// Handoffs live in state.local.db (machine-local state).
 package gates
 
 import (
@@ -39,7 +39,7 @@ func Open(db *sql.DB, p OpenGateParams) error {
 	}
 
 	_, err := db.Exec(`
-		INSERT OR REPLACE INTO active_gates
+		INSERT OR REPLACE INTO pending_handoffs
 			(gate_id, sending_agent, receiving_agent, session_name,
 			 outbound_filename, blocks_until, timeout_minutes,
 			 fallback_action, status, timeout_at)
@@ -56,7 +56,7 @@ func Open(db *sql.DB, p OpenGateParams) error {
 		return fmt.Errorf("open gate: %w", err)
 	}
 
-	fmt.Printf("gate opened: %s (%s → %s, timeout %dmin)\n",
+	fmt.Printf("handoff opened: %s (%s → %s, timeout %dmin)\n",
 		p.GateID, p.SendingAgent, p.ReceivingAgent, p.TimeoutMinutes)
 	return nil
 }
@@ -64,7 +64,7 @@ func Open(db *sql.DB, p OpenGateParams) error {
 // Resolve resolves a waiting gate.
 func Resolve(db *sql.DB, gateID, resolvedBy string) (int64, error) {
 	result, err := db.Exec(`
-		UPDATE active_gates
+		UPDATE pending_handoffs
 		SET status = 'resolved',
 			resolved_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'),
 			resolved_by = ?
@@ -75,9 +75,9 @@ func Resolve(db *sql.DB, gateID, resolvedBy string) (int64, error) {
 
 	affected, _ := result.RowsAffected()
 	if affected == 0 {
-		fmt.Fprintf(os.Stderr, "warning: no waiting gate found for gate_id=%s\n", gateID)
+		fmt.Fprintf(os.Stderr, "warning: no waiting handoff found for gate_id=%s\n", gateID)
 	} else {
-		fmt.Printf("gate resolved: %s by %s\n", gateID, resolvedBy)
+		fmt.Printf("handoff resolved: %s by %s\n", gateID, resolvedBy)
 	}
 	return affected, nil
 }
@@ -85,7 +85,7 @@ func Resolve(db *sql.DB, gateID, resolvedBy string) (int64, error) {
 // Timeout marks a gate as timed out.
 func Timeout(db *sql.DB, gateID string) (int64, error) {
 	result, err := db.Exec(`
-		UPDATE active_gates
+		UPDATE pending_handoffs
 		SET status = 'timed-out',
 			resolved_at = strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime')
 		WHERE gate_id = ? AND status = 'waiting'`, gateID)
@@ -95,27 +95,27 @@ func Timeout(db *sql.DB, gateID string) (int64, error) {
 
 	affected, _ := result.RowsAffected()
 	if affected == 0 {
-		fmt.Fprintf(os.Stderr, "warning: no waiting gate found for gate_id=%s\n", gateID)
+		fmt.Fprintf(os.Stderr, "warning: no waiting handoff found for gate_id=%s\n", gateID)
 	} else {
-		fmt.Printf("gate timed out: %s\n", gateID)
+		fmt.Printf("handoff timed out: %s\n", gateID)
 	}
 	return affected, nil
 }
 
-// GateStatus holds query results for active gates.
-type GateStatus struct {
-	ActiveGates int              `json:"active_gates"`
-	Gates       []map[string]any `json:"gates"`
+// HandoffStatus holds query results for pending handoffs.
+type HandoffStatus struct {
+	PendingHandoffs int              `json:"pending_handoffs"`
+	Handoffs        []map[string]any `json:"handoffs"`
 }
 
-// QueryStatus queries active (waiting) gates.
-func QueryStatus(db *sql.DB, agentID string) (*GateStatus, error) {
+// QueryStatus queries pending (waiting) handoffs.
+func QueryStatus(db *sql.DB, agentID string) (*HandoffStatus, error) {
 	query := `
 		SELECT gate_id, sending_agent, receiving_agent, session_name,
 			   outbound_filename, blocks_until, timeout_minutes,
 			   fallback_action, status, created_at, timeout_at,
 			   resolved_at, resolved_by
-		FROM active_gates
+		FROM pending_handoffs
 		WHERE status = 'waiting'`
 	var args []any
 	if agentID != "" {
@@ -127,12 +127,12 @@ func QueryStatus(db *sql.DB, agentID string) (*GateStatus, error) {
 	rows, err := db.Query(query, args...)
 	if err != nil {
 		// Table may not exist — return empty
-		return &GateStatus{ActiveGates: 0}, nil
+		return &HandoffStatus{PendingHandoffs: 0}, nil
 	}
 	defer rows.Close()
 
 	cols, _ := rows.Columns()
-	var gates []map[string]any
+	var handoffs []map[string]any
 	for rows.Next() {
 		values := make([]any, len(cols))
 		valuePtrs := make([]any, len(cols))
@@ -142,14 +142,14 @@ func QueryStatus(db *sql.DB, agentID string) (*GateStatus, error) {
 		if err := rows.Scan(valuePtrs...); err != nil {
 			continue
 		}
-		gate := make(map[string]any)
+		handoff := make(map[string]any)
 		for i, col := range cols {
-			gate[col] = values[i]
+			handoff[col] = values[i]
 		}
-		gates = append(gates, gate)
+		handoffs = append(handoffs, handoff)
 	}
 
-	return &GateStatus{ActiveGates: len(gates), Gates: gates}, nil
+	return &HandoffStatus{PendingHandoffs: len(handoffs), Handoffs: handoffs}, nil
 }
 
 // ScanResolveResult holds output of a scan-and-resolve operation.
@@ -166,14 +166,14 @@ type ResolvedGate struct {
 	Session    string `json:"session"`
 }
 
-// ScanAndResolve checks all unprocessed inbound messages against active gates
-// and resolves matching gates deterministically.
-// sharedDB = state.db (transport_messages), localDB = state.local.db (active_gates).
+// ScanAndResolve checks all unprocessed inbound messages against pending handoffs
+// and resolves matching handoffs deterministically.
+// sharedDB = state.db (transport_messages), localDB = state.local.db (pending_handoffs).
 func ScanAndResolve(sharedDB, localDB *sql.DB, selfAgentID string, dryRun bool) (*ScanResolveResult, error) {
 	// Get all waiting gates where we are the sender
 	gateRows, err := localDB.Query(`
 		SELECT gate_id, receiving_agent, session_name, timeout_at
-		FROM active_gates
+		FROM pending_handoffs
 		WHERE status = 'waiting' AND sending_agent = ?`, selfAgentID)
 	if err != nil {
 		return &ScanResolveResult{}, nil
@@ -227,7 +227,7 @@ func ScanAndResolve(sharedDB, localDB *sql.DB, selfAgentID string, dryRun bool) 
 		} else {
 			// Look up outbound filename before resolving (local DB)
 			var outboundFilename string
-			localDB.QueryRow(`SELECT outbound_filename FROM active_gates WHERE gate_id = ?`,
+			localDB.QueryRow(`SELECT outbound_filename FROM pending_handoffs WHERE gate_id = ?`,
 				g.gateID).Scan(&outboundFilename)
 
 			affected, err := Resolve(localDB, g.gateID, resolverFilename)
@@ -250,7 +250,7 @@ func ScanAndResolve(sharedDB, localDB *sql.DB, selfAgentID string, dryRun bool) 
 
 	// Count remaining gates
 	var remaining int
-	localDB.QueryRow(`SELECT COUNT(*) FROM active_gates WHERE status = 'waiting' AND sending_agent = ?`,
+	localDB.QueryRow(`SELECT COUNT(*) FROM pending_handoffs WHERE status = 'waiting' AND sending_agent = ?`,
 		selfAgentID).Scan(&remaining)
 	result.Remaining = remaining
 
@@ -285,8 +285,8 @@ func PrintScanResolveJSON(result *ScanResolveResult) {
 	fmt.Println(string(data))
 }
 
-// PrintStatusJSON prints gate status as JSON.
-func PrintStatusJSON(status *GateStatus) {
+// PrintStatusJSON prints handoff status as JSON.
+func PrintStatusJSON(status *HandoffStatus) {
 	data, _ := json.MarshalIndent(status, "", "  ")
 	fmt.Println(string(data))
 }

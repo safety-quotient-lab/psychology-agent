@@ -154,7 +154,7 @@
             <td>{{getStr . "agent_id"}}</td>
             <td>{{if $trust}}{{getStr $trust "budget_spent"}}/{{getStr $trust "budget_cutoff"}} spent{{else}}&mdash;{{end}}</td>
             <td>{{if $transport}}{{getStr $transport "unprocessed"}}{{else}}0{{end}}</td>
-            <td>{{if $transport}}{{getStr $transport "active_gates"}}{{else}}0{{end}}</td>
+            <td>{{if $transport}}{{getStr $transport "pending_handoffs"}}{{else}}0{{end}}</td>
             <td>{{if $transport}}{{getStr $transport "total_messages"}}{{else}}0{{end}}</td>
             <td>{{getStr . "epistemic_flags_unresolved"}}</td>
             <td>v{{getStr . "schema_version"}}</td>

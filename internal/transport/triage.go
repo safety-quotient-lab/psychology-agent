@@ -341,7 +341,7 @@ func loadActiveGateSessions(localDB *sql.DB, selfAgentID string) map[string]bool
 	}
 	sessions := make(map[string]bool)
 	rows, err := localDB.Query(`
-		SELECT session_name FROM active_gates
+		SELECT session_name FROM pending_handoffs
 		WHERE status = 'waiting' AND sending_agent = ?`, selfAgentID)
 	if err != nil {
 		return sessions

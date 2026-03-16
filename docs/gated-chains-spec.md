@@ -1,5 +1,7 @@
 # Gated Autonomous Chains — Design Spec
 
+> **Naming reform (Session 93):** `active_gates` table renamed to `pending_handoffs`. "Action gates" now called "decision checkpoints." Protocol field `action_gate` retains its name for interagent compatibility.
+
 **Date:** 2026-03-09
 **Status:** Active design
 **Resolves:** Gated autonomous chain requirement (Session 61 /knock analysis)
@@ -63,10 +65,10 @@ sender needs confirmation; the gate makes that structural.
 
 ## Gate State Tracking (state.db)
 
-### New table: `active_gates`
+### Table: `pending_handoffs` (formerly `active_gates`)
 
 ```sql
-CREATE TABLE IF NOT EXISTS active_gates (
+CREATE TABLE IF NOT EXISTS pending_handoffs (
     gate_id             TEXT PRIMARY KEY,
     sending_agent       TEXT NOT NULL,
     receiving_agent     TEXT NOT NULL,
@@ -82,8 +84,8 @@ CREATE TABLE IF NOT EXISTS active_gates (
     timeout_at          TEXT NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_gates_status
-    ON active_gates (status) WHERE status = 'waiting';
+CREATE INDEX IF NOT EXISTS idx_handoffs_status
+    ON pending_handoffs (status) WHERE status = 'waiting';
 ```
 
 Status values: `waiting`, `resolved`, `timed-out`, `fallback-executed`.
@@ -92,7 +94,7 @@ Status values: `waiting`, `resolved`, `timed-out`, `fallback-executed`.
 
 ### Visibility
 
-`active_gates` → `private` (machine-specific operational state, like autonomy_budget).
+`pending_handoffs` → `private` (machine-specific operational state, like autonomy_budget).
 
 
 ---
@@ -123,7 +125,7 @@ arrive within 5 minutes. No changes needed — already operational.
 
 ### L2: Gate-aware acceleration (new)
 
-When an agent has an active gate (`status = 'waiting'` in `active_gates`),
+When an agent has a pending handoff (`status = 'waiting'` in `pending_handoffs`),
 the sync script switches from 5-minute interval to 60-second interval.
 Implementation: a separate cron entry or a filesystem watch.
 
@@ -134,12 +136,12 @@ the standard interval check, creating a fast lane.
 
 ```bash
 # In autonomous-sync.sh, after ensure_db:
-active_gates=$(sqlite3 "${DB_PATH}" \
-    "SELECT COUNT(*) FROM active_gates WHERE status = 'waiting'
+pending_count=$(sqlite3 "${DB_PATH}" \
+    "SELECT COUNT(*) FROM pending_handoffs WHERE status = 'waiting'
      AND datetime(timeout_at) > datetime('now', 'localtime');")
 
-if [ "${active_gates}" -gt 0 ]; then
-    log "GATE-ACCELERATED — ${active_gates} active gate(s), using 60s interval"
+if [ "${pending_count}" -gt 0 ]; then
+    log "HANDOFF-ACCELERATED — ${pending_count} pending handoff(s), using 60s interval"
     # Override interval for this cycle only
     GATE_ACCELERATED=true
 fi
@@ -206,7 +208,7 @@ delivery with zero shared infrastructure.
 
 1. Agent drafts outbound message with `gate` field
 2. `dual_write.py transport-message` writes the message metadata to state.db
-3. New: `dual_write.py gate-open` inserts into `active_gates`:
+3. New: `dual_write.py gate-open` inserts into `pending_handoffs`:
    ```bash
    python3 scripts/dual_write.py gate-open \
        --gate-id "psq-recalibration-gate-20260309" \
@@ -236,7 +238,7 @@ delivery with zero shared infrastructure.
 1. Sender's next poll/accelerated-poll picks up the response
 2. `/sync` processes the response and detects it resolves a gate:
    ```sql
-   SELECT gate_id FROM active_gates
+   SELECT gate_id FROM pending_handoffs
    WHERE status = 'waiting'
      AND session_name = '{session}'
      AND receiving_agent = '{response.from.agent_id}';
@@ -253,7 +255,7 @@ delivery with zero shared infrastructure.
 
 1. `autonomous-sync.sh` checks for timed-out gates:
    ```sql
-   SELECT gate_id, fallback_action FROM active_gates
+   SELECT gate_id, fallback_action FROM pending_handoffs
    WHERE status = 'waiting'
      AND datetime(timeout_at) <= datetime('now', 'localtime');
    ```
@@ -275,7 +277,7 @@ delivery with zero shared infrastructure.
 ```sql
 -- ── Schema v10: Gated autonomous chains ─────────────────────
 
-CREATE TABLE IF NOT EXISTS active_gates (
+CREATE TABLE IF NOT EXISTS pending_handoffs (  -- formerly active_gates
     gate_id             TEXT PRIMARY KEY,
     sending_agent       TEXT NOT NULL,
     receiving_agent     TEXT NOT NULL,
@@ -291,14 +293,14 @@ CREATE TABLE IF NOT EXISTS active_gates (
     timeout_at          TEXT NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_gates_status
-    ON active_gates (status) WHERE status = 'waiting';
+CREATE INDEX IF NOT EXISTS idx_handoffs_status
+    ON pending_handoffs (status) WHERE status = 'waiting';
 
 INSERT OR IGNORE INTO table_visibility (table_name, default_visibility, description)
-VALUES ('active_gates', 'private', 'Gate state — machine-specific operational state');
+VALUES ('pending_handoffs', 'private', 'Handoff state — machine-specific operational state');
 
 INSERT OR IGNORE INTO schema_version (version, description)
-VALUES (10, 'Add active_gates table — gated autonomous chain tracking with timeout and fallback cascade');
+VALUES (10, 'Add pending_handoffs table (formerly active_gates) — gated autonomous chain tracking with timeout and fallback cascade');
 ```
 
 
@@ -309,7 +311,7 @@ VALUES (10, 'Add active_gates table — gated autonomous chain tracking with tim
 
 | Step | Deliverable | Effort | Depends on |
 |------|-------------|--------|------------|
-| 1 | Schema v10 migration (active_gates table) | XS | — |
+| 1 | Schema v10 migration (pending_handoffs table) | XS | — |
 | 2 | `dual_write.py` gate-open / gate-resolve / gate-timeout commands | S | Step 1 |
 | 3 | `autonomous-sync.sh` gate-aware acceleration (L2) | S | Step 1 |
 | 4 | `autonomous-sync.sh` wake-up file check (L3) | XS | — |

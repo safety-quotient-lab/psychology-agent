@@ -192,7 +192,7 @@ SCHEMA_ORG_TYPES = {
     "lessons":            "schema:LearningResource",
     "trigger_state":      "schema:HowToStep",
     "autonomous_actions": "schema:Action",
-    "active_gates":       "schema:SuspendAction",
+    "pending_handoffs":   "schema:SuspendAction",
     "epistemic_flags":    "schema:Comment",
 }
 
@@ -319,10 +319,10 @@ def collect_entity_text(conn: sqlite3.Connection) -> list[tuple]:
 
     for row in conn.execute(
         "SELECT rowid, gate_id, sending_agent, receiving_agent, session_name "
-        "FROM active_gates"
+        "FROM pending_handoffs"
     ).fetchall():
         text = f"{row[1]} {row[2]} {row[3]} {row[4]}"
-        entities.append(("active_gates", row[0], text))
+        entities.append(("pending_handoffs", row[0], text))
 
     # epistemic_flags — quality/validity concerns flagged during sessions
     for row in conn.execute(

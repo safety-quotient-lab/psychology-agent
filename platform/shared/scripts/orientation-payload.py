@@ -188,7 +188,7 @@ def waiting_gates(conn: sqlite3.Connection, agent_id: str) -> list[dict]:
             "SELECT gate_id, sending_agent, receiving_agent, session_name, "
             "blocks_until, timeout_minutes, fallback_action, "
             "created_at, timeout_at "
-            "FROM active_gates "
+            "FROM pending_handoffs "
             "WHERE status = 'waiting' "
             "AND (sending_agent = ? OR receiving_agent = ?) "
             "ORDER BY created_at",

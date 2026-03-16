@@ -492,9 +492,9 @@ def collect_status() -> dict:
     )
     budget_row = budget[0] if budget else {}
 
-    # Active gates
+    # Pending handoffs (formerly active_gates)
     gates = query_db(
-        "SELECT * FROM active_gates WHERE status = 'waiting' ORDER BY created_at"
+        "SELECT * FROM pending_handoffs WHERE status = 'waiting' ORDER BY created_at"
     )
 
     # Unprocessed messages
@@ -668,7 +668,7 @@ def collect_status() -> dict:
         "db_exists": DB_PATH.exists(),
         "schema_version": schema_ver,
         "autonomy_budget": budget_row,
-        "active_gates": gates,
+        "pending_handoffs": gates,
         "unprocessed_messages": unprocessed,
         "recent_messages": recent,
         "recent_actions": actions,
@@ -680,7 +680,7 @@ def collect_status() -> dict:
             "messages": total_messages,
             "sessions": total_sessions,
             "unprocessed": len(unprocessed),
-            "active_gates": len(gates),
+            "pending_handoffs": len(gates),
             "epistemic_flags_unresolved": total_flags,
         },
         "crystallization": {
@@ -751,7 +751,7 @@ def _build_jsonld(status: dict) -> dict:
 
     # Active gates as pending actions
     gate_actions = []
-    for gate in status.get("active_gates", []):
+    for gate in status.get("pending_handoffs", []):
         gate_actions.append({
             "@type": "Action",
             "name": f"gate:{gate.get('gate_id', '?')}",
@@ -787,7 +787,7 @@ def _build_jsonld(status: dict) -> dict:
             {"@type": "PropertyValue", "name": "total_messages", "value": totals.get("messages", 0)},
             {"@type": "PropertyValue", "name": "total_sessions", "value": totals.get("sessions", 0)},
             {"@type": "PropertyValue", "name": "unprocessed_messages", "value": totals.get("unprocessed", 0)},
-            {"@type": "PropertyValue", "name": "active_gates", "value": totals.get("active_gates", 0)},
+            {"@type": "PropertyValue", "name": "pending_handoffs", "value": totals.get("pending_handoffs", 0)},
             {"@type": "PropertyValue", "name": "epistemic_flags_unresolved", "value": totals.get("epistemic_flags_unresolved", 0)},
             {"@type": "PropertyValue", "name": "autonomy_budget_spent", "value": budget.get("budget_spent", "?")},
             {"@type": "PropertyValue", "name": "autonomy_budget_cutoff", "value": budget.get("budget_cutoff", "?")},
@@ -810,7 +810,7 @@ def _render_state_of_play(status: dict) -> str:
     thread = sop.get("active_thread", {})
     todo = sop.get("todo", {})
     peer_sync = sop.get("peer_sync", [])
-    gates = status.get("active_gates", [])
+    gates = status.get("pending_handoffs", [])
 
     # Active Thread section
     last_session = thread.get("last_session", "unknown")
@@ -939,7 +939,7 @@ def _render_messages_tab(status: dict) -> str:
     """Render session-threaded message view."""
     summaries = status.get("session_summaries", [])
     session_msgs = status.get("session_messages", {})
-    gates = status.get("active_gates", [])
+    gates = status.get("pending_handoffs", [])
     gate_sessions = {g.get("session_name") for g in gates}
 
     if not summaries:
@@ -1220,7 +1220,7 @@ def render_html(status: dict) -> str:
 
     # Active gates HTML
     gates_html = ""
-    for gate in status.get("active_gates", []):
+    for gate in status.get("pending_handoffs", []):
         gates_html += f"""
         <tr>
             <td>{gate.get('gate_id', '?')}</td>
@@ -1279,7 +1279,7 @@ def render_html(status: dict) -> str:
         transport = rs.get("transport", {})
         budget_str = f"{trust.get('budget_spent', '?')}/{trust.get('budget_cutoff', '?')} spent" if trust else "—"
         unprocessed = transport.get("unprocessed", 0)
-        active_gates = transport.get("active_gates", 0)
+        pending_handoffs = transport.get("pending_handoffs", 0)
         total_msgs = transport.get("total_messages", 0)
         schema_ver = rs.get("schema_version", "?")
         epi_flags = rs.get("epistemic_flags_unresolved", 0)
@@ -1293,7 +1293,7 @@ def render_html(status: dict) -> str:
             <td>{agent}</td>
             <td>{budget_str}</td>
             <td>{unprocessed}</td>
-            <td>{active_gates}</td>
+            <td>{pending_handoffs}</td>
             <td>{total_msgs}</td>
             <td>{epi_flags}</td>
             <td>v{schema_ver}</td>
@@ -1621,8 +1621,8 @@ def render_html(status: dict) -> str:
                     {totals.get('unprocessed', 0)} queued
                 </div>
                 <div class="indicator">
-                    <span class="dot {'dot-yellow' if totals.get('active_gates', 0) > 0 else 'dot-gray'}"></span>
-                    {totals.get('active_gates', 0)} gates
+                    <span class="dot {'dot-yellow' if totals.get('pending_handoffs', 0) > 0 else 'dot-gray'}"></span>
+                    {totals.get('pending_handoffs', 0)} handoffs
                 </div>
                 <div class="indicator">
                     <span class="dot dot-{'green' if crystal.get('rate_percent', 0) > 40 else 'yellow' if crystal.get('total_triaged', 0) > 0 else 'gray'}"></span>
@@ -1661,8 +1661,8 @@ def render_html(status: dict) -> str:
             <div class="card-detail">messages awaiting processing</div>
         </div>
         <div class="card">
-            <div class="card-label">Active Gates</div>
-            <div class="card-value{' alert' if totals.get('active_gates', 0) > 0 else ''}">{totals.get('active_gates', 0)}</div>
+            <div class="card-label">Pending Handoffs</div>
+            <div class="card-value{' alert' if totals.get('pending_handoffs', 0) > 0 else ''}">{totals.get('pending_handoffs', 0)}</div>
             <div class="card-detail">blocking exchanges</div>
         </div>
         <div class="card">

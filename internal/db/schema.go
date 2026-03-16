@@ -14,7 +14,7 @@
 //     facet_vocabulary, github_issues, lessons*, engineering_incidents*,
 //     schema_version, table_visibility
 //   LOCAL (state.local.db): autonomy_budget, autonomous_actions,
-//     active_gates, memory_entries, entry_facets
+//     pending_handoffs (formerly active_gates), memory_entries, entry_facets
 //
 // * = REASSIGNED from private to shared (transferable patterns / anti-pattern catalog)
 package db

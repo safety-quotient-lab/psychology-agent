@@ -147,7 +147,7 @@ All signals derive from existing infrastructure — no new sensors needed.
 |---|---|---|---|
 | `new_commits` | `git fetch --dry-run` on peer remotes | 0.25 | New work arrived from peers |
 | `unprocessed_messages` | state.db transport_messages WHERE processed = FALSE | 0.20 | Inbound messages awaiting review |
-| `gate_approaching_timeout` | active_gates WHERE timeout_at < now + 5min | 0.20 | Gated exchange about to expire |
+| `gate_approaching_timeout` | pending_handoffs WHERE timeout_at < now + 5min | 0.20 | Handoff exchange about to expire |
 | `peer_heartbeat_stale` | mesh-state files older than 2× expected interval | 0.10 | Peer may need attention |
 | `escalation_present` | local-coordination/escalation-*.json exists unprocessed | 0.15 | Human-directed urgent item |
 | `scheduled_task_due` | task scheduler (if implemented) | 0.10 | Pre-planned work reached its time |

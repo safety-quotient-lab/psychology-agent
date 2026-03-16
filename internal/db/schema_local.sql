@@ -1,5 +1,5 @@
 -- agentdb: state.local.db schema (machine-local — never shared)
--- Tables: autonomy_budget, autonomous_actions, active_gates,
+-- Tables: autonomy_budget, autonomous_actions, pending_handoffs,
 --   memory_entries, entry_facets
 
 PRAGMA journal_mode = WAL;
@@ -41,8 +41,8 @@ CREATE INDEX IF NOT EXISTS idx_actions_agent
     ON autonomous_actions (agent_id, created_at);
 
 
--- Active gates — gated message exchanges
-CREATE TABLE IF NOT EXISTS active_gates (
+-- Pending handoffs — gated message exchanges (formerly active_gates)
+CREATE TABLE IF NOT EXISTS pending_handoffs (
     gate_id             TEXT PRIMARY KEY,
     sending_agent       TEXT NOT NULL,
     receiving_agent     TEXT NOT NULL,
@@ -57,8 +57,8 @@ CREATE TABLE IF NOT EXISTS active_gates (
     resolved_by         TEXT,
     timeout_at          TEXT NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_gates_status
-    ON active_gates (status) WHERE status = 'waiting';
+CREATE INDEX IF NOT EXISTS idx_handoffs_status
+    ON pending_handoffs (status) WHERE status = 'waiting';
 
 
 -- Memory entries (structured index of topic file contents)

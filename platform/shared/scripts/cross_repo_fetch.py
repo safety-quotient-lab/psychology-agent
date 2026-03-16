@@ -160,20 +160,20 @@ def classify_peer_activity(agent_id: str, agent_config: dict) -> str:
                 conn.close()
                 return "active"
 
-        # Check for active gates involving this agent
+        # Check for pending handoffs involving this agent
         try:
             for pattern in agent_patterns:
-                active_gates = conn.execute(
-                    "SELECT COUNT(*) FROM active_gates "
+                handoff_count = conn.execute(
+                    "SELECT COUNT(*) FROM pending_handoffs "
                     "WHERE status = 'waiting' "
                     "AND (sending_agent = ? OR receiving_agent = ?)",
                     (pattern, pattern)
                 ).fetchone()[0]
-                if active_gates > 0:
+                if handoff_count > 0:
                     conn.close()
                     return "active"
         except sqlite3.OperationalError:
-            pass  # active_gates table may not exist
+            pass  # pending_handoffs table may not exist
 
         # Check recency of last exchange — match any agent pattern
         placeholders = " OR ".join(

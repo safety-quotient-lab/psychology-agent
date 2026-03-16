@@ -267,7 +267,7 @@ Alongside machine-readable vocabulary, unify display labels across all sites:
 | Active sessions | Sessions | `totals.sessions` | `sqm:totalSessions` |
 | Unprocessed queue | Pending | `totals.unprocessed` | `sqm:pendingMessages` |
 | Autonomy budget remaining | Autonomy Budget | `autonomy_budget.budget_current` | `sqm:AutonomyBudget` |
-| Open gates | Active Gates | `totals.active_gates` | `sqm:activeGates` |
+| Open handoffs | Pending Handoffs | `totals.pending_handoffs` | `sqm:pendingHandoffs` |
 | Unresolved flags | Epistemic Debt | `totals.epistemic_flags_unresolved` | `sqm:EpistemicDebt` |
 | Sync schedule | Sync Schedule | `schedule.cron_entry` | `sqm:syncSchedule` |
 | Last data collection | Collected At | `collected_at` | `schema:dateModified` |

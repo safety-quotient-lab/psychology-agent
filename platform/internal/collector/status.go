@@ -21,7 +21,7 @@ type Status struct {
 	DBExists       bool                      `json:"db_exists"`
 	SchemaVersion  int                       `json:"schema_version"`
 	AutonomyBudget map[string]any            `json:"autonomy_budget"`
-	ActiveGates    []map[string]any          `json:"active_gates"`
+	PendingHandoffs []map[string]any         `json:"pending_handoffs"`
 	Unprocessed    []map[string]any          `json:"unprocessed_messages"`
 	RecentMessages []map[string]any          `json:"recent_messages"`
 	RecentActions  []map[string]any          `json:"recent_actions"`
@@ -53,7 +53,7 @@ type Totals struct {
 	Messages           int `json:"messages"`
 	Sessions           int `json:"sessions"`
 	Unprocessed        int `json:"unprocessed"`
-	ActiveGates        int `json:"active_gates"`
+	PendingHandoffs    int `json:"pending_handoffs"`
 	EpistemicUnresolved int `json:"epistemic_flags_unresolved"`
 }
 
@@ -106,7 +106,7 @@ func Collect(d *db.DB, projectRoot string) *Status {
 
 	// Active gates
 	gates, _ := d.QueryRows(
-		"SELECT * FROM active_gates WHERE status = 'waiting' ORDER BY created_at")
+		"SELECT * FROM pending_handoffs WHERE status = 'waiting' ORDER BY created_at")
 	if gates == nil {
 		gates = []map[string]any{}
 	}
@@ -245,7 +245,7 @@ func Collect(d *db.DB, projectRoot string) *Status {
 		DBExists:       true,
 		SchemaVersion:  schemaVer,
 		AutonomyBudget: budgetRow,
-		ActiveGates:    gates,
+		PendingHandoffs: gates,
 		Unprocessed:    unprocessed,
 		RecentMessages: recent,
 		RecentActions:  actions,
@@ -257,7 +257,7 @@ func Collect(d *db.DB, projectRoot string) *Status {
 			Messages:           totalMessages,
 			Sessions:           totalSessions,
 			Unprocessed:        len(unprocessed),
-			ActiveGates:        len(gates),
+			PendingHandoffs:    len(gates),
 			EpistemicUnresolved: epistemicFlags,
 		},
 		Heartbeat:   heartbeat,

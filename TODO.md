@@ -419,14 +419,14 @@ Design decision (Session 61): 4-layer fallback cascade for gated message
 exchanges. Gate protocol extends interagent/v1 with sender-side blocking
 semantics. Full spec: `docs/gated-chains-spec.md`. Schema v10.
 
-- [x] **Schema v10 migration (active_gates table)** — COMPLETE (Session 61).
+- [x] **Schema v10 migration (pending_handoffs table, formerly active_gates)** — COMPLETE (Session 61).
   Table tracks gate_id, sending/receiving agents, timeout, fallback action.
 
 - [x] **dual_write.py gate commands** — COMPLETE (Session 61). Four new
   subcommands: gate-open, gate-resolve, gate-timeout, gate-status.
 
-- [x] **autonomous-sync.sh gate-aware acceleration (L2)** — COMPLETE (Session 61).
-  Checks active_gates before interval check. When gates exist, overrides
+- [x] **autonomous-sync.sh checkpoint-aware acceleration (L2)** — COMPLETE (Session 61).
+  Checks pending_handoffs before interval check. When handoffs exist, overrides
   min_action_interval to 60s. No-op polls cost 0 budget credits.
 
 - [x] **autonomous-sync.sh wake-up file check (L3)** — COMPLETE (Session 61).

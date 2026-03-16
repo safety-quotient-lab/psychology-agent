@@ -460,7 +460,7 @@ keeps the database in sync during normal operation.
 | `prediction_ledger` | — | RPG win/loss tracking (predictions → outcomes → deltas) |
 | `autonomy_budget` | — | Autonomous operation credits per agent |
 | `autonomous_actions` | — | Audit trail for actions taken without human mediation |
-| `active_gates` | — | Gated autonomous action chains (timeout + fallback) |
+| `pending_handoffs` | — | Gated autonomous action chains (timeout + fallback) |
 | `agent_disclosures` | — | EIC disclosure records |
 | `engineering_incidents` | — | Incident tracking (tool failures, hook issues) |
 | `entry_facets` | 141 | Legacy polythematic classification (superseded by universal_facets) |

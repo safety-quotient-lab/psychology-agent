@@ -214,11 +214,11 @@ func ClassifyPeerActivity(db *sql.DB, agentID string, config AgentConfig) string
 		}
 	}
 
-	// Check active gates
+	// Check pending handoffs
 	for _, p := range patterns {
 		var count int
 		_ = db.QueryRow(
-			"SELECT COUNT(*) FROM active_gates WHERE status = 'waiting' AND (sending_agent = ? OR receiving_agent = ?)",
+			"SELECT COUNT(*) FROM pending_handoffs WHERE status = 'waiting' AND (sending_agent = ? OR receiving_agent = ?)",
 			p, p,
 		).Scan(&count)
 		if count > 0 {

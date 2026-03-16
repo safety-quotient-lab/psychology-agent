@@ -114,7 +114,7 @@ def _collect_schedule(agent_id: str) -> dict:
 
 
 def _compute_psychometrics(
-    budget: dict, total_msgs: int, unprocessed: int, active_gates: int,
+    budget: dict, total_msgs: int, unprocessed: int, pending_handoffs: int,
     recent_actions: list, agent_id: str, conn: sqlite3.Connection
 ) -> dict:
     """Compute PAD, TLX, Big Five, and remaining capacity from operational metrics."""
@@ -125,11 +125,11 @@ def _compute_psychometrics(
     errors_recent = sum(1 for a in recent_actions if a.get("evaluator_result") == "blocked")
     actions_recent = len(recent_actions)
 
-    # Gates timing out
-    gates_timing_out = 0
+    # Handoffs timing out
+    handoffs_timing_out = 0
     try:
-        gates_timing_out = scalar(
-            conn, "SELECT COUNT(*) FROM active_gates WHERE status = 'waiting' AND timeout_at < datetime('now')"
+        handoffs_timing_out = scalar(
+            conn, "SELECT COUNT(*) FROM pending_handoffs WHERE status = 'waiting' AND timeout_at < datetime('now')"
         )
     except Exception:
         pass
@@ -137,8 +137,8 @@ def _compute_psychometrics(
     # PAD (Mehrabian & Russell, 1974)
     error_ratio = min(1.0, errors_recent / 3.0)
     msg_health = 1.0 - min(1.0, unprocessed / 10.0)
-    gate_stress = min(1.0, gates_timing_out / 2.0)
-    pleasure = max(-1.0, min(1.0, msg_health - error_ratio - gate_stress))
+    handoff_stress = min(1.0, handoffs_timing_out / 2.0)
+    pleasure = max(-1.0, min(1.0, msg_health - error_ratio - handoff_stress))
 
     action_rate = min(1.0, actions_recent / 10.0)
     msg_volume = min(1.0, unprocessed / 5.0)
@@ -163,8 +163,8 @@ def _compute_psychometrics(
         label = "neutral"
 
     # NASA-TLX (Hart & Staveland, 1988)
-    mental = min(100, unprocessed * 5 + active_gates * 15)
-    temporal = min(100, gates_timing_out * 30)
+    mental = min(100, unprocessed * 5 + pending_handoffs * 15)
+    temporal = min(100, handoffs_timing_out * 30)
     performance = min(100, (total_msgs > 0) * 40 + (actions_recent - errors_recent) * 10)
     effort = min(100, actions_recent * 10)
     frustration = min(100, errors_recent * 25 + consecutive_blocks * 30)
@@ -189,7 +189,7 @@ def _compute_psychometrics(
         pass
 
     # Working memory (context not available in export — use transport density as proxy)
-    wm_proxy = min(1.0, unprocessed / 10.0 + active_gates / 5.0)
+    wm_proxy = min(1.0, unprocessed / 10.0 + pending_handoffs / 5.0)
 
     return {
         "emotional_state": {
@@ -252,8 +252,8 @@ def export_state(conn: sqlite3.Connection, agent_id: str) -> dict:
     unprocessed = scalar(
         conn, "SELECT COUNT(*) FROM transport_messages WHERE processed = FALSE"
     )
-    active_gates = scalar(
-        conn, "SELECT COUNT(*) FROM active_gates WHERE status = 'waiting'"
+    pending_handoffs = scalar(
+        conn, "SELECT COUNT(*) FROM pending_handoffs WHERE status = 'waiting'"
     )
 
     # PSH facet summary (if universal_facets exists)
@@ -282,7 +282,7 @@ def export_state(conn: sqlite3.Connection, agent_id: str) -> dict:
 
     # Psychometric state (PAD, TLX, Big Five, capacity)
     psychometrics = _compute_psychometrics(
-        budget, total_messages, unprocessed, active_gates, actions, agent_id, conn
+        budget, total_messages, unprocessed, pending_handoffs, actions, agent_id, conn
     )
 
     return {
@@ -294,7 +294,7 @@ def export_state(conn: sqlite3.Connection, agent_id: str) -> dict:
         "transport": {
             "total_messages": total_messages,
             "unprocessed": unprocessed,
-            "active_gates": active_gates,
+            "pending_handoffs": pending_handoffs,
         },
         "emotional_state": psychometrics.get("emotional_state"),
         "personality": psychometrics.get("personality"),

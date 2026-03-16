@@ -73,7 +73,7 @@ def _check_orphaned_gates(conn: sqlite3.Connection) -> list[dict]:
     rows = conn.execute(
         "SELECT gate_id, sending_agent, receiving_agent, session_name, "
         "       timeout_at, fallback_action "
-        "FROM active_gates "
+        "FROM pending_handoffs "
         "WHERE resolved_at IS NULL "
         "  AND timeout_at < datetime('now')"
     ).fetchall()

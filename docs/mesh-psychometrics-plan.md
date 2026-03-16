@@ -25,7 +25,7 @@ Psychological instruments attach at three points:
   Context pressure         Personality (Big 5)          Mode switching
   Error rate               Workload (NASA-TLX)          Interval adjustment
   Pushback frequency       Capacity (MWL)               Budget allocation
-  Gate status              Burnout indicators           Circuit breaker
+  Handoff status           Burnout indicators           Circuit breaker
   Budget ratio             Flow state                   Crystallization rate
   Peer responsiveness      Trust dynamics               Autonomy scope
 ```
@@ -454,7 +454,7 @@ All instruments feed into an extended mesh-state JSON:
 | Budget ratio | state.local.db autonomy_budget | Per sync cycle |
 | Messages this cycle | /sync output | Per sync cycle |
 | Triggers fired | trigger_activations (when populated) | Per response |
-| Gate status | active_gates table | Per sync cycle |
+| Handoff status | pending_handoffs table | Per sync cycle |
 | Error count | autonomous_actions table | Per sync cycle |
 | Pushback count | pushback-accumulator.sh | Per session |
 | Peer responsiveness | Time since last inbound per agent | Per sync cycle |

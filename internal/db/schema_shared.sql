@@ -311,5 +311,5 @@ INSERT OR IGNORE INTO facet_vocabulary (facet_type, facet_value, code, source, d
     ('schema_type', 'schema:LearningResource', NULL, 'schema.org', 'Lessons — transferable patterns',             'lessons'),
     ('schema_type', 'schema:HowToStep',        NULL, 'schema.org', 'Cognitive triggers — operational procedures', 'trigger_state'),
     ('schema_type', 'schema:Action',           NULL, 'schema.org', 'Autonomous actions audit trail',              'autonomous_actions'),
-    ('schema_type', 'schema:SuspendAction',    NULL, 'schema.org', 'Active gates — blocking operations',          'active_gates'),
+    ('schema_type', 'schema:SuspendAction',    NULL, 'schema.org', 'Pending handoffs — blocking operations',       'pending_handoffs'),
     ('schema_type', 'schema:Comment',          NULL, 'schema.org', 'Epistemic flags — quality concerns',          'epistemic_flags');
