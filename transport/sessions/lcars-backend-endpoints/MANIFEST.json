@@ -1,0 +1,31 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "lcars-backend-endpoints",
+  "created": "2026-03-16T01:37:02Z",
+  "updated": "2026-03-16T01:37:02Z",
+  "status": "active",
+  "participants": [
+    "operations-agent",
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 2,
+      "file": "from-psychology-agent-001.json",
+      "from": "psychology-agent",
+      "to": [
+        "operations-agent"
+      ],
+      "type": "request"
+    },
+    {
+      "turn": 1,
+      "file": "to-operations-agent-001.json",
+      "from": "psychology-agent",
+      "to": [
+        "operations-agent"
+      ],
+      "type": "request"
+    }
+  ]
+}

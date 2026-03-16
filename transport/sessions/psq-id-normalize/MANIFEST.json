@@ -1,0 +1,22 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "psq-id-normalize",
+  "created": "2026-03-16T01:37:02Z",
+  "updated": "2026-03-16T01:37:02Z",
+  "status": "active",
+  "participants": [
+    "operations-agent",
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 1,
+      "file": "to-psychology-agent-001.json",
+      "from": "operations-agent",
+      "to": [
+        "psychology-agent"
+      ],
+      "type": "notification"
+    }
+  ]
+}
