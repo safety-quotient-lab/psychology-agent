@@ -1868,11 +1868,24 @@
 
         // Flash the stardate cell on mobile when data changes
         const sdCell = document.getElementById("lcars-hdr-stardate");
-        if (sdCell && (_hdrFirstRender || _hdrPrev["_tray_hash"] !== agentsText + msgsText + healthText)) {
-            sdCell.classList.remove("hdr-changed");
-            void sdCell.offsetWidth;
-            sdCell.classList.add("hdr-changed");
-            _hdrPrev["_tray_hash"] = agentsText + msgsText + healthText;
+        if (sdCell) {
+            const newHash = agentsText + msgsText + healthText;
+            if (_hdrFirstRender) {
+                // First load: slow persistent pulse until user taps
+                sdCell.classList.add("hdr-attract");
+                const toggle = document.getElementById("stardate-tray-toggle");
+                if (toggle) {
+                    toggle.addEventListener("change", () => {
+                        sdCell.classList.remove("hdr-attract");
+                    }, { once: true });
+                }
+            } else if (_hdrPrev["_tray_hash"] !== newHash) {
+                // Subsequent data change: single flash
+                sdCell.classList.remove("hdr-changed");
+                void sdCell.offsetWidth;
+                sdCell.classList.add("hdr-changed");
+            }
+            _hdrPrev["_tray_hash"] = newHash;
         }
 
         if (ftrStatus) ftrStatus.textContent = allHealthy

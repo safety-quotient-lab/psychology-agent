@@ -862,44 +862,42 @@ body[data-affect-mode="triage"] {
 .lcars-subsystem-grid { overflow-x: auto; }
 
 /* ── LCARS Alert Condition System (Trek Alert Levels) ────── */
-/* Title cell stays transparent/black during alerts */
-body[data-alert-level] .lcars-header-seg:first-child {
-    background: transparent !important;
-    color: var(--lcars-title) !important;
-}
-body[data-alert-level="3"] .lcars-header-seg,
-body[data-alert-level="3"] .lcars-footer-seg {
-    background: #ffcc00 !important;
-    color: #000 !important;
-}
+/* Alerts affect STRUCTURAL chrome only — data pills keep semantic colors.
+   Structural: sidebar caps, arm, spacers, buttons, header/footer arms + endcap.
+   Data pills (.lcars-header-seg, .lcars-footer-seg) remain untouched. */
+
+/* Yellow alert (level 3) — structural chrome turns gold */
 body[data-alert-level="3"] .lcars-sidebar-cap-top,
 body[data-alert-level="3"] .lcars-sidebar-cap-bottom,
-body[data-alert-level="3"] .lcars-sidebar-arm {
-    background: #ffcc00 !important;
-}
-body[data-alert-level="3"] .lcars-sidebar-btn {
+body[data-alert-level="3"] .lcars-sidebar-arm,
+body[data-alert-level="3"] .lcars-sidebar-spacer,
+body[data-alert-level="3"] .lcars-sidebar-btn,
+body[data-alert-level="3"] .lcars-hdr-arm,
+body[data-alert-level="3"] .lcars-hdr-endcap {
     background: #ffcc00 !important;
     color: #000 !important;
 }
-body[data-alert-level="2"] .lcars-header-seg,
-body[data-alert-level="2"] .lcars-footer-seg {
-    background: #cc3333 !important;
-    color: #fff !important;
-}
+
+/* Red alert (level 2) — structural chrome turns red + pulse */
 body[data-alert-level="2"] .lcars-sidebar-cap-top,
 body[data-alert-level="2"] .lcars-sidebar-cap-bottom,
-body[data-alert-level="2"] .lcars-sidebar-arm {
-    background: #cc3333 !important;
-}
-body[data-alert-level="2"] .lcars-sidebar-btn {
+body[data-alert-level="2"] .lcars-sidebar-arm,
+body[data-alert-level="2"] .lcars-sidebar-spacer,
+body[data-alert-level="2"] .lcars-sidebar-btn,
+body[data-alert-level="2"] .lcars-hdr-arm,
+body[data-alert-level="2"] .lcars-hdr-endcap {
     background: #cc3333 !important;
     color: #fff !important;
+}
+body[data-alert-level="2"] .lcars-sidebar-btn {
     animation: red-alert-pulse 1.5s ease-in-out infinite;
 }
 @keyframes red-alert-pulse {
     0%, 100% { filter: brightness(1); }
     50% { filter: brightness(1.3); }
 }
+
+/* Level 1 — full desaturation (everything affected) */
 body[data-alert-level="1"] {
     filter: saturate(0) contrast(1.5);
 }
@@ -2924,9 +2922,16 @@ a.activity-link:hover {
 }
 
 /* ── Header change flash ─────────────────────────────────────── */
-.lcars-header-seg.hdr-changed,
+.lcars-header-seg.hdr-changed {
+    animation: hdr-flash 2s ease-in-out 1;
+}
+/* Stardate: single flash on data change */
 .lcars-stardate-cell.hdr-changed {
     animation: hdr-flash 2s ease-in-out 1;
+}
+/* Stardate: slow persistent pulse until tapped (first load) */
+.lcars-stardate-cell.hdr-attract {
+    animation: hdr-attract 3s ease-in-out infinite;
 }
 @keyframes hdr-flash {
     0%   { filter: brightness(1); }
@@ -2934,6 +2939,10 @@ a.activity-link:hover {
     50%  { filter: brightness(1); }
     75%  { filter: brightness(1.4); }
     100% { filter: brightness(1); }
+}
+@keyframes hdr-attract {
+    0%, 100% { filter: brightness(1); }
+    50%      { filter: brightness(1.5); }
 }
 
 /* ── Stardate Tray (mobile portrait) ─────────────────────────── */
