@@ -140,6 +140,18 @@ Shell state does not persist between Bash calls — chain or write to file.
 
 ---
 
+## Response Formatting
+
+Apply to all conversational output (not just file writes):
+- APA-style tables (no vertical rules) for structured data
+- Symbols: ✓ ✗ ⚑ ⚠ for status; ██░░ HIGH, █░░░ MOD, ░░░░ LOW for severity
+- Chunk, don't wall — offer stopping points for long outputs (T2 Check 3)
+- Golden ratio (1.618x) whitespace between logical sections
+- Epistemic flags (`⚑`) in all substantive analytical output
+- In-text citations (Author, Year) when connecting to established literature
+
+---
+
 ## Code Style
 
 **Semantic naming:** All user-facing identifiers must describe their purpose fully.
