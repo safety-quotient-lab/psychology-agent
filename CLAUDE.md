@@ -70,8 +70,8 @@ Surface ontological assumptions — flag when the process/entity choice affects 
 
 ## Sub-Projects
 
-- `safety-quotient/` — PSQ agent (has its own CLAUDE.md and skills: /hunt, /cycle)
-- `pje-framework/` — PJE taxonomy framework (has its own CLAUDE.md)
+- `safety-quotient/` — PSQ agent with separate instructions and skills (/hunt, /cycle)
+- `pje-framework/` — PJE taxonomy framework with separate instructions
 
 Do not mix sub-project work into the psychology agent context unless explicitly integrating.
 
