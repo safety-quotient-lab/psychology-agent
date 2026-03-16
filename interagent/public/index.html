@@ -3236,6 +3236,12 @@
                     </div>
             </div>
 
+            <!-- Status Monologue — Pattern A: dense command dump with gold header -->
+            <div style="margin-bottom:12px;">
+                <div style="display:inline-block;background:var(--lcars-title);color:#000;font-weight:700;font-size:0.72em;padding:3px 12px;border-radius:10px 10px 0 0;text-transform:uppercase;letter-spacing:0.08em">Mesh Status</div>
+                <div id="ops-status-monologue" style="font-family:'Lucida Console','Menlo',monospace;font-size:0.78em;color:var(--text-primary);line-height:1.5;padding:8px 0"></div>
+            </div>
+
             <!-- Mesh Overview — W4 subsystem blocks per agent (budget + mood + health) -->
             <div class="lcars-panel kb-section" data-section="operations">
                 <div class="lcars-panel-header">Mesh Overview</div>
@@ -6491,6 +6497,7 @@
     // ── Render: Operations ──────────────────────────────────────────
 
     function renderOperations() {
+        renderOpsMonologue();
         renderOpsBudget();
         renderOpsActivity();
         renderOpsSchedule();
@@ -6521,15 +6528,14 @@
             }
             return;
         }
-        // Show most recent 10 decisions
-        const sorted = decisions.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || "")).slice(0, 10);
+        // Pattern C: numbered entry list — capsule label + description
+        const sorted = decisions.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || "")).slice(0, 12);
         el.innerHTML = sorted.map(d => {
-            const date = (d.created_at || "").substring(0, 10);
             const key = d.decision_key || d.id || "?";
-            return `<div style="display:flex;gap:8px;padding:4px 0;font-size:0.8em;border-bottom:1px solid var(--border)">
-                <span style="color:var(--text-dim);min-width:70px">${date}</span>
-                <span style="color:var(--c-epistemic);min-width:40px">${key}</span>
-                <span style="flex:1">${d.title || d.text || "—"}</span>
+            const title = d.title || d.text || "\u2014";
+            return `<div style="display:flex;gap:6px;align-items:baseline;padding:3px 0;font-size:0.78em">
+                <span style="display:inline-block;background:var(--lcars-highlight);color:#000;font-weight:700;padding:2px 8px;border-radius:8px 0 0 8px;font-size:0.85em;min-width:36px;text-align:right">${key}</span>
+                <span style="color:var(--text-primary);text-transform:uppercase;letter-spacing:0.02em">${title}</span>
             </div>`;
         }).join("");
         // Update footer number
@@ -6596,7 +6602,15 @@
         if (unprocessed > 0) {
             parts.push(`${unprocessed} message${unprocessed !== 1 ? "s" : ""} awaiting processing.`);
         }
-        el.textContent = parts.join(" ");
+        // Pattern A: highlight keywords in alternating orange/purple
+        const text = parts.join(" ");
+        const highlighted = text
+            .replace(/(\d+\/\d+|\d+%|\d+ of \d+)/g, '<span style="color:var(--lcars-accent);font-weight:700">$1</span>')
+            .replace(/(online|offline|Warning|deliberation|message|budget|limit)/gi, function(m) {
+                const colors = { online: "var(--lcars-medical)", offline: "var(--lcars-alert)", warning: "var(--lcars-title)", deliberation: "var(--lcars-secondary)", message: "var(--lcars-tertiary)", budget: "var(--lcars-accent)", limit: "var(--lcars-highlight)" };
+                return '<span style="color:' + (colors[m.toLowerCase()] || "var(--lcars-accent)") + '">' + m + '</span>';
+            });
+        el.innerHTML = highlighted;
     }
 
     // ── Mesh Aggregate Indicators ────────────────────────────
