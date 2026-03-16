@@ -6684,7 +6684,7 @@
                     <div class="lcars-subsystem-bar-fill" style="width:${online ? pct : 0}%;background:${barColor}"></div>
                 </div>
                 <div style="display:flex;justify-content:flex-end;margin-top:2px;">
-                    <span class="sparkline-container">${sparklineSVG(sparkHistory[\`delib-\${agent.id}\`] || [], { width: 64, height: 14, stroke: agent.color, fill: agent.color })}</span>
+                    <span class="sparkline-container">${sparklineSVG(sparkHistory["delib-" + agent.id] || [], { width: 64, height: 14, stroke: agent.color, fill: agent.color })}</span>
                 </div>
             </div>`;
         }
