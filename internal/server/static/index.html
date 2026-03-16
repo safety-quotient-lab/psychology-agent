@@ -600,6 +600,20 @@
         .lcars-pill-active { box-shadow: 0 0 8px currentColor; opacity: 1; }
         .lcars-pill-sm.lcars-pill-active { background: #ff9944; }
 
+        /* Operations control surface — uniform LCARS buttons */
+        .ops-ctrl {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.72em;
+        }
+        .ops-ctrl-active {
+            filter: brightness(1.3);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(255,255,255,0.25);
+        }
+
         /* ── LCARS Detail Panel (Drawer) ───────────────────────── */
         .lcars-detail-overlay {
             display: none;
@@ -3141,16 +3155,16 @@
         <!-- Operations Tab -->
         <div class="tab-pane" id="pane-operations">
             <!-- Command Console — LCARS uniform control surface -->
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:3px; margin-bottom:12px;">
-                <button class="lcars-pill-btn" style="background:#cc6666;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="meshControl('pause-all')" id="btn-pause">PAUSE MESH</button>
-                <button class="lcars-pill-btn" style="background:#6aab8e;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
-                <button class="lcars-pill-btn" style="background:#ff9944;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="meshControl('reset-counters')">RESET COUNTERS</button>
-                <button class="lcars-pill-btn" style="background:#5b9cf6;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
-                <button class="lcars-pill-btn" style="background:#666;color:#ccc;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
-                <button class="lcars-pill-btn" style="background:#cc99cc;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="meshControl('model-haiku')" id="btn-haiku">MODEL: HAIKU</button>
-                <button class="lcars-pill-btn" style="background:#ff9944;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="meshControl('model-sonnet')" id="btn-sonnet">MODEL: SONNET</button>
-                <button class="lcars-pill-btn" style="background:#cc99cc;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="meshControl('model-opus')" id="btn-opus">MODEL: OPUS</button>
-                <button class="lcars-pill-btn" style="background:#4ecdc4;display:block;width:100%;padding:8px 12px;border-radius:20px 8px 8px 20px;font-size:0.72em" onclick="refreshAll()">SYNC NOW</button>
+            <div class="ops-control-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:3px; margin-bottom:12px;">
+                <button class="lcars-pill-btn ops-ctrl" style="background:#cc6666" onclick="meshControl('pause-all')" id="btn-pause">PAUSE MESH</button>
+                <button class="lcars-pill-btn ops-ctrl" style="background:#6aab8e" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
+                <button class="lcars-pill-btn ops-ctrl" style="background:#ff9944" onclick="meshControl('reset-counters')">RESET COUNTERS</button>
+                <button class="lcars-pill-btn ops-ctrl" style="background:#5b9cf6" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
+                <button class="lcars-pill-btn ops-ctrl" style="background:#666;color:#ccc" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
+                <button class="lcars-pill-btn ops-ctrl ops-model-btn" style="background:#cc99cc" onclick="meshControl('model-haiku')" id="btn-haiku">MODEL: HAIKU</button>
+                <button class="lcars-pill-btn ops-ctrl ops-model-btn ops-ctrl-active" style="background:#ff9944" onclick="meshControl('model-sonnet')" id="btn-sonnet">MODEL: SONNET</button>
+                <button class="lcars-pill-btn ops-ctrl ops-model-btn" style="background:#cc99cc" onclick="meshControl('model-opus')" id="btn-opus">MODEL: OPUS</button>
+                <button class="lcars-pill-btn ops-ctrl" style="background:#4ecdc4" onclick="refreshAll()">SYNC NOW</button>
             </div>
 
             <!-- Status monologue — auto-generated mesh state summary -->
@@ -3227,7 +3241,7 @@
                         <div class="ops-budget-card" style="--card-accent: #ff9900">
                             <div class="ops-budget-agent">Tempo Cycles</div>
                             <div class="ops-budget-credit" id="gc-cron">—</div>
-                            <div class="ops-budget-values"><span>Heartbeat + sync + maintenance</span></div>
+                            <div class="ops-budget-values"><span>Tempo cycles + sync + maintenance</span></div>
                         </div>
                         <div class="ops-budget-card" style="--card-accent: #66aacc">
                             <div class="ops-budget-agent">Gc / Gf Ratio</div>
@@ -3804,7 +3818,7 @@
                     </div>
                     <div class="diag-level-row" style="display:flex;align-items:center;gap:8px">
                         <button class="lcars-pill-btn lcars-pill-green" style="min-width:70px">LEVEL 5</button>
-                        <span style="flex:1;font-size:0.82em"><strong>Continuous</strong> — background monitoring, heartbeat + alert triggers</span>
+                        <span style="flex:1;font-size:0.82em"><strong>Continuous</strong> — background monitoring, tempo + alert triggers</span>
                         <span class="diag-level-status" id="diag-5-status" style="color:#6aab8e;font-size:0.75em;min-width:60px;text-align:right">RUNNING</span>
                     </div>
                 </div>
