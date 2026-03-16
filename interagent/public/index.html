@@ -6524,35 +6524,36 @@
         const grid = document.getElementById("ops-budget-grid");
         if (!grid) return;
 
-        // LCARS bars — rounded left end, data in adjacent black space
-        let html = '';
+        // W2: LCARS paired data cells — [LABEL capsule] [VALUE capsule]
+        // Two per row max, stacked pairs per agent
+        let html = '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:6px; max-width:640px;">';
         for (const agent of AGENTS) {
             const d = agentData[agent.id];
             const online = d?.status === "online";
             const b = online ? (d.data?.autonomy_budget || {}) : {};
             const deliberations = getDeliberations(b);
             const health = d?.data?.health || "—";
-            const uptime = d?.data?.uptime || "";
 
             const psych = d?.data?.psychometrics || {};
             const es = psych.emotional_state || {};
-            const mood = es.affect_category || (online ? "nominal" : "");
+            const mood = es.affect_category || (online ? "nominal" : "offline");
 
             const opacity = online ? 1 : 0.3;
+            const valColor = online ? agent.color : "var(--text-dim)";
 
-            html += `<div style="display:flex; align-items:stretch; gap:0; margin-bottom:4px; opacity:${opacity}; min-height:36px;">
-                <div style="background:${agent.color}; border-radius:18px 0 0 18px; min-width:130px; padding:6px 14px 6px 16px; display:flex; align-items:center; color:#000; font-weight:700; font-size:0.76em; letter-spacing:0.06em; text-transform:uppercase;">
-                    ${agentName(agent)}
+            // Each agent = a block of paired capsules
+            html += `<div style="opacity:${opacity};">
+                <div style="display:flex; gap:3px; margin-bottom:2px;">
+                    <div style="background:${agent.color}; border-radius:12px 0 0 12px; padding:5px 10px; color:#000; font-weight:700; font-size:0.72em; letter-spacing:0.06em; text-transform:uppercase; min-width:100px;">${agentName(agent)}</div>
+                    <div style="background:color-mix(in srgb, ${agent.color} 25%, #111); border-radius:0 12px 12px 0; padding:5px 10px; color:${valColor}; font-weight:700; font-size:0.9em; min-width:50px; text-align:right;">${online ? fmtNum(deliberations) : "—"}</div>
                 </div>
-                <div style="background:${agent.color}; opacity:0.4; width:4px;"></div>
-                <div style="flex:1; display:flex; align-items:center; justify-content:space-between; padding:4px 12px; gap:12px;">
-                    <span style="font-size:1.5em; font-weight:700; color:${agent.color}; min-width:50px;">${online ? fmtNum(deliberations) : "—"}</span>
-                    <span style="font-size:0.72em; color:var(--text-secondary);">${online ? health : "OFFLINE"}</span>
-                    <span style="font-size:0.72em; color:var(--text-dim);">${mood}</span>
-                    <span style="font-size:0.68em; color:var(--text-dim); opacity:0.6;">${uptime ? uptime.split("h")[0] + "h" : ""}</span>
+                <div style="display:flex; gap:3px;">
+                    <div style="background:color-mix(in srgb, ${agent.color} 30%, #222); border-radius:12px 0 0 12px; padding:3px 10px; color:var(--text-secondary); font-size:0.65em; text-transform:uppercase; letter-spacing:0.05em; min-width:100px;">${health}</div>
+                    <div style="background:color-mix(in srgb, ${agent.color} 15%, #111); border-radius:0 12px 12px 0; padding:3px 10px; color:var(--text-dim); font-size:0.65em; min-width:50px; text-align:right;">${mood}</div>
                 </div>
             </div>`;
         }
+        html += '</div>';
         grid.innerHTML = html;
     }
 
