@@ -7210,7 +7210,7 @@
         const xLabel = document.getElementById("affect-x-label");
         const yLabel = document.getElementById("affect-y-label");
         if (xLabel && yLabel) {
-            const labels = { pa: ["valence", "arousal"], pd: ["valence", "dominance"], ad: ["arousal", "dominance"] };
+            const labels = { pa: ["pleasure", "arousal"], pd: ["pleasure", "dominance"], ad: ["arousal", "dominance"] };
             xLabel.textContent = labels[padView][0];
             yLabel.textContent = labels[padView][1];
         }
