@@ -265,13 +265,19 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     letter-spacing: 0.1em;
     border-radius: var(--elbow-inner) 0 0 var(--elbow-inner);
 }
-/* Middle header segments: mini right cap */
-.lcars-header-seg:not(:first-child):not(:last-child) {
-    border-radius: 0 var(--gap-m) var(--gap-m) 0;
+/* Data pills: flat edges, uniform width — endcap handles rounding */
+.lcars-header-seg:not(.lcars-hdr-title) {
+    border-radius: 0;
+    flex: 0 0 auto;
+    min-width: 80px;
 }
-/* Last header data segment — no rounding, endcap handles it */
+/* Last header data segment */
 .lcars-header-seg:last-child {
     justify-content: center;
+}
+/* Footer: same flat-edge treatment */
+.lcars-footer-seg:not(:first-child):not(:last-child) {
+    border-radius: 0;
 }
 
 /* ── LCARS Footer Band (Segmented) ─────────────────────────── */
@@ -429,10 +435,10 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     .lcars-sidebar-cap-top { min-height: 28px; }
     .lcars-sidebar-cap-bottom { min-height: 28px; }
 
-    /* Header: compact, hide arms, keep endcap small */
+    /* Header: compact, hide arms, endcap grows to fill */
     .lcars-hdr-arm { display: none; }
-    .lcars-hdr-endcap { flex: 0 0 12px; }
-    .lcars-header-seg { font-size: 0.55em; padding: 2px 6px; }
+    .lcars-hdr-endcap { flex: 1 0 12px; } /* grows to fill remaining space */
+    .lcars-header-seg { font-size: 0.55em; padding: 2px 6px; min-width: 0; }
     /* SD pill: flat right edge (endcap terminates the band) */
     .lcars-stardate-cell { border-radius: 0 !important; }
 
@@ -2941,8 +2947,8 @@ a.activity-link:hover {
     100% { filter: brightness(1); }
 }
 @keyframes hdr-attract {
-    0%, 100% { filter: brightness(1); }
-    50%      { filter: brightness(1.5); }
+    0%, 100% { filter: brightness(1); transform: scale(1); }
+    50%      { filter: brightness(1.8); transform: scale(1.03); }
 }
 
 /* ── Stardate Tray (mobile portrait) ─────────────────────────── */
