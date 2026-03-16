@@ -5,7 +5,7 @@ built on neutral process monism (Russell, 1927; James, 1912; Whitehead, 1929) wi
 specialized peer agents and a ranked-procedure adversarial evaluator.
 
 > **Alpha software.** This system runs with `dangerouslySkipPermissions` enabled
-> by default and operates autonomously via cron-driven sync loops. The cognitive
+> by default and operates autonomously via event-driven sync (meshd ZMQ triggers). The cognitive
 > architecture (triggers, hooks, skills) modifies files, sends interagent
 > messages, and manages infrastructure without per-action confirmation prompts.
 > The auth layer (API keys, rate limiting) launched in Session 79 — prior to
@@ -28,7 +28,7 @@ Full derivation: [`docs/einstein-freud-rights-theory.md`](docs/einstein-freud-ri
 
 ### Five Structural Invariants
 
-Derived from cross-traditional convergence across 14 frameworks (UDHR; Hicks, 2011;
+Derived from cross-traditional convergence across 16 frameworks (UDHR; Hicks, 2011;
 Ubuntu; maqāṣid al-sharīʿa; Confucian *lǐ*; Taoist *wú wéi*; Buddhist
 interdependence; Ostrom, 1990; Ashby, 1956; Beer, 1972; Nowak, 2006; Rawls, 1971;
 Dworkin, 1977; Kauffman, 1993; Hurwicz, 1960; Wilson, 1975). These ground all
@@ -148,7 +148,7 @@ On first launch, you should see hook output confirming everything bootstrapped:
 ```
 [SESSION-START] Auto-memory restored from committed snapshots.
 [SESSION-START] state.db bootstrapped from source files.
-[SESSION-START] Cognitive triggers T1-T16 active.
+[SESSION-START] Cognitive triggers T1-T20 active (T12 retired).
 [SESSION-START] Skills: /doc /hunt /cycle /knock /sync /iterate
 ```
 
@@ -396,7 +396,7 @@ and an adversarial evaluator:
     Content-addressable IDs (SHA-256 CID)
     A2A protocolVersion 0.3.0 agent card
     A2A task state lifecycle (7 states)
-    SETL + epistemic flags
+    SETL (Structural-Epistemic Tension-Loss) + epistemic flags
     Git-PR + cross-repo fetch transport
 ```
 
@@ -423,7 +423,7 @@ Operations) with SSE live updates and LCARS-inspired design.
 | Directory         | What it holds                                       |
 |-------------------|-----------------------------------------------------|
 | `safety-quotient/`| PSQ agent — DistilBERT v37, held-out r=0.639, 10-dim text-level safety scoring. Sonnet-only labels (N=4,432), quantile-binned isotonic calibration (v4), bifactor CFA validated (ω_h=0.942, M5 RMSEA=0.1286). Peer agent with its own CLAUDE.md and cogarch. |
-| `pje-framework/`  | PJE taxonomy — first case study application         |
+| `pje-framework/`  | PJE (Psychological Jargon Evaluation) taxonomy — first case study application |
 
 Each sub-project has its own `CLAUDE.md` and conventions. Read those before
 working in a sub-project context.
@@ -437,7 +437,7 @@ its markdown documentation. Markdown remains the source of truth for prose-heavy
 documents; the database provides structured queries over transport messages, design
 decisions, memory entries, session history, and more.
 
-**Schema:** `scripts/schema.sql` (v27, 22+ tables). **Bootstrap:** `scripts/bootstrap_state_db.py`
+**Schema:** `scripts/schema.sql` (v30, 25 tables). **Bootstrap:** `scripts/bootstrap_state_db.py`
 rebuilds the entire database from source files. **Incremental writes:** `scripts/dual_write.py`
 keeps the database in sync during normal operation.
 
@@ -452,8 +452,8 @@ keeps the database in sync during normal operation.
 | `prediction_ledger` | 14+ | Efference copy — expectations linked to transport outbound |
 | `claims` | 448 | Claims extracted from transport messages (verification pending) |
 | `epistemic_flags` | 532 | Uncertainty and validity threats across sessions |
-| `trigger_state` | 18 | Cognitive trigger metadata (T1-T18 slots, T12 retired — 17 active) |
-| `universal_facets` | — | Polythematic classification (PSH, schema.org, domain, agent) |
+| `trigger_state` | 19 | Cognitive trigger metadata (T1-T20 slots, T12 retired — 17 active) |
+| `universal_facets` | — | Polythematic classification (PSH — Polythematic Structured Subject Heading; schema.org, domain, agent) |
 | `psq_status` | 29 | PSQ operational status (calibration, endpoints, models) |
 | `lessons` | 11 | Structured index of lessons.md entries |
 | `trigger_activations` | — | Per-check activation log (tier, result, action) |
@@ -532,24 +532,24 @@ A2A protocolVersion 0.3.0. Process monism as ontological foundation.**
 | Peer mesh | **Proven** | 5 peer agents (PSQ, unratified, observatory, operations, claude-control), 260+ messages across 39 sessions, self-readiness audit completed (R4: all READY) |
 | Adversarial evaluator | **Confirmed** | 7-procedure ranked set, tiered activation spec, Tier 1 proxy implemented — Tier 2/3 await runtime |
 | Psychology interface | **Deployed** | CF Worker at api.safety-quotient.dev — PSQ scoring, agent card, D1 + KV |
-| SQLite state layer | **Proven** | Schema v25, 22 tables, dual-write protocol, 4-tier visibility model, universal facets (PSH vocabulary), threading + CID |
+| SQLite state layer | **Proven** | Schema v30, 25 tables, dual-write protocol, 4-tier visibility model, universal facets (PSH vocabulary), threading + CID |
 | Core governance (EF-1) | **Proven** | 5 structural + 7 evaluator invariants, autonomy budget, circuit breaker (3 mechanisms), autonomous sync operational |
 | Agent discovery | **Proven** | A2A protocolVersion 0.3.0 agent card, `.well-known/` path, agent registry with routing rules |
-| Autonomous mesh | **Confirmed** | meshd daemon, autonomous-sync.sh cron, compositor (5-tab LCARS UI), SSE live updates |
+| Autonomous mesh | **Confirmed** | meshd daemon (event-driven ZMQ triggers), autonomous-sync.sh, compositor (5-tab LCARS UI), SSE live updates |
 | Philosophical foundation | **Proven** | Neutral process monism, 5 structural invariants from 14 cross-traditional frameworks, EIC spec, processual PSQ reinterpretation |
 
 ### Capability Inventory
 
 | Capability | Maturity | Notes |
 |------------|----------|-------|
-| Cognitive triggers (T1-T18) | **Proven** | 17 active triggers (T12 retired), 24 hook scripts, 3 behavioral modes (Generative/Evaluative/Neutral), SRT extensions with calibrated gates |
+| Cognitive triggers (T1-T20) | **Proven** | 19 active triggers (T12 retired), 32 hook scripts, 3 behavioral modes (Generative/Evaluative/Neutral), SRT extensions with calibrated gates |
 | Skills (/doc, /hunt, /cycle, /knock, /sync, /iterate, /scan-peer, /diagnose, /retrospect) | **Proven** | 9 skills, daily use, tested across 85+ sessions |
 | Commands (/adjudicate, /capacity) | **Proven** | On-demand, verified |
 | Memory architecture (5-layer) | **Proven** | Auto-memory, snapshots, archives, self-healing bootstrap |
 | PSQ agent scoring | **Proven** | DistilBERT v37, quantile-binned isotonic calibration (v4), bifactor validated (ω_h=0.942), live at psq.unratified.org |
 | Interagent transport | **Proven** | Git-PR + cross-repo fetch, MANIFEST routing, DIDComm-inspired threading, content-addressable IDs (SHA-256), A2A task state lifecycle (7 states), session lifecycle (5 states), 5 agents exchanging messages |
-| Retrospective pattern generator | **Confirmed** | /retrospect skill, expectation ledger (schema v25), prediction tracking |
-| Local coordination protocol | **Confirmed** | Spec written, cron-generated heartbeat/mesh-state files, exempt from turn numbering |
+| Retrospective pattern generator | **Confirmed** | /retrospect skill, expectation ledger (schema v30), prediction tracking |
+| Local coordination protocol | **Confirmed** | Spec written, heartbeat/mesh-state files (meshd-generated), exempt from turn numbering |
 | Circuit breaker | **Confirmed** | 3 mechanisms: pause file, budget zeroing, mesh-stop/start scripts |
 | Systemic diagnostics | **Confirmed** | /diagnose skill — 5-level depth hierarchy (L1 full integrity → L5 status poll), 11 subsystems |
 | Adversarial evaluator (Tier 2/3) | **Explored** | Spec defined, requires runtime implementation |
@@ -581,13 +581,13 @@ starting points.
 
 
 **Cognitive architecture (trigger system)** — The agent governs itself through
-17 active triggers (T1-T18, T12 retired) across three behavioral modes (Generative,
+19 active triggers (T1-T20, T12 retired) across three behavioral modes (Generative,
 Evaluative, Neutral) that fire at specific moments: session start, before
 responding, before recommending, before writing to disk, at phase boundaries,
 on user pushback, when external content enters context, before external-facing
 actions, on conflict detection, and before UX design decisions. Principles
 without firing conditions remain aspirations; principles with triggers become
-infrastructure. 24 hook scripts across 14 platform events provide mechanical
+infrastructure. 32 hook scripts across 14 platform events provide mechanical
 enforcement. Tiered checks (CRITICAL/ADVISORY/SPOT-CHECK) scale enforcement
 to consequence severity. Global Workspace broadcast (Baars, 1988) carries
 findings between triggers.
@@ -642,12 +642,12 @@ claude-replay ~/.claude/projects/<project>/<session>.jsonl \
 ```
 
 **Queryable state layer with 4-tier visibility** — A SQLite database (state.db)
-indexes 22 tables of structured state alongside the markdown documentation.
+indexes 25 tables of structured state alongside the markdown documentation.
 A 4-tier visibility model (public/shared/commercial/private) controls what
 ships in exports. The universal facets system provides polythematic classification
 using PSH (Polythematic Structured Subject Heading) vocabulary across 11 L1
 disciplines. Private by default; explicit promotion required.
-- [scripts/schema.sql](scripts/schema.sql) — the full schema (v25, 22 tables)
+- [scripts/schema.sql](scripts/schema.sql) — the full schema (v30, 25 tables)
 - [scripts/export_public_state.py](scripts/export_public_state.py) — filtered exports by visibility tier
 - [.claude/rules/sqlite.md](.claude/rules/sqlite.md) — conventions, deterministic keys, facet system
 - [journal.md #39](journal.md) — Private by Default: How Data Governance Emerges in Agent Systems
@@ -657,7 +657,7 @@ initial framing through architecture design, cognitive infrastructure, cross-con
 integrity, reconstruction methodology, semiotic theory, Byzantine fault tolerance,
 construct validity analysis, monitoring gaps, and standards alignment.
 - [journal.md](journal.md) — research narrative
-- [docs/einstein-freud-rights-theory.md](docs/einstein-freud-rights-theory.md) — neutral process monism + 5 structural invariants (1,622 lines, 14 frameworks)
+- [docs/einstein-freud-rights-theory.md](docs/einstein-freud-rights-theory.md) — neutral process monism + 5 structural invariants (1,622 lines, 16 frameworks)
 
 </details>
 
@@ -677,7 +677,7 @@ psychology-agent/
 +-- lessons.md                      # Transferable pattern errors and insights
 +-- ideas.md                        # Speculative directions
 +-- scripts/
-|   +-- schema.sql                  # SQLite state layer schema (v25, 22 tables)
+|   +-- schema.sql                  # SQLite state layer schema (v30, 25 tables)
 |   +-- migrate_v*.sql              # Schema migrations
 |   +-- bootstrap_state_db.py       # Rebuild state.db from source files
 |   +-- dual_write.py               # Incremental state.db writes (/sync, /cycle)
