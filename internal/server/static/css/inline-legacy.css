@@ -185,27 +185,31 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
    ████████ ╭ ← black quarter-circle
    ████████╯
 */
-/* ── Elbow connectors — grid-placed at content area corners ──── */
-/* Colored square with quarter-circle transparent cutout.
-   Placed in content column (2), aligned to header/footer boundary.
+/* ── Elbow inner corner connectors ────────────────────────────
+   Absolutely positioned on .lcars-frame at the junction where
+   sidebar meets content. Square with quarter-circle void cut
+   from the corner facing the content area.
 
-   Top connector:   ╮  cutout at top-left (circle at 0% 0%)
-                    █  structural color fills remaining 3 quadrants
+   Top:  structural color in top+left, void sweeps in from bottom-right
+         ████╮
+         ████ ╰── black quarter-circle (content void curves in)
 
-   Bottom connector: █  structural color fills remaining 3 quadrants
-                     ╯  cutout at bottom-left (circle at 0% 100%)
+   Bottom: mirror — void sweeps in from top-right
+         ████ ╭── black quarter-circle
+         ████╯
 */
 .lcars-elbow-connector-top,
 .lcars-elbow-connector-bottom {
-    display: none; /* hidden in dark/light */
+    display: none;
 }
+.theme-lcars .lcars-frame { position: relative; }
 .theme-lcars .lcars-elbow-connector-top {
     display: block;
-    grid-column: 2;
-    grid-row: 2; /* content row — sits at very top */
+    position: absolute;
+    left: var(--sidebar-width, 160px);
+    top: var(--band-size, 52px);
     width: var(--elbow-inner, 24px);
     height: var(--elbow-inner, 24px);
-    align-self: start;
     z-index: 10;
     pointer-events: none;
     background: radial-gradient(
@@ -214,15 +218,14 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
         transparent calc(var(--elbow-inner, 24px) - 1px),
         var(--c-knowledge) var(--elbow-inner, 24px)
     );
-    margin-top: calc(var(--elbow-inner, 24px) * -1); /* pull up to overlap header/content boundary */
 }
 .theme-lcars .lcars-elbow-connector-bottom {
     display: block;
-    grid-column: 2;
-    grid-row: 2; /* content row — sits at very bottom */
+    position: absolute;
+    left: var(--sidebar-width, 160px);
+    bottom: var(--band-size, 52px);
     width: var(--elbow-inner, 24px);
     height: var(--elbow-inner, 24px);
-    align-self: end;
     z-index: 10;
     pointer-events: none;
     background: radial-gradient(
@@ -231,7 +234,6 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
         transparent calc(var(--elbow-inner, 24px) - 1px),
         var(--c-knowledge) var(--elbow-inner, 24px)
     );
-    margin-bottom: calc(var(--elbow-inner, 24px) * -1); /* pull down to overlap content/footer boundary */
 }
 
 /* Alert: connectors follow structural chrome */
