@@ -46,7 +46,7 @@ mesh/
 │   │   └── lessons.md               # Mesh-level lessons (not agent-specific)
 │   ├── agent-state/                 # Per-agent state snapshots
 │   │   ├── psychology-agent.json    # A2A-Psychology + mesh-state/v2
-│   │   ├── psq-agent.json
+│   │   ├── safety-quotient-agent.json
 │   │   ├── unratified-agent.json
 │   │   ├── observatory-agent.json
 │   │   └── operations-agent.json
@@ -150,7 +150,7 @@ mesh/
     ├── organism-card.json           # The ORGANISM's agent card
     ├── agent-cards/                 # Individual agent cards
     │   ├── psychology-agent.json
-    │   ├── psq-agent.json
+    │   ├── safety-quotient-agent.json
     │   ├── unratified-agent.json
     │   ├── observatory-agent.json
     │   └── operations-agent.json
@@ -260,7 +260,7 @@ Waking (next session):
 | `mesh/memory/agent-state/` | Each agent owns its own file | Owner only | All agents |
 | `mesh/memory/organism-state.json` | operations-agent (aggregator) | operations-agent | All agents |
 | `mesh/theory/` | psychology-agent (domain expert) | psychology-agent; PRs from others | All agents |
-| `mesh/instruments/psq/` | psq-agent | psq-agent | All agents |
+| `mesh/instruments/psq/` | safety-quotient-agent | safety-quotient-agent | All agents |
 | `mesh/instruments/a2a-psychology/` | psychology-agent | psychology-agent | All agents |
 | `mesh/instruments/dignity-index/` | observatory-agent | observatory-agent | All agents |
 | `mesh/instruments/llm-factors/` | psychology-agent | psychology-agent; PRs from others | All agents |
@@ -294,8 +294,8 @@ already maintains its own git repo. The "mesh/" namespace presents as
 a *virtual mount* composed from cross-repo-fetch:
 
 ```bash
-# Agent reads mesh/memory/agent-state/psq-agent.json:
-git show safety-quotient/main:mesh/memory/agent-state/psq-agent.json
+# Agent reads mesh/memory/agent-state/safety-quotient-agent.json:
+git show safety-quotient/main:mesh/memory/agent-state/safety-quotient-agent.json
 
 # Agent reads mesh/theory/analogy-limits.md:
 git show origin/main:docs/analogy-limits.md

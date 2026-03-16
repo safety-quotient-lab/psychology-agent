@@ -161,7 +161,7 @@ agentdb triage --scan
 #     "needs-llm": 2
 #   },
 #   "messages": [
-#     {"filename": "from-psq-agent-016.json", "score": 5, "disposition": "auto-skip", "reason": "ack, normal urgency, no ack_required"},
+#     {"filename": "from-safety-quotient-agent-016.json", "score": 5, "disposition": "auto-skip", "reason": "ack, normal urgency, no ack_required"},
 #     ...
 #   ]
 # }
@@ -254,7 +254,7 @@ variable substitution.
 agentdb ack --auto
 
 # Generate ACK for a specific message
-agentdb ack --message from-psq-agent-016.json --session self-readiness-audit
+agentdb ack --message from-safety-quotient-agent-016.json --session self-readiness-audit
 
 # Dry-run (show what would be generated)
 agentdb ack --auto --dry-run
@@ -333,7 +333,7 @@ WHERE tm.processed = FALSE;
 agentdb gate resolve --scan
 
 # Output:
-# Resolved gate gate-transport-health-001: from-psq-agent-050.json
+# Resolved gate gate-transport-health-001: from-safety-quotient-agent-050.json
 # 1 gate(s) resolved, 0 remaining
 
 # Dry-run
@@ -476,7 +476,7 @@ the triage results so the LLM knows what was already handled:
 - 0 messages auto-skipped
 
 ## Substance queue (needs your review)
-- from-psq-agent-016.json (score: 75, request, ack_required: true)
+- from-safety-quotient-agent-016.json (score: 75, request, ack_required: true)
 - from-observatory-agent-015.json (score: 80, proposal)
 ```
 

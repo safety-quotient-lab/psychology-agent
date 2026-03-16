@@ -920,7 +920,7 @@ outcomes that no individual agent's context window can contain.
 
 **Example:** The Einstein-Freud rights theory (§1-5) developed across
 85+ sessions, drawing on psychology-agent's philosophical analysis,
-psq-agent's psychometric validation, observatory-agent's empirical
+safety-quotient-agent's psychometric validation, observatory-agent's empirical
 data, and unratified-agent's editorial perspective. No individual
 agent held the full theory in context simultaneously. The theory
 emerged from the *coupling* between agents over time — an enactive
@@ -1635,7 +1635,7 @@ subsystems:
 
 | System | Function | Mesh mapping |
 |---|---|---|
-| **S1** | Operations — primary activities that produce value | psq-agent (scoring), unratified-agent (content), observatory-agent (data) |
+| **S1** | Operations — primary activities that produce value | safety-quotient-agent (scoring), unratified-agent (content), observatory-agent (data) |
 | **S2** | Coordination — dampens oscillations between S1 units | Transport protocol, session lifecycle, naming conventions |
 | **S3** | Control — resource allocation, accountability, audit | Psychology-agent governance (triggers, evaluator, /diagnose) |
 | **S3*** | Audit — sporadic spot-checks bypassing S3's routine | Microglial audit, /retrospect, adversarial evaluator |

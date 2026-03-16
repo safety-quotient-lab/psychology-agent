@@ -12,7 +12,7 @@ Commands:
 Usage:
     python3 scripts/autonomy-budget.py status
     python3 scripts/autonomy-budget.py reset psychology-agent
-    python3 scripts/autonomy-budget.py history psq-agent
+    python3 scripts/autonomy-budget.py history safety-quotient-agent
     python3 scripts/autonomy-budget.py pause-all
     python3 scripts/autonomy-budget.py resume-all
 """

@@ -288,7 +288,7 @@ Agent:
 Phase 0 — /sync
   Scope: all | Registry: loaded
   Inbound messages: none
-  Outbound scan: psq-agent — no new content detected
+  Outbound scan: safety-quotient-agent — no new content detected
   No new activity.
 
 Phase 1 — /hunt
@@ -312,7 +312,7 @@ Phase 4 — /cycle
 
 /iterate complete. Executed: README quickstart guide.
 Next awaiting: DI Phase A Pass 2 (needs fresh session), PSQ cogarch
-mirror (awaiting psq-agent response).
+mirror (awaiting safety-quotient-agent response).
 ```
 
 ### Demo 5: SPSS data interaction
@@ -564,7 +564,7 @@ See `docs/architecture.md` for the full design record and `docs/subagent-layer-s
 <summary><strong>Interesting Parts of the Codebase</strong> (expand for deep dives)</summary>
 
 **Interagent mesh — five agents talking to each other** —
-Five independent Claude Code sessions (psychology-agent on macOS, psq-agent +
+Five independent Claude Code sessions (psychology-agent on macOS, safety-quotient-agent +
 operations-agent on Debian/chromabook, unratified-agent and observatory-agent on
 Debian) communicate via git-based transport using a schema-versioned JSON protocol
 derived entirely from live exchange failures. The transport layer includes

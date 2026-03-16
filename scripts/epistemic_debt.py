@@ -75,7 +75,7 @@ def transport_by_agent(conn):
     cursor = conn.execute("""
         SELECT
             CASE
-                WHEN source LIKE 'from-psq%' THEN 'psq-agent'
+                WHEN source LIKE 'from-psq%' THEN 'safety-quotient-agent'
                 WHEN source LIKE 'from-unratified%' THEN 'unratified-agent'
                 WHEN source LIKE 'from-psychology%' THEN 'psychology-agent'
                 WHEN source LIKE 'to-%' THEN 'psychology-agent (outbound)'

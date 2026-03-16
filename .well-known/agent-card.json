@@ -320,7 +320,7 @@
       "repo": "safety-quotient-lab/operations-agent"
     },
     {
-      "agent_id": "psq-agent",
+      "agent_id": "safety-quotient-agent",
       "description": "PSQ (Psychological Safety Quotient) scoring peer agent",
       "discovery_url": "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json",
       "repo": "safety-quotient-lab/safety-quotient"

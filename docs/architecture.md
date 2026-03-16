@@ -227,7 +227,7 @@
                               Decided: 2026-03-06
 
  PSQ production hosting      Hetzner Cloud CX-series (Ashburn, VA). Debian 13.
-                              Server: psq-agent (178.156.229.103). Firewall:
+                              Server: safety-quotient-agent (178.156.229.103). Firewall:
                               SSH + HTTP + HTTPS + PSQ:3000. TLS via Caddy
                               reverse proxy. Oracle Ampere A1 evaluated but
                               unavailable (free tier inventory). Laptop/tunnel
@@ -547,7 +547,7 @@
                                   here — highest systemic impact, fewest
                                   adjustable parameters.
                                 Bounded contexts: each agent (psychology-
-                                  agent, psq-agent, unratified-agent)
+                                  agent, safety-quotient-agent, unratified-agent)
                                   operates as a bounded context with its
                                   own ubiquitous language. interagent/v1
                                   serves as the context map.
@@ -600,7 +600,7 @@
                                 Each agent bounded context inherits
                                 this constraint by default but MAY
                                 override within its own context (e.g.,
-                                psq-agent may adopt cloud hosting for
+                                safety-quotient-agent may adopt cloud hosting for
                                 model inference without violating the
                                 psychology-agent's constraint).
                                 Derives from: Domain-Driven Design
@@ -655,7 +655,7 @@
                                 Decided: 2026-03-09
 
  Cross-repo transport            PSQ agent operates in a
-  (psq-agent)                    separate repo (safety-quotient-lab/
+  (safety-quotient-agent)                    separate repo (safety-quotient-lab/
                                  safety-quotient) on a different machine
                                  (chromabook). Transport uses git remote
                                  fetch: each agent adds the other as a
@@ -744,7 +744,7 @@
 
  DNS naming scheme            Scheme 1: agent IDs as subdomains.
  (dns-naming-scheme)          psychology-agent.safety-quotient.dev,
-                                psq-agent.safety-quotient.dev,
+                                safety-quotient-agent.safety-quotient.dev,
                                 api.safety-quotient.dev. DNS names match
                                 protocol agent_id fields — one name per
                                 entity everywhere. Consistency over brevity.
@@ -761,14 +761,14 @@
                                 Decided: 2026-03-10
 
  4-agent mesh topology         4 agents: psychology-agent (orchestrator,
- (mesh-topology)               gray-box), psq-agent (sub-agent, chromabook),
+ (mesh-topology)               gray-box), safety-quotient-agent (sub-agent, chromabook),
                                 unratified-agent (peer, chromabook),
                                 observatory-agent (peer, chromabook). All
                                 serve dynamic /api/status from state.db.
                                 Transport: cross-repo-fetch (git remote).
                                 Compositor: interagent.safety-quotient.dev.
                                 Agent DNS: psychology-agent.safety-quotient.dev,
-                                psq-agent.safety-quotient.dev,
+                                safety-quotient-agent.safety-quotient.dev,
                                 unratified-agent.unratified.org,
                                 observatory-agent.unratified.org.
                                 Derives from: cross-repo transport, dns-naming.
@@ -946,7 +946,7 @@
                                 proceed to Round 4. F4/8B-8D
                                 (duplicate turns) verified already
                                 resolved (Session 78 fix). 4A (API
-                                key on disk) requires psq-agent
+                                key on disk) requires safety-quotient-agent
                                 remediation. READY-WITH-EXEMPTIONS
                                 rejected to avoid normalizing HIGH
                                 security findings.
@@ -2573,7 +2573,7 @@ a family name**, not different implementations of the same construct.
                                  3 dims, 0-10            Every story scored
                                  scored during           by free LLM at
                                  eval pass               ingest. Fast.
- PSQ-Full     psq-agent          DistilBERT v37         Clinical text.
+ PSQ-Full     safety-quotient-agent          DistilBERT v37         Clinical text.
                                  10 dims, 0-10           Validated on
                                  validated, r=0.684      Dreaddit. Precise.
 ────────────────────────────────────────────────────────────────────────

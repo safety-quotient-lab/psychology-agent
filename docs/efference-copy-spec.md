@@ -164,7 +164,7 @@ The inverse model answers: "I want this outcome — what should I send?"
 | Forward model output (predicted sensory feedback) | prediction_ledger expectation (current) |
 | Inverse model output (required motor command) | **message template generator** — given a desired outcome + peer agent profile, draft the message most likely to produce that outcome |
 | Paired learning (forward error drives inverse learning) | Prediction error from resolved expectations calibrates the inverse model — messages that produced unexpected responses update the template for future messages to that peer |
-| Multiple paired models (one per behavior type) | Per-agent, per-session-type templates — the message style that works with psq-agent differs from what works with observatory-agent |
+| Multiple paired models (one per behavior type) | Per-agent, per-session-type templates — the message style that works with safety-quotient-agent differs from what works with observatory-agent |
 
 ### Implementation sketch
 

@@ -36,7 +36,7 @@ parenthetical references.
 
 | Alias | Canonical Name | Repo |
 |---|---|---|
-| psq-agent | safety-quotient-agent | safety-quotient-lab/safety-quotient |
+| safety-quotient-agent | safety-quotient-agent | safety-quotient-lab/safety-quotient |
 | psychology-agent | psychology-agent | safety-quotient-lab/psychology-agent |
 | unratified-agent | unratified-agent | safety-quotient-lab/unratified |
 | observatory-agent | observatory-agent | safety-quotient-lab/observatory |
@@ -80,6 +80,6 @@ to implementation phase.*
 | Trigger headings in cognitive-triggers.md | ✓ Complete — all 17 headings renamed (Session 84) |
 | CLAUDE.md exemption narrowing | Planned |
 | Peer notification | ✓ Operations-agent notified + approved (Turn 3) |
-| psq-agent → safety-quotient-agent | Planned — requires DNS + transport migration |
+| safety-quotient-agent → safety-quotient-agent | Planned — requires DNS + transport migration |
 | D-number enumeration | Planned — requires architecture.md audit |
 | F-number enumeration | Planned — requires self-readiness-audit review |

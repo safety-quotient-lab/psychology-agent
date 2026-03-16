@@ -168,7 +168,7 @@ human expert review.
    being evaluated turns out wrong."
 
 2. **Peer agent review:**
-   Send theoretical documents to psq-agent and/or observatory-agent via
+   Send theoretical documents to safety-quotient-agent and/or observatory-agent via
    /scan-peer. Different operational history, different perspective.
    Specifically request: "identify claims in this document that your
    operational experience contradicts."

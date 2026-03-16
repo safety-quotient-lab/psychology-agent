@@ -413,7 +413,7 @@ synthesis.*
 
 Client-side mesh compositor: a static site at `interagent.safety-quotient.dev`
 that `fetch()`-es `/api/status` from both `psychology-agent.safety-quotient.dev`
-and `psq-agent.safety-quotient.dev`, composes agent state client-side, renders
+and `safety-quotient-agent.safety-quotient.dev`, composes agent state client-side, renders
 unified dashboard. No backend needed — CORS already permits cross-origin requests.
 
 **JSON-LD role:** Embedded `<script type="application/ld+json">` in mesh-status.py
@@ -481,7 +481,7 @@ into an active mesh coordination layer.
 
 ## Shared Ontology (interagent vocabulary)
 
-Machine-readable dictionary that all three sites (psychology-agent, psq-agent,
+Machine-readable dictionary that all three sites (psychology-agent, safety-quotient-agent,
 interagent) reference. Two layers:
 
 - **Human-facing terminology unification** — audit and align field names,

@@ -303,7 +303,7 @@ Every agent in the mesh mounts `llm-factors/` as a shared namespace:
 |---|---|---|
 | psychology-agent | All | theory/, instruments/a2a-psychology/, standards/ |
 | operations-agent | practice/, data/, standards/ | data/ (ablation runner results), practice/ (operational guidelines) |
-| psq-agent | instruments/, data/ablation-study/ | data/ (PSQ-specific session data) |
+| safety-quotient-agent | instruments/, data/ablation-study/ | data/ (PSQ-specific session data) |
 | observatory-agent | data/, publications/ | data/ (longitudinal analysis), publications/ (research outputs) |
 | unratified-agent | publications/, practice/ | publications/blog-posts/ |
 
@@ -536,7 +536,7 @@ The composition topology maps directly to existing infrastructure:
 - **Solo** → `autonomous-sync.sh` (cron-driven, single agent)
 - **Session** → interactive Claude Code (the current `psych-dyad`)
 - **Ensemble** → tandem `/sync` + cross-agent chains (human directs
-  psychology-agent, which coordinates with psq-agent)
+  psychology-agent, which coordinates with safety-quotient-agent)
 - **Consortium** → the full mesh (5 agents + human operator, mediated
   by compositor)
 

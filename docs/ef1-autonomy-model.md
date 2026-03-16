@@ -307,7 +307,7 @@ until new work appears.
 
 **Conflict prevention:** Both agents operate on the same git repo but
 modify different paths (psychology-agent writes `from-psychology-agent-*`,
-psq-agent writes `from-psq-sub-agent-*`). MANIFEST.json updates can
+safety-quotient-agent writes `from-psq-sub-agent-*`). MANIFEST.json updates can
 collide — resolution: each agent updates only its own pending/completed
 sections. `git pull --rebase` before push handles ordering.
 
@@ -352,8 +352,8 @@ the interval check defers 4 out of 5 invocations silently.
 # psychology-agent (macOS) — script lives in this repo
 */5 * * * * /Users/kashif/Projects/psychology-agent/scripts/autonomous-sync.sh >> /tmp/psychology-agent-sync.log 2>&1
 
-# psq-agent (LAN machine) — same script, pointed at a different repo
-*/5 * * * * /home/kashif/psychology-agent/scripts/autonomous-sync.sh /home/kashif/psq-agent >> /tmp/psq-agent-sync.log 2>&1
+# safety-quotient-agent (LAN machine) — same script, pointed at a different repo
+*/5 * * * * /home/kashif/psychology-agent/scripts/autonomous-sync.sh /home/kashif/safety-quotient-agent >> /tmp/safety-quotient-agent-sync.log 2>&1
 ```
 
 The script accepts an optional directory argument. When omitted, it runs
@@ -373,7 +373,7 @@ intervals, and multi-repo targets.
 # Verify only (exit 0 if present, 1 if missing)
 ./scripts/ensure-cron.sh --check
 
-# Install for psq-agent on a different machine
+# Install for safety-quotient-agent on a different machine
 ./scripts/ensure-cron.sh --target /home/kashif/safety-quotient --interval 10
 
 # Remove the entry
@@ -466,10 +466,10 @@ triggered) partially compensates.
 
 **Mitigation A — Cross-agent peer review:** In tandem mode, each agent's
 sync cycle includes a review of the *other* agent's last-cycle actions.
-Psychology-agent reviews psq-agent's actions and vice versa. The agents
+Psychology-agent reviews safety-quotient-agent's actions and vice versa. The agents
 operate on different domains (psychology vs. psychometrics), so their
 blind spots differ — a psychometrics-domain error that psychology-agent's
-self-evaluation misses may surface under psq-agent's domain expertise, and
+self-evaluation misses may surface under safety-quotient-agent's domain expertise, and
 the reverse. This converts the single-point-of-failure into a delayed peer
 review without adding a third evaluator.
 

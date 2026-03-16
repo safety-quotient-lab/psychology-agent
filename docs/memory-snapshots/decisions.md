@@ -139,7 +139,7 @@
                               licensed/full. Observe before promoting.
                               2026-03-09
  Cross-repo transport          Git remote fetch between agents in
- (psq-agent)                  separate repos. Each agent adds the
+ (safety-quotient-agent)                  separate repos. Each agent adds the
                               other as git remote, reads MANIFEST via
                               `git show {remote}/main:transport/
                               MANIFEST.json`. Split outbox (mail/
@@ -168,7 +168,7 @@
                               2026-03-10
  DNS naming scheme            Scheme 1: agent IDs as subdomains.
  (dns-naming-scheme)          psychology-agent.safety-quotient.dev,
-                              psq-agent.safety-quotient.dev,
+                              safety-quotient-agent.safety-quotient.dev,
                               api.safety-quotient.dev. DNS = protocol
                               agent_id. Consistency over brevity.
                               2026-03-10
