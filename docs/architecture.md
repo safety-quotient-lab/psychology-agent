@@ -83,7 +83,7 @@
                               the call spec.
                               Stage 3 (if automation required) — MCP server
                               wrappers. Not pre-committed.
-                              Key: Stage 1 work is defining the communication
+                              Key: Stage 1 work defines the communication
                               standard (output format, scope declaration,
                               limitation disclosure) — not building technology.
 
@@ -109,11 +109,11 @@
  Socratic protocol           Dynamic calibration — not fixed audience
  adaptation                  categories. Agent reads ongoing vocabulary,
                               question sophistication, domain markers and
-                              calibrates in real time. Audience type is a
+                              calibrates in real time. Audience type functions as a
                               weak prior, not a routing gate.
 
  Machine-to-machine stance   Socratic stance drops for machine callers.
-                              Detection is structural: format + self-id in
+                              Detection operates structurally: format + self-id in
                               system prompt + absence of social hedging.
                               Machine callers get direct output, not
                               Socratic guidance.
@@ -161,7 +161,7 @@
                               (PreToolUse, PostToolUse, Stop, SessionStart,
                               SessionEnd, UserPromptSubmit). Sub-agents: `agents:`
                               option with custom prompts + tool sets.
-                              `settingSources: ['project']` is a no-op in CF Workers
+                              `settingSources: ['project']` produces a no-op in CF Workers
                               (no local filesystem — reads via process.cwd()). Fix:
                               inline identity + cogarch into system prompt (Option A,
                               implemented) or fetch from R2/KV at request time
@@ -540,7 +540,7 @@
                                   model. Adopters configure behavioral
                                   parameters; structure remains.
                                 (3) INFRASTRUCTURE layer (low DOF) —
-                                  trigger system (T1-T18, T12 retired), hooks,
+                                  trigger system (T1-T20, T12 retired), hooks,
                                   memory pattern, dual-write, lite
                                   prompts, bootstrap. Adopters inherit
                                   as-is. Leverage points (Meadows) live
@@ -692,10 +692,10 @@
                                  Decided: 2026-03-09
 
  Gated autonomous chains        4-layer fallback cascade for blocking
-                                 message exchanges. L1: standard cron
-                                 poll (always on). L2: gate-aware
-                                 acceleration (60s interval when gates
-                                 active, 0-cost no-op polls). L3: LAN
+                                 message exchanges. L1: event-driven
+                                 ZMQ triggers (meshd, always on). L2:
+                                 gate-aware acceleration (60s interval
+                                 when gates active, 0-cost no-op). L3: LAN
                                  SSH wake-up signal. L4: push-notification
                                  hook (deferred). Gate protocol extends
                                  interagent/v1 with sender-side blocking
