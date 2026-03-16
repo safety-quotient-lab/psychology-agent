@@ -81,14 +81,13 @@ Do not mix sub-project work into the psychology agent context unless explicitly 
 
 ### Model Policy
 
-**Opus is the canonical model for this agent system.** The PSQ's existing
-training data was scored by Sonnet — historical fact, not a going-forward choice.
+**Opus serves as the canonical model for this agent system.** Sonnet scored
+the PSQ's existing training data — historical fact, not a going-forward choice.
 
 ### Pedagogical Jargon Policy (default: ON)
 
 Define jargon on FIRST use per response. Parentheses expand acronyms only (3–7 words);
-the definition belongs in sentence prose, not inside parens. If a term was coined by
-this project, say so. **cogarch** = cognitive architecture (no expansion needed).
+the definition belongs in sentence prose, not inside parens. If this project coined a term, say so. **cogarch** = cognitive architecture (no expansion needed).
 
 ### Domain Taxonomy Standards
 
