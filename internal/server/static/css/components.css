@@ -2019,6 +2019,84 @@ a.activity-link:hover {
     pointer-events: none;
 }
 
+/* ── LCARS Table Headers (Ohniaka pattern) ───────────────────── */
+/* Yellow/gold header row, no cell borders, color-separated columns */
+.theme-lcars .kb-table th {
+    color: #ffcc00;
+    border-bottom: 2px solid #ff9966;
+    font-size: 0.82em;
+    letter-spacing: 0.08em;
+    padding: 6px 10px;
+    background: rgba(255,204,0,0.06);
+}
+.theme-lcars .kb-table th:hover {
+    color: #ffdd44;
+    background: rgba(255,204,0,0.12);
+}
+.theme-lcars .kb-table td {
+    border-bottom-color: rgba(255,153,102,0.12);
+}
+.theme-lcars .kb-table tr:hover td {
+    background: rgba(153,153,255,0.06);
+}
+/* Colored column semantics — apply via data-col attribute or nth-child */
+.theme-lcars .kb-table td:first-child {
+    color: var(--text-dim);
+}
+.theme-lcars .kb-table td:nth-child(2) {
+    color: #cc99cc;
+}
+
+/* ── LCARS Panel Footer (bottom title convention) ────────────── */
+/* Right-aligned TITLE + NUMBER at panel bottom */
+.lcars-panel-footer {
+    padding: 6px 12px 4px;
+    text-align: right;
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #ffcc00;
+    border-top: 1px solid rgba(255,153,102,0.15);
+}
+.lcars-panel-footer-num {
+    font-size: 1.1em;
+    margin-left: 8px;
+    color: #ff9966;
+}
+
+/* ── LCARS Visualization Inset Border ────────────────────────── */
+/* Thin colored border around SVG/canvas visualizations */
+.theme-lcars .topology-svg,
+.theme-lcars .affect-grid-container,
+.theme-lcars .flow-diagram-svg {
+    border: 1px solid rgba(153,153,255,0.3);
+    padding: 4px;
+    border-radius: 2px;
+}
+.theme-lcars .topology-container .lcars-panel-body {
+    padding-bottom: 4px;
+}
+
+/* ── LCARS Sweep Frame ───────────────────────────────────────── */
+/* Beige/tan sweep border wrapping content zones (Ohniaka A1 pattern) */
+.lcars-sweep-frame {
+    border: 2px solid rgba(204,170,136,0.4);
+    border-radius: 0 12px 12px 0;
+    padding: 8px;
+    position: relative;
+}
+.lcars-sweep-frame::before {
+    content: "";
+    position: absolute;
+    left: -2px;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background: #ccaa88;
+    border-radius: 3px 0 0 3px;
+}
+
 /* ── Activity Severity Colors ───────────────────────────────── */
 .activity-type.severity-info {
     border-color: var(--c-transport);

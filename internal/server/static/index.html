@@ -2869,6 +2869,7 @@
                     <!-- Status indicator dots — system subsystems -->
                     <div class="lcars-status-dots" id="mesh-status-dots" style="margin-top:8px;"></div>
                 </div>
+                <div class="lcars-panel-footer">Mesh Topology<span class="lcars-panel-footer-num" id="topo-footer-num">5 nodes</span></div>
             </div>
 
             <!-- W1: Numeric Data Grid (LCARS 47988 pattern) -->
@@ -3207,6 +3208,7 @@
                 <div class="lcars-panel-body">
                     <div class="lcars-subsystem-grid" id="ops-subsystem-grid"></div>
                 </div>
+                <div class="lcars-panel-footer">Ops Record<span class="lcars-panel-footer-num" id="ops-overview-num"></span></div>
             </div>
 
             <!-- W5: Alphanumeric Matrix — dense state.db summary -->
@@ -3236,6 +3238,7 @@
             <div class="lcars-panel kb-section" style="--panel-accent: var(--c-epistemic)">
                 <div class="lcars-panel-header">Governance</div>
                 <div class="lcars-panel-body scrollable" id="lcars-ops-decisions"></div>
+                <div class="lcars-panel-footer">Governance Record<span class="lcars-panel-footer-num" id="gov-footer-num"></span></div>
             </div>
         </div>
 
@@ -6434,6 +6437,9 @@
                 <span style="flex:1">${d.title || d.text || "—"}</span>
             </div>`;
         }).join("");
+        // Update footer number
+        const govFtr = document.getElementById("gov-footer-num");
+        if (govFtr) govFtr.textContent = decisions.length;
     }
 
     // Coordination ratio inline in Activity section
@@ -6708,25 +6714,29 @@
         const sessions = online.reduce((s, a) => s + (a.data?.totals?.sessions || 0), 0);
         const decisions = online.reduce((s, a) => s + (a.data?.totals?.decisions || 0), 0);
 
-        const colors = ["#cc99cc", "#ff9966", "#9999ff", "#cc6699", "#ff9900", "#6aab8e", "#5b9cf6", "#e5a735"];
+        // TNG color semantics: orange=counts, purple=identifiers, blue=references, green=status
         const metrics = [
-            { val: fmtNum(totalDelib), key: "DELIB" },
-            { val: totalCutoff > 0 ? fmtNum(totalCutoff) : "\u221E", key: "LIMIT" },
-            { val: fmtNum(totalMsgs), key: "MSG" },
-            { val: fmtNum(pending), key: "PEND" },
-            { val: fmtNum(gates), key: "GATE" },
-            { val: fmtNum(events), key: "EVT" },
-            { val: fmtNum(sessions), key: "SESS" },
-            { val: fmtNum(decisions), key: "DEC" },
+            { val: fmtNum(totalDelib), key: "DELIB", color: "#ff9966", nav: "operations" },
+            { val: totalCutoff > 0 ? fmtNum(totalCutoff) : "\u221E", key: "LIMIT", color: "#ff9900", nav: "operations" },
+            { val: fmtNum(totalMsgs), key: "MSG", color: "#cc99cc", nav: "meta" },
+            { val: fmtNum(pending), key: "PEND", color: "#9999ff", nav: "meta" },
+            { val: fmtNum(gates), key: "GATE", color: "#cc6699", nav: "meta" },
+            { val: fmtNum(events), key: "EVT", color: "#ff9966", nav: null },
+            { val: fmtNum(sessions), key: "SESS", color: "#9999ff", nav: "helm" },
+            { val: fmtNum(decisions), key: "DEC", color: "#cc99cc", nav: "kb" },
         ];
 
-        el.innerHTML = `<div class="lcars-alpha-matrix">${metrics.map((m, i) => {
-            const c = colors[i % colors.length];
-            return `<div class="lcars-alpha-cell" style="--cell-color:${c}">
+        el.innerHTML = `<div class="lcars-alpha-matrix">${metrics.map((m) => {
+            const clickAttr = m.nav ? ` onclick="switchTab('${m.nav}')" style="cursor:pointer;--cell-color:${m.color}" title="Go to ${m.nav}"` : ` style="--cell-color:${m.color}"`;
+            return `<div class="lcars-alpha-cell"${clickAttr}>
                 <span class="lcars-alpha-val">${m.val}</span>
                 <span class="lcars-alpha-key">${m.key}</span>
             </div>`;
         }).join("")}</div>`;
+
+        // Update overview footer number
+        const ovFtr = document.getElementById("ops-overview-num");
+        if (ovFtr) ovFtr.textContent = online.length + "/" + AGENTS.length;
     }
 
     function renderOpsActions() {
