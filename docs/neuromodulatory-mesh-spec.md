@@ -359,6 +359,17 @@ classify the current token as **phasic**. Otherwise, classify as **tonic**.
 of peer state. Phasic tokens trigger active response — log the event, adjust
 processing priority, or invoke a trigger check.
 
+**Session 91 architectural note:** The mesh's own activation model transitioned
+from tonic (cron-driven fixed interval) to phasic (event-driven ZMQ triggers)
+in the same session that produced this spec. meshd now triggers
+autonomous-sync.sh via `--event-triggered` flag when ZMQ transport events
+arrive — structurally identical to the phasic discrimination this section
+describes. The mesh implements phasic-dominant processing at the infrastructure
+level, not just at the neuromodulatory signaling level. This convergence
+emerged independently: the event-driven infrastructure decision preceded the
+neuromodulatory spec, suggesting the biological pattern exercises genuine
+design pressure on computational systems facing the same coordination problem.
+
 ---
 
 ## 8. Reuptake as TTL
@@ -477,7 +488,10 @@ files written by the meshd subscriber. Candidate integrations:
 - Tonic/phasic discrimination by inter-token interval (< period/3)
   represents a crude heuristic. Biological tonic/phasic discrimination
   relies on receptor kinetics and second-messenger cascades — mechanisms
-  with no mesh analogue.
+  with no mesh analogue. However, the mesh's own activation model now
+  operates in phasic mode (event-driven ZMQ, Session 91), providing
+  empirical grounding for phasic-dominant processing at the infrastructure
+  level even if the token-level heuristic remains unvalidated.
 - The six-topic hierarchy derives from analogy to six neuromodulatory
   systems, not from empirical measurement of mesh coordination needs.
   Some topics may prove redundant; others may require splitting.

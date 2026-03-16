@@ -355,8 +355,8 @@
                                 autonomy budget: 20 credits per audit
                                 cycle; each action costs 1 (Tier 1) or
                                 3 (Tier 2). Budget exhaustion → halt.
-                                Execution: cron + Claude CLI, 10-min
-                                interval, multi-agent tandem sync.
+                                Execution: meshd event-driven ZMQ
+                                triggers + Claude CLI, multi-agent sync.
                                 Schema additions: autonomy_budget,
                                 autonomous_actions tables in state.db.
                                 BFT open question #1 resolved.

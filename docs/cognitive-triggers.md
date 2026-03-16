@@ -145,8 +145,12 @@ communication.
 - **Outbound messages** defer (peer agents reading photonic state see
   `glymphatic_mode: true` and queue non-urgent messages)
 
-**Activation:** Automatic when `consolidation-pass.sh` or `state-reconcile.py`
-run. The photonic emitter detects these processes via `pgrep` and sets the flag.
+**Activation:** meshd triggers consolidation-pass.sh and state-reconcile.py
+during idle periods (no ZMQ transport events for a configurable quiet window).
+The photonic emitter detects these processes via `pgrep` and sets the flag.
+This event-driven activation (Session 91) mirrors the biological pattern:
+glymphatic clearance activates when neural activity drops — the absence of
+ZMQ events signals the equivalent of reduced neural firing.
 
 **Design rationale:** The biological glymphatic system requires reduced neural
 activity to expand interstitial space for waste clearance (Xie et al., 2013).
