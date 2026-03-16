@@ -824,7 +824,56 @@
             filter: saturate(0.7);
         }
 
+        /* ── Button 52 Capsule Row (Mesh Overview agent rows) ─────── */
+        .capsule-row {
+            display: grid;
+            grid-template-columns: minmax(80px, 1fr) 60px 40px 40px 40px 60px 70px;
+            gap: var(--gap-m);
+            margin-bottom: var(--gap-m);
+        }
+        .capsule-leader {
+            color: #000;
+            font-weight: 700;
+            font-size: 0.72em;
+            padding: var(--gap-s) var(--gap-l);
+            border-radius: 12px 0 0 12px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+        }
+        .capsule-data {
+            color: #000;
+            font-size: 0.72em;
+            padding: var(--gap-s) var(--gap-m);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .capsule-sm { font-size: 0.65em; padding: var(--gap-s) 6px; }
+        .capsule-status { font-size: 0.68em; text-transform: uppercase; letter-spacing: 0.04em; justify-content: flex-start; }
+        .capsule-end { font-size: 0.68em; border-radius: 0 12px 12px 0; justify-content: flex-start; }
+        /* Responsive: stack capsule rows on narrow screens */
+        @media (max-width: 520px) {
+            .capsule-row {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: var(--gap-xs);
+            }
+            .capsule-leader {
+                grid-column: 1 / -1;
+                border-radius: 12px 12px 0 0;
+            }
+            .capsule-end { border-radius: 0 0 12px 12px; }
+        }
+        /* Landscape overflow safety */
+        .lcars-subsystem-grid { overflow-x: auto; }
+
         /* ── LCARS Alert Condition System (Trek Alert Levels) ────── */
+        /* Title cell stays transparent/black during alerts */
+        body[data-alert-level] .lcars-header-seg:first-child {
+            background: transparent !important;
+            color: var(--lcars-title) !important;
+        }
         body[data-alert-level="3"] .lcars-header-seg,
         body[data-alert-level="3"] .lcars-footer-seg {
             background: #ffcc00 !important;
@@ -2811,6 +2860,22 @@
 
             /* Footer: wrap */
             .lcars-footer { flex-wrap: wrap; gap: 4px; }
+        }
+
+        /* Small landscape (iPhone 8 class: 667×375) — compact LCARS chrome */
+        @media (max-height: 414px) and (orientation: landscape) {
+            .lcars-header-band { min-height: 32px; }
+            .lcars-header-seg { padding: 2px 8px; font-size: 0.62em; }
+            .lcars-footer-band { min-height: 32px; }
+            .lcars-footer-seg { padding: 2px 8px; font-size: 0.62em; }
+            .lcars-sidebar-cap-top { min-height: 32px; }
+            .lcars-sidebar-cap-bottom { min-height: 32px; }
+            .lcars-sidebar-btn { min-height: 32px; padding: 4px 8px 4px 12px; font-size: 0.62em; }
+            .lcars-sidebar-arm { min-height: 8px; }
+            .lcars-sidebar-spacer { min-height: 8px; }
+            .lcars-content { padding: 8px 12px; }
+            /* Hide less-critical header segments on very narrow landscape */
+            .lcars-header-seg:nth-child(n+5) { display: none; }
         }
 
         @media (max-width: 480px) {
@@ -6796,16 +6861,16 @@
             const gates = online ? (d.data?.active_gates || []).length : 0;
             const schema = d?.data?.schema_version || "\u2014";
 
-            // Agent row: grid-aligned capsules (Button 52 pattern — fixed columns)
+            // Agent row: grid-aligned capsules (Button 52 pattern — CSS class for responsive)
             const opacity = online ? 1 : 0.35;
-            html += `<div style="display:grid;grid-template-columns:minmax(80px,1fr) 60px 40px 40px 40px 60px 70px;gap:3px;margin-bottom:3px;opacity:${opacity}">
-                <div style="background:${agent.color};color:#000;font-weight:700;font-size:0.72em;padding:5px 12px;border-radius:12px 0 0 12px;letter-spacing:0.06em;text-transform:uppercase;display:flex;align-items:center">${agentName(agent)}</div>
-                <div style="background:${purpleDark};color:#000;font-weight:700;font-size:0.82em;padding:5px 8px;text-align:right;display:flex;align-items:center;justify-content:flex-end" title="Deliberations">${online ? fmtNum(deliberations) : "\u2014"}</div>
-                <div style="background:${purpleDark};color:#000;font-size:0.65em;padding:5px 6px;display:flex;align-items:center;justify-content:flex-end;opacity:0.7" title="Cutoff">${cutoff > 0 ? "/" + fmtNum(cutoff) : "\u221E"}</div>
-                <div style="background:${purpleMed};color:#000;font-weight:700;font-size:0.82em;padding:5px 8px;text-align:right;display:flex;align-items:center;justify-content:flex-end" title="Pending">${online ? pending : "\u2014"}</div>
-                <div style="background:${purpleMed};color:#000;font-size:0.82em;padding:5px 8px;text-align:right;display:flex;align-items:center;justify-content:flex-end" title="Gates">${online ? gates : "\u2014"}</div>
-                <div style="background:${purpleLight};color:var(--text-primary);font-size:0.68em;padding:5px 8px;display:flex;align-items:center;text-transform:uppercase;letter-spacing:0.04em" title="Health">${online ? health : "OFF"}</div>
-                <div style="background:${purpleLight};color:var(--text-primary);font-size:0.68em;padding:5px 8px;border-radius:0 12px 12px 0;display:flex;align-items:center" title="Mood">${mood}</div>
+            html += `<div class="capsule-row" style="opacity:${opacity}">
+                <div class="capsule-leader" style="background:${agent.color}">${agentName(agent)}</div>
+                <div class="capsule-data" style="background:${purpleDark};font-size:0.82em;font-weight:700" title="Deliberations">${online ? fmtNum(deliberations) : "\u2014"}</div>
+                <div class="capsule-data capsule-sm" style="background:${purpleDark};opacity:0.7" title="Cutoff">${cutoff > 0 ? "/" + fmtNum(cutoff) : "\u221E"}</div>
+                <div class="capsule-data" style="background:${purpleMed};font-size:0.82em;font-weight:700" title="Pending">${online ? pending : "\u2014"}</div>
+                <div class="capsule-data" style="background:${purpleMed};font-size:0.82em" title="Gates">${online ? gates : "\u2014"}</div>
+                <div class="capsule-data capsule-status" style="background:${purpleLight};color:var(--text-primary)" title="Health">${online ? health : "OFF"}</div>
+                <div class="capsule-data capsule-end" style="background:${purpleLight};color:var(--text-primary)" title="Mood">${mood}</div>
             </div>`;
         }
 
