@@ -128,14 +128,17 @@ deploy-transfer:
 		$(SCP_CMD) ./$(MESHD_BIN) $${AGENT_SSH_HOST}:$(REMOTE_BIN).new
 	@echo "  Transferred to $(REMOTE_BIN).new"
 
-# Restart: swap binary, restart via systemd --user units
+# Restart: stop all → swap binary → start all (no port conflicts)
 deploy-restart:
 	@echo ""
 	@echo "═══ Restarting meshd processes ═══"
 	@. ./.dev.vars 2>/dev/null; \
+		echo "  Stopping all units..." && \
+		$(SSH_CMD) 'for svc in $$(systemctl --user list-units --type=service 2>/dev/null | grep meshd | awk "{print \$$1}"); do systemctl --user stop "$$svc" 2>/dev/null; done; sleep 2' && \
+		echo "  Swapping binary..." && \
 		$(SSH_CMD) 'cp $(REMOTE_BIN) $(REMOTE_BACKUP) 2>/dev/null; mv $(REMOTE_BIN).new $(REMOTE_BIN) && chmod +x $(REMOTE_BIN)' && \
-		echo "  Binary swapped (backup: $(REMOTE_BACKUP))" && \
-		$(SSH_CMD) 'for svc in $$(systemctl --user list-units --type=service --state=running 2>/dev/null | grep meshd | awk "{print \$$1}"); do systemctl --user restart "$$svc" && echo "  Restarted $$svc"; done; sleep 2; echo ""; echo "  Processes:"; pgrep -f "/home/kashif/platform/meshd --port" -la 2>/dev/null | head -5'
+		echo "  Starting all units..." && \
+		$(SSH_CMD) 'for svc in $$(systemctl --user list-units --type=service 2>/dev/null | grep meshd | awk "{print \$$1}"); do systemctl --user start "$$svc" && echo "    Started $$svc"; done; sleep 3; echo ""; echo "  Processes:"; pgrep -f "/home/kashif/platform/meshd --port" -la 2>/dev/null | head -5'
 
 deploy-validate:
 	@echo ""
