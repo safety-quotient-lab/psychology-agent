@@ -3052,17 +3052,15 @@ a.activity-link:hover {
     padding: 4px 16px !important;
 }
 
-/* ── Header structural arm — short connector between title and pills ── */
+/* ── Header structural arm — fixed connector, canonical LCARS bar ──── */
 .lcars-hdr-arm {
-    flex: 0 1 60px; /* shrinks from 60px, doesn't grow beyond it */
-    min-width: 12px;
-    max-width: 60px;
+    flex: 0 0 34px; /* fixed width — golden ratio --gap-2xl */
     align-self: stretch;
 }
 
-/* ── Header end cap — rounded terminator ─────────────────────── */
+/* ── Header end cap — rounded terminator, absorbs remaining space ── */
 .lcars-hdr-endcap {
-    flex: 0 0 24px;
+    flex: 1 0 24px; /* grows to fill remaining header width */
     align-self: stretch;
     border-radius: 0 var(--elbow-inner, 24px) var(--elbow-inner, 24px) 0;
 }
