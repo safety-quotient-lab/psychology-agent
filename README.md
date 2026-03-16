@@ -722,7 +722,7 @@ psychology-agent/
 |   +-- agent-registry.json         # 6-agent registry with routing rules
 |   +-- MANIFEST.json               # Auto-generated pending message index
 +-- reconstruction/                 # Git history reconstruction tools
-+-- safety-quotient/                # PSQ sub-project (separate CLAUDE.md)
++-- safety-quotient/                # PSQ sub-project (separate instructions)
 +-- pje-framework/                  # PJE sub-project
 ```
 

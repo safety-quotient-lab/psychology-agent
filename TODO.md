@@ -647,19 +647,14 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
 
 ## v1 Release Blocker: Documentation Audit
 
-- [ ] **Full README + docs consistency/accuracy/staleness review** — BLOCKER for v1.
-  Scope: README.md, COLOPHON.md, CLAUDE.md, docs/*.md (all non-snapshot docs),
-  cogarch.config.json, agent-card.json, agent-registry.json.
-  Checks: (1) internal consistency (counts, versions, stats match across documents),
-  (2) factual accuracy (claims match current code/state), (3) staleness (stale
-  references to renamed/removed components), (4) completeness gaps (sections that
-  promise content not delivered, missing cross-references), (5) room for expansion
-  (sections that need deepening for external audience), (6) vocabulary consistency
-  (autonomy budget not trust budget, 14 frameworks not 13, 17 active triggers not 18).
-  Method: microglial audit rotation covers individual documents; this item requires
-  a *cross-document* consistency pass that the per-document audit cannot perform.
-  Precondition: all evaluation findings resolved (✓), vocabulary governance
-  directive acknowledged by ops.
+- [x] **Full README + docs consistency/accuracy/staleness review** — COMPLETE (Session 91).
+  4-agent parallel audit. 15 stale counts/references corrected. Checks completed:
+  (1) internal consistency ✓ (triggers 19, frameworks 16, hooks 32, schema v32),
+  (2) factual accuracy ✓ (cron→event-driven, PSQ terminology standardized),
+  (3) staleness ✓ (7 missing MANIFESTs fixed, orphaned interagent/ flagged),
+  (4) completeness ✓ (SETL/PSH/PJE jargon expanded, response formatting added),
+  (6) vocabulary ✓ (all terms normalized). Remaining: (5) room for expansion
+  (qualitative — external audience deepening deferred to dedicated pass).
 
 ---
 
