@@ -1124,3 +1124,31 @@ findings require dedicated resolution.
   *Precondition: none — JS fix*
 - [ ] **v1 tag** — tag release after mobile fixes + ops backend endpoints land.
   *Precondition: mobile fixes + at least /api/psychometrics responding*
+
+---
+
+## A2A-Psychology Validation (Session 92)
+
+- [x] **Criterion validity analysis (retrospective)** — COMPLETE (Session 92).
+  All 21 construct-outcome pairs tautological or collinear. validate-criterion.py.
+- [x] **Epistemic calibration validation** — COMPLETE (Session 92). First validated
+  construct: ρ=0.479, p<0.0001, n=412. validate-epistemic-calibration.py.
+- [x] **Anti-sycophancy validation** — COMPLETE (Session 92). Raw ratio fails;
+  composite metric (freq × ratio = 0.035) passes. validate-anti-sycophancy.py.
+- [x] **Agreeableness recalibration** — COMPLETE (Session 92). 0.35→0.65 across
+  agent-card, compute-psychometrics, rollout-spec, mesh-plan.
+- [x] **T14 substitution patterns** — COMPLETE (Session 92). 5 evaluative→substantive
+  rewrites in cognitive-triggers.md.
+- [x] **3 dead sensors wired** — COMPLETE (Session 92). triggers_fired,
+  deliverables_completed, errors_last_hour in compute-psychometrics.py.
+- [x] **Prospective snapshot hook** — COMPLETE (Session 92). session-end-check.sh
+  captures compute-psychometrics.py output to event_log.
+- [x] **Naming reform: gates→pending_handoffs** — COMPLETE (Session 92). 38 files.
+- [ ] **Factor structure (Phase 2)** — correlation matrix across constructs.
+  *Precondition: ~20 sessions of prospective snapshots*
+- [ ] **Confidence score recalibration** — apply calibration guide to claim extraction.
+  *Precondition: none — prompt-level change*
+- [ ] **Reticular monitor deployment** — 3-subsystem agent health monitor.
+  *Precondition: ops ACK on psychometrics-rollout turn 9*
+- [ ] **Chromabook heartbeat fix** — meshd heartbeat writer (CHROMA-1/2/3).
+  *Precondition: ops meshd code change*

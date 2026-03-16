@@ -45,7 +45,7 @@ artifacts produced. Terse and factual — the journal.md has the narrative.
 | License (root project)        | ✓ Apache 2.0 — LICENSE + NOTICE at project root (relicensed Session 32c) |
 | License (PSQ data + weights)  | ✓ CC BY-SA 4.0 — safety-quotient/LICENSE-DATA (Dreaddit constraint) |
 | Auto-memory recovery          | ✓ Snapshots, bootstrap-check.sh, T1 health check, BOOTSTRAP.md restructure (Session 11) |
-| Platform hooks                | ✓ 14 hook events (32 active scripts + _debug.sh shared helper). Local agent ID resolver via env.AGENT_ID (Session 91) |
+| Platform hooks                | ✓ 14 hook events (32 active scripts + _debug.sh shared helper). Local agent ID resolver via env.AGENT_ID (Session 91). Psychometric snapshot at session-end (Session 92) |
 | Microglial audit layer        | ✓ scripts/microglial-audit.py — immune surveillance for document integrity, integrated into autonomous-sync.sh idle cycles (Session 86) |
 | Source dictionary             | ✓ docs/dictionary.md — 15 entries, 7 categories, APA citations (Session 27) |
 | best.pt local recovery        | ✓ SHA256 7bec777c match confirmed local↔Hetzner (Session 27) |
@@ -6238,3 +6238,71 @@ Additional work after initial /cycle:
   and log-normal alternatives not tested (Clauset et al. 2009)
 - 48 hours of data captures ~2 diurnal cycles; longer collection needed
 - Shared-operator confound (M-11) applies to cross-agent α consistency
+
+
+## 2026-03-16T15:03 CDT — Session 92 (A2A-Psychology validation + remediation + reticular monitor)
+
+8 commits across validation, remediation, ops diagnostics, and naming reform.
+
+- **A2A-Psychology validation gap analysis** — found 0/9 constructs had criterion
+  validity. Retrospective analysis tautological (construct formulas derive from
+  outcome variables). Built 3 validation scripts.
+
+- **First validated construct: Epistemic calibration** — confidence scores predict
+  verification outcomes (Spearman ρ=0.479, p<0.0001, n=412). System runs
+  overconfident: claims <0.91 verify at 0%, claims ≥0.91 at 91%. Binary threshold
+  F1=0.905. Isotonic regression (PAVA) reduces Brier 0.180→0.064.
+
+- **Anti-sycophancy finding + remediation** — raw positive ratio 0.970 inconsistent
+  with A=0.35 design. Reframed: evaluative frequency only 3.6% of messages.
+  Composite metric (frequency × ratio = 0.035) passes validation. Agreeableness
+  recalibrated 0.35→0.65 across all config surfaces. T14 substitution patterns
+  added (5 evaluative→substantive rewrites).
+
+- **Confidence calibration layers** — (1) binary threshold at 0.91, (2) calibration
+  guide created (docs/confidence-calibration-guide.md), (3) isotonic regression
+  via PAVA (pure Python, --calibrate flag).
+
+- **3 dead sensors fixed** — triggers_fired (trigger_state query), deliverables_completed
+  (/tmp JSONL read), errors_last_hour (merge incidents + failures + blocks). TLX,
+  Flow, PAD restored from ~40% to ~85% sensor coverage.
+
+- **Prospective psychometric snapshot** — session-end hook captures live
+  compute-psychometrics.py output to event_log. Breaks the tautological
+  circularity for future criterion validity re-analysis (~20 sessions needed).
+
+- **Autonomy/gates audit** — all 3 Phase 2 tables (autonomy_budget, autonomous_actions,
+  active_gates) contain 0 rows. Phase 2 never activated. Naming divergence between
+  psychology-agent and operations-agent schemas documented.
+
+- **Naming reform: gates → pending_handoffs** — 38 files across Go, Python, HTML,
+  docs. Three gate vocabularies disambiguated: pending_handoffs (inter-agent),
+  decision_checkpoints (EF-1 evaluator), concurrency_limits (ops spawn).
+
+- **Chromabook diagnostic** — SSH found meshd running normally, spawns completing,
+  git pulls landing. Heartbeat stale since March 14 (cron→meshd migration gap).
+  Two minor issues: spawn log write failure, phantom PR #230 reference.
+
+- **Reticular monitor design** — 3 neural-analog subsystems proposed to ops:
+  (1) oscillatory synchrony loss (heartbeat freshness watchdog),
+  (2) efference copy mismatch (response expectation tracker),
+  (3) TRN-inspired reticular escalation cascade (nudge→diagnose→remediate→escalate).
+
+- **MCP cleanup** — removed sequential-thinking and mcp-fetch (redundant with
+  built-in WebFetch). Cleaned permissions allow list.
+
+- **Transport to ops** — 4 messages (psychometrics-rollout turns 6-9): snapshot
+  hook deployment directive, remediation status, sensor fix + autonomy audit,
+  Chromabook diagnostic + reticular monitor design.
+
+▶ docs/a2a-psychology-rollout-spec.md (validation section), docs/confidence-calibration-guide.md
+
+⚑ EPISTEMIC FLAGS
+- Epistemic calibration validates (ρ=0.479) but reveals systematic overconfidence —
+  the low-confidence region (<0.91) carries no discriminative value
+- Anti-sycophancy composite metric reframes rather than validates — evaluative
+  frequency × ratio measures something different from the original construct
+- Retrospective criterion validity fundamentally tautological — prospective
+  collection represents necessary but not sufficient fix
+- Reticular monitor design provides theoretical grounding; implementation
+  responsibility sits with operations-agent
