@@ -2,7 +2,7 @@
 # deliver-to-peer.sh — Deliver a transport message to a peer agent's repo via PR
 #
 # Implements the transport delivery convention (operations-agent directive):
-# clone target repo → branch → write message → commit → push → PR → cleanup
+# clone target repo -> branch -> write message -> commit -> push -> PR -> cleanup
 #
 # Usage:
 #   ./scripts/deliver-to-peer.sh <target-agent-id> <session-id> <source-file> [short-label]
@@ -14,14 +14,15 @@
 # The script:
 #   1. Resolves the target repo from agent-registry.json
 #   2. Clones to /tmp/deliver-{target}-{session}
-#   3. Creates branch: psychology-agent/{session}/{turn}-{label}
-#   4. Copies the message as to-psychology-agent-{NNN}.json in the target repo
-#   5. Commits, pushes, opens PR
-#   6. Cleans up the clone
+#   3. Creates branch: {source-agent}/{session}/{turn}-{label}
+#   4. Copies the message as to-{source-agent}-{NNN}.json in the target repo
+#   5. Generates MANIFEST.json if absent (prevents CI failures)
+#   6. Commits, pushes, opens PR
+#   7. Cleans up the clone
 
 set -euo pipefail
 
-# ── Arguments ────────────────────────────────────────────────────────────────
+# -- Arguments ----------------------------------------------------------------
 TARGET_AGENT="${1:?Usage: deliver-to-peer.sh <target-agent> <session> <source-file> [label]}"
 SESSION_ID="${2:?Usage: deliver-to-peer.sh <target-agent> <session> <source-file> [label]}"
 SOURCE_FILE="${3:?Usage: deliver-to-peer.sh <target-agent> <session> <source-file> [label]}"
@@ -29,7 +30,7 @@ SHORT_LABEL="${4:-delivery}"
 
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
-# ── Resolve target repo ─────────────────────────────────────────────────────
+# -- Resolve target repo ------------------------------------------------------
 TARGET_REPO=$(python3 -c "
 import json, sys
 reg = json.load(open('${PROJECT_ROOT}/transport/agent-registry.json'))
@@ -41,9 +42,9 @@ if not repo:
 print(repo)
 ") || exit 1
 
-echo "[deliver] Target: ${TARGET_AGENT} → ${TARGET_REPO}"
+echo "[deliver] Target: ${TARGET_AGENT} -> ${TARGET_REPO}"
 
-# ── Extract turn from source file ───────────────────────────────────────────
+# -- Extract turn from source file --------------------------------------------
 TURN=$(python3 -c "
 import json, sys
 try:
@@ -63,20 +64,19 @@ except:
     print('${SESSION_ID}')
 ")
 
-# ── Source agent identity ────────────────────────────────────────────────────
-IDENTITY_FILE="${PROJECT_ROOT}/.agent-identity.json"
-if [ -f "${IDENTITY_FILE}" ]; then
-    SOURCE_AGENT=$(python3 -c "import json; print(json.load(open('${IDENTITY_FILE}'))['agent_id'])" 2>/dev/null || echo "psychology-agent")
-else
-    SOURCE_AGENT="psychology-agent"
-fi
+# -- Source agent identity (public, for transport -- not local AGENT_ID) -------
+SOURCE_AGENT=$(python3 -c "
+import json, os
+card = os.path.join('${PROJECT_ROOT}', '.well-known', 'agent-card.json')
+print(json.load(open(card)).get('name', 'psychology-agent') if os.path.exists(card) else 'psychology-agent')
+" 2>/dev/null || echo "psychology-agent")
 
-# ── Filename convention ──────────────────────────────────────────────────────
+# -- Filename convention ------------------------------------------------------
 # In the target repo: to-{source-agent}-{NNN}.json
 # NNN = zero-padded turn number
 DEST_FILENAME="to-${SOURCE_AGENT}-$(printf '%03d' "${TURN}").json"
 
-# ── Clone, branch, deliver ──────────────────────────────────────────────────
+# -- Clone, branch, deliver ---------------------------------------------------
 WORKDIR="/tmp/deliver-${TARGET_AGENT}-${SESSION_ID}"
 rm -rf "${WORKDIR}"
 
@@ -95,23 +95,42 @@ cp "${PROJECT_ROOT}/${SOURCE_FILE}" "transport/sessions/${SESSION_ID}/${DEST_FIL
 
 echo "[deliver] Written: transport/sessions/${SESSION_ID}/${DEST_FILENAME}"
 
-# ── Commit and push ─────────────────────────────────────────────────────────
-git add "transport/sessions/${SESSION_ID}/${DEST_FILENAME}"
-git commit -m "interagent: ${SESSION_ID} T${TURN} — ${SUBJECT}
+# -- Generate MANIFEST.json if absent -----------------------------------------
+MANIFEST_PATH="transport/sessions/${SESSION_ID}/MANIFEST.json"
+if [ ! -f "${MANIFEST_PATH}" ]; then
+    python3 -c "
+import json, datetime
+manifest = {
+    'schema': 'transport-manifest/v2',
+    'session_id': '${SESSION_ID}',
+    'created': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+    'updated': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+    'status': 'active',
+    'participants': ['${SOURCE_AGENT}', '${TARGET_AGENT}'],
+    'turns': [{'turn': ${TURN}, 'file': '${DEST_FILENAME}', 'from': '${SOURCE_AGENT}', 'to': ['${TARGET_AGENT}'], 'type': 'delivery'}]
+}
+with open('${MANIFEST_PATH}', 'w') as f:
+    json.dump(manifest, f, indent=2)
+    f.write('\n')
+" 2>/dev/null
+    echo "[deliver] Generated: ${MANIFEST_PATH}"
+fi
+
+# -- Commit and push ----------------------------------------------------------
+git add "transport/sessions/${SESSION_ID}/"
+git commit -m "interagent: ${SESSION_ID} T${TURN} -- ${SUBJECT}
 
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>" 2>&1
 
 git push -u origin "${BRANCH}" 2>&1
 
-# ── Open PR ─────────────────────────────────────────────────────────────────
-PR_TITLE="interagent: ${SESSION_ID} T${TURN} — ${SUBJECT}"
-PR_BODY="Transport message from psychology-agent to ${TARGET_AGENT}.
+# -- Open PR ------------------------------------------------------------------
+PR_TITLE="interagent: ${SESSION_ID} T${TURN} -- ${SUBJECT}"
+PR_BODY="Transport message from ${SOURCE_AGENT} to ${TARGET_AGENT}.
 
 Session: ${SESSION_ID}
 Turn: ${TURN}
-Source: ${SOURCE_FILE}
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)"
+Source: ${SOURCE_FILE}"
 
 PR_URL=$(gh pr create \
     --repo "${TARGET_REPO}" \
@@ -119,14 +138,14 @@ PR_URL=$(gh pr create \
     --title "${PR_TITLE}" \
     --body "${PR_BODY}" \
     2>&1) || {
-    echo "[deliver] WARNING: gh pr create failed. Branch pushed — create PR manually:"
+    echo "[deliver] WARNING: gh pr create failed. Branch pushed -- create PR manually:"
     echo "  https://github.com/${TARGET_REPO}/pull/new/${BRANCH}"
     PR_URL="(manual PR needed)"
 }
 
 echo "[deliver] PR: ${PR_URL}"
 
-# ── Cleanup ─────────────────────────────────────────────────────────────────
+# -- Cleanup ------------------------------------------------------------------
 cd "${PROJECT_ROOT}"
 rm -rf "${WORKDIR}"
 
