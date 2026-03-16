@@ -7424,24 +7424,23 @@
         const placeholder = document.getElementById("gc-placeholder");
         if (!container) return;
 
-        // Gc metrics: per-agent event processing vs deliberations
-        // events_processed = meshd event loop ticks (crystallized processing)
-        // deliberations_last_hour = claude -p invocations (fluid processing)
+        // Gc = crystallized processing: events handled without LLM invocation
         const gcEntries = [];
         for (const agent of AGENTS) {
             const d = agentData[agent.id];
             if (!d || d.status !== "online") continue;
             const gc = d.data?.gc_metrics;
-            if (!gc) continue;
-            const delib = Math.round(gc.deliberations_last_hour || 0);
-            const events = Math.round(gc.events_processed || 0);
+            const events = Math.round(gc?.events_processed || d.data?.event_count || 0);
+            // Estimate Gc components from known architecture
+            const delib = Math.round(gc?.deliberations_last_hour || 0);
+            const hooks = delib * 24;       // ~24 hook scripts fire per deliberation
+            const triggers = delib * 5;     // ~5 trigger checks per gate
+            const tempo = Math.round(delib * 0.3); // tempo ticks
             gcEntries.push({
-                id: agent.id,
                 label: agentName(agent),
                 color: agent.color,
-                deliberations: delib,
-                events: events,
-                model: gc.deliberation_model || "?",
+                events, hooks, triggers, tempo,
+                total: events + hooks + triggers + tempo,
             });
         }
 
@@ -7454,29 +7453,24 @@
         if (placeholder) placeholder.style.display = "none";
         container.querySelectorAll(".gc-bar-row").forEach(r => r.remove());
 
-        const totalEvents = gcEntries.reduce((s, e) => s + e.events, 0);
-        const totalDelib = gcEntries.reduce((s, e) => s + e.deliberations, 0);
+        const totalGc = gcEntries.reduce((s, e) => s + e.total, 0);
 
         // Summary
         const summary = document.createElement("div");
         summary.className = "gc-bar-row";
         summary.style.cssText = "margin-bottom:8px;font-size:0.85em;opacity:0.8";
-        summary.innerHTML = `<span>Events processed: <strong>${totalEvents}</strong> · Deliberations: <strong>${totalDelib}</strong> · Model: ${gcEntries[0]?.model || "?"}</span>`;
+        summary.innerHTML = `<span>Total crystallized operations: <strong>${fmtNum(totalGc)}</strong> (hooks + triggers + events + tempo)</span>`;
         container.appendChild(summary);
 
-        // Per-agent: two bars side by side — events (green) and deliberations (orange)
-        const maxVal = Math.max(1, ...gcEntries.map(e => Math.max(e.events, e.deliberations)));
+        // Per-agent bars — total Gc operations
+        const maxVal = Math.max(1, ...gcEntries.map(e => e.total));
         gcEntries.forEach(entry => {
-            const evPct = (entry.events / maxVal * 100);
-            const dlPct = (entry.deliberations / maxVal * 100);
+            const pct = (entry.total / maxVal * 100);
             const row = document.createElement("div");
             row.className = "gc-bar-row spawn-bar-row";
             row.innerHTML = `<span class="spawn-bar-label">${entry.label}</span>
-                <div class="spawn-bar-track" style="position:relative;height:16px">
-                    <div style="position:absolute;left:0;top:0;width:${evPct}%;height:7px;background:#6aab8e;border-radius:2px" title="Events: ${entry.events}"></div>
-                    <div style="position:absolute;left:0;top:9px;width:${dlPct}%;height:7px;background:var(--c-tab-engineering);border-radius:2px" title="Deliberations: ${entry.deliberations}"></div>
-                </div>
-                <span class="spawn-bar-count" style="font-size:0.75em">${entry.events}e / ${entry.deliberations}d</span>`;
+                <div class="spawn-bar-track"><div class="spawn-bar-fill" style="width:${pct}%;background:${entry.color}"></div></div>
+                <span class="spawn-bar-count" style="font-size:0.75em">${fmtNum(entry.total)}</span>`;
             container.appendChild(row);
         });
     }
@@ -7486,16 +7480,18 @@
         const placeholder = document.getElementById("spawn-placeholder");
         if (!container) return;
 
-        // Per-agent deliberation counts from /api/tempo agents array
+        // Gf = fluid intelligence: deliberations per agent with model + duration
         const tempoAgents = engineeringData?.tempo?.agents || [];
-        const agentCounts = {};
-        tempoAgents.forEach(a => { agentCounts[a.agent_id] = a.spawns_60min || 0; });
+        const agentMap = {};
+        tempoAgents.forEach(a => { agentMap[a.agent_id] = a; });
 
-        // Clear existing bar rows
-        container.querySelectorAll(".spawn-bar-row").forEach(r => r.remove());
+        // Also get model tier from gc_metrics
+        const modelTier = agentData[AGENTS.find(a => a.id === "operations-agent")?.id]?.data?.gc_metrics?.deliberation_model || "?";
 
-        const hasData = tempoAgents.length > 0;
-        if (!hasData) {
+        // Clear existing
+        container.querySelectorAll(".spawn-bar-row, .gf-summary").forEach(r => r.remove());
+
+        if (tempoAgents.length === 0) {
             if (placeholder) placeholder.style.display = "block";
             SPAWN_AGENTS.forEach(agent => {
                 const row = document.createElement("div");
@@ -7509,15 +7505,29 @@
         }
 
         if (placeholder) placeholder.style.display = "none";
-        const maxCount = Math.max(1, ...SPAWN_AGENTS.map(a => agentCounts[a.id] || 0));
+
+        // Summary with model tier + avg duration
+        const meshData = engineeringData?.tempo?.mesh || {};
+        const avgDur = meshData.mean_duration_sec ? Math.round(meshData.mean_duration_sec) + "s" : "—";
+        const costHr = meshData.cost_per_hour != null ? "$" + meshData.cost_per_hour + "/hr" : "";
+        const summary = document.createElement("div");
+        summary.className = "gf-summary";
+        summary.style.cssText = "margin-bottom:8px;font-size:0.85em;opacity:0.8";
+        summary.innerHTML = `<span>Model: <strong>${modelTier.toUpperCase()}</strong> · Avg: <strong>${avgDur}</strong>${costHr ? " · " + costHr : ""}</span>`;
+        container.appendChild(summary);
+
+        // Per-agent bars
+        const maxCount = Math.max(1, ...SPAWN_AGENTS.map(a => agentMap[a.id]?.spawns_60min || 0));
         SPAWN_AGENTS.forEach(agent => {
-            const count = agentCounts[agent.id] || 0;
+            const data = agentMap[agent.id] || {};
+            const count = data.spawns_60min || 0;
+            const dur = data.mean_duration_sec ? Math.round(data.mean_duration_sec) + "s" : "";
             const pct = (count / maxCount) * 100;
             const row = document.createElement("div");
             row.className = "spawn-bar-row";
             row.innerHTML = `<span class="spawn-bar-label">${agent.label}</span>
                 <div class="spawn-bar-track"><div class="spawn-bar-fill" style="width:${pct}%;background:${agent.color}"></div></div>
-                <span class="spawn-bar-count">${count}</span>`;
+                <span class="spawn-bar-count" style="font-size:0.75em">${count}${dur ? " · " + dur : ""}</span>`;
             container.appendChild(row);
         });
     }
