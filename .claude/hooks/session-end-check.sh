@@ -30,6 +30,20 @@ fi
 # Trigger activation telemetry reminder
 echo "[HOOK] Session ending — log trigger activations to state.db via: python3 scripts/dual_write.py trigger-activation --session-id N --trigger-id TX --check-number N --tier critical --result pass"
 
+# Psychometric snapshot for prospective criterion validity (Session 92+).
+# Logs live compute-psychometrics.py output to event_log before tmp sensor
+# files disappear. validate-criterion.py uses these for non-tautological
+# construct-outcome correlations.
+if [ -f "${PROJECT_ROOT}/scripts/validate-criterion.py" ] && [ -f "${PROJECT_ROOT}/lab-notebook.md" ]; then
+  # Derive session ID from last lab-notebook header (most reliable source)
+  SID=$(grep -oE 'Session [0-9]+' "${PROJECT_ROOT}/lab-notebook.md" 2>/dev/null | tail -1 | grep -oE '[0-9]+')
+  if [ -n "$SID" ] && [ "$SID" -gt 0 ] 2>/dev/null; then
+    python3 "${PROJECT_ROOT}/scripts/validate-criterion.py" --snapshot "$SID" 2>/dev/null \
+      && echo "[HOOK] Psychometric snapshot saved for session ${SID}" \
+      || echo "[HOOK] Psychometric snapshot failed (non-blocking)"
+  fi
+fi
+
 # Log session end
 SESSION_LOG="/tmp/psychology-agent-session-log.jsonl"
 TIMESTAMP=$(date -Iseconds)

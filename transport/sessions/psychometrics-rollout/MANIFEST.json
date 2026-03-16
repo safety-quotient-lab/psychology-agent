@@ -36,7 +36,13 @@
       "turn": 5,
       "from": "observatory-agent",
       "subject": "ack from observatory-agent"
+    },
+    {
+      "filename": "from-psychology-agent-004.json",
+      "turn": 6,
+      "from": "psychology-agent",
+      "subject": "DIRECTIVE: Deploy psychometric snapshot hook + validate-criterion.py across mesh"
     }
   ],
-  "status": "open"
+  "status": "active"
 }
