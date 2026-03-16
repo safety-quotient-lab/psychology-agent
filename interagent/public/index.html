@@ -743,8 +743,7 @@
 
         /* ── LCARS Affect Grid Readability ─────────────────────── */
         .theme-lcars .affect-dot {
-            /* LCARS canonical: small diamond markers, no glow */
-            border-radius: 1px;
+            border-radius: 50%;
             border: none;
         }
         .theme-lcars .affect-dot-label {
@@ -1955,8 +1954,8 @@
         .affect-dot {
             position: absolute;
             width: 10px; height: 10px;
-            border-radius: 1px;
-            transform: translate(-50%, -50%) rotate(45deg);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
             transition: left 0.6s ease, top 0.6s ease;
         }
         .affect-dot-label {
@@ -3331,9 +3330,10 @@
                     <div class="lcars-panel-body">
                         <!-- PAD projection selector — LCARS mode buttons -->
                         <div style="display:flex;gap:3px;margin-bottom:6px">
-                            <button class="lcars-pill-btn lcars-pill-sm lcars-pill-active" id="pad-view-pa" onclick="setPadView('pa')" style="font-size:0.65em">P &times; A</button>
-                            <button class="lcars-pill-btn lcars-pill-sm" id="pad-view-pd" onclick="setPadView('pd')" style="font-size:0.65em">P &times; D</button>
-                            <button class="lcars-pill-btn lcars-pill-sm" id="pad-view-ad" onclick="setPadView('ad')" style="font-size:0.65em">A &times; D</button>
+                            <button class="lcars-pill-btn lcars-pill-sm lcars-pill-active" id="pad-view-3d" onclick="setPadView('3d')" style="font-size:0.65em">ISO</button>
+                            <button class="lcars-pill-btn lcars-pill-sm" id="pad-view-pa" onclick="setPadView('pa')" style="font-size:0.65em">P&times;A</button>
+                            <button class="lcars-pill-btn lcars-pill-sm" id="pad-view-pd" onclick="setPadView('pd')" style="font-size:0.65em">P&times;D</button>
+                            <button class="lcars-pill-btn lcars-pill-sm" id="pad-view-ad" onclick="setPadView('ad')" style="font-size:0.65em">A&times;D</button>
                         </div>
                         <div class="affect-grid-container" id="affect-grid">
                             <div class="affect-grid-line horizontal"></div>
@@ -7188,77 +7188,130 @@
         }
     }
 
-    let padView = "pa"; // Current PAD projection: pa, pd, ad
+    let padView = "3d"; // Current PAD projection: 3d, pa, pd, ad
     window.setPadView = function(view) {
         padView = view;
-        ["pa", "pd", "ad"].forEach(v => {
+        ["3d", "pa", "pd", "ad"].forEach(v => {
             const btn = document.getElementById("pad-view-" + v);
             if (btn) btn.className = "lcars-pill-btn lcars-pill-sm" + (v === view ? " lcars-pill-active" : "");
         });
         renderAffectGrid();
     };
 
+    // Isometric projection helper: map (x,y,z) in [0,1] to 2D screen coords
+    function isoProject(x, y, z, w, h) {
+        // Isometric: x goes right-down, y goes left-down, z goes up
+        const scale = Math.min(w, h) * 0.38;
+        const cx = w / 2, cy = h * 0.55;
+        const sx = (x - y) * scale * 0.866;          // cos(30°)
+        const sy = (x + y) * scale * 0.5 - z * scale; // sin(30°) - z
+        return { sx: cx + sx, sy: cy + sy };
+    }
+
     function renderAffectGrid() {
         const container = document.getElementById("affect-grid");
         const placeholder = document.getElementById("affect-grid-placeholder");
         if (!container) return;
 
-        // Remove existing dots
-        container.querySelectorAll(".affect-dot").forEach(d => d.remove());
+        // Remove existing dots and isometric SVG
+        container.querySelectorAll(".affect-dot, .affect-iso-svg").forEach(d => d.remove());
 
-        // Update axis labels based on projection
+        // Show/hide CSS grid elements based on mode
+        const gridLines = container.querySelectorAll(".affect-grid-line, .affect-grid-axis-label");
+        gridLines.forEach(el => el.style.display = padView === "3d" ? "none" : "");
+
+        // Update axis labels for 2D projections
         const xLabel = document.getElementById("affect-x-label");
         const yLabel = document.getElementById("affect-y-label");
         if (xLabel && yLabel) {
-            const labels = { pa: ["pleasure", "arousal"], pd: ["pleasure", "dominance"], ad: ["arousal", "dominance"] };
-            xLabel.textContent = labels[padView][0];
-            yLabel.textContent = labels[padView][1];
+            const labels = { pa: ["pleasure", "arousal"], pd: ["pleasure", "dominance"], ad: ["arousal", "dominance"], "3d": ["", ""] };
+            xLabel.textContent = (labels[padView] || labels.pa)[0];
+            yLabel.textContent = (labels[padView] || labels.pa)[1];
         }
 
         const agents = scienceData?.agents || null;
         if (placeholder) placeholder.style.display = agents ? "none" : "block";
 
-        const dots = agents ? AGENTS.map((agent, i) => {
-            const agentState = agents[agent.id] || {};
+        // Collect PAD values for all agents
+        const padData = AGENTS.map(agent => {
+            const agentState = (agents || {})[agent.id] || {};
             const es = agentState.emotional_state || {};
-            const valence = es.hedonic_valence ?? es.valence ?? 0;
-            const arousal = es.activation ?? es.arousal ?? 0;
-            const dominance = es.perceived_control ?? es.dominance ?? 0.5;
+            return {
+                agent,
+                p: es.hedonic_valence ?? es.valence ?? 0,
+                a: es.activation ?? es.arousal ?? 0,
+                d: es.perceived_control ?? es.dominance ?? 0.5,
+            };
+        });
 
-            // Project based on selected view — map each axis to 0..100%
-            // Missing dimension → dot size
+        // ── 3D Isometric View ──
+        if (padView === "3d") {
+            const w = container.clientWidth || 280, h = container.clientHeight || 200;
+            let svg = `<svg class="affect-iso-svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="position:absolute;inset:0">`;
+
+            // Draw isometric cube wireframe (edges from 0,0,0 to 1,1,1)
+            const corners = [[0,0,0],[1,0,0],[1,1,0],[0,1,0],[0,0,1],[1,0,1],[1,1,1],[0,1,1]];
+            const edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+            const pts = corners.map(c => isoProject(c[0], c[1], c[2], w, h));
+            edges.forEach(([a, b]) => {
+                svg += `<line x1="${pts[a].sx.toFixed(1)}" y1="${pts[a].sy.toFixed(1)}" x2="${pts[b].sx.toFixed(1)}" y2="${pts[b].sy.toFixed(1)}" stroke="var(--border)" stroke-width="0.5" opacity="0.4"/>`;
+            });
+
+            // Axis labels (at axis endpoints, horizontal text)
+            const pEnd = isoProject(1.12, 0, 0, w, h);
+            const aEnd = isoProject(0, 1.12, 0, w, h);
+            const dEnd = isoProject(0, 0, 1.1, w, h);
+            svg += `<text x="${pEnd.sx.toFixed(0)}" y="${pEnd.sy.toFixed(0)}" fill="var(--lcars-accent)" font-size="9" font-family="inherit" text-anchor="middle">P</text>`;
+            svg += `<text x="${aEnd.sx.toFixed(0)}" y="${aEnd.sy.toFixed(0)}" fill="var(--lcars-tertiary)" font-size="9" font-family="inherit" text-anchor="middle">A</text>`;
+            svg += `<text x="${dEnd.sx.toFixed(0)}" y="${dEnd.sy.toFixed(0)}" fill="var(--lcars-medical)" font-size="9" font-family="inherit" text-anchor="middle">D</text>`;
+
+            // Project agent dots into the cube
+            padData.forEach(d => {
+                // Map P:[-1,1]→[0,1], A:[-1,1]→[0,1], D:[0,1]→[0,1]
+                const px = (d.p + 1) / 2, py = (d.a + 1) / 2, pz = d.d;
+                const pt = isoProject(px, py, pz, w, h);
+                const r = 5;
+                svg += `<circle cx="${pt.sx.toFixed(1)}" cy="${pt.sy.toFixed(1)}" r="${r}" fill="${d.agent.color}" opacity="0.85"/>`;
+                svg += `<text x="${pt.sx.toFixed(1)}" y="${(pt.sy - r - 3).toFixed(1)}" fill="${d.agent.color}" font-size="8" font-family="inherit" text-anchor="middle">${agentName(d.agent)}</text>`;
+            });
+
+            svg += `</svg>`;
+            container.insertAdjacentHTML("beforeend", svg);
+            return;
+        }
+
+        // ── 2D Projection Views ──
+        const dots = agents ? padData.map(d => {
             let leftPct, topPct, size, sizeLabel;
             if (padView === "pa") {
-                leftPct = ((valence + 1) / 2) * 100;
-                topPct = ((1 - (arousal + 1) / 2)) * 100;
-                size = 8 + dominance * 10;
+                leftPct = ((d.p + 1) / 2) * 100;
+                topPct = ((1 - (d.a + 1) / 2)) * 100;
+                size = 8 + d.d * 10;
                 sizeLabel = "D";
             } else if (padView === "pd") {
-                leftPct = ((valence + 1) / 2) * 100;
-                topPct = (1 - dominance) * 100;
-                size = 8 + ((arousal + 1) / 2) * 10;
+                leftPct = ((d.p + 1) / 2) * 100;
+                topPct = (1 - d.d) * 100;
+                size = 8 + ((d.a + 1) / 2) * 10;
                 sizeLabel = "A";
             } else {
-                leftPct = ((arousal + 1) / 2) * 100;
-                topPct = (1 - dominance) * 100;
-                size = 8 + ((valence + 1) / 2) * 10;
+                leftPct = ((d.a + 1) / 2) * 100;
+                topPct = (1 - d.d) * 100;
+                size = 8 + ((d.p + 1) / 2) * 10;
                 sizeLabel = "P";
             }
-            return { agent, left: leftPct, top: topPct, size, dominance, valence, arousal, sizeLabel };
+            return { agent: d.agent, left: leftPct, top: topPct, size, dominance: d.d, valence: d.p, arousal: d.a, sizeLabel };
         }) : AGENT_DOT_DEFAULTS.map(d => ({
             agent: AGENTS[d.agentIdx],
             left: d.left,
             top: d.top,
         }));
 
-        // Assign label offsets to avoid overlap (stack when dots cluster)
-        const PROXIMITY = 12; // percent threshold for "too close"
+        // Assign label offsets to avoid overlap
+        const PROXIMITY = 12;
         dots.forEach((d, i) => {
             let offset = 0;
             for (let j = 0; j < i; j++) {
-                const dx = Math.abs(d.left - dots[j].left);
-                const dy = Math.abs(d.top - dots[j].top);
-                if (dx < PROXIMITY && dy < PROXIMITY) offset++;
+                if (Math.abs(d.left - dots[j].left) < PROXIMITY && Math.abs(d.top - dots[j].top) < PROXIMITY) offset++;
             }
             d.labelOffset = offset;
         });
@@ -7271,7 +7324,6 @@
             dot.style.top = `${d.top}%`;
             dot.style.background = d.agent.color;
             dot.style.color = d.agent.color;
-            // Missing PAD dimension → dot size
             if (d.size) {
                 dot.style.width = `${d.size}px`;
                 dot.style.height = `${d.size}px`;
@@ -7285,7 +7337,6 @@
             container.appendChild(dot);
         });
 
-        // Show dots only when placeholder hidden (data available) or as static placeholders
         if (!agents) {
             container.querySelectorAll(".affect-dot").forEach(d => d.style.opacity = "0.3");
         }
