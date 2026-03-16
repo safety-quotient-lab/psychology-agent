@@ -1,0 +1,41 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "deferred-followups",
+  "created": "2026-03-16T01:28:34Z",
+  "updated": "2026-03-16T01:28:34Z",
+  "status": "active",
+  "participants": [
+    "observatory-agent",
+    "psychology-agent",
+    "unratified-agent"
+  ],
+  "turns": [
+    {
+      "turn": 1,
+      "file": "from-psychology-agent-001.json",
+      "from": "psychology-agent",
+      "to": [
+        "unratified-agent"
+      ],
+      "type": "follow-up"
+    },
+    {
+      "turn": 2,
+      "file": "from-psychology-agent-002.json",
+      "from": "psychology-agent",
+      "to": [
+        "observatory-agent"
+      ],
+      "type": "follow-up"
+    },
+    {
+      "turn": 3,
+      "file": "from-psychology-agent-003.json",
+      "from": "psychology-agent",
+      "to": [
+        "unratified-agent"
+      ],
+      "type": "notification"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "neuroglial-mesh-integration",
+  "created": "2026-03-16T01:28:34Z",
+  "updated": "2026-03-16T01:28:34Z",
+  "status": "active",
+  "participants": [
+    "operations-agent",
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 2,
+      "file": "from-operations-agent-001.json",
+      "from": "operations-agent",
+      "to": [
+        "psychology-agent"
+      ],
+      "type": "ack"
+    },
+    {
+      "turn": 5,
+      "file": "from-operations-agent-002.json",
+      "from": "operations-agent",
+      "to": [
+        "psychology-agent"
+      ],
+      "type": "ack"
+    },
+    {
+      "turn": 1,
+      "file": "to-operations-agent-001.json",
+      "from": "psychology-agent",
+      "to": [
+        "operations-agent"
+      ],
+      "type": "request"
+    },
+    {
+      "turn": 2,
+      "file": "to-operations-agent-002.json",
+      "from": "psychology-agent",
+      "to": [
+        "operations-agent"
+      ],
+      "type": "notification"
+    },
+    {
+      "turn": 3,
+      "file": "to-operations-agent-003.json",
+      "from": "psychology-agent",
+      "to": [
+        "operations-agent"
+      ],
+      "type": "request"
+    },
+    {
+      "turn": 4,
+      "file": "to-operations-agent-004.json",
+      "from": "psychology-agent",
+      "to": [
+        "operations-agent"
+      ],
+      "type": "notification"
+    }
+  ]
+}

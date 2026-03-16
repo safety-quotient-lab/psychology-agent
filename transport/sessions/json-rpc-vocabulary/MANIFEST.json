@@ -1,0 +1,31 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "json-rpc-vocabulary",
+  "created": "2026-03-16T01:28:34Z",
+  "updated": "2026-03-16T01:28:34Z",
+  "status": "active",
+  "participants": [
+    "operations-agent",
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 2,
+      "file": "from-operations-agent-001.json",
+      "from": "operations-agent",
+      "to": [
+        "psychology-agent"
+      ],
+      "type": "ack"
+    },
+    {
+      "turn": 1,
+      "file": "to-operations-agent-001.json",
+      "from": "psychology-agent",
+      "to": [
+        "operations-agent"
+      ],
+      "type": "request"
+    }
+  ]
+}

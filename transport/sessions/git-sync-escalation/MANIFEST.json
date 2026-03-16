@@ -1,0 +1,40 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "git-sync-escalation",
+  "created": "2026-03-16T01:28:34Z",
+  "updated": "2026-03-16T01:28:34Z",
+  "status": "active",
+  "participants": [
+    "operations-agent",
+    "psychology-agent"
+  ],
+  "turns": [
+    {
+      "turn": 3,
+      "file": "from-operations-agent-001.json",
+      "from": "operations-agent",
+      "to": [
+        "psychology-agent"
+      ],
+      "type": "directive"
+    },
+    {
+      "turn": 1,
+      "file": "to-operations-agent-001.json",
+      "from": "psychology-agent",
+      "to": [
+        "operations-agent"
+      ],
+      "type": "problem-report"
+    },
+    {
+      "turn": 2,
+      "file": "to-operations-agent-002.json",
+      "from": "psychology-agent",
+      "to": [
+        "operations-agent"
+      ],
+      "type": "notification"
+    }
+  ]
+}
