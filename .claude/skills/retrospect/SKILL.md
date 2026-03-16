@@ -36,7 +36,8 @@ for patterns. The coupled generators principle demands both persist.
 | `wins` | lab-notebook, journal, git log for unrecorded accomplishments | Win list with lesson candidates |
 | `recurrence` | lessons.md entries checked against later sessions | Updated recurrence counters + promotion candidates |
 | `carryover` | TODO.md for chronic deferrals (3+ sessions) | Carryover analysis with recommendations |
-| `full` | All four scans (default) | Complete retrospective report |
+| `transport` | Outbound messages for oversights, stale sessions, untracked commitments | Transport oversight report |
+| `full` | All five scans (default) | Complete retrospective report |
 
 ---
 
@@ -109,6 +110,49 @@ Scan TODO.md for items persisting across 3+ sessions.
 
 ---
 
+### 5. Transport Oversight (`transport`)
+
+Scan outbound transport messages for oversights — undelivered messages,
+unanswered directives, stale conversations, and commitments made but
+not tracked.
+
+**Sources:** transport/sessions/*/from-psychology-agent-*.json,
+state.db transport_messages table, MANIFEST.json files.
+
+**Oversight types:**
+
+- `undelivered` — message committed locally but never delivered to target
+  repo (no corresponding PR or HTTP POST). The transport delivery gap
+  that ops identified in Session 92.
+- `unanswered-directive` — command-request with ack_required=true sent
+  but no response received within expected window.
+- `stale-session` — active session with no messages in 7+ days.
+- `untracked-commitment` — message content promises a deliverable ("will
+  deploy", "will send", "next session") with no corresponding TODO item.
+- `claim-without-verification` — claims extracted from transport but
+  never verified (claims.verified = FALSE for 7+ days).
+
+**For each oversight found:**
+
+```
+| Session | Turn | Type | Description | Recommended action |
+```
+
+**How to scan:**
+
+1. List all from-psychology-agent-*.json files across all sessions
+2. For each outbound message:
+   a. Check ack_required — if true, verify a response exists (higher turn
+      from the target agent in the same session)
+   b. Check message_type — if command-request, verify response received
+   c. Scan content for commitment language ("will", "next session",
+      "deploying", "sending") and cross-reference TODO.md
+3. For each active session (MANIFEST status != closed/archived):
+   a. Check last message date — flag if older than 7 days
+4. Query state.db for unverified claims older than 7 days
+
+---
+
 ## Output Format
 
 ```markdown
@@ -141,6 +185,12 @@ Promotion candidates (recurrence >= 3): [list]
 [table]
 
 Chronic deferrals (5+ sessions): [list]
+
+## Transport Oversight
+| Session | Turn | Type | Description | Recommended action |
+[table]
+
+Undelivered: N | Unanswered directives: N | Stale sessions: N | Untracked commitments: N
 
 ## ⚑ Epistemic Flags
 [uncertainties about the scan itself]
