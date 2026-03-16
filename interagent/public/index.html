@@ -7022,9 +7022,11 @@
                 } catch {}
             }
 
-            // Build scienceData with the shape renderers expect
-            // Use operations-agent as the primary "self" view, mesh data for aggregate
-            const primary = opsPsych || Object.values(meshPsych.agents || {}).find(a => a && !a.error) || {};
+            // Build scienceData: pick the agent with the richest psychometrics as primary
+            // (psychology-agent typically has the most complete data)
+            const agentEntries = Object.entries(meshPsych.agents || {}).filter(([, d]) => d && !d.error);
+            const richest = agentEntries.sort(([, a], [, b]) => Object.keys(b).length - Object.keys(a).length)[0];
+            const primary = (richest ? richest[1] : null) || opsPsych || {};
             scienceData = {
                 psychometrics: {
                     cognitive_load: primary.workload || null,
@@ -7057,6 +7059,14 @@
         renderWorkingMemory();
         renderResources();
         renderEngagement();
+        // Update status line
+        const statusLine = document.getElementById("science-status-line");
+        if (statusLine && scienceData) {
+            const agentCount = Object.keys(scienceData.agents || {}).length;
+            const constructs = scienceData.psychometrics ? Object.values(scienceData.psychometrics).filter(v => v != null).length : 0;
+            const affect = scienceData.mesh?.affect?.mesh_affect_category || "unknown";
+            statusLine.textContent = `Psychometric Sensors: ${agentCount} agents \u00B7 Constructs: ${constructs}/7 \u00B7 Mesh Affect: ${affect.replace("mesh-", "")}`;
+        }
     }
 
     // ── Sensor: Cognitive Load (NASA-TLX) ─────────────────────────
