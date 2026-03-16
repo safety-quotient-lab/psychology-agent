@@ -110,10 +110,26 @@ test:
 	@go test ./... 2>&1
 	@echo "  test: done"
 
-# ── Full deploy ───────────────────────────────────────────────
-deploy: deploy-worker deploy-meshd deploy-validate
+# ── Smart deploy — skip meshd if only dashboard changed ───────
+deploy:
+	@LAST_DEPLOYED=$$(. ./.dev.vars 2>/dev/null; $(SSH_CMD) 'cat /home/kashif/platform/.meshd-version 2>/dev/null || echo none'); \
+	GO_CHANGED=$$(git diff --name-only $$LAST_DEPLOYED HEAD 2>/dev/null | grep -E '\.(go|mod|sum)$$' | head -1); \
+	if [ -n "$$GO_CHANGED" ] || [ "$$LAST_DEPLOYED" = "none" ]; then \
+		echo "Go code changed — full deploy (worker + meshd)"; \
+		$(MAKE) deploy-worker deploy-meshd deploy-validate; \
+	else \
+		echo "Only dashboard/docs changed — worker-only deploy (skipping meshd)"; \
+		$(MAKE) deploy-worker deploy-validate; \
+	fi
+	@. ./.dev.vars 2>/dev/null; $(SSH_CMD) "echo $(VERSION) > /home/kashif/platform/.meshd-version"
 	@echo ""
 	@echo "Deploy complete ($(VERSION))."
+
+# Full deploy (force all)
+deploy-full: deploy-worker deploy-meshd deploy-validate
+	@. ./.dev.vars 2>/dev/null; $(SSH_CMD) "echo $(VERSION) > /home/kashif/platform/.meshd-version"
+	@echo ""
+	@echo "Full deploy complete ($(VERSION))."
 
 deploy-worker: sync-dashboard
 	@echo "═══ Deploying CF Worker ═══"

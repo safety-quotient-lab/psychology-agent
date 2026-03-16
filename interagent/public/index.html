@@ -217,12 +217,14 @@
            │████ FOOTER BAND
            ╰████████████████████
            The cap's bottom-left corner carries the frame's outer radius. */
-        /* Sidebar arm — fills gap between last button and footer cap */
+        /* Sidebar arm — fills gap between last button and footer cap.
+           Matches sidebar cap color (purple/lavender in LCARS 47988). */
         .lcars-sidebar-arm {
             flex: 1;
-            background: var(--c-frame-dim, #ccaa88);
+            background: var(--c-knowledge);
             min-height: 20px;
             margin-bottom: 3px;
+            border-radius: 12px 0 0 12px;
         }
 
         .lcars-sidebar-cap-bottom {
