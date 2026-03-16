@@ -147,7 +147,7 @@ Each agent adds to their agent-card.json `personality.big_five`:
 
 | Agent | O | C | E | A | N | Rationale |
 |-------|---|---|---|---|---|-----------|
-| psychology-agent | 0.85 | 0.90 | 0.60 | 0.35 | 0.55 | High openness (theory), low agreeableness (anti-sycophancy) |
+| psychology-agent | 0.85 | 0.90 | 0.60 | 0.65 | 0.55 | High openness (theory), moderate agreeableness (recalibrated Session 92 — behavioral validation showed 0.35 inconsistent with observed evaluative patterns) |
 | safety-quotient-agent | 0.50 | 0.95 | 0.40 | 0.60 | 0.30 | High conscientiousness (calibration), low openness (empirical focus) |
 | unratified-agent | 0.70 | 0.75 | 0.80 | 0.70 | 0.40 | High extraversion (public-facing), high agreeableness (audience-oriented) |
 | observatory-agent | 0.55 | 0.85 | 0.35 | 0.80 | 0.45 | High agreeableness (consensus facilitator), low extraversion (neutral) |
@@ -288,10 +288,11 @@ sent to operations-agent (psychometrics-rollout session, turn 6).
   calibration against their own workload profile.
 - Big Five personality scores represent design choices, not psychometric
   measurement. No factor analysis validates the structure for agent systems.
-- **Agreeableness=0.35 fails behavioral validation** (Session 92). The design
-  parameter does not predict observed behavior. Either the parameter needs
-  recalibration, or the anti-sycophancy mechanisms (T14, pushback-accumulator)
-  lack sufficient behavioral force to override LLM base tendencies.
+- **Agreeableness recalibrated from 0.35 to 0.65** (Session 92). Behavioral
+  validation showed the 0.35 design parameter inconsistent with observed
+  evaluative patterns (positive impression ratio 0.970, but evaluative
+  frequency only 3.6%). Anti-sycophancy maintained via T14 substitution
+  patterns and T6 pushback checks rather than a low Agreeableness score.
 - Epistemic calibration validates (ρ=0.479) but reveals systematic overconfidence.
   Claims below 0.91 confidence verify at 0% — the low-confidence region carries
   no discriminative value.
