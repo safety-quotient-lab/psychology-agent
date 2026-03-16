@@ -1,35 +1,43 @@
 /**
- * pulse.js — Pulse station (TNG: Main Bridge viewscreen status overview).
+ * pulse.js — Pulse station (main bridge viewscreen status overview).
  *
- * Renders the primary dashboard: agent vitals, agent cards, mesh topology,
- * and activity stream. Fetches agent status from each agent's /api/status
- * endpoint.
+ * Extracted from inline <script> in index.html.
+ * Renders vitals, agent cards, mesh topology, activity stream, status dots.
+ * Manages the primary data refresh cycle.
  *
  * Data endpoints:
  *   GET {agent.url}/api/status — per-agent health, budget, gates, messages
  *
  * DOM dependencies: #vital-agents, #vital-budget, #vital-pending, #vital-gates,
- *   #vital-debt, #ops-badge, #agents-grid, #topology-svg, #activity-stream
- *
- * Global state accessed: AGENTS, agentData, activeAgentFilter
- * Global functions called: switchTab, switchAgent, filterTable, parseTS (via utils)
+ *   #vital-debt, #ops-badge, #agents-grid, #topology-svg, #activity-stream,
+ *   #mesh-status-dots, #pulse-status-line, #footer-status
  */
 
-import { escapeHtml, parseTS, formatTS } from '../core/utils.js';
+import {
+    fmtNum, agentName, escapeHtml, parseTS, formatTS,
+    setTrackedValue, pushSparkValue,
+} from '../core/utils.js';
 
-// ── Severity Classification ────────────────────────────────────
+// ── Exported Module State ──────────────────────────────────────
+// agentData holds the global state store — populated by refreshAll,
+// consumed by every station.
+export let agentData = {};
 
-/**
- * Map a message type to a severity CSS class.
- * @param {string} messageType — e.g. "problem-report", "ack", "directive"
- * @returns {string} — CSS class: severity-info, severity-warning, severity-error, severity-success
- */
-function classifyMessageSeverity(messageType) {
-    const type = (messageType || "").toLowerCase();
-    if (type.includes("problem") || type.includes("error") || type.includes("fail")) return "severity-error";
-    if (type.includes("warn") || type.includes("escalat")) return "severity-warning";
-    if (type.includes("ack") || type.includes("complete") || type.includes("resolved")) return "severity-success";
-    return "severity-info";
+// ── Helper Functions ───────────────────────────────────────────
+
+function getDeliberations(autonomyBlock) {
+    const b = autonomyBlock || {};
+    if (b.budget_spent !== undefined) return Math.round(parseFloat(b.budget_spent) || 0);
+    if (b.budget_max !== undefined && b.budget_current !== undefined) {
+        return Math.round((parseFloat(b.budget_max) || 0) - (parseFloat(b.budget_current) || 0));
+    }
+    return 0;
+}
+
+function getCutoff(autonomyBlock) {
+    const b = autonomyBlock || {};
+    if (b.budget_cutoff !== undefined) return Math.round(parseFloat(b.budget_cutoff) || 0);
+    return 0;
 }
 
 // ── Data Fetching ──────────────────────────────────────────────
@@ -50,73 +58,128 @@ export async function fetchAgentStatus(agent) {
 }
 
 /**
- * Fetch all agent statuses and store results into agentData.
- * Triggers renderPulse and renderOperations after completion.
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — mutable store keyed by agent id
+ * Refresh all agent data and re-render.
+ * @param {Array} AGENTS — main agent config array
+ * @param {Object} opts — { sseActive, refreshKnowledge, renderOperations,
+ *   updateLcarsHeaderData, evaluateAlertLevel, addNarrativeEntry,
+ *   generateMeshNarrative, mirrorToLcars }
  * @returns {Promise<void>}
  */
-export async function fetchPulseData(AGENTS, agentData) {
+export async function refreshAll(AGENTS, opts = {}) {
     const results = await Promise.allSettled(AGENTS.map(fetchAgentStatus));
     results.forEach((r, i) => {
         agentData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "unreachable" };
     });
+    try { renderPulse(AGENTS, opts); } catch(e) { console.error("renderPulse failed:", e); }
+    try { if (opts.renderOperations) opts.renderOperations(); } catch(e) { console.error("renderOperations failed:", e); }
+
+    // Fetch KB data (non-blocking — renders when ready)
+    if (opts.refreshKnowledge) opts.refreshKnowledge();
+
+    const mode = opts.sseActive ? "● SSE live" : "○ polling 30s";
+    const footerEl = document.getElementById("footer-status");
+    if (footerEl) {
+        footerEl.textContent = `Updated ${new Date().toLocaleTimeString()} · ${mode}`;
+    }
+
+    // Update LCARS header/footer band data if in LCARS mode
+    if (document.body.classList.contains("theme-lcars")) {
+        if (opts.updateLcarsHeaderData) opts.updateLcarsHeaderData();
+        if (opts.evaluateAlertLevel) opts.evaluateAlertLevel();
+        const ftrFeed = document.getElementById("lcars-ftr-feed");
+        if (ftrFeed) ftrFeed.textContent = `Feed: ${opts.sseActive ? "\u25CF Live" : "\u25CB Polling"}`;
+        if (opts.addNarrativeEntry && opts.generateMeshNarrative) {
+            opts.addNarrativeEntry(opts.generateMeshNarrative());
+        }
+    }
 }
 
 // ── Render: Vitals ─────────────────────────────────────────────
 
-/**
- * Update the vitals bar at the top of the Pulse pane.
- * DOM WRITE: #vital-agents, #vital-budget, #vital-pending, #vital-gates,
- *            #vital-debt, #ops-badge
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — fetched agent data
- */
-export function renderVitals(AGENTS, agentData) {
+function renderVitals(AGENTS) {
     const online = Object.values(agentData).filter(a => a.status === "online");
     const total = AGENTS.length;
 
-    // Spend-counter model: budget_spent increments, budget_cutoff sets limit (0=unlimited)
-    const totalSpent = online.reduce((sum, a) => {
-        const b = a.data?.autonomy_budget || {};
-        return sum + (b.budget_spent ?? 0);
-    }, 0);
-    const totalCutoff = online.reduce((sum, a) => {
-        const b = a.data?.autonomy_budget || {};
-        return sum + (b.budget_cutoff ?? 0);
-    }, 0);
+    const totalDeliberations = online.reduce((sum, a) =>
+        sum + getDeliberations(a.data?.autonomy_budget), 0);
+    const totalCutoff = online.reduce((sum, a) =>
+        sum + getCutoff(a.data?.autonomy_budget), 0);
     const pending = online.reduce((sum, a) => sum + ((a.data?.totals || {}).unprocessed || 0), 0);
     const gates = online.reduce((sum, a) => sum + (a.data?.active_gates || []).length, 0);
     const debt = online.reduce((sum, a) => sum + ((a.data?.totals || {}).epistemic_flags_unresolved || 0), 0);
 
     const agentsEl = document.getElementById("vital-agents");
-    agentsEl.textContent = `${online.length}/${total}`;
-    agentsEl.className = "vital-value " + (online.length === total ? "healthy" : online.length > 0 ? "degraded" : "critical");
+    if (agentsEl) {
+        agentsEl.className = "vital-value " + (online.length === total ? "healthy" : online.length > 0 ? "degraded" : "critical");
+    }
+    setTrackedValue("vital-agents", online.length, { suffix: `/${total}` });
+    setTrackedValue("vital-budget", totalDeliberations, {
+        suffix: totalCutoff > 0 ? `/${totalCutoff}` : ""
+    });
+    setTrackedValue("vital-pending", pending);
+    setTrackedValue("vital-gates", gates);
+    setTrackedValue("vital-debt", debt, { inverted: true });
 
-    document.getElementById("vital-budget").textContent = `${totalSpent}/${totalCutoff} spent`;
-    document.getElementById("vital-pending").textContent = pending;
-    document.getElementById("vital-gates").textContent = gates;
-    document.getElementById("vital-debt").textContent = debt;
+    // Accumulate sparkline history
+    pushSparkValue("mesh-delib", totalDeliberations);
+    pushSparkValue("mesh-pending", pending);
+    pushSparkValue("mesh-gates", gates);
+    pushSparkValue("mesh-online", online.length);
+    for (const agent of AGENTS) {
+        const d = agentData[agent.id];
+        if (d?.status === "online") {
+            pushSparkValue(`delib-${agent.id}`, getDeliberations(d.data?.autonomy_budget));
+        }
+    }
 
     // Update ops badge
     if (pending > 0) {
         const badge = document.getElementById("ops-badge");
-        badge.textContent = pending;
-        badge.style.display = "inline";
+        if (badge) {
+            badge.textContent = pending;
+            badge.style.display = "inline";
+        }
     }
+}
+
+// ── Render: LCARS Data Grid ────────────────────────────────────
+
+function renderLcarsDataGrid(AGENTS) {
+    const el = document.getElementById("lcars-data-grid");
+    if (!el) return;
+
+    const online = Object.values(agentData).filter(a => a.status === "online");
+    const totalDelib = online.reduce((s, a) => s + getDeliberations(a.data?.autonomy_budget), 0);
+    const totalMsgs = online.reduce((s, a) => s + (a.data?.recent_messages?.length || 0), 0);
+    const pendingCount = online.reduce((s, a) => s + (a.data?.unprocessed_messages?.length || 0), 0);
+    const decisions = online.reduce((s, a) => s + (a.data?.active_gates?.length || 0), 0);
+    const events = online.reduce((s, a) => s + (a.data?.event_count || 0), 0);
+
+    const colors = ["#cc99cc", "#ff9966", "#9999ff", "#cc6699", "#ff9900", "#6aab8e", "#5b9cf6"];
+
+    const metrics = [
+        { val: fmtNum(totalDelib), label: "DELIB" },
+        { val: fmtNum(totalMsgs), label: "MSG" },
+        { val: fmtNum(pendingCount), label: "PEND" },
+        { val: fmtNum(decisions), label: "GATE" },
+        { val: fmtNum(events), label: "EVT" },
+        { val: online.length + "/" + AGENTS.length, label: "AGENTS" },
+    ];
+
+    el.innerHTML = metrics.map((m, i) => {
+        const bg = colors[i % colors.length];
+        return `<div style="display:inline-flex; gap:2px;">
+            <div style="background:${bg}; border-radius:10px 0 0 10px; padding:4px 8px; color:#000; font-weight:700; font-size:0.82em; min-width:36px; text-align:right;">${m.val}</div>
+            <div style="background:color-mix(in srgb, ${bg} 40%, #111); border-radius:0 10px 10px 0; padding:4px 8px; color:${bg}; font-size:0.65em; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; display:flex; align-items:center;">${m.label}</div>
+        </div>`;
+    }).join("");
 }
 
 // ── Render: Agent Cards ────────────────────────────────────────
 
-/**
- * Render agent status cards in the agents grid.
- * DOM WRITE: #agents-grid (innerHTML replacement)
- * NOTE: onclick handlers reference global switchAgent and switchTab.
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — fetched agent data
- */
-export function renderAgentCards(AGENTS, agentData) {
+function renderAgentCards(AGENTS, opts) {
     const grid = document.getElementById("agents-grid");
+    if (!grid) return;
     grid.innerHTML = "";
 
     for (const agent of AGENTS) {
@@ -125,7 +188,7 @@ export function renderAgentCards(AGENTS, agentData) {
         card.className = "lcars-panel agent-card";
         card.dataset.agent = agent.id;
         card.style.cursor = "pointer";
-        card.onclick = () => { switchAgent(agent.id); switchTab('meta'); };
+        card.onclick = () => { window.switchAgent(agent.id); window.switchTab('meta'); };
 
         if (state.status !== "online") {
             card.innerHTML = `
@@ -145,11 +208,12 @@ export function renderAgentCards(AGENTS, agentData) {
         }
 
         const d = state.data;
-        const budget = d.autonomy_budget || {};
-        const spent = budget.budget_spent ?? 0;
-        const cutoff = budget.budget_cutoff ?? 0;
-        const pct = cutoff > 0 ? Math.round((1 - spent / cutoff) * 100) : 100;
-        const budgetClass = pct > 50 ? "high" : pct > 20 ? "mid" : "low";
+        const autonomy = d.autonomy_budget || {};
+        const deliberations = getDeliberations(autonomy);
+        const cutoff = getCutoff(autonomy);
+        const pct = cutoff > 0 ? Math.round((deliberations / cutoff) * 100) : 0;
+        const counterClass = pct < 60 ? "high" : pct < 85 ? "mid" : "low";
+        const counterLabel = cutoff > 0 ? `${deliberations}/${cutoff}` : `${deliberations}`;
         const unprocessed = (d.totals || {}).unprocessed || 0;
         const gateCount = (d.active_gates || []).length;
         const schema = d.schema_version || "?";
@@ -167,8 +231,8 @@ export function renderAgentCards(AGENTS, agentData) {
                 </div>
                 <div class="agent-metrics">
                     <div class="agent-metric">
-                        <div class="agent-metric-value">${spent}/${cutoff}</div>
-                        <div class="agent-metric-label">Spent</div>
+                        <div class="agent-metric-value">${counterLabel}</div>
+                        <div class="agent-metric-label">Autonomy</div>
                     </div>
                     <div class="agent-metric">
                         <div class="agent-metric-value">${unprocessed}</div>
@@ -180,7 +244,7 @@ export function renderAgentCards(AGENTS, agentData) {
                     </div>
                 </div>
                 <div class="budget-bar-track">
-                    <div class="budget-bar-fill ${budgetClass}" style="width: ${pct}%"></div>
+                    <div class="budget-bar-fill ${counterClass}" style="width: ${cutoff > 0 ? pct : 0}%"></div>
                 </div>
                 <div class="agent-detail-row">
                     <span>Schema v${schema}</span>
@@ -190,78 +254,94 @@ export function renderAgentCards(AGENTS, agentData) {
 
         grid.appendChild(card);
     }
+    if (opts?.mirrorToLcars) opts.mirrorToLcars("agents-grid", "lcars-ops-agents-grid");
 }
 
 // ── Render: Topology ───────────────────────────────────────────
 
-/**
- * Render the mesh topology SVG showing agent nodes and edges.
- * DOM WRITE: #topology-svg (innerHTML replacement)
- * NOTE: onclick handlers reference global switchAgent and switchTab.
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — fetched agent data
- */
-export function renderTopology(AGENTS, agentData) {
+function renderTopology(AGENTS, opts) {
     const svg = document.getElementById("topology-svg");
+    if (!svg) return;
     const positions = [
-        { x: 300, y: 55 },   // top
-        { x: 520, y: 160 },  // right
-        { x: 300, y: 265 },  // bottom
-        { x: 80, y: 160 },   // left
+        { x: 300, y: 55 },
+        { x: 520, y: 160 },
+        { x: 300, y: 265 },
+        { x: 80, y: 160 },
     ];
 
     let html = "";
 
-    // Draw edges between all pairs — each edge carries a data-edge id for activity highlighting
+    // Grid overlay
+    const gridColor = "rgba(153,153,255,0.08)";
+    const labelColor = "rgba(153,153,255,0.25)";
+    for (let x = 60; x < 580; x += 60) {
+        html += `<line x1="${x}" y1="0" x2="${x}" y2="340" stroke="${gridColor}" stroke-width="0.5" stroke-dasharray="2,4"/>`;
+    }
+    for (let y = 40; y < 340; y += 60) {
+        html += `<line x1="0" y1="${y}" x2="600" y2="${y}" stroke="${gridColor}" stroke-width="0.5" stroke-dasharray="2,4"/>`;
+    }
+    const sectors = ["001", "002", "003", "004", "005", "006", "007", "008", "009"];
+    sectors.forEach((s, i) => {
+        html += `<text x="${60 + i * 60}" y="335" fill="${labelColor}" font-size="8" text-anchor="middle" font-family="monospace">${s}</text>`;
+    });
+
+    // Draw edges — curved arcs
     for (let i = 0; i < AGENTS.length; i++) {
         for (let j = i + 1; j < AGENTS.length; j++) {
             const a = positions[i], b = positions[j];
-            const edgeId = `${AGENTS[i].id}--${AGENTS[j].id}`;
-            html += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"
-                data-edge="${edgeId}"
-                stroke="var(--topo-edge)" stroke-width="5" opacity="var(--topo-edge-opacity)"/>`;
+            const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+            const dx = b.x - a.x, dy = b.y - a.y;
+            const cx = mx - dy * 0.15, cy = my + dx * 0.15;
+            html += `<path d="M${a.x},${a.y} Q${cx},${cy} ${b.x},${b.y}"
+                fill="none" stroke="var(--topo-edge)" stroke-width="2" opacity="var(--topo-edge-opacity)"/>`;
         }
     }
 
-    // Draw nodes — linked to agent dashboards, with activity indicator classes
+    // Draw nodes
     for (let i = 0; i < AGENTS.length; i++) {
         const agent = AGENTS[i];
         const pos = positions[i];
         const state = agentData[agent.id];
         const online = state?.status === "online";
         const fill = online ? agent.color : "var(--c-inactive)";
+        const delib = online ? getDeliberations(state.data?.autonomy_budget) : 0;
 
-        html += `<g class="node-idle" data-agent-node="${agent.id}"
-                style="cursor:pointer" onclick="switchAgent('${agent.id}');switchTab('meta')">
+        html += `<g style="cursor:pointer" onclick="switchAgent('${agent.id}');switchTab('meta')">
             <circle cx="${pos.x}" cy="${pos.y}" r="45"
-                fill="${fill}" opacity="${online ? 0.12 : 0.05}"
-                stroke="${fill}" stroke-width="5"/>
+                fill="${fill}" opacity="${online ? 0.10 : 0.04}"
+                stroke="${fill}" stroke-width="2"/>
             <circle cx="${pos.x}" cy="${pos.y}" r="16" fill="${fill}"
                 opacity="${online ? 1 : 0.3}">
                 ${online ? `<animate attributeName="r" values="15;19;15" dur="3s" repeatCount="indefinite"/>` : ""}
             </circle>
-            <text x="${pos.x}" y="${pos.y + 72}" text-anchor="middle"
-                font-size="21" font-family="inherit" font-weight="bold"
-                fill="currentColor" class="topo-text-label">
-                ${agent.id.replace("-agent", "")}
+            <text x="${pos.x}" y="${pos.y + 56}" text-anchor="middle"
+                font-size="16" font-family="inherit" font-weight="bold"
+                fill="currentColor">
+                ${agentName(agent, AGENTS)}
             </text>
+            ${online ? `<text x="${pos.x}" y="${pos.y + 70}" text-anchor="middle"
+                font-size="9" font-family="monospace" fill="${labelColor}">
+                ${delib} delib
+            </text>` : ""}
         </g>`;
     }
 
     svg.innerHTML = html;
+
+    const topoFtr = document.getElementById("topo-footer-num");
+    if (topoFtr) {
+        const onlineCount = Object.values(agentData).filter(a => a.status === "online").length;
+        topoFtr.textContent = onlineCount + "/" + AGENTS.length;
+    }
+
+    if (opts?.mirrorToLcars) opts.mirrorToLcars("topology-svg", "lcars-topology-svg");
 }
 
 // ── Render: Activity Stream ────────────────────────────────────
 
-/**
- * Render the recent activity stream with deduplication.
- * DOM WRITE: #activity-stream (innerHTML replacement)
- * NOTE: onclick handlers reference global switchTab and filterTable.
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — fetched agent data
- */
-export function renderActivity(AGENTS, agentData) {
+function renderActivity(AGENTS, opts) {
     const container = document.getElementById("activity-stream");
+    if (!container) return;
     const allMessages = [];
 
     for (const agent of AGENTS) {
@@ -280,15 +360,13 @@ export function renderActivity(AGENTS, agentData) {
         });
     }
 
-    // Deduplicate: exact match by session+from+timestamp, plus
-    // near-duplicate suppression (same session+subject within 5 seconds)
+    // Deduplicate
     const seen = new Set();
-    const recentKeys = new Map(); // contentKey -> timestamp for 5s dedup
+    const recentKeys = new Map();
     const unique = allMessages.filter(m => {
         const key = `${m.session}-${m.from}-${m.timestamp}`;
         if (seen.has(key)) return false;
         seen.add(key);
-        // 5-second content dedup: same session + subject within 5s window
         const contentKey = `${m.session}-${m.subject}`;
         const ts = parseTS(m.timestamp);
         const prev = recentKeys.get(contentKey);
@@ -307,324 +385,76 @@ export function renderActivity(AGENTS, agentData) {
     container.innerHTML = display.map(m => {
         const time = formatTS(m.timestamp);
         const sess = escapeHtml(m.session || '');
-        const severity = classifyMessageSeverity(m.type);
         return `<a href="#pane-meta" class="activity-item activity-link" onclick="switchTab('meta');document.getElementById('filter-messages').value='${sess}';filterTable('messages');return false;">
             <span class="activity-time">${time}</span>
             <span class="activity-route">
-                <span class="from">${m.from.replace("-agent", "")}</span>
-                &rarr; <span class="to">${m.to.replace("-agent", "")}</span>
+                <span class="from">${agentName(m.from, AGENTS)}</span>
+                &rarr; <span class="to">${agentName(m.to, AGENTS)}</span>
             </span>
-            <span class="activity-type ${severity}">${m.type}</span>
+            <span class="activity-type">${m.type}</span>
         </a>`;
     }).join("");
-}
-
-// ── Topology Activity Indicators ──────────────────────────────
-
-/**
- * Pulse a topology node when SSE reports agent activity.
- * Applies .node-active for 3 seconds, then reverts to .node-idle.
- * @param {string} agentId — the agent whose node should pulse
- */
-export function pulseTopologyNode(agentId) {
-    const node = document.querySelector(`[data-agent-node="${agentId}"]`);
-    if (!node) return;
-    node.classList.replace("node-idle", "node-active");
-    clearTimeout(node._pulseTimer);
-    node._pulseTimer = setTimeout(() => {
-        node.classList.replace("node-active", "node-idle");
-    }, 3000);
-}
-
-/**
- * Flash a topology edge when SSE reports a message delivery between agents.
- * Applies .edge-active for ~500ms (CSS animation handles the timing).
- * @param {string} fromAgent — sender agent id
- * @param {string} toAgent — receiver agent id
- */
-export function flashTopologyEdge(fromAgent, toAgent) {
-    const svg = document.getElementById("topology-svg");
-    if (!svg) return;
-    // Edge data-edge uses alphabetical agent ordering
-    const pair = [fromAgent, toAgent].sort();
-    const edgeId = `${pair[0]}--${pair[1]}`;
-    const line = svg.querySelector(`[data-edge="${edgeId}"]`);
-    if (!line) return;
-    line.classList.remove("edge-active");
-    // Force reflow to restart animation
-    void line.offsetWidth;
-    line.classList.add("edge-active");
-    setTimeout(() => line.classList.remove("edge-active"), 600);
-}
-
-// ── Render: Mesh Affect Widget ─────────────────────────────
-
-/**
- * Classify affect from valence/activation into a label + color tier.
- * @param {number} valence — -1..1 hedonic valence
- * @param {number} activation — 0..1 arousal level
- * @returns {{ label: string, tier: string }}
- */
-function classifyAffect(valence, activation) {
-    if (valence > 0.3 && activation > 0.5) return { label: "ENGAGED", tier: "positive" };
-    if (valence > 0.2 && activation <= 0.5) return { label: "CALM", tier: "positive" };
-    if (valence < -0.2 && activation > 0.5) return { label: "STRESSED", tier: "negative" };
-    if (valence < -0.2 && activation <= 0.5) return { label: "FATIGUED", tier: "negative" };
-    if (activation > 0.6) return { label: "ALERT", tier: "neutral" };
-    return { label: "STEADY", tier: "neutral" };
-}
-
-/**
- * Fetch psychometrics from each agent and render the Mesh Affect widget.
- * Falls back to agentData PAD scores if /api/psychometrics unavailable.
- * DOM WRITE: #affect-label, #affect-valence-bar, #affect-valence-val,
- *            #affect-activation-bar, #affect-activation-val
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — fetched agent data
- */
-async function renderOrganismAffect(AGENTS, agentData) {
-    const labelEl = document.getElementById("affect-label");
-    const valBar = document.getElementById("affect-valence-bar");
-    const valVal = document.getElementById("affect-valence-val");
-    const actBar = document.getElementById("affect-activation-bar");
-    const actVal = document.getElementById("affect-activation-val");
-    if (!labelEl) return;
-
-    let valenceSum = 0, activationSum = 0, count = 0;
-
-    // Attempt /api/psychometrics fetch from each online agent
-    const fetches = AGENTS.map(async (agent) => {
-        try {
-            const resp = await fetch(`${agent.url}/api/psychometrics`, { signal: AbortSignal.timeout(5000) });
-            if (!resp.ok) return null;
-            return await resp.json();
-        } catch { return null; }
-    });
-    const results = await Promise.allSettled(fetches);
-
-    results.forEach((r) => {
-        if (r.status !== "fulfilled" || !r.value) return;
-        const data = r.value;
-        // Extract PAD pleasure (valence) and arousal (activation)
-        const pad = data.pad || data.PAD || {};
-        const pleasure = pad.pleasure ?? pad.valence ?? null;
-        const arousal = pad.arousal ?? pad.activation ?? null;
-        if (pleasure != null && arousal != null) {
-            valenceSum += pleasure;
-            activationSum += arousal;
-            count++;
-        }
-    });
-
-    // Fallback: extract from agentData if psychometrics endpoints yielded nothing
-    if (count === 0) {
-        Object.values(agentData).forEach(a => {
-            if (a.status !== "online") return;
-            const pad = a.data?.psychometrics?.pad || {};
-            const pleasure = pad.pleasure ?? pad.valence ?? null;
-            const arousal = pad.arousal ?? pad.activation ?? null;
-            if (pleasure != null && arousal != null) {
-                valenceSum += pleasure;
-                activationSum += arousal;
-                count++;
-            }
-        });
-    }
-
-    if (count === 0) {
-        labelEl.textContent = "NO DATA";
-        labelEl.className = "affect-label-pill";
-        valBar.style.width = "50%";
-        valBar.className = "affect-bar-fill";
-        actBar.style.width = "50%";
-        actBar.className = "affect-bar-fill";
-        valVal.textContent = "--";
-        actVal.textContent = "--";
-        return;
-    }
-
-    const avgValence = valenceSum / count;       // -1..1
-    const avgActivation = activationSum / count; // 0..1
-
-    const { label, tier } = classifyAffect(avgValence, avgActivation);
-    labelEl.textContent = label;
-    labelEl.className = `affect-label-pill affect-${tier}`;
-
-    // Valence bar: map -1..1 to 0..100%
-    const valPct = Math.round(((avgValence + 1) / 2) * 100);
-    valBar.style.width = `${valPct}%`;
-    valBar.className = `affect-bar-fill bar-${tier}`;
-    valVal.textContent = avgValence.toFixed(2);
-
-    // Activation bar: map 0..1 to 0..100%
-    const actPct = Math.round(avgActivation * 100);
-    actBar.style.width = `${actPct}%`;
-    actBar.className = `affect-bar-fill bar-${tier}`;
-    actVal.textContent = avgActivation.toFixed(2);
-}
-
-// ── Render: Consensus Gates Widget ────────────────────────────
-
-/**
- * Fetch consensus data from operations-agent and render the gates widget.
- * DOM WRITE: #gates-open, #gates-resolved, #gates-tiers
- * @param {Array} AGENTS — agent config array
- */
-async function renderConsensusGates(AGENTS) {
-    const openEl = document.getElementById("gates-open");
-    const resolvedEl = document.getElementById("gates-resolved");
-    const tiersEl = document.getElementById("gates-tiers");
-    if (!openEl) return;
-
-    let consensusData = null;
-
-    // Try ops-agent /api/consensus first, then /api/operations
-    for (const agent of AGENTS) {
-        for (const path of ["/api/consensus", "/api/operations"]) {
-            try {
-                const resp = await fetch(`${agent.url}${path}`, { signal: AbortSignal.timeout(5000) });
-                if (!resp.ok) continue;
-                const data = await resp.json();
-                if (data.gates || data.consensus) {
-                    consensusData = data.gates || data.consensus || data;
-                    break;
-                }
-            } catch { /* continue */ }
-        }
-        if (consensusData) break;
-    }
-
-    if (!consensusData) {
-        openEl.textContent = "0";
-        resolvedEl.textContent = "0";
-        tiersEl.innerHTML = `<span class="gate-tier-badge gate-tier-c1">No data</span>`;
-        return;
-    }
-
-    const open = consensusData.open ?? consensusData.open_count ?? 0;
-    const resolved = consensusData.resolved_today ?? consensusData.resolved ?? 0;
-    openEl.textContent = open;
-    resolvedEl.textContent = resolved;
-
-    // Tier breakdown
-    const tiers = consensusData.tiers || consensusData.tier_breakdown || {};
-    const c1 = tiers.C1 ?? tiers.c1 ?? 0;
-    const c2 = tiers.C2 ?? tiers.c2 ?? 0;
-    const c3 = tiers.C3 ?? tiers.c3 ?? 0;
-
-    tiersEl.innerHTML = [
-        c1 > 0 ? `<span class="gate-tier-badge gate-tier-c1">C1: ${c1}</span>` : "",
-        c2 > 0 ? `<span class="gate-tier-badge gate-tier-c2">C2: ${c2}</span>` : "",
-        c3 > 0 ? `<span class="gate-tier-badge gate-tier-c3">C3: ${c3}</span>` : "",
-    ].filter(Boolean).join("") || `<span class="gate-tier-badge gate-tier-c1">C1: 0</span>`;
-}
-
-// ── Render: Cost Ticker Widget ────────────────────────────────
-
-/**
- * Fetch spawn-rate data and render the cost ticker widget.
- * DOM WRITE: #cost-today, #cost-rate
- * @param {Array} AGENTS — agent config array
- */
-async function renderCostTicker(AGENTS) {
-    const totalEl = document.getElementById("cost-today");
-    const rateEl = document.getElementById("cost-rate");
-    if (!totalEl) return;
-
-    let spawnData = null;
-
-    for (const agent of AGENTS) {
-        try {
-            const resp = await fetch(`${agent.url}/api/spawn-rate`, { signal: AbortSignal.timeout(5000) });
-            if (!resp.ok) continue;
-            spawnData = await resp.json();
-            if (spawnData) break;
-        } catch { /* continue */ }
-    }
-
-    if (!spawnData) {
-        totalEl.textContent = "$0.00";
-        rateEl.textContent = "No spawn data available";
-        return;
-    }
-
-    const lastHour = spawnData.last_hour || spawnData.lastHour || {};
-    const totalCost = lastHour.total_cost ?? spawnData.total_cost ?? spawnData.cost_today ?? 0;
-    const hourlyRate = lastHour.hourly_rate ?? spawnData.hourly_rate ?? null;
-    const spawnsPerHour = lastHour.spawns ?? spawnData.spawns_per_hour ?? null;
-
-    totalEl.textContent = `$${Number(totalCost).toFixed(2)}`;
-
-    const parts = [];
-    if (hourlyRate != null) parts.push(`$${Number(hourlyRate).toFixed(2)}/hr projected`);
-    else if (spawnsPerHour != null) parts.push(`${spawnsPerHour} spawns/hr`);
-    rateEl.textContent = parts.length > 0 ? parts.join(" · ") : "Accumulating data...";
-}
-
-// ── Render: Mesh Narrative ────────────────────────────────────
-
-/**
- * Generate a template-based narrative from available agent data.
- * No LLM call — pure string interpolation.
- * DOM WRITE: #mesh-narrative
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — fetched agent data
- */
-function renderMeshNarrative(AGENTS, agentData) {
-    const el = document.getElementById("mesh-narrative");
-    if (!el) return;
-
-    const online = Object.values(agentData).filter(a => a.status === "online");
-    const total = AGENTS.length;
-    const sentences = [];
-
-    if (online.length === 0) {
-        el.textContent = "All agents remain unreachable. The mesh awaits connection.";
-        return;
-    }
-
-    if (online.length === total) {
-        sentences.push(`All ${total} agents report online.`);
-    } else {
-        const offline = AGENTS.filter(a => !online.find(o => o.id === a.id)).map(a => a.id.replace("-agent", ""));
-        sentences.push(`${online.length} of ${total} agents report online. ${offline.join(", ")} remain${offline.length === 1 ? "s" : ""} unreachable.`);
-    }
-
-    // Aggregate pending messages
-    const pending = online.reduce((sum, a) => sum + ((a.data?.totals || {}).unprocessed || 0), 0);
-    if (pending > 0) {
-        sentences.push(`${pending} message${pending !== 1 ? "s" : ""} await${pending === 1 ? "s" : ""} processing.`);
-    }
-
-    // Budget summary
-    const totalBudgetSpent = online.reduce((sum, a) => sum + ((a.data?.autonomy_budget || {}).budget_spent ?? 0), 0);
-    const totalBudgetCutoff = online.reduce((sum, a) => sum + ((a.data?.autonomy_budget || {}).budget_cutoff ?? 0), 0);
-    if (totalBudgetCutoff > 0) {
-        const pct = Math.round((1 - totalBudgetSpent / totalBudgetCutoff) * 100);
-        sentences.push(`Autonomy budget holds at ${pct}% capacity (${totalBudgetSpent}/${totalBudgetCutoff} spent).`);
-    } else {
-        sentences.push(`Autonomy budget: unlimited (${totalBudgetSpent} deliberations, no cutoff).`);
-    }
-
-    el.textContent = sentences.join(" ");
+    if (opts?.mirrorToLcars) opts.mirrorToLcars("activity-stream", "lcars-ops-activity");
 }
 
 // ── Render: Combined ───────────────────────────────────────────
 
 /**
- * Render all Pulse station sub-sections.
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — fetched agent data
+ * Render all Pulse station panels.
+ * @param {Array} AGENTS — main agent config array
+ * @param {Object} opts — mirror/callback options
  */
-export function renderPulse(AGENTS, agentData) {
-    renderVitals(AGENTS, agentData);
-    renderAgentCards(AGENTS, agentData);
-    renderTopology(AGENTS, agentData);
-    renderActivity(AGENTS, agentData);
-    renderMeshNarrative(AGENTS, agentData);
+export function renderPulse(AGENTS, opts = {}) {
+    renderVitals(AGENTS);
+    renderLcarsDataGrid(AGENTS);
+    renderAgentCards(AGENTS, opts);
+    renderTopology(AGENTS, opts);
+    renderActivity(AGENTS, opts);
+    renderMeshStatusDots(AGENTS);
+    // Update Pulse status line (LCARS)
+    const pulseStatus = document.getElementById("pulse-status-line");
+    if (pulseStatus) {
+        const agents = Object.values(agentData);
+        const online = agents.filter(a => a?.status === "online").length;
+        const total = AGENTS.length;
+        const time = new Date().toLocaleTimeString();
+        const health = online === total ? "Nominal" : "Degraded";
+        pulseStatus.textContent = `Mesh Status: ${health} \u00B7 Agents: ${online}/${total} Online \u00B7 Last Sync: ${time}`;
+    }
+}
 
-    // Async widgets — fetch independently, render when data arrives
-    renderOrganismAffect(AGENTS, agentData);
-    renderConsensusGates(AGENTS);
-    renderCostTicker(AGENTS);
+function renderMeshStatusDots(AGENTS) {
+    const el = document.getElementById("mesh-status-dots");
+    if (!el) return;
+    const online = Object.values(agentData).filter(a => a.status === "online");
+    const total = AGENTS.length;
+    const pending = online.reduce((s, a) => s + ((a.data?.totals || {}).unprocessed || 0), 0);
+    const gates = online.reduce((s, a) => s + (a.data?.active_gates || []).length, 0);
+
+    const subsystems = [
+        { label: "TRANSPORT LINK", color: online.length === total ? "green" : online.length > 0 ? "amber" : "red" },
+        { label: "AGENT DISCOVERY", color: online.length >= Math.ceil(total * 0.8) ? "green" : "amber" },
+        { label: "VOCABULARY DATABASE", color: "green" },
+        { label: "MESSAGE QUEUE", color: pending > 5 ? "amber" : pending > 0 ? "blue" : "green" },
+        { label: "CONSENSUS GATES", color: gates > 3 ? "amber" : gates > 0 ? "blue" : "green" },
+    ];
+
+    el.innerHTML = subsystems.map(s =>
+        `<div class="lcars-status-dot-row">
+            <span class="lcars-status-dot-indicator ${s.color}"></span>
+            <span class="lcars-status-dot-label">${s.label}</span>
+        </div>`
+    ).join("");
+}
+
+/**
+ * Render narrative log entries.
+ * @param {Array} narrativeEntries — array of { time, text }
+ */
+export function renderNarrativeLog(narrativeEntries) {
+    const log = document.getElementById("lcars-narrative-log");
+    if (!log) return;
+    log.innerHTML = narrativeEntries.map(e =>
+        `<div class="lcars-narrative-entry"><span class="lcars-narrative-time">${e.time}</span>${e.text}</div>`
+    ).join("");
 }
