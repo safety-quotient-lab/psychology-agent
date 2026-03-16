@@ -276,10 +276,18 @@
             color: #000;
             white-space: nowrap;
             overflow: hidden;
+            justify-content: flex-end;
+        }
+        /* First header segment: title — left-aligned */
+        .lcars-header-seg:first-child {
+            justify-content: flex-start;
+            font-size: 0.85em;
+            letter-spacing: 0.1em;
         }
         /* Last header segment: rounded right end (pill cap) */
         .lcars-header-seg:last-child {
             border-radius: 0 var(--elbow-inner) var(--elbow-inner) 0;
+            justify-content: center;
         }
 
         /* ── LCARS Footer Band (Segmented) ─────────────────────────── */
@@ -301,6 +309,7 @@
         .lcars-footer-seg {
             display: flex;
             align-items: center;
+            justify-content: flex-end;
             padding: 4px 14px;
             font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
             font-size: 0.72em;
