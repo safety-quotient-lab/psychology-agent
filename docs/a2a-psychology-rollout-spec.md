@@ -216,6 +216,53 @@ once per session when making mesh management decisions.
 
 ---
 
+## Construct Validation (Session 92)
+
+### Validation instruments
+
+| Instrument | Script | What it tests | Status |
+|---|---|---|---|
+| Criterion validity (retrospective) | `validate-criterion.py` | Do computed constructs predict session outcomes? | Complete — all retrospective correlations tautological or collinear |
+| Criterion validity (prospective) | `validate-criterion.py --snapshot` | Same, using independent live sensor data | Collecting (Session 92+, ~20 sessions needed) |
+| Epistemic calibration | `validate-epistemic-calibration.py` | Do confidence scores predict verification outcomes? | **✓ Validated** — ρ=0.479, p<0.0001, n=412 |
+| Anti-sycophancy compliance | `validate-anti-sycophancy.py` | Does Agreeableness=0.35 manifest in behavior? | **✗ Failed** — observed ratio 0.970, inconsistent with design |
+| Impressions detector | `impressions-detector.py` | Sycophantic pattern frequency and drift | Sensor operational — feeds anti-sycophancy validator |
+
+### Key findings
+
+1. **Epistemic calibration** represents the first A2A-Psychology construct with
+   genuine criterion validity. Confidence scores at write-time predict verification
+   outcomes at review-time (independent processes, no circularity). However, the
+   system runs **overconfident**: claims below 0.91 confidence verify at 0%,
+   while claims above 0.91 verify at 91%. Brier score = 0.180 (below random
+   but above the 0.15 "useful forecasting" threshold).
+
+2. **Anti-sycophancy fails behavioral validation.** The Agreeableness=0.35 design
+   parameter does not manifest in transcript behavior. Positive-to-negative
+   impression ratio = 94.9% (strongly agreeable). The agent withholds disagreement
+   rather than actively challenging. Negative drift (-0.287) suggests the agent
+   becomes less sycophantic over session length — the opposite of fatigue-driven
+   compliance.
+
+3. **Retrospective criterion validity cannot break circularity.** Of 21
+   construct-outcome pairs, 9 proved tautological (construct formulas derive from
+   outcomes). The remaining 12 showed collinearity (commit_count ↔ files_changed
+   ρ=0.659). Prospective snapshot collection — wired into session-end hook — will
+   provide independent sensor data after ~20 sessions.
+
+### Prospective data collection
+
+The session-end hook (`session-end-check.sh`) now captures a psychometric
+snapshot via `validate-criterion.py --snapshot`. This logs live
+`compute-psychometrics.py` output (including context_pressure, tool_calls,
+pushback_count — the independent sensors) to the `event_log` table before
+ephemeral session data disappears.
+
+**Deployment requirement:** Each mesh agent needs the snapshot hook. Directive
+sent to operations-agent (psychometrics-rollout session, turn 6).
+
+---
+
 ## Files Delivered
 
 | File | Location | Purpose |
@@ -223,6 +270,9 @@ once per session when making mesh management decisions.
 | `compute-psychometrics.py` | scripts/ (shared) | PAD + TLX + Resources + WM + Supervisory + Engagement + Flow |
 | `compute-mesh-constructs.py` | scripts/ (shared) | Transactive Memory + Metacognition + Decision Fatigue + Convergence |
 | `psychometric-calibration-check.py` | scripts/ (shared) | /diagnose integration — 5 calibration verifications |
+| `validate-criterion.py` | scripts/ | Criterion validity analysis + prospective snapshot collection |
+| `validate-epistemic-calibration.py` | scripts/ | Epistemic calibration criterion validity (first validated construct) |
+| `validate-anti-sycophancy.py` | scripts/ | Anti-sycophancy behavioral validation against Agreeableness design |
 | `session-metrics.sh` | .claude/hooks/ (per agent) | PostToolUse sensor: tool calls, duration, context, real-time recompute |
 | `mesh-state-export.py` | platform/shared/scripts/ | mesh-state/v2 with psychometric fields |
 | `mesh-psychometrics-plan.md` | docs/ | Full instrument inventory + sensor/lever tables |
@@ -238,6 +288,13 @@ once per session when making mesh management decisions.
   calibration against their own workload profile.
 - Big Five personality scores represent design choices, not psychometric
   measurement. No factor analysis validates the structure for agent systems.
+- **Agreeableness=0.35 fails behavioral validation** (Session 92). The design
+  parameter does not predict observed behavior. Either the parameter needs
+  recalibration, or the anti-sycophancy mechanisms (T14, pushback-accumulator)
+  lack sufficient behavioral force to override LLM base tendencies.
+- Epistemic calibration validates (ρ=0.479) but reveals systematic overconfidence.
+  Claims below 0.91 confidence verify at 0% — the low-confidence region carries
+  no discriminative value.
 - The validation experiment measures whether humans USE the data, not whether
   the data accurately represents agent state. Both questions matter; this
   experiment addresses only the first.
