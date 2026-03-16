@@ -2869,27 +2869,34 @@
         <!-- Pulse Tab -->
         <div class="tab-pane active" id="pane-pulse">
             <div class="lcars-status-line" id="pulse-status-line">Mesh Status: Connecting &middot; Agents: — &middot; Last Sync: —</div>
-            <!-- Mesh vitals -->
+
+            <!-- Topology graph (moved to top — primary LCARS spatial display) -->
+            <div class="lcars-panel topology-container" style="margin-bottom: 16px">
+                <div class="lcars-panel-header">Mesh Topology</div>
+                <div class="lcars-panel-body">
+                    <svg class="topology-svg" id="topology-svg" viewBox="0 0 600 340"></svg>
+                    <div class="lcars-status-dots" id="mesh-status-dots" style="margin-top:8px;"></div>
+                </div>
+                <div class="lcars-panel-footer">Mesh Topology<span class="lcars-panel-footer-num" id="topo-footer-num">5 nodes</span></div>
+            </div>
+
+            <!-- Mesh vitals (no sparklines — LCARS canon uses capsules not inline charts) -->
             <div class="vitals-grid" id="vitals-grid">
                 <div class="vital-card" style="--vital-color: var(--c-health)">
                     <div class="vital-value" id="vital-agents">—</div>
                     <div class="vital-label">Agents Online</div>
-                    <div class="sparkline-container" id="spark-online"></div>
                 </div>
                 <div class="vital-card" style="--vital-color: var(--c-knowledge)">
                     <div class="vital-value" id="vital-budget">—</div>
                     <div class="vital-label">Deliberations</div>
-                    <div class="sparkline-container" id="spark-delib"></div>
                 </div>
                 <div class="vital-card vital-link" style="--vital-color: var(--c-transport); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('filter-messages').value='';filterTable('messages');document.getElementById('kb-sec-messages').scrollIntoView({behavior:'smooth'})},120)">
                     <div class="vital-value" id="vital-pending">—</div>
                     <div class="vital-label">Pending Messages</div>
-                    <div class="sparkline-container" id="spark-pending"></div>
                 </div>
                 <div class="vital-card vital-link" style="--vital-color: var(--c-catalog); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('kb-sec-messages').scrollIntoView({behavior:'smooth'})},120)">
                     <div class="vital-value" id="vital-gates">—</div>
                     <div class="vital-label">Active Gates</div>
-                    <div class="sparkline-container" id="spark-gates"></div>
                 </div>
                 <div class="vital-card vital-link" style="--vital-color: var(--c-epistemic); cursor:pointer" onclick="switchTab('meta');setTimeout(()=>{document.getElementById('kb-sec-debt').scrollIntoView({behavior:'smooth'})},120)">
                     <div class="vital-value" id="vital-debt">—</div>
@@ -2897,16 +2904,7 @@
                 </div>
             </div>
 
-            <!-- Topology graph -->
-            <div class="lcars-panel topology-container" style="margin-bottom: 24px">
-                <div class="lcars-panel-header">Mesh Topology</div>
-                <div class="lcars-panel-body">
-                    <svg class="topology-svg" id="topology-svg" viewBox="0 0 600 340"></svg>
-                    <!-- Status indicator dots — system subsystems -->
-                    <div class="lcars-status-dots" id="mesh-status-dots" style="margin-top:8px;"></div>
-                </div>
-                <div class="lcars-panel-footer">Mesh Topology<span class="lcars-panel-footer-num" id="topo-footer-num">5 nodes</span></div>
-            </div>
+            <!-- Topology moved to top of Pulse tab -->
 
             <!-- W1: Numeric Data Grid (LCARS 47988 pattern) -->
             <div id="lcars-data-grid" style="display:flex; flex-wrap:wrap; gap:3px; margin-bottom:16px;"></div>
@@ -4877,20 +4875,6 @@
             }
         }
 
-        // Render sparklines into vitals cards
-        const sparkMap = [
-            ["spark-online", "mesh-online", "var(--c-health)"],
-            ["spark-delib", "mesh-delib", "var(--c-knowledge)"],
-            ["spark-pending", "mesh-pending", "var(--c-transport)"],
-            ["spark-gates", "mesh-gates", "var(--c-catalog)"],
-        ];
-        for (const [elId, key, color] of sparkMap) {
-            const el = document.getElementById(elId);
-            if (el && sparkHistory[key]?.length >= 2) {
-                el.innerHTML = sparklineSVG(sparkHistory[key], { width: 56, height: 14, stroke: color, fill: color });
-            }
-        }
-
         // Update ops badge
         if (pending > 0) {
             const badge = document.getElementById("ops-badge");
@@ -6799,9 +6783,6 @@
                 </div>
                 <div class="lcars-subsystem-bar">
                     <div class="lcars-subsystem-bar-fill" style="width:${online ? pct : 0}%;background:${barColor}"></div>
-                </div>
-                <div style="display:flex;justify-content:flex-end;margin-top:2px;">
-                    <span class="sparkline-container">${sparklineSVG(sparkHistory["delib-" + agent.id] || [], { width: 64, height: 14, stroke: agent.color, fill: agent.color })}</span>
                 </div>
             </div>`;
         }
