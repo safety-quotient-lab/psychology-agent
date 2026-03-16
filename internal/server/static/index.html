@@ -3154,17 +3154,8 @@
 
         <!-- Operations Tab -->
         <div class="tab-pane" id="pane-operations">
-            <!-- Status + Controls side by side -->
-            <div style="display:flex; gap:16px; margin-bottom:12px; flex-wrap:wrap;">
-                <!-- Status (left, fills available space) -->
-                <div class="lcars-panel" style="flex:1; min-width:240px; --panel-accent:var(--c-health)">
-                    <div class="lcars-panel-header">Status</div>
-                    <div class="lcars-panel-body" id="ops-status-monologue" style="font-size:0.88rem; line-height:1.6; padding:0.5rem 0.8rem; opacity:0.92;">
-                        Collecting mesh state...
-                    </div>
-                </div>
-                <!-- Controls (right, grouped stacks) -->
-                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <!-- Controls — grouped stacks -->
+            <div style="display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
                     <div style="display:flex; flex-direction:column; gap:3px; min-width:110px;">
                         <button class="lcars-pill-btn ops-ctrl" style="background:#cc6666" onclick="meshControl('pause-all')" id="btn-pause">PAUSE</button>
                         <button class="lcars-pill-btn ops-ctrl ops-ctrl-active" style="background:#6aab8e" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
@@ -3181,7 +3172,6 @@
                     <div style="display:flex; flex-direction:column; gap:3px; min-width:110px;">
                         <button class="lcars-pill-btn ops-ctrl" style="background:#4ecdc4" onclick="refreshAll()">SYNC NOW</button>
                     </div>
-                </div>
             </div>
 
             <!-- Mesh health aggregate indicators -->
