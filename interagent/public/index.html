@@ -7621,18 +7621,53 @@
         }
 
         if (placeholder) placeholder.style.display = "none";
-        container.querySelectorAll(".gc-bar-row").forEach(r => r.remove());
+        container.querySelectorAll(".gc-bar-row, .gc-area-chart").forEach(r => r.remove());
 
         const totalGc = gcEntries.reduce((s, e) => s + e.total, 0);
 
-        // Summary
+        // Accumulate Gc history for area chart
+        pushSparkValue("gc-total", totalGc);
+        pushSparkValue("gc-hooks", gcEntries.reduce((s, e) => s + e.hooks, 0));
+        pushSparkValue("gc-triggers", gcEntries.reduce((s, e) => s + e.triggers, 0));
+        pushSparkValue("gc-events", gcEntries.reduce((s, e) => s + e.events, 0));
+
+        // Area chart — stacked Gc streams (Data Analysis 103138 pattern)
+        const gcHistory = sparkHistory["gc-total"] || [];
+        if (gcHistory.length >= 2) {
+            const chartW = container.clientWidth || 300, chartH = 50;
+            const maxH = Math.max(1, ...gcHistory);
+            const pad = 2;
+            const points = gcHistory.map((v, i) => {
+                const x = pad + (i / (gcHistory.length - 1)) * (chartW - 2 * pad);
+                const y = chartH - pad - ((v / maxH) * (chartH - 2 * pad));
+                return x.toFixed(1) + "," + y.toFixed(1);
+            });
+            const polyline = points.join(" ");
+            const areaPoints = pad + "," + (chartH - pad) + " " + polyline + " " + (pad + ((gcHistory.length - 1) / (gcHistory.length - 1)) * (chartW - 2 * pad)).toFixed(1) + "," + (chartH - pad);
+
+            const chart = document.createElement("div");
+            chart.className = "gc-area-chart";
+            chart.style.cssText = "margin-bottom:8px;border:1px solid rgba(153,153,255,0.2);border-radius:2px;padding:2px";
+            chart.innerHTML = `<svg width="${chartW}" height="${chartH}" viewBox="0 0 ${chartW} ${chartH}" style="display:block">
+                <polygon points="${areaPoints}" fill="#cc99cc" opacity="0.15"/>
+                <polyline points="${polyline}" fill="none" stroke="#cc99cc" stroke-width="1.5" stroke-linejoin="round"/>
+                <circle cx="${points[points.length - 1].split(",")[0]}" cy="${points[points.length - 1].split(",")[1]}" r="3" fill="#cc99cc"/>
+            </svg>`;
+            container.appendChild(chart);
+        }
+
+        // Summary capsule
         const summary = document.createElement("div");
         summary.className = "gc-bar-row";
-        summary.style.cssText = "margin-bottom:8px;font-size:0.85em;opacity:0.8";
-        summary.innerHTML = `<span>Total crystallized operations: <strong>${fmtNum(totalGc)}</strong> (hooks + triggers + events + tempo)</span>`;
+        summary.style.cssText = "margin-bottom:8px;font-size:0.82em;display:flex;gap:12px;flex-wrap:wrap";
+        summary.innerHTML = `<span style="color:#cc99cc">Gc Total: <strong>${fmtNum(totalGc)}</strong></span>
+            <span style="color:var(--text-dim)">hooks ${fmtNum(gcEntries.reduce((s,e)=>s+e.hooks,0))}</span>
+            <span style="color:var(--text-dim)">triggers ${fmtNum(gcEntries.reduce((s,e)=>s+e.triggers,0))}</span>
+            <span style="color:var(--text-dim)">events ${fmtNum(gcEntries.reduce((s,e)=>s+e.events,0))}</span>
+            <span style="color:var(--text-dim)">tempo ${fmtNum(gcEntries.reduce((s,e)=>s+e.tempo,0))}</span>`;
         container.appendChild(summary);
 
-        // Per-agent bars — total Gc operations
+        // Per-agent bars
         const maxVal = Math.max(1, ...gcEntries.map(e => e.total));
         gcEntries.forEach(entry => {
             const pct = (entry.total / maxVal * 100);

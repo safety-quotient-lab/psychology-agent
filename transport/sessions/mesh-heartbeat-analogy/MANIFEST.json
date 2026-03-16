@@ -1,0 +1,8 @@
+{
+  "session_id": "mesh-heartbeat-analogy",
+  "created": "2026-03-16T01:30:00Z",
+  "status": "open",
+  "participants": ["operations-agent", "psychology-agent"],
+  "turn_count": 1,
+  "summary": "Where does the heartbeat live in the mesh neurological analogy?"
+}
