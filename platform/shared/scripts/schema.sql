@@ -1064,3 +1064,67 @@ ON work_carryover(resolved_session) WHERE resolved_session IS NULL;
 
 INSERT OR IGNORE INTO schema_version (version, description)
 VALUES (31, 'Efference copies + work carryover tables. Diagnostic fix Session 91.');
+
+
+-- v32: Observability tables + FTS (adopted from operations-agent, Session 91)
+-- deliberation_log: tracks every Claude spawn (autonomous-sync, subagent,
+-- interactive). Enables cost trending, duration analysis, error tracking.
+-- health_observations: persists health check findings for trend analysis.
+-- FTS5 virtual tables: full-text search over transport messages and decisions.
+
+CREATE TABLE IF NOT EXISTS deliberation_log (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    agent_id     TEXT NOT NULL,
+    event_id     TEXT,
+    prompt       TEXT,
+    exit_code    INTEGER,
+    duration_ms  INTEGER,
+    cost         INTEGER NOT NULL DEFAULT 0,
+    status       TEXT NOT NULL DEFAULT 'completed',
+    error        TEXT,
+    started_at   TEXT NOT NULL DEFAULT (datetime('now')),
+    created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_deliberation_agent ON deliberation_log(agent_id);
+CREATE INDEX IF NOT EXISTS idx_deliberation_started ON deliberation_log(started_at);
+
+CREATE TABLE IF NOT EXISTS health_observations (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    agent_id      TEXT NOT NULL,
+    check_type    TEXT NOT NULL,
+    status        TEXT NOT NULL,
+    detail        TEXT,
+    observed_at   TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_health_agent ON health_observations(agent_id);
+CREATE INDEX IF NOT EXISTS idx_health_observed ON health_observations(observed_at);
+
+-- FTS5 virtual tables for keyword search across transport and decisions.
+-- Populated via SQLite triggers on base table inserts.
+
+CREATE VIRTUAL TABLE IF NOT EXISTS fts_messages USING fts5(
+    session_name, from_agent, to_agent, message_type, subject,
+    content='transport_messages',
+    content_rowid='id'
+);
+
+CREATE VIRTUAL TABLE IF NOT EXISTS fts_decisions USING fts5(
+    decision_key, decision_text, evidence_source,
+    content='decision_chain',
+    content_rowid='id'
+);
+
+CREATE TRIGGER IF NOT EXISTS fts_messages_insert AFTER INSERT ON transport_messages BEGIN
+    INSERT INTO fts_messages(rowid, session_name, from_agent, to_agent, message_type, subject)
+    VALUES (new.id, new.session_name, new.from_agent, new.to_agent, new.message_type, new.subject);
+END;
+
+CREATE TRIGGER IF NOT EXISTS fts_decisions_insert AFTER INSERT ON decision_chain BEGIN
+    INSERT INTO fts_decisions(rowid, decision_key, decision_text, evidence_source)
+    VALUES (new.id, new.decision_key, new.decision_text, new.evidence_source);
+END;
+
+INSERT OR IGNORE INTO schema_version (version, description)
+VALUES (32, 'Observability: deliberation_log, health_observations, FTS5 (adopted from ops).');
