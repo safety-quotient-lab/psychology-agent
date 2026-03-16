@@ -4,7 +4,9 @@
 # Supplements MEMORY.md auto-load with mechanical reminders.
 source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
-PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+# Invalidate agent ID cache so _debug.sh re-resolves from settings.local.json
+_AGENT_ID_CACHE="/tmp/$(echo "$PROJECT_ROOT" | shasum 2>/dev/null | cut -c1-8 || echo "default")-agent-id"
+rm -f "$_AGENT_ID_CACHE" 2>/dev/null
 
 # Auto-bootstrap memory if missing
 _HASH="$(echo "$PROJECT_ROOT" | tr '/' '-')"
