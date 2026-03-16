@@ -3154,16 +3154,32 @@
 
         <!-- Operations Tab -->
         <div class="tab-pane" id="pane-operations">
-            <!-- Command Console — LCARS uniform control surface -->
-            <div class="ops-control-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:3px; margin-bottom:12px;">
-                <button class="lcars-pill-btn ops-ctrl" style="background:#cc6666" onclick="meshControl('pause-all')" id="btn-pause">PAUSE MESH</button>
-                <button class="lcars-pill-btn ops-ctrl" style="background:#6aab8e" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
-                <button class="lcars-pill-btn ops-ctrl" style="background:#5b9cf6" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
-                <button class="lcars-pill-btn ops-ctrl" style="background:#666;color:#ccc" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
-                <button class="lcars-pill-btn ops-ctrl ops-model-btn" style="background:#cc99cc" onclick="meshControl('model-haiku')" id="btn-haiku">MODEL: HAIKU</button>
-                <button class="lcars-pill-btn ops-ctrl ops-model-btn ops-ctrl-active" style="background:#ff9944" onclick="meshControl('model-sonnet')" id="btn-sonnet">MODEL: SONNET</button>
-                <button class="lcars-pill-btn ops-ctrl ops-model-btn" style="background:#cc99cc" onclick="meshControl('model-opus')" id="btn-opus">MODEL: OPUS</button>
-                <button class="lcars-pill-btn ops-ctrl" style="background:#4ecdc4" onclick="refreshAll()">SYNC NOW</button>
+            <!-- Command Console — grouped control stacks -->
+            <div style="display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
+                <!-- Mesh State -->
+                <div style="display:flex; flex-direction:column; gap:3px; min-width:120px;">
+                    <div style="font-size:0.62em; text-transform:uppercase; letter-spacing:0.1em; opacity:0.5; padding-left:12px; margin-bottom:2px;">Mesh State</div>
+                    <button class="lcars-pill-btn ops-ctrl" style="background:#cc6666" onclick="meshControl('pause-all')" id="btn-pause">PAUSE</button>
+                    <button class="lcars-pill-btn ops-ctrl ops-ctrl-active" style="background:#6aab8e" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
+                </div>
+                <!-- Capacity -->
+                <div style="display:flex; flex-direction:column; gap:3px; min-width:120px;">
+                    <div style="font-size:0.62em; text-transform:uppercase; letter-spacing:0.1em; opacity:0.5; padding-left:12px; margin-bottom:2px;">Capacity</div>
+                    <button class="lcars-pill-btn ops-ctrl" style="background:#5b9cf6" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
+                    <button class="lcars-pill-btn ops-ctrl ops-ctrl-active" style="background:#666;color:#ccc" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
+                </div>
+                <!-- Model Tier -->
+                <div style="display:flex; flex-direction:column; gap:3px; min-width:120px;">
+                    <div style="font-size:0.62em; text-transform:uppercase; letter-spacing:0.1em; opacity:0.5; padding-left:12px; margin-bottom:2px;">Model Tier</div>
+                    <button class="lcars-pill-btn ops-ctrl ops-model-btn" style="background:#cc99cc" onclick="meshControl('model-haiku')" id="btn-haiku">HAIKU</button>
+                    <button class="lcars-pill-btn ops-ctrl ops-model-btn ops-ctrl-active" style="background:#ff9944" onclick="meshControl('model-sonnet')" id="btn-sonnet">SONNET</button>
+                    <button class="lcars-pill-btn ops-ctrl ops-model-btn" style="background:#cc99cc" onclick="meshControl('model-opus')" id="btn-opus">OPUS</button>
+                </div>
+                <!-- Actions -->
+                <div style="display:flex; flex-direction:column; gap:3px; min-width:120px;">
+                    <div style="font-size:0.62em; text-transform:uppercase; letter-spacing:0.1em; opacity:0.5; padding-left:12px; margin-bottom:2px;">Actions</div>
+                    <button class="lcars-pill-btn ops-ctrl" style="background:#4ecdc4" onclick="refreshAll()">SYNC NOW</button>
+                </div>
             </div>
 
             <!-- Status monologue — auto-generated mesh state summary -->
