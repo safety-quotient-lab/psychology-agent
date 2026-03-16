@@ -6762,9 +6762,14 @@
     }
 
     function renderOpsBudget() {
-        // W4: Subsystem status blocks — per-agent panels with budget bar, health, mood
+        // Button 52 pattern: capsule grid — orange leader + purple data capsules per agent
         const grid = document.getElementById("ops-subsystem-grid");
         if (!grid) return;
+
+        // Three purple shades for data categories (golden ratio spacing in lightness)
+        const purpleDark = "var(--lcars-secondary)";    // #cc99cc — budget/delib
+        const purpleMed = "var(--lcars-tertiary)";      // #9999ff — messages/transport
+        const purpleLight = "color-mix(in srgb, var(--lcars-secondary) 50%, #222)"; // dim — status
 
         let html = "";
         for (const agent of AGENTS) {
@@ -6773,44 +6778,31 @@
             const b = online ? (d.data?.autonomy_budget || {}) : {};
             const deliberations = getDeliberations(b);
             const cutoff = getCutoff(b);
-            const pct = cutoff > 0 ? Math.round((1 - deliberations / cutoff) * 100) : 100;
-            const barColor = pct > 50 ? "#6aab8e" : pct > 20 ? "#d4944a" : "#c47070";
             const health = d?.data?.health || "\u2014";
-
             const psych = d?.data?.psychometrics || {};
             const es = psych.emotional_state || {};
             const mood = es.affect_category || (online ? "nominal" : "offline");
-
-            const statusClass = online ? "online" : "offline";
-            const statusLabel = online ? health.toUpperCase() : "OFFLINE";
             const pending = online ? (d.data?.unprocessed_messages || []).length : 0;
             const gates = online ? (d.data?.active_gates || []).length : 0;
+            const schema = d?.data?.schema_version || "\u2014";
 
-            html += `<div class="lcars-subsystem-block" style="--block-accent:${agent.color};${online ? "" : "opacity:0.4;"}">
-                <div class="lcars-subsystem-header">
-                    <span class="lcars-subsystem-name">${agentName(agent)}</span>
-                    <span class="lcars-subsystem-status ${statusClass}">${statusLabel}</span>
-                </div>
-                <div class="lcars-subsystem-metrics">
-                    <div class="lcars-subsystem-metric">
-                        <span class="lcars-subsystem-metric-val">${online ? fmtNum(deliberations) : "\u2014"}</span>
-                        <span class="lcars-subsystem-metric-label">Delib</span>
-                    </div>
-                    <div class="lcars-subsystem-metric">
-                        <span class="lcars-subsystem-metric-val">${online ? pending : "\u2014"}</span>
-                        <span class="lcars-subsystem-metric-label">Pending</span>
-                    </div>
-                    <div class="lcars-subsystem-metric">
-                        <span class="lcars-subsystem-metric-val">${online ? gates : "\u2014"}</span>
-                        <span class="lcars-subsystem-metric-label">Gates</span>
-                    </div>
-                    <div class="lcars-subsystem-metric">
-                        <span class="lcars-subsystem-metric-val" style="font-size:0.82em;color:var(--text-secondary)">${mood}</span>
-                        <span class="lcars-subsystem-metric-label">Mood</span>
-                    </div>
-                </div>
-                <div class="lcars-subsystem-bar">
-                    <div class="lcars-subsystem-bar-fill" style="width:${online ? pct : 0}%;background:${barColor}"></div>
+            // Agent row: [orange leader] [purple delib] [purple limit] [med pending] [med gates] [light health] [light mood]
+            const opacity = online ? 1 : 0.35;
+            html += `<div style="display:flex;gap:3px;margin-bottom:3px;align-items:stretch;opacity:${opacity};flex-wrap:wrap">
+                <div style="background:${agent.color};color:#000;font-weight:700;font-size:0.72em;padding:5px 12px;border-radius:12px 0 0 12px;min-width:90px;display:flex;align-items:center;letter-spacing:0.06em;text-transform:uppercase">${agentName(agent)}</div>
+                <div style="background:${purpleDark};color:#000;font-weight:700;font-size:0.82em;padding:5px 10px;min-width:48px;text-align:right;display:flex;align-items:center;justify-content:flex-end" title="Deliberations">${online ? fmtNum(deliberations) : "\u2014"}</div>
+                <div style="background:${purpleDark};color:#000;font-size:0.65em;padding:5px 8px;display:flex;align-items:center;opacity:0.7" title="Cutoff">${cutoff > 0 ? "/" + fmtNum(cutoff) : "\u221E"}</div>
+                <div style="background:${purpleMed};color:#000;font-weight:700;font-size:0.82em;padding:5px 10px;min-width:32px;text-align:right;display:flex;align-items:center;justify-content:flex-end" title="Pending messages">${online ? pending : "\u2014"}</div>
+                <div style="background:${purpleMed};color:#000;font-size:0.82em;padding:5px 10px;min-width:32px;text-align:right;display:flex;align-items:center;justify-content:flex-end" title="Active gates">${online ? gates : "\u2014"}</div>
+                <div style="background:${purpleLight};color:var(--text-primary);font-size:0.68em;padding:5px 10px;display:flex;align-items:center;text-transform:uppercase;letter-spacing:0.04em" title="Health">${online ? health : "OFF"}</div>
+                <div style="background:${purpleLight};color:var(--text-primary);font-size:0.68em;padding:5px 10px;border-radius:0 12px 12px 0;display:flex;align-items:center" title="Mood">${mood}</div>
+            </div>`;
+        }
+
+        // Separator bar between agents and summary
+        html += `<div style="height:2px;background:var(--lcars-frame);margin:4px 0;border-radius:1px;opacity:0.4"></div>`;
+
+        grid.innerHTML = html;
                 </div>
             </div>`;
         }
@@ -7254,7 +7246,7 @@
             const edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
             const pts = corners.map(c => isoProject(c[0], c[1], c[2], w, h));
             edges.forEach(([a, b]) => {
-                svg += `<line x1="${pts[a].sx.toFixed(1)}" y1="${pts[a].sy.toFixed(1)}" x2="${pts[b].sx.toFixed(1)}" y2="${pts[b].sy.toFixed(1)}" stroke="var(--border)" stroke-width="0.5" opacity="0.4"/>`;
+                svg += `<line x1="${pts[a].sx.toFixed(1)}" y1="${pts[a].sy.toFixed(1)}" x2="${pts[b].sx.toFixed(1)}" y2="${pts[b].sy.toFixed(1)}" stroke="var(--lcars-secondary)" stroke-width="1.618" opacity="0.5"/>`;
             });
 
             // Axis labels (at axis endpoints, horizontal text)
