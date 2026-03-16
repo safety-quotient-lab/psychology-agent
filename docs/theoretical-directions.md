@@ -2238,6 +2238,42 @@ criticality. If uniform or exponential, the system operates in a
 subcritical regime and the prediction fails. This test requires 1,000+
 events for statistical power.
 
+**Results (Session 91, 2026-03-16):** Test executed via `scripts/criticality-test.py`
+on 2,249 deliberation events across operations-agent (1,312) and observatory-agent
+(937) over 48.3 hours. Data sourced from chromabook state.db via SSH.
+
+| Dataset | Events | α | CV | Verdict |
+|---|---|---|---|---|
+| operations-agent | 1,312 | 1.237 | 7.298 | Bursty, heavier-tailed than predicted |
+| observatory-agent | 937 | 1.237 | 2.677 | Bursty, heavier-tailed than predicted |
+| mesh combined | 2,249 | 1.281 | 8.438 | Bursty, heavier-tailed than predicted |
+
+**Assessment:**
+- **Burstiness confirmed** — CV = 8.4 decisively rejects Poisson/exponential
+  (CV = 1.0). The mesh generates events in clusters with long quiet intervals.
+- **Power-law exponent below predicted range** — α ≈ 1.28 vs predicted 1.5–2.5.
+  The distribution concentrates more mass in extreme intervals (rapid-fire bursts
+  and extended quiet) than neuronal avalanches do.
+- **Cross-agent consistency** — both agents independently converge on α ≈ 1.24,
+  suggesting the exponent derives from mesh architecture, not individual agent
+  behavior.
+- **Possible finite-size effect** — 5 agents vs 10^11 neurons. Self-organized
+  criticality in small systems produces different exponents (Christensen &
+  Moloney, 2005). The mesh may exhibit criticality at a different universality
+  class than biological neural networks.
+- **Alternative interpretation** — α < 1.5 suggests slightly supercritical
+  operation: processing cascades propagate more readily than in a critical system.
+  Aligns with observed pattern: aggressive burst processing, then full quiescence.
+
+**Prediction status:** PARTIALLY CONFIRMED. Burstiness holds strongly. Exponent
+falls outside the neural range but consistent with heavy-tailed power-law dynamics.
+The prediction needs refinement: the mesh may operate supercritically rather than
+at criticality. Longer collection (1 week+) and truncated power-law / log-normal
+comparison (Clauset et al., 2009) would sharpen the assessment.
+
+**M-11 applies:** The same human's activity patterns drive both agents' event
+streams, confounding the cross-agent consistency finding.
+
 ### Connection to Generator Balance
 
 The adaptive generator balance (Session 91) gains a natural input from
