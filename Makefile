@@ -134,11 +134,11 @@ deploy-restart:
 	@echo "═══ Restarting meshd processes ═══"
 	@. ./.dev.vars 2>/dev/null; \
 		echo "  Stopping all units..." && \
-		$(SSH_CMD) 'for svc in $$(systemctl --user list-units --type=service 2>/dev/null | grep meshd | awk "{print \$$1}"); do systemctl --user stop "$$svc" 2>/dev/null; done; sleep 2' && \
+		$(SSH_CMD) 'for svc in meshd-psychology meshd-psq meshd-observatory meshd-operations meshd-unratified; do systemctl --user stop $$svc.service 2>/dev/null; done; sleep 2' && \
 		echo "  Swapping binary..." && \
 		$(SSH_CMD) 'cp $(REMOTE_BIN) $(REMOTE_BACKUP) 2>/dev/null; mv $(REMOTE_BIN).new $(REMOTE_BIN) && chmod +x $(REMOTE_BIN)' && \
 		echo "  Starting all units..." && \
-		$(SSH_CMD) 'for svc in $$(systemctl --user list-units --type=service 2>/dev/null | grep meshd | awk "{print \$$1}"); do systemctl --user start "$$svc" && echo "    Started $$svc"; done; sleep 3; echo ""; echo "  Processes:"; pgrep -f "/home/kashif/platform/meshd --port" -la 2>/dev/null | head -5'
+		$(SSH_CMD) 'for svc in meshd-psychology meshd-psq meshd-observatory meshd-operations meshd-unratified; do systemctl --user start $$svc.service && echo "    Started $$svc"; done; sleep 3; echo ""; echo "  Processes:"; pgrep -f "/home/kashif/platform/meshd --port" -la 2>/dev/null | head -5'
 
 deploy-validate:
 	@echo ""
