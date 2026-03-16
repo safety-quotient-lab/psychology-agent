@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Agent-card A2A schema validation
+        run: |
+          python3 -c "
+          import json, sys
+          with open('.well-known/agent-card.json') as f:
+              card = json.load(f)
+          errors = []
+          for field in ['name', 'version', 'provider']:
+              if field not in card: errors.append(f'Missing required: {field}')
+          if 'protocolVersion' not in card and 'supported_interfaces' not in card:
+              errors.append('Missing: protocolVersion or supported_interfaces')
+          prov = card.get('provider', {})
+          if isinstance(prov, dict) and not prov.get('organization'):
+              errors.append('provider.organization missing')
+          if 'capabilities' not in card:
+              errors.append('Missing: capabilities')
+          if not card.get('skills'):
+              errors.append('Missing or empty: skills')
+          if errors:
+              for e in errors: print(f'ERROR: {e}', file=sys.stderr)
+              sys.exit(1)
+          print(f'Agent-card {card[\"name\"]} v{card.get(\"version\",\"?\")} — PASS')
+          "
+
+      - name: Transport integrity check
+        run: |
+          python3 -c "
+          import json, os, sys
+          errors = []
+          for name in os.listdir('transport/sessions'):
+              path = os.path.join('transport/sessions', name)
+              if not os.path.isdir(path): continue
+              if os.path.exists(os.path.join(path, '.archived')): continue
+              if name == 'local-coordination': continue
+              if not os.path.exists(os.path.join(path, 'MANIFEST.json')):
+                  errors.append(f'{name}: missing MANIFEST.json')
+          if errors:
+              for e in errors: print(f'ERROR: {e}', file=sys.stderr)
+              sys.exit(1)
+          print(f'Transport integrity: PASS ({len(os.listdir(\"transport/sessions\"))} sessions)')
+          "
+
+      - name: Credential scan
+        run: |
+          if git grep -rn 'sk-ant-[a-zA-Z0-9]\{20,\}\|AKIA[A-Z0-9]\{16\}\|ghp_[a-zA-Z0-9]\{36\}' HEAD -- ':!.github/' ':!scripts/trigger-verifier.py'; then
+            echo "ERROR: Credential pattern detected" >&2
+            exit 1
+          fi
+          echo "Credential scan: PASS"
+
+      - name: Cogarch trigger count
+        run: |
+          python3 -c "
+          import re, sys
+          with open('docs/cognitive-triggers.md') as f:
+              content = f.read()
+          defined = set(re.findall(r'trigger-[a-z-]+\s+\(T(\d+)\)', content))
+          retired = set(re.findall(r'\[RETIRED', content) and re.findall(r'\(T(\d+)\)\s+\[RETIRED', content))
+          active = defined - retired
+          print(f'Triggers: {len(defined)} defined, {len(retired)} retired, {len(active)} active')
+          if len(active) < 15:
+              print('WARNING: fewer than 15 active triggers', file=sys.stderr)
+              sys.exit(1)
+          print('Cogarch trigger count: PASS')
+          "
