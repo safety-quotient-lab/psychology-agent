@@ -4911,7 +4911,11 @@
         }
     }
 
+    let _refreshing = false;
     async function refreshAll() {
+        if (_refreshing) return; // Prevent concurrent refreshes
+        _refreshing = true;
+        try {
         const results = await Promise.allSettled(AGENTS.map(fetchAgentStatus));
         results.forEach((r, i) => {
             agentData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "unreachable" };
@@ -4935,6 +4939,7 @@
             // Add narrative entry on each refresh
             addNarrativeEntry(generateMeshNarrative());
         }
+        } finally { _refreshing = false; }
     }
 
     // ── Render: Vitals ─────────────────────────────────────────────
@@ -6719,13 +6724,19 @@
     let _meshAggData = null;
     let _meshAggTs = 0;
 
+    let _meshAggPromise = null; // Dedup concurrent fetches
     async function fetchMeshAgg() {
-        try {
-            const opsUrl = AGENTS.find(a => a.id === "operations-agent")?.url || "";
-            if (!opsUrl) return;
-            const r = await fetch(`${opsUrl}/api/mesh-aggregate`, { signal: AbortSignal.timeout(5000) });
-            if (r.ok) { _meshAggData = await r.json(); _meshAggTs = Date.now(); }
-        } catch {}
+        if (_meshAggPromise) return _meshAggPromise;
+        if (_meshAggData && Date.now() - _meshAggTs < 30000) return; // Cache fresh
+        _meshAggPromise = (async () => {
+            try {
+                const opsUrl = AGENTS.find(a => a.id === "ops-session" || a.id === "operations-agent")?.url || "";
+                if (!opsUrl) return;
+                const r = await fetch(`${opsUrl}/api/mesh-aggregate`, { signal: AbortSignal.timeout(5000) });
+                if (r.ok) { _meshAggData = await r.json(); _meshAggTs = Date.now(); }
+            } catch {} finally { _meshAggPromise = null; }
+        })();
+        return _meshAggPromise;
     }
 
     function renderOpsAggIndicators() {
@@ -6747,11 +6758,19 @@
     }
 
     let _psychCache = null;
+    let _psychFetchPromise = null; // Dedup concurrent fetches
     async function fetchPsychForOps() {
-        try {
-            const resp = await fetch("https://interagent.safety-quotient.dev/api/psychometrics", { signal: AbortSignal.timeout(5000) });
-            if (resp.ok) _psychCache = await resp.json();
-        } catch {}
+        // Return existing in-flight promise if already fetching
+        if (_psychFetchPromise) return _psychFetchPromise;
+        // Return cache if fresh (< 30s)
+        if (_psychCache && _psychCache._fetchedAt && Date.now() - _psychCache._fetchedAt < 30000) return;
+        _psychFetchPromise = (async () => {
+            try {
+                const resp = await fetch("https://interagent.safety-quotient.dev/api/psychometrics", { signal: AbortSignal.timeout(5000) });
+                if (resp.ok) { _psychCache = await resp.json(); _psychCache._fetchedAt = Date.now(); }
+            } catch {} finally { _psychFetchPromise = null; }
+        })();
+        return _psychFetchPromise;
     }
 
     function renderResourceModel() {
