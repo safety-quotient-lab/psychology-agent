@@ -3194,22 +3194,6 @@
                 </div>
             </div>
 
-            <!-- Agent Sync Status -->
-            <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Agent Status</div>
-                <div class="lcars-panel-body" id="ops-schedule"></div>
-            </div>
-
-            <!-- LCARS-only: Agent Status (from Pulse) -->
-            <div class="lcars-only" style="display:none">
-                <div class="lcars-panel kb-section" style="--panel-accent: var(--c-transport)">
-                    <div class="lcars-panel-header">Agent Status</div>
-                    <div class="lcars-panel-body">
-                        <div class="agents-grid" id="lcars-ops-agents-grid"></div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Topology -->
             <div class="lcars-panel topology-container" style="--panel-accent: var(--c-health); margin-bottom:16px">
                 <div class="lcars-panel-header">Mesh Topology</div>
@@ -6305,6 +6289,38 @@
         renderOpsActivity();
         renderOpsSchedule();
         renderOpsVitals();
+        // Topology mirrors from Pulse (already rendered)
+        mirrorToLcars("topology-svg", "lcars-topology-svg");
+        // Governance — populate from KB decisions data
+        renderOpsGovernance();
+    }
+
+    function renderOpsGovernance() {
+        const el = document.getElementById("lcars-ops-decisions");
+        if (!el) return;
+        // Collect decisions from all agents' KB data
+        const decisions = [];
+        for (const agent of AGENTS) {
+            const kb = kbData[agent.id];
+            if (!kb || kb.status !== "ok") continue;
+            const decs = kb.data?.decisions || [];
+            decs.forEach(d => decisions.push({ ...d, _agent: agent.id, _color: agent.color }));
+        }
+        if (decisions.length === 0) {
+            el.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Decisions load after Meta tab renders. Switch to Meta first, then back.</div>';
+            return;
+        }
+        // Show most recent 10 decisions
+        const sorted = decisions.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || "")).slice(0, 10);
+        el.innerHTML = sorted.map(d => {
+            const date = (d.created_at || "").substring(0, 10);
+            const key = d.decision_key || d.id || "?";
+            return `<div style="display:flex;gap:8px;padding:4px 0;font-size:0.8em;border-bottom:1px solid var(--border)">
+                <span style="color:var(--text-dim);min-width:70px">${date}</span>
+                <span style="color:var(--c-epistemic);min-width:40px">${key}</span>
+                <span style="flex:1">${d.title || d.text || "—"}</span>
+            </div>`;
+        }).join("");
     }
 
     // Coordination ratio inline in Activity section
@@ -6506,41 +6522,38 @@
     function renderOpsBudget() {
         const grid = document.getElementById("ops-budget-grid");
         if (!grid) return;
-        grid.innerHTML = "";
 
+        // LCARS horizontal bars — agent color bar with data overlay
+        let html = "";
         for (const agent of AGENTS) {
             const d = agentData[agent.id];
-            if (!d || d.status !== "online") {
-                grid.innerHTML += `
-                    <div class="ops-budget-card" style="--card-accent: ${agent.color}; opacity: 0.4">
-                        <div class="ops-budget-agent">${agentName(agent)}</div>
-                        <div class="ops-budget-credit" style="font-size:1em; color:var(--text-dim)">OFFLINE</div>
-                    </div>`;
-                continue;
-            }
-            // Autonomy: deliberations via counter helpers
-            const b = d.data?.autonomy_budget || {};
+            const online = d?.status === "online";
+            const b = online ? (d.data?.autonomy_budget || {}) : {};
             const deliberations = getDeliberations(b);
-            const cutoff = getCutoff(b);
-            const pct = cutoff > 0 ? Math.round((deliberations / cutoff) * 100) : 0;
-            const barColor = pct < 60 ? "#6aab8e" : pct < 85 ? "#d4944a" : "#c47070";
-            const lastAction = b.last_action || "—";
-            const interval = b.min_action_interval ?? 300;
-            const counterLabel = cutoff > 0 ? `/${cutoff}` : "";
+            const health = d?.data?.health || "—";
+            const uptime = d?.data?.uptime || "—";
 
-            grid.innerHTML += `
-                <div class="ops-budget-card" style="--card-accent: ${agent.color}">
-                    <div class="ops-budget-agent">${agentName(agent)}</div>
-                    <div class="ops-budget-credit">${deliberations}<span style="font-size:0.4em;color:var(--text-secondary)">${counterLabel}</span></div>
-                    <div class="ops-budget-bar">
-                        <div class="ops-budget-fill" style="width:${cutoff > 0 ? pct : 0}%;background:${barColor}"></div>
-                    </div>
-                    <div class="ops-budget-values">
-                        <span>Tempo: ${Math.round(interval/60)}min</span>
-                        <span>${lastAction !== "—" ? lastAction.substring(11, 16) : "—"}</span>
-                    </div>
-                </div>`;
+            // Mood from psychometrics (PAD affect category)
+            const psych = d?.data?.psychometrics || {};
+            const es = psych.emotional_state || {};
+            const mood = es.affect_category || (online ? "nominal" : "offline");
+
+            const opacity = online ? 1 : 0.3;
+            const statusDot = online ? "●" : "○";
+
+            html += `<div style="display:flex; align-items:stretch; gap:0; margin-bottom:3px; opacity:${opacity}">
+                <div style="background:${agent.color}; border-radius:20px 0 0 20px; min-width:140px; padding:6px 14px; display:flex; align-items:center; justify-content:space-between; color:#000; font-weight:700; font-size:0.78em; letter-spacing:0.06em; text-transform:uppercase;">
+                    <span>${agentName(agent)}</span>
+                    <span style="font-size:1.3em; margin-left:8px">${fmtNum(deliberations)}</span>
+                </div>
+                <div style="background:color-mix(in srgb, ${agent.color} 15%, var(--bg-panel)); flex:1; border-radius:0 20px 20px 0; padding:6px 14px; display:flex; align-items:center; gap:12px; font-size:0.75em; color:var(--text-secondary);">
+                    <span>${statusDot} ${health}</span>
+                    <span>${uptime}</span>
+                    <span style="opacity:0.7">${mood}</span>
+                </div>
+            </div>`;
         }
+        grid.innerHTML = html;
     }
 
     function renderOpsActions() {
