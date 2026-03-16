@@ -6403,11 +6403,84 @@
     // ── Render: Operations ──────────────────────────────────────────
 
     function renderOperations() {
+        renderOpsMonologue();
+        renderOpsAggIndicators();
         renderOpsBudget();
         renderOpsActions();
         renderOpsSchedule();
         renderOpsVitals();
         renderResourceModel();
+    }
+
+    // ── Status Monologue ─────────────────────────────────────
+    function renderOpsMonologue() {
+        const el = document.getElementById("ops-status-monologue");
+        if (!el) return;
+
+        const online = Object.values(agentData).filter(a => a.status === "online");
+        const total = AGENTS.length;
+        const withBudget = online.filter(a => a.data?.autonomy_budget?.budget_spent != null);
+        const totalSpent = withBudget.reduce((s, a) => s + (parseFloat(a.data.autonomy_budget.budget_spent) || 0), 0);
+        const totalCutoff = withBudget.reduce((s, a) => s + (parseFloat(a.data.autonomy_budget.budget_cutoff) || 0), 0);
+        const nearLimit = withBudget.filter(a => {
+            const sp = parseFloat(a.data.autonomy_budget.budget_spent) || 0;
+            const co = parseFloat(a.data.autonomy_budget.budget_cutoff) || 0;
+            return co > 0 && sp / co > 0.8;
+        });
+        const actionCount = online.reduce((s, a) => s + (a.data?.recent_deliberations || []).length, 0);
+        const unprocessed = online.reduce((s, a) => s + (a.data?.unprocessed_messages || []).length, 0);
+
+        const parts = [];
+        if (online.length === total) {
+            parts.push(`All ${total} agents online.`);
+        } else {
+            const off = AGENTS.filter(a => !online.find(o => o.id === a.id)).map(a => a.id.replace("-agent", ""));
+            parts.push(`${online.length}/${total} agents online${off.length ? " \u2014 " + off.join(", ") + " offline" : ""}.`);
+        }
+        if (totalCutoff > 0) {
+            parts.push(`Budget: ${Math.round(totalSpent)} of ${Math.round(totalCutoff)} credits used (${Math.round(totalSpent / totalCutoff * 100)}%).`);
+        } else if (withBudget.length > 0) {
+            parts.push(`Budget: ${Math.round(totalSpent)} credits spent (unlimited mode).`);
+        }
+        if (nearLimit.length > 0) {
+            parts.push(`Warning: ${nearLimit.map(a => (a.data.agent_id || "").replace("-agent", "")).join(", ")} approaching budget limit.`);
+        }
+        parts.push(actionCount > 0 ? `${actionCount} deliberation${actionCount !== 1 ? "s" : ""} recorded recently.` : "No recent deliberations.");
+        if (unprocessed > 0) {
+            parts.push(`${unprocessed} message${unprocessed !== 1 ? "s" : ""} awaiting processing.`);
+        }
+        el.textContent = parts.join(" ");
+    }
+
+    // ── Mesh Aggregate Indicators ────────────────────────────
+    let _meshAggData = null;
+    let _meshAggTs = 0;
+
+    async function fetchMeshAgg() {
+        try {
+            const opsUrl = AGENTS.find(a => a.id === "operations-agent")?.url || "";
+            if (!opsUrl) return;
+            const r = await fetch(`${opsUrl}/api/mesh-aggregate`, { signal: AbortSignal.timeout(5000) });
+            if (r.ok) { _meshAggData = await r.json(); _meshAggTs = Date.now(); }
+        } catch {}
+    }
+
+    function renderOpsAggIndicators() {
+        if (!_meshAggData || Date.now() - _meshAggTs > 30000) {
+            fetchMeshAgg().then(renderOpsAggIndicators);
+            if (!_meshAggData) return;
+        }
+        const aff = _meshAggData.mesh_affect || {};
+        const bn = _meshAggData.bottleneck || {};
+        const co = _meshAggData.coordination || {};
+        const im = _meshAggData.immune || {};
+        const set = (id, t, c) => { const e = document.getElementById(id); if (e) { e.textContent = t; if (c) e.style.color = c; } };
+        const cat = (aff.category || "unknown").replace("mesh-", "");
+        set("ops-agg-affect", cat, cat === "healthy" ? "var(--c-health)" : cat === "stressed" ? "var(--c-error)" : "");
+        if (bn.bottleneck_agent) set("ops-agg-bottleneck", bn.bottleneck_agent.replace("-agent", "") + " (" + bn.bottleneck_reserve + ")", bn.status === "depleted" ? "var(--c-error)" : "");
+        else set("ops-agg-bottleneck", bn.status || "\u2014", "");
+        set("ops-agg-coordination", co.ratio != null ? co.ratio.toFixed(1) + "x" : "\u2014", co.status === "over-coordinated" ? "var(--c-error)" : "");
+        set("ops-agg-immune", im.composite != null ? Math.round(im.composite * 100) + "%" : "\u2014", im.status === "compromised" ? "var(--c-error)" : "");
     }
 
     let _psychCache = null;
