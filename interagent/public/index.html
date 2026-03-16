@@ -453,22 +453,22 @@
 
         <!-- Operations Tab -->
         <div class="tab-pane" id="pane-operations">
-            <!-- Controls — grouped stacks -->
-            <div style="display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
-                    <div style="display:flex; flex-direction:column; gap:3px; min-width:110px;">
+            <!-- Controls — grouped stacks (Gestalt proximity, responsive) -->
+            <div class="ops-control-surface">
+                    <div class="ops-ctrl-group">
                         <button class="lcars-pill-btn ops-ctrl lcars-pill-red" onclick="meshControl('pause-all')" id="btn-pause">PAUSE</button>
                         <button class="lcars-pill-btn ops-ctrl ops-ctrl-active lcars-pill-green" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
                     </div>
-                    <div style="display:flex; flex-direction:column; gap:3px; min-width:110px;">
+                    <div class="ops-ctrl-group">
                         <button class="lcars-pill-btn ops-ctrl lcars-pill-blue" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
                         <button class="lcars-pill-btn ops-ctrl ops-ctrl-active" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
                     </div>
-                    <div style="display:flex; flex-direction:column; gap:3px; min-width:110px;">
+                    <div class="ops-ctrl-group">
                         <button class="lcars-pill-btn ops-ctrl ops-model-btn" onclick="meshControl('model-haiku')" id="btn-haiku">HAIKU</button>
                         <button class="lcars-pill-btn ops-ctrl ops-model-btn ops-ctrl-active lcars-pill-orange" onclick="meshControl('model-sonnet')" id="btn-sonnet">SONNET</button>
                         <button class="lcars-pill-btn ops-ctrl ops-model-btn" onclick="meshControl('model-opus')" id="btn-opus">OPUS</button>
                     </div>
-                    <div style="display:flex; flex-direction:column; gap:3px; min-width:110px;">
+                    <div class="ops-ctrl-group">
                         <button class="lcars-pill-btn ops-ctrl lcars-pill-teal" onclick="refreshAll()">SYNC NOW</button>
                     </div>
             </div>
@@ -479,17 +479,15 @@
                 <div id="ops-status-monologue" style="font-family:'Lucida Console','Menlo',monospace;font-size:0.78em;color:var(--text-primary);line-height:1.5;padding:8px 0"></div>
             </div>
 
-            <!-- Mesh Overview — W4 subsystem blocks per agent (budget + mood + health) -->
+            <!-- Mesh Overview — W4 subsystem blocks + W5 alpha matrix -->
             <div class="lcars-panel kb-section" data-section="operations">
                 <div class="lcars-panel-header">Mesh Overview</div>
                 <div class="lcars-panel-body">
                     <div class="lcars-subsystem-grid" id="ops-subsystem-grid"></div>
+                    <div id="ops-alpha-matrix" style="margin-top:var(--gap-m)"></div>
                 </div>
                 <div class="lcars-panel-footer">Ops Record<span class="lcars-panel-footer-num" id="ops-overview-num"></span></div>
             </div>
-
-            <!-- W5: Alphanumeric Matrix — dense state.db summary -->
-            <div id="ops-alpha-matrix" style="margin-bottom:12px;"></div>
 
             <!-- Activity — recent deliberations + coordination overhead -->
             <div class="lcars-panel kb-section" data-section="operations">

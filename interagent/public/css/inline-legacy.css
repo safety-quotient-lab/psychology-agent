@@ -2858,3 +2858,38 @@ a.activity-link:hover {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
 }
+
+/* ── Operations Control Surface (Session 9) ─────────────────── */
+.ops-control-surface {
+    display: flex;
+    gap: var(--gap-l);
+    margin-bottom: var(--gap-l);
+    flex-wrap: wrap;
+}
+.ops-ctrl-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs);
+    min-width: 110px;
+}
+/* Mobile portrait: stack control groups 2×2 */
+@media (max-width: 480px) {
+    .ops-control-surface {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--gap-m);
+    }
+    .ops-ctrl-group {
+        min-width: 0;
+    }
+    .ops-ctrl {
+        font-size: 0.65em;
+        padding: 6px 8px;
+    }
+}
+/* Very small portrait (iPhone SE class) */
+@media (max-width: 375px) {
+    .ops-control-surface {
+        grid-template-columns: 1fr;
+    }
+}
