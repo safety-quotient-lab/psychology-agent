@@ -112,44 +112,64 @@ Scan TODO.md for items persisting across 3+ sessions.
 
 ### 5. Transport Oversight (`transport`)
 
-Scan outbound transport messages for oversights — undelivered messages,
-unanswered directives, stale conversations, and commitments made but
-not tracked.
+Scan both outbound AND inbound transport messages for oversights —
+undelivered messages, unanswered directives, dropped requests, stale
+conversations, and commitments made but not tracked.
 
-**Sources:** transport/sessions/*/from-psychology-agent-*.json,
+**Sources:** transport/sessions/*/*.json (all directions),
 state.db transport_messages table, MANIFEST.json files.
 
-**Oversight types:**
+**Outbound oversight types:**
 
 - `undelivered` — message committed locally but never delivered to target
-  repo (no corresponding PR or HTTP POST). The transport delivery gap
-  that ops identified in Session 92.
+  repo (no corresponding PR or HTTP POST).
 - `unanswered-directive` — command-request with ack_required=true sent
   but no response received within expected window.
-- `stale-session` — active session with no messages in 7+ days.
 - `untracked-commitment` — message content promises a deliverable ("will
   deploy", "will send", "next session") with no corresponding TODO item.
+
+**Inbound oversight types:**
+
+- `dropped-request` — inbound request or command-request that we marked
+  processed but never responded to substantively. The sender may still
+  await action.
+- `unactioned-recommendation` — peer sent a recommendation or review
+  finding that we acknowledged but never acted on (no subsequent commit
+  or TODO item addresses the substance).
+- `ignored-ack-required` — inbound message with ack_required=true that
+  we never ACK'd.
+- `stale-inbound` — received message with urgency=high that sat
+  unprocessed for 24+ hours.
+
+**Session-level oversight types:**
+
+- `stale-session` — active session with no messages in 7+ days.
 - `claim-without-verification` — claims extracted from transport but
   never verified (claims.verified = FALSE for 7+ days).
 
 **For each oversight found:**
 
 ```
-| Session | Turn | Type | Description | Recommended action |
+| Session | Turn | Direction | Type | Description | Recommended action |
 ```
 
 **How to scan:**
 
-1. List all from-psychology-agent-*.json files across all sessions
-2. For each outbound message:
-   a. Check ack_required — if true, verify a response exists (higher turn
-      from the target agent in the same session)
+1. **Outbound scan:** List all from-psychology-agent-*.json files
+   a. Check ack_required — if true, verify a response exists
    b. Check message_type — if command-request, verify response received
-   c. Scan content for commitment language ("will", "next session",
-      "deploying", "sending") and cross-reference TODO.md
-3. For each active session (MANIFEST status != closed/archived):
-   a. Check last message date — flag if older than 7 days
-4. Query state.db for unverified claims older than 7 days
+   c. Scan content for commitment language and cross-reference TODO.md
+2. **Inbound scan:** List all from-{peer}-*.json and to-psychology-agent-*.json
+   a. For requests/command-requests: verify we sent a substantive response
+      (not just processed=TRUE — check for a from-psychology-agent message
+      at a higher turn in the same session)
+   b. For messages with recommendations/findings: check whether the
+      substance appears in a subsequent commit, TODO item, or architecture
+      decision
+   c. For ack_required=true: verify we wrote an ACK
+   d. For urgency=high: check time between receipt and processing
+3. **Session-level:** Check MANIFEST status and last message dates
+4. **Claims:** Query state.db for unverified claims older than 7 days
 
 ---
 
