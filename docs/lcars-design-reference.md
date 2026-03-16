@@ -1,9 +1,13 @@
 # LCARS Design Reference — TNG Pattern Library
 
-Derived from 30+ screen-used prop panels, fan recreations, and official reference
+Derived from 50+ screen-used prop panels, fan recreations, and official reference
 materials. Governs all LCARS-themed rendering in the interagent compositor dashboard.
 
-Reference images: `~/Projects/ai-llm/lcars/`
+Primary image source: http://frogland.co.uk/set-archive/LCARS/
+Additional: PropWorx auctions, ScreenUsed.com, fan recreations.
+
+Reference images: `docs/lcars-reference/` (gitignored — binary assets)
+Original source: `~/Projects/ai-llm/lcars/`
 
 ---
 
@@ -324,6 +328,224 @@ Source: Ohniaka B3 (Comm Traffic), Long Range Search Scan, Sensor Probe (Course 
 
 Source: CRC Monitor (H), DNA Match (B2)
 
+### 4.8 Tactical Grid Map (Perspective Overlay)
+
+Large-area spatial display with 3D perspective grid and overlay elements:
+```
+     ┊     ┊     ┊     ┊     ┊     ┊
+   ──┼─────┼─────┼─────┼─────┼─────┼──
+     ┊  ◻78757  ┊  ◻458540  ┊  ◻45845
+   ──┼─────┼─────┼─────┼─────┼─────┼──
+     ┊     ┊  ◻33454  ┊  ◻4584  ┊
+   ──┼─────┼─────┼─────┼─────┼─────┼──
+     ┊     ┊  ◻3845   ┊     ┊     ┊
+```
+
+- **Perspective grid**: red/orange lines receding toward vanishing point, giving 3D depth
+- **Sector nodes**: orange square brackets `[◻]` with numeric identifiers
+- **Coordinate axes**: numbered along edges (225, 228, etc.)
+- **Number grid above**: standard dense grid spanning full width
+- **Sidebar identifiers**: left column numbers in orange capsules
+- Right-side readout column with small number blocks
+- **Depth cue**: grid line spacing narrows toward horizon — implies z-axis
+
+Source: Tactical Cartography 76799 (s7e01), all Tactical Map variants (A-F)
+
+### 4.9 Multi-Waveform Telemetry (Signal Dashboard)
+
+Multiple simultaneous signal displays with flanking readouts:
+```
+┌──────────────────────────────────────┐
+│ ════ [axis labels] ════              │  787 234 785 • 9583
+│  ∿∿∿∿∿∿∿ purple ∿∿∿∿∿∿             │  783 984 764 • 7547
+│  ∿∿∿∿∿∿∿ blue   ∿∿∿∿∿∿             │  987 365 009 • 3245
+└──────────────────────────────────────┘
+      ┌─────────┐  ┌─────────┐
+      │ ▓▓▓▓▓▓▓ │  │ ∿∿∿∿∿∿ │   • 9583
+      │ ▓▓▓▓▓▓▓ │  │ ∿∿∿∿∿∿ │   • 7547
+      │ ▓▓▓▓▓▓▓ │  │ ∿∿∿∿∿∿ │   • 3245
+      └─────────┘  └─────────┘
+```
+
+- **Primary waveform**: large, framed in orange border with axis tick labels
+- **Secondary displays**: smaller, arranged in 2×n grid below primary
+- Mixed display types: waveform, bar chart, mini-scope — all in same panel
+- **Flanking readouts**: number columns with colored dot indicators (●)
+- Purple and blue overlapping traces on primary waveform
+- "DATA ANALYSIS MODE" footer title
+
+Source: Transponder Telemetry 8686
+
+### 4.10 Personnel Roster (Multi-Column Color-Coded List)
+
+Dense multi-column crew/entity listing with per-entity color coding:
+```
+AKAGI, U.S.S.    CLEMENT, U.S.S.    EXETER, U.S.S.
+NCC-62158        NCC-12537          NCC-20531
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+■ KIMYA, LT.     ■ KENNEY, CMDR.    ■ AGANYO, CAPT.
+■ KOBAYASHI, LT. ■ ALFARO, CMDR.    ■ BARRETT, ADM.
+■ KURTS, ENS.    ■ BRAND, CMDR.     ■ BRAND, GN.
+```
+
+- **Column headers**: yellow ship name + purple registry number
+- **Color-coded status squares** per name: green (active), orange (wounded),
+  red (KIA), blue (missing) — color carries meaning without legend
+- **Dense monospace text**: small font, maximizing entries per column
+- 8-10 columns across full width
+- Header band: salmon/pink structural bars
+- Footer: section number badge
+
+Source: Wardroom B (s6e19) — Personnel Status Update
+
+### 4.11 3D Perspective Visualization (Full-Panel)
+
+Full-panel 3D rendering with labeled regions and floating annotations:
+```
+   GAMMA QUADRANT                    ALPHA QUADRANT
+        ╲                               ╱
+         ╲  RING SINGULARITY           ╱
+          ╲    ╱─────────╲            ╱
+           ╲  ╱  VERTERON ╲         ╱
+            ╲╱   MEMBRANE  ╲       ╱
+     FTR     ║              ║    ⊙ DS9
+    PIPELINE ║    POINT     ║
+              ╲ SINGULARITY╱
+               ╲──────────╱
+```
+
+- **Full starfield background** with scatter dots (white, varying brightness)
+- **3D wireframe/rendered object** centered — gold/yellow line work
+- **Region labels**: ALL CAPS, positioned floating within relevant region
+- **Station illustration**: small detailed rendering (DS9) at anchor point
+- **Quadrant labels**: top-left and top-right as zone identifiers
+- Number grid above, sidebar identifiers left
+- **Axis labels**: bottom edge ("SUBSPACE DISTORTION IN MILLICOCHRANES")
+- **Scale**: visualization dominates ~70% of panel area
+
+Source: Bajoran Wormhole 8747
+
+### 4.12 Circuitry Schematic (Symmetric System Diagram)
+
+Full-symmetric technical schematic showing internal system architecture:
+```
+  35  07  02  27  72  34          34  24  07  12  80  34
+  ─────────────────────           ─────────────────────
+  ┃  ╔═══╗    ╔═══╗  ┃           ┃  ╔═══╗    ╔═══╗  ┃
+  ┃  ║   ║────║   ║  ┃           ┃  ║   ║────║   ║  ┃
+  ┃  ╚═══╝    ╚═══╝  ┃     ○     ┃  ╚═══╝    ╚═══╝  ┃
+  ─────────────────────           ─────────────────────
+```
+
+- **Perfect bilateral symmetry** — left mirrors right exactly
+- Orange/gold structural elements (horizontal bars, connectors)
+- Purple/lavender component blocks
+- White circle junction points (○) at key intersections
+- **Numbered header strip**: small squares with single/double-digit numbers
+- Numbered footer strip mirrors header
+- Title top-center: "CIRCUITRY BAY · 47"
+- Salmon structural bars top and bottom framing
+
+Source: Circuitry Bay 47
+
+### 4.13 Stellar Cartography (Radial/Fan Map)
+
+Sector maps using radial coordinate grids with labeled celestial objects:
+```
+            ╱   ╱   ╱   ╱
+         250╱  ╱   ╱   ╱
+          ╱  ·╱  ·╱  ·╱
+       280╱──╱──╱──╱ ·
+          ╱ ·╱  ╱ ·╱
+       270╱──╱──╱──╱
+          ╱  ╱ ·╱  ╱
+       280╱──╱──╱──╱
+```
+
+- **Radial grid lines** emanating from origin point (top-right or center)
+- **Arc lines** at distance intervals (labeled: 250, 260, 270, etc.)
+- Star-field background with dots
+- **Node markers**: orange square-in-circle icons `[◎]` at system positions
+- **Orange route lines** connecting nodes (constellation-style)
+- Number readouts flanking map on both sides
+- **Three variants observed**:
+  - Fan/wedge shape (Stellar B) — radial from corner
+  - Semicircle (Stellar C) — half-dome with concentric arcs
+  - Rectangular grid with route overlay (Stellar D) — labeled systems
+
+Source: Stellar Cartography 5894 (s7e01), 65767 (s7e19), 5547
+
+### 4.14 Systems Diagnostic Cutaway
+
+Full cross-section schematic of station/ship systems:
+```
+┌──────────────────────────────────────────────┐
+│  ●●●● number grid ●●●●                      │
+│ ═══════════════════════════════════════════   │
+│         ╔════════════════════╗                │
+│    ◐────║  CROSS-SECTION    ║────◐           │
+│         ║   DIAGRAM         ║                │
+│         ╚════════════════════╝                │
+│  ● 345 787 234 705                           │
+│  ● 486 763 984 764   ANALYSIS MODE · 414     │
+└──────────────────────────────────────────────┘
+```
+
+- Large technical illustration centered (pink/salmon line work on black)
+- Orange structural framing around illustration
+- Color-coded dot legends (● ● ●) with number sequences
+- Right-side: smaller diagnostic elements (capsule grid, color bars)
+
+Source: Wardroom A (s5e05) — Level 1 Systems Diagnostic
+
+### 4.15 Article/Prose Display
+
+Long-form text content within LCARS framing:
+```
+════════════ UFP PRESS AND INFORMATION ══════════
+  HEADLINE TEXT IN LARGE GOLD
+  SUBTITLE IN SMALLER PURPLE
+  BY AUTHOR NAME
+  ─────────────────────────────────────
+  Body text in light purple/lavender, justified,
+  standard paragraph formatting with comfortable
+  line height and readable font size...
+                              [SEAL]  2345-77
+```
+
+- Header band: orange structural bars + title right-aligned
+- Headline: large gold/yellow text
+- Subtitle: purple/pink, smaller
+- Body: lavender/light text, justified columns
+- Institutional seal/emblem floating in text
+- Footer: section number badge (orange)
+- Left border: thin vertical color bars (salmon, purple accents)
+
+Source: UFP Press and Information
+
+### 4.16 Radial Dial Control (Engineering Console)
+
+Pie/radial selector for system control panels:
+```
+        ╱ ──── ╲
+      ╱ 45  67  ╲
+    │  ────────── │
+    │  ╱ DIAL  ╲  │
+    │ │  ●●●●  │  │
+    │  ╲      ╱   │
+      ╲  ────  ╱
+        ╲────╱
+```
+
+- Concentric ring/pie chart divided into sectors
+- Orange/gold primary, purple/lavender secondary, pink accents
+- Numbered sectors with labels
+- "MODE SELECT" nearby — functions as system selector
+- Surrounded by dense capsule button grid
+- Appears alongside ship schematics
+
+Source: Defiant Engineering A2
+
 ---
 
 ## 5. UX Principles
@@ -408,12 +630,20 @@ rendering failure loses information.
 | Status indicator dots | Pulse topology | Done |
 | Panel footer titles | Topology, Ops, Governance | In progress |
 | Visualization inset border | Topology, affect grid | In progress |
-| Waveform display | Medical oscillator, Eng tempo | Planned |
-| Area chart | Engineering deliberation cascade | Planned |
-| Spatial map with grid | Pulse topology enhancement | Planned |
-| Molecular chain | Helm session timeline | Planned |
+| Waveform display | Medical oscillator, Eng tempo | Done |
+| Area chart | Engineering Gc cascade | Done |
+| Spatial map with grid | Pulse topology | Done |
+| Molecular chain | Helm session timeline | Done |
 | Capsule grid touch surface | Ohniaka-style control panels | Planned |
 | Symmetric framing | Top/bottom capsule rows | Planned |
+| Tactical grid overlay | Mesh topology tactical view | Planned |
+| 3D perspective map | Wormhole / tactical cartography style | Planned |
+| Multi-waveform telemetry | Transponder telemetry multi-channel | Planned |
+| Personnel roster table | Color-coded multi-column crew list | Planned |
+| Circuitry schematic | Symmetric system topology diagram | Planned |
+| Radial dial control | Defiant Engineering pie/radial selector | Planned |
+| Article/prose display | UFP Press text layout with header band | Planned |
+| Systems diagnostic cutaway | DS9 wardroom cross-section schematic | Planned |
 
 ---
 
@@ -445,3 +675,22 @@ rendering failure loses information.
 | Enterprise E (Starship) | Master schematic: blueprint-style with labeled zones |
 | Voyager panel | Physical PADD with PRIMARY ACCESS header |
 | README-sweep | LCARS sweep framing histograms, text + chart dual layout |
+| Tactical Cartography (s7e01) | **3D perspective grid**, sector nodes, coordinate axes, sidebar readouts |
+| Tactical Map A (s6e01) | Tactical spatial map, curved route trajectories (red/green), dual-panel inset |
+| Tactical Map B (s7e21) | Similar to A, higher contrast, labeled movement paths |
+| Tactical Map C | Cardassian Union territory, sparse field, political boundary display |
+| Tactical Map D (s7e24) | **Dual-inset panels** within tactical frame, Cardassian System label, 3D elliptical orbit |
+| Tactical Map E | "FLEET EVAL" — tactical + **ship profile illustrations** bottom row, mixed content types |
+| Tactical Map F (s6e04) | Tactical grid with **3D depth** (Argolis Cluster), star scatter, sensor array labels |
+| Stellar B (s7e01) | Stellar Cartography 5894 — **radial/fan sector map**, orange route lines, arc coordinates |
+| Stellar C (s7e19) | Stellar Cartography 65767 — **semicircle map** with concentric arcs, pink/purple palette |
+| Stellar D | Stellar Cartography 5547 — rectangular **labeled star chart** with named systems + route |
+| Cardassian Mix A1 | Gamma Quadrant 22757 — **angled prop photo**, triangular sidebar elements, green accents |
+| Circuitry Bay | **Bilateral symmetric schematic**, orange/purple components, junction circles, numbered strips |
+| Defiant Engineering A1 (s3e26) | Curved console panel, ship schematic + radial dial + capsule grids |
+| Defiant Engineering A2 | Close-up: **radial dial control**, dense capsule grid, "MODE SELECT" label |
+| Transponder Telemetry | **Multi-waveform display**, 3 signal channels, mini-scope panels, flanking readouts |
+| UFP Press and Information | **Article/prose layout**, headline + subtitle + body text + institutional seal |
+| Wardroom A (s5e05) | DS9 **Level 1 Systems Diagnostic** — station cross-section cutaway, LCARS framed |
+| Wardroom B (s6e19) | **Personnel roster** — multi-column color-coded crew list (KIA/wounded/missing) |
+| Wormhole | Bajoran Wormhole 8747 — **full 3D perspective visualization**, wireframe singularity, DS9 illustration |

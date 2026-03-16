@@ -30,6 +30,9 @@ CLAUDE.local.md
 # Node dependencies
 node_modules/
 
+# LCARS reference images (large binaries, not tracked)
+docs/lcars-reference/
+
 # OS artifacts
 .DS_Store
 

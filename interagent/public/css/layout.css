@@ -698,3 +698,110 @@ body {
         background-color: #000000;
     }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   Session 9 merge — inline-only layout rules
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── LCARS Sidebar ─────────────────────────────────────────── */
+.lcars-sidebar { display: none; }
+.theme-lcars .lcars-sidebar {
+    display: flex;
+    flex-direction: column;
+    grid-column: 1;
+    grid-row: 1 / -1;
+    background: #000;
+    padding-top: 0;
+    gap: 0;
+}
+.lcars-sidebar-cap-top {
+    background: var(--c-knowledge);
+    min-height: var(--band-size, 52px);
+    border-radius: var(--elbow-outer, 48px) 0 0 0;
+    margin-bottom: var(--gap-xs);
+}
+.lcars-sidebar-spacer {
+    min-height: 20px;
+    margin-bottom: var(--gap-xs);
+    border-radius: 12px 0 0 12px;
+}
+.lcars-sidebar-arm {
+    flex: 1;
+    background: var(--c-knowledge);
+    min-height: 20px;
+    margin-bottom: var(--gap-xs);
+    border-radius: 12px 0 0 12px;
+}
+.lcars-sidebar-cap-bottom {
+    background: var(--c-knowledge);
+    min-height: var(--band-size, 52px);
+    border-radius: 0 0 0 var(--elbow-outer, 48px);
+}
+
+/* ── LCARS Header Band (Segmented) ─────────────────────────── */
+.lcars-header-band { display: none; }
+.theme-lcars .lcars-header-band {
+    display: flex;
+    grid-column: 2;
+    grid-row: 1;
+    gap: var(--gap-xs);
+    align-items: stretch;
+    min-height: var(--band-size, 52px);
+}
+
+/* ── LCARS Footer Band (Segmented) ─────────────────────────── */
+.lcars-footer-band { display: none; }
+.theme-lcars .lcars-footer-band {
+    display: flex;
+    grid-column: 2;
+    grid-row: 3;
+    gap: var(--gap-xs);
+    align-items: stretch;
+    min-height: var(--band-size, 52px);
+}
+
+/* ── LCARS Hero Widget ───────────────────────────────────── */
+.theme-lcars .lcars-hero {
+    grid-column: 1 / -1;
+    max-width: 520px;
+    margin: 0 auto var(--gap-xl) auto;
+}
+
+/* ── LCARS Section Divider ───────────────────────────────── */
+.lcars-divider {
+    height: var(--gap-xs);
+    border-radius: 1.5px;
+    background: var(--panel-accent, var(--c-transport));
+    margin: var(--gap-l) 0;
+    opacity: 0.6;
+}
+
+/* ── LCARS Stacked Proportional Bar ──────────────────────── */
+.lcars-stacked-bar {
+    display: flex;
+    gap: 2px;
+    height: 28px;
+    margin: var(--gap-m) 0;
+}
+.lcars-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-size: 0.68em;
+    font-weight: 700;
+    color: #000;
+    min-width: 24px;
+    transition: flex 0.4s ease;
+}
+
+/* ── Sidebar responsive ──────────────────────────────────── */
+@media (max-width: 768px) {
+    .lcars-sidebar-cap-top { min-height: 36px; }
+    .lcars-sidebar-cap-bottom { min-height: 36px; }
+}
+@media (max-width: 480px) {
+    .lcars-sidebar-spacer { min-height: var(--gap-m); }
+    .lcars-sidebar-cap-top { min-height: 28px; }
+    .lcars-sidebar-cap-bottom { min-height: 28px; }
+}
