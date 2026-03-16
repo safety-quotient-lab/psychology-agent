@@ -269,6 +269,11 @@
 | D82 | Mesh aggregate API: GET /api/mesh-aggregate (Go native, 5 constructs, mesh terminology) | operations-agent (2026-03-15) |
 | D83 | Cron removal: meshd-sync + mesh-heartbeat removed — meshd handles internally | human arbiter (2026-03-15) |
 | D84 | Single-source dashboard: LCARS index.html canonical, build-time sync via Makefile | human arbiter (2026-03-15) |
+| D85 | LCARS spec: Gestalt proximity, no group labels, color as category, uniform buttons | human arbiter (2026-03-16) |
+| D86 | SO_REUSEADDR on meshd listener — eliminates port conflicts on restart | operations-agent (2026-03-16) |
+| D87 | Operations tab: Controls → Budget → Activity → Status → Topology → Governance | human arbiter (2026-03-16) |
+| D88 | Session identity: ops-session (interactive), operations-agent (daemon) | human arbiter (2026-03-16) |
+| D89 | No destructive UI actions — RESET COUNTERS removed, data modification requires direct DB access | human arbiter (2026-03-16) |
 
 ---
 
