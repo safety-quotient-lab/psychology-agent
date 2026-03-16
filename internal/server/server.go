@@ -269,6 +269,7 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /health", s.Health.HTTPHandler())
 	mux.HandleFunc("GET /api/events", s.handleEvents)
 	mux.HandleFunc("GET /api/events/stream", s.handleSSEStream)
+	mux.HandleFunc("GET /events", s.handleSSEStream) // Alias — dashboard connectSSE() expects /events
 	mux.HandleFunc("POST /hooks/github", s.handleWebhook)
 	mux.HandleFunc("POST /api/trigger", s.handleTrigger)
 	mux.HandleFunc("GET /api/deliberations", s.handleDeliberations)

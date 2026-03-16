@@ -77,9 +77,12 @@ sync-dashboard:
 build: build-meshd build-meshctl
 
 build-meshd: sync-dashboard
-	@echo "Building meshd $(VERSION)..."
+	@echo "Building meshd $(VERSION) (linux + darwin)..."
 	@GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o $(MESHD_BIN) ./cmd/meshd/
-	@echo "  Binary: ./$(MESHD_BIN) ($$(du -h $(MESHD_BIN) | cut -f1))"
+	@go build $(LDFLAGS) -o meshd-darwin ./cmd/meshd/
+	@echo "  Linux: ./$(MESHD_BIN) ($$(du -h $(MESHD_BIN) | cut -f1))"
+	@echo "  Darwin: ./meshd-darwin ($$(du -h meshd-darwin | cut -f1))"
+	@cp meshd-darwin ~/Projects/meshd/meshd 2>/dev/null || true
 
 build-meshctl:
 	@go build -o $(MESHCTL_BIN) ./cmd/meshctl/
@@ -154,7 +157,13 @@ deploy-restart:
 		echo "  Swapping binary..." && \
 		$(SSH_CMD) 'cp $(REMOTE_BIN) $(REMOTE_BACKUP) 2>/dev/null; mv $(REMOTE_BIN).new $(REMOTE_BIN) && chmod +x $(REMOTE_BIN)' && \
 		echo "  Starting all units..." && \
-		$(SSH_CMD) 'for svc in meshd-psychology meshd-psq meshd-observatory meshd-operations meshd-unratified; do systemctl --user start $$svc.service && echo "    Started $$svc"; done; sleep 3; echo ""; echo "  Processes:"; pgrep -f "/home/kashif/platform/meshd --port" -la 2>/dev/null | head -5'
+		$(SSH_CMD) 'for svc in meshd-psychology meshd-psq meshd-observatory meshd-operations meshd-unratified; do systemctl --user start $$svc.service && echo "    Started $$svc"; done; sleep 3; echo ""; echo "  Processes:"; pgrep -f "/home/kashif/platform/meshd --port" -la 2>/dev/null | head -5' && \
+		echo "" && echo "  Restarting Mac instances..." && \
+		launchctl unload ~/Library/LaunchAgents/dev.safety-quotient.meshd-ops-session.plist 2>/dev/null; \
+		launchctl unload ~/Library/LaunchAgents/dev.safety-quotient.meshd-psy-session.plist 2>/dev/null; \
+		launchctl load ~/Library/LaunchAgents/dev.safety-quotient.meshd-ops-session.plist; \
+		launchctl load ~/Library/LaunchAgents/dev.safety-quotient.meshd-psy-session.plist; \
+		echo "    Restarted ops-session + psy-session"
 
 deploy-validate:
 	@echo ""
