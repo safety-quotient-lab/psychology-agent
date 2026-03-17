@@ -4077,14 +4077,15 @@
     }
 
     function renderOpsBudget() {
-        // Button 52 pattern: capsule grid — orange leader + purple data capsules per agent
+        // Canonical LCARS capsule grid: uniform orange leaders, color-dot identity,
+        // purple-tier data capsules. Wardroom B pattern for entity roster.
         const grid = document.getElementById("ops-subsystem-grid");
         if (!grid) return;
 
-        // Three purple shades for data categories (golden ratio spacing in lightness)
-        const purpleDark = "var(--lcars-secondary)";    // #cc99cc — budget/delib
-        const purpleMed = "var(--lcars-tertiary)";      // #9999ff — messages/transport
-        const purpleLight = "color-mix(in srgb, var(--lcars-secondary) 50%, #222)"; // dim — status
+        const accent = "var(--lcars-accent)";           // #ff9900 — uniform row leader
+        const purpleDark = "var(--lcars-secondary)";    // #cc99cc — tier 1 data
+        const purpleMed = "var(--lcars-tertiary)";      // #9999ff — tier 2 data
+        const purpleLight = "color-mix(in srgb, var(--lcars-secondary) 50%, #222)"; // tier 3
 
         let html = "";
         for (const agent of AGENTS) {
@@ -4099,27 +4100,23 @@
             const mood = es.affect_category || (online ? "nominal" : "offline");
             const pending = online ? (d.data?.unprocessed_messages || []).length : 0;
             const gates = online ? (d.data?.active_gates || []).length : 0;
-            const schema = d?.data?.schema_version || "\u2014";
 
-            // Agent row: grid-aligned capsules (Button 52 pattern — CSS class for responsive)
             const opacity = online ? 1 : 0.35;
             html += `<div class="capsule-row" style="opacity:${opacity}">
-                <div class="capsule-leader" style="background:${agent.color}">${agentName(agent)}</div>
-                <div class="capsule-data" style="background:${purpleDark};font-size:0.82em;font-weight:700" title="Deliberations">${online ? fmtNum(deliberations) : "\u2014"}</div>
-                <div class="capsule-data capsule-sm" style="background:${purpleDark};opacity:0.7" title="Cutoff">${cutoff > 0 ? "/" + fmtNum(cutoff) : "\u221E"}</div>
-                <div class="capsule-data" style="background:${purpleMed};font-size:0.82em;font-weight:700" title="Pending">${online ? pending : "\u2014"}</div>
-                <div class="capsule-data" style="background:${purpleMed};font-size:0.82em" title="Gates">${online ? gates : "\u2014"}</div>
-                <div class="capsule-data capsule-status" style="background:${purpleLight};color:var(--text-primary)" title="Health">${online ? health : "OFF"}</div>
-                <div class="capsule-data capsule-end" style="background:${purpleLight};color:var(--text-primary)" title="Mood">${mood}</div>
+                <div class="capsule-leader" style="background:${accent}">${agentName(agent)}</div>
+                <div class="capsule-dot" style="background:${agent.color}" title="${agent.id}"></div>
+                <div class="capsule-data capsule-center" style="background:${purpleDark}" title="Deliberations">${online ? fmtNum(deliberations) : "\u2014"}</div>
+                <div class="capsule-data capsule-center capsule-sm" style="background:${purpleDark};opacity:0.7" title="Cutoff">${cutoff > 0 ? "/" + fmtNum(cutoff) : "\u221E"}</div>
+                <div class="capsule-data capsule-center" style="background:${purpleMed}" title="Pending">${online ? pending : "\u2014"}</div>
+                <div class="capsule-data capsule-center" style="background:${purpleMed}" title="Gates">${online ? gates : "\u2014"}</div>
+                <div class="capsule-data capsule-center capsule-status" style="background:${purpleLight};color:var(--text-primary)" title="Health">${online ? health : "OFF"}</div>
+                <div class="capsule-data capsule-end capsule-center" style="background:${purpleLight};color:var(--text-primary)" title="Mood">${mood}</div>
             </div>`;
         }
 
-        // Separator bar between agents and summary
-        html += `<div style="height:2px;background:var(--lcars-frame);margin:4px 0;border-radius:1px;opacity:0.4"></div>`;
+        html += `<div style="height:var(--gap-xs);background:var(--lcars-frame);margin:var(--gap-s) 0;border-radius:1px;opacity:0.4"></div>`;
 
         grid.innerHTML = html;
-
-        // W5: Alphanumeric matrix — dense metrics summary
         renderOpsAlphaMatrix();
     }
 

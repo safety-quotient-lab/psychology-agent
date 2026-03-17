@@ -913,11 +913,11 @@ body[data-affect-mode="triage"] {
     filter: saturate(0.7);
 }
 
-/* ── Button 52 Capsule Row (Mesh Overview agent rows) ─────── */
+/* ── Capsule Row (Mesh Overview — canonical LCARS roster) ──── */
 .capsule-row {
     display: grid;
-    grid-template-columns: minmax(80px, 1fr) 60px 40px 40px 40px 60px 70px;
-    gap: var(--gap-m);
+    grid-template-columns: minmax(80px, 1fr) 12px 60px 40px 40px 40px 60px 70px;
+    gap: var(--gap-xs);
     margin-bottom: var(--gap-m);
 }
 .capsule-leader {
@@ -3254,3 +3254,18 @@ body[data-alert-level="3"] .lcars-sidebar-drop { background: #ffcc00 !important;
 body[data-alert-level="2"] .lcars-sidebar-drop { background: #cc3333 !important; }
 
 /* Connectors use grid placement — no mobile hide needed */
+
+/* ── Capsule dot — agent identity color swatch ───────────────── */
+.capsule-dot {
+    width: 12px;
+    height: 100%;
+    min-height: 24px;
+    flex-shrink: 0;
+    border-radius: 0;
+}
+
+/* ── Capsule center — horizontally centered text in data pills ── */
+.capsule-center {
+    justify-content: center !important;
+    text-align: center;
+}
