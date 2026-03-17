@@ -203,13 +203,10 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     grid-template-columns: var(--sidebar-width) var(--elbow-inner, 24px) 1fr;
     grid-template-rows: auto var(--elbow-inner, 24px) 1fr var(--elbow-inner, 24px) auto;
     position: relative;
-    height: 100vh !important;
-    height: 100dvh !important;
-    overflow: hidden !important;
+    min-height: 100vh;
 }
-.theme-lcars .lcars-content {
-    overflow-y: auto;
-}
+/* Footer band hidden — lives inside sidebar now */
+.theme-lcars .lcars-footer-band { display: none; }
 /* Explicit grid placement for every LCARS element */
 .theme-lcars .lcars-sidebar     { grid-column: 1;      grid-row: 1 / -1; }
 .theme-lcars .lcars-header-band { grid-column: 2 / -1;  grid-row: 1; }
@@ -3440,4 +3437,21 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #cc3333 !important;
 }
 .ohniaka-metric:hover .ohniaka-metric-val {
     filter: brightness(1.3);
+}
+
+/* ── Sidebar Footer — bottom bar inside sidebar flex column ── */
+.lcars-sidebar-footer {
+    flex-shrink: 0;
+    min-height: var(--band-size, 52px);
+    background: var(--lcars-frame);
+    border-radius: 0 0 0 var(--elbow-outer, 48px);
+    display: flex;
+    align-items: center;
+    padding: 4px 14px;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #000;
 }
