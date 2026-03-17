@@ -1621,6 +1621,14 @@
         { level: 3, name: "agent-degraded",
           test: () => Object.values(agentData).some(a => a?.data?.health === "degraded"),
           description: "Agent health degraded" },
+        // Context degradation cliff (psy-session Turn 1: empirical threshold 80%)
+        { level: 3, name: "context-degradation",
+          test: () => Object.values(agentData).some(a => {
+              if (a?.status !== "online") return false;
+              const ctx = a.data?.context_usage || a.data?.psychometrics?.context_consumption;
+              return ctx != null && ctx > 0.80;
+          }),
+          description: "Agent context >80% — degradation cliff" },
         // YELLOW for brief offline (1-2 agents, <60s)
         { level: 3, name: "agent-offline-brief",
           test: () => {
@@ -4308,8 +4316,22 @@
 
             const opacity = online ? 1 : 0.35;
             const cutoffStr = cutoff > 0 ? fmtNum(cutoff) : "\u221E";
+            // Operation type — from oscillator dominant_band or heuristic
+            const osc = d?.data?.oscillator || {};
+            const band = osc.dominant_band || "";
+            let opType = "IDLE";
+            let opIcon = "\u23F8"; // pause
+            let opColor = "var(--lcars-medical)";
+            if (band.startsWith("beta") || band.startsWith("gamma") || (online && deliberations > 0 && d.data?.recent_deliberations?.length > 0)) {
+                opType = "DELIB"; opIcon = "\u26A1"; opColor = "var(--lcars-title)"; // amber + lightning
+            } else if (band.startsWith("theta")) {
+                opType = "CONSOL"; opIcon = "\u{1F4E6}"; opColor = "var(--lcars-science)"; // blue + archive
+            } else if (band.startsWith("delta")) {
+                opType = "CLEAR"; opIcon = "\u{1F9F9}"; opColor = "var(--v23-plum-dark, #80225E)"; // indigo + broom
+            }
+
             const statusText = online
-                ? `${health.toUpperCase()}, ${mood.toUpperCase()}`
+                ? `${opIcon} ${opType} · ${mood.toUpperCase()}`
                 : "OFFLINE";
 
             const rowClass = online ? "ohniaka-row" : "ohniaka-row ohniaka-row-offline";
