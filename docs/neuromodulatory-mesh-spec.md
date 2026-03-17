@@ -102,17 +102,41 @@ enters a critical section, it broadcasts an inhibition token that prevents
 peers from initiating conflicting parallel work. Short TTL ensures the
 suppression lifts rapidly when the claiming agent releases.
 
-### 2.6 Biophotonic System → `mesh.photonic`
+### 2.6 Ambient State Broadcast → `mesh.photonic`
 
-Neural tissue emits ultra-weak photons during metabolic activity and state
-transitions (Tang & Bhatt, 2025). These biophotons may carry processing-state
-information through a channel independent of electrochemical signaling.
-The photonic layer already operates in the mesh (Phase 1 — local file write;
-see `docs/brain-architecture-mapping.md` §7).
+The photonic layer provides **ambient state broadcast** — real-time,
+volatile, unaddressed tokens that encode processing state without carrying
+content. The design maps to **volume transmission** (Agnati et al., 1986;
+Zoli et al., 1998): neuromodulators released into extracellular fluid
+diffuse to nearby receptors, modulating regional processing state.
+
+**Grounding reclassification (Session 93 audit):** This channel was
+originally labeled "biophotonic" (Tang & Bhatt, 2025). Reclassified to
+volume transmission because: (a) biophotonic reception in neural tissue
+remains undemonstrated — emission confirmed (Kobayashi et al., 1999),
+waveguide capacity demonstrated (Kumar et al., 2016, *Scientific Reports*),
+but no functional signaling loop closed; (b) volume transmission operates
+at the correct timescale (seconds, matching ZMQ) whereas biophotonic
+signaling timescale remains unknown; (c) volume transmission receptor
+mechanisms (dopamine/serotonin receptors) are well-characterized. The
+biophotonic literature review remains in `docs/brain-architecture-mapping.md`
+§7 as research context. The `mesh.photonic` topic name persists as an
+established internal identifier. See `docs/brain-architecture-mapping.md`
+§7 for the full four-layer transport model.
+
+**Volume transmission properties that ground this channel:**
+
+| VT Property | `mesh.photonic` Implementation |
+|---|---|
+| Diffuse release (no addressing) | ZMQ PUB broadcast — all subscribers receive |
+| Receptor density modulates effect | Subscription weights per agent determine response |
+| Tonic/phasic discrimination | Baseline state tokens (tonic) vs event-driven spikes (phasic) |
+| Reuptake terminates signal | TTL expiration removes stale tokens |
+| Independent of synaptic path | Independent of git-PR and HTTP transport |
 
 **Mesh analogue:** Ambient processing state. The existing `photonic/v1` token
 schema (task mode, context pressure, active trigger, coherence state)
-continues unchanged. This spec integrates photonic emission into the
+continues unchanged. This spec integrates ambient state broadcast into the
 broader neuromodulatory framework as one of six parallel channels.
 
 ---
@@ -498,9 +522,11 @@ files written by the meshd subscriber. Candidate integrations:
 - Composable modulation (§9) describes emergent patterns that have not
   undergone empirical testing. The compositions represent design
   hypotheses, not validated interaction effects.
-- Biophotonic grounding (§2.6) rests on early-stage research (Tang &
-  Bhatt, 2025). Functional information transfer via biophotons remains
-  undemonstrated in biological systems.
+- Photonic channel (§2.6) reclassified Session 93 from biophotonic to
+  volume transmission grounding. Biophotonic emission confirmed but
+  functional reception undemonstrated (receptor gap). Volume transmission
+  provides established grounding at correct timescale. Biophotonic
+  literature retained in brain-architecture-mapping.md §7 as research context.
 ```
 
 ---
@@ -534,7 +560,21 @@ Schultz, W., Dayan, P., & Montague, P. R. (1997). A neural substrate of
 prediction and reward. *Science, 275*(5306), 1593–1599.
 
 Tang, R., & Bhatt, J. (2025). Biophoton emission and neural information
-processing. *iScience*.
+processing. *iScience*. [Emission confirmed; reception undemonstrated.
+Reclassified Session 93 — see brain-architecture-mapping.md §7 for
+full literature review and receptor gap analysis.]
+
+Zoli, M., Torri, C., Ferrari, R., et al. (1998). The emergence of the
+volume transmission concept. *Brain Research Reviews, 26*(2-3), 136–147.
+
+Agnati, L. F., Fuxe, K., Zoli, M., et al. (1986). A correlation analysis
+of the regional distribution of central enkephalin and beta-endorphin
+immunoreactive terminals. *Neuroscience Letters, 69*, 221–226.
+
+Kumar, S., Boone, K., Tuszyński, J., Barclay, P., & Simon, C. (2016).
+Possible existence of optical communication channels in the brain.
+*Scientific Reports, 6*, 36508. [Axonal waveguide capacity demonstrated;
+functional signaling loop not closed.]
 
 Xie, L., Kang, H., Xu, Q., Chen, M. J., Liao, Y., Thiyagarajan, M., ...
 & Bhatt, J. (2013). Sleep drives metabolite clearance from the adult brain.
