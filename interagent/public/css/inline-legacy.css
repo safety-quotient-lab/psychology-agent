@@ -198,20 +198,19 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* ── LCARS Chrome: Frame Override ──────────────────────────── */
 /* 3 columns × 5 rows. Margin channel creates elbow corner cells.
    col: sidebar | margin(elbow-inner) | content
-   row: header | top-corner | content | bottom-corner | footer */
+   row: header | top-corner | content (L-shape, no bottom elbow) */
 .theme-lcars .lcars-frame {
     grid-template-columns: var(--sidebar-width) var(--elbow-inner, 24px) 1fr;
-    grid-template-rows: auto var(--elbow-inner, 24px) 1fr var(--elbow-inner, 24px) auto;
+    grid-template-rows: auto var(--elbow-inner, 24px) 1fr;
     position: relative;
     min-height: 100vh;
 }
-/* Footer band hidden — lives inside sidebar now */
+/* No footer band in L-shape layout */
 .theme-lcars .lcars-footer-band { display: none; }
-/* Explicit grid placement for every LCARS element */
+/* Explicit grid placement */
 .theme-lcars .lcars-sidebar     { grid-column: 1;      grid-row: 1 / -1; }
 .theme-lcars .lcars-header-band { grid-column: 2 / -1;  grid-row: 1; }
 .theme-lcars .lcars-content     { grid-column: 3;       grid-row: 3; overflow-y: auto; }
-.theme-lcars .lcars-footer-band { grid-column: 1 / -1;  grid-row: 5; }
 
 /* Hide standard-mode elements in LCARS */
 .theme-lcars .lcars-spine  { display: none; }

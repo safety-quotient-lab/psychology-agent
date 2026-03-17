@@ -36,9 +36,8 @@
 <body>
 
 <div class="lcars-frame">
-    <!-- Elbow inner corner connectors — grid-placed at content column boundaries -->
+    <!-- Elbow inner corner connector — top only (L-shape, no bottom elbow) -->
     <div class="lcars-elbow-connector-top"></div>
-    <div class="lcars-elbow-connector-bottom"></div>
 
     <!-- Left spine — segments map to content categories (standard mode) -->
     <div class="lcars-spine" id="lcars-spine">
@@ -61,7 +60,6 @@
         <button class="lcars-sidebar-btn" data-tab="tactical" data-short="TAC" style="background:var(--lcars-alert)" onclick="switchTab('tactical')">Tactical</button>
         <button class="lcars-sidebar-btn" data-tab="medical" data-short="MED" style="background:var(--lcars-medical)" onclick="switchTab('medical')">Medical</button>
         <div class="lcars-sidebar-arm"></div>
-        <div class="lcars-sidebar-footer" id="lcars-sidebar-footer"></div>
     </nav>
 
     <!-- LCARS Header Band — stardate tray on mobile portrait -->
