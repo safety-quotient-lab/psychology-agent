@@ -29,7 +29,7 @@
     --c-tab-kb: #c4956a;          /* amber — structured knowledge */
     --c-tab-wisdom: #b8956a;      /* warm bronze — accumulated insight */
     --c-tab-ops: #6b8aaf;         /* blue — transport, operations */
-    --c-tab-science: var(--v23-indigo-med);  /* science blue — psychometrics, science */
+    --c-tab-science: #1E565D;  /* science/medical blue (TNG canon) */
     --c-tab-engineering: #ff9944; /* warm orange — system health, tempo */
     --c-tab-tactical: var(--v23-red-med);  /* alert red — security, threat display */
     --c-tab-helm: #66aacc;        /* navigation blue — routing, sessions */
@@ -142,7 +142,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     --lcars-secondary: var(--v23-purple-med);  /* DATA tier 1 — entity names, primary values */
     --lcars-tertiary: var(--v23-magenta-med);  /* DATA tier 2 — identifiers (#B5517F) */
     --lcars-title: var(--v23-tan-med);          /* HEADERS — section titles (#D88568, warm distinct from accent) */
-    --lcars-science: var(--v23-indigo-med);    /* SYSTEMS — science/medical (#6B477A) */
+    --lcars-science: #1E565D;                  /* SYSTEMS — science/medical blue (TNG canon) */
     --lcars-alert: var(--v23-red-med);         /* EMERGENCY — destructive (#E26A49) */
     --lcars-medical: var(--v23-rose-med);      /* MEDICAL — health domain (#8E4465) */
     --lcars-neutral: var(--v23-gold-med);      /* LIGHT STRUCTURAL — secondary fill (#ED924E) */
@@ -164,11 +164,11 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     --c-tab-wisdom: var(--lcars-title);
     /* TNG division colors — 3 divisions mapped to canonical V23.01 palette */
     --c-tab-ops: #ED924E;         /* command gold/amber — operations division */
-    --c-tab-science: #0B477A;     /* science blue — science division */
+    --c-tab-science: #1E565D;     /* science blue — science division */
     --c-tab-engineering: #E0601D; /* engineering orange — ops/eng share warm */
     --c-tab-tactical: #E53828;    /* security red — tactical/security division */
     --c-tab-helm: #C1574C;        /* warm red — navigation (same division as tactical) */
-    --c-tab-medical: #0B477A;     /* medical blue — same as science division */
+    --c-tab-medical: #1E565D;     /* medical blue — same as science division */
 
     --c-psychology: var(--lcars-accent);
     --c-psq: var(--lcars-secondary);
