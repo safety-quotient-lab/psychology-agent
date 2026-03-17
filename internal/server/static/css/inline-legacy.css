@@ -225,11 +225,10 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     height: 100%;
     z-index: 10;
     pointer-events: none;
-    transform: rotate(180deg);
     background: radial-gradient(
-        circle at 0% 0%,
+        circle at 100% 100%,
         transparent 0%,
-        transparent calc(var(--elbow-inner, 24px) - 1px),
+        transparent var(--elbow-inner, 24px),
         var(--c-knowledge) var(--elbow-inner, 24px)
     );
 }
@@ -241,11 +240,10 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     height: 100%;
     z-index: 10;
     pointer-events: none;
-    transform: rotate(180deg);
     background: radial-gradient(
-        circle at 0% 100%,
+        circle at 100% 0%,
         transparent 0%,
-        transparent calc(var(--elbow-inner, 24px) - 1px),
+        transparent var(--elbow-inner, 24px),
         var(--c-knowledge) var(--elbow-inner, 24px)
     );
 }
