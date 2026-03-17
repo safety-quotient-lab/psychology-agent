@@ -15,7 +15,7 @@ import (
 	"os"
 )
 
-//go:embed static/*
+//go:embed all:static
 var staticFS embed.FS
 
 // agentDashboardTmpl parses the per-agent LCARS template once at init.
