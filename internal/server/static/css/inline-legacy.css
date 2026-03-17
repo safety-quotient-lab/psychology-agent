@@ -233,40 +233,23 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     padding-bottom: 0; /* exit button's margin-bottom handles viewport gap */
     position: relative;
 }
-/* SVG frame — one continuous L-shape path, no seams */
-.lcars-frame-svg {
-    display: none;
-}
-.theme-lcars .lcars-frame-svg {
-    display: block;
-    position: absolute;
-    top: 0; left: 0;
-    z-index: 0;
-    pointer-events: none;
-}
-/* When SVG frame active, structural elements become transparent —
-   SVG draws the visual, elements retain layout + interaction */
+/* SVG frame — hidden until properly implemented with button cutouts */
+.lcars-frame-svg { display: none !important; }
+
+/* Flat uniform frame color — all structural elements match exactly.
+   No gradients = no seams between adjacent elements. */
 .theme-lcars .lcars-sidebar-cap-top,
 .theme-lcars .lcars-sidebar-cap-bottom,
 .theme-lcars .lcars-sidebar-arm,
 .theme-lcars .lcars-sidebar-drop,
 .theme-lcars .lcars-sidebar-exit,
 .theme-lcars .lcars-sidebar-spacer {
-    background: transparent !important;
+    background: var(--lcars-frame) !important;
 }
 .theme-lcars .lcars-hdr-arm,
 .theme-lcars .lcars-hdr-endcap {
-    background: transparent !important;
+    background: var(--lcars-frame) !important;
 }
-/* Elbow connector hidden — SVG draws the concave curve */
-.theme-lcars .lcars-elbow-connector-top,
-.theme-lcars .lcars-elbow-connector-bottom {
-    display: none !important;
-}
-/* Sidebar + header sit above the SVG */
-.theme-lcars .lcars-sidebar { z-index: 1; }
-.theme-lcars .lcars-header-band { z-index: 1; position: relative; }
-.theme-lcars .lcars-content { z-index: 1; position: relative; }
 
 /* Top elbow cap — outer corner of the frame rounds off at top-left.
    ╭████████████████████
