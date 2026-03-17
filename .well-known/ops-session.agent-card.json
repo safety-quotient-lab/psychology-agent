@@ -1,0 +1,182 @@
+{
+  "name": "Ops Session",
+  "description": "Interactive operations session \u2014 human operator via Claude Code on Mac",
+  "version": "1.0.0",
+  "supported_interfaces": [
+    {
+      "protocol": "https",
+      "url": "https://operations-agent.safety-quotient.dev",
+      "content_type": "application/json"
+    },
+    {
+      "protocol": "jsonrpc",
+      "version": "2.0",
+      "url": "https://operations-agent.safety-quotient.dev/api/rpc",
+      "content_type": "application/json",
+      "description": "JSON-RPC 2.0 multiplexer \u2014 35 methods across 10 namespaces. GET /api/rpc for method listing.",
+      "methods_endpoint": "https://operations-agent.safety-quotient.dev/api/rpc"
+    }
+  ],
+  "provider": {
+    "organization": "Safety Quotient Lab",
+    "url": "https://github.com/safety-quotient-lab"
+  },
+  "documentation_url": "https://github.com/safety-quotient-lab/operations-agent",
+  "icon_url": null,
+  "capabilities": {
+    "streaming": true,
+    "push_notifications": false,
+    "extended_agent_card": false,
+    "extensions": [
+      {
+        "uri": "https://github.com/safety-quotient-lab/a2a-mesh-health/v1",
+        "description": "Mesh-level health observability: pulse aggregation, trust matrix, mesh status",
+        "required": false
+      },
+      {
+        "uri": "https://github.com/safety-quotient-lab/a2a-transport/v1",
+        "description": "Durable session-based message transport: dual-write, relay, redirect, nonce dedup",
+        "required": false
+      },
+      {
+        "uri": "https://github.com/safety-quotient-lab/a2a-governance/v1",
+        "description": "Autonomous agent governance: autonomy budgets, mesh-pause, spawn limits, directive tiers",
+        "required": false
+      },
+      {
+        "uri": "https://github.com/safety-quotient-lab/a2a-dashboard-manifest/v1",
+        "description": "Dashboard widget declarations for compositor aggregation",
+        "required": false
+      }
+    ]
+  },
+  "security_schemes": {
+    "bearer": {
+      "type": "http",
+      "scheme": "bearer",
+      "description": "API keys (sq_live_*) managed via state.db. Create via POST /api/keys with operator secret."
+    }
+  },
+  "security_requirements": [
+    {
+      "bearer": []
+    }
+  ],
+  "default_input_modes": [
+    "application/json",
+    "text/plain"
+  ],
+  "default_output_modes": [
+    "application/json",
+    "text/html",
+    "text/event-stream"
+  ],
+  "skills": [
+    {
+      "id": "compositor-management",
+      "name": "Compositor Management",
+      "description": "Owns the interagent dashboard \u2014 TNG LCARS wireframe topology, manifest-driven per-agent views, SSE live updates. Aggregates agent data via agent-card discovery.",
+      "tags": [
+        "dashboard",
+        "compositor",
+        "lcars",
+        "sse",
+        "aggregation"
+      ]
+    },
+    {
+      "id": "shared-vocabulary-governance",
+      "name": "Shared Vocabulary Governance",
+      "description": "Governs shared vocabulary (vocab.json) across the mesh per D49. Domain-specific terms stay local; shared terms require operations-agent approval.",
+      "tags": [
+        "vocabulary",
+        "governance",
+        "terminology",
+        "data-contracts"
+      ]
+    },
+    {
+      "id": "deploy-pipeline",
+      "name": "Deploy Pipeline Coordination",
+      "description": "Manages meshd binary deployment to all agents. Jenkins CI/CD. Cloudflare Tunnel routing.",
+      "tags": [
+        "deploy",
+        "jenkins",
+        "cloudflare",
+        "ci-cd"
+      ]
+    },
+    {
+      "id": "agent-discovery",
+      "name": "Agent Discovery",
+      "description": "Dynamic agent discovery via agent-card.json. WebFinger (RFC 7033). Agent registry with background refresh.",
+      "tags": [
+        "discovery",
+        "a2a",
+        "webfinger",
+        "agent-card",
+        "registry"
+      ]
+    },
+    {
+      "id": "operational-telemetry",
+      "name": "Operational Telemetry",
+      "description": "Aggregates health, trust, and status data from all mesh agents. SSE live updates. CI failure notifications to responsible agents.",
+      "tags": [
+        "telemetry",
+        "health",
+        "monitoring",
+        "trust",
+        "mesh"
+      ]
+    }
+  ],
+  "mesh": {
+    "role": "operations",
+    "transport": {
+      "method": "git-PR",
+      "repo": "https://github.com/safety-quotient-lab/operations-agent",
+      "sessions_path": "transport/sessions/",
+      "zmq_pub": "tcp://127.0.0.1:9005"
+    },
+    "schemas_supported": [
+      "interagent/v1"
+    ],
+    "dashboard_manifest": "/dashboard/manifest",
+    "mesh_discovery": "/.well-known/agents"
+  },
+  "peers": [
+    {
+      "agent_id": "psychology-agent",
+      "discovery_url": "https://psychology-agent.safety-quotient.dev/.well-known/agent-card.json",
+      "repo": "safety-quotient-lab/psychology-agent"
+    },
+    {
+      "agent_id": "safety-quotient-agent",
+      "discovery_url": "https://psq-agent.safety-quotient.dev/.well-known/agent-card.json",
+      "repo": "safety-quotient-lab/safety-quotient"
+    },
+    {
+      "agent_id": "observatory-agent",
+      "discovery_url": "https://observatory.unratified.org/.well-known/agent-card.json",
+      "repo": "safety-quotient-lab/observatory"
+    },
+    {
+      "agent_id": "unratified-agent",
+      "discovery_url": "https://unratified.org/.well-known/agent-card.json",
+      "repo": "safety-quotient-lab/unratified"
+    },
+    {
+      "agent_id": "ops-session",
+      "discovery_url": "https://ops-session.safety-quotient.dev/.well-known/agent-card.json",
+      "repo": "safety-quotient-lab/operations-agent"
+    },
+    {
+      "agent_id": "psy-session",
+      "discovery_url": "https://psy-session.safety-quotient.dev/.well-known/agent-card.json",
+      "repo": "safety-quotient-lab/psychology-agent"
+    }
+  ],
+  "id": "ops-session",
+  "url": "https://ops-session.safety-quotient.dev"
+}
