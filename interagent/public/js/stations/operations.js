@@ -287,7 +287,7 @@ function renderOpsBudget() {
         const health = d?.data?.health || "\u2014";
         const psych = d?.data?.psychometrics || {};
         const es = psych.emotional_state || {};
-        const mood = es.affect_category || (online ? "nominal" : "offline");
+        const mood = es.affect_category || (online ? "unknown" : "");
         const pending = online ? (d.data?.unprocessed_messages || []).length : 0;
         const gates = online ? (d.data?.active_gates || []).length : 0;
 
