@@ -140,13 +140,13 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     --lcars-frame: var(--v23-orange-med);         /* STRUCTURAL — frame bars, elbows, spacers (#E6661D) */
     --lcars-accent: var(--v23-gold-med);        /* PRIMARY/ACTIVE — row leaders, emphasis capsules (#ED924E) */
     --lcars-secondary: var(--v23-purple-med);  /* DATA tier 1 — entity names, primary values */
-    --lcars-tertiary: var(--v23-purple-dark);  /* DATA tier 2 — identifiers, secondary values */
-    --lcars-title: var(--v23-gold-med);        /* ALERT/HEADER — section titles, attention */
-    --lcars-science: var(--v23-indigo-med);          /* SYSTEMS — science/medical department blue */
-    --lcars-alert: var(--v23-red-med);             /* EMERGENCY — destructive, final tier (sparse) */
-    --lcars-medical: var(--v23-tan-med);         /* ENVIRONMENTAL — health domain context only */
-    --lcars-neutral: var(--v23-gold-light);    /* LIGHT STRUCTURAL — secondary fill, spacers */
-    --lcars-highlight: var(--v23-salmon-med);  /* ATTENTION — epistemic flags, highlighted data */
+    --lcars-tertiary: var(--v23-magenta-med);  /* DATA tier 2 — identifiers (#B5517F) */
+    --lcars-title: var(--v23-tan-med);          /* HEADERS — section titles (#D88568, warm distinct from accent) */
+    --lcars-science: var(--v23-indigo-med);    /* SYSTEMS — science/medical (#6B477A) */
+    --lcars-alert: var(--v23-red-med);         /* EMERGENCY — destructive (#E26A49) */
+    --lcars-medical: var(--v23-rose-med);      /* MEDICAL — health domain (#8E4465) */
+    --lcars-neutral: var(--v23-gold-med);      /* LIGHT STRUCTURAL — secondary fill (#ED924E) */
+    --lcars-highlight: var(--v23-salmon-med);  /* ATTENTION — epistemic (#C15740) */
 
     /* ── Mapped to existing variable names ── */
     --c-transport: var(--lcars-accent);
