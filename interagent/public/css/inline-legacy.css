@@ -543,6 +543,77 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
 }
 
+/* ── Three-Zone Panel Layout (§1.2) ───────────────────────── */
+/* Zone A: dense number grid (top). Zone B: visualization (middle).
+   Zone C: title bar + section ID (bottom). Every canonical panel uses this. */
+
+/* Zone A — dense alphanumeric matrix above the visualization */
+.lcars-zone-a {
+    padding: 6px 12px;
+    font-family: 'Menlo', 'Lucida Console', monospace;
+    font-size: 0.65em;
+    line-height: 1.6;
+    letter-spacing: 0.08em;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.2em;
+    border-bottom: 2px solid var(--panel-accent, var(--lcars-frame));
+}
+.theme-lcars .lcars-zone-a {
+    background: #000;
+    border-bottom-color: var(--panel-accent, var(--lcars-frame));
+}
+/* Number grid values — alternating colors per data type (§2.3) */
+.lcars-zone-a .zn { white-space: nowrap; }
+.lcars-zone-a .zn-count { color: var(--lcars-accent); }     /* orange: counts */
+.lcars-zone-a .zn-id { color: var(--lcars-secondary); }     /* purple: identifiers */
+.lcars-zone-a .zn-val { color: var(--text-primary, #eee); } /* white: measured */
+.lcars-zone-a .zn-alert { color: var(--lcars-title); font-weight: 700; } /* gold: anomalous */
+
+/* Zone B — main visualization / content (inherits .lcars-panel-body) */
+/* No additional CSS needed — .lcars-panel-body serves as Zone B */
+
+/* Zone C — title bar with section identifier number */
+.lcars-zone-c {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 16px;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim, #888);
+    border-top: 2px solid var(--panel-accent, var(--lcars-frame));
+}
+.theme-lcars .lcars-zone-c {
+    background: #000;
+    border-top-color: var(--panel-accent, var(--lcars-frame));
+}
+.lcars-zone-c .zc-title { color: var(--text-primary, #eee); }
+.lcars-zone-c .zc-id {
+    color: var(--lcars-accent);
+    font-size: 1.2em;
+    min-width: 60px;
+    text-align: right;
+}
+
+/* ── Symmetric Framing (§5.4) ───────────────────────────────── */
+/* Capsule control strips appear above AND below content */
+.lcars-symmetric-controls {
+    display: flex;
+    gap: var(--gap-s, 5px);
+    flex-wrap: wrap;
+    padding: 6px 12px;
+}
+.lcars-symmetric-controls.bottom {
+    border-top: 2px solid var(--panel-accent, var(--lcars-frame));
+}
+.lcars-symmetric-controls.top {
+    border-bottom: 2px solid var(--panel-accent, var(--lcars-frame));
+}
+
 /* ── LCARS Typography Override ─────────────────────────────── */
 .theme-lcars {
     font-family: 'Arial Narrow', 'Helvetica Neue', system-ui, sans-serif;
@@ -1639,17 +1710,22 @@ body {
     color: var(--panel-accent);
     font-size: 0.95em;
 }
+/* Status pips — explicit RGB traffic lights (online/offline/degraded).
+   Exception to semiotic palette: binary system state needs instant recognition. */
 .agent-status-dot {
     width: 8px; height: 8px;
     border-radius: 50%;
     display: inline-block;
 }
 .agent-status-dot.online {
-    background: var(--c-health);
+    background: #22cc44;
     animation: pulse 2s ease-in-out infinite;
 }
+.agent-status-dot.degraded {
+    background: #ddaa22;
+}
 .agent-status-dot.offline {
-    background: var(--c-alert);
+    background: #cc2222;
     animation: agent-offline-flash 2s ease-in-out infinite;
 }
 @keyframes pulse {

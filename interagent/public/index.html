@@ -482,13 +482,18 @@
             <div class="ops-subsys-panel ops-subsys-active" id="ops-subsys-status">
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
                     <div class="lcars-panel-header">Mesh Status</div>
+                    <!-- Zone A: dense number grid (§1.2 / §4.1) -->
+                    <div class="lcars-zone-a" id="ops-zone-a"></div>
+                    <!-- Zone B: visualization (mesh overview grid) -->
                     <div class="lcars-panel-body">
                         <div id="ops-alpha-matrix" style="margin-bottom:var(--gap-l)"></div>
                         <div class="lcars-subsystem-grid" id="ops-subsystem-grid"></div>
                     </div>
-                    <!-- Monologue hidden — summary metrics replace it -->
-                    <div id="ops-status-monologue" style="display:none"></div>
-                    <div class="lcars-panel-footer">Ops Record<span class="lcars-panel-footer-num" id="ops-overview-num"></span></div>
+                    <!-- Zone C: title bar + section ID -->
+                    <div class="lcars-zone-c">
+                        <span class="zc-title">Operations Record</span>
+                        <span class="zc-id" id="ops-overview-num"></span>
+                    </div>
                 </div>
             </div>
 
@@ -590,6 +595,7 @@
                 <!-- Panel B: Agent Affect Grid (per-agent PAD projection) -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
                     <div class="lcars-panel-header">Agent Affect Grid</div>
+                    <div class="lcars-zone-a" id="science-zone-a"></div>
                     <div class="lcars-panel-body">
                         <!-- PAD projection selector — LCARS mode buttons -->
                         <div style="display:flex;gap:3px;margin-bottom:6px">
@@ -860,6 +866,7 @@
                 <!-- Panel A: Deliberation Cascade -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
                     <div class="lcars-panel-header">Deliberation Cascade (Gf)</div>
+                    <div class="lcars-zone-a" id="eng-zone-a"></div>
                     <div class="lcars-panel-body" id="spawn-dynamics">
                         <div class="engineering-placeholder" id="spawn-placeholder">Awaiting engineering data...</div>
                     </div>
@@ -1544,6 +1551,96 @@
         const id = typeof agentOrId === "string" ? agentOrId : agentOrId?.id || "";
         const found = AGENTS.find(a => a.id === id);
         return found?.name || id.replace("-agent", "").replace("psq", "safety-quotient");
+    }
+
+    // ── Three-Zone Number Grid Generator (§4.1) ────────────────
+    // Fills Zone A with dense colored numbers from real agent data.
+    // Color encodes data type: orange=counts, purple=IDs, white=measured, gold=alert
+    function renderNumberGrid(containerId, metrics) {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        if (!metrics || metrics.length === 0) { el.innerHTML = ""; return; }
+
+        el.innerHTML = metrics.map(m => {
+            const cls = m.alert ? "zn zn-alert" : m.type === "count" ? "zn zn-count"
+                : m.type === "id" ? "zn zn-id" : "zn zn-val";
+            return `<span class="${cls}">${m.value}</span>`;
+        }).join("");
+    }
+
+    // Generate metrics array from agent data for Zone A grids
+    function opsZoneAMetrics() {
+        const online = Object.values(agentData).filter(a => a.status === "online");
+        const totalDelib = online.reduce((s, a) => s + getDeliberations(a.data?.autonomy_budget), 0);
+        const totalCutoff = online.reduce((s, a) => s + getCutoff(a.data?.autonomy_budget), 0);
+        const totalMsgs = online.reduce((s, a) => s + (a.data?.recent_messages?.length || 0), 0);
+        const pending = online.reduce((s, a) => s + (a.data?.unprocessed_messages?.length || 0), 0);
+        const gates = online.reduce((s, a) => s + (a.data?.active_gates?.length || 0), 0);
+        const events = online.reduce((s, a) => s + (a.data?.event_count || 0), 0);
+        const sessions = online.reduce((s, a) => s + (a.data?.totals?.sessions || 0), 0);
+        const decisions = online.reduce((s, a) => s + (a.data?.totals?.decisions || 0), 0);
+
+        return [
+            { value: fmtNum(online.length), type: "count" },
+            { value: fmtNum(AGENTS.length), type: "id" },
+            { value: fmtNum(totalDelib), type: "count" },
+            { value: totalCutoff > 0 ? fmtNum(totalCutoff) : "\u221E", type: "id" },
+            { value: fmtNum(totalMsgs), type: "val" },
+            { value: fmtNum(pending), type: "count", alert: pending > 5 },
+            { value: fmtNum(gates), type: "id" },
+            { value: fmtNum(events), type: "val" },
+            { value: fmtNum(sessions), type: "id" },
+            { value: fmtNum(decisions), type: "count" },
+            // Per-agent deliberation counts
+            ...AGENTS.map(a => {
+                const d = agentData[a.id];
+                const delib = d?.status === "online" ? getDeliberations(d.data?.autonomy_budget) : 0;
+                return { value: fmtNum(delib), type: d?.status === "online" ? "count" : "id" };
+            }),
+            // Pad with contextual numbers for density
+            { value: fmtNum(Math.round(Date.now() / 1000) % 100000), type: "val" },
+            { value: fmtNum(online.reduce((s, a) => s + (a.data?.uptime_seconds || 0), 0)), type: "val" },
+        ];
+    }
+
+    function scienceZoneAMetrics() {
+        const online = Object.values(agentData).filter(a => a.status === "online");
+        const metrics = [];
+        for (const a of online) {
+            const p = a.data?.psychometrics || {};
+            const es = p.emotional_state || {};
+            metrics.push({ value: (es.valence ?? 0).toFixed(2), type: "val" });
+            metrics.push({ value: (es.arousal ?? 0).toFixed(2), type: "count" });
+            metrics.push({ value: (es.dominance ?? 0).toFixed(2), type: "id" });
+        }
+        // Pad with construct scores
+        for (const a of online) {
+            const p = a.data?.psychometrics || {};
+            metrics.push({ value: fmtNum(Math.round((p.cognitive_load ?? 0) * 100)), type: "count" });
+            metrics.push({ value: fmtNum(Math.round((p.flow_state ?? 0) * 100)), type: "val" });
+            metrics.push({ value: fmtNum(Math.round((p.engagement?.absorption ?? 0) * 100)), type: "id" });
+        }
+        return metrics;
+    }
+
+    function engZoneAMetrics() {
+        const online = Object.values(agentData).filter(a => a.status === "online");
+        const totalDelib = online.reduce((s, a) => s + getDeliberations(a.data?.autonomy_budget), 0);
+        const metrics = [
+            { value: fmtNum(totalDelib), type: "count" },
+        ];
+        // Per-agent deliberation + cost
+        for (const agent of AGENTS) {
+            const d = agentData[agent.id];
+            if (d?.status !== "online") continue;
+            const spawns = d.data?.recent_deliberations || [];
+            const cost = spawns.reduce((s, sp) => s + (parseFloat(sp.cost) || 0), 0);
+            const dur = spawns.reduce((s, sp) => s + (parseInt(sp.duration_ms) || 0), 0);
+            metrics.push({ value: fmtNum(spawns.length), type: "count" });
+            metrics.push({ value: cost.toFixed(1), type: "val" });
+            metrics.push({ value: fmtNum(Math.round(dur / 1000)), type: "id" });
+        }
+        return metrics;
     }
 
     let agentData = {};
@@ -4134,6 +4231,8 @@
     // ── Render: Operations ──────────────────────────────────────────
 
     function renderOperations() {
+        // Zone A: dense number grid (three-zone layout §1.2)
+        renderNumberGrid("ops-zone-a", opsZoneAMetrics());
         renderOpsMonologue();
         renderOpsBudget();
         renderOpsActivity();
@@ -4448,7 +4547,7 @@
 
             const rowClass = online ? "ohniaka-row" : "ohniaka-row ohniaka-row-offline";
             const degraded = online && health === "degraded";
-            const statusColor = online ? (degraded ? "var(--lcars-title)" : "var(--lcars-medical)") : "var(--lcars-alert)";
+            const statusColor = online ? (degraded ? "#ddaa22" : "#22cc44") : "#cc2222";
             const statusPill = `<span class="ohniaka-status-pill${!online ? " agent-name-offline" : ""}" style="background:${statusColor}"></span>`;
             return `<div class="${rowClass}">
                 <span class="ohniaka-color-pill" style="background:${agent.color}"></span>
@@ -4841,6 +4940,7 @@
     }
 
     function renderScience() {
+        renderNumberGrid("science-zone-a", scienceZoneAMetrics());
         renderAffectGrid();
         renderOrganismState();
         renderGeneratorBalance();
@@ -5509,6 +5609,7 @@
     }
 
     function renderEngineering() {
+        renderNumberGrid("eng-zone-a", engZoneAMetrics());
         renderSpawnDynamics();
         renderGcCascade();
         renderUtilization();
