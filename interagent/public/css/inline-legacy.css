@@ -3240,10 +3240,10 @@ a.activity-link:hover {
     margin-bottom: var(--gap-xs, 3px);
 }
 @media (max-width: 768px) {
-    .lcars-sidebar-drop { min-height: var(--gap-2xl, 34px); }
+    .lcars-sidebar-drop { min-height: calc(var(--gap-2xl, 34px) + var(--gap-xl, 21px)); }
 }
 @media (max-width: 480px) {
-    .lcars-sidebar-drop { min-height: var(--gap-l, 13px); }
+    .lcars-sidebar-drop { min-height: calc(var(--gap-l, 13px) + var(--gap-xl, 21px)); }
 }
 @media (max-height: 500px) and (orientation: landscape) {
     .lcars-sidebar-drop { min-height: var(--gap-m, 8px); }
