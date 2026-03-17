@@ -83,17 +83,18 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 
 /* LCARS 47988 — canonical TNG color semantics */
 .theme-lcars {
-    /* ── Semantic palette (from design reference) ── */
-    --lcars-frame: #ff9966;       /* salmon — structural bars, separators */
-    --lcars-accent: #ff9900;      /* orange — active data, emphasis */
-    --lcars-secondary: #cc99cc;   /* purple — subsystem info, identifiers */
-    --lcars-tertiary: #9999ff;    /* violet — secondary identifiers */
-    --lcars-title: #ffcc00;       /* gold — section headers, warnings */
-    --lcars-science: #5b9cf6;     /* blue — navigational, science */
-    --lcars-alert: #cc6666;       /* red — emergency, critical */
-    --lcars-medical: #66ccaa;     /* green/cyan — health, nominal */
-    --lcars-neutral: #ccaa88;     /* tan — spacers, neutral frame */
-    --lcars-highlight: #cc6699;   /* magenta — epistemic, attention */
+    /* ── Canonical LCARS Palette V23.01 (Mike Okuda / Scenic Art) ── */
+    /* Source: LCARS Palette V23-01 by caseytube, scanned from TNG/DS9 set translites */
+    --lcars-frame: #D88274;       /* salmon — STRUCTURAL bars, elbows, spacers */
+    --lcars-accent: #E0601D;      /* orange — PRIMARY/ACTIVE, row leaders, emphasis */
+    --lcars-secondary: #AA7FAA;   /* purple — DATA tier 1, entity names */
+    --lcars-tertiary: #906193;    /* violet dark — DATA tier 2, secondary identifiers */
+    --lcars-title: #ED924E;       /* gold/amber — HEADERS, section titles */
+    --lcars-science: #0B477A;     /* blue — SYSTEMS, science, navigation */
+    --lcars-alert: #E53828;       /* red — EMERGENCY, critical, destructive */
+    --lcars-medical: #8EB044;     /* green — health, nominal (rare) */
+    --lcars-neutral: #EEAC7B;     /* peach — light structural, spacers */
+    --lcars-highlight: #C1574C;   /* warm red — attention, epistemic */
 
     /* ── Mapped to existing variable names ── */
     --c-transport: var(--lcars-accent);
@@ -3324,8 +3325,8 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #cc3333 !important;
     display: grid;
     grid-template-columns: minmax(100px, 1.2fr) 80px 100px 1fr;
     gap: var(--gap-xl);
-    padding: var(--gap-xs) 0;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: var(--gap-m) 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
     font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.78em;
     font-weight: 700;

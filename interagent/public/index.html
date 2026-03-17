@@ -488,10 +488,11 @@
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
                     <div class="lcars-panel-header">Mesh Status</div>
                     <div class="lcars-panel-body">
-                        <div id="ops-status-monologue" style="font-family:'Lucida Console','Menlo',monospace;font-size:0.78em;color:var(--text-primary);line-height:1.5;padding:4px 0;margin-bottom:var(--gap-m)"></div>
+                        <div id="ops-alpha-matrix" style="margin-bottom:var(--gap-l)"></div>
                         <div class="lcars-subsystem-grid" id="ops-subsystem-grid"></div>
-                        <div id="ops-alpha-matrix" style="margin-top:var(--gap-m)"></div>
                     </div>
+                    <!-- Monologue hidden — summary metrics replace it -->
+                    <div id="ops-status-monologue" style="display:none"></div>
                     <div class="lcars-panel-footer">Ops Record<span class="lcars-panel-footer-num" id="ops-overview-num"></span></div>
                 </div>
             </div>
