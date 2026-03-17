@@ -1033,6 +1033,7 @@ body[data-alert-level="3"] .lcars-sidebar-arm,
 body[data-alert-level="3"] .lcars-sidebar-spacer,
 body[data-alert-level="3"] .lcars-sidebar-drop,
 body[data-alert-level="3"] .lcars-sidebar-btn,
+body[data-alert-level="3"] .lcars-sidebar-exit,
 body[data-alert-level="3"] .lcars-hdr-arm,
 body[data-alert-level="3"] .lcars-hdr-endcap,
 body[data-alert-level="3"] .lcars-header-seg,
@@ -1060,6 +1061,7 @@ body[data-alert-level="2"] .lcars-sidebar-arm,
 body[data-alert-level="2"] .lcars-sidebar-spacer,
 body[data-alert-level="2"] .lcars-sidebar-drop,
 body[data-alert-level="2"] .lcars-sidebar-btn,
+body[data-alert-level="2"] .lcars-sidebar-exit,
 body[data-alert-level="2"] .lcars-hdr-arm,
 body[data-alert-level="2"] .lcars-hdr-endcap,
 body[data-alert-level="2"] .lcars-header-seg,
@@ -3138,7 +3140,9 @@ a.activity-link:hover {
 /* Desktop: all pills inline, tray hidden */
 .stardate-tray-input { display: none; }
 .stardate-tray-label {
-    display: block;
+    display: flex;
+    align-items: flex-end; /* bottom-aligned */
+    justify-content: center; /* centered */
     width: 100%;
     height: 100%;
     cursor: default;
@@ -3445,13 +3449,14 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #cc3333 !important;
 .lcars-sidebar-exit {
     flex-shrink: 0;
     margin-top: var(--gap-xs, 3px);
-    margin-bottom: var(--gap-xl, 21px); /* gap between sidebar and viewport bottom */
+    margin-bottom: var(--gap-xl, 21px);
     min-height: 36px;
     background: var(--c-knowledge);
-    border-radius: 0; /* flat rectangle, no curves */
+    border-radius: 0;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
+    padding-right: 12px;
     width: 100%;
     font-size: 0.85em;
     color: #000;
