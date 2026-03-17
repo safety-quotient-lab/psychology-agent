@@ -1581,14 +1581,22 @@
         const sessions = online.reduce((s, a) => s + (a.data?.totals?.sessions || 0), 0);
         const decisions = online.reduce((s, a) => s + (a.data?.totals?.decisions || 0), 0);
 
+        // Gc (crystallized intelligence) — events handled without LLM invocation
+        const gcEvents = online.reduce((s, a) => s + (a.data?.gc_metrics?.events_processed || 0), 0);
+        const gcLastHr = online.reduce((s, a) => s + (a.data?.gc_metrics?.deliberations_last_hour || 0), 0);
+        const uptimeHrs = Math.round(online.reduce((s, a) => s + (a.data?.uptime_seconds || 0), 0) / 3600);
+
         return [
             { label: "ONLINE", value: `${online.length}/${AGENTS.length}`, type: "count" },
-            { label: "DELIB", value: fmtNum(totalDelib), type: "count" },
+            { label: "Gf", value: fmtNum(totalDelib), type: "count" },
+            { label: "Gc", value: fmtNum(gcEvents), type: "id" },
             { label: "LIMIT", value: totalCutoff > 0 ? fmtNum(totalCutoff) : "\u221E", type: "id" },
+            { label: "Gf/HR", value: fmtNum(gcLastHr), type: "count" },
             { label: "MSG", value: fmtNum(totalMsgs), type: "val" },
             { label: "PEND", value: fmtNum(pending), type: "count", alert: pending > 5 },
             { label: "GATE", value: fmtNum(gates), type: "id" },
             { label: "EVT", value: fmtNum(events), type: "val" },
+            { label: "UPTIME", value: uptimeHrs + "h", type: "val" },
             { label: "SESS", value: fmtNum(sessions), type: "id" },
             { label: "DEC", value: fmtNum(decisions), type: "count" },
         ];

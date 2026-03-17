@@ -133,6 +133,34 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     --v23-red-med: #E26A49;
     --v23-red-light: #F09173;
 
+    /* LCARS 2369 named colors (trekcolors, TNG/DS9 era) */
+    --lcars-blue-bell: #9999CC;
+    --lcars-melrose: #9999FF;
+    --lcars-lilac: #CC99CC;
+    --lcars-hopbush: #CC6699;
+    --lcars-chestnut-rose: #CC6666;
+    --lcars-orange-peel: #FF9966;
+    --lcars-atomic-tangerine: #FF9900;
+    --lcars-golden-tanoi: #FFCC66;
+
+    /* Starfleet division colors (trekcolors) */
+    --sf-command: #5B1414;
+    --sf-operations: #AD722C;
+    --sf-science: #1A6384;
+    --sf-medical: #2C6B70;
+    --sf-intelligence: #483A4A;
+
+    /* Alert palettes (trekcolors) */
+    --alert-red-darkest: #670000;
+    --alert-red-dark: #990000;
+    --alert-red-med: #CD0000;
+    --alert-red-bright: #FE0000;
+    --alert-red-light: #FF9190;
+    --alert-yellow-dark: #986509;
+    --alert-yellow-med: #CD870E;
+    --alert-yellow-bright: #FFA90E;
+    --alert-yellow-light: #FFDA67;
+
     /* ── Semantic mapping (roles → palette) ── */
     /* ── Semiotic Color Mapping (V23.01 → LCARS function) ──────
        Canon: color = CATEGORY, never status. Status uses brightness.
