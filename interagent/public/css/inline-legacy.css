@@ -236,19 +236,37 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* SVG frame — hidden until properly implemented with button cutouts */
 .lcars-frame-svg { display: none !important; }
 
-/* Flat uniform frame color — all structural elements match exactly.
-   No gradients = no seams between adjacent elements. */
+/* Sidebar structural gradient — non-uniform internal glow.
+   All sidebar structural elements share this gradient so they blend.
+   Border-radius removed from spacers/arm to prevent seam visibility. */
 .theme-lcars .lcars-sidebar-cap-top,
 .theme-lcars .lcars-sidebar-cap-bottom,
 .theme-lcars .lcars-sidebar-arm,
 .theme-lcars .lcars-sidebar-drop,
 .theme-lcars .lcars-sidebar-exit,
 .theme-lcars .lcars-sidebar-spacer {
-    background: var(--lcars-frame) !important;
+    background: linear-gradient(90deg,
+        color-mix(in srgb, var(--lcars-frame) 78%, #1a1000) 0%,
+        color-mix(in srgb, var(--lcars-frame) 88%, #2a1800) 8%,
+        var(--lcars-frame) 25%,
+        color-mix(in srgb, var(--lcars-frame) 92%, #ffe8cc) 38%,
+        color-mix(in srgb, var(--lcars-frame) 95%, #fff4e0) 55%,
+        var(--lcars-frame) 72%,
+        color-mix(in srgb, var(--lcars-frame) 85%, #1a1000) 100%
+    ) !important;
 }
+/* Header structural elements — gradient runs top→bottom */
 .theme-lcars .lcars-hdr-arm,
 .theme-lcars .lcars-hdr-endcap {
-    background: var(--lcars-frame) !important;
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--lcars-frame) 78%, #1a1000) 0%,
+        color-mix(in srgb, var(--lcars-frame) 88%, #2a1800) 8%,
+        var(--lcars-frame) 25%,
+        color-mix(in srgb, var(--lcars-frame) 92%, #ffe8cc) 38%,
+        color-mix(in srgb, var(--lcars-frame) 95%, #fff4e0) 55%,
+        var(--lcars-frame) 72%,
+        color-mix(in srgb, var(--lcars-frame) 85%, #1a1000) 100%
+    ) !important;
 }
 
 /* Top elbow cap — outer corner of the frame rounds off at top-left.
@@ -365,17 +383,14 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     filter: brightness(1.1);
 }
 
-/* Sidebar spacer blocks — visual rhythm, no text */
+/* Sidebar spacer blocks — visual rhythm, no text.
+   No border-radius — spacers blend seamlessly into the frame. */
 .lcars-sidebar-spacer {
     min-height: 20px;
     flex-shrink: 0;
     margin-bottom: var(--gap-xs);
-    border-radius: 12px 0 0 12px;
 }
-/* Spacers transparent in LCARS — parent gradient shows through */
-.theme-lcars .lcars-sidebar-spacer {
-    background: transparent !important;
-}
+/* Spacers use frame gradient (set in .theme-lcars block above) */
 
 /* Bottom elbow cap — outer corner of the frame rounds off at bottom-left.
    │BTN
@@ -389,7 +404,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     flex: 1; /* fills remaining sidebar height */
     background: var(--lcars-frame);
     margin-bottom: 0;
-    border-radius: 12px 0 0 0;
+    /* No border-radius — arm blends seamlessly into adjacent frame elements */
 }
 
 /* Bottom cap matches top cap — continuous sidebar frame */
