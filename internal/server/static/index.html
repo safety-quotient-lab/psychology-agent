@@ -50,13 +50,13 @@
     <!-- LCARS Sidebar — Trek bridge stations (semantic colors) -->
     <nav class="lcars-sidebar" id="lcars-sidebar">
         <div class="lcars-sidebar-cap-top"></div>
-        <div class="lcars-sidebar-drop" style="background:var(--lcars-tertiary)"></div>
+        <div class="lcars-sidebar-drop" style="background:var(--lcars-frame)"></div>
         <button class="lcars-sidebar-btn active" data-tab="operations" data-short="OPS" style="background:var(--lcars-secondary)" onclick="switchTab('operations')">Operations</button>
         <button class="lcars-sidebar-btn" data-tab="science" data-short="SCI" style="background:var(--lcars-tertiary)" onclick="switchTab('science')">Science</button>
-        <div class="lcars-sidebar-spacer" style="background:var(--lcars-highlight)"></div>
+        <div class="lcars-sidebar-spacer" style="background:var(--lcars-frame)"></div>
         <button class="lcars-sidebar-btn" data-tab="engineering" data-short="ENG" style="background:var(--lcars-secondary)" onclick="switchTab('engineering')">Engineering</button>
         <button class="lcars-sidebar-btn" data-tab="helm" data-short="HLM" style="background:var(--lcars-tertiary)" onclick="switchTab('helm')">Helm</button>
-        <div class="lcars-sidebar-spacer" style="background:var(--lcars-highlight)"></div>
+        <div class="lcars-sidebar-spacer" style="background:var(--lcars-frame)"></div>
         <button class="lcars-sidebar-btn" data-tab="tactical" data-short="TAC" style="background:var(--lcars-secondary)" onclick="switchTab('tactical')">Tactical</button>
         <button class="lcars-sidebar-btn" data-tab="medical" data-short="MED" style="background:var(--lcars-tertiary)" onclick="switchTab('medical')">Medical</button>
         <div class="lcars-sidebar-arm"></div>
@@ -65,26 +65,21 @@
 
     <!-- LCARS Header Band — stardate tray on mobile portrait -->
     <div class="lcars-header-band" id="lcars-header-band">
-        <div class="lcars-hdr-arm" style="background:var(--lcars-secondary)"></div>
+        <div class="lcars-hdr-arm"></div>
         <div class="lcars-header-seg lcars-hdr-title" style="background:transparent;color:var(--lcars-title);font-size:0.95em;letter-spacing:0.12em">INTERAGENT MESH</div>
-        <div class="lcars-hdr-arm" style="background:var(--lcars-secondary)"></div>
+        <div class="lcars-hdr-arm"></div>
         <div class="lcars-header-seg lcars-stardate-cell" style="background:var(--lcars-secondary);position:relative" id="lcars-hdr-stardate">
             <input type="checkbox" id="stardate-tray-toggle" class="stardate-tray-input" aria-hidden="true">
             <label for="stardate-tray-toggle" class="stardate-tray-label">SD —</label>
             <div class="stardate-tray">
                 <div class="stardate-tray-pill" style="background:var(--lcars-tertiary)" id="lcars-tray-agents">— Agents</div>
                 <div class="stardate-tray-pill" style="background:var(--lcars-accent)" id="lcars-tray-msgs">— Messages</div>
-                <div class="stardate-tray-pill" style="background:var(--lcars-frame)" id="lcars-tray-proto">A2A/1.0.0</div>
-                <div class="stardate-tray-pill" style="background:var(--lcars-highlight)" id="lcars-tray-psych">A2A-PSYCH/v1</div>
-                <div class="stardate-tray-pill" style="background:var(--lcars-tertiary)" id="lcars-tray-health">&#x25CF; —</div>
             </div>
         </div>
-        <div class="lcars-header-seg lcars-hdr-collapse-tablet" style="background:var(--lcars-secondary);flex:1" id="lcars-hdr-agents">— Agents</div>
-        <div class="lcars-header-seg lcars-hdr-collapse-tablet" style="background:var(--lcars-tertiary);flex:1" id="lcars-hdr-msgs">— Messages</div>
-        <div class="lcars-header-seg lcars-hdr-keep-tablet" style="background:var(--lcars-highlight);flex:0.8" id="lcars-hdr-proto">A2A/1.0.0</div>
-        <div class="lcars-header-seg lcars-hdr-keep-tablet" style="background:var(--lcars-secondary);flex:1" id="lcars-hdr-psych">A2A-PSYCH/v1</div>
-        <div class="lcars-header-seg lcars-hdr-keep-tablet" style="background:var(--lcars-tertiary);flex:0.5" id="lcars-hdr-health">&#x25CF; —</div>
-        <div class="lcars-hdr-endcap" style="background:var(--lcars-highlight)"></div>
+        <div class="lcars-header-seg" style="background:var(--lcars-tertiary);flex:0.8" id="lcars-hdr-proto">A2A/1.0.0</div>
+        <div class="lcars-header-seg" style="background:var(--lcars-secondary);flex:1" id="lcars-hdr-psych">A2A-PSYCH/v1</div>
+        <div class="lcars-header-seg" style="background:var(--lcars-tertiary);flex:0.5" id="lcars-hdr-health">&#x25CF; —</div>
+        <div class="lcars-hdr-endcap"></div>
     </div>
 
     <!-- Standard Header (dark/light mode) -->
@@ -1985,28 +1980,20 @@
         const healthText = allHealthy ? "\u25CF Nominal" : "\u25CF Degraded";
         const healthBg = allHealthy ? "var(--c-knowledge, #9999ff)" : "var(--c-alert, #cc6666)";
 
-        // Update desktop pills
-        flashIfChanged(document.getElementById("lcars-hdr-agents"), agentsText);
-        flashIfChanged(document.getElementById("lcars-hdr-msgs"), msgsText);
+        // Update always-visible pills
         const hdrHealth = document.getElementById("lcars-hdr-health");
         flashIfChanged(hdrHealth, healthText);
         if (hdrHealth) hdrHealth.style.background = healthBg;
 
-        // Update mobile tray pills (mirror) + flash stardate cell
+        // Update accordion tray pills (agents + messages live in tray)
         const trayAgents = document.getElementById("lcars-tray-agents");
         const trayMsgs = document.getElementById("lcars-tray-msgs");
-        const trayHealth = document.getElementById("lcars-tray-health");
         if (trayAgents) trayAgents.textContent = agentsText;
         if (trayMsgs) trayMsgs.textContent = msgsText;
-        if (trayHealth) { trayHealth.textContent = healthText; trayHealth.style.background = healthBg; }
 
-        // Flash the stardate cell only when tray has hidden content
-        // (desktop shows all pills inline — tray empty, no flash needed)
+        // Flash the stardate cell when data changes (tray always has content)
         const sdCell = document.getElementById("lcars-hdr-stardate");
-        const trayHasContent = sdCell && window.getComputedStyle(
-            document.querySelector(".lcars-hdr-collapse-tablet") || document.createElement("div")
-        ).display === "none";
-        if (sdCell && trayHasContent) {
+        if (sdCell) {
             const newHash = agentsText + msgsText + healthText;
             if (_hdrFirstRender) {
                 sdCell.classList.add("hdr-attract");

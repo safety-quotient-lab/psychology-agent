@@ -132,7 +132,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     --v23-peach: #FD9173;
 
     /* ── Semantic mapping (roles → palette) ── */
-    --lcars-frame: var(--v23-salmon-light);    /* structural bars, elbows */
+    --lcars-frame: var(--v23-orange-light);     /* structural bars, elbows — warm orange */
     --lcars-accent: var(--v23-orange-med);     /* primary/active, row leaders */
     --lcars-secondary: var(--v23-purple-med);  /* data tier 1, entity names */
     --lcars-tertiary: var(--v23-purple-dark);  /* data tier 2, identifiers */
@@ -239,8 +239,19 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
    │████╯                 ← inner cutout (via header seg radius)
    │BTN
    The cap's top-left corner carries the frame's outer radius. */
+/* Internal glow — non-uniform backlit translucent material.
+   Off-center highlight, organic falloff (Defiant Engineering pattern).
+   Sidebar elements: gradient runs left→right (perpendicular to bar). */
 .lcars-sidebar-cap-top {
-    background: var(--c-knowledge);
+    background: linear-gradient(90deg,
+        color-mix(in srgb, var(--lcars-frame) 78%, #1a1000) 0%,
+        color-mix(in srgb, var(--lcars-frame) 88%, #2a1800) 8%,
+        var(--lcars-frame) 25%,
+        color-mix(in srgb, var(--lcars-frame) 92%, #ffe8cc) 38%,
+        color-mix(in srgb, var(--lcars-frame) 95%, #fff4e0) 55%,
+        var(--lcars-frame) 72%,
+        color-mix(in srgb, var(--lcars-frame) 85%, #1a1000) 100%
+    );
     min-height: var(--band-size);
     flex-shrink: 0;
     border-radius: var(--elbow-outer) 0 0 0;
@@ -294,7 +305,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
         circle at 100% 100%,
         transparent 0%,
         transparent var(--elbow-inner, 24px),
-        var(--c-knowledge) var(--elbow-inner, 24px)
+        var(--lcars-frame) var(--elbow-inner, 24px)
     );
 }
 .theme-lcars .lcars-elbow-connector-bottom {
@@ -309,7 +320,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
         circle at 100% 0%,
         transparent 0%,
         transparent var(--elbow-inner, 24px),
-        var(--c-knowledge) var(--elbow-inner, 24px)
+        var(--lcars-frame) var(--elbow-inner, 24px)
     );
 }
 
@@ -351,6 +362,13 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     flex-shrink: 0;
     margin-bottom: var(--gap-xs);
     border-radius: 12px 0 0 12px;
+    background: linear-gradient(90deg,
+        color-mix(in srgb, var(--lcars-frame) 78%, #1a1000) 0%,
+        var(--lcars-frame) 25%,
+        color-mix(in srgb, var(--lcars-frame) 92%, #ffe8cc) 45%,
+        var(--lcars-frame) 75%,
+        color-mix(in srgb, var(--lcars-frame) 85%, #1a1000) 100%
+    ) !important;
 }
 
 /* Bottom elbow cap — outer corner of the frame rounds off at bottom-left.
@@ -363,14 +381,30 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
    Matches sidebar cap color (purple/lavender in LCARS 47988). */
 .lcars-sidebar-arm {
     flex: 1; /* fills remaining sidebar height */
-    background: var(--c-knowledge);
+    background: linear-gradient(90deg,
+        color-mix(in srgb, var(--lcars-frame) 78%, #1a1000) 0%,
+        color-mix(in srgb, var(--lcars-frame) 88%, #2a1800) 8%,
+        var(--lcars-frame) 25%,
+        color-mix(in srgb, var(--lcars-frame) 92%, #ffe8cc) 38%,
+        color-mix(in srgb, var(--lcars-frame) 95%, #fff4e0) 55%,
+        var(--lcars-frame) 72%,
+        color-mix(in srgb, var(--lcars-frame) 85%, #1a1000) 100%
+    );
     margin-bottom: 0;
     border-radius: 12px 0 0 0;
 }
 
 /* Bottom cap matches top cap — continuous sidebar frame */
 .lcars-sidebar-cap-bottom {
-    background: var(--c-knowledge);
+    background: linear-gradient(90deg,
+        color-mix(in srgb, var(--lcars-frame) 78%, #1a1000) 0%,
+        color-mix(in srgb, var(--lcars-frame) 88%, #2a1800) 8%,
+        var(--lcars-frame) 25%,
+        color-mix(in srgb, var(--lcars-frame) 92%, #ffe8cc) 38%,
+        color-mix(in srgb, var(--lcars-frame) 95%, #fff4e0) 55%,
+        var(--lcars-frame) 72%,
+        color-mix(in srgb, var(--lcars-frame) 85%, #1a1000) 100%
+    );
     min-height: var(--band-size);
     border-radius: 0 0 0 var(--elbow-outer);
 }
@@ -408,6 +442,20 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     overflow: hidden;
     justify-content: flex-end;
 }
+/* Header structural elements — internal glow (gradient top→bottom for horizontal bars) */
+.lcars-hdr-arm,
+.lcars-hdr-endcap {
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--lcars-frame) 78%, #1a1000) 0%,
+        color-mix(in srgb, var(--lcars-frame) 88%, #2a1800) 8%,
+        var(--lcars-frame) 25%,
+        color-mix(in srgb, var(--lcars-frame) 92%, #ffe8cc) 38%,
+        color-mix(in srgb, var(--lcars-frame) 95%, #fff4e0) 55%,
+        var(--lcars-frame) 72%,
+        color-mix(in srgb, var(--lcars-frame) 85%, #1a1000) 100%
+    );
+}
+
 /* First header segment: title — left pill cap */
 .lcars-header-seg:first-child {
     justify-content: flex-start;
@@ -3180,59 +3228,51 @@ a.activity-link:hover {
     height: 100%;
     cursor: default;
 }
-.stardate-tray { display: none; }
-.lcars-hdr-collapse-tablet { display: flex; }
-.lcars-hdr-keep-tablet { display: flex; }
-
-/* Tablet (481-768px): hide Agents + Messages, keep A2A + Health inline, enable tray */
-@media (max-width: 768px) and (min-width: 481px) {
-    .lcars-hdr-collapse-tablet {
-        display: none !important; /* Agents, Messages → tray */
-    }
-    .stardate-tray-label { cursor: pointer; }
-    .lcars-stardate-cell { overflow: visible; }
-    .stardate-tray {
-        display: flex;
-        flex-direction: column;
-        gap: var(--gap-xs, 3px);
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        z-index: 200;
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease, padding 0.2s ease;
-        padding: 0;
-    }
-    .stardate-tray-pill {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        padding: 0 14px;
-        height: 0;
-        opacity: 0;
-        font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
-        font-size: 0.72em;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: #000;
-        white-space: nowrap;
-        transition: height 0.3s ease, opacity 0.2s ease, padding 0.3s ease;
-    }
-    .stardate-tray-pill:last-child {
-        border-radius: 0 0 var(--gap-m, 8px) var(--gap-m, 8px);
-    }
-    .stardate-tray-input:checked ~ .stardate-tray {
-        max-height: 200px;
-        padding-top: var(--gap-xs, 3px);
-    }
-    .stardate-tray-input:checked ~ .stardate-tray .stardate-tray-pill {
-        height: 32px;
-        padding: 4px 14px;
-        opacity: 1;
-    }
+/* Stardate accordion tray — applies at ALL screen sizes (desktop included).
+   Agents + Messages live in tray. A2A pills + health stay always visible. */
+.stardate-tray-label { cursor: pointer; }
+.lcars-stardate-cell { overflow: visible; }
+.stardate-tray {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs, 3px);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.2s ease;
+    padding: 0;
+}
+.stardate-tray-pill {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 14px;
+    height: 0;
+    opacity: 0;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #000;
+    white-space: nowrap;
+    transition: height 0.3s ease, opacity 0.2s ease, padding 0.3s ease;
+}
+.stardate-tray-pill:last-child {
+    border-radius: 0 0 var(--gap-m, 8px) var(--gap-m, 8px);
+}
+.stardate-tray-input:checked ~ .stardate-tray {
+    max-height: 200px;
+    padding-top: var(--gap-xs, 3px);
+}
+.stardate-tray-input:checked ~ .stardate-tray .stardate-tray-pill {
+    height: 32px;
+    padding: 4px 14px;
+    opacity: 1;
 }
 
 /* Mobile portrait: stardate becomes tray trigger */
@@ -3241,10 +3281,7 @@ a.activity-link:hover {
         flex-wrap: nowrap !important; /* title + stardate share one row */
         min-height: auto;
     }
-    .lcars-hdr-collapse-tablet,
-    .lcars-hdr-keep-tablet {
-        display: none !important; /* all inline pills hidden on mobile — tray only */
-    }
+    /* Mobile: tray still works via accordion, A2A + health stay visible */
     /* Title shrinks, stardate gets fixed width */
     .lcars-header-seg:first-child {
         flex: 1 1 0 !important;
