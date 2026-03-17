@@ -3917,6 +3917,9 @@
         renderOpsActivity();
         renderOpsSchedule();
         renderOpsVitals();
+        renderOpsAutonomyReadout();
+        renderOpsTransportReadout();
+        renderOpsCapacityReadout();
         // Topology mirrors from Pulse (already rendered)
         mirrorToLcars("topology-svg", "lcars-topology-svg");
         // Governance — populate from KB decisions data
@@ -4416,6 +4419,119 @@
             </div>`;
         }
         el.innerHTML = html || `<div class="phase-stub"><div class="phase-stub-text">No schedule data</div></div>`;
+    }
+
+    // ── Subsystem Readouts ──────────────────────────────────────────
+
+    function renderOpsAutonomyReadout() {
+        const el = document.getElementById("ops-autonomy-readout");
+        if (!el) return;
+        const online = Object.values(agentData).filter(a => a.status === "online");
+        if (online.length === 0) { el.innerHTML = '<div class="phase-stub"><div class="phase-stub-text">No agents online</div></div>'; return; }
+
+        el.innerHTML = AGENTS.map(agent => {
+            const d = agentData[agent.id];
+            const isOnline = d?.status === "online";
+            const b = isOnline ? (d.data?.autonomy_budget || {}) : {};
+            const delib = getDeliberations(b);
+            const cutoff = getCutoff(b);
+            const pct = cutoff > 0 ? Math.round((delib / cutoff) * 100) : 0;
+            const barColor = pct > 85 ? "var(--lcars-alert)" : pct > 60 ? "var(--lcars-title)" : "var(--lcars-medical)";
+            const cutoffStr = cutoff > 0 ? fmtNum(cutoff) : "\u221E";
+            const shadow = isOnline ? (d.data?.shadow_mode ? "SHADOW" : "ACTIVE") : "OFFLINE";
+            return `<div class="lcars-readout" style="margin-bottom:var(--gap-m);opacity:${isOnline ? 1 : 0.4}">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--gap-xs)">
+                    <span style="color:var(--lcars-secondary);font-weight:700;text-transform:uppercase;font-size:0.78em">${agentName(agent)}</span>
+                    <span style="color:${shadow === "SHADOW" ? "var(--lcars-title)" : shadow === "ACTIVE" ? "var(--lcars-medical)" : "var(--lcars-alert)"};font-size:0.7em">${shadow}</span>
+                </div>
+                <div style="display:flex;gap:var(--gap-m);font-size:0.82em">
+                    <span style="color:var(--lcars-accent)">${fmtNum(delib)} / ${cutoffStr}</span>
+                    ${cutoff > 0 ? `<span style="color:var(--text-dim)">${pct}%</span>` : ""}
+                </div>
+                ${cutoff > 0 ? `<div style="height:4px;background:var(--bg-inset);border-radius:2px;margin-top:var(--gap-xs)"><div style="height:100%;width:${pct}%;background:${barColor};border-radius:2px;transition:width 0.4s"></div></div>` : ""}
+            </div>`;
+        }).join("");
+    }
+
+    function renderOpsTransportReadout() {
+        const el = document.getElementById("ops-transport-readout");
+        if (!el) return;
+        const online = Object.values(agentData).filter(a => a.status === "online");
+        const totalMsgs = online.reduce((s, a) => s + (a.data?.recent_messages?.length || 0), 0);
+        const pending = online.reduce((s, a) => s + (a.data?.unprocessed_messages?.length || 0), 0);
+        const sessions = online.reduce((s, a) => s + (a.data?.totals?.sessions || 0), 0);
+        const gates = online.reduce((s, a) => s + (a.data?.active_gates?.length || 0), 0);
+
+        el.innerHTML = `<div class="lcars-readout" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-m)">
+            <div>
+                <span class="lcars-readout-key">Messages</span>
+                <span class="lcars-readout-val" style="font-size:1.2em;color:var(--lcars-accent)">${fmtNum(totalMsgs)}</span>
+            </div>
+            <div>
+                <span class="lcars-readout-key">Pending</span>
+                <span class="lcars-readout-val" style="font-size:1.2em;color:${pending > 0 ? "var(--lcars-title)" : "var(--lcars-medical)"}">${fmtNum(pending)}</span>
+            </div>
+            <div>
+                <span class="lcars-readout-key">Sessions</span>
+                <span class="lcars-readout-val" style="font-size:1.2em;color:var(--lcars-secondary)">${fmtNum(sessions)}</span>
+            </div>
+            <div>
+                <span class="lcars-readout-key">Open Gates</span>
+                <span class="lcars-readout-val" style="font-size:1.2em;color:${gates > 0 ? "var(--lcars-highlight)" : "var(--lcars-medical)"}">${fmtNum(gates)}</span>
+            </div>
+        </div>
+        <div style="margin-top:var(--gap-l)">
+            <div class="lcars-readout-key" style="margin-bottom:var(--gap-s)">Per-Agent Transport</div>
+            ${AGENTS.map(agent => {
+                const d = agentData[agent.id];
+                const isOnline = d?.status === "online";
+                const msgs = isOnline ? (d.data?.recent_messages?.length || 0) : 0;
+                const pend = isOnline ? (d.data?.unprocessed_messages?.length || 0) : 0;
+                return `<div style="display:flex;justify-content:space-between;padding:var(--gap-xs) 0;opacity:${isOnline ? 1 : 0.4};font-size:0.78em">
+                    <span style="color:var(--lcars-secondary);text-transform:uppercase">${agentName(agent)}</span>
+                    <span><span style="color:var(--lcars-accent)">${msgs} msg</span>${pend > 0 ? ` <span style="color:var(--lcars-title)">${pend} pend</span>` : ""}</span>
+                </div>`;
+            }).join("")}
+        </div>`;
+    }
+
+    function renderOpsCapacityReadout() {
+        const el = document.getElementById("ops-capacity-readout");
+        if (!el) return;
+        const online = Object.values(agentData).filter(a => a.status === "online");
+        const totalGf = online.reduce((s, a) => s + getDeliberations(a.data?.autonomy_budget), 0);
+        // Gc estimation (same logic as renderOpsVitals)
+        const gcFromApi = online.reduce((s, a) => {
+            const gc = a.data?.gc_metrics;
+            return gc ? s + (gc.hooks_fired ?? 0) + (gc.triggers_checked ?? 0) + (gc.cron_cycles ?? 0) : s;
+        }, 0);
+        const gcEstimate = gcFromApi > 0 ? gcFromApi : totalGf * 29;
+        const totalProcessing = totalGf + gcEstimate;
+        const gcRatio = totalGf > 0 ? (gcEstimate / totalGf).toFixed(1) : "\u2014";
+
+        el.innerHTML = `<div class="lcars-readout" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-m)">
+            <div>
+                <span class="lcars-readout-key">Gf (Fluid)</span>
+                <span class="lcars-readout-val" style="font-size:1.2em;color:var(--lcars-accent)">${fmtNum(totalGf)}</span>
+            </div>
+            <div>
+                <span class="lcars-readout-key">Gc (Crystallized)</span>
+                <span class="lcars-readout-val" style="font-size:1.2em;color:var(--lcars-secondary)">${fmtNum(gcEstimate)}</span>
+            </div>
+            <div>
+                <span class="lcars-readout-key">Total Processing</span>
+                <span class="lcars-readout-val" style="font-size:1.2em;color:var(--lcars-title)">${fmtNum(totalProcessing)}</span>
+            </div>
+            <div>
+                <span class="lcars-readout-key">Gc/Gf Ratio</span>
+                <span class="lcars-readout-val" style="font-size:1.2em;color:var(--lcars-highlight)">${gcRatio}x</span>
+            </div>
+        </div>
+        <div style="margin-top:var(--gap-l)">
+            <div class="lcars-readout-key" style="margin-bottom:var(--gap-s)">Agents: ${online.length}/${AGENTS.length}</div>
+            <div class="lcars-readout-key" style="margin-bottom:var(--gap-xs)">Concurrency: 1 normal + 2 reserve</div>
+            <div class="lcars-readout-key">Circuit Breaker: <span style="color:var(--lcars-medical)">CLOSED</span></div>
+        </div>`;
     }
 
     // ── Science Station ─────────────────────────────────────────────
