@@ -236,76 +236,20 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* SVG frame hidden */
 .lcars-frame-svg { display: none !important; }
 
-/* ── Unified L-shape frame via clip-path pseudo-element ──────
-   One element, one gradient, one shape. No seams.
-   The L-shape covers: sidebar (full height) + header (full width).
-   Concave inner corner approximated with polygon points.
-   All structural children become transparent — this draws the visual. */
-.theme-lcars .lcars-frame::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 0;
-    pointer-events: none;
-    background: linear-gradient(135deg,
-        color-mix(in srgb, var(--lcars-frame) 78%, #1a1000) 0%,
-        color-mix(in srgb, var(--lcars-frame) 88%, #2a1800) 5%,
-        var(--lcars-frame) 15%,
-        color-mix(in srgb, var(--lcars-frame) 92%, #ffe8cc) 30%,
-        color-mix(in srgb, var(--lcars-frame) 95%, #fff4e0) 45%,
-        var(--lcars-frame) 60%,
-        color-mix(in srgb, var(--lcars-frame) 85%, #1a1000) 100%
-    );
-    /* L-shape: sidebar column + header row, concave inner corner.
-       Outer corners use polygon approximation of curves.
-       Variables: --sidebar-width (160px), --band-size (52px), --elbow-inner (24px) */
-    clip-path: polygon(
-        /* Outer top-left corner (approx rounded) */
-        0% calc(var(--band-size) * 0.3),
-        calc(var(--sidebar-width) * 0.05) calc(var(--band-size) * 0.08),
-        calc(var(--sidebar-width) * 0.15) 0%,
-        /* Top edge to top-right corner */
-        calc(100% - 20px) 0%,
-        100% calc(var(--band-size) * 0.15),
-        100% var(--band-size),
-        /* Header bottom edge → inner concave corner */
-        calc(var(--sidebar-width) + var(--elbow-inner)) var(--band-size),
-        /* Concave curve (5 points approximating quarter circle) */
-        calc(var(--sidebar-width) + var(--elbow-inner) * 0.93) calc(var(--band-size) + var(--elbow-inner) * 0.07),
-        calc(var(--sidebar-width) + var(--elbow-inner) * 0.71) calc(var(--band-size) + var(--elbow-inner) * 0.29),
-        calc(var(--sidebar-width) + var(--elbow-inner) * 0.29) calc(var(--band-size) + var(--elbow-inner) * 0.71),
-        calc(var(--sidebar-width) + var(--elbow-inner) * 0.07) calc(var(--band-size) + var(--elbow-inner) * 0.93),
-        var(--sidebar-width) calc(var(--band-size) + var(--elbow-inner)),
-        /* Sidebar right edge down to bottom */
-        var(--sidebar-width) 100%,
-        /* Bottom-left */
-        0% 100%
-    );
-}
-
-/* All structural elements transparent — pseudo-element draws the frame */
+/* Flat uniform frame — all structural elements use solid --lcars-frame.
+   No gradients, no seams, clean canonical appearance. */
 .theme-lcars .lcars-sidebar-cap-top,
 .theme-lcars .lcars-sidebar-cap-bottom,
 .theme-lcars .lcars-sidebar-arm,
 .theme-lcars .lcars-sidebar-drop,
 .theme-lcars .lcars-sidebar-exit,
 .theme-lcars .lcars-sidebar-spacer {
-    background: transparent !important;
+    background: var(--lcars-frame) !important;
 }
 .theme-lcars .lcars-hdr-arm,
 .theme-lcars .lcars-hdr-endcap {
-    background: transparent !important;
+    background: var(--lcars-frame) !important;
 }
-/* Elbow connector hidden — clip-path handles the concave curve */
-.theme-lcars .lcars-elbow-connector-top,
-.theme-lcars .lcars-elbow-connector-bottom {
-    display: none !important;
-}
-/* Interactive elements above the frame layer */
-.theme-lcars .lcars-sidebar { z-index: 1; }
-.theme-lcars .lcars-header-band { z-index: 1; position: relative; }
-.theme-lcars .lcars-content { z-index: 1; position: relative; }
 
 /* Top elbow cap — outer corner of the frame rounds off at top-left.
    ╭████████████████████
