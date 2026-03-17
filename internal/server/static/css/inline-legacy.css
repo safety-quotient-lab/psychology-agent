@@ -3640,15 +3640,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
         padding: 4px 6px;
     }
 }
-/* Mobile: stack columns */
-@media (max-width: 520px) {
-    .ohniaka-row {
-        grid-template-columns: 10px 1fr 10px auto;
-        gap: var(--gap-xs) var(--gap-m);
-        font-size: 0.7em;
-    }
-    .ohniaka-id, .ohniaka-desc { display: none; }
-}
+/* Mobile ohniaka handled by two-row card layout below (§mobile portrait) */
 
 /* ── Ohniaka Summary Row (mesh totals) ───────────────────── */
 .ohniaka-summary {

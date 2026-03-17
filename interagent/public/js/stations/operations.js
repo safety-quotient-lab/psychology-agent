@@ -314,7 +314,9 @@ function renderOpsBudget() {
         const connColor = online ? "#22cc44" : "#cc2222";
         const connPill = `<span class="ohniaka-status-pill${!online ? " agent-name-offline" : ""}" style="background:${connColor}"></span>`;
         // Health level (5-level TNG scale) — separate from connectivity
-        const healthStr = (health || "unknown").toUpperCase();
+        // Map "healthy" (old) to "nominal" (new 5-level), show dash for missing
+        const rawHealth = (health || "").toLowerCase();
+        const healthStr = rawHealth === "healthy" ? "NOMINAL" : rawHealth ? rawHealth.toUpperCase() : "\u2014";
         const healthColors = { NOMINAL: "var(--lcars-accent)", ADVISORY: "var(--lcars-title)", DEGRADED: "#ddaa22", CRITICAL: "var(--lcars-alert)", FAILED: "#cc2222" };
         const healthColor = online ? (healthColors[healthStr] || "var(--text-dim)") : "var(--text-dim)";
         return `<div class="${rowClass}">
