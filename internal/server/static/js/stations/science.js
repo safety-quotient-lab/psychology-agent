@@ -374,6 +374,25 @@ function renderOrganismState() {
     if (stateLabel !== "—" && document.body.classList.contains("theme-lcars")) {
         applyAffectMode(stateLabel.toLowerCase().replace(/\s+/g, "-"));
     }
+
+    // Coherence flags (T13) — cross-model contradictions from compute-psychometrics.py
+    const coherenceEl = document.getElementById("organism-coherence");
+    if (coherenceEl) {
+        const flags = [];
+        // Collect coherence_flags from all agents' psychometric data
+        for (const agent of AGENTS) {
+            const p = agentData[agent.id]?.data?.psychometrics || {};
+            const cf = p.coherence_flags || [];
+            cf.forEach(f => flags.push({ flag: f, agent: agentName(agent) }));
+        }
+        if (flags.length > 0) {
+            coherenceEl.innerHTML = `<span style="color:var(--lcars-title);font-weight:700">⚠ CONTRADICTORY SIGNALS</span> ` +
+                flags.map(f => `<span style="color:var(--lcars-highlight);font-size:0.85em" title="${f.agent}">${f.flag}</span>`).join(" · ");
+            coherenceEl.style.display = "flex";
+        } else {
+            coherenceEl.style.display = "none";
+        }
+    }
 }
 
 function renderGeneratorBalance() {
