@@ -4124,18 +4124,17 @@
     }
 
     function renderOpsBudget() {
-        // Canonical LCARS capsule grid: uniform orange leaders, color-dot identity,
-        // purple-tier data capsules. Wardroom B pattern for entity roster.
+        // Ohniaka B3 "Starship Mission Status" pattern — structured table
+        // with colored text columns (purple names, yellow IDs, white status).
+        // No pill backgrounds — spacing + color creates structure.
         const grid = document.getElementById("ops-subsystem-grid");
         if (!grid) return;
 
-        const accent = "var(--lcars-accent)";           // #ff9900 — uniform row leader
-        const purpleDark = "var(--lcars-secondary)";    // #cc99cc — tier 1 data
-        const purpleMed = "var(--lcars-tertiary)";      // #9999ff — tier 2 data
-        const purpleLight = "color-mix(in srgb, var(--lcars-secondary) 50%, #222)"; // tier 3
+        // Separate autonomous from interactive agents
+        const autonomous = AGENTS.filter(a => !a.id.includes("session"));
+        const interactive = AGENTS.filter(a => a.id.includes("session"));
 
-        let html = "";
-        for (const agent of AGENTS) {
+        function agentRow(agent) {
             const d = agentData[agent.id];
             const online = d?.status === "online";
             const b = online ? (d.data?.autonomy_budget || {}) : {};
@@ -4149,19 +4148,35 @@
             const gates = online ? (d.data?.active_gates || []).length : 0;
 
             const opacity = online ? 1 : 0.35;
-            html += `<div class="capsule-row" style="opacity:${opacity}">
-                <div class="capsule-leader" style="background:${accent}">${agentName(agent)}</div>
-                <div class="capsule-dot" style="background:${agent.color}" title="${agent.id}"></div>
-                <div class="capsule-data capsule-center" style="background:${purpleDark}" title="Deliberations">${online ? fmtNum(deliberations) : "\u2014"}</div>
-                <div class="capsule-data capsule-center capsule-sm" style="background:${purpleDark};opacity:0.7" title="Cutoff">${cutoff > 0 ? "/" + fmtNum(cutoff) : "\u221E"}</div>
-                <div class="capsule-data capsule-center" style="background:${purpleMed}" title="Pending">${online ? pending : "\u2014"}</div>
-                <div class="capsule-data capsule-center" style="background:${purpleMed}" title="Gates">${online ? gates : "\u2014"}</div>
-                <div class="capsule-data capsule-center capsule-status" style="background:${purpleLight};color:var(--text-primary)" title="Health">${online ? health : "OFF"}</div>
-                <div class="capsule-data capsule-end capsule-center" style="background:${purpleLight};color:var(--text-primary)" title="Mood">${mood}</div>
+            const cutoffStr = cutoff > 0 ? fmtNum(cutoff) : "\u221E";
+            const statusText = online
+                ? `${health.toUpperCase()}, ${mood.toUpperCase()}`
+                : "OFFLINE";
+
+            return `<div class="ohniaka-row" style="opacity:${opacity}">
+                <span class="ohniaka-col ohniaka-name" style="color:${agent.color}">${agentName(agent).toUpperCase()}</span>
+                <span class="ohniaka-col ohniaka-type">${online ? "ONLINE" : "OFFLINE"}</span>
+                <span class="ohniaka-col ohniaka-id">${online ? fmtNum(deliberations) + " / " + cutoffStr : "\u2014"}</span>
+                <span class="ohniaka-col ohniaka-desc">${statusText}${pending > 0 ? " · " + pending + " PEND" : ""}${gates > 0 ? " · " + gates + " GATE" : ""}</span>
             </div>`;
         }
 
-        html += `<div style="height:var(--gap-xs);background:var(--lcars-frame);margin:var(--gap-s) 0;border-radius:1px;opacity:0.4"></div>`;
+        let html = "";
+
+        // Autonomous group
+        if (autonomous.length > 0) {
+            html += autonomous.map(agentRow).join("");
+        }
+
+        // Orange separator between groups
+        if (autonomous.length > 0 && interactive.length > 0) {
+            html += `<div class="ohniaka-separator"></div>`;
+        }
+
+        // Interactive group
+        if (interactive.length > 0) {
+            html += interactive.map(agentRow).join("");
+        }
 
         grid.innerHTML = html;
         renderOpsAlphaMatrix();

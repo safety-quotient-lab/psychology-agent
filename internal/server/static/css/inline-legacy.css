@@ -3303,3 +3303,42 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #cc3333 !important;
 .ops-subsys-panel.ops-subsys-active {
     display: block;
 }
+
+/* ── Ohniaka B3 Structured Table (Mesh Overview) ─────────── */
+/* Colored text columns, no pill backgrounds. Spacing + color
+   creates structure per "STARSHIP MISSION STATUS" pattern. */
+.ohniaka-row {
+    display: grid;
+    grid-template-columns: minmax(100px, 1.2fr) 80px 100px 1fr;
+    gap: var(--gap-xl);
+    padding: var(--gap-xs) 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-family: 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    align-items: baseline;
+}
+.ohniaka-row:last-child { border-bottom: none; }
+.ohniaka-col { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ohniaka-name { color: var(--lcars-secondary); } /* purple — entity name */
+.ohniaka-type { color: var(--lcars-secondary); opacity: 0.7; } /* purple dim — classification */
+.ohniaka-id { color: var(--lcars-title); } /* yellow — identifiers/numbers */
+.ohniaka-desc { color: var(--text-primary); white-space: normal; } /* white — description/status */
+.ohniaka-separator {
+    height: var(--gap-xs);
+    background: var(--lcars-frame);
+    margin: var(--gap-s) 0;
+    border-radius: 1px;
+    opacity: 0.6;
+}
+/* Mobile: stack columns */
+@media (max-width: 520px) {
+    .ohniaka-row {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--gap-xs) var(--gap-m);
+        font-size: 0.7em;
+    }
+    .ohniaka-desc { grid-column: 1 / -1; }
+}
