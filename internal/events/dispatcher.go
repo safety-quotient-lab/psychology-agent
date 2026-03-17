@@ -37,6 +37,14 @@ type NotifyFunc func(ctx context.Context, agentID, eventType, priority, reason, 
 // Returns false if the event requires fluid intelligence (Claude deliberation).
 type GcHandlerFunc func(ctx context.Context, evt Event) bool
 
+// TypeMetrics tracks per-event-type counters for observability.
+type TypeMetrics struct {
+	Total          int `json:"total"`
+	GcHandled      int `json:"gc_handled"`
+	SpawnBlocked   int `json:"spawn_blocked"`
+	SpawnSucceeded int `json:"spawn_succeeded"`
+}
+
 // Dispatcher evaluates individual events, applies budget gating,
 // and dispatches spawn requests.
 type Dispatcher struct {
@@ -50,11 +58,12 @@ type Dispatcher struct {
 	logger       *slog.Logger
 
 	// Metrics
-	dispatched int64
-	dropped    int64
-	notified   int64
-	batched    int64
-	mu         sync.RWMutex
+	dispatched  int64
+	dropped     int64
+	notified    int64
+	batched     int64
+	typeMetrics map[EventType]*TypeMetrics
+	mu          sync.RWMutex
 }
 
 // NewDispatcher creates a dispatcher wired to the given queue and spawn function.
@@ -72,6 +81,7 @@ func NewDispatcher(
 		budgetDeduct: budgetDeduct,
 		notify:       func(_ context.Context, _, _, _, _, _ string) error { return nil },
 		logger:       logger,
+		typeMetrics:  make(map[EventType]*TypeMetrics),
 	}
 }
 
@@ -85,6 +95,17 @@ func (d *Dispatcher) SetNotifier(agentID string, fn NotifyFunc) {
 // Events handled by Gc skip the Claude spawn entirely.
 func (d *Dispatcher) SetGcHandler(fn GcHandlerFunc) {
 	d.gcHandler = fn
+}
+
+// getTypeMetrics returns the TypeMetrics for the given event type,
+// creating it on first access. Caller must hold d.mu (write lock).
+func (d *Dispatcher) getTypeMetrics(t EventType) *TypeMetrics {
+	m, ok := d.typeMetrics[t]
+	if !ok {
+		m = &TypeMetrics{}
+		d.typeMetrics[t] = m
+	}
+	return m
 }
 
 // HandleEvent processes a single event — tries Gc first, then budget gate + spawn.
@@ -104,6 +125,9 @@ func (d *Dispatcher) HandleEvent(ctx context.Context, evt Event) {
 		)
 		d.mu.Lock()
 		d.batched++ // reuse batched counter for Gc-handled events
+		tm := d.getTypeMetrics(evt.Type)
+		tm.Total++
+		tm.GcHandled++
 		d.mu.Unlock()
 		return
 	}
@@ -120,6 +144,9 @@ func (d *Dispatcher) HandleEvent(ctx context.Context, evt Event) {
 		)
 		d.mu.Lock()
 		d.dropped++
+		tm := d.getTypeMetrics(evt.Type)
+		tm.Total++
+		tm.SpawnBlocked++
 		d.mu.Unlock()
 
 		// Notify the operator about the blocked event
@@ -175,6 +202,9 @@ func (d *Dispatcher) HandleEvent(ctx context.Context, evt Event) {
 
 	d.mu.Lock()
 	d.dispatched++
+	tm := d.getTypeMetrics(evt.Type)
+	tm.Total++
+	tm.SpawnSucceeded++
 	d.mu.Unlock()
 }
 
@@ -183,6 +213,17 @@ func (d *Dispatcher) Stats() (dispatched, dropped, batched int64) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 	return d.dispatched, d.dropped, d.batched
+}
+
+// TypeStats returns a snapshot of per-event-type metrics.
+func (d *Dispatcher) TypeStats() map[EventType]TypeMetrics {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+	out := make(map[EventType]TypeMetrics, len(d.typeMetrics))
+	for k, v := range d.typeMetrics {
+		out[k] = *v
+	}
+	return out
 }
 
 // NotifiedCount returns how many notifications the dispatcher sent.

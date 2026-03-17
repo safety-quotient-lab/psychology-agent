@@ -107,6 +107,10 @@ type Server struct {
 	// rpcMethods maps JSON-RPC method names to HTTP handlers.
 	// Built once during route registration via buildMethodTable().
 	rpcMethods map[string]methodRoute
+
+	// Dispatcher exposes per-type event metrics for the status payload.
+	// Nil-safe — buildStatusPayload checks before access.
+	Dispatcher *events.Dispatcher
 }
 
 // New constructs a Server with the provided dependencies.
@@ -476,6 +480,18 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 		"SELECT count(*) FROM deliberation_log WHERE started_at > datetime('now', '-1 hour')")
 	totalEvents := s.eventCount()
 
+	// Per-type event counters from the dispatcher
+	eventsByType := map[string]any{}
+	var gcHandledTotal, spawnBlockedTotal, spawnSucceededTotal int
+	if s.Dispatcher != nil {
+		for et, tm := range s.Dispatcher.TypeStats() {
+			eventsByType[string(et)] = tm
+			gcHandledTotal += tm.GcHandled
+			spawnBlockedTotal += tm.SpawnBlocked
+			spawnSucceededTotal += tm.SpawnSucceeded
+		}
+	}
+
 	return map[string]interface{}{
 		"agent_id":              s.Config.AgentID,
 		"version":               Version,
@@ -489,13 +505,16 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 		"unprocessed_messages":  unprocessedMsgs,
 		"active_gates":          activeGates,
 		"event_count":           totalEvents,
+		"events_by_type":        eventsByType,
 		"deliberation_count":    s.deliberationCount(),
 		"recent_deliberations":  deliberationHistory,
 		"gc_metrics": map[string]any{
 			"deliberations_last_hour": gcEvents,
-			"events_processed":       totalEvents,
-			"gc_ratio":               "poll ticks handled without spawn",
-			"deliberation_model":     s.Config.DeliberationModel,
+			"gc_handled_total":        gcHandledTotal,
+			"spawn_blocked_total":     spawnBlockedTotal,
+			"spawn_succeeded_total":   spawnSucceededTotal,
+			"gc_ratio":                "poll ticks handled without spawn",
+			"deliberation_model":      s.Config.DeliberationModel,
 		},
 	}
 }

@@ -480,6 +480,7 @@ func main() {
 	srv.Registry = registry
 	srv.GitHubToken = cfg.GitHubToken
 	srv.OperatorSecret = cfg.OperatorSecret
+	srv.Dispatcher = dispatcher
 
 	// Self-oscillation shadow mode — logs when it would fire, does not trigger
 	osc := server.NewOscillator(cfg.AgentID, cfg.BudgetDBPath, cfg.RepoRoot)
