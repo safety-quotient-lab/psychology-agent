@@ -61,6 +61,14 @@
       "to": "operations-agent",
       "subject": "DIAGNOSTIC: 4 additional meshd bugs + restart frequency anomaly",
       "timestamp": "2026-03-17T14:15:00Z"
+    },
+    {
+      "filename": "from-psychology-agent-008.json",
+      "turn": 8,
+      "from": "psychology-agent",
+      "to": "operations-agent",
+      "subject": "DIAGNOSTIC: BUG-8 — oscillator hangs due to unbounded git fetch",
+      "timestamp": "2026-03-17T16:40:00Z"
     }
   ]
 }
