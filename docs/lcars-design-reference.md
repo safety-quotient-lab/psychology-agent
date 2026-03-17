@@ -69,24 +69,56 @@ themselves — it separates functional zones without borders.
 
 ---
 
-## 2. Color Semantics
+## 2. Color Semiotics
 
-Colors carry **consistent semantic meaning** across all observed panels:
+**Core principle: color indicates CATEGORY, never STATUS.**
+Status communicates through brightness/opacity. Color carries fixed semiotic
+meaning — changing color to indicate state violates the LCARS contract.
 
-| Color | Hex Range | Semantic Role | CSS Variable |
-|-------|-----------|---------------|-------------|
-| Salmon/peach | `#ff9966`, `#cc8866` | Structural frame, sidebar bars, separator | `--c-frame` |
-| Orange | `#ff9900`, `#ff9944` | Active data, emphasis, counts, row anchors | `--c-transport` |
-| Purple/violet | `#9999ff`, `#cc99cc` | Secondary data, identifiers, subsystem info | `--c-knowledge` |
-| Lavender | `#bbaadd`, `#9988bb` | Tertiary data, background capsules | `--c-knowledge-dim` |
-| Yellow/gold | `#ffcc00`, `#ffdd44` | Section headers, alerts, titles, warnings | `--c-warning` |
-| Blue | `#5b9cf6`, `#66aacc` | Science, navigational, spatial data | `--c-tab-science` |
-| Red | `#cc6666` | Emergency, critical, override, destructive | `--c-alert` |
-| Tan/beige | `#ccaa88` | Neutral frame, sweep borders, spacers | `--c-frame-dim` |
-| Green/cyan | `#66ccaa`, `#6aab8e` | Medical, nominal status, environmental | `--c-health` |
-| White | `#ffffff`, `#dce1e8` | Primary data values, table cell text | `--text-primary` |
+Source: Button 52, Ohniaka A1, Tuvok LCARS, Stellar B, Tactical Cartography,
+themes-2025 (all variants maintain identical color semantics).
 
-### 2.1 Color in Number Grids
+### 2.0 The 6-Color Palette
+
+| Color | Semiotic Role | Usage | Hex | CSS Variable | Frequency |
+|-------|--------------|-------|-----|-------------|-----------|
+| Salmon/Peach/Tan | **STRUCTURAL** | Frame bars, elbows, spacers, neutral fill. The dominant color on any panel — 60%+ | `#ff9966`, `#ccaa88` | `--lcars-frame` | Very high |
+| Orange | **PRIMARY/ACTIVE** | Row leaders, primary controls, emphasis capsules. Draws the eye to interaction points | `#ff9900` | `--lcars-accent` | Medium |
+| Purple (3 shades) | **DATA** | Information-carrying capsules. Color encodes data TIER, not data value. Dark=tier 1, medium=tier 2, light=tier 3 | `#cc99cc`, `#9999ff`, `#bb99dd` | `--lcars-secondary`, `--lcars-tertiary` | High |
+| Blue | **SYSTEMS** | Subsystem identification, science, navigation. Departmental category marker | `#6699cc`, `#5b9cf6` | `--c-tab-science` | Low |
+| Yellow/Gold | **ALERT/HEADER** | Section titles, override indicators, warning state. Attention without panic | `#ffcc00` | `--lcars-title` | Low |
+| Red/Maroon | **EMERGENCY** | Final-tier row leaders, destructive actions. Appears sparingly — 1-2 per panel max | `#cc3333`, `#cc6666` | `--lcars-alert` | Very low |
+
+### 2.1 Active/Inactive States
+
+LCARS **never changes color** to indicate active/inactive state.
+Brightness and opacity carry state information:
+
+| State | Visual Treatment | CSS |
+|-------|-----------------|-----|
+| Active | Full brightness + optional glow | `filter: brightness(1.3); box-shadow: 0 0 10px` |
+| Inactive | Reduced opacity | `opacity: 0.5-0.7` |
+| Offline | Very dim | `opacity: 0.3` |
+| Selected | Bright + text color inverts | `filter: brightness(1.3); color: #fff` |
+
+The color itself NEVER changes for state. A purple data capsule stays
+purple whether the data represents "healthy" or "critical."
+
+### 2.2 Color in Capsule Grids
+
+Within a capsule grid (Button 52 pattern), colors indicate **data tier**:
+
+- **Row leader** (leftmost capsule): ORANGE — identifies the row entity
+- **Tier 1 data** (primary values): PURPLE DARK — most important metrics
+- **Tier 2 data** (secondary values): PURPLE MEDIUM — supporting metrics
+- **Tier 3 data** (status/labels): PURPLE LIGHT — categorical labels
+
+All rows use the **same** color pattern. Entity identity comes from
+position + text label, not row color.
+
+Source: Button 52, Unknown N1 (identical color pattern across all rows)
+
+### 2.3 Color in Number Grids
 
 Numbers alternate colors to indicate **data type**, not emphasis:
 - **Orange numbers** = counts, quantities, accumulating values
@@ -95,6 +127,18 @@ Numbers alternate colors to indicate **data type**, not emphasis:
 - **Yellow numbers** = highlighted/anomalous values requiring attention
 
 Source: Proto Star Model (G), Tissue Screen (E), Ohniaka B3/B4, Weather Net
+
+### 2.4 Anti-Patterns (What LCARS Does NOT Do)
+
+- **Green/Amber/Red traffic lights** — not canonical. Status encoded via
+  brightness, not traffic-light colors. Green appears only in medical/
+  environmental domain contexts (Weather Net), never as "healthy."
+- **Per-entity unique colors** — not canonical. Agent rows should NOT
+  each have a different brand color. Position + label identifies entities.
+- **Color as quantity** — heatmap-style color gradients do not appear in
+  TNG LCARS. Quantity displays use bar fills or number grids.
+- **Saturated rainbow** — panels typically use 2-3 colors max. Every
+  additional color must carry distinct semiotic meaning.
 
 ### 2.2 Color in Capsule Grids
 

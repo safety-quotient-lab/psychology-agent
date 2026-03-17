@@ -523,8 +523,8 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     .lcars-sidebar-cap-top { min-height: 28px; }
     .lcars-sidebar-cap-bottom { min-height: 28px; }
 
-    /* Header: compact, arms shrink to minimum */
-    .lcars-hdr-arm { flex: 0 0 var(--gap-m, 8px) !important; min-width: var(--gap-m, 8px); }
+    /* Header: compact arms (+1φ for mobile) */
+    .lcars-hdr-arm { flex: 0 0 calc(var(--gap-m, 8px) + var(--gap-xl, 21px)) !important; min-width: calc(var(--gap-m, 8px) + var(--gap-xl, 21px)); }
     .lcars-hdr-endcap { flex: 1 0 12px; } /* grows to fill remaining space */
     .lcars-header-seg { font-size: 0.55em; padding: 2px 6px; min-width: 0; }
     /* SD pill: flat right edge (endcap terminates the band) */
@@ -3217,9 +3217,9 @@ a.activity-link:hover {
     border-radius: 0 var(--elbow-inner, 24px) var(--elbow-inner, 24px) 0;
 }
 
-/* Mobile: arms shrink, endcap grows to fill */
+/* Mobile: arms +1φ, endcap grows */
 @media (max-width: 480px) {
-    .lcars-hdr-arm { flex: 0 0 var(--gap-m, 8px) !important; min-width: var(--gap-m, 8px) !important; display: flex !important; }
+    .lcars-hdr-arm { flex: 0 0 calc(var(--gap-m, 8px) + var(--gap-xl, 21px)) !important; min-width: 29px !important; display: flex !important; }
     .lcars-hdr-endcap { flex: 1 0 12px !important; }
 }
 /* Tablet: arm shrinks but stays visible */
