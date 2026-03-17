@@ -2964,7 +2964,6 @@ function updateSSEIndicator(live) {
 function renderOperations() {
     // Zone A: dense number grid (three-zone layout §1.2)
     renderNumberGrid("ops-zone-a", opsZoneAMetrics());
-    renderOpsMonologue();
     renderOpsBudget();
     renderOpsActivity();
     renderOpsSchedule();
