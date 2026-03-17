@@ -3228,12 +3228,16 @@ a.activity-link:hover {
     .lcars-hdr-endcap { flex: 0 0 16px; }
 }
 
-/* ── Sidebar drop — structural block below elbow, before nav buttons ── */
+/* ── Sidebar drop — structural block at elbow transitions ──── */
 .lcars-sidebar-drop {
-    min-height: var(--gap-3xl, 55px); /* 2φ — taller for visual weight */
+    min-height: var(--gap-3xl, 55px);
     flex-shrink: 0;
-    margin-bottom: var(--gap-xs, 3px);
+    margin-bottom: 0; /* seamless by default */
     border-radius: 0;
+}
+/* Top drop (after cap-top): needs margin before first button */
+.lcars-sidebar-cap-top + .lcars-sidebar-drop {
+    margin-bottom: var(--gap-xs, 3px);
 }
 @media (max-width: 768px) {
     .lcars-sidebar-drop { min-height: var(--gap-2xl, 34px); }
