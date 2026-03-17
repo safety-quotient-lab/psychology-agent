@@ -29,9 +29,9 @@
     --c-tab-kb: #c4956a;          /* amber — structured knowledge */
     --c-tab-wisdom: #b8956a;      /* warm bronze — accumulated insight */
     --c-tab-ops: #6b8aaf;         /* blue — transport, operations */
-    --c-tab-science: #9999ff;     /* blue-purple — psychometrics, science */
+    --c-tab-science: var(--v23-navy);  /* science blue — psychometrics, science */
     --c-tab-engineering: #ff9944; /* warm orange — system health, tempo */
-    --c-tab-tactical: #cc6666;    /* alert red — security, threat display */
+    --c-tab-tactical: var(--v23-red);  /* alert red — security, threat display */
     --c-tab-helm: #66aacc;        /* navigation blue — routing, sessions */
 
     /* Agent identity palette — subtle, distinguishable */
@@ -132,16 +132,19 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     --v23-peach: #FD9173;
 
     /* ── Semantic mapping (roles → palette) ── */
-    --lcars-frame: var(--v23-orange-light);     /* structural bars, elbows — warm orange */
-    --lcars-accent: var(--v23-orange-med);     /* primary/active, row leaders */
-    --lcars-secondary: var(--v23-purple-med);  /* data tier 1, entity names */
-    --lcars-tertiary: var(--v23-purple-dark);  /* data tier 2, identifiers */
-    --lcars-title: var(--v23-gold-med);        /* headers, section titles */
-    --lcars-science: var(--v23-navy);          /* science/medical blue */
-    --lcars-alert: var(--v23-red);             /* emergency, critical */
-    --lcars-medical: var(--v23-green);         /* health, nominal */
-    --lcars-neutral: var(--v23-gold-light);    /* light structural, spacers */
-    --lcars-highlight: var(--v23-salmon-med);  /* attention, epistemic */
+    /* ── Semiotic Color Mapping (V23.01 → LCARS function) ──────
+       Canon: color = CATEGORY, never status. Status uses brightness.
+       Ref: docs/lcars-design-reference.md §2.0, V23.01 palette image */
+    --lcars-frame: var(--v23-peach);           /* STRUCTURAL — frame bars, elbows, spacers (60%+ of panel) */
+    --lcars-accent: var(--v23-orange-med);     /* PRIMARY/ACTIVE — row leaders, emphasis capsules */
+    --lcars-secondary: var(--v23-purple-med);  /* DATA tier 1 — entity names, primary values */
+    --lcars-tertiary: var(--v23-purple-dark);  /* DATA tier 2 — identifiers, secondary values */
+    --lcars-title: var(--v23-gold-med);        /* ALERT/HEADER — section titles, attention */
+    --lcars-science: var(--v23-navy);          /* SYSTEMS — science/medical department blue */
+    --lcars-alert: var(--v23-red);             /* EMERGENCY — destructive, final tier (sparse) */
+    --lcars-medical: var(--v23-green);         /* ENVIRONMENTAL — health domain context only */
+    --lcars-neutral: var(--v23-gold-light);    /* LIGHT STRUCTURAL — secondary fill, spacers */
+    --lcars-highlight: var(--v23-salmon-med);  /* ATTENTION — epistemic flags, highlighted data */
 
     /* ── Mapped to existing variable names ── */
     --c-transport: var(--lcars-accent);
@@ -860,7 +863,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .lcars-pill-sm.lcars-pill-active { background: var(--c-warning, #d4944a); }
 /* LCARS-specific pill overrides — TNG saturated palette */
 .theme-lcars .lcars-pill-btn { color: #000; }
-.theme-lcars .lcars-pill-red { background: #cc6666; }
+.theme-lcars .lcars-pill-red { background: var(--lcars-alert); }
 .theme-lcars .lcars-pill-green { background: #6aab8e; }
 .theme-lcars .lcars-pill-orange { background: #ff9944; }
 .theme-lcars .lcars-pill-blue { background: #5b9cf6; }
