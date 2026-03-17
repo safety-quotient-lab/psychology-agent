@@ -101,6 +101,9 @@ type Server struct {
 	// SSEBroadcast exposes the broker's Broadcast for external callers (ZMQ handler).
 	SSEBroadcast func(SSEEvent)
 
+	// wsBroker fans out events to connected WebSocket clients.
+	wsBroker *WSBroker
+
 	// rpcMethods maps JSON-RPC method names to HTTP handlers.
 	// Built once during route registration via buildMethodTable().
 	rpcMethods map[string]methodRoute
@@ -117,6 +120,12 @@ func New(
 	logger *slog.Logger,
 ) *Server {
 	broker := NewSSEBroker(logger)
+	wsBroker := NewWSBroker(logger)
+	// Wrap SSE broadcast to also push to WebSocket clients
+	broadcastAll := func(evt SSEEvent) {
+		broker.Broadcast(evt)
+		wsBroker.Broadcast(evt)
+	}
 	return &Server{
 		Config:         cfg,
 		Health:         healthMon,
@@ -127,7 +136,8 @@ func New(
 		eventLog:       make([]events.Event, 0, maxEventLog),
 		spawnLog:       make([]DeliberationRecord, 0, maxDeliberationLog),
 		sseBroker:      broker,
-		SSEBroadcast:   broker.Broadcast,
+		SSEBroadcast:   broadcastAll,
+		wsBroker:       wsBroker,
 	}
 }
 
@@ -270,6 +280,7 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/events", s.handleEvents)
 	mux.HandleFunc("GET /api/events/stream", s.handleSSEStream)
 	mux.HandleFunc("GET /events", s.handleSSEStream) // Alias — dashboard connectSSE() expects /events
+	mux.Handle("GET /ws", s.wsBroker.Handler())      // WebSocket — real-time dashboard updates
 	mux.HandleFunc("POST /hooks/github", s.handleWebhook)
 	mux.HandleFunc("POST /api/trigger", s.handleTrigger)
 	mux.HandleFunc("GET /api/deliberations", s.handleDeliberations)

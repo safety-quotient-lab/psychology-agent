@@ -1048,6 +1048,14 @@ body[data-alert-level="3"] .lcars-elbow-connector-top {
 body[data-alert-level="3"] .lcars-elbow-connector-bottom {
     background: radial-gradient(circle at 100% 0%, transparent var(--elbow-inner, 24px), #ffcc00 var(--elbow-inner, 24px)) !important;
 }
+/* Yellow alert slow flash — structural elements pulse 1→1/φ */
+body[data-alert-level="3"] .lcars-sidebar-cap-top,
+body[data-alert-level="3"] .lcars-sidebar-cap-bottom,
+body[data-alert-level="3"] .lcars-sidebar-arm,
+body[data-alert-level="3"] .lcars-hdr-arm,
+body[data-alert-level="3"] .lcars-hdr-endcap {
+    animation: alert-slow-flash 2s ease-in-out infinite;
+}
 /* Title pills stay readable during yellow alert */
 body[data-alert-level="3"] .lcars-hdr-title {
     background: transparent !important;
@@ -1070,8 +1078,13 @@ body[data-alert-level="2"] .lcars-footer-seg {
     background: #882222 !important;
     color: #fff !important;
 }
-body[data-alert-level="2"] .lcars-sidebar-btn {
-    animation: red-alert-pulse 1.5s ease-in-out infinite;
+body[data-alert-level="2"] .lcars-sidebar-btn,
+body[data-alert-level="2"] .lcars-sidebar-cap-top,
+body[data-alert-level="2"] .lcars-sidebar-cap-bottom,
+body[data-alert-level="2"] .lcars-sidebar-arm,
+body[data-alert-level="2"] .lcars-hdr-arm,
+body[data-alert-level="2"] .lcars-hdr-endcap {
+    animation: alert-slow-flash 2s ease-in-out infinite;
 }
 body[data-alert-level="2"] .lcars-elbow-connector-top {
     background: radial-gradient(circle at 100% 100%, transparent var(--elbow-inner, 24px), #882222 var(--elbow-inner, 24px)) !important;
@@ -1087,6 +1100,10 @@ body[data-alert-level="2"] .lcars-hdr-title {
 @keyframes red-alert-pulse {
     0%, 100% { filter: brightness(1); }
     50% { filter: brightness(1.4); }
+}
+@keyframes alert-slow-flash {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.618; }
 }
 
 /* Level 1 — full desaturation (everything affected) */
@@ -3394,7 +3411,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #cc3333 !important;
    creates structure per "STARSHIP MISSION STATUS" pattern. */
 .ohniaka-row {
     display: grid;
-    grid-template-columns: 10px 10px minmax(100px, 1.2fr) 80px 100px 1fr;
+    grid-template-columns: 10px minmax(100px, 1.2fr) 10px 80px 100px 1fr;
     gap: var(--gap-m);
     padding: var(--gap-m) 0;
     border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -3432,11 +3449,11 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #cc3333 !important;
 /* Mobile: stack columns */
 @media (max-width: 520px) {
     .ohniaka-row {
-        grid-template-columns: 10px 10px 1fr 1fr;
+        grid-template-columns: 10px 1fr 10px auto;
         gap: var(--gap-xs) var(--gap-m);
         font-size: 0.7em;
     }
-    .ohniaka-desc { grid-column: 1 / -1; }
+    .ohniaka-id, .ohniaka-desc { display: none; }
 }
 
 /* ── Ohniaka Summary Row (mesh totals) ───────────────────── */

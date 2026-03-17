@@ -2281,6 +2281,16 @@
         } finally { _refreshing = false; }
     }
 
+    // renderAll — re-render all tabs from cached agentData (no fetch)
+    function renderAll() {
+        try { renderPulse(); } catch(e) {}
+        try { renderOperations(); } catch(e) {}
+        if (document.body.classList.contains("theme-lcars")) {
+            updateLcarsHeaderData();
+            evaluateAlertLevel();
+        }
+    }
+
     // ── Render: Vitals ─────────────────────────────────────────────
     function renderVitals() {
         const online = Object.values(agentData).filter(a => a.status === "online");
@@ -3869,7 +3879,76 @@
         return div.innerHTML;
     }
 
-    // ── SSE Live Updates ─────────────────────────────────────────
+    // ── WebSocket Real-Time Updates ─────────────────────────────
+    let wsConnection = null;
+    let wsReconnectTimer = null;
+
+    function connectWebSocket() {
+        // Try WebSocket to each agent that supports it
+        for (const agent of AGENTS) {
+            const wsUrl = agent.url.replace(/^http/, "ws") + "/ws";
+            try {
+                const ws = new WebSocket(wsUrl);
+                ws.onopen = () => {
+                    wsConnection = ws;
+                    sseActive = true;
+                    updateSSEIndicator(true);
+                    // Stop polling — we have real-time
+                    if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+                    addNarrativeEntry(`WebSocket connected to ${agentName(agent)}`);
+                };
+                ws.onmessage = (e) => {
+                    try {
+                        const evt = JSON.parse(e.data);
+                        if (evt.type === "pong") return; // heartbeat response
+                        if (evt.type === "refresh" || evt.Type === "refresh") {
+                            refreshAll();
+                        } else if (evt.type === "status" || evt.Type === "status") {
+                            // Direct status update — apply without full refresh
+                            if (evt.Data?.agent_id && evt.Data?.data) {
+                                agentData[evt.Data.agent_id] = { status: "online", data: evt.Data.data, id: evt.Data.agent_id };
+                                renderAll();
+                            } else {
+                                refreshAll();
+                            }
+                        }
+                    } catch {}
+                };
+                ws.onclose = () => {
+                    if (wsConnection === ws) {
+                        wsConnection = null;
+                        sseActive = false;
+                        updateSSEIndicator(false);
+                        // Reconnect after 5s
+                        if (!wsReconnectTimer) {
+                            wsReconnectTimer = setTimeout(() => {
+                                wsReconnectTimer = null;
+                                connectWebSocket();
+                            }, 5000);
+                        }
+                        // Resume polling while disconnected
+                        if (!refreshTimer) refreshTimer = setInterval(refreshAll, 30000);
+                    }
+                };
+                ws.onerror = () => { ws.close(); };
+
+                // Heartbeat every 30s
+                const heartbeat = setInterval(() => {
+                    if (ws.readyState === WebSocket.OPEN) ws.send("ping");
+                    else clearInterval(heartbeat);
+                }, 30000);
+
+                // Only need one WS connection (to our meshd)
+                return;
+            } catch {
+                // WebSocket not available for this agent — try next
+            }
+        }
+        // No WebSocket available — fall back to SSE
+        connectSSE();
+    }
+
+    // ── SSE Live Updates (fallback) ──────────────────────────────
     function connectSSE() {
         sseConnections.forEach(es => es.close());
         sseConnections = [];
@@ -4242,14 +4321,14 @@
                 : "OFFLINE";
 
             const rowClass = online ? "ohniaka-row" : "ohniaka-row ohniaka-row-offline";
-            const statusPill = online
-                ? `<span class="ohniaka-status-pill" style="background:var(--lcars-medical)"></span>`
-                : `<span class="ohniaka-status-pill" style="background:var(--lcars-alert)"></span>`;
+            const degraded = online && health === "degraded";
+            const statusColor = online ? (degraded ? "var(--lcars-title)" : "var(--lcars-medical)") : "var(--lcars-alert)";
+            const statusPill = `<span class="ohniaka-status-pill${!online ? " agent-name-offline" : ""}" style="background:${statusColor}"></span>`;
             return `<div class="${rowClass}">
                 <span class="ohniaka-color-pill" style="background:${agent.color}"></span>
-                ${statusPill}
                 <span class="ohniaka-col ohniaka-name" style="color:var(--lcars-secondary)">${agentName(agent).toUpperCase()}</span>
-                <span class="ohniaka-col ohniaka-type">${online ? "ONLINE" : "OFFLINE"}</span>
+                ${statusPill}
+                <span class="ohniaka-col ohniaka-type">${online ? (degraded ? "DEGRADED" : "ONLINE") : "OFFLINE"}</span>
                 <span class="ohniaka-col ohniaka-id">${online ? fmtNum(deliberations) + " / " + cutoffStr : "\u2014"}</span>
                 <span class="ohniaka-col ohniaka-desc">${statusText}${pending > 0 ? " · " + pending + " PEND" : ""}${gates > 0 ? " · " + gates + " GATE" : ""}</span>
             </div>`;
@@ -6346,9 +6425,9 @@
         // Fetch agent cards for structural schema (non-blocking)
         fetchAgentCards();
 
-        // Try SSE first, fall back to polling
-        connectSSE();
-        // Safety net — always have polling as backup until SSE connects
+        // Try WebSocket first, fall back to SSE, then polling
+        connectWebSocket();
+        // Safety net — always have polling as backup until WS/SSE connects
         refreshTimer = setInterval(refreshAll, 30000);
     })();
 </script>
