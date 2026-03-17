@@ -2633,9 +2633,14 @@
         }
     }
 
+    // Dictionary fetched via /api/kb (which includes dictionary data).
+    // Previously polled /kb/dictionary which returned 404 on meshd (BUG-4).
+    const _dictFailedAgents = new Set(); // Stop retrying agents that lack dictionary
     async function fetchAgentDict(agent) {
+        if (_dictFailedAgents.has(agent.id)) return { id: agent.id, status: "error", error: "cached 404" };
         try {
-            const resp = await fetch(`${agent.url}/kb/dictionary`, { signal: AbortSignal.timeout(10000) });
+            const resp = await fetch(`${agent.url}/api/kb?section=dictionary`, { signal: AbortSignal.timeout(10000) });
+            if (resp.status === 404) { _dictFailedAgents.add(agent.id); throw new Error("404"); }
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             return { id: agent.id, status: "ok", data: await resp.json() };
         } catch (err) {

@@ -80,6 +80,24 @@ func main() {
 		fmt.Fprintf(os.Stderr, "configuration load failed: %v\n", err)
 		os.Exit(1)
 	}
+	// CLI --project-root overrides detected repo root.
+	// detectRepoRoot() uses os.Executable() first, which resolves to the
+	// binary's directory — wrong when the binary lives in a different repo
+	// than the agent project. The flag value takes precedence.
+	if projectRoot != "" {
+		absRoot, absErr := filepath.Abs(projectRoot)
+		if absErr == nil {
+			cfg.RepoRoot = absRoot
+			// Re-derive paths that depend on RepoRoot
+			if os.Getenv("BUDGET_DB_PATH") == "" {
+				cfg.BudgetDBPath = filepath.Join(absRoot, "state.db")
+			}
+			if os.Getenv("TRANSPORT_DIR") == "" {
+				cfg.TransportDir = filepath.Join(absRoot, "transport", "sessions")
+			}
+		}
+	}
+
 	// CLI flags override config file values
 	if port > 0 {
 		cfg.Port = port
