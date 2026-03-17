@@ -230,6 +230,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     background: #000;
     padding-top: 0;
     gap: 0;
+    padding-bottom: 0; /* exit button's margin-bottom handles viewport gap */
 }
 
 /* Top elbow cap — outer corner of the frame rounds off at top-left.
@@ -318,8 +319,8 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* Sidebar navigation buttons */
 .lcars-sidebar-btn {
     display: flex;
-    align-items: flex-end; /* text sits at bottom — TNG canonical */
-    justify-content: flex-start;
+    align-items: center; /* vertically centered */
+    justify-content: flex-end; /* right-aligned text — canonical */
     width: 100%;
     border: none;
     border-radius: 24px 0 0 24px;
@@ -393,7 +394,8 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 
 .lcars-header-seg {
     display: flex;
-    align-items: center;
+    align-items: flex-end; /* bottom-aligned text — canonical */
+    justify-content: center; /* centered horizontally */
     padding: 4px 14px;
     font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.72em;
@@ -3439,18 +3441,21 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #cc3333 !important;
 }
 
 /* ── Sidebar Footer — bottom bar inside sidebar flex column ── */
-.lcars-sidebar-footer {
+/* ── Sidebar Exit Button — rectangle pill at bottom of sidebar ── */
+.lcars-sidebar-exit {
     flex-shrink: 0;
-    min-height: var(--band-size, 52px);
+    margin-top: var(--gap-xs, 3px);
+    margin-bottom: var(--gap-xl, 21px); /* gap between sidebar and viewport bottom */
+    min-height: 36px;
     background: var(--c-knowledge);
-    border-radius: 0 0 0 var(--elbow-outer, 48px);
+    border-radius: 0; /* flat rectangle, no curves */
     display: flex;
     align-items: center;
-    padding: 4px 14px;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
-    font-size: 0.72em;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+    justify-content: center;
+    width: 100%;
+    font-size: 0.85em;
     color: #000;
+    cursor: pointer;
+    transition: filter 0.15s;
 }
+.lcars-sidebar-exit:hover { filter: brightness(1.2); }

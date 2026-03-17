@@ -60,6 +60,7 @@
         <button class="lcars-sidebar-btn" data-tab="tactical" data-short="TAC" style="background:var(--lcars-alert)" onclick="switchTab('tactical')">Tactical</button>
         <button class="lcars-sidebar-btn" data-tab="medical" data-short="MED" style="background:var(--lcars-medical)" onclick="switchTab('medical')">Medical</button>
         <div class="lcars-sidebar-arm"></div>
+        <div class="lcars-sidebar-exit" onclick="setTheme('system')" title="Exit LCARS mode">&#x2716;</div>
     </nav>
 
     <!-- LCARS Header Band — stardate tray on mobile portrait -->
@@ -1963,6 +1964,11 @@
 
     // ── Theme ──────────────────────────────────────────────────────
     function setTheme(mode) {
+        // 'system' follows OS preference
+        if (mode === "system") {
+            mode = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+            localStorage.removeItem("theme"); // clear override, follow system
+        }
         document.body.classList.remove("theme-light", "theme-lcars");
         if (mode === "light") document.body.classList.add("theme-light");
         if (mode === "lcars") document.body.classList.add("theme-lcars");
