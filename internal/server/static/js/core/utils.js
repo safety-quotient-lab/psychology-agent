@@ -1,19 +1,35 @@
 /**
  * utils.js — Shared utility functions for the Interagent Mesh dashboard.
  *
- * Extracted from inline <script> in index.html. Contains formatting helpers,
- * SVG generators, delta tracking, acronym annotation, and timestamp utilities.
+ * Extracted from app.js. Contains formatting helpers, SVG generators,
+ * delta tracking, acronym annotation, and timestamp utilities.
  * Pure functions (no DOM side effects) unless noted.
  *
  * DOM dependencies marked per function.
+ *
+ * Source: app.js lines 48-273, 370-446, 787-903
  */
+
+import { AGENTS } from "./config.js";
 
 // ── Module-Level State ───────────────────────────────────────────────
 // Sparkline history — accumulates values across refreshes for trend display
 export const sparkHistory = {};
 
 // Delta tracker — stores previous numeric values for change indicators
-export const _prevValues = {};
+const _prevValues = {};
+
+// Waveform animation state
+let _waveAnimFrame = null;
+let _wavePhase = 0;
+export let _waveOpts = null; // cached opts from last render — assigned externally
+
+// LCARS frame SVG resize debounce
+let _frameSvgTimer = null;
+
+// Header flash-change tracker
+const _hdrPrev = {};
+let _hdrFirstRender = true;
 
 // Acronym annotation state (rebuilt after each knowledge-base fetch)
 let acronymMap = {};
@@ -26,27 +42,24 @@ let acronymRegex = null;
  * LCARS convention: "10 000" not "10,000".
  *
  * @param {number|string|null} n — value to format
- * @returns {string} — formatted number, or "—" for invalid input
+ * @returns {string} — formatted number, or em-dash for invalid input
  */
 export function fmtNum(n) {
     if (n == null || isNaN(n)) return "\u2014";
     const num = typeof n === "string" ? parseFloat(n) : n;
     if (isNaN(num)) return "\u2014";
     const rounded = Math.round(num);
-    // Space-separate thousands (LCARS convention: "10 000" not "10,000")
+    // Non-breaking narrow space thousands (LCARS convention: "10 000" not "10,000")
     if (Math.abs(rounded) >= 1000) {
-        return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\u202F");
     }
     return rounded.toString();
 }
 
 // ── Sparkline SVG Generator ──────────────────────────────────────────
-// Generates inline SVG sparklines for trend visualization. No external
-// deps — pure SVG path construction from numeric arrays.
 
 /**
  * Generate an inline SVG sparkline from an array of numeric values.
- * Returns an SVG element string suitable for innerHTML insertion.
  *
  * @param {number[]} values — data points (oldest first)
  * @param {Object} opts — options
@@ -82,6 +95,7 @@ export function sparklineSVG(values, opts = {}) {
  * @param {number} opts.height — SVG height in px (default 40)
  * @param {number} opts.amplitude — 0-1 signal strength (default 0.5)
  * @param {number} opts.frequency — wave cycles (default 3)
+ * @param {number} opts.phase — phase offset for animation (default 0)
  * @param {string} opts.stroke — wave color (default "#ff9966")
  * @param {string} opts.barColor — framing bar color (default "rgba(153,153,255,0.3)")
  * @returns {string} — SVG element HTML string
@@ -90,6 +104,7 @@ export function waveformSVG(opts = {}) {
     const w = opts.width || 200, h = opts.height || 40;
     const amplitude = opts.amplitude || 0.5; // 0-1 signal strength
     const frequency = opts.frequency || 3;   // wave cycles
+    const phase = opts.phase || 0;           // phase offset for animation
     const stroke = opts.stroke || "#ff9966";
     const barColor = opts.barColor || "rgba(153,153,255,0.3)";
     const points = [];
@@ -99,17 +114,149 @@ export function waveformSVG(opts = {}) {
     const steps = Math.max(40, w);
     for (let i = 0; i <= steps; i++) {
         const x = pad + (i / steps) * (w - 2 * pad);
-        // Composite wave: primary + harmonic + noise
-        const t = (i / steps) * Math.PI * 2 * frequency;
-        const wave = Math.sin(t) * 0.7 + Math.sin(t * 2.3) * 0.2 + Math.sin(t * 5.1) * 0.1;
+        // Composite wave: primary + harmonic + noise, phase-shifted
+        const t = (i / steps) * Math.PI * 2 * frequency + phase;
+        const wave = Math.sin(t) * 0.7 + Math.sin(t * 2.3 + phase * 0.7) * 0.2 + Math.sin(t * 5.1 + phase * 1.3) * 0.1;
         const y = midY - wave * maxAmp;
         points.push(x.toFixed(1) + "," + y.toFixed(1));
     }
     return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block">
-            <line x1="${pad}" y1="${pad}" x2="${w - pad}" y2="${pad}" stroke="${barColor}" stroke-width="2"/>
-            <line x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" stroke="${barColor}" stroke-width="2"/>
-            <polyline points="${points.join(" ")}" fill="none" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round" opacity="${Math.max(0.3, amplitude)}"/>
-        </svg>`;
+        <line x1="${pad}" y1="${pad}" x2="${w - pad}" y2="${pad}" stroke="${barColor}" stroke-width="2"/>
+        <line x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" stroke="${barColor}" stroke-width="2"/>
+        <polyline points="${points.join(" ")}" fill="none" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round" opacity="${Math.max(0.3, amplitude)}"/>
+    </svg>`;
+}
+
+// ── Waveform Animation Controller ─────────────────────────────────
+
+/**
+ * Start the waveform animation loop. Ticks phase and re-renders
+ * tempo-waveform and med-oscillator-wave elements each frame.
+ *
+ * DOM WRITE: sets innerHTML on #tempo-waveform and #med-oscillator-wave.
+ */
+export function startWaveformAnimation() {
+    if (_waveAnimFrame) return; // already running
+    function tick() {
+        _wavePhase += 0.05; // phase increment per frame
+        const tempoWaveEl = document.getElementById("tempo-waveform");
+        if (tempoWaveEl && _waveOpts) {
+            tempoWaveEl.innerHTML = waveformSVG({ ..._waveOpts, phase: _wavePhase });
+        }
+        const medOscEl = document.getElementById("med-oscillator-wave");
+        if (medOscEl && medOscEl._waveOpts) {
+            medOscEl.innerHTML = waveformSVG({ ...medOscEl._waveOpts, phase: _wavePhase });
+        }
+        _waveAnimFrame = requestAnimationFrame(tick);
+    }
+    _waveAnimFrame = requestAnimationFrame(tick);
+}
+
+/**
+ * Stop the waveform animation loop.
+ */
+export function stopWaveformAnimation() {
+    if (_waveAnimFrame) {
+        cancelAnimationFrame(_waveAnimFrame);
+        _waveAnimFrame = null;
+    }
+}
+
+/**
+ * Set cached waveform options for the tempo waveform element.
+ * @param {Object} opts — waveformSVG options
+ */
+export function setWaveOpts(opts) {
+    _waveOpts = opts;
+}
+
+// ── SVG L-Shape Frame ─────────────────────────────────────────────
+
+/**
+ * Render the LCARS L-shape frame as a single SVG path.
+ * Draws sidebar + header + elbow with radial gradient fill.
+ * Positioned behind all interactive elements.
+ *
+ * DOM WRITE: sets innerHTML/attributes on #lcars-frame-svg.
+ */
+export function renderLcarsFrameSVG() {
+    const svg = document.getElementById("lcars-frame-svg");
+    if (!svg || !document.body.classList.contains("theme-lcars")) return;
+
+    const frame = document.querySelector(".lcars-frame");
+    if (!frame) return;
+
+    const W = frame.clientWidth;
+    const H = frame.clientHeight;
+    const style = getComputedStyle(document.documentElement);
+    const sw = parseInt(style.getPropertyValue("--sidebar-width")) || 160;
+    const bandH = parseInt(style.getPropertyValue("--band-size")) || 52;
+    const ro = parseInt(style.getPropertyValue("--elbow-outer")) || 48;
+    const ri = parseInt(style.getPropertyValue("--elbow-inner")) || 24;
+
+    // L-shape path: clockwise from top-left outer corner
+    const path = [
+        `M 0 ${ro}`,
+        `A ${ro} ${ro} 0 0 1 ${ro} 0`,
+        `L ${W - ro} 0`,
+        `A ${ro} ${ro} 0 0 1 ${W} ${ro}`,
+        `L ${W} ${bandH}`,
+        `L ${sw + ri} ${bandH}`,
+        `A ${ri} ${ri} 0 0 0 ${sw} ${bandH + ri}`,
+        `L ${sw} ${H - ro}`,
+        `A ${ro} ${ro} 0 0 1 ${sw - ro} ${H}`,
+        `L ${ro} ${H}`,
+        `L 0 ${H}`,
+        `Z`,
+    ].join(" ");
+
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    svg.setAttribute("width", W);
+    svg.setAttribute("height", H);
+    // Compute actual frame color for SVG gradient stops
+    const frameColor = style.getPropertyValue("--lcars-frame").trim();
+    // Resolve CSS var to actual hex via temp element
+    const tmp = document.createElement("div");
+    tmp.style.color = frameColor;
+    document.body.appendChild(tmp);
+    const resolved = getComputedStyle(tmp).color;
+    tmp.remove();
+
+    // Parse rgb(r,g,b) components
+    const rgb = resolved.match(/\d+/g)?.map(Number) || [238, 143, 72];
+    const [r, g, b] = rgb;
+    const hex = (r, g, b) => "#" + [r, g, b].map(c => Math.max(0, Math.min(255, Math.round(c))).toString(16).padStart(2, "0")).join("");
+    const mix = (pct, tr, tg, tb) => hex(r * pct + tr * (1 - pct), g * pct + tg * (1 - pct), b * pct + tb * (1 - pct));
+
+    // Non-uniform internal glow: darker edges, brighter center, off-center highlight
+    const dark = mix(0.78, 26, 16, 0);
+    const mid = hex(r, g, b);
+    const bright = mix(0.92, 255, 232, 204);
+    const peak = mix(0.95, 255, 244, 224);
+
+    svg.innerHTML = `
+        <defs>
+            <linearGradient id="lcars-frame-grad-h" x1="0" y1="0" x2="${sw}" y2="0" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="${dark}"/>
+                <stop offset="8%" stop-color="${mix(0.88, 42, 24, 0)}"/>
+                <stop offset="25%" stop-color="${mid}"/>
+                <stop offset="38%" stop-color="${bright}"/>
+                <stop offset="55%" stop-color="${peak}"/>
+                <stop offset="72%" stop-color="${mid}"/>
+                <stop offset="100%" stop-color="${dark}"/>
+            </linearGradient>
+        </defs>
+        <path d="${path}" fill="url(#lcars-frame-grad-h)" />
+    `;
+}
+
+/**
+ * Debounced resize handler for the LCARS frame SVG.
+ * Schedules a re-render 100ms after the last call.
+ */
+export function scheduleFrameSVG() {
+    clearTimeout(_frameSvgTimer);
+    _frameSvgTimer = setTimeout(renderLcarsFrameSVG, 100);
 }
 
 // ── Sparkline History ────────────────────────────────────────────────
@@ -134,19 +281,39 @@ export function pushSparkValue(key, value) {
  * Display name helper — use agent.name if available, otherwise strip "-agent".
  *
  * @param {Object|string} agentOrId — agent object (with .name) or agent ID string
- * @param {Array} agents — AGENTS array for lookup (optional; falls back to string manipulation)
  * @returns {string} — display name
  */
-export function agentName(agentOrId, agents) {
+export function agentName(agentOrId) {
     if (typeof agentOrId === "object" && agentOrId.name) return agentOrId.name;
     const id = typeof agentOrId === "string" ? agentOrId : agentOrId?.id || "";
-    const found = agents ? agents.find(a => a.id === id) : null;
+    const found = AGENTS.find(a => a.id === id);
     return found?.name || id.replace("-agent", "").replace("psq", "safety-quotient");
 }
 
+// ── Three-Zone Number Grid Generator ─────────────────────────────────
+
+/**
+ * Render a number grid into a container element.
+ * Color encodes data type: orange=counts, purple=IDs, white=measured, gold=alert.
+ *
+ * @param {string} containerId — DOM element ID for the grid container
+ * @param {Array} metrics — array of { label, value, type, alert } objects
+ *
+ * DOM WRITE: sets innerHTML on the target container.
+ */
+export function renderNumberGrid(containerId, metrics) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (!metrics || metrics.length === 0) { el.innerHTML = ""; return; }
+
+    el.innerHTML = metrics.map(m => {
+        const cls = m.alert ? "zn zn-alert" : m.type === "count" ? "zn zn-count"
+            : m.type === "id" ? "zn zn-id" : "zn zn-val";
+        return `<span class="zn-pair"><span class="zn-label">${m.label}</span><span class="${cls}">${m.value}</span></span>`;
+    }).join("");
+}
+
 // ── Delta Tracker ────────────────────────────────────────────────────
-// Tracks previous values and renders directional change indicators
-// next to every numeric display.
 
 /**
  * Update a numeric element with delta tracking.
@@ -242,84 +409,46 @@ export function renderVlevelGauge(value, maxBlocks, options = {}) {
     return html;
 }
 
-// ── Acronym Annotation ───────────────────────────────────────────────
-// Builds a lookup from dictionary data so that acronyms in table cells
-// and activity streams can display tooltip definitions. The acronym map
-// rebuilds after each knowledge-base fetch cycle.
+// ── Flash-If-Changed Helper ──────────────────────────────────────────
 
 /**
- * Build the acronym lookup table from fetched dictionary data.
- * Extracts terms from the "Project Acronyms" defined-term-set across
- * all agents, then compiles a regex for efficient annotation.
+ * Set element text and flash if the value changed since last call.
+ * Used for LCARS header data that should visually indicate updates.
  *
- * @param {Array} agents — AGENTS array (each with .id property)
- * @param {Object} dictData — dictionary data keyed by agent id
+ * @param {HTMLElement} el — target element
+ * @param {string} newText — text to display
+ *
+ * DOM WRITE: sets textContent, toggles .hdr-changed class.
  */
-export function buildAcronymMap(agents, dictData) {
-    acronymMap = {};
-    for (const agent of agents) {
-        const dd = dictData[agent.id];
-        if (dd?.status !== "ok") continue;
-        const vocab = dd.data || {};
-        const terms = vocab["@graph"] || vocab.hasDefinedTerm || [];
-        terms.forEach(term => {
-            if (term.inDefinedTermSet !== "Project Acronyms") return;
-            const name = term.name || "";
-            if (!name || acronymMap[name]) return;
-            acronymMap[name] = term.description || name;
-        });
+export function flashIfChanged(el, newText) {
+    if (!el) return;
+    const prev = _hdrPrev[el.id];
+    el.textContent = newText;
+    if (_hdrFirstRender || (prev !== undefined && prev !== newText)) {
+        el.classList.remove("hdr-changed");
+        void el.offsetWidth; // Force reflow to restart animation
+        el.classList.add("hdr-changed");
     }
-    // Build regex from acronym keys, longest first to avoid partial matches
-    const keys = Object.keys(acronymMap).sort((a, b) => b.length - a.length);
-    if (keys.length === 0) { acronymRegex = null; return; }
-    // Escape regex special chars in keys (for JSON-LD, EF-1, etc.)
-    const escaped = keys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-    acronymRegex = new RegExp("\\b(" + escaped.join("|") + ")\\b", "g");
+    _hdrPrev[el.id] = newText;
 }
 
 /**
- * Annotate pre-escaped HTML text with acronym tooltip wrappers.
- * Returns HTML with <abbr> tags — safe because input was already escaped.
- *
- * @param {string} escapedText — HTML-escaped text to annotate
- * @returns {string} — annotated HTML string
- *
- * DOM WRITE: returned HTML contains onclick handlers referencing global
- *            switchTab and filterDictionary. Mark for attention during
- *            module integration.
+ * Mark first render complete — subsequent calls to flashIfChanged
+ * only flash on actual value changes, not initial population.
  */
-export function annotateAcronyms(escapedText) {
-    if (!acronymRegex || !escapedText) return escapedText;
-    return escapedText.replace(acronymRegex, (match) => {
-        const desc = acronymMap[match];
-        if (!desc) return match;
-        const safeDesc = desc.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-        return `<abbr class="acronym-tip" title="${safeDesc}" onclick="event.stopPropagation();switchTab('kb');setTimeout(()=>{const f=document.getElementById('filter-dictionary');if(f){f.value='${match}';filterDictionary();}},100)">${match}</abbr>`;
-    });
-}
-
-/**
- * Retrieve the current acronym map (read-only access for external consumers).
- * @returns {Object} — map of acronym name to description
- */
-export function getAcronymMap() {
-    return { ...acronymMap };
+export function markFirstRenderDone() {
+    _hdrFirstRender = false;
 }
 
 // ── Timestamp Helpers ────────────────────────────────────────────────
 
 /**
  * Parse an ISO 8601 timestamp string to epoch milliseconds.
- * Handles full datetime with timezone ("2026-03-10T10:57:33-05:00"),
- * datetime without timezone ("2026-03-10T00:01:41"), and date-only
- * ("2026-03-10").
  *
  * @param {string} ts — ISO timestamp string
  * @returns {number} — epoch milliseconds, or 0 for invalid/missing input
  */
 export function parseTS(ts) {
-    // Normalize ISO timestamps (with or without timezone) to epoch ms.
-    // Handles "2026-03-10T10:57:33-05:00", "2026-03-10T00:01:41", "2026-03-10"
     if (!ts) return 0;
     const d = new Date(ts);
     return isNaN(d.getTime()) ? 0 : d.getTime();
@@ -327,15 +456,13 @@ export function parseTS(ts) {
 
 /**
  * Format a timestamp for compact display.
- * Produces relative strings for recent times ("5m ago", "3h ago",
- * "yesterday 14:30") and absolute strings for older dates
- * ("Mar 10, 14:57"). Date-only inputs render as full dates.
+ * Produces relative strings for recent times ("5m ago", "3h ago")
+ * and absolute strings for older dates ("Mar 10, 14:57").
  *
  * @param {string} ts — ISO timestamp string
- * @returns {string} — formatted display string, or "—" for missing input
+ * @returns {string} — formatted display string
  */
 export function formatTS(ts) {
-    // Show compact timestamp: "Mar 10, 14:57" or "2026-03-10" for date-only
     if (!ts) return "—";
     const d = new Date(ts);
     if (isNaN(d.getTime())) return ts.substring(0, 10) || "—";
@@ -355,12 +482,11 @@ export function formatTS(ts) {
 
 /**
  * Escape a string for safe insertion into HTML.
- * Uses a temporary DOM element to leverage the browser's built-in escaping.
  *
  * @param {string} str — raw string to escape
  * @returns {string} — HTML-safe string
  *
- * DOM WRITE: creates and discards a temporary <div> element (no document mutation).
+ * DOM WRITE: creates and discards a temporary div (no document mutation).
  */
 export function escapeHtml(str) {
     const div = document.createElement("div");
@@ -368,36 +494,83 @@ export function escapeHtml(str) {
     return div.innerHTML;
 }
 
+// ── Acronym Annotation ───────────────────────────────────────────────
+
+/**
+ * Build the acronym lookup table from fetched dictionary data.
+ *
+ * @param {Array} agents — AGENTS array (each with .id property)
+ * @param {Object} dictEntries — dictionary data keyed by agent id
+ */
+export function buildAcronymMap(agents, dictEntries) {
+    acronymMap = {};
+    for (const agent of agents) {
+        const dd = dictEntries[agent.id];
+        if (dd?.status !== "ok") continue;
+        const vocab = dd.data || {};
+        const terms = vocab["@graph"] || vocab.hasDefinedTerm || [];
+        terms.forEach(term => {
+            if (term.inDefinedTermSet !== "Project Acronyms") return;
+            const name = term.name || "";
+            if (!name || acronymMap[name]) return;
+            acronymMap[name] = term.description || name;
+        });
+    }
+    // Build regex from acronym keys, longest first to avoid partial matches
+    const keys = Object.keys(acronymMap).sort((a, b) => b.length - a.length);
+    if (keys.length === 0) { acronymRegex = null; return; }
+    const escaped = keys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    acronymRegex = new RegExp("\\b(" + escaped.join("|") + ")\\b", "g");
+}
+
+/**
+ * Annotate pre-escaped HTML text with acronym tooltip wrappers.
+ *
+ * @param {string} escapedText — HTML-escaped text to annotate
+ * @returns {string} — annotated HTML string
+ *
+ * NOTE: returned HTML contains onclick handlers referencing global
+ * switchTab and filterDictionary. Mark for attention during module integration.
+ */
+export function annotateAcronyms(escapedText) {
+    if (!acronymRegex || !escapedText) return escapedText;
+    return escapedText.replace(acronymRegex, (match) => {
+        const desc = acronymMap[match];
+        if (!desc) return match;
+        const safeDesc = desc.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+        return `<abbr class="acronym-tip" title="${safeDesc}" onclick="event.stopPropagation();switchTab('kb');setTimeout(()=>{const f=document.getElementById('filter-dictionary');if(f){f.value='${match}';filterDictionary();}},100)">${match}</abbr>`;
+    });
+}
+
+/**
+ * Retrieve the current acronym map (read-only access for external consumers).
+ * @returns {Object} — map of acronym name to description
+ */
+export function getAcronymMap() {
+    return { ...acronymMap };
+}
+
 // ── Mobile Status Bar ────────────────────────────────────────────────
-// Updates the compact mobile clock and mesh-status dot. The clock ticks
-// every 60 seconds. Status dot color reflects mesh health.
 
 let clockTimer = null;
 
-/**
- * Update the mobile clock element with current HH:MM.
- * DOM WRITE: sets textContent on #lcars-header-time.
- */
 function updateClock() {
     const now = new Date();
     const hh = String(now.getHours()).padStart(2, "0");
     const mm = String(now.getMinutes()).padStart(2, "0");
     const time = `${hh}:${mm}`;
-    // Update LCARS header clock
     const lcarsEl = document.getElementById("lcars-header-time");
     if (lcarsEl) lcarsEl.textContent = time;
 }
 
 /**
- * Start the mobile status bar clock. Runs once immediately, then
- * ticks every 60 seconds aligned to the next minute boundary.
+ * Start the mobile status bar clock. Safe to call multiple times.
  *
- * Safe to call multiple times — subsequent calls skip if already running.
+ * DOM WRITE: sets textContent on #lcars-header-time every 60s.
  */
 export function initClock() {
     if (clockTimer) return;
     updateClock();
-    // Align to next minute boundary, then tick every 60s
     const msToNextMinute = (60 - new Date().getSeconds()) * 1000;
     setTimeout(() => {
         updateClock();
@@ -407,7 +580,6 @@ export function initClock() {
 
 /**
  * Update the mobile status dot color and agent count.
- * Call after each data refresh to reflect current mesh health.
  *
  * @param {number} onlineCount — agents currently online
  * @param {number} totalCount — total expected agents
