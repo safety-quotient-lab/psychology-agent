@@ -134,15 +134,25 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 }
 
 /* ── LCARS Chrome: Frame Override ──────────────────────────── */
+/* 3 columns × 5 rows. Margin channel creates elbow corner cells.
+   col: sidebar | margin(elbow-inner) | content
+   row: header | top-corner | content | bottom-corner | footer */
 .theme-lcars .lcars-frame {
-    grid-template-columns: var(--sidebar-width) 1fr;
-    grid-template-rows: auto 1fr auto;
+    grid-template-columns: var(--sidebar-width) var(--elbow-inner, 24px) 1fr;
+    grid-template-rows: auto var(--elbow-inner, 24px) 1fr var(--elbow-inner, 24px) auto;
     position: relative;
 }
+/* Explicit grid placement for every LCARS element */
+.theme-lcars .lcars-sidebar     { grid-column: 1;      grid-row: 1 / -1; }
+.theme-lcars .lcars-header-band { grid-column: 2 / -1;  grid-row: 1; }
+.theme-lcars .lcars-content     { grid-column: 2 / -1;  grid-row: 2 / 5; }
+.theme-lcars .lcars-footer-band { grid-column: 2 / -1;  grid-row: 5; }
 
-/* Hide standard spine + tabs in LCARS mode */
-.theme-lcars .lcars-spine { display: none; }
-.theme-lcars .lcars-tabs { display: none; }
+/* Hide standard-mode elements in LCARS */
+.theme-lcars .lcars-spine  { display: none; }
+.theme-lcars .lcars-header { display: none; }
+.theme-lcars .lcars-tabs   { display: none; }
+.theme-lcars .lcars-footer { display: none; }
 
 /* ── LCARS Sidebar ─────────────────────────────────────────── */
 .lcars-sidebar {
@@ -206,14 +216,13 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .theme-lcars .lcars-frame { position: relative; }
 /* Size matches the elbow-inner radius. Position: flush with sidebar
    right edge, flush with header/footer bottom/top edge. */
-/* Connectors: absolutely positioned at sidebar/content junction */
+/* Connectors: grid-placed in margin intersection cells */
 .theme-lcars .lcars-elbow-connector-top {
     display: block;
-    position: absolute;
-    left: var(--sidebar-width, 160px);
-    top: var(--band-size, 52px);
-    width: var(--elbow-inner, 24px);
-    height: var(--elbow-inner, 24px);
+    grid-column: 2;
+    grid-row: 2;
+    width: 100%;
+    height: 100%;
     z-index: 10;
     pointer-events: none;
     transform: rotate(180deg);
@@ -226,11 +235,10 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 }
 .theme-lcars .lcars-elbow-connector-bottom {
     display: block;
-    position: absolute;
-    left: var(--sidebar-width, 160px);
-    bottom: var(--band-size, 52px);
-    width: var(--elbow-inner, 24px);
-    height: var(--elbow-inner, 24px);
+    grid-column: 2;
+    grid-row: 4;
+    width: 100%;
+    height: 100%;
     z-index: 10;
     pointer-events: none;
     transform: rotate(180deg);
@@ -293,8 +301,8 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     flex: 1;
     background: var(--c-knowledge);
     min-height: 20px;
-    margin-bottom: 0; /* seamless into bottom cap — mirrors top elbow */
-    border-radius: 12px 0 0 12px;
+    margin-bottom: 0; /* seamless into bottom cap */
+    border-radius: 12px 0 0 0; /* flat bottom — seamless join to cap */
 }
 
 /* Bottom cap matches top cap — continuous sidebar frame */
@@ -445,7 +453,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* ── LCARS Responsive: Tablet ─────────────────────────────── */
 @media (max-width: 768px) {
     .theme-lcars .lcars-frame {
-        grid-template-columns: 60px 1fr;
+        grid-template-columns: 60px var(--elbow-inner, 24px) 1fr;
     }
     .theme-lcars { --sidebar-width: 60px; }
 
@@ -495,7 +503,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* ── LCARS Responsive: Large Phone Portrait (430-480px, iPhone Pro Max) ── */
 @media (max-width: 480px) {
     .theme-lcars .lcars-frame {
-        grid-template-columns: 44px 1fr;
+        grid-template-columns: 44px var(--elbow-inner, 24px) 1fr;
     }
     .theme-lcars { --sidebar-width: 44px; }
 
@@ -3241,3 +3249,5 @@ a.activity-link:hover {
 /* Alert: sidebar drop follows structural chrome color */
 body[data-alert-level="3"] .lcars-sidebar-drop { background: #ffcc00 !important; }
 body[data-alert-level="2"] .lcars-sidebar-drop { background: #cc3333 !important; }
+
+/* Connectors use grid placement — no mobile hide needed */
