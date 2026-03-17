@@ -209,7 +209,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .theme-lcars .lcars-sidebar     { grid-column: 1;      grid-row: 1 / -1; }
 .theme-lcars .lcars-header-band { grid-column: 2 / -1;  grid-row: 1; }
 .theme-lcars .lcars-content     { grid-column: 3;       grid-row: 3; overflow-y: auto; }
-.theme-lcars .lcars-footer-band { grid-column: 2 / -1;  grid-row: 5; }
+.theme-lcars .lcars-footer-band { grid-column: 1 / -1;  grid-row: 5; }
 
 /* Hide standard-mode elements in LCARS */
 .theme-lcars .lcars-spine  { display: none; }
