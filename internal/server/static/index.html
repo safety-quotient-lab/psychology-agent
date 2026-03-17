@@ -4208,17 +4208,20 @@
             { val: fmtNum(decisions), key: "DEC", color: "#cc99cc", nav: "kb" },
         ];
 
-        el.innerHTML = `<div class="lcars-alpha-matrix">${metrics.map((m) => {
-            const clickAttr = m.nav ? ` onclick="switchTab('${m.nav}')" style="cursor:pointer;--cell-color:${m.color}" title="Go to ${m.nav}"` : ` style="--cell-color:${m.color}"`;
-            return `<div class="lcars-alpha-cell"${clickAttr}>
-                <span class="lcars-alpha-val">${m.val}</span>
-                <span class="lcars-alpha-key">${m.key}</span>
-            </div>`;
-        }).join("")}</div>`;
+        // Render as Ohniaka summary row — colored text, no backgrounds
+        el.innerHTML = `<div class="ohniaka-summary">
+            ${metrics.map(m => {
+                const click = m.nav ? ` onclick="switchTab('${m.nav}')" style="cursor:pointer" title="Go to ${m.nav}"` : "";
+                return `<span class="ohniaka-metric"${click}>
+                    <span class="ohniaka-metric-val" style="color:${m.color}">${m.val}</span>
+                    <span class="ohniaka-metric-key">${m.key}</span>
+                </span>`;
+            }).join("")}
+        </div>`;
 
-        // Update overview footer number
+        // Update overview footer
         const ovFtr = document.getElementById("ops-overview-num");
-        if (ovFtr) ovFtr.textContent = online.length + "/" + AGENTS.length;
+        if (ovFtr) ovFtr.textContent = ` · ${online.length} online · ${totalDelib} deliberations`;
     }
 
     function renderOpsActions() {
