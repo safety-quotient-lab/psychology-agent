@@ -36,7 +36,9 @@
 <body>
 
 <div class="lcars-frame">
-    <!-- Elbow inner corner connector — top only (L-shape, no bottom elbow) -->
+    <!-- SVG L-shape frame — one continuous path, no seams -->
+    <svg class="lcars-frame-svg" id="lcars-frame-svg" aria-hidden="true"></svg>
+    <!-- Legacy elbow connector (hidden when SVG active) -->
     <div class="lcars-elbow-connector-top"></div>
 
     <!-- Left spine — segments map to content categories (standard mode) -->
@@ -1421,6 +1423,112 @@
         }
     }
 
+    // ── SVG L-Shape Frame ─────────────────────────────────────
+    // One continuous path for the entire LCARS frame — sidebar + header +
+    // elbow. Eliminates seams between stacked CSS elements.
+    // Redraws on resize. Positioned behind all interactive elements.
+    function renderLcarsFrameSVG() {
+        const svg = document.getElementById("lcars-frame-svg");
+        if (!svg || !document.body.classList.contains("theme-lcars")) return;
+
+        const frame = document.querySelector(".lcars-frame");
+        if (!frame) return;
+
+        const W = frame.clientWidth;
+        const H = frame.clientHeight;
+        const style = getComputedStyle(document.documentElement);
+        const sw = parseInt(style.getPropertyValue("--sidebar-width")) || 160;
+        const bandH = parseInt(style.getPropertyValue("--band-size")) || 52;
+        const ro = parseInt(style.getPropertyValue("--elbow-outer")) || 48;
+        const ri = parseInt(style.getPropertyValue("--elbow-inner")) || 24;
+
+        // L-shape path: clockwise from top-left outer corner
+        //
+        //  ╭ro─────────────────────────╮ro
+        //  │                            │
+        //  │   header band (bandH)      │
+        //  │                            │
+        //  │        ╭ri (concave)───────╯
+        //  │        │
+        //  │sidebar │  content area
+        //  │  (sw)  │
+        //  │        │
+        //  ╰ro──────╯
+
+        const path = [
+            // Start: top-left, just below the outer radius
+            `M 0 ${ro}`,
+            // Outer top-left corner (arc curving from left edge to top edge)
+            `A ${ro} ${ro} 0 0 1 ${ro} 0`,
+            // Top edge → top-right corner
+            `L ${W - ro} 0`,
+            // Outer top-right corner
+            `A ${ro} ${ro} 0 0 1 ${W} ${ro}`,
+            // Right edge down to header bottom
+            `L ${W} ${bandH}`,
+            // Header bottom edge back to inner elbow
+            `L ${sw + ri} ${bandH}`,
+            // Inner concave curve (quarter circle — content side)
+            `A ${ri} ${ri} 0 0 0 ${sw} ${bandH + ri}`,
+            // Sidebar right edge down to bottom
+            `L ${sw} ${H - ro}`,
+            // Outer bottom-left corner
+            `A ${ro} ${ro} 0 0 1 ${sw - ro} ${H}`,
+            // Bottom edge to left
+            `L ${ro} ${H}`,
+            // Actually, just go straight to left edge bottom
+            `L 0 ${H}`,
+            // Left edge back up to start
+            `Z`,
+        ].join(" ");
+
+        svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+        svg.setAttribute("width", W);
+        svg.setAttribute("height", H);
+        // Compute actual frame color for SVG gradient stops
+        const frameColor = style.getPropertyValue("--lcars-frame").trim();
+        // Resolve CSS var to actual hex via temp element
+        const tmp = document.createElement("div");
+        tmp.style.color = frameColor;
+        document.body.appendChild(tmp);
+        const resolved = getComputedStyle(tmp).color;
+        tmp.remove();
+
+        // Parse rgb(r,g,b) → components
+        const rgb = resolved.match(/\d+/g)?.map(Number) || [238, 143, 72];
+        const [r, g, b] = rgb;
+        const hex = (r, g, b) => "#" + [r, g, b].map(c => Math.max(0, Math.min(255, Math.round(c))).toString(16).padStart(2, "0")).join("");
+        const mix = (pct, tr, tg, tb) => hex(r * pct + tr * (1 - pct), g * pct + tg * (1 - pct), b * pct + tb * (1 - pct));
+
+        // Non-uniform internal glow: darker edges, brighter center, off-center highlight
+        const dark = mix(0.78, 26, 16, 0);   // edge: 78% frame + 22% dark warm
+        const mid = hex(r, g, b);              // pure frame
+        const bright = mix(0.92, 255, 232, 204); // highlight: 92% frame + 8% warm white
+        const peak = mix(0.95, 255, 244, 224);   // peak: 95% frame + 5% cream
+
+        svg.innerHTML = `
+            <defs>
+                <linearGradient id="lcars-frame-grad-h" x1="0" y1="0" x2="${sw}" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="${dark}"/>
+                    <stop offset="8%" stop-color="${mix(0.88, 42, 24, 0)}"/>
+                    <stop offset="25%" stop-color="${mid}"/>
+                    <stop offset="38%" stop-color="${bright}"/>
+                    <stop offset="55%" stop-color="${peak}"/>
+                    <stop offset="72%" stop-color="${mid}"/>
+                    <stop offset="100%" stop-color="${dark}"/>
+                </linearGradient>
+            </defs>
+            <path d="${path}" fill="url(#lcars-frame-grad-h)" />
+        `;
+    }
+
+    // Debounced resize handler
+    let _frameSvgTimer = null;
+    function scheduleFrameSVG() {
+        clearTimeout(_frameSvgTimer);
+        _frameSvgTimer = setTimeout(renderLcarsFrameSVG, 100);
+    }
+
     // Sparkline history — accumulates values across refreshes for trend display
     const sparkHistory = {};
     function pushSparkValue(key, value) {
@@ -2069,6 +2177,9 @@
                 switchTab("operations");
             }
             updateLcarsHeaderData();
+            // Render SVG L-shape frame + listen for resize
+            renderLcarsFrameSVG();
+            window.addEventListener("resize", scheduleFrameSVG);
             // Sync sidebar active state
             const activeTab = document.querySelector('.lcars-tab.active');
             if (activeTab) {
@@ -2078,6 +2189,7 @@
             }
         } else {
             stopLcarsStardate();
+            window.removeEventListener("resize", scheduleFrameSVG);
             // If leaving LCARS mode while on a LCARS-only tab, switch to Pulse
             const activeTab = document.querySelector('.lcars-tab.active');
             if (activeTab && activeTab.classList.contains('lcars-only')) {
