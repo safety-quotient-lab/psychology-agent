@@ -563,8 +563,18 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     background: #000;
     border-bottom-color: var(--panel-accent, var(--lcars-frame));
 }
-/* Number grid values — alternating colors per data type (§2.3) */
-.lcars-zone-a .zn { white-space: nowrap; }
+/* Number grid — labeled key-value pairs, color by data type (§2.3) */
+.lcars-zone-a .zn-pair {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.3em;
+    white-space: nowrap;
+}
+.lcars-zone-a .zn-label {
+    color: var(--text-dim, #666);
+    font-size: 0.85em;
+    text-transform: uppercase;
+}
 .lcars-zone-a .zn-count { color: var(--lcars-accent); }     /* orange: counts */
 .lcars-zone-a .zn-id { color: var(--lcars-secondary); }     /* purple: identifiers */
 .lcars-zone-a .zn-val { color: var(--text-primary, #eee); } /* white: measured */

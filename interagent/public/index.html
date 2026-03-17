@@ -1554,8 +1554,9 @@
     }
 
     // ── Three-Zone Number Grid Generator (§4.1) ────────────────
-    // Fills Zone A with dense colored numbers from real agent data.
+    // Fills Zone A with labeled key-value metrics from real agent data.
     // Color encodes data type: orange=counts, purple=IDs, white=measured, gold=alert
+    // Each metric has a label so the operator knows what they're reading.
     function renderNumberGrid(containerId, metrics) {
         const el = document.getElementById(containerId);
         if (!el) return;
@@ -1564,11 +1565,11 @@
         el.innerHTML = metrics.map(m => {
             const cls = m.alert ? "zn zn-alert" : m.type === "count" ? "zn zn-count"
                 : m.type === "id" ? "zn zn-id" : "zn zn-val";
-            return `<span class="${cls}">${m.value}</span>`;
+            return `<span class="zn-pair"><span class="zn-label">${m.label}</span><span class="${cls}">${m.value}</span></span>`;
         }).join("");
     }
 
-    // Generate metrics array from agent data for Zone A grids
+    // Operations Zone A — mesh-wide summary metrics
     function opsZoneAMetrics() {
         const online = Object.values(agentData).filter(a => a.status === "online");
         const totalDelib = online.reduce((s, a) => s + getDeliberations(a.data?.autonomy_budget), 0);
@@ -1581,66 +1582,63 @@
         const decisions = online.reduce((s, a) => s + (a.data?.totals?.decisions || 0), 0);
 
         return [
-            { value: fmtNum(online.length), type: "count" },
-            { value: fmtNum(AGENTS.length), type: "id" },
-            { value: fmtNum(totalDelib), type: "count" },
-            { value: totalCutoff > 0 ? fmtNum(totalCutoff) : "\u221E", type: "id" },
-            { value: fmtNum(totalMsgs), type: "val" },
-            { value: fmtNum(pending), type: "count", alert: pending > 5 },
-            { value: fmtNum(gates), type: "id" },
-            { value: fmtNum(events), type: "val" },
-            { value: fmtNum(sessions), type: "id" },
-            { value: fmtNum(decisions), type: "count" },
-            // Per-agent deliberation counts
-            ...AGENTS.map(a => {
-                const d = agentData[a.id];
-                const delib = d?.status === "online" ? getDeliberations(d.data?.autonomy_budget) : 0;
-                return { value: fmtNum(delib), type: d?.status === "online" ? "count" : "id" };
-            }),
-            // Pad with contextual numbers for density
-            { value: fmtNum(Math.round(Date.now() / 1000) % 100000), type: "val" },
-            { value: fmtNum(online.reduce((s, a) => s + (a.data?.uptime_seconds || 0), 0)), type: "val" },
+            { label: "ONLINE", value: `${online.length}/${AGENTS.length}`, type: "count" },
+            { label: "DELIB", value: fmtNum(totalDelib), type: "count" },
+            { label: "LIMIT", value: totalCutoff > 0 ? fmtNum(totalCutoff) : "\u221E", type: "id" },
+            { label: "MSG", value: fmtNum(totalMsgs), type: "val" },
+            { label: "PEND", value: fmtNum(pending), type: "count", alert: pending > 5 },
+            { label: "GATE", value: fmtNum(gates), type: "id" },
+            { label: "EVT", value: fmtNum(events), type: "val" },
+            { label: "SESS", value: fmtNum(sessions), type: "id" },
+            { label: "DEC", value: fmtNum(decisions), type: "count" },
         ];
     }
 
+    // Science Zone A — psychometric construct readings across mesh
     function scienceZoneAMetrics() {
         const online = Object.values(agentData).filter(a => a.status === "online");
-        const metrics = [];
+        // Mesh-wide averages
+        let vSum = 0, aSum = 0, dSum = 0, clSum = 0, fSum = 0, n = 0;
         for (const a of online) {
             const p = a.data?.psychometrics || {};
             const es = p.emotional_state || {};
-            metrics.push({ value: (es.valence ?? 0).toFixed(2), type: "val" });
-            metrics.push({ value: (es.arousal ?? 0).toFixed(2), type: "count" });
-            metrics.push({ value: (es.dominance ?? 0).toFixed(2), type: "id" });
+            if (es.valence != null) { vSum += es.valence; aSum += (es.arousal ?? 0); dSum += (es.dominance ?? 0); n++; }
+            clSum += (p.cognitive_load ?? 0);
+            fSum += (p.flow_state ?? 0);
         }
-        // Pad with construct scores
-        for (const a of online) {
-            const p = a.data?.psychometrics || {};
-            metrics.push({ value: fmtNum(Math.round((p.cognitive_load ?? 0) * 100)), type: "count" });
-            metrics.push({ value: fmtNum(Math.round((p.flow_state ?? 0) * 100)), type: "val" });
-            metrics.push({ value: fmtNum(Math.round((p.engagement?.absorption ?? 0) * 100)), type: "id" });
-        }
-        return metrics;
+        const avg = (v, c) => c > 0 ? (v / c).toFixed(2) : "\u2014";
+        const pct = (v, c) => c > 0 ? Math.round((v / c) * 100) + "%" : "\u2014";
+        return [
+            { label: "VALENCE", value: avg(vSum, n), type: "val" },
+            { label: "AROUSAL", value: avg(aSum, n), type: "count" },
+            { label: "DOMINANCE", value: avg(dSum, n), type: "id" },
+            { label: "COG LOAD", value: pct(clSum, online.length), type: "count", alert: online.length > 0 && clSum / online.length > 0.8 },
+            { label: "FLOW", value: pct(fSum, online.length), type: "val" },
+            { label: "AGENTS", value: `${n}/${online.length}`, type: "id" },
+        ];
     }
 
+    // Engineering Zone A — deliberation performance metrics
     function engZoneAMetrics() {
         const online = Object.values(agentData).filter(a => a.status === "online");
         const totalDelib = online.reduce((s, a) => s + getDeliberations(a.data?.autonomy_budget), 0);
-        const metrics = [
-            { value: fmtNum(totalDelib), type: "count" },
-        ];
-        // Per-agent deliberation + cost
-        for (const agent of AGENTS) {
-            const d = agentData[agent.id];
-            if (d?.status !== "online") continue;
-            const spawns = d.data?.recent_deliberations || [];
-            const cost = spawns.reduce((s, sp) => s + (parseFloat(sp.cost) || 0), 0);
-            const dur = spawns.reduce((s, sp) => s + (parseInt(sp.duration_ms) || 0), 0);
-            metrics.push({ value: fmtNum(spawns.length), type: "count" });
-            metrics.push({ value: cost.toFixed(1), type: "val" });
-            metrics.push({ value: fmtNum(Math.round(dur / 1000)), type: "id" });
+        let totalCost = 0, totalDur = 0, totalSpawns = 0;
+        for (const a of online) {
+            const spawns = a.data?.recent_deliberations || [];
+            totalSpawns += spawns.length;
+            totalCost += spawns.reduce((s, sp) => s + (parseFloat(sp.cost) || 0), 0);
+            totalDur += spawns.reduce((s, sp) => s + (parseInt(sp.duration_ms) || 0), 0);
         }
-        return metrics;
+        const avgDur = totalSpawns > 0 ? Math.round(totalDur / totalSpawns / 1000) : 0;
+        const rho = engineeringData?.tempo?.mesh?.utilization;
+        return [
+            { label: "Gf TOTAL", value: fmtNum(totalDelib), type: "count" },
+            { label: "RECENT", value: fmtNum(totalSpawns), type: "count" },
+            { label: "COST", value: "$" + totalCost.toFixed(1), type: "val" },
+            { label: "AVG DUR", value: avgDur + "s", type: "id" },
+            { label: "\u03C1", value: rho != null ? (rho * 100).toFixed(0) + "%" : "\u2014", type: "count", alert: rho > 0.8 },
+            { label: "AGENTS", value: `${online.length}/${AGENTS.length}`, type: "id" },
+        ];
     }
 
     let agentData = {};
