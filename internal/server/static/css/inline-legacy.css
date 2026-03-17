@@ -135,7 +135,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     /* ── Semiotic Color Mapping (V23.01 → LCARS function) ──────
        Canon: color = CATEGORY, never status. Status uses brightness.
        Ref: docs/lcars-design-reference.md §2.0, V23.01 palette image */
-    --lcars-frame: var(--v23-peach);           /* STRUCTURAL — frame bars, elbows, spacers (60%+ of panel) */
+    --lcars-frame: var(--v23-tan-med);          /* STRUCTURAL — frame bars, elbows, spacers (60%+ of panel) */
     --lcars-accent: var(--v23-orange-med);     /* PRIMARY/ACTIVE — row leaders, emphasis capsules */
     --lcars-secondary: var(--v23-purple-med);  /* DATA tier 1 — entity names, primary values */
     --lcars-tertiary: var(--v23-purple-dark);  /* DATA tier 2 — identifiers, secondary values */
