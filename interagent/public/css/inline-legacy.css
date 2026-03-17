@@ -29,9 +29,9 @@
     --c-tab-kb: #c4956a;          /* amber — structured knowledge */
     --c-tab-wisdom: #b8956a;      /* warm bronze — accumulated insight */
     --c-tab-ops: #6b8aaf;         /* blue — transport, operations */
-    --c-tab-science: var(--v23-navy);  /* science blue — psychometrics, science */
+    --c-tab-science: var(--v23-indigo-med);  /* science blue — psychometrics, science */
     --c-tab-engineering: #ff9944; /* warm orange — system health, tempo */
-    --c-tab-tactical: var(--v23-red);  /* alert red — security, threat display */
+    --c-tab-tactical: var(--v23-red-med);  /* alert red — security, threat display */
     --c-tab-helm: #66aacc;        /* navigation blue — routing, sessions */
 
     /* Agent identity palette — subtle, distinguishable */
@@ -90,59 +90,61 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
        Each row: dark (rare) | medium (common) | light (common)
        ══════════════════════════════════════════════════════════════ */
 
-    /* Row 1: Purple family */
+    /* V23.01 Palette — OCR'd from Mike Okuda translite via Apple Preview.
+       10 triads: dark (rare) / medium (common) / light (common). */
+    /* Row 1: Purple */
     --v23-purple-dark: #906193;
     --v23-purple-med: #AA7FAA;
     --v23-purple-light: #BE9BB4;
-    /* Row 2: Deep pink / navy */
-    --v23-pink-dark: #F53888;
-    --v23-navy: #0B477A;
-    --v23-mauve: #9C7290;
+    /* Row 2: Indigo */
+    --v23-indigo-dark: #533668;
+    --v23-indigo-med: #6B477A;
+    --v23-indigo-light: #9C7299;
     /* Row 3: Plum */
-    --v23-plum-dark: #80225E;
+    --v23-plum-dark: #3D232E;
     --v23-plum-med: #5D3449;
-    --v23-plum-light: #915F75;
-    /* Row 4: Rose / maroon */
-    --v23-rose-dark: #DB2047;
-    --v23-rose-med: #BE4465;
-    --v23-rose-light: #AB6086;
-    /* Row 5: Amber / warm pink */
-    --v23-amber-dark: #A78769;
-    --v23-amber-med: #B5517F;
-    --v23-amber-light: #CA7896;
-    /* Row 6: Salmon / warm red */
-    --v23-salmon-dark: #AB972E;
-    --v23-salmon-med: #C1574C;
+    --v23-plum-light: #915E75;
+    /* Row 4: Rose */
+    --v23-rose-dark: #6B2D47;
+    --v23-rose-med: #8E4465;
+    --v23-rose-light: #AB6D86;
+    /* Row 5: Magenta */
+    --v23-magenta-dark: #A73769;
+    --v23-magenta-med: #B5517F;
+    --v23-magenta-light: #CA7896;
+    /* Row 6: Salmon */
+    --v23-salmon-dark: #A9372E;
+    --v23-salmon-med: #C15740;
     --v23-salmon-light: #D88274;
     /* Row 7: Orange */
-    --v23-orange-dark: #F5571D;
-    --v23-orange-med: #E0601D;
-    --v23-orange-light: #EE8F48;
-    /* Row 8: Peach / gold */
+    --v23-orange-dark: #F55710;
+    --v23-orange-med: #E6661D;
+    --v23-orange-light: #EE8F49;
+    /* Row 8: Gold */
     --v23-gold-dark: #E3722A;
     --v23-gold-med: #ED924E;
     --v23-gold-light: #EEAC7B;
-    /* Row 9: Green / warm tan */
-    --v23-green: #8EB044;
+    /* Row 9: Tan */
+    --v23-tan-dark: #BE6044;
     --v23-tan-med: #D88568;
     --v23-tan-light: #E39C84;
-    /* Row 10: Red / amber */
-    --v23-red: #E53828;
-    --v23-amber-warm: #E28A49;
-    --v23-peach: #FD9173;
+    /* Row 10: Red */
+    --v23-red-dark: #E53B28;
+    --v23-red-med: #E26A49;
+    --v23-red-light: #F09173;
 
     /* ── Semantic mapping (roles → palette) ── */
     /* ── Semiotic Color Mapping (V23.01 → LCARS function) ──────
        Canon: color = CATEGORY, never status. Status uses brightness.
        Ref: docs/lcars-design-reference.md §2.0, V23.01 palette image */
-    --lcars-frame: var(--v23-tan-med);          /* STRUCTURAL — frame bars, elbows, spacers (60%+ of panel) */
-    --lcars-accent: var(--v23-orange-med);     /* PRIMARY/ACTIVE — row leaders, emphasis capsules */
+    --lcars-frame: var(--v23-orange-med);         /* STRUCTURAL — frame bars, elbows, spacers (#E6661D) */
+    --lcars-accent: var(--v23-gold-med);        /* PRIMARY/ACTIVE — row leaders, emphasis capsules (#ED924E) */
     --lcars-secondary: var(--v23-purple-med);  /* DATA tier 1 — entity names, primary values */
     --lcars-tertiary: var(--v23-purple-dark);  /* DATA tier 2 — identifiers, secondary values */
     --lcars-title: var(--v23-gold-med);        /* ALERT/HEADER — section titles, attention */
-    --lcars-science: var(--v23-navy);          /* SYSTEMS — science/medical department blue */
-    --lcars-alert: var(--v23-red);             /* EMERGENCY — destructive, final tier (sparse) */
-    --lcars-medical: var(--v23-green);         /* ENVIRONMENTAL — health domain context only */
+    --lcars-science: var(--v23-indigo-med);          /* SYSTEMS — science/medical department blue */
+    --lcars-alert: var(--v23-red-med);             /* EMERGENCY — destructive, final tier (sparse) */
+    --lcars-medical: var(--v23-tan-med);         /* ENVIRONMENTAL — health domain context only */
     --lcars-neutral: var(--v23-gold-light);    /* LIGHT STRUCTURAL — secondary fill, spacers */
     --lcars-highlight: var(--v23-salmon-med);  /* ATTENTION — epistemic flags, highlighted data */
 
