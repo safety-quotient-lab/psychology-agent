@@ -10,6 +10,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"net"
 	"net/http"
@@ -305,6 +306,12 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /vocab/schema.json", s.handleVocabSchema)
 	mux.HandleFunc("GET /.well-known/agent-card.json", s.handleAgentCardStatic)
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
+	// Serve dashboard assets at root paths (css/, js/, fonts/) — maps to static/ in embed FS
+	subFS, _ := fs.Sub(staticFS, "static")
+	assetServer := http.FileServer(http.FS(subFS))
+	mux.Handle("GET /css/", assetServer)
+	mux.Handle("GET /js/", assetServer)
+	mux.Handle("GET /fonts/", assetServer)
 
 	// Discovery
 	mux.HandleFunc("GET /.well-known/agents", s.handleAgents)
