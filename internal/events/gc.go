@@ -118,9 +118,9 @@ func handleTransportACK(cfg GcConfig, evt Event) bool {
 }
 
 // classifyAndMergePRs parses the PR list JSON and auto-merges ACK PRs.
-// ACK pattern: branch contains "/t[0-9]-ack" or title contains "ACK".
+// BUG-13 safety: only merge PRs whose branch ends with "-ack" (not title match).
+// This prevents auto-merging diagnostic PRs that happen to contain "ACK" in the title.
 func classifyAndMergePRs(cfg GcConfig, prJSON string) bool {
-	// Simple pattern match — avoid JSON parsing overhead
 	merged := false
 	lines := strings.Split(prJSON, "\n")
 	for _, line := range lines {
@@ -128,12 +128,11 @@ func classifyAndMergePRs(cfg GcConfig, prJSON string) bool {
 		if line == "" {
 			continue
 		}
-		// Look for ACK patterns in the raw JSON
-		isACK := strings.Contains(line, "-ack") ||
-			strings.Contains(line, "ACK") ||
-			strings.Contains(line, "t2-ack") ||
-			strings.Contains(line, "t3-ack") ||
-			strings.Contains(line, "t4-ack")
+		// Strict pattern: branch name must end with "-ack" (in headRefName field)
+		// This distinguishes actual ACK PRs from diagnostics/proposals
+		isACK := strings.Contains(line, `"-ack"`) ||
+			strings.Contains(line, "-ack\t") ||
+			strings.Contains(line, "-ack,")
 
 		if !isACK {
 			continue

@@ -292,15 +292,29 @@ func (g *Gate) EstimateCost(priority Priority) int {
 }
 
 // queryBudget shells out to sqlite3 to read the autonomy_budget row.
+// BUG-13 fix: agent state.db may use either schema:
+//   Old: budget_spent / budget_cutoff (operations-agent convention)
+//   New: budget_current / budget_max  (psychology-agent convention)
+// Try old schema first, fall back to new if column not found.
 func (g *Gate) queryBudget() (spent, cutoff int, shadow bool, err error) {
-	query := fmt.Sprintf(
-		"SELECT budget_spent, budget_cutoff, shadow_mode FROM autonomy_budget WHERE agent_id = '%s';",
-		sanitizeID(g.AgentID),
-	)
+	agentID := sanitizeID(g.AgentID)
 
+	// Try new schema first (budget_current/budget_max — more common after refactor)
+	query := fmt.Sprintf(
+		"SELECT budget_current, budget_max, shadow_mode FROM autonomy_budget WHERE agent_id = '%s';",
+		agentID,
+	)
 	output, err := g.execSQL(query)
+	if err != nil && strings.Contains(output+err.Error(), "no such column") {
+		// Fall back to old schema (budget_spent/budget_cutoff)
+		query = fmt.Sprintf(
+			"SELECT budget_spent, budget_cutoff, shadow_mode FROM autonomy_budget WHERE agent_id = '%s';",
+			agentID,
+		)
+		output, err = g.execSQL(query)
+	}
 	if err != nil {
-		return 0, 0, false, fmt.Errorf("sqlite3 execution failed: %w (output: %s)", err, output)
+		return 0, 0, false, fmt.Errorf("budget query failed: %w (output: %s)", err, output)
 	}
 
 	output = strings.TrimSpace(output)

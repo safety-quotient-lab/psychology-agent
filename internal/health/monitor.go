@@ -51,11 +51,12 @@ func (s Status) MarshalJSON() ([]byte, error) {
 
 // Subsystem holds the current health snapshot for one monitored component.
 type Subsystem struct {
-	Name      string    `json:"name"`
-	Status    Status    `json:"status"`
-	Message   string    `json:"message"`
-	LastCheck time.Time `json:"last_check"`
-	FailCount int       `json:"fail_count"`
+	Name       string    `json:"name"`
+	Status     Status    `json:"status"`
+	Message    string    `json:"message"`
+	LastCheck  time.Time `json:"last_check"`
+	FailCount  int       `json:"fail_count"`
+	CheckCount int       `json:"check_count"`
 }
 
 // Checkable defines the interface that every monitored subsystem must satisfy.
@@ -124,6 +125,7 @@ func (m *Monitor) Check() {
 		sub.Status = status
 		sub.Message = msg
 		sub.LastCheck = time.Now()
+		sub.CheckCount++
 
 		// Track consecutive failures.
 		if status == Failed {
@@ -144,7 +146,9 @@ func (m *Monitor) Check() {
 		}
 
 		// Dual-write: persist observation to state.db
-		if m.OnObserve != nil && (status != prev || status != Healthy) {
+		// BUG-11 fix: always write on status change OR first check OR every 10th check.
+		// Previously only fired on change/unhealthy — healthy agents got zero observations.
+		if m.OnObserve != nil && (status != prev || sub.FailCount == 0 || sub.CheckCount%10 == 0) {
 			m.OnObserve("", name, status.String(), msg)
 		}
 
