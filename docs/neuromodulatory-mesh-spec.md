@@ -683,6 +683,172 @@ Flat subscribers receive nothing.
 
 ---
 
+## 13. Delivery Guarantees (Session 93)
+
+**Status:** Architectural decision — adopted. Documented here alongside
+the volumetric topology proposal because delivery semantics constrain
+volume design.
+
+### 13.1 Why Guaranteed Delivery Cannot Exist in This System
+
+Three results from distributed systems theory establish that guaranteed
+delivery across the mesh remains provably impossible without adding
+infrastructure (message broker, consensus protocol) that contradicts the
+volume transmission design intent:
+
+1. **Two Generals Problem** (Akkoyunlu, Ekanadham & Huber, 1975). No
+   finite number of messages through an unreliable channel guarantees
+   both sender and receiver know the message arrived. ACK chains create
+   infinite regress. Our ZMQ channels qualify as unreliable (HWM drops,
+   process crashes, network interruptions).
+
+2. **FLP Impossibility** (Fischer, Lynch & Paterson, 1985). In an
+   asynchronous distributed system, even one faulty process makes
+   consensus impossible. The mesh runs asynchronously — no global clock,
+   no bounded delivery time, processes crash independently.
+
+3. **CAP Theorem** (Brewer, 2000; Gilbert & Lynch, 2002). Agents fail
+   independently (partition tolerance required). The mesh chose
+   availability (agents operate during peer failures) over consistency
+   (all agents see the same state). Guaranteed delivery requires
+   consistency, which the mesh traded away.
+
+### 13.2 Two-Tier Guarantee Architecture
+
+The mesh already operates at two guarantee tiers. This section names
+them explicitly and defines the boundary.
+
+```
+                    GUARANTEE LEVEL
+                         │
+        ┌────────────────┼────────────────┐
+        │                │                │
+   At-least-once    At-most-once     Best-effort
+   (durable)        (ephemeral)      (convenience)
+        │                │                │
+   Git-PR transport  ZMQ state tokens  ZMQ event notifications
+   state.db writes   Tonic emission    Published AFTER db write
+   (survives crash)  (self-heals 3-5s) (if lost, /sync catches up)
+```
+
+| Tier | Transport | Guarantee | Persistence | Recovery |
+|---|---|---|---|---|
+| **Durable** | Git-PR (JSON files committed to repos) | At-least-once | state.db + git history | Files persist until `processed = TRUE`. Survives crashes, reboots, offline periods. /sync picks up on next cycle. |
+| **Ephemeral** | ZMQ pub/sub | At-most-once | None | Tonic emission every 3-5 seconds replaces missed tokens. Staleness threshold: 10 seconds. Missing token = stale, not error. |
+| **Convenience** | ZMQ pub (after DB write) | Best-effort | DB write already persists; ZMQ notification optional | If ZMQ fails, peers discover the event on next /sync cycle via the durable layer. |
+
+### 13.3 Decision: All Volume Transmission Tokens Remain Idempotent
+
+**Adopted:** Path 1 (idempotent state snapshots) + Path 3 (dual-write
+for events that need history).
+
+**Rationale:** Volume transmission carries state, not events. This
+matches the biological reality — neuromodulators modulate ambient
+processing state; they do not carry addressed instructions. The
+durable git-PR layer carries instructions.
+
+**Token design rule:** Every ZMQ token represents a **rolling snapshot**
+of the publisher's current state, not an event notification. Receivers
+overwrite their previous snapshot with the latest token. Receiving the
+same token twice produces the same result as receiving it once
+(idempotent). Receiving no token for >10 seconds means "stale" — the
+consumer degrades gracefully, it does not fail.
+
+**Event handling:** When a genuinely event-like state change occurs
+(prediction outcome, escalation trigger), the agent:
+
+1. Writes to state.db via dual_write.py (authoritative durable record)
+2. Updates its ambient state token (the token reflects the new state —
+   e.g., `prediction_ledger_version` increments, peers see the number
+   changed, not what changed)
+3. Publishes the updated state token to ZMQ (convenience notification)
+
+If step 3 fails, peers detect the change on the next /sync cycle when
+they read the durable layer. The ZMQ token provides latency reduction
+(seconds vs minutes), not durability.
+
+**The dual-write ordering:** DB first, then ZMQ. Write the authoritative
+record before announcing the change. If the DB write fails, no ZMQ
+publish occurs — peers remain unaware, but no inconsistency arises.
+If the ZMQ publish fails after DB write, the durable layer serves as
+backstop. SQLite WAL-mode writes complete in <1ms for single rows;
+the inconsistency window approaches zero.
+
+### 13.4 Biological Compensation Mechanisms (Adopted)
+
+The brain never solved guaranteed delivery for volume transmission.
+It compensated through three mechanisms that the mesh adopts:
+
+**Redundancy (tonic emission):** Neuromodulators release continuously
+at a baseline rate. Missing one release event carries no consequence —
+the next one arrives within milliseconds. Mesh analog: tonic emission
+every 3-5 seconds. A missed token self-heals within one emission cycle.
+
+**Tolerance (graceful degradation):** Neural circuits design for
+degraded input, not perfect input. Receptor activation follows a
+sigmoidal dose-response curve — partial signal produces partial
+response, not failure. Mesh analog: consumers treat missing state as
+"stale" (degraded awareness), not as error. The system operates with
+reduced ambient awareness, never with broken processing.
+
+**Separation of concerns:** The brain sends instructions via synapses
+(reliable, point-to-point, with retry via synaptic facilitation) and
+modulates state via volume transmission (unreliable, broadcast, no
+retry). It never sends instructions through volume transmission. Mesh
+analog: substance decisions go through git-PR (durable); ambient state
+goes through ZMQ (ephemeral). **Never send a substance decision through
+the ZMQ layer.**
+
+### 13.5 ZMQ High-Water Mark as Reuptake
+
+Configure the ZMQ high-water mark to match the biological reuptake
+(signal degradation) concept:
+
+```go
+pub.SetSndHWM(100)  // ~30 seconds of tokens at 3/sec emission
+sub.SetRcvHWM(100)  // receiver buffer matches publisher
+```
+
+Tokens that exceed the HWM get dropped silently — identical to
+neuromodulators that degrade before reaching a receptor. The system
+self-heals because the next emission carries current state.
+
+For the volumetric topology (§12), HWM applies per-subscriber, not
+per-volume. An agent subscribed to 4 volumes maintains one receive
+buffer. ZMQ interleaves tokens from all subscribed volumes into
+the single buffer, and HWM drops apply to the combined stream.
+
+### 13.6 What This Architecture Cannot Do
+
+These represent known limitations, not failures to address:
+
+1. **Exactly-once delivery.** Provably impossible without consensus
+   (FLP). The mesh does not attempt it. Idempotent tokens make
+   exactly-once unnecessary for state modulation. Durable transport
+   provides at-least-once for substance messages.
+
+2. **Guaranteed event ordering across agents.** No global clock.
+   Per-agent sequence numbers provide local ordering. Cross-agent
+   ordering requires causal analysis (Lamport, 1978) — the mesh
+   does not implement vector clocks. Events from different agents
+   carry no guaranteed relative ordering.
+
+3. **Partition recovery with zero data loss.** During a network
+   partition, ephemeral tokens drop. The durable layer (git-PR)
+   provides eventual consistency after partition heals. The
+   ephemeral layer provides no catch-up mechanism — missed tokens
+   remain missed. Tonic emission self-heals current state but
+   does not replay history.
+
+4. **Backpressure propagation to publishers.** ZMQ PUB never blocks.
+   A slow subscriber drops tokens at HWM without notifying the
+   publisher. The publisher cannot adapt emission rate to subscriber
+   capacity. Biological volume transmission shares this property —
+   neurons do not reduce neurotransmitter release because a target
+   receptor saturated.
+
+---
+
 ## References
 
 Agnati, L. F., Bjelke, B., & Fuxe, K. (1995). Volume transmission in the
