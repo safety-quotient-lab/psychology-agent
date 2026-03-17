@@ -128,6 +128,49 @@ Numbers alternate colors to indicate **data type**, not emphasis:
 
 Source: Proto Star Model (G), Tissue Screen (E), Ohniaka B3/B4, Weather Net
 
+### 2.5 Alert Condition Colors
+
+Based on "Red display (1)" screen-used prop — canonical red alert reference.
+
+**Yellow Alert (Level 3):**
+- Structural chrome → `#ffcc00` (gold)
+- Data pill backgrounds → gold
+- Text on colored backgrounds → black (`#000`)
+- Title pill → stays transparent with gold text (remains readable)
+- Number grid text → unchanged (stays readable against black background)
+
+**Red Alert (Level 2):**
+- Structural chrome → `#882222` (dark maroon, NOT bright red)
+- Data pill backgrounds → dark maroon
+- Text on colored backgrounds → white (`#fff`)
+- Title pill → stays transparent with red text (`#ff4444`)
+- Number grid text → RED on black background (high contrast emergency)
+- Sidebar buttons → pulse animation (brightness 1.0 ↔ 1.4, 1.5s cycle)
+- Overall: TWO colors only — dark red + white. All other colors disappear.
+
+**Why text changes to white in alert:** Contrast requirement. Normal LCARS uses
+black text on colored capsules. During red alert the capsule backgrounds darken
+to maroon — black text becomes unreadable. White provides the necessary contrast.
+Yellow alert keeps black text because gold backgrounds remain light enough.
+
+Source: Red display (1) — "VEHICLE STATUS / ALERT: CONDITION RED / CODE LRMA2"
+
+### 2.6 Color Extensions (Our Additions to Canon)
+
+Our implementation extends TNG canon with these dynamic behaviors:
+
+| Behavior | Trigger | Visual |
+|----------|---------|--------|
+| Brightness pulse (attract) | First load, tray has hidden data | `brightness(1.667)` 3s infinite |
+| Brightness flash (change) | Data value changed on refresh | `brightness(1.6)` 2s once |
+| Flash stops | User taps stardate tray | Animation removed |
+| Alert override (yellow) | Agent budget > 75% or health degraded | All structural → gold |
+| Alert override (red) | Agent offline or budget exhausted | All structural → dark maroon |
+
+These extensions maintain the canonical principle: color = category. The extensions
+use brightness modulation and full-panel color override (alert), not per-element
+color changes.
+
 ### 2.4 Anti-Patterns (What LCARS Does NOT Do)
 
 - **Green/Amber/Red traffic lights** — not canonical. Status encoded via

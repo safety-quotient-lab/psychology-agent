@@ -975,13 +975,19 @@ body[data-alert-level="3"] .lcars-footer-seg {
     color: #000 !important;
 }
 body[data-alert-level="3"] .lcars-elbow-connector-top {
-    background: radial-gradient(circle at 0% 0%, transparent 23px, #ffcc00 24px) !important;
+    background: radial-gradient(circle at 100% 100%, transparent var(--elbow-inner, 24px), #ffcc00 var(--elbow-inner, 24px)) !important;
 }
 body[data-alert-level="3"] .lcars-elbow-connector-bottom {
-    background: radial-gradient(circle at 0% 100%, transparent 23px, #ffcc00 24px) !important;
+    background: radial-gradient(circle at 100% 0%, transparent var(--elbow-inner, 24px), #ffcc00 var(--elbow-inner, 24px)) !important;
+}
+/* Title pills stay readable during yellow alert */
+body[data-alert-level="3"] .lcars-hdr-title {
+    background: transparent !important;
+    color: var(--lcars-title) !important;
 }
 
-/* Red alert (level 2) — everything red + pulse */
+/* Red alert (level 2) — dark maroon per TNG canonical (Red display reference)
+   Two colors only: dark red structural + white text */
 body[data-alert-level="2"] .lcars-sidebar-cap-top,
 body[data-alert-level="2"] .lcars-sidebar-cap-bottom,
 body[data-alert-level="2"] .lcars-sidebar-arm,
@@ -992,21 +998,26 @@ body[data-alert-level="2"] .lcars-hdr-arm,
 body[data-alert-level="2"] .lcars-hdr-endcap,
 body[data-alert-level="2"] .lcars-header-seg,
 body[data-alert-level="2"] .lcars-footer-seg {
-    background: #cc3333 !important;
+    background: #882222 !important;
     color: #fff !important;
 }
 body[data-alert-level="2"] .lcars-sidebar-btn {
     animation: red-alert-pulse 1.5s ease-in-out infinite;
 }
 body[data-alert-level="2"] .lcars-elbow-connector-top {
-    background: radial-gradient(circle at 0% 0%, transparent 23px, #cc3333 24px) !important;
+    background: radial-gradient(circle at 100% 100%, transparent var(--elbow-inner, 24px), #882222 var(--elbow-inner, 24px)) !important;
 }
 body[data-alert-level="2"] .lcars-elbow-connector-bottom {
-    background: radial-gradient(circle at 0% 100%, transparent 23px, #cc3333 24px) !important;
+    background: radial-gradient(circle at 100% 0%, transparent var(--elbow-inner, 24px), #882222 var(--elbow-inner, 24px)) !important;
+}
+/* Title pills stay readable during red alert */
+body[data-alert-level="2"] .lcars-hdr-title {
+    background: transparent !important;
+    color: #ff4444 !important;
 }
 @keyframes red-alert-pulse {
     0%, 100% { filter: brightness(1); }
-    50% { filter: brightness(1.3); }
+    50% { filter: brightness(1.4); }
 }
 
 /* Level 1 — full desaturation (everything affected) */

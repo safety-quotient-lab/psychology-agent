@@ -4500,11 +4500,15 @@
 
     // Isometric projection helper: map (x,y,z) in [0,1] to 2D screen coords
     function isoProject(x, y, z, w, h) {
-        // Isometric: x goes right-down, y goes left-down, z goes up
+        // Slightly rotated isometric — prevents 0,0 and 1,1 from aligning vertically.
+        // 15° rotation offset applied to the x-y plane before projection.
+        const rot = 0.26; // ~15° in radians
+        const rx = x * Math.cos(rot) - y * Math.sin(rot);
+        const ry = x * Math.sin(rot) + y * Math.cos(rot);
         const scale = Math.min(w, h) * 0.38;
         const cx = w / 2, cy = h * 0.55;
-        const sx = (x - y) * scale * 0.866;          // cos(30°)
-        const sy = (x + y) * scale * 0.5 - z * scale; // sin(30°) - z
+        const sx = (rx - ry) * scale * 0.866;
+        const sy = (rx + ry) * scale * 0.5 - z * scale;
         return { sx: cx + sx, sy: cy + sy };
     }
 
