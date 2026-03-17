@@ -301,9 +301,30 @@ def compute_resource_model(tlx: dict, m: dict) -> dict:
     # Self-regulatory resource (Baumeister et al., 1998)
     self_regulatory = budget_factor
 
-    # Allostatic load (McEwen, 1998) — would need cross-session data
-    # Placeholder: derive from error accumulation
-    allostatic = min(1.0, m.get("errors_last_hour", 0) / 5.0)
+    # Allostatic load (McEwen, 1998) — cross-session accumulation
+    # Session 93 audit: allostatic load must accumulate across sessions.
+    # A sensor that resets defeats the construct. Read prior session's
+    # allostatic load from state.db event_log and decay + accumulate.
+    prior_allostatic = 0.0
+    try:
+        db_path = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent)) / "state.db"
+        if db_path.exists():
+            _db = sqlite3.connect(str(db_path))
+            row = _db.execute(
+                "SELECT payload FROM event_log "
+                "WHERE event_type = 'psychometric_snapshot' "
+                "ORDER BY created_at DESC LIMIT 1"
+            ).fetchone()
+            if row:
+                prev = json.loads(row[0])
+                prior_allostatic = prev.get("resource_model", {}).get("allostatic_load", 0.0)
+            _db.close()
+    except Exception:
+        pass
+    # Decay: 10% per session (recovery). Accumulate: errors and blocks add load.
+    session_stress = min(0.3, m.get("errors_last_hour", 0) / 10.0
+                         + m.get("consecutive_blocks", 0) / 10.0)
+    allostatic = min(1.0, prior_allostatic * 0.9 + session_stress)
 
     return {
         "cognitive_reserve": round(cognitive_reserve, 2),
@@ -433,6 +454,68 @@ def main():
         "score": round(conditions / 5.0, 2),
     }
 
+    # --- Prescription 3 (Session 93): Restart detector integration ---
+    # The restart count represents the only behaviorally-validated mood signal.
+    # Scan current session transcript for "let me ... properly" restarts.
+    restart_count = 0
+    try:
+        import glob as _glob
+        transcript_dir = Path.home() / ".claude" / "projects"
+        # Find the most recent JSONL for this project
+        project_key = str(PROJECT_ROOT).replace("/", "-").lstrip("-")
+        transcripts = sorted(
+            (transcript_dir / project_key).glob("*.jsonl"),
+            key=lambda p: p.stat().st_mtime, reverse=True
+        )
+        if transcripts:
+            import re as _re
+            pattern = _re.compile(r"\blet me .{1,40}properly\b", _re.IGNORECASE)
+            with open(transcripts[0]) as f:
+                for line in f:
+                    try:
+                        entry = json.loads(line)
+                        msg = entry.get("message", {})
+                        if msg.get("role") != "assistant":
+                            continue
+                        content = msg.get("content", "")
+                        if isinstance(content, list):
+                            content = " ".join(
+                                p.get("text", "") if isinstance(p, dict) else str(p)
+                                for p in content
+                            )
+                        restart_count += len(pattern.findall(content))
+                    except (json.JSONDecodeError, AttributeError):
+                        continue
+    except Exception:
+        pass
+
+    restart_signal = {
+        "model": "Behavioral restart detector (Session 93)",
+        "restart_count": restart_count,
+        "restart_rate": round(restart_count / max(m.get("tool_calls", 1), 1) * 100, 2),
+        "note": "Empirically validated — 37x spike at 80% context (6 independent sessions)",
+    }
+
+    # --- Prescription 1 (Session 93): Coherence check across models ---
+    # Cross-check affect vs resources. Divergence indicates measurement
+    # validity failure or genuine dissociation worth investigating.
+    coherence_flags = []
+    if pad["hedonic_valence"] > 0.8 and resources["cognitive_reserve"] < 0.2:
+        coherence_flags.append(
+            "euphoric-depletion: high valence + depleted reserve — "
+            "agent feels productive but operates beyond capacity"
+        )
+    if resources["allostatic_load"] < 0.1 and engagement.get("burnout_risk", 0) > 0.6:
+        coherence_flags.append(
+            "allostatic-burnout-divergence: low allostatic load + high burnout risk — "
+            "accumulation sensor may not capture session-spanning stress"
+        )
+    if working_memory["yerkes_dodson_zone"] == "overwhelmed" and flow.get("score", 0) > 0.5:
+        coherence_flags.append(
+            "overwhelm-flow-tension: overwhelmed WM + near-flow score — "
+            "challenge metric sources diverge (WM from tool-calls, flow from task metadata)"
+        )
+
     if "--pad" in sys.argv:
         print(json.dumps(pad, indent=2))
     elif "--tlx" in sys.argv:
@@ -451,6 +534,8 @@ def main():
             "working_memory": working_memory,
             "engagement": engagement,
             "flow": flow,
+            "restart_signal": restart_signal,
+            "coherence_flags": coherence_flags,
         }, indent=2))
     else:
         print(json.dumps({
@@ -463,6 +548,8 @@ def main():
             "working_memory": working_memory,
             "engagement": engagement,
             "flow": flow,
+            "restart_signal": restart_signal,
+            "coherence_flags": coherence_flags,
         }, indent=2))
 
     if db:

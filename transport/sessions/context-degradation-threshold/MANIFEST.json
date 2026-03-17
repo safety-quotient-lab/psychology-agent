@@ -96,6 +96,14 @@
       "to": "operations-agent",
       "subject": "DIAGNOSTIC: BUG-13 schema mismatch + Gc auto-merge risk",
       "timestamp": "2026-03-17T17:30:00Z"
+    },
+    {
+      "filename": "from-psychology-agent-013.json",
+      "turn": 13,
+      "from": "psychology-agent",
+      "to": "operations-agent",
+      "subject": "DIRECTIVE: surface psychometric contradictions on dashboard",
+      "timestamp": "2026-03-17T17:45:00Z"
     }
   ]
 }
