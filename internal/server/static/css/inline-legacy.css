@@ -3443,7 +3443,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #cc3333 !important;
 .lcars-sidebar-footer {
     flex-shrink: 0;
     min-height: var(--band-size, 52px);
-    background: var(--lcars-frame);
+    background: var(--c-knowledge);
     border-radius: 0 0 0 var(--elbow-outer, 48px);
     display: flex;
     align-items: center;
