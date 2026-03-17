@@ -293,7 +293,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     flex: 1;
     background: var(--c-knowledge);
     min-height: 20px;
-    margin-bottom: 3px;
+    margin-bottom: 0; /* seamless into bottom cap — mirrors top elbow */
     border-radius: 12px 0 0 12px;
 }
 
