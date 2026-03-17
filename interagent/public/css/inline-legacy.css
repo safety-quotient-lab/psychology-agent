@@ -3280,3 +3280,25 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #cc3333 !important;
     justify-content: center !important;
     text-align: center;
 }
+
+/* ── Operations Subsystem Switcher (Defiant Bridge pattern) ── */
+.ops-subsystem-selector {
+    display: flex;
+    gap: var(--gap-xs);
+    margin-bottom: var(--gap-xl);
+    flex-wrap: wrap;
+}
+.ops-subsys-btn {
+    opacity: 0.5;
+    transition: opacity 0.15s;
+}
+.ops-subsys-btn.ops-subsys-active {
+    opacity: 1;
+    box-shadow: 0 0 8px currentColor;
+}
+.ops-subsys-panel {
+    display: none;
+}
+.ops-subsys-panel.ops-subsys-active {
+    display: block;
+}

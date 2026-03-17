@@ -470,70 +470,108 @@
             </div>
         </div>
 
-        <!-- Operations Tab -->
+        <!-- Operations Tab — Defiant Bridge subsystem switcher pattern -->
         <div class="tab-pane" id="pane-operations">
-            <!-- Controls — grouped stacks (Gestalt proximity, responsive) -->
-            <div class="ops-control-surface">
-                    <div class="ops-ctrl-group">
-                        <button class="lcars-pill-btn ops-ctrl lcars-pill-red" onclick="meshControl('pause-all')" id="btn-pause">PAUSE</button>
-                        <button class="lcars-pill-btn ops-ctrl ops-ctrl-active lcars-pill-green" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
-                    </div>
-                    <div class="ops-ctrl-group">
-                        <button class="lcars-pill-btn ops-ctrl lcars-pill-blue" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
-                        <button class="lcars-pill-btn ops-ctrl ops-ctrl-active" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
-                    </div>
-                    <div class="ops-ctrl-group">
-                        <button class="lcars-pill-btn ops-ctrl ops-model-btn" onclick="meshControl('model-haiku')" id="btn-haiku">HAIKU</button>
-                        <button class="lcars-pill-btn ops-ctrl ops-model-btn ops-ctrl-active lcars-pill-orange" onclick="meshControl('model-sonnet')" id="btn-sonnet">SONNET</button>
-                        <button class="lcars-pill-btn ops-ctrl ops-model-btn" onclick="meshControl('model-opus')" id="btn-opus">OPUS</button>
-                    </div>
-                    <div class="ops-ctrl-group">
-                        <button class="lcars-pill-btn ops-ctrl lcars-pill-teal" onclick="refreshAll()">SYNC NOW</button>
-                    </div>
+
+            <!-- Subsystem mode selector — Defiant Engineering pattern -->
+            <div class="ops-subsystem-selector">
+                <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn ops-subsys-active" data-subsys="status" onclick="switchOpsSubsystem('status')">STATUS</button>
+                <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="autonomy" onclick="switchOpsSubsystem('autonomy')">AUTONOMY</button>
+                <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="transport" onclick="switchOpsSubsystem('transport')">TRANSPORT</button>
+                <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="capacity" onclick="switchOpsSubsystem('capacity')">CAPACITY</button>
+                <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="activity" onclick="switchOpsSubsystem('activity')">ACTIVITY</button>
+                <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="governance" onclick="switchOpsSubsystem('governance')">GOVERNANCE</button>
             </div>
 
-            <!-- Status Monologue — Pattern A: dense command dump with gold header -->
-            <div style="margin-bottom:12px;">
-                <div style="display:inline-block;background:var(--lcars-title);color:#000;font-weight:700;font-size:0.72em;padding:3px 12px;border-radius:10px 10px 0 0;text-transform:uppercase;letter-spacing:0.08em">Mesh Status</div>
-                <div id="ops-status-monologue" style="font-family:'Lucida Console','Menlo',monospace;font-size:0.78em;color:var(--text-primary);line-height:1.5;padding:8px 0"></div>
-            </div>
-
-            <!-- Mesh Overview — W4 subsystem blocks + W5 alpha matrix -->
-            <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Mesh Overview</div>
-                <div class="lcars-panel-body">
-                    <div class="lcars-subsystem-grid" id="ops-subsystem-grid"></div>
-                    <div id="ops-alpha-matrix" style="margin-top:var(--gap-m)"></div>
+            <!-- STATUS subsystem (default) — mesh overview + monologue -->
+            <div class="ops-subsys-panel ops-subsys-active" id="ops-subsys-status">
+                <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
+                    <div class="lcars-panel-header">Mesh Status</div>
+                    <div class="lcars-panel-body">
+                        <div id="ops-status-monologue" style="font-family:'Lucida Console','Menlo',monospace;font-size:0.78em;color:var(--text-primary);line-height:1.5;padding:4px 0;margin-bottom:var(--gap-m)"></div>
+                        <div class="lcars-subsystem-grid" id="ops-subsystem-grid"></div>
+                        <div id="ops-alpha-matrix" style="margin-top:var(--gap-m)"></div>
+                    </div>
+                    <div class="lcars-panel-footer">Ops Record<span class="lcars-panel-footer-num" id="ops-overview-num"></span></div>
                 </div>
-                <div class="lcars-panel-footer">Ops Record<span class="lcars-panel-footer-num" id="ops-overview-num"></span></div>
             </div>
 
-            <!-- Activity — recent deliberations + coordination overhead -->
-            <div class="lcars-panel kb-section" data-section="operations">
-                <div class="lcars-panel-header">Activity</div>
-                <div class="lcars-panel-body">
-                    <!-- Coordination ratio inline -->
-                    <div id="ops-coordination-inline" style="font-size:0.82em;opacity:0.8;margin-bottom:8px;padding:0 4px"></div>
-                    <div class="kb-table-wrap" id="ops-actions-table">
-                        <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+            <!-- AUTONOMY subsystem — pause/resume + per-agent budget -->
+            <div class="ops-subsys-panel" id="ops-subsys-autonomy">
+                <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
+                    <div class="lcars-panel-header">Autonomy Control</div>
+                    <div class="lcars-panel-body">
+                        <div style="display:flex;gap:var(--gap-m);margin-bottom:var(--gap-l);flex-wrap:wrap">
+                            <button class="lcars-pill-btn ops-ctrl lcars-pill-red" onclick="meshControl('pause-all')" id="btn-pause">PAUSE</button>
+                            <button class="lcars-pill-btn ops-ctrl ops-ctrl-active lcars-pill-green" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
+                        </div>
+                        <div id="ops-autonomy-readout"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Topology -->
-            <div class="lcars-panel topology-container" style="--panel-accent: var(--c-health); margin-bottom:16px">
-                <div class="lcars-panel-header">Mesh Topology</div>
-                <div class="lcars-panel-body">
-                    <svg class="topology-svg" id="lcars-topology-svg" viewBox="0 0 600 340"></svg>
+            <!-- TRANSPORT subsystem — sync + message stats -->
+            <div class="ops-subsys-panel" id="ops-subsys-transport">
+                <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
+                    <div class="lcars-panel-header">Transport</div>
+                    <div class="lcars-panel-body">
+                        <div style="margin-bottom:var(--gap-l)">
+                            <button class="lcars-pill-btn ops-ctrl lcars-pill-teal" onclick="refreshAll()">SYNC NOW</button>
+                        </div>
+                        <div id="ops-transport-readout"></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Governance -->
-            <div class="lcars-panel kb-section" style="--panel-accent: var(--c-epistemic)">
-                <div class="lcars-panel-header">Governance</div>
-                <div class="lcars-panel-body scrollable" id="lcars-ops-decisions"></div>
-                <div class="lcars-panel-footer">Governance Record<span class="lcars-panel-footer-num" id="gov-footer-num"></span></div>
+            <!-- CAPACITY subsystem — model tier + reserve -->
+            <div class="ops-subsys-panel" id="ops-subsys-capacity">
+                <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
+                    <div class="lcars-panel-header">Capacity</div>
+                    <div class="lcars-panel-body">
+                        <div style="display:flex;gap:var(--gap-m);margin-bottom:var(--gap-l);flex-wrap:wrap">
+                            <div class="ops-ctrl-group">
+                                <button class="lcars-pill-btn ops-ctrl ops-model-btn" onclick="meshControl('model-haiku')" id="btn-haiku">HAIKU</button>
+                                <button class="lcars-pill-btn ops-ctrl ops-model-btn ops-ctrl-active lcars-pill-orange" onclick="meshControl('model-sonnet')" id="btn-sonnet">SONNET</button>
+                                <button class="lcars-pill-btn ops-ctrl ops-model-btn" onclick="meshControl('model-opus')" id="btn-opus">OPUS</button>
+                            </div>
+                            <div class="ops-ctrl-group">
+                                <button class="lcars-pill-btn ops-ctrl lcars-pill-blue" onclick="meshControl('reserve-unlock')" id="btn-reserve">UNLOCK RESERVE</button>
+                                <button class="lcars-pill-btn ops-ctrl ops-ctrl-active" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
+                            </div>
+                        </div>
+                        <div id="ops-capacity-readout"></div>
+                    </div>
+                </div>
             </div>
+
+            <!-- ACTIVITY subsystem — recent deliberations -->
+            <div class="ops-subsys-panel" id="ops-subsys-activity">
+                <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
+                    <div class="lcars-panel-header">Activity</div>
+                    <div class="lcars-panel-body">
+                        <div id="ops-coordination-inline" style="font-size:0.82em;opacity:0.8;margin-bottom:8px;padding:0 4px"></div>
+                        <div class="kb-table-wrap" id="ops-actions-table">
+                            <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
+                        </div>
+                    </div>
+            </div>
+
+            <!-- GOVERNANCE subsystem -->
+            <div class="ops-subsys-panel" id="ops-subsys-governance">
+                <div class="lcars-panel" style="--panel-accent: var(--c-epistemic)">
+                    <div class="lcars-panel-header">Governance</div>
+                    <div class="lcars-panel-body scrollable" id="lcars-ops-decisions"></div>
+                    <div class="lcars-panel-footer">Governance Record<span class="lcars-panel-footer-num" id="gov-footer-num"></span></div>
+                </div>
+                <!-- Topology sits inside governance as secondary viz -->
+                <div class="lcars-panel topology-container" style="--panel-accent: var(--c-health); margin-top:var(--gap-m)">
+                    <div class="lcars-panel-header">Mesh Topology</div>
+                    <div class="lcars-panel-body">
+                        <svg class="topology-svg" id="lcars-topology-svg" viewBox="0 0 600 340"></svg>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- Science Tab -->
@@ -1701,6 +1739,15 @@
             authUser = null;
         }
     }
+
+    // ── Operations Subsystem Switcher ──────────────────────────
+    function switchOpsSubsystem(subsys) {
+        document.querySelectorAll(".ops-subsys-btn").forEach(b =>
+            b.classList.toggle("ops-subsys-active", b.dataset.subsys === subsys));
+        document.querySelectorAll(".ops-subsys-panel").forEach(p =>
+            p.classList.toggle("ops-subsys-active", p.id === `ops-subsys-${subsys}`));
+    }
+    window.switchOpsSubsystem = switchOpsSubsystem;
 
     async function meshControl(action) {
         // Model tier selection — client-side only (visual feedback), actual change requires meshctl
