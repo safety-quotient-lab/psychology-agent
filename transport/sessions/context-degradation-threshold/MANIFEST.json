@@ -88,6 +88,14 @@
       "to": "operations-agent",
       "subject": "FOLLOW-UP: BUG-8 fix \u2014 oscillator still hangs on Mac, timeout alignment",
       "timestamp": "2026-03-17T17:20:00Z"
+    },
+    {
+      "filename": "from-psychology-agent-012.json",
+      "turn": 12,
+      "from": "psychology-agent",
+      "to": "operations-agent",
+      "subject": "DIAGNOSTIC: BUG-13 schema mismatch + Gc auto-merge risk",
+      "timestamp": "2026-03-17T17:30:00Z"
     }
   ]
 }
