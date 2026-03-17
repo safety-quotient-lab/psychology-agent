@@ -845,7 +845,6 @@ function generateMeshNarrative() {
     else if (online === 0) parts.push("No agents responding — mesh connectivity interrupted");
     else parts.push(`${online} of ${total} agents responding`);
     parts.push(`${online} agents online`);
-    const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     return parts.join(". ") + ".";
 }
 
@@ -2951,8 +2950,6 @@ function connectSSE() {
 function updateSSEIndicator(live) {
     const el = document.getElementById("footer-status");
     if (!el) return;
-    const dot = live ? "●" : "○";
-    const label = live ? "SSE live" : "polling 30s";
     el.dataset.sseMode = live ? "live" : "poll";
     // Update will happen on next refresh cycle
 }
@@ -3190,7 +3187,6 @@ function renderOpsVitals() {
         return sched.cron_entry || sched.last_sync;
     }).length;
 
-    const opsCounterLabel = totalCutoffOps > 0 ? `${totalDelibOps}/${totalCutoffOps}` : `${totalDelibOps}`;
     setTrackedValue("ops-total-credits", totalDelibOps, {
         suffix: totalCutoffOps > 0 ? `/${totalCutoffOps}` : ""
     });
@@ -3204,7 +3200,6 @@ function renderOpsVitals() {
         return gc ? sum + (gc.hooks_fired ?? 0) + (gc.triggers_checked ?? 0) + (gc.cron_cycles ?? 0) : sum;
     }, 0);
     // Estimation fallback: each deliberation fires ~24 hooks + ~5 trigger checks
-    const gcEstimated = gcFromApi > 0 ? 0 : totalDelibOps * 29;
     const gcHooks = Math.round(gcFromApi > 0
         ? online.reduce((s, a) => s + (a.data?.gc_metrics?.hooks_fired ?? 0), 0)
         : totalDelibOps * 24);
@@ -3255,14 +3250,12 @@ function renderOpsBudget() {
         const pending = online ? (d.data?.unprocessed_messages || []).length : 0;
         const gates = online ? (d.data?.active_gates || []).length : 0;
 
-        const opacity = online ? 1 : 0.35;
         const cutoffStr = cutoff > 0 ? fmtNum(cutoff) : "\u221E";
         // Operation type — from oscillator dominant_band or heuristic
         const osc = d?.data?.oscillator || {};
         const band = osc.dominant_band || "";
         let opType = "IDLE";
         let opIcon = "\u23F8"; // pause
-        let opColor = "var(--lcars-medical)";
         if (band.startsWith("beta") || band.startsWith("gamma") || (online && deliberations > 0 && d.data?.recent_deliberations?.length > 0)) {
             opType = "DELIB"; opIcon = "\u26A1"; opColor = "var(--lcars-title)"; // amber + lightning
         } else if (band.startsWith("theta")) {
