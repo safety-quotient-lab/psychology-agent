@@ -205,18 +205,6 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     position: relative;
     min-height: 100vh;
 }
-/* Footer sticks to viewport bottom */
-.theme-lcars .lcars-footer-band {
-    position: sticky;
-    bottom: 0;
-    z-index: 200;
-}
-/* Bottom elbow connector also sticks */
-.theme-lcars .lcars-elbow-connector-bottom {
-    position: sticky;
-    bottom: var(--band-size, 52px);
-    z-index: 199;
-}
 /* Explicit grid placement for every LCARS element */
 .theme-lcars .lcars-sidebar     { grid-column: 1;      grid-row: 1 / -1; }
 .theme-lcars .lcars-header-band { grid-column: 2 / -1;  grid-row: 1; }
@@ -372,11 +360,10 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* Sidebar arm — fills gap between last button and footer cap.
    Matches sidebar cap color (purple/lavender in LCARS 47988). */
 .lcars-sidebar-arm {
-    flex: 1;
+    flex: 0 0 var(--gap-2xl, 34px); /* fixed spacer, not greedy fill */
     background: var(--c-knowledge);
-    min-height: 20px;
-    margin-bottom: 0; /* seamless into bottom cap */
-    border-radius: 12px 0 0 0; /* flat bottom — seamless join to cap */
+    margin-bottom: 0;
+    border-radius: 12px 0 0 0;
 }
 
 /* Bottom cap matches top cap — continuous sidebar frame */
