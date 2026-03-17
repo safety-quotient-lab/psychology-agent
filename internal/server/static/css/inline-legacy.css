@@ -456,7 +456,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     .theme-lcars .lcars-frame {
         grid-template-columns: 60px var(--elbow-inner, 24px) 1fr;
     }
-    .theme-lcars { --sidebar-width: 60px; }
+    .theme-lcars { --sidebar-width: 60px; --elbow-inner: 16px; }
 
     /* Sidebar: show short codes only */
     .lcars-sidebar-btn {
@@ -506,7 +506,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     .theme-lcars .lcars-frame {
         grid-template-columns: 44px var(--elbow-inner, 24px) 1fr;
     }
-    .theme-lcars { --sidebar-width: 44px; }
+    .theme-lcars { --sidebar-width: 44px; --elbow-inner: 12px; }
 
     /* Sidebar: minimal shortcodes */
     .lcars-sidebar-btn {
