@@ -17,6 +17,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/safety-quotient-lab/operations-agent/internal/db"
 )
 
 // validateFetchURL rejects URLs that could enable SSRF attacks.
@@ -73,6 +75,7 @@ type AgentInfo struct {
 }
 
 // AgentRegistry fetches and caches agent cards from bootstrap URLs.
+// Persists discovered cards to SQLite (state.db) for cold-start resilience.
 type AgentRegistry struct {
 	agents      []AgentInfo
 	mu          sync.RWMutex
@@ -83,6 +86,7 @@ type AgentRegistry struct {
 	cacheTTL    time.Duration
 	lastRefresh time.Time
 	httpClient  *http.Client
+	dbPath      string // state.db path for persistence
 }
 
 // NewAgentRegistry creates a registry with bootstrap card URLs.
@@ -95,6 +99,21 @@ func NewAgentRegistry(selfID string, cardURLs []string, ttl time.Duration, logge
 		httpClient: &http.Client{
 			Timeout: 5 * time.Second,
 		},
+	}
+}
+
+// SetDBPath configures SQLite persistence for the registry.
+// Call before StartBackgroundRefresh.
+func (r *AgentRegistry) SetDBPath(path string) {
+	r.dbPath = path
+	// Ensure agent_cards table exists
+	if path != "" {
+		db.Exec(path, `CREATE TABLE IF NOT EXISTS agent_cards (
+			card_url TEXT PRIMARY KEY,
+			agent_id TEXT,
+			card_json TEXT,
+			updated_at TEXT DEFAULT (datetime('now'))
+		)`)
 	}
 }
 
@@ -147,6 +166,44 @@ func (r *AgentRegistry) Refresh() {
 	}
 	wg.Wait()
 
+	// Persist successfully fetched cards to SQLite
+	if r.dbPath != "" {
+		for _, a := range agents {
+			if a.Unavailable || a.RawCard == nil {
+				continue
+			}
+			cardJSON, _ := json.Marshal(a.RawCard)
+			db.Exec(r.dbPath, fmt.Sprintf(
+				"INSERT OR REPLACE INTO agent_cards (card_url, agent_id, card_json, updated_at) VALUES ('%s', '%s', '%s', datetime('now'))",
+				db.EscapeString(a.CardURL), db.EscapeString(a.ID), db.EscapeString(string(cardJSON)),
+			))
+		}
+
+		// For unavailable agents, try loading from DB cache
+		for i := range agents {
+			if !agents[i].Unavailable {
+				continue
+			}
+			rows, _ := db.QueryJSON(r.dbPath, fmt.Sprintf(
+				"SELECT card_json FROM agent_cards WHERE card_url = '%s'",
+				db.EscapeString(agents[i].CardURL),
+			))
+			if len(rows) > 0 {
+				cardStr := rows[0]["card_json"]
+				if cardStr != "" {
+					var card map[string]any
+					if json.Unmarshal([]byte(cardStr), &card) == nil {
+						cached := parseAgentCard(card, agents[i].CardURL)
+						cached.Unavailable = false
+						agents[i] = cached
+						r.logger.Info("agent card recovered from SQLite cache",
+							"agent", cached.ID, "url", agents[i].CardURL)
+					}
+				}
+			}
+		}
+	}
+
 	r.mu.Lock()
 	r.agents = agents
 	r.lastRefresh = time.Now()
@@ -159,8 +216,35 @@ func (r *AgentRegistry) Refresh() {
 }
 
 // StartBackgroundRefresh runs Refresh on an interval until ctx cancels.
+// On cold start, seeds the in-memory cache from SQLite before first network fetch.
 func (r *AgentRegistry) StartBackgroundRefresh(ctx context.Context) {
-	// Initial refresh
+	// Cold-start: load cached cards from SQLite before first network fetch
+	if r.dbPath != "" {
+		rows, _ := db.QueryJSON(r.dbPath, "SELECT card_url, agent_id, card_json FROM agent_cards")
+		if len(rows) > 0 {
+			seed := make([]AgentInfo, 0, len(rows))
+			for _, row := range rows {
+				cardStr := row["card_json"]
+				cardURL := row["card_url"]
+				if cardStr == "" || cardURL == "" {
+					continue
+				}
+				var card map[string]any
+				if json.Unmarshal([]byte(cardStr), &card) == nil {
+					info := parseAgentCard(card, cardURL)
+					seed = append(seed, info)
+				}
+			}
+			if len(seed) > 0 {
+				r.mu.Lock()
+				r.agents = seed
+				r.mu.Unlock()
+				r.logger.Info("agent registry seeded from SQLite", "agents", len(seed))
+			}
+		}
+	}
+
+	// Initial refresh (network fetch, overwrites seed with fresh data)
 	r.Refresh()
 
 	ticker := time.NewTicker(r.cacheTTL)
@@ -312,12 +396,16 @@ func (r *AgentRegistry) fetchCard(cardURL string) (AgentInfo, error) {
 		return AgentInfo{}, fmt.Errorf("invalid JSON: %w", err)
 	}
 
+	return parseAgentCard(raw, cardURL), nil
+}
+
+// parseAgentCard builds an AgentInfo from a raw card map and URL.
+// Shared by fetchCard (network) and cold-start (SQLite).
+func parseAgentCard(raw map[string]any, cardURL string) AgentInfo {
 	info := AgentInfo{
 		CardURL: cardURL,
 		RawCard: raw,
 	}
-
-	// Extract standard fields
 	info.ID = jsonStr(raw, "id")
 	if info.ID == "" {
 		info.ID = jsonStr(raw, "name")
@@ -328,25 +416,18 @@ func (r *AgentRegistry) fetchCard(cardURL string) (AgentInfo, error) {
 		info.Role = jsonStr(raw, "description")
 	}
 	info.Version = jsonStr(raw, "version")
-
-	// Derive status + manifest URLs from card URL hostname
 	if idx := strings.Index(cardURL, "/.well-known/"); idx > 0 {
 		base := cardURL[:idx]
 		info.StatusURL = base + "/api/status"
 		info.ManifestURL = base + "/dashboard/manifest"
 	}
-
-	// Count skills
 	if skills, ok := raw["skills"].([]any); ok {
 		info.Skills = len(skills)
 	}
-
-	// Check for repo in raw card
 	if repo, ok := raw["repo"].(string); ok {
 		info.Repo = repo
 	}
-
-	return info, nil
+	return info
 }
 
 // jsonStr extracts a string from a map, returning "" if missing or wrong type.

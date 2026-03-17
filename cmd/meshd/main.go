@@ -418,8 +418,9 @@ func main() {
 		}
 	}
 
-	// Agent registry — compositor discovery (background refresh)
+	// Agent registry — compositor discovery (background refresh + SQLite persistence)
 	registry := server.NewAgentRegistry(cfg.AgentID, cfg.AgentCardURLs, 5*time.Minute, logger)
+	registry.SetDBPath(cfg.BudgetDBPath) // persist cards to state.db for cold-start resilience
 
 	// CI monitor — polls GitHub Actions across all peer repos for build failures
 	meshRepos := []string{
