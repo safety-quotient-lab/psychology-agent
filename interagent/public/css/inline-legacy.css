@@ -3411,7 +3411,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #cc3333 !important;
    creates structure per "STARSHIP MISSION STATUS" pattern. */
 .ohniaka-row {
     display: grid;
-    grid-template-columns: 10px minmax(100px, 1.2fr) 10px 80px 100px 1fr;
+    grid-template-columns: 10px minmax(100px, 1.2fr) 10px 85px 100px 1fr;
     gap: var(--gap-m);
     padding: var(--gap-m) 0;
     border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -3436,7 +3436,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #cc3333 !important;
     display: inline-block;
 }
 .ohniaka-name { color: var(--lcars-secondary); } /* purple — entity name */
-.ohniaka-type { color: var(--lcars-secondary); opacity: 0.7; } /* purple dim — classification */
+.ohniaka-type { color: var(--lcars-secondary); opacity: 0.7; min-width: 75px; } /* purple dim — fixed width for ONLINE/OFFLINE/DEGRADED */
 .ohniaka-id { color: var(--lcars-title); } /* yellow — identifiers/numbers */
 .ohniaka-desc { color: var(--text-primary); white-space: normal; } /* white — description/status */
 .ohniaka-separator {
