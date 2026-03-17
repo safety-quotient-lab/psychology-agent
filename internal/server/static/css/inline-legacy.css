@@ -208,7 +208,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* Explicit grid placement for every LCARS element */
 .theme-lcars .lcars-sidebar     { grid-column: 1;      grid-row: 1 / -1; }
 .theme-lcars .lcars-header-band { grid-column: 2 / -1;  grid-row: 1; }
-.theme-lcars .lcars-content     { grid-column: 2 / -1;  grid-row: 2 / 5; }
+.theme-lcars .lcars-content     { grid-column: 3;       grid-row: 3; overflow-y: auto; }
 .theme-lcars .lcars-footer-band { grid-column: 2 / -1;  grid-row: 5; }
 
 /* Hide standard-mode elements in LCARS */
@@ -229,7 +229,6 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     background: #000;
     padding-top: 0;
     gap: 0;
-    min-height: 100vh; /* ensure sidebar fills viewport */
 }
 
 /* Top elbow cap — outer corner of the frame rounds off at top-left.
@@ -360,7 +359,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* Sidebar arm — fills gap between last button and footer cap.
    Matches sidebar cap color (purple/lavender in LCARS 47988). */
 .lcars-sidebar-arm {
-    flex: 0 0 var(--gap-2xl, 34px); /* fixed spacer, not greedy fill */
+    flex: 1; /* fills remaining sidebar height */
     background: var(--c-knowledge);
     margin-bottom: 0;
     border-radius: 12px 0 0 0;
@@ -474,10 +473,11 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 
 /* ── LCARS Content Override ────────────────────────────────── */
 .theme-lcars .lcars-content {
-    grid-column: 2 / -1;
-    grid-row: 2 / 5;
+    grid-column: 3;
+    grid-row: 3;
     background: #000;
     padding: var(--gap-xl, 21px);
+    overflow-y: auto;
 }
 
 /* ── LCARS Panel Hybrid Style ──────────────────────────────── */
