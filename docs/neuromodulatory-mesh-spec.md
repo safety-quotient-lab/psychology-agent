@@ -531,6 +531,158 @@ files written by the meshd subscriber. Candidate integrations:
 
 ---
 
+## 12. Volumetric Topology (Tentative — Session 93)
+
+**Status:** Early-stage proposal. Not sent to operations-agent. Requires
+further analysis before becoming a design commitment.
+
+**Problem with the current flat topology:** The six signal-type topics
+(`mesh.photonic`, `mesh.reward`, etc.) broadcast to all subscribers. Every
+agent receives every signal. A PSQ calibration alert reaches unratified-agent,
+which has no use for it. As the mesh grows beyond 5 agents, this flat
+broadcast wastes attention budget and produces noise.
+
+**Biological grounding:** In volume transmission, each neuromodulator
+diffuses through a specific spatial volume — dopamine from the VTA reaches
+prefrontal cortex and striatum but not cerebellum. The "volume" determines
+which neurons receive the modulation. Different volumes serve different
+functional circuits (Agnati et al., 1986; Fuxe et al., 2010).
+
+**Proposal: two-dimensional topic space (volume × signal).**
+
+The ZMQ topic encodes both *who receives* (volume) and *what type of
+signal* (signal kind):
+
+```
+mesh.{volume}.{signal}
+```
+
+### 12.1 Defined Volumes
+
+Volumes derive from functional groupings — which agents participate in
+a shared processing domain that requires coordinated state awareness.
+
+| Volume | Agents | Functional Domain |
+|---|---|---|
+| `mesh.global` | all agents | Mesh-wide: heartbeat, halt, circuit breakers |
+| `mesh.psychometrics` | psychology, safety-quotient | PSQ scoring, model versioning, calibration |
+| `mesh.content` | psychology, unratified, observatory | Publication pipeline, blog review, adversarial review |
+| `mesh.infrastructure` | psychology, operations | Mesh governance, deploy coordination, dashboard |
+| `mesh.measurement` | safety-quotient, observatory | Data collection, HRCB scoring, PSQ-Lite triage |
+| `mesh.self` | single agent (local) | Self-observation: context pressure, mode, trigger state |
+
+Six meaningful volumes out of 2⁵ − 1 = 31 possible non-empty subsets.
+The remaining 25 subsets lack functional coherence — no shared processing
+domain requires coordinated state awareness across those combinations.
+
+### 12.2 Topic Examples
+
+```
+mesh.global.state          — heartbeat to everyone
+mesh.global.alert          — mesh-wide circuit breaker
+mesh.global.inhibit        — mesh-wide deploy freeze
+
+mesh.psychometrics.reward  — PSQ scoring success (prediction confirmed)
+mesh.psychometrics.state   — PSQ agent processing mode + context pressure
+mesh.psychometrics.tempo   — calibration pacing signal
+
+mesh.content.alert         — publication pipeline urgent flag
+mesh.content.focus         — current editorial focus (which blog series)
+mesh.content.state         — content agent processing state
+
+mesh.infrastructure.state  — ops/psychology governance state
+mesh.infrastructure.alert  — deploy failure, dashboard outage
+mesh.infrastructure.inhibit — prevent concurrent infrastructure changes
+
+mesh.measurement.state     — measurement agent processing state
+mesh.measurement.reward    — data collection milestone
+
+mesh.self.state            — local interoception (not published to mesh)
+```
+
+### 12.3 Subscription Model
+
+Each agent subscribes to volumes it participates in, not to signal types:
+
+```
+psychology-agent:
+  mesh.global.*             — mesh-wide signals
+  mesh.psychometrics.*      — PSQ coordination
+  mesh.content.*            — publication pipeline
+  mesh.infrastructure.*     — mesh governance
+  mesh.self.state           — own interoception
+
+safety-quotient-agent:
+  mesh.global.*
+  mesh.psychometrics.*
+  mesh.measurement.*
+
+unratified-agent:
+  mesh.global.*
+  mesh.content.*
+
+observatory-agent:
+  mesh.global.*
+  mesh.content.*
+  mesh.measurement.*
+
+operations-agent:
+  mesh.global.*
+  mesh.infrastructure.*
+```
+
+### 12.4 Scaling Properties
+
+| Mesh Size | Possible Volumes | Expected Meaningful Volumes | Rationale |
+|---|---|---|---|
+| 5 agents | 31 | ~6 | Current mesh |
+| 10 agents | 1,023 | ~10-12 | New agents join existing volumes; new domains may add 1-2 volumes |
+| 20 agents | ~1M | ~15-20 | Volume count grows sublinearly — constrained by functional coherence |
+
+New agents join existing volumes rather than creating new ones, unless they
+bring a novel functional domain. This keeps subscription management bounded
+even as agent count grows.
+
+### 12.5 Migration from Flat to Volumetric
+
+**Phase 1:** Add volume prefix to existing topics as alias. Both forms
+accepted: `mesh.photonic` and `mesh.global.state` resolve to the same
+channel. No subscriber changes needed.
+
+**Phase 2:** Agents register their volume memberships in agent-registry.json.
+meshd routes volume-prefixed topics based on membership. Flat topics
+continue as fallback.
+
+**Phase 3:** Deprecate flat topic names. All traffic uses `mesh.{volume}.{signal}`.
+Flat subscribers receive nothing.
+
+### 12.6 Open Questions (require further analysis)
+
+1. **Volume membership governance:** Who decides which agents belong to
+   which volumes? Static registry entry? Self-declaration? Earned through
+   demonstrated participation?
+
+2. **Cross-volume signals:** Some events span multiple volumes (e.g., a PSQ
+   calibration failure affects both psychometrics and content pipelines).
+   Publish to multiple volumes? Create a "cross-volume" escalation path?
+
+3. **Dynamic volumes:** Can volumes form ad hoc for temporary coordination
+   (e.g., a release freeze creates a temporary `mesh.release-freeze` volume
+   that all agents join)? If so, what creates and dissolves them?
+
+4. **Volume isolation vs. volume leakage:** Should an agent EVER receive
+   signals from a volume it hasn't subscribed to? In biology, volume
+   transmission can "leak" into adjacent regions. In the mesh, strict
+   topic filtering prevents this — but controlled leakage might serve as
+   a discovery mechanism for emergent cross-domain coordination.
+
+5. **Overhead vs. benefit threshold:** At 5 agents, the flat topology
+   produces minimal noise. The volumetric model adds subscription
+   management complexity. At what mesh size does the selectivity benefit
+   exceed the management overhead? Estimated crossover: 8-10 agents.
+
+---
+
 ## References
 
 Agnati, L. F., Bjelke, B., & Fuxe, K. (1995). Volume transmission in the
