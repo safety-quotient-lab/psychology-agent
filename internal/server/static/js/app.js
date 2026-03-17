@@ -5366,6 +5366,27 @@ function renderMedPsychometrics(data) {
     }
 }
 
+
+// ═══ WINDOW GLOBALS ══════════════════════════════════════════
+// ES modules scope all declarations. onclick handlers in HTML
+// need these functions on window.
+window.setTheme = setTheme;
+window.switchTab = switchTab;
+window.refreshAll = refreshAll;
+window.switchAgent = switchAgent;
+window.sortTable = sortTable;
+window.filterTable = filterTable;
+window.goToPage = goToPage;
+window.filterDictionary = filterDictionary;
+window.toggleDecisionRow = toggleDecisionRow;
+window.setManualAlert = setManualAlert;
+window.meshControl = meshControl;
+window.openLcarsDetail = openLcarsDetail;
+window.closeLcarsDetail = closeLcarsDetail;
+window.toggleNarrativeDrawer = toggleNarrativeDrawer;
+window.runDiagnostic = runDiagnostic;
+window.switchOpsSubsystem = switchOpsSubsystem;
+
 // ── Init ───────────────────────────────────────────────────────
 (async function init() {
     // Restore theme first (setTheme may switch to default bridge station)
