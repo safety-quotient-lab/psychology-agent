@@ -1,8 +1,36 @@
+/**
+ * app.js — Interagent Mesh LCARS Dashboard
+ *
+ * Extracted from inline <script> in index.html (session 10).
+ * Single-file application — future work splits into ES modules.
+ *
+ * Table of Contents (grep for ═══ to navigate sections):
+ *
+ *   ═══ CONFIGURATION        — AGENTS array, constants
+ *   ═══ UTILITIES             — fmtNum, sparkline, waveform, agentName
+ *   ═══ THREE-ZONE            — Zone A number grid generators
+ *   ═══ STATE                 — agentData, kbData, dictData, timers
+ *   ═══ TRACKING              — setTrackedValue, mirrorToLcars
+ *   ═══ AFFECT + ALERT        — affect modes, alert system, escalation
+ *   ═══ BUDGET HELPERS        — getDeliberations, getCutoff
+ *   ═══ AUTH + CARDS           — fetchAgentCards, checkAuth
+ *   ═══ LCARS CHROME           — subsystem switcher, narrative, stardate, theme
+ *   ═══ TABS + NAV             — switchTab, spine, agent switcher
+ *   ═══ DATA FETCH             — refreshAll, fetchAgentStatus
+ *   ═══ RENDER: PULSE          — renderPulse, renderAgentCards, topology
+ *   ═══ RENDER: KNOWLEDGE      — KB tables, dictionary
+ *   ═══ RENDER: OPERATIONS     — monologue, budget, actions, schedule, subsystems
+ *   ═══ RENDER: SCIENCE        — affect grid, PAD, flow, DEW, LOA, generators
+ *   ═══ RENDER: HELM           — session timeline, routing, message flow
+ *   ═══ RENDER: ENGINEERING    — deliberation cascade, Gc, tempo, utilization
+ *   ═══ RENDER: TACTICAL       — shield status, compliance, trust matrix
+ *   ═══ RENDER: MEDICAL        — oscillator, psychometrics, agent selector
+ *   ═══ WEBSOCKET + SSE        — connectWebSocket, connectSSE
+ *   ═══ INIT                   — DOMContentLoaded bootstrap
+ */
+
+// ═══ CONFIGURATION ══════════════════════════════════════════
 // Agent registry — daemon processes serving /api/status
-// Note: operations-agent meshd runs infrastructure but does not deliberate
-// autonomously. Interactive sessions (ops-session, psy-session) represent
-// the human operator working through Claude Code. Full identity separation
-// tracked in docs/todo-lcars-next.md.
 const AGENTS = [
     // Autonomous agents (Chromabook meshd instances)
     { id: "psychology-agent", name: "psychology", url: "https://psychology-agent.safety-quotient.dev", color: "#5b9cf6" },
@@ -15,6 +43,8 @@ const AGENTS = [
 ];
 
 // Number formatting — thin space thousands separator for readability
+
+// ═══ UTILITIES ═══════════════════════════════════════════════
 function fmtNum(n) {
     if (n == null || isNaN(n)) return "\u2014";
     const num = typeof n === "string" ? parseFloat(n) : n;
@@ -228,6 +258,8 @@ function agentName(agentOrId) {
 // Fills Zone A with labeled key-value metrics from real agent data.
 // Color encodes data type: orange=counts, purple=IDs, white=measured, gold=alert
 // Each metric has a label so the operator knows what they're reading.
+
+// ═══ THREE-ZONE ═════════════════════════════════════════════
 function renderNumberGrid(containerId, metrics) {
     const el = document.getElementById(containerId);
     if (!el) return;
@@ -320,6 +352,8 @@ function engZoneAMetrics() {
     ];
 }
 
+
+// ═══ STATE ═══════════════════════════════════════════════════
 let agentData = {};
 let kbData = {};
 let dictData = {};
@@ -331,6 +365,8 @@ let sseActive = false;
 // ── Delta Tracker ─────────────────────────────────────────────
 // Tracks previous values and renders directional change indicators
 // next to every numeric display.
+
+// ═══ TRACKING ════════════════════════════════════════════════
 const _prevValues = {};
 
 /**
@@ -443,6 +479,8 @@ function reattachMirrorHandlers(sourceId, target) {
 
 // ── Affect-Responsive Layout ──────────────────────────────────
 
+
+// ═══ AFFECT + ALERT ══════════════════════════════════════════
 const AFFECT_MODES = {
     "calm-satisfied": "rich",
     "alert-engaged": "focused",
@@ -586,6 +624,8 @@ function startAlertEscalation() {
 // Backward-compat: old format reports budget_current (remaining) and
 // budget_max. New format reports budget_spent (counter) and budget_cutoff.
 // Deliberations = number of autonomous actions taken.
+
+// ═══ BUDGET HELPERS ═════════════════════════════════════════
 function getDeliberations(autonomyBlock) {
     const b = autonomyBlock || {};
     // New format: budget_spent directly gives deliberation count
@@ -651,6 +691,8 @@ async function runDiagnostic(level) {
 
 // ── Agent Card Fetching (Layer 5) ──────────────────────────────
 
+
+// ═══ AUTH + CARDS ════════════════════════════════════════════
 let agentCards = {};
 
 async function fetchAgentCards() {
@@ -704,6 +746,8 @@ async function checkAuth() {
 }
 
 // ── Operations Subsystem Switcher ──────────────────────────
+
+// ═══ LCARS CHROME ═══════════════════════════════════════════
 function switchOpsSubsystem(subsys) {
     document.querySelectorAll(".ops-subsys-btn").forEach(b =>
         b.classList.toggle("ops-subsys-active", b.dataset.subsys === subsys));
@@ -973,6 +1017,8 @@ function setTheme(mode) {
 }
 
 // ── Tabs ───────────────────────────────────────────────────────
+
+// ═══ TABS + NAV ═════════════════════════════════════════════
 const VALID_TABS = ["pulse", "meta", "kb", "wisdom", "operations", "science", "engineering", "helm", "tactical", "medical"];
 
 // ── LCARS Spine Content Tracking ─────────────────────────────
@@ -1121,6 +1167,8 @@ function buildAgentSwitcher() {
 }
 
 // ── Data Fetching ──────────────────────────────────────────────
+
+// ═══ DATA FETCH ═════════════════════════════════════════════
 async function fetchAgentStatus(agent) {
     try {
         const resp = await fetch(`${agent.url}/api/status`, { signal: AbortSignal.timeout(8000) });
@@ -1472,6 +1520,8 @@ function renderActivity() {
 }
 
 // ── Render: Combined ───────────────────────────────────────────
+
+// ═══ RENDER: PULSE ══════════════════════════════════════════
 function renderPulse() {
     renderVitals();
     renderLcarsDataGrid();
@@ -1517,6 +1567,8 @@ function renderMeshStatusDots() {
 
 // ── Knowledge Tab ────────────────────────────────────────────
 
+
+// ═══ RENDER: KNOWLEDGE ══════════════════════════════════════
 async function fetchAgentKB(agent) {
     try {
         const resp = await fetch(`${agent.url}/api/kb`, { signal: AbortSignal.timeout(10000) });
@@ -2907,6 +2959,8 @@ function updateSSEIndicator(live) {
 
 // ── Render: Operations ──────────────────────────────────────────
 
+
+// ═══ RENDER: OPERATIONS ═════════════════════════════════════
 function renderOperations() {
     // Zone A: dense number grid (three-zone layout §1.2)
     renderNumberGrid("ops-zone-a", opsZoneAMetrics());
@@ -3547,6 +3601,8 @@ function renderOpsCapacityReadout() {
 }
 
 // ── Science Station ─────────────────────────────────────────────
+
+// ═══ RENDER: SCIENCE ════════════════════════════════════════
 let scienceData = null;
 let scienceFetchPending = false;
 
@@ -4062,6 +4118,8 @@ function renderLOA() {
 }
 
 // ── Helm Station ─────────────────────────────────────────────────
+
+// ═══ RENDER: HELM ═══════════════════════════════════════════
 let helmData = null;
 let helmFetchPending = false;
 
@@ -4251,6 +4309,8 @@ function renderMessageFlow() {
 
 
 // ── Engineering Station ─────────────────────────────────────────
+
+// ═══ RENDER: ENGINEERING ════════════════════════════════════
 let engineeringData = null;
 let engineeringFetchPending = false;
 
@@ -4836,6 +4896,8 @@ function renderYerkesDodson() {
 }
 
 // ── Tactical Station ─────────────────────────────────────────────
+
+// ═══ RENDER: TACTICAL ═══════════════════════════════════════
 let tacticalData = null;
 let tacticalFetchPending = false;
 
@@ -5030,6 +5092,8 @@ async function fetchAndRenderTrustMatrix() {
 
 // ── Medical Station ────────────────────────────────────────────
 
+
+// ═══ RENDER: MEDICAL ════════════════════════════════════════
 let medSelectedAgent = "operations-agent";
 let medPsychData = {};
 
