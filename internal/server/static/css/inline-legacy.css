@@ -3532,7 +3532,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #cc3333 !important;
     margin-top: var(--gap-xs, 3px);
     margin-bottom: var(--gap-xl, 21px);
     min-height: 36px;
-    background: var(--c-knowledge);
+    background: var(--lcars-frame);
     border-radius: 0;
     display: flex;
     align-items: center;
