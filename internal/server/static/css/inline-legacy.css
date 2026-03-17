@@ -203,7 +203,12 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     grid-template-columns: var(--sidebar-width) var(--elbow-inner, 24px) 1fr;
     grid-template-rows: auto var(--elbow-inner, 24px) 1fr var(--elbow-inner, 24px) auto;
     position: relative;
-    min-height: 100vh;
+    height: 100vh !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+}
+.theme-lcars .lcars-content {
+    overflow-y: auto;
 }
 /* Explicit grid placement for every LCARS element */
 .theme-lcars .lcars-sidebar     { grid-column: 1;      grid-row: 1 / -1; }
