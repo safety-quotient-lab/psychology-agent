@@ -1101,10 +1101,13 @@ body[data-alert-level="3"] .lcars-elbow-connector-top {
 body[data-alert-level="3"] .lcars-elbow-connector-bottom {
     background: radial-gradient(circle at 100% 0%, transparent var(--elbow-inner, 24px), #ffcc00 var(--elbow-inner, 24px)) !important;
 }
-/* Yellow alert slow flash — structural elements pulse 1→1/φ */
+/* Yellow alert slow flash — ALL structural elements pulse 1→1/φ */
 body[data-alert-level="3"] .lcars-sidebar-cap-top,
 body[data-alert-level="3"] .lcars-sidebar-cap-bottom,
 body[data-alert-level="3"] .lcars-sidebar-arm,
+body[data-alert-level="3"] .lcars-sidebar-spacer,
+body[data-alert-level="3"] .lcars-sidebar-drop,
+body[data-alert-level="3"] .lcars-sidebar-exit,
 body[data-alert-level="3"] .lcars-hdr-arm,
 body[data-alert-level="3"] .lcars-hdr-endcap {
     animation: alert-slow-flash 2s ease-in-out infinite;
@@ -1135,6 +1138,9 @@ body[data-alert-level="2"] .lcars-sidebar-btn,
 body[data-alert-level="2"] .lcars-sidebar-cap-top,
 body[data-alert-level="2"] .lcars-sidebar-cap-bottom,
 body[data-alert-level="2"] .lcars-sidebar-arm,
+body[data-alert-level="2"] .lcars-sidebar-spacer,
+body[data-alert-level="2"] .lcars-sidebar-drop,
+body[data-alert-level="2"] .lcars-sidebar-exit,
 body[data-alert-level="2"] .lcars-hdr-arm,
 body[data-alert-level="2"] .lcars-hdr-endcap {
     animation: alert-slow-flash 2s ease-in-out infinite;
@@ -3405,9 +3411,9 @@ a.activity-link:hover {
     .lcars-sidebar-drop { min-height: var(--gap-m, 8px); }
 }
 
-/* Alert: sidebar drop follows structural chrome color */
+/* Alert: sidebar drop follows structural chrome color (matches main alert block) */
 body[data-alert-level="3"] .lcars-sidebar-drop { background: #ffcc00 !important; }
-body[data-alert-level="2"] .lcars-sidebar-drop { background: #cc3333 !important; }
+body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important; }
 
 /* Connectors use grid placement — no mobile hide needed */
 
