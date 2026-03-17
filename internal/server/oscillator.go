@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"math"
 	"net/http"
@@ -149,6 +150,11 @@ func (o *Oscillator) cycle() {
 	activation := o.computeActivation(signals)
 	threshold := o.computeThreshold()
 
+	// BUG-8 fix: compute tier OUTSIDE the lock (DB query = slow I/O).
+	// Only used if wouldFire, but computing unconditionally avoids
+	// holding the mutex during sqlite3 access.
+	tierResult := ComputeTier(o.agentID, o.dbPath, MessageMeta{})
+
 	o.mu.Lock()
 	o.state.Activation = math.Round(activation*1000) / 1000
 	o.state.Threshold = math.Round(threshold*1000) / 1000
@@ -170,8 +176,8 @@ func (o *Oscillator) cycle() {
 		o.state.State = "firing"
 		o.state.LastFireAt = time.Now().UTC().Format(time.RFC3339)
 
-		// Compute what tier would have been selected
-		tier := ComputeTier(o.agentID, o.dbPath, MessageMeta{}).RecommendedTier
+		// Tier already computed outside the lock
+		tier := tierResult.RecommendedTier
 		o.state.LastTier = tier
 
 		// Refractory period based on tier
@@ -297,7 +303,12 @@ func (o *Oscillator) dominantSignal(signals map[string]float64) string {
 // ── Signal Checks ──────────────────────────────────────────────────
 
 func (o *Oscillator) checkNewCommits() float64 {
-	cmd := exec.Command("git", "-C", o.projectRoot, "fetch", "--dry-run", "--all")
+	// BUG-8 fix: timeout prevents SSH stall from blocking the entire oscillator cycle.
+	// Without timeout, git fetch can hang 60-120s when SSH to github.com stalls,
+	// holding the mutex and causing /api/oscillator to return 0 bytes.
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "git", "-C", o.projectRoot, "fetch", "--dry-run", "--all")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return 0.0
