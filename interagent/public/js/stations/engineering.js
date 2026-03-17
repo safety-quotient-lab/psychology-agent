@@ -1,38 +1,6 @@
-/**
- * engineering.js — Engineering Station render functions.
- *
- * Extracted from inline <script> in index.html. Contains spawn dynamics (Gf bars),
- * Gc cascade area chart with sparkHistory accumulation, deliberation tree SVG
- * waterfall timeline, utilization rho gauge + vertical level gauge, waveform SVG
- * tempo visualization, tempo introspection per-deliberation timing table, cost
- * tracking, concurrency slot occupancy, and Engineering-specific cognitive load
- * (NASA-TLX per agent) and Yerkes-Dodson zone displays.
- *
- * Data endpoints:
- *   GET {opsAgent.url}/api/tempo      — mesh + per-agent timing
- *   GET {opsAgent.url}/api/spawn-rate — per-agent spawn counts
- *   GET {opsAgent.url}/api/flow       — concurrency slot data
- *   GET /api/psychometrics            — cognitive load + Y-D zones
- *
- * DOM dependencies: #spawn-dynamics, #gc-cascade, #util-rho, #tempo-value,
- *   #cost-total, #concurrency-slots, #eng-cognitive-load, #eng-yd-zones,
- *   #eng-status-line
- */
-
-import {
-    fmtNum, sparklineSVG, waveformSVG, pushSparkValue,
-    agentName, setTrackedValue, renderVlevelGauge, sparkHistory,
-} from '../core/utils.js';
-
-// ── Module State ───────────────────────────────────────────────
+// ═══ RENDER: ENGINEERING ════════════════════════════════════
 let engineeringData = null;
 let engineeringFetchPending = false;
-
-// Concurrency data fetched from /api/flow
-let _flowData = null;
-
-// Psychometrics cache for Engineering-specific cognitive load + Y-D
-let _psychCache = null;
 
 const SPAWN_AGENTS = [
     { id: "psychology-agent",  label: "psychology", color: "var(--c-psychology)" },
@@ -42,16 +10,7 @@ const SPAWN_AGENTS = [
     { id: "operations-agent",  label: "operations",   color: "var(--c-tab-ops)" },
 ];
 
-// ── Data Fetching ──────────────────────────────────────────────
-
-/**
- * Fetch engineering metrics from tempo and spawn-rate endpoints.
- * Stores results in module-level engineeringData and triggers render.
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — per-agent cached data keyed by agent ID
- * @returns {Promise<void>}
- */
-export async function fetchEngineeringData(AGENTS, agentData) {
+async function fetchEngineeringData() {
     if (engineeringFetchPending) return;
     engineeringFetchPending = true;
     try {
@@ -71,114 +30,32 @@ export async function fetchEngineeringData(AGENTS, agentData) {
     } finally {
         engineeringFetchPending = false;
     }
-    renderEngineering(AGENTS, agentData);
+    renderEngineering();
 }
 
-/**
- * Fetch psychometrics for Engineering-specific panels.
- * @returns {Promise<void>}
- */
-async function fetchPsychForOps() {
-    try {
-        const resp = await fetch("https://interagent.safety-quotient.dev/api/psychometrics", { signal: AbortSignal.timeout(5000) });
-        if (resp.ok) _psychCache = await resp.json();
-    } catch {}
-}
+function renderEngineering() {
+    renderNumberGrid("eng-zone-a", engZoneAMetrics());
+    renderSpawnDynamics();
+    renderGcCascade();
+    renderUtilization();
+    renderTempo();
+    renderCost();
+    renderConcurrency();
+    renderCognitiveLoad();
+    renderYerkesDodson();
 
-/**
- * Fetch concurrency/flow data from operations-agent.
- * @param {Array} AGENTS — agent config array
- * @returns {Promise<void>}
- */
-async function fetchFlowData(AGENTS) {
-    try {
-        const opsUrl = AGENTS.find(a => a.id === "operations-agent")?.url || "";
-        const r = await fetch(`${opsUrl}/api/flow`, { signal: AbortSignal.timeout(5000) });
-        if (r.ok) _flowData = await r.json();
-    } catch {}
-}
-
-// ── Render: Spawn Dynamics (Gf bars per agent) ─────────────────
-
-/**
- * Render per-agent spawn count bars with model tier summary.
- * Also triggers renderDeliberationTree for the waterfall timeline.
- *
- * DOM WRITE: #spawn-dynamics (appends elements), #spawn-placeholder visibility
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — per-agent cached data keyed by agent ID
- */
-export function renderSpawnDynamics(AGENTS, agentData) {
-    const container = document.getElementById("spawn-dynamics");
-    const placeholder = document.getElementById("spawn-placeholder");
-    if (!container) return;
-
-    // Gf = fluid intelligence: deliberations per agent with model + duration
-    const tempoAgents = engineeringData?.tempo?.agents || [];
-    const agentMap = {};
-    tempoAgents.forEach(a => { agentMap[a.agent_id] = a; });
-
-    // Also get model tier from gc_metrics
-    const modelTier = agentData[AGENTS.find(a => a.id === "operations-agent")?.id]?.data?.gc_metrics?.deliberation_model || "?";
-
-    // Clear existing
-    container.querySelectorAll(".spawn-bar-row, .gf-summary").forEach(r => r.remove());
-
-    if (tempoAgents.length === 0) {
-        if (placeholder) placeholder.style.display = "block";
-        SPAWN_AGENTS.forEach(agent => {
-            const row = document.createElement("div");
-            row.className = "spawn-bar-row";
-            row.innerHTML = `<span class="spawn-bar-label">${agent.label}</span>
-                <div class="spawn-bar-track"><div class="spawn-bar-fill" style="width:0%;background:${agent.color};opacity:0.3"></div></div>
-                <span class="spawn-bar-count">\u2014</span>`;
-            container.appendChild(row);
-        });
-        return;
+    // Update status line
+    const statusEl = document.getElementById("eng-status-line");
+    if (statusEl && engineeringData) {
+        const mesh = engineeringData.tempo?.mesh || {};
+        const rho = mesh.utilization != null ? (mesh.utilization * 100).toFixed(0) + "%" : "—";
+        const dur = mesh.mean_duration_sec != null ? Math.round(mesh.mean_duration_sec) + "s" : "—";
+        const cost = mesh.cost_per_hour != null ? "$" + mesh.cost_per_hour + "/hr" : "—";
+        statusEl.textContent = `Utilization: ${rho} · Tempo: ${dur} avg · Cost: ${cost}`;
     }
-
-    if (placeholder) placeholder.style.display = "none";
-
-    // Summary with model tier + avg duration
-    const meshData = engineeringData?.tempo?.mesh || {};
-    const avgDur = meshData.mean_duration_sec ? Math.round(meshData.mean_duration_sec) + "s" : "\u2014";
-    const costHr = meshData.cost_per_hour != null ? "$" + meshData.cost_per_hour + "/hr" : "";
-    const summary = document.createElement("div");
-    summary.className = "gf-summary";
-    summary.style.cssText = "margin-bottom:8px;font-size:0.85em;opacity:0.8";
-    summary.innerHTML = `<span>Model: <strong>${modelTier.toUpperCase()}</strong> \u00B7 Avg: <strong>${avgDur}</strong>${costHr ? " \u00B7 " + costHr : ""}</span>`;
-    container.appendChild(summary);
-
-    // Per-agent bars
-    const maxCount = Math.max(1, ...SPAWN_AGENTS.map(a => agentMap[a.id]?.spawns_60min || 0));
-    SPAWN_AGENTS.forEach(agent => {
-        const data = agentMap[agent.id] || {};
-        const count = data.spawns_60min || 0;
-        const dur = data.mean_duration_sec ? Math.round(data.mean_duration_sec) + "s" : "";
-        const pct = (count / maxCount) * 100;
-        const row = document.createElement("div");
-        row.className = "spawn-bar-row";
-        row.innerHTML = `<span class="spawn-bar-label">${agent.label}</span>
-            <div class="spawn-bar-track"><div class="spawn-bar-fill" style="width:${pct}%;background:${agent.color}"></div></div>
-            <span class="spawn-bar-count" style="font-size:0.75em">${count}${dur ? " \u00B7 " + dur : ""}</span>`;
-        container.appendChild(row);
-    });
-
-    // Deliberation tree — waterfall of recent deliberations across all agents
-    renderDeliberationTree(container, AGENTS, agentData);
 }
 
-// ── Render: Gc Cascade (Area Chart) ────────────────────────────
-
-/**
- * Render the Gc cascade area chart — stacked crystallized processing streams.
- * Accumulates Gc history via sparkHistory for trend display.
- *
- * DOM WRITE: #gc-cascade (appends elements), #gc-placeholder visibility
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — per-agent cached data keyed by agent ID
- */
-export function renderGcCascade(AGENTS, agentData) {
+function renderGcCascade() {
     const container = document.getElementById("gc-cascade");
     const placeholder = document.getElementById("gc-placeholder");
     if (!container) return;
@@ -269,19 +146,67 @@ export function renderGcCascade(AGENTS, agentData) {
     });
 }
 
-// ── Render: Deliberation Tree (SVG Waterfall Timeline) ─────────
+function renderSpawnDynamics() {
+    const container = document.getElementById("spawn-dynamics");
+    const placeholder = document.getElementById("spawn-placeholder");
+    if (!container) return;
 
-/**
- * Render the deliberation tree — SVG waterfall timeline of recent deliberations
- * across all agents. Nodes sized by cost, colored by agent, with broken links
- * for failures and duration indicators.
- *
- * DOM WRITE: appends .delib-tree element to container
- * @param {HTMLElement} container — parent element to append tree into
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — per-agent cached data keyed by agent ID
- */
-export function renderDeliberationTree(container, AGENTS, agentData) {
+    // Gf = fluid intelligence: deliberations per agent with model + duration
+    const tempoAgents = engineeringData?.tempo?.agents || [];
+    const agentMap = {};
+    tempoAgents.forEach(a => { agentMap[a.agent_id] = a; });
+
+    // Also get model tier from gc_metrics
+    const modelTier = agentData[AGENTS.find(a => a.id === "operations-agent")?.id]?.data?.gc_metrics?.deliberation_model || "?";
+
+    // Clear existing
+    container.querySelectorAll(".spawn-bar-row, .gf-summary").forEach(r => r.remove());
+
+    if (tempoAgents.length === 0) {
+        if (placeholder) placeholder.style.display = "block";
+        SPAWN_AGENTS.forEach(agent => {
+            const row = document.createElement("div");
+            row.className = "spawn-bar-row";
+            row.innerHTML = `<span class="spawn-bar-label">${agent.label}</span>
+                <div class="spawn-bar-track"><div class="spawn-bar-fill" style="width:0%;background:${agent.color};opacity:0.3"></div></div>
+                <span class="spawn-bar-count">\u2014</span>`;
+            container.appendChild(row);
+        });
+        return;
+    }
+
+    if (placeholder) placeholder.style.display = "none";
+
+    // Summary with model tier + avg duration
+    const meshData = engineeringData?.tempo?.mesh || {};
+    const avgDur = meshData.mean_duration_sec ? Math.round(meshData.mean_duration_sec) + "s" : "—";
+    const costHr = meshData.cost_per_hour != null ? "$" + meshData.cost_per_hour + "/hr" : "";
+    const summary = document.createElement("div");
+    summary.className = "gf-summary";
+    summary.style.cssText = "margin-bottom:8px;font-size:0.85em;opacity:0.8";
+    summary.innerHTML = `<span>Model: <strong>${modelTier.toUpperCase()}</strong> · Avg: <strong>${avgDur}</strong>${costHr ? " · " + costHr : ""}</span>`;
+    container.appendChild(summary);
+
+    // Per-agent bars
+    const maxCount = Math.max(1, ...SPAWN_AGENTS.map(a => agentMap[a.id]?.spawns_60min || 0));
+    SPAWN_AGENTS.forEach(agent => {
+        const data = agentMap[agent.id] || {};
+        const count = data.spawns_60min || 0;
+        const dur = data.mean_duration_sec ? Math.round(data.mean_duration_sec) + "s" : "";
+        const pct = (count / maxCount) * 100;
+        const row = document.createElement("div");
+        row.className = "spawn-bar-row";
+        row.innerHTML = `<span class="spawn-bar-label">${agent.label}</span>
+            <div class="spawn-bar-track"><div class="spawn-bar-fill" style="width:${pct}%;background:${agent.color}"></div></div>
+            <span class="spawn-bar-count" style="font-size:0.75em">${count}${dur ? " · " + dur : ""}</span>`;
+        container.appendChild(row);
+    });
+
+    // Deliberation tree — waterfall of recent deliberations across all agents
+    renderDeliberationTree(container);
+}
+
+function renderDeliberationTree(container) {
     // Collect all deliberations from all agents
     const allDelibs = [];
     for (const agent of AGENTS) {
@@ -360,15 +285,7 @@ export function renderDeliberationTree(container, AGENTS, agentData) {
     if (!treeEl.parentNode) container.appendChild(treeEl);
 }
 
-// ── Render: Utilization ────────────────────────────────────────
-
-/**
- * Render the utilization gauge — rho metric with color-coded status
- * and Tuvok-style vertical level gauge (7 segments).
- *
- * DOM WRITE: #util-rho, #util-bar-fill, #util-status, #util-vlevel-gauge
- */
-export function renderUtilization() {
+function renderUtilization() {
     const rhoEl = document.getElementById("util-rho");
     const fillEl = document.getElementById("util-bar-fill");
     const statusEl = document.getElementById("util-status");
@@ -418,17 +335,7 @@ export function renderUtilization() {
     }
 }
 
-// ── Render: Tempo ──────────────────────────────────────────────
-
-/**
- * Render the OODA cycle tempo gauge with waveform SVG visualization.
- * Frequency inversely proportional to cycle time.
- *
- * DOM WRITE: #tempo-value, #tempo-bar-fill, #tempo-status, #tempo-waveform
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — per-agent cached data keyed by agent ID
- */
-export function renderTempo(AGENTS, agentData) {
+function renderTempo() {
     const valueEl = document.getElementById("tempo-value");
     const fillEl = document.getElementById("tempo-bar-fill");
     const statusEl = document.getElementById("tempo-status");
@@ -459,30 +366,20 @@ export function renderTempo(AGENTS, agentData) {
     const tempoWaveEl = document.getElementById("tempo-waveform");
     if (tempoWaveEl) {
         const freq = Math.max(1, 6 - (avgMs / 500));
-        tempoWaveEl.innerHTML = waveformSVG({
+        _waveOpts = {
             width: tempoWaveEl.clientWidth || 200, height: 30,
             amplitude: Math.min(1, avgMs / 1000),
             frequency: freq,
             stroke: tempoColor,
-        });
+        };
+        tempoWaveEl.innerHTML = waveformSVG({ ..._waveOpts, phase: _wavePhase });
     }
 
     // Tempo introspection — per-deliberation timing breakdown
-    renderTempoIntrospection(tempoColor, AGENTS, agentData);
+    renderTempoIntrospection(tempoColor);
 }
 
-// ── Render: Tempo Introspection ────────────────────────────────
-
-/**
- * Render per-deliberation timing table — agent, duration, gap, cost.
- * Shows last 8 deliberations sorted chronologically with inter-deliberation gaps.
- *
- * DOM WRITE: #tempo-introspection
- * @param {string} color — tempo status color
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — per-agent cached data keyed by agent ID
- */
-export function renderTempoIntrospection(color, AGENTS, agentData) {
+function renderTempoIntrospection(color) {
     const container = document.getElementById("tempo-introspection");
     if (!container) return;
 
@@ -537,13 +434,7 @@ export function renderTempoIntrospection(color, AGENTS, agentData) {
         '</div></div>';
 }
 
-// ── Render: Cost ───────────────────────────────────────────────
-
-/**
- * Render total cost and hourly rate displays.
- * DOM WRITE: #cost-total, #cost-rate
- */
-export function renderCost() {
+function renderCost() {
     const totalEl = document.getElementById("cost-total");
     const rateEl = document.getElementById("cost-rate");
     if (!totalEl) return;
@@ -565,21 +456,22 @@ export function renderCost() {
         : `<span class="cost-rate-arrow">\u2197</span> $\u2014/hr`;
 }
 
-// ── Render: Concurrency ────────────────────────────────────────
+// Concurrency data fetched from /api/flow
+let _flowData = null;
+async function fetchFlowData() {
+    try {
+        const opsUrl = AGENTS.find(a => a.id === "operations-agent")?.url || "";
+        const r = await fetch(`${opsUrl}/api/flow`, { signal: AbortSignal.timeout(5000) });
+        if (r.ok) _flowData = await r.json();
+    } catch {}
+}
 
-/**
- * Render concurrency slot occupancy indicators.
- * Fetches flow data on first call if not yet cached.
- *
- * DOM WRITE: #concurrency-slots (innerHTML replacement)
- * @param {Array} AGENTS — agent config array
- */
-export function renderConcurrency(AGENTS) {
+function renderConcurrency() {
     const container = document.getElementById("concurrency-slots");
     if (!container) return;
 
     if (!_flowData) {
-        fetchFlowData(AGENTS).then(() => renderConcurrency(AGENTS));
+        fetchFlowData().then(renderConcurrency);
         return;
     }
 
@@ -606,21 +498,12 @@ export function renderConcurrency(AGENTS) {
     }
 }
 
-// ── Render: Cognitive Load (Engineering-specific) ──────────────
-
-/**
- * Render per-agent NASA-TLX cognitive load bars with 6 dimensions.
- * Uses psychometrics cache — fetches on first call if not cached.
- *
- * DOM WRITE: #eng-cognitive-load
- * @param {Array} AGENTS — agent config array
- */
-export function renderCognitiveLoad(AGENTS) {
+function renderCognitiveLoad() {
     const container = document.getElementById("eng-cognitive-load");
     if (!container) return;
 
     if (!_psychCache || !_psychCache.agents) {
-        fetchPsychForOps().then(() => renderCognitiveLoad(AGENTS));
+        fetchPsychForOps().then(() => renderCognitiveLoad());
         return;
     }
 
@@ -639,9 +522,9 @@ export function renderCognitiveLoad(AGENTS) {
         container.innerHTML = '<div style="padding:8px;font-size:0.85em;opacity:0.7">' +
             partial.map(([aid, d]) => {
                 const wm = d.working_memory || {};
-                const yd = wm.yerkes_dodson_zone || "\u2014";
+                const yd = wm.yerkes_dodson_zone || "—";
                 return `<span style="color:${AGENTS.find(a=>a.id===aid)?.color||"inherit"}">${agentName(aid)}</span>: YD zone = ${yd}`;
-            }).join(" \u00B7 ") + '</div>';
+            }).join(" · ") + '</div>';
         return;
     }
 
@@ -662,22 +545,13 @@ export function renderCognitiveLoad(AGENTS) {
     }).join("");
 }
 
-// ── Render: Yerkes-Dodson Zones (Engineering-specific) ─────────
-
-/**
- * Render per-agent Yerkes-Dodson zones from working memory data.
- * Uses psychometrics cache — fetches on first call if not cached.
- *
- * DOM WRITE: #eng-yd-zones
- * @param {Array} AGENTS — agent config array
- */
-export function renderYerkesDodson(AGENTS) {
+function renderYerkesDodson() {
     const container = document.getElementById("eng-yd-zones");
     if (!container) return;
 
     // Read Yerkes-Dodson zones from psychometrics cache
     if (!_psychCache || !_psychCache.agents) {
-        fetchPsychForOps().then(() => renderYerkesDodson(AGENTS));
+        fetchPsychForOps().then(() => renderYerkesDodson());
         return;
     }
 
@@ -709,30 +583,5 @@ export function renderYerkesDodson(AGENTS) {
     }).join("");
 }
 
-// ── Render: Combined Engineering ───────────────────────────────
+// ── Tactical Station ─────────────────────────────────────────────
 
-/**
- * Render all Engineering station sub-sections.
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — per-agent cached data keyed by agent ID
- */
-export function renderEngineering(AGENTS, agentData) {
-    renderSpawnDynamics(AGENTS, agentData);
-    renderGcCascade(AGENTS, agentData);
-    renderUtilization();
-    renderTempo(AGENTS, agentData);
-    renderCost();
-    renderConcurrency(AGENTS);
-    renderCognitiveLoad(AGENTS);
-    renderYerkesDodson(AGENTS);
-
-    // Update status line
-    const statusEl = document.getElementById("eng-status-line");
-    if (statusEl && engineeringData) {
-        const mesh = engineeringData.tempo?.mesh || {};
-        const rho = mesh.utilization != null ? (mesh.utilization * 100).toFixed(0) + "%" : "\u2014";
-        const dur = mesh.mean_duration_sec != null ? Math.round(mesh.mean_duration_sec) + "s" : "\u2014";
-        const cost = mesh.cost_per_hour != null ? "$" + mesh.cost_per_hour + "/hr" : "\u2014";
-        statusEl.textContent = `Utilization: ${rho} \u00B7 Tempo: ${dur} avg \u00B7 Cost: ${cost}`;
-    }
-}

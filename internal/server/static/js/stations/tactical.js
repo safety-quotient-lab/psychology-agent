@@ -1,31 +1,8 @@
-/**
- * tactical.js — Tactical station (shields, compliance, transport integrity, trust matrix).
- *
- * Extracted from inline <script> in index.html.
- *
- * Data endpoints:
- *   GET https://interagent.safety-quotient.dev/api/health — per-agent health
- *   GET https://interagent.safety-quotient.dev/.well-known/agents — agent cards
- *   GET https://interagent.safety-quotient.dev/api/trust — trust matrix
- *
- * DOM dependencies: #shield-status, #agent-compliance, transport-*-fill,
- *   transport-*-status, #trust-heatmap
- */
-
-import { agentName } from '../core/utils.js';
-
-// ── Module State ───────────────────────────────────────────────
+// ═══ RENDER: TACTICAL ═══════════════════════════════════════
 let tacticalData = null;
 let tacticalFetchPending = false;
-let tacticalAgentCards = null;
 
-// ── Data Fetching ──────────────────────────────────────────────
-
-/**
- * Fetch mesh health + agent cards for tactical display.
- * @returns {Promise<void>}
- */
-export async function fetchTacticalData() {
+async function fetchTacticalData() {
     if (tacticalFetchPending) return;
     tacticalFetchPending = true;
     try {
@@ -46,20 +23,16 @@ export async function fetchTacticalData() {
     }
     renderTactical();
 }
+let tacticalAgentCards = null;
 
-// ── Render ─────────────────────────────────────────────────────
-
-/**
- * Render all Tactical station panels.
- */
-export function renderTactical() {
+function renderTactical() {
     renderShieldStatus();
     renderAgentCompliance();
     renderTransportIntegrity();
     fetchAndRenderTrustMatrix();
 }
 
-export function renderShieldStatus() {
+function renderShieldStatus() {
     const container = document.getElementById("shield-status");
     if (!container) return;
     const healthAgents = tacticalData?.agents || [];
@@ -91,7 +64,7 @@ export function renderShieldStatus() {
     }).join("");
 }
 
-export function renderAgentCompliance() {
+function renderAgentCompliance() {
     const container = document.getElementById("agent-compliance");
     if (!container) return;
     const agents = tacticalAgentCards || [];
@@ -122,7 +95,7 @@ export function renderAgentCompliance() {
     }).join("");
 }
 
-export function renderTransportIntegrity() {
+function renderTransportIntegrity() {
     // Transport channels: git-PR (always 100%), HTTP relay (check compositor), ZMQ (check agents)
     const gitOk = true; // git-PR transport always available
     const httpOk = tacticalData != null; // compositor responded
@@ -164,7 +137,7 @@ function trustColor(val) {
     return "#993333";
 }
 
-export async function fetchAndRenderTrustMatrix() {
+async function fetchAndRenderTrustMatrix() {
     const container = document.getElementById("trust-heatmap");
     if (!container) return;
     try {
@@ -217,3 +190,7 @@ export async function fetchAndRenderTrustMatrix() {
         container.innerHTML = '<div class="trust-matrix-loading">Trust data unavailable</div>';
     }
 }
+
+// ── Medical Station ────────────────────────────────────────────
+
+

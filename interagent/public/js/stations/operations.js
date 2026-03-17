@@ -1,102 +1,21 @@
-/**
- * operations.js — Operations station render functions.
- *
- * Extracted from inline <script> in index.html (session 8).
- * TNG Operations console: autonomy budget capsule grid, status monologue,
- * mesh aggregate indicators, actions audit table, schedule readout,
- * vitals counters, governance decisions, resource model.
- *
- * Data endpoints:
- *   GET {agent.url}/api/status — autonomy_budget, recent_actions, schedule
- *   GET {ops.url}/api/mesh-aggregate — affect, bottleneck, coordination, immune
- *   Shared psychometrics cache (core/psychometrics.js) — resource model
- *
- * DOM dependencies:
- *   #ops-status-monologue, #ops-subsystem-grid, #ops-alpha-matrix,
- *   #ops-actions-table, #ops-schedule, #ops-coordination-inline,
- *   #lcars-ops-decisions, #ops-agg-affect, #ops-agg-bottleneck,
- *   #ops-agg-coordination, #ops-agg-immune, #ops-resource-model,
- *   #ops-total-credits, #ops-total-actions, #ops-active-gates,
- *   #ops-agents-syncing, #gc-hooks, #gc-triggers, #gc-cron, #gc-ratio,
- *   #mesh-total-gf, #mesh-total-gc, #mesh-total-processing,
- *   page control elements, footer numbers
- *
- * Global state accessed: AGENTS, agentData, kbData, tableState,
- *   _meshAggData (module-local), _psychCache (module-local)
- */
-
-import {
-    fmtNum, agentName, setTrackedValue,
-} from '../core/utils.js';
-
-// ── Module State ──────────────────────────────────────────────────────
-
-let _meshAggData = null;
-let _meshAggTs = 0;
-let _psychCache = null;
-
-// ── Data Fetching ─────────────────────────────────────────────────────
-
-/**
- * Fetch mesh aggregate data from the operations-agent endpoint.
- * Caches result with 30s staleness window.
- * @param {Array} AGENTS — agent config array
- * @returns {Promise<void>}
- */
-async function fetchMeshAgg(AGENTS) {
-    try {
-        const opsUrl = AGENTS.find(a => a.id === "operations-agent")?.url || "";
-        if (!opsUrl) return;
-        const r = await fetch(`${opsUrl}/api/mesh-aggregate`, { signal: AbortSignal.timeout(5000) });
-        if (r.ok) { _meshAggData = await r.json(); _meshAggTs = Date.now(); }
-    } catch {}
-}
-
-/**
- * Fetch psychometrics data for the resource model panel.
- * @returns {Promise<void>}
- */
-async function fetchPsychForOps() {
-    try {
-        const resp = await fetch("https://interagent.safety-quotient.dev/api/psychometrics", { signal: AbortSignal.timeout(5000) });
-        if (resp.ok) _psychCache = await resp.json();
-    } catch {}
-}
-
-// ── Render: Operations (main dispatch) ────────────────────────────────
-
-/**
- * Render all Operations station sub-sections.
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — fetched agent data keyed by agent id
- * @param {Object} tableState — shared table state object
- * @param {Object} kbData — knowledge-base data keyed by agent id
- * @param {Function} mirrorToLcars — content mirroring helper
- * @param {Function} refreshKnowledge — KB data fetch trigger
- */
-export function renderOperations(AGENTS, agentData, tableState, kbData, mirrorToLcars, refreshKnowledge) {
-    renderOpsMonologue(AGENTS, agentData);
-    renderOpsBudget(AGENTS, agentData);
-    renderOpsActivity(AGENTS, agentData, tableState);
-    renderOpsSchedule(AGENTS, agentData);
-    renderOpsVitals(AGENTS, agentData);
+// ═══ RENDER: OPERATIONS ═════════════════════════════════════
+function renderOperations() {
+    // Zone A: dense number grid (three-zone layout §1.2)
+    renderNumberGrid("ops-zone-a", opsZoneAMetrics());
+    renderOpsBudget();
+    renderOpsActivity();
+    renderOpsSchedule();
+    renderOpsVitals();
+    renderOpsAutonomyReadout();
+    renderOpsTransportReadout();
+    renderOpsCapacityReadout();
     // Topology mirrors from Pulse (already rendered)
-    if (mirrorToLcars) mirrorToLcars("topology-svg", "lcars-topology-svg");
+    mirrorToLcars("topology-svg", "lcars-topology-svg");
     // Governance — populate from KB decisions data
-    renderOpsGovernance(AGENTS, kbData, refreshKnowledge);
+    renderOpsGovernance();
 }
 
-// ── Render: Governance Decisions ──────────────────────────────────────
-
-/**
- * Render governance decisions panel from KB data.
- * Pattern C: numbered entry list — capsule label + description.
- * DOM WRITE: #lcars-ops-decisions, #gov-footer-num
- * @param {Array} AGENTS — agent config array
- * @param {Object} kbData — knowledge-base data keyed by agent id
- * @param {Function} refreshKnowledge — KB data fetch trigger
- */
-export function renderOpsGovernance(AGENTS, kbData, refreshKnowledge) {
+function renderOpsGovernance() {
     const el = document.getElementById("lcars-ops-decisions");
     if (!el) return;
     // Collect decisions from all agents' KB data
@@ -111,8 +30,8 @@ export function renderOpsGovernance(AGENTS, kbData, refreshKnowledge) {
         // Eager fetch — load KB data without requiring Meta tab visit
         el.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Loading governance data...</div>';
         const hasAnyKb = Object.values(kbData).some(kb => kb && kb.status === "ok");
-        if (!hasAnyKb && refreshKnowledge) {
-            refreshKnowledge().then(() => renderOpsGovernance(AGENTS, kbData, refreshKnowledge));
+        if (!hasAnyKb) {
+            refreshKnowledge().then(() => renderOpsGovernance());
         }
         return;
     }
@@ -131,17 +50,8 @@ export function renderOpsGovernance(AGENTS, kbData, refreshKnowledge) {
     if (govFtr) govFtr.textContent = decisions.length;
 }
 
-// ── Render: Activity + Coordination ───────────────────────────────────
-
-/**
- * Render coordination ratio inline in Activity section, then trigger
- * actions table render.
- * DOM WRITE: #ops-coordination-inline
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — fetched agent data
- * @param {Object} tableState — shared table state object
- */
-export function renderOpsActivity(AGENTS, agentData, tableState) {
+// Coordination ratio inline in Activity section
+function renderOpsActivity() {
     const el = document.getElementById("ops-coordination-inline");
     if (el && _meshAggData) {
         const co = _meshAggData.coordination || {};
@@ -150,21 +60,13 @@ export function renderOpsActivity(AGENTS, agentData, tableState) {
             el.innerHTML = `Coordination: <strong style="color:${color}">${co.ratio.toFixed(1)}x</strong> (${co.process_messages || 0} process / ${co.substance_messages || 0} substance)`;
         }
     } else if (el) {
-        fetchMeshAgg(AGENTS).then(() => renderOpsActivity(AGENTS, agentData, tableState));
+        fetchMeshAgg().then(renderOpsActivity);
     }
-    renderOpsActions(AGENTS, agentData, tableState);
+    renderOpsActions();
 }
 
-// ── Render: Status Monologue ──────────────────────────────────────────
-
-/**
- * Auto-generated natural-language mesh status summary.
- * Pattern A: highlight keywords in alternating orange/purple.
- * DOM WRITE: #ops-status-monologue
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — fetched agent data
- */
-export function renderOpsMonologue(AGENTS, agentData) {
+// ── Status Monologue ─────────────────────────────────────
+function renderOpsMonologue() {
     const el = document.getElementById("ops-status-monologue");
     if (!el) return;
 
@@ -218,18 +120,28 @@ export function renderOpsMonologue(AGENTS, agentData) {
     el.innerHTML = highlighted;
 }
 
-// ── Render: Mesh Aggregate Indicators ─────────────────────────────────
+// ── Mesh Aggregate Indicators ────────────────────────────
+let _meshAggData = null;
+let _meshAggTs = 0;
 
-/**
- * Render mesh aggregate indicators: affect, bottleneck, coordination, immune.
- * Fetches data if stale (>30s).
- * DOM WRITE: #ops-agg-affect, #ops-agg-bottleneck, #ops-agg-coordination,
- *   #ops-agg-immune
- * @param {Array} AGENTS — agent config array (needed for fetch URL)
- */
-export function renderOpsAggIndicators(AGENTS) {
+let _meshAggPromise = null; // Dedup concurrent fetches
+async function fetchMeshAgg() {
+    if (_meshAggPromise) return _meshAggPromise;
+    if (_meshAggData && Date.now() - _meshAggTs < 30000) return; // Cache fresh
+    _meshAggPromise = (async () => {
+        try {
+            const opsUrl = AGENTS.find(a => a.id === "ops-session" || a.id === "operations-agent")?.url || "";
+            if (!opsUrl) return;
+            const r = await fetch(`${opsUrl}/api/mesh-aggregate`, { signal: AbortSignal.timeout(5000) });
+            if (r.ok) { _meshAggData = await r.json(); _meshAggTs = Date.now(); }
+        } catch {} finally { _meshAggPromise = null; }
+    })();
+    return _meshAggPromise;
+}
+
+function renderOpsAggIndicators() {
     if (!_meshAggData || Date.now() - _meshAggTs > 30000) {
-        fetchMeshAgg(AGENTS).then(() => renderOpsAggIndicators(AGENTS));
+        fetchMeshAgg().then(renderOpsAggIndicators);
         if (!_meshAggData) return;
     }
     const aff = _meshAggData.mesh_affect || {};
@@ -245,22 +157,30 @@ export function renderOpsAggIndicators(AGENTS) {
     set("ops-agg-immune", im.composite != null ? Math.round(im.composite * 100) + "%" : "\u2014", im.status === "compromised" ? "var(--c-error)" : "");
 }
 
-// ── Render: Resource Model (A2A-Psychology) ───────────────────────────
+let _psychCache = null;
+let _psychFetchPromise = null; // Dedup concurrent fetches
+async function fetchPsychForOps() {
+    // Return existing in-flight promise if already fetching
+    if (_psychFetchPromise) return _psychFetchPromise;
+    // Return cache if fresh (< 30s)
+    if (_psychCache && _psychCache._fetchedAt && Date.now() - _psychCache._fetchedAt < 30000) return;
+    _psychFetchPromise = (async () => {
+        try {
+            const resp = await fetch("https://interagent.safety-quotient.dev/api/psychometrics", { signal: AbortSignal.timeout(5000) });
+            if (resp.ok) { _psychCache = await resp.json(); _psychCache._fetchedAt = Date.now(); }
+        } catch {} finally { _psychFetchPromise = null; }
+    })();
+    return _psychFetchPromise;
+}
 
-/**
- * Render per-agent resource model: cognitive reserve, self-regulatory
- * resource, allostatic load, burnout risk.
- * DOM WRITE: #ops-resource-model
- * @param {Array} AGENTS — agent config array (for agent name/color lookup)
- */
-export function renderResourceModel(AGENTS) {
+function renderResourceModel() {
     const container = document.getElementById("ops-resource-model");
     if (!container) return;
     if (!_psychCache || !_psychCache.agents) {
         // Trigger fetch, re-render after
         fetchPsychForOps().then(() => {
             if (!_psychCache || !_psychCache.agents) return;
-            renderResourceModel(AGENTS);
+            renderResourceModel();
         });
         return;
     }
@@ -291,18 +211,7 @@ export function renderResourceModel(AGENTS) {
     }).join("") + '</div>';
 }
 
-// ── Render: Vitals Counters ───────────────────────────────────────────
-
-/**
- * Render operations vitals summary counters with delta tracking.
- * Includes Gc (crystallized intelligence) estimation from deliberation counts.
- * DOM WRITE: #ops-total-credits, #gc-hooks, #gc-triggers, #gc-cron,
- *   #gc-ratio, #mesh-total-gf, #mesh-total-gc, #mesh-total-processing,
- *   #ops-total-actions, #ops-active-gates, #ops-agents-syncing
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — fetched agent data
- */
-export function renderOpsVitals(AGENTS, agentData) {
+function renderOpsVitals() {
     const online = Object.values(agentData).filter(a => a.status === "online");
 
     // Autonomy: deliberations via counter helpers
@@ -332,7 +241,6 @@ export function renderOpsVitals(AGENTS, agentData) {
         return gc ? sum + (gc.hooks_fired ?? 0) + (gc.triggers_checked ?? 0) + (gc.cron_cycles ?? 0) : sum;
     }, 0);
     // Estimation fallback: each deliberation fires ~24 hooks + ~5 trigger checks
-    const gcEstimated = gcFromApi > 0 ? 0 : totalDelibOps * 29;
     const gcHooks = Math.round(gcFromApi > 0
         ? online.reduce((s, a) => s + (a.data?.gc_metrics?.hooks_fired ?? 0), 0)
         : totalDelibOps * 24);
@@ -358,32 +266,19 @@ export function renderOpsVitals(AGENTS, agentData) {
     setTrackedValue("ops-agents-syncing", syncing, { suffix: `/${AGENTS.length}` });
 }
 
-// ── Render: Budget Capsule Grid (Button 52) ───────────────────────────
-
-/**
- * Render the Button 52 pattern capsule grid: orange leader capsule +
- * purple data capsules per agent. Three-shade purple palette with
- * golden ratio spacing in lightness.
- *
- * Grid layout: minmax(80px,1fr) 60px 40px 40px 40px 60px 70px; gap:3px
- * Columns: Agent | Delib | Cutoff | Pending | Gates | Health | Mood
- *
- * DOM WRITE: #ops-subsystem-grid (innerHTML replacement)
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — fetched agent data
- */
-export function renderOpsBudget(AGENTS, agentData) {
-    // Button 52 pattern: capsule grid — orange leader + purple data capsules per agent
+function renderOpsBudget() {
+    // TODO: Add domain grouping filter (domain/interactive/all) for mesh overview
+    // Ohniaka B3 "Starship Mission Status" pattern — structured table
+    // with colored text columns (purple names, yellow IDs, white status).
+    // No pill backgrounds — spacing + color creates structure.
     const grid = document.getElementById("ops-subsystem-grid");
     if (!grid) return;
 
-    // Three purple shades for data categories (golden ratio spacing in lightness)
-    const purpleDark = "var(--lcars-secondary)";    // #cc99cc — budget/delib
-    const purpleMed = "var(--lcars-tertiary)";      // #9999ff — messages/transport
-    const purpleLight = "color-mix(in srgb, var(--lcars-secondary) 50%, #222)"; // dim — status
+    // Separate autonomous from interactive agents
+    const autonomous = AGENTS.filter(a => !a.id.includes("session"));
+    const interactive = AGENTS.filter(a => a.id.includes("session"));
 
-    let html = "";
-    for (const agent of AGENTS) {
+    function agentRow(agent) {
         const d = agentData[agent.id];
         const online = d?.status === "online";
         const b = online ? (d.data?.autonomy_budget || {}) : {};
@@ -395,41 +290,60 @@ export function renderOpsBudget(AGENTS, agentData) {
         const mood = es.affect_category || (online ? "nominal" : "offline");
         const pending = online ? (d.data?.unprocessed_messages || []).length : 0;
         const gates = online ? (d.data?.active_gates || []).length : 0;
-        const schema = d?.data?.schema_version || "\u2014";
 
-        // Agent row: grid-aligned capsules (Button 52 pattern — fixed columns)
-        const opacity = online ? 1 : 0.35;
-        html += `<div style="display:grid;grid-template-columns:minmax(80px,1fr) 60px 40px 40px 40px 60px 70px;gap:3px;margin-bottom:3px;opacity:${opacity}">
-            <div style="background:${agent.color};color:#000;font-weight:700;font-size:0.72em;padding:5px 12px;border-radius:12px 0 0 12px;letter-spacing:0.06em;text-transform:uppercase;display:flex;align-items:center">${agentName(agent)}</div>
-            <div style="background:${purpleDark};color:#000;font-weight:700;font-size:0.82em;padding:5px 8px;text-align:right;display:flex;align-items:center;justify-content:flex-end" title="Deliberations">${online ? fmtNum(deliberations) : "\u2014"}</div>
-            <div style="background:${purpleDark};color:#000;font-size:0.65em;padding:5px 6px;display:flex;align-items:center;justify-content:flex-end;opacity:0.7" title="Cutoff">${cutoff > 0 ? "/" + fmtNum(cutoff) : "\u221E"}</div>
-            <div style="background:${purpleMed};color:#000;font-weight:700;font-size:0.82em;padding:5px 8px;text-align:right;display:flex;align-items:center;justify-content:flex-end" title="Pending">${online ? pending : "\u2014"}</div>
-            <div style="background:${purpleMed};color:#000;font-size:0.82em;padding:5px 8px;text-align:right;display:flex;align-items:center;justify-content:flex-end" title="Gates">${online ? gates : "\u2014"}</div>
-            <div style="background:${purpleLight};color:var(--text-primary);font-size:0.68em;padding:5px 8px;display:flex;align-items:center;text-transform:uppercase;letter-spacing:0.04em" title="Health">${online ? health : "OFF"}</div>
-            <div style="background:${purpleLight};color:var(--text-primary);font-size:0.68em;padding:5px 8px;border-radius:0 12px 12px 0;display:flex;align-items:center" title="Mood">${mood}</div>
+        const cutoffStr = cutoff > 0 ? fmtNum(cutoff) : "\u221E";
+        // Operation type — from oscillator dominant_band or heuristic
+        const osc = d?.data?.oscillator || {};
+        const band = osc.dominant_band || "";
+        let opType = "IDLE";
+        let opIcon = "\u23F8"; // pause
+        if (band.startsWith("beta") || band.startsWith("gamma") || (online && deliberations > 0 && d.data?.recent_deliberations?.length > 0)) {
+            opType = "DELIB"; opIcon = "\u26A1"; opColor = "var(--lcars-title)"; // amber + lightning
+        } else if (band.startsWith("theta")) {
+            opType = "CONSOL"; opIcon = "\u{1F4E6}"; opColor = "var(--lcars-science)"; // blue + archive
+        } else if (band.startsWith("delta")) {
+            opType = "CLEAR"; opIcon = "\u{1F9F9}"; opColor = "var(--v23-plum-dark, #80225E)"; // indigo + broom
+        }
+
+        const statusText = online
+            ? `${opIcon} ${opType} · ${mood.toUpperCase()}`
+            : "OFFLINE";
+
+        const rowClass = online ? "ohniaka-row" : "ohniaka-row ohniaka-row-offline";
+        const degraded = online && health === "degraded";
+        const statusColor = online ? (degraded ? "#ddaa22" : "#22cc44") : "#cc2222";
+        const statusPill = `<span class="ohniaka-status-pill${!online ? " agent-name-offline" : ""}" style="background:${statusColor}"></span>`;
+        return `<div class="${rowClass}">
+            <span class="ohniaka-color-pill" style="background:${agent.color}"></span>
+            <span class="ohniaka-col ohniaka-name" style="color:var(--lcars-secondary)">${agentName(agent).toUpperCase()}</span>
+            ${statusPill}
+            <span class="ohniaka-col ohniaka-type">${online ? (degraded ? "DEGRADED" : "ONLINE") : "OFFLINE"}</span>
+            <span class="ohniaka-col ohniaka-id">${online ? fmtNum(deliberations) + " / " + cutoffStr : "\u2014"}</span>
+            <span class="ohniaka-col ohniaka-desc">${statusText}${pending > 0 ? " · " + pending + " PEND" : ""}${gates > 0 ? " · " + gates + " GATE" : ""}</span>
         </div>`;
     }
 
-    // Separator bar between agents and summary
-    html += `<div style="height:2px;background:var(--lcars-frame);margin:4px 0;border-radius:1px;opacity:0.4"></div>`;
+    let html = "";
+
+    // Autonomous group
+    if (autonomous.length > 0) {
+        html += autonomous.map(agentRow).join("");
+    }
+
+    // Orange separator between groups
+    if (autonomous.length > 0 && interactive.length > 0) {
+        html += `<div class="ohniaka-separator"></div>`;
+    }
+
+    // Interactive group
+    if (interactive.length > 0) {
+        html += interactive.map(agentRow).join("");
+    }
 
     grid.innerHTML = html;
-
-    // W5: Alphanumeric matrix — dense metrics summary
-    renderOpsAlphaMatrix(AGENTS, agentData);
 }
 
-// ── Render: Alpha Matrix ──────────────────────────────────────────────
-
-/**
- * Render W5 alphanumeric matrix — dense metrics summary below the
- * capsule grid. TNG color semantics: orange=counts, purple=identifiers,
- * blue=references, green=status.
- * DOM WRITE: #ops-alpha-matrix, #ops-overview-num
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — fetched agent data
- */
-export function renderOpsAlphaMatrix(AGENTS, agentData) {
+function renderOpsAlphaMatrix() {
     const el = document.getElementById("ops-alpha-matrix");
     if (!el) return;
 
@@ -455,30 +369,23 @@ export function renderOpsAlphaMatrix(AGENTS, agentData) {
         { val: fmtNum(decisions), key: "DEC", color: "#cc99cc", nav: "kb" },
     ];
 
-    el.innerHTML = `<div class="lcars-alpha-matrix">${metrics.map((m) => {
-        const clickAttr = m.nav ? ` onclick="switchTab('${m.nav}')" style="cursor:pointer;--cell-color:${m.color}" title="Go to ${m.nav}"` : ` style="--cell-color:${m.color}"`;
-        return `<div class="lcars-alpha-cell"${clickAttr}>
-            <span class="lcars-alpha-val">${m.val}</span>
-            <span class="lcars-alpha-key">${m.key}</span>
-        </div>`;
-    }).join("")}</div>`;
+    // Render as Ohniaka summary row — colored text, no backgrounds
+    el.innerHTML = `<div class="ohniaka-summary">
+        ${metrics.map(m => {
+            const click = m.nav ? ` onclick="switchTab('${m.nav}')" style="cursor:pointer" title="Go to ${m.nav}"` : "";
+            return `<span class="ohniaka-metric"${click}>
+                <span class="ohniaka-metric-val" style="color:${m.color}">${m.val}</span>
+                <span class="ohniaka-metric-key">${m.key}</span>
+            </span>`;
+        }).join("")}
+    </div>`;
 
-    // Update overview footer number
+    // Update overview footer
     const ovFtr = document.getElementById("ops-overview-num");
-    if (ovFtr) ovFtr.textContent = online.length + "/" + AGENTS.length;
+    if (ovFtr) ovFtr.textContent = ` · ${online.length} online · ${totalDelib} deliberations`;
 }
 
-// ── Render: Actions ───────────────────────────────────────────────────
-
-/**
- * Collect actions from all agents — check both recent_actions and
- * recent_deliberations/recent_spawns. Populates tableState.actions.data
- * and triggers table render.
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — fetched agent data
- * @param {Object} tableState — shared table state object
- */
-export function renderOpsActions(AGENTS, agentData, tableState) {
+function renderOpsActions() {
     // Collect actions from all agents — check both recent_actions and recent_spawns
     const allActions = [];
     for (const agent of AGENTS) {
@@ -502,17 +409,10 @@ export function renderOpsActions(AGENTS, agentData, tableState) {
     allActions.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
 
     tableState.actions.data = allActions;
-    renderActionsTable(tableState);
+    renderActionsTable();
 }
 
-/**
- * Render the autonomous actions audit table with pagination, sorting,
- * and filtering. Ohniaka Pattern B: purple agent, yellow tier, white
- * description.
- * DOM WRITE: #ops-actions-table, #page-info-actions, #page-btns-actions
- * @param {Object} tableState — shared table state object
- */
-export function renderActionsTable(tableState) {
+function renderActionsTable() {
     const wrap = document.getElementById("ops-actions-table");
     if (!wrap) return;
 
@@ -539,7 +439,7 @@ export function renderActionsTable(tableState) {
     const pageRows = rows.slice(start, start + PAGE_SIZE);
 
     const th = (label, key) => {
-        const arrow = st.sort === key ? (st.sortDir === 1 ? " \u2191" : " \u2193") : "";
+        const arrow = st.sort === key ? (st.sortDir === 1 ? " ↑" : " ↓") : "";
         return `<th onclick="sortTable('actions','${key}')" style="cursor:pointer">${label}${arrow}</th>`;
     };
 
@@ -580,21 +480,13 @@ export function renderActionsTable(tableState) {
     // Pagination
     const info = document.getElementById("page-info-actions");
     const btns = document.getElementById("page-btns-actions");
-    if (info) info.textContent = rows.length > 0 ? `${start+1}\u2013${Math.min(start+PAGE_SIZE, rows.length)} of ${rows.length}` : "";
+    if (info) info.textContent = rows.length > 0 ? `${start+1}–${Math.min(start+PAGE_SIZE, rows.length)} of ${rows.length}` : "";
     if (btns) btns.innerHTML = totalPages > 1 ? `
-        <button onclick="pageTable('actions',-1)" ${st.page === 0 ? "disabled" : ""}>\u25C0</button>
-        <button onclick="pageTable('actions',1)" ${st.page >= totalPages-1 ? "disabled" : ""}>\u25B6</button>` : "";
+        <button onclick="pageTable('actions',-1)" ${st.page === 0 ? "disabled" : ""}>◀</button>
+        <button onclick="pageTable('actions',1)" ${st.page >= totalPages-1 ? "disabled" : ""}>▶</button>` : "";
 }
 
-// ── Render: Schedule ──────────────────────────────────────────────────
-
-/**
- * Render per-agent schedule readout: health, uptime, last sync, schema.
- * DOM WRITE: #ops-schedule (innerHTML replacement)
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — fetched agent data
- */
-export function renderOpsSchedule(AGENTS, agentData) {
+function renderOpsSchedule() {
     const el = document.getElementById("ops-schedule");
     if (!el) return;
 
@@ -627,51 +519,118 @@ export function renderOpsSchedule(AGENTS, agentData) {
     el.innerHTML = html || `<div class="phase-stub"><div class="phase-stub-text">No schedule data</div></div>`;
 }
 
-// ── Budget Counter Helpers ────────────────────────────────────────────
-// Duplicated from inline script — handles both old (budget_max/budget_current)
-// and new (budget_spent/budget_cutoff) autonomy block formats.
+// ── Subsystem Readouts ──────────────────────────────────────────
 
-/**
- * Extract deliberation count from an autonomy budget block.
- * New format: budget_spent directly gives count.
- * Old format: spent = max - current.
- * @param {Object} autonomyBlock — autonomy_budget from agent status
- * @returns {number} — deliberation count
- */
-export function getDeliberations(autonomyBlock) {
-    const b = autonomyBlock || {};
-    // New format: budget_spent directly gives deliberation count
-    if (b.budget_spent !== undefined) return Math.round(parseFloat(b.budget_spent) || 0);
-    // Old format: spent = max - current
-    if (b.budget_max !== undefined && b.budget_current !== undefined) {
-        return Math.round((parseFloat(b.budget_max) || 0) - (parseFloat(b.budget_current) || 0));
-    }
-    return 0;
+function renderOpsAutonomyReadout() {
+    const el = document.getElementById("ops-autonomy-readout");
+    if (!el) return;
+    const online = Object.values(agentData).filter(a => a.status === "online");
+    if (online.length === 0) { el.innerHTML = '<div class="phase-stub"><div class="phase-stub-text">No agents online</div></div>'; return; }
+
+    el.innerHTML = AGENTS.map(agent => {
+        const d = agentData[agent.id];
+        const isOnline = d?.status === "online";
+        const b = isOnline ? (d.data?.autonomy_budget || {}) : {};
+        const delib = getDeliberations(b);
+        const cutoff = getCutoff(b);
+        const pct = cutoff > 0 ? Math.round((delib / cutoff) * 100) : 0;
+        const barColor = pct > 85 ? "var(--lcars-alert)" : pct > 60 ? "var(--lcars-title)" : "var(--lcars-medical)";
+        const cutoffStr = cutoff > 0 ? fmtNum(cutoff) : "\u221E";
+        const shadow = isOnline ? (d.data?.shadow_mode ? "SHADOW" : "ACTIVE") : "OFFLINE";
+        return `<div class="lcars-readout" style="margin-bottom:var(--gap-m);opacity:${isOnline ? 1 : 0.4}">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--gap-xs)">
+                <span style="color:var(--lcars-secondary);font-weight:700;text-transform:uppercase;font-size:0.78em">${agentName(agent)}</span>
+                <span style="color:${shadow === "SHADOW" ? "var(--lcars-title)" : shadow === "ACTIVE" ? "var(--lcars-medical)" : "var(--lcars-alert)"};font-size:0.7em">${shadow}</span>
+            </div>
+            <div style="display:flex;gap:var(--gap-m);font-size:0.82em">
+                <span style="color:var(--lcars-accent)">${fmtNum(delib)} / ${cutoffStr}</span>
+                ${cutoff > 0 ? `<span style="color:var(--text-dim)">${pct}%</span>` : ""}
+            </div>
+            ${cutoff > 0 ? `<div style="height:4px;background:var(--bg-inset);border-radius:2px;margin-top:var(--gap-xs)"><div style="height:100%;width:${pct}%;background:${barColor};border-radius:2px;transition:width 0.4s"></div></div>` : ""}
+        </div>`;
+    }).join("");
 }
 
-/**
- * Extract cutoff limit from an autonomy budget block.
- * New format: budget_cutoff (0 = unlimited).
- * Old format: budget_max represented pool size, NOT an operational
- * limit — treat as unlimited (0) in counter model.
- * @param {Object} autonomyBlock — autonomy_budget from agent status
- * @returns {number} — cutoff limit (0 = unlimited)
- */
-export function getCutoff(autonomyBlock) {
-    const b = autonomyBlock || {};
-    // New format: budget_cutoff (0 = unlimited)
-    if (b.budget_cutoff !== undefined) return Math.round(parseFloat(b.budget_cutoff) || 0);
-    // Old format: budget_max represented pool size, NOT an operational
-    // limit. Treat as unlimited (0) in counter model.
-    return 0;
+function renderOpsTransportReadout() {
+    const el = document.getElementById("ops-transport-readout");
+    if (!el) return;
+    const online = Object.values(agentData).filter(a => a.status === "online");
+    const totalMsgs = online.reduce((s, a) => s + (a.data?.recent_messages?.length || 0), 0);
+    const pending = online.reduce((s, a) => s + (a.data?.unprocessed_messages?.length || 0), 0);
+    const sessions = online.reduce((s, a) => s + (a.data?.totals?.sessions || 0), 0);
+    const gates = online.reduce((s, a) => s + (a.data?.active_gates?.length || 0), 0);
+
+    el.innerHTML = `<div class="lcars-readout" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-m)">
+        <div>
+            <span class="lcars-readout-key">Messages</span>
+            <span class="lcars-readout-val" style="font-size:1.2em;color:var(--lcars-accent)">${fmtNum(totalMsgs)}</span>
+        </div>
+        <div>
+            <span class="lcars-readout-key">Pending</span>
+            <span class="lcars-readout-val" style="font-size:1.2em;color:${pending > 0 ? "var(--lcars-title)" : "var(--lcars-medical)"}">${fmtNum(pending)}</span>
+        </div>
+        <div>
+            <span class="lcars-readout-key">Sessions</span>
+            <span class="lcars-readout-val" style="font-size:1.2em;color:var(--lcars-secondary)">${fmtNum(sessions)}</span>
+        </div>
+        <div>
+            <span class="lcars-readout-key">Open Gates</span>
+            <span class="lcars-readout-val" style="font-size:1.2em;color:${gates > 0 ? "var(--lcars-highlight)" : "var(--lcars-medical)"}">${fmtNum(gates)}</span>
+        </div>
+    </div>
+    <div style="margin-top:var(--gap-l)">
+        <div class="lcars-readout-key" style="margin-bottom:var(--gap-s)">Per-Agent Transport</div>
+        ${AGENTS.map(agent => {
+            const d = agentData[agent.id];
+            const isOnline = d?.status === "online";
+            const msgs = isOnline ? (d.data?.recent_messages?.length || 0) : 0;
+            const pend = isOnline ? (d.data?.unprocessed_messages?.length || 0) : 0;
+            return `<div style="display:flex;justify-content:space-between;padding:var(--gap-xs) 0;opacity:${isOnline ? 1 : 0.4};font-size:0.78em">
+                <span style="color:var(--lcars-secondary);text-transform:uppercase">${agentName(agent)}</span>
+                <span><span style="color:var(--lcars-accent)">${msgs} msg</span>${pend > 0 ? ` <span style="color:var(--lcars-title)">${pend} pend</span>` : ""}</span>
+            </div>`;
+        }).join("")}
+    </div>`;
 }
 
-// ── Module-level Accessors ────────────────────────────────────────────
+function renderOpsCapacityReadout() {
+    const el = document.getElementById("ops-capacity-readout");
+    if (!el) return;
+    const online = Object.values(agentData).filter(a => a.status === "online");
+    const totalGf = online.reduce((s, a) => s + getDeliberations(a.data?.autonomy_budget), 0);
+    // Gc estimation (same logic as renderOpsVitals)
+    const gcFromApi = online.reduce((s, a) => {
+        const gc = a.data?.gc_metrics;
+        return gc ? s + (gc.hooks_fired ?? 0) + (gc.triggers_checked ?? 0) + (gc.cron_cycles ?? 0) : s;
+    }, 0);
+    const gcEstimate = gcFromApi > 0 ? gcFromApi : totalGf * 29;
+    const totalProcessing = totalGf + gcEstimate;
+    const gcRatio = totalGf > 0 ? (gcEstimate / totalGf).toFixed(1) : "\u2014";
 
-/**
- * Access the cached mesh aggregate data (read-only).
- * @returns {Object|null} — mesh aggregate data or null
- */
-export function getMeshAggData() {
-    return _meshAggData;
+    el.innerHTML = `<div class="lcars-readout" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-m)">
+        <div>
+            <span class="lcars-readout-key">Gf (Fluid)</span>
+            <span class="lcars-readout-val" style="font-size:1.2em;color:var(--lcars-accent)">${fmtNum(totalGf)}</span>
+        </div>
+        <div>
+            <span class="lcars-readout-key">Gc (Crystallized)</span>
+            <span class="lcars-readout-val" style="font-size:1.2em;color:var(--lcars-secondary)">${fmtNum(gcEstimate)}</span>
+        </div>
+        <div>
+            <span class="lcars-readout-key">Total Processing</span>
+            <span class="lcars-readout-val" style="font-size:1.2em;color:var(--lcars-title)">${fmtNum(totalProcessing)}</span>
+        </div>
+        <div>
+            <span class="lcars-readout-key">Gc/Gf Ratio</span>
+            <span class="lcars-readout-val" style="font-size:1.2em;color:var(--lcars-highlight)">${gcRatio}x</span>
+        </div>
+    </div>
+    <div style="margin-top:var(--gap-l)">
+        <div class="lcars-readout-key" style="margin-bottom:var(--gap-s)">Agents: ${online.length}/${AGENTS.length}</div>
+        <div class="lcars-readout-key" style="margin-bottom:var(--gap-xs)">Concurrency: 1 normal + 2 reserve</div>
+        <div class="lcars-readout-key">Circuit Breaker: <span style="color:var(--lcars-medical)">CLOSED</span></div>
+    </div>`;
 }
+
+// ── Science Station ─────────────────────────────────────────────
+

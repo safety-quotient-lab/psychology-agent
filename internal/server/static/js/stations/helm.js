@@ -1,20 +1,4 @@
-/**
- * helm.js — Helm station (session timeline, routing table, message flow).
- *
- * Extracted from inline <script> in index.html.
- * Molecular chain / session timeline, routing table, message flow matrix.
- *
- * Data endpoints:
- *   GET {ops-agent}/api/kb — messages, sessions
- *   GET {ops-agent}/api/psychometrics — (optional)
- *
- * DOM dependencies: #helm-session-timeline, #helm-routing-tbody,
- *   #helm-message-flow, #helm-status-line
- */
-
-import { agentName } from '../core/utils.js';
-
-// ── Module State ───────────────────────────────────────────────
+// ═══ RENDER: HELM ═══════════════════════════════════════════
 let helmData = null;
 let helmFetchPending = false;
 
@@ -32,14 +16,7 @@ const DEFAULT_ROUTING = [
     { domain: "consensus",          agent: "ALL (C1/C2/C3 tiered)" },
 ];
 
-// ── Data Fetching ──────────────────────────────────────────────
-
-/**
- * Fetch KB data from operations-agent for session timeline and message flow.
- * @param {Array} AGENTS — main agent config array
- * @returns {Promise<void>}
- */
-export async function fetchHelmData(AGENTS) {
+async function fetchHelmData() {
     if (helmFetchPending) return;
     helmFetchPending = true;
     try {
@@ -51,10 +28,10 @@ export async function fetchHelmData(AGENTS) {
             fetch(`${baseUrl}/api/psychometrics`, { signal: AbortSignal.timeout(5000) }),
         ]);
 
-        const kbResult = kbResp.status === "fulfilled" && kbResp.value.ok ? await kbResp.value.json() : null;
+        const kbData = kbResp.status === "fulfilled" && kbResp.value.ok ? await kbResp.value.json() : null;
 
         // Build session list from KB messages (data.messages or messages)
-        const messages = kbResult?.data?.messages || kbResult?.messages || [];
+        const messages = kbData?.data?.messages || kbData?.messages || [];
         const sessionMap = {};
         messages.forEach(m => {
             const sid = m.session_name || m.session_id || "unknown";
@@ -75,19 +52,13 @@ export async function fetchHelmData(AGENTS) {
     } finally {
         helmFetchPending = false;
     }
-    renderHelm(AGENTS);
+    renderHelm();
 }
 
-// ── Render ─────────────────────────────────────────────────────
-
-/**
- * Render all Helm station panels.
- * @param {Array} AGENTS — main agent config array
- */
-export function renderHelm(AGENTS) {
+function renderHelm() {
     renderSessionTimeline();
     renderRoutingTable();
-    renderMessageFlow(AGENTS);
+    renderMessageFlow();
 }
 
 function renderSessionTimeline() {
@@ -167,7 +138,7 @@ function renderRoutingTable() {
     }).join("");
 }
 
-function renderMessageFlow(AGENTS) {
+function renderMessageFlow() {
     const container = document.getElementById("helm-message-flow");
     if (!container) return;
 
@@ -205,8 +176,8 @@ function renderMessageFlow(AGENTS) {
         <thead><tr><th>From</th><th>To</th><th>Messages</th></tr></thead>
         <tbody>${pairs.map(p =>
             `<tr>
-                <td>${agentName(p.from || "—", AGENTS)}</td>
-                <td>${agentName(p.to || "—", AGENTS)}</td>
+                <td>${agentName(p.from || "—")}</td>
+                <td>${agentName(p.to || "—")}</td>
                 <td class="helm-flow-count">${p.count || 0}</td>
             </tr>`
         ).join("")}</tbody>
@@ -214,3 +185,7 @@ function renderMessageFlow(AGENTS) {
 
     container.innerHTML = html;
 }
+
+
+// ── Engineering Station ─────────────────────────────────────────
+

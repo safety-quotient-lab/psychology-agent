@@ -1,26 +1,4 @@
-/**
- * science.js — Science Station render functions.
- *
- * Extracted from inline <script> in index.html. Contains the isometric 3D PAD
- * affect grid with ISO/PxA/PxD/AxD view switcher (session 8 feature),
- * mesh organism state, generator balance, flow state checklist, distress early
- * warning gauge, level-of-automation ladder, cognitive load (NASA-TLX),
- * working memory + Yerkes-Dodson, resource bars, and engagement (UWES).
- *
- * Data source: GET /api/psychometrics on compositor + per-agent psychometrics.
- *
- * DOM dependencies: #affect-grid, #organism-state-label, generator balance
- *   elements, #flow-checklist, DEW elements, LOA ladder, cognitive load
- *   gauges, working memory elements, resource bars, engagement gauges,
- *   #science-status-line
- */
-
-import {
-    fmtNum, sparklineSVG, waveformSVG, pushSparkValue,
-    agentName, setTrackedValue, renderVlevelGauge, sparkHistory,
-} from '../core/utils.js';
-
-// ── Module State ───────────────────────────────────────────────
+// ═══ RENDER: SCIENCE ════════════════════════════════════════
 let scienceData = null;
 let scienceFetchPending = false;
 
@@ -45,18 +23,7 @@ const AGENT_DOT_DEFAULTS = [
     { agentIdx: 3, left: 40, top: 60 },  // observatory — slight negative valence, low arousal
 ];
 
-let padView = "3d"; // Current PAD projection: 3d, pa, pd, ad
-
-// ── Data Fetching ──────────────────────────────────────────────
-
-/**
- * Fetch psychometrics from compositor and per-agent sources.
- * Stores results in module-level scienceData and triggers render.
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — per-agent cached data keyed by agent ID
- * @returns {Promise<void>}
- */
-export async function fetchScienceData(AGENTS, agentData) {
+async function fetchScienceData() {
     if (scienceFetchPending) return;
     scienceFetchPending = true;
     try {
@@ -98,52 +65,160 @@ export async function fetchScienceData(AGENTS, agentData) {
     } finally {
         scienceFetchPending = false;
     }
-    renderScience(AGENTS, agentData);
+    renderScience();
 }
 
-// ── PAD View Switcher ──────────────────────────────────────────
+function renderScience() {
+    renderNumberGrid("science-zone-a", scienceZoneAMetrics());
+    renderAffectGrid();
+    renderOrganismState();
+    renderGeneratorBalance();
+    renderFlowState();
+    renderDEW();
+    renderLOA();
+    renderCognitiveLoad();
+    renderWorkingMemory();
+    renderResources();
+    renderEngagement();
+    // Update status line
+    const statusLine = document.getElementById("science-status-line");
+    if (statusLine && scienceData) {
+        const agentCount = Object.keys(scienceData.agents || {}).length;
+        const constructs = scienceData.psychometrics ? Object.values(scienceData.psychometrics).filter(v => v != null).length : 0;
+        const affect = scienceData.mesh?.affect?.mesh_affect_category || "unknown";
+        statusLine.textContent = `Psychometric Sensors: ${agentCount} agents \u00B7 Constructs: ${constructs}/7 \u00B7 Mesh Affect: ${affect.replace("mesh-", "")}`;
+    }
+}
 
-/**
- * Switch the PAD affect grid projection view.
- * Exposed on window for button onclick handlers.
- * @param {string} view — "3d", "pa", "pd", or "ad"
- * @param {Array} AGENTS — agent config array
- */
-export function setPadView(view, AGENTS) {
+// ── Sensor: Cognitive Load (NASA-TLX) ─────────────────────────
+function renderCognitiveLoad() {
+    const wl = scienceData?.psychometrics?.cognitive_load || null;
+    const dims = [
+        { id: "cogload-demand-gauge", val: wl?.cognitive_demand },
+        { id: "cogload-pressure-gauge", val: wl?.time_pressure },
+        { id: "cogload-efficacy-gauge", val: wl?.self_efficacy },
+        { id: "cogload-effort-gauge", val: wl?.mobilized_effort },
+        { id: "cogload-fatigue-gauge", val: wl?.regulatory_fatigue },
+        { id: "cogload-strain-gauge", val: wl?.computational_strain },
+    ];
+    dims.forEach(d => {
+        const el = document.getElementById(d.id);
+        if (!el) return;
+        if (d.val == null) { el.innerHTML = '<span style="opacity:0.3">—</span>'; return; }
+        el.innerHTML = renderVlevelGauge(d.val, 7);
+    });
+    const composite = wl?.cognitive_load ?? null;
+    const statusEl = document.getElementById("cogload-status");
+    setTrackedValue("cogload-composite", composite, { format: "float", inverted: true });
+    if (statusEl) {
+        if (composite === null) statusEl.textContent = "AWAITING DATA";
+        else if (composite < 40) { statusEl.textContent = "LOW"; statusEl.style.color = "#6aab8e"; }
+        else if (composite < 70) { statusEl.textContent = "MODERATE"; statusEl.style.color = "#d4944a"; }
+        else { statusEl.textContent = "HIGH"; statusEl.style.color = "#c47070"; }
+    }
+}
+
+// ── Sensor: Working Memory ────────────────────────────────────
+function renderWorkingMemory() {
+    const wm = scienceData?.psychometrics?.working_memory || null;
+    const load = wm?.capacity_load ?? null;
+    const zone = wm?.yerkes_dodson_zone ?? null;
+
+    const loadEl = document.getElementById("workmem-load");
+    const zoneEl = document.getElementById("workmem-zone");
+    const indicator = document.getElementById("workmem-indicator");
+    setTrackedValue("workmem-load", load, { format: "pct", inverted: true });
+    if (zoneEl) {
+        const label = zone || (load !== null
+            ? (load < 0.15 ? "understimulated" : load < 0.6 ? "optimal" : "overwhelmed")
+            : null);
+        if (!label) { zoneEl.textContent = "AWAITING DATA"; zoneEl.style.color = "var(--text-dim)"; }
+        else if (label === "optimal") { zoneEl.textContent = "OPTIMAL — challenge matches capacity"; zoneEl.style.color = "#6aab8e"; }
+        else if (label === "understimulated") { zoneEl.textContent = "UNDERSTIMULATED — insufficient context for reasoning"; zoneEl.style.color = "#66aacc"; }
+        else { zoneEl.textContent = "OVERWHELMED — context interference degrades performance"; zoneEl.style.color = "#c47070"; }
+    }
+    if (indicator && load !== null) {
+        indicator.style.left = `${Math.min(100, Math.max(0, load * 100))}%`;
+    }
+}
+
+// ── Sensor: Resources ─────────────────────────────────────────
+function renderResources() {
+    const res = scienceData?.psychometrics?.resource_model || null;
+
+    const setBar = (fillId, valId, value, inverted) => {
+        const fill = document.getElementById(fillId);
+        if (fill) fill.style.width = value !== null ? `${Math.round(value * 100)}%` : "0%";
+        setTrackedValue(valId, value, { format: "float", inverted: !!inverted });
+    };
+
+    setBar("res-reserve-fill", "res-reserve-val", res?.cognitive_reserve ?? null);
+    setBar("res-regulatory-fill", "res-regulatory-val", res?.self_regulatory_resource ?? null);
+    setBar("res-allostatic-fill", "res-allostatic-val", res?.allostatic_load ?? null, true);
+}
+
+// ── Sensor: Engagement (UWES) ─────────────────────────────────
+function renderEngagement() {
+    const eng = scienceData?.psychometrics?.engagement || null;
+    const dims = [
+        { id: "engage-vigor-gauge", val: eng?.vigor },
+        { id: "engage-dedication-gauge", val: eng?.dedication },
+        { id: "engage-absorption-gauge", val: eng?.absorption },
+    ];
+    dims.forEach(d => {
+        const el = document.getElementById(d.id);
+        if (el) el.innerHTML = renderVlevelGauge(d.val ?? 0, 5);
+    });
+
+    const risk = eng?.burnout_risk ?? null;
+    const indicator = document.getElementById("burnout-indicator");
+    const label = document.getElementById("burnout-label");
+    if (indicator && label) {
+        if (risk === null) {
+            label.textContent = "BURNOUT RISK: AWAITING DATA";
+            indicator.style.background = "rgba(74,82,97,0.1)";
+            label.style.color = "var(--text-dim)";
+        } else if (risk < 0.3) {
+            label.textContent = "ENGAGED — demands well within resources";
+            indicator.style.background = "rgba(106,171,142,0.1)";
+            label.style.color = "#6aab8e";
+        } else if (risk < 0.6) {
+            label.textContent = "MONITORING — demands approaching resource limits";
+            indicator.style.background = "rgba(212,149,74,0.1)";
+            label.style.color = "#d4944a";
+        } else {
+            label.textContent = "BURNOUT RISK — demands exceed available resources";
+            indicator.style.background = "rgba(196,112,112,0.1)";
+            label.style.color = "#c47070";
+        }
+    }
+}
+
+let padView = "3d"; // Current PAD projection: 3d, pa, pd, ad
+window.setPadView = function(view) {
     padView = view;
     ["3d", "pa", "pd", "ad"].forEach(v => {
         const btn = document.getElementById("pad-view-" + v);
         if (btn) btn.className = "lcars-pill-btn lcars-pill-sm" + (v === view ? " lcars-pill-active" : "");
     });
-    renderAffectGrid(AGENTS);
-}
+    renderAffectGrid();
+};
 
-// ── Isometric Projection Helper ────────────────────────────────
-
-/**
- * Map (x,y,z) in [0,1] to 2D screen coords using isometric projection.
- * x goes right-down, y goes left-down, z goes up.
- */
+// Isometric projection helper: map (x,y,z) in [0,1] to 2D screen coords
 function isoProject(x, y, z, w, h) {
+    // Slightly rotated isometric — prevents 0,0 and 1,1 from aligning vertically.
+    // 15° rotation offset applied to the x-y plane before projection.
+    const rot = 0.26; // ~15° in radians
+    const rx = x * Math.cos(rot) - y * Math.sin(rot);
+    const ry = x * Math.sin(rot) + y * Math.cos(rot);
     const scale = Math.min(w, h) * 0.38;
     const cx = w / 2, cy = h * 0.55;
-    const sx = (x - y) * scale * 0.866;          // cos(30°)
-    const sy = (x + y) * scale * 0.5 - z * scale; // sin(30°) - z
+    const sx = (rx - ry) * scale * 0.866;
+    const sy = (rx + ry) * scale * 0.5 - z * scale;
     return { sx: cx + sx, sy: cy + sy };
 }
 
-// ── Render: Affect Grid (Isometric 3D PAD) ─────────────────────
-
-/**
- * Render the isometric 3D PAD affect grid with ISO/PxA/PxD/AxD view switcher.
- * Key session 8 feature — maps Pleasure/Arousal/Dominance into a 3D cube
- * wireframe with agent dots projected into the space.
- *
- * DOM WRITE: #affect-grid (innerHTML manipulation), axis labels,
- *   #affect-grid-placeholder visibility
- * @param {Array} AGENTS — agent config array
- */
-export function renderAffectGrid(AGENTS) {
+function renderAffectGrid() {
     const container = document.getElementById("affect-grid");
     const placeholder = document.getElementById("affect-grid-placeholder");
     if (!container) return;
@@ -277,17 +352,7 @@ export function renderAffectGrid(AGENTS) {
     }
 }
 
-// ── Render: Organism State ─────────────────────────────────────
-
-/**
- * Render mesh affect aggregate — organism state label, valence, activation,
- * bottleneck, and coordination. Applies affect-responsive layout mode.
- *
- * DOM WRITE: #organism-state-label, #organism-valence, #organism-activation,
- *   #organism-bottleneck, #organism-coord
- * @param {Function} applyAffectMode — callback to apply affect-responsive layout
- */
-export function renderOrganismState(applyAffectMode) {
+function renderOrganismState() {
     const labelEl = document.getElementById("organism-state-label");
     const valEl = document.getElementById("organism-valence");
     const actEl = document.getElementById("organism-activation");
@@ -297,30 +362,21 @@ export function renderOrganismState(applyAffectMode) {
 
     const mesh = scienceData?.mesh || null;
     const affect = mesh?.affect || {};
-    const stateLabel = affect.mesh_affect_category?.replace("mesh-", "")?.toUpperCase() || "\u2014";
+    const stateLabel = affect.mesh_affect_category?.replace("mesh-", "")?.toUpperCase() || "—";
     labelEl.textContent = stateLabel;
     setTrackedValue("organism-valence", affect.mean_hedonic_valence ?? null, { format: "float", prefix: (affect.mean_hedonic_valence ?? 0) >= 0 ? "+" : "" });
     setTrackedValue("organism-activation", affect.mean_activation ?? null, { format: "float" });
     const reserve = mesh?.cognitive_reserve || {};
-    if (bottEl) bottEl.textContent = agentName(reserve.bottleneck_agent || "") || "\u2014";
+    if (bottEl) bottEl.textContent = agentName(reserve.bottleneck_agent || "") || "—";
     setTrackedValue("organism-coord", reserve.mean_reserve ?? null, { format: "float" });
 
     // Apply affect-responsive layout mode based on organism state
-    if (stateLabel !== "\u2014" && document.body.classList.contains("theme-lcars") && applyAffectMode) {
+    if (stateLabel !== "—" && document.body.classList.contains("theme-lcars")) {
         applyAffectMode(stateLabel.toLowerCase().replace(/\s+/g, "-"));
     }
 }
 
-// ── Render: Generator Balance ──────────────────────────────────
-
-/**
- * Render G2/G3 (creative vs evaluative) and G6/G7 (crystallize vs dissolve)
- * balance indicators from per-agent data.
- *
- * DOM WRITE: gen-g2g3-* and gen-g6g7-* elements
- * @param {Object} agentData — per-agent cached data keyed by agent ID
- */
-export function renderGeneratorBalance(agentData) {
+function renderGeneratorBalance() {
     // G2/G3: creative (deliberations) vs evaluative (automated Gc events)
     // Source: agentData deliberation_count + event_count per agent
     const online = Object.values(agentData).filter(a => a.status === "online");
@@ -344,14 +400,7 @@ export function renderGeneratorBalance(agentData) {
     renderOneGenerator("g6g7", g6g7, 0.5, 5);
 }
 
-/**
- * Render a single generator balance bar.
- * @param {string} prefix — element ID prefix ("g2g3" or "g6g7")
- * @param {Object|null} data — { ratio } or null
- * @param {number} targetLow — lower bound for nominal range
- * @param {number} targetHigh — upper bound for nominal range
- */
-export function renderOneGenerator(prefix, data, targetLow, targetHigh) {
+function renderOneGenerator(prefix, data, targetLow, targetHigh) {
     const leftEl = document.getElementById(`gen-${prefix}-left`);
     const rightEl = document.getElementById(`gen-${prefix}-right`);
     const ratioEl = document.getElementById(`gen-${prefix}-ratio`);
@@ -361,7 +410,7 @@ export function renderOneGenerator(prefix, data, targetLow, targetHigh) {
     if (!data) {
         leftEl.style.width = "50%";
         rightEl.style.width = "50%";
-        ratioEl.textContent = "\u2014";
+        ratioEl.textContent = "—";
         statusEl.textContent = "AWAITING DATA";
         statusEl.className = "gen-balance-status gen-status-nominal";
         return;
@@ -383,13 +432,7 @@ export function renderOneGenerator(prefix, data, targetLow, targetHigh) {
     statusEl.className = `gen-balance-status ${withinTarget ? "gen-status-nominal" : "gen-status-drift"}`;
 }
 
-// ── Render: Flow State ─────────────────────────────────────────
-
-/**
- * Render the flow state checklist — 5 conditions with pass/fail marks.
- * DOM WRITE: #flow-checklist, #flow-status-label
- */
-export function renderFlowState() {
+function renderFlowState() {
     const listEl = document.getElementById("flow-checklist");
     const statusEl = document.getElementById("flow-status-label");
     if (!listEl) return;
@@ -416,15 +459,7 @@ export function renderFlowState() {
     }
 }
 
-// ── Render: Distress Early Warning (DEW) ───────────────────────
-
-/**
- * Render the DEW gauge — composite distress score from burnout risk
- * and cognitive load. Green/Amber/Red classification.
- *
- * DOM WRITE: #dew-score, #dew-bar-fill, #dew-status
- */
-export function renderDEW() {
+function renderDEW() {
     const scoreEl = document.getElementById("dew-score");
     const fillEl = document.getElementById("dew-bar-fill");
     const statusEl = document.getElementById("dew-status");
@@ -440,7 +475,7 @@ export function renderDEW() {
     const score = dew?.score ?? null;
 
     if (score == null) {
-        scoreEl.textContent = "\u2014";
+        scoreEl.textContent = "—";
         scoreEl.className = "dew-score dew-green";
         fillEl.style.width = "0%";
         statusEl.textContent = "AWAITING DATA";
@@ -450,7 +485,7 @@ export function renderDEW() {
 
     const colorClass = score <= 30 ? "dew-green" : score <= 60 ? "dew-amber" : "dew-red";
     const colorHex = score <= 30 ? "#6aab8e" : score <= 60 ? "#d4944a" : "#c47070";
-    const statusText = score <= 30 ? "GREEN" : score <= 60 ? "AMBER \u2014 EARLY WARNING" : "RED \u2014 DEGRADATION DETECTED";
+    const statusText = score <= 30 ? "GREEN" : score <= 60 ? "AMBER — EARLY WARNING" : "RED — DEGRADATION DETECTED";
 
     setTrackedValue("dew-score", score, { inverted: true });
     scoreEl.className = `dew-score ${colorClass}`;
@@ -460,13 +495,7 @@ export function renderDEW() {
     statusEl.className = `dew-status ${colorClass}`;
 }
 
-// ── Render: Level of Automation (LOA) ──────────────────────────
-
-/**
- * Render the LOA ladder — 10-level automation scale with active highlight.
- * DOM WRITE: #loa-ladder, #loa-budget-val
- */
-export function renderLOA() {
+function renderLOA() {
     const ladderEl = document.getElementById("loa-ladder");
     const budgetEl = document.getElementById("loa-budget-val");
     if (!ladderEl) return;
@@ -484,160 +513,5 @@ export function renderLOA() {
     setTrackedValue("loa-budget-val", remaining);
 }
 
-// ── Render: Cognitive Load (NASA-TLX) ──────────────────────────
+// ── Helm Station ─────────────────────────────────────────────────
 
-/**
- * Render 6-dimension NASA-TLX cognitive load gauges with composite score
- * and status classification.
- *
- * DOM WRITE: cogload-*-gauge elements, #cogload-composite, #cogload-status
- */
-export function renderCognitiveLoad() {
-    const wl = scienceData?.psychometrics?.cognitive_load || null;
-    const dims = [
-        { id: "cogload-demand-gauge", val: wl?.cognitive_demand },
-        { id: "cogload-pressure-gauge", val: wl?.time_pressure },
-        { id: "cogload-efficacy-gauge", val: wl?.self_efficacy },
-        { id: "cogload-effort-gauge", val: wl?.mobilized_effort },
-        { id: "cogload-fatigue-gauge", val: wl?.regulatory_fatigue },
-        { id: "cogload-strain-gauge", val: wl?.computational_strain },
-    ];
-    dims.forEach(d => {
-        const el = document.getElementById(d.id);
-        if (!el) return;
-        if (d.val == null) { el.innerHTML = '<span style="opacity:0.3">\u2014</span>'; return; }
-        el.innerHTML = renderVlevelGauge(d.val, 7);
-    });
-    const composite = wl?.cognitive_load ?? null;
-    const statusEl = document.getElementById("cogload-status");
-    setTrackedValue("cogload-composite", composite, { format: "float", inverted: true });
-    if (statusEl) {
-        if (composite === null) statusEl.textContent = "AWAITING DATA";
-        else if (composite < 40) { statusEl.textContent = "LOW"; statusEl.style.color = "#6aab8e"; }
-        else if (composite < 70) { statusEl.textContent = "MODERATE"; statusEl.style.color = "#d4944a"; }
-        else { statusEl.textContent = "HIGH"; statusEl.style.color = "#c47070"; }
-    }
-}
-
-// ── Render: Working Memory ─────────────────────────────────────
-
-/**
- * Render working memory capacity load + Yerkes-Dodson zone indicator.
- * DOM WRITE: #workmem-load, #workmem-zone, #workmem-indicator
- */
-export function renderWorkingMemory() {
-    const wm = scienceData?.psychometrics?.working_memory || null;
-    const load = wm?.capacity_load ?? null;
-    const zone = wm?.yerkes_dodson_zone ?? null;
-
-    const loadEl = document.getElementById("workmem-load");
-    const zoneEl = document.getElementById("workmem-zone");
-    const indicator = document.getElementById("workmem-indicator");
-    setTrackedValue("workmem-load", load, { format: "pct", inverted: true });
-    if (zoneEl) {
-        const label = zone || (load !== null
-            ? (load < 0.15 ? "understimulated" : load < 0.6 ? "optimal" : "overwhelmed")
-            : null);
-        if (!label) { zoneEl.textContent = "AWAITING DATA"; zoneEl.style.color = "var(--text-dim)"; }
-        else if (label === "optimal") { zoneEl.textContent = "OPTIMAL \u2014 challenge matches capacity"; zoneEl.style.color = "#6aab8e"; }
-        else if (label === "understimulated") { zoneEl.textContent = "UNDERSTIMULATED \u2014 insufficient context for reasoning"; zoneEl.style.color = "#66aacc"; }
-        else { zoneEl.textContent = "OVERWHELMED \u2014 context interference degrades performance"; zoneEl.style.color = "#c47070"; }
-    }
-    if (indicator && load !== null) {
-        indicator.style.left = `${Math.min(100, Math.max(0, load * 100))}%`;
-    }
-}
-
-// ── Render: Resources ──────────────────────────────────────────
-
-/**
- * Render cognitive reserve, self-regulatory, and allostatic load bars.
- * DOM WRITE: res-reserve-fill, res-regulatory-fill, res-allostatic-fill,
- *   and corresponding value elements
- */
-export function renderResources() {
-    const res = scienceData?.psychometrics?.resource_model || null;
-
-    const setBar = (fillId, valId, value, inverted) => {
-        const fill = document.getElementById(fillId);
-        if (fill) fill.style.width = value !== null ? `${Math.round(value * 100)}%` : "0%";
-        setTrackedValue(valId, value, { format: "float", inverted: !!inverted });
-    };
-
-    setBar("res-reserve-fill", "res-reserve-val", res?.cognitive_reserve ?? null);
-    setBar("res-regulatory-fill", "res-regulatory-val", res?.self_regulatory_resource ?? null);
-    setBar("res-allostatic-fill", "res-allostatic-val", res?.allostatic_load ?? null, true);
-}
-
-// ── Render: Engagement (UWES) ──────────────────────────────────
-
-/**
- * Render UWES engagement dimensions (vigor, dedication, absorption)
- * and burnout risk indicator.
- *
- * DOM WRITE: engage-*-gauge elements, #burnout-indicator, #burnout-label
- */
-export function renderEngagement() {
-    const eng = scienceData?.psychometrics?.engagement || null;
-    const dims = [
-        { id: "engage-vigor-gauge", val: eng?.vigor },
-        { id: "engage-dedication-gauge", val: eng?.dedication },
-        { id: "engage-absorption-gauge", val: eng?.absorption },
-    ];
-    dims.forEach(d => {
-        const el = document.getElementById(d.id);
-        if (el) el.innerHTML = renderVlevelGauge(d.val ?? 0, 5);
-    });
-
-    const risk = eng?.burnout_risk ?? null;
-    const indicator = document.getElementById("burnout-indicator");
-    const label = document.getElementById("burnout-label");
-    if (indicator && label) {
-        if (risk === null) {
-            label.textContent = "BURNOUT RISK: AWAITING DATA";
-            indicator.style.background = "rgba(74,82,97,0.1)";
-            label.style.color = "var(--text-dim)";
-        } else if (risk < 0.3) {
-            label.textContent = "ENGAGED \u2014 demands well within resources";
-            indicator.style.background = "rgba(106,171,142,0.1)";
-            label.style.color = "#6aab8e";
-        } else if (risk < 0.6) {
-            label.textContent = "MONITORING \u2014 demands approaching resource limits";
-            indicator.style.background = "rgba(212,149,74,0.1)";
-            label.style.color = "#d4944a";
-        } else {
-            label.textContent = "BURNOUT RISK \u2014 demands exceed available resources";
-            indicator.style.background = "rgba(196,112,112,0.1)";
-            label.style.color = "#c47070";
-        }
-    }
-}
-
-// ── Render: Combined Science ───────────────────────────────────
-
-/**
- * Render all Science station sub-sections.
- * @param {Array} AGENTS — agent config array
- * @param {Object} agentData — per-agent cached data keyed by agent ID
- * @param {Function} [applyAffectMode] — optional callback for affect-responsive layout
- */
-export function renderScience(AGENTS, agentData, applyAffectMode) {
-    renderAffectGrid(AGENTS);
-    renderOrganismState(applyAffectMode);
-    renderGeneratorBalance(agentData);
-    renderFlowState();
-    renderDEW();
-    renderLOA();
-    renderCognitiveLoad();
-    renderWorkingMemory();
-    renderResources();
-    renderEngagement();
-    // Update status line
-    const statusLine = document.getElementById("science-status-line");
-    if (statusLine && scienceData) {
-        const agentCount = Object.keys(scienceData.agents || {}).length;
-        const constructs = scienceData.psychometrics ? Object.values(scienceData.psychometrics).filter(v => v != null).length : 0;
-        const affect = scienceData.mesh?.affect?.mesh_affect_category || "unknown";
-        statusLine.textContent = `Psychometric Sensors: ${agentCount} agents \u00B7 Constructs: ${constructs}/7 \u00B7 Mesh Affect: ${affect.replace("mesh-", "")}`;
-    }
-}

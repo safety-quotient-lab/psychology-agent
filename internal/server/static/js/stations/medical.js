@@ -1,98 +1,27 @@
-/**
- * medical.js — Medical station (per-agent diagnostic focus).
- *
- * Extracted from inline <script> in index.html.
- * Agent selector, vitals matrix, oscillator, tempo, psychometrics (TLX, WM, resources, DEW).
- *
- * Data endpoints:
- *   GET {agent.url}/api/oscillator — oscillator state
- *   GET {agent.url}/api/cognitive-tempo — recommended tier, gain, complexity
- *   GET https://interagent.safety-quotient.dev/api/psychometrics — per-agent psychometrics
- *
- * DOM dependencies: #med-agent-selector, #med-vitals-matrix, #med-oscillator,
- *   #med-signals, #med-fire-history, #med-refractory, #med-tempo,
- *   #med-cognitive-load, #med-working-memory, #med-resources, #med-dew,
- *   #med-status-line, #med-footer-num
- */
-
-import {
-    fmtNum, agentName, waveformSVG, setTrackedValue,
-} from '../core/utils.js';
-
-// ── Module State ───────────────────────────────────────────────
+// ═══ RENDER: MEDICAL ════════════════════════════════════════
 let medSelectedAgent = "operations-agent";
 let medPsychData = {};
 
-// ── Helper ─────────────────────────────────────────────────────
-
-/**
- * Get deliberation count from autonomy budget block.
- * @param {Object} autonomyBlock
- * @returns {number}
- */
-function getDeliberations(autonomyBlock) {
-    const b = autonomyBlock || {};
-    if (b.budget_spent !== undefined) return Math.round(parseFloat(b.budget_spent) || 0);
-    if (b.budget_max !== undefined && b.budget_current !== undefined) {
-        return Math.round((parseFloat(b.budget_max) || 0) - (parseFloat(b.budget_current) || 0));
-    }
-    return 0;
-}
-
-function getCutoff(autonomyBlock) {
-    const b = autonomyBlock || {};
-    if (b.budget_cutoff !== undefined) return Math.round(parseFloat(b.budget_cutoff) || 0);
-    return 0;
-}
-
-function medBar(label, val, max, color) {
-    const pct = max > 0 ? Math.min(100, (val / max) * 100) : 0;
-    return '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:0.78em">'
-        + '<span style="min-width:48px;color:var(--text-secondary)">' + label + '</span>'
-        + '<div style="flex:1;height:10px;background:var(--surface);border-radius:3px;overflow:hidden"><div style="height:100%;width:' + pct.toFixed(0) + '%;background:' + color + ';border-radius:3px"></div></div>'
-        + '<span style="min-width:28px;text-align:right;font-size:0.9em">' + (typeof val === "number" ? val.toFixed(1) : "—") + '</span></div>';
-}
-
-// ── Agent Selector ─────────────────────────────────────────────
-
-/**
- * Render the agent selector pill bar.
- * @param {Array} AGENTS — main agent config array
- */
-export function renderMedAgentSelector(AGENTS) {
+function renderMedAgentSelector() {
     const sel = document.getElementById("med-agent-selector");
     if (!sel) return;
     sel.innerHTML = AGENTS.map(function(a) {
         const active = a.id === medSelectedAgent;
+        // LCARS canon: inactive pills show muted agent color (opacity), active shows full
         const bg = active ? a.color : "color-mix(in srgb, " + a.color + " 35%, #111)";
         const textColor = active ? "#000" : a.color;
-        return '<button class="lcars-pill-btn" style="font-size:0.72em;padding:6px 14px;background:' + bg + ';color:' + textColor + (active ? ";box-shadow:0 0 8px " + a.color : ";opacity:0.7") + '" onclick="selectMedAgent(\'' + a.id + '\')">' + agentName(a, AGENTS) + '</button>';
+        return '<button class="lcars-pill-btn" style="font-size:0.72em;padding:6px 14px;background:' + bg + ';color:' + textColor + (active ? ";box-shadow:0 0 8px " + a.color : ";opacity:0.7") + '" onclick="selectMedAgent(\'' + a.id + '\')">' + agentName(a) + '</button>';
     }).join("");
 }
-
-/**
- * Select a medical agent and re-fetch data.
- * @param {string} agentId
- * @param {Array} AGENTS
- * @param {Object} agentData
- */
-export function selectMedAgent(agentId, AGENTS, agentData) {
+window.selectMedAgent = function(agentId) {
     medSelectedAgent = agentId;
-    renderMedAgentSelector(AGENTS);
-    fetchMedicalData(AGENTS, agentData);
-}
+    renderMedAgentSelector();
+    fetchMedicalData();
+};
 
-// ── Data Fetching ──────────────────────────────────────────────
-
-/**
- * Fetch oscillator + tempo + psychometrics for selected agent.
- * @param {Array} AGENTS — main agent config array
- * @param {Object} agentData — global agent data
- * @returns {Promise<void>}
- */
-export async function fetchMedicalData(AGENTS, agentData) {
-    renderMedAgentSelector(AGENTS);
-    renderMedVitalsMatrix(AGENTS, agentData); // Zone A: agent vitals from agentData
+async function fetchMedicalData() {
+    renderMedAgentSelector();
+    renderMedVitalsMatrix(); // Zone A: agent vitals from agentData
     const agent = AGENTS.find(function(a) { return a.id === medSelectedAgent; });
     if (!agent) return;
 
@@ -137,17 +66,11 @@ export async function fetchMedicalData(AGENTS, agentData) {
 
     // Footer number
     const medFtr = document.getElementById("med-footer-num");
-    if (medFtr) medFtr.textContent = agentName(agent, AGENTS);
+    if (medFtr) medFtr.textContent = agentName(agent);
 }
 
-// ── Render: Vitals Matrix ──────────────────────────────────────
-
-/**
- * Zone A: Vitals matrix — Weather Net style dense readout for selected agent.
- * @param {Array} AGENTS
- * @param {Object} agentData
- */
-export function renderMedVitalsMatrix(AGENTS, agentData) {
+// Zone A: Vitals matrix — Weather Net style dense readout for selected agent
+function renderMedVitalsMatrix() {
     const el = document.getElementById("med-vitals-matrix");
     if (!el) return;
     const d = agentData[medSelectedAgent];
@@ -180,9 +103,7 @@ export function renderMedVitalsMatrix(AGENTS, agentData) {
     }).join("") + '</div>';
 }
 
-// ── Render: Oscillator ─────────────────────────────────────────
-
-export function renderMedicalOscillator(osc) {
+function renderMedicalOscillator(osc) {
     // Status line
     const statusLine = document.getElementById("med-status-line");
     if (statusLine) {
@@ -270,9 +191,7 @@ export function renderMedicalOscillator(osc) {
     }
 }
 
-// ── Render: Tempo ──────────────────────────────────────────────
-
-export function renderMedicalTempo(tempo) {
+function renderMedicalTempo(tempo) {
     const el = document.getElementById("med-tempo");
     if (!el) return;
     const tierColor = tempo.recommended_tier === "opus" ? "#c47070" : tempo.recommended_tier === "sonnet" ? "#d4944a" : "#66ccaa";
@@ -283,9 +202,15 @@ export function renderMedicalTempo(tempo) {
         + '</div>';
 }
 
-// ── Render: Psychometrics ──────────────────────────────────────
+function medBar(label, val, max, color) {
+    const pct = max > 0 ? Math.min(100, (val / max) * 100) : 0;
+    return '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:0.78em">'
+        + '<span style="min-width:48px;color:var(--text-secondary)">' + label + '</span>'
+        + '<div style="flex:1;height:10px;background:var(--surface);border-radius:3px;overflow:hidden"><div style="height:100%;width:' + pct.toFixed(0) + '%;background:' + color + ';border-radius:3px"></div></div>'
+        + '<span style="min-width:28px;text-align:right;font-size:0.9em">' + (typeof val === "number" ? val.toFixed(1) : "—") + '</span></div>';
+}
 
-export function renderMedPsychometrics(data) {
+function renderMedPsychometrics(data) {
     // Cognitive Load (NASA-TLX) — only render dimensions that have non-null data
     const clEl = document.getElementById("med-cognitive-load");
     if (clEl) {
@@ -353,3 +278,5 @@ export function renderMedPsychometrics(data) {
         }
     }
 }
+
+
