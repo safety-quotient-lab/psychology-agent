@@ -255,10 +255,24 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
         color-mix(in srgb, var(--lcars-frame) 85%, #1a1000) 100%
     ) !important;
 }
-/* Header structural elements — gradient runs top→bottom */
+/* Header structural elements — same gradient as sidebar (top→bottom
+   perpendicular to the bar, matching the sidebar's left→right).
+   Using top→bottom so horizontal bars simulate same material. */
 .theme-lcars .lcars-hdr-arm,
 .theme-lcars .lcars-hdr-endcap {
     background: linear-gradient(180deg,
+        color-mix(in srgb, var(--lcars-frame) 78%, #1a1000) 0%,
+        color-mix(in srgb, var(--lcars-frame) 88%, #2a1800) 8%,
+        var(--lcars-frame) 25%,
+        color-mix(in srgb, var(--lcars-frame) 92%, #ffe8cc) 38%,
+        color-mix(in srgb, var(--lcars-frame) 95%, #fff4e0) 55%,
+        var(--lcars-frame) 72%,
+        color-mix(in srgb, var(--lcars-frame) 85%, #1a1000) 100%
+    ) !important;
+}
+/* Sidebar endcap (top cap) — same gradient as rest of sidebar */
+.theme-lcars .lcars-sidebar-cap-top {
+    background: linear-gradient(90deg,
         color-mix(in srgb, var(--lcars-frame) 78%, #1a1000) 0%,
         color-mix(in srgb, var(--lcars-frame) 88%, #2a1800) 8%,
         var(--lcars-frame) 25%,
@@ -328,6 +342,8 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     height: 100%;
     z-index: 10;
     pointer-events: none;
+    /* Elbow uses midpoint of the gradient (pure frame color) —
+       at 24px scale the gradient variation is imperceptible */
     background: radial-gradient(
         circle at 100% 100%,
         transparent 0%,
