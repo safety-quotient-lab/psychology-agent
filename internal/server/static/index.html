@@ -50,15 +50,15 @@
     <!-- LCARS Sidebar — Trek bridge stations (semantic colors) -->
     <nav class="lcars-sidebar" id="lcars-sidebar">
         <div class="lcars-sidebar-cap-top"></div>
-        <div class="lcars-sidebar-drop" style="background:var(--c-knowledge)"></div>
-        <button class="lcars-sidebar-btn active" data-tab="operations" data-short="OPS" style="background:var(--lcars-accent)" onclick="switchTab('operations')">Operations</button>
+        <div class="lcars-sidebar-drop" style="background:var(--lcars-tertiary)"></div>
+        <button class="lcars-sidebar-btn active" data-tab="operations" data-short="OPS" style="background:var(--lcars-secondary)" onclick="switchTab('operations')">Operations</button>
         <button class="lcars-sidebar-btn" data-tab="science" data-short="SCI" style="background:var(--lcars-tertiary)" onclick="switchTab('science')">Science</button>
-        <div class="lcars-sidebar-spacer" style="background:var(--lcars-secondary)"></div>
-        <button class="lcars-sidebar-btn" data-tab="engineering" data-short="ENG" style="background:var(--c-tab-engineering)" onclick="switchTab('engineering')">Engineering</button>
-        <button class="lcars-sidebar-btn" data-tab="helm" data-short="HLM" style="background:var(--c-tab-helm)" onclick="switchTab('helm')">Helm</button>
-        <div class="lcars-sidebar-spacer" style="background:var(--c-inactive)"></div>
-        <button class="lcars-sidebar-btn" data-tab="tactical" data-short="TAC" style="background:var(--lcars-alert)" onclick="switchTab('tactical')">Tactical</button>
-        <button class="lcars-sidebar-btn" data-tab="medical" data-short="MED" style="background:var(--lcars-medical)" onclick="switchTab('medical')">Medical</button>
+        <div class="lcars-sidebar-spacer" style="background:var(--lcars-highlight)"></div>
+        <button class="lcars-sidebar-btn" data-tab="engineering" data-short="ENG" style="background:var(--lcars-secondary)" onclick="switchTab('engineering')">Engineering</button>
+        <button class="lcars-sidebar-btn" data-tab="helm" data-short="HLM" style="background:var(--lcars-tertiary)" onclick="switchTab('helm')">Helm</button>
+        <div class="lcars-sidebar-spacer" style="background:var(--lcars-highlight)"></div>
+        <button class="lcars-sidebar-btn" data-tab="tactical" data-short="TAC" style="background:var(--lcars-secondary)" onclick="switchTab('tactical')">Tactical</button>
+        <button class="lcars-sidebar-btn" data-tab="medical" data-short="MED" style="background:var(--lcars-tertiary)" onclick="switchTab('medical')">Medical</button>
         <div class="lcars-sidebar-arm"></div>
         <div class="lcars-sidebar-exit" onclick="setTheme('system')" title="Exit LCARS mode">&#x2716;</div>
     </nav>
@@ -79,12 +79,12 @@
                 <div class="stardate-tray-pill" style="background:var(--lcars-tertiary)" id="lcars-tray-health">&#x25CF; —</div>
             </div>
         </div>
-        <div class="lcars-header-seg lcars-hdr-collapse-tablet" style="background:var(--lcars-tertiary);flex:1" id="lcars-hdr-agents">— Agents</div>
-        <div class="lcars-header-seg lcars-hdr-collapse-tablet" style="background:var(--lcars-accent);flex:1" id="lcars-hdr-msgs">— Messages</div>
-        <div class="lcars-header-seg lcars-hdr-keep-tablet" style="background:var(--lcars-frame);flex:0.8" id="lcars-hdr-proto">A2A/1.0.0</div>
-        <div class="lcars-header-seg lcars-hdr-keep-tablet" style="background:var(--lcars-highlight);flex:1" id="lcars-hdr-psych">A2A-PSYCH/v1</div>
+        <div class="lcars-header-seg lcars-hdr-collapse-tablet" style="background:var(--lcars-secondary);flex:1" id="lcars-hdr-agents">— Agents</div>
+        <div class="lcars-header-seg lcars-hdr-collapse-tablet" style="background:var(--lcars-tertiary);flex:1" id="lcars-hdr-msgs">— Messages</div>
+        <div class="lcars-header-seg lcars-hdr-keep-tablet" style="background:var(--lcars-highlight);flex:0.8" id="lcars-hdr-proto">A2A/1.0.0</div>
+        <div class="lcars-header-seg lcars-hdr-keep-tablet" style="background:var(--lcars-secondary);flex:1" id="lcars-hdr-psych">A2A-PSYCH/v1</div>
         <div class="lcars-header-seg lcars-hdr-keep-tablet" style="background:var(--lcars-tertiary);flex:0.5" id="lcars-hdr-health">&#x25CF; —</div>
-        <div class="lcars-hdr-endcap" style="background:var(--lcars-secondary)"></div>
+        <div class="lcars-hdr-endcap" style="background:var(--lcars-highlight)"></div>
     </div>
 
     <!-- Standard Header (dark/light mode) -->
@@ -1557,6 +1557,32 @@
     let currentAlertLevel = 5; // GREEN
     let manualAlertOverride = null;
 
+    // Track when agents first went offline (for timed escalation)
+    const agentOfflineSince = {}; // agentId → Date timestamp
+    const ALERT_ESCALATION_MS = 60_000; // 60s: yellow → red
+
+    // Update offline timestamps on each evaluation cycle
+    function updateOfflineTimestamps() {
+        for (const [agentId, info] of Object.entries(agentData)) {
+            if (info?.status === "unreachable") {
+                if (!agentOfflineSince[agentId]) {
+                    agentOfflineSince[agentId] = Date.now();
+                }
+            } else {
+                delete agentOfflineSince[agentId];
+            }
+        }
+    }
+
+    function offlineAgentCount() {
+        return Object.values(agentData).filter(a => a?.status === "unreachable").length;
+    }
+
+    function anyAgentOfflineLong() {
+        const now = Date.now();
+        return Object.values(agentOfflineSince).some(ts => (now - ts) >= ALERT_ESCALATION_MS);
+    }
+
     const ALERT_TRIGGERS = [
         // YELLOW (level 3) triggers
         { level: 3, name: "autonomy-high",
@@ -1570,10 +1596,20 @@
         { level: 3, name: "agent-degraded",
           test: () => Object.values(agentData).some(a => a?.data?.health === "degraded"),
           description: "Agent health degraded" },
-        // RED (level 2) triggers
-        { level: 2, name: "agent-offline",
-          test: () => Object.values(agentData).some(a => a?.status === "unreachable"),
-          description: "Agent offline — unreachable" },
+        // YELLOW for brief offline (1-2 agents, <60s)
+        { level: 3, name: "agent-offline-brief",
+          test: () => {
+              const count = offlineAgentCount();
+              return count > 0 && count <= 2 && !anyAgentOfflineLong();
+          },
+          description: "Agent briefly offline (<60s)" },
+        // RED (level 2) triggers — sustained offline (>60s) or 3+ agents down
+        { level: 2, name: "agent-offline-sustained",
+          test: () => {
+              const count = offlineAgentCount();
+              return (count > 0 && anyAgentOfflineLong()) || count > 2;
+          },
+          description: "Agent offline >60s or multiple agents down" },
         { level: 2, name: "autonomy-exhausted",
           test: () => Object.values(agentData).some(a => {
               if (a?.status !== "online") return false;
@@ -1585,6 +1621,7 @@
     ];
 
     function evaluateAlertLevel() {
+        updateOfflineTimestamps();
         let autoLevel = 5; // GREEN default
         const activeReasons = [];
         for (const trigger of ALERT_TRIGGERS) {
@@ -1606,11 +1643,28 @@
             const names = { 5: "GREEN", 4: "BLUE", 3: "YELLOW", 2: "RED", 1: "BLACK" };
             addNarrativeEntry(`Alert condition changed to ${names[effectiveLevel]}${activeReasons.length ? ": " + activeReasons.join("; ") : ""}`);
         }
+        // Start escalation timer when any agents offline
+        if (offlineAgentCount() > 0) startAlertEscalation();
     }
 
     function setManualAlert(level) {
         manualAlertOverride = level;
         evaluateAlertLevel();
+    }
+
+    // Re-evaluate alert every 10s so yellow→red escalation triggers
+    // even between data refreshes (escalation threshold = 60s)
+    let _alertEscalationTimer = null;
+    function startAlertEscalation() {
+        if (_alertEscalationTimer) return;
+        _alertEscalationTimer = setInterval(() => {
+            if (offlineAgentCount() > 0) {
+                evaluateAlertLevel();
+            } else {
+                clearInterval(_alertEscalationTimer);
+                _alertEscalationTimer = null;
+            }
+        }, 10_000);
     }
 
     // ── Autonomy Counter Helpers ────────────────────────────────────
@@ -2291,7 +2345,7 @@
                     <div class="lcars-panel-header">${agent.id}</div>
                     <div class="lcars-panel-body">
                         <div class="agent-identity">
-                            <span class="agent-name">${agent.id}</span>
+                            <span class="agent-name agent-name-offline">${agent.id}</span>
                             <span class="agent-status-dot offline" aria-label="offline"></span>
                             <span style="font-size:0.7em;color:var(--c-alert);margin-left:4px">offline</span>
                         </div>
@@ -4123,6 +4177,7 @@
     }
 
     function renderOpsBudget() {
+        // TODO: Add domain grouping filter (domain/interactive/all) for mesh overview
         // Ohniaka B3 "Starship Mission Status" pattern — structured table
         // with colored text columns (purple names, yellow IDs, white status).
         // No pill backgrounds — spacing + color creates structure.
@@ -4152,8 +4207,9 @@
                 ? `${health.toUpperCase()}, ${mood.toUpperCase()}`
                 : "OFFLINE";
 
-            return `<div class="ohniaka-row" style="opacity:${opacity}">
-                <span class="ohniaka-col ohniaka-name" style="color:${agent.color}">${agentName(agent).toUpperCase()}</span>
+            const nameClass = online ? "ohniaka-col ohniaka-name" : "ohniaka-col ohniaka-name agent-name-offline";
+            return `<div class="ohniaka-row" style="opacity:${online ? 1 : 0.6}">
+                <span class="${nameClass}" style="color:var(--lcars-secondary)">${agentName(agent).toUpperCase()}</span>
                 <span class="ohniaka-col ohniaka-type">${online ? "ONLINE" : "OFFLINE"}</span>
                 <span class="ohniaka-col ohniaka-id">${online ? fmtNum(deliberations) + " / " + cutoffStr : "\u2014"}</span>
                 <span class="ohniaka-col ohniaka-desc">${statusText}${pending > 0 ? " · " + pending + " PEND" : ""}${gates > 0 ? " · " + gates + " GATE" : ""}</span>

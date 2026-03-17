@@ -340,8 +340,9 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 }
 .lcars-sidebar-btn:hover { filter: brightness(1.15); }
 .lcars-sidebar-btn.active {
-    color: #ffcc00;
-    filter: brightness(1.2);
+    background: var(--lcars-accent) !important;
+    color: #000;
+    filter: brightness(1.1);
 }
 
 /* Sidebar spacer blocks — visual rhythm, no text */
@@ -1582,7 +1583,10 @@ body {
     background: var(--c-health);
     animation: pulse 2s ease-in-out infinite;
 }
-.agent-status-dot.offline { background: var(--c-alert); }
+.agent-status-dot.offline {
+    background: var(--c-alert);
+    animation: agent-offline-flash 2s ease-in-out infinite;
+}
 @keyframes pulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(76,206,127,0.4); }
     50% { box-shadow: 0 0 6px 2px rgba(76,206,127,0.3); }
@@ -3134,6 +3138,15 @@ a.activity-link:hover {
 @keyframes hdr-attract {
     0%, 100% { filter: brightness(1); }
     50%      { filter: brightness(1.667); } /* 1.03 × φ */
+}
+/* Slow flash for offline agent names (2s period, canonical LCARS alert cadence) */
+@keyframes agent-offline-flash {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.3; }
+}
+.agent-name-offline {
+    animation: agent-offline-flash 2s ease-in-out infinite;
+    color: var(--lcars-alert, #c47070) !important;
 }
 
 /* ── Stardate Tray (mobile portrait) ─────────────────────────── */
