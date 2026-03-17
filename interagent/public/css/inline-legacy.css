@@ -231,18 +231,18 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     padding-top: 0;
     gap: 0;
     padding-bottom: 0; /* exit button's margin-bottom handles viewport gap */
+    position: relative;
 }
-
-/* Top elbow cap — outer corner of the frame rounds off at top-left.
-   ╭████████████████████
-   │████ HEADER BAND
-   │████╯                 ← inner cutout (via header seg radius)
-   │BTN
-   The cap's top-left corner carries the frame's outer radius. */
-/* Internal glow — non-uniform backlit translucent material.
-   Off-center highlight, organic falloff (Defiant Engineering pattern).
-   Sidebar elements: gradient runs left→right (perpendicular to bar). */
-.lcars-sidebar-cap-top {
+/* Seamless frame gradient — one continuous gradient behind all sidebar elements.
+   Structural children (cap, arm, drop, spacers, exit) become transparent
+   to let this single gradient show through. Eliminates seams. */
+.theme-lcars .lcars-sidebar::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: var(--elbow-outer) 0 0 var(--elbow-outer);
     background: linear-gradient(90deg,
         color-mix(in srgb, var(--lcars-frame) 78%, #1a1000) 0%,
         color-mix(in srgb, var(--lcars-frame) 88%, #2a1800) 8%,
@@ -252,6 +252,28 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
         var(--lcars-frame) 72%,
         color-mix(in srgb, var(--lcars-frame) 85%, #1a1000) 100%
     );
+}
+/* All sidebar children sit above the gradient pseudo-element */
+.theme-lcars .lcars-sidebar > * { position: relative; z-index: 1; }
+/* Structural elements become transparent — parent gradient shows through */
+.theme-lcars .lcars-sidebar-cap-top,
+.theme-lcars .lcars-sidebar-cap-bottom,
+.theme-lcars .lcars-sidebar-arm,
+.theme-lcars .lcars-sidebar-drop,
+.theme-lcars .lcars-sidebar-exit {
+    background: transparent !important;
+}
+
+/* Top elbow cap — outer corner of the frame rounds off at top-left.
+   ╭████████████████████
+   │████ HEADER BAND
+   │████╯                 ← inner cutout (via header seg radius)
+   │BTN
+   The cap's top-left corner carries the frame's outer radius. */
+/* Sidebar structural elements — transparent in LCARS mode to show
+   parent's seamless gradient. Solid color in non-LCARS as fallback. */
+.lcars-sidebar-cap-top {
+    background: var(--lcars-frame);
     min-height: var(--band-size);
     flex-shrink: 0;
     border-radius: var(--elbow-outer) 0 0 0;
@@ -362,13 +384,10 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     flex-shrink: 0;
     margin-bottom: var(--gap-xs);
     border-radius: 12px 0 0 12px;
-    background: linear-gradient(90deg,
-        color-mix(in srgb, var(--lcars-frame) 78%, #1a1000) 0%,
-        var(--lcars-frame) 25%,
-        color-mix(in srgb, var(--lcars-frame) 92%, #ffe8cc) 45%,
-        var(--lcars-frame) 75%,
-        color-mix(in srgb, var(--lcars-frame) 85%, #1a1000) 100%
-    ) !important;
+}
+/* Spacers transparent in LCARS — parent gradient shows through */
+.theme-lcars .lcars-sidebar-spacer {
+    background: transparent !important;
 }
 
 /* Bottom elbow cap — outer corner of the frame rounds off at bottom-left.
@@ -381,30 +400,14 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
    Matches sidebar cap color (purple/lavender in LCARS 47988). */
 .lcars-sidebar-arm {
     flex: 1; /* fills remaining sidebar height */
-    background: linear-gradient(90deg,
-        color-mix(in srgb, var(--lcars-frame) 78%, #1a1000) 0%,
-        color-mix(in srgb, var(--lcars-frame) 88%, #2a1800) 8%,
-        var(--lcars-frame) 25%,
-        color-mix(in srgb, var(--lcars-frame) 92%, #ffe8cc) 38%,
-        color-mix(in srgb, var(--lcars-frame) 95%, #fff4e0) 55%,
-        var(--lcars-frame) 72%,
-        color-mix(in srgb, var(--lcars-frame) 85%, #1a1000) 100%
-    );
+    background: var(--lcars-frame);
     margin-bottom: 0;
     border-radius: 12px 0 0 0;
 }
 
 /* Bottom cap matches top cap — continuous sidebar frame */
 .lcars-sidebar-cap-bottom {
-    background: linear-gradient(90deg,
-        color-mix(in srgb, var(--lcars-frame) 78%, #1a1000) 0%,
-        color-mix(in srgb, var(--lcars-frame) 88%, #2a1800) 8%,
-        var(--lcars-frame) 25%,
-        color-mix(in srgb, var(--lcars-frame) 92%, #ffe8cc) 38%,
-        color-mix(in srgb, var(--lcars-frame) 95%, #fff4e0) 55%,
-        var(--lcars-frame) 72%,
-        color-mix(in srgb, var(--lcars-frame) 85%, #1a1000) 100%
-    );
+    background: var(--lcars-frame);
     min-height: var(--band-size);
     border-radius: 0 0 0 var(--elbow-outer);
 }
