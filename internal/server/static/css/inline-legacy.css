@@ -250,10 +250,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 }
 
 /* Alert: connectors follow structural chrome */
-body[data-alert-level="3"] .lcars-elbow-connector-top { background: radial-gradient(circle at 100% 100%, transparent 23px, #ffcc00 24px); }
-body[data-alert-level="3"] .lcars-elbow-connector-bottom { background: radial-gradient(circle at 100% 0%, transparent 23px, #ffcc00 24px); }
-body[data-alert-level="2"] .lcars-elbow-connector-top { background: radial-gradient(circle at 100% 100%, transparent 23px, #cc3333 24px); }
-body[data-alert-level="2"] .lcars-elbow-connector-bottom { background: radial-gradient(circle at 100% 0%, transparent 23px, #cc3333 24px); }
+/* Alert connector colors handled in alert section below */
 
 /* Sidebar navigation buttons */
 .lcars-sidebar-btn {
@@ -962,35 +959,51 @@ body[data-affect-mode="triage"] {
 .lcars-subsystem-grid { overflow-x: auto; }
 
 /* ── LCARS Alert Condition System (Trek Alert Levels) ────── */
-/* Alerts affect STRUCTURAL chrome only — data pills keep semantic colors.
-   Structural: sidebar caps, arm, spacers, buttons, header/footer arms + endcap.
-   Data pills (.lcars-header-seg, .lcars-footer-seg) remain untouched. */
+/* Everything goes alert color — full TNG emergency override. */
 
-/* Yellow alert (level 3) — structural chrome turns gold */
+/* Yellow alert (level 3) — everything gold */
 body[data-alert-level="3"] .lcars-sidebar-cap-top,
 body[data-alert-level="3"] .lcars-sidebar-cap-bottom,
 body[data-alert-level="3"] .lcars-sidebar-arm,
 body[data-alert-level="3"] .lcars-sidebar-spacer,
+body[data-alert-level="3"] .lcars-sidebar-drop,
 body[data-alert-level="3"] .lcars-sidebar-btn,
 body[data-alert-level="3"] .lcars-hdr-arm,
-body[data-alert-level="3"] .lcars-hdr-endcap {
+body[data-alert-level="3"] .lcars-hdr-endcap,
+body[data-alert-level="3"] .lcars-header-seg,
+body[data-alert-level="3"] .lcars-footer-seg {
     background: #ffcc00 !important;
     color: #000 !important;
 }
+body[data-alert-level="3"] .lcars-elbow-connector-top {
+    background: radial-gradient(circle at 0% 0%, transparent 23px, #ffcc00 24px) !important;
+}
+body[data-alert-level="3"] .lcars-elbow-connector-bottom {
+    background: radial-gradient(circle at 0% 100%, transparent 23px, #ffcc00 24px) !important;
+}
 
-/* Red alert (level 2) — structural chrome turns red + pulse */
+/* Red alert (level 2) — everything red + pulse */
 body[data-alert-level="2"] .lcars-sidebar-cap-top,
 body[data-alert-level="2"] .lcars-sidebar-cap-bottom,
 body[data-alert-level="2"] .lcars-sidebar-arm,
 body[data-alert-level="2"] .lcars-sidebar-spacer,
+body[data-alert-level="2"] .lcars-sidebar-drop,
 body[data-alert-level="2"] .lcars-sidebar-btn,
 body[data-alert-level="2"] .lcars-hdr-arm,
-body[data-alert-level="2"] .lcars-hdr-endcap {
+body[data-alert-level="2"] .lcars-hdr-endcap,
+body[data-alert-level="2"] .lcars-header-seg,
+body[data-alert-level="2"] .lcars-footer-seg {
     background: #cc3333 !important;
     color: #fff !important;
 }
 body[data-alert-level="2"] .lcars-sidebar-btn {
     animation: red-alert-pulse 1.5s ease-in-out infinite;
+}
+body[data-alert-level="2"] .lcars-elbow-connector-top {
+    background: radial-gradient(circle at 0% 0%, transparent 23px, #cc3333 24px) !important;
+}
+body[data-alert-level="2"] .lcars-elbow-connector-bottom {
+    background: radial-gradient(circle at 0% 100%, transparent 23px, #cc3333 24px) !important;
 }
 @keyframes red-alert-pulse {
     0%, 100% { filter: brightness(1); }
