@@ -447,9 +447,11 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 	uptime := time.Since(s.startTime)
 	dbPath := s.Config.BudgetDBPath
 
-	// Budget from state.db (budget_spent/budget_cutoff counter model, cutoff 0 = unlimited)
+	// Budget from state.db — handles both schema variants:
+	//   New: budget_current / budget_max (psychology-agent convention)
+	//   Old: budget_spent / budget_cutoff (operations-agent convention)
 	budgetRows, _ := db.QueryJSON(dbPath,
-		"SELECT agent_id, budget_spent, budget_cutoff, shadow_mode, consecutive_blocks, last_audit, updated_at, min_action_interval, last_action FROM autonomy_budget WHERE agent_id='"+db.SanitizeID(s.Config.AgentID)+"'")
+		"SELECT * FROM autonomy_budget WHERE agent_id='"+db.SanitizeID(s.Config.AgentID)+"'")
 	var budget interface{}
 	if len(budgetRows) > 0 {
 		budget = budgetRows[0]

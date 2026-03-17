@@ -17,26 +17,40 @@ import (
 const checkInterval = 15 * time.Second
 
 // Status represents the health state of a subsystem.
+// 5-level scale derived from Starfleet operational readiness (TNG Technical Manual).
 type Status int
 
 const (
-	// Healthy — the subsystem operates within normal parameters.
-	Healthy Status = iota
-	// Degraded — the subsystem functions but exhibits reduced capacity or
-	// elevated error rates.
+	// Nominal (Level 5) — all systems green, full capacity. No anomalies detected.
+	Nominal Status = iota
+	// Advisory (Level 4) — minor anomaly detected, no action needed.
+	// System continues to operate within acceptable parameters.
+	Advisory
+	// Degraded (Level 3 / Caution) — reduced capacity or elevated error rates.
+	// System functions but requires monitoring; intervention may become necessary.
 	Degraded
-	// Failed — the subsystem stopped functioning and requires intervention
-	// (automatic or manual).
+	// Critical (Level 2 / Alert) — major subsystem failure, intervention needed.
+	// System operates at significantly reduced capacity or exhibits intermittent failures.
+	Critical
+	// Failed (Level 1 / Emergency) — complete subsystem loss.
+	// System stopped functioning and requires immediate intervention.
 	Failed
 )
+
+// Healthy remains as an alias for Nominal for backward compatibility.
+const Healthy = Nominal
 
 // String returns a human-readable label for the status.
 func (s Status) String() string {
 	switch s {
-	case Healthy:
-		return "healthy"
+	case Nominal:
+		return "nominal"
+	case Advisory:
+		return "advisory"
 	case Degraded:
 		return "degraded"
+	case Critical:
+		return "critical"
 	case Failed:
 		return "failed"
 	default:

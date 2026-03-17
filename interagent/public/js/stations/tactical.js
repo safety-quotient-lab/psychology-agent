@@ -40,7 +40,7 @@ function renderShieldStatus() {
     healthAgents.forEach(a => {
         const id = a.id || a.agent_id || a.name;
         const status = a.status || a.health;
-        statusMap[id] = status === "ok" || status === "online" || status === "healthy";
+        statusMap[id] = status === "ok" || status === "online" || status === "healthy" || status === "nominal";
     });
     const SHIELD_AGENTS = [
         { id: "psychology-agent", label: "psych" },
