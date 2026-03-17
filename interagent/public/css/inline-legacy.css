@@ -83,18 +83,65 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 
 /* LCARS 47988 — canonical TNG color semantics */
 .theme-lcars {
-    /* ── Canonical LCARS Palette V23.01 (Mike Okuda / Scenic Art) ── */
-    /* Source: LCARS Palette V23-01 by caseytube, scanned from TNG/DS9 set translites */
-    --lcars-frame: #D88274;       /* salmon — STRUCTURAL bars, elbows, spacers */
-    --lcars-accent: #E0601D;      /* orange — PRIMARY/ACTIVE, row leaders, emphasis */
-    --lcars-secondary: #AA7FAA;   /* purple — DATA tier 1, entity names */
-    --lcars-tertiary: #906193;    /* violet dark — DATA tier 2, secondary identifiers */
-    --lcars-title: #ED924E;       /* gold/amber — HEADERS, section titles */
-    --lcars-science: #0B477A;     /* blue — SYSTEMS, science, navigation */
-    --lcars-alert: #E53828;       /* red — EMERGENCY, critical, destructive */
-    --lcars-medical: #8EB044;     /* green — health, nominal (rare) */
-    --lcars-neutral: #EEAC7B;     /* peach — light structural, spacers */
-    --lcars-highlight: #C1574C;   /* warm red — attention, epistemic */
+    /* ══════════════════════════════════════════════════════════════
+       LCARS Palette V23.01 — Mike Okuda / Star Trek Scenic Art
+       Scanned from TNG/DS9 set translites by caseytube, 2023.
+       Source: docs/lcars-reference/LCARS Palette V23-01.jpg
+       Each row: dark (rare) | medium (common) | light (common)
+       ══════════════════════════════════════════════════════════════ */
+
+    /* Row 1: Purple family */
+    --v23-purple-dark: #906193;
+    --v23-purple-med: #AA7FAA;
+    --v23-purple-light: #BE9BB4;
+    /* Row 2: Deep pink / navy */
+    --v23-pink-dark: #F53888;
+    --v23-navy: #0B477A;
+    --v23-mauve: #9C7290;
+    /* Row 3: Plum */
+    --v23-plum-dark: #80225E;
+    --v23-plum-med: #5D3449;
+    --v23-plum-light: #915F75;
+    /* Row 4: Rose / maroon */
+    --v23-rose-dark: #DB2047;
+    --v23-rose-med: #BE4465;
+    --v23-rose-light: #AB6086;
+    /* Row 5: Amber / warm pink */
+    --v23-amber-dark: #A78769;
+    --v23-amber-med: #B5517F;
+    --v23-amber-light: #CA7896;
+    /* Row 6: Salmon / warm red */
+    --v23-salmon-dark: #AB972E;
+    --v23-salmon-med: #C1574C;
+    --v23-salmon-light: #D88274;
+    /* Row 7: Orange */
+    --v23-orange-dark: #F5571D;
+    --v23-orange-med: #E0601D;
+    --v23-orange-light: #EE8F48;
+    /* Row 8: Peach / gold */
+    --v23-gold-dark: #E3722A;
+    --v23-gold-med: #ED924E;
+    --v23-gold-light: #EEAC7B;
+    /* Row 9: Green / warm tan */
+    --v23-green: #8EB044;
+    --v23-tan-med: #D88568;
+    --v23-tan-light: #E39C84;
+    /* Row 10: Red / amber */
+    --v23-red: #E53828;
+    --v23-amber-warm: #E28A49;
+    --v23-peach: #FD9173;
+
+    /* ── Semantic mapping (roles → palette) ── */
+    --lcars-frame: var(--v23-salmon-light);    /* structural bars, elbows */
+    --lcars-accent: var(--v23-orange-med);     /* primary/active, row leaders */
+    --lcars-secondary: var(--v23-purple-med);  /* data tier 1, entity names */
+    --lcars-tertiary: var(--v23-purple-dark);  /* data tier 2, identifiers */
+    --lcars-title: var(--v23-gold-med);        /* headers, section titles */
+    --lcars-science: var(--v23-navy);          /* science/medical blue */
+    --lcars-alert: var(--v23-red);             /* emergency, critical */
+    --lcars-medical: var(--v23-green);         /* health, nominal */
+    --lcars-neutral: var(--v23-gold-light);    /* light structural, spacers */
+    --lcars-highlight: var(--v23-salmon-med);  /* attention, epistemic */
 
     /* ── Mapped to existing variable names ── */
     --c-transport: var(--lcars-accent);
@@ -110,12 +157,13 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     --c-tab-meta: var(--lcars-highlight);
     --c-tab-kb: var(--lcars-secondary);
     --c-tab-wisdom: var(--lcars-title);
-    --c-tab-ops: var(--lcars-accent);
-    --c-tab-science: var(--lcars-tertiary);
-    --c-tab-engineering: #ff9944;
-    --c-tab-tactical: var(--lcars-alert);
-    --c-tab-helm: #66aacc;
-    --c-tab-medical: var(--lcars-medical);
+    /* TNG division colors — 3 divisions mapped to canonical V23.01 palette */
+    --c-tab-ops: #ED924E;         /* command gold/amber — operations division */
+    --c-tab-science: #0B477A;     /* science blue — science division */
+    --c-tab-engineering: #E0601D; /* engineering orange — ops/eng share warm */
+    --c-tab-tactical: #E53828;    /* security red — tactical/security division */
+    --c-tab-helm: #C1574C;        /* warm red — navigation (same division as tactical) */
+    --c-tab-medical: #0B477A;     /* medical blue — same as science division */
 
     --c-psychology: var(--lcars-accent);
     --c-psq: var(--lcars-secondary);
@@ -181,6 +229,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     background: #000;
     padding-top: 0;
     gap: 0;
+    min-height: 100vh; /* ensure sidebar fills viewport */
 }
 
 /* Top elbow cap — outer corner of the frame rounds off at top-left.
