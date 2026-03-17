@@ -3206,7 +3206,7 @@ a.activity-link:hover {
 
 /* ── Header structural arm — fixed connector, canonical LCARS bar ──── */
 .lcars-hdr-arm {
-    flex: 0 0 34px; /* fixed width — golden ratio --gap-2xl */
+    flex: 0 0 var(--gap-3xl, 55px); /* 2φ + 1φ — matches sidebar drop proportion */
     align-self: stretch;
 }
 
@@ -3230,9 +3230,9 @@ a.activity-link:hover {
 
 /* ── Sidebar drop — structural block at elbow transitions ──── */
 .lcars-sidebar-drop {
-    min-height: var(--gap-3xl, 55px);
+    min-height: calc(var(--gap-3xl, 55px) + var(--gap-xl, 21px)); /* 2φ + 1φ extra */
     flex-shrink: 0;
-    margin-bottom: 0; /* seamless by default */
+    margin-bottom: 0;
     border-radius: 0;
 }
 /* Top drop (after cap-top): needs margin before first button */
