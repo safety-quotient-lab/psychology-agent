@@ -3387,9 +3387,9 @@ a.activity-link:hover {
     margin-bottom: 0;
     border-radius: 0;
 }
-/* Top drop (after cap-top): needs margin before first button */
+/* Top drop (after cap-top): gap before first button matches pill gaps */
 .lcars-sidebar-cap-top + .lcars-sidebar-drop {
-    margin-bottom: var(--gap-xs, 3px);
+    margin-bottom: var(--gap-m, 8px);
 }
 @media (max-width: 768px) {
     .lcars-sidebar-drop { min-height: calc(var(--gap-2xl, 34px) + var(--gap-xl, 21px)); }
