@@ -1345,9 +1345,9 @@
         const num = typeof n === "string" ? parseFloat(n) : n;
         if (isNaN(num)) return "\u2014";
         const rounded = Math.round(num);
-        // Space-separate thousands (LCARS convention: "10 000" not "10,000")
+        // Non-breaking narrow space thousands (LCARS convention: "10 000" not "10,000")
         if (Math.abs(rounded) >= 1000) {
-            return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+            return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\u202F");
         }
         return rounded.toString();
     }
