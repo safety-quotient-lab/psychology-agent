@@ -195,7 +195,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 
     /* LCARS sidebar geometry */
     --sidebar-width: 160px;
-    --band-size: 52px;
+    --band-size: 64px;
     --elbow-outer: 48px;
     --elbow-inner: 24px;
 }
@@ -350,12 +350,12 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     justify-content: flex-end; /* right-aligned text — canonical */
     width: 100%;
     border: none;
-    border-radius: 24px 0 0 24px;
-    padding: 6px 8px 6px 16px;
-    min-height: 44px;
+    border-radius: 28px 0 0 28px;
+    padding: 10px 12px 10px 20px;
+    min-height: 56px;
     flex-shrink: 0;
     font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
-    font-size: 0.72em;
+    font-size: 0.85em;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -375,7 +375,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* Sidebar spacer blocks — visual rhythm, no text.
    No border-radius — spacers blend seamlessly into the frame. */
 .lcars-sidebar-spacer {
-    min-height: 20px;
+    min-height: 28px;
     flex-shrink: 0;
     margin-bottom: var(--gap-xs);
 }
@@ -425,9 +425,9 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     display: flex;
     align-items: flex-end; /* bottom-aligned text — canonical */
     justify-content: center; /* centered horizontally */
-    padding: 4px 14px;
+    padding: 8px 18px;
     font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
-    font-size: 0.72em;
+    font-size: 0.85em;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -3266,13 +3266,14 @@ a.activity-link:hover {
     border-radius: 0 0 var(--gap-m, 8px) var(--gap-m, 8px);
 }
 .stardate-tray-input:checked ~ .stardate-tray {
-    max-height: 200px;
+    max-height: 280px;
     padding-top: var(--gap-xs, 3px);
 }
 .stardate-tray-input:checked ~ .stardate-tray .stardate-tray-pill {
-    height: 32px;
-    padding: 4px 14px;
+    height: 42px;
+    padding: 8px 18px;
     opacity: 1;
+    font-size: 0.82em;
 }
 
 /* Mobile portrait: stardate becomes tray trigger */
