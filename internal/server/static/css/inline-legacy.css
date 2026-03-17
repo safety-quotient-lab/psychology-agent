@@ -3139,14 +3139,17 @@ a.activity-link:hover {
     0%, 100% { filter: brightness(1); }
     50%      { filter: brightness(1.667); } /* 1.03 × φ */
 }
-/* Slow flash for offline agent names (2s period, canonical LCARS alert cadence) */
+/* Slow flash for offline agent names (2s period, 1→1/φ≈0.618 opacity) */
 @keyframes agent-offline-flash {
     0%, 100% { opacity: 1; }
-    50%      { opacity: 0.3; }
+    50%      { opacity: 0.618; }
 }
 .agent-name-offline {
     animation: agent-offline-flash 2s ease-in-out infinite;
     color: var(--lcars-alert, #c47070) !important;
+}
+.ohniaka-row-offline {
+    animation: agent-offline-flash 2s ease-in-out infinite;
 }
 
 /* ── Stardate Tray (mobile portrait) ─────────────────────────── */

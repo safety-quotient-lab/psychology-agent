@@ -4207,14 +4207,14 @@
                 ? `${health.toUpperCase()}, ${mood.toUpperCase()}`
                 : "OFFLINE";
 
-            const nameClass = online ? "ohniaka-col ohniaka-name" : "ohniaka-col ohniaka-name agent-name-offline";
+            const rowClass = online ? "ohniaka-row" : "ohniaka-row ohniaka-row-offline";
             const statusPill = online
                 ? `<span class="ohniaka-status-pill" style="background:var(--lcars-medical)"></span>`
-                : `<span class="ohniaka-status-pill agent-name-offline" style="background:var(--lcars-alert)"></span>`;
-            return `<div class="ohniaka-row" style="opacity:${online ? 1 : 0.6}">
+                : `<span class="ohniaka-status-pill" style="background:var(--lcars-alert)"></span>`;
+            return `<div class="${rowClass}">
                 <span class="ohniaka-color-pill" style="background:${agent.color}"></span>
                 ${statusPill}
-                <span class="${nameClass}" style="color:var(--lcars-secondary)">${agentName(agent).toUpperCase()}</span>
+                <span class="ohniaka-col ohniaka-name" style="color:var(--lcars-secondary)">${agentName(agent).toUpperCase()}</span>
                 <span class="ohniaka-col ohniaka-type">${online ? "ONLINE" : "OFFLINE"}</span>
                 <span class="ohniaka-col ohniaka-id">${online ? fmtNum(deliberations) + " / " + cutoffStr : "\u2014"}</span>
                 <span class="ohniaka-col ohniaka-desc">${statusText}${pending > 0 ? " · " + pending + " PEND" : ""}${gates > 0 ? " · " + gates + " GATE" : ""}</span>
