@@ -134,20 +134,11 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 }
 
 /* ── LCARS Chrome: Frame Override ──────────────────────────── */
-/* 3 columns: sidebar | margin channel | content
-   5 rows: header | top margin | content | bottom margin | footer
-   The margin intersections (col2×row2, col2×row4) = elbow corners */
 .theme-lcars .lcars-frame {
-    grid-template-columns: var(--sidebar-width) var(--elbow-inner, 24px) 1fr;
-    grid-template-rows: auto var(--elbow-inner, 24px) 1fr var(--elbow-inner, 24px) auto;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    grid-template-rows: auto 1fr auto;
+    position: relative;
 }
-/* Update element grid placements for 3-col 5-row layout */
-.theme-lcars .lcars-header-band { grid-column: 2 / -1; grid-row: 1; }
-.theme-lcars .lcars-content { grid-column: 3; grid-row: 2 / 5; }
-.theme-lcars .lcars-footer-band { grid-column: 2 / -1; grid-row: 5; }
-/* Sidebar + spine span all rows, column 1 only */
-.theme-lcars .lcars-sidebar { grid-column: 1; grid-row: 1 / -1; }
-.theme-lcars .lcars-spine { grid-column: 1; grid-row: 1 / -1; }
 
 /* Hide standard spine + tabs in LCARS mode */
 .theme-lcars .lcars-spine { display: none; }
@@ -215,13 +206,14 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .theme-lcars .lcars-frame { position: relative; }
 /* Size matches the elbow-inner radius. Position: flush with sidebar
    right edge, flush with header/footer bottom/top edge. */
-/* Connectors now live in the grid margin intersection cells */
+/* Connectors: absolutely positioned at sidebar/content junction */
 .theme-lcars .lcars-elbow-connector-top {
     display: block;
-    grid-column: 2;
-    grid-row: 2;
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    left: var(--sidebar-width, 160px);
+    top: var(--band-size, 52px);
+    width: var(--elbow-inner, 24px);
+    height: var(--elbow-inner, 24px);
     z-index: 10;
     pointer-events: none;
     transform: rotate(180deg);
@@ -234,10 +226,11 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 }
 .theme-lcars .lcars-elbow-connector-bottom {
     display: block;
-    grid-column: 2;
-    grid-row: 4;
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    left: var(--sidebar-width, 160px);
+    bottom: var(--band-size, 52px);
+    width: var(--elbow-inner, 24px);
+    height: var(--elbow-inner, 24px);
     z-index: 10;
     pointer-events: none;
     transform: rotate(180deg);
@@ -412,10 +405,9 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 
 /* ── LCARS Content Override ────────────────────────────────── */
 .theme-lcars .lcars-content {
-    /* grid placement set in frame override above */
+    grid-row: 2;
     background: #000;
-    padding: var(--gap-m, 8px) var(--gap-xl, 21px) var(--gap-xl, 21px) 0;
-    /* top: minimal (margin row provides gap), left: 0 (margin column provides gap) */
+    padding: var(--gap-xl, 21px);
 }
 
 /* ── LCARS Panel Hybrid Style ──────────────────────────────── */
@@ -453,7 +445,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* ── LCARS Responsive: Tablet ─────────────────────────────── */
 @media (max-width: 768px) {
     .theme-lcars .lcars-frame {
-        grid-template-columns: 60px var(--elbow-inner, 24px) 1fr;
+        grid-template-columns: 60px 1fr;
     }
     .theme-lcars { --sidebar-width: 60px; }
 
@@ -503,7 +495,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* ── LCARS Responsive: Large Phone Portrait (430-480px, iPhone Pro Max) ── */
 @media (max-width: 480px) {
     .theme-lcars .lcars-frame {
-        grid-template-columns: 44px var(--elbow-inner, 24px) 1fr;
+        grid-template-columns: 44px 1fr;
     }
     .theme-lcars { --sidebar-width: 44px; }
 
