@@ -202,12 +202,11 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .theme-lcars .lcars-frame {
     grid-template-columns: var(--sidebar-width) var(--elbow-inner, 24px) 1fr;
     grid-template-rows: auto var(--elbow-inner, 24px) 1fr var(--elbow-inner, 24px) auto;
-    position: relative;
-    height: 100vh;
-    height: 100dvh;
-    overflow: hidden; /* frame fills viewport, content area scrolls internally */
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    overflow: hidden;
 }
-/* Content area scrolls — frame stays fixed to viewport */
+/* Content area scrolls — frame stays locked to viewport */
 .theme-lcars .lcars-content {
     overflow-y: auto;
 }
