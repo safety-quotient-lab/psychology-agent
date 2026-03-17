@@ -307,7 +307,7 @@ function renderOpsBudget() {
 
         const statusText = online
             ? `${opIcon} ${opType} · ${mood.toUpperCase()}`
-            : "OFFLINE";
+            : "\u2014";
 
         const rowClass = online ? "ohniaka-row" : "ohniaka-row ohniaka-row-offline";
         // Connectivity pip (green/red)
