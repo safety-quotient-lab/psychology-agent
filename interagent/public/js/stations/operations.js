@@ -310,14 +310,19 @@ function renderOpsBudget() {
             : "OFFLINE";
 
         const rowClass = online ? "ohniaka-row" : "ohniaka-row ohniaka-row-offline";
-        const degraded = online && health === "degraded";
-        const statusColor = online ? (degraded ? "#ddaa22" : "#22cc44") : "#cc2222";
-        const statusPill = `<span class="ohniaka-status-pill${!online ? " agent-name-offline" : ""}" style="background:${statusColor}"></span>`;
+        // Connectivity pip (green/red)
+        const connColor = online ? "#22cc44" : "#cc2222";
+        const connPill = `<span class="ohniaka-status-pill${!online ? " agent-name-offline" : ""}" style="background:${connColor}"></span>`;
+        // Health level (5-level TNG scale) — separate from connectivity
+        const healthStr = (health || "unknown").toUpperCase();
+        const healthColors = { NOMINAL: "var(--lcars-accent)", ADVISORY: "var(--lcars-title)", DEGRADED: "#ddaa22", CRITICAL: "var(--lcars-alert)", FAILED: "#cc2222" };
+        const healthColor = online ? (healthColors[healthStr] || "var(--text-dim)") : "var(--text-dim)";
         return `<div class="${rowClass}">
             <span class="ohniaka-color-pill" style="background:${agent.color}"></span>
             <span class="ohniaka-col ohniaka-name" style="color:var(--lcars-secondary)">${agentName(agent).toUpperCase()}</span>
-            ${statusPill}
-            <span class="ohniaka-col ohniaka-type">${online ? (degraded ? "DEGRADED" : "ONLINE") : "OFFLINE"}</span>
+            ${connPill}
+            <span class="ohniaka-col ohniaka-type">${online ? "ONLINE" : "OFFLINE"}</span>
+            <span class="ohniaka-col ohniaka-health" style="color:${healthColor}">${online ? healthStr : "\u2014"}</span>
             <span class="ohniaka-col ohniaka-id">${online ? fmtNum(deliberations) + " / " + cutoffStr : "\u2014"}</span>
             <span class="ohniaka-col ohniaka-desc">${statusText}${pending > 0 ? " · " + pending + " PEND" : ""}${gates > 0 ? " · " + gates + " GATE" : ""}</span>
         </div>`;
