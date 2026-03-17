@@ -202,13 +202,20 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .theme-lcars .lcars-frame {
     grid-template-columns: var(--sidebar-width) var(--elbow-inner, 24px) 1fr;
     grid-template-rows: auto var(--elbow-inner, 24px) 1fr var(--elbow-inner, 24px) auto;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    overflow: hidden;
+    position: relative;
+    min-height: 100vh;
 }
-/* Content area scrolls — frame stays locked to viewport */
-.theme-lcars .lcars-content {
-    overflow-y: auto;
+/* Footer sticks to viewport bottom */
+.theme-lcars .lcars-footer-band {
+    position: sticky;
+    bottom: 0;
+    z-index: 200;
+}
+/* Bottom elbow connector also sticks */
+.theme-lcars .lcars-elbow-connector-bottom {
+    position: sticky;
+    bottom: var(--band-size, 52px);
+    z-index: 199;
 }
 /* Explicit grid placement for every LCARS element */
 .theme-lcars .lcars-sidebar     { grid-column: 1;      grid-row: 1 / -1; }
