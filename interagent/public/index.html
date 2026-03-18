@@ -503,6 +503,8 @@
             <div class="ops-subsys-panel ops-subsys-active" id="ops-subsys-status">
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
                     <div class="lcars-panel-header">Mesh Status</div>
+                    <!-- Symmetric top capsule bar (Ohniaka A1 §5.4) -->
+                    <div class="lcars-capsule-bar" id="ops-capsule-top"></div>
                     <!-- Zone A: dense number grid (§1.2 / §4.1) -->
                     <div class="lcars-zone-a" id="ops-zone-a"></div>
                     <!-- Zone B: visualization (mesh overview grid) -->
@@ -516,6 +518,8 @@
                         <span class="zc-title">Operations Record</span>
                         <span class="zc-id" id="ops-overview-num"></span>
                     </div>
+                    <!-- Symmetric bottom capsule bar (Ohniaka A1 §5.4) -->
+                    <div class="lcars-capsule-bar lcars-capsule-bar-bottom" id="ops-capsule-bottom"></div>
                 </div>
             </div>
 

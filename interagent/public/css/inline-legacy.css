@@ -1187,6 +1187,53 @@ body[data-affect-mode="triage"] {
     filter: saturate(0.7);
 }
 
+/* ── Capsule Bar (Symmetric framing — Ohniaka A1 pattern) ──── */
+/* Compact capsule strip that brackets content panels top and bottom.
+   Row-leader (orange, left-rounded) + data capsules (purple tiers).
+   Ref: docs/lcars-design-reference.md §5.4, Button 52. */
+.lcars-capsule-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-xs);
+    padding: var(--gap-s) 0;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-size: 0.68em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.lcars-capsule-bar .cb-leader {
+    background: var(--lcars-frame);
+    color: #000;
+    padding: var(--gap-xs) var(--gap-l) var(--gap-xs) var(--gap-m);
+    border-radius: 12px 0 0 12px;
+    white-space: nowrap;
+}
+.lcars-capsule-bar .cb-cell {
+    background: var(--lcars-secondary);
+    color: #000;
+    padding: var(--gap-xs) var(--gap-m);
+    white-space: nowrap;
+    min-width: 40px;
+    text-align: right;
+}
+.lcars-capsule-bar .cb-cell-t2 { background: var(--lcars-tertiary); }
+.lcars-capsule-bar .cb-cell-t3 { background: var(--lcars-title); }
+.lcars-capsule-bar .cb-end {
+    background: var(--lcars-secondary);
+    color: #000;
+    padding: var(--gap-xs) var(--gap-m) var(--gap-xs) var(--gap-l);
+    border-radius: 0 12px 12px 0;
+    white-space: nowrap;
+}
+.lcars-capsule-bar .cb-end-t2 { background: var(--lcars-tertiary); }
+/* Bottom bar: slightly different feel — use neutral fill */
+.lcars-capsule-bar-bottom .cb-leader { background: var(--lcars-title); }
+/* Mobile: hide bottom bar to save space */
+@media (max-width: 600px) {
+    .lcars-capsule-bar-bottom { display: none; }
+}
+
 /* ── Capsule Row (Mesh Overview — canonical LCARS roster) ──── */
 .capsule-row {
     display: grid;
