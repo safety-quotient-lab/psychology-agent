@@ -3567,8 +3567,8 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
    creates structure per "STARSHIP MISSION STATUS" pattern. */
 .ohniaka-row {
     display: grid;
-    grid-template-columns: 10px minmax(50px, 1fr) 10px auto auto auto auto auto auto auto;
-    gap: var(--gap-m);
+    grid-template-columns: 10px minmax(60px, 1fr) 10px auto auto auto auto auto auto auto;
+    gap: var(--gap-xl);
     padding: var(--gap-m) 0;
     border-bottom: 1px solid rgba(255,255,255,0.08);
     font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
@@ -3579,8 +3579,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     align-items: center;
 }
 .ohniaka-row:last-child { border-bottom: none; }
-.ohniaka-col { white-space: nowrap; text-align: right; }
-.ohniaka-name { text-align: left; } /* name left-aligned, everything else right */
+.ohniaka-col { white-space: nowrap; text-align: left; }
 /* Small square pills — agent color identity + status indicator */
 .ohniaka-color-pill {
     width: 10px; height: 10px;
@@ -3600,8 +3599,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     border-bottom: 2px solid var(--panel-accent, var(--lcars-frame));
     padding-bottom: var(--gap-s);
 }
-.ohniaka-header .ohniaka-col { color: var(--lcars-title); white-space: nowrap; text-align: right; }
-.ohniaka-header .ohniaka-name { text-align: left; }
+.ohniaka-header .ohniaka-col { color: var(--lcars-title); white-space: nowrap; text-align: left; }
 .ohniaka-name { color: var(--lcars-secondary); } /* purple — entity name */
 .ohniaka-conn { color: var(--lcars-secondary); opacity: 0.7; } /* connectivity */
 .ohniaka-gf { color: var(--lcars-accent); } /* orange — fluid processing count */
