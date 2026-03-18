@@ -50,12 +50,13 @@ function modeStyle(mode) {
     return styles[(mode || "idle").toLowerCase()] || styles.idle;
 }
 
-// ── Alert level colors ───────────────────────────────────────
+// ── Alert level colors (trekcolors canon) ────────────────────
 // Structural chrome override colors per alert level.
+// Uses official trekcolors palette values (leonawicz/trekcolors, MIT).
 function alertColor(level) {
-    if (level === 3) return "#ffcc00";      // yellow alert
-    if (level === 2) return "#882222";      // red alert (dark maroon)
-    if (level === 1) return "#111111";      // black alert
+    if (level === 3) return "#CD870E";      // yellow alert (trekcolors --alert-yellow-med)
+    if (level === 2) return "#990000";      // red alert (trekcolors --alert-red-dark)
+    if (level === 1) return "#0E3A9B";      // black alert (trekcolors --alert-black-med)
     return null;                             // no alert — use normal colors
 }
 

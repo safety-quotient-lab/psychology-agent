@@ -1,11 +1,23 @@
-/* ── LCARS Font: Antonio Bold (self-hosted) ──────────────── */
-/* Closest match to Swiss 911 Ultra Compressed / Helvetica
-   Ultra Compressed — the canonical LCARS typeface.
-   OFL license. Source: gregology/LCARS SDK. */
+/* ── LCARS Fonts ─────────────────────────────────────────── */
+/* Canonical: Swiss 911 Ultra Compressed (Bitstream, trekfont).
+   GPL-3 blocks bundling — use OFL alternatives instead.
+   Stack: Antonio Bold (primary, OFL, gregology/LCARS SDK)
+        → Oswald (fallback, OFL, lcars Shiny package convention)
+        → Arial Narrow → Helvetica Neue → sans-serif.
+   Ref: leonawicz/trekfont (107 fonts), leonawicz/lcars (Shiny) */
 @font-face {
     font-family: 'Antonio';
-    src: url('fonts/antonio-bold.woff2') format('woff2'),
-         url('fonts/antonio-bold.woff') format('woff');
+    src: url('/fonts/antonio-bold.woff2') format('woff2'),
+         url('/fonts/antonio-bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+/* Oswald — OFL, used by leonawicz/lcars Shiny package.
+   Used here for LCARS buttons + headings only (wider letter forms). */
+@font-face {
+    font-family: 'Oswald';
+    src: url('/fonts/oswald-bold.woff2') format('woff2');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
@@ -133,15 +145,48 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     --v23-red-med: #E26A49;
     --v23-red-light: #F09173;
 
-    /* LCARS 2369 named colors (trekcolors, TNG/DS9 era) */
+    /* ── trekcolors (MIT, leonawicz) — All 4 named LCARS palettes ── */
+
+    /* LCARS 2357 — TNG early seasons (9 named colors) */
+    --lcars-pale-canary: #FFFF99;
+    --lcars-tanoi: #FFCC99;
+    --lcars-golden-tanoi: #FFCC66;
+    --lcars-neon-carrot: #FF9933;
+    --lcars-eggplant: #664466;
+    --lcars-lilac: #CC99CC;
+    --lcars-anakiwa: #99CCFF;
+    --lcars-mariner: #3366CC;
+    --lcars-bahama-blue: #006699;
+
+    /* LCARS 2369 — TNG/DS9 era (8 named colors) */
     --lcars-blue-bell: #9999CC;
     --lcars-melrose: #9999FF;
-    --lcars-lilac: #CC99CC;
+    /* --lcars-lilac already defined in 2357 (same #CC99CC) */
     --lcars-hopbush: #CC6699;
     --lcars-chestnut-rose: #CC6666;
     --lcars-orange-peel: #FF9966;
     --lcars-atomic-tangerine: #FF9900;
-    --lcars-golden-tanoi: #FFCC66;
+    /* --lcars-golden-tanoi already defined in 2357 (same #FFCC66) */
+
+    /* LCARS 2375 — DS9 late/Voyager era (8 named colors) */
+    --lcars-danub: #6688CC;
+    --lcars-indigo: #4455BB;
+    --lcars-lavender-purple: #9977AA;
+    --lcars-cosmic: #774466;
+    --lcars-red-damask: #DD6644;
+    --lcars-medium-carmine: #AA5533;
+    --lcars-bourbon: #BB6622;
+    --lcars-sandy-brown: #EE9955;
+
+    /* LCARS 2379 — Nemesis era (8 named colors) */
+    --lcars-periwinkle: #CCDDFF;
+    --lcars-dodger-pale: #5599FF;
+    --lcars-dodger-soft: #3366FF;
+    --lcars-near-blue: #0011EE;
+    --lcars-navy-blue: #000088;
+    --lcars-husk: #BBAA55;
+    --lcars-rust: #BB4411;
+    --lcars-tamarillo: #882211;
 
     /* Starfleet division colors (trekcolors) */
     --sf-command: #5B1414;
@@ -160,12 +205,18 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     --alert-yellow-med: #CD870E;
     --alert-yellow-bright: #FFA90E;
     --alert-yellow-light: #FFDA67;
+    --alert-black-deep: #050B64;
+    --alert-black-med: #0E3A9B;
+    --alert-black-bright: #307CE4;
+    --alert-black-cyan: #64FFFF;
 
     /* ── Semantic mapping (roles → palette) ── */
     /* ── Semiotic Color Mapping (V23.01 → LCARS function) ──────
        Canon: color = CATEGORY, never status. Status uses brightness.
-       Ref: docs/lcars-design-reference.md §2.0, V23.01 palette image */
-    --lcars-frame: var(--v23-orange-med);         /* STRUCTURAL — frame bars, elbows, spacers (#E6661D) */
+       Ref: docs/lcars-design-reference.md §2.0, V23.01 palette image.
+       Compared with lcars Shiny defaults (leonawicz/lcars) — V23.01
+       preferred for cinematic warmth; Shiny runs too bright/saturated. */
+    --lcars-frame: var(--lcars-golden-tanoi);      /* STRUCTURAL — #FFCC66 (lcars Shiny convention) */
     --lcars-accent: var(--v23-gold-med);        /* PRIMARY/ACTIVE — row leaders, emphasis capsules (#ED924E) */
     --lcars-secondary: var(--v23-purple-med);  /* DATA tier 1 — entity names, primary values */
     --lcars-tertiary: var(--v23-magenta-med);  /* DATA tier 2 — identifiers (#B5517F) */
@@ -382,7 +433,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     padding: 10px 12px 10px 20px;
     min-height: 56px;
     flex-shrink: 0;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.85em;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -951,7 +1002,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     border: none;
     border-radius: 50vh;
     padding: 6px 16px;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.75em;
     font-weight: 700;
     text-transform: uppercase;
@@ -1190,14 +1241,14 @@ body[data-alert-level="3"] .lcars-hdr-arm,
 body[data-alert-level="3"] .lcars-hdr-endcap,
 body[data-alert-level="3"] .lcars-header-seg,
 body[data-alert-level="3"] .lcars-footer-seg {
-    background: #ffcc00 !important;
+    background: var(--alert-yellow-med, #CD870E) !important;
     color: #000 !important;
 }
 body[data-alert-level="3"] .lcars-elbow-connector-top {
-    background: radial-gradient(circle at 100% 100%, transparent var(--elbow-inner, 24px), #ffcc00 var(--elbow-inner, 24px)) !important;
+    background: radial-gradient(circle at 100% 100%, transparent var(--elbow-inner, 24px), var(--alert-yellow-med, #CD870E) var(--elbow-inner, 24px)) !important;
 }
 body[data-alert-level="3"] .lcars-elbow-connector-bottom {
-    background: radial-gradient(circle at 100% 0%, transparent var(--elbow-inner, 24px), #ffcc00 var(--elbow-inner, 24px)) !important;
+    background: radial-gradient(circle at 100% 0%, transparent var(--elbow-inner, 24px), var(--alert-yellow-med, #CD870E) var(--elbow-inner, 24px)) !important;
 }
 /* Yellow alert slow flash — ALL structural elements pulse 1→1/φ */
 body[data-alert-level="3"] .lcars-sidebar-cap-top,
@@ -1231,7 +1282,7 @@ body[data-alert-level="2"] .lcars-hdr-arm,
 body[data-alert-level="2"] .lcars-hdr-endcap,
 body[data-alert-level="2"] .lcars-header-seg,
 body[data-alert-level="2"] .lcars-footer-seg {
-    background: #882222 !important;
+    background: var(--alert-red-dark, #990000) !important;
     color: #fff !important;
 }
 body[data-alert-level="2"] .lcars-sidebar-cap-top,
@@ -1247,10 +1298,10 @@ body[data-alert-level="2"] .lcars-elbow-connector-bottom {
     animation: alert-slow-flash 3.236s ease-in-out infinite;
 }
 body[data-alert-level="2"] .lcars-elbow-connector-top {
-    background: radial-gradient(circle at 100% 100%, transparent var(--elbow-inner, 24px), #882222 var(--elbow-inner, 24px)) !important;
+    background: radial-gradient(circle at 100% 100%, transparent var(--elbow-inner, 24px), var(--alert-red-dark, #990000) var(--elbow-inner, 24px)) !important;
 }
 body[data-alert-level="2"] .lcars-elbow-connector-bottom {
-    background: radial-gradient(circle at 100% 0%, transparent var(--elbow-inner, 24px), #882222 var(--elbow-inner, 24px)) !important;
+    background: radial-gradient(circle at 100% 0%, transparent var(--elbow-inner, 24px), var(--alert-red-dark, #990000) var(--elbow-inner, 24px)) !important;
 }
 /* Title pills stay readable during red alert */
 body[data-alert-level="2"] .lcars-hdr-title {
@@ -1267,9 +1318,44 @@ body[data-alert-level="2"] .lcars-hdr-title {
     50%      { opacity: 0.618; }
 }
 
-/* Level 1 — full desaturation (everything affected) */
-body[data-alert-level="1"] {
-    filter: saturate(0) contrast(1.5);
+/* Black alert (level 1) — deep blue/cyan (trekcolors canon)
+   Used for maintenance windows, upgrades, deployments.
+   Two colors: navy structural + cyan text/accents */
+body[data-alert-level="1"] .lcars-sidebar-cap-top,
+body[data-alert-level="1"] .lcars-sidebar-cap-bottom,
+body[data-alert-level="1"] .lcars-sidebar-arm,
+body[data-alert-level="1"] .lcars-sidebar-spacer,
+body[data-alert-level="1"] .lcars-sidebar-drop,
+body[data-alert-level="1"] .lcars-sidebar-btn,
+body[data-alert-level="1"] .lcars-sidebar-exit,
+body[data-alert-level="1"] .lcars-hdr-arm,
+body[data-alert-level="1"] .lcars-hdr-endcap,
+body[data-alert-level="1"] .lcars-header-seg,
+body[data-alert-level="1"] .lcars-footer-seg {
+    background: var(--alert-black-med, #0E3A9B) !important;
+    color: var(--alert-black-cyan, #64FFFF) !important;
+}
+body[data-alert-level="1"] .lcars-elbow-connector-top {
+    background: radial-gradient(circle at 100% 100%, transparent var(--elbow-inner, 24px), var(--alert-black-med, #0E3A9B) var(--elbow-inner, 24px)) !important;
+}
+body[data-alert-level="1"] .lcars-elbow-connector-bottom {
+    background: radial-gradient(circle at 100% 0%, transparent var(--elbow-inner, 24px), var(--alert-black-med, #0E3A9B) var(--elbow-inner, 24px)) !important;
+}
+body[data-alert-level="1"] .lcars-sidebar-cap-top,
+body[data-alert-level="1"] .lcars-sidebar-cap-bottom,
+body[data-alert-level="1"] .lcars-sidebar-arm,
+body[data-alert-level="1"] .lcars-sidebar-spacer,
+body[data-alert-level="1"] .lcars-sidebar-drop,
+body[data-alert-level="1"] .lcars-sidebar-exit,
+body[data-alert-level="1"] .lcars-hdr-arm,
+body[data-alert-level="1"] .lcars-hdr-endcap,
+body[data-alert-level="1"] .lcars-elbow-connector-top,
+body[data-alert-level="1"] .lcars-elbow-connector-bottom {
+    animation: alert-slow-flash 3.236s ease-in-out infinite;
+}
+body[data-alert-level="1"] .lcars-hdr-title {
+    background: transparent !important;
+    color: var(--alert-black-cyan, #64FFFF) !important;
 }
 
 /* ── LCARS Blinkies (Activity Indicators) ──────────────── */
@@ -3309,7 +3395,7 @@ a.activity-link:hover {
 }
 /* Stardate: slow persistent pulse until tapped (first load) */
 .lcars-stardate-cell.hdr-attract {
-    animation: hdr-attract 3s ease-in-out infinite;
+    animation: hdr-attract 3s ease-in-out 5;
 }
 @keyframes hdr-flash {
     0%   { filter: brightness(1); }
@@ -3520,8 +3606,8 @@ a.activity-link:hover {
 }
 
 /* Alert: sidebar drop follows structural chrome color (matches main alert block) */
-body[data-alert-level="3"] .lcars-sidebar-drop { background: #ffcc00 !important; }
-body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important; }
+body[data-alert-level="3"] .lcars-sidebar-drop { background: var(--alert-yellow-med, #CD870E) !important; }
+body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dark, #990000) !important; }
 
 /* Connectors use grid placement — no mobile hide needed */
 

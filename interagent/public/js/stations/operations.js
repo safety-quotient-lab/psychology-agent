@@ -386,38 +386,53 @@ function renderMobilePills() {
             const b = online ? (d.data?.autonomy_budget || {}) : {};
             const gf = getDeliberations(b);
             const gc = online ? (d.data?.gc_metrics?.gc_handled_total || 0) : 0;
-            const health = (d?.data?.health || "unknown").toUpperCase();
-            if (health === "HEALTHY") health = "NOMINAL";
+            const rawHealth = (d?.data?.health || "unknown").toLowerCase();
+            const healthStr = rawHealth === "healthy" ? "NOMINAL" : rawHealth.toUpperCase();
+            const hColor = online ? healthColor(rawHealth) : "var(--text-dim)";
             const connDot = `<span class="ohniaka-status-pill${!online ? " agent-name-offline" : ""}" style="background:${online ? "#22cc44" : "#cc2222"}"></span>`;
             const barClass = online ? "agent-pill-bar" : "agent-pill-bar agent-pill-bar-offline";
+            const pending = online ? (d.data?.unprocessed_messages || []).length : 0;
+            const mood = d?.data?.psychometrics?.emotional_state?.affect_category || "";
+            // Operation mode (same logic as desktop table)
+            const osc = d?.data?.oscillator || {};
+            const band = osc.dominant_band || "";
+            const recentDelibs = d.data?.recent_deliberations || [];
+            const latestTs = recentDelibs[0]?.started_at || "";
+            const delibRecent = latestTs && (Date.now() - new Date(latestTs.replace(" ", "T") + "Z").getTime()) < 300000;
+            let opLabel = "IDLE", opIcon = "\u23F8";
+            if (band.startsWith("beta") || band.startsWith("gamma") || (online && delibRecent)) { opLabel = "DELIB"; opIcon = "\u26A1"; }
+            else if (band.startsWith("theta")) { opLabel = "CONSOL"; opIcon = "\u{1F4E6}"; }
+            else if (band.startsWith("delta")) { opLabel = "CLEAR"; opIcon = "\u{1F9F9}"; }
 
-            // Collapsed bar
+            // Collapsed bar — shows all key metrics matching desktop columns
             html += `<div class="${barClass}" onclick="this.nextElementSibling.classList.toggle('expanded')">
                 <span class="ohniaka-color-pill" style="background:${agent.color}"></span>
                 ${connDot}
                 <span style="color:var(--lcars-secondary)">${agentName(agent).toUpperCase()}</span>
                 <span class="agent-pill-metrics">
+                    <span style="color:${hColor}">${online ? healthStr : "OFFLINE"}</span>
                     <span style="color:var(--lcars-secondary)">Gc ${fmtNum(gc)}</span>
                     <span style="color:var(--lcars-accent)">Gf ${fmtNum(gf)}</span>
-                    <span style="color:${online ? "var(--text-dim)" : "var(--lcars-alert)"}">${online ? health : "OFFLINE"}</span>
+                    <span style="color:var(--text-dim)">${online ? opIcon + " " + opLabel : "\u2014"}</span>
+                    <span style="color:var(--text-dim)">${online && mood ? mood.toUpperCase() : ""}</span>
+                    ${pending > 0 ? `<span style="color:var(--lcars-title)">PEND ${pending}</span>` : ""}
                 </span>
             </div>`;
 
-            // Expanded detail card
-            const pending = online ? (d.data?.unprocessed_messages || []).length : 0;
+            // Expanded detail card — reuses variables from collapsed bar above
             const gates = online ? (d.data?.active_gates || []).length : 0;
             const uptime = d?.data?.uptime || "\u2014";
             const schema = d?.data?.schema_version || "\u2014";
             const events = d?.data?.event_count || 0;
-            const mood = d?.data?.psychometrics?.emotional_state?.affect_category || "unknown";
+            const moodDetail = mood || "unknown";
             const lastSync = d?.data?.schedule?.last_sync_time || d?.data?.collected_at || "\u2014";
 
             html += `<div class="agent-pill-detail" style="border-color:${agent.color}">
                 <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${online ? "ONLINE" : "OFFLINE"}</span></div>
-                <div class="detail-row"><span class="detail-label">Health</span><span class="detail-value">${health}</span></div>
+                <div class="detail-row"><span class="detail-label">Health</span><span class="detail-value" style="color:${hColor}">${online ? healthStr : "\u2014"}</span></div>
                 <div class="detail-row"><span class="detail-label">Gf (Fluid)</span><span class="detail-value" style="color:var(--lcars-accent)">${fmtNum(gf)}</span></div>
                 <div class="detail-row"><span class="detail-label">Gc (Crystal)</span><span class="detail-value" style="color:var(--lcars-secondary)">${fmtNum(gc)}</span></div>
-                <div class="detail-row"><span class="detail-label">Affect</span><span class="detail-value">${mood.toUpperCase()}</span></div>
+                <div class="detail-row"><span class="detail-label">Affect</span><span class="detail-value">${moodDetail.toUpperCase()}</span></div>
                 <div class="detail-row"><span class="detail-label">Pending</span><span class="detail-value" style="color:${pending > 0 ? "var(--lcars-title)" : "var(--text-dim)"}">${pending}</span></div>
                 <div class="detail-row"><span class="detail-label">Gates</span><span class="detail-value">${gates}</span></div>
                 <div class="detail-row"><span class="detail-label">Events</span><span class="detail-value">${events}</span></div>

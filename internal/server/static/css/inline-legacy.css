@@ -13,7 +13,8 @@
     font-style: normal;
     font-display: swap;
 }
-/* Oswald — OFL, used by leonawicz/lcars Shiny package as LCARS body font */
+/* Oswald — OFL, used by leonawicz/lcars Shiny package.
+   Used here for LCARS buttons + headings only (wider letter forms). */
 @font-face {
     font-family: 'Oswald';
     src: url('/fonts/oswald-bold.woff2') format('woff2');
@@ -212,8 +213,10 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     /* ── Semantic mapping (roles → palette) ── */
     /* ── Semiotic Color Mapping (V23.01 → LCARS function) ──────
        Canon: color = CATEGORY, never status. Status uses brightness.
-       Ref: docs/lcars-design-reference.md §2.0, V23.01 palette image */
-    --lcars-frame: var(--v23-orange-med);         /* STRUCTURAL — frame bars, elbows, spacers (#E6661D) */
+       Ref: docs/lcars-design-reference.md §2.0, V23.01 palette image.
+       Compared with lcars Shiny defaults (leonawicz/lcars) — V23.01
+       preferred for cinematic warmth; Shiny runs too bright/saturated. */
+    --lcars-frame: var(--lcars-golden-tanoi);      /* STRUCTURAL — #FFCC66 (lcars Shiny convention) */
     --lcars-accent: var(--v23-gold-med);        /* PRIMARY/ACTIVE — row leaders, emphasis capsules (#ED924E) */
     --lcars-secondary: var(--v23-purple-med);  /* DATA tier 1 — entity names, primary values */
     --lcars-tertiary: var(--v23-magenta-med);  /* DATA tier 2 — identifiers (#B5517F) */
@@ -430,7 +433,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     padding: 10px 12px 10px 20px;
     min-height: 56px;
     flex-shrink: 0;
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.85em;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -502,7 +505,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     align-items: flex-end; /* bottom-aligned text — canonical */
     justify-content: center; /* centered horizontally */
     padding: 8px 18px;
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.85em;
     font-weight: 700;
     text-transform: uppercase;
@@ -571,7 +574,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     align-items: center;
     justify-content: flex-end;
     padding: 4px 14px;
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.72em;
     font-weight: 700;
     text-transform: uppercase;
@@ -616,7 +619,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     color: #000;
     border-bottom: none;
     border-radius: 0 12px 0 0;
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
 }
 
 /* ── Three-Zone Panel Layout (§1.2) ───────────────────────── */
@@ -665,7 +668,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     justify-content: space-between;
     align-items: center;
     padding: 6px 16px;
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.72em;
     font-weight: 700;
     text-transform: uppercase;
@@ -875,7 +878,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 
 /* Agent shortcodes in LCARS mode (Pattern #5) */
 .theme-lcars .agent-name {
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     letter-spacing: 0.06em;
 }
 
@@ -889,7 +892,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     color: #000;
     padding: 4px 16px;
     border-radius: 0 0 12px 0;
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.68em;
     font-weight: 700;
     text-transform: uppercase;
@@ -908,7 +911,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.65em;
     font-weight: 700;
     color: rgba(255,255,255,0.15);
@@ -941,7 +944,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.68em;
     font-weight: 700;
     color: #000;
@@ -979,7 +982,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     border: none;
     border-radius: 50vh;
     padding: 2px 10px;
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.7em;
     font-weight: 700;
     text-transform: uppercase;
@@ -999,7 +1002,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     border: none;
     border-radius: 50vh;
     padding: 6px 16px;
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.75em;
     font-weight: 700;
     text-transform: uppercase;
@@ -1061,7 +1064,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 }
 .lcars-detail-header {
     padding: 10px 16px;
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.78em;
     font-weight: 700;
     text-transform: uppercase;
@@ -1080,7 +1083,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .lcars-detail-footer {
     padding: 8px 16px;
     color: #000;
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.72em;
     font-weight: 700;
     text-transform: uppercase;
@@ -1238,14 +1241,14 @@ body[data-alert-level="3"] .lcars-hdr-arm,
 body[data-alert-level="3"] .lcars-hdr-endcap,
 body[data-alert-level="3"] .lcars-header-seg,
 body[data-alert-level="3"] .lcars-footer-seg {
-    background: #ffcc00 !important;
+    background: var(--alert-yellow-med, #CD870E) !important;
     color: #000 !important;
 }
 body[data-alert-level="3"] .lcars-elbow-connector-top {
-    background: radial-gradient(circle at 100% 100%, transparent var(--elbow-inner, 24px), #ffcc00 var(--elbow-inner, 24px)) !important;
+    background: radial-gradient(circle at 100% 100%, transparent var(--elbow-inner, 24px), var(--alert-yellow-med, #CD870E) var(--elbow-inner, 24px)) !important;
 }
 body[data-alert-level="3"] .lcars-elbow-connector-bottom {
-    background: radial-gradient(circle at 100% 0%, transparent var(--elbow-inner, 24px), #ffcc00 var(--elbow-inner, 24px)) !important;
+    background: radial-gradient(circle at 100% 0%, transparent var(--elbow-inner, 24px), var(--alert-yellow-med, #CD870E) var(--elbow-inner, 24px)) !important;
 }
 /* Yellow alert slow flash — ALL structural elements pulse 1→1/φ */
 body[data-alert-level="3"] .lcars-sidebar-cap-top,
@@ -1279,7 +1282,7 @@ body[data-alert-level="2"] .lcars-hdr-arm,
 body[data-alert-level="2"] .lcars-hdr-endcap,
 body[data-alert-level="2"] .lcars-header-seg,
 body[data-alert-level="2"] .lcars-footer-seg {
-    background: #882222 !important;
+    background: var(--alert-red-dark, #990000) !important;
     color: #fff !important;
 }
 body[data-alert-level="2"] .lcars-sidebar-cap-top,
@@ -1295,10 +1298,10 @@ body[data-alert-level="2"] .lcars-elbow-connector-bottom {
     animation: alert-slow-flash 3.236s ease-in-out infinite;
 }
 body[data-alert-level="2"] .lcars-elbow-connector-top {
-    background: radial-gradient(circle at 100% 100%, transparent var(--elbow-inner, 24px), #882222 var(--elbow-inner, 24px)) !important;
+    background: radial-gradient(circle at 100% 100%, transparent var(--elbow-inner, 24px), var(--alert-red-dark, #990000) var(--elbow-inner, 24px)) !important;
 }
 body[data-alert-level="2"] .lcars-elbow-connector-bottom {
-    background: radial-gradient(circle at 100% 0%, transparent var(--elbow-inner, 24px), #882222 var(--elbow-inner, 24px)) !important;
+    background: radial-gradient(circle at 100% 0%, transparent var(--elbow-inner, 24px), var(--alert-red-dark, #990000) var(--elbow-inner, 24px)) !important;
 }
 /* Title pills stay readable during red alert */
 body[data-alert-level="2"] .lcars-hdr-title {
@@ -1315,9 +1318,44 @@ body[data-alert-level="2"] .lcars-hdr-title {
     50%      { opacity: 0.618; }
 }
 
-/* Level 1 — full desaturation (everything affected) */
-body[data-alert-level="1"] {
-    filter: saturate(0) contrast(1.5);
+/* Black alert (level 1) — deep blue/cyan (trekcolors canon)
+   Used for maintenance windows, upgrades, deployments.
+   Two colors: navy structural + cyan text/accents */
+body[data-alert-level="1"] .lcars-sidebar-cap-top,
+body[data-alert-level="1"] .lcars-sidebar-cap-bottom,
+body[data-alert-level="1"] .lcars-sidebar-arm,
+body[data-alert-level="1"] .lcars-sidebar-spacer,
+body[data-alert-level="1"] .lcars-sidebar-drop,
+body[data-alert-level="1"] .lcars-sidebar-btn,
+body[data-alert-level="1"] .lcars-sidebar-exit,
+body[data-alert-level="1"] .lcars-hdr-arm,
+body[data-alert-level="1"] .lcars-hdr-endcap,
+body[data-alert-level="1"] .lcars-header-seg,
+body[data-alert-level="1"] .lcars-footer-seg {
+    background: var(--alert-black-med, #0E3A9B) !important;
+    color: var(--alert-black-cyan, #64FFFF) !important;
+}
+body[data-alert-level="1"] .lcars-elbow-connector-top {
+    background: radial-gradient(circle at 100% 100%, transparent var(--elbow-inner, 24px), var(--alert-black-med, #0E3A9B) var(--elbow-inner, 24px)) !important;
+}
+body[data-alert-level="1"] .lcars-elbow-connector-bottom {
+    background: radial-gradient(circle at 100% 0%, transparent var(--elbow-inner, 24px), var(--alert-black-med, #0E3A9B) var(--elbow-inner, 24px)) !important;
+}
+body[data-alert-level="1"] .lcars-sidebar-cap-top,
+body[data-alert-level="1"] .lcars-sidebar-cap-bottom,
+body[data-alert-level="1"] .lcars-sidebar-arm,
+body[data-alert-level="1"] .lcars-sidebar-spacer,
+body[data-alert-level="1"] .lcars-sidebar-drop,
+body[data-alert-level="1"] .lcars-sidebar-exit,
+body[data-alert-level="1"] .lcars-hdr-arm,
+body[data-alert-level="1"] .lcars-hdr-endcap,
+body[data-alert-level="1"] .lcars-elbow-connector-top,
+body[data-alert-level="1"] .lcars-elbow-connector-bottom {
+    animation: alert-slow-flash 3.236s ease-in-out infinite;
+}
+body[data-alert-level="1"] .lcars-hdr-title {
+    background: transparent !important;
+    color: var(--alert-black-cyan, #64FFFF) !important;
 }
 
 /* ── LCARS Blinkies (Activity Indicators) ──────────────── */
@@ -1355,7 +1393,7 @@ body[data-alert-level="1"] {
     border: 2px solid #333355;
 }
 .theme-lcars .topology-svg text {
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-weight: 700;
     letter-spacing: 0.06em;
 }
@@ -3355,7 +3393,7 @@ a.activity-link:hover {
 .lcars-stardate-cell.hdr-changed {
     animation: hdr-flash 2s ease-in-out 1;
 }
-/* Stardate: 5 flashes on first load, then stops */
+/* Stardate: slow persistent pulse until tapped (first load) */
 .lcars-stardate-cell.hdr-attract {
     animation: hdr-attract 3s ease-in-out 5;
 }
@@ -3419,7 +3457,7 @@ a.activity-link:hover {
     padding: 0 14px;
     height: 0;
     opacity: 0;
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.72em;
     font-weight: 700;
     text-transform: uppercase;
@@ -3488,7 +3526,7 @@ a.activity-link:hover {
         padding: 0 14px;
         height: 0;
         opacity: 0;
-        font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+        font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
         font-size: 0.72em;
         font-weight: 700;
         text-transform: uppercase;
@@ -3568,8 +3606,8 @@ a.activity-link:hover {
 }
 
 /* Alert: sidebar drop follows structural chrome color (matches main alert block) */
-body[data-alert-level="3"] .lcars-sidebar-drop { background: #ffcc00 !important; }
-body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important; }
+body[data-alert-level="3"] .lcars-sidebar-drop { background: var(--alert-yellow-med, #CD870E) !important; }
+body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dark, #990000) !important; }
 
 /* Connectors use grid placement — no mobile hide needed */
 
@@ -3621,7 +3659,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     gap: 0 var(--gap-xl);
     min-width: max-content;
     overflow-x: visible;
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.78em;
     font-weight: 700;
     text-transform: uppercase;
@@ -3711,7 +3749,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     padding: var(--gap-m) var(--gap-l);
     border-bottom: 1px solid rgba(255,255,255,0.08);
     cursor: pointer;
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.78em;
     font-weight: 700;
     text-transform: uppercase;
@@ -3730,7 +3768,6 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     padding-left: calc(10px + 10px + var(--gap-m) + var(--gap-m));
     font-size: 0.85em;
     opacity: 0.8;
-    align-items: center;
 }
 .agent-pill-metrics span { white-space: nowrap; }
 
@@ -3889,13 +3926,13 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     min-width: 48px;
 }
 .ohniaka-metric-val {
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 1.4em;
     font-weight: 700;
     line-height: 1;
 }
 .ohniaka-metric-key {
-    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.65em;
     font-weight: 600;
     color: var(--text-dim);
