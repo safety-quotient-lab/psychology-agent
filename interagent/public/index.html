@@ -89,11 +89,10 @@
                 <div class="stardate-tray-pill" style="background:var(--lcars-secondary)" id="lcars-hdr-proto">A2A/1.0.0</div>
                 <div class="stardate-tray-pill" style="background:var(--lcars-highlight)" id="lcars-hdr-psych">A2A-PSYCH/v1</div>
                 <div class="stardate-tray-pill" style="background:var(--lcars-tertiary)" id="lcars-hdr-health">&#x25CF; —</div>
+                <div class="stardate-tray-pill" id="lcars-version-pill" style="background:var(--lcars-accent);display:none;cursor:pointer" onclick="document.getElementById('lcars-update-bar').classList.toggle('expanded')">&#x25CF; UPDATE</div>
             </div>
         </div>
-        <div class="lcars-hdr-endcap" style="position:relative">
-            <span id="lcars-version-dot" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:#22cc44;animation:alert-slow-flash 2s ease-in-out infinite;cursor:pointer" onclick="document.getElementById('lcars-update-bar').classList.toggle('expanded')"></span>
-        </div>
+        <div class="lcars-hdr-endcap"></div>
     </div>
     <!-- Update notification bar — slides down when version dot tapped -->
     <div id="lcars-update-bar" class="lcars-update-bar">

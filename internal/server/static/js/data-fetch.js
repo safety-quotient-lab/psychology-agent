@@ -7,9 +7,12 @@ function checkVersionHeader(resp) {
     if (!sv) return;
     if (!_loadedVersion) { _loadedVersion = sv; return; }
     if (sv !== _loadedVersion) {
-        // Server has new version — show reload indicator
-        const dot = document.getElementById("lcars-version-dot");
-        if (dot) { dot.style.display = "inline-block"; dot.title = `New version: ${sv}`; }
+        // Server has new version — show UPDATE pill in stardate tray
+        const pill = document.getElementById("lcars-version-pill");
+        if (pill) { pill.style.display = "flex"; pill.title = `New version: ${sv}`; }
+        // Flash the stardate cell to draw attention
+        const sd = document.getElementById("lcars-hdr-stardate");
+        if (sd) sd.classList.add("hdr-attract");
     }
 }
 
