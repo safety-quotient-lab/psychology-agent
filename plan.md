@@ -185,7 +185,7 @@
 - [x] deliver-to-peer.sh in SDK (agent-agnostic identity)
 - [x] trust→autonomy vocabulary rename (mesh-wide, 11 files)
 - [x] A2A-Psychology rollout approved + delivered to all 4 peers
-- [ ] Extract platform meshd into dedicated repo
+- [~] Extract platform meshd into dedicated repo — RESOLVED: operations-agent stays canonical source (cmd/meshd/ + internal/). Separate meshd repo (/Projects/meshd) mirrors for deployment only. meshctl depends on internal/ packages.
 - [ ] --force directive: hard-mandatory enforcement (operations + psychology authorized)
 - [ ] Solid-OIDC auth layer
 - [ ] DNS rename psq → safety-quotient-agent
