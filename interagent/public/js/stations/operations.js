@@ -289,6 +289,7 @@ function renderOpsBudget() {
         const es = psych.emotional_state || {};
         const mood = es.affect_category || (online ? "unknown" : "");
         const pending = online ? (d.data?.unprocessed_messages || []).length : 0;
+        const gc = online ? (d.data?.gc_metrics?.gc_handled_total || 0) : 0;
         const gates = online ? (d.data?.active_gates || []).length : 0;
 
         const cutoffStr = cutoff > 0 ? fmtNum(cutoff) : "\u221E";
@@ -297,7 +298,11 @@ function renderOpsBudget() {
         const band = osc.dominant_band || "";
         let opType = "IDLE";
         let opIcon = "\u23F8"; // pause
-        if (band.startsWith("beta") || band.startsWith("gamma") || (online && deliberations > 0 && d.data?.recent_deliberations?.length > 0)) {
+        // Check recency — only show DELIB if deliberated within last 5 minutes
+        const recentDelibs = d.data?.recent_deliberations || [];
+        const latestTs = recentDelibs[0]?.started_at || "";
+        const delibRecent = latestTs && (Date.now() - new Date(latestTs.replace(" ", "T") + "Z").getTime()) < 300000;
+        if (band.startsWith("beta") || band.startsWith("gamma") || (online && delibRecent)) {
             opType = "DELIB"; opIcon = "\u26A1"; opColor = "var(--lcars-title)"; // amber + lightning
         } else if (band.startsWith("theta")) {
             opType = "CONSOL"; opIcon = "\u{1F4E6}"; opColor = "var(--lcars-science)"; // blue + archive
@@ -326,7 +331,7 @@ function renderOpsBudget() {
             <span class="ohniaka-col ohniaka-type">${online ? "ONLINE" : "OFFLINE"}</span>
             <span class="ohniaka-col ohniaka-health" style="color:${healthColor}">${online ? healthStr : "\u2014"}</span>
             <span class="ohniaka-col ohniaka-id">${online ? fmtNum(deliberations) + " / " + cutoffStr : "\u2014"}</span>
-            <span class="ohniaka-col ohniaka-desc">${statusText}${pending > 0 ? " · " + pending + " PEND" : ""}${gates > 0 ? " · " + gates + " GATE" : ""}</span>
+            <span class="ohniaka-col ohniaka-desc">${statusText}${gc > 0 ? " · Gc " + fmtNum(gc) : ""}${pending > 0 ? " · " + pending + " PEND" : ""}${gates > 0 ? " · " + gates + " GATE" : ""}</span>
         </div>`;
     }
 
