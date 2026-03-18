@@ -33,7 +33,17 @@
     <!-- TODO: consolidate inline-legacy.css into theme.css + layout.css + components.css -->
 
 </head>
-<body>
+<body style="opacity:0;transition:opacity 0.15s">
+<script>
+// Restore theme immediately (before paint) to prevent flash of unstyled content
+(function(){
+    var t = localStorage.getItem("theme");
+    if (t === "lcars") document.body.classList.add("theme-lcars");
+    else if (t === "light") document.body.classList.add("theme-light");
+    // Reveal body after theme class applied
+    document.body.style.opacity = "1";
+})();
+</script>
 
 <div class="lcars-frame">
     <!-- SVG L-shape frame — one continuous path, no seams -->
