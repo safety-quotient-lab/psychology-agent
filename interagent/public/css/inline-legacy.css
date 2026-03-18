@@ -3579,7 +3579,8 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     align-items: center;
 }
 .ohniaka-row:last-child { border-bottom: none; }
-.ohniaka-col { white-space: nowrap; }
+.ohniaka-col { white-space: nowrap; text-align: right; }
+.ohniaka-name { text-align: left; } /* name left-aligned, everything else right */
 /* Small square pills — agent color identity + status indicator */
 .ohniaka-color-pill {
     width: 10px; height: 10px;
@@ -3599,7 +3600,8 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     border-bottom: 2px solid var(--panel-accent, var(--lcars-frame));
     padding-bottom: var(--gap-s);
 }
-.ohniaka-header .ohniaka-col { color: var(--lcars-title); white-space: nowrap; }
+.ohniaka-header .ohniaka-col { color: var(--lcars-title); white-space: nowrap; text-align: right; }
+.ohniaka-header .ohniaka-name { text-align: left; }
 .ohniaka-name { color: var(--lcars-secondary); } /* purple — entity name */
 .ohniaka-conn { color: var(--lcars-secondary); opacity: 0.7; } /* connectivity */
 .ohniaka-gf { color: var(--lcars-accent); } /* orange — fluid processing count */
