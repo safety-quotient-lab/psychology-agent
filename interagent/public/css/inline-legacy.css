@@ -3764,13 +3764,13 @@ a.activity-link:hover {
     /* background set by .theme-lcars rule → var(--lcars-frame) */
 }
 @media (max-width: 768px) {
-    .lcars-sidebar-drop { min-height: var(--gap-s, 5px); }
+    .lcars-sidebar-drop { min-height: var(--gap-2xl, 34px); }
 }
 @media (max-width: 480px) {
-    .lcars-sidebar-drop { min-height: var(--gap-m, 8px); }
+    .lcars-sidebar-drop { min-height: var(--gap-xl, 21px); }
 }
 @media (max-height: 500px) and (orientation: landscape) {
-    .lcars-sidebar-drop { min-height: var(--gap-m, 8px); }
+    .lcars-sidebar-drop { min-height: var(--gap-l, 13px); }
 }
 
 /* Alert: sidebar drop follows structural chrome color (matches main alert block) */
