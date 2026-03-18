@@ -620,13 +620,23 @@ func main() {
 		"subsystems", "queue,dispatcher,watcher,monitor,server,poll,fetcher",
 	)
 
-	// Delayed startup broadcast — push full status to all SSE/WS clients
-	// after server goes live. Ensures dashboards see new version + uptime
-	// immediately (triggers black alert on deploy via real-time push).
+	// Delayed startup broadcast — push full status + stand-down to all
+	// SSE/WS clients after server goes live.
 	go func() {
 		time.Sleep(3 * time.Second) // wait for server + clients to connect
 		srv.BroadcastStatus()
-		logger.Info("startup status broadcast sent")
+		// Stand down any deploy-triggered black alert
+		if srv.SSEBroadcast != nil {
+			srv.SSEBroadcast(server.SSEEvent{
+				Type: "alert",
+				Data: map[string]string{
+					"level":    "5",
+					"reason":   "meshd startup complete",
+					"agent_id": cfg.AgentID,
+				},
+			})
+		}
+		logger.Info("startup status + stand-down broadcast sent")
 	}()
 
 	// ── Wait for shutdown signal ───────────────────────────────────
