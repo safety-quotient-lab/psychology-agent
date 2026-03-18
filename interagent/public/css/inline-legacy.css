@@ -439,6 +439,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     letter-spacing: 0.08em;
     text-transform: uppercase;
     text-align: left;
+    background: var(--lcars-atomic-tangerine); /* all nav buttons same color — canon */
     color: #000;
     cursor: pointer;
     margin-bottom: var(--gap-m);
@@ -446,9 +447,9 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 }
 .lcars-sidebar-btn:hover { filter: brightness(1.15); }
 .lcars-sidebar-btn.active {
-    background: var(--lcars-accent) !important;
+    background: var(--lcars-orange-peel) !important; /* active = slightly lighter/warmer shade */
     color: #000;
-    filter: brightness(1.1);
+    filter: brightness(1.15);
 }
 
 /* Sidebar spacer blocks — visual rhythm, no text.
