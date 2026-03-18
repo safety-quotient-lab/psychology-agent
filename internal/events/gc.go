@@ -76,18 +76,17 @@ func handlePollTick(cfg GcConfig) bool {
 		logger.Info("Gc: pulled new commits (non-transport)", "commits", newCommits)
 	}
 
-	// Check for open PRs — auto-merge transport ACKs
-	prCmd := exec.Command("gh", "pr", "list", "--state", "open", "--json", "number,title,headRefName")
-	prOut, err := prCmd.Output()
-	if err == nil && len(prOut) > 2 {
-		// Parse and classify PRs
-		prStr := string(prOut)
-		if classifyAndMergePRs(cfg, prStr) {
-			logger.Info("Gc: auto-merged transport ACK PRs")
-		}
+	// Check for pending remote branches (replaces gh pr list to avoid API rate limits)
+	branchCmd := exec.Command("git", "-C", cfg.RepoRoot, "branch", "-r", "--list", "origin/*-ack*")
+	branchOut, err := branchCmd.Output()
+	if err == nil && len(strings.TrimSpace(string(branchOut))) > 0 {
+		ackBranches := strings.TrimSpace(string(branchOut))
+		logger.Info("Gc: found remote ACK branches", "branches", ackBranches)
+		// Auto-merge disabled — oscillator handles deliberation decisions
+		// ACK branches detected but left for manual review
 
-		// If non-ACK PRs remain, delegate to Gf
-		if hasNonACKPRs(prStr) {
+		// If non-ACK branches exist, delegate to Gf
+		if hasNonACKPRs(ackBranches) {
 			logger.Info("Gc: non-ACK PRs detected — delegating to Gf")
 			return false
 		}
@@ -104,17 +103,10 @@ func handleTransportACK(cfg GcConfig, evt Event) bool {
 		return false
 	}
 
-	mergeCmd := exec.Command("gh", "pr", "merge", prNumber, "--merge")
-	out, err := mergeCmd.CombinedOutput()
-	if err != nil {
-		cfg.Logger.Warn("Gc: auto-merge failed",
-			"pr", prNumber,
-			"error", string(out))
-		return false
-	}
-
-	cfg.Logger.Info("Gc: auto-merged transport ACK PR", "pr", prNumber)
-	return true
+	// Auto-merge disabled — oscillator handles deliberation decisions.
+	// Logged for observability but not auto-merged (avoids gh API rate limits).
+	cfg.Logger.Info("Gc: transport ACK detected, logged for review", "pr", prNumber)
+	return false
 }
 
 // classifyAndMergePRs parses the PR list JSON and auto-merges ACK PRs.
@@ -150,16 +142,10 @@ func classifyAndMergePRs(cfg GcConfig, prJSON string) bool {
 		}
 		prNum := strings.TrimSpace(numStr[:numEnd])
 
-		mergeCmd := exec.Command("gh", "pr", "merge", prNum, "--merge",
-			"--repo", "safety-quotient-lab/operations-agent")
-		out, err := mergeCmd.CombinedOutput()
-		if err != nil {
-			cfg.Logger.Warn("Gc: ACK PR auto-merge failed",
-				"pr", prNum, "error", string(out))
-		} else {
-			cfg.Logger.Info("Gc: auto-merged ACK PR", "pr", prNum)
-			merged = true
-		}
+		// Auto-merge disabled — avoids gh API rate limits.
+		// ACK branches logged for oscillator/human review.
+		cfg.Logger.Info("Gc: ACK branch detected", "pr", prNum)
+		merged = true // signal that ACKs exist
 	}
 	return merged
 }
