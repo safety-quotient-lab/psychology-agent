@@ -352,7 +352,7 @@ function renderOpsBudget() {
 
     // Orange separator between groups
     if (autonomous.length > 0 && interactive.length > 0) {
-        html += `<div class="ohniaka-separator"></div>`;
+        html += `<div class="ohniaka-separator" style="grid-column: 1 / -1"></div>`;
     }
 
     // Interactive group

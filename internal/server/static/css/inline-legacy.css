@@ -3565,12 +3565,11 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
 /* ── Ohniaka B3 Structured Table (Mesh Overview) ─────────── */
 /* Colored text columns, no pill backgrounds. Spacing + color
    creates structure per "STARSHIP MISSION STATUS" pattern. */
-.ohniaka-row {
+/* Parent grid — all rows share column tracks for alignment */
+.lcars-subsystem-grid {
     display: grid;
     grid-template-columns: 10px minmax(60px, 1fr) 10px auto auto auto auto auto auto auto;
-    gap: var(--gap-xl);
-    padding: var(--gap-m) 0;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    gap: 0 var(--gap-xl);
     font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.78em;
     font-weight: 700;
@@ -3578,7 +3577,24 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     letter-spacing: 0.04em;
     align-items: center;
 }
-.ohniaka-row:last-child { border-bottom: none; }
+/* Each row uses display:contents so its children participate in the parent grid */
+.ohniaka-row {
+    display: contents;
+}
+/* Row separator via bottom border on the last cell of each row */
+.ohniaka-row > :last-child {
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: var(--gap-m);
+}
+.ohniaka-row > :first-child {
+    padding-top: var(--gap-m);
+}
+/* Extend padding to all cells in row */
+.ohniaka-row > * {
+    padding-top: var(--gap-m);
+    padding-bottom: var(--gap-m);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
 .ohniaka-col { white-space: nowrap; text-align: left; }
 /* Small square pills — agent color identity + status indicator */
 .ohniaka-color-pill {
@@ -3591,15 +3607,25 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     border-radius: 50%;
     display: inline-block;
 }
-/* Header row — gold text, smaller, no bottom border */
-.ohniaka-header {
+/* Header row — gold text, uses display:contents like data rows */
+.ohniaka-header > * {
     color: var(--lcars-title) !important;
     font-size: 0.65em;
     opacity: 0.8;
-    border-bottom: 2px solid var(--panel-accent, var(--lcars-frame));
-    padding-bottom: var(--gap-s);
+    border-bottom: 2px solid var(--panel-accent, var(--lcars-frame)) !important;
+    padding-bottom: var(--gap-s) !important;
+    white-space: nowrap;
+    text-align: left;
 }
-.ohniaka-header .ohniaka-col { color: var(--lcars-title); white-space: nowrap; text-align: left; }
+/* Separator spans full grid width */
+.ohniaka-separator {
+    height: var(--gap-xs);
+    background: var(--lcars-frame);
+    margin: var(--gap-s) 0;
+    border-radius: 1px;
+    opacity: 0.6;
+    border-bottom: none !important;
+}
 .ohniaka-name { color: var(--lcars-secondary); } /* purple — entity name */
 .ohniaka-conn { color: var(--lcars-secondary); opacity: 0.7; } /* connectivity */
 .ohniaka-gf { color: var(--lcars-accent); } /* orange — fluid processing count */
