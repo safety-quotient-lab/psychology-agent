@@ -445,7 +445,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     background: var(--lcars-atomic-tangerine); /* all nav buttons same color — canon */
     color: #000;
     cursor: pointer;
-    margin-bottom: var(--gap-l, 13px); /* generous gap — canonical black void */
+    margin-bottom: var(--gap-xs); /* match header band segment gap */
     transition: filter 0.15s, padding-left 0.15s;
 }
 .lcars-sidebar-btn:hover { filter: brightness(1.15); }
@@ -463,7 +463,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .lcars-sidebar-spacer {
     min-height: 28px;
     flex-shrink: 0;
-    margin-bottom: var(--gap-m);
+    margin-bottom: var(--gap-xs); /* match button gap */
 }
 /* Spacers use frame gradient (set in .theme-lcars block above) */
 
@@ -3753,22 +3753,18 @@ a.activity-link:hover {
     .lcars-hdr-endcap { flex: 0 0 16px; }
 }
 
-/* ── Sidebar drop — structural block at elbow transitions ──── */
+/* ── Sidebar drop — structural block at elbow transition ──── */
 .lcars-sidebar-drop {
-    min-height: calc(var(--gap-3xl, 55px) + var(--gap-xl, 21px)); /* 2φ + 1φ extra */
+    min-height: var(--gap-xl, 21px);
     flex-shrink: 0;
-    margin-bottom: 0;
+    margin-bottom: var(--gap-xs);
     border-radius: 0;
 }
-/* Top drop (after cap-top): gap before first button matches pill gaps */
-.lcars-sidebar-cap-top + .lcars-sidebar-drop {
-    margin-bottom: var(--gap-m, 8px);
-}
 @media (max-width: 768px) {
-    .lcars-sidebar-drop { min-height: calc(var(--gap-2xl, 34px) + var(--gap-xl, 21px)); }
+    .lcars-sidebar-drop { min-height: var(--gap-l, 13px); }
 }
 @media (max-width: 480px) {
-    .lcars-sidebar-drop { min-height: calc(var(--gap-l, 13px) + var(--gap-xl, 21px)); }
+    .lcars-sidebar-drop { min-height: var(--gap-m, 8px); }
 }
 @media (max-height: 500px) and (orientation: landscape) {
     .lcars-sidebar-drop { min-height: var(--gap-m, 8px); }
