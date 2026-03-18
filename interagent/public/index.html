@@ -222,15 +222,19 @@
                 </div>
             </div>
 
-            <!-- Section jump nav (T18 Check 7) -->
-            <nav class="section-jump-nav" aria-label="Meta sections">
-                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-messages').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Messages</a>
-                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-memory').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Memory</a>
-                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-debt').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Epistemic Debt</a>
-                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-flags').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Flag Detail</a>
-                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-decisions').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Decisions</a>
-                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-triggers').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Triggers</a>
-            </nav>
+            <!-- Section jump nav — Defiant A2 subpanel -->
+            <div class="lcars-subpanel">
+                <div class="lcars-subpanel-bar lcars-subpanel-bar-t2">09-4471</div>
+                <nav class="section-jump-nav" aria-label="Meta sections">
+                    <a class="section-jump-btn" onclick="document.getElementById('kb-sec-messages').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Messages</a>
+                    <a class="section-jump-btn" onclick="document.getElementById('kb-sec-memory').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Memory</a>
+                    <a class="section-jump-btn" onclick="document.getElementById('kb-sec-debt').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Epistemic Debt</a>
+                    <a class="section-jump-btn" onclick="document.getElementById('kb-sec-flags').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Flag Detail</a>
+                    <a class="section-jump-btn" onclick="document.getElementById('kb-sec-decisions').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Decisions</a>
+                    <a class="section-jump-btn" onclick="document.getElementById('kb-sec-triggers').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Triggers</a>
+                </nav>
+                <div class="lcars-subpanel-bar lcars-subpanel-bar-bottom lcars-subpanel-bar-t2"></div>
+            </div>
 
             <!-- Messages (thought process — communication trail) -->
             <div id="kb-sec-messages" class="lcars-panel kb-section" data-section="transport" style="--panel-accent: var(--c-transport)">
@@ -340,14 +344,18 @@
                 <div id="kb-agent-switcher" class="agent-switcher"></div>
             </div>
 
-            <!-- Section jump nav -->
-            <div class="section-jump-nav">
-                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-claims').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Claims</a>
-                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-chains').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Decision Chains</a>
-                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-facts').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Memory Facts</a>
-                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-vocab').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Vocabulary</a>
-                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-catalog').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Disciplines</a>
-                <a class="section-jump-btn" onclick="document.getElementById('kb-sec-schema').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Schema</a>
+            <!-- Section jump nav — Defiant A2 subpanel -->
+            <div class="lcars-subpanel">
+                <div class="lcars-subpanel-bar lcars-subpanel-bar-t3">22-8847</div>
+                <div class="section-jump-nav">
+                    <a class="section-jump-btn" onclick="document.getElementById('kb-sec-claims').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Claims</a>
+                    <a class="section-jump-btn" onclick="document.getElementById('kb-sec-chains').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Decision Chains</a>
+                    <a class="section-jump-btn" onclick="document.getElementById('kb-sec-facts').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Memory Facts</a>
+                    <a class="section-jump-btn" onclick="document.getElementById('kb-sec-vocab').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Vocabulary</a>
+                    <a class="section-jump-btn" onclick="document.getElementById('kb-sec-catalog').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Disciplines</a>
+                    <a class="section-jump-btn" onclick="document.getElementById('kb-sec-schema').scrollIntoView({behavior:'smooth'});return false" href="javascript:void(0)">Schema</a>
+                </div>
+                <div class="lcars-subpanel-bar lcars-subpanel-bar-bottom lcars-subpanel-bar-t3"></div>
             </div>
 
             <!-- Claims -->
@@ -487,14 +495,18 @@
         <!-- Operations Tab — Defiant Bridge subsystem switcher pattern -->
         <div class="tab-pane" id="pane-operations">
 
-            <!-- Subsystem mode selector — Defiant Engineering pattern -->
-            <div class="ops-subsystem-selector">
-                <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn ops-subsys-active" data-subsys="status" onclick="switchOpsSubsystem('status')">STATUS</button>
-                <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="autonomy" onclick="switchOpsSubsystem('autonomy')">AUTONOMY</button>
-                <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="transport" onclick="switchOpsSubsystem('transport')">TRANSPORT</button>
-                <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="capacity" onclick="switchOpsSubsystem('capacity')">CAPACITY</button>
-                <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="activity" onclick="switchOpsSubsystem('activity')">ACTIVITY</button>
-                <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="governance" onclick="switchOpsSubsystem('governance')">GOVERNANCE</button>
+            <!-- Subsystem mode selector — Defiant Engineering A2 subpanel -->
+            <div class="lcars-subpanel">
+                <div class="lcars-subpanel-bar lcars-subpanel-bar-accent">47-0912</div>
+                <div class="ops-subsystem-selector">
+                    <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn ops-subsys-active" data-subsys="status" onclick="switchOpsSubsystem('status')">STATUS</button>
+                    <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="autonomy" onclick="switchOpsSubsystem('autonomy')">AUTONOMY</button>
+                    <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="transport" onclick="switchOpsSubsystem('transport')">TRANSPORT</button>
+                    <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="capacity" onclick="switchOpsSubsystem('capacity')">CAPACITY</button>
+                    <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="activity" onclick="switchOpsSubsystem('activity')">ACTIVITY</button>
+                    <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="governance" onclick="switchOpsSubsystem('governance')">GOVERNANCE</button>
+                </div>
+                <div class="lcars-subpanel-bar lcars-subpanel-bar-bottom lcars-subpanel-bar-accent"></div>
             </div>
 
             <!-- STATUS subsystem (default) — mesh overview + monologue -->

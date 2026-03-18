@@ -4082,6 +4082,44 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 /* Mobile ohniaka handled by two-row card layout below (§mobile portrait) */
 
 
+/* ── LCARS Subpanel Frame (Defiant Engineering A2 pattern) ───── */
+/* Horizontal colored bars bracket control groups. Button grids sit
+   in the black void between bars. Optional section ID in the bar.
+   Ref: Defiant Engineering A2 (orange bars + button grid sections). */
+.lcars-subpanel {
+    display: none; /* only in LCARS mode */
+}
+.theme-lcars .lcars-subpanel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs);
+    margin-bottom: var(--gap-l);
+}
+/* Top/bottom bars: full-width horizontal colored strips */
+.lcars-subpanel-bar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: var(--gap-xs) var(--gap-m);
+    background: var(--subpanel-color, var(--lcars-frame));
+    color: #000;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-size: 0.62em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    min-height: var(--gap-m);
+}
+/* Bar color variants */
+.lcars-subpanel-bar-accent { background: var(--panel-accent, var(--lcars-accent)); }
+.lcars-subpanel-bar-t2 { background: var(--lcars-tertiary); }
+.lcars-subpanel-bar-t3 { background: var(--lcars-secondary); }
+/* Bottom bar: thinner, no text */
+.lcars-subpanel-bar-bottom {
+    min-height: var(--gap-s);
+    padding: 0;
+}
+
 /* ── Ohniaka Summary Row (mesh totals) ───────────────────── */
 .ohniaka-summary {
     display: flex;
