@@ -591,6 +591,19 @@ const ALERT_TRIGGERS = [
           return cutoff > 0 && getDeliberations(b) >= cutoff;
       }),
       description: "Agent autonomy limit reached" },
+    // BLACK (level 1) triggers — Ita intervention (infrastructure maintenance)
+    { level: 1, name: "mesh-paused",
+      test: () => Object.values(agentData).some(a =>
+          a?.status === "online" && a.data?.mesh_mode === "paused"),
+      description: "Mesh paused — maintenance in progress" },
+    { level: 1, name: "rolling-deploy",
+      test: () => {
+          const versions = Object.values(agentData)
+              .filter(a => a?.status === "online" && a.data?.version)
+              .map(a => a.data.version);
+          return versions.length > 1 && new Set(versions).size > 1;
+      },
+      description: "Version mismatch — rolling deployment in progress" },
 ];
 
 function evaluateAlertLevel() {

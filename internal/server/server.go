@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"runtime/debug"
 	"strings"
 	"sync"
@@ -543,6 +544,13 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 		}
 	}
 
+	// Mesh mode — "active" or "paused" (sentinel file .mesh-paused)
+	meshMode := "active"
+	pausePath := filepath.Join(s.Config.RepoRoot, ".mesh-paused")
+	if _, err := os.Stat(pausePath); err == nil {
+		meshMode = "paused"
+	}
+
 	return map[string]interface{}{
 		"agent_id":              s.Config.AgentID,
 		"version":               Version,
@@ -551,6 +559,7 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 		"collected_at":          time.Now().UTC().Format(time.RFC3339),
 		"db_available":          true,
 		"health":                s.Health.OverallStatus().String(),
+		"mesh_mode":             meshMode,
 		"autonomy_budget":       budget,
 		"recent_messages":       recentMsgs,
 		"unprocessed_messages":  unprocessedMsgs,

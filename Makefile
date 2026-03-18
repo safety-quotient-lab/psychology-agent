@@ -141,23 +141,24 @@ deploy-transfer:
 		$(SCP_CMD) ./$(MESHD_BIN) $${AGENT_SSH_HOST}:$(REMOTE_BIN).new
 	@echo "  Transferred to $(REMOTE_BIN).new"
 
-# Restart: stop all → swap binary → start all (no port conflicts)
+# Restart: stop all → swap binary → start all (parallel where possible)
 deploy-restart:
 	@echo ""
 	@echo "═══ Restarting meshd processes ═══"
 	@. ./.dev.vars 2>/dev/null; \
 		echo "  Stopping all units..." && \
-		$(SSH_CMD) 'for svc in meshd-psychology meshd-psq meshd-observatory meshd-operations meshd-unratified; do systemctl --user stop $$svc.service 2>/dev/null; done; sleep 2' && \
+		$(SSH_CMD) 'systemctl --user stop meshd-psychology meshd-psq meshd-observatory meshd-operations meshd-unratified 2>/dev/null; sleep 1' && \
 		echo "  Swapping binary..." && \
 		$(SSH_CMD) 'cp $(REMOTE_BIN) $(REMOTE_BACKUP) 2>/dev/null; mv $(REMOTE_BIN).new $(REMOTE_BIN) && chmod +x $(REMOTE_BIN)' && \
-		echo "  Starting all units..." && \
-		$(SSH_CMD) 'for svc in meshd-psychology meshd-psq meshd-observatory meshd-operations meshd-unratified; do systemctl --user start $$svc.service && echo "    Started $$svc"; done; sleep 3; echo ""; echo "  Processes:"; pgrep -f "/home/kashif/platform/meshd --port" -la 2>/dev/null | head -5' && \
-		echo "" && echo "  Restarting Mac instances..." && \
-		launchctl unload ~/Library/LaunchAgents/dev.safety-quotient.meshd-ops-session.plist 2>/dev/null; \
+		echo "  Starting all units (parallel)..." && \
+		$(SSH_CMD) 'systemctl --user start meshd-psychology meshd-psq meshd-observatory meshd-operations meshd-unratified && echo "    Started all 5 units"; sleep 2; echo ""; echo "  Processes:"; pgrep -f "/home/kashif/platform/meshd --port" -la 2>/dev/null | head -5'
+	@echo ""
+	@echo "  Restarting Mac instances..."
+	@launchctl unload ~/Library/LaunchAgents/dev.safety-quotient.meshd-ops-session.plist 2>/dev/null; \
 		launchctl unload ~/Library/LaunchAgents/dev.safety-quotient.meshd-psy-session.plist 2>/dev/null; \
-		launchctl load ~/Library/LaunchAgents/dev.safety-quotient.meshd-ops-session.plist; \
-		launchctl load ~/Library/LaunchAgents/dev.safety-quotient.meshd-psy-session.plist; \
-		echo "    Restarted ops-session + psy-session"
+		launchctl load ~/Library/LaunchAgents/dev.safety-quotient.meshd-ops-session.plist & \
+		launchctl load ~/Library/LaunchAgents/dev.safety-quotient.meshd-psy-session.plist & \
+		wait; echo "    Restarted ops-session + psy-session"
 
 deploy-validate:
 	@echo ""
