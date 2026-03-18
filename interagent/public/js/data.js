@@ -376,12 +376,12 @@ function renderActivity() {
 
 // ═══ RENDER: PULSE ══════════════════════════════════════════
 function renderPulse() {
-    renderVitals();
-    renderLcarsDataGrid();
-    renderAgentCards();
-    renderTopology();
-    renderActivity();
-    renderMeshStatusDots();
+    try { renderVitals(); } catch(e) { console.warn("renderVitals:", e.message); }
+    try { renderLcarsDataGrid(); } catch(e) { console.warn("renderLcarsDataGrid:", e.message); }
+    try { renderAgentCards(); } catch(e) { console.warn("renderAgentCards:", e.message); }
+    try { renderTopology(); } catch(e) { console.warn("renderTopology:", e.message); }
+    try { renderActivity(); } catch(e) { console.warn("renderActivity:", e.message); }
+    try { renderMeshStatusDots(); } catch(e) { console.warn("renderMeshStatusDots:", e.message); }
     // Update Pulse status line (LCARS)
     const pulseStatus = document.getElementById("pulse-status-line");
     if (pulseStatus) {
@@ -1677,10 +1677,9 @@ let _wsBackoff = 5000; // exponential backoff: 5s → 10s → 20s → 40s (cap 6
 const WS_BACKOFF_MAX = 60000;
 
 function connectWebSocket() {
-    // Try WebSocket to first reachable agent only
-    const agent = AGENTS[0]; // ops meshd — most likely to support WS
-    if (!agent) { connectSSE(); return; }
-    const wsUrl = agent.url.replace(/^http/, "ws") + "/ws";
+    // Connect WS to the compositor meshd (serves the dashboard)
+    // Use current page origin — guaranteed to be the right meshd instance
+    const wsUrl = location.origin.replace(/^http/, "ws") + "/ws";
     try {
         const ws = new WebSocket(wsUrl);
         const wsTimeout = setTimeout(() => { ws.close(); }, 5000); // 5s connect timeout

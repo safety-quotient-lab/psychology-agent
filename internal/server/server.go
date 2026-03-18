@@ -404,7 +404,7 @@ func (s *Server) middleware(next http.Handler) http.Handler {
 		// CSP for HTML responses — allows cross-origin fetch to all mesh agent subdomains.
 		w.Header().Set("Content-Security-Policy",
 			"default-src 'self'; "+
-			"script-src 'self' 'unsafe-inline'; "+
+			"script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; "+
 			"style-src 'self' 'unsafe-inline'; "+
 			"connect-src 'self' https://*.safety-quotient.dev https://*.unratified.org wss://*.safety-quotient.dev wss://*.unratified.org; "+
 			"font-src 'self'",
