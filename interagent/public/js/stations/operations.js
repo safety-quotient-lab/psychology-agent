@@ -767,7 +767,9 @@ function renderOpsCapsuleBars() {
     const bottom = document.getElementById("ops-capsule-bottom");
     if (bottom) {
         const versions = [...new Set(online.map(a => a.data?.version).filter(Boolean))];
-        const vStr = versions.length === 1 ? versions[0] : versions.length + " VER";
+        // Extract git hash from version string (e.g., "ops-agent-...-g509279a-dirty" → "509279a")
+        const hashes = versions.map(v => { const m = v.match(/-g([0-9a-f]{7})/); return m ? m[1] : v.slice(0, 7); });
+        const vStr = hashes.length === 1 ? hashes[0] : hashes.length + " VER";
         const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
         const mode = (typeof sseActive !== "undefined" && sseActive) ? "LIVE" : "POLL";
         bottom.innerHTML = `
