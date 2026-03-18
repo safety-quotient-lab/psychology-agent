@@ -363,7 +363,10 @@ function renderOrganismState() {
     const mesh = scienceData?.mesh || null;
     const affect = mesh?.affect || {};
     const stateLabel = affect.mesh_affect_category?.replace("mesh-", "")?.toUpperCase() || "—";
-    labelEl.textContent = stateLabel;
+    // Data grid: label lives in .dg-val child
+    const valSpan = labelEl.querySelector(".dg-val");
+    if (valSpan) valSpan.textContent = stateLabel;
+    else labelEl.textContent = stateLabel;
     setTrackedValue("organism-valence", affect.mean_hedonic_valence ?? null, { format: "float", prefix: (affect.mean_hedonic_valence ?? 0) >= 0 ? "+" : "" });
     setTrackedValue("organism-activation", affect.mean_activation ?? null, { format: "float" });
     const reserve = mesh?.cognitive_reserve || {};

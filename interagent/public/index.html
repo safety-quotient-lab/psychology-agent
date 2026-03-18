@@ -613,34 +613,37 @@
 
         <!-- Science Tab -->
         <div class="tab-pane" id="pane-science">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                <div class="lcars-status-line" id="science-status-line" style="flex:1">Psychometric Sensors: Awaiting Data &middot; Constructs: 7 &middot; Model: PAD + NASA-TLX + UWES</div>
-                <span class="lcars-section-badge" style="--badge-color:var(--lcars-tertiary)">03 <span class="lcars-section-badge-text">Science</span></span>
+            <!-- Science Record — zone-c title + data grid -->
+            <div class="lcars-zone-c" style="margin-bottom:var(--gap-xs)">
+                <span class="zc-title">Psychometric Analysis</span>
+                <span class="zc-id">03</span>
             </div>
+            <div class="lcars-data-grid" id="science-data-grid">
+                <div class="dg-cell dg-t2" id="organism-state-label" title="AFFECT" onclick="this.classList.toggle('dg-show-label')"><span class="dg-val">&mdash;</span><span class="dg-label">AFFECT</span></div>
+                <div class="dg-cell" id="organism-valence-cell" title="VALENCE" onclick="this.classList.toggle('dg-show-label')"><span class="dg-val" id="organism-valence">&mdash;</span><span class="dg-label">VALENCE</span></div>
+                <div class="dg-cell dg-t2" id="organism-activation-cell" title="AROUSAL" onclick="this.classList.toggle('dg-show-label')"><span class="dg-val" id="organism-activation">&mdash;</span><span class="dg-label">AROUSAL</span></div>
+                <div class="dg-cell dg-t3" id="organism-bottleneck-cell" title="BOTTLENECK" onclick="this.classList.toggle('dg-show-label')"><span class="dg-val" id="organism-bottleneck">&mdash;</span><span class="dg-label">BOTTLENECK</span></div>
+                <div class="dg-cell dg-accent" id="organism-coord-cell" title="COORDINATION" onclick="this.classList.toggle('dg-show-label')"><span class="dg-val" id="organism-coord">&mdash;</span><span class="dg-label">COORDINATION</span></div>
+            </div>
+            <!-- Coherence flags (T13) — cross-model contradictions -->
+            <div id="organism-coherence" style="display:none;gap:var(--gap-m);align-items:center;padding:4px 12px;font-size:0.72em;flex-wrap:wrap;margin-bottom:var(--gap-m)"></div>
 
             <div class="science-grid">
-                <!-- Mesh State readout — LCARS key-value capsule strip -->
-                <div style="display:flex;gap:3px;margin-bottom:8px;flex-wrap:wrap">
-                    <div style="background:var(--lcars-tertiary);color:#000;font-weight:700;font-size:0.75em;padding:5px 12px;border-radius:12px 0 0 12px;text-transform:uppercase" id="organism-state-label">&mdash;</div>
-                    <div style="background:color-mix(in srgb, var(--lcars-tertiary) 40%, #111);color:var(--lcars-tertiary);font-size:0.72em;padding:5px 10px;display:flex;align-items:center;gap:4px">P: <strong id="organism-valence">&mdash;</strong></div>
-                    <div style="background:color-mix(in srgb, var(--lcars-tertiary) 40%, #111);color:var(--lcars-tertiary);font-size:0.72em;padding:5px 10px;display:flex;align-items:center;gap:4px">A: <strong id="organism-activation">&mdash;</strong></div>
-                    <div style="background:color-mix(in srgb, var(--lcars-secondary) 40%, #111);color:var(--lcars-secondary);font-size:0.72em;padding:5px 10px;display:flex;align-items:center;gap:4px">Bottleneck: <strong id="organism-bottleneck">&mdash;</strong></div>
-                    <div style="background:color-mix(in srgb, var(--lcars-accent) 40%, #111);color:var(--lcars-accent);font-size:0.72em;padding:5px 10px;border-radius:0 12px 12px 0;display:flex;align-items:center;gap:4px">Coord: <strong id="organism-coord">&mdash;</strong></div>
-                </div>
-                <!-- Coherence flags (T13) — cross-model contradictions -->
-                <div id="organism-coherence" style="display:none;gap:8px;align-items:center;padding:4px 12px;font-size:0.72em;flex-wrap:wrap;margin-bottom:8px"></div>
-
                 <!-- Panel B: Agent Affect Grid (per-agent PAD projection) -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
-                    <div class="lcars-panel-header">Agent Affect Grid</div>
+                    <div class="lcars-panel-header">Agent Affect Grid <span class="lcars-panel-id">5894</span></div>
                     <div class="lcars-zone-a" id="science-zone-a"></div>
                     <div class="lcars-panel-body">
-                        <!-- PAD projection selector — LCARS mode buttons -->
-                        <div style="display:flex;gap:3px;margin-bottom:6px">
-                            <button class="lcars-pill-btn lcars-pill-sm lcars-pill-active" id="pad-view-3d" onclick="setPadView('3d')" style="font-size:0.65em">ISO</button>
-                            <button class="lcars-pill-btn lcars-pill-sm" id="pad-view-pa" onclick="setPadView('pa')" style="font-size:0.65em">P&times;A</button>
-                            <button class="lcars-pill-btn lcars-pill-sm" id="pad-view-pd" onclick="setPadView('pd')" style="font-size:0.65em">P&times;D</button>
-                            <button class="lcars-pill-btn lcars-pill-sm" id="pad-view-ad" onclick="setPadView('ad')" style="font-size:0.65em">A&times;D</button>
+                        <!-- PAD projection selector — subpanel frame -->
+                        <div class="lcars-subpanel" style="margin:0 0 var(--gap-m) 0">
+                            <div class="lcars-subpanel-bar lcars-subpanel-bar-t2">03-5894</div>
+                            <div style="display:flex;gap:var(--gap-m);justify-content:center;flex-wrap:wrap">
+                                <button class="lcars-pill-btn lcars-pill-sm lcars-pill-active" id="pad-view-3d" onclick="setPadView('3d')">ISO</button>
+                                <button class="lcars-pill-btn lcars-pill-sm" id="pad-view-pa" onclick="setPadView('pa')">P&times;A</button>
+                                <button class="lcars-pill-btn lcars-pill-sm" id="pad-view-pd" onclick="setPadView('pd')">P&times;D</button>
+                                <button class="lcars-pill-btn lcars-pill-sm" id="pad-view-ad" onclick="setPadView('ad')">A&times;D</button>
+                            </div>
+                            <div class="lcars-subpanel-bar lcars-subpanel-bar-bottom lcars-subpanel-bar-t2"></div>
                         </div>
                         <div class="affect-grid-container" id="affect-grid">
                             <div class="affect-grid-line horizontal"></div>
@@ -654,7 +657,7 @@
 
                 <!-- Panel C: Generator Balance -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
-                    <div class="lcars-panel-header">Generator Balance</div>
+                    <div class="lcars-panel-header">Generator Balance <span class="lcars-panel-id">7741</span></div>
                     <div class="lcars-panel-body" id="generator-balance">
                         <div class="gen-balance-row" id="gen-g2g3">
                             <div class="gen-balance-label">G2/G3 (creative : evaluative)</div>
@@ -679,7 +682,7 @@
 
                 <!-- Panel D: Flow State -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
-                    <div class="lcars-panel-header">Flow State</div>
+                    <div class="lcars-panel-header">Flow State <span class="lcars-panel-id">1990</span></div>
                     <div class="lcars-panel-body" id="flow-state-panel">
                         <ul class="flow-checklist" id="flow-checklist">
                             <li><span class="flow-check flow-check-fail">&#x2717;</span> Clear goals</li>
