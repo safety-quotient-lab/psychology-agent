@@ -291,8 +291,8 @@ function opsZoneAMetrics() {
 
     return [
         { label: "ONLINE", value: `${online.length}/${AGENTS.length}`, type: "count" },
-        { label: "Gf", value: fmtNum(totalDelib) + delta("za-gf", totalDelib), type: "count" },
         { label: "Gc", value: fmtNum(gcEvents) + delta("za-gc", gcEvents), type: "id" },
+        { label: "Gf", value: fmtNum(totalDelib) + delta("za-gf", totalDelib), type: "count" },
         { label: "LIMIT", value: totalCutoff > 0 ? fmtNum(totalCutoff) : "\u221E", type: "id" },
         { label: "Gf/HR", value: fmtNum(gcLastHr) + delta("za-gfhr", gcLastHr), type: "count" },
         { label: "MSG", value: fmtNum(totalMsgs) + delta("za-msg", totalMsgs), type: "val" },

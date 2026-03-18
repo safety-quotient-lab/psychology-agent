@@ -3657,8 +3657,9 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
 
 .agent-pill-bar {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: var(--gap-m);
+    gap: var(--gap-xs) var(--gap-m);
     padding: var(--gap-m) var(--gap-l);
     border-bottom: 1px solid rgba(255,255,255,0.08);
     cursor: pointer;
@@ -3671,11 +3672,14 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
 .agent-pill-bar:active { filter: brightness(1.2); }
 .agent-pill-bar-offline { animation: agent-offline-flash 2s ease-in-out infinite; }
 
-/* Inline metrics on the bar */
+/* Inline metrics on the bar — wrap to second line if needed */
+/* Metrics wrap to second row on narrow screens */
 .agent-pill-metrics {
     display: flex;
-    gap: var(--gap-m);
-    margin-left: auto;
+    flex-wrap: wrap;
+    gap: var(--gap-xs) var(--gap-m);
+    flex-basis: 100%;
+    padding-left: calc(10px + 10px + var(--gap-m) + var(--gap-m));
     font-size: 0.85em;
     opacity: 0.8;
 }

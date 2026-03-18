@@ -315,8 +315,8 @@ function renderOpsBudget() {
             <span class="ohniaka-col ohniaka-name${flash}" style="color:var(--lcars-secondary)"><span class="ohniaka-color-pill" style="background:${agent.color}"></span> ${agentName(agent).toUpperCase()}</span>
             <span class="ohniaka-col ohniaka-conn${flash}">${connPill} ${online ? "ONLINE" : "OFFLINE"}</span>
             <span class="ohniaka-col ohniaka-health${flash}" style="color:${hColor}">${online ? healthStr : "\u2014"}</span>
-            <span class="ohniaka-col ohniaka-gf${flash}">${online ? fmtNum(deliberations) + delta(agent.id+"-gf", deliberations) : "\u2014"}</span>
             <span class="ohniaka-col ohniaka-gc${flash}">${online ? fmtNum(gc) + delta(agent.id+"-gc", gc) : "\u2014"}</span>
+            <span class="ohniaka-col ohniaka-gf${flash}">${online ? fmtNum(deliberations) + delta(agent.id+"-gf", deliberations) : "\u2014"}</span>
             <span class="ohniaka-col ohniaka-op${flash}">${online ? opIcon + " " + opType : "\u2014"}</span>
             <span class="ohniaka-col ohniaka-mood${flash}">${online ? moodStr : "\u2014"}</span>
             <span class="ohniaka-col ohniaka-pend${flash}">${online && pending > 0 ? pending + delta(agent.id+"-pend", pending) : "\u2014"}</span>
@@ -328,8 +328,8 @@ function renderOpsBudget() {
         <span class="ohniaka-col">AGENT</span>
         <span class="ohniaka-col">STATUS</span>
         <span class="ohniaka-col">HEALTH</span>
-        <span class="ohniaka-col ohniaka-gf">Gf</span>
         <span class="ohniaka-col ohniaka-gc">Gc</span>
+        <span class="ohniaka-col ohniaka-gf">Gf</span>
         <span class="ohniaka-col">MODE</span>
         <span class="ohniaka-col">AFFECT</span>
         <span class="ohniaka-col ohniaka-pend">PEND</span>
@@ -397,8 +397,8 @@ function renderMobilePills() {
                 ${connDot}
                 <span style="color:var(--lcars-secondary)">${agentName(agent).toUpperCase()}</span>
                 <span class="agent-pill-metrics">
-                    <span style="color:var(--lcars-accent)">Gf ${fmtNum(gf)}</span>
                     <span style="color:var(--lcars-secondary)">Gc ${fmtNum(gc)}</span>
+                    <span style="color:var(--lcars-accent)">Gf ${fmtNum(gf)}</span>
                     <span style="color:${online ? "var(--text-dim)" : "var(--lcars-alert)"}">${online ? health : "OFFLINE"}</span>
                 </span>
             </div>`;
