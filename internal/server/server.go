@@ -561,6 +561,11 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 		meshMode = "paused"
 	}
 
+	// Psychometrics — PAD emotional state derived from operational metrics
+	pm := s.gatherMetrics()
+	pad := computePAD(pm)
+	tlx := computeTLX(pm)
+
 	return map[string]interface{}{
 		"agent_id":              s.Config.AgentID,
 		"version":               Version,
@@ -585,6 +590,10 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 			"deliberation_succeeded_total": deliberationSucceededTotal,
 			"gc_ratio":                     "poll ticks handled without deliberation",
 			"deliberation_model":      s.Config.DeliberationModel,
+		},
+		"psychometrics": map[string]any{
+			"emotional_state": pad,
+			"workload":        tlx,
 		},
 	}
 }

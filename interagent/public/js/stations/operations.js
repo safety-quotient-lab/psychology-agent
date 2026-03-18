@@ -416,7 +416,7 @@ function renderMobilePills() {
                     <span style="color:var(--lcars-secondary)">Gc ${fmtNum(gc)}</span>
                     <span style="color:var(--lcars-readout)">Gf ${fmtNum(gf)}</span>
                     <span style="color:var(--text-dim)">${online ? opIcon + " " + opLabel : "\u2014"}</span>
-                    <span style="color:var(--text-dim)">${online && mood ? mood.toUpperCase() : ""}</span>
+                    <span style="color:var(--text-dim)">${online ? (mood ? mood.toUpperCase() : "\u2014") : ""}</span>
                     ${pending > 0 ? `<span style="color:var(--lcars-title)">PEND ${pending}</span>` : ""}
                 </span>
             </div>`;
