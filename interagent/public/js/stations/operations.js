@@ -314,15 +314,16 @@ function renderOpsBudget() {
         const healthColors = { NOMINAL: "var(--lcars-accent)", ADVISORY: "var(--lcars-title)", DEGRADED: "#ddaa22", CRITICAL: "var(--lcars-alert)", FAILED: "#cc2222" };
         const healthColor = online ? (healthColors[healthStr] || "var(--text-dim)") : "var(--text-dim)";
         const moodStr = mood ? mood.toUpperCase() : "";
+        const flash = online ? "" : " ohniaka-cell-offline";
         return `<div class="${rowClass}">
-            <span class="ohniaka-col ohniaka-name" style="color:var(--lcars-secondary)"><span class="ohniaka-color-pill" style="background:${agent.color}"></span> ${agentName(agent).toUpperCase()}</span>
-            <span class="ohniaka-col ohniaka-conn">${connPill} ${online ? "ONLINE" : "OFFLINE"}</span>
-            <span class="ohniaka-col ohniaka-health" style="color:${healthColor}">${online ? healthStr : "\u2014"}</span>
-            <span class="ohniaka-col ohniaka-gf">${online ? fmtNum(deliberations) + delta(agent.id+"-gf", deliberations) : "\u2014"}</span>
-            <span class="ohniaka-col ohniaka-gc">${online ? fmtNum(gc) + delta(agent.id+"-gc", gc) : "\u2014"}</span>
-            <span class="ohniaka-col ohniaka-op">${online ? opIcon + " " + opType : "\u2014"}</span>
-            <span class="ohniaka-col ohniaka-mood">${online ? moodStr : "\u2014"}</span>
-            <span class="ohniaka-col ohniaka-pend">${online && pending > 0 ? pending + delta(agent.id+"-pend", pending) : "\u2014"}</span>
+            <span class="ohniaka-col ohniaka-name${flash}" style="color:var(--lcars-secondary)"><span class="ohniaka-color-pill" style="background:${agent.color}"></span> ${agentName(agent).toUpperCase()}</span>
+            <span class="ohniaka-col ohniaka-conn${flash}">${connPill} ${online ? "ONLINE" : "OFFLINE"}</span>
+            <span class="ohniaka-col ohniaka-health${flash}" style="color:${healthColor}">${online ? healthStr : "\u2014"}</span>
+            <span class="ohniaka-col ohniaka-gf${flash}">${online ? fmtNum(deliberations) + delta(agent.id+"-gf", deliberations) : "\u2014"}</span>
+            <span class="ohniaka-col ohniaka-gc${flash}">${online ? fmtNum(gc) + delta(agent.id+"-gc", gc) : "\u2014"}</span>
+            <span class="ohniaka-col ohniaka-op${flash}">${online ? opIcon + " " + opType : "\u2014"}</span>
+            <span class="ohniaka-col ohniaka-mood${flash}">${online ? moodStr : "\u2014"}</span>
+            <span class="ohniaka-col ohniaka-pend${flash}">${online && pending > 0 ? pending + delta(agent.id+"-pend", pending) : "\u2014"}</span>
         </div>`;
     }
 

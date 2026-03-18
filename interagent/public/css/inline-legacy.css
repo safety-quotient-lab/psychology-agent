@@ -3599,6 +3599,10 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 .ohniaka-col { white-space: nowrap; text-align: left; }
+/* Offline cell flash — applied per-cell since display:contents removes row box */
+.ohniaka-cell-offline {
+    animation: agent-offline-flash 2s ease-in-out infinite;
+}
 /* Small square pills — agent color identity + status indicator */
 /* Pills inline within name/conn columns — perfectly square, never squish */
 .ohniaka-color-pill {
