@@ -3682,6 +3682,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     padding-left: calc(10px + 10px + var(--gap-m) + var(--gap-m));
     font-size: 0.85em;
     opacity: 0.8;
+    align-items: center;
 }
 .agent-pill-metrics span { white-space: nowrap; }
 
