@@ -2136,7 +2136,8 @@ a.activity-link:hover {
 }
 .theme-lcars .agent-switcher {
     gap: var(--gap-xs);
-    margin-bottom: 0; /* subpanel handles spacing */
+    margin-bottom: 0;
+    justify-content: center;
 }
 .theme-lcars .agent-switch-btn {
     flex: 0 0 auto;
@@ -2464,7 +2465,8 @@ a.activity-link:hover {
 }
 .theme-lcars .section-jump-nav {
     gap: var(--gap-xs);
-    margin-bottom: 0; /* subpanel handles spacing */
+    margin-bottom: 0;
+    justify-content: center;
 }
 .theme-lcars .section-jump-btn {
     flex: 0 0 auto;
@@ -3818,6 +3820,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
     gap: var(--gap-xs);
     margin-bottom: 0; /* subpanel handles spacing */
     flex-wrap: wrap;
+    justify-content: center;
 }
 /* Uniform compact buttons — wrap naturally, don't stretch to fill */
 .ops-subsystem-selector .ops-subsys-btn {
