@@ -752,14 +752,12 @@ function renderOpsCapsuleBars() {
     const top = document.getElementById("ops-capsule-top");
     if (top) {
         top.innerHTML = `
-            <span class="cb-leader"></span>
             <span class="cb-cell">${online.length}/${total}</span>
             <span class="cb-cell">Gf ${fmtNum(totalGf)}</span>
             <span class="cb-cell cb-cell-t2">Gc ${fmtNum(totalGc)}</span>
             <span class="cb-cell cb-cell-t3">${fmtNum(events)} EVT</span>
             ${pending > 0 ? `<span class="cb-cell cb-cell-t2">${pending} PEND</span>` : ""}
             <span class="cb-cell">${gates > 0 ? gates + " GATE" : (online.length === total ? "NOMINAL" : "DEGRADED")}</span>
-            <span class="cb-end"></span>
         `;
     }
 
@@ -773,12 +771,10 @@ function renderOpsCapsuleBars() {
         const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
         const mode = (typeof sseActive !== "undefined" && sseActive) ? "LIVE" : "POLL";
         bottom.innerHTML = `
-            <span class="cb-leader"></span>
             <span class="cb-cell">${vStr}</span>
             <span class="cb-cell">${mode}</span>
             <span class="cb-cell cb-cell-t2">${now}</span>
             <span class="cb-cell">${total} AGENTS</span>
-            <span class="cb-end"></span>
         `;
     }
 }

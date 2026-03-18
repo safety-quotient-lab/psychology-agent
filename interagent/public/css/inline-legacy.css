@@ -1242,11 +1242,13 @@ body[data-affect-mode="triage"] {
     color: #000;
     padding: 10px var(--gap-m) 4px;
     white-space: nowrap;
-    min-width: 48px;
-    min-height: 44px; /* 28 × φ */
+    min-width: 80px;
+    min-height: 44px;
     display: flex;
     align-items: flex-end;
-    justify-content: flex-end;
+    justify-content: center;
+    flex: 0 0 auto;
+    border-radius: var(--gap-xs);
 }
 .lcars-capsule-bar .cb-cell-t2 { background: var(--lcars-tertiary); }
 .lcars-capsule-bar .cb-cell-t3 { background: var(--lcars-title); }
@@ -4133,7 +4135,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
     display: flex;
     flex-direction: column;
     gap: var(--gap-xs);
-    margin-bottom: var(--gap-l);
+    margin: var(--gap-xl) 0;
 }
 /* Top/bottom bars: full-width horizontal colored strips */
 .lcars-subpanel-bar {
