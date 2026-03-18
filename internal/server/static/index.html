@@ -29,7 +29,7 @@
         ]
     }
     </script>
-    <link rel="stylesheet" href="css/inline-legacy.css?v=95d7a49">
+    <link rel="stylesheet" href="css/inline-legacy.css?v=3c17e6b">
     <!-- TODO: consolidate inline-legacy.css into theme.css + layout.css + components.css -->
 
 </head>
@@ -503,6 +503,8 @@
             <div class="ops-subsys-panel ops-subsys-active" id="ops-subsys-status">
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
                     <div class="lcars-panel-header">Mesh Status</div>
+                    <!-- Symmetric top capsule bar (Ohniaka A1 §5.4) -->
+                    <div class="lcars-capsule-bar" id="ops-capsule-top"></div>
                     <!-- Zone A: dense number grid (§1.2 / §4.1) -->
                     <div class="lcars-zone-a" id="ops-zone-a"></div>
                     <!-- Zone B: visualization (mesh overview grid) -->
@@ -516,6 +518,8 @@
                         <span class="zc-title">Operations Record</span>
                         <span class="zc-id" id="ops-overview-num"></span>
                     </div>
+                    <!-- Symmetric bottom capsule bar (Ohniaka A1 §5.4) -->
+                    <div class="lcars-capsule-bar lcars-capsule-bar-bottom" id="ops-capsule-bottom"></div>
                 </div>
             </div>
 
@@ -1350,20 +1354,20 @@
     <div class="lcars-narrative-log" id="lcars-narrative-log"></div>
 </div>
 
-<script src="js/colorizer.js?v=95d7a49"></script>
-<script src="js/core.js?v=95d7a49"></script>
-<script src="js/chrome.js?v=95d7a49"></script>
-<script src="js/data-fetch.js?v=95d7a49"></script>
-<script src="js/pulse.js?v=95d7a49"></script>
-<script src="js/knowledge.js?v=95d7a49"></script>
-<script src="js/ws-sse.js?v=95d7a49"></script>
-<script src="js/stations/operations.js?v=95d7a49"></script>
-<script src="js/stations/science.js?v=95d7a49"></script>
-<script src="js/stations/helm.js?v=95d7a49"></script>
-<script src="js/stations/engineering.js?v=95d7a49"></script>
-<script src="js/stations/tactical.js?v=95d7a49"></script>
-<script src="js/stations/medical.js?v=95d7a49"></script>
-<script src="js/init.js?v=95d7a49"></script>
+<script src="js/colorizer.js?v=3c17e6b"></script>
+<script src="js/core.js?v=3c17e6b"></script>
+<script src="js/chrome.js?v=3c17e6b"></script>
+<script src="js/data-fetch.js?v=3c17e6b"></script>
+<script src="js/pulse.js?v=3c17e6b"></script>
+<script src="js/knowledge.js?v=3c17e6b"></script>
+<script src="js/ws-sse.js?v=3c17e6b"></script>
+<script src="js/stations/operations.js?v=3c17e6b"></script>
+<script src="js/stations/science.js?v=3c17e6b"></script>
+<script src="js/stations/helm.js?v=3c17e6b"></script>
+<script src="js/stations/engineering.js?v=3c17e6b"></script>
+<script src="js/stations/tactical.js?v=3c17e6b"></script>
+<script src="js/stations/medical.js?v=3c17e6b"></script>
+<script src="js/init.js?v=3c17e6b"></script>
 
 </body>
 </html>

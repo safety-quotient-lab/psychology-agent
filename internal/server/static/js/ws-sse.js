@@ -1,166 +1,172 @@
-// ── WebSocket Real-Time Updates ─────────────────────────────
+// ── Real-Time Updates (WebSocket primary, SSE fallback) ─────
 let wsConnection = null;
 let wsReconnectTimer = null;
-let _wsBackoff = 5000; // exponential backoff: 5s → 10s → 20s → 40s (cap 60s)
-const WS_BACKOFF_MAX = 60000;
+let _wsBackoff = 2000;
+const WS_BACKOFF_MAX = 10000;
+let _sseConnection = null;
+
+// Shared event handler — processes events from both WS and SSE
+function handleRealtimeEvent(evt) {
+    if (evt.type === "pong") return;
+
+    // Alert broadcast — server-pushed alert level change
+    if (evt.type === "alert" || evt.Type === "alert") {
+        const alertData = evt.Data || evt.data || {};
+        const level = parseInt(alertData.level) || 1;
+        if (typeof setManualAlert === "function") {
+            setManualAlert(level >= 5 ? null : level);
+        }
+        if (typeof addNarrativeEntry === "function") {
+            const names = { 5: "GREEN", 4: "BLUE", 3: "YELLOW", 2: "RED", 1: "BLACK" };
+            const label = level >= 5 ? "STAND DOWN" : names[level] || level;
+            addNarrativeEntry(`Alert broadcast: ${label} — ${alertData.reason || "unknown"}`);
+        }
+        return;
+    }
+
+    // Status update from a peer agent
+    if (evt.type === "status" || evt.Type === "status") {
+        const data = evt.Data || evt.data || {};
+        const aid = data.agent_id;
+        if (aid) {
+            agentData[aid] = { status: "online", data: data, id: aid };
+            renderAll();
+            return;
+        }
+    }
+
+    // ZMQ relay: peer status via topic="status"
+    if (evt.type === "zmq" || evt.Type === "zmq") {
+        const zmqData = evt.Data || evt.data || {};
+        if (zmqData.topic === "status" && zmqData.data?.agent_id) {
+            const aid = zmqData.data.agent_id;
+            agentData[aid] = { status: "online", data: zmqData.data, id: aid };
+            renderAll();
+            return;
+        }
+    }
+
+    // Deliberation event — trigger re-render
+    if (evt.type === "deliberation" || evt.Type === "deliberation") {
+        renderAll();
+        return;
+    }
+
+    // Fallback: refresh on unknown event types
+    if (evt.type === "refresh" || evt.Type === "refresh") {
+        refreshAll();
+    }
+}
 
 function connectWebSocket() {
-    // Connect WS to the compositor meshd (serves the dashboard)
-    // Use current page origin — guaranteed to be the right meshd instance
     const wsUrl = location.origin.replace(/^http/, "ws") + "/ws";
     try {
         const ws = new WebSocket(wsUrl);
-        const wsTimeout = setTimeout(() => { ws.close(); }, 5000); // 5s connect timeout
+        const wsTimeout = setTimeout(() => { ws.close(); }, 5000);
         ws.onopen = () => {
             clearTimeout(wsTimeout);
             wsConnection = ws;
             sseActive = true;
-            _wsBackoff = 5000; // reset backoff on success
+            _wsBackoff = 2000;
             updateSSEIndicator(true);
             if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+            // WS connected — close SSE if open (avoid duplicate events)
+            if (_sseConnection) { _sseConnection.close(); _sseConnection = null; }
         };
-            ws.onmessage = (e) => {
-                try {
-                    const evt = JSON.parse(e.data);
-                    if (evt.type === "pong") return;
-
-                    // Beta-band: real-time status update from a peer agent
-                    if (evt.type === "status" || evt.Type === "status") {
-                        const data = evt.Data || evt.data || {};
-                        const aid = data.agent_id;
-                        if (aid) {
-                            // Apply directly — no fetch needed
-                            agentData[aid] = { status: "online", data: data, id: aid };
-                            renderAll();
-                            return;
-                        }
-                    }
-
-                    // ZMQ relay: peer status arrives via topic="status"
-                    if (evt.type === "zmq" || evt.Type === "zmq") {
-                        const zmqData = evt.Data || evt.data || {};
-                        if (zmqData.topic === "status" && zmqData.data?.agent_id) {
-                            const aid = zmqData.data.agent_id;
-                            agentData[aid] = { status: "online", data: zmqData.data, id: aid };
-                            renderAll();
-                            return;
-                        }
-                    }
-
-                    // Deliberation event — trigger re-render
-                    if (evt.type === "deliberation" || evt.Type === "deliberation") {
-                        renderAll();
-                        return;
-                    }
-
-                    // Fallback: refresh on unknown event types
-                    if (evt.type === "refresh" || evt.Type === "refresh") {
-                        refreshAll();
-                    }
-                } catch {}
-            };
-            ws.onclose = () => {
-                clearTimeout(wsTimeout);
-                if (wsConnection === ws) {
-                    wsConnection = null;
-                    sseActive = false;
-                    updateSSEIndicator(false);
-                    // Exponential backoff reconnect
-                    if (!wsReconnectTimer) {
-                        wsReconnectTimer = setTimeout(() => {
-                            wsReconnectTimer = null;
-                            connectWebSocket();
-                        }, _wsBackoff);
-                        _wsBackoff = Math.min(_wsBackoff * 2, WS_BACKOFF_MAX);
-                    }
-                    // Resume polling while disconnected
-                    if (!refreshTimer) refreshTimer = setInterval(refreshAll, _pollInterval);
-                }
-            };
-            ws.onerror = () => { ws.close(); };
-
-            // Heartbeat every 30s
-            const heartbeat = setInterval(() => {
-                if (ws.readyState === WebSocket.OPEN) ws.send("ping");
-                else clearInterval(heartbeat);
-            }, 30000);
-        } catch {
-            // WebSocket not available — fall back to SSE
-            _wsBackoff = Math.min(_wsBackoff * 2, WS_BACKOFF_MAX);
-        }
-    // No WebSocket available — fall back to SSE
-    connectSSE();
-}
-
-// ── SSE Live Updates (fallback) ──────────────────────────────
-function connectSSE() {
-    sseConnections.forEach(es => es.close());
-    sseConnections = [];
-    let connectedCount = 0;
-    const sseFailedAgents = new Set(); // Track agents that fail SSE — don't retry
-
-    for (const agent of AGENTS) {
-        // Skip agents already known to lack SSE
-        if (sseFailedAgents.has(agent.id)) continue;
-
-        const es = new EventSource(`${agent.url}/events`);
-        let connectionTimeout = setTimeout(() => {
-            // If no "connected" event within 5s, this agent lacks SSE
-            es.close();
-            sseFailedAgents.add(agent.id);
-            sseConnections = sseConnections.filter(c => c !== es);
-        }, 5000);
-
-        es.addEventListener("connected", (e) => {
-            clearTimeout(connectionTimeout);
-            connectedCount++;
-            if (connectedCount >= 1 && !sseActive) {
-                sseActive = true;
-                if (refreshTimer) {
-                    clearInterval(refreshTimer);
-                    refreshTimer = null;
-                }
-                updateSSEIndicator(true);
-            }
-        });
-
-        es.addEventListener("refresh", (e) => {
-            refreshAll();
-        });
-
-        es.onerror = () => {
-            clearTimeout(connectionTimeout);
-            es.close();
-            sseFailedAgents.add(agent.id); // Don't retry this agent
-            sseConnections = sseConnections.filter(c => c !== es);
-            if (sseConnections.every(c => c.readyState === EventSource.CLOSED)) {
+        ws.onmessage = (e) => {
+            try { handleRealtimeEvent(JSON.parse(e.data)); } catch { /* ignore */ }
+        };
+        ws.onclose = () => {
+            clearTimeout(wsTimeout);
+            if (wsConnection === ws) {
+                wsConnection = null;
                 sseActive = false;
                 updateSSEIndicator(false);
-                if (!refreshTimer) {
-                    refreshTimer = setInterval(refreshAll, 30000);
+                if (!wsReconnectTimer) {
+                    wsReconnectTimer = setTimeout(() => {
+                        wsReconnectTimer = null;
+                        connectWebSocket();
+                    }, _wsBackoff);
+                    _wsBackoff = Math.min(_wsBackoff * 2, WS_BACKOFF_MAX);
                 }
+                if (!refreshTimer) refreshTimer = setInterval(refreshAll, _pollInterval);
+                // Try SSE fallback while WS reconnects
+                if (!_sseConnection) connectSSE();
             }
         };
+        ws.onerror = () => { ws.close(); };
 
-        sseConnections.push(es);
+        const heartbeat = setInterval(() => {
+            if (ws.readyState === WebSocket.OPEN) ws.send("ping");
+            else clearInterval(heartbeat);
+        }, 30000);
+    } catch {
+        _wsBackoff = Math.min(_wsBackoff * 2, WS_BACKOFF_MAX);
+        if (!wsReconnectTimer) {
+            wsReconnectTimer = setTimeout(() => {
+                wsReconnectTimer = null;
+                connectWebSocket();
+            }, _wsBackoff);
+        }
+        // Try SSE as fallback
+        if (!_sseConnection) connectSSE();
+    }
+}
+
+// ── SSE Fallback ────────────────────────────────────────────
+// Used when WS unavailable (e.g., Cloudflare tunnel doesn't proxy WS)
+function connectSSE() {
+    // Only connect to the compositor (operations-agent) — it relays all mesh events
+    const opsAgent = AGENTS.find(a => a.id === "operations-agent") || AGENTS[0];
+    if (!opsAgent) return;
+
+    const es = new EventSource(`${opsAgent.url}/events`);
+    _sseConnection = es;
+
+    const timeout = setTimeout(() => {
+        es.close();
+        _sseConnection = null;
+    }, 8000);
+
+    es.onopen = () => {
+        clearTimeout(timeout);
+        if (!wsConnection) {
+            sseActive = true;
+            updateSSEIndicator(true);
+            if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+        }
+    };
+
+    // SSE sends typed events — listen for each type
+    for (const evtType of ["alert", "status", "zmq", "deliberation", "refresh", "health-check"]) {
+        es.addEventListener(evtType, (e) => {
+            try {
+                const data = JSON.parse(e.data);
+                handleRealtimeEvent({ type: evtType, data: data, Data: data });
+            } catch { /* ignore */ }
+        });
     }
 
-    // Timeout — if no SSE connects within 10s, fall back to polling
-    setTimeout(() => {
-        if (!sseActive && !refreshTimer) {
-            refreshTimer = setInterval(refreshAll, 30000);
+    es.onerror = () => {
+        clearTimeout(timeout);
+        es.close();
+        _sseConnection = null;
+        if (!wsConnection) {
+            sseActive = false;
             updateSSEIndicator(false);
+            if (!refreshTimer) refreshTimer = setInterval(refreshAll, _pollInterval);
         }
-    }, 10000);
+        // Retry SSE in 5s if WS still not connected
+        if (!wsConnection) {
+            setTimeout(() => {
+                if (!wsConnection && !_sseConnection) connectSSE();
+            }, 5000);
+        }
+    };
 }
 
 function updateSSEIndicator(live) {
     const el = document.getElementById("footer-status");
     if (!el) return;
     el.dataset.sseMode = live ? "live" : "poll";
-    // Update will happen on next refresh cycle
 }
-
-// ── Render: Operations ──────────────────────────────────────────
-
-

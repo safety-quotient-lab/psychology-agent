@@ -1,5 +1,7 @@
 // ═══ RENDER: OPERATIONS ═════════════════════════════════════
 function renderOperations() {
+    // Symmetric capsule bars (Ohniaka A1 §5.4)
+    renderOpsCapsuleBars();
     // Zone A: dense number grid (three-zone layout §1.2)
     renderNumberGrid("ops-zone-a", opsZoneAMetrics());
     renderOpsBudget();
@@ -733,6 +735,45 @@ function renderOpsCapacityReadout() {
         <div class="lcars-readout-key" style="margin-bottom:var(--gap-xs)">Concurrency: 1 normal + 2 reserve</div>
         <div class="lcars-readout-key">Circuit Breaker: <span style="color:var(--lcars-medical)">CLOSED</span></div>
     </div>`;
+}
+
+// ── Symmetric Capsule Bars (Ohniaka A1 framing) ─────────────────
+function renderOpsCapsuleBars() {
+    const online = Object.values(agentData).filter(a => a.status === "online");
+    const total = AGENTS.length;
+    const totalGf = online.reduce((s, a) => s + getDeliberations(a.data?.autonomy_budget), 0);
+    const totalGc = online.reduce((s, a) => s + (a.data?.gc_metrics?.gc_handled_total || 0), 0);
+    const pending = online.reduce((s, a) => s + (a.data?.unprocessed_messages || []).length, 0);
+    const gates = online.reduce((s, a) => s + (a.data?.active_gates || []).length, 0);
+    const events = online.reduce((s, a) => s + (a.data?.event_count || 0), 0);
+
+    // Top bar: mesh summary — agent count, Gf, Gc, pending, gates
+    const top = document.getElementById("ops-capsule-top");
+    if (top) {
+        top.innerHTML = `
+            <span class="cb-leader">${online.length}/${total}</span>
+            <span class="cb-cell">Gf ${fmtNum(totalGf)}</span>
+            <span class="cb-cell cb-cell-t2">Gc ${fmtNum(totalGc)}</span>
+            <span class="cb-cell cb-cell-t3">${fmtNum(events)} EVT</span>
+            ${pending > 0 ? `<span class="cb-cell cb-cell-t2">${pending} PEND</span>` : ""}
+            ${gates > 0 ? `<span class="cb-end cb-end-t2">${gates} GATE</span>` : `<span class="cb-end">${online.length === total ? "NOMINAL" : "DEGRADED"}</span>`}
+        `;
+    }
+
+    // Bottom bar: versions + timing
+    const bottom = document.getElementById("ops-capsule-bottom");
+    if (bottom) {
+        const versions = [...new Set(online.map(a => a.data?.version).filter(Boolean))];
+        const vStr = versions.length === 1 ? versions[0] : versions.length + " VER";
+        const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        const mode = (typeof sseActive !== "undefined" && sseActive) ? "LIVE" : "POLL";
+        bottom.innerHTML = `
+            <span class="cb-leader">${vStr}</span>
+            <span class="cb-cell">${mode}</span>
+            <span class="cb-cell cb-cell-t2">${now}</span>
+            <span class="cb-end">${total} AGENTS</span>
+        `;
+    }
 }
 
 // ── Science Station ─────────────────────────────────────────────
