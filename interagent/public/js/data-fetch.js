@@ -1,5 +1,18 @@
 // ═══ DATA FETCH ═════════════════════════════════════════════
 
+// Version check — detect when server has newer frontend
+let _loadedVersion = null;
+function checkVersionHeader(resp) {
+    const sv = resp.headers.get("X-Meshd-Version");
+    if (!sv) return;
+    if (!_loadedVersion) { _loadedVersion = sv; return; }
+    if (sv !== _loadedVersion) {
+        // Server has new version — show reload indicator
+        const dot = document.getElementById("lcars-version-dot");
+        if (dot) { dot.style.display = "inline-block"; dot.title = `New version: ${sv}`; }
+    }
+}
+
 // Adaptive polling — backs off when agents unreachable
 let _failedAgents = new Set();  // agents that failed last fetch
 let _pollInterval = 30000;      // starts at 30s, backs off to 120s
@@ -11,6 +24,7 @@ async function fetchAgentStatus(agent) {
     try {
         const resp = await fetch(`${agent.url}/api/status`, { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        checkVersionHeader(resp);
         _failedAgents.delete(agent.id);
         return { id: agent.id, status: "online", data: await resp.json() };
     } catch (err) {

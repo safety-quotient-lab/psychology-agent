@@ -91,7 +91,18 @@
                 <div class="stardate-tray-pill" style="background:var(--lcars-tertiary)" id="lcars-hdr-health">&#x25CF; —</div>
             </div>
         </div>
-        <div class="lcars-hdr-endcap"></div>
+        <div class="lcars-hdr-endcap" style="position:relative">
+            <span id="lcars-version-dot" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:#22cc44;animation:alert-slow-flash 2s ease-in-out infinite;cursor:pointer" onclick="document.getElementById('lcars-update-bar').classList.toggle('expanded')"></span>
+        </div>
+    </div>
+    <!-- Update notification bar — slides down when version dot tapped -->
+    <div id="lcars-update-bar" class="lcars-update-bar">
+        <div class="lcars-update-arm"></div>
+        <div class="lcars-update-content">
+            NEW VERSION AVAILABLE
+            <button class="lcars-pill-btn lcars-pill-sm" onclick="location.reload()" style="margin-left:var(--gap-l)">RELOAD</button>
+            <button class="lcars-pill-btn lcars-pill-sm lcars-pill-dim" onclick="this.parentElement.parentElement.classList.remove('expanded')" style="margin-left:var(--gap-s)">DISMISS</button>
+        </div>
     </div>
 
     <!-- Standard Header (dark/light mode) -->

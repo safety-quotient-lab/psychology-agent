@@ -3704,6 +3704,41 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
 }
 
 /* Domain label in mobile pill strip */
+/* ── Update notification bar ─────────────────────────────── */
+.lcars-update-bar {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 9999;
+    flex-direction: row;
+    align-items: stretch;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease;
+}
+.lcars-update-bar.expanded {
+    display: flex;
+    max-height: 60px;
+}
+.lcars-update-arm {
+    width: var(--sidebar-width, 160px);
+    background: var(--lcars-frame);
+    flex-shrink: 0;
+}
+.lcars-update-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: var(--gap-m) var(--gap-xl);
+    background: #111;
+    color: var(--lcars-title);
+    font-family: 'Antonio', 'Arial Narrow', sans-serif;
+    font-size: 0.82em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
 .mobile-domain-label {
     color: var(--lcars-frame);
     font-size: 0.6em;
