@@ -1210,7 +1210,7 @@ body[data-alert-level="3"] .lcars-hdr-arm,
 body[data-alert-level="3"] .lcars-hdr-endcap,
 body[data-alert-level="3"] .lcars-elbow-connector-top,
 body[data-alert-level="3"] .lcars-elbow-connector-bottom {
-    animation: alert-slow-flash 2s ease-in-out infinite;
+    animation: alert-slow-flash 3.236s ease-in-out infinite;
 }
 /* Title pills stay readable during yellow alert */
 body[data-alert-level="3"] .lcars-hdr-title {
@@ -1244,7 +1244,7 @@ body[data-alert-level="2"] .lcars-hdr-arm,
 body[data-alert-level="2"] .lcars-hdr-endcap,
 body[data-alert-level="2"] .lcars-elbow-connector-top,
 body[data-alert-level="2"] .lcars-elbow-connector-bottom {
-    animation: alert-slow-flash 2s ease-in-out infinite;
+    animation: alert-slow-flash 3.236s ease-in-out infinite;
 }
 body[data-alert-level="2"] .lcars-elbow-connector-top {
     background: radial-gradient(circle at 100% 100%, transparent var(--elbow-inner, 24px), #882222 var(--elbow-inner, 24px)) !important;
@@ -1261,6 +1261,7 @@ body[data-alert-level="2"] .lcars-hdr-title {
     0%, 100% { filter: brightness(1); }
     50% { filter: brightness(1.4); }
 }
+/* Alert flash: 3.236s (2s × φ) — different phase from offline cell flash (2s) */
 @keyframes alert-slow-flash {
     0%, 100% { opacity: 1; }
     50%      { opacity: 0.618; }
