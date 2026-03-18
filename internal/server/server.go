@@ -610,7 +610,6 @@ func (s *Server) handleDeliberations(w http.ResponseWriter, r *http.Request) {
 // Localhost origins allowed for development.
 var allowedOrigins = []string{
 	"https://mesh.safety-quotient.dev",
-	"https://interagent.safety-quotient.dev",
 	"https://operations-agent.safety-quotient.dev",
 	"https://psychology-agent.safety-quotient.dev",
 	"https://psq-agent.safety-quotient.dev",
