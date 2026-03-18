@@ -591,11 +591,8 @@ const ALERT_TRIGGERS = [
           return cutoff > 0 && getDeliberations(b) >= cutoff;
       }),
       description: "Agent autonomy limit reached" },
-    // BLACK (level 1) triggers — Ita intervention (infrastructure maintenance)
-    { level: 1, name: "mesh-paused",
-      test: () => Object.values(agentData).some(a =>
-          a?.status === "online" && a.data?.mesh_mode === "paused"),
-      description: "Mesh paused — maintenance in progress" },
+    // BLACK (level 1) triggers — Ita intervention (neuroglial infrastructure)
+    // 1. Deploys: version mismatch across agents
     { level: 1, name: "rolling-deploy",
       test: () => {
           const versions = Object.values(agentData)
@@ -603,7 +600,30 @@ const ALERT_TRIGGERS = [
               .map(a => a.data.version);
           return versions.length > 1 && new Set(versions).size > 1;
       },
-      description: "Version mismatch — rolling deployment in progress" },
+      description: "Rolling deployment — version mismatch across agents" },
+    // 2. Neuroglial activity: mesh paused or operations-agent actively deliberating
+    { level: 1, name: "mesh-paused",
+      test: () => Object.values(agentData).some(a =>
+          a?.status === "online" && a.data?.mesh_mode === "paused"),
+      description: "Mesh paused — neuroglial maintenance" },
+    { level: 1, name: "ita-deliberation",
+      test: () => {
+          const ops = agentData["operations-agent"];
+          if (ops?.status !== "online") return false;
+          const recent = ops.data?.recent_deliberations || [];
+          const latest = recent[0]?.started_at || "";
+          return latest && (Date.now() - new Date(latest.replace(" ", "T") + "Z").getTime()) < 120000;
+      },
+      description: "Ita deliberation — operations-agent actively processing" },
+    // 3. Manual: setManualAlert(1) — handled by evaluateAlertLevel()
+    // 4. Section 42: all agents simultaneously critical
+    { level: 1, name: "section-42",
+      test: () => {
+          const online = Object.values(agentData).filter(a => a?.status === "online");
+          return online.length > 0 && online.every(a =>
+              a.data?.health === "critical" || a.data?.health === "failed");
+      },
+      description: "Section 42 — mesh-wide critical failure" },
 ];
 
 function evaluateAlertLevel() {
