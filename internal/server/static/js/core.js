@@ -369,6 +369,26 @@ let sseActive = false;
 // ═══ TRACKING ════════════════════════════════════════════════
 const _prevValues = {};
 
+// Inline delta tracker — returns "↑N" or "↓N" or "" for use in template strings.
+// First call for a key seeds the value (returns ""), subsequent calls show delta.
+const _deltaTracker = {};
+function delta(key, value) {
+    if (value == null || isNaN(value)) return "";
+    const num = typeof value === "string" ? parseFloat(value) : value;
+    if (isNaN(num)) return "";
+    if (!(key in _deltaTracker)) {
+        _deltaTracker[key] = num;
+        return ""; // first reading — seed, no delta
+    }
+    const prev = _deltaTracker[key];
+    _deltaTracker[key] = num;
+    const diff = num - prev;
+    if (diff === 0) return "";
+    const arrow = diff > 0 ? "\u2191" : "\u2193";
+    const abs = Math.abs(diff);
+    return ` <span style="font-size:0.8em;opacity:0.7">${arrow}${abs > 999 ? fmtNum(abs) : abs}</span>`;
+}
+
 /**
  * Update a numeric element with delta tracking.
  * @param {string} elementId - DOM element ID
