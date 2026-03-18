@@ -4162,6 +4162,55 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
     padding: 0;
 }
 
+/* ── LCARS Data Grid (Button 52 pattern — dense chunky rectangles) ── */
+/* Uniform-sized data blocks in a grid. Color encodes data tier.
+   Ref: Button 52, Unknown N1 (purple/lavender grid sections). */
+.lcars-data-grid {
+    display: none;
+}
+.theme-lcars .lcars-data-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-xs);
+    justify-content: center;
+    margin-bottom: var(--gap-l);
+}
+.lcars-data-grid .dg-cell {
+    background: var(--lcars-secondary);
+    color: #000;
+    min-width: 100px;
+    min-height: 52px;
+    padding: 8px var(--gap-m) 5px;
+    border-radius: var(--gap-xs);
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 0 0 auto;
+}
+.lcars-data-grid .dg-val {
+    font-size: 1.1em;
+    line-height: 1;
+}
+.lcars-data-grid .dg-label {
+    font-size: 0.58em;
+    opacity: 0.7;
+    margin-top: 2px;
+}
+/* Tier colors */
+.lcars-data-grid .dg-t2 { background: var(--lcars-tertiary); }
+.lcars-data-grid .dg-t3 { background: var(--lcars-title); }
+.lcars-data-grid .dg-accent { background: var(--lcars-accent); }
+.lcars-data-grid .dg-frame { background: var(--lcars-frame); }
+/* Alert overrides */
+body[data-alert-level="3"] .lcars-data-grid .dg-cell { background: var(--alert-yellow-med, #CD870E) !important; }
+body[data-alert-level="2"] .lcars-data-grid .dg-cell { background: var(--alert-red-dark, #990000) !important; color: #fff !important; }
+body[data-alert-level="1"] .lcars-data-grid .dg-cell { background: var(--alert-black-med, #0E3A9B) !important; color: var(--alert-black-cyan, #64FFFF) !important; }
+
 /* ── Ohniaka Summary Row (mesh totals) ───────────────────── */
 .ohniaka-summary {
     display: flex;

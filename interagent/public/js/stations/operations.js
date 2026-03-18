@@ -737,8 +737,11 @@ function renderOpsCapacityReadout() {
     </div>`;
 }
 
-// ── Symmetric Capsule Bars (Ohniaka A1 framing) ─────────────────
+// ── Operations Record Data Grid (Button 52 pattern) ─────────────
 function renderOpsCapsuleBars() {
+    const grid = document.getElementById("ops-data-grid");
+    if (!grid) return;
+
     const online = Object.values(agentData).filter(a => a.status === "online");
     const total = AGENTS.length;
     const totalGf = online.reduce((s, a) => s + getDeliberations(a.data?.autonomy_budget), 0);
@@ -746,37 +749,30 @@ function renderOpsCapsuleBars() {
     const pending = online.reduce((s, a) => s + (a.data?.unprocessed_messages || []).length, 0);
     const gates = online.reduce((s, a) => s + (a.data?.active_gates || []).length, 0);
     const events = online.reduce((s, a) => s + (a.data?.event_count || 0), 0);
+    const versions = [...new Set(online.map(a => a.data?.version).filter(Boolean))];
+    const hashes = versions.map(v => { const m = v.match(/-g([0-9a-f]{7})/); return m ? m[1] : v.slice(0, 7); });
+    const vStr = hashes.length === 1 ? hashes[0] : hashes.length + " VER";
+    const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    const mode = (typeof sseActive !== "undefined" && sseActive) ? "LIVE" : "POLL";
+    const status = online.length === total ? "NOMINAL" : "DEGRADED";
 
-    // Top bar: mesh summary — agent count, Gf, Gc, pending, gates
-    // Endcaps never contain data (§ canonical) — data in cells, endcap structural only
-    const top = document.getElementById("ops-capsule-top");
-    if (top) {
-        top.innerHTML = `
-            <span class="cb-cell">${online.length}/${total}</span>
-            <span class="cb-cell">Gf ${fmtNum(totalGf)}</span>
-            <span class="cb-cell cb-cell-t2">Gc ${fmtNum(totalGc)}</span>
-            <span class="cb-cell cb-cell-t3">${fmtNum(events)} EVT</span>
-            ${pending > 0 ? `<span class="cb-cell cb-cell-t2">${pending} PEND</span>` : ""}
-            <span class="cb-cell">${gates > 0 ? gates + " GATE" : (online.length === total ? "NOMINAL" : "DEGRADED")}</span>
-        `;
-    }
+    const cell = (val, label, tier) =>
+        `<div class="dg-cell${tier ? " dg-" + tier : ""}"><span class="dg-val">${val}</span><span class="dg-label">${label}</span></div>`;
 
-    // Bottom bar: versions + timing
-    const bottom = document.getElementById("ops-capsule-bottom");
-    if (bottom) {
-        const versions = [...new Set(online.map(a => a.data?.version).filter(Boolean))];
-        // Extract git hash from version string (e.g., "ops-agent-...-g509279a-dirty" → "509279a")
-        const hashes = versions.map(v => { const m = v.match(/-g([0-9a-f]{7})/); return m ? m[1] : v.slice(0, 7); });
-        const vStr = hashes.length === 1 ? hashes[0] : hashes.length + " VER";
-        const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-        const mode = (typeof sseActive !== "undefined" && sseActive) ? "LIVE" : "POLL";
-        bottom.innerHTML = `
-            <span class="cb-cell">${vStr}</span>
-            <span class="cb-cell">${mode}</span>
-            <span class="cb-cell cb-cell-t2">${now}</span>
-            <span class="cb-cell">${total} AGENTS</span>
-        `;
-    }
+    grid.innerHTML = [
+        // System identity group
+        cell(vStr, "BUILD", "t2"),
+        cell(mode, "LINK", ""),
+        cell(now, "TIME", "t2"),
+        cell(`${online.length}/${total}`, "AGENTS", "accent"),
+        // Mesh metrics group
+        cell(fmtNum(totalGf), "Gf", ""),
+        cell(fmtNum(totalGc), "Gc", "t2"),
+        cell(fmtNum(events), "EVENTS", "t3"),
+        cell(status, "STATUS", "frame"),
+        pending > 0 ? cell(pending, "PENDING", "accent") : "",
+        gates > 0 ? cell(gates, "GATES", "accent") : "",
+    ].join("");
 }
 
 // ── Science Station ─────────────────────────────────────────────
