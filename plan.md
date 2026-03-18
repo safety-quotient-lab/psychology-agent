@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 10 complete — 71 commits, 30+ deploys. JS decomposed: 10 files, index.html 1336 lines. LCARS: V23.01 OCR-verified palette + trekcolors, three-zone layout, 5-level TNG health, separated connectivity/health columns, coherence flags, mobile two-row cards. Infrastructure: 13/13 psy-session bugs fixed, Cloudflare tunnel migration (all 5 chromabook agents + mesh compositor via tunnel, CF Worker replaceable), SQLite-backed agent registry (cold-start resilient), per-type event counters, WebSocket /ws, budget schema dual-compat. mesh.safety-quotient.dev serves full dashboard from meshd. Transport: psy-session T1-T14 processed. Pending: departmental tabs, data density, symmetric framing, resource awareness, CF Worker decommission.
+**Current Status:** Session 10 complete — 94 commits, 40+ deploys. JS decomposed: 10 files, index.html 1336 lines. LCARS: V23.01 OCR-verified palette + trekcolors, three-zone layout, 5-level TNG health, separated connectivity/health columns, coherence flags, mobile two-row cards. Infrastructure: 13/13 psy-session bugs fixed, Cloudflare tunnel migration (all 5 chromabook agents + mesh compositor via tunnel, CF Worker replaceable), SQLite-backed agent registry (cold-start resilient), per-type event counters, WebSocket /ws, budget schema dual-compat. mesh.safety-quotient.dev serves full dashboard from meshd. Transport: psy-session T1-T14 processed. Pending: departmental tabs, data density, symmetric framing, resource awareness, CF Worker decommission.
 
 ---
 
