@@ -164,48 +164,25 @@ func (d *Dispatcher) HandleEvent(ctx context.Context, evt Event) {
 		return
 	}
 
-	prompt := buildPrompt(evt)
-	req := DeliberationRequest{
-		Prompt:   prompt,
-		Cost:     cost,
-		Event:    evt,
-		Priority: evt.Priority,
-	}
-
-	if err := d.budgetDeduct(cost); err != nil {
-		d.logger.Error("budget deduction failed", "error", err)
-		// Proceed anyway — acting outweighs silent failure
-	}
-
-	if err := d.deliberate(ctx, req); err != nil {
-		d.logger.Error("deliberation failed",
-			"event_id", evt.ID,
-			"error", err,
-		)
-		// Refund the budget — deliberation did not consume resources
-		if refundErr := d.budgetDeduct(-cost); refundErr != nil {
-			d.logger.Warn("budget refund failed", "cost", cost, "error", refundErr)
-		} else {
-			d.logger.Info("budget refunded after deliberation failure", "cost", cost)
-		}
-		// Re-queue if retries remain
-		if evt.Attempts < evt.MaxRetries {
-			evt.Attempts++
-			d.queue.Push(evt)
-			d.logger.Info("re-queued event for retry",
-				"event_id", evt.ID,
-				"attempt", evt.Attempts,
-			)
-		}
-		return
-	}
-
+	// Event requires fluid intelligence (Gf) — queue for oscillator.
+	// The oscillator monitors unprocessed events as an activation signal.
+	// When activation exceeds threshold, it fires a single deliberation
+	// that processes all pending work. This prevents duplicate invocations.
+	d.logger.Info("event queued for oscillator (Gf required)",
+		"event_id", evt.ID,
+		"type", evt.Type,
+		"cost", cost,
+	)
 	d.mu.Lock()
 	d.dispatched++
 	tm := d.getTypeMetrics(evt.Type)
 	tm.Total++
-	tm.DeliberationSucceeded++
 	d.mu.Unlock()
+
+	// Event stays unprocessed in state.db. The oscillator monitors
+	// unprocessed_messages as an activation signal and fires a single
+	// deliberation when threshold exceeded. This eliminates duplicate
+	// claude invocations from parallel event processing.
 }
 
 // Stats returns dispatcher metrics.

@@ -63,7 +63,8 @@ type Oscillator struct {
 	stopCh           chan struct{}
 }
 
-// NewOscillator creates a shadow-mode oscillator.
+// NewOscillator creates an oscillator. Shadow mode controlled by SetShadow().
+// Default: shadow mode OFF (oscillator fires deliberations when activation > threshold).
 func NewOscillator(agentID, dbPath, projectRoot string) *Oscillator {
 	return &Oscillator{
 		agentID:     agentID,
@@ -72,11 +73,19 @@ func NewOscillator(agentID, dbPath, projectRoot string) *Oscillator {
 		stopCh:      make(chan struct{}),
 		state: OscillatorState{
 			State:           "monitoring",
-			ShadowMode:      true,
+			ShadowMode:      false,
 			SignalBreakdown: make(map[string]float64),
 			FireHistory:     make([]FireEvent, 0, 20),
 		},
 	}
+}
+
+// SetShadow enables or disables shadow mode.
+// Shadow mode: logs "would fire" but does not trigger deliberations.
+func (o *Oscillator) SetShadow(enabled bool) {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	o.state.ShadowMode = enabled
 }
 
 // Start launches the oscillator goroutine. Safe to call once.
