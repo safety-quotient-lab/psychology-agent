@@ -385,8 +385,9 @@ function delta(key, value) {
     const diff = num - prev;
     if (diff === 0) return "";
     const arrow = diff > 0 ? "\u2191" : "\u2193";
+    const color = diff > 0 ? "#22cc44" : "#cc2222";
     const abs = Math.abs(diff);
-    return ` <span style="font-size:0.8em;opacity:0.7">${arrow}${abs > 999 ? fmtNum(abs) : abs}</span>`;
+    return ` <span style="font-size:0.8em;color:${color}">${arrow}${abs > 999 ? fmtNum(abs) : abs}</span>`;
 }
 
 /**
