@@ -1,11 +1,22 @@
-/* ── LCARS Font: Antonio Bold (self-hosted) ──────────────── */
-/* Closest match to Swiss 911 Ultra Compressed / Helvetica
-   Ultra Compressed — the canonical LCARS typeface.
-   OFL license. Source: gregology/LCARS SDK. */
+/* ── LCARS Fonts ─────────────────────────────────────────── */
+/* Canonical: Swiss 911 Ultra Compressed (Bitstream, trekfont).
+   GPL-3 blocks bundling — use OFL alternatives instead.
+   Stack: Antonio Bold (primary, OFL, gregology/LCARS SDK)
+        → Oswald (fallback, OFL, lcars Shiny package convention)
+        → Arial Narrow → Helvetica Neue → sans-serif.
+   Ref: leonawicz/trekfont (107 fonts), leonawicz/lcars (Shiny) */
 @font-face {
     font-family: 'Antonio';
-    src: url('fonts/antonio-bold.woff2') format('woff2'),
-         url('fonts/antonio-bold.woff') format('woff');
+    src: url('/fonts/antonio-bold.woff2') format('woff2'),
+         url('/fonts/antonio-bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+/* Oswald — OFL, used by leonawicz/lcars Shiny package as LCARS body font */
+@font-face {
+    font-family: 'Oswald';
+    src: url('/fonts/oswald-bold.woff2') format('woff2');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
@@ -133,15 +144,48 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     --v23-red-med: #E26A49;
     --v23-red-light: #F09173;
 
-    /* LCARS 2369 named colors (trekcolors, TNG/DS9 era) */
+    /* ── trekcolors (MIT, leonawicz) — All 4 named LCARS palettes ── */
+
+    /* LCARS 2357 — TNG early seasons (9 named colors) */
+    --lcars-pale-canary: #FFFF99;
+    --lcars-tanoi: #FFCC99;
+    --lcars-golden-tanoi: #FFCC66;
+    --lcars-neon-carrot: #FF9933;
+    --lcars-eggplant: #664466;
+    --lcars-lilac: #CC99CC;
+    --lcars-anakiwa: #99CCFF;
+    --lcars-mariner: #3366CC;
+    --lcars-bahama-blue: #006699;
+
+    /* LCARS 2369 — TNG/DS9 era (8 named colors) */
     --lcars-blue-bell: #9999CC;
     --lcars-melrose: #9999FF;
-    --lcars-lilac: #CC99CC;
+    /* --lcars-lilac already defined in 2357 (same #CC99CC) */
     --lcars-hopbush: #CC6699;
     --lcars-chestnut-rose: #CC6666;
     --lcars-orange-peel: #FF9966;
     --lcars-atomic-tangerine: #FF9900;
-    --lcars-golden-tanoi: #FFCC66;
+    /* --lcars-golden-tanoi already defined in 2357 (same #FFCC66) */
+
+    /* LCARS 2375 — DS9 late/Voyager era (8 named colors) */
+    --lcars-danub: #6688CC;
+    --lcars-indigo: #4455BB;
+    --lcars-lavender-purple: #9977AA;
+    --lcars-cosmic: #774466;
+    --lcars-red-damask: #DD6644;
+    --lcars-medium-carmine: #AA5533;
+    --lcars-bourbon: #BB6622;
+    --lcars-sandy-brown: #EE9955;
+
+    /* LCARS 2379 — Nemesis era (8 named colors) */
+    --lcars-periwinkle: #CCDDFF;
+    --lcars-dodger-pale: #5599FF;
+    --lcars-dodger-soft: #3366FF;
+    --lcars-near-blue: #0011EE;
+    --lcars-navy-blue: #000088;
+    --lcars-husk: #BBAA55;
+    --lcars-rust: #BB4411;
+    --lcars-tamarillo: #882211;
 
     /* Starfleet division colors (trekcolors) */
     --sf-command: #5B1414;
@@ -160,6 +204,10 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     --alert-yellow-med: #CD870E;
     --alert-yellow-bright: #FFA90E;
     --alert-yellow-light: #FFDA67;
+    --alert-black-deep: #050B64;
+    --alert-black-med: #0E3A9B;
+    --alert-black-bright: #307CE4;
+    --alert-black-cyan: #64FFFF;
 
     /* ── Semantic mapping (roles → palette) ── */
     /* ── Semiotic Color Mapping (V23.01 → LCARS function) ──────
@@ -382,7 +430,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     padding: 10px 12px 10px 20px;
     min-height: 56px;
     flex-shrink: 0;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.85em;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -454,7 +502,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     align-items: flex-end; /* bottom-aligned text — canonical */
     justify-content: center; /* centered horizontally */
     padding: 8px 18px;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.85em;
     font-weight: 700;
     text-transform: uppercase;
@@ -523,7 +571,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     align-items: center;
     justify-content: flex-end;
     padding: 4px 14px;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.72em;
     font-weight: 700;
     text-transform: uppercase;
@@ -568,7 +616,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     color: #000;
     border-bottom: none;
     border-radius: 0 12px 0 0;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
 }
 
 /* ── Three-Zone Panel Layout (§1.2) ───────────────────────── */
@@ -617,7 +665,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     justify-content: space-between;
     align-items: center;
     padding: 6px 16px;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.72em;
     font-weight: 700;
     text-transform: uppercase;
@@ -827,7 +875,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 
 /* Agent shortcodes in LCARS mode (Pattern #5) */
 .theme-lcars .agent-name {
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     letter-spacing: 0.06em;
 }
 
@@ -841,7 +889,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     color: #000;
     padding: 4px 16px;
     border-radius: 0 0 12px 0;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.68em;
     font-weight: 700;
     text-transform: uppercase;
@@ -860,7 +908,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.65em;
     font-weight: 700;
     color: rgba(255,255,255,0.15);
@@ -893,7 +941,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.68em;
     font-weight: 700;
     color: #000;
@@ -931,7 +979,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     border: none;
     border-radius: 50vh;
     padding: 2px 10px;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.7em;
     font-weight: 700;
     text-transform: uppercase;
@@ -951,7 +999,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     border: none;
     border-radius: 50vh;
     padding: 6px 16px;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.75em;
     font-weight: 700;
     text-transform: uppercase;
@@ -1013,7 +1061,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 }
 .lcars-detail-header {
     padding: 10px 16px;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.78em;
     font-weight: 700;
     text-transform: uppercase;
@@ -1032,7 +1080,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .lcars-detail-footer {
     padding: 8px 16px;
     color: #000;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.72em;
     font-weight: 700;
     text-transform: uppercase;
@@ -1307,7 +1355,7 @@ body[data-alert-level="1"] {
     border: 2px solid #333355;
 }
 .theme-lcars .topology-svg text {
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-weight: 700;
     letter-spacing: 0.06em;
 }
@@ -3307,9 +3355,9 @@ a.activity-link:hover {
 .lcars-stardate-cell.hdr-changed {
     animation: hdr-flash 2s ease-in-out 1;
 }
-/* Stardate: slow persistent pulse until tapped (first load) */
+/* Stardate: 5 flashes on first load, then stops */
 .lcars-stardate-cell.hdr-attract {
-    animation: hdr-attract 3s ease-in-out infinite;
+    animation: hdr-attract 3s ease-in-out 5;
 }
 @keyframes hdr-flash {
     0%   { filter: brightness(1); }
@@ -3371,7 +3419,7 @@ a.activity-link:hover {
     padding: 0 14px;
     height: 0;
     opacity: 0;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.72em;
     font-weight: 700;
     text-transform: uppercase;
@@ -3440,7 +3488,7 @@ a.activity-link:hover {
         padding: 0 14px;
         height: 0;
         opacity: 0;
-        font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+        font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
         font-size: 0.72em;
         font-weight: 700;
         text-transform: uppercase;
@@ -3573,7 +3621,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     gap: 0 var(--gap-xl);
     min-width: max-content;
     overflow-x: visible;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.78em;
     font-weight: 700;
     text-transform: uppercase;
@@ -3663,7 +3711,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     padding: var(--gap-m) var(--gap-l);
     border-bottom: 1px solid rgba(255,255,255,0.08);
     cursor: pointer;
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.78em;
     font-weight: 700;
     text-transform: uppercase;
@@ -3841,13 +3889,13 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     min-width: 48px;
 }
 .ohniaka-metric-val {
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 1.4em;
     font-weight: 700;
     line-height: 1;
 }
 .ohniaka-metric-key {
-    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-family: 'Antonio', 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.65em;
     font-weight: 600;
     color: var(--text-dim);
