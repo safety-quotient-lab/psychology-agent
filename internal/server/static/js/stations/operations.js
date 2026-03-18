@@ -283,16 +283,12 @@ function renderOpsBudget() {
         const online = d?.status === "online";
         const b = online ? (d.data?.autonomy_budget || {}) : {};
         const deliberations = getDeliberations(b);
-        const cutoff = getCutoff(b);
         const health = d?.data?.health || "\u2014";
         const psych = d?.data?.psychometrics || {};
         const es = psych.emotional_state || {};
         const mood = es.affect_category || (online ? "unknown" : "");
         const pending = online ? (d.data?.unprocessed_messages || []).length : 0;
         const gc = online ? (d.data?.gc_metrics?.gc_handled_total || 0) : 0;
-        const gates = online ? (d.data?.active_gates || []).length : 0;
-
-        const cutoffStr = cutoff > 0 ? fmtNum(cutoff) : "\u221E";
         // Operation type — from oscillator dominant_band or heuristic
         const osc = d?.data?.oscillator || {};
         const band = osc.dominant_band || "";
@@ -310,10 +306,6 @@ function renderOpsBudget() {
             opType = "CLEAR"; opIcon = "\u{1F9F9}"; opColor = "var(--v23-plum-dark, #80225E)"; // indigo + broom
         }
 
-        const statusText = online
-            ? `${opIcon} ${opType} · ${mood.toUpperCase()}`
-            : "\u2014";
-
         const rowClass = online ? "ohniaka-row" : "ohniaka-row ohniaka-row-offline";
         // Connectivity pip (green/red)
         const connColor = online ? "#22cc44" : "#cc2222";
@@ -324,18 +316,34 @@ function renderOpsBudget() {
         const healthStr = rawHealth === "healthy" ? "NOMINAL" : rawHealth.toUpperCase();
         const healthColors = { NOMINAL: "var(--lcars-accent)", ADVISORY: "var(--lcars-title)", DEGRADED: "#ddaa22", CRITICAL: "var(--lcars-alert)", FAILED: "#cc2222" };
         const healthColor = online ? (healthColors[healthStr] || "var(--text-dim)") : "var(--text-dim)";
+        const moodStr = mood ? mood.toUpperCase() : "";
         return `<div class="${rowClass}">
             <span class="ohniaka-color-pill" style="background:${agent.color}"></span>
             <span class="ohniaka-col ohniaka-name" style="color:var(--lcars-secondary)">${agentName(agent).toUpperCase()}</span>
             ${connPill}
-            <span class="ohniaka-col ohniaka-type">${online ? "ONLINE" : "OFFLINE"}</span>
+            <span class="ohniaka-col ohniaka-conn">${online ? "ONLINE" : "OFFLINE"}</span>
             <span class="ohniaka-col ohniaka-health" style="color:${healthColor}">${online ? healthStr : "\u2014"}</span>
-            <span class="ohniaka-col ohniaka-id">${online ? fmtNum(deliberations) + delta(agent.id+"-delib", deliberations) + " / " + cutoffStr : "\u2014"}</span>
-            <span class="ohniaka-col ohniaka-desc">${statusText}${gc > 0 ? " · Gc " + fmtNum(gc) + delta(agent.id+"-gc", gc) : ""}${pending > 0 ? " · " + pending + delta(agent.id+"-pend", pending) + " PEND" : ""}${gates > 0 ? " · " + gates + " GATE" : ""}</span>
+            <span class="ohniaka-col ohniaka-gf">${online ? fmtNum(deliberations) + delta(agent.id+"-gf", deliberations) : "\u2014"}</span>
+            <span class="ohniaka-col ohniaka-gc">${online ? fmtNum(gc) + delta(agent.id+"-gc", gc) : "\u2014"}</span>
+            <span class="ohniaka-col ohniaka-op">${online ? opIcon + " " + opType : "\u2014"}</span>
+            <span class="ohniaka-col ohniaka-mood">${online ? moodStr : "\u2014"}</span>
+            <span class="ohniaka-col ohniaka-pend">${online && pending > 0 ? pending + delta(agent.id+"-pend", pending) : "\u2014"}</span>
         </div>`;
     }
 
-    let html = "";
+    // Header row
+    let html = `<div class="ohniaka-row ohniaka-header">
+        <span></span>
+        <span class="ohniaka-col">AGENT</span>
+        <span></span>
+        <span class="ohniaka-col">STATUS</span>
+        <span class="ohniaka-col">HEALTH</span>
+        <span class="ohniaka-col">Gf</span>
+        <span class="ohniaka-col">Gc</span>
+        <span class="ohniaka-col">MODE</span>
+        <span class="ohniaka-col">AFFECT</span>
+        <span class="ohniaka-col">PEND</span>
+    </div>`;
 
     // Autonomous group
     if (autonomous.length > 0) {

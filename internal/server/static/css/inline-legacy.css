@@ -3567,7 +3567,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
    creates structure per "STARSHIP MISSION STATUS" pattern. */
 .ohniaka-row {
     display: grid;
-    grid-template-columns: 10px minmax(90px, 1fr) 10px 70px 80px 90px 1fr;
+    grid-template-columns: 10px minmax(75px, 1fr) 10px 60px 70px 50px 40px 55px 60px 40px;
     gap: var(--gap-m);
     padding: var(--gap-m) 0;
     border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -3591,8 +3591,22 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     border-radius: 50%;
     display: inline-block;
 }
+/* Header row — gold text, smaller, no bottom border */
+.ohniaka-header {
+    color: var(--lcars-title) !important;
+    font-size: 0.65em;
+    opacity: 0.8;
+    border-bottom: 2px solid var(--panel-accent, var(--lcars-frame));
+    padding-bottom: var(--gap-s);
+}
+.ohniaka-header .ohniaka-col { color: var(--lcars-title); white-space: nowrap; }
 .ohniaka-name { color: var(--lcars-secondary); } /* purple — entity name */
-.ohniaka-type { color: var(--lcars-secondary); opacity: 0.7; min-width: 75px; } /* purple dim — fixed width for ONLINE/OFFLINE/DEGRADED */
+.ohniaka-conn { color: var(--lcars-secondary); opacity: 0.7; } /* connectivity */
+.ohniaka-gf { color: var(--lcars-accent); } /* orange — fluid processing count */
+.ohniaka-gc { color: var(--lcars-secondary); } /* purple — crystallized count */
+.ohniaka-op { white-space: nowrap; } /* mode icon + label */
+.ohniaka-mood { color: var(--text-dim); } /* affect state */
+.ohniaka-pend { color: var(--lcars-title); } /* pending — attention color */
 .ohniaka-id { color: var(--lcars-title); } /* yellow — identifiers/numbers */
 .ohniaka-desc { color: var(--text-primary); white-space: normal; } /* white — description/status */
 .ohniaka-separator {
