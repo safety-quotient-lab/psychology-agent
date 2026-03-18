@@ -30,6 +30,7 @@
     }
     </script>
     <link rel="stylesheet" href="css/inline-legacy.css?v=DEV">
+    <link rel="stylesheet" href="css/tricorder.css?v=DEV">
     <!-- TODO: consolidate inline-legacy.css into theme.css + layout.css + components.css -->
 
 </head>
@@ -72,7 +73,17 @@
         <button class="lcars-sidebar-btn" data-tab="tactical" data-short="TAC" onclick="switchTab('tactical')">Tactical</button>
         <button class="lcars-sidebar-btn" data-tab="medical" data-short="MED" onclick="switchTab('medical')">Medical</button>
         <div class="lcars-sidebar-arm"></div>
+        <div class="lcars-sidebar-exit lcars-tricorder-btn" onclick="toggleTricorder()" id="tricorder-toggle" data-short="TRI" title="Toggle tricorder/computer mode">TRICORDER</div>
         <div class="lcars-sidebar-exit" onclick="setTheme('system')" title="Exit LCARS mode">&#x2716;</div>
+    </nav>
+    <!-- Tricorder mode: bottom station nav (mirrors sidebar buttons) -->
+    <nav class="tricorder-nav" id="tricorder-nav">
+        <button class="tricorder-nav-btn active" data-tab="operations" onclick="switchTab('operations')">OPS</button>
+        <button class="tricorder-nav-btn" data-tab="science" onclick="switchTab('science')">SCI</button>
+        <button class="tricorder-nav-btn" data-tab="engineering" onclick="switchTab('engineering')">ENG</button>
+        <button class="tricorder-nav-btn" data-tab="helm" onclick="switchTab('helm')">HLM</button>
+        <button class="tricorder-nav-btn" data-tab="tactical" onclick="switchTab('tactical')">TAC</button>
+        <button class="tricorder-nav-btn" data-tab="medical" onclick="switchTab('medical')">MED</button>
     </nav>
 
     <!-- LCARS Header Band — stardate tray on mobile portrait -->

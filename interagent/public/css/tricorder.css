@@ -1,0 +1,148 @@
+/* ═══════════════════════════════════════════════════════════════
+   TRICORDER MODE (TR-580 Tricorder VII layout)
+   Toggle: body.tricorder-mode.theme-lcars
+   Bottom station nav, full-width content, thin status header.
+   Based on TR-580 Tricorder VII prop reference (docs/lcars-reference/).
+
+   Anatomy (top → bottom):
+   1. Status strip (header) — thin
+   2. Main display (content) — full-width, scrollable
+   3. Station nav (fixed bottom) — OPS SCI ENG HLM TAC MED
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Bottom Station Nav ──────────────────────────────────── */
+.tricorder-nav { display: none; }
+
+.tricorder-mode.theme-lcars .tricorder-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 500;
+    gap: var(--gap-s, 5px);
+    padding: var(--gap-s, 5px);
+    background: #000;
+}
+
+.tricorder-nav-btn {
+    flex: 1;
+    border: none;
+    border-radius: 50vh;
+    padding: 12px 8px 5px;
+    min-height: 52px;
+    background: var(--lcars-atomic-tangerine, #FF9966);
+    color: #000;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0.5;
+    transition: opacity 0.15s;
+}
+.tricorder-nav-btn:hover { opacity: 0.75; }
+.tricorder-nav-btn.active {
+    opacity: 1;
+    background: var(--lcars-orange-peel, #FFA500);
+    filter: brightness(1.15);
+}
+
+/* ── Grid Override ───────────────────────────────────────── */
+/* Computer: sidebar(col1) | connector(col2) | content(col3)
+   Tricorder: collapse sidebar+connector to 0, content fills viewport */
+.tricorder-mode.theme-lcars .lcars-frame {
+    grid-template-columns: 0 0 1fr !important;
+}
+
+/* Hide sidebar + connectors + SVG frame — zero width not enough, display:none */
+.tricorder-mode.theme-lcars .lcars-sidebar,
+.tricorder-mode.theme-lcars .lcars-connector-top,
+.tricorder-mode.theme-lcars .lcars-connector-bottom,
+.tricorder-mode.theme-lcars #lcars-frame-svg {
+    display: none !important;
+}
+
+/* ── Header: thin status strip ───────────────────────────── */
+.tricorder-mode.theme-lcars .lcars-header-band {
+    min-height: 36px !important;
+    grid-column: 1 / -1; /* span full width */
+}
+.tricorder-mode.theme-lcars .lcars-header-seg {
+    font-size: 0.65em;
+    padding: 4px 10px;
+}
+.tricorder-mode.theme-lcars .lcars-hdr-arm {
+    flex: 0 0 8px !important;
+    min-width: 8px !important;
+}
+.tricorder-mode.theme-lcars .lcars-hdr-arm:first-child {
+    border-radius: 50vh 0 0 50vh;
+}
+.tricorder-mode.theme-lcars .lcars-hdr-endcap {
+    flex: 0 0 8px !important;
+    border-radius: 0 50vh 50vh 0;
+}
+
+/* ── Content: full-width, scrollable ─────────────────────── */
+.tricorder-mode.theme-lcars .lcars-content {
+    grid-column: 1 / -1 !important; /* span full width */
+    padding: var(--gap-m, 8px);
+    padding-bottom: 72px; /* space for fixed bottom nav */
+}
+
+/* ── Footer: thin identity strip ─────────────────────────── */
+.tricorder-mode.theme-lcars .lcars-footer-band {
+    min-height: 28px !important;
+    grid-column: 1 / -1 !important; /* span full width */
+}
+.tricorder-mode.theme-lcars .lcars-footer-seg {
+    font-size: 0.6em;
+    padding: 3px 8px;
+}
+
+/* ── Content Adaptations ─────────────────────────────────── */
+.tricorder-mode .lcars-capsule-bar { flex-wrap: wrap; }
+.tricorder-mode .lcars-panel { margin-bottom: var(--gap-m, 8px); }
+
+/* Subsystem selector: 3-column grid (TR-580 button grid) */
+.tricorder-mode .ops-subsystem-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--gap-s, 5px);
+}
+
+/* Data grids: horizontal scroll */
+.tricorder-mode .lcars-zone-a { overflow-x: auto; }
+.tricorder-mode .capsule-row { overflow-x: auto; min-width: 0; }
+.tricorder-mode .lcars-subsystem-grid { overflow-x: auto; }
+
+/* Mobile pills: always visible */
+.tricorder-mode .lcars-mobile-pills { display: block !important; }
+
+/* ── Sidebar Toggle Button ───────────────────────────────── */
+.lcars-tricorder-btn {
+    font-size: 0.65em !important;
+    letter-spacing: 0.06em;
+}
+/* Portrait: use shortcode from data-short attr */
+@media (max-width: 480px) {
+    .lcars-tricorder-btn {
+        font-size: 0 !important; /* hide full text */
+    }
+    .lcars-tricorder-btn::after {
+        content: attr(data-short);
+        font-size: 8px;
+    }
+}
+/* Active state: highlight when in tricorder mode */
+.tricorder-mode .lcars-tricorder-btn {
+    background: var(--lcars-accent) !important;
+}
+
+/* ── Hidden outside LCARS ────────────────────────────────── */
+.lcars-tricorder-toggle { display: none; }
