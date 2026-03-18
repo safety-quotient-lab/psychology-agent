@@ -3902,13 +3902,12 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 .ohniaka-pend { color: var(--lcars-title); text-align: right; } /* pending count, right-aligned */
 
 /* ── Mobile Pill Strip (portrait) ────────────────────────── */
-/* Mobile ("tricorder mode"): both grid AND pills visible — all data all the time.
-   Pills provide tappable detail cards; grid provides capsule overview. */
+/* Mobile: pills replace grid on narrow screens.
+   Pills provide tappable detail cards; grid provides desktop capsule overview. */
 .lcars-mobile-pills { display: none; padding: 0 !important; }
 @media (max-width: 600px) {
+    .lcars-subsystem-grid { display: none !important; }
     .lcars-mobile-pills { display: block !important; }
-    /* Grid stays visible — capsule rows scroll horizontally */
-    .lcars-subsystem-grid { overflow-x: auto; }
 }
 
 .agent-pill-bar {
