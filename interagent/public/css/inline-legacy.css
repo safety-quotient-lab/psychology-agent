@@ -2464,6 +2464,9 @@ a.activity-link:hover {
     margin-bottom: 0; /* subpanel handles spacing */
 }
 .theme-lcars .section-jump-btn { flex: 1 1 0; min-width: 0; }
+@media (max-width: 600px) {
+    .theme-lcars .section-jump-btn { flex: 1 1 30%; }
+}
 .section-jump-btn {
     background: var(--bg-inset);
     border: 1px solid var(--border);
@@ -3813,6 +3816,10 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
     flex-wrap: wrap;
 }
 .ops-subsystem-selector .ops-subsys-btn { flex: 1 1 0; min-width: 0; }
+/* Mobile portrait: 2 rows of 3 buttons */
+@media (max-width: 600px) {
+    .ops-subsystem-selector .ops-subsys-btn { flex: 1 1 30%; }
+}
 .ops-subsys-btn {
     opacity: 0.5;
     transition: opacity 0.15s;
