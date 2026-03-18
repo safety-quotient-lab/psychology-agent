@@ -625,7 +625,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     background: var(--panel-accent, var(--c-transport));
     color: #000;
     border-bottom: none;
-    border-radius: 0 12px 0 0;
+    border-radius: 0 var(--gap-m) 0 0;
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
 }
 
@@ -898,7 +898,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     background: var(--panel-accent, var(--c-transport));
     color: #000;
     padding: 4px 16px;
-    border-radius: 0 0 12px 0;
+    border-radius: 0 0 var(--gap-m) 0;
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.68em;
     font-weight: 700;
