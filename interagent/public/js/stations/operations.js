@@ -112,7 +112,7 @@ function renderOpsMonologue() {
     // Pattern A: highlight keywords in alternating orange/purple
     const text = parts.join(" ");
     const highlighted = text
-        .replace(/(\d+\/\d+|\d+%|\d+ of \d+)/g, '<span style="color:var(--lcars-accent);font-weight:700">$1</span>')
+        .replace(/(\d+\/\d+|\d+%|\d+ of \d+)/g, '<span style="color:var(--lcars-readout);font-weight:700">$1</span>')
         .replace(/(online|offline|Warning|deliberation|message|budget|limit)/gi, function(m) {
             const colors = { online: "var(--lcars-medical)", offline: "var(--lcars-alert)", warning: "var(--lcars-title)", deliberation: "var(--lcars-secondary)", message: "var(--lcars-tertiary)", budget: "var(--lcars-accent)", limit: "var(--lcars-highlight)" };
             return '<span style="color:' + (colors[m.toLowerCase()] || "var(--lcars-accent)") + '">' + m + '</span>';
@@ -412,7 +412,7 @@ function renderMobilePills() {
                 <span class="agent-pill-metrics">
                     <span style="color:${hColor}">${online ? healthStr : "OFFLINE"}</span>
                     <span style="color:var(--lcars-secondary)">Gc ${fmtNum(gc)}</span>
-                    <span style="color:var(--lcars-accent)">Gf ${fmtNum(gf)}</span>
+                    <span style="color:var(--lcars-readout)">Gf ${fmtNum(gf)}</span>
                     <span style="color:var(--text-dim)">${online ? opIcon + " " + opLabel : "\u2014"}</span>
                     <span style="color:var(--text-dim)">${online && mood ? mood.toUpperCase() : ""}</span>
                     ${pending > 0 ? `<span style="color:var(--lcars-title)">PEND ${pending}</span>` : ""}
@@ -430,7 +430,7 @@ function renderMobilePills() {
             html += `<div class="agent-pill-detail" style="border-color:${agent.color}">
                 <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${online ? "ONLINE" : "OFFLINE"}</span></div>
                 <div class="detail-row"><span class="detail-label">Health</span><span class="detail-value" style="color:${hColor}">${online ? healthStr : "\u2014"}</span></div>
-                <div class="detail-row"><span class="detail-label">Gf (Fluid)</span><span class="detail-value" style="color:var(--lcars-accent)">${fmtNum(gf)}</span></div>
+                <div class="detail-row"><span class="detail-label">Gf (Fluid)</span><span class="detail-value" style="color:var(--lcars-readout)">${fmtNum(gf)}</span></div>
                 <div class="detail-row"><span class="detail-label">Gc (Crystal)</span><span class="detail-value" style="color:var(--lcars-secondary)">${fmtNum(gc)}</span></div>
                 <div class="detail-row"><span class="detail-label">Affect</span><span class="detail-value">${moodDetail.toUpperCase()}</span></div>
                 <div class="detail-row"><span class="detail-label">Pending</span><span class="detail-value" style="color:${pending > 0 ? "var(--lcars-title)" : "var(--text-dim)"}">${pending}</span></div>
@@ -575,7 +575,7 @@ function renderActionsTable() {
                 <td class="${resultClass}">${r.evaluator_result || "\u2014"}</td>
                 <td style="color:var(--lcars-title)">${r.action_type || "\u2014"}</td>
                 <td title="${(r.description || "").replace(/"/g, "&quot;")}">${(r.description || "").substring(0, 60)}${(r.description || "").length > 60 ? "\u2026" : ""}</td>
-                <td style="color:var(--lcars-accent)">${budgetDelta}</td>
+                <td style="color:var(--lcars-readout)">${budgetDelta}</td>
             </tr>`;
         }).join("")}</tbody></table>`;
     }
@@ -646,7 +646,7 @@ function renderOpsAutonomyReadout() {
                 <span style="color:${shadow === "SHADOW" ? "var(--lcars-title)" : shadow === "ACTIVE" ? "var(--lcars-medical)" : "var(--lcars-alert)"};font-size:0.7em">${shadow}</span>
             </div>
             <div style="display:flex;gap:var(--gap-m);font-size:0.82em">
-                <span style="color:var(--lcars-accent)">${fmtNum(delib)} / ${cutoffStr}</span>
+                <span style="color:var(--lcars-readout)">${fmtNum(delib)} / ${cutoffStr}</span>
                 ${cutoff > 0 ? `<span style="color:var(--text-dim)">${pct}%</span>` : ""}
             </div>
             ${cutoff > 0 ? `<div style="height:4px;background:var(--bg-inset);border-radius:2px;margin-top:var(--gap-xs)"><div style="height:100%;width:${pct}%;background:${barColor};border-radius:2px;transition:width 0.4s"></div></div>` : ""}
@@ -666,7 +666,7 @@ function renderOpsTransportReadout() {
     el.innerHTML = `<div class="lcars-readout" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-m)">
         <div>
             <span class="lcars-readout-key">Messages</span>
-            <span class="lcars-readout-val" style="font-size:1.2em;color:var(--lcars-accent)">${fmtNum(totalMsgs)}</span>
+            <span class="lcars-readout-val" style="font-size:1.2em;color:var(--lcars-readout)">${fmtNum(totalMsgs)}</span>
         </div>
         <div>
             <span class="lcars-readout-key">Pending</span>
@@ -690,7 +690,7 @@ function renderOpsTransportReadout() {
             const pend = isOnline ? (d.data?.unprocessed_messages?.length || 0) : 0;
             return `<div style="display:flex;justify-content:space-between;padding:var(--gap-xs) 0;opacity:${isOnline ? 1 : 0.4};font-size:0.78em">
                 <span style="color:var(--lcars-secondary);text-transform:uppercase">${agentName(agent)}</span>
-                <span><span style="color:var(--lcars-accent)">${msgs} msg</span>${pend > 0 ? ` <span style="color:var(--lcars-title)">${pend} pend</span>` : ""}</span>
+                <span><span style="color:var(--lcars-readout)">${msgs} msg</span>${pend > 0 ? ` <span style="color:var(--lcars-title)">${pend} pend</span>` : ""}</span>
             </div>`;
         }).join("")}
     </div>`;
@@ -713,7 +713,7 @@ function renderOpsCapacityReadout() {
     el.innerHTML = `<div class="lcars-readout" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-m)">
         <div>
             <span class="lcars-readout-key">Gf (Fluid)</span>
-            <span class="lcars-readout-val" style="font-size:1.2em;color:var(--lcars-accent)">${fmtNum(totalGf)}</span>
+            <span class="lcars-readout-val" style="font-size:1.2em;color:var(--lcars-readout)">${fmtNum(totalGf)}</span>
         </div>
         <div>
             <span class="lcars-readout-key">Gc (Crystallized)</span>

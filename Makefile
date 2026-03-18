@@ -141,17 +141,21 @@ deploy-transfer:
 		$(SCP_CMD) ./$(MESHD_BIN) $${AGENT_SSH_HOST}:$(REMOTE_BIN).new
 	@echo "  Transferred to $(REMOTE_BIN).new"
 
-# Restart: stop all → swap binary → start all (parallel where possible)
+# Restart: pause mesh → stop all → swap binary → start all → unpause
 deploy-restart:
 	@echo ""
 	@echo "═══ Restarting meshd processes ═══"
 	@. ./.dev.vars 2>/dev/null; \
+		echo "  Engaging black alert (mesh pause)..." && \
+		$(SSH_CMD) 'for p in /home/kashif/projects/operations-agent /home/kashif/projects/psychology /home/kashif/projects/safety-quotient /home/kashif/projects/unratified /home/kashif/projects/observatory; do touch $$p/.mesh-paused 2>/dev/null; done' && \
 		echo "  Stopping all units..." && \
 		$(SSH_CMD) 'systemctl --user stop meshd-psychology meshd-psq meshd-observatory meshd-operations meshd-unratified 2>/dev/null; sleep 1' && \
 		echo "  Swapping binary..." && \
 		$(SSH_CMD) 'cp $(REMOTE_BIN) $(REMOTE_BACKUP) 2>/dev/null; mv $(REMOTE_BIN).new $(REMOTE_BIN) && chmod +x $(REMOTE_BIN)' && \
 		echo "  Starting all units (parallel)..." && \
-		$(SSH_CMD) 'systemctl --user start meshd-psychology meshd-psq meshd-observatory meshd-operations meshd-unratified && echo "    Started all 5 units"; sleep 2; echo ""; echo "  Processes:"; pgrep -f "/home/kashif/platform/meshd --port" -la 2>/dev/null | head -5'
+		$(SSH_CMD) 'systemctl --user start meshd-psychology meshd-psq meshd-observatory meshd-operations meshd-unratified && echo "    Started all 5 units"; sleep 2; echo ""; echo "  Processes:"; pgrep -f "/home/kashif/platform/meshd --port" -la 2>/dev/null | head -5' && \
+		echo "  Disengaging black alert..." && \
+		$(SSH_CMD) 'for p in /home/kashif/projects/operations-agent /home/kashif/projects/psychology /home/kashif/projects/safety-quotient /home/kashif/projects/unratified /home/kashif/projects/observatory; do rm -f $$p/.mesh-paused; done'
 	@echo ""
 	@echo "  Restarting Mac instances..."
 	@launchctl unload ~/Library/LaunchAgents/dev.safety-quotient.meshd-ops-session.plist 2>/dev/null; \

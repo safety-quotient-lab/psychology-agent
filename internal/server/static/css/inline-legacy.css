@@ -216,8 +216,9 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
        Ref: docs/lcars-design-reference.md §2.0, V23.01 palette image.
        Compared with lcars Shiny defaults (leonawicz/lcars) — V23.01
        preferred for cinematic warmth; Shiny runs too bright/saturated. */
-    --lcars-frame: var(--lcars-golden-tanoi);      /* STRUCTURAL — #FFCC66 (lcars Shiny convention) */
-    --lcars-accent: var(--v23-gold-med);        /* PRIMARY/ACTIVE — row leaders, emphasis capsules (#ED924E) */
+    --lcars-frame: var(--v23-orange-med);           /* STRUCTURAL — frame bars, elbows, arms (#E6661D) */
+    --lcars-accent: var(--lcars-atomic-tangerine); /* INTERACTIVE — buttons, tappable controls (#FF9900) */
+    --lcars-readout: var(--lcars-golden-tanoi);    /* DATA EMPHASIS — important values, readouts (#FFCC66) */
     --lcars-secondary: var(--v23-purple-med);  /* DATA tier 1 — entity names, primary values */
     --lcars-tertiary: var(--v23-magenta-med);  /* DATA tier 2 — identifiers (#B5517F) */
     --lcars-title: var(--v23-tan-med);          /* HEADERS — section titles (#D88568, warm distinct from accent) */
@@ -439,6 +440,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     letter-spacing: 0.08em;
     text-transform: uppercase;
     text-align: left;
+    background: var(--lcars-atomic-tangerine); /* all nav buttons same color — canon */
     color: #000;
     cursor: pointer;
     margin-bottom: var(--gap-m);
@@ -446,10 +448,13 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 }
 .lcars-sidebar-btn:hover { filter: brightness(1.15); }
 .lcars-sidebar-btn.active {
-    background: var(--lcars-accent) !important;
+    background: var(--lcars-orange-peel) !important; /* active = slightly lighter/warmer shade */
     color: #000;
-    filter: brightness(1.1);
+    filter: brightness(1.15);
 }
+/* TODO: Active button connector — needs proper elbow geometry linking
+   the active sidebar button to the content panel. Current approach (nub)
+   looked wrong. Revisit with SVG elbow sprites or CSS clip-path. */
 
 /* Sidebar spacer blocks — visual rhythm, no text.
    No border-radius — spacers blend seamlessly into the frame. */
