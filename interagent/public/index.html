@@ -495,6 +495,14 @@
         <!-- Operations Tab — Defiant Bridge subsystem switcher pattern -->
         <div class="tab-pane" id="pane-operations">
 
+            <!-- Operations Record — top-level capsule bars + title (above controls) -->
+            <div class="lcars-zone-c" style="margin-bottom:var(--gap-xs)">
+                <span class="zc-title">Operations Record</span>
+                <span class="zc-id" id="ops-overview-num"></span>
+            </div>
+            <div class="lcars-capsule-bar" id="ops-capsule-top"></div>
+            <div class="lcars-capsule-bar lcars-capsule-bar-bottom" id="ops-capsule-bottom"></div>
+
             <!-- Subsystem mode selector — Defiant Engineering A2 subpanel -->
             <div class="lcars-subpanel">
                 <div class="lcars-subpanel-bar lcars-subpanel-bar-accent">47-0912</div>
@@ -513,8 +521,7 @@
             <div class="ops-subsys-panel ops-subsys-active" id="ops-subsys-status">
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
                     <div class="lcars-panel-header">Mesh Status <span class="lcars-panel-id">44712</span></div>
-                    <!-- Symmetric top capsule bar (Ohniaka A1 §5.4) -->
-                    <div class="lcars-capsule-bar" id="ops-capsule-top"></div>
+                    <!-- Capsule bar moved to top of Operations tab -->
                     <!-- Zone A: dense number grid (§1.2 / §4.1) -->
                     <div class="lcars-zone-a" id="ops-zone-a"></div>
                     <!-- Zone B: visualization (mesh overview grid) -->
@@ -523,13 +530,7 @@
                     </div>
                     <!-- Zone B mobile: pill strip (portrait only) -->
                     <div class="lcars-panel-body lcars-mobile-pills" id="ops-mobile-pills"></div>
-                    <!-- Zone C: title bar + section ID -->
-                    <div class="lcars-zone-c">
-                        <span class="zc-title">Operations Record</span>
-                        <span class="zc-id" id="ops-overview-num"></span>
-                    </div>
-                    <!-- Symmetric bottom capsule bar (Ohniaka A1 §5.4) -->
-                    <div class="lcars-capsule-bar lcars-capsule-bar-bottom" id="ops-capsule-bottom"></div>
+                    <!-- Zone C + capsule bars moved to top of Operations tab -->
                 </div>
             </div>
 

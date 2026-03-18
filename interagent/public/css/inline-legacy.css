@@ -1222,6 +1222,7 @@ body[data-affect-mode="triage"] {
     flex-wrap: wrap;
     gap: var(--gap-s, 5px);
     padding: var(--gap-s) 0;
+    justify-content: center;
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.72em;
     font-weight: 700;
