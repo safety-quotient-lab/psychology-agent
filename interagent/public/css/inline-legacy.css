@@ -3567,7 +3567,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
    creates structure per "STARSHIP MISSION STATUS" pattern. */
 .ohniaka-row {
     display: grid;
-    grid-template-columns: 10px auto 10px auto auto auto auto auto auto auto;
+    grid-template-columns: 10px minmax(50px, 1fr) 10px auto auto auto auto auto auto auto;
     gap: var(--gap-m);
     padding: var(--gap-m) 0;
     border-bottom: 1px solid rgba(255,255,255,0.08);
