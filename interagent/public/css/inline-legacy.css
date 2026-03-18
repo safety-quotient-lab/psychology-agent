@@ -2149,7 +2149,7 @@ a.activity-link:hover {
     flex-wrap: wrap;
 }
 .theme-lcars .agent-switcher {
-    gap: var(--gap-xs);
+    gap: var(--gap-m);
     margin-bottom: 0;
     justify-content: center;
 }
@@ -2478,7 +2478,7 @@ a.activity-link:hover {
     margin-bottom: var(--gap-l);
 }
 .theme-lcars .section-jump-nav {
-    gap: var(--gap-xs);
+    gap: var(--gap-m);
     margin-bottom: 0;
     justify-content: center;
 }
@@ -3831,8 +3831,8 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 /* Canonical: mode selector row — uniform button width (§3.3, Defiant A2) */
 .ops-subsystem-selector {
     display: flex;
-    gap: var(--gap-xs);
-    margin-bottom: 0; /* subpanel handles spacing */
+    gap: var(--gap-m);
+    margin-bottom: 0;
     flex-wrap: wrap;
     justify-content: center;
 }
