@@ -1228,15 +1228,13 @@ body[data-affect-mode="triage"] {
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
+/* Leader cap: structural terminator only — never contains data (§ canonical) */
 .lcars-capsule-bar .cb-leader {
     background: var(--lcars-frame);
-    color: #000;
-    padding: 10px var(--gap-l) 4px var(--gap-m);
     border-radius: 50vh 0 0 50vh;
-    white-space: nowrap;
-    min-height: 44px; /* 28 × φ */
-    display: flex;
-    align-items: flex-end;
+    min-height: 44px;
+    min-width: var(--gap-xl);
+    flex: 0 0 auto;
 }
 .lcars-capsule-bar .cb-cell {
     background: var(--lcars-secondary);
