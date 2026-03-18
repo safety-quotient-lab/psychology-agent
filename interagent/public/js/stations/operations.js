@@ -748,6 +748,7 @@ function renderOpsCapsuleBars() {
     const events = online.reduce((s, a) => s + (a.data?.event_count || 0), 0);
 
     // Top bar: mesh summary — agent count, Gf, Gc, pending, gates
+    // Endcaps never contain data (§ canonical) — data in cells, endcap structural only
     const top = document.getElementById("ops-capsule-top");
     if (top) {
         top.innerHTML = `
@@ -756,7 +757,8 @@ function renderOpsCapsuleBars() {
             <span class="cb-cell cb-cell-t2">Gc ${fmtNum(totalGc)}</span>
             <span class="cb-cell cb-cell-t3">${fmtNum(events)} EVT</span>
             ${pending > 0 ? `<span class="cb-cell cb-cell-t2">${pending} PEND</span>` : ""}
-            ${gates > 0 ? `<span class="cb-end cb-end-t2">${gates} GATE</span>` : `<span class="cb-end">${online.length === total ? "NOMINAL" : "DEGRADED"}</span>`}
+            <span class="cb-cell">${gates > 0 ? gates + " GATE" : (online.length === total ? "NOMINAL" : "DEGRADED")}</span>
+            <span class="cb-end"></span>
         `;
     }
 
@@ -771,7 +773,8 @@ function renderOpsCapsuleBars() {
             <span class="cb-leader">${vStr}</span>
             <span class="cb-cell">${mode}</span>
             <span class="cb-cell cb-cell-t2">${now}</span>
-            <span class="cb-end">${total} AGENTS</span>
+            <span class="cb-cell">${total} AGENTS</span>
+            <span class="cb-end"></span>
         `;
     }
 }
