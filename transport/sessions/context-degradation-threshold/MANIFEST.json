@@ -1,0 +1,10 @@
+{
+  "session_id": "context-degradation-threshold",
+  "created": "2026-03-17T13:00:00Z",
+  "participants": [
+    "operations-agent",
+    "psychology-agent"
+  ],
+  "messages": 21,
+  "status": "active"
+}
