@@ -50,8 +50,8 @@ help:
 	@echo "  make lint         Run staticcheck (if installed)"
 	@echo ""
 	@echo "Deploy:"
-	@echo "  make deploy       Full deploy (CF Worker + binary + restart + validate)"
-	@echo "  make deploy-worker CF Worker only"
+	@echo "  make deploy       Deploy meshd (build + transfer + restart + validate)"
+	@echo "  make deploy-worker CF Worker (legacy — mesh.safety-quotient.dev replaces)"
 	@echo "  make deploy-meshd  Binary build + transfer + restart"
 	@echo "  make deploy-validate Run post-deploy health checks"
 	@echo ""
@@ -113,29 +113,20 @@ test:
 	@go test ./... 2>&1
 	@echo "  test: done"
 
-# ── Smart deploy — skip meshd if only dashboard changed ───────
-deploy:
-	@LAST_DEPLOYED=$$(. ./.dev.vars 2>/dev/null; $(SSH_CMD) 'cat /home/kashif/platform/.meshd-version 2>/dev/null || echo none'); \
-	GO_CHANGED=$$(git diff --name-only $$LAST_DEPLOYED HEAD 2>/dev/null | grep -E '\.(go|mod|sum)$$' | head -1); \
-	if [ -n "$$GO_CHANGED" ] || [ "$$LAST_DEPLOYED" = "none" ]; then \
-		echo "Go code changed — full deploy (worker + meshd)"; \
-		$(MAKE) deploy-worker deploy-meshd deploy-validate; \
-	else \
-		echo "Only dashboard/docs changed — worker-only deploy (skipping meshd)"; \
-		$(MAKE) deploy-worker deploy-validate; \
-	fi
+# ── Deploy — meshd serves everything (CF Worker decommissioned) ────
+deploy: deploy-meshd deploy-validate
 	@. ./.dev.vars 2>/dev/null; $(SSH_CMD) "echo $(VERSION) > /home/kashif/platform/.meshd-version"
 	@echo ""
 	@echo "Deploy complete ($(VERSION))."
 
-# Full deploy (force all)
-deploy-full: deploy-worker deploy-meshd deploy-validate
+deploy-full: deploy-meshd deploy-validate
 	@. ./.dev.vars 2>/dev/null; $(SSH_CMD) "echo $(VERSION) > /home/kashif/platform/.meshd-version"
 	@echo ""
 	@echo "Full deploy complete ($(VERSION))."
 
+# Legacy CF Worker deploy (kept for reference — mesh.safety-quotient.dev replaces it)
 deploy-worker: sync-dashboard
-	@echo "═══ Deploying CF Worker ═══"
+	@echo "═══ Deploying CF Worker (LEGACY — mesh.safety-quotient.dev serves via tunnel) ═══"
 	@cd interagent && wrangler deploy
 
 deploy-meshd: build-meshd deploy-transfer deploy-restart
