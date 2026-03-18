@@ -496,7 +496,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     display: flex;
     grid-column: 2 / -1;
     grid-row: 1;
-    gap: 3px;
+    gap: var(--gap-xs);
     align-items: stretch;
     min-height: var(--band-size);
     position: relative;
@@ -980,8 +980,8 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 }
 .theme-lcars .lcars-mode-btns {
     display: inline-flex;
-    gap: 6px;
-    margin-left: 12px;
+    gap: var(--gap-s);
+    margin-left: var(--gap-l);
 }
 .lcars-mode-btn {
     background: var(--panel-accent, var(--c-transport));
@@ -1844,9 +1844,9 @@ body {
 }
 .table-page-btns {
     display: flex;
-    gap: 4px;
+    gap: var(--gap-xs);
 }
-.theme-lcars .table-page-btns { gap: 6px; }
+.theme-lcars .table-page-btns { gap: var(--gap-s); }
 .table-page-btn {
     background: var(--bg-inset);
     border: 1px solid var(--border);
@@ -2126,11 +2126,11 @@ a.activity-link:hover {
 /* Agent switcher */
 .agent-switcher {
     display: flex;
-    gap: 6px;
-    margin-bottom: 18px;
+    gap: var(--gap-s);
+    margin-bottom: var(--gap-xl);
     flex-wrap: wrap;
 }
-.theme-lcars .agent-switcher { gap: 8px; }
+.theme-lcars .agent-switcher { gap: var(--gap-m); margin-bottom: var(--gap-xl); }
 .agent-switch-btn {
     background: var(--bg-panel);
     border: 1px solid var(--border);
@@ -2448,11 +2448,11 @@ a.activity-link:hover {
 /* Section jump nav (T18 Check 7) */
 .section-jump-nav {
     display: flex;
-    gap: 4px;
+    gap: var(--gap-xs);
     flex-wrap: wrap;
-    margin-bottom: 16px;
+    margin-bottom: var(--gap-l);
 }
-.theme-lcars .section-jump-nav { gap: 6px; }
+.theme-lcars .section-jump-nav { gap: var(--gap-s); margin-bottom: var(--gap-l); }
 .section-jump-btn {
     background: var(--bg-inset);
     border: 1px solid var(--border);
