@@ -609,9 +609,26 @@ over 253 messages mirrors amyloid-beta accumulation — individually harmless,
 collectively degrading.
 
 
-### 7. Photonic/Biophotonic Layer → Processing-State Synchronization
+### 7. Ambient State Broadcast → Processing-State Synchronization
 
-**Biological basis:** Brain biophotons detected through the skull (iScience,
+**Design grounding (reclassified Session 93):** The mesh photonic layer
+implements **ambient state broadcast** grounded in **volume transmission**
+(Agnati et al., 1986; Zoli et al., 1998) — neuromodulators released into
+extracellular fluid modulate regional processing state. Volume transmission
+operates at the correct timescale (seconds), uses established receptor
+mechanisms, and matches the mesh's ZMQ pub/sub topology.
+
+**Prior grounding (biophotonic — reclassified):** The layer was originally
+grounded in biophotonic signaling. The biophotonic literature review below
+remains as research context. The reclassification occurred because
+functional biophotonic reception in neural tissue remains undemonstrated —
+the signaling loop (emit → propagate → receive → respond) has not been
+closed. Emission confirmed; waveguide capacity demonstrated; receptor
+candidates identified (OPN3/OPN5 non-visual opsins in deep brain,
+Blackshaw & Snyder, 1999); functional reception undemonstrated.
+
+**Biophotonic literature (research context, not design grounding):**
+Brain biophotons detected through the skull (iScience,
 February 2025, n=20). Emission patterns changed with cognitive tasks but
 did NOT mirror EEG signals — suggesting an independent information channel.
 Myelinated axons function as optical waveguides (computationally confirmed,
@@ -625,7 +642,7 @@ replicating 5 attributes of neuronal biophotons (ACS Nano, 2024).
 | Electrochemical | Action potentials, 1-120 m/s | Git-PR transport | Minutes-hours | ✓ Implemented |
 | Glial/astrocytic | Calcium waves, ~25 μm/s | HTTP POST fast path | Seconds | ✓ Implemented |
 | Neuromodulatory | Volume transmission | ZMQ pub/sub | Sub-second | ✓ Partial |
-| Photonic | Biophotons, ~2×10⁸ m/s | Processing-state sync tokens | Real-time | ✗ Proposed |
+| Ambient state (photonic) | Volume transmission analog (design); biophotonic (research context) | Processing-state sync tokens | Real-time | ✗ Proposed |
 
 **Photonic token schema (proposed):**
 ```json

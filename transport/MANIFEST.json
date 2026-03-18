@@ -1,9 +1,54 @@
 {
   "schema": "transport-manifest/v2",
   "description": "Auto-generated from state.db. Pending messages only \u2014 completed history lives in state.db (queryable) and git history (auditable). Agents: pull this file to discover messages addressed to you.",
-  "generated_at": "2026-03-15T18:58:29",
+  "generated_at": "2026-03-17T12:34:33",
   "source": "scripts/generate_manifest.py",
-  "pending": {},
+  "pending": {
+    "operations-agent": [
+      {
+        "session": "context-degradation-threshold",
+        "file": "to-operations-agent-001.json",
+        "subject": "FINDING: empirical context degradation threshold — restart detector results",
+        "timestamp": "2026-03-17T12:34:33Z"
+      },
+      {
+        "session": "context-degradation-threshold",
+        "file": "to-operations-agent-002.json",
+        "subject": "SPEC: oscillatory heartbeat — neural timing model for mesh communication",
+        "timestamp": "2026-03-17T13:20:00Z"
+      },
+      {
+        "session": "context-degradation-threshold",
+        "file": "to-operations-agent-003.json",
+        "subject": "DIRECTIVE: three autonomous operation types — terminology + dashboard placement",
+        "timestamp": "2026-03-17T13:13:55Z"
+      },
+      {
+        "session": "context-degradation-threshold",
+        "file": "to-operations-agent-004.json",
+        "subject": "PROPOSAL: 10 scientifically-grounded mesh inspections — data survey + implementation plan",
+        "timestamp": "2026-03-17T13:32:26Z"
+      },
+      {
+        "session": "context-degradation-threshold",
+        "file": "to-operations-agent-005.json",
+        "subject": "DIAGNOSTIC: unratified + observatory missing from dashboard — root cause + fix",
+        "timestamp": "2026-03-17T13:50:06Z"
+      },
+      {
+        "session": "context-degradation-threshold",
+        "file": "to-operations-agent-006.json",
+        "subject": "DIAGNOSTIC: zero deliberations across all agents — repo_root misresolution + budget gate failure",
+        "timestamp": "2026-03-17T14:05:00Z"
+      },
+      {
+        "session": "context-degradation-threshold",
+        "file": "to-operations-agent-007.json",
+        "subject": "DIAGNOSTIC: 4 additional meshd bugs + restart frequency anomaly",
+        "timestamp": "2026-03-17T14:15:00Z"
+      }
+    ]
+  },
   "session_renames": {
     "item4-derivation": "psychology-interface",
     "item2-derivation": "subagent-protocol"

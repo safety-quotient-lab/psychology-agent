@@ -47,7 +47,7 @@ canonical sources where each constraint receives its mechanical enforcement.
 | ID | Constraint | Provenance |
 |----|-----------|------------|
 | M-1 | Scale discipline — dimension scores 0-10; psq_composite 0-100; hierarchy factors 0-10; never mix scales | T15 Check 3 |
-| M-2 | Anti-calibration known — raw confidence values all < 0.6; use meets_threshold (r-based proxy, r >= 0.6) instead | T15 Check 2; machine-response-v3-spec.md §Confidence |
+| M-2 | Anti-calibration known — raw confidence values all < 0.6; use meets_threshold (r-based proxy, r ≥ 0.6) instead. **⚠ Workaround unvalidated (Session 93 audit):** r-based proxy not tested against calibration benchmark — replaces one unvalidated metric with another. Confidence recalibration (prompt-level, binary+isotonic+guide) remains the intended fix per Session 92 remediation | T15 Check 2; machine-response-v3-spec.md §Confidence |
 | M-3 | Composite citation gate — cite psq_composite only when status="scored"; excluded/fallback values are placeholders | T15 Check 1 |
 | M-4 | PSQ-Lite coverage gap disclosed — 3 dimensions only; 7-dim gap may carry dominant clinical signal | T15 Check 5 |
 | M-5 | PSQ-Lite mapping confidence capped at 0.70 — semantic inference, not validated decomposition | T15 Check 4 |

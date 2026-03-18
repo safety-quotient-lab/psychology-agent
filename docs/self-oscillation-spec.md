@@ -47,9 +47,20 @@ brain modulates (faster, slower, stop) but does not generate the rhythm.
 
 The cognitive-tempo model (already specified) selects processing DEPTH
 (haiku/sonnet/opus) via gain modulation. Self-oscillation extends this:
-gain also modulates processing FREQUENCY. High gain (exploitation mode)
-→ lower frequency, routine monitoring. Low gain (exploration mode) →
-higher frequency, active engagement.
+gain also modulates processing FREQUENCY.
+
+**Gain convention (cogarch-local):** The cogarch gain parameter runs
+0→1 where 0 = exploration (opus, deep) and 1 = exploitation (haiku,
+shallow). This **inverts** the Aston-Jones & Cohen (2005) biological
+convention (high tonic LC-NE = exploration). The inversion exists
+because the cogarch treats gain as a conservation-pressure scalar:
+high gain = conserve resources = routine processing. The biological
+mapping would place exploration at the high end; the engineering
+implementation places resource conservation there instead.
+
+High gain (exploitation/conservation) → lower frequency, routine
+monitoring. Low gain (exploration/engagement) → higher frequency,
+active processing.
 
 ### 2.3 Homeostatic Regulation
 
@@ -259,7 +270,13 @@ immediate action.
 
 ## 7. Integration with Cognitive-Tempo
 
-Self-oscillation and cognitive-tempo operate on orthogonal axes:
+Self-oscillation and cognitive-tempo operate on **coupled axes** (not
+orthogonal — the gain parameter links them). The diagram below shows the
+theoretical space; in practice, the gain parameter constrains movement
+to the upper-left ↔ lower-right diagonal (high-frequency/shallow ↔
+low-frequency/deep). Off-diagonal combinations (high-frequency/deep,
+low-frequency/shallow) remain possible under override but do not arise
+from the default gain computation:
 
 ```
                     DEPTH (cognitive-tempo)
