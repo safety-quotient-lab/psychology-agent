@@ -157,8 +157,8 @@ deploy-restart:
 		$(SSH_CMD) 'cp $(REMOTE_BIN) $(REMOTE_BACKUP) 2>/dev/null; mv $(REMOTE_BIN).new $(REMOTE_BIN) && chmod +x $(REMOTE_BIN)' && \
 		echo "  Starting all units (parallel)..." && \
 		$(SSH_CMD) 'systemctl --user start meshd-psychology meshd-psq meshd-observatory meshd-operations meshd-unratified && echo "    Started all 5 units"; sleep 3; echo ""; echo "  Processes:"; pgrep -f "/home/kashif/platform/meshd --port" -la 2>/dev/null | head -5'
-	@echo "  Waiting for client reconnection..."
-	@sleep 12
+	@echo "  Standing down..."
+	@sleep 5
 	@curl -sf -X POST https://operations-agent.safety-quotient.dev/api/trigger \
 		-H "Content-Type: application/json" \
 		-d '{"type":"alert","payload":{"level":"5","reason":"Deploy complete — all systems nominal"}}' \
