@@ -3819,12 +3819,13 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
     min-width: 100px;
     min-height: 48px;
 }
-/* Mobile: more generous padding for spacious feel */
+/* Mobile: fixed width for uniform sizing (accommodates longest label) */
 @media (max-width: 600px) {
     .ops-subsystem-selector .ops-subsys-btn,
     .theme-lcars .section-jump-btn,
     .theme-lcars .agent-switch-btn {
-        padding: 12px 24px 5px;
+        min-width: 120px;
+        width: 120px;
     }
 }
 .ops-subsys-btn {
