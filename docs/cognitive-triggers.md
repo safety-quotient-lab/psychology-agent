@@ -71,6 +71,21 @@ carry the highest overclaim risk precisely during creative sessions.
 **Mode detection:** Infer from user message keywords and task context at
 the start of each response. When ambiguous, default to Neutral.
 
+**Mode/tier relationship (Session 93 audit):** Behavioral modes and
+cognitive-tempo tiers operate independently — modes govern *which checks
+fire*, tiers govern *how deeply the agent processes*. Any mode can use
+any tier:
+
+| Mode | Typical Tier | Override Example |
+|---|---|---|
+| Generative | sonnet/opus (creative work benefits from depth) | haiku for rapid brainstorm enumeration |
+| Evaluative | opus (audit work requires thoroughness) | sonnet for routine verification |
+| Neutral | sonnet (balanced default) | haiku for mechanical tasks, opus for complex builds |
+
+The gain parameter (cognitive-tempo-model.md) selects tier based on task
+complexity and resource availability, not mode. Mode adjusts governance
+behavior (which ADVISORY checks fire); tier adjusts processing depth.
+
 **Fatigue-based switching:** After 5 consecutive responses in the same
 non-Neutral mode, the suppressed mode's checks begin firing as ADVISORY
 (activation threshold lowers). This prevents mode stickiness — extended
@@ -690,6 +705,21 @@ they want to grok or internalize something, or (c) a genuine conceptual shift oc
    Step 8b) then executes: (1) append to CLAUDE.md, (2) update lessons.md
    `promotion_status: graduated` + `graduated_to` + date, (3) log in
    lab-notebook. Remove `[→ PROMOTE]` flag once graduated.
+
+   **Recurrence measurement definition (Session 93 audit):**
+   - **What counts:** A recurrence = the same lesson entry's `recurrence`
+     field incrementing in lessons.md. The pattern must surface independently
+     (different session, different task context) — not the same incident
+     re-observed.
+   - **Scope:** Per-agent. Cross-agent recurrence (same pattern in two agents)
+     counts as stronger evidence but requires independent observation.
+   - **Duration:** The velocity gate enforces temporal proximity (≤10 calendar
+     days between first_seen and last_seen). Patterns spread over months do
+     not qualify — they hold for more evidence.
+   - **Reset:** No reset. Recurrence count accumulates permanently. A pattern
+     that appeared 3 times over 2 years still qualifies if the velocity gate
+     passes on the third occurrence (i.e., the 2nd and 3rd occurrences fell
+     within 10 days of each other).
 
 **Action**: Write entry to lessons.md. The gitignore excludes lessons.md; lessons.md.example
 serves as the tracked format stub with schema definition.
