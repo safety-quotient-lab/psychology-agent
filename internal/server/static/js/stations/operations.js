@@ -274,9 +274,6 @@ function renderOpsBudget() {
     const grid = document.getElementById("ops-subsystem-grid");
     if (!grid) return;
 
-    // Separate autonomous from interactive agents
-    const autonomous = AGENTS.filter(a => !a.id.includes("session"));
-    const interactive = AGENTS.filter(a => a.id.includes("session"));
 
     function agentRow(agent) {
         const d = agentData[agent.id];
@@ -341,20 +338,27 @@ function renderOpsBudget() {
         <span class="ohniaka-col ohniaka-pend">PEND</span>
     </div>`;
 
-    // Autonomous group
-    if (autonomous.length > 0) {
-        html += autonomous.map(agentRow).join("");
+    // Group agents by domain
+    const domains = {};
+    for (const agent of AGENTS) {
+        try {
+            const domain = new URL(agent.url).hostname.split(".").slice(-2).join(".");
+            if (!domains[domain]) domains[domain] = [];
+            domains[domain].push(agent);
+        } catch { /* skip invalid URLs */ }
     }
 
-    // Orange separator between groups
-    if (autonomous.length > 0 && interactive.length > 0) {
-        html += `<div class="ohniaka-separator" style="grid-column: 1 / -1"></div>`;
-    }
-
-    // Interactive group
-    if (interactive.length > 0) {
-        html += interactive.map(agentRow).join("");
-    }
+    const domainKeys = Object.keys(domains);
+    domainKeys.forEach((domain, i) => {
+        // Domain separator (full width) — except before first group
+        if (i > 0) {
+            html += `<div class="ohniaka-separator" style="grid-column: 1 / -1"></div>`;
+        }
+        // Domain label
+        html += `<div class="ohniaka-domain-label" style="grid-column: 1 / -1">${domain.toUpperCase()}</div>`;
+        // Agent rows in this domain
+        html += domains[domain].map(agentRow).join("");
+    });
 
     grid.innerHTML = html;
 }

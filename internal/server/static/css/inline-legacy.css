@@ -3641,6 +3641,14 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
 .ohniaka-op { white-space: nowrap; } /* mode icon + label */
 .ohniaka-mood { color: var(--text-dim); } /* affect state */
 .ohniaka-pend { color: var(--lcars-title); text-align: right; } /* pending count, right-aligned */
+/* Domain group label — full width, subtle */
+.ohniaka-domain-label {
+    color: var(--lcars-frame);
+    font-size: 0.6em;
+    letter-spacing: 0.12em;
+    opacity: 0.6;
+    padding: var(--gap-s) 0 var(--gap-xs) 0;
+}
 .ohniaka-id { color: var(--lcars-title); } /* yellow — identifiers/numbers */
 .ohniaka-desc { color: var(--text-primary); white-space: normal; } /* white — description/status */
 .ohniaka-separator {
