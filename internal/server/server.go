@@ -187,6 +187,12 @@ func (s *Server) RecordEvent(ev events.Event) {
 			Data: ev,
 		})
 	}
+
+	// Beta-band relay: broadcast status on significant events
+	// (not poll-ticks — those are alpha-band background)
+	if ev.Type != "poll-tick" {
+		go s.BroadcastStatus()
+	}
 }
 
 // RecordDeliberation appends a deliberation record to the log, evicting the
@@ -201,13 +207,16 @@ func (s *Server) RecordDeliberation(rec DeliberationRecord) {
 	}
 	s.deliberationLog = append(s.deliberationLog, rec)
 
-	// Broadcast to SSE clients
+	// Broadcast deliberation event + full status update to all clients
 	if s.sseBroker != nil {
 		s.sseBroker.Broadcast(SSEEvent{
 			Type: "deliberation",
 			Data: rec,
 		})
 	}
+
+	// Thalamocortical relay — broadcast updated status to mesh + dashboard
+	go s.BroadcastStatus()
 }
 
 // ListenAndServe starts the HTTP server and blocks until a shutdown signal
@@ -453,6 +462,27 @@ func (sw *statusWriter) Flush() {
 // recent_messages, unprocessed_messages, active_gates, health, version.
 func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, s.buildStatusPayload(), s.logger)
+}
+
+// BroadcastStatus pushes the current agent status to all connected
+// WebSocket/SSE clients AND broadcasts via ZMQ to the mesh.
+// Called after significant events: deliberation completion, health change,
+// transport message processing, budget update.
+func (s *Server) BroadcastStatus() {
+	payload := s.buildStatusPayload()
+
+	// Push to local WS/SSE clients (dashboard)
+	if s.SSEBroadcast != nil {
+		s.SSEBroadcast(SSEEvent{
+			Type: "status",
+			Data: payload,
+		})
+	}
+
+	// Broadcast to mesh peers via ZMQ
+	if s.ZMQPublish != nil {
+		s.ZMQPublish("status", payload)
+	}
 }
 
 // buildStatusPayload constructs the status response map. Used by both

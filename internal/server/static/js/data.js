@@ -1694,17 +1694,40 @@ function connectWebSocket() {
             ws.onmessage = (e) => {
                 try {
                     const evt = JSON.parse(e.data);
-                    if (evt.type === "pong") return; // heartbeat response
+                    if (evt.type === "pong") return;
+
+                    // Beta-band: real-time status update from a peer agent
+                    if (evt.type === "status" || evt.Type === "status") {
+                        const data = evt.Data || evt.data || {};
+                        const aid = data.agent_id;
+                        if (aid) {
+                            // Apply directly — no fetch needed
+                            agentData[aid] = { status: "online", data: data, id: aid };
+                            renderAll();
+                            return;
+                        }
+                    }
+
+                    // ZMQ relay: peer status arrives via topic="status"
+                    if (evt.type === "zmq" || evt.Type === "zmq") {
+                        const zmqData = evt.Data || evt.data || {};
+                        if (zmqData.topic === "status" && zmqData.data?.agent_id) {
+                            const aid = zmqData.data.agent_id;
+                            agentData[aid] = { status: "online", data: zmqData.data, id: aid };
+                            renderAll();
+                            return;
+                        }
+                    }
+
+                    // Deliberation event — trigger re-render
+                    if (evt.type === "deliberation" || evt.Type === "deliberation") {
+                        renderAll();
+                        return;
+                    }
+
+                    // Fallback: refresh on unknown event types
                     if (evt.type === "refresh" || evt.Type === "refresh") {
                         refreshAll();
-                    } else if (evt.type === "status" || evt.Type === "status") {
-                        // Direct status update — apply without full refresh
-                        if (evt.Data?.agent_id && evt.Data?.data) {
-                            agentData[evt.Data.agent_id] = { status: "online", data: evt.Data.data, id: evt.Data.agent_id };
-                            renderAll();
-                        } else {
-                            refreshAll();
-                        }
                     }
                 } catch {}
             };
