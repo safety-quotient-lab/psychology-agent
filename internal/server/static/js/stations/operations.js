@@ -330,8 +330,8 @@ function renderOpsBudget() {
             ${connPill}
             <span class="ohniaka-col ohniaka-type">${online ? "ONLINE" : "OFFLINE"}</span>
             <span class="ohniaka-col ohniaka-health" style="color:${healthColor}">${online ? healthStr : "\u2014"}</span>
-            <span class="ohniaka-col ohniaka-id">${online ? fmtNum(deliberations) + " / " + cutoffStr : "\u2014"}</span>
-            <span class="ohniaka-col ohniaka-desc">${statusText}${gc > 0 ? " · Gc " + fmtNum(gc) : ""}${pending > 0 ? " · " + pending + " PEND" : ""}${gates > 0 ? " · " + gates + " GATE" : ""}</span>
+            <span class="ohniaka-col ohniaka-id">${online ? fmtNum(deliberations) + delta(agent.id+"-delib", deliberations) + " / " + cutoffStr : "\u2014"}</span>
+            <span class="ohniaka-col ohniaka-desc">${statusText}${gc > 0 ? " · Gc " + fmtNum(gc) + delta(agent.id+"-gc", gc) : ""}${pending > 0 ? " · " + pending + delta(agent.id+"-pend", pending) + " PEND" : ""}${gates > 0 ? " · " + gates + " GATE" : ""}</span>
         </div>`;
     }
 
