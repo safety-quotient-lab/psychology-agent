@@ -303,8 +303,6 @@ function setTheme(mode) {
         // Render SVG L-shape frame + listen for resize
         renderLcarsFrameSVG();
         window.addEventListener("resize", scheduleFrameSVG);
-        // Check if tricorder mode should auto-engage
-        checkTricorderAuto();
         // Sync sidebar active state
         const activeTab = document.querySelector('.lcars-tab.active');
         if (activeTab) {
@@ -315,35 +313,12 @@ function setTheme(mode) {
     } else {
         stopLcarsStardate();
         window.removeEventListener("resize", scheduleFrameSVG);
-        document.body.classList.remove("tricorder-mode");
         // If leaving LCARS mode while on a LCARS-only tab, switch to Pulse
         const activeTab = document.querySelector('.lcars-tab.active');
         if (activeTab && activeTab.classList.contains('lcars-only')) {
             switchTab('pulse');
         }
     }
-}
-
-// ── Tricorder Mode Toggle ────────────────────────────────────────
-// Switches between "computer" (full LCARS frame) and "tricorder"
-// (portrait-optimized: bottom nav, full-width content, status strip).
-// Auto-engages on portrait mobile, persists in localStorage.
-function toggleTricorder(force) {
-    const active = force !== undefined ? force : !document.body.classList.contains("tricorder-mode");
-    document.body.classList.toggle("tricorder-mode", active);
-    localStorage.setItem("tricorder-mode", active ? "on" : "off");
-    const btn = document.getElementById("tricorder-toggle");
-    if (btn) {
-        btn.textContent = active ? "COMPUTER" : "TRICORDER";
-        btn.dataset.short = active ? "COM" : "TRI";
-    }
-}
-
-// Restore tricorder mode from localStorage on LCARS init
-function checkTricorderAuto() {
-    if (!document.body.classList.contains("theme-lcars")) return;
-    const saved = localStorage.getItem("tricorder-mode");
-    if (saved === "on") toggleTricorder(true);
 }
 
 // ── Tabs ───────────────────────────────────────────────────────
@@ -429,9 +404,8 @@ function switchTab(tabId, updateHash = true) {
     if (!VALID_TABS.includes(tabId)) tabId = "pulse";
     // Standard tabs
     document.querySelectorAll(".lcars-tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tabId));
-    // LCARS sidebar buttons + tricorder nav
+    // LCARS sidebar buttons
     document.querySelectorAll(".lcars-sidebar-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabId));
-    document.querySelectorAll(".tricorder-nav-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabId));
     // Pane visibility — reset all inline display overrides, let CSS .active handle it
     document.querySelectorAll(".tab-pane").forEach(p => {
         p.classList.toggle("active", p.id === `pane-${tabId}`);

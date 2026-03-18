@@ -4082,7 +4082,6 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 }
 /* Mobile ohniaka handled by two-row card layout below (§mobile portrait) */
 
-/* Tricorder mode lives in css/tricorder.css */
 
 /* ── Ohniaka Summary Row (mesh totals) ───────────────────── */
 .ohniaka-summary {

@@ -423,16 +423,17 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* Alert: connectors follow structural chrome */
 /* Alert connector colors handled in alert section below */
 
-/* Sidebar navigation buttons */
+/* Sidebar navigation buttons — canonical: chunky blocks, right-aligned text,
+   left-rounded capsule end, generous vertical gap (§3.1, Tuvok) */
 .lcars-sidebar-btn {
     display: flex;
-    align-items: center; /* vertically centered */
+    align-items: flex-end; /* bottom-aligned text — canonical (Tuvok) */
     justify-content: flex-end; /* right-aligned text — canonical */
     width: 100%;
     border: none;
-    border-radius: 28px 0 0 28px;
-    padding: 10px 12px 10px 20px;
-    min-height: 56px;
+    border-radius: 50vh 0 0 50vh;
+    padding: 16px 12px 6px 20px;
+    min-height: 72px; /* 56 × φ ≈ 90, but 72 keeps sidebar manageable */
     flex-shrink: 0;
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.85em;
@@ -443,7 +444,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     background: var(--lcars-atomic-tangerine); /* all nav buttons same color — canon */
     color: #000;
     cursor: pointer;
-    margin-bottom: var(--gap-m);
+    margin-bottom: var(--gap-l, 13px); /* generous gap — canonical black void */
     transition: filter 0.15s, padding-left 0.15s;
 }
 .lcars-sidebar-btn:hover { filter: brightness(1.15); }
@@ -566,7 +567,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     display: flex;
     grid-column: 2 / -1;
     grid-row: 5;
-    gap: 3px;
+    gap: var(--gap-s, 5px);
     align-items: stretch;
     min-height: var(--band-size);
 }
@@ -588,17 +589,17 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     white-space: nowrap;
     overflow: hidden;
 }
-/* First footer segment: left pill cap */
+/* First footer segment: left capsule cap — matches inner elbow curve */
 .lcars-footer-seg:first-child {
     border-radius: var(--elbow-inner) 0 0 var(--elbow-inner);
 }
-/* Middle footer segments: mini right cap */
+/* Middle footer segments: flat both sides (interior capsule — §3.5) */
 .lcars-footer-seg:not(:first-child):not(:last-child) {
-    border-radius: 0 var(--gap-m) var(--gap-m) 0;
+    border-radius: 0;
 }
-/* Last footer segment: rounded right end (full pill cap) */
+/* Last footer segment: right capsule cap (50vh pill end) */
 .lcars-footer-seg:last-child {
-    border-radius: 0 var(--elbow-inner) var(--elbow-inner) 0;
+    border-radius: 0 50vh 50vh 0;
 }
 
 /* ── LCARS Content Override ────────────────────────────────── */
@@ -973,12 +974,13 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 }
 
 /* ── LCARS Panel Mode Buttons (Pattern #12) ────────────── */
+/* Canonical: chunky capsules with generous gaps (§3.3 Mode Selector) */
 .lcars-mode-btns {
     display: none;
 }
 .theme-lcars .lcars-mode-btns {
     display: inline-flex;
-    gap: 3px;
+    gap: 6px;
     margin-left: 12px;
 }
 .lcars-mode-btn {
@@ -986,7 +988,8 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     color: #000;
     border: none;
     border-radius: 50vh;
-    padding: 2px 10px;
+    padding: 10px 14px 4px;
+    min-height: 44px; /* 28 × φ */
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.7em;
     font-weight: 700;
@@ -995,37 +998,45 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     cursor: pointer;
     opacity: 0.5;
     transition: opacity 0.15s;
+    display: inline-flex;
+    align-items: flex-end;
+    justify-content: center;
 }
 .lcars-mode-btn:hover { opacity: 0.75; }
 .lcars-mode-btn.active { opacity: 1; }
 
 /* ── Pill Buttons (command console controls) ─────────── */
-/* Theme-aware: standard mode uses muted tones, LCARS uses TNG palette */
+/* Canonical LCARS capsules: chunky, generous padding, asymmetric rounding
+   where contextual (row-leader left-round, end-cap right-round).
+   Standalone pills keep symmetric 50vh. §3.1, §3.5 */
 .lcars-pill-btn {
     background: var(--c-transport);
     color: var(--bg-primary, #000);
     border: none;
     border-radius: 50vh;
-    padding: 6px 16px;
+    padding: 14px 22px 5px;
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.75em;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     cursor: pointer;
-    transition: opacity 0.15s, transform 0.1s;
-    min-width: 48px;
-    text-align: center;
+    transition: opacity 0.15s, filter 0.15s;
+    min-width: 56px;
+    min-height: 58px; /* 36 × φ */
+    display: inline-flex;
+    align-items: flex-end; /* bottom-aligned — canonical (Tuvok, Button 52) */
+    justify-content: center;
 }
-.lcars-pill-btn:hover { opacity: 0.8; transform: scale(1.02); }
-.lcars-pill-btn:active { transform: scale(0.97); }
+.lcars-pill-btn:hover { opacity: 0.85; }
+.lcars-pill-btn:active { filter: brightness(1.3); }
 .lcars-pill-red { background: var(--c-alert); }
 .lcars-pill-green { background: var(--c-health); }
 .lcars-pill-orange { background: var(--c-warning, #d4944a); }
 .lcars-pill-blue { background: var(--c-knowledge, #5b9cf6); }
 .lcars-pill-teal { background: var(--c-catalog, #4ecdc4); }
 .lcars-pill-dim { background: var(--bg-inset, #666); color: var(--text-secondary, #ccc); }
-.lcars-pill-sm { padding: 4px 10px; font-size: 0.68em; }
+.lcars-pill-sm { padding: 10px 14px 4px; font-size: 0.68em; min-height: 44px; /* 28 × φ */ }
 .lcars-pill-active { box-shadow: 0 0 8px currentColor; opacity: 1; }
 .lcars-pill-sm.lcars-pill-active { background: var(--c-warning, #d4944a); }
 /* LCARS-specific pill overrides — TNG saturated palette */
@@ -1038,18 +1049,20 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .theme-lcars .lcars-pill-sm.lcars-pill-active { background: #ff9944; }
 
 /* Operations control surface — LCARS interactive buttons (full pill) */
+/* Canonical: chunky capsule with generous padding (§3.1) */
 .ops-ctrl {
-    display: block;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
     width: 100%;
-    padding: 8px 14px;
-    border-radius: 16px;
+    padding: 14px 18px 5px;
+    border-radius: 50vh;
     font-size: 0.72em;
-    text-align: left;
+    min-height: 58px; /* 36 × φ */
 }
 .ops-ctrl-active {
     filter: brightness(1.3);
     color: #fff;
-    box-shadow: 0 0 10px rgba(255,255,255,0.25);
 }
 
 /* ── LCARS Detail Panel (Drawer) ───────────────────────── */
@@ -1191,13 +1204,18 @@ body[data-affect-mode="triage"] {
 /* Compact capsule strip that brackets content panels top and bottom.
    Row-leader (orange, left-rounded) + data capsules (purple tiers).
    Ref: docs/lcars-design-reference.md §5.4, Button 52. */
+/* ── Capsule Bar (Symmetric framing — Ohniaka A1 / Button 52) ─── */
+/* Canonical anatomy: row-leader (orange, left-rounded) + interior cells
+   (purple tiers, flat both sides) + end-cap (right-rounded).
+   Generous gaps between capsules — ~40% of capsule height.
+   Ref: docs/lcars-design-reference.md §3.5, §5.4 */
 .lcars-capsule-bar {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--gap-xs);
+    gap: var(--gap-s, 5px);
     padding: var(--gap-s) 0;
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
-    font-size: 0.68em;
+    font-size: 0.72em;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -1205,64 +1223,74 @@ body[data-affect-mode="triage"] {
 .lcars-capsule-bar .cb-leader {
     background: var(--lcars-frame);
     color: #000;
-    padding: var(--gap-xs) var(--gap-l) var(--gap-xs) var(--gap-m);
-    border-radius: 12px 0 0 12px;
+    padding: 10px var(--gap-l) 4px var(--gap-m);
+    border-radius: 50vh 0 0 50vh;
     white-space: nowrap;
+    min-height: 44px; /* 28 × φ */
+    display: flex;
+    align-items: flex-end;
 }
 .lcars-capsule-bar .cb-cell {
     background: var(--lcars-secondary);
     color: #000;
-    padding: var(--gap-xs) var(--gap-m);
+    padding: 10px var(--gap-m) 4px;
     white-space: nowrap;
-    min-width: 40px;
-    text-align: right;
+    min-width: 48px;
+    min-height: 44px; /* 28 × φ */
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
 }
 .lcars-capsule-bar .cb-cell-t2 { background: var(--lcars-tertiary); }
 .lcars-capsule-bar .cb-cell-t3 { background: var(--lcars-title); }
 .lcars-capsule-bar .cb-end {
     background: var(--lcars-secondary);
     color: #000;
-    padding: var(--gap-xs) var(--gap-m) var(--gap-xs) var(--gap-l);
-    border-radius: 0 12px 12px 0;
+    padding: 10px var(--gap-m) 4px var(--gap-l);
+    border-radius: 0 50vh 50vh 0;
     white-space: nowrap;
+    min-height: 44px; /* 28 × φ */
+    display: flex;
+    align-items: flex-end;
 }
 .lcars-capsule-bar .cb-end-t2 { background: var(--lcars-tertiary); }
-/* Bottom bar: slightly different feel — use neutral fill */
+/* Bottom bar: neutral leader fill */
 .lcars-capsule-bar-bottom .cb-leader { background: var(--lcars-title); }
-/* Mobile: hide bottom bar to save space */
-@media (max-width: 600px) {
-    .lcars-capsule-bar-bottom { display: none; }
-}
+/* Mobile ("tricorder mode"): capsule bars always visible — all data all the time */
 
 /* ── Capsule Row (Mesh Overview — canonical LCARS roster) ──── */
+/* Canonical: row-leader left-rounded, interior flat, end-cap right-rounded.
+   Generous gaps (~40% capsule height). §3.5 Capsule Grid */
 .capsule-row {
     display: grid;
     grid-template-columns: minmax(80px, 1fr) 12px 60px 40px 40px 40px 60px 70px;
-    gap: var(--gap-xs);
+    gap: var(--gap-s, 5px);
     margin-bottom: var(--gap-m);
 }
 .capsule-leader {
     color: #000;
     font-weight: 700;
     font-size: 0.72em;
-    padding: var(--gap-s) var(--gap-l);
-    border-radius: 12px 0 0 12px;
+    padding: 10px var(--gap-l) 4px;
+    border-radius: 50vh 0 0 50vh;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
+    min-height: 44px; /* 28 × φ */
 }
 .capsule-data {
     color: #000;
     font-size: 0.72em;
-    padding: var(--gap-s) var(--gap-m);
+    padding: 10px var(--gap-m) 4px;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: flex-end;
+    min-height: 44px; /* 28 × φ */
 }
 .capsule-sm { font-size: 0.65em; padding: var(--gap-s) 6px; }
 .capsule-status { font-size: 0.68em; text-transform: uppercase; letter-spacing: 0.04em; justify-content: flex-start; }
-.capsule-end { font-size: 0.68em; border-radius: 0 12px 12px 0; justify-content: flex-start; }
+.capsule-end { font-size: 0.68em; border-radius: 0 50vh 50vh 0; justify-content: flex-start; }
 /* Responsive: stack capsule rows on narrow screens */
 @media (max-width: 520px) {
     .capsule-row {
@@ -1271,9 +1299,9 @@ body[data-affect-mode="triage"] {
     }
     .capsule-leader {
         grid-column: 1 / -1;
-        border-radius: 12px 12px 0 0;
+        border-radius: 50vh 50vh 0 0;
     }
-    .capsule-end { border-radius: 0 0 12px 12px; }
+    .capsule-end { border-radius: 0 0 50vh 50vh; }
 }
 /* Landscape overflow safety */
 .lcars-subsystem-grid { overflow-x: auto; }
@@ -1640,7 +1668,7 @@ body {
     background: var(--bg-inset);
     border: 1px solid var(--border);
     color: var(--text-secondary);
-    padding: 3px 8px;
+    padding: 5px 12px;
     border-radius: 4px;
     cursor: pointer;
     font-family: inherit;
@@ -1652,6 +1680,29 @@ body {
     background: var(--c-transport);
     color: var(--bg-primary);
     border-color: var(--c-transport);
+}
+/* LCARS mode: capsule shape + TNG palette */
+.theme-lcars .toggle-btn {
+    border-radius: 50vh;
+    border: none;
+    background: var(--lcars-secondary);
+    color: #000;
+    padding: 10px 14px 4px;
+    min-height: 44px; /* 28 × φ */
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.5;
+    display: inline-flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+.theme-lcars .toggle-btn:hover { opacity: 0.75; }
+.theme-lcars .toggle-btn.active {
+    background: var(--lcars-accent);
+    color: #000;
+    opacity: 1;
 }
 
 /* Tab bar */
@@ -1795,6 +1846,7 @@ body {
     display: flex;
     gap: 4px;
 }
+.theme-lcars .table-page-btns { gap: 6px; }
 .table-page-btn {
     background: var(--bg-inset);
     border: 1px solid var(--border);
@@ -1808,6 +1860,25 @@ body {
 .table-page-btn:hover { border-color: var(--text-secondary); }
 .table-page-btn:disabled { opacity: 0.3; cursor: default; }
 .table-page-btn.active { background: var(--c-transport); color: var(--bg-primary); border-color: var(--c-transport); }
+/* LCARS mode: capsule pagination (§3.1) */
+.theme-lcars .table-page-btn {
+    border-radius: 50vh;
+    border: none;
+    background: var(--lcars-secondary);
+    color: #000;
+    padding: 8px 12px 3px;
+    min-height: 38px; /* 24 × φ */
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-weight: 700;
+    font-size: 0.68em;
+    opacity: 0.6;
+    display: inline-flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+.theme-lcars .table-page-btn:hover { opacity: 0.85; }
+.theme-lcars .table-page-btn:disabled { opacity: 0.2; }
+.theme-lcars .table-page-btn.active { background: var(--lcars-accent); color: #000; opacity: 1; }
 
 /* Sort indicators — prominent active state (T18 Check 3) */
 .sort-active { color: var(--c-transport) !important; border-bottom: 2px solid var(--c-transport); }
@@ -2059,6 +2130,7 @@ a.activity-link:hover {
     margin-bottom: 18px;
     flex-wrap: wrap;
 }
+.theme-lcars .agent-switcher { gap: 8px; }
 .agent-switch-btn {
     background: var(--bg-panel);
     border: 1px solid var(--border);
@@ -2071,6 +2143,30 @@ a.activity-link:hover {
     transition: all 0.15s;
 }
 .agent-switch-btn:hover { border-color: var(--text-dim); }
+/* LCARS mode: capsule buttons with tier-color data encoding (§2.2) */
+.theme-lcars .agent-switch-btn {
+    border-radius: 50vh;
+    border: none;
+    background: var(--lcars-secondary);
+    color: #000;
+    padding: 10px 16px 4px;
+    min-height: 44px; /* 28 × φ */
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-weight: 700;
+    font-size: 0.72em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.5;
+    display: inline-flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+.theme-lcars .agent-switch-btn:hover { opacity: 0.75; }
+.theme-lcars .agent-switch-btn.active {
+    background: var(--lcars-accent);
+    color: #000;
+    opacity: 1;
+}
 .agent-switch-btn.active {
     background: var(--c-knowledge);
     color: var(--bg);
@@ -2356,6 +2452,7 @@ a.activity-link:hover {
     flex-wrap: wrap;
     margin-bottom: 16px;
 }
+.theme-lcars .section-jump-nav { gap: 6px; }
 .section-jump-btn {
     background: var(--bg-inset);
     border: 1px solid var(--border);
@@ -2369,6 +2466,25 @@ a.activity-link:hover {
     transition: all 0.15s;
 }
 .section-jump-btn:hover { color: var(--text-primary); border-color: var(--text-secondary); }
+/* LCARS mode: capsule nav buttons (§3.3) */
+.theme-lcars .section-jump-btn {
+    border-radius: 50vh;
+    border: none;
+    background: var(--lcars-tertiary);
+    color: #000;
+    padding: 10px 14px 4px;
+    min-height: 44px; /* 28 × φ */
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-weight: 700;
+    font-size: 0.68em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.7;
+    display: inline-flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+.theme-lcars .section-jump-btn:hover { opacity: 1; color: #000; }
 
 /* Vitals + switcher grouping (T18 Check 2) */
 .kb-controls-group {
@@ -3679,9 +3795,10 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 }
 
 /* ── Operations Subsystem Switcher (Defiant Bridge pattern) ── */
+/* Canonical: mode selector row with generous gaps (§3.3) */
 .ops-subsystem-selector {
     display: flex;
-    gap: var(--gap-xs);
+    gap: var(--gap-m, 8px);
     margin-bottom: var(--gap-xl);
     flex-wrap: wrap;
 }
@@ -3691,7 +3808,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 }
 .ops-subsys-btn.ops-subsys-active {
     opacity: 1;
-    box-shadow: 0 0 8px currentColor;
+    filter: brightness(1.3);
 }
 .ops-subsys-panel {
     display: none;
@@ -3785,12 +3902,13 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 .ohniaka-pend { color: var(--lcars-title); text-align: right; } /* pending count, right-aligned */
 
 /* ── Mobile Pill Strip (portrait) ────────────────────────── */
-/* Replaces the grid table on narrow screens. Each agent = one
-   horizontal bar, tappable to expand detail card. */
+/* Mobile ("tricorder mode"): both grid AND pills visible — all data all the time.
+   Pills provide tappable detail cards; grid provides capsule overview. */
 .lcars-mobile-pills { display: none; padding: 0 !important; }
 @media (max-width: 600px) {
-    .lcars-subsystem-grid { display: none !important; }
     .lcars-mobile-pills { display: block !important; }
+    /* Grid stays visible — capsule rows scroll horizontally */
+    .lcars-subsystem-grid { overflow-x: auto; }
 }
 
 .agent-pill-bar {
@@ -3964,6 +4082,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 }
 /* Mobile ohniaka handled by two-row card layout below (§mobile portrait) */
 
+
 /* ── Ohniaka Summary Row (mesh totals) ───────────────────── */
 .ohniaka-summary {
     display: flex;
@@ -4001,18 +4120,25 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 .lcars-sidebar-exit {
     flex-shrink: 0;
     margin-top: var(--gap-xs, 3px);
-    margin-bottom: var(--gap-xl, 21px);
+    margin-bottom: 0;
     min-height: 36px;
     background: var(--lcars-frame);
+    border: none;
     border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    padding-right: 12px;
+    padding: 0 12px;
     width: 100%;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.85em;
+    font-weight: 700;
     color: #000;
     cursor: pointer;
     transition: filter 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+.lcars-sidebar-exit:last-child {
+    margin-bottom: var(--gap-xl, 21px);
 }
 .lcars-sidebar-exit:hover { filter: brightness(1.2); }
