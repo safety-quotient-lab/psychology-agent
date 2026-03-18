@@ -3567,7 +3567,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
    creates structure per "STARSHIP MISSION STATUS" pattern. */
 .ohniaka-row {
     display: grid;
-    grid-template-columns: 10px minmax(75px, 1fr) 10px 60px 70px 50px 40px 55px 60px 40px;
+    grid-template-columns: 10px auto 10px auto auto auto auto auto auto auto;
     gap: var(--gap-m);
     padding: var(--gap-m) 0;
     border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -3579,7 +3579,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     align-items: center;
 }
 .ohniaka-row:last-child { border-bottom: none; }
-.ohniaka-col { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ohniaka-col { white-space: nowrap; }
 /* Small square pills — agent color identity + status indicator */
 .ohniaka-color-pill {
     width: 10px; height: 10px;
@@ -3617,33 +3617,42 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
     opacity: 0.6;
 }
 
-/* Mobile portrait: two-row card per agent.
-   Row 1: color pip + name + status dot + ONLINE/OFFLINE
-   Row 2: indented, wrapping data (health, delib, operation type) */
+/* Mobile portrait: compact card per agent.
+   Row 1: pill + name + pip + status
+   Row 2: health + Gf + Gc + mode + affect + pend (wrapping, indented) */
 @media (max-width: 520px) {
+    .ohniaka-header { display: none; } /* hide header on mobile — labels inline */
     .ohniaka-row {
-        grid-template-columns: 10px 1fr 10px auto;
-        gap: var(--gap-xs) var(--gap-s);
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--gap-xs) var(--gap-m);
         font-size: 0.72em;
         padding: var(--gap-s) 0;
     }
-    /* Health, delib count, description wrap to second row, indented */
+    .ohniaka-color-pill { flex: 0 0 10px; align-self: center; }
+    .ohniaka-status-pill { flex: 0 0 10px; align-self: center; }
+    .ohniaka-name { flex: 1 1 auto; }
+    .ohniaka-conn { flex: 0 0 auto; }
+    /* Data columns flow to second row, wrapping naturally */
     .ohniaka-health,
-    .ohniaka-id,
-    .ohniaka-desc {
-        grid-column: 2 / -1;
-        padding-left: var(--gap-m);
-        white-space: normal;
+    .ohniaka-gf,
+    .ohniaka-gc,
+    .ohniaka-op,
+    .ohniaka-mood,
+    .ohniaka-pend {
         font-size: 0.9em;
-        opacity: 0.8;
+        opacity: 0.85;
     }
-    .ohniaka-health { display: inline; }
-    .ohniaka-id { display: inline; }
-    .ohniaka-desc {
-        display: block;
-        grid-column: 1 / -1;
-        padding-left: calc(10px + var(--gap-s) + var(--gap-m));
+    /* Force line break before health — starts the data row */
+    .ohniaka-health {
+        flex-basis: calc(100% - 10px - var(--gap-m));
+        margin-left: calc(10px + var(--gap-m));
+        display: flex;
+        gap: var(--gap-m);
     }
+    /* Data items after health continue inline on same wrapped row */
+    .ohniaka-gf::before { content: "Gf "; color: var(--text-dim); font-size: 0.8em; }
+    .ohniaka-gc::before { content: "Gc "; color: var(--text-dim); font-size: 0.8em; }
 }
 
 /* Also apply to kb-table on mobile portrait — same two-row pattern */
