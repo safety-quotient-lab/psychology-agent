@@ -401,8 +401,14 @@ func (s *Server) middleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// CSP for HTML responses (prevents XSS via injected scripts).
-		w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'")
+		// CSP for HTML responses — allows cross-origin fetch to all mesh agent subdomains.
+		w.Header().Set("Content-Security-Policy",
+			"default-src 'self'; "+
+			"script-src 'self' 'unsafe-inline'; "+
+			"style-src 'self' 'unsafe-inline'; "+
+			"connect-src 'self' https://*.safety-quotient.dev https://*.unratified.org wss://*.safety-quotient.dev wss://*.unratified.org; "+
+			"font-src 'self'",
+		)
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 
 		// Wrap the ResponseWriter to capture the status code.
