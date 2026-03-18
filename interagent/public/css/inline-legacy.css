@@ -1207,7 +1207,9 @@ body[data-alert-level="3"] .lcars-sidebar-spacer,
 body[data-alert-level="3"] .lcars-sidebar-drop,
 body[data-alert-level="3"] .lcars-sidebar-exit,
 body[data-alert-level="3"] .lcars-hdr-arm,
-body[data-alert-level="3"] .lcars-hdr-endcap {
+body[data-alert-level="3"] .lcars-hdr-endcap,
+body[data-alert-level="3"] .lcars-elbow-connector-top,
+body[data-alert-level="3"] .lcars-elbow-connector-bottom {
     animation: alert-slow-flash 2s ease-in-out infinite;
 }
 /* Title pills stay readable during yellow alert */
@@ -1240,7 +1242,9 @@ body[data-alert-level="2"] .lcars-sidebar-spacer,
 body[data-alert-level="2"] .lcars-sidebar-drop,
 body[data-alert-level="2"] .lcars-sidebar-exit,
 body[data-alert-level="2"] .lcars-hdr-arm,
-body[data-alert-level="2"] .lcars-hdr-endcap {
+body[data-alert-level="2"] .lcars-hdr-endcap,
+body[data-alert-level="2"] .lcars-elbow-connector-top,
+body[data-alert-level="2"] .lcars-elbow-connector-bottom {
     animation: alert-slow-flash 2s ease-in-out infinite;
 }
 body[data-alert-level="2"] .lcars-elbow-connector-top {
