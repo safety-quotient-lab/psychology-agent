@@ -141,11 +141,15 @@ deploy-transfer:
 		$(SCP_CMD) ./$(MESHD_BIN) $${AGENT_SSH_HOST}:$(REMOTE_BIN).new
 	@echo "  Transferred to $(REMOTE_BIN).new"
 
-# Restart: stop all → swap binary → start all (parallel where possible)
-# Black alert triggers automatically via version mismatch detection
+# Restart: black alert → stop all → swap binary → start all → green
 deploy-restart:
 	@echo ""
 	@echo "═══ Restarting meshd processes ═══"
+	@echo "  Broadcasting black alert..."
+	@curl -sf -X POST https://operations-agent.safety-quotient.dev/api/trigger \
+		-H "Content-Type: application/json" \
+		-d '{"type":"alert","payload":{"level":"1","reason":"meshd deploy in progress"}}' \
+		>/dev/null 2>&1 || true
 	@. ./.dev.vars 2>/dev/null; \
 		echo "  Stopping all units..." && \
 		$(SSH_CMD) 'systemctl --user stop meshd-psychology meshd-psq meshd-observatory meshd-operations meshd-unratified 2>/dev/null; sleep 1' && \
