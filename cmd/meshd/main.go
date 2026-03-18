@@ -620,6 +620,15 @@ func main() {
 		"subsystems", "queue,dispatcher,watcher,monitor,server,poll,fetcher",
 	)
 
+	// Delayed startup broadcast — push full status to all SSE/WS clients
+	// after server goes live. Ensures dashboards see new version + uptime
+	// immediately (triggers black alert on deploy via real-time push).
+	go func() {
+		time.Sleep(3 * time.Second) // wait for server + clients to connect
+		srv.BroadcastStatus()
+		logger.Info("startup status broadcast sent")
+	}()
+
 	// ── Wait for shutdown signal ───────────────────────────────────
 
 	sigCh := make(chan os.Signal, 1)
