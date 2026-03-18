@@ -3819,6 +3819,12 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
     min-width: 100px;
     min-height: 48px;
 }
+/* Mobile: grow to fill — spacious grid instead of void chunk on right */
+@media (max-width: 600px) {
+    .ops-subsystem-selector .ops-subsys-btn { flex: 1 1 28%; }
+    .theme-lcars .section-jump-btn { flex: 1 1 28%; }
+    .theme-lcars .agent-switch-btn { flex: 1 1 28%; }
+}
 .ops-subsys-btn {
     transition: filter 0.15s;
 }
