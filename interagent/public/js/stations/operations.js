@@ -757,7 +757,7 @@ function renderOpsCapsuleBars() {
     const status = online.length === total ? "NOMINAL" : "DEGRADED";
 
     const cell = (val, label, tier) =>
-        `<div class="dg-cell${tier ? " dg-" + tier : ""}"><span class="dg-val">${val}</span><span class="dg-label">${label}</span></div>`;
+        `<div class="dg-cell${tier ? " dg-" + tier : ""}" title="${label}" onclick="this.classList.toggle('dg-show-label')"><span class="dg-val">${val}</span><span class="dg-label">${label}</span></div>`;
 
     grid.innerHTML = [
         // System identity group
@@ -765,9 +765,9 @@ function renderOpsCapsuleBars() {
         cell(mode, "LINK", ""),
         cell(now, "TIME", "t2"),
         cell(`${online.length}/${total}`, "AGENTS", "accent"),
-        // Mesh metrics group
-        cell(fmtNum(totalGf), "Gf", ""),
+        // Mesh metrics group (Gc before Gf — always)
         cell(fmtNum(totalGc), "Gc", "t2"),
+        cell(fmtNum(totalGf), "Gf", ""),
         cell(fmtNum(events), "EVENTS", "t3"),
         cell(status, "STATUS", "frame"),
         pending > 0 ? cell(pending, "PENDING", "accent") : "",

@@ -4196,11 +4196,25 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
     font-size: 1.1em;
     line-height: 1;
 }
+/* Label: hidden by default, shown on tap via .dg-show-label toggle */
 .lcars-data-grid .dg-label {
     font-size: 0.58em;
-    opacity: 0.7;
-    margin-top: 2px;
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--lcars-title);
+    color: #000;
+    padding: 1px 8px;
+    border-radius: 0 0 var(--gap-xs) var(--gap-xs);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    z-index: 10;
 }
+.lcars-data-grid .dg-cell { position: relative; cursor: pointer; }
+.lcars-data-grid .dg-cell.dg-show-label .dg-label { opacity: 1; }
 /* Tier colors */
 .lcars-data-grid .dg-t2 { background: var(--lcars-tertiary); }
 .lcars-data-grid .dg-t3 { background: var(--lcars-title); }
