@@ -1003,6 +1003,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     align-items: flex-end;
     justify-content: center;
 }
+.lcars-mode-btn { flex: 1 1 0; min-width: 0; }
 .lcars-mode-btn:hover { opacity: 0.75; }
 .lcars-mode-btn.active { opacity: 1; }
 
@@ -1847,7 +1848,8 @@ body {
     display: flex;
     gap: var(--gap-xs);
 }
-.theme-lcars .table-page-btns { gap: var(--gap-s); }
+.theme-lcars .table-page-btns { gap: var(--gap-xs); }
+.theme-lcars .table-page-btn { flex: 1 1 0; min-width: 0; }
 .table-page-btn {
     background: var(--bg-inset);
     border: 1px solid var(--border);
@@ -2131,7 +2133,11 @@ a.activity-link:hover {
     margin-bottom: var(--gap-xl);
     flex-wrap: wrap;
 }
-.theme-lcars .agent-switcher { gap: var(--gap-m); margin-bottom: var(--gap-xl); }
+.theme-lcars .agent-switcher {
+    gap: var(--gap-xs);
+    margin-bottom: 0; /* subpanel handles spacing */
+}
+.theme-lcars .agent-switch-btn { flex: 1 1 0; min-width: 0; }
 .agent-switch-btn {
     background: var(--bg-panel);
     border: 1px solid var(--border);
@@ -2453,7 +2459,11 @@ a.activity-link:hover {
     flex-wrap: wrap;
     margin-bottom: var(--gap-l);
 }
-.theme-lcars .section-jump-nav { gap: var(--gap-s); margin-bottom: var(--gap-l); }
+.theme-lcars .section-jump-nav {
+    gap: var(--gap-xs);
+    margin-bottom: 0; /* subpanel handles spacing */
+}
+.theme-lcars .section-jump-btn { flex: 1 1 0; min-width: 0; }
 .section-jump-btn {
     background: var(--bg-inset);
     border: 1px solid var(--border);
@@ -3795,13 +3805,14 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 }
 
 /* ── Operations Subsystem Switcher (Defiant Bridge pattern) ── */
-/* Canonical: mode selector row with generous gaps (§3.3) */
+/* Canonical: mode selector row — uniform button width (§3.3, Defiant A2) */
 .ops-subsystem-selector {
     display: flex;
-    gap: var(--gap-m, 8px);
-    margin-bottom: var(--gap-xl);
+    gap: var(--gap-xs);
+    margin-bottom: 0; /* subpanel handles spacing */
     flex-wrap: wrap;
 }
+.ops-subsystem-selector .ops-subsys-btn { flex: 1 1 0; min-width: 0; }
 .ops-subsys-btn {
     opacity: 0.5;
     transition: opacity 0.15s;
