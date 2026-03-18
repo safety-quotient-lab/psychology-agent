@@ -45,6 +45,34 @@ const AGENTS = [
 // Number formatting — thin space thousands separator for readability
 
 // ═══ UTILITIES ═══════════════════════════════════════════════
+
+// LCARS section number generator — random numeric strings for panel IDs.
+// Canonical panels show arbitrary-looking numbers (44712, 5894, etc.)
+// Generated on page load so they vary between sessions.
+function lcarsNum(len) {
+    let s = "";
+    for (let i = 0; i < len; i++) s += Math.floor(Math.random() * 10);
+    // Avoid leading zero for readability
+    if (s[0] === "0" && len > 1) s = String(1 + Math.floor(Math.random() * 9)) + s.slice(1);
+    return s;
+}
+// On page load: populate all .lcars-panel-id and .zc-id with random numbers
+function initLcarsNumbers() {
+    document.querySelectorAll(".lcars-panel-id").forEach(el => {
+        if (!el.dataset.lcarsLen) el.dataset.lcarsLen = "5";
+        el.textContent = lcarsNum(parseInt(el.dataset.lcarsLen) || 5);
+    });
+    document.querySelectorAll(".zc-id").forEach(el => {
+        if (!el.textContent.trim()) el.textContent = lcarsNum(5);
+    });
+    // Subpanel bar section IDs
+    document.querySelectorAll(".lcars-subpanel-bar").forEach(el => {
+        if (el.textContent.match(/^\d{2}-\d{4}$/)) {
+            el.textContent = lcarsNum(2) + "-" + lcarsNum(4);
+        }
+    });
+}
+
 function fmtNum(n) {
     if (n == null || isNaN(n)) return "\u2014";
     const num = typeof n === "string" ? parseFloat(n) : n;
