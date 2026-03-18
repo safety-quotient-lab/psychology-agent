@@ -67,42 +67,63 @@
     display: none !important;
 }
 
-/* ── Header: thin status strip ───────────────────────────── */
+/* ── Header: compact single-row status strip ─────────────── */
 .tricorder-mode.theme-lcars .lcars-header-band {
-    min-height: 36px !important;
-    grid-column: 1 / -1; /* span full width */
+    min-height: 32px !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
 }
 .tricorder-mode.theme-lcars .lcars-header-seg {
-    font-size: 0.65em;
-    padding: 4px 10px;
+    font-size: 0.6em;
+    padding: 3px 8px;
 }
 .tricorder-mode.theme-lcars .lcars-hdr-arm {
-    flex: 0 0 8px !important;
-    min-width: 8px !important;
+    flex: 0 0 6px !important;
+    min-width: 6px !important;
 }
 .tricorder-mode.theme-lcars .lcars-hdr-arm:first-child {
     border-radius: 50vh 0 0 50vh;
 }
 .tricorder-mode.theme-lcars .lcars-hdr-endcap {
-    flex: 0 0 8px !important;
+    flex: 0 0 6px !important;
     border-radius: 0 50vh 50vh 0;
+}
+/* Hide stardate tray accordion in tricorder (saves vertical space) */
+.tricorder-mode.theme-lcars .stardate-tray { display: none; }
+
+/* LCARS exit pill — hidden in computer mode, appears in tricorder
+   between stardate cell and endcap */
+.lcars-tricorder-exit { display: none; }
+.tricorder-mode.theme-lcars .lcars-tricorder-exit {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    flex: 0 0 auto;
+    padding: 10px 14px 4px;
+    min-height: 44px;
+    background: var(--lcars-secondary) !important;
+    color: #000 !important;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    white-space: nowrap;
+    border: none;
 }
 
 /* ── Content: full-width, scrollable ─────────────────────── */
 .tricorder-mode.theme-lcars .lcars-content {
-    grid-column: 1 / -1 !important; /* span full width */
-    padding: var(--gap-m, 8px);
+    grid-column: 1 / -1 !important;
+    grid-row: 2 / -1 !important; /* fill from row 2 to end */
+    padding: var(--gap-s, 5px);
     padding-bottom: 72px; /* space for fixed bottom nav */
 }
 
-/* ── Footer: thin identity strip ─────────────────────────── */
+/* ── Footer: hide in tricorder (bottom nav replaces it) ──── */
 .tricorder-mode.theme-lcars .lcars-footer-band {
-    min-height: 28px !important;
-    grid-column: 1 / -1 !important; /* span full width */
-}
-.tricorder-mode.theme-lcars .lcars-footer-seg {
-    font-size: 0.6em;
-    padding: 3px 8px;
+    display: none !important;
 }
 
 /* ── Content Adaptations ─────────────────────────────────── */
@@ -125,24 +146,35 @@
 .tricorder-mode .lcars-mobile-pills { display: block !important; }
 
 /* ── Sidebar Toggle Button ───────────────────────────────── */
+/* Uses .lcars-sidebar-exit base class. Override text for narrow viewports. */
 .lcars-tricorder-btn {
-    font-size: 0.65em !important;
     letter-spacing: 0.06em;
 }
-/* Portrait: use shortcode from data-short attr */
-@media (max-width: 480px) {
+/* Tablet (≤768px): shortcode */
+@media (max-width: 768px) {
     .lcars-tricorder-btn {
-        font-size: 0 !important; /* hide full text */
+        font-size: 0 !important;
+        text-align: center;
+        padding: 8px !important;
     }
     .lcars-tricorder-btn::after {
         content: attr(data-short);
-        font-size: 8px;
+        font-size: 10px !important;
+        display: block;
+    }
+}
+/* Phone (≤480px): smaller shortcode */
+@media (max-width: 480px) {
+    .lcars-tricorder-btn {
+        font-size: 0 !important;
+        min-height: 28px !important;
+        padding: 4px !important;
+    }
+    .lcars-tricorder-btn::after {
+        font-size: 8px !important;
     }
 }
 /* Active state: highlight when in tricorder mode */
 .tricorder-mode .lcars-tricorder-btn {
     background: var(--lcars-accent) !important;
 }
-
-/* ── Hidden outside LCARS ────────────────────────────────── */
-.lcars-tricorder-toggle { display: none; }

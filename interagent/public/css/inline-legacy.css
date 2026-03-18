@@ -4121,18 +4121,25 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 .lcars-sidebar-exit {
     flex-shrink: 0;
     margin-top: var(--gap-xs, 3px);
-    margin-bottom: var(--gap-xl, 21px);
+    margin-bottom: 0;
     min-height: 36px;
     background: var(--lcars-frame);
+    border: none;
     border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    padding-right: 12px;
+    padding: 0 12px;
     width: 100%;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.85em;
+    font-weight: 700;
     color: #000;
     cursor: pointer;
     transition: filter 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+.lcars-sidebar-exit:last-child {
+    margin-bottom: var(--gap-xl, 21px);
 }
 .lcars-sidebar-exit:hover { filter: brightness(1.2); }
