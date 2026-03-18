@@ -1000,7 +1000,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     align-items: flex-end;
     justify-content: center;
 }
-.lcars-mode-btn { flex: 1 1 0; min-width: 0; }
+.lcars-mode-btn { flex: 0 0 auto; min-width: 72px; min-height: 44px; }
 .lcars-mode-btn:hover { filter: brightness(1.15); }
 .lcars-mode-btn.active { filter: brightness(1.3); }
 
@@ -1844,7 +1844,7 @@ body {
     gap: var(--gap-xs);
 }
 .theme-lcars .table-page-btns { gap: var(--gap-xs); }
-.theme-lcars .table-page-btn { flex: 1 1 0; min-width: 0; }
+.theme-lcars .table-page-btn { flex: 0 0 auto; min-width: 48px; min-height: 40px; }
 .table-page-btn {
     background: var(--bg-inset);
     border: 1px solid var(--border);
@@ -2132,7 +2132,11 @@ a.activity-link:hover {
     gap: var(--gap-xs);
     margin-bottom: 0; /* subpanel handles spacing */
 }
-.theme-lcars .agent-switch-btn { flex: 1 1 0; min-width: 0; }
+.theme-lcars .agent-switch-btn {
+    flex: 0 0 auto;
+    min-width: 100px;
+    min-height: 48px;
+}
 .agent-switch-btn {
     background: var(--bg-panel);
     border: 1px solid var(--border);
@@ -2456,9 +2460,10 @@ a.activity-link:hover {
     gap: var(--gap-xs);
     margin-bottom: 0; /* subpanel handles spacing */
 }
-.theme-lcars .section-jump-btn { flex: 1 1 0; min-width: 0; }
-@media (max-width: 600px) {
-    .theme-lcars .section-jump-btn { flex: 1 1 30%; }
+.theme-lcars .section-jump-btn {
+    flex: 0 0 auto;
+    min-width: 100px;
+    min-height: 48px;
 }
 .section-jump-btn {
     background: var(--bg-inset);
@@ -3808,10 +3813,11 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
     margin-bottom: 0; /* subpanel handles spacing */
     flex-wrap: wrap;
 }
-.ops-subsystem-selector .ops-subsys-btn { flex: 1 1 0; min-width: 0; }
-/* Mobile portrait: 2 rows of 3 buttons */
-@media (max-width: 600px) {
-    .ops-subsystem-selector .ops-subsys-btn { flex: 1 1 30%; }
+/* Uniform compact buttons — wrap naturally, don't stretch to fill */
+.ops-subsystem-selector .ops-subsys-btn {
+    flex: 0 0 auto;
+    min-width: 100px;
+    min-height: 48px;
 }
 .ops-subsys-btn {
     transition: filter 0.15s;
