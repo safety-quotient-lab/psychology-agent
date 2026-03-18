@@ -321,7 +321,8 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	if subFS, err := fs.Sub(staticFS, "static"); err == nil {
 		assetServer := http.FileServer(http.FS(subFS))
 		noCacheAssets := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Cache-Control", "no-cache, must-revalidate")
+			w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+			w.Header().Set("Pragma", "no-cache")
 			assetServer.ServeHTTP(w, r)
 		})
 		mux.Handle("GET /css/", noCacheAssets)
