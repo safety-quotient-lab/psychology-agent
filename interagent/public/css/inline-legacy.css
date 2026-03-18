@@ -3753,15 +3753,18 @@ a.activity-link:hover {
     .lcars-hdr-endcap { flex: 0 0 16px; }
 }
 
-/* ── Sidebar drop — structural block at elbow transition ──── */
+/* ── Sidebar drop — filled structural spacer between elbow cap and first button.
+   Same role as the header arm between title and stardate: a solid filled
+   frame-color bar that visually connects structural elements. */
 .lcars-sidebar-drop {
-    min-height: var(--gap-xl, 21px);
-    flex-shrink: 0;
+    min-height: var(--gap-3xl, 55px);
+    flex-shrink: 1;
     margin-bottom: var(--gap-xs);
     border-radius: 0;
+    /* background set by .theme-lcars rule → var(--lcars-frame) */
 }
 @media (max-width: 768px) {
-    .lcars-sidebar-drop { min-height: var(--gap-l, 13px); }
+    .lcars-sidebar-drop { min-height: var(--gap-s, 5px); }
 }
 @media (max-width: 480px) {
     .lcars-sidebar-drop { min-height: var(--gap-m, 8px); }
