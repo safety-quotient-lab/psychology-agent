@@ -318,10 +318,8 @@ function renderOpsBudget() {
         const healthColor = online ? (healthColors[healthStr] || "var(--text-dim)") : "var(--text-dim)";
         const moodStr = mood ? mood.toUpperCase() : "";
         return `<div class="${rowClass}">
-            <span class="ohniaka-color-pill" style="background:${agent.color}"></span>
-            <span class="ohniaka-col ohniaka-name" style="color:var(--lcars-secondary)">${agentName(agent).toUpperCase()}</span>
-            ${connPill}
-            <span class="ohniaka-col ohniaka-conn">${online ? "ONLINE" : "OFFLINE"}</span>
+            <span class="ohniaka-col ohniaka-name" style="color:var(--lcars-secondary)"><span class="ohniaka-color-pill" style="background:${agent.color}"></span> ${agentName(agent).toUpperCase()}</span>
+            <span class="ohniaka-col ohniaka-conn">${connPill} ${online ? "ONLINE" : "OFFLINE"}</span>
             <span class="ohniaka-col ohniaka-health" style="color:${healthColor}">${online ? healthStr : "\u2014"}</span>
             <span class="ohniaka-col ohniaka-gf">${online ? fmtNum(deliberations) + delta(agent.id+"-gf", deliberations) : "\u2014"}</span>
             <span class="ohniaka-col ohniaka-gc">${online ? fmtNum(gc) + delta(agent.id+"-gc", gc) : "\u2014"}</span>
@@ -333,16 +331,14 @@ function renderOpsBudget() {
 
     // Header row
     let html = `<div class="ohniaka-row ohniaka-header">
-        <span></span>
         <span class="ohniaka-col">AGENT</span>
-        <span></span>
         <span class="ohniaka-col">STATUS</span>
         <span class="ohniaka-col">HEALTH</span>
-        <span class="ohniaka-col">Gf</span>
-        <span class="ohniaka-col">Gc</span>
+        <span class="ohniaka-col ohniaka-gf">Gf</span>
+        <span class="ohniaka-col ohniaka-gc">Gc</span>
         <span class="ohniaka-col">MODE</span>
         <span class="ohniaka-col">AFFECT</span>
-        <span class="ohniaka-col">PEND</span>
+        <span class="ohniaka-col ohniaka-pend">PEND</span>
     </div>`;
 
     // Autonomous group

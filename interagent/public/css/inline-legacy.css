@@ -3569,7 +3569,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
    Horizontal scroll on narrow screens — preserves alignment. */
 .lcars-subsystem-grid {
     display: grid;
-    grid-template-columns: 10px minmax(60px, 1fr) 10px auto auto auto auto auto auto auto;
+    grid-template-columns: minmax(80px, 1fr) auto auto auto auto auto auto auto;
     gap: 0 var(--gap-xl);
     min-width: max-content;
     overflow-x: visible;
@@ -3600,15 +3600,20 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
 }
 .ohniaka-col { white-space: nowrap; text-align: left; }
 /* Small square pills — agent color identity + status indicator */
+/* Pills inline within name/conn columns — perfectly square, never squish */
 .ohniaka-color-pill {
-    width: 10px; height: 10px; min-width: 10px;
+    width: 10px; height: 10px; min-width: 10px; min-height: 10px;
     border-radius: 2px;
     display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
 }
 .ohniaka-status-pill {
-    width: 10px; height: 10px; min-width: 10px;
+    width: 10px; height: 10px; min-width: 10px; min-height: 10px;
     border-radius: 50%;
     display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
 }
 /* Header row — gold text, uses display:contents like data rows */
 .ohniaka-header > * {
