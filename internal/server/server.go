@@ -609,12 +609,17 @@ func (s *Server) handleDeliberations(w http.ResponseWriter, r *http.Request) {
 // allowedOrigins lists domains permitted for CORS access.
 // Localhost origins allowed for development.
 var allowedOrigins = []string{
+	"https://mesh.safety-quotient.dev",
 	"https://interagent.safety-quotient.dev",
 	"https://operations-agent.safety-quotient.dev",
 	"https://psychology-agent.safety-quotient.dev",
 	"https://psq-agent.safety-quotient.dev",
-	"https://observatory.unratified.org",
+	"https://ops-session.safety-quotient.dev",
+	"https://psy-session.safety-quotient.dev",
+	"https://unratified-agent.unratified.org",
+	"https://observatory-agent.unratified.org",
 	"https://unratified.org",
+	"https://observatory.unratified.org",
 	"http://localhost",
 	"http://127.0.0.1",
 }
