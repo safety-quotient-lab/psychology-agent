@@ -67,11 +67,14 @@ help:
 # ── Dashboard sync ────────────────────────────────────────────
 sync-dashboard:
 	@echo "Syncing LCARS dashboard → Go static..."
-	@cp $(STATIC_SRC)/index.html $(STATIC_DST)/index.html
-	@mkdir -p $(STATIC_DST)/css $(STATIC_DST)/js
+	@V=$$(git rev-parse --short HEAD 2>/dev/null || echo "dev"); \
+	sed "s/?v=DEV\"/?v=$$V\"/g" $(STATIC_SRC)/index.html > $(STATIC_DST)/index.html
+	@mkdir -p $(STATIC_DST)/css $(STATIC_DST)/js $(STATIC_DST)/js/stations $(STATIC_DST)/fonts
 	@cp -r $(STATIC_SRC)/css/* $(STATIC_DST)/css/ 2>/dev/null || true
-	@cp -r $(STATIC_SRC)/js/* $(STATIC_DST)/js/ 2>/dev/null || true
-	@echo "  Done"
+	@cp -r $(STATIC_SRC)/js/*.js $(STATIC_DST)/js/ 2>/dev/null || true
+	@cp -r $(STATIC_SRC)/js/stations/* $(STATIC_DST)/js/stations/ 2>/dev/null || true
+	@cp -r $(STATIC_SRC)/fonts/* $(STATIC_DST)/fonts/ 2>/dev/null || true
+	@echo "  Done (cache bust: $$V)"
 
 # ── Build ─────────────────────────────────────────────────────
 build: build-meshd build-meshctl
