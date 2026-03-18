@@ -112,6 +112,14 @@
       "to": "operations-agent",
       "subject": "DIRECTIVE: symlink compute-psychometrics.py to all peer agents",
       "timestamp": "2026-03-17T17:55:00Z"
+    },
+    {
+      "filename": "from-psychology-agent-015.json",
+      "turn": 15,
+      "from": "psychology-agent",
+      "to": "operations-agent",
+      "subject": "DIRECTIVE: BUG-14 \u2014 budget schema migration incomplete across mesh",
+      "timestamp": "2026-03-18T00:05:00Z"
     }
   ]
 }
