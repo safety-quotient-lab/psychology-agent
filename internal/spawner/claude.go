@@ -1,6 +1,6 @@
 // Package spawner manages Claude process lifecycle with instrumentation.
 // It enforces concurrency limits, timeout budgets, and circuit-breaker
-// protection against cascading spawn failures.
+// protection against cascading deliberation failures.
 package spawner
 
 import (
@@ -16,10 +16,10 @@ import (
 	"time"
 )
 
-// DefaultTimeout governs how long a spawn may run before cancellation.
+// DefaultTimeout governs how long a deliberation may run before cancellation.
 const DefaultTimeout = 5 * time.Minute
 
-// DefaultMaxConcurrent caps parallel spawns to prevent resource exhaustion.
+// DefaultMaxConcurrent caps parallel deliberations to prevent resource exhaustion.
 const DefaultMaxConcurrent = 3
 
 // retryBackoff defines the delay before a single retry attempt.
@@ -38,21 +38,21 @@ type Spawner struct {
 	Command string
 	// AgentID identifies the owning agent for log segmentation.
 	AgentID string
-	// MaxConcurrent caps how many spawns may run simultaneously.
+	// MaxConcurrent caps how many deliberations may run simultaneously.
 	MaxConcurrent int
-	// Timeout caps a single spawn's wall-clock duration.
+	// Timeout caps a single deliberation's wall-clock duration.
 	Timeout time.Duration
 
-	active      int32      // atomic — currently running spawns
-	consecutive int32      // atomic — consecutive failure count
-	circuitOpen int64      // atomic — unix timestamp when circuit opened (0 = closed)
-	totalSpawns int64      // atomic — lifetime spawn attempts
-	totalFails  int64      // atomic — lifetime failures
-	logger      *slog.Logger
+	active            int32  // atomic — currently running deliberations
+	consecutive       int32  // atomic — consecutive failure count
+	circuitOpen       int64  // atomic — unix timestamp when circuit opened (0 = closed)
+	totalDeliberations int64 // atomic — lifetime deliberation attempts
+	totalFails        int64  // atomic — lifetime failures
+	logger            *slog.Logger
 }
 
-// SpawnResult captures every observable detail of a completed spawn.
-type SpawnResult struct {
+// DeliberationResult captures every observable detail of a completed deliberation.
+type DeliberationResult struct {
 	Prompt    string        `json:"prompt"`
 	ExitCode  int           `json:"exit_code"`
 	Stdout    string        `json:"stdout"`
@@ -62,15 +62,15 @@ type SpawnResult struct {
 	Error     error         `json:"error,omitempty"`
 }
 
-// SpawnerStats reports aggregate spawner health.
-type SpawnerStats struct {
-	TotalSpawns     int64  `json:"total_spawns"`
-	TotalFailures   int64  `json:"total_failures"`
-	Active          int    `json:"active"`
-	CircuitOpen     bool   `json:"circuit_open"`
-	CircuitOpenedAt int64  `json:"circuit_opened_at,omitempty"`
-	ConsecutiveFail int32  `json:"consecutive_failures"`
-	AgentID         string `json:"agent_id"`
+// DeliberatorStats reports aggregate deliberator health.
+type DeliberatorStats struct {
+	TotalDeliberations int64  `json:"total_deliberations"`
+	TotalFailures      int64  `json:"total_failures"`
+	Active             int    `json:"active"`
+	CircuitOpen        bool   `json:"circuit_open"`
+	CircuitOpenedAt    int64  `json:"circuit_opened_at,omitempty"`
+	ConsecutiveFail    int32  `json:"consecutive_failures"`
+	AgentID            string `json:"agent_id"`
 }
 
 // New constructs a Spawner with sensible defaults.
@@ -88,54 +88,54 @@ func New(agentID string, logger *slog.Logger) *Spawner {
 	}
 }
 
-// CanSpawn returns true when the spawner accepts new work — the circuit
+// CanDeliberate returns true when the deliberator accepts new work — the circuit
 // breaker remains closed and the concurrency cap has room.
-func (s *Spawner) CanSpawn() bool {
+func (s *Spawner) CanDeliberate() bool {
 	if s.circuitTripped() {
 		return false
 	}
 	return int(atomic.LoadInt32(&s.active)) < s.MaxConcurrent
 }
 
-// ActiveCount reports how many spawns run right now.
+// ActiveCount reports how many deliberations run right now.
 func (s *Spawner) ActiveCount() int {
 	return int(atomic.LoadInt32(&s.active))
 }
 
-// Stats returns a snapshot of aggregate spawner health.
-func (s *Spawner) Stats() SpawnerStats {
+// Stats returns a snapshot of aggregate deliberator health.
+func (s *Spawner) Stats() DeliberatorStats {
 	openTS := atomic.LoadInt64(&s.circuitOpen)
-	return SpawnerStats{
-		TotalSpawns:     atomic.LoadInt64(&s.totalSpawns),
-		TotalFailures:   atomic.LoadInt64(&s.totalFails),
-		Active:          s.ActiveCount(),
-		CircuitOpen:     s.circuitTripped(),
-		CircuitOpenedAt: openTS,
-		ConsecutiveFail: atomic.LoadInt32(&s.consecutive),
-		AgentID:         s.AgentID,
+	return DeliberatorStats{
+		TotalDeliberations: atomic.LoadInt64(&s.totalDeliberations),
+		TotalFailures:      atomic.LoadInt64(&s.totalFails),
+		Active:             s.ActiveCount(),
+		CircuitOpen:        s.circuitTripped(),
+		CircuitOpenedAt:    openTS,
+		ConsecutiveFail:    atomic.LoadInt32(&s.consecutive),
+		AgentID:            s.AgentID,
 	}
 }
 
-// Spawn executes `claude -p` (or the configured command) with the given
+// Deliberate executes `claude -p` (or the configured command) with the given
 // prompt. It enforces the timeout, records metadata, and retries once
 // on failure after a backoff delay.
-func (s *Spawner) Spawn(ctx context.Context, prompt string, flags ...string) (*SpawnResult, error) {
-	if !s.CanSpawn() {
+func (s *Spawner) Deliberate(ctx context.Context, prompt string, flags ...string) (*DeliberationResult, error) {
+	if !s.CanDeliberate() {
 		reason := "concurrency limit reached"
 		if s.circuitTripped() {
-			reason = "circuit breaker open — pausing spawns"
+			reason = "circuit breaker open — pausing deliberations"
 		}
-		return nil, fmt.Errorf("spawn refused: %s", reason)
+		return nil, fmt.Errorf("deliberation refused: %s", reason)
 	}
 
 	// First attempt.
-	result, err := s.doSpawn(ctx, prompt, flags...)
+	result, err := s.doDeliberate(ctx, prompt, flags...)
 	if err == nil && result.ExitCode == 0 {
 		return result, nil
 	}
 
 	// Retry once after backoff.
-	s.logger.Warn("spawn failed, retrying after backoff",
+	s.logger.Warn("deliberation failed, retrying after backoff",
 		"agent_id", s.AgentID,
 		"exit_code", result.ExitCode,
 		"err", err,
@@ -147,20 +147,20 @@ func (s *Spawner) Spawn(ctx context.Context, prompt string, flags ...string) (*S
 	case <-time.After(retryBackoff):
 	}
 
-	if !s.CanSpawn() {
-		return result, fmt.Errorf("spawn retry refused: spawner unavailable after backoff")
+	if !s.CanDeliberate() {
+		return result, fmt.Errorf("deliberation retry refused: deliberator unavailable after backoff")
 	}
 
-	retryResult, retryErr := s.doSpawn(ctx, prompt, flags...)
+	retryResult, retryErr := s.doDeliberate(ctx, prompt, flags...)
 	if retryErr != nil {
 		return retryResult, retryErr
 	}
 	return retryResult, nil
 }
 
-// doSpawn performs a single spawn attempt with full instrumentation.
-func (s *Spawner) doSpawn(ctx context.Context, prompt string, flags ...string) (*SpawnResult, error) {
-	atomic.AddInt64(&s.totalSpawns, 1)
+// doDeliberate performs a single deliberation attempt with full instrumentation.
+func (s *Spawner) doDeliberate(ctx context.Context, prompt string, flags ...string) (*DeliberationResult, error) {
+	atomic.AddInt64(&s.totalDeliberations, 1)
 	atomic.AddInt32(&s.active, 1)
 	defer atomic.AddInt32(&s.active, -1)
 
@@ -191,7 +191,7 @@ func (s *Spawner) doSpawn(ctx context.Context, prompt string, flags ...string) (
 		}
 	}
 
-	result := &SpawnResult{
+	result := &DeliberationResult{
 		Prompt:    prompt,
 		ExitCode:  exitCode,
 		Stdout:    stdoutBuf.String(),
@@ -208,7 +208,7 @@ func (s *Spawner) doSpawn(ctx context.Context, prompt string, flags ...string) (
 		if newConsec >= circuitThreshold {
 			s.openCircuit()
 		}
-		s.logger.Error("spawn completed with failure",
+		s.logger.Error("deliberation completed with failure",
 			"agent_id", s.AgentID,
 			"exit_code", exitCode,
 			"duration", duration,
@@ -216,13 +216,13 @@ func (s *Spawner) doSpawn(ctx context.Context, prompt string, flags ...string) (
 		)
 	} else {
 		atomic.StoreInt32(&s.consecutive, 0)
-		s.logger.Info("spawn completed successfully",
+		s.logger.Info("deliberation completed successfully",
 			"agent_id", s.AgentID,
 			"duration", duration,
 		)
 	}
 
-	s.writeLog(result)
+	s.writeDeliberationLog(result)
 	return result, runErr
 }
 
@@ -248,18 +248,18 @@ func (s *Spawner) openCircuit() {
 	now := time.Now().Unix()
 	// Only set if not already open.
 	atomic.CompareAndSwapInt64(&s.circuitOpen, 0, now)
-	s.logger.Warn("circuit breaker opened — spawning paused",
+	s.logger.Warn("circuit breaker opened — deliberations paused",
 		"agent_id", s.AgentID,
 		"cooldown", circuitCooldown,
 	)
 }
 
-// writeLog appends a JSON record to the spawn log file.
-func (s *Spawner) writeLog(r *SpawnResult) {
-	path := fmt.Sprintf("/tmp/meshd-spawns-%s.jsonl", s.AgentID)
+// writeDeliberationLog appends a JSON record to the deliberation log file.
+func (s *Spawner) writeDeliberationLog(r *DeliberationResult) {
+	path := fmt.Sprintf("/tmp/meshd-deliberations-%s.jsonl", s.AgentID)
 	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		s.logger.Error("failed to open spawn log", "path", path, "err", err)
+		s.logger.Error("failed to open deliberation log", "path", path, "err", err)
 		return
 	}
 	defer f.Close()
@@ -282,12 +282,12 @@ func (s *Spawner) writeLog(r *SpawnResult) {
 
 	line, err := json.Marshal(record)
 	if err != nil {
-		s.logger.Error("failed to marshal spawn log entry", "err", err)
+		s.logger.Error("failed to marshal deliberation log entry", "err", err)
 		return
 	}
 	line = append(line, '\n')
 	if _, err := f.Write(line); err != nil {
-		s.logger.Error("failed to write spawn log entry", "path", path, "err", err)
+		s.logger.Error("failed to write deliberation log entry", "path", path, "err", err)
 	}
 }
 

@@ -57,7 +57,7 @@ type Server struct {
 	startTime  time.Time
 	logger     *slog.Logger
 	eventLog   []events.Event
-	spawnLog   []DeliberationRecord
+	deliberationLog []DeliberationRecord
 	mu         sync.RWMutex
 
 	// webhookHandler processes inbound GitHub webhook payloads.
@@ -139,7 +139,7 @@ func New(
 		startTime:      time.Now(),
 		logger:         logger,
 		eventLog:       make([]events.Event, 0, maxEventLog),
-		spawnLog:       make([]DeliberationRecord, 0, maxDeliberationLog),
+		deliberationLog: make([]DeliberationRecord, 0, maxDeliberationLog),
 		sseBroker:      broker,
 		SSEBroadcast:   broadcastAll,
 		wsBroker:       wsBroker,
@@ -195,16 +195,16 @@ func (s *Server) RecordDeliberation(rec DeliberationRecord) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if len(s.spawnLog) >= maxDeliberationLog {
-		copy(s.spawnLog, s.spawnLog[1:])
-		s.spawnLog = s.spawnLog[:maxDeliberationLog-1]
+	if len(s.deliberationLog) >= maxDeliberationLog {
+		copy(s.deliberationLog, s.deliberationLog[1:])
+		s.deliberationLog = s.deliberationLog[:maxDeliberationLog-1]
 	}
-	s.spawnLog = append(s.spawnLog, rec)
+	s.deliberationLog = append(s.deliberationLog, rec)
 
 	// Broadcast to SSE clients
 	if s.sseBroker != nil {
 		s.sseBroker.Broadcast(SSEEvent{
-			Type: "spawn",
+			Type: "deliberation",
 			Data: rec,
 		})
 	}
@@ -498,13 +498,13 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 
 	// Per-type event counters from the dispatcher
 	eventsByType := map[string]any{}
-	var gcHandledTotal, spawnBlockedTotal, spawnSucceededTotal int
+	var gcHandledTotal, deliberationBlockedTotal, deliberationSucceededTotal int
 	if s.Dispatcher != nil {
 		for et, tm := range s.Dispatcher.TypeStats() {
 			eventsByType[string(et)] = tm
 			gcHandledTotal += tm.GcHandled
-			spawnBlockedTotal += tm.SpawnBlocked
-			spawnSucceededTotal += tm.SpawnSucceeded
+			deliberationBlockedTotal += tm.DeliberationBlocked
+			deliberationSucceededTotal += tm.DeliberationSucceeded
 		}
 	}
 
@@ -527,9 +527,9 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 		"gc_metrics": map[string]any{
 			"deliberations_last_hour": gcEvents,
 			"gc_handled_total":        gcHandledTotal,
-			"spawn_blocked_total":     spawnBlockedTotal,
-			"spawn_succeeded_total":   spawnSucceededTotal,
-			"gc_ratio":                "poll ticks handled without spawn",
+			"deliberation_blocked_total":   deliberationBlockedTotal,
+			"deliberation_succeeded_total": deliberationSucceededTotal,
+			"gc_ratio":                     "poll ticks handled without deliberation",
 			"deliberation_model":      s.Config.DeliberationModel,
 		},
 	}
@@ -600,8 +600,8 @@ func (s *Server) handleTrigger(w http.ResponseWriter, r *http.Request) {
 // deliberation records, newest first.
 func (s *Server) handleDeliberations(w http.ResponseWriter, r *http.Request) {
 	s.mu.RLock()
-	snapshot := make([]DeliberationRecord, len(s.spawnLog))
-	copy(snapshot, s.spawnLog)
+	snapshot := make([]DeliberationRecord, len(s.deliberationLog))
+	copy(snapshot, s.deliberationLog)
 	s.mu.RUnlock()
 
 	// Reverse so the newest deliberation appears first.
@@ -653,7 +653,7 @@ func (s *Server) eventCount() int {
 func (s *Server) deliberationCount() int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	return len(s.spawnLog)
+	return len(s.deliberationLog)
 }
 
 // decodeJSON reads and parses a JSON request body into dst.

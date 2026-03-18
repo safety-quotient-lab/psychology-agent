@@ -82,8 +82,8 @@ async function meshControl(action) {
     // Auth-gated controls
     const opsUrl = AGENTS.find(a => a.id === "operations-agent")?.url || "";
     const actions = {
-        "pause-all": { note: "Mesh paused — spawns blocked until resume" },
-        "resume-all": { note: "Mesh resumed — spawns unblocked" },
+        "pause-all": { note: "Mesh paused — deliberations blocked until resume" },
+        "resume-all": { note: "Mesh resumed — deliberations unblocked" },
     };
     const cfg = actions[action];
     if (!cfg) return;

@@ -3,7 +3,7 @@
 // Replaces cron-based polling with reactive event processing.
 // Receives signals from GitHub webhooks, filesystem watchers,
 // and periodic polls. Routes events through a priority queue
-// with budget-aware gating before spawning Claude contexts.
+// with budget-aware gating before triggering Claude deliberations.
 //
 // Usage:
 //
@@ -156,27 +156,27 @@ func main() {
 	budgetGate.MeshMaxConcurrent = cfg.MaxConcurrent
 	budgetGate.MeshReserveSlots = cfg.ReserveSlots
 
-	// Spawner — manages Claude process lifecycle with circuit breaker
-	spawnr := spawner.New(cfg.AgentID, logger)
-	spawnr.Command = cfg.SpawnCommand
-	spawnr.MaxConcurrent = cfg.MaxConcurrent
-	spawnr.Timeout = time.Duration(cfg.SpawnTimeout) * time.Second
+	// Deliberator — manages Claude process lifecycle with circuit breaker
+	deliberator := spawner.New(cfg.AgentID, logger)
+	deliberator.Command = cfg.SpawnCommand
+	deliberator.MaxConcurrent = cfg.MaxConcurrent
+	deliberator.Timeout = time.Duration(cfg.SpawnTimeout) * time.Second
 
-	// Dispatcher — routes events from queue → budget check → spawner
+	// Dispatcher — routes events from queue → budget check → deliberator
 	dispatcher := events.NewDispatcher(
 		queue,
-		func(dctx context.Context, req events.SpawnRequest) error {
-			// Acquire mesh-wide spawn slot (max 2 across entire mesh)
+		func(dctx context.Context, req events.DeliberationRequest) error {
+			// Acquire mesh-wide deliberation slot (max 2 across entire mesh)
 			slotPath, slotErr := budgetGate.AcquireSlot()
 			if slotErr != nil {
-				return fmt.Errorf("spawn slot unavailable: %w", slotErr)
+				return fmt.Errorf("deliberation slot unavailable: %w", slotErr)
 			}
 			defer budgetGate.ReleaseSlot(slotPath)
 
 			// Model tier: cognitive-tempo selects haiku/sonnet/opus from
 			// psychometric state + task metadata (Adaptive Gain Theory).
 			// Falls back to static DELIBERATION_MODEL if configured.
-			var spawnFlags []string
+			var deliberationFlags []string
 			tierResult := server.ComputeTier(cfg.AgentID, cfg.BudgetDBPath, server.MessageMeta{
 				MessageType: string(req.Event.Type),
 			})
@@ -185,7 +185,7 @@ func main() {
 				selectedModel = cfg.DeliberationModel
 			}
 			if selectedModel != "" {
-				spawnFlags = append(spawnFlags, "--model", selectedModel)
+				deliberationFlags = append(deliberationFlags, "--model", selectedModel)
 			}
 			logger.Info("cognitive-tempo tier selected",
 				"tier", tierResult.RecommendedTier,
@@ -193,23 +193,23 @@ func main() {
 				"complexity", tierResult.TaskComplexity,
 				"override", tierResult.OverrideReason,
 			)
-			result, spawnErr := spawnr.Spawn(dctx, req.Prompt, spawnFlags...)
+			result, deliberateErr := deliberator.Deliberate(dctx, req.Prompt, deliberationFlags...)
 
-			// Dual-write: persist spawn result to state.db
-			spawnStatus := "completed"
-			spawnError := ""
+			// Dual-write: persist deliberation result to state.db
+			deliberationStatus := "completed"
+			deliberationError := ""
 			exitCode := 0
 			durationMs := int64(0)
 			if result != nil {
 				exitCode = result.ExitCode
 				durationMs = result.Duration.Milliseconds()
 			}
-			if spawnErr != nil {
-				spawnStatus = "failed"
-				spawnError = spawnErr.Error()
+			if deliberateErr != nil {
+				deliberationStatus = "failed"
+				deliberationError = deliberateErr.Error()
 			} else if result != nil && result.ExitCode != 0 {
-				spawnStatus = "error"
-				spawnError = result.Stderr
+				deliberationStatus = "error"
+				deliberationError = result.Stderr
 			}
 			cost := budgetGate.EstimateCost(budget.Priority(req.Event.Priority))
 			logSQL := fmt.Sprintf(
@@ -219,25 +219,25 @@ func main() {
 				db.EscapeString(req.Event.ID),
 				db.EscapeString(req.Prompt[:min(len(req.Prompt), 200)]),
 				exitCode, durationMs, cost,
-				db.EscapeString(spawnStatus),
-				db.EscapeString(spawnError[:min(len(spawnError), 500)]),
+				db.EscapeString(deliberationStatus),
+				db.EscapeString(deliberationError[:min(len(deliberationError), 500)]),
 			)
 			if _, dbErr := db.Exec(cfg.BudgetDBPath, logSQL); dbErr != nil {
-				logger.Warn("spawn log write failed", "err", dbErr)
+				logger.Warn("deliberation log write failed", "err", dbErr)
 			}
 
-			if spawnErr != nil {
-				return spawnErr
+			if deliberateErr != nil {
+				return deliberateErr
 			}
 			if result.ExitCode != 0 {
 				return fmt.Errorf("claude exited with code %d: %s", result.ExitCode, result.Stderr)
 			}
-			logger.Info("spawn completed",
+			logger.Info("deliberation completed",
 				"event_id", req.Event.ID,
 				"duration", result.Duration,
 			)
 
-			// Broadcast spawn completion to mesh via ZMQ — include result summary
+			// Broadcast deliberation completion to mesh via ZMQ — include result summary
 			if zmqPublishFn != nil {
 				summary := ""
 				if result != nil && len(result.Stdout) > 0 {
@@ -256,10 +256,10 @@ func main() {
 				}
 				zmqPublishFn("event", map[string]any{
 					"agent_id":    cfg.AgentID,
-					"event":       "spawn_completed",
+					"event":       "deliberation_completed",
 					"event_id":    req.Event.ID,
 					"duration_ms": durationMs,
-					"status":      spawnStatus,
+					"status":      deliberationStatus,
 					"cost":        cost,
 					"summary":     summary,
 				})
@@ -267,7 +267,7 @@ func main() {
 
 			return nil
 		},
-		func(cost int) (bool, string) { return budgetGate.CanSpawn(cost) },
+		func(cost int) (bool, string) { return budgetGate.CanDeliberate(cost) },
 		func(cost int) error { return budgetGate.Record(cost) },
 		logger,
 	)
@@ -356,7 +356,7 @@ func main() {
 		if err := zmqBus.Start(); err != nil {
 			logger.Error("ZMQ bus failed to start", "err", err)
 		} else {
-			// Wire publish function for spawn handler
+			// Wire publish function for deliberation handler
 			zmqPublishFn = zmqBus.Publish
 
 			// Connect to initial peers from --zmq-peers flag

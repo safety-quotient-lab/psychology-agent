@@ -333,18 +333,18 @@ function scienceZoneAMetrics() {
 function engZoneAMetrics() {
     const online = Object.values(agentData).filter(a => a.status === "online");
     const totalDelib = online.reduce((s, a) => s + getDeliberations(a.data?.autonomy_budget), 0);
-    let totalCost = 0, totalDur = 0, totalSpawns = 0;
+    let totalCost = 0, totalDur = 0, totalDelibs = 0;
     for (const a of online) {
-        const spawns = a.data?.recent_deliberations || [];
-        totalSpawns += spawns.length;
-        totalCost += spawns.reduce((s, sp) => s + (parseFloat(sp.cost) || 0), 0);
-        totalDur += spawns.reduce((s, sp) => s + (parseInt(sp.duration_ms) || 0), 0);
+        const deliberations = a.data?.recent_deliberations || [];
+        totalDelibs += deliberations.length;
+        totalCost += deliberations.reduce((s, d) => s + (parseFloat(d.cost) || 0), 0);
+        totalDur += deliberations.reduce((s, d) => s + (parseInt(d.duration_ms) || 0), 0);
     }
-    const avgDur = totalSpawns > 0 ? Math.round(totalDur / totalSpawns / 1000) : 0;
+    const avgDur = totalDelibs > 0 ? Math.round(totalDur / totalDelibs / 1000) : 0;
     const rho = engineeringData?.tempo?.mesh?.utilization;
     return [
         { label: "Gf TOTAL", value: fmtNum(totalDelib), type: "count" },
-        { label: "RECENT", value: fmtNum(totalSpawns), type: "count" },
+        { label: "RECENT", value: fmtNum(totalDelibs), type: "count" },
         { label: "COST", value: "$" + totalCost.toFixed(1), type: "val" },
         { label: "AVG DUR", value: avgDur + "s", type: "id" },
         { label: "\u03C1", value: rho != null ? (rho * 100).toFixed(0) + "%" : "\u2014", type: "count", alert: rho > 0.8 },

@@ -135,23 +135,23 @@ func (g *Gate) Check() (*BudgetState, error) {
 	}, nil
 }
 
-// CanSpawn evaluates whether a spawn at the given cost should proceed.
+// CanDeliberate evaluates whether a deliberation at the given cost should proceed.
 // It returns true and an empty reason when allowed, or false with a
 // human-readable explanation when refused.
-func (g *Gate) CanSpawn(cost int) (bool, string) {
+func (g *Gate) CanDeliberate(cost int) (bool, string) {
 	state, err := g.Check()
 	if err != nil {
-		g.logger.Error("budget check failed — refusing spawn", "err", err)
+		g.logger.Error("budget check failed — refusing deliberation", "err", err)
 		return false, fmt.Sprintf("budget check error: %v", err)
 	}
 
 	if state.MeshPaused {
-		g.logger.Info("mesh-pause sentinel detected — refusing spawn")
+		g.logger.Info("mesh-pause sentinel detected — refusing deliberation")
 		return false, "mesh paused via /tmp/mesh-pause"
 	}
 
 	if state.RotatePending {
-		g.logger.Info("context-rotate sentinel detected — refusing spawn",
+		g.logger.Info("context-rotate sentinel detected — refusing deliberation",
 			"agent_id", g.AgentID,
 		)
 		return false, fmt.Sprintf("context rotation pending for %s", g.AgentID)
@@ -159,7 +159,7 @@ func (g *Gate) CanSpawn(cost int) (bool, string) {
 
 	// Check budget cutoff — 0 means unlimited (counter-only mode)
 	if state.Cutoff > 0 && state.Spent+cost > state.Cutoff {
-		g.logger.Warn("budget cutoff reached — refusing spawn",
+		g.logger.Warn("budget cutoff reached — refusing deliberation",
 			"spent", state.Spent,
 			"cutoff", state.Cutoff,
 			"cost", cost,
@@ -169,18 +169,18 @@ func (g *Gate) CanSpawn(cost int) (bool, string) {
 	}
 
 	if state.ShadowMode {
-		g.logger.Info("shadow mode — logging spawn decision without executing",
+		g.logger.Info("shadow mode — logging deliberation decision without executing",
 			"cost", cost,
 			"spent", state.Spent,
 			"agent_id", g.AgentID,
 		)
-		return false, "shadow mode active — spawn logged but not executed"
+		return false, "shadow mode active — deliberation logged but not executed"
 	}
 
-	// Check mesh-wide concurrency — count active spawn slot files
-	activeSlots := countMeshSpawnSlots()
+	// Check mesh-wide concurrency — count active deliberation slot files
+	activeSlots := countMeshDeliberationSlots()
 	if activeSlots >= g.meshSlots() {
-		g.logger.Warn("mesh-wide concurrency limit reached — refusing spawn",
+		g.logger.Warn("mesh-wide concurrency limit reached — refusing deliberation",
 			"active_slots", activeSlots,
 			"max", g.meshSlots(),
 			"agent_id", g.AgentID,
@@ -210,7 +210,7 @@ func (g *Gate) AcquireSlot() (string, error) {
 		)
 		return slotPath, nil
 	}
-	return "", fmt.Errorf("no spawn slots available (%d/%d occupied)", countMeshSpawnSlots(), g.meshSlots())
+	return "", fmt.Errorf("no deliberation slots available (%d/%d occupied)", countMeshDeliberationSlots(), g.meshSlots())
 }
 
 // ReleaseSlot frees a previously acquired spawn slot.
@@ -226,9 +226,9 @@ func (g *Gate) ReleaseSlot(slotPath string) {
 // treated as stale (orphaned by a crashed process). Set to spawn timeout + buffer.
 const slotMaxAge = 6 * 60 // 6 minutes in seconds
 
-// countMeshSpawnSlots returns how many active (non-stale) spawn slot files exist.
+// countMeshDeliberationSlots returns how many active (non-stale) deliberation slot files exist.
 // Stale slots (older than slotMaxAge) get cleaned up automatically.
-func countMeshSpawnSlots() int {
+func countMeshDeliberationSlots() int {
 	// Check up to 10 slots (covers any reasonable concurrency setting)
 	count := 0
 	for i := 0; i < 10; i++ {

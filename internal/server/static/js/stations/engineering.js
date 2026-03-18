@@ -2,7 +2,7 @@
 let engineeringData = null;
 let engineeringFetchPending = false;
 
-const SPAWN_AGENTS = [
+const DELIBERATION_AGENTS = [
     { id: "psychology-agent",  label: "psychology", color: "var(--c-psychology)" },
     { id: "psq-agent",        label: "safety-quotient",   color: "var(--c-psq)" },
     { id: "unratified-agent",  label: "unratified", color: "var(--c-unratified)" },
@@ -16,15 +16,15 @@ async function fetchEngineeringData() {
     try {
         const opsAgent = AGENTS.find(a => a.id === "operations-agent");
         const baseUrl = opsAgent ? opsAgent.url : "https://psychology-agent.safety-quotient.dev";
-        const [tempoResp, spawnResp] = await Promise.allSettled([
+        const [tempoResp, deliberationResp] = await Promise.allSettled([
             fetch(`${baseUrl}/api/tempo`, { signal: AbortSignal.timeout(8000) }),
-            fetch(`${baseUrl}/api/spawn-rate`, { signal: AbortSignal.timeout(8000) }),
+            fetch(`${baseUrl}/api/deliberation-rate`, { signal: AbortSignal.timeout(8000) }),
         ]);
         const tempoData = tempoResp.status === "fulfilled" && tempoResp.value.ok
             ? await tempoResp.value.json() : null;
-        const spawnData = spawnResp.status === "fulfilled" && spawnResp.value.ok
-            ? await spawnResp.value.json() : null;
-        engineeringData = { tempo: tempoData, spawn: spawnData };
+        const deliberationData = deliberationResp.status === "fulfilled" && deliberationResp.value.ok
+            ? await deliberationResp.value.json() : null;
+        engineeringData = { tempo: tempoData, deliberation: deliberationData };
     } catch (err) {
         engineeringData = null;
     } finally {
@@ -35,7 +35,7 @@ async function fetchEngineeringData() {
 
 function renderEngineering() {
     renderNumberGrid("eng-zone-a", engZoneAMetrics());
-    renderSpawnDynamics();
+    renderDeliberationCascade();
     renderGcCascade();
     renderUtilization();
     renderTempo();
@@ -138,17 +138,17 @@ function renderGcCascade() {
     gcEntries.forEach(entry => {
         const pct = (entry.total / maxVal * 100);
         const row = document.createElement("div");
-        row.className = "gc-bar-row spawn-bar-row";
-        row.innerHTML = `<span class="spawn-bar-label">${entry.label}</span>
-            <div class="spawn-bar-track"><div class="spawn-bar-fill" style="width:${pct}%;background:${entry.color}"></div></div>
-            <span class="spawn-bar-count" style="font-size:0.75em">${fmtNum(entry.total)}</span>`;
+        row.className = "gc-bar-row delib-bar-row";
+        row.innerHTML = `<span class="delib-bar-label">${entry.label}</span>
+            <div class="delib-bar-track"><div class="delib-bar-fill" style="width:${pct}%;background:${entry.color}"></div></div>
+            <span class="delib-bar-count" style="font-size:0.75em">${fmtNum(entry.total)}</span>`;
         container.appendChild(row);
     });
 }
 
-function renderSpawnDynamics() {
-    const container = document.getElementById("spawn-dynamics");
-    const placeholder = document.getElementById("spawn-placeholder");
+function renderDeliberationCascade() {
+    const container = document.getElementById("deliberation-cascade");
+    const placeholder = document.getElementById("deliberation-placeholder");
     if (!container) return;
 
     // Gf = fluid intelligence: deliberations per agent with model + duration
@@ -160,16 +160,16 @@ function renderSpawnDynamics() {
     const modelTier = agentData[AGENTS.find(a => a.id === "operations-agent")?.id]?.data?.gc_metrics?.deliberation_model || "?";
 
     // Clear existing
-    container.querySelectorAll(".spawn-bar-row, .gf-summary").forEach(r => r.remove());
+    container.querySelectorAll(".delib-bar-row, .gf-summary").forEach(r => r.remove());
 
     if (tempoAgents.length === 0) {
         if (placeholder) placeholder.style.display = "block";
-        SPAWN_AGENTS.forEach(agent => {
+        DELIBERATION_AGENTS.forEach(agent => {
             const row = document.createElement("div");
-            row.className = "spawn-bar-row";
-            row.innerHTML = `<span class="spawn-bar-label">${agent.label}</span>
-                <div class="spawn-bar-track"><div class="spawn-bar-fill" style="width:0%;background:${agent.color};opacity:0.3"></div></div>
-                <span class="spawn-bar-count">\u2014</span>`;
+            row.className = "delib-bar-row";
+            row.innerHTML = `<span class="delib-bar-label">${agent.label}</span>
+                <div class="delib-bar-track"><div class="delib-bar-fill" style="width:0%;background:${agent.color};opacity:0.3"></div></div>
+                <span class="delib-bar-count">\u2014</span>`;
             container.appendChild(row);
         });
         return;
@@ -188,17 +188,17 @@ function renderSpawnDynamics() {
     container.appendChild(summary);
 
     // Per-agent bars
-    const maxCount = Math.max(1, ...SPAWN_AGENTS.map(a => agentMap[a.id]?.spawns_60min || 0));
-    SPAWN_AGENTS.forEach(agent => {
+    const maxCount = Math.max(1, ...DELIBERATION_AGENTS.map(a => agentMap[a.id]?.spawns_60min || 0));
+    DELIBERATION_AGENTS.forEach(agent => {
         const data = agentMap[agent.id] || {};
         const count = data.spawns_60min || 0;
         const dur = data.mean_duration_sec ? Math.round(data.mean_duration_sec) + "s" : "";
         const pct = (count / maxCount) * 100;
         const row = document.createElement("div");
-        row.className = "spawn-bar-row";
-        row.innerHTML = `<span class="spawn-bar-label">${agent.label}</span>
-            <div class="spawn-bar-track"><div class="spawn-bar-fill" style="width:${pct}%;background:${agent.color}"></div></div>
-            <span class="spawn-bar-count" style="font-size:0.75em">${count}${dur ? " · " + dur : ""}</span>`;
+        row.className = "delib-bar-row";
+        row.innerHTML = `<span class="delib-bar-label">${agent.label}</span>
+            <div class="delib-bar-track"><div class="delib-bar-fill" style="width:${pct}%;background:${agent.color}"></div></div>
+            <span class="delib-bar-count" style="font-size:0.75em">${count}${dur ? " · " + dur : ""}</span>`;
         container.appendChild(row);
     });
 
@@ -212,8 +212,8 @@ function renderDeliberationTree(container) {
     for (const agent of AGENTS) {
         const d = agentData[agent.id];
         if (!d || d.status !== "online") continue;
-        const spawns = d.data?.recent_deliberations || d.data?.recent_spawns || [];
-        spawns.forEach(s => allDelibs.push({
+        const deliberations = d.data?.recent_deliberations || d.data?.recent_spawns || [];
+        deliberations.forEach(s => allDelibs.push({
             agent_id: s.agent_id || agent.id,
             color: agent.color,
             started_at: s.started_at || "",
@@ -291,7 +291,7 @@ function renderUtilization() {
     const statusEl = document.getElementById("util-status");
     if (!rhoEl) return;
 
-    const rho = engineeringData?.tempo?.mesh?.utilization ?? engineeringData?.spawn?.utilization ?? null;
+    const rho = engineeringData?.tempo?.mesh?.utilization ?? engineeringData?.deliberation?.utilization ?? null;
 
     if (rho == null) {
         rhoEl.textContent = "\u03C1 = \u2014";
@@ -388,8 +388,8 @@ function renderTempoIntrospection(color) {
     for (const agent of AGENTS) {
         const d = agentData[agent.id];
         if (!d || d.status !== "online") continue;
-        const spawns = d.data?.recent_deliberations || [];
-        spawns.forEach(s => {
+        const deliberations = d.data?.recent_deliberations || [];
+        deliberations.forEach(s => {
             if (s.started_at && s.duration_ms) {
                 allDelibs.push({
                     agent: agentName(agent),
@@ -440,9 +440,9 @@ function renderCost() {
     if (!totalEl) return;
 
     const meshData = engineeringData?.tempo?.mesh || {};
-    const spawnCost = engineeringData?.spawn || {};
-    const hourlyRate = meshData.cost_per_hour ?? spawnCost?.cost?.hourly_rate ?? null;
-    const totalCost = spawnCost?.last_hour?.total_cost ?? spawnCost?.cost?.total_today ?? null;
+    const deliberationCost = engineeringData?.deliberation || {};
+    const hourlyRate = meshData.cost_per_hour ?? deliberationCost?.cost?.hourly_rate ?? null;
+    const totalCost = deliberationCost?.last_hour?.total_cost ?? deliberationCost?.cost?.total_today ?? null;
 
     if (hourlyRate == null && totalCost == null) {
         totalEl.textContent = "$\u2014";

@@ -1443,22 +1443,22 @@ a.activity-link:hover {
     to { opacity: 1; }
 }
 
-/* Spawn Dynamics — horizontal bars (legacy fallback) */
-.spawn-bar-row {
+/* Deliberation Cascade — horizontal bars */
+.delib-bar-row {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-bottom: 6px;
     font-size: 0.78em;
 }
-.spawn-bar-label {
+.delib-bar-label {
     min-width: 64px;
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     font-size: 0.85em;
 }
-.spawn-bar-track {
+.delib-bar-track {
     flex: 1;
     height: 14px;
     background: var(--bg-inset);
@@ -1466,12 +1466,12 @@ a.activity-link:hover {
     border-radius: 7px;
     overflow: hidden;
 }
-.spawn-bar-fill {
+.delib-bar-fill {
     height: 100%;
     border-radius: 7px;
     transition: width 0.6s ease;
 }
-.spawn-bar-count {
+.delib-bar-count {
     min-width: 28px;
     text-align: right;
     color: var(--text-primary);
@@ -2421,8 +2421,8 @@ a.activity-link:hover {
         font-size: 0.72em;
     }
 
-    /* Spawn bar labels: compact */
-    .spawn-bar-label {
+    /* Deliberation bar labels: compact */
+    .delib-bar-label {
         min-width: 48px;
         font-size: 0.72em;
     }
@@ -2482,7 +2482,7 @@ a.activity-link:hover {
 
     .shield-agent { min-width: 40px; }
     .shield-auth { min-width: 48px; }
-    .spawn-bar-label { min-width: 40px; }
+    .delib-bar-label { min-width: 40px; }
 
     /* Agent cards: further compression */
     .agent-card { padding: 10px; }

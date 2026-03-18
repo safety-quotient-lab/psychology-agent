@@ -393,17 +393,17 @@ function renderOpsAlphaMatrix() {
 }
 
 function renderOpsActions() {
-    // Collect actions from all agents — check both recent_actions and recent_spawns
+    // Collect actions from all agents — check both recent_actions and recent_deliberations
     const allActions = [];
     for (const agent of AGENTS) {
         const d = agentData[agent.id];
         if (!d || d.status !== "online") continue;
-        // Try recent_actions first (old format), fallback to recent_spawns (meshd format)
+        // Try recent_actions first (old format), fallback to recent_deliberations (meshd format)
         const actions = d.data?.recent_actions || [];
         actions.forEach(a => allActions.push({ ...a, agent_id: agent.id, agent_color: agent.color }));
         // Map deliberations (recent_deliberations or legacy recent_spawns)
-        const spawns = d.data?.recent_deliberations || d.data?.recent_spawns || [];
-        spawns.forEach(s => allActions.push({
+        const deliberations = d.data?.recent_deliberations || d.data?.recent_spawns || [];
+        deliberations.forEach(s => allActions.push({
             created_at: s.started_at || s.created_at,
             action_type: "deliberation",
             description: `claude -p (${s.status || "?"}, ${((s.duration_ms || 0) / 1000).toFixed(0)}s, cost ${s.cost || 0})`,
