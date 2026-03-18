@@ -52,17 +52,13 @@ function connectWebSocket() {
                         const alertData = evt.Data || evt.data || {};
                         const level = parseInt(alertData.level) || 1;
                         if (typeof setManualAlert === "function") {
-                            setManualAlert(level);
-                            // Auto-clear after 60s unless it's a persistent condition
-                            if (level < 5) {
-                                setTimeout(() => {
-                                    if (typeof setManualAlert === "function") setManualAlert(null);
-                                }, 60000);
-                            }
+                            // level 5 = stand down (clear manual override)
+                            setManualAlert(level >= 5 ? null : level);
                         }
                         if (typeof addNarrativeEntry === "function") {
                             const names = { 5: "GREEN", 4: "BLUE", 3: "YELLOW", 2: "RED", 1: "BLACK" };
-                            addNarrativeEntry(`Alert broadcast received: ${names[level] || level} — ${alertData.reason || "unknown"}`);
+                            const label = level >= 5 ? "STAND DOWN" : names[level] || level;
+                            addNarrativeEntry(`Alert broadcast: ${label} — ${alertData.reason || "unknown"}`);
                         }
                         return;
                     }
