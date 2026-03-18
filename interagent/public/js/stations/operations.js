@@ -361,6 +361,77 @@ function renderOpsBudget() {
     });
 
     grid.innerHTML = html;
+
+    // Mobile pill strip — rendered in parallel, shown via CSS media query
+    renderMobilePills();
+}
+
+function renderMobilePills() {
+    const container = document.getElementById("ops-mobile-pills");
+    if (!container) return;
+
+    // Group by domain
+    const domains = {};
+    for (const agent of AGENTS) {
+        try {
+            const domain = new URL(agent.url).hostname.split(".").slice(-2).join(".");
+            if (!domains[domain]) domains[domain] = [];
+            domains[domain].push(agent);
+        } catch {}
+    }
+
+    let html = "";
+    for (const [domain, agents] of Object.entries(domains)) {
+        html += `<div class="mobile-domain-label">${domain}</div>`;
+        for (const agent of agents) {
+            const d = agentData[agent.id];
+            const online = d?.status === "online";
+            const b = online ? (d.data?.autonomy_budget || {}) : {};
+            const gf = getDeliberations(b);
+            const gc = online ? (d.data?.gc_metrics?.gc_handled_total || 0) : 0;
+            const health = (d?.data?.health || "unknown").toUpperCase();
+            if (health === "HEALTHY") health = "NOMINAL";
+            const connDot = `<span class="ohniaka-status-pill${!online ? " agent-name-offline" : ""}" style="background:${online ? "#22cc44" : "#cc2222"}"></span>`;
+            const barClass = online ? "agent-pill-bar" : "agent-pill-bar agent-pill-bar-offline";
+
+            // Collapsed bar
+            html += `<div class="${barClass}" onclick="this.nextElementSibling.classList.toggle('expanded')">
+                <span class="ohniaka-color-pill" style="background:${agent.color}"></span>
+                ${connDot}
+                <span style="color:var(--lcars-secondary)">${agentName(agent).toUpperCase()}</span>
+                <span class="agent-pill-metrics">
+                    <span style="color:var(--lcars-accent)">Gf ${fmtNum(gf)}</span>
+                    <span style="color:var(--lcars-secondary)">Gc ${fmtNum(gc)}</span>
+                    <span style="color:${online ? "var(--text-dim)" : "var(--lcars-alert)"}">${online ? health : "OFFLINE"}</span>
+                </span>
+            </div>`;
+
+            // Expanded detail card
+            const pending = online ? (d.data?.unprocessed_messages || []).length : 0;
+            const gates = online ? (d.data?.active_gates || []).length : 0;
+            const uptime = d?.data?.uptime || "\u2014";
+            const schema = d?.data?.schema_version || "\u2014";
+            const events = d?.data?.event_count || 0;
+            const mood = d?.data?.psychometrics?.emotional_state?.affect_category || "unknown";
+            const lastSync = d?.data?.schedule?.last_sync_time || d?.data?.collected_at || "\u2014";
+
+            html += `<div class="agent-pill-detail" style="border-color:${agent.color}">
+                <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${online ? "ONLINE" : "OFFLINE"}</span></div>
+                <div class="detail-row"><span class="detail-label">Health</span><span class="detail-value">${health}</span></div>
+                <div class="detail-row"><span class="detail-label">Gf (Fluid)</span><span class="detail-value" style="color:var(--lcars-accent)">${fmtNum(gf)}</span></div>
+                <div class="detail-row"><span class="detail-label">Gc (Crystal)</span><span class="detail-value" style="color:var(--lcars-secondary)">${fmtNum(gc)}</span></div>
+                <div class="detail-row"><span class="detail-label">Affect</span><span class="detail-value">${mood.toUpperCase()}</span></div>
+                <div class="detail-row"><span class="detail-label">Pending</span><span class="detail-value" style="color:${pending > 0 ? "var(--lcars-title)" : "var(--text-dim)"}">${pending}</span></div>
+                <div class="detail-row"><span class="detail-label">Gates</span><span class="detail-value">${gates}</span></div>
+                <div class="detail-row"><span class="detail-label">Events</span><span class="detail-value">${events}</span></div>
+                <div class="detail-row"><span class="detail-label">Uptime</span><span class="detail-value">${uptime}</span></div>
+                <div class="detail-row"><span class="detail-label">Schema</span><span class="detail-value">v${schema}</span></div>
+                <div class="detail-row"><span class="detail-label">Last Sync</span><span class="detail-value">${typeof lastSync === "string" ? lastSync.split("T")[1]?.substring(0, 8) || lastSync : "\u2014"}</span></div>
+            </div>`;
+        }
+    }
+
+    container.innerHTML = html;
 }
 
 function renderOpsAlphaMatrix() {

@@ -3641,6 +3641,78 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
 .ohniaka-op { white-space: nowrap; } /* mode icon + label */
 .ohniaka-mood { color: var(--text-dim); } /* affect state */
 .ohniaka-pend { color: var(--lcars-title); text-align: right; } /* pending count, right-aligned */
+
+/* ── Mobile Pill Strip (portrait) ────────────────────────── */
+/* Replaces the grid table on narrow screens. Each agent = one
+   horizontal bar, tappable to expand detail card. */
+.lcars-mobile-pills { display: none; padding: 0 !important; }
+@media (max-width: 600px) {
+    .lcars-subsystem-grid { display: none !important; }
+    .lcars-mobile-pills { display: block !important; }
+}
+
+.agent-pill-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-m);
+    padding: var(--gap-m) var(--gap-l);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    cursor: pointer;
+    font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.agent-pill-bar:active { filter: brightness(1.2); }
+.agent-pill-bar-offline { animation: agent-offline-flash 2s ease-in-out infinite; }
+
+/* Inline metrics on the bar */
+.agent-pill-metrics {
+    display: flex;
+    gap: var(--gap-m);
+    margin-left: auto;
+    font-size: 0.85em;
+    opacity: 0.8;
+}
+.agent-pill-metrics span { white-space: nowrap; }
+
+/* Expanded detail card — LCARS mini-frame with left arm */
+.agent-pill-detail {
+    display: none;
+    margin: 0 0 var(--gap-s) 0;
+    border-left: 4px solid var(--lcars-frame);
+    padding: var(--gap-m) var(--gap-l);
+    background: rgba(255,255,255,0.03);
+}
+.agent-pill-detail.expanded { display: block; }
+.agent-pill-detail .detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--gap-xs) 0;
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.agent-pill-detail .detail-label {
+    color: var(--text-dim);
+    min-width: 80px;
+}
+.agent-pill-detail .detail-value {
+    color: var(--text-primary);
+    text-align: right;
+}
+
+/* Domain label in mobile pill strip */
+.mobile-domain-label {
+    color: var(--lcars-frame);
+    font-size: 0.6em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: var(--gap-m) var(--gap-l) var(--gap-xs);
+    opacity: 0.6;
+}
 /* Domain group label — full width, subtle */
 .ohniaka-domain-label {
     color: var(--lcars-frame);
