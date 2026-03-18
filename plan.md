@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 10 complete — 109 commits, 50+ deploys. JS decomposed: 10 files, index.html 1336 lines. LCARS: V23.01 OCR-verified palette + trekcolors, three-zone layout, 5-level TNG health, separated connectivity/health columns, coherence flags, mobile two-row cards. Infrastructure: 13/13 psy-session bugs fixed, Cloudflare tunnel migration (all 5 chromabook agents + mesh compositor via tunnel, CF Worker replaceable), SQLite-backed agent registry (cold-start resilient), per-type event counters, WebSocket /ws, budget schema dual-compat. mesh.safety-quotient.dev serves full dashboard from meshd. Transport: psy-session T1-T14 processed. Pending: departmental tabs, data density, symmetric framing, resource awareness, CF Worker decommission.
+**Current Status:** Session 11 complete — 20+ commits, 10+ deploys. trekcolors full integration (MIT, leonawicz): 33 named LCARS colors across 4 era palettes, TREK JS object with qualitative/sequential/warm/cool scales, Oswald font (OFL) primary. Semiotic refactor: --lcars-accent=interactive (atomic-tangerine #FF9900), --lcars-readout=data emphasis (golden-tanoi #FFCC66), uniform sidebar buttons. Alert system: trekcolors canon (red #990000, yellow #CD870E, black #0E3A9B/#64FFFF), 4 black alert triggers (deploy/neuroglial/manual/section-42), real-time broadcast via POST /api/trigger type=alert + stand-down level=5. **WebSocket fixed** — statusWriter lacked Hijacker interface (broken since day one, all clients fell back to polling). Deploy lifecycle: Makefile broadcasts black alert → restart → WS stand-down on connect. Symmetric capsule bars (Ohniaka A1 pattern) piloted on Operations. BUG-2 closed (superseded by HTTP aggregation), meshd source dedup resolved (operations-agent stays canonical). Pending: LCARS pill/button rethink (chunkier, mobile-friendly), full accent→readout color audit, departmental tabs, data density, theme switcher.
 
 ---
 
@@ -284,6 +284,16 @@
 | D97 | Golden ratio (1.618) governs design proportions — line weights, spacing, size ratios | human arbiter (2026-03-16) |
 | D98 | Inline sparklines removed (non-canon) — LCARS shows trends via dedicated chart panels or number sequences | ops-session (2026-03-16) |
 | D99 | Generator balance requires real data source (psychology /api/generators) — no approximations | human arbiter (2026-03-16) |
+| D100 | trekcolors (MIT, leonawicz) adopted as canonical LCARS color reference — 33 named colors, 4 era palettes | ops-session (2026-03-18) |
+| D101 | Semiotic split: --lcars-accent=interactive (atomic-tangerine), --lcars-readout=data emphasis (golden-tanoi) | human arbiter (2026-03-18) |
+| D102 | Uniform sidebar buttons — all atomic-tangerine, active=brightness shift (no color alternation per canon) | human arbiter (2026-03-18) |
+| D103 | Alert colors: trekcolors canon — red #990000, yellow #CD870E, black #0E3A9B/#64FFFF | ops-session (2026-03-18) |
+| D104 | Black alert = Ita intervention: deploy, neuroglial activity, manual, section 42 | human arbiter (2026-03-18) |
+| D105 | Real-time event-driven architecture — core principle. SSE/WS primary, polling fallback only | human arbiter (2026-03-18) |
+| D106 | Oswald (OFL) primary font everywhere — wider letterforms for phone readability. Antonio fallback | human arbiter (2026-03-18) |
+| D107 | trekfont (GPL-3) blocked by license gate — reference only, no bundling | ops-session (2026-03-18) |
+| D108 | BUG-2 closed — superseded by FetchAllStatuses() HTTP aggregation in pulse.go | ops-session (2026-03-18) |
+| D109 | meshd source dedup resolved — operations-agent stays canonical, meshd repo mirrors for deploy | ops-session (2026-03-18) |
 
 ---
 
