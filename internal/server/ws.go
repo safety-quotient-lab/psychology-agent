@@ -62,6 +62,18 @@ func (b *WSBroker) Handler() websocket.Handler {
 			websocket.Message.Send(ws, string(data))
 		}
 
+		// Send stand-down to this client — clears any stale alert from
+		// before WS reconnected (deploy black alert → restart → reconnect)
+		standDown := map[string]any{
+			"type": "alert",
+			"Type": "alert",
+			"data": map[string]string{"level": "5", "reason": "WebSocket reconnected"},
+			"Data": map[string]string{"level": "5", "reason": "WebSocket reconnected"},
+		}
+		if data, err := json.Marshal(standDown); err == nil {
+			websocket.Message.Send(ws, string(data))
+		}
+
 		// Writer goroutine — drains send channel to WebSocket
 		done := make(chan struct{})
 		go func() {
