@@ -4193,7 +4193,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
     flex: 0 0 auto;
 }
 .lcars-data-grid .dg-val {
-    font-size: 1.1em;
+    font-size: 0.72em;
     line-height: 1;
 }
 /* Label: hidden by default, shown on tap via .dg-show-label toggle */
