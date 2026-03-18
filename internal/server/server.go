@@ -628,6 +628,34 @@ func (s *Server) handleTrigger(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Special case: alert broadcast — push directly to all SSE/WS clients
+	if req.Type == "alert" {
+		level := req.Payload["level"] // "1"=black, "2"=red, "3"=yellow, "5"=green/clear
+		reason := req.Payload["reason"]
+		if level == "" {
+			level = "1"
+		}
+		if reason == "" {
+			reason = "Manual alert trigger"
+		}
+		if s.SSEBroadcast != nil {
+			s.SSEBroadcast(SSEEvent{
+				Type: "alert",
+				Data: map[string]string{
+					"level":    level,
+					"reason":   reason,
+					"agent_id": s.Config.AgentID,
+				},
+			})
+		}
+		writeJSON(w, http.StatusAccepted, map[string]string{
+			"status": "broadcast",
+			"type":   "alert",
+			"level":  level,
+		}, s.logger)
+		return
+	}
+
 	if err := s.triggerFunc(req.Type, req.Payload); err != nil {
 		s.logger.Error("manual trigger failed", "type", req.Type, "error", err)
 		http.Error(w, "trigger failed: "+err.Error(), http.StatusInternalServerError)

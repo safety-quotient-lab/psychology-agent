@@ -47,6 +47,26 @@ function connectWebSocket() {
                         }
                     }
 
+                    // Alert broadcast — server-pushed alert level change
+                    if (evt.type === "alert" || evt.Type === "alert") {
+                        const alertData = evt.Data || evt.data || {};
+                        const level = parseInt(alertData.level) || 1;
+                        if (typeof setManualAlert === "function") {
+                            setManualAlert(level);
+                            // Auto-clear after 60s unless it's a persistent condition
+                            if (level < 5) {
+                                setTimeout(() => {
+                                    if (typeof setManualAlert === "function") setManualAlert(null);
+                                }, 60000);
+                            }
+                        }
+                        if (typeof addNarrativeEntry === "function") {
+                            const names = { 5: "GREEN", 4: "BLUE", 3: "YELLOW", 2: "RED", 1: "BLACK" };
+                            addNarrativeEntry(`Alert broadcast received: ${names[level] || level} — ${alertData.reason || "unknown"}`);
+                        }
+                        return;
+                    }
+
                     // Deliberation event — trigger re-render
                     if (evt.type === "deliberation" || evt.Type === "deliberation") {
                         renderAll();
