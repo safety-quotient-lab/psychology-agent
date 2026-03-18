@@ -3565,11 +3565,14 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
 /* ── Ohniaka B3 Structured Table (Mesh Overview) ─────────── */
 /* Colored text columns, no pill backgrounds. Spacing + color
    creates structure per "STARSHIP MISSION STATUS" pattern. */
-/* Parent grid — all rows share column tracks for alignment */
+/* Parent grid — all rows share column tracks for alignment.
+   Horizontal scroll on narrow screens — preserves alignment. */
 .lcars-subsystem-grid {
     display: grid;
     grid-template-columns: 10px minmax(60px, 1fr) 10px auto auto auto auto auto auto auto;
     gap: 0 var(--gap-xl);
+    min-width: max-content;
+    overflow-x: visible;
     font-family: 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.78em;
     font-weight: 700;
@@ -3598,12 +3601,12 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
 .ohniaka-col { white-space: nowrap; text-align: left; }
 /* Small square pills — agent color identity + status indicator */
 .ohniaka-color-pill {
-    width: 10px; height: 10px;
+    width: 10px; height: 10px; min-width: 10px;
     border-radius: 2px;
     display: inline-block;
 }
 .ohniaka-status-pill {
-    width: 10px; height: 10px;
+    width: 10px; height: 10px; min-width: 10px;
     border-radius: 50%;
     display: inline-block;
 }
@@ -3628,11 +3631,11 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: #882222 !important;
 }
 .ohniaka-name { color: var(--lcars-secondary); } /* purple — entity name */
 .ohniaka-conn { color: var(--lcars-secondary); opacity: 0.7; } /* connectivity */
-.ohniaka-gf { color: var(--lcars-accent); } /* orange — fluid processing count */
-.ohniaka-gc { color: var(--lcars-secondary); } /* purple — crystallized count */
+.ohniaka-gf { color: var(--lcars-accent); text-align: right; } /* orange — fluid count, right-aligned */
+.ohniaka-gc { color: var(--lcars-secondary); text-align: right; } /* purple — crystallized count, right-aligned */
 .ohniaka-op { white-space: nowrap; } /* mode icon + label */
 .ohniaka-mood { color: var(--text-dim); } /* affect state */
-.ohniaka-pend { color: var(--lcars-title); } /* pending — attention color */
+.ohniaka-pend { color: var(--lcars-title); text-align: right; } /* pending count, right-aligned */
 .ohniaka-id { color: var(--lcars-title); } /* yellow — identifiers/numbers */
 .ohniaka-desc { color: var(--text-primary); white-space: normal; } /* white — description/status */
 .ohniaka-separator {
