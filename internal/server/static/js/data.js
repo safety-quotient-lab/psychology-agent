@@ -1,10 +1,20 @@
 // ═══ DATA FETCH ═════════════════════════════════════════════
+
+// Adaptive polling — backs off when agents unreachable
+let _failedAgents = new Set();  // agents that failed last fetch
+let _pollInterval = 30000;      // starts at 30s, backs off to 120s
+const POLL_MIN = 30000;
+const POLL_MAX = 120000;
+const FETCH_TIMEOUT = 3000;     // 3s timeout (was 8s — too slow)
+
 async function fetchAgentStatus(agent) {
     try {
-        const resp = await fetch(`${agent.url}/api/status`, { signal: AbortSignal.timeout(8000) });
+        const resp = await fetch(`${agent.url}/api/status`, { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        _failedAgents.delete(agent.id);
         return { id: agent.id, status: "online", data: await resp.json() };
     } catch (err) {
+        _failedAgents.add(agent.id);
         return { id: agent.id, status: "unreachable", error: err.message };
     }
 }
@@ -24,9 +34,23 @@ async function refreshAll() {
     // Fetch KB data (non-blocking — renders when ready)
     refreshKnowledge();
 
-    const mode = sseActive ? "● SSE live" : "○ polling 30s";
-    document.getElementById("footer-status").textContent =
-        `Updated ${new Date().toLocaleTimeString()} · ${mode}`;
+    // Adaptive backoff — slow polling when most agents unreachable
+    const failRate = _failedAgents.size / AGENTS.length;
+    if (failRate > 0.5) {
+        _pollInterval = Math.min(_pollInterval * 1.5, POLL_MAX);
+    } else if (failRate === 0) {
+        _pollInterval = POLL_MIN;
+    }
+    // Reschedule with adapted interval
+    if (refreshTimer && !sseActive) {
+        clearInterval(refreshTimer);
+        refreshTimer = setInterval(refreshAll, _pollInterval);
+    }
+
+    const intervalSec = Math.round(_pollInterval / 1000);
+    const mode = sseActive ? "\u25CF live" : `\u25CB poll ${intervalSec}s`;
+    const ftr = document.getElementById("footer-status");
+    if (ftr) ftr.textContent = `Updated ${new Date().toLocaleTimeString()} · ${mode}`;
 
     // Update LCARS header/footer band data if in LCARS mode
     if (document.body.classList.contains("theme-lcars")) {
@@ -34,7 +58,6 @@ async function refreshAll() {
         evaluateAlertLevel();
         const ftrFeed = document.getElementById("lcars-ftr-feed");
         if (ftrFeed) ftrFeed.textContent = `Feed: ${sseActive ? "\u25CF Live" : "\u25CB Polling"}`;
-        // Add narrative entry on each refresh
         addNarrativeEntry(generateMeshNarrative());
     }
     } finally { _refreshing = false; }
@@ -1650,21 +1673,25 @@ function escapeHtml(str) {
 // ── WebSocket Real-Time Updates ─────────────────────────────
 let wsConnection = null;
 let wsReconnectTimer = null;
+let _wsBackoff = 5000; // exponential backoff: 5s → 10s → 20s → 40s (cap 60s)
+const WS_BACKOFF_MAX = 60000;
 
 function connectWebSocket() {
-    // Try WebSocket to each agent that supports it
-    for (const agent of AGENTS) {
-        const wsUrl = agent.url.replace(/^http/, "ws") + "/ws";
-        try {
-            const ws = new WebSocket(wsUrl);
-            ws.onopen = () => {
-                wsConnection = ws;
-                sseActive = true;
-                updateSSEIndicator(true);
-                // Stop polling — we have real-time
-                if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
-                addNarrativeEntry(`WebSocket connected to ${agentName(agent)}`);
-            };
+    // Try WebSocket to first reachable agent only
+    const agent = AGENTS[0]; // ops meshd — most likely to support WS
+    if (!agent) { connectSSE(); return; }
+    const wsUrl = agent.url.replace(/^http/, "ws") + "/ws";
+    try {
+        const ws = new WebSocket(wsUrl);
+        const wsTimeout = setTimeout(() => { ws.close(); }, 5000); // 5s connect timeout
+        ws.onopen = () => {
+            clearTimeout(wsTimeout);
+            wsConnection = ws;
+            sseActive = true;
+            _wsBackoff = 5000; // reset backoff on success
+            updateSSEIndicator(true);
+            if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+        };
             ws.onmessage = (e) => {
                 try {
                     const evt = JSON.parse(e.data);
@@ -1683,19 +1710,21 @@ function connectWebSocket() {
                 } catch {}
             };
             ws.onclose = () => {
+                clearTimeout(wsTimeout);
                 if (wsConnection === ws) {
                     wsConnection = null;
                     sseActive = false;
                     updateSSEIndicator(false);
-                    // Reconnect after 5s
+                    // Exponential backoff reconnect
                     if (!wsReconnectTimer) {
                         wsReconnectTimer = setTimeout(() => {
                             wsReconnectTimer = null;
                             connectWebSocket();
-                        }, 5000);
+                        }, _wsBackoff);
+                        _wsBackoff = Math.min(_wsBackoff * 2, WS_BACKOFF_MAX);
                     }
                     // Resume polling while disconnected
-                    if (!refreshTimer) refreshTimer = setInterval(refreshAll, 30000);
+                    if (!refreshTimer) refreshTimer = setInterval(refreshAll, _pollInterval);
                 }
             };
             ws.onerror = () => { ws.close(); };
@@ -1705,13 +1734,10 @@ function connectWebSocket() {
                 if (ws.readyState === WebSocket.OPEN) ws.send("ping");
                 else clearInterval(heartbeat);
             }, 30000);
-
-            // Only need one WS connection (to our meshd)
-            return;
         } catch {
-            // WebSocket not available for this agent — try next
+            // WebSocket not available — fall back to SSE
+            _wsBackoff = Math.min(_wsBackoff * 2, WS_BACKOFF_MAX);
         }
-    }
     // No WebSocket available — fall back to SSE
     connectSSE();
 }
