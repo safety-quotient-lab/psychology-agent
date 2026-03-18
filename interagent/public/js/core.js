@@ -592,20 +592,16 @@ const ALERT_TRIGGERS = [
       }),
       description: "Agent autonomy limit reached" },
     // BLACK (level 1) triggers — Ita intervention (neuroglial infrastructure)
-    // 1. Deploys: version mismatch OR any agent recently restarted (<60s uptime)
+    // 1. Deploys: version mismatch across agents (brief window during rolling restart)
+    //    Note: Makefile also sends explicit black alert via POST /api/trigger.
+    //    Uptime-based detection removed — it held black alert for 60s after deploy.
     { level: 1, name: "rolling-deploy",
       test: () => {
           const online = Object.values(agentData).filter(a => a?.status === "online" && a.data);
-          // Version mismatch
           const versions = online.filter(a => a.data.version).map(a => a.data.version);
-          if (versions.length > 1 && new Set(versions).size > 1) return true;
-          // Recent restart (uptime < 60s = just deployed)
-          return online.some(a => {
-              const up = a.data.uptime_seconds;
-              return typeof up === "number" && up < 60;
-          });
+          return versions.length > 1 && new Set(versions).size > 1;
       },
-      description: "Deploy in progress — version mismatch or recent restart" },
+      description: "Rolling deployment — version mismatch across agents" },
     // 2. Neuroglial activity: mesh paused or operations-agent actively deliberating
     { level: 1, name: "mesh-paused",
       test: () => Object.values(agentData).some(a =>
