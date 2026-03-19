@@ -271,12 +271,12 @@ func (s *Server) ListenAndServe() error {
 		}
 	}
 
-	return s.shutdown()
+	return s.Shutdown()
 }
 
-// shutdown gracefully stops the HTTP server, allowing active requests up to
+// Shutdown gracefully stops the HTTP server, allowing active requests up to
 // 10 seconds to complete.
-func (s *Server) shutdown() error {
+func (s *Server) Shutdown() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 

@@ -647,15 +647,27 @@ func main() {
 
 	logger.Info("shutdown signal received", "signal", sig.String())
 
-	// Graceful shutdown sequence
+	// Graceful shutdown: close HTTP listener (stop accepting new requests)
+	if err := srv.Shutdown(); err != nil {
+		logger.Warn("HTTP shutdown error", "error", err)
+	}
+
+	// Cancel all background goroutines
 	cancel()
 
 	// Drain the queue
 	remaining := queue.Drain()
 	logger.Info("queue drained", "remaining_events", len(remaining))
 
-	// Wait for all goroutines
-	wg.Wait()
+	// Wait for goroutines with timeout — don't hang forever
+	done := make(chan struct{})
+	go func() { wg.Wait(); close(done) }()
+	select {
+	case <-done:
+		// Clean shutdown
+	case <-time.After(5 * time.Second):
+		logger.Warn("shutdown timeout — forcing exit")
+	}
 
 	dispatched, dropped, batched := dispatcher.Stats()
 	logger.Info("meshd shutdown complete",
