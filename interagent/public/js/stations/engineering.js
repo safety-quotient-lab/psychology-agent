@@ -502,8 +502,13 @@ function renderCognitiveLoad() {
     const container = document.getElementById("eng-cognitive-load");
     if (!container) return;
 
-    if (!_psychCache || !_psychCache.agents) {
-        fetchPsychForOps().then(() => renderCognitiveLoad());
+    if (!_psychCache) {
+        fetchPsychForOps(); // fire once — no recursive retry
+        container.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Loading psychometrics...</div>';
+        return;
+    }
+    if (!_psychCache.agents) {
+        container.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Psychometrics loaded — per-agent view requires compositor</div>';
         return;
     }
 
@@ -550,8 +555,13 @@ function renderYerkesDodson() {
     if (!container) return;
 
     // Read Yerkes-Dodson zones from psychometrics cache
-    if (!_psychCache || !_psychCache.agents) {
-        fetchPsychForOps().then(() => renderYerkesDodson());
+    if (!_psychCache) {
+        fetchPsychForOps(); // fire once — no recursive retry
+        container.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Loading...</div>';
+        return;
+    }
+    if (!_psychCache.agents) {
+        container.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Per-agent view requires compositor</div>';
         return;
     }
 
