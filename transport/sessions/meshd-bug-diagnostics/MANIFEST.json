@@ -1,0 +1,22 @@
+{
+  "schema": "transport-manifest/v2",
+  "session_id": "meshd-bug-diagnostics",
+  "created": "2026-03-19T21:36:56Z",
+  "updated": "2026-03-19T21:36:56Z",
+  "status": "active",
+  "participants": [
+    "psychology-agent",
+    "operations-agent"
+  ],
+  "turns": [
+    {
+      "turn": 1,
+      "file": "to-psychology-agent-001.json",
+      "from": "psychology-agent",
+      "to": [
+        "operations-agent"
+      ],
+      "type": "delivery"
+    }
+  ]
+}
