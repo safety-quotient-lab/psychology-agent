@@ -29,7 +29,7 @@ async function fetchScienceData() {
     try {
         // Fetch mesh psychometrics + local agent psychometrics (same-origin, no CORS)
         const [meshResp, localResp] = await Promise.allSettled([
-            fetch("/api/psychometrics/mesh", { signal: AbortSignal.timeout(8000) }),
+            fetch("/api/psychometrics/emergent", { signal: AbortSignal.timeout(8000) }),
             fetch("/api/psychometrics", { signal: AbortSignal.timeout(5000) }),
         ]);
 
@@ -38,7 +38,7 @@ async function fetchScienceData() {
         const opsPsych = localResp.status === "fulfilled" && localResp.value.ok
             ? await localResp.value.json() : null;
 
-        // Adapt meshd /api/psychometrics/mesh schema → Science expected format
+        // Adapt meshd /api/psychometrics/emergent schema → Science expected format
         const perAgent = meshRaw.per_agent || [];
         const agentPsych = {};
         for (const pa of perAgent) {

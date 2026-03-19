@@ -24,12 +24,20 @@ func (s *Server) handlePsychometricsMesh(w http.ResponseWriter, r *http.Request)
 	client := &http.Client{Timeout: 4 * time.Second}
 
 	type agentPsych struct {
-		AgentID string  `json:"agent_id"`
-		PAD     meshPAD     `json:"emotional_state"`
-		Load    float64 `json:"cognitive_load"`
-		Reserve float64 `json:"cognitive_reserve"`
-		Flow    float64 `json:"flow_index"`
-		Online  bool    `json:"online"`
+		AgentID            string         `json:"agent_id"`
+		PAD                meshPAD        `json:"emotional_state"`
+		Load               float64        `json:"cognitive_load"`
+		Reserve            float64        `json:"cognitive_reserve"`
+		Flow               float64        `json:"flow_index"`
+		Online             bool           `json:"online"`
+		// Full psychometrics — forwarded from each agent's /api/psychometrics
+		Workload           map[string]any `json:"workload,omitempty"`
+		WorkingMemory      map[string]any `json:"working_memory,omitempty"`
+		ResourceModel      map[string]any `json:"resource_model,omitempty"`
+		Engagement         map[string]any `json:"engagement,omitempty"`
+		FlowDetail         map[string]any `json:"flow,omitempty"`
+		SupervisoryControl map[string]any `json:"supervisory_control,omitempty"`
+		AffectCategory     string         `json:"affect_category,omitempty"`
 	}
 
 	var agentStates []agentPsych
@@ -73,22 +81,34 @@ func (s *Server) handlePsychometricsMesh(w http.ResponseWriter, r *http.Request)
 			totalD += ap.PAD.Dominance
 		}
 
-		// Extract workload
+		// Extract workload (summary + full)
 		if wl, ok := data["workload"].(map[string]any); ok {
 			ap.Load = floatFromAny(wl["cognitive_load"])
 			totalLoad += ap.Load
+			ap.Workload = wl
 		}
 
-		// Extract resources
+		// Extract resources (summary + full)
 		if rm, ok := data["resource_model"].(map[string]any); ok {
 			ap.Reserve = floatFromAny(rm["cognitive_reserve"])
 			totalReserve += ap.Reserve
+			ap.ResourceModel = rm
 		}
 
-		// Extract flow
+		// Extract flow + detail
 		if fl, ok := data["flow"].(map[string]any); ok {
 			ap.Flow = floatFromAny(fl["flow_index"])
+			if ap.Flow == 0 { ap.Flow = floatFromAny(fl["score"]) }
 			totalFlow += ap.Flow
+			ap.FlowDetail = fl
+		}
+
+		// Forward remaining full psychometrics
+		if wm, ok := data["working_memory"].(map[string]any); ok { ap.WorkingMemory = wm }
+		if eng, ok := data["engagement"].(map[string]any); ok { ap.Engagement = eng }
+		if sc, ok := data["supervisory_control"].(map[string]any); ok { ap.SupervisoryControl = sc }
+		if es, ok := data["emotional_state"].(map[string]any); ok {
+			if cat, ok := es["affect_category"].(string); ok { ap.AffectCategory = cat }
 		}
 
 		agentStates = append(agentStates, ap)

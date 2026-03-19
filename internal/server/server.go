@@ -363,7 +363,8 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 
 	// Psychometrics (A2A-Psychology — Go fast path)
 	mux.HandleFunc("GET /api/psychometrics", s.handlePsychometrics)
-	mux.HandleFunc("GET /api/psychometrics/mesh", s.handlePsychometricsMesh)
+	mux.HandleFunc("GET /api/psychometrics/emergent", s.handlePsychometricsMesh)
+	mux.HandleFunc("GET /api/psychometrics/mesh", s.handlePsychometricsMesh) // legacy alias
 
 	// Spawn rate (claude -p consumption metrics)
 	mux.HandleFunc("GET /api/spawn-rate", s.handleSpawnRate)
