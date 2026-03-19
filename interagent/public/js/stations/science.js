@@ -27,22 +27,46 @@ async function fetchScienceData() {
     if (scienceFetchPending) return;
     scienceFetchPending = true;
     try {
-        // Fetch mesh psychometrics from local meshd (same origin — no CORS)
-        const resp = await fetch("/api/psychometrics/mesh", { signal: AbortSignal.timeout(8000) });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const meshPsych = await resp.json();
+        // Fetch psychometrics from each agent in parallel (same-origin via proxy or direct)
+        const agentPsych = {};
+        const fetches = AGENTS.map(async (a) => {
+            try {
+                const r = await fetch(`${a.url}/api/psychometrics`, { signal: AbortSignal.timeout(5000) });
+                if (r.ok) agentPsych[a.id] = await r.json();
+            } catch {}
+        });
+        await Promise.allSettled(fetches);
 
-        // Local agent psychometrics (same origin)
-        let opsPsych = null;
-        try {
-            const opsResp = await fetch("/api/psychometrics", { signal: AbortSignal.timeout(5000) });
-            if (opsResp.ok) opsPsych = await opsResp.json();
-        } catch {}
+        // Build mesh-level aggregates from individual agent data
+        const agentEntries = Object.entries(agentPsych);
+        const pVals = agentEntries.map(([,d]) => d.emotional_state?.hedonic_valence).filter(v => v != null);
+        const aVals = agentEntries.map(([,d]) => d.emotional_state?.activation).filter(v => v != null);
+        const reserves = agentEntries.map(([,d]) => d.resource_model?.cognitive_reserve).filter(v => v != null);
+        const mean = arr => arr.length ? arr.reduce((s,v) => s+v, 0) / arr.length : null;
+
+        const meshPsych = {
+            agents: agentPsych,
+            mesh: {
+                affect: {
+                    mesh_affect_category: agentEntries.length > 0 ? "mesh-" + (agentPsych[agentEntries[0][0]]?.emotional_state?.affect_category || "unknown") : "mesh-unknown",
+                    mean_hedonic_valence: mean(pVals),
+                    mean_activation: mean(aVals),
+                },
+                cognitive_reserve: {
+                    mean_reserve: mean(reserves),
+                    bottleneck_agent: reserves.length > 0 ? agentEntries.reduce((min, [id, d]) => {
+                        const r = d.resource_model?.cognitive_reserve ?? 1;
+                        return r < (min[1] ?? 1) ? [id, r] : min;
+                    }, ["", 1])[0] : null,
+                },
+            },
+        };
+
+        const opsPsych = agentPsych["operations-agent"] || null;
 
         // Build scienceData: pick the agent with the richest psychometrics as primary
-        // (psychology-agent typically has the most complete data)
-        const agentEntries = Object.entries(meshPsych.agents || {}).filter(([, d]) => d && !d.error);
-        const richest = agentEntries.sort(([, a], [, b]) => Object.keys(b).length - Object.keys(a).length)[0];
+        const allEntries = Object.entries(meshPsych.agents || {}).filter(([, d]) => d && !d.error);
+        const richest = allEntries.sort(([, a], [, b]) => Object.keys(b).length - Object.keys(a).length)[0];
         const primary = (richest ? richest[1] : null) || opsPsych || {};
         scienceData = {
             psychometrics: {
