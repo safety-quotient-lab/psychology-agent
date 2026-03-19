@@ -31,6 +31,19 @@ type GcConfig struct {
 // NewGcHandler builds a GcHandlerFunc that intercepts routine events.
 // Returns true (handled) for events that don't require deliberation.
 // Returns false for events that need Claude (Gf).
+// gcHandleableTypes lists message types that never require Claude reasoning.
+// Non-salient stimuli absorbed by Gc (reticular activating system analog).
+// Ref: psy-session T20 — salience classifier.
+var gcHandleableTypes = map[string]bool{
+	"session-close":        true,
+	"gate-resolution":      true,
+	"status-update":        true,
+	"capability-handshake": true,
+	"capability-response":  true,
+	"batch-ack":            true,
+	"command-response-ack": true,
+}
+
 func NewGcHandler(cfg GcConfig) GcHandlerFunc {
 	return func(ctx context.Context, evt Event) bool {
 		switch evt.Type {
@@ -40,6 +53,25 @@ func NewGcHandler(cfg GcConfig) GcHandlerFunc {
 			return true // health checks handled by meshd health monitor directly
 		case EventTransportACK:
 			return handleTransportACK(cfg, evt)
+		case EventTransportMessage:
+			// Fix 1: Selective attention (Broadbent 1958) — filter messages
+			// not addressed to this agent. 59% of inbound messages represent
+			// copies routed through repos but addressed elsewhere.
+			to := evt.Payload["to"]
+			if to != "" && to != cfg.AgentID && to != "all" && to != "all-agents" {
+				cfg.Logger.Debug("Gc: selective attention — message not for us",
+					"to", to, "agent", cfg.AgentID)
+				return true // filtered — no deliberation needed
+			}
+			// Fix 2: Salience classifier (RAS analog) — absorb non-salient
+			// message types that never require reasoning.
+			msgType := evt.Payload["msg_type"]
+			if gcHandleableTypes[msgType] {
+				cfg.Logger.Debug("Gc: non-salient message type absorbed",
+					"type", msgType, "from", evt.Payload["from"])
+				return true
+			}
+			return false // addressed to us + salient → needs Gf deliberation
 		default:
 			return false // requires Gf (Claude deliberation)
 		}
