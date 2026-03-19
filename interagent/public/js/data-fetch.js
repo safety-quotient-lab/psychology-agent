@@ -120,13 +120,19 @@ async function refreshAll() {
 }
 
 // renderAll — re-render all tabs from cached agentData (no fetch)
+// Debounced: multiple rapid WS events coalesce into one render pass
+let _renderPending = null;
 function renderAll() {
-    try { renderPulse(); } catch(e) {}
-    try { renderOperations(); } catch(e) {}
-    if (document.body.classList.contains("theme-lcars")) {
-        updateLcarsHeaderData();
-        evaluateAlertLevel();
-    }
+    if (_renderPending) return;
+    _renderPending = requestAnimationFrame(() => {
+        _renderPending = null;
+        try { renderPulse(); } catch(e) {}
+        try { renderOperations(); } catch(e) {}
+        if (document.body.classList.contains("theme-lcars")) {
+            updateLcarsHeaderData();
+            evaluateAlertLevel();
+        }
+    });
 }
 
 // ── Render: Vitals ─────────────────────────────────────────────
