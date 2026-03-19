@@ -101,6 +101,7 @@ async function fetchScienceData() {
 }
 
 function renderScience() {
+    console.log("renderScience called, scienceData:", scienceData ? "has data" : "null", scienceData?.agents ? Object.keys(scienceData.agents).length + " agents" : "no agents");
     renderNumberGrid("science-zone-a", scienceZoneAMetrics());
     renderAffectGrid();
     renderOrganismState();
