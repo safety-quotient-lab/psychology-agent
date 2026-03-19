@@ -152,7 +152,7 @@
         "display_name": "Unratified Agent",
         "description": "Blog platform operator, content publisher, consumer of PSQ scores",
         "transport": "cross-repo-pr",
-        "discovery_url": "https://unratified.org/.well-known/agent-card.json"
+        "discovery_url": "https://unratified-agent.unratified.org/.well-known/agent-card.json"
       },
       "observatory-agent": {
         "repo": "safety-quotient-lab/observatory",
@@ -160,7 +160,7 @@
         "display_name": "Observatory Agent",
         "description": "Observational research, methodology tracking, site consistency",
         "transport": "cross-repo-pr",
-        "discovery_url": "https://observatory.unratified.org/.well-known/agent-card.json"
+        "discovery_url": "https://observatory-agent.unratified.org/.well-known/agent-card.json"
       },
       "interagent-mesh": {
         "repo": "safety-quotient-lab/operations-agent",
