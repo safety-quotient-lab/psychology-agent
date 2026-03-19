@@ -407,16 +407,24 @@ function renderTempo() {
     }
 
     // Gc waveform — driven by actual Gc event rate + utilization
+    // Flatline when no Gc processing happening
     const gcWave = document.getElementById("tempo-gc-waveform");
     if (gcWave) {
-        // Gc event rate from agentData (events handled without deliberation)
         const opsData = agentData["operations-agent"]?.data || {};
         const gcHandled = opsData.gc_metrics?.gc_handled_total || 0;
-        const gcColor = rho != null ? (rho > 0.8 ? "#c47070" : rho > 0.5 ? "#d4944a" : "#6aab8e") : "#6aab8e";
-        _gcPhaseRate = rho != null ? Math.max(0.02, rho * 0.08) : Math.max(0.02, Math.min(0.1, gcHandled * 0.001));
-        const amp = rho != null ? Math.max(0.2, rho) : 0.4;
-        const freq = rho != null ? Math.max(2, rho * 6 + 2) : 4;
-        gcWave._opts = { width: gcWave.clientWidth || 200, height: 30, amplitude: amp, frequency: freq, stroke: gcColor };
+        const eventCount = opsData.event_count || 0;
+        const hasGcActivity = gcHandled > 0 || eventCount > 0 || (rho != null && rho > 0);
+
+        if (hasGcActivity) {
+            const gcColor = rho != null ? (rho > 0.8 ? "#c47070" : rho > 0.5 ? "#d4944a" : "#6aab8e") : "#6aab8e";
+            _gcPhaseRate = rho != null ? Math.max(0.02, rho * 0.08) : Math.max(0.02, Math.min(0.1, gcHandled * 0.001));
+            const amp = rho != null ? Math.max(0.2, rho) : 0.4;
+            const freq = rho != null ? Math.max(2, rho * 6 + 2) : 4;
+            gcWave._opts = { width: gcWave.clientWidth || 200, height: 30, amplitude: amp, frequency: freq, stroke: gcColor };
+        } else {
+            _gcPhaseRate = 0;
+            gcWave._opts = { width: gcWave.clientWidth || 200, height: 30, amplitude: 0, frequency: 1, stroke: "var(--text-dim)" };
+        }
     }
 
     renderTempoIntrospection(tierColor);
