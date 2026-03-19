@@ -471,7 +471,8 @@ function renderConcurrency() {
     if (!container) return;
 
     if (!_flowData) {
-        fetchFlowData().then(renderConcurrency);
+        fetchFlowData(); // fire once — no recursive retry
+        container.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Loading flow data...</div>';
         return;
     }
 

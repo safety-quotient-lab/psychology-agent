@@ -57,7 +57,7 @@ function renderOpsActivity() {
             el.innerHTML = `Coordination: <strong style="color:${color}">${co.ratio.toFixed(1)}x</strong> (${co.process_messages || 0} process / ${co.substance_messages || 0} substance)`;
         }
     } else if (el) {
-        fetchMeshAgg().then(renderOpsActivity);
+        fetchMeshAgg(); // fire once — no recursive retry
     }
     renderOpsActions();
 }
@@ -138,7 +138,7 @@ async function fetchMeshAgg() {
 
 function renderOpsAggIndicators() {
     if (!_meshAggData || Date.now() - _meshAggTs > 30000) {
-        fetchMeshAgg().then(renderOpsAggIndicators);
+        fetchMeshAgg(); // fire once — no recursive retry
         if (!_meshAggData) return;
     }
     const aff = _meshAggData.mesh_affect || {};
@@ -173,12 +173,13 @@ async function fetchPsychForOps() {
 function renderResourceModel() {
     const container = document.getElementById("ops-resource-model");
     if (!container) return;
-    if (!_psychCache || !_psychCache.agents) {
-        // Trigger fetch, re-render after
-        fetchPsychForOps().then(() => {
-            if (!_psychCache || !_psychCache.agents) return;
-            renderResourceModel();
-        });
+    if (!_psychCache) {
+        fetchPsychForOps(); // fire once — no recursive retry
+        container.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Loading...</div>';
+        return;
+    }
+    if (!_psychCache.agents) {
+        container.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Resource data available via compositor</div>';
         return;
     }
     const entries = Object.entries(_psychCache.agents).filter(([, d]) => d && !d.error && d.resource_model);
