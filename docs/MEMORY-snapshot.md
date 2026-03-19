@@ -2,22 +2,26 @@
 
 **Architecture:** index + topic files. MEMORY.md = always-loaded index (~50 lines).
 
-## Active Thread (2026-03-16)
+## Active Thread (2026-03-19)
 
-**Session 92.** 8 commits. A2A-Psychology validation: first validated construct
-(epistemic calibration ρ=0.479), anti-sycophancy passes composite metric (0.035),
-retrospective criterion validity tautological. Remediation: Agreeableness 0.35→0.65,
-T14 substitution patterns, confidence calibration (binary+isotonic+guide), 3 dead
-sensors wired (TLX/Flow/PAD restored). Naming reform: active_gates→pending_handoffs
-(38 files). Chromabook diagnostic (meshd runs, heartbeat stale). Reticular monitor
-design (3 neural subsystems) sent to ops. Prospective snapshot hook deployed.
+**Session 93.** Largest session in project history (~20 commits, 48+ files, ~6400 lines).
+Restart detector built → 80% context cliff empirically validated (37x spike, 6 sessions).
+Oscillatory heartbeat spec (5 EEG bands × 8 engineering theories). Volume transmission
+reclassification (biophotonic → VT, Agnati 1986). Cogarch audit: 14 issues (5 fixed,
+7 deferred theoretical). meshd infrastructure diagnostic: 17 bugs found, 7 fixed live.
+Psychometric coherence check (3 cross-model contradiction detectors). Vagal brake
+architecture (Austin 1998, controlled breathing as mesh governance primitive).
+LCARS dashboard design (6 stations, 60+ subpanels). Chromabook SSH operations:
+services enabled, TimeoutStopSec=300, deliberation_log bootstrapped. Transport
+session `context-degradation-threshold` closed (42 msgs, 7 topics → session drift).
+Mesh paused via circuit breaker pending Gc selective attention filter from ops.
 
 **Next session priority order:**
-1. Confidence score recalibration (prompt-level — apply calibration guide)
-2. agentdb Phase 6 Python cleanup (eligible 2026-03-19)
-3. Power-law test: longer collection (1 week) + Clauset comparison
-4. /cycle decoupling — modular sub-phases (dedicated session)
-5. Cross-agent RPG — /retrospect across peer transport
+1. Unpause mesh after ops deploys Gc selective attention filter
+2. Verify first deliberation fires end-to-end on core agents
+3. Confidence score recalibration (carried from Session 92)
+4. 7 deferred theoretical cogarch issues (Orch-OR, generators, etc.)
+5. Global CLAUDE.md migration (epistemic/engineering split for control agent)
 
 ## User Preferences
 
@@ -41,3 +45,7 @@ design (3 neural subsystems) sent to ops. Prospective snapshot hook deployed.
 - `feedback_naming_deliberation.md` — "deliberation cascade" not "spawn waterfall"
 - `project_a2a_psychology_validation.md` — first validated construct; anti-sycophancy passes composite
 - `user_chromabook.md` — autonomous agent host spelled Chromabook, not Chromebook
+- `feedback_meshd_no_split_brain.md` — psy-session and psychology-agent use separate clones, no conflict
+- `project_thoughtfulness_architecture.md` — DMN-analog third cogarch layer
+- `project_properly_restart_metric.md` — "let me do it properly" self-correction signal; baseline 130 across 54 sessions
+- `project_session93_synthesis.md` — timing hierarchy, volume transmission, LCARS, delivery guarantees, BFT, vagal brake
