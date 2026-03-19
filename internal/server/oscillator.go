@@ -52,6 +52,9 @@ type FireEvent struct {
 }
 
 // Oscillator implements the self-oscillation event loop (Phase 1: sleep mode).
+// Neural correlate: locus coeruleus (LC, Aston-Jones & Cohen 2005).
+// The LC modulates gain — high gain = fast/shallow (haiku), low gain = slow/deep (opus).
+// NOT thalamocortical (which handles relay, not gain modulation).
 type Oscillator struct {
 	mu               sync.RWMutex
 	agentID          string

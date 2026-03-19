@@ -1,15 +1,18 @@
 // ═══ RENDER: MEDICAL ════════════════════════════════════════
-let medSelectedAgent = "operations-agent";
+let medSelectedAgent = "mesh"; // default to mesh emergent view
 let medPsychData = {};
 
 function renderMedAgentSelector() {
     const sel = document.getElementById("medical-vitals-selector");
     if (!sel) return;
-    sel.innerHTML = AGENTS.map(function(a) {
+    // MESH button first — shows emergent collective properties
+    const meshActive = medSelectedAgent === "mesh";
+    let html = '<button class="lcars-pill-btn lcars-pill-sm" style="min-width:100px;min-height:48px;background:var(--lcars-frame);color:#000' + (meshActive ? ";filter:brightness(1.3)" : "") + '" onclick="selectMedAgent(\'mesh\')">MESH</button>';
+    html += AGENTS.map(function(a) {
         const active = a.id === medSelectedAgent;
-        // Canonical: rectangular blocks, brightness for state (§2.1)
         return '<button class="lcars-pill-btn lcars-pill-sm" style="min-width:100px;min-height:48px;background:' + a.color + ';color:#000' + (active ? ";filter:brightness(1.3)" : "") + '" onclick="selectMedAgent(\'' + a.id + '\')">' + agentName(a).toUpperCase() + '</button>';
     }).join("");
+    sel.innerHTML = html;
 }
 window.selectMedAgent = function(agentId) {
     medSelectedAgent = agentId;
@@ -28,66 +31,64 @@ async function fetchMedicalData() {
         tonicEl.style.display = tonic ? "block" : "none";
     }
 
+    // Fetch emergent endpoint — has full per-agent data + mesh collective
+    let emergentData = null;
+    try {
+        const resp = await fetch("/api/psychometrics/emergent", { signal: AbortSignal.timeout(8000) });
+        if (resp.ok) emergentData = await resp.json();
+    } catch {}
+
+    if (medSelectedAgent === "mesh") {
+        // MESH view — show collective emergent properties
+        renderMeshEmergent(emergentData);
+        return;
+    }
+
     const agent = AGENTS.find(function(a) { return a.id === medSelectedAgent; });
     if (!agent) return;
 
-    // Fetch mesh psychometrics (has per-agent data) + cognitive tempo (local only)
-    const [psychResp, tempoResp] = await Promise.allSettled([
-        fetch("/api/psychometrics/emergent", { signal: AbortSignal.timeout(3000) }),
-        fetch("/api/cognitive-tempo", { signal: AbortSignal.timeout(3000) }),
-    ]);
+    // Find this agent's full data from the emergent endpoint
+    const pa = emergentData ? (emergentData.per_agent || []).find(function(a) {
+        return a.agent_id === medSelectedAgent ||
+               a.agent_id.toLowerCase().includes(medSelectedAgent.split("-")[0]);
+    }) : null;
 
-    // Oscillator — only available for local agent (operations-agent)
-    if (medSelectedAgent === "operations-agent") {
-        const oscResp = await Promise.race([
-            fetch("/api/oscillator", { signal: AbortSignal.timeout(2000) }).then(function(r) { return { status: "fulfilled", value: r }; }),
-            new Promise(function(r) { setTimeout(function() { r({ status: "rejected" }); }, 2000); }),
-        ]);
-        if (oscResp.status === "fulfilled" && oscResp.value.ok) {
-            renderMedicalOscillator(await oscResp.value.json());
-        } else {
-            const el = document.getElementById("medical-oscillator-waveform");
-            if (el) el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Oscillator data unavailable</div>';
-        }
+    // Oscillator — from emergent per-agent data (all agents, not just local)
+    if (pa && pa.oscillator) {
+        renderMedicalOscillator(pa.oscillator);
     } else {
         const el = document.getElementById("medical-oscillator-waveform");
-        if (el) el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Oscillator: local agent only (' + agentName(agent) + ' selected)</div>';
+        if (el) el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">No oscillator data for ' + agentName(agent) + '</div>';
         ["medical-oscillator-signals", "medical-oscillator-history", "medical-oscillator-refractory"].forEach(function(id) {
             const e = document.getElementById(id);
-            if (e) e.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">\u2014</div>';
+            if (e) e.innerHTML = '';
         });
     }
 
-    // Cognitive tempo — local agent only
-    if (tempoResp.status === "fulfilled" && tempoResp.value.ok) {
-        renderMedicalTempo(await tempoResp.value.json());
+    // Cognitive tempo — from emergent per-agent data
+    if (pa && pa.cognitive_tempo) {
+        renderMedicalTempo(pa.cognitive_tempo);
+    } else {
+        const el = document.getElementById("medical-vitals-tempo");
+        if (el) el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">\u2014</div>';
     }
 
-    // Psychometrics — full per-agent data from emergent endpoint
+    // Psychometrics — full from emergent
     medPsychData = {};
-    if (psychResp.status === "fulfilled" && psychResp.value.ok) {
-        const emergent = await psychResp.value.json();
-        const pa = (emergent.per_agent || []).find(function(a) {
-            return a.agent_id === medSelectedAgent ||
-                   a.agent_id.toLowerCase().includes(medSelectedAgent.split("-")[0]);
-        });
-        if (pa) {
-            // Full psychometrics forwarded from each agent's /api/psychometrics
-            medPsychData = {
-                emotional_state: pa.emotional_state,
-                workload: pa.workload || { cognitive_load: pa.cognitive_load },
-                resource_model: pa.resource_model || { cognitive_reserve: pa.cognitive_reserve },
-                working_memory: pa.working_memory,
-                engagement: pa.engagement,
-                flow: pa.flow,
-                supervisory_control: pa.supervisory_control,
-                affect_category: pa.affect_category,
-                cognitive_load: pa.cognitive_load,
-                cognitive_reserve: pa.cognitive_reserve,
-            };
-        }
+    if (pa) {
+        medPsychData = {
+            emotional_state: pa.emotional_state,
+            workload: pa.workload || { cognitive_load: pa.cognitive_load },
+            resource_model: pa.resource_model || { cognitive_reserve: pa.cognitive_reserve },
+            working_memory: pa.working_memory,
+            engagement: pa.engagement,
+            flow: pa.flow,
+            supervisory_control: pa.supervisory_control,
+            affect_category: pa.affect_category,
+            cognitive_load: pa.cognitive_load,
+            cognitive_reserve: pa.cognitive_reserve,
+        };
     }
-    // Fallback: local agent has full psychometrics in agentData
     if (Object.keys(medPsychData).length === 0) {
         medPsychData = agentData[medSelectedAgent]?.data?.psychometrics || {};
     }
@@ -331,3 +332,90 @@ function renderMedPsychometrics(data) {
 }
 
 
+
+// ── Mesh Emergent View ─────────────────────────────────────────
+// Shows collective properties of the mesh as a psychological entity
+// (Woolley et al. 2010 — collective intelligence).
+function renderMeshEmergent(data) {
+    if (!data) return;
+
+    const ca = data.collective_affect || {};
+    const ci = data.collective_intelligence || {};
+    const coherence = data.mesh_coherence || {};
+    const narrative = data.narrative || "";
+
+    // Vitals matrix — mesh-level metrics
+    const el = document.getElementById("medical-vitals-matrix");
+    if (el) {
+        const metrics = [
+            { val: (ca.label || "\u2014").toUpperCase(), key: "AFFECT", color: "#9999ff" },
+            { val: typeof ca.pleasure === "number" ? ca.pleasure.toFixed(2) : "\u2014", key: "P", color: "#6aab8e" },
+            { val: typeof ca.arousal === "number" ? ca.arousal.toFixed(2) : "\u2014", key: "A", color: "#d4944a" },
+            { val: typeof ca.dominance === "number" ? ca.dominance.toFixed(2) : "\u2014", key: "D", color: "#cc99cc" },
+            { val: typeof ci.c_factor === "number" ? ci.c_factor.toFixed(2) : "\u2014", key: "c", color: "#ff9966" },
+            { val: typeof ci.avg_load === "number" ? ci.avg_load.toFixed(0) + "%" : "\u2014", key: "LOAD", color: "#9999ff" },
+            { val: typeof ci.avg_reserve === "number" ? ci.avg_reserve.toFixed(2) : "\u2014", key: "RESV", color: "#6aab8e" },
+            { val: typeof coherence.score === "number" ? coherence.score.toFixed(2) : "\u2014", key: "COH", color: "#66ccaa" },
+        ];
+        el.innerHTML = '<div class="lcars-alpha-matrix">' + metrics.map(function(m) {
+            return '<div class="lcars-alpha-cell" style="--cell-color:' + m.color + '"><span class="lcars-alpha-val">' + m.val + '</span><span class="lcars-alpha-key">' + m.key + '</span></div>';
+        }).join("") + '</div>';
+    }
+
+    // Oscillator panel — show narrative
+    const oscEl = document.getElementById("medical-oscillator-waveform");
+    if (oscEl) {
+        oscEl.innerHTML = '<div style="font-size:0.82em;padding:12px;color:var(--text-primary);line-height:1.6">' + narrative + '</div>';
+    }
+
+    // TLX — show average cognitive load across mesh
+    const clEl = document.getElementById("medical-vitals-tlx");
+    if (clEl && ci.avg_load != null) {
+        clEl.innerHTML = medBar("Avg Load", ci.avg_load, 100, "#9999ff")
+            + medBar("Avg Reserve", (ci.avg_reserve || 0) * 100, 100, "#6aab8e")
+            + medBar("Avg Flow", (ci.avg_flow || 0) * 100, 100, "#66ccaa");
+    }
+
+    // Working Memory — mesh average context pressure
+    const wmEl = document.getElementById("medical-vitals-memory");
+    if (wmEl) {
+        const avgLoad = ci.avg_load || 0;
+        const zone = avgLoad > 80 ? "OVERWHELMED" : avgLoad > 60 ? "PRESSURED" : avgLoad > 15 ? "OPTIMAL" : "UNDERSTIMULATED";
+        const zoneColor = zone === "OPTIMAL" ? "#6aab8e" : zone === "OVERWHELMED" ? "#c47070" : zone === "UNDERSTIMULATED" ? "#9999ff" : "#d4944a";
+        wmEl.innerHTML = medBar("Avg Load", avgLoad, 100, "#d4944a")
+            + '<div style="margin-top:6px;text-align:center;font-size:0.82em">Mesh Yerkes-Dodson: <strong style="color:' + zoneColor + '">' + zone + '</strong></div>';
+    }
+
+    // Coherence — 5-dimensional breakdown (own panel)
+    renderCoherenceDimensions(coherence);
+
+    // Resources — collective intelligence
+    const resEl = document.getElementById("medical-vitals-resources");
+    if (resEl) {
+        resEl.innerHTML = '<div style="text-align:center;font-size:0.82em"><div style="font-size:1.4em;font-weight:700;color:#ff9966">' + (ci.c_factor != null ? ci.c_factor.toFixed(2) : "\u2014") + '</div><div style="color:var(--text-dim)">c-factor (Woolley et al. 2010)</div></div>';
+    }
+
+    // Clear other panels
+    ["medical-oscillator-signals", "medical-oscillator-history", "medical-oscillator-refractory", "medical-vitals-tempo", "medical-burnout-dew", "medical-coherence"].forEach(function(id) {
+        var e = document.getElementById(id);
+        if (e) e.innerHTML = '';
+    });
+
+    var medFtr = document.getElementById("medical-footer-num");
+    if (medFtr) medFtr.textContent = "MESH EMERGENT";
+}
+
+// Update mesh emergent to show coherence dimensions
+function renderCoherenceDimensions(coherence) {
+    const wmEl = document.getElementById("medical-coherence");
+    if (!wmEl || !coherence) return;
+    const dims = coherence.dimensions || {};
+    const score = coherence.score || 0;
+    const desc = (coherence.description || "—").toUpperCase();
+    wmEl.innerHTML = '<div style="text-align:center;font-size:0.82em;margin-bottom:8px"><div style="font-size:1.4em;font-weight:700;color:#66ccaa">' + desc + '</div><div style="color:var(--text-dim)">' + score.toFixed(2) + ' composite</div></div>'
+        + medBar("Affective", (dims.affective || 0) * 100, 100, "#9999ff")
+        + medBar("Cognitive", (dims.cognitive || 0) * 100, 100, "#d4944a")
+        + medBar("Resource", (dims.resource || 0) * 100, 100, "#6aab8e")
+        + medBar("Operational", (dims.operational || 0) * 100, 100, "#cc99cc")
+        + medBar("Flow", (dims.flow || 0) * 100, 100, "#66ccaa");
+}

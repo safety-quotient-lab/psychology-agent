@@ -35,7 +35,7 @@ type GcConfig struct {
 // Returns true (handled) for events that don't require deliberation.
 // Returns false for events that need Claude (Gf).
 // gcHandleableTypes lists message types that never require Claude reasoning.
-// Non-salient stimuli absorbed by Gc (reticular activating system analog).
+// Non-salient stimuli absorbed by Gc (thalamic reticular nucleus (TRN) analog, Crick 1984).
 // Ref: psy-session T20 — salience classifier.
 var gcHandleableTypes = map[string]bool{
 	"session-close":        true,
@@ -66,7 +66,7 @@ func NewGcHandler(cfg GcConfig) GcHandlerFunc {
 					"to", to, "agent", cfg.AgentID)
 				return true // filtered — no deliberation needed
 			}
-			// Fix 2: Salience classifier (RAS analog) — absorb non-salient
+			// Fix 2: Salience classifier (TRN attentional gate) — absorb non-salient
 			// message types that never require reasoning.
 			msgType := evt.Payload["msg_type"]
 			if gcHandleableTypes[msgType] {
@@ -209,7 +209,7 @@ func GcStats(d *Dispatcher) int64 {
 	return batched
 }
 
-// ── Gc Reinforcement Learning (basal ganglia analog, Schultz 1997) ──────
+// ── Gc Reinforcement Learning (basal ganglia (habitual selection, Schultz 1997) + cerebellum (forward model, Wolpert 1998)) ──────
 // Tracks deliberation outcomes to learn which message types Gc can absorb.
 // Promotion: 5+ non-substantive deliberations (short, no output) → Gc handles.
 // Demotion: operator/health feedback → removed from Gc.

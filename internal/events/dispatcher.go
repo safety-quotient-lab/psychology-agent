@@ -1,6 +1,11 @@
 // Package events — Dispatcher routes individual events through budget gating
 // and triggers Claude deliberations. The main loop calls HandleEvent for each
 // event popped from the PriorityQueue.
+//
+// Neural correlate: Thalamic Reticular Nucleus (TRN, Crick 1984; Pinault 2004).
+// The TRN selectively gates which sensory signals reach cortex based on
+// attentional focus. The dispatcher gates which events reach the spawner
+// based on Gc classification + budget state.
 package events
 
 import (
