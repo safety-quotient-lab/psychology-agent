@@ -167,24 +167,79 @@ func (s *Server) handlePsychometricsMesh(w http.ResponseWriter, r *http.Request)
 		Dominance: totalD / n,
 	}
 
-	// Mesh coherence — how aligned are the agents? (low variance = high coherence)
+	// ── Multi-dimensional Coherence Model ─────────────────────────
+	// Five independent coherence dimensions, each 0-1.
+	// Uses actual operational data that varies, not just PAD.
+
+	// 1. Affective coherence — PAD variance (original)
 	var varP, varA, varD float64
 	for _, ap := range agentStates {
-		if !ap.Online {
-			continue
-		}
+		if !ap.Online { continue }
 		varP += (ap.PAD.Pleasure - meshAffect.Pleasure) * (ap.PAD.Pleasure - meshAffect.Pleasure)
 		varA += (ap.PAD.Arousal - meshAffect.Arousal) * (ap.PAD.Arousal - meshAffect.Arousal)
 		varD += (ap.PAD.Dominance - meshAffect.Dominance) * (ap.PAD.Dominance - meshAffect.Dominance)
 	}
-	coherence := 1.0 - math.Min(1.0, math.Sqrt((varP+varA+varD)/(3*n)))
+	affectiveCoherence := 1.0 - math.Min(1.0, math.Sqrt((varP+varA+varD)/(3*n)))
 
-	// Collective intelligence factor (Woolley et al., 2010)
-	// Higher when: coherence high, load balanced, flow states present
+	// 2. Cognitive coherence — how aligned are cognitive loads?
+	// Low variance in load = agents under similar pressure
 	avgLoad := totalLoad / n
+	var varLoad float64
+	for _, ap := range agentStates {
+		if !ap.Online { continue }
+		diff := ap.Load - avgLoad
+		varLoad += diff * diff
+	}
+	cognitiveCoherence := 1.0 - math.Min(1.0, math.Sqrt(varLoad/n)/50) // normalize by 50 (half max load)
+
+	// 3. Resource coherence — how balanced are reserves?
+	// Low variance = equitable resource distribution (Ostrom, collective action)
 	avgReserve := totalReserve / n
+	var varReserve float64
+	for _, ap := range agentStates {
+		if !ap.Online { continue }
+		diff := ap.Reserve - avgReserve
+		varReserve += diff * diff
+	}
+	resourceCoherence := 1.0 - math.Min(1.0, math.Sqrt(varReserve/n)*2) // amplify small differences
+
+	// 4. Operational coherence — what fraction of agents share the same health status?
+	// Homogeneous health = high coherence, mixed states = low
+	healthCounts := map[string]int{}
+	for _, ap := range agentStates {
+		if !ap.Online { continue }
+		h := "unknown"
+		if ap.AffectCategory != "" { h = ap.AffectCategory }
+		healthCounts[h]++
+	}
+	maxHealthCount := 0
+	for _, c := range healthCounts {
+		if c > maxHealthCount { maxHealthCount = c }
+	}
+	operationalCoherence := float64(maxHealthCount) / n // fraction in majority state
+
+	// 5. Flow coherence — do agents enter/exit flow together?
+	// High when all agents have similar flow scores
 	avgFlow := totalFlow / n
-	collectiveIQ := (coherence*0.3 + avgReserve*0.3 + avgFlow*0.2 + (1-avgLoad/100)*0.2)
+	var varFlow float64
+	for _, ap := range agentStates {
+		if !ap.Online { continue }
+		diff := ap.Flow - avgFlow
+		varFlow += diff * diff
+	}
+	flowCoherence := 1.0 - math.Min(1.0, math.Sqrt(varFlow/n)*2)
+
+	// Composite coherence — weighted blend of all dimensions
+	coherence := affectiveCoherence*0.15 +
+		cognitiveCoherence*0.25 +
+		resourceCoherence*0.25 +
+		operationalCoherence*0.20 +
+		flowCoherence*0.15
+
+	// ── Collective Intelligence Factor (Woolley et al., 2010) ──────
+	// c-factor correlates with: social sensitivity (coherence proxy),
+	// equal participation (resource balance), and collective performance (flow).
+	collectiveIQ := coherence*0.35 + avgReserve*0.25 + avgFlow*0.20 + (1-avgLoad/100)*0.20
 
 	// Mesh health narrative
 	affectLabel := padLabel(meshAffect.Pleasure, meshAffect.Arousal, meshAffect.Dominance)
@@ -206,6 +261,13 @@ func (s *Server) handlePsychometricsMesh(w http.ResponseWriter, r *http.Request)
 		"mesh_coherence": map[string]any{
 			"score":       round2(coherence),
 			"description": coherenceLabel(coherence),
+			"dimensions": map[string]any{
+				"affective":   round2(affectiveCoherence),
+				"cognitive":   round2(cognitiveCoherence),
+				"resource":    round2(resourceCoherence),
+				"operational": round2(operationalCoherence),
+				"flow":        round2(flowCoherence),
+			},
 		},
 
 		"collective_intelligence": map[string]any{

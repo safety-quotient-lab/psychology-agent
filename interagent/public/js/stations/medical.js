@@ -376,11 +376,8 @@ function renderMeshEmergent(data) {
             + medBar("Avg Flow", (ci.avg_flow || 0) * 100, 100, "#66ccaa");
     }
 
-    // Working Memory — coherence description
-    const wmEl = document.getElementById("medical-vitals-memory");
-    if (wmEl) {
-        wmEl.innerHTML = '<div style="text-align:center;font-size:0.82em"><div style="font-size:1.4em;font-weight:700;color:#66ccaa">' + (coherence.description || "\u2014").toUpperCase() + '</div><div style="color:var(--text-dim)">Mesh Coherence</div></div>';
-    }
+    // Coherence — 5-dimensional breakdown
+    renderCoherenceDimensions(coherence);
 
     // Resources — collective intelligence
     const resEl = document.getElementById("medical-vitals-resources");
@@ -396,4 +393,19 @@ function renderMeshEmergent(data) {
 
     var medFtr = document.getElementById("medical-footer-num");
     if (medFtr) medFtr.textContent = "MESH EMERGENT";
+}
+
+// Update mesh emergent to show coherence dimensions
+function renderCoherenceDimensions(coherence) {
+    const wmEl = document.getElementById("medical-vitals-memory");
+    if (!wmEl || !coherence) return;
+    const dims = coherence.dimensions || {};
+    const score = coherence.score || 0;
+    const desc = (coherence.description || "—").toUpperCase();
+    wmEl.innerHTML = '<div style="text-align:center;font-size:0.82em;margin-bottom:8px"><div style="font-size:1.4em;font-weight:700;color:#66ccaa">' + desc + '</div><div style="color:var(--text-dim)">' + score.toFixed(2) + ' composite</div></div>'
+        + medBar("Affective", (dims.affective || 0) * 100, 100, "#9999ff")
+        + medBar("Cognitive", (dims.cognitive || 0) * 100, 100, "#d4944a")
+        + medBar("Resource", (dims.resource || 0) * 100, 100, "#6aab8e")
+        + medBar("Operational", (dims.operational || 0) * 100, 100, "#cc99cc")
+        + medBar("Flow", (dims.flow || 0) * 100, 100, "#66ccaa");
 }
