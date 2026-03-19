@@ -90,6 +90,9 @@ async function refreshAll() {
     try { renderPulse(); } catch(e) { console.error("renderPulse failed:", e); }
     try { renderOperations(); } catch(e) { console.error("renderOperations failed:", e); }
 
+    // Refresh active station tab — fetch + render for whichever tab the user views
+    refreshActiveStation();
+
     // Fetch KB data (non-blocking — renders when ready)
     refreshKnowledge();
 
@@ -126,10 +129,26 @@ async function refreshAll() {
 function renderAll() {
     try { renderPulse(); } catch(e) {}
     try { renderOperations(); } catch(e) {}
+    refreshActiveStation();
     if (document.body.classList.contains("theme-lcars")) {
         updateLcarsHeaderData();
         evaluateAlertLevel();
     }
+}
+
+// refreshActiveStation — fetch + render data for the currently visible station tab.
+// Called on every poll cycle so Engineering/Science/Medical stay live.
+function refreshActiveStation() {
+    const activeTab = document.querySelector('.lcars-tab.active')?.dataset?.tab ||
+                      document.querySelector('.lcars-sidebar-btn.active')?.dataset?.tab;
+    if (!activeTab) return;
+    try {
+        if (activeTab === "engineering" && typeof fetchEngineeringData === "function") fetchEngineeringData();
+        else if (activeTab === "science" && typeof fetchScienceData === "function") fetchScienceData();
+        else if (activeTab === "medical" && typeof fetchMedicalData === "function") fetchMedicalData();
+        else if (activeTab === "helm" && typeof fetchHelmData === "function") fetchHelmData();
+        else if (activeTab === "tactical" && typeof fetchTacticalData === "function") fetchTacticalData();
+    } catch(e) { console.error("refreshActiveStation failed:", e); }
 }
 
 // ── Render: Vitals ─────────────────────────────────────────────
