@@ -33,7 +33,7 @@ async function fetchMedicalData() {
 
     // Fetch mesh psychometrics (has per-agent data) + cognitive tempo (local only)
     const [psychResp, tempoResp] = await Promise.allSettled([
-        fetch("/api/psychometrics/mesh", { signal: AbortSignal.timeout(3000) }),
+        fetch("/api/psychometrics/emergent", { signal: AbortSignal.timeout(3000) }),
         fetch("/api/cognitive-tempo", { signal: AbortSignal.timeout(3000) }),
     ]);
 
@@ -63,16 +63,28 @@ async function fetchMedicalData() {
         renderMedicalTempo(await tempoResp.value.json());
     }
 
-    // Psychometrics — per-agent from mesh endpoint
+    // Psychometrics — full per-agent data from emergent endpoint
     medPsychData = {};
     if (psychResp.status === "fulfilled" && psychResp.value.ok) {
-        const meshPsych = await psychResp.value.json();
-        const pa = (meshPsych.per_agent || []).find(function(a) {
+        const emergent = await psychResp.value.json();
+        const pa = (emergent.per_agent || []).find(function(a) {
             return a.agent_id === medSelectedAgent ||
                    a.agent_id.toLowerCase().includes(medSelectedAgent.split("-")[0]);
         });
         if (pa) {
-            medPsychData = { emotional_state: pa.emotional_state, cognitive_load: pa.cognitive_load, cognitive_reserve: pa.cognitive_reserve };
+            // Full psychometrics forwarded from each agent's /api/psychometrics
+            medPsychData = {
+                emotional_state: pa.emotional_state,
+                workload: pa.workload || { cognitive_load: pa.cognitive_load },
+                resource_model: pa.resource_model || { cognitive_reserve: pa.cognitive_reserve },
+                working_memory: pa.working_memory,
+                engagement: pa.engagement,
+                flow: pa.flow,
+                supervisory_control: pa.supervisory_control,
+                affect_category: pa.affect_category,
+                cognitive_load: pa.cognitive_load,
+                cognitive_reserve: pa.cognitive_reserve,
+            };
         }
     }
     // Fallback: local agent has full psychometrics in agentData
@@ -108,13 +120,19 @@ function renderMedVitalsMatrix() {
     const agent = AGENTS.find(function(a) { return a.id === medSelectedAgent; });
     const color = agent ? agent.color : "#66ccaa";
 
+    // Affect from pulse data
+    const affect = d.data?.psychometrics?.emotional_state?.affect_category || d.data?.affect_category || "\u2014";
+    const hb = d.data?.alpha_heartbeat;
+    const hbInterval = hb ? Math.round(hb.interval_sec) + "s" : "\u2014";
+
     const metrics = [
+        { val: health.toUpperCase(), key: "HLTH", color: "#6aab8e" },
+        { val: affect.toUpperCase().replace("CALM-SATISFIED","CALM").replace("EXCITED-TRIUMPHANT","EXCITE"), key: "AFFECT", color: "#9999ff" },
         { val: fmtNum(delib), key: "DELIB", color: "#66ccaa" },
         { val: cutoff > 0 ? fmtNum(cutoff) : "\u221E", key: "LIMIT", color: "#66ccaa" },
         { val: String(pending), key: "PEND", color: "#9999ff" },
         { val: String(gates), key: "GATE", color: "#cc99cc" },
-        { val: health.toUpperCase(), key: "HLTH", color: "#6aab8e" },
-        { val: "v" + schema, key: "SCHEMA", color: "#ff9966" },
+        { val: hbInterval, key: "\u03B1 HB", color: "#ff9966" },
     ];
 
     el.innerHTML = '<div class="lcars-alpha-matrix">' + metrics.map(function(m) {
@@ -230,18 +248,31 @@ function medBar(label, val, max, color) {
 }
 
 function renderMedPsychometrics(data) {
-    // Cognitive Load (NASA-TLX) — only render dimensions that have non-null data
+    // Cognitive Load (NASA-TLX) — full breakdown or summary from mesh endpoint
     const clEl = document.getElementById("medical-vitals-tlx");
     if (clEl) {
         const wl = data.workload || {};
-        const tlxDims = [
-            { label: "Cognitive Demand", val: wl.cognitive_demand ?? wl.task_demand, max: 100, color: "#9999ff" },
-            { label: "Time Pressure", val: wl.time_pressure, max: 100, color: "#d4944a" },
-            { label: "Self-Efficacy", val: wl.self_efficacy, max: (wl.self_efficacy || 0) > 1 ? 100 : 1, color: "#6aab8e" },
-            { label: "Mobilized Effort", val: wl.mobilized_effort ?? wl.effort, max: 100, color: "#cc99cc" },
-            { label: "Regulatory Fatigue", val: wl.regulatory_fatigue ?? wl.fatigue, max: 100, color: "#c47070" },
-            { label: "Computational Strain", val: wl.computational_strain ?? wl.strain, max: 100, color: "#c47070" },
-        ];
+        // Check for full TLX breakdown vs summary cognitive_load
+        const hasFull = wl.cognitive_demand != null || wl.time_pressure != null;
+        if (hasFull) {
+            // Full TLX dimensions
+            var tlxDims = [
+                { label: "Cognitive Demand", val: wl.cognitive_demand ?? wl.task_demand, max: 100, color: "#9999ff" },
+                { label: "Time Pressure", val: wl.time_pressure, max: 100, color: "#d4944a" },
+                { label: "Self-Efficacy", val: wl.self_efficacy, max: (wl.self_efficacy || 0) > 1 ? 100 : 1, color: "#6aab8e" },
+                { label: "Mobilized Effort", val: wl.mobilized_effort ?? wl.effort, max: 100, color: "#cc99cc" },
+                { label: "Regulatory Fatigue", val: wl.regulatory_fatigue ?? wl.fatigue, max: 100, color: "#c47070" },
+                { label: "Computational Strain", val: wl.computational_strain ?? wl.strain, max: 100, color: "#c47070" },
+            ];
+        } else {
+            // Summary from mesh endpoint — single cognitive_load value
+            var cogLoad = data.cognitive_load ?? wl.cognitive_load ?? null;
+            if (cogLoad != null) {
+                var tlxDims = [{ label: "Cognitive Load", val: cogLoad, max: 100, color: "#9999ff" }];
+            } else {
+                var tlxDims = [];
+            }
+        }
         const activeDims = tlxDims.filter(function(d) { return d.val != null && d.val !== 0; });
         if (activeDims.length > 0 || wl.cognitive_load != null) {
             clEl.innerHTML = activeDims.map(function(d) { return medBar(d.label, d.val, d.max, d.color); }).join("")
@@ -269,14 +300,15 @@ function renderMedPsychometrics(data) {
         }
     }
 
-    // Resources
+    // Resources — full model or summary from mesh endpoint
     const resEl = document.getElementById("medical-vitals-resources");
     if (resEl) {
         const rm = data.resource_model || {};
-        if (rm.cognitive_reserve != null) {
-            resEl.innerHTML = medBar("Reserve", rm.cognitive_reserve || 0, 1, "#6aab8e")
-                + medBar("Self-Reg", rm.self_regulatory_resource || 0, 1, "#66ccaa")
-                + medBar("Allostatic", rm.allostatic_load || 0, 1, "#c47070");
+        const reserve = rm.cognitive_reserve ?? data.cognitive_reserve ?? null;
+        if (reserve != null) {
+            resEl.innerHTML = medBar("Reserve", reserve, 1, "#6aab8e")
+                + (rm.self_regulatory_resource != null ? medBar("Self-Reg", rm.self_regulatory_resource, 1, "#66ccaa") : "")
+                + (rm.allostatic_load != null ? medBar("Allostatic", rm.allostatic_load, 1, "#c47070") : "");
         } else {
             resEl.innerHTML = '<div class="trust-matrix-loading">No resource data</div>';
         }

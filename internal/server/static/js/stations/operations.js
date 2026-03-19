@@ -287,8 +287,10 @@ function renderOpsBudget() {
         // Operation type — from oscillator dominant_band or heuristic
         const osc = d?.data?.oscillator || {};
         const band = osc.dominant_band || "";
-        let opType = "IDLE";
-        let opIcon = "\u23F8"; // pause
+        // Sleep/awake state from budget data
+        const sleepMode = d.data?.autonomy_budget?.sleep_mode;
+        let opType = sleepMode ? "SLEEP" : "AWAKE";
+        let opIcon = "";
         // Check recency — only show DELIB if deliberated within last 5 minutes
         const recentDelibs = d.data?.recent_deliberations || [];
         const latestTs = recentDelibs[0]?.started_at || "";
@@ -397,7 +399,7 @@ function renderMobilePills() {
             const recentDelibs = d.data?.recent_deliberations || [];
             const latestTs = recentDelibs[0]?.started_at || "";
             const delibRecent = latestTs && (Date.now() - new Date(latestTs.replace(" ", "T") + "Z").getTime()) < 300000;
-            let opLabel = "IDLE", opIcon = "\u23F8";
+            let opLabel = "AWAKE", opIcon = "\u23F8";
             if (band.startsWith("beta") || band.startsWith("gamma") || (online && delibRecent)) { opLabel = "DELIB"; opIcon = "\u26A1"; }
             else if (band.startsWith("theta")) { opLabel = "CONSOL"; opIcon = "\u{1F4E6}"; }
             else if (band.startsWith("delta")) { opLabel = "CLEAR"; opIcon = "\u{1F9F9}"; }

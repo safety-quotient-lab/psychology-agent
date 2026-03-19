@@ -14,6 +14,7 @@ import (
 	"io"
 	"math"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -38,6 +39,10 @@ func (s *Server) handlePsychometricsMesh(w http.ResponseWriter, r *http.Request)
 		FlowDetail         map[string]any `json:"flow,omitempty"`
 		SupervisoryControl map[string]any `json:"supervisory_control,omitempty"`
 		AffectCategory     string         `json:"affect_category,omitempty"`
+		// Oscillator + tempo — forwarded from each agent's /api/oscillator + /api/cognitive-tempo
+		Oscillator         map[string]any `json:"oscillator,omitempty"`
+		CognitiveTempo     map[string]any `json:"cognitive_tempo,omitempty"`
+		AlphaHeartbeat     map[string]any `json:"alpha_heartbeat,omitempty"`
 	}
 
 	var agentStates []agentPsych
@@ -109,6 +114,44 @@ func (s *Server) handlePsychometricsMesh(w http.ResponseWriter, r *http.Request)
 		if sc, ok := data["supervisory_control"].(map[string]any); ok { ap.SupervisoryControl = sc }
 		if es, ok := data["emotional_state"].(map[string]any); ok {
 			if cat, ok := es["affect_category"].(string); ok { ap.AffectCategory = cat }
+		}
+
+		// Fetch oscillator + cognitive-tempo from same agent base URL
+		baseURL := ""
+		if idx := strings.Index(agent.StatusURL, "/api/"); idx > 0 {
+			baseURL = agent.StatusURL[:idx]
+		}
+		if baseURL != "" {
+			if oscResp, err := client.Get(baseURL + "/api/oscillator"); err == nil {
+				defer oscResp.Body.Close()
+				if oscResp.StatusCode == 200 {
+					var oscData map[string]any
+					if oscBody, _ := io.ReadAll(oscResp.Body); json.Unmarshal(oscBody, &oscData) == nil {
+						ap.Oscillator = oscData
+					}
+				}
+			}
+			if tempoResp, err := client.Get(baseURL + "/api/cognitive-tempo"); err == nil {
+				defer tempoResp.Body.Close()
+				if tempoResp.StatusCode == 200 {
+					var tempoData map[string]any
+					if tempoBody, _ := io.ReadAll(tempoResp.Body); json.Unmarshal(tempoBody, &tempoData) == nil {
+						ap.CognitiveTempo = tempoData
+					}
+				}
+			}
+			// Alpha heartbeat from status response
+			if statusResp, err := client.Get(agent.StatusURL); err == nil {
+				defer statusResp.Body.Close()
+				if statusResp.StatusCode == 200 {
+					var statusData map[string]any
+					if sBody, _ := io.ReadAll(statusResp.Body); json.Unmarshal(sBody, &statusData) == nil {
+						if hb, ok := statusData["alpha_heartbeat"].(map[string]any); ok {
+							ap.AlphaHeartbeat = hb
+						}
+					}
+				}
+			}
 		}
 
 		agentStates = append(agentStates, ap)
