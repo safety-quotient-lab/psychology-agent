@@ -1,41 +1,35 @@
 // ═══ RENDER: KNOWLEDGE ══════════════════════════════════════
-async function fetchAgentKB(agent) {
+// Same-origin KB fetch — local meshd serves aggregated KB data
+async function fetchLocalKB() {
     try {
-        const resp = await fetch(`${agent.url}/api/kb`, { signal: AbortSignal.timeout(10000) });
+        const resp = await fetch("/api/kb", { signal: AbortSignal.timeout(10000) });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        return { id: agent.id, status: "ok", data: await resp.json() };
+        return { status: "ok", data: await resp.json() };
     } catch (err) {
-        return { id: agent.id, status: "error", error: err.message };
+        return { status: "error", error: err.message };
     }
 }
 
-// Dictionary fetched via /api/kb (which includes dictionary data).
-// Previously polled /kb/dictionary which returned 404 on meshd (BUG-4).
-const _dictFailedAgents = new Set(); // Stop retrying agents that lack dictionary
-async function fetchAgentDict(agent) {
-    if (_dictFailedAgents.has(agent.id)) return { id: agent.id, status: "error", error: "cached 404" };
+async function fetchLocalDict() {
     try {
-        const resp = await fetch(`${agent.url}/api/kb?section=dictionary`, { signal: AbortSignal.timeout(10000) });
-        if (resp.status === 404) { _dictFailedAgents.add(agent.id); throw new Error("404"); }
+        const resp = await fetch("/api/kb?section=dictionary", { signal: AbortSignal.timeout(10000) });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        return { id: agent.id, status: "ok", data: await resp.json() };
+        return { status: "ok", data: await resp.json() };
     } catch (err) {
-        return { id: agent.id, status: "error", error: err.message };
+        return { status: "error", error: err.message };
     }
 }
 
 async function refreshKnowledge() {
-    const [kbResults, dictResults] = await Promise.all([
-        Promise.allSettled(AGENTS.map(fetchAgentKB)),
-        Promise.allSettled(AGENTS.map(fetchAgentDict)),
-    ]);
+    const [kbResult, dictResult] = await Promise.allSettled([fetchLocalKB(), fetchLocalDict()]);
 
-    kbResults.forEach((r, i) => {
-        kbData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "error" };
-    });
-    dictResults.forEach((r, i) => {
-        dictData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "error" };
-    });
+    // Share local KB result across all agents
+    const kbVal = kbResult.status === "fulfilled" ? kbResult.value : { status: "error" };
+    const dictVal = dictResult.status === "fulfilled" ? dictResult.value : { status: "error" };
+    for (const agent of AGENTS) {
+        kbData[agent.id] = { id: agent.id, ...kbVal };
+        dictData[agent.id] = { id: agent.id, ...dictVal };
+    }
 
     buildAcronymMap();
     renderKnowledge();
