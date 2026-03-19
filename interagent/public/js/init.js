@@ -19,24 +19,22 @@ window.runDiagnostic = runDiagnostic;
 window.switchOpsSubsystem = switchOpsSubsystem;
 
 // ── Init ───────────────────────────────────────────────────────
-(async function init() {
-    // Restore theme first (setTheme may switch to default bridge station)
+(function init() {
+    // Restore theme
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme && savedTheme !== "dark") setTheme(savedTheme);
 
-    // Restore tab from URL hash — AFTER theme, so it overrides any default
+    // Restore tab from URL hash
     const hashTab = location.hash.replace("#", "");
     if (hashTab && VALID_TABS.includes(hashTab)) switchTab(hashTab, false);
 
-    buildAgentSwitcher();
-    refreshAll(); // non-blocking — don't await, let UI remain interactive
-
-    // Check auth for control surfaces (non-blocking)
-    checkAuth();
-
-    // Fetch agent cards for structural schema (non-blocking)
-    fetchAgentCards();
-
-    // Poll only — WS disabled temporarily to diagnose freeze
-    refreshTimer = setInterval(refreshAll, 60000); // 60s conservative poll
+    // Delay all fetches 2s — let page render first
+    setTimeout(function() {
+        buildAgentSwitcher();
+        refreshAll();
+        checkAuth();
+        fetchAgentCards();
+        // Single conservative poll
+        refreshTimer = setInterval(refreshAll, 60000);
+    }, 2000);
 })();
