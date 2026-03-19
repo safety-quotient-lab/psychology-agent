@@ -59,19 +59,24 @@ async function refreshAll() {
     }
 
     // Populate from pulse (covers all agents with core metrics)
+    // Pulse may return display names instead of canonical IDs — map to AGENTS
     if (pulse?.agents) {
         for (const pa of pulse.agents) {
-            const existing = agentData[pa.id]?.data || {};
-            agentData[pa.id] = {
-                id: pa.id,
+            // Match by exact ID first, then by substring match
+            const match = AGENTS.find(a => a.id === pa.id) ||
+                          AGENTS.find(a => pa.id.toLowerCase().includes(a.id.split("-")[0]));
+            const aid = match ? match.id : pa.id;
+            const existing = agentData[aid]?.data || {};
+            agentData[aid] = {
+                id: aid,
                 status: pa.status === "online" ? "online" : "unreachable",
-                data: { ...existing, agent_id: pa.id, health: pa.health || "unknown",
+                data: { ...existing, agent_id: aid, health: pa.health || "unknown",
                     version: pa.version || "", mesh_mode: pulse.mesh_mode || "active",
                     autonomy_budget: { budget_spent: pa.budget_spent || 0, budget_cutoff: pa.budget_cutoff || 0 },
                     unprocessed_messages: pa.unprocessed_messages || [] },
             };
-            if (pa.status === "online") _failedAgents.delete(pa.id);
-            else _failedAgents.add(pa.id);
+            if (pa.status === "online") _failedAgents.delete(aid);
+            else _failedAgents.add(aid);
         }
     }
 
