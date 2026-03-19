@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 13 complete — 40+ commits, 40+ deploys. Full psy-session adherence: Gc selective attention + salience classifier (T20), spawn throttle display (T19), TimeoutStopSec=300s preserved (T21), architecture synthesis incorporated. Station naming convention applied to Operations, Science, Medical ({station}-{panel}-{subpanel}). Engineering: timing hierarchy (5-layer), dual tempo (Gf/Gc with data-driven waveforms), panel reorder. CORS eliminated. Science pane nesting fixed. SIGTERM graceful shutdown. All 8 agents online with health + mood. Deliberation vocabulary throughout. Next: remaining Engineering panels, Helm/Tactical LCARS treatment, LCARS for agents vs mesh distinction.
+**Current Status:** Session 13 complete — 60+ commits, 50+ deploys. Full psy-session adherence (T18-T23 + T4). Gc selective attention + salience classifier + reinforcement learning (gc_learning table, promotion/demotion). Alpha heartbeat goroutine (T22 metabolic cooling model — lock-free atomics). shadow_mode → sleep_mode rename. Tonic inhibition detection + Medical LCARS indicator. A2A-Psychology v0.0.2 spec. Station naming convention on Ops/Science/Medical/Engineering. Engineering: timing hierarchy (5-layer live), dual Gf/Gc tempo with data-driven waveforms. CORS eliminated. SIGTERM graceful. All 8 agents online with health + mood + heartbeat. Mesh awake (sleep mode off, unpaused). Next: LCARS panels for heartbeat/Gc learning data, Medical agent selector refinement, Helm/Tactical treatment, UTC audit.
 
 ---
 
