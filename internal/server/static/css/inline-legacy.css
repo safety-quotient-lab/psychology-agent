@@ -423,17 +423,18 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* Alert: connectors follow structural chrome */
 /* Alert connector colors handled in alert section below */
 
-/* Sidebar navigation buttons — canonical: chunky blocks, right-aligned text,
-   left-rounded capsule end, generous vertical gap (§3.1, Tuvok) */
+/* Sidebar navigation buttons — canonical: flat rectangular blocks that
+   blend into the frame structure. Text bottom-right. NO rounding — these
+   are frame elements, not standalone capsules. (Tuvok reference) */
 .lcars-sidebar-btn {
     display: flex;
     align-items: flex-end; /* bottom-aligned text — canonical (Tuvok) */
     justify-content: flex-end; /* right-aligned text — canonical */
     width: 100%;
     border: none;
-    border-radius: 50vh 0 0 50vh;
-    padding: 16px 12px 6px 20px;
-    min-height: 72px; /* 56 × φ ≈ 90, but 72 keeps sidebar manageable */
+    border-radius: 0; /* flat rectangles — structural frame blocks */
+    padding: 16px 12px 6px 12px;
+    min-height: 72px;
     flex-shrink: 0;
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.85em;
@@ -444,14 +445,12 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     background: var(--lcars-atomic-tangerine); /* all nav buttons same color — canon */
     color: #000;
     cursor: pointer;
-    margin-bottom: var(--gap-l, 13px); /* generous gap — canonical black void */
+    margin-bottom: var(--gap-xs); /* match header band segment gap */
     transition: filter 0.15s, padding-left 0.15s;
 }
 .lcars-sidebar-btn:hover { filter: brightness(1.15); }
 .lcars-sidebar-btn.active {
-    background: var(--lcars-orange-peel) !important; /* active = slightly lighter/warmer shade */
-    color: #000;
-    filter: brightness(1.15);
+    filter: brightness(1.3); /* brightness = state, not color change (§2.1) */
 }
 /* TODO: Active button connector — needs proper elbow geometry linking
    the active sidebar button to the content panel. Current approach (nub)
@@ -462,7 +461,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .lcars-sidebar-spacer {
     min-height: 28px;
     flex-shrink: 0;
-    margin-bottom: var(--gap-m);
+    margin-bottom: var(--gap-xs); /* match button gap */
 }
 /* Spacers use frame gradient (set in .theme-lcars block above) */
 
@@ -496,7 +495,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     display: flex;
     grid-column: 2 / -1;
     grid-row: 1;
-    gap: 3px;
+    gap: var(--gap-xs);
     align-items: stretch;
     min-height: var(--band-size);
     position: relative;
@@ -624,8 +623,17 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     background: var(--panel-accent, var(--c-transport));
     color: #000;
     border-bottom: none;
-    border-radius: 0 12px 0 0;
+    border-radius: 0 var(--gap-m) 0 0;
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+/* Panel section ID — right-aligned number in header bar (Ohniaka pattern) */
+.lcars-panel-id {
+    font-size: 0.85em;
+    opacity: 0.7;
+    letter-spacing: 0.04em;
 }
 
 /* ── Three-Zone Panel Layout (§1.2) ───────────────────────── */
@@ -642,11 +650,9 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     display: flex;
     flex-wrap: wrap;
     gap: 0 1.2em;
-    border-bottom: 2px solid var(--panel-accent, var(--lcars-frame));
 }
 .theme-lcars .lcars-zone-a {
     background: #000;
-    border-bottom-color: var(--panel-accent, var(--lcars-frame));
 }
 /* Number grid — labeled key-value pairs, color by data type (§2.3) */
 .lcars-zone-a .zn-pair {
@@ -897,7 +903,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     background: var(--panel-accent, var(--c-transport));
     color: #000;
     padding: 4px 16px;
-    border-radius: 0 0 12px 0;
+    border-radius: 0 0 var(--gap-m) 0;
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.68em;
     font-weight: 700;
@@ -980,30 +986,30 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 }
 .theme-lcars .lcars-mode-btns {
     display: inline-flex;
-    gap: 6px;
-    margin-left: 12px;
+    gap: var(--gap-s);
+    margin-left: var(--gap-l);
 }
 .lcars-mode-btn {
     background: var(--panel-accent, var(--c-transport));
     color: #000;
     border: none;
-    border-radius: 50vh;
+    border-radius: var(--gap-xs);
     padding: 10px 14px 4px;
-    min-height: 44px; /* 28 × φ */
+    min-height: 44px;
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.7em;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     cursor: pointer;
-    opacity: 0.5;
-    transition: opacity 0.15s;
+    transition: filter 0.15s;
     display: inline-flex;
     align-items: flex-end;
     justify-content: center;
 }
-.lcars-mode-btn:hover { opacity: 0.75; }
-.lcars-mode-btn.active { opacity: 1; }
+.lcars-mode-btn { flex: 0 0 auto; min-width: 72px; min-height: 44px; }
+.lcars-mode-btn:hover { filter: brightness(1.15); }
+.lcars-mode-btn.active { filter: brightness(1.3); }
 
 /* ── Pill Buttons (command console controls) ─────────── */
 /* Canonical LCARS capsules: chunky, generous padding, asymmetric rounding
@@ -1039,8 +1045,8 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .lcars-pill-sm { padding: 10px 14px 4px; font-size: 0.68em; min-height: 44px; /* 28 × φ */ }
 .lcars-pill-active { box-shadow: 0 0 8px currentColor; opacity: 1; }
 .lcars-pill-sm.lcars-pill-active { background: var(--c-warning, #d4944a); }
-/* LCARS-specific pill overrides — TNG saturated palette */
-.theme-lcars .lcars-pill-btn { color: #000; }
+/* LCARS-specific pill overrides — rectangular blocks, TNG saturated palette */
+.theme-lcars .lcars-pill-btn { color: #000; border-radius: var(--gap-xs); }
 .theme-lcars .lcars-pill-red { background: var(--lcars-alert); }
 .theme-lcars .lcars-pill-green { background: #6aab8e; }
 .theme-lcars .lcars-pill-orange { background: #ff9944; }
@@ -1056,9 +1062,9 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     justify-content: center;
     width: 100%;
     padding: 14px 18px 5px;
-    border-radius: 50vh;
+    border-radius: var(--gap-xs);
     font-size: 0.72em;
-    min-height: 58px; /* 36 × φ */
+    min-height: 58px;
 }
 .ops-ctrl-active {
     filter: brightness(1.3);
@@ -1214,44 +1220,43 @@ body[data-affect-mode="triage"] {
     flex-wrap: wrap;
     gap: var(--gap-s, 5px);
     padding: var(--gap-s) 0;
+    justify-content: center;
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-size: 0.72em;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
+/* Leader cap: structural terminator only — never contains data (§ canonical) */
 .lcars-capsule-bar .cb-leader {
     background: var(--lcars-frame);
-    color: #000;
-    padding: 10px var(--gap-l) 4px var(--gap-m);
     border-radius: 50vh 0 0 50vh;
-    white-space: nowrap;
-    min-height: 44px; /* 28 × φ */
-    display: flex;
-    align-items: flex-end;
+    min-height: 44px;
+    min-width: var(--gap-xl);
+    flex: 0 0 auto;
 }
 .lcars-capsule-bar .cb-cell {
     background: var(--lcars-secondary);
     color: #000;
     padding: 10px var(--gap-m) 4px;
     white-space: nowrap;
-    min-width: 48px;
-    min-height: 44px; /* 28 × φ */
+    min-width: 80px;
+    min-height: 44px;
     display: flex;
     align-items: flex-end;
-    justify-content: flex-end;
+    justify-content: center;
+    flex: 0 0 auto;
+    border-radius: var(--gap-xs);
 }
 .lcars-capsule-bar .cb-cell-t2 { background: var(--lcars-tertiary); }
 .lcars-capsule-bar .cb-cell-t3 { background: var(--lcars-title); }
+/* Endcap: structural terminator only — never contains data (§ canonical) */
 .lcars-capsule-bar .cb-end {
     background: var(--lcars-secondary);
-    color: #000;
-    padding: 10px var(--gap-m) 4px var(--gap-l);
     border-radius: 0 50vh 50vh 0;
-    white-space: nowrap;
-    min-height: 44px; /* 28 × φ */
-    display: flex;
-    align-items: flex-end;
+    min-height: 44px;
+    min-width: var(--gap-xl);
+    flex: 0 0 auto;
 }
 .lcars-capsule-bar .cb-end-t2 { background: var(--lcars-tertiary); }
 /* Bottom bar: neutral leader fill */
@@ -1320,7 +1325,9 @@ body[data-alert-level="3"] .lcars-sidebar-exit,
 body[data-alert-level="3"] .lcars-hdr-arm,
 body[data-alert-level="3"] .lcars-hdr-endcap,
 body[data-alert-level="3"] .lcars-header-seg,
-body[data-alert-level="3"] .lcars-footer-seg {
+body[data-alert-level="3"] .lcars-footer-seg,
+body[data-alert-level="3"] .lcars-subpanel-bar,
+body[data-alert-level="3"] .lcars-panel-header {
     background: var(--alert-yellow-med, #CD870E) !important;
     color: #000 !important;
 }
@@ -1340,7 +1347,9 @@ body[data-alert-level="3"] .lcars-sidebar-exit,
 body[data-alert-level="3"] .lcars-hdr-arm,
 body[data-alert-level="3"] .lcars-hdr-endcap,
 body[data-alert-level="3"] .lcars-elbow-connector-top,
-body[data-alert-level="3"] .lcars-elbow-connector-bottom {
+body[data-alert-level="3"] .lcars-elbow-connector-bottom,
+body[data-alert-level="3"] .lcars-subpanel-bar,
+body[data-alert-level="3"] .lcars-panel-header {
     animation: alert-slow-flash 3.236s ease-in-out infinite;
 }
 /* Title pills stay readable during yellow alert */
@@ -1361,7 +1370,9 @@ body[data-alert-level="2"] .lcars-sidebar-exit,
 body[data-alert-level="2"] .lcars-hdr-arm,
 body[data-alert-level="2"] .lcars-hdr-endcap,
 body[data-alert-level="2"] .lcars-header-seg,
-body[data-alert-level="2"] .lcars-footer-seg {
+body[data-alert-level="2"] .lcars-footer-seg,
+body[data-alert-level="2"] .lcars-subpanel-bar,
+body[data-alert-level="2"] .lcars-panel-header {
     background: var(--alert-red-dark, #990000) !important;
     color: #fff !important;
 }
@@ -1374,7 +1385,9 @@ body[data-alert-level="2"] .lcars-sidebar-exit,
 body[data-alert-level="2"] .lcars-hdr-arm,
 body[data-alert-level="2"] .lcars-hdr-endcap,
 body[data-alert-level="2"] .lcars-elbow-connector-top,
-body[data-alert-level="2"] .lcars-elbow-connector-bottom {
+body[data-alert-level="2"] .lcars-elbow-connector-bottom,
+body[data-alert-level="2"] .lcars-subpanel-bar,
+body[data-alert-level="2"] .lcars-panel-header {
     animation: alert-slow-flash 3.236s ease-in-out infinite;
 }
 body[data-alert-level="2"] .lcars-elbow-connector-top {
@@ -1411,7 +1424,9 @@ body[data-alert-level="1"] .lcars-sidebar-exit,
 body[data-alert-level="1"] .lcars-hdr-arm,
 body[data-alert-level="1"] .lcars-hdr-endcap,
 body[data-alert-level="1"] .lcars-header-seg,
-body[data-alert-level="1"] .lcars-footer-seg {
+body[data-alert-level="1"] .lcars-footer-seg,
+body[data-alert-level="1"] .lcars-subpanel-bar,
+body[data-alert-level="1"] .lcars-panel-header {
     background: var(--alert-black-med, #0E3A9B) !important;
     color: var(--alert-black-cyan, #64FFFF) !important;
 }
@@ -1430,7 +1445,9 @@ body[data-alert-level="1"] .lcars-sidebar-exit,
 body[data-alert-level="1"] .lcars-hdr-arm,
 body[data-alert-level="1"] .lcars-hdr-endcap,
 body[data-alert-level="1"] .lcars-elbow-connector-top,
-body[data-alert-level="1"] .lcars-elbow-connector-bottom {
+body[data-alert-level="1"] .lcars-elbow-connector-bottom,
+body[data-alert-level="1"] .lcars-subpanel-bar,
+body[data-alert-level="1"] .lcars-panel-header {
     animation: alert-slow-flash 3.236s ease-in-out infinite;
 }
 body[data-alert-level="1"] .lcars-hdr-title {
@@ -1681,28 +1698,26 @@ body {
     color: var(--bg-primary);
     border-color: var(--c-transport);
 }
-/* LCARS mode: capsule shape + TNG palette */
+/* LCARS mode: rectangular blocks + TNG palette */
 .theme-lcars .toggle-btn {
-    border-radius: 50vh;
+    border-radius: var(--gap-xs);
     border: none;
     background: var(--lcars-secondary);
     color: #000;
     padding: 10px 14px 4px;
-    min-height: 44px; /* 28 × φ */
+    min-height: 44px;
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    opacity: 0.5;
     display: inline-flex;
     align-items: flex-end;
     justify-content: center;
+    transition: filter 0.15s;
 }
-.theme-lcars .toggle-btn:hover { opacity: 0.75; }
+.theme-lcars .toggle-btn:hover { filter: brightness(1.15); }
 .theme-lcars .toggle-btn.active {
-    background: var(--lcars-accent);
-    color: #000;
-    opacity: 1;
+    filter: brightness(1.3);
 }
 
 /* Tab bar */
@@ -1844,9 +1859,10 @@ body {
 }
 .table-page-btns {
     display: flex;
-    gap: 4px;
+    gap: var(--gap-xs);
 }
-.theme-lcars .table-page-btns { gap: 6px; }
+.theme-lcars .table-page-btns { gap: var(--gap-xs); }
+.theme-lcars .table-page-btn { flex: 0 0 auto; min-width: 48px; min-height: 40px; }
 .table-page-btn {
     background: var(--bg-inset);
     border: 1px solid var(--border);
@@ -1860,25 +1876,25 @@ body {
 .table-page-btn:hover { border-color: var(--text-secondary); }
 .table-page-btn:disabled { opacity: 0.3; cursor: default; }
 .table-page-btn.active { background: var(--c-transport); color: var(--bg-primary); border-color: var(--c-transport); }
-/* LCARS mode: capsule pagination (§3.1) */
+/* LCARS mode: rectangular pagination blocks */
 .theme-lcars .table-page-btn {
-    border-radius: 50vh;
+    border-radius: var(--gap-xs);
     border: none;
     background: var(--lcars-secondary);
     color: #000;
     padding: 8px 12px 3px;
-    min-height: 38px; /* 24 × φ */
+    min-height: 38px;
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-weight: 700;
     font-size: 0.68em;
-    opacity: 0.6;
     display: inline-flex;
     align-items: flex-end;
     justify-content: center;
+    transition: filter 0.15s;
 }
-.theme-lcars .table-page-btn:hover { opacity: 0.85; }
-.theme-lcars .table-page-btn:disabled { opacity: 0.2; }
-.theme-lcars .table-page-btn.active { background: var(--lcars-accent); color: #000; opacity: 1; }
+.theme-lcars .table-page-btn:hover { filter: brightness(1.15); }
+.theme-lcars .table-page-btn:disabled { opacity: 0.3; }
+.theme-lcars .table-page-btn.active { filter: brightness(1.3); }
 
 /* Sort indicators — prominent active state (T18 Check 3) */
 .sort-active { color: var(--c-transport) !important; border-bottom: 2px solid var(--c-transport); }
@@ -2126,11 +2142,20 @@ a.activity-link:hover {
 /* Agent switcher */
 .agent-switcher {
     display: flex;
-    gap: 6px;
-    margin-bottom: 18px;
+    gap: var(--gap-s);
+    margin-bottom: var(--gap-xl);
     flex-wrap: wrap;
 }
-.theme-lcars .agent-switcher { gap: 8px; }
+.theme-lcars .agent-switcher {
+    gap: var(--gap-m);
+    margin-bottom: 0;
+    justify-content: center;
+}
+.theme-lcars .agent-switch-btn {
+    flex: 0 0 auto;
+    min-width: 100px;
+    min-height: 48px;
+}
 .agent-switch-btn {
     background: var(--bg-panel);
     border: 1px solid var(--border);
@@ -2143,29 +2168,27 @@ a.activity-link:hover {
     transition: all 0.15s;
 }
 .agent-switch-btn:hover { border-color: var(--text-dim); }
-/* LCARS mode: capsule buttons with tier-color data encoding (§2.2) */
+/* LCARS mode: rectangular blocks with tier-color data encoding (§2.2) */
 .theme-lcars .agent-switch-btn {
-    border-radius: 50vh;
+    border-radius: var(--gap-xs);
     border: none;
     background: var(--lcars-secondary);
     color: #000;
     padding: 10px 16px 4px;
-    min-height: 44px; /* 28 × φ */
+    min-height: 44px;
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-weight: 700;
     font-size: 0.72em;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    opacity: 0.5;
     display: inline-flex;
     align-items: flex-end;
     justify-content: center;
+    transition: filter 0.15s;
 }
-.theme-lcars .agent-switch-btn:hover { opacity: 0.75; }
+.theme-lcars .agent-switch-btn:hover { filter: brightness(1.15); }
 .theme-lcars .agent-switch-btn.active {
-    background: var(--lcars-accent);
-    color: #000;
-    opacity: 1;
+    filter: brightness(1.3);
 }
 .agent-switch-btn.active {
     background: var(--c-knowledge);
@@ -2448,11 +2471,20 @@ a.activity-link:hover {
 /* Section jump nav (T18 Check 7) */
 .section-jump-nav {
     display: flex;
-    gap: 4px;
+    gap: var(--gap-xs);
     flex-wrap: wrap;
-    margin-bottom: 16px;
+    margin-bottom: var(--gap-l);
 }
-.theme-lcars .section-jump-nav { gap: 6px; }
+.theme-lcars .section-jump-nav {
+    gap: var(--gap-m);
+    margin-bottom: 0;
+    justify-content: center;
+}
+.theme-lcars .section-jump-btn {
+    flex: 0 0 auto;
+    min-width: 100px;
+    min-height: 48px;
+}
 .section-jump-btn {
     background: var(--bg-inset);
     border: 1px solid var(--border);
@@ -2466,25 +2498,25 @@ a.activity-link:hover {
     transition: all 0.15s;
 }
 .section-jump-btn:hover { color: var(--text-primary); border-color: var(--text-secondary); }
-/* LCARS mode: capsule nav buttons (§3.3) */
+/* LCARS mode: rectangular nav blocks (§3.3) */
 .theme-lcars .section-jump-btn {
-    border-radius: 50vh;
+    border-radius: var(--gap-xs);
     border: none;
     background: var(--lcars-tertiary);
     color: #000;
     padding: 10px 14px 4px;
-    min-height: 44px; /* 28 × φ */
+    min-height: 44px;
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-weight: 700;
     font-size: 0.68em;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    opacity: 0.7;
     display: inline-flex;
     align-items: flex-end;
     justify-content: center;
+    transition: filter 0.15s;
 }
-.theme-lcars .section-jump-btn:hover { opacity: 1; color: #000; }
+.theme-lcars .section-jump-btn:hover { filter: brightness(1.15); }
 
 /* Vitals + switcher grouping (T18 Check 2) */
 .kb-controls-group {
@@ -3752,25 +3784,24 @@ a.activity-link:hover {
     .lcars-hdr-endcap { flex: 0 0 16px; }
 }
 
-/* ── Sidebar drop — structural block at elbow transitions ──── */
+/* ── Sidebar drop — filled structural spacer between elbow cap and first button.
+   Same role as the header arm between title and stardate: a solid filled
+   frame-color bar that visually connects structural elements. */
 .lcars-sidebar-drop {
-    min-height: calc(var(--gap-3xl, 55px) + var(--gap-xl, 21px)); /* 2φ + 1φ extra */
-    flex-shrink: 0;
-    margin-bottom: 0;
+    min-height: var(--gap-3xl, 55px);
+    flex-shrink: 1;
+    margin-bottom: var(--gap-xs);
     border-radius: 0;
-}
-/* Top drop (after cap-top): gap before first button matches pill gaps */
-.lcars-sidebar-cap-top + .lcars-sidebar-drop {
-    margin-bottom: var(--gap-m, 8px);
+    /* background set by .theme-lcars rule → var(--lcars-frame) */
 }
 @media (max-width: 768px) {
-    .lcars-sidebar-drop { min-height: calc(var(--gap-2xl, 34px) + var(--gap-xl, 21px)); }
+    .lcars-sidebar-drop { min-height: var(--gap-2xl, 34px); }
 }
 @media (max-width: 480px) {
-    .lcars-sidebar-drop { min-height: calc(var(--gap-l, 13px) + var(--gap-xl, 21px)); }
+    .lcars-sidebar-drop { min-height: var(--gap-xl, 21px); }
 }
 @media (max-height: 500px) and (orientation: landscape) {
-    .lcars-sidebar-drop { min-height: var(--gap-m, 8px); }
+    .lcars-sidebar-drop { min-height: var(--gap-l, 13px); }
 }
 
 /* Alert: sidebar drop follows structural chrome color (matches main alert block) */
@@ -3795,25 +3826,40 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 }
 
 /* ── Operations Subsystem Switcher (Defiant Bridge pattern) ── */
-/* Canonical: mode selector row with generous gaps (§3.3) */
-.ops-subsystem-selector {
+/* Canonical: mode selector row — uniform button width (§3.3, Defiant A2) */
+.ops-panel-selector {
     display: flex;
-    gap: var(--gap-m, 8px);
-    margin-bottom: var(--gap-xl);
+    gap: var(--gap-m);
+    margin-bottom: 0;
     flex-wrap: wrap;
+    justify-content: center;
 }
-.ops-subsys-btn {
-    opacity: 0.5;
-    transition: opacity 0.15s;
+/* Uniform compact buttons — wrap naturally, don't stretch to fill */
+.ops-panel-selector .ops-panel-btn {
+    flex: 0 0 auto;
+    min-width: 100px;
+    min-height: 48px;
 }
-.ops-subsys-btn.ops-subsys-active {
-    opacity: 1;
+/* Mobile: tighter content padding + uniform button width */
+@media (max-width: 600px) {
+    .theme-lcars .lcars-content { padding: var(--gap-m); }
+    .ops-panel-selector .ops-panel-btn,
+    .theme-lcars .section-jump-btn,
+    .theme-lcars .agent-switch-btn {
+        min-width: 100px;
+        width: 100px;
+    }
+}
+.ops-panel-btn {
+    transition: filter 0.15s;
+}
+.ops-panel-btn.ops-panel-active {
     filter: brightness(1.3);
 }
-.ops-subsys-panel {
+.ops-panel {
     display: none;
 }
-.ops-subsys-panel.ops-subsys-active {
+.ops-panel.ops-panel-active {
     display: block;
 }
 
@@ -3902,13 +3948,12 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 .ohniaka-pend { color: var(--lcars-title); text-align: right; } /* pending count, right-aligned */
 
 /* ── Mobile Pill Strip (portrait) ────────────────────────── */
-/* Mobile ("tricorder mode"): both grid AND pills visible — all data all the time.
-   Pills provide tappable detail cards; grid provides capsule overview. */
+/* Mobile: pills replace grid on narrow screens.
+   Pills provide tappable detail cards; grid provides desktop capsule overview. */
 .lcars-mobile-pills { display: none; padding: 0 !important; }
 @media (max-width: 600px) {
+    .lcars-subsystem-grid { display: none !important; }
     .lcars-mobile-pills { display: block !important; }
-    /* Grid stays visible — capsule rows scroll horizontally */
-    .lcars-subsystem-grid { overflow-x: auto; }
 }
 
 .agent-pill-bar {
@@ -3926,6 +3971,14 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
     letter-spacing: 0.04em;
 }
 .agent-pill-bar:active { filter: brightness(1.2); }
+/* Clickability indicator — subtle right arrow */
+.agent-pill-bar::after {
+    content: "\25B6";
+    font-size: 0.6em;
+    opacity: 0.3;
+    margin-left: auto;
+    padding-left: var(--gap-m);
+}
 .agent-pill-bar-offline { animation: agent-offline-flash 2s ease-in-out infinite; }
 
 /* Inline metrics on the bar — wrap to second line if needed */
@@ -4082,6 +4135,107 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 }
 /* Mobile ohniaka handled by two-row card layout below (§mobile portrait) */
 
+
+/* ── LCARS Subpanel Frame (Defiant Engineering A2 pattern) ───── */
+/* Horizontal colored bars bracket control groups. Button grids sit
+   in the black void between bars. Optional section ID in the bar.
+   Ref: Defiant Engineering A2 (orange bars + button grid sections). */
+.lcars-subpanel {
+    display: none; /* only in LCARS mode */
+}
+.theme-lcars .lcars-subpanel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-m);
+    margin: var(--gap-xl) 0;
+}
+/* Top/bottom bars: full-width horizontal colored strips */
+.lcars-subpanel-bar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: var(--gap-xs) var(--gap-m);
+    background: var(--subpanel-color, var(--lcars-frame));
+    color: #000;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-size: 0.62em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    min-height: var(--gap-m);
+}
+/* Bar color variants */
+.lcars-subpanel-bar-accent { background: var(--panel-accent, var(--lcars-accent)); }
+.lcars-subpanel-bar-t2 { background: var(--lcars-tertiary); }
+.lcars-subpanel-bar-t3 { background: var(--lcars-secondary); }
+/* Bottom bar: thinner, no text */
+.lcars-subpanel-bar-bottom {
+    min-height: var(--gap-s);
+    padding: 0;
+}
+
+/* ── LCARS Data Grid (Button 52 pattern — dense chunky rectangles) ── */
+/* Uniform-sized data blocks in a grid. Color encodes data tier.
+   Ref: Button 52, Unknown N1 (purple/lavender grid sections). */
+.lcars-data-grid {
+    display: none;
+}
+.theme-lcars .lcars-data-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-m);
+    justify-content: center;
+    margin-bottom: var(--gap-l);
+}
+.lcars-data-grid .dg-cell {
+    background: var(--lcars-secondary);
+    color: #000;
+    min-width: 100px;
+    min-height: 52px;
+    padding: 8px var(--gap-m) 5px;
+    border-radius: var(--gap-xs);
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 0 0 auto;
+}
+.lcars-data-grid .dg-val {
+    font-size: 0.72em;
+    line-height: 1;
+}
+/* Label: hidden by default, shown on tap via .dg-show-label toggle */
+.lcars-data-grid .dg-label {
+    font-size: 0.58em;
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--lcars-title);
+    color: #000;
+    padding: 1px 8px;
+    border-radius: 0 0 var(--gap-xs) var(--gap-xs);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    z-index: 10;
+}
+.lcars-data-grid .dg-cell { position: relative; cursor: pointer; }
+.lcars-data-grid .dg-cell.dg-show-label .dg-label { opacity: 1; }
+/* Tier colors */
+.lcars-data-grid .dg-t2 { background: var(--lcars-tertiary); }
+.lcars-data-grid .dg-t3 { background: var(--lcars-title); }
+.lcars-data-grid .dg-accent { background: var(--lcars-accent); }
+.lcars-data-grid .dg-frame { background: var(--lcars-frame); }
+/* Alert overrides */
+body[data-alert-level="3"] .lcars-data-grid .dg-cell { background: var(--alert-yellow-med, #CD870E) !important; }
+body[data-alert-level="2"] .lcars-data-grid .dg-cell { background: var(--alert-red-dark, #990000) !important; color: #fff !important; }
+body[data-alert-level="1"] .lcars-data-grid .dg-cell { background: var(--alert-black-med, #0E3A9B) !important; color: var(--alert-black-cyan, #64FFFF) !important; }
 
 /* ── Ohniaka Summary Row (mesh totals) ───────────────────── */
 .ohniaka-summary {

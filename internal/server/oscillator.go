@@ -38,7 +38,7 @@ type OscillatorState struct {
 	LastTier           string             `json:"last_tier,omitempty"`
 	FireHistory        []FireEvent        `json:"fire_history"`
 	SignalBreakdown    map[string]float64 `json:"signal_breakdown"`
-	ShadowMode         bool               `json:"shadow_mode"`
+	SleepMode         bool               `json:"sleep_mode"`
 	CycleCount         int64              `json:"cycle_count"`
 	WouldFireCount     int64              `json:"would_fire_count"`
 }
@@ -51,7 +51,7 @@ type FireEvent struct {
 	Trigger    string  `json:"trigger"`
 }
 
-// Oscillator implements the self-oscillation event loop (Phase 1: shadow mode).
+// Oscillator implements the self-oscillation event loop (Phase 1: sleep mode).
 type Oscillator struct {
 	mu               sync.RWMutex
 	agentID          string
@@ -63,8 +63,8 @@ type Oscillator struct {
 	stopCh           chan struct{}
 }
 
-// NewOscillator creates an oscillator. Shadow mode controlled by SetShadow().
-// Default: shadow mode OFF (oscillator fires deliberations when activation > threshold).
+// NewOscillator creates an oscillator. Shadow mode controlled by SetSleepMode().
+// Default: sleep mode OFF (oscillator fires deliberations when activation > threshold).
 func NewOscillator(agentID, dbPath, projectRoot string) *Oscillator {
 	return &Oscillator{
 		agentID:     agentID,
@@ -73,19 +73,19 @@ func NewOscillator(agentID, dbPath, projectRoot string) *Oscillator {
 		stopCh:      make(chan struct{}),
 		state: OscillatorState{
 			State:           "monitoring",
-			ShadowMode:      false,
+			SleepMode:      false,
 			SignalBreakdown: make(map[string]float64),
 			FireHistory:     make([]FireEvent, 0, 20),
 		},
 	}
 }
 
-// SetShadow enables or disables shadow mode.
+// SetSleepMode enables or disables sleep mode.
 // Shadow mode: logs "would fire" but does not trigger deliberations.
-func (o *Oscillator) SetShadow(enabled bool) {
+func (o *Oscillator) SetSleepMode(enabled bool) {
 	o.mu.Lock()
 	defer o.mu.Unlock()
-	o.state.ShadowMode = enabled
+	o.state.SleepMode = enabled
 }
 
 // Start launches the oscillator goroutine. Safe to call once.
@@ -428,7 +428,7 @@ func (s *Server) handleOscillator(w http.ResponseWriter, r *http.Request) {
 	if s.Oscillator == nil {
 		writeJSON(w, http.StatusOK, map[string]string{
 			"state": "disabled",
-			"note":  "oscillator not started — shadow mode requires explicit enable",
+			"note":  "oscillator not started — sleep mode requires explicit enable",
 		}, s.logger)
 		return
 	}

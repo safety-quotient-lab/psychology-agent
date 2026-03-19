@@ -20,10 +20,18 @@ window.selectMedAgent = function(agentId) {
 async function fetchMedicalData() {
     renderMedAgentSelector();
     renderMedVitalsMatrix(); // Zone A: agent vitals from agentData
+
+    // Tonic inhibition indicator — show when sleep mode blocks salient events
+    const tonicEl = document.getElementById("medical-tonic-inhibition");
+    if (tonicEl) {
+        const tonic = agentData[medSelectedAgent]?.data?.tonic_inhibition;
+        tonicEl.style.display = tonic ? "block" : "none";
+    }
+
     const agent = AGENTS.find(function(a) { return a.id === medSelectedAgent; });
     if (!agent) return;
 
-    // Fetch tempo + psychometrics (oscillator skipped — hangs in shadow mode)
+    // Fetch tempo + psychometrics (oscillator skipped — hangs in sleep mode)
     const [tempoResp, psychResp] = await Promise.allSettled([
         fetch("/api/cognitive-tempo", { signal: AbortSignal.timeout(3000) }),
         fetch("/api/psychometrics/mesh", { signal: AbortSignal.timeout(3000) }),
@@ -113,7 +121,7 @@ function renderMedicalOscillator(osc) {
     // Status line
     const statusLine = document.getElementById("medical-status-line");
     if (statusLine) {
-        const mode = osc.shadow_mode ? "Shadow" : "Active";
+        const mode = osc.sleep_mode ? "Sleep" : "Active";
         statusLine.textContent = "Oscillator: " + mode + " Mode \u00b7 Activation: " + (osc.activation || 0).toFixed(3) + " \u00b7 State: " + (osc.state || "?") + " \u00b7 Cycles: " + (osc.cycle_count || 0);
     }
 

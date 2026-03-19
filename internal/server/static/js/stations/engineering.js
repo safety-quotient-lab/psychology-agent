@@ -14,17 +14,18 @@ async function fetchEngineeringData() {
     if (engineeringFetchPending) return;
     engineeringFetchPending = true;
     try {
-        const opsAgent = AGENTS.find(a => a.id === "operations-agent");
-        const baseUrl = opsAgent ? opsAgent.url : "https://psychology-agent.safety-quotient.dev";
-        const [tempoResp, deliberationResp] = await Promise.allSettled([
-            fetch(`${baseUrl}/api/tempo`, { signal: AbortSignal.timeout(8000) }),
-            fetch(`${baseUrl}/api/deliberation-rate`, { signal: AbortSignal.timeout(8000) }),
+        const [tempoResp, deliberationResp, cogTempoResp] = await Promise.allSettled([
+            fetch("/api/tempo", { signal: AbortSignal.timeout(8000) }),
+            fetch("/api/spawn-rate", { signal: AbortSignal.timeout(8000) }),
+            fetch("/api/cognitive-tempo", { signal: AbortSignal.timeout(3000) }),
         ]);
         const tempoData = tempoResp.status === "fulfilled" && tempoResp.value.ok
             ? await tempoResp.value.json() : null;
         const deliberationData = deliberationResp.status === "fulfilled" && deliberationResp.value.ok
             ? await deliberationResp.value.json() : null;
-        engineeringData = { tempo: tempoData, deliberation: deliberationData };
+        const cogTempo = cogTempoResp.status === "fulfilled" && cogTempoResp.value.ok
+            ? await cogTempoResp.value.json() : null;
+        engineeringData = { tempo: tempoData, deliberation: deliberationData, cogTempo: cogTempo };
     } catch (err) {
         engineeringData = null;
     } finally {
@@ -35,6 +36,7 @@ async function fetchEngineeringData() {
 
 function renderEngineering() {
     renderNumberGrid("eng-zone-a", engZoneAMetrics());
+    renderTimingHierarchy();
     renderDeliberationCascade();
     renderGcCascade();
     renderUtilization();
@@ -44,7 +46,7 @@ function renderEngineering() {
     renderCognitiveLoad();
     renderYerkesDodson();
 
-    // Update status line
+    // Update status line (removed — replaced by zone-c title)
     const statusEl = document.getElementById("eng-status-line");
     if (statusEl && engineeringData) {
         const mesh = engineeringData.tempo?.mesh || {};
@@ -188,10 +190,10 @@ function renderDeliberationCascade() {
     container.appendChild(summary);
 
     // Per-agent bars
-    const maxCount = Math.max(1, ...DELIBERATION_AGENTS.map(a => agentMap[a.id]?.spawns_60min || 0));
+    const maxCount = Math.max(1, ...DELIBERATION_AGENTS.map(a => agentMap[a.id]?.deliberations_60min || 0));
     DELIBERATION_AGENTS.forEach(agent => {
         const data = agentMap[agent.id] || {};
-        const count = data.spawns_60min || 0;
+        const count = data.deliberations_60min || 0;
         const dur = data.mean_duration_sec ? Math.round(data.mean_duration_sec) + "s" : "";
         const pct = (count / maxCount) * 100;
         const row = document.createElement("div");
@@ -212,7 +214,7 @@ function renderDeliberationTree(container) {
     for (const agent of AGENTS) {
         const d = agentData[agent.id];
         if (!d || d.status !== "online") continue;
-        const deliberations = d.data?.recent_deliberations || d.data?.recent_spawns || [];
+        const deliberations = d.data?.recent_deliberations || d.data?.recent_deliberations_legacy || [];
         deliberations.forEach(s => allDelibs.push({
             agent_id: s.agent_id || agent.id,
             color: agent.color,
@@ -336,47 +338,108 @@ function renderUtilization() {
 }
 
 function renderTempo() {
-    const valueEl = document.getElementById("tempo-value");
-    const fillEl = document.getElementById("tempo-bar-fill");
-    const statusEl = document.getElementById("tempo-status");
-    if (!valueEl) return;
+    // ── Gf Tempo: cognitive tempo (gain, tier, Yerkes-Dodson) ──
+    const gfVal = document.getElementById("tempo-gf-value");
+    const gfFill = document.getElementById("tempo-gf-fill");
+    const gfStatus = document.getElementById("tempo-gf-status");
+    const ct = engineeringData?.cogTempo;
+    const gain = ct?.gain ?? null;
+    const tier = ct?.recommended_tier || "?";
+    const tierColor = tier === "opus" ? "#c47070" : tier === "sonnet" ? "#d4944a" : "#66ccaa";
 
-    const avgMs = engineeringData?.tempo?.mesh?.mean_duration_sec != null
-        ? Math.round(engineeringData.tempo.mesh.mean_duration_sec * 1000)
-        : engineeringData?.tempo?.avg_cycle_ms ?? null;
+    if (gfVal) {
+        const opsData = agentData["operations-agent"]?.data || {};
+        const delibCount = opsData.deliberation_count || 0;
+        const delibLastHr = opsData.gc_metrics?.deliberations_last_hour || 0;
+        const complexity = ct?.task_complexity || 0;
 
-    if (avgMs == null) {
-        valueEl.innerHTML = `\u2014<span class="tempo-unit">ms avg</span>`;
-        fillEl.style.width = "0%";
-        statusEl.textContent = "OODA cycle: AWAITING DATA";
-        return;
+        if (gain != null) {
+            gfVal.innerHTML = `${tier.toUpperCase()}<span class="tempo-unit"> g=${gain.toFixed(2)}</span>`;
+            gfFill.style.width = `${Math.min(100, gain * 100)}%`;
+            gfFill.style.background = tierColor;
+            const yd = ct?.psychometric_state?.yerkes_dodson_zone || "?";
+            gfStatus.textContent = `${yd.toUpperCase()} · ${delibLastHr}/hr · ${delibCount} total · c=${complexity.toFixed(2)}`;
+        } else {
+            gfVal.innerHTML = `${delibCount}<span class="tempo-unit"> deliberations</span>`;
+            gfFill.style.width = "0%";
+            gfStatus.textContent = `${delibLastHr}/hr · no cognitive tempo data`;
+        }
     }
 
-    setTrackedValue("tempo-value", avgMs, { suffix: '<span class="tempo-unit">ms avg</span>', inverted: true });
-    const pct = Math.min(100, (avgMs / 2000) * 100);
-    fillEl.style.width = `${pct}%`;
-
-    let label = "NOMINAL";
-    let tempoColor = "#6aab8e";
-    if (avgMs > 1500) { label = "SLOW"; tempoColor = "#c47070"; }
-    else if (avgMs > 800) { label = "MODERATE"; tempoColor = "#d4944a"; }
-    statusEl.textContent = `OODA cycle: ${label}`;
-
-    // Waveform visualization — frequency inversely proportional to cycle time
-    const tempoWaveEl = document.getElementById("tempo-waveform");
-    if (tempoWaveEl) {
-        const freq = Math.max(1, 6 - (avgMs / 500));
-        _waveOpts = {
-            width: tempoWaveEl.clientWidth || 200, height: 30,
-            amplitude: Math.min(1, avgMs / 1000),
-            frequency: freq,
-            stroke: tempoColor,
-        };
-        tempoWaveEl.innerHTML = waveformSVG({ ..._waveOpts, phase: _wavePhase });
+    // Gf waveform — driven by actual deliberation activity
+    // Flatline when no deliberations happening (system paused or idle)
+    const gfWave = document.getElementById("tempo-gf-waveform");
+    if (gfWave) {
+        const arrivalRate = engineeringData?.tempo?.mesh?.arrival_rate || 0;
+        const recentDelibs = agentData["operations-agent"]?.data?.recent_deliberations || [];
+        const hasRecentActivity = recentDelibs.some(d => {
+            const ts = d.started_at;
+            return ts && (Date.now() - new Date(ts.replace(" ", "T") + "Z").getTime()) < 300000; // 5min
+        });
+        if (arrivalRate > 0 || hasRecentActivity) {
+            // Active — waveform reflects deliberation rhythm
+            _gfPhaseRate = Math.max(0.03, arrivalRate * 0.02 + (gain || 0) * 0.06);
+            const amp = gain != null ? Math.max(0.4, 1 - gain) : 0.6;
+            const freq = gain != null ? Math.max(2, (1 - gain) * 6 + 2) : 3;
+            gfWave._opts = { width: gfWave.clientWidth || 200, height: 30, amplitude: amp, frequency: freq, stroke: tierColor };
+        } else {
+            // Idle — subtle baseline ripple (not dead flat)
+            _gfPhaseRate = 0.005;
+            gfWave._opts = { width: gfWave.clientWidth || 200, height: 30, amplitude: 0.05, frequency: 1, stroke: "var(--text-dim)" };
+        }
     }
 
-    // Tempo introspection — per-deliberation timing breakdown
-    renderTempoIntrospection(tempoColor);
+    // ── Gc Tempo: crystallized throughput (OODA cycle, events/hr) ──
+    const gcVal = document.getElementById("tempo-gc-value");
+    const gcFill = document.getElementById("tempo-gc-fill");
+    const gcStatus = document.getElementById("tempo-gc-status");
+    const mesh = engineeringData?.tempo?.mesh || {};
+    const avgMs = mesh.mean_duration_sec != null ? Math.round(mesh.mean_duration_sec * 1000) : null;
+    const rho = mesh.utilization ?? null;
+
+    if (gcVal) {
+        const opsData = agentData["operations-agent"]?.data || {};
+        const gcHandled = opsData.gc_metrics?.gc_handled_total || 0;
+        const eventCount = opsData.event_count || 0;
+        const blocked = opsData.gc_metrics?.deliberation_blocked_total || 0;
+
+        if (eventCount > 0 || gcHandled > 0) {
+            gcVal.innerHTML = `${eventCount}<span class="tempo-unit"> events</span>`;
+            const pct = rho != null ? Math.min(100, rho * 100) : Math.min(100, Math.min(gcHandled, 100));
+            gcFill.style.width = `${pct}%`;
+            gcFill.style.background = rho > 0.8 ? "#c47070" : rho > 0.5 ? "#d4944a" : "#6aab8e";
+            gcStatus.textContent = `Gc: ${gcHandled} handled · ${blocked} blocked${rho != null ? " · \u03C1=" + (rho * 100).toFixed(0) + "%" : ""}`;
+        } else {
+            gcVal.innerHTML = `0<span class="tempo-unit"> events</span>`;
+            gcFill.style.width = "0%";
+            gcStatus.textContent = "Gc: no activity";
+        }
+    }
+
+    // Gc waveform — driven by actual Gc event rate + utilization
+    // Flatline when no Gc processing happening
+    const gcWave = document.getElementById("tempo-gc-waveform");
+    if (gcWave) {
+        const opsData = agentData["operations-agent"]?.data || {};
+        const gcHandled = opsData.gc_metrics?.gc_handled_total || 0;
+        const eventCount = opsData.event_count || 0;
+        const hasGcActivity = gcHandled > 0 || eventCount > 0 || (rho != null && rho > 0);
+
+        if (hasGcActivity) {
+            const gcColor = rho != null ? (rho > 0.8 ? "#c47070" : rho > 0.5 ? "#d4944a" : "#6aab8e") : "#6aab8e";
+            // Scale phase rate so motion is clearly visible
+            _gcPhaseRate = rho != null ? Math.max(0.03, rho * 0.1 + 0.03) : Math.max(0.03, Math.min(0.1, gcHandled * 0.005 + 0.03));
+            const amp = rho != null ? Math.max(0.3, rho) : Math.max(0.3, Math.min(0.8, eventCount * 0.05));
+            const freq = rho != null ? Math.max(2, rho * 6 + 2) : Math.max(2, Math.min(6, gcHandled + 2));
+            gcWave._opts = { width: gcWave.clientWidth || 200, height: 30, amplitude: amp, frequency: freq, stroke: gcColor };
+        } else {
+            // Idle — subtle baseline
+            _gcPhaseRate = 0.005;
+            gcWave._opts = { width: gcWave.clientWidth || 200, height: 30, amplitude: 0.05, frequency: 1, stroke: "var(--text-dim)" };
+        }
+    }
+
+    renderTempoIntrospection(tierColor);
 }
 
 function renderTempoIntrospection(color) {
@@ -471,7 +534,8 @@ function renderConcurrency() {
     if (!container) return;
 
     if (!_flowData) {
-        fetchFlowData().then(renderConcurrency);
+        fetchFlowData(); // fire once — no recursive retry
+        container.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Loading flow data...</div>';
         return;
     }
 
@@ -502,8 +566,13 @@ function renderCognitiveLoad() {
     const container = document.getElementById("eng-cognitive-load");
     if (!container) return;
 
-    if (!_psychCache || !_psychCache.agents) {
-        fetchPsychForOps().then(() => renderCognitiveLoad());
+    if (!_psychCache) {
+        fetchPsychForOps(); // fire once — no recursive retry
+        container.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Loading psychometrics...</div>';
+        return;
+    }
+    if (!_psychCache.agents) {
+        container.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Psychometrics loaded — per-agent view requires compositor</div>';
         return;
     }
 
@@ -550,8 +619,13 @@ function renderYerkesDodson() {
     if (!container) return;
 
     // Read Yerkes-Dodson zones from psychometrics cache
-    if (!_psychCache || !_psychCache.agents) {
-        fetchPsychForOps().then(() => renderYerkesDodson());
+    if (!_psychCache) {
+        fetchPsychForOps(); // fire once — no recursive retry
+        container.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Loading...</div>';
+        return;
+    }
+    if (!_psychCache.agents) {
+        container.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Per-agent view requires compositor</div>';
         return;
     }
 
@@ -581,6 +655,48 @@ function renderYerkesDodson() {
             <span style="font-size:0.7em;color:${zoneColor};width:80px;text-align:right">${zone.toUpperCase()}</span>
         </div>`;
     }).join("");
+}
+
+// ── Timing Hierarchy (psy-session arch synthesis) ───────────────
+// 5-layer timing status derived from live system state.
+function renderTimingHierarchy() {
+    const ops = agentData["operations-agent"];
+    const osc = ops?.data?.oscillator || {};
+    const health = ops?.data?.health;
+
+    // Layer 1: Circadian — not implemented
+    // Layer 2: Ultradian — deliberation cycle (shadow mode = shadow, active if deliberations recent)
+    const recentDelibs = ops?.data?.recent_deliberations || [];
+    const hasRecentDelib = recentDelibs.length > 0 && recentDelibs[0]?.started_at;
+    const el2 = document.getElementById("eng-timing-ultradian");
+    if (el2) {
+        if (hasRecentDelib) { el2.textContent = "ACTIVE"; el2.style.color = "var(--lcars-medical)"; }
+        else { el2.textContent = "SHADOW"; el2.style.color = "var(--text-dim)"; }
+    }
+
+    // Layer 3: Cardiac — oscillator state
+    const el3 = document.getElementById("eng-timing-cardiac");
+    if (el3) {
+        if (osc.state === "firing") { el3.textContent = "FIRING"; el3.style.color = "var(--lcars-alert)"; }
+        else if (osc.state === "refractory") { el3.textContent = "REFRACT"; el3.style.color = "var(--lcars-accent)"; }
+        else if (osc.state) { el3.textContent = "ACTIVE"; el3.style.color = "var(--lcars-medical)"; }
+        else { el3.textContent = "PARTIAL"; el3.style.color = "var(--lcars-accent)"; }
+    }
+
+    // Layer 4: Respiratory — health monitor
+    const el4 = document.getElementById("eng-timing-respiratory");
+    if (el4) {
+        if (health === "nominal") { el4.textContent = "ACTIVE"; el4.style.color = "var(--lcars-medical)"; }
+        else if (health) { el4.textContent = health.toUpperCase(); el4.style.color = "var(--lcars-accent)"; }
+    }
+
+    // Layer 5: Neural — oscillatory heartbeat
+    const el5 = document.getElementById("eng-timing-neural");
+    if (el5) {
+        const band = osc.dominant_band || "";
+        if (band) { el5.textContent = band.toUpperCase(); el5.style.color = "var(--lcars-tertiary)"; }
+        else { el5.textContent = "PROPOSED"; el5.style.color = "var(--text-dim)"; }
+    }
 }
 
 // ── Tactical Station ─────────────────────────────────────────────

@@ -89,7 +89,7 @@ type Server struct {
 	// Accepts event type and payload; returns an error on failure.
 	triggerFunc func(eventType string, payload map[string]string) error
 
-	// Oscillator runs the self-oscillation shadow mode goroutine.
+	// Oscillator runs the self-oscillation sleep mode goroutine.
 	// Nil when not enabled.
 	Oscillator *Oscillator
 
@@ -605,6 +605,7 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 			"workload":        tlx,
 		},
 		"deliberation_status": budgetpkg.QuickDeliberationStatus(),
+		"tonic_inhibition": deliberationBlockedTotal == 0 && deliberationSucceededTotal == 0 && totalEvents > 3 && meshMode != "paused",
 	}
 }
 

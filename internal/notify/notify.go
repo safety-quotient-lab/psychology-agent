@@ -1,5 +1,5 @@
 // Package notify provides pluggable notification channels for meshd.
-// When the budget gate blocks a spawn (shadow mode, mesh paused, etc.),
+// When the budget gate blocks a spawn (sleep mode, mesh paused, etc.),
 // the notifier alerts the human operator through the configured channel.
 //
 // Channels: null (silent), file (JSONL append), zulip (HTTP API), webhook (generic POST).

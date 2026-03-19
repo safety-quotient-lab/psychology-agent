@@ -45,6 +45,35 @@ const AGENTS = [
 // Number formatting — thin space thousands separator for readability
 
 // ═══ UTILITIES ═══════════════════════════════════════════════
+
+
+// LCARS section number generator — random numeric strings for panel IDs.
+// Canonical panels show arbitrary-looking numbers (44712, 5894, etc.)
+// Generated on page load so they vary between sessions.
+function lcarsNum(len) {
+    let s = "";
+    for (let i = 0; i < len; i++) s += Math.floor(Math.random() * 10);
+    // Avoid leading zero for readability
+    if (s[0] === "0" && len > 1) s = String(1 + Math.floor(Math.random() * 9)) + s.slice(1);
+    return s;
+}
+// On page load: populate all .lcars-panel-id and .zc-id with random numbers
+function initLcarsNumbers() {
+    document.querySelectorAll(".lcars-panel-id").forEach(el => {
+        if (!el.dataset.lcarsLen) el.dataset.lcarsLen = "5";
+        el.textContent = lcarsNum(parseInt(el.dataset.lcarsLen) || 5);
+    });
+    document.querySelectorAll(".zc-id").forEach(el => {
+        if (!el.textContent.trim()) el.textContent = lcarsNum(5);
+    });
+    // Subpanel bar section IDs
+    document.querySelectorAll(".lcars-subpanel-bar").forEach(el => {
+        if (el.textContent.match(/^\d{2}-\d{4}$/)) {
+            el.textContent = lcarsNum(2) + "-" + lcarsNum(4);
+        }
+    });
+}
+
 function fmtNum(n) {
     if (n == null || isNaN(n)) return "\u2014";
     const num = typeof n === "string" ? parseFloat(n) : n;
@@ -107,15 +136,31 @@ let _waveAnimFrame = null;
 let _wavePhase = 0;
 let _waveOpts = null; // cached opts from last render
 
+// Separate phase accumulators for each waveform — driven by real data rates
+let _gfPhaseRate = 0.02; // radians/frame — set by renderTempo from deliberation rate
+let _gcPhaseRate = 0.04; // radians/frame — set by renderTempo from Gc event rate
+let _gfPhase = 0;
+let _gcPhase = 0;
+
 function startWaveformAnimation() {
-    if (_waveAnimFrame) return; // already running
+    if (_waveAnimFrame) return;
     function tick() {
-        _wavePhase += 0.05; // phase increment per frame
-        const tempoWaveEl = document.getElementById("tempo-waveform");
-        if (tempoWaveEl && _waveOpts) {
-            tempoWaveEl.innerHTML = waveformSVG({ ..._waveOpts, phase: _wavePhase });
+        _gfPhase += _gfPhaseRate;
+        _gcPhase += _gcPhaseRate;
+        _wavePhase += 0.05; // legacy — medical oscillator
+
+        // Gf tempo waveform
+        const gfWave = document.getElementById("tempo-gf-waveform");
+        if (gfWave && gfWave._opts) {
+            gfWave.innerHTML = waveformSVG({ ...gfWave._opts, phase: _gfPhase });
         }
-        const medOscEl = document.getElementById("med-oscillator-wave");
+        // Gc tempo waveform
+        const gcWave = document.getElementById("tempo-gc-waveform");
+        if (gcWave && gcWave._opts) {
+            gcWave.innerHTML = waveformSVG({ ...gcWave._opts, phase: _gcPhase });
+        }
+        // Medical oscillator (legacy)
+        const medOscEl = document.getElementById("medical-oscillator-wave");
         if (medOscEl && medOscEl._waveOpts) {
             medOscEl.innerHTML = waveformSVG({ ...medOscEl._waveOpts, phase: _wavePhase });
         }

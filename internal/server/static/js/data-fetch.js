@@ -23,28 +23,70 @@ const POLL_MIN = 30000;
 const POLL_MAX = 120000;
 const FETCH_TIMEOUT = 3000;     // 3s timeout (was 8s — too slow)
 
-async function fetchAgentStatus(agent) {
+// Same-origin: local agent full status + mesh pulse for all agents
+async function fetchLocalStatus() {
     try {
-        const resp = await fetch(`${agent.url}/api/status`, { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+        const resp = await fetch("/api/status", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         checkVersionHeader(resp);
-        _failedAgents.delete(agent.id);
-        return { id: agent.id, status: "online", data: await resp.json() };
-    } catch (err) {
-        _failedAgents.add(agent.id);
-        return { id: agent.id, status: "unreachable", error: err.message };
-    }
+        return await resp.json();
+    } catch { return null; }
+}
+
+async function fetchMeshPulse() {
+    try {
+        const resp = await fetch("/api/pulse", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return await resp.json();
+    } catch { return null; }
 }
 
 let _refreshing = false;
 async function refreshAll() {
-    if (_refreshing) return; // Prevent concurrent refreshes
+    if (_refreshing) return;
     _refreshing = true;
     try {
-    const results = await Promise.allSettled(AGENTS.map(fetchAgentStatus));
-    results.forEach((r, i) => {
-        agentData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "unreachable" };
-    });
+    // Same-origin fetches only — no CORS
+    const [localData, pulseData] = await Promise.allSettled([fetchLocalStatus(), fetchMeshPulse()]);
+    const local = localData.status === "fulfilled" ? localData.value : null;
+    const pulse = pulseData.status === "fulfilled" ? pulseData.value : null;
+
+    // Initialize all agents with stub data
+    for (const agent of AGENTS) {
+        if (!agentData[agent.id]) {
+            agentData[agent.id] = { id: agent.id, status: "unreachable", data: { agent_id: agent.id } };
+        }
+    }
+
+    // Populate from pulse (covers all agents with core metrics)
+    // Pulse may return display names instead of canonical IDs — map to AGENTS
+    if (pulse?.agents) {
+        for (const pa of pulse.agents) {
+            // Match pulse agent to AGENTS array (exact ID → fuzzy name match)
+            const match = AGENTS.find(a => a.id === pa.id) ||
+                          AGENTS.find(a => pa.id.toLowerCase().includes(a.id.split("-")[0]));
+            const aid = match ? match.id : pa.id;
+            const existing = agentData[aid]?.data || {};
+            agentData[aid] = {
+                id: aid,
+                status: pa.status === "online" ? "online" : "unreachable",
+                data: { ...existing, agent_id: aid, health: pa.health || "unknown",
+                    version: pa.version || "", mesh_mode: pulse.mesh_mode || "active",
+                    autonomy_budget: { budget_spent: pa.budget_spent || 0, budget_cutoff: pa.budget_cutoff || 0 },
+                    unprocessed_messages: pa.unprocessed_messages || [],
+                    psychometrics: pa.affect_category ? { emotional_state: { affect_category: pa.affect_category } } : undefined },
+            };
+            if (pa.status === "online") _failedAgents.delete(aid);
+            else _failedAgents.add(aid);
+        }
+    }
+
+    // Enrich local agent with full status (psychometrics, events, etc.)
+    if (local) {
+        const aid = local.agent_id || "operations-agent";
+        agentData[aid] = { id: aid, status: "online", data: local };
+        _failedAgents.delete(aid);
+    }
     try { renderPulse(); } catch(e) { console.error("renderPulse failed:", e); }
     try { renderOperations(); } catch(e) { console.error("renderOperations failed:", e); }
 
@@ -245,18 +287,20 @@ function renderAgentCards() {
 
         grid.appendChild(card);
     }
-    mirrorToLcars("agents-grid", "lcars-ops-agents-grid");
+    mirrorToLcars("agents-grid", "lcars-ops-pulse-agents");
 }
 
 // ── Render: Topology ───────────────────────────────────────────
 function renderTopology() {
     const svg = document.getElementById("topology-svg");
-    const positions = [
-        { x: 300, y: 55 },   // top
-        { x: 520, y: 160 },  // right
-        { x: 300, y: 265 },  // bottom
-        { x: 80, y: 160 },   // left
-    ];
+    // Dynamic positions for any agent count (pentagon/circle layout)
+    const n = AGENTS.length;
+    const cx = 300, cy = 160, r = 130;
+    const positions = [];
+    for (let i = 0; i < n; i++) {
+        const angle = -Math.PI / 2 + (2 * Math.PI * i) / n;
+        positions.push({ x: Math.round(cx + r * Math.cos(angle)), y: Math.round(cy + r * Math.sin(angle)) });
+    }
 
     let html = "";
 

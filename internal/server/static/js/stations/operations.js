@@ -18,7 +18,7 @@ function renderOperations() {
 }
 
 function renderOpsGovernance() {
-    const el = document.getElementById("lcars-ops-decisions");
+    const el = document.getElementById("ops-governance-decisions");
     if (!el) return;
     // Collect decisions from all agents' KB data
     const decisions = [];
@@ -29,12 +29,7 @@ function renderOpsGovernance() {
         decs.forEach(d => decisions.push({ ...d, _agent: agent.id, _color: agent.color }));
     }
     if (decisions.length === 0) {
-        // Eager fetch — load KB data without requiring Meta tab visit
-        el.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Loading governance data...</div>';
-        const hasAnyKb = Object.values(kbData).some(kb => kb && kb.status === "ok");
-        if (!hasAnyKb) {
-            refreshKnowledge().then(() => renderOpsGovernance());
-        }
+        el.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">No governance data</div>';
         return;
     }
     // Pattern C: numbered entry list — capsule label + description
@@ -48,13 +43,13 @@ function renderOpsGovernance() {
         </div>`;
     }).join("");
     // Update footer number
-    const govFtr = document.getElementById("gov-footer-num");
+    const govFtr = document.getElementById("ops-governance-footer-num");
     if (govFtr) govFtr.textContent = decisions.length;
 }
 
 // Coordination ratio inline in Activity section
 function renderOpsActivity() {
-    const el = document.getElementById("ops-coordination-inline");
+    const el = document.getElementById("ops-deliberations-coordination");
     if (el && _meshAggData) {
         const co = _meshAggData.coordination || {};
         if (co.ratio != null) {
@@ -62,14 +57,14 @@ function renderOpsActivity() {
             el.innerHTML = `Coordination: <strong style="color:${color}">${co.ratio.toFixed(1)}x</strong> (${co.process_messages || 0} process / ${co.substance_messages || 0} substance)`;
         }
     } else if (el) {
-        fetchMeshAgg().then(renderOpsActivity);
+        fetchMeshAgg(); // fire once — no recursive retry
     }
     renderOpsActions();
 }
 
 // ── Status Monologue ─────────────────────────────────────
 function renderOpsMonologue() {
-    const el = document.getElementById("ops-status-monologue");
+    const el = document.getElementById("ops-pulse-monologue");
     if (!el) return;
 
     // Guard: if no agent data yet, show loading state
@@ -134,7 +129,7 @@ async function fetchMeshAgg() {
         try {
             const opsUrl = AGENTS.find(a => a.id === "ops-session" || a.id === "operations-agent")?.url || "";
             if (!opsUrl) return;
-            const r = await fetch(`${opsUrl}/api/mesh-aggregate`, { signal: AbortSignal.timeout(5000) });
+            const r = await fetch("/api/mesh-aggregate", { signal: AbortSignal.timeout(5000) });
             if (r.ok) { _meshAggData = await r.json(); _meshAggTs = Date.now(); }
         } catch {} finally { _meshAggPromise = null; }
     })();
@@ -143,7 +138,7 @@ async function fetchMeshAgg() {
 
 function renderOpsAggIndicators() {
     if (!_meshAggData || Date.now() - _meshAggTs > 30000) {
-        fetchMeshAgg().then(renderOpsAggIndicators);
+        fetchMeshAgg(); // fire once — no recursive retry
         if (!_meshAggData) return;
     }
     const aff = _meshAggData.mesh_affect || {};
@@ -168,7 +163,7 @@ async function fetchPsychForOps() {
     if (_psychCache && _psychCache._fetchedAt && Date.now() - _psychCache._fetchedAt < 30000) return;
     _psychFetchPromise = (async () => {
         try {
-            const resp = await fetch("https://interagent.safety-quotient.dev/api/psychometrics", { signal: AbortSignal.timeout(5000) });
+            const resp = await fetch("/api/psychometrics", { signal: AbortSignal.timeout(5000) });
             if (resp.ok) { _psychCache = await resp.json(); _psychCache._fetchedAt = Date.now(); }
         } catch {} finally { _psychFetchPromise = null; }
     })();
@@ -176,14 +171,15 @@ async function fetchPsychForOps() {
 }
 
 function renderResourceModel() {
-    const container = document.getElementById("ops-resource-model");
+    const container = document.getElementById("ops-resources-psychometric");
     if (!container) return;
-    if (!_psychCache || !_psychCache.agents) {
-        // Trigger fetch, re-render after
-        fetchPsychForOps().then(() => {
-            if (!_psychCache || !_psychCache.agents) return;
-            renderResourceModel();
-        });
+    if (!_psychCache) {
+        fetchPsychForOps(); // fire once — no recursive retry
+        container.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Loading...</div>';
+        return;
+    }
+    if (!_psychCache.agents) {
+        container.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Resource data available via compositor</div>';
         return;
     }
     const entries = Object.entries(_psychCache.agents).filter(([, d]) => d && !d.error && d.resource_model);
@@ -273,7 +269,7 @@ function renderOpsBudget() {
     // Ohniaka B3 "Starship Mission Status" pattern — structured table
     // with colored text columns (purple names, yellow IDs, white status).
     // No pill backgrounds — spacing + color creates structure.
-    const grid = document.getElementById("ops-subsystem-grid");
+    const grid = document.getElementById("ops-pulse-agents");
     if (!grid) return;
 
 
@@ -285,7 +281,7 @@ function renderOpsBudget() {
         const health = d?.data?.health || "\u2014";
         const psych = d?.data?.psychometrics || {};
         const es = psych.emotional_state || {};
-        const mood = es.affect_category || (online ? "unknown" : "");
+        const mood = es.affect_category || "";
         const pending = online ? (d.data?.unprocessed_messages || []).length : 0;
         const gc = online ? (d.data?.gc_metrics?.gc_handled_total || 0) : 0;
         // Operation type — from oscillator dominant_band or heuristic
@@ -311,7 +307,7 @@ function renderOpsBudget() {
         const rawHealth = (health || "unknown").toLowerCase();
         const healthStr = rawHealth === "healthy" ? "NOMINAL" : rawHealth.toUpperCase();
         const hColor = online ? healthColor(rawHealth) : "var(--text-dim)";
-        const moodStr = mood ? mood.toUpperCase() : "";
+        const moodStr = mood ? mood.toUpperCase() : "\u2014";
         const flash = online ? "" : " ohniaka-cell-offline";
         return `<div class="${rowClass}">
             <span class="ohniaka-col ohniaka-name${flash}" style="color:var(--lcars-secondary)"><span class="ohniaka-color-pill" style="background:${agent.color}"></span> ${agentName(agent).toUpperCase()}</span>
@@ -366,7 +362,7 @@ function renderOpsBudget() {
 }
 
 function renderMobilePills() {
-    const container = document.getElementById("ops-mobile-pills");
+    const container = document.getElementById("ops-pulse-agents-mobile");
     if (!container) return;
 
     // Group by domain
@@ -416,7 +412,7 @@ function renderMobilePills() {
                     <span style="color:var(--lcars-secondary)">Gc ${fmtNum(gc)}</span>
                     <span style="color:var(--lcars-readout)">Gf ${fmtNum(gf)}</span>
                     <span style="color:var(--text-dim)">${online ? opIcon + " " + opLabel : "\u2014"}</span>
-                    <span style="color:var(--text-dim)">${online && mood ? mood.toUpperCase() : ""}</span>
+                    <span style="color:var(--text-dim)">${online ? (mood ? mood.toUpperCase() : "\u2014") : ""}</span>
                     ${pending > 0 ? `<span style="color:var(--lcars-title)">PEND ${pending}</span>` : ""}
                 </span>
             </div>`;
@@ -426,7 +422,7 @@ function renderMobilePills() {
             const uptime = d?.data?.uptime || "\u2014";
             const schema = d?.data?.schema_version || "\u2014";
             const events = d?.data?.event_count || 0;
-            const moodDetail = mood || "unknown";
+            const moodDetail = mood || "\u2014";
             const lastSync = d?.data?.schedule?.last_sync_time || d?.data?.collected_at || "\u2014";
 
             html += `<div class="agent-pill-detail" style="border-color:${agent.color}">
@@ -486,7 +482,7 @@ function renderOpsAlphaMatrix() {
     </div>`;
 
     // Update overview footer
-    const ovFtr = document.getElementById("ops-overview-num");
+    const ovFtr = document.getElementById("ops-record-num");
     if (ovFtr) ovFtr.textContent = ` · ${online.length} online · ${totalDelib} deliberations`;
 }
 
@@ -500,7 +496,7 @@ function renderOpsActions() {
         const actions = d.data?.recent_actions || [];
         actions.forEach(a => allActions.push({ ...a, agent_id: agent.id, agent_color: agent.color }));
         // Map deliberations (recent_deliberations or legacy recent_spawns)
-        const deliberations = d.data?.recent_deliberations || d.data?.recent_spawns || [];
+        const deliberations = d.data?.recent_deliberations || d.data?.recent_deliberations_legacy || [];
         deliberations.forEach(s => allActions.push({
             created_at: s.started_at || s.created_at,
             action_type: "deliberation",
@@ -518,7 +514,7 @@ function renderOpsActions() {
 }
 
 function renderActionsTable() {
-    const wrap = document.getElementById("ops-actions-table");
+    const wrap = document.getElementById("ops-deliberations-table");
     if (!wrap) return;
 
     const st = tableState.actions;
@@ -627,7 +623,7 @@ function renderOpsSchedule() {
 // ── Subsystem Readouts ──────────────────────────────────────────
 
 function renderOpsAutonomyReadout() {
-    const el = document.getElementById("ops-autonomy-readout");
+    const el = document.getElementById("ops-resources-budget");
     if (!el) return;
     const online = Object.values(agentData).filter(a => a.status === "online");
     if (online.length === 0) { el.innerHTML = '<div class="phase-stub"><div class="phase-stub-text">No agents online</div></div>'; return; }
@@ -657,7 +653,7 @@ function renderOpsAutonomyReadout() {
 }
 
 function renderOpsTransportReadout() {
-    const el = document.getElementById("ops-transport-readout");
+    const el = document.getElementById("ops-transport-sessions");
     if (!el) return;
     const online = Object.values(agentData).filter(a => a.status === "online");
     const totalMsgs = online.reduce((s, a) => s + (a.data?.recent_messages?.length || 0), 0);
@@ -699,7 +695,7 @@ function renderOpsTransportReadout() {
 }
 
 function renderOpsCapacityReadout() {
-    const el = document.getElementById("ops-capacity-readout");
+    const el = document.getElementById("ops-resources-operations");
     if (!el) return;
     const online = Object.values(agentData).filter(a => a.status === "online");
     const totalGf = online.reduce((s, a) => s + getDeliberations(a.data?.autonomy_budget), 0);
@@ -737,8 +733,11 @@ function renderOpsCapacityReadout() {
     </div>`;
 }
 
-// ── Symmetric Capsule Bars (Ohniaka A1 framing) ─────────────────
+// ── Operations Record Data Grid (Button 52 pattern) ─────────────
 function renderOpsCapsuleBars() {
+    const grid = document.getElementById("ops-data-grid");
+    if (!grid) return;
+
     const online = Object.values(agentData).filter(a => a.status === "online");
     const total = AGENTS.length;
     const totalGf = online.reduce((s, a) => s + getDeliberations(a.data?.autonomy_budget), 0);
@@ -746,34 +745,39 @@ function renderOpsCapsuleBars() {
     const pending = online.reduce((s, a) => s + (a.data?.unprocessed_messages || []).length, 0);
     const gates = online.reduce((s, a) => s + (a.data?.active_gates || []).length, 0);
     const events = online.reduce((s, a) => s + (a.data?.event_count || 0), 0);
+    // Show local agent's git hash (operations-agent build version)
+    const opsVersion = agentData["operations-agent"]?.data?.version || "";
+    const hashMatch = opsVersion.match(/-g([0-9a-f]{7})/);
+    const vStr = hashMatch ? hashMatch[1] : opsVersion.slice(0, 7) || "—";
+    const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    const mode = (typeof sseActive !== "undefined" && sseActive) ? "LIVE" : "POLL";
+    const status = online.length === total ? "NOMINAL" : "DEGRADED";
 
-    // Top bar: mesh summary — agent count, Gf, Gc, pending, gates
-    const top = document.getElementById("ops-capsule-top");
-    if (top) {
-        top.innerHTML = `
-            <span class="cb-leader">${online.length}/${total}</span>
-            <span class="cb-cell">Gf ${fmtNum(totalGf)}</span>
-            <span class="cb-cell cb-cell-t2">Gc ${fmtNum(totalGc)}</span>
-            <span class="cb-cell cb-cell-t3">${fmtNum(events)} EVT</span>
-            ${pending > 0 ? `<span class="cb-cell cb-cell-t2">${pending} PEND</span>` : ""}
-            ${gates > 0 ? `<span class="cb-end cb-end-t2">${gates} GATE</span>` : `<span class="cb-end">${online.length === total ? "NOMINAL" : "DEGRADED"}</span>`}
-        `;
-    }
+    const cell = (val, label, tier) =>
+        `<div class="dg-cell${tier ? " dg-" + tier : ""}" title="${label}" onclick="this.classList.toggle('dg-show-label')"><span class="dg-val">${val}</span><span class="dg-label">${label}</span></div>`;
 
-    // Bottom bar: versions + timing
-    const bottom = document.getElementById("ops-capsule-bottom");
-    if (bottom) {
-        const versions = [...new Set(online.map(a => a.data?.version).filter(Boolean))];
-        const vStr = versions.length === 1 ? versions[0] : versions.length + " VER";
-        const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-        const mode = (typeof sseActive !== "undefined" && sseActive) ? "LIVE" : "POLL";
-        bottom.innerHTML = `
-            <span class="cb-leader">${vStr}</span>
-            <span class="cb-cell">${mode}</span>
-            <span class="cb-cell cb-cell-t2">${now}</span>
-            <span class="cb-end">${total} AGENTS</span>
-        `;
-    }
+    grid.innerHTML = [
+        // System identity group
+        cell(vStr, "BUILD", "t2"),
+        cell(mode, "LINK", ""),
+        cell(now, "TIME", "t2"),
+        cell(`${online.length}/${total}`, "AGENTS", "accent"),
+        // Mesh metrics group (Gc before Gf — always)
+        cell(fmtNum(totalGc), "Gc", "t2"),
+        cell(fmtNum(totalGf), "Gf", ""),
+        cell(fmtNum(events), "EVENTS", "t3"),
+        cell(status, "STATUS", "frame"),
+        // Spawn throttle (T19 — ops.resources.throttle)
+        (() => {
+            const ss = agentData["operations-agent"]?.data?.deliberation_status;
+            if (!ss) return "";
+            const slotStr = `${ss.active}/${ss.max}`;
+            const tier = ss.active > 0 ? "accent" : (ss.reserve_unlocked ? "t3" : "");
+            return cell(slotStr + (ss.holder ? " " + ss.holder.split("-")[0].toUpperCase() : ""), "DELIB", tier);
+        })(),
+        pending > 0 ? cell(pending, "PENDING", "accent") : "",
+        gates > 0 ? cell(gates, "GATES", "accent") : "",
+    ].join("");
 }
 
 // ── Science Station ─────────────────────────────────────────────

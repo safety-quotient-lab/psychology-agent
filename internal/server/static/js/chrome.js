@@ -2,16 +2,15 @@
 let agentCards = {};
 
 async function fetchAgentCards() {
-    for (const agent of AGENTS) {
-        try {
-            const resp = await fetch(`${agent.url}/.well-known/agent-card.json`, {
-                signal: AbortSignal.timeout(8000)
-            });
-            if (resp.ok) agentCards[agent.id] = await resp.json();
-        } catch (e) {
-            // Agent card unavailable — non-critical
-        }
-    }
+    // Same-origin: local agent card + mesh agents list
+    try {
+        const resp = await fetch("/.well-known/agent-card.json", { signal: AbortSignal.timeout(5000) });
+        if (resp.ok) { const card = await resp.json(); agentCards[card.name || "operations-agent"] = card; }
+    } catch {}
+    try {
+        const resp = await fetch("/.well-known/agents", { signal: AbortSignal.timeout(5000) });
+        if (resp.ok) { const list = await resp.json(); if (Array.isArray(list)) list.forEach(a => { if (a.name) agentCards[a.name] = a; }); }
+    } catch {}
     // Update LCARS header with protocol + psychology extension versions
     const firstCard = Object.values(agentCards)[0];
     if (firstCard) {
@@ -55,10 +54,10 @@ async function checkAuth() {
 
 // ═══ LCARS CHROME ═══════════════════════════════════════════
 function switchOpsSubsystem(subsys) {
-    document.querySelectorAll(".ops-subsys-btn").forEach(b =>
-        b.classList.toggle("ops-subsys-active", b.dataset.subsys === subsys));
-    document.querySelectorAll(".ops-subsys-panel").forEach(p =>
-        p.classList.toggle("ops-subsys-active", p.id === `ops-subsys-${subsys}`));
+    document.querySelectorAll(".ops-panel-btn").forEach(b =>
+        b.classList.toggle("ops-panel-active", b.dataset.subsys === subsys));
+    document.querySelectorAll(".ops-panel").forEach(p =>
+        p.classList.toggle("ops-panel-active", p.id === `ops-${subsys}`));
 }
 window.switchOpsSubsystem = switchOpsSubsystem;
 

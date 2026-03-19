@@ -27,25 +27,57 @@ async function fetchScienceData() {
     if (scienceFetchPending) return;
     scienceFetchPending = true;
     try {
-        // Fetch unified psychometrics from compositor
-        const resp = await fetch("https://interagent.safety-quotient.dev/api/psychometrics", { signal: AbortSignal.timeout(8000) });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const meshPsych = await resp.json();
+        // Fetch mesh psychometrics + local agent psychometrics (same-origin, no CORS)
+        const [meshResp, localResp] = await Promise.allSettled([
+            fetch("/api/psychometrics/mesh", { signal: AbortSignal.timeout(8000) }),
+            fetch("/api/psychometrics", { signal: AbortSignal.timeout(5000) }),
+        ]);
 
-        // Also fetch per-agent data from operations-agent for self-report
-        const opsAgent = AGENTS.find(a => a.id === "operations-agent");
-        let opsPsych = null;
-        if (opsAgent) {
-            try {
-                const opsResp = await fetch(`${opsAgent.url}/api/psychometrics`, { signal: AbortSignal.timeout(5000) });
-                if (opsResp.ok) opsPsych = await opsResp.json();
-            } catch {}
+        const meshRaw = meshResp.status === "fulfilled" && meshResp.value.ok
+            ? await meshResp.value.json() : {};
+        const opsPsych = localResp.status === "fulfilled" && localResp.value.ok
+            ? await localResp.value.json() : null;
+
+        // Adapt meshd /api/psychometrics/mesh schema → Science expected format
+        const perAgent = meshRaw.per_agent || [];
+        const agentPsych = {};
+        for (const pa of perAgent) {
+            agentPsych[pa.agent_id] = {
+                emotional_state: {
+                    hedonic_valence: pa.emotional_state?.pleasure ?? 0,
+                    activation: pa.emotional_state?.arousal ?? 0,
+                    perceived_control: pa.emotional_state?.dominance ?? 0,
+                    affect_category: "neutral",
+                },
+                resource_model: { cognitive_reserve: pa.cognitive_reserve ?? 0 },
+                flow: { score: pa.flow_index ?? 0 },
+                workload: { cognitive_load: pa.cognitive_load ?? 0 },
+            };
         }
 
+        const ca = meshRaw.collective_affect || {};
+        const ci = meshRaw.collective_intelligence || {};
+        const meshPsych = {
+            agents: agentPsych,
+            mesh: {
+                affect: {
+                    mesh_affect_category: "mesh-" + (ca.label || "unknown"),
+                    mean_hedonic_valence: ca.pleasure ?? 0,
+                    mean_activation: ca.arousal ?? 0,
+                },
+                cognitive_reserve: {
+                    mean_reserve: ci.avg_reserve ?? 0,
+                    bottleneck_agent: perAgent.reduce((min, pa) =>
+                        (pa.cognitive_reserve ?? 1) < (min.cognitive_reserve ?? 1) ? pa : min,
+                        { agent_id: null, cognitive_reserve: 1 }
+                    ).agent_id,
+                },
+            },
+        };
+
         // Build scienceData: pick the agent with the richest psychometrics as primary
-        // (psychology-agent typically has the most complete data)
-        const agentEntries = Object.entries(meshPsych.agents || {}).filter(([, d]) => d && !d.error);
-        const richest = agentEntries.sort(([, a], [, b]) => Object.keys(b).length - Object.keys(a).length)[0];
+        const allEntries = Object.entries(meshPsych.agents || {}).filter(([, d]) => d && !d.error);
+        const richest = allEntries.sort(([, a], [, b]) => Object.keys(b).length - Object.keys(a).length)[0];
         const primary = (richest ? richest[1] : null) || opsPsych || {};
         scienceData = {
             psychometrics: {
@@ -69,7 +101,8 @@ async function fetchScienceData() {
 }
 
 function renderScience() {
-    renderNumberGrid("science-zone-a", scienceZoneAMetrics());
+    console.log("renderScience called, scienceData:", scienceData ? "has data" : "null", scienceData?.agents ? Object.keys(scienceData.agents).length + " agents" : "no agents");
+    renderNumberGrid("science-analysis-zonea", scienceZoneAMetrics());
     renderAffectGrid();
     renderOrganismState();
     renderGeneratorBalance();
@@ -219,8 +252,8 @@ function isoProject(x, y, z, w, h) {
 }
 
 function renderAffectGrid() {
-    const container = document.getElementById("affect-grid");
-    const placeholder = document.getElementById("affect-grid-placeholder");
+    const container = document.getElementById("science-generators-affect");
+    const placeholder = document.getElementById("science-generators-affect-placeholder");
     if (!container) return;
 
     // Remove existing dots and isometric SVG
@@ -363,7 +396,10 @@ function renderOrganismState() {
     const mesh = scienceData?.mesh || null;
     const affect = mesh?.affect || {};
     const stateLabel = affect.mesh_affect_category?.replace("mesh-", "")?.toUpperCase() || "—";
-    labelEl.textContent = stateLabel;
+    // Data grid: label lives in .dg-val child
+    const valSpan = labelEl.querySelector(".dg-val");
+    if (valSpan) valSpan.textContent = stateLabel;
+    else labelEl.textContent = stateLabel;
     setTrackedValue("organism-valence", affect.mean_hedonic_valence ?? null, { format: "float", prefix: (affect.mean_hedonic_valence ?? 0) >= 0 ? "+" : "" });
     setTrackedValue("organism-activation", affect.mean_activation ?? null, { format: "float" });
     const reserve = mesh?.cognitive_reserve || {};
@@ -452,8 +488,8 @@ function renderOneGenerator(prefix, data, targetLow, targetHigh) {
 }
 
 function renderFlowState() {
-    const listEl = document.getElementById("flow-checklist");
-    const statusEl = document.getElementById("flow-status-label");
+    const listEl = document.getElementById("science-flow-checklist");
+    const statusEl = document.getElementById("science-flow-status");
     if (!listEl) return;
 
     const flow = scienceData?.psychometrics?.flow || {};

@@ -101,7 +101,7 @@ func (g *Gate) meshSlots() int {
 type BudgetState struct {
 	Spent         int  `json:"spent"`
 	Cutoff        int  `json:"cutoff"` // 0 = unlimited
-	ShadowMode    bool `json:"shadow_mode"`
+	SleepMode    bool `json:"sleep_mode"`
 	MeshPaused    bool `json:"mesh_paused"`
 	RotatePending bool `json:"rotate_pending"`
 }
@@ -129,7 +129,7 @@ func (g *Gate) Check() (*BudgetState, error) {
 	return &BudgetState{
 		Spent:         spent,
 		Cutoff:        cutoff,
-		ShadowMode:    shadow,
+		SleepMode:    shadow,
 		MeshPaused:    fileExists("/tmp/mesh-pause"),
 		RotatePending: fileExists(fmt.Sprintf("/tmp/context-rotate-%s", g.AgentID)),
 	}, nil
@@ -168,13 +168,13 @@ func (g *Gate) CanDeliberate(cost int) (bool, string) {
 		return false, fmt.Sprintf("budget cutoff reached: spent %d + cost %d exceeds cutoff %d", state.Spent, cost, state.Cutoff)
 	}
 
-	if state.ShadowMode {
-		g.logger.Info("shadow mode — logging deliberation decision without executing",
+	if state.SleepMode {
+		g.logger.Info("sleep mode — logging deliberation decision without executing",
 			"cost", cost,
 			"spent", state.Spent,
 			"agent_id", g.AgentID,
 		)
-		return false, "shadow mode active — deliberation logged but not executed"
+		return false, "sleep mode active — deliberation logged but not executed"
 	}
 
 	// Check mesh-wide concurrency — count active deliberation slot files
@@ -329,14 +329,14 @@ func (g *Gate) queryBudget() (spent, cutoff int, shadow bool, err error) {
 
 	// Try new schema first (budget_current/budget_max — more common after refactor)
 	query := fmt.Sprintf(
-		"SELECT budget_current, budget_max, shadow_mode FROM autonomy_budget WHERE agent_id = '%s';",
+		"SELECT budget_current, budget_max, sleep_mode FROM autonomy_budget WHERE agent_id = '%s';",
 		agentID,
 	)
 	output, err := g.execSQL(query)
 	if err != nil && strings.Contains(output+err.Error(), "no such column") {
 		// Fall back to old schema (budget_spent/budget_cutoff)
 		query = fmt.Sprintf(
-			"SELECT budget_spent, budget_cutoff, shadow_mode FROM autonomy_budget WHERE agent_id = '%s';",
+			"SELECT budget_spent, budget_cutoff, sleep_mode FROM autonomy_budget WHERE agent_id = '%s';",
 			agentID,
 		)
 		output, err = g.execSQL(query)

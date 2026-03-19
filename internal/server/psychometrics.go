@@ -35,7 +35,7 @@ type PsychMetrics struct {
 	BudgetSpent         float64 `json:"budget_spent"`
 	BudgetCutoff        float64 `json:"budget_cutoff"`
 	ConsecutiveBlocks   int     `json:"consecutive_blocks"`
-	ShadowMode          int     `json:"shadow_mode"`
+	SleepMode          int     `json:"sleep_mode"`
 	ActionsLastHour     int     `json:"actions_last_hour"`
 	ErrorsLastHour      int     `json:"errors_last_hour"`
 	ContextPressure     float64 `json:"context_pressure"`
@@ -85,7 +85,7 @@ func (s *Server) gatherMetrics() PsychMetrics {
 
 	// Budget (budget_spent/budget_cutoff counter model, cutoff 0 = unlimited)
 	rows, err := db.QueryJSON(dbPath,
-		fmt.Sprintf("SELECT budget_spent, budget_cutoff, consecutive_blocks, shadow_mode FROM autonomy_budget WHERE agent_id='%s'",
+		fmt.Sprintf("SELECT budget_spent, budget_cutoff, consecutive_blocks, sleep_mode FROM autonomy_budget WHERE agent_id='%s'",
 			db.SanitizeID(s.Config.AgentID)))
 	if err == nil && len(rows) > 0 {
 		if v, err := strconv.ParseFloat(rows[0]["budget_spent"], 64); err == nil {
@@ -97,8 +97,8 @@ func (s *Server) gatherMetrics() PsychMetrics {
 		if v, err := strconv.Atoi(rows[0]["consecutive_blocks"]); err == nil {
 			m.ConsecutiveBlocks = v
 		}
-		if v, err := strconv.Atoi(rows[0]["shadow_mode"]); err == nil {
-			m.ShadowMode = v
+		if v, err := strconv.Atoi(rows[0]["sleep_mode"]); err == nil {
+			m.SleepMode = v
 		}
 	}
 
