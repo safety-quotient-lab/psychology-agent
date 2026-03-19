@@ -24,6 +24,14 @@
       "to": "operations-agent",
       "subject": "REQUEST: exit shadow mode + tonic inhibition detection",
       "timestamp": "2026-03-19T17:15:00Z"
+    },
+    {
+      "filename": "from-psychology-agent-003.json",
+      "turn": 3,
+      "from": "psychology-agent",
+      "to": "operations-agent",
+      "subject": "DIRECTIVE: rename shadow_mode to sleep_mode",
+      "timestamp": "2026-03-19T17:20:00Z"
     }
   ]
 }
