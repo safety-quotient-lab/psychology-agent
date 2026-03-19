@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 12 complete — 35+ commits, 30+ deploys. LCARS canonical rethink: rectangular blocks (Defiant A2/Button 52), brightness-only states (§2.1), subpanel frames with alert integration, uniform button sizing, Operations Record data grid (Button 52 chunky rectangles with tap-to-label tooltips). Psychometrics (PAD + TLX) embedded in /api/status — all agents now report affect_category (e.g., "calm-satisfied"). Zone-a number grid above Mesh Status header. Panel headers follow all 3 alert levels. Frame spacing on gap scale, sidebar drop responsive, cache no-store. Tricorder prototyped → reverted. Next: Science + Medical station LCARS treatment, then remaining departments.
+**Current Status:** Session 13 complete — 25+ commits, 25+ deploys. CORS eliminated (all JS fetches same-origin via /api/pulse + /api/status). Science tab fixed (was trapped inside Operations pane — missing closing div). Medical LCARS treatment: zone-c title, subpanel agent selector, panel IDs, oscillator fast-fail. All recursive .then() retry loops broken (6 total). SIGTERM graceful shutdown with 5s timeout. --no-block deploys + TimeoutStopSec=15s. Observatory/unratified discovery URLs fixed (-agent subdomains). Session agent identity patching. Pulse includes affect_category server-side. WS supplements polling (no more stale data). Favicon SVG. All agents online with health + mood. Next: LCARS for individual agents vs mesh, remaining station treatments.
 
 ---
 
