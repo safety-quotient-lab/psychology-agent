@@ -3,7 +3,7 @@ let medSelectedAgent = "operations-agent";
 let medPsychData = {};
 
 function renderMedAgentSelector() {
-    const sel = document.getElementById("med-agent-selector");
+    const sel = document.getElementById("medical-vitals-selector");
     if (!sel) return;
     sel.innerHTML = AGENTS.map(function(a) {
         const active = a.id === medSelectedAgent;
@@ -38,9 +38,9 @@ async function fetchMedicalData() {
     if (oscResp.status === "fulfilled" && oscResp.value.ok) {
         renderMedicalOscillator(await oscResp.value.json());
     } else {
-        const el = document.getElementById("med-oscillator");
+        const el = document.getElementById("medical-oscillator-waveform");
         if (el) el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Oscillator not available for this agent</div>';
-        ["med-signals", "med-fire-history", "med-refractory"].forEach(function(id) {
+        ["medical-oscillator-signals", "medical-oscillator-history", "medical-oscillator-refractory"].forEach(function(id) {
             const e = document.getElementById(id);
             if (e) e.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">\u2014</div>';
         });
@@ -71,13 +71,13 @@ async function fetchMedicalData() {
     }
 
     // Footer number
-    const medFtr = document.getElementById("med-footer-num");
+    const medFtr = document.getElementById("medical-footer-num");
     if (medFtr) medFtr.textContent = agentName(agent);
 }
 
 // Zone A: Vitals matrix — Weather Net style dense readout for selected agent
 function renderMedVitalsMatrix() {
-    const el = document.getElementById("med-vitals-matrix");
+    const el = document.getElementById("medical-vitals-matrix");
     if (!el) return;
     const d = agentData[medSelectedAgent];
     if (!d || d.status !== "online") {
@@ -111,14 +111,14 @@ function renderMedVitalsMatrix() {
 
 function renderMedicalOscillator(osc) {
     // Status line
-    const statusLine = document.getElementById("med-status-line");
+    const statusLine = document.getElementById("medical-status-line");
     if (statusLine) {
         const mode = osc.shadow_mode ? "Shadow" : "Active";
         statusLine.textContent = "Oscillator: " + mode + " Mode \u00b7 Activation: " + (osc.activation || 0).toFixed(3) + " \u00b7 State: " + (osc.state || "?") + " \u00b7 Cycles: " + (osc.cycle_count || 0);
     }
 
     // Panel A: Oscillator state
-    const oscEl = document.getElementById("med-oscillator");
+    const oscEl = document.getElementById("medical-oscillator-waveform");
     if (oscEl) {
         const actPct = Math.min(100, (osc.activation || 0) * 100);
         const thrPct = Math.min(100, (osc.threshold || 0) * 100);
@@ -144,12 +144,12 @@ function renderMedicalOscillator(osc) {
             + '<span>Would-fire: <strong>' + (osc.would_fire_count || 0) + '</strong></span>'
             + '</div></div>';
         // Footer
-        const oscFtr = document.getElementById("med-osc-footer");
+        const oscFtr = document.getElementById("medical-oscillator-footer");
         if (oscFtr) oscFtr.textContent = (osc.cycle_count || 0) + " cycles";
     }
 
     // Panel B: Signal breakdown
-    const sigEl = document.getElementById("med-signals");
+    const sigEl = document.getElementById("medical-oscillator-signals");
     if (sigEl && osc.signal_breakdown) {
         const signals = osc.signal_breakdown;
         const maxWeight = 0.25;
@@ -168,7 +168,7 @@ function renderMedicalOscillator(osc) {
     }
 
     // Panel C: Fire history
-    const histEl = document.getElementById("med-fire-history");
+    const histEl = document.getElementById("medical-oscillator-history");
     if (histEl) {
         const events = osc.fire_history || [];
         if (events.length === 0) {
@@ -184,7 +184,7 @@ function renderMedicalOscillator(osc) {
     }
 
     // Panel E: Refractory
-    const refEl = document.getElementById("med-refractory");
+    const refEl = document.getElementById("medical-oscillator-refractory");
     if (refEl) {
         const remaining = osc.refractory_remaining_s || 0;
         const tier = osc.last_tier || "—";
@@ -198,7 +198,7 @@ function renderMedicalOscillator(osc) {
 }
 
 function renderMedicalTempo(tempo) {
-    const el = document.getElementById("med-tempo");
+    const el = document.getElementById("medical-vitals-tempo");
     if (!el) return;
     const tierColor = tempo.recommended_tier === "opus" ? "#c47070" : tempo.recommended_tier === "sonnet" ? "#d4944a" : "#66ccaa";
     el.innerHTML = '<div style="text-align:center;font-size:0.82em">'
@@ -218,7 +218,7 @@ function medBar(label, val, max, color) {
 
 function renderMedPsychometrics(data) {
     // Cognitive Load (NASA-TLX) — only render dimensions that have non-null data
-    const clEl = document.getElementById("med-cognitive-load");
+    const clEl = document.getElementById("medical-vitals-tlx");
     if (clEl) {
         const wl = data.workload || {};
         const tlxDims = [
@@ -243,7 +243,7 @@ function renderMedPsychometrics(data) {
     }
 
     // Working Memory
-    const wmEl = document.getElementById("med-working-memory");
+    const wmEl = document.getElementById("medical-vitals-memory");
     if (wmEl) {
         const wm = data.working_memory || {};
         if (wm.capacity_load != null) {
@@ -257,7 +257,7 @@ function renderMedPsychometrics(data) {
     }
 
     // Resources
-    const resEl = document.getElementById("med-resources");
+    const resEl = document.getElementById("medical-vitals-resources");
     if (resEl) {
         const rm = data.resource_model || {};
         if (rm.cognitive_reserve != null) {
@@ -270,7 +270,7 @@ function renderMedPsychometrics(data) {
     }
 
     // DEW (Degradation Early Warning)
-    const dewEl = document.getElementById("med-dew");
+    const dewEl = document.getElementById("medical-burnout-dew");
     if (dewEl) {
         const dew = data.degradation_early_warning || data.dew || {};
         if (dew.risk != null || dew.level != null) {

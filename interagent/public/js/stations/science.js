@@ -102,7 +102,7 @@ async function fetchScienceData() {
 
 function renderScience() {
     console.log("renderScience called, scienceData:", scienceData ? "has data" : "null", scienceData?.agents ? Object.keys(scienceData.agents).length + " agents" : "no agents");
-    renderNumberGrid("science-zone-a", scienceZoneAMetrics());
+    renderNumberGrid("science-analysis-zonea", scienceZoneAMetrics());
     renderAffectGrid();
     renderOrganismState();
     renderGeneratorBalance();
@@ -252,8 +252,8 @@ function isoProject(x, y, z, w, h) {
 }
 
 function renderAffectGrid() {
-    const container = document.getElementById("affect-grid");
-    const placeholder = document.getElementById("affect-grid-placeholder");
+    const container = document.getElementById("science-generators-affect");
+    const placeholder = document.getElementById("science-generators-affect-placeholder");
     if (!container) return;
 
     // Remove existing dots and isometric SVG
@@ -488,8 +488,8 @@ function renderOneGenerator(prefix, data, targetLow, targetHigh) {
 }
 
 function renderFlowState() {
-    const listEl = document.getElementById("flow-checklist");
-    const statusEl = document.getElementById("flow-status-label");
+    const listEl = document.getElementById("science-flow-checklist");
+    const statusEl = document.getElementById("science-flow-status");
     if (!listEl) return;
 
     const flow = scienceData?.psychometrics?.flow || {};
