@@ -970,7 +970,7 @@
 
                 <!-- Panel E: Cognitive Load (A2A-Psychology) -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
-                    <div class="lcars-panel-header">Cognitive Load (TLX)</div>
+                    <div class="lcars-panel-header">Cognitive Load (TLX) <span class="lcars-panel-id">1988</span></div>
                     <div class="lcars-panel-body" id="eng-cognitive-load">
                         <div class="engineering-placeholder">Awaiting psychometrics data...</div>
                     </div>
@@ -1248,20 +1248,24 @@
 
         <!-- Medical Tab (Station 11 — per-agent diagnostics) -->
         <div class="tab-pane" id="pane-medical">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                <div class="lcars-status-line" id="med-status-line" style="flex:1">Oscillator: Shadow Mode &middot; Activation: — &middot; State: —</div>
-                <span class="lcars-section-badge" style="--badge-color:var(--lcars-medical)">11 <span class="lcars-section-badge-text">Medical</span></span>
+            <!-- Medical Record — zone-c title + data grid -->
+            <div class="lcars-zone-c" style="margin-bottom:var(--gap-xs)">
+                <span class="zc-title">Agent Diagnostics</span>
+                <span class="zc-id">11</span>
             </div>
+            <div id="med-vitals-matrix" style="margin-bottom:var(--gap-l)"></div>
 
-            <!-- Zone A: Agent selector + vitals summary -->
-            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px" id="med-agent-selector"></div>
-            <div id="med-vitals-matrix" style="margin-bottom:12px"></div>
+            <!-- Agent selector — subpanel frame -->
+            <div class="lcars-subpanel">
+                <div class="lcars-subpanel-bar" style="background:var(--lcars-medical,#66ccaa)">11-4471</div>
+                <div style="display:flex;gap:var(--gap-m);flex-wrap:wrap;justify-content:center" id="med-agent-selector"></div>
+            </div>
 
             <!-- Zone B: Diagnostic panels (2-col grid) -->
             <div class="medical-grid">
                 <!-- Oscillator — waveform + activation (primary diagnostic) -->
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa); grid-column: 1 / -1;">
-                    <div class="lcars-panel-header">Oscillator</div>
+                    <div class="lcars-panel-header">Oscillator <span class="lcars-panel-id">8686</span></div>
                     <div class="lcars-panel-body" id="med-oscillator">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Select an agent to view oscillator state</div>
                     </div>
@@ -1270,7 +1274,7 @@
 
                 <!-- Signal Breakdown — hatched bars per signal source -->
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
-                    <div class="lcars-panel-header">Signal Breakdown</div>
+                    <div class="lcars-panel-header">Signal Breakdown <span class="lcars-panel-id">6741</span></div>
                     <div class="lcars-panel-body" id="med-signals">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting signal data</div>
                     </div>
@@ -1278,7 +1282,7 @@
 
                 <!-- Cognitive Tempo — waveform + recommended tier -->
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
-                    <div class="lcars-panel-header">Cognitive Tempo</div>
+                    <div class="lcars-panel-header">Cognitive Tempo <span class="lcars-panel-id">3847</span></div>
                     <div class="lcars-panel-body" id="med-tempo">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting tempo data</div>
                     </div>
@@ -1286,7 +1290,7 @@
 
                 <!-- Cognitive Load (NASA-TLX) — demand/pressure/efficacy bars -->
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
-                    <div class="lcars-panel-header">Cognitive Load (TLX)</div>
+                    <div class="lcars-panel-header">Cognitive Load (TLX) <span class="lcars-panel-id">1988</span></div>
                     <div class="lcars-panel-body" id="med-cognitive-load">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting psychometrics</div>
                     </div>
@@ -1294,7 +1298,7 @@
 
                 <!-- Working Memory — capacity + Yerkes-Dodson zone -->
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
-                    <div class="lcars-panel-header">Working Memory</div>
+                    <div class="lcars-panel-header">Working Memory <span class="lcars-panel-id">1986</span></div>
                     <div class="lcars-panel-body" id="med-working-memory">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting psychometrics</div>
                     </div>
@@ -1302,7 +1306,7 @@
 
                 <!-- Resources — reserve/self-reg/allostatic bars -->
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
-                    <div class="lcars-panel-header">Resources</div>
+                    <div class="lcars-panel-header">Resources <span class="lcars-panel-id">2002</span></div>
                     <div class="lcars-panel-body" id="med-resources">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting psychometrics</div>
                     </div>
@@ -1310,7 +1314,7 @@
 
                 <!-- DEW (Degradation Early Warning) -->
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
-                    <div class="lcars-panel-header">DEW (Degradation)</div>
+                    <div class="lcars-panel-header">DEW (Degradation) <span class="lcars-panel-id">4471</span></div>
                     <div class="lcars-panel-body" id="med-dew">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting psychometrics</div>
                     </div>
@@ -1318,7 +1322,7 @@
 
                 <!-- Refractory State -->
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
-                    <div class="lcars-panel-header">Refractory</div>
+                    <div class="lcars-panel-header">Refractory <span class="lcars-panel-id">7209</span></div>
                     <div class="lcars-panel-body" id="med-refractory">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">&mdash;</div>
                     </div>

@@ -7,10 +7,8 @@ function renderMedAgentSelector() {
     if (!sel) return;
     sel.innerHTML = AGENTS.map(function(a) {
         const active = a.id === medSelectedAgent;
-        // LCARS canon: inactive pills show muted agent color (opacity), active shows full
-        const bg = active ? a.color : "color-mix(in srgb, " + a.color + " 35%, #111)";
-        const textColor = active ? "#000" : a.color;
-        return '<button class="lcars-pill-btn" style="font-size:0.72em;padding:6px 14px;background:' + bg + ';color:' + textColor + (active ? ";box-shadow:0 0 8px " + a.color : ";opacity:0.7") + '" onclick="selectMedAgent(\'' + a.id + '\')">' + agentName(a) + '</button>';
+        // Canonical: rectangular blocks, brightness for state (§2.1)
+        return '<button class="lcars-pill-btn lcars-pill-sm" style="min-width:100px;min-height:48px;background:' + a.color + ';color:#000' + (active ? ";filter:brightness(1.3)" : "") + '" onclick="selectMedAgent(\'' + a.id + '\')">' + agentName(a).toUpperCase() + '</button>';
     }).join("");
 }
 window.selectMedAgent = function(agentId) {
