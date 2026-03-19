@@ -26,17 +26,19 @@ async function fetchAgentDict(agent) {
 }
 
 async function refreshKnowledge() {
-    const [kbResults, dictResults] = await Promise.all([
-        Promise.allSettled(AGENTS.map(fetchAgentKB)),
-        Promise.allSettled(AGENTS.map(fetchAgentDict)),
+    // Single same-origin fetch — local meshd serves all KB data
+    const [kbResult, dictResult] = await Promise.allSettled([
+        fetchAgentKB({ id: "operations-agent" }),
+        fetchAgentDict({ id: "operations-agent" }),
     ]);
 
-    kbResults.forEach((r, i) => {
-        kbData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "error" };
-    });
-    dictResults.forEach((r, i) => {
-        dictData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "error" };
-    });
+    // Populate for all agents (same data source)
+    const kbVal = kbResult.status === "fulfilled" ? kbResult.value : { id: "operations-agent", status: "error" };
+    const dictVal = dictResult.status === "fulfilled" ? dictResult.value : { id: "operations-agent", status: "error" };
+    for (const agent of AGENTS) {
+        kbData[agent.id] = kbVal;
+        dictData[agent.id] = dictVal;
+    }
 
     buildAcronymMap();
     renderKnowledge();
