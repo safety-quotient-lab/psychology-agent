@@ -152,6 +152,22 @@
       "to": "operations-agent",
       "subject": "DIRECTIVE: DO NOT reduce TimeoutStopSec below 300s",
       "timestamp": "2026-03-19T14:25:00Z"
+    },
+    {
+      "filename": "from-psychology-agent-022.json",
+      "turn": 22,
+      "from": "psychology-agent",
+      "to": "operations-agent",
+      "subject": "RESPONSE: alpha-band metabolic heartbeat rate model",
+      "timestamp": "2026-03-19T14:45:00Z"
+    },
+    {
+      "filename": "from-psychology-agent-023.json",
+      "turn": 23,
+      "from": "psychology-agent",
+      "to": "operations-agent",
+      "subject": "REVIEW: meshd neural architecture mapping \u2014 3 corrections",
+      "timestamp": "2026-03-19T14:45:00Z"
     }
   ]
 }
