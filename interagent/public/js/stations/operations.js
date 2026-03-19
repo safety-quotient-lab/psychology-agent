@@ -29,12 +29,7 @@ function renderOpsGovernance() {
         decs.forEach(d => decisions.push({ ...d, _agent: agent.id, _color: agent.color }));
     }
     if (decisions.length === 0) {
-        // Eager fetch — load KB data without requiring Meta tab visit
-        el.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">Loading governance data...</div>';
-        const hasAnyKb = Object.values(kbData).some(kb => kb && kb.status === "ok");
-        if (!hasAnyKb) {
-            refreshKnowledge().then(() => renderOpsGovernance());
-        }
+        el.innerHTML = '<div style="opacity:0.5;padding:8px;font-size:0.85em">No governance data</div>';
         return;
     }
     // Pattern C: numbered entry list — capsule label + description
