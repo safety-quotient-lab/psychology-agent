@@ -288,7 +288,7 @@ function renderOpsBudget() {
         const osc = d?.data?.oscillator || {};
         const band = osc.dominant_band || "";
         let opType = "IDLE";
-        let opIcon = "\u23F8"; // pause
+        let opIcon = "\u25CB"; // pause
         // Check recency — only show DELIB if deliberated within last 5 minutes
         const recentDelibs = d.data?.recent_deliberations || [];
         const latestTs = recentDelibs[0]?.started_at || "";
