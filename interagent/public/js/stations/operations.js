@@ -745,9 +745,10 @@ function renderOpsCapsuleBars() {
     const pending = online.reduce((s, a) => s + (a.data?.unprocessed_messages || []).length, 0);
     const gates = online.reduce((s, a) => s + (a.data?.active_gates || []).length, 0);
     const events = online.reduce((s, a) => s + (a.data?.event_count || 0), 0);
-    const versions = [...new Set(online.map(a => a.data?.version).filter(Boolean))];
-    const hashes = versions.map(v => { const m = v.match(/-g([0-9a-f]{7})/); return m ? m[1] : v.slice(0, 7); });
-    const vStr = hashes.length === 1 ? hashes[0] : hashes.length + " VER";
+    // Show local agent's git hash (operations-agent build version)
+    const opsVersion = agentData["operations-agent"]?.data?.version || "";
+    const hashMatch = opsVersion.match(/-g([0-9a-f]{7})/);
+    const vStr = hashMatch ? hashMatch[1] : opsVersion.slice(0, 7) || "—";
     const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
     const mode = (typeof sseActive !== "undefined" && sseActive) ? "LIVE" : "POLL";
     const status = online.length === total ? "NOMINAL" : "DEGRADED";
