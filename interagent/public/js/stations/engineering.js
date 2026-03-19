@@ -338,50 +338,67 @@ function renderUtilization() {
 }
 
 function renderTempo() {
-    const valueEl = document.getElementById("tempo-value");
-    const fillEl = document.getElementById("tempo-bar-fill");
-    const statusEl = document.getElementById("tempo-status");
-    if (!valueEl) return;
-
-    // Cognitive tempo (Gf) — gain parameter + recommended tier
+    // ── Gf Tempo: cognitive tempo (gain, tier, Yerkes-Dodson) ──
+    const gfVal = document.getElementById("tempo-gf-value");
+    const gfFill = document.getElementById("tempo-gf-fill");
+    const gfStatus = document.getElementById("tempo-gf-status");
     const ct = engineeringData?.cogTempo;
     const gain = ct?.gain ?? null;
     const tier = ct?.recommended_tier || "?";
     const tierColor = tier === "opus" ? "#c47070" : tier === "sonnet" ? "#d4944a" : "#66ccaa";
 
-    // Queueing tempo (Gc) — OODA cycle from mesh throughput
-    const avgMs = engineeringData?.tempo?.mesh?.mean_duration_sec != null
-        ? Math.round(engineeringData.tempo.mesh.mean_duration_sec * 1000) : null;
-
-    if (gain != null) {
-        valueEl.innerHTML = `${tier.toUpperCase()}<span class="tempo-unit"> gain=${gain.toFixed(2)}</span>`;
-        const pct = Math.min(100, gain * 100);
-        fillEl.style.width = `${pct}%`;
-        fillEl.style.background = tierColor;
-        const yd = ct?.psychometric_state?.yerkes_dodson_zone || "?";
-        statusEl.textContent = `Yerkes-Dodson: ${yd.toUpperCase()}${avgMs ? " · OODA: " + avgMs + "ms" : ""}`;
-    } else if (avgMs != null) {
-        valueEl.innerHTML = `${avgMs}<span class="tempo-unit">ms avg</span>`;
-        const pct = Math.min(100, (avgMs / 2000) * 100);
-        fillEl.style.width = `${pct}%`;
-        statusEl.textContent = `OODA cycle: ${avgMs > 1500 ? "SLOW" : avgMs > 800 ? "MODERATE" : "NOMINAL"}`;
-    } else {
-        valueEl.innerHTML = `\u2014<span class="tempo-unit">awaiting</span>`;
-        fillEl.style.width = "0%";
-        statusEl.textContent = "Tempo: AWAITING DATA";
-        return;
+    if (gfVal) {
+        if (gain != null) {
+            gfVal.innerHTML = `${tier.toUpperCase()}<span class="tempo-unit"> gain=${gain.toFixed(2)}</span>`;
+            gfFill.style.width = `${Math.min(100, gain * 100)}%`;
+            gfFill.style.background = tierColor;
+            const yd = ct?.psychometric_state?.yerkes_dodson_zone || "?";
+            gfStatus.textContent = `Yerkes-Dodson: ${yd.toUpperCase()} · Complexity: ${(ct?.task_complexity || 0).toFixed(2)}`;
+        } else {
+            gfVal.innerHTML = `\u2014<span class="tempo-unit">awaiting</span>`;
+            gfFill.style.width = "0%";
+            gfStatus.textContent = "Gf: AWAITING DATA";
+        }
     }
 
-    // Waveform visualization — frequency from gain (higher gain = faster waveform)
-    const tempoWaveEl = document.getElementById("tempo-waveform");
-    if (tempoWaveEl) {
-        const freq = gain != null ? Math.max(1, gain * 8) : (avgMs ? Math.max(1, 6 - (avgMs / 500)) : 2);
-        const amp = gain != null ? Math.max(0.3, 1 - gain) : Math.min(1, (avgMs || 500) / 1000);
-        _waveOpts = {
-            width: tempoWaveEl.clientWidth || 200, height: 30,
-            amplitude: amp, frequency: freq, stroke: tierColor,
-        };
-        tempoWaveEl.innerHTML = waveformSVG({ ..._waveOpts, phase: _wavePhase });
+    // Gf waveform — frequency from gain
+    const gfWave = document.getElementById("tempo-gf-waveform");
+    if (gfWave && gain != null) {
+        const freq = Math.max(1, gain * 8);
+        const amp = Math.max(0.3, 1 - gain);
+        _waveOpts = { width: gfWave.clientWidth || 200, height: 30, amplitude: amp, frequency: freq, stroke: tierColor };
+        gfWave.innerHTML = waveformSVG({ ..._waveOpts, phase: _wavePhase });
+    }
+
+    // ── Gc Tempo: crystallized throughput (OODA cycle, events/hr) ──
+    const gcVal = document.getElementById("tempo-gc-value");
+    const gcFill = document.getElementById("tempo-gc-fill");
+    const gcStatus = document.getElementById("tempo-gc-status");
+    const mesh = engineeringData?.tempo?.mesh || {};
+    const avgMs = mesh.mean_duration_sec != null ? Math.round(mesh.mean_duration_sec * 1000) : null;
+    const rho = mesh.utilization ?? null;
+
+    if (gcVal) {
+        if (rho != null) {
+            const pct = Math.min(100, rho * 100);
+            gcVal.innerHTML = `${pct.toFixed(0)}%<span class="tempo-unit"> utilization</span>`;
+            gcFill.style.width = `${pct}%`;
+            gcFill.style.background = rho > 0.8 ? "#c47070" : rho > 0.5 ? "#d4944a" : "#6aab8e";
+            gcStatus.textContent = `OODA: ${avgMs || "\u2014"}ms · Throughput: ${mesh.stable ? "STABLE" : "UNSTABLE"}`;
+        } else {
+            gcVal.innerHTML = `\u2014<span class="tempo-unit">awaiting</span>`;
+            gcFill.style.width = "0%";
+            gcStatus.textContent = "Gc: AWAITING DATA";
+        }
+    }
+
+    // Gc waveform — frequency from utilization
+    const gcWave = document.getElementById("tempo-gc-waveform");
+    if (gcWave && rho != null) {
+        const freq = Math.max(1, rho * 6);
+        const amp = Math.max(0.2, rho);
+        const gcColor = rho > 0.8 ? "#c47070" : rho > 0.5 ? "#d4944a" : "#6aab8e";
+        gcWave.innerHTML = waveformSVG({ width: gcWave.clientWidth || 200, height: 30, amplitude: amp, frequency: freq, stroke: gcColor, phase: _wavePhase + 1.5 });
     }
 
     renderTempoIntrospection(tierColor);
