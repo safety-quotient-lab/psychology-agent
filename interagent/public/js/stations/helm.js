@@ -21,11 +21,9 @@ async function fetchHelmData() {
     helmFetchPending = true;
     try {
         // Fetch KB data from operations-agent (has transport messages)
-        const opsAgent = AGENTS.find(a => a.id === "operations-agent");
-        const baseUrl = opsAgent ? opsAgent.url : "https://operations-agent.safety-quotient.dev";
         const [kbResp, psychResp] = await Promise.allSettled([
-            fetch(`${baseUrl}/api/kb`, { signal: AbortSignal.timeout(8000) }),
-            fetch(`${baseUrl}/api/psychometrics`, { signal: AbortSignal.timeout(5000) }),
+            fetch("/api/kb", { signal: AbortSignal.timeout(8000) }),
+            fetch("/api/psychometrics", { signal: AbortSignal.timeout(5000) }),
         ]);
 
         const kbData = kbResp.status === "fulfilled" && kbResp.value.ok ? await kbResp.value.json() : null;

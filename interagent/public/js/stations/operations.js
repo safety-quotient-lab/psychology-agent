@@ -134,7 +134,7 @@ async function fetchMeshAgg() {
         try {
             const opsUrl = AGENTS.find(a => a.id === "ops-session" || a.id === "operations-agent")?.url || "";
             if (!opsUrl) return;
-            const r = await fetch(`${opsUrl}/api/mesh-aggregate`, { signal: AbortSignal.timeout(5000) });
+            const r = await fetch("/api/mesh-aggregate", { signal: AbortSignal.timeout(5000) });
             if (r.ok) { _meshAggData = await r.json(); _meshAggTs = Date.now(); }
         } catch {} finally { _meshAggPromise = null; }
     })();
@@ -168,7 +168,7 @@ async function fetchPsychForOps() {
     if (_psychCache && _psychCache._fetchedAt && Date.now() - _psychCache._fetchedAt < 30000) return;
     _psychFetchPromise = (async () => {
         try {
-            const resp = await fetch("https://interagent.safety-quotient.dev/api/psychometrics", { signal: AbortSignal.timeout(5000) });
+            const resp = await fetch("/api/psychometrics", { signal: AbortSignal.timeout(5000) });
             if (resp.ok) { _psychCache = await resp.json(); _psychCache._fetchedAt = Date.now(); }
         } catch {} finally { _psychFetchPromise = null; }
     })();

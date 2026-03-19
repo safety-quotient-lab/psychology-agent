@@ -23,28 +23,60 @@ const POLL_MIN = 30000;
 const POLL_MAX = 120000;
 const FETCH_TIMEOUT = 3000;     // 3s timeout (was 8s — too slow)
 
-async function fetchAgentStatus(agent) {
+// Fetch local agent status (same-origin — no CORS)
+async function fetchLocalStatus() {
     try {
-        const resp = await fetch(`${agent.url}/api/status`, { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+        const resp = await fetch("/api/status", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         checkVersionHeader(resp);
-        _failedAgents.delete(agent.id);
-        return { id: agent.id, status: "online", data: await resp.json() };
-    } catch (err) {
-        _failedAgents.add(agent.id);
-        return { id: agent.id, status: "unreachable", error: err.message };
-    }
+        return await resp.json();
+    } catch { return null; }
+}
+
+// Fetch mesh pulse (same-origin — aggregated status for all agents)
+async function fetchMeshPulse() {
+    try {
+        const resp = await fetch("/api/pulse", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return await resp.json();
+    } catch { return null; }
 }
 
 let _refreshing = false;
 async function refreshAll() {
-    if (_refreshing) return; // Prevent concurrent refreshes
+    if (_refreshing) return;
     _refreshing = true;
     try {
-    const results = await Promise.allSettled(AGENTS.map(fetchAgentStatus));
-    results.forEach((r, i) => {
-        agentData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "unreachable" };
-    });
+    // Fetch local status + mesh pulse in parallel (both same-origin)
+    const [localData, pulseData] = await Promise.all([fetchLocalStatus(), fetchMeshPulse()]);
+
+    // Populate agentData from pulse (covers all agents)
+    if (pulseData?.agents) {
+        for (const pa of pulseData.agents) {
+            const existing = agentData[pa.id]?.data || {};
+            agentData[pa.id] = {
+                id: pa.id,
+                status: pa.status === "online" ? "online" : "unreachable",
+                data: {
+                    ...existing,
+                    agent_id: pa.id,
+                    health: pa.health || "unknown",
+                    version: pa.version || "",
+                    uptime: pa.uptime || "",
+                    mesh_mode: pulseData.mesh_mode || "active",
+                    autonomy_budget: { budget_spent: pa.budget_spent || 0, budget_cutoff: pa.budget_cutoff || 0 },
+                    unprocessed_messages: pa.unprocessed_messages || [],
+                },
+            };
+        }
+        _failedAgents.clear();
+    }
+
+    // Enrich local agent with full status data (has psychometrics, events, etc.)
+    if (localData) {
+        const aid = localData.agent_id || "operations-agent";
+        agentData[aid] = { id: aid, status: "online", data: localData };
+    }
     try { renderPulse(); } catch(e) { console.error("renderPulse failed:", e); }
     try { renderOperations(); } catch(e) { console.error("renderOperations failed:", e); }
 

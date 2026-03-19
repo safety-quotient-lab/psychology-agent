@@ -14,11 +14,9 @@ async function fetchEngineeringData() {
     if (engineeringFetchPending) return;
     engineeringFetchPending = true;
     try {
-        const opsAgent = AGENTS.find(a => a.id === "operations-agent");
-        const baseUrl = opsAgent ? opsAgent.url : "https://psychology-agent.safety-quotient.dev";
         const [tempoResp, deliberationResp] = await Promise.allSettled([
-            fetch(`${baseUrl}/api/tempo`, { signal: AbortSignal.timeout(8000) }),
-            fetch(`${baseUrl}/api/deliberation-rate`, { signal: AbortSignal.timeout(8000) }),
+            fetch("/api/tempo", { signal: AbortSignal.timeout(8000) }),
+            fetch("/api/deliberation-rate", { signal: AbortSignal.timeout(8000) }),
         ]);
         const tempoData = tempoResp.status === "fulfilled" && tempoResp.value.ok
             ? await tempoResp.value.json() : null;
