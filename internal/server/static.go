@@ -155,25 +155,37 @@ func (s *Server) handleVocabSchema(w http.ResponseWriter, r *http.Request) {
 // if available at {project-root}/.well-known/agent-card.json, otherwise
 // falls back to the embedded operations-agent card.
 func (s *Server) handleAgentCardStatic(w http.ResponseWriter, r *http.Request) {
-	// Try local agent card first (for non-operations agents)
+	// Load base card: local repo card → embedded card
+	var baseData []byte
 	if s.Config.AgentID != "operations-agent" {
 		localCard := s.Config.RepoRoot + "/.well-known/agent-card.json"
-		if data, err := readFileBytes(localCard); err == nil {
-			w.Header().Set("Content-Type", "application/json; charset=utf-8")
-			w.Header().Set("Cache-Control", "public, max-age=3600")
-			w.Write(data)
-			return
-		}
+		baseData, _ = readFileBytes(localCard)
 	}
-
-	data, err := staticFS.ReadFile("static/agent-card.json")
-	if err != nil {
+	if baseData == nil {
+		baseData, _ = staticFS.ReadFile("static/agent-card.json")
+	}
+	if baseData == nil {
 		http.Error(w, "agent card not available", http.StatusInternalServerError)
 		return
 	}
+
+	// If this meshd runs with a different agent-id than the card's name,
+	// patch the card to reflect the actual identity (session agents, etc.)
+	var card map[string]any
+	if err := json.Unmarshal(baseData, &card); err == nil {
+		cardName, _ := card["name"].(string)
+		if cardName != s.Config.AgentID {
+			card["name"] = s.Config.AgentID
+			card["description"] = "Interactive session — " + s.Config.AgentID
+			if patched, err := json.Marshal(card); err == nil {
+				baseData = patched
+			}
+		}
+	}
+
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Cache-Control", "public, max-age=3600")
-	w.Write(data)
+	w.Write(baseData)
 }
 
 // readFileBytes reads a file from the local filesystem.
