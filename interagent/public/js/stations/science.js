@@ -27,42 +27,53 @@ async function fetchScienceData() {
     if (scienceFetchPending) return;
     scienceFetchPending = true;
     try {
-        // Fetch psychometrics from each agent in parallel (same-origin via proxy or direct)
+        // Fetch mesh psychometrics + local agent psychometrics (same-origin, no CORS)
+        const [meshResp, localResp] = await Promise.allSettled([
+            fetch("/api/psychometrics/mesh", { signal: AbortSignal.timeout(8000) }),
+            fetch("/api/psychometrics", { signal: AbortSignal.timeout(5000) }),
+        ]);
+
+        const meshRaw = meshResp.status === "fulfilled" && meshResp.value.ok
+            ? await meshResp.value.json() : {};
+        const opsPsych = localResp.status === "fulfilled" && localResp.value.ok
+            ? await localResp.value.json() : null;
+
+        // Adapt meshd /api/psychometrics/mesh schema → Science expected format
+        const perAgent = meshRaw.per_agent || [];
         const agentPsych = {};
-        const fetches = AGENTS.map(async (a) => {
-            try {
-                const r = await fetch(`${a.url}/api/psychometrics`, { signal: AbortSignal.timeout(5000) });
-                if (r.ok) agentPsych[a.id] = await r.json();
-            } catch {}
-        });
-        await Promise.allSettled(fetches);
+        for (const pa of perAgent) {
+            agentPsych[pa.agent_id] = {
+                emotional_state: {
+                    hedonic_valence: pa.emotional_state?.pleasure ?? 0,
+                    activation: pa.emotional_state?.arousal ?? 0,
+                    perceived_control: pa.emotional_state?.dominance ?? 0,
+                    affect_category: "neutral",
+                },
+                resource_model: { cognitive_reserve: pa.cognitive_reserve ?? 0 },
+                flow: { score: pa.flow_index ?? 0 },
+                workload: { cognitive_load: pa.cognitive_load ?? 0 },
+            };
+        }
 
-        // Build mesh-level aggregates from individual agent data
-        const agentEntries = Object.entries(agentPsych);
-        const pVals = agentEntries.map(([,d]) => d.emotional_state?.hedonic_valence).filter(v => v != null);
-        const aVals = agentEntries.map(([,d]) => d.emotional_state?.activation).filter(v => v != null);
-        const reserves = agentEntries.map(([,d]) => d.resource_model?.cognitive_reserve).filter(v => v != null);
-        const mean = arr => arr.length ? arr.reduce((s,v) => s+v, 0) / arr.length : null;
-
+        const ca = meshRaw.collective_affect || {};
+        const ci = meshRaw.collective_intelligence || {};
         const meshPsych = {
             agents: agentPsych,
             mesh: {
                 affect: {
-                    mesh_affect_category: agentEntries.length > 0 ? "mesh-" + (agentPsych[agentEntries[0][0]]?.emotional_state?.affect_category || "unknown") : "mesh-unknown",
-                    mean_hedonic_valence: mean(pVals),
-                    mean_activation: mean(aVals),
+                    mesh_affect_category: "mesh-" + (ca.label || "unknown"),
+                    mean_hedonic_valence: ca.pleasure ?? 0,
+                    mean_activation: ca.arousal ?? 0,
                 },
                 cognitive_reserve: {
-                    mean_reserve: mean(reserves),
-                    bottleneck_agent: reserves.length > 0 ? agentEntries.reduce((min, [id, d]) => {
-                        const r = d.resource_model?.cognitive_reserve ?? 1;
-                        return r < (min[1] ?? 1) ? [id, r] : min;
-                    }, ["", 1])[0] : null,
+                    mean_reserve: ci.avg_reserve ?? 0,
+                    bottleneck_agent: perAgent.reduce((min, pa) =>
+                        (pa.cognitive_reserve ?? 1) < (min.cognitive_reserve ?? 1) ? pa : min,
+                        { agent_id: null, cognitive_reserve: 1 }
+                    ).agent_id,
                 },
             },
         };
-
-        const opsPsych = agentPsych["operations-agent"] || null;
 
         // Build scienceData: pick the agent with the richest psychometrics as primary
         const allEntries = Object.entries(meshPsych.agents || {}).filter(([, d]) => d && !d.error);
