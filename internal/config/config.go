@@ -169,24 +169,28 @@ func loadAgentCardURLs(repoRoot string) []string {
 		return defaultCardURLs()
 	}
 
+	// cogarch.config.json uses peers.agents as a map { "agent-id": { "discovery_url": "..." } }
 	var cogarch struct {
 		Peers struct {
-			Agents []struct {
-				CardURL string `json:"card_url"`
+			Agents map[string]struct {
+				DiscoveryURL string `json:"discovery_url"`
+				CardURL      string `json:"card_url"`
 			} `json:"agents"`
 		} `json:"peers"`
 	}
 
-	// Use encoding/json import
 	if err := parseJSON(data, &cogarch); err != nil {
 		return defaultCardURLs()
 	}
 
 	urls := make([]string, 0, len(cogarch.Peers.Agents))
 	for _, a := range cogarch.Peers.Agents {
-		if a.CardURL != "" {
-			// Ensure URL points to agent-card.json
-			url := a.CardURL
+		raw := a.DiscoveryURL
+		if raw == "" {
+			raw = a.CardURL
+		}
+		if raw != "" {
+			url := raw
 			if !strings.HasSuffix(url, "/.well-known/agent-card.json") {
 				url = strings.TrimSuffix(url, "/") + "/.well-known/agent-card.json"
 			}
@@ -210,6 +214,8 @@ func defaultCardURLs() []string {
 		"https://operations-agent.safety-quotient.dev/.well-known/agent-card.json",
 		"https://unratified.org/.well-known/agent-card.json",
 		"https://observatory.unratified.org/.well-known/agent-card.json",
+		"https://ops-session.safety-quotient.dev/.well-known/agent-card.json",
+		"https://psy-session.safety-quotient.dev/.well-known/agent-card.json",
 	}
 }
 
