@@ -19,22 +19,26 @@ window.runDiagnostic = runDiagnostic;
 window.switchOpsSubsystem = switchOpsSubsystem;
 
 // ── Init ───────────────────────────────────────────────────────
-(function init() {
-    // Restore theme
+(async function init() {
+    // Restore theme first (setTheme may switch to default bridge station)
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme && savedTheme !== "dark") setTheme(savedTheme);
 
-    // Restore tab from URL hash
+    // Restore tab from URL hash — AFTER theme, so it overrides any default
     const hashTab = location.hash.replace("#", "");
     if (hashTab && VALID_TABS.includes(hashTab)) switchTab(hashTab, false);
 
-    // Delay all fetches 2s — let page render first
-    setTimeout(function() {
-        buildAgentSwitcher();
-        refreshAll();
-        checkAuth();
-        fetchAgentCards();
-        // Single conservative poll
-        refreshTimer = setInterval(refreshAll, 60000);
-    }, 2000);
+    buildAgentSwitcher();
+    await refreshAll();
+
+    // Check auth for control surfaces (non-blocking)
+    checkAuth();
+
+    // Fetch agent cards for structural schema (non-blocking)
+    fetchAgentCards();
+
+    // Try WebSocket — real-time event-driven updates (beta-band relay)
+    connectWebSocket();
+    // Safety net — polling only until WS connects (WS handler clears timer)
+    refreshTimer = setInterval(refreshAll, _pollInterval);
 })();

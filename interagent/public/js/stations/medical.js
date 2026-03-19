@@ -27,9 +27,9 @@ async function fetchMedicalData() {
 
     // Fetch oscillator + tempo + psychometrics in parallel
     const [oscResp, tempoResp, psychResp] = await Promise.allSettled([
-        fetch("/api/oscillator", { signal: AbortSignal.timeout(8000) }),
-        fetch("/api/cognitive-tempo", { signal: AbortSignal.timeout(8000) }),
-        fetch("/api/psychometrics/mesh", { signal: AbortSignal.timeout(8000) }),
+        fetch(agent.url + "/api/oscillator", { signal: AbortSignal.timeout(8000) }),
+        fetch(agent.url + "/api/cognitive-tempo", { signal: AbortSignal.timeout(8000) }),
+        fetch("https://interagent.safety-quotient.dev/api/psychometrics", { signal: AbortSignal.timeout(8000) }),
     ]);
 
     // Oscillator

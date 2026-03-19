@@ -1,8 +1,7 @@
 // ═══ RENDER: KNOWLEDGE ══════════════════════════════════════
 async function fetchAgentKB(agent) {
     try {
-        // Same-origin: all KB data served by local meshd (aggregates across agents)
-        const resp = await fetch("/api/kb", { signal: AbortSignal.timeout(10000) });
+        const resp = await fetch(`${agent.url}/api/kb`, { signal: AbortSignal.timeout(10000) });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         return { id: agent.id, status: "ok", data: await resp.json() };
     } catch (err) {
@@ -16,7 +15,7 @@ const _dictFailedAgents = new Set(); // Stop retrying agents that lack dictionar
 async function fetchAgentDict(agent) {
     if (_dictFailedAgents.has(agent.id)) return { id: agent.id, status: "error", error: "cached 404" };
     try {
-        const resp = await fetch("/api/kb?section=dictionary", { signal: AbortSignal.timeout(10000) });
+        const resp = await fetch(`${agent.url}/api/kb?section=dictionary`, { signal: AbortSignal.timeout(10000) });
         if (resp.status === 404) { _dictFailedAgents.add(agent.id); throw new Error("404"); }
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         return { id: agent.id, status: "ok", data: await resp.json() };
@@ -26,19 +25,17 @@ async function fetchAgentDict(agent) {
 }
 
 async function refreshKnowledge() {
-    // Single same-origin fetch — local meshd serves all KB data
-    const [kbResult, dictResult] = await Promise.allSettled([
-        fetchAgentKB({ id: "operations-agent" }),
-        fetchAgentDict({ id: "operations-agent" }),
+    const [kbResults, dictResults] = await Promise.all([
+        Promise.allSettled(AGENTS.map(fetchAgentKB)),
+        Promise.allSettled(AGENTS.map(fetchAgentDict)),
     ]);
 
-    // Populate for all agents (same data source)
-    const kbVal = kbResult.status === "fulfilled" ? kbResult.value : { id: "operations-agent", status: "error" };
-    const dictVal = dictResult.status === "fulfilled" ? dictResult.value : { id: "operations-agent", status: "error" };
-    for (const agent of AGENTS) {
-        kbData[agent.id] = kbVal;
-        dictData[agent.id] = dictVal;
-    }
+    kbResults.forEach((r, i) => {
+        kbData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "error" };
+    });
+    dictResults.forEach((r, i) => {
+        dictData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "error" };
+    });
 
     buildAcronymMap();
     renderKnowledge();

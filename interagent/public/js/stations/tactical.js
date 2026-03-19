@@ -7,8 +7,8 @@ async function fetchTacticalData() {
     tacticalFetchPending = true;
     try {
         const [healthResp, agentsResp] = await Promise.allSettled([
-            fetch("/api/health", { signal: AbortSignal.timeout(8000) }),
-            fetch("/.well-known/agents?refresh=true", { signal: AbortSignal.timeout(8000), cache: "no-cache" }),
+            fetch("https://interagent.safety-quotient.dev/api/health", { signal: AbortSignal.timeout(8000) }),
+            fetch("https://interagent.safety-quotient.dev/.well-known/agents?refresh=true", { signal: AbortSignal.timeout(8000), cache: "no-cache" }),
         ]);
         if (healthResp.status === "fulfilled" && healthResp.value.ok) {
             tacticalData = await healthResp.value.json();
@@ -141,7 +141,7 @@ async function fetchAndRenderTrustMatrix() {
     const container = document.getElementById("trust-heatmap");
     if (!container) return;
     try {
-        const resp = await fetch("/api/trust", {
+        const resp = await fetch("https://interagent.safety-quotient.dev/api/trust", {
             signal: AbortSignal.timeout(8000),
         });
         if (!resp.ok) throw new Error("HTTP " + resp.status);

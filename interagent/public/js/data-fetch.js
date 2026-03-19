@@ -23,67 +23,28 @@ const POLL_MIN = 30000;
 const POLL_MAX = 120000;
 const FETCH_TIMEOUT = 3000;     // 3s timeout (was 8s — too slow)
 
-// Fetch local agent status (same-origin — no CORS)
-async function fetchLocalStatus() {
+async function fetchAgentStatus(agent) {
     try {
-        const resp = await fetch("/api/status", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+        const resp = await fetch(`${agent.url}/api/status`, { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         checkVersionHeader(resp);
-        return await resp.json();
-    } catch { return null; }
-}
-
-// Fetch mesh pulse (same-origin — aggregated status for all agents)
-async function fetchMeshPulse() {
-    try {
-        const resp = await fetch("/api/pulse", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        return await resp.json();
-    } catch { return null; }
+        _failedAgents.delete(agent.id);
+        return { id: agent.id, status: "online", data: await resp.json() };
+    } catch (err) {
+        _failedAgents.add(agent.id);
+        return { id: agent.id, status: "unreachable", error: err.message };
+    }
 }
 
 let _refreshing = false;
 async function refreshAll() {
-    if (_refreshing) return;
+    if (_refreshing) return; // Prevent concurrent refreshes
     _refreshing = true;
     try {
-    // Fetch local status + mesh pulse in parallel (both same-origin)
-    const [localData, pulseData] = await Promise.all([fetchLocalStatus(), fetchMeshPulse()]);
-
-    // Initialize all agents with stub data (prevents undefined access)
-    for (const agent of AGENTS) {
-        if (!agentData[agent.id]) {
-            agentData[agent.id] = { id: agent.id, status: "unreachable", data: { agent_id: agent.id } };
-        }
-    }
-
-    // Populate agentData from pulse (covers all agents)
-    if (pulseData?.agents) {
-        for (const pa of pulseData.agents) {
-            const existing = agentData[pa.id]?.data || {};
-            agentData[pa.id] = {
-                id: pa.id,
-                status: pa.status === "online" ? "online" : "unreachable",
-                data: {
-                    ...existing,
-                    agent_id: pa.id,
-                    health: pa.health || "unknown",
-                    version: pa.version || "",
-                    uptime: pa.uptime || "",
-                    mesh_mode: pulseData.mesh_mode || "active",
-                    autonomy_budget: { budget_spent: pa.budget_spent || 0, budget_cutoff: pa.budget_cutoff || 0 },
-                    unprocessed_messages: pa.unprocessed_messages || [],
-                },
-            };
-        }
-        _failedAgents.clear();
-    }
-
-    // Enrich local agent with full status data (has psychometrics, events, etc.)
-    if (localData) {
-        const aid = localData.agent_id || "operations-agent";
-        agentData[aid] = { id: aid, status: "online", data: localData };
-    }
+    const results = await Promise.allSettled(AGENTS.map(fetchAgentStatus));
+    results.forEach((r, i) => {
+        agentData[AGENTS[i].id] = r.status === "fulfilled" ? r.value : { id: AGENTS[i].id, status: "unreachable" };
+    });
     try { renderPulse(); } catch(e) { console.error("renderPulse failed:", e); }
     try { renderOperations(); } catch(e) { console.error("renderOperations failed:", e); }
 
@@ -97,7 +58,11 @@ async function refreshAll() {
     } else if (failRate === 0) {
         _pollInterval = POLL_MIN;
     }
-    // Note: timer managed by init.js and ws-sse.js — no reschedule here
+    // Reschedule with adapted interval
+    if (refreshTimer && !sseActive) {
+        clearInterval(refreshTimer);
+        refreshTimer = setInterval(refreshAll, _pollInterval);
+    }
 
     const intervalSec = Math.round(_pollInterval / 1000);
     const mode = sseActive ? "\u25CF live" : `\u25CB poll ${intervalSec}s`;
@@ -116,19 +81,13 @@ async function refreshAll() {
 }
 
 // renderAll — re-render all tabs from cached agentData (no fetch)
-// Debounced: multiple rapid WS events coalesce into one render pass
-let _renderPending = null;
 function renderAll() {
-    if (_renderPending) return;
-    _renderPending = requestAnimationFrame(() => {
-        _renderPending = null;
-        console.time("renderPulse"); try { renderPulse(); } catch(e) {} console.timeEnd("renderPulse");
-        console.time("renderOps"); try { renderOperations(); } catch(e) {} console.timeEnd("renderOps");
-        if (document.body.classList.contains("theme-lcars")) {
-            console.time("headerUpdate"); updateLcarsHeaderData(); console.timeEnd("headerUpdate");
-            console.time("alertEval"); evaluateAlertLevel(); console.timeEnd("alertEval");
-        }
-    });
+    try { renderPulse(); } catch(e) {}
+    try { renderOperations(); } catch(e) {}
+    if (document.body.classList.contains("theme-lcars")) {
+        updateLcarsHeaderData();
+        evaluateAlertLevel();
+    }
 }
 
 // ── Render: Vitals ─────────────────────────────────────────────
@@ -292,7 +251,7 @@ function renderAgentCards() {
 // ── Render: Topology ───────────────────────────────────────────
 function renderTopology() {
     const svg = document.getElementById("topology-svg");
-    // Pentagon layout for 5 agents, fallback to circle for any count
+    // Dynamic positions for any agent count (pentagon/circle layout)
     const n = AGENTS.length;
     const cx = 300, cy = 160, r = 130;
     const positions = [];
