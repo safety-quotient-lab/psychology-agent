@@ -31,51 +31,56 @@ async function fetchMedicalData() {
     const agent = AGENTS.find(function(a) { return a.id === medSelectedAgent; });
     if (!agent) return;
 
-    // Fetch tempo + psychometrics (oscillator skipped — hangs in sleep mode)
-    const [tempoResp, psychResp] = await Promise.allSettled([
-        fetch("/api/cognitive-tempo", { signal: AbortSignal.timeout(3000) }),
+    // Fetch mesh psychometrics (has per-agent data) + cognitive tempo (local only)
+    const [psychResp, tempoResp] = await Promise.allSettled([
         fetch("/api/psychometrics/mesh", { signal: AbortSignal.timeout(3000) }),
-    ]);
-    // Oscillator: try with tight timeout — skip gracefully if hung
-    const oscResp = await Promise.race([
-        fetch("/api/oscillator", { signal: AbortSignal.timeout(2000) }).then(r => ({ status: "fulfilled", value: r })),
-        new Promise(r => setTimeout(() => r({ status: "rejected" }), 2000)),
+        fetch("/api/cognitive-tempo", { signal: AbortSignal.timeout(3000) }),
     ]);
 
-    // Oscillator
-    if (oscResp.status === "fulfilled" && oscResp.value.ok) {
-        renderMedicalOscillator(await oscResp.value.json());
+    // Oscillator — only available for local agent (operations-agent)
+    if (medSelectedAgent === "operations-agent") {
+        const oscResp = await Promise.race([
+            fetch("/api/oscillator", { signal: AbortSignal.timeout(2000) }).then(function(r) { return { status: "fulfilled", value: r }; }),
+            new Promise(function(r) { setTimeout(function() { r({ status: "rejected" }); }, 2000); }),
+        ]);
+        if (oscResp.status === "fulfilled" && oscResp.value.ok) {
+            renderMedicalOscillator(await oscResp.value.json());
+        } else {
+            const el = document.getElementById("medical-oscillator-waveform");
+            if (el) el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Oscillator data unavailable</div>';
+        }
     } else {
         const el = document.getElementById("medical-oscillator-waveform");
-        if (el) el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Oscillator not available for this agent</div>';
+        if (el) el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Oscillator: local agent only (' + agentName(agent) + ' selected)</div>';
         ["medical-oscillator-signals", "medical-oscillator-history", "medical-oscillator-refractory"].forEach(function(id) {
             const e = document.getElementById(id);
             if (e) e.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">\u2014</div>';
         });
     }
 
-    // Cognitive tempo
+    // Cognitive tempo — local agent only
     if (tempoResp.status === "fulfilled" && tempoResp.value.ok) {
         renderMedicalTempo(await tempoResp.value.json());
     }
 
-    // Psychometrics — from mesh endpoint or local agent status
+    // Psychometrics — per-agent from mesh endpoint
+    medPsychData = {};
     if (psychResp.status === "fulfilled" && psychResp.value.ok) {
         const meshPsych = await psychResp.value.json();
-        // meshd returns per_agent array — find selected agent
-        const pa = (meshPsych.per_agent || []).find(function(a) { return a.agent_id === medSelectedAgent; });
+        const pa = (meshPsych.per_agent || []).find(function(a) {
+            return a.agent_id === medSelectedAgent ||
+                   a.agent_id.toLowerCase().includes(medSelectedAgent.split("-")[0]);
+        });
         if (pa) {
             medPsychData = { emotional_state: pa.emotional_state, cognitive_load: pa.cognitive_load, cognitive_reserve: pa.cognitive_reserve };
-            renderMedPsychometrics(medPsychData);
         }
     }
-    // Fallback: extract from agentData status (local agent has full psychometrics)
-    if (!medPsychData || Object.keys(medPsychData).length === 0) {
-        const statusData = agentData[medSelectedAgent]?.data?.psychometrics || {};
-        if (Object.keys(statusData).length > 0) {
-            medPsychData = statusData;
-            renderMedPsychometrics(statusData);
-        }
+    // Fallback: local agent has full psychometrics in agentData
+    if (Object.keys(medPsychData).length === 0) {
+        medPsychData = agentData[medSelectedAgent]?.data?.psychometrics || {};
+    }
+    if (Object.keys(medPsychData).length > 0) {
+        renderMedPsychometrics(medPsychData);
     }
 
     // Footer number

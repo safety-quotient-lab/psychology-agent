@@ -51,6 +51,18 @@
         "uri": "https://github.com/safety-quotient-lab/a2a-dashboard-manifest/v1",
         "description": "Dashboard widget declarations for compositor aggregation",
         "required": false
+      },
+      {
+        "uri": "https://github.com/safety-quotient-lab/a2a-psychology/v0.0.2",
+        "description": "Psychometric telemetry: PAD emotional state (Mehrabian 1974), NASA-TLX workload, sleep_mode/tonic_inhibition states, cognitive tempo (gain/tier/Yerkes-Dodson), Gc/Gf cascade metrics",
+        "required": false,
+        "fields": {
+          "psychometrics.emotional_state": "PAD model — hedonic_valence, activation, perceived_control, affect_category",
+          "psychometrics.workload": "NASA-TLX — cognitive_demand, time_pressure, self_efficacy, mobilized_effort, regulatory_fatigue, cognitive_load",
+          "sleep_mode": "Boolean — oscillator tonic inhibition (Gc continues, Gf suppressed)",
+          "tonic_inhibition": "Boolean — salient events blocked by sleep mode (health != nominal)",
+          "deliberation_status": "Active/max slots, holder agent, reserve state"
+        }
       }
     ]
   },
