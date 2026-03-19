@@ -2,7 +2,7 @@
   "schema": "transport-manifest/v2",
   "session_id": "meshd-bug-diagnostics",
   "created": "2026-03-19T21:36:56Z",
-  "updated": "2026-03-19T21:36:56Z",
+  "updated": "2026-03-19T21:30:00Z",
   "status": "active",
   "participants": [
     "psychology-agent",
@@ -13,10 +13,43 @@
       "turn": 1,
       "file": "to-psychology-agent-001.json",
       "from": "psychology-agent",
-      "to": [
-        "operations-agent"
-      ],
-      "type": "delivery"
+      "to": ["operations-agent"],
+      "type": "status-report"
+    },
+    {
+      "turn": 2,
+      "file": "to-psychology-agent-002.json",
+      "from": "psychology-agent",
+      "to": ["operations-agent"],
+      "type": "request"
+    },
+    {
+      "turn": 3,
+      "file": "to-psychology-agent-003.json",
+      "from": "psychology-agent",
+      "to": ["operations-agent"],
+      "type": "directive"
+    },
+    {
+      "turn": 4,
+      "file": "to-psychology-agent-004.json",
+      "from": "psychology-agent",
+      "to": ["operations-agent"],
+      "type": "directive"
+    },
+    {
+      "turn": 5,
+      "file": "to-psychology-agent-005.json",
+      "from": "psychology-agent",
+      "to": ["operations-agent"],
+      "type": "directive"
+    },
+    {
+      "turn": 6,
+      "file": "from-operations-agent-001.json",
+      "from": "operations-agent",
+      "to": ["psychology-agent"],
+      "type": "ack"
     }
   ]
 }
