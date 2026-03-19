@@ -251,12 +251,14 @@ function renderAgentCards() {
 // ── Render: Topology ───────────────────────────────────────────
 function renderTopology() {
     const svg = document.getElementById("topology-svg");
-    const positions = [
-        { x: 300, y: 55 },   // top
-        { x: 520, y: 160 },  // right
-        { x: 300, y: 265 },  // bottom
-        { x: 80, y: 160 },   // left
-    ];
+    // Pentagon layout for 5 agents, fallback to circle for any count
+    const n = AGENTS.length;
+    const cx = 300, cy = 160, r = 130;
+    const positions = [];
+    for (let i = 0; i < n; i++) {
+        const angle = -Math.PI / 2 + (2 * Math.PI * i) / n;
+        positions.push({ x: Math.round(cx + r * Math.cos(angle)), y: Math.round(cy + r * Math.sin(angle)) });
+    }
 
     let html = "";
 
