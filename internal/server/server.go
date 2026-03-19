@@ -328,6 +328,14 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 		mux.Handle("GET /css/", noCacheAssets)
 		mux.Handle("GET /js/", noCacheAssets)
 		mux.Handle("GET /fonts/", noCacheAssets)
+		// Favicon
+		mux.HandleFunc("GET /favicon.svg", func(w http.ResponseWriter, r *http.Request) {
+			data, err := staticFS.ReadFile("static/favicon.svg")
+			if err != nil { http.NotFound(w, r); return }
+			w.Header().Set("Content-Type", "image/svg+xml")
+			w.Header().Set("Cache-Control", "public, max-age=86400")
+			w.Write(data)
+		})
 	}
 
 	// Discovery
