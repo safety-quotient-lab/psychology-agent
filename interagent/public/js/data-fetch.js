@@ -62,8 +62,9 @@ async function refreshAll() {
     // Pulse may return display names instead of canonical IDs — map to AGENTS
     if (pulse?.agents) {
         for (const pa of pulse.agents) {
-            // Match pulse agent to AGENTS array
-            const match = AGENTS.find(a => a.id === pa.id);
+            // Match pulse agent to AGENTS array (exact ID → fuzzy name match)
+            const match = AGENTS.find(a => a.id === pa.id) ||
+                          AGENTS.find(a => pa.id.toLowerCase().includes(a.id.split("-")[0]));
             const aid = match ? match.id : pa.id;
             const existing = agentData[aid]?.data || {};
             agentData[aid] = {
