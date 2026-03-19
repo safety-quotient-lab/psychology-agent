@@ -120,7 +120,7 @@ function connectSSE() {
     const opsAgent = AGENTS.find(a => a.id === "operations-agent") || AGENTS[0];
     if (!opsAgent) return;
 
-    const es = new EventSource(`${opsAgent.url}/events`);
+    const es = new EventSource("/events"); // same-origin — no CORS
     _sseConnection = es;
 
     const timeout = setTimeout(() => {
