@@ -767,6 +767,14 @@ function renderOpsCapsuleBars() {
         cell(fmtNum(totalGf), "Gf", ""),
         cell(fmtNum(events), "EVENTS", "t3"),
         cell(status, "STATUS", "frame"),
+        // Spawn throttle (T19 — ops.resources.throttle)
+        (() => {
+            const ss = agentData["operations-agent"]?.data?.spawn_status;
+            if (!ss) return "";
+            const slotStr = `${ss.active}/${ss.max}`;
+            const tier = ss.active > 0 ? "accent" : (ss.reserve_unlocked ? "t3" : "");
+            return cell(slotStr + (ss.holder ? " " + ss.holder.split("-")[0].toUpperCase() : ""), "DELIB", tier);
+        })(),
         pending > 0 ? cell(pending, "PENDING", "accent") : "",
         gates > 0 ? cell(gates, "GATES", "accent") : "",
     ].join("");

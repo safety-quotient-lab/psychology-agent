@@ -249,6 +249,34 @@ func countMeshDeliberationSlots() int {
 }
 
 // execDate returns the current UTC datetime string.
+// QuickSpawnStatus returns the current spawn throttle state for dashboard display.
+// T19 directive: surface on Operations LCARS station.
+// Package-level — doesn't require a Gate instance.
+func QuickSpawnStatus() map[string]any {
+	active := countMeshDeliberationSlots()
+	max := DefaultMeshMaxConcurrent
+	if fileExists("/tmp/mesh-reserve-unlock") {
+		max += DefaultMeshReserveSlots
+	}
+
+	// Read slot holder from slot file content
+	var holder string
+	for i := 0; i < 10; i++ {
+		data, err := os.ReadFile(fmt.Sprintf("/tmp/mesh-spawn-slot-%d", i))
+		if err == nil && len(data) > 0 {
+			holder = strings.TrimSpace(strings.Split(string(data), " ")[0])
+			break
+		}
+	}
+
+	return map[string]any{
+		"active":           active,
+		"max":              max,
+		"reserve_unlocked": fileExists("/tmp/mesh-reserve-unlock"),
+		"holder":           holder,
+	}
+}
+
 func execDate() string {
 	out, err := exec.Command("date", "-u", "+%Y-%m-%dT%H:%M:%SZ").Output()
 	if err != nil {

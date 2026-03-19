@@ -24,6 +24,7 @@ import (
 	"syscall"
 	"time"
 
+	budgetpkg "github.com/safety-quotient-lab/operations-agent/internal/budget"
 	"github.com/safety-quotient-lab/operations-agent/internal/config"
 	"github.com/safety-quotient-lab/operations-agent/internal/db"
 	"github.com/safety-quotient-lab/operations-agent/internal/events"
@@ -603,6 +604,7 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 			"emotional_state": pad,
 			"workload":        tlx,
 		},
+		"spawn_status": budgetpkg.QuickSpawnStatus(),
 	}
 }
 
