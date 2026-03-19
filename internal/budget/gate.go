@@ -249,10 +249,10 @@ func countMeshDeliberationSlots() int {
 }
 
 // execDate returns the current UTC datetime string.
-// QuickSpawnStatus returns the current spawn throttle state for dashboard display.
+// QuickDeliberationStatus returns the current deliberation throttle state for dashboard display.
 // T19 directive: surface on Operations LCARS station.
 // Package-level — doesn't require a Gate instance.
-func QuickSpawnStatus() map[string]any {
+func QuickDeliberationStatus() map[string]any {
 	active := countMeshDeliberationSlots()
 	max := DefaultMeshMaxConcurrent
 	if fileExists("/tmp/mesh-reserve-unlock") {

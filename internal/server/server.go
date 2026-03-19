@@ -604,7 +604,7 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 			"emotional_state": pad,
 			"workload":        tlx,
 		},
-		"spawn_status": budgetpkg.QuickSpawnStatus(),
+		"deliberation_status": budgetpkg.QuickDeliberationStatus(),
 	}
 }
 

@@ -186,10 +186,10 @@ function renderDeliberationCascade() {
     container.appendChild(summary);
 
     // Per-agent bars
-    const maxCount = Math.max(1, ...DELIBERATION_AGENTS.map(a => agentMap[a.id]?.spawns_60min || 0));
+    const maxCount = Math.max(1, ...DELIBERATION_AGENTS.map(a => agentMap[a.id]?.deliberations_60min || 0));
     DELIBERATION_AGENTS.forEach(agent => {
         const data = agentMap[agent.id] || {};
-        const count = data.spawns_60min || 0;
+        const count = data.deliberations_60min || 0;
         const dur = data.mean_duration_sec ? Math.round(data.mean_duration_sec) + "s" : "";
         const pct = (count / maxCount) * 100;
         const row = document.createElement("div");
@@ -210,7 +210,7 @@ function renderDeliberationTree(container) {
     for (const agent of AGENTS) {
         const d = agentData[agent.id];
         if (!d || d.status !== "online") continue;
-        const deliberations = d.data?.recent_deliberations || d.data?.recent_spawns || [];
+        const deliberations = d.data?.recent_deliberations || d.data?.recent_deliberations_legacy || [];
         deliberations.forEach(s => allDelibs.push({
             agent_id: s.agent_id || agent.id,
             color: agent.color,

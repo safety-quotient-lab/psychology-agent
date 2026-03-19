@@ -496,7 +496,7 @@ function renderOpsActions() {
         const actions = d.data?.recent_actions || [];
         actions.forEach(a => allActions.push({ ...a, agent_id: agent.id, agent_color: agent.color }));
         // Map deliberations (recent_deliberations or legacy recent_spawns)
-        const deliberations = d.data?.recent_deliberations || d.data?.recent_spawns || [];
+        const deliberations = d.data?.recent_deliberations || d.data?.recent_deliberations_legacy || [];
         deliberations.forEach(s => allActions.push({
             created_at: s.started_at || s.created_at,
             action_type: "deliberation",
@@ -769,7 +769,7 @@ function renderOpsCapsuleBars() {
         cell(status, "STATUS", "frame"),
         // Spawn throttle (T19 — ops.resources.throttle)
         (() => {
-            const ss = agentData["operations-agent"]?.data?.spawn_status;
+            const ss = agentData["operations-agent"]?.data?.deliberation_status;
             if (!ss) return "";
             const slotStr = `${ss.active}/${ss.max}`;
             const tier = ss.active > 0 ? "accent" : (ss.reserve_unlocked ? "t3" : "");
