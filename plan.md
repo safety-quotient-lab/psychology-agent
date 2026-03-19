@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 13 complete — 25+ commits, 25+ deploys. CORS eliminated (all JS fetches same-origin via /api/pulse + /api/status). Science tab fixed (was trapped inside Operations pane — missing closing div). Medical LCARS treatment: zone-c title, subpanel agent selector, panel IDs, oscillator fast-fail. All recursive .then() retry loops broken (6 total). SIGTERM graceful shutdown with 5s timeout. --no-block deploys + TimeoutStopSec=15s. Observatory/unratified discovery URLs fixed (-agent subdomains). Session agent identity patching. Pulse includes affect_category server-side. WS supplements polling (no more stale data). Favicon SVG. All agents online with health + mood. Next: LCARS for individual agents vs mesh, remaining station treatments.
+**Current Status:** Session 13 complete — 40+ commits, 40+ deploys. Full psy-session adherence: Gc selective attention + salience classifier (T20), spawn throttle display (T19), TimeoutStopSec=300s preserved (T21), architecture synthesis incorporated. Station naming convention applied to Operations, Science, Medical ({station}-{panel}-{subpanel}). Engineering: timing hierarchy (5-layer), dual tempo (Gf/Gc with data-driven waveforms), panel reorder. CORS eliminated. Science pane nesting fixed. SIGTERM graceful shutdown. All 8 agents online with health + mood. Deliberation vocabulary throughout. Next: remaining Engineering panels, Helm/Tactical LCARS treatment, LCARS for agents vs mesh distinction.
 
 ---
 
