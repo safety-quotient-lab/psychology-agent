@@ -32,6 +32,14 @@
       "to": "operations-agent",
       "subject": "DIRECTIVE: rename shadow_mode to sleep_mode",
       "timestamp": "2026-03-19T17:20:00Z"
+    },
+    {
+      "filename": "from-psychology-agent-004.json",
+      "turn": 4,
+      "from": "psychology-agent",
+      "to": "operations-agent",
+      "subject": "URGENT: Gc reinforcement + alpha idle events + T22 emission",
+      "timestamp": "2026-03-19T17:30:00Z"
     }
   ]
 }
