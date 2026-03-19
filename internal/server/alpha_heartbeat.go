@@ -1,123 +1,91 @@
 // Package server — alpha_heartbeat.go implements the alpha-band idle heartbeat.
 //
-// Neural correlate: alpha rhythm (Berger 1929, Klimesch 2012). 8-13 Hz
-// cortical oscillation during wakeful rest = active inhibition. The brain
-// never goes silent — alpha fills the gaps between processing.
-//
-// Metabolic cooling model (Pierpont et al. 2000): heartbeat interval decays
-// exponentially from peak (post-deliberation) toward resting baseline.
-// Rate = resting + (peak - resting) * e^(-t/tau)
-//
-// The alpha heartbeat distinguishes "idle and ready" from "crashed and silent."
+// Neural correlate: alpha rhythm (Berger 1929, Klimesch 2012).
+// Metabolic cooling model (Pierpont et al. 2000).
 package server
 
 import (
 	"log/slog"
 	"math"
-	"sync"
+	"sync/atomic"
 	"time"
 )
 
 // AlphaHeartbeat emits periodic idle events using the T22 metabolic cooling model.
+// Uses atomic operations instead of mutexes — no lock contention possible.
 type AlphaHeartbeat struct {
-	mu sync.Mutex
+	// Model parameters (immutable after construction)
+	restingInterval float64 // seconds — ceiling
+	peakInterval    float64 // seconds — floor
+	tau             float64 // decay time constant in seconds
 
-	// Model parameters
-	restingInterval time.Duration // baseline interval when fully cooled (ceiling)
-	peakInterval    time.Duration // interval immediately after activity (floor)
-	tau             float64       // decay time constant in seconds
-
-	// State
-	lastActivity time.Time // when the last deliberation/activity occurred
-	tickCount    int64
-	running      bool
-	stopCh       chan struct{}
+	// Atomic state — no mutex needed
+	lastActivityNano atomic.Int64
+	tickCount        atomic.Int64
+	running          atomic.Bool
+	stopCh           chan struct{}
 
 	logger *slog.Logger
-	onTick func() // callback on each heartbeat tick
+	onTick func()
 }
 
 // NewAlphaHeartbeat creates a heartbeat with T22 metabolic cooling parameters.
 func NewAlphaHeartbeat(logger *slog.Logger, onTick func()) *AlphaHeartbeat {
-	return &AlphaHeartbeat{
-		restingInterval: 5 * time.Minute,  // ceiling: 5 min when fully rested
-		peakInterval:    10 * time.Second,  // floor: 10s immediately after activity
-		tau:             120.0,             // 2-minute decay constant
-		lastActivity:    time.Now(),
+	h := &AlphaHeartbeat{
+		restingInterval: 300, // 5 min ceiling
+		peakInterval:    10,  // 10s floor
+		tau:             120, // 2-min decay
 		logger:          logger,
 		onTick:          onTick,
 		stopCh:          make(chan struct{}),
 	}
+	h.lastActivityNano.Store(time.Now().UnixNano())
+	return h
 }
 
 // AddHeat records activity — resets the cooling curve to peak.
 func (h *AlphaHeartbeat) AddHeat(amount float64) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
 	if amount > 0 {
-		h.lastActivity = time.Now()
+		h.lastActivityNano.Store(time.Now().UnixNano())
 	}
 }
 
-// Interval returns the current adaptive heartbeat interval.
-// Exponential decay from peak toward resting baseline.
-func (h *AlphaHeartbeat) Interval() time.Duration {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-
-	elapsed := time.Since(h.lastActivity).Seconds()
-	resting := h.restingInterval.Seconds()
-	peak := h.peakInterval.Seconds()
-
-	// Rate = peak + (resting - peak) * (1 - e^(-t/tau))
-	// At t=0: rate = peak (fast). As t→∞: rate → resting (slow).
-	current := peak + (resting-peak)*(1-math.Exp(-elapsed/h.tau))
-
-	// Clamp to [floor, ceiling]
-	if current < peak {
-		current = peak
+// interval returns the current adaptive heartbeat interval in seconds.
+func (h *AlphaHeartbeat) interval() float64 {
+	elapsed := float64(time.Now().UnixNano()-h.lastActivityNano.Load()) / 1e9
+	current := h.peakInterval + (h.restingInterval-h.peakInterval)*(1-math.Exp(-elapsed/h.tau))
+	if current < h.peakInterval {
+		return h.peakInterval
 	}
-	if current > resting {
-		current = resting
+	if current > h.restingInterval {
+		return h.restingInterval
 	}
-
-	return time.Duration(current * float64(time.Second))
+	return current
 }
 
 // Start begins the heartbeat goroutine.
 func (h *AlphaHeartbeat) Start() {
-	h.mu.Lock()
-	if h.running {
-		h.mu.Unlock()
-		return
+	if h.running.Swap(true) {
+		return // already running
 	}
-	h.running = true
-	h.mu.Unlock()
-
 	h.logger.Info("alpha heartbeat started",
-		"resting_interval", h.restingInterval,
-		"peak_interval", h.peakInterval,
+		"resting_sec", h.restingInterval,
+		"peak_sec", h.peakInterval,
 		"tau", h.tau)
 
 	go func() {
 		for {
-			interval := h.Interval()
+			intervalSec := h.interval()
 			select {
-			case <-time.After(interval):
-				h.mu.Lock()
-				h.tickCount++
-				count := h.tickCount
-				h.mu.Unlock()
-
+			case <-time.After(time.Duration(intervalSec * float64(time.Second))):
+				count := h.tickCount.Add(1)
 				h.logger.Info("alpha heartbeat — idle and ready",
 					"tick", count,
-					"interval", interval.Round(time.Second),
+					"interval_sec", int(intervalSec),
 					"dominant_band", "alpha")
-
 				if h.onTick != nil {
 					h.onTick()
 				}
-
 			case <-h.stopCh:
 				h.logger.Info("alpha heartbeat stopped")
 				return
@@ -128,35 +96,25 @@ func (h *AlphaHeartbeat) Start() {
 
 // Stop halts the heartbeat goroutine.
 func (h *AlphaHeartbeat) Stop() {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	if h.running {
+	if h.running.Swap(false) {
 		close(h.stopCh)
-		h.running = false
 	}
 }
 
 // Snapshot returns current heartbeat state for dashboard display.
+// Lock-free — uses only atomic reads.
 func (h *AlphaHeartbeat) Snapshot() map[string]any {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-
-	elapsed := time.Since(h.lastActivity)
-	// Compute interval inline (avoid calling Interval() which also locks)
-	elapsedSec := elapsed.Seconds()
-	resting := h.restingInterval.Seconds()
-	peak := h.peakInterval.Seconds()
-	current := peak + (resting-peak)*(1-math.Exp(-elapsedSec/h.tau))
-	if current < peak { current = peak }
-	if current > resting { current = resting }
-	interval := time.Duration(current * float64(time.Second))
+	lastNano := h.lastActivityNano.Load()
+	lastActivity := time.Unix(0, lastNano)
+	elapsed := time.Since(lastActivity)
+	intervalSec := h.interval()
 
 	return map[string]any{
-		"tick_count":      h.tickCount,
-		"interval_sec":    interval.Seconds(),
-		"last_activity":   h.lastActivity.UTC().Format(time.RFC3339),
+		"tick_count":      h.tickCount.Load(),
+		"interval_sec":    intervalSec,
+		"last_activity":   lastActivity.UTC().Format(time.RFC3339),
 		"cooling_elapsed": elapsed.Round(time.Second).String(),
 		"dominant_band":   "alpha",
-		"running":         h.running,
+		"running":         h.running.Load(),
 	}
 }
