@@ -27,20 +27,17 @@ async function fetchScienceData() {
     if (scienceFetchPending) return;
     scienceFetchPending = true;
     try {
-        // Fetch unified psychometrics from compositor
-        const resp = await fetch("https://interagent.safety-quotient.dev/api/psychometrics", { signal: AbortSignal.timeout(8000) });
+        // Fetch mesh psychometrics from local meshd (same origin — no CORS)
+        const resp = await fetch("/api/psychometrics/mesh", { signal: AbortSignal.timeout(8000) });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const meshPsych = await resp.json();
 
-        // Also fetch per-agent data from operations-agent for self-report
-        const opsAgent = AGENTS.find(a => a.id === "operations-agent");
+        // Local agent psychometrics (same origin)
         let opsPsych = null;
-        if (opsAgent) {
-            try {
-                const opsResp = await fetch(`${opsAgent.url}/api/psychometrics`, { signal: AbortSignal.timeout(5000) });
-                if (opsResp.ok) opsPsych = await opsResp.json();
-            } catch {}
-        }
+        try {
+            const opsResp = await fetch("/api/psychometrics", { signal: AbortSignal.timeout(5000) });
+            if (opsResp.ok) opsPsych = await opsResp.json();
+        } catch {}
 
         // Build scienceData: pick the agent with the richest psychometrics as primary
         // (psychology-agent typically has the most complete data)

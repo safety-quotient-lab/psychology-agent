@@ -29,7 +29,7 @@ async function fetchMedicalData() {
     const [oscResp, tempoResp, psychResp] = await Promise.allSettled([
         fetch(agent.url + "/api/oscillator", { signal: AbortSignal.timeout(8000) }),
         fetch(agent.url + "/api/cognitive-tempo", { signal: AbortSignal.timeout(8000) }),
-        fetch("https://interagent.safety-quotient.dev/api/psychometrics", { signal: AbortSignal.timeout(8000) }),
+        fetch("/api/psychometrics/mesh", { signal: AbortSignal.timeout(8000) }),
     ]);
 
     // Oscillator
