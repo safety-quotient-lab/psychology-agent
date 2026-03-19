@@ -46,6 +46,7 @@ const AGENTS = [
 
 // ═══ UTILITIES ═══════════════════════════════════════════════
 
+
 // LCARS section number generator — random numeric strings for panel IDs.
 // Canonical panels show arbitrary-looking numbers (44712, 5894, etc.)
 // Generated on page load so they vary between sessions.

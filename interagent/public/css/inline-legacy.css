@@ -650,11 +650,9 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     display: flex;
     flex-wrap: wrap;
     gap: 0 1.2em;
-    border-bottom: 2px solid var(--panel-accent, var(--lcars-frame));
 }
 .theme-lcars .lcars-zone-a {
     background: #000;
-    border-bottom-color: var(--panel-accent, var(--lcars-frame));
 }
 /* Number grid — labeled key-value pairs, color by data type (§2.3) */
 .lcars-zone-a .zn-pair {
@@ -3973,6 +3971,14 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
     letter-spacing: 0.04em;
 }
 .agent-pill-bar:active { filter: brightness(1.2); }
+/* Clickability indicator — subtle right arrow */
+.agent-pill-bar::after {
+    content: "\25B6";
+    font-size: 0.6em;
+    opacity: 0.3;
+    margin-left: auto;
+    padding-left: var(--gap-m);
+}
 .agent-pill-bar-offline { animation: agent-offline-flash 2s ease-in-out infinite; }
 
 /* Inline metrics on the bar — wrap to second line if needed */

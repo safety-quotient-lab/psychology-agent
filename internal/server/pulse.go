@@ -42,6 +42,7 @@ func (s *Server) handlePulse(w http.ResponseWriter, r *http.Request) {
 		Unprocessed    int     `json:"unprocessed_messages"`
 		EpistemicDebt  int     `json:"epistemic_debt"`
 		Uptime         string  `json:"uptime,omitempty"`
+		AffectCategory string  `json:"affect_category,omitempty"`
 	}
 
 	summaries := make([]agentSummary, 0, len(agents))
@@ -75,6 +76,13 @@ func (s *Server) handlePulse(w http.ResponseWriter, r *http.Request) {
 			if msgs, ok := data["unprocessed_messages"].([]any); ok {
 				summary.Unprocessed = len(msgs)
 				pendingMessages += len(msgs)
+			}
+
+			// Affect from psychometrics (embedded in /api/status)
+			if psych, ok := data["psychometrics"].(map[string]any); ok {
+				if es, ok := psych["emotional_state"].(map[string]any); ok {
+					summary.AffectCategory = strFromMap(es, "affect_category", "")
+				}
 			}
 
 			// Active gates
