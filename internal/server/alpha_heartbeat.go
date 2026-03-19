@@ -142,7 +142,14 @@ func (h *AlphaHeartbeat) Snapshot() map[string]any {
 	defer h.mu.Unlock()
 
 	elapsed := time.Since(h.lastActivity)
-	interval := h.Interval()
+	// Compute interval inline (avoid calling Interval() which also locks)
+	elapsedSec := elapsed.Seconds()
+	resting := h.restingInterval.Seconds()
+	peak := h.peakInterval.Seconds()
+	current := peak + (resting-peak)*(1-math.Exp(-elapsedSec/h.tau))
+	if current < peak { current = peak }
+	if current > resting { current = resting }
+	interval := time.Duration(current * float64(time.Second))
 
 	return map[string]any{
 		"tick_count":      h.tickCount,
