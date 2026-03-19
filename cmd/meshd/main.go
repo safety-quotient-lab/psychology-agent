@@ -483,11 +483,13 @@ func main() {
 	srv.OperatorSecret = cfg.OperatorSecret
 	srv.Dispatcher = dispatcher
 
-	// Self-oscillation shadow mode — logs when it would fire, does not trigger
+	// Self-oscillation — LC gain modulation (Aston-Jones & Cohen 2005)
+	// Monitors operational signals, computes activation, fires deliberations.
+	// Sleep mode controlled by DB column sleep_mode in autonomy_budget.
 	osc := server.NewOscillator(cfg.AgentID, cfg.BudgetDBPath, cfg.RepoRoot)
 	srv.Oscillator = osc
 	osc.Start()
-	logger.Info("oscillator started (shadow mode)", "agent_id", cfg.AgentID)
+	logger.Info("oscillator started", "agent_id", cfg.AgentID)
 
 	// KV self-observation — write status to Cloudflare KV for compositor fallback
 	kvClient := kvstore.New(cfg.CFAccountID, cfg.KVNamespaceID, cfg.CFAPIToken, logger)
@@ -657,6 +659,10 @@ func main() {
 	sig := <-sigCh
 
 	logger.Info("shutdown signal received", "signal", sig.String())
+
+	// Stop oscillator + heartbeat
+	if osc != nil { osc.Stop() }
+	if alphaHB != nil { alphaHB.Stop() }
 
 	// Graceful shutdown: close HTTP listener (stop accepting new requests)
 	if err := srv.Shutdown(); err != nil {
