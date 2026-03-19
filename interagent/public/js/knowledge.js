@@ -67,7 +67,7 @@ function renderKnowledge() {
     renderLessons();
 
     // Mirror to LCARS-only panels
-    mirrorToLcars("ops-decisions-table", "lcars-ops-decisions");
+    mirrorToLcars("ops-decisions-table", "ops-governance-decisions");
     mirrorToLcars("ops-triggers-table", "lcars-ops-triggers");
     mirrorToLcars("kb-claims", "lcars-sci-claims");
     mirrorToLcars("epistemic-debt-panel", "lcars-sci-debt");

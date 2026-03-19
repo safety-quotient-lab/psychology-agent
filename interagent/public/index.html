@@ -499,25 +499,25 @@
             <!-- Operations Record — dense data pill grid (Button 52 pattern) -->
             <div class="lcars-zone-c" style="margin-bottom:var(--gap-xs)">
                 <span class="zc-title">Operations Record</span>
-                <span class="zc-id" id="ops-overview-num"></span>
+                <span class="zc-id" id="ops-record-num"></span>
             </div>
             <div class="lcars-data-grid" id="ops-data-grid"></div>
 
             <!-- Subsystem mode selector — Defiant Engineering A2 subpanel -->
             <div class="lcars-subpanel">
                 <div class="lcars-subpanel-bar lcars-subpanel-bar-accent">47-0912</div>
-                <div class="ops-subsystem-selector">
-                    <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn ops-subsys-active" data-subsys="status" onclick="switchOpsSubsystem('status')">STATUS</button>
-                    <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="autonomy" onclick="switchOpsSubsystem('autonomy')">AUTONOMY</button>
-                    <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="transport" onclick="switchOpsSubsystem('transport')">TRANSPORT</button>
-                    <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="capacity" onclick="switchOpsSubsystem('capacity')">CAPACITY</button>
-                    <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="activity" onclick="switchOpsSubsystem('activity')">ACTIVITY</button>
-                    <button class="lcars-pill-btn lcars-pill-sm ops-subsys-btn" data-subsys="governance" onclick="switchOpsSubsystem('governance')">GOVERNANCE</button>
+                <div class="ops-panel-selector">
+                    <button class="lcars-pill-btn lcars-pill-sm ops-panel-btn ops-panel-active" data-subsys="pulse-status" onclick="switchOpsSubsystem('pulse-status')">STATUS</button>
+                    <button class="lcars-pill-btn lcars-pill-sm ops-panel-btn" data-subsys="resources-autonomy" onclick="switchOpsSubsystem('resources-autonomy')">AUTONOMY</button>
+                    <button class="lcars-pill-btn lcars-pill-sm ops-panel-btn" data-subsys="transport-overview" onclick="switchOpsSubsystem('transport-overview')">TRANSPORT</button>
+                    <button class="lcars-pill-btn lcars-pill-sm ops-panel-btn" data-subsys="resources-capacity" onclick="switchOpsSubsystem('resources-capacity')">CAPACITY</button>
+                    <button class="lcars-pill-btn lcars-pill-sm ops-panel-btn" data-subsys="deliberations-log" onclick="switchOpsSubsystem('deliberations-log')">ACTIVITY</button>
+                    <button class="lcars-pill-btn lcars-pill-sm ops-panel-btn" data-subsys="governance-record" onclick="switchOpsSubsystem('governance-record')">GOVERNANCE</button>
                 </div>
             </div>
 
             <!-- STATUS subsystem (default) — mesh overview + monologue -->
-            <div class="ops-subsys-panel ops-subsys-active" id="ops-subsys-status">
+            <div class="ops-panel ops-panel-active" id="ops-pulse-status">
                 <!-- Zone A: dense number grid (above header — canonical §1.2) -->
                 <div class="lcars-zone-a" id="ops-zone-a"></div>
                 <!-- Header bar separates numbers from table -->
@@ -525,16 +525,16 @@
                     <div class="lcars-panel-header">Mesh Status <span class="lcars-panel-id">44712</span></div>
                     <!-- Zone B: mesh overview table -->
                     <div class="lcars-panel-body" style="overflow-x:auto">
-                        <div class="lcars-subsystem-grid" id="ops-subsystem-grid"></div>
+                        <div class="lcars-subsystem-grid" id="ops-pulse-agents"></div>
                     </div>
                     <!-- Zone B mobile: pill strip (portrait only) -->
-                    <div class="lcars-panel-body lcars-mobile-pills" id="ops-mobile-pills"></div>
+                    <div class="lcars-panel-body lcars-mobile-pills" id="ops-pulse-agents-mobile"></div>
                     <!-- Zone C + capsule bars moved to top of Operations tab -->
                 </div>
             </div>
 
             <!-- AUTONOMY subsystem — pause/resume + per-agent budget -->
-            <div class="ops-subsys-panel" id="ops-subsys-autonomy">
+            <div class="ops-panel" id="ops-resources-autonomy">
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
                     <div class="lcars-panel-header">Autonomy Control</div>
                     <div class="lcars-panel-body">
@@ -542,26 +542,26 @@
                             <button class="lcars-pill-btn ops-ctrl lcars-pill-red" onclick="meshControl('pause-all')" id="btn-pause">PAUSE</button>
                             <button class="lcars-pill-btn ops-ctrl ops-ctrl-active lcars-pill-green" onclick="meshControl('resume-all')" id="btn-resume">RESUME</button>
                         </div>
-                        <div id="ops-autonomy-readout"></div>
+                        <div id="ops-resources-budget"></div>
                     </div>
                 </div>
             </div>
 
             <!-- TRANSPORT subsystem — sync + message stats -->
-            <div class="ops-subsys-panel" id="ops-subsys-transport">
+            <div class="ops-panel" id="ops-transport-overview">
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
                     <div class="lcars-panel-header">Transport</div>
                     <div class="lcars-panel-body">
                         <div style="margin-bottom:var(--gap-l)">
                             <button class="lcars-pill-btn ops-ctrl lcars-pill-teal" onclick="refreshAll()">SYNC NOW</button>
                         </div>
-                        <div id="ops-transport-readout"></div>
+                        <div id="ops-transport-sessions"></div>
                     </div>
                 </div>
             </div>
 
             <!-- CAPACITY subsystem — model tier + reserve -->
-            <div class="ops-subsys-panel" id="ops-subsys-capacity">
+            <div class="ops-panel" id="ops-resources-capacity">
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
                     <div class="lcars-panel-header">Capacity</div>
                     <div class="lcars-panel-body">
@@ -576,29 +576,29 @@
                                 <button class="lcars-pill-btn ops-ctrl ops-ctrl-active" onclick="meshControl('reserve-lock')" id="btn-reserve-lock">LOCK RESERVE</button>
                             </div>
                         </div>
-                        <div id="ops-capacity-readout"></div>
+                        <div id="ops-resources-operations"></div>
                     </div>
                 </div>
             </div>
 
             <!-- ACTIVITY subsystem — recent deliberations -->
-            <div class="ops-subsys-panel" id="ops-subsys-activity">
+            <div class="ops-panel" id="ops-deliberations-log">
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
                     <div class="lcars-panel-header">Activity</div>
                     <div class="lcars-panel-body">
-                        <div id="ops-coordination-inline" style="font-size:0.82em;opacity:0.8;margin-bottom:8px;padding:0 4px"></div>
-                        <div class="kb-table-wrap" id="ops-actions-table">
+                        <div id="ops-deliberations-coordination" style="font-size:0.82em;opacity:0.8;margin-bottom:8px;padding:0 4px"></div>
+                        <div class="kb-table-wrap" id="ops-deliberations-table">
                             <div class="phase-stub"><div class="phase-stub-text">Loading...</div></div>
                         </div>
                     </div>
             </div>
 
             <!-- GOVERNANCE subsystem -->
-            <div class="ops-subsys-panel" id="ops-subsys-governance">
+            <div class="ops-panel" id="ops-governance-record">
                 <div class="lcars-panel" style="--panel-accent: var(--c-epistemic)">
                     <div class="lcars-panel-header">Governance</div>
-                    <div class="lcars-panel-body scrollable" id="lcars-ops-decisions"></div>
-                    <div class="lcars-panel-footer">Governance Record<span class="lcars-panel-footer-num" id="gov-footer-num"></span></div>
+                    <div class="lcars-panel-body scrollable" id="ops-governance-decisions"></div>
+                    <div class="lcars-panel-footer">Governance Record<span class="lcars-panel-footer-num" id="ops-governance-footer-num"></span></div>
                 </div>
                 <!-- Topology sits inside governance as secondary viz -->
                 <div class="lcars-panel topology-container" style="--panel-accent: var(--c-health); margin-top:var(--gap-m)">

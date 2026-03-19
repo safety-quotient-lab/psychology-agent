@@ -287,7 +287,7 @@ function renderAgentCards() {
 
         grid.appendChild(card);
     }
-    mirrorToLcars("agents-grid", "lcars-ops-agents-grid");
+    mirrorToLcars("agents-grid", "lcars-ops-pulse-agents");
 }
 
 // ── Render: Topology ───────────────────────────────────────────

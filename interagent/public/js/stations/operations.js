@@ -18,7 +18,7 @@ function renderOperations() {
 }
 
 function renderOpsGovernance() {
-    const el = document.getElementById("lcars-ops-decisions");
+    const el = document.getElementById("ops-governance-decisions");
     if (!el) return;
     // Collect decisions from all agents' KB data
     const decisions = [];
@@ -43,13 +43,13 @@ function renderOpsGovernance() {
         </div>`;
     }).join("");
     // Update footer number
-    const govFtr = document.getElementById("gov-footer-num");
+    const govFtr = document.getElementById("ops-governance-footer-num");
     if (govFtr) govFtr.textContent = decisions.length;
 }
 
 // Coordination ratio inline in Activity section
 function renderOpsActivity() {
-    const el = document.getElementById("ops-coordination-inline");
+    const el = document.getElementById("ops-deliberations-coordination");
     if (el && _meshAggData) {
         const co = _meshAggData.coordination || {};
         if (co.ratio != null) {
@@ -64,7 +64,7 @@ function renderOpsActivity() {
 
 // ── Status Monologue ─────────────────────────────────────
 function renderOpsMonologue() {
-    const el = document.getElementById("ops-status-monologue");
+    const el = document.getElementById("ops-pulse-monologue");
     if (!el) return;
 
     // Guard: if no agent data yet, show loading state
@@ -171,7 +171,7 @@ async function fetchPsychForOps() {
 }
 
 function renderResourceModel() {
-    const container = document.getElementById("ops-resource-model");
+    const container = document.getElementById("ops-resources-psychometric");
     if (!container) return;
     if (!_psychCache) {
         fetchPsychForOps(); // fire once — no recursive retry
@@ -269,7 +269,7 @@ function renderOpsBudget() {
     // Ohniaka B3 "Starship Mission Status" pattern — structured table
     // with colored text columns (purple names, yellow IDs, white status).
     // No pill backgrounds — spacing + color creates structure.
-    const grid = document.getElementById("ops-subsystem-grid");
+    const grid = document.getElementById("ops-pulse-agents");
     if (!grid) return;
 
 
@@ -362,7 +362,7 @@ function renderOpsBudget() {
 }
 
 function renderMobilePills() {
-    const container = document.getElementById("ops-mobile-pills");
+    const container = document.getElementById("ops-pulse-agents-mobile");
     if (!container) return;
 
     // Group by domain
@@ -482,7 +482,7 @@ function renderOpsAlphaMatrix() {
     </div>`;
 
     // Update overview footer
-    const ovFtr = document.getElementById("ops-overview-num");
+    const ovFtr = document.getElementById("ops-record-num");
     if (ovFtr) ovFtr.textContent = ` · ${online.length} online · ${totalDelib} deliberations`;
 }
 
@@ -514,7 +514,7 @@ function renderOpsActions() {
 }
 
 function renderActionsTable() {
-    const wrap = document.getElementById("ops-actions-table");
+    const wrap = document.getElementById("ops-deliberations-table");
     if (!wrap) return;
 
     const st = tableState.actions;
@@ -623,7 +623,7 @@ function renderOpsSchedule() {
 // ── Subsystem Readouts ──────────────────────────────────────────
 
 function renderOpsAutonomyReadout() {
-    const el = document.getElementById("ops-autonomy-readout");
+    const el = document.getElementById("ops-resources-budget");
     if (!el) return;
     const online = Object.values(agentData).filter(a => a.status === "online");
     if (online.length === 0) { el.innerHTML = '<div class="phase-stub"><div class="phase-stub-text">No agents online</div></div>'; return; }
@@ -653,7 +653,7 @@ function renderOpsAutonomyReadout() {
 }
 
 function renderOpsTransportReadout() {
-    const el = document.getElementById("ops-transport-readout");
+    const el = document.getElementById("ops-transport-sessions");
     if (!el) return;
     const online = Object.values(agentData).filter(a => a.status === "online");
     const totalMsgs = online.reduce((s, a) => s + (a.data?.recent_messages?.length || 0), 0);
@@ -695,7 +695,7 @@ function renderOpsTransportReadout() {
 }
 
 function renderOpsCapacityReadout() {
-    const el = document.getElementById("ops-capacity-readout");
+    const el = document.getElementById("ops-resources-operations");
     if (!el) return;
     const online = Object.values(agentData).filter(a => a.status === "online");
     const totalGf = online.reduce((s, a) => s + getDeliberations(a.data?.autonomy_budget), 0);

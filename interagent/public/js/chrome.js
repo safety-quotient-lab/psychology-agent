@@ -54,10 +54,10 @@ async function checkAuth() {
 
 // ═══ LCARS CHROME ═══════════════════════════════════════════
 function switchOpsSubsystem(subsys) {
-    document.querySelectorAll(".ops-subsys-btn").forEach(b =>
-        b.classList.toggle("ops-subsys-active", b.dataset.subsys === subsys));
-    document.querySelectorAll(".ops-subsys-panel").forEach(p =>
-        p.classList.toggle("ops-subsys-active", p.id === `ops-subsys-${subsys}`));
+    document.querySelectorAll(".ops-panel-btn").forEach(b =>
+        b.classList.toggle("ops-panel-active", b.dataset.subsys === subsys));
+    document.querySelectorAll(".ops-panel").forEach(p =>
+        p.classList.toggle("ops-panel-active", p.id === `ops-${subsys}`));
 }
 window.switchOpsSubsystem = switchOpsSubsystem;
 

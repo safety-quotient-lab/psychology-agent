@@ -3827,7 +3827,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 
 /* ── Operations Subsystem Switcher (Defiant Bridge pattern) ── */
 /* Canonical: mode selector row — uniform button width (§3.3, Defiant A2) */
-.ops-subsystem-selector {
+.ops-panel-selector {
     display: flex;
     gap: var(--gap-m);
     margin-bottom: 0;
@@ -3835,7 +3835,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
     justify-content: center;
 }
 /* Uniform compact buttons — wrap naturally, don't stretch to fill */
-.ops-subsystem-selector .ops-subsys-btn {
+.ops-panel-selector .ops-panel-btn {
     flex: 0 0 auto;
     min-width: 100px;
     min-height: 48px;
@@ -3843,23 +3843,23 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 /* Mobile: tighter content padding + uniform button width */
 @media (max-width: 600px) {
     .theme-lcars .lcars-content { padding: var(--gap-m); }
-    .ops-subsystem-selector .ops-subsys-btn,
+    .ops-panel-selector .ops-panel-btn,
     .theme-lcars .section-jump-btn,
     .theme-lcars .agent-switch-btn {
         min-width: 100px;
         width: 100px;
     }
 }
-.ops-subsys-btn {
+.ops-panel-btn {
     transition: filter 0.15s;
 }
-.ops-subsys-btn.ops-subsys-active {
+.ops-panel-btn.ops-panel-active {
     filter: brightness(1.3);
 }
-.ops-subsys-panel {
+.ops-panel {
     display: none;
 }
-.ops-subsys-panel.ops-subsys-active {
+.ops-panel.ops-panel-active {
     display: block;
 }
 
