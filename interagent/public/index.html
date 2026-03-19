@@ -937,24 +937,6 @@
                     </div>
                 </div>
 
-                <!-- Panel B: Utilization Gauge -->
-                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
-                    <div class="lcars-panel-header">Utilization <span class="lcars-panel-id">2018</span></div>
-                    <div class="lcars-panel-body">
-                        <div style="display:flex;gap:16px;align-items:center;">
-                            <div class="util-gauge" id="util-gauge" style="flex:1;">
-                                <div class="util-rho util-nominal" id="util-rho">&rho; = —</div>
-                                <div class="util-bar">
-                                    <div class="util-bar-fill" id="util-bar-fill" style="width:0%;background:var(--lcars-medical, #6aab8e)"></div>
-                                </div>
-                                <div class="util-status util-nominal" id="util-status">AWAITING DATA</div>
-                            </div>
-                            <!-- W3+vertical: Tuvok-style numbered level gauge -->
-                            <div class="lcars-vlevel-gauge" id="util-vlevel-gauge"></div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Panel C: Gf Tempo (fluid intelligence — deliberation rhythm) -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
                     <div class="lcars-panel-header">Gf Tempo <span class="lcars-panel-id">1963</span></div>
@@ -982,6 +964,23 @@
                                 <div class="tempo-bar-fill" id="tempo-gc-fill" style="width:0%"></div>
                             </div>
                             <div class="tempo-status" id="tempo-gc-status">Gc: AWAITING DATA</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel B: Utilization Gauge (after tempo) -->
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
+                    <div class="lcars-panel-header">Utilization <span class="lcars-panel-id">2018</span></div>
+                    <div class="lcars-panel-body">
+                        <div style="display:flex;gap:16px;align-items:center;">
+                            <div class="util-gauge" id="util-gauge" style="flex:1;">
+                                <div class="util-rho util-nominal" id="util-rho">&rho; = —</div>
+                                <div class="util-bar">
+                                    <div class="util-bar-fill" id="util-bar-fill" style="width:0%;background:var(--lcars-medical, #6aab8e)"></div>
+                                </div>
+                                <div class="util-status util-nominal" id="util-status">AWAITING DATA</div>
+                            </div>
+                            <div class="lcars-vlevel-gauge" id="util-vlevel-gauge"></div>
                         </div>
                     </div>
                 </div>
