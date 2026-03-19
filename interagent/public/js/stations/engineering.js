@@ -14,15 +14,18 @@ async function fetchEngineeringData() {
     if (engineeringFetchPending) return;
     engineeringFetchPending = true;
     try {
-        const [tempoResp, deliberationResp] = await Promise.allSettled([
+        const [tempoResp, deliberationResp, cogTempoResp] = await Promise.allSettled([
             fetch("/api/tempo", { signal: AbortSignal.timeout(8000) }),
             fetch("/api/spawn-rate", { signal: AbortSignal.timeout(8000) }),
+            fetch("/api/cognitive-tempo", { signal: AbortSignal.timeout(3000) }),
         ]);
         const tempoData = tempoResp.status === "fulfilled" && tempoResp.value.ok
             ? await tempoResp.value.json() : null;
         const deliberationData = deliberationResp.status === "fulfilled" && deliberationResp.value.ok
             ? await deliberationResp.value.json() : null;
-        engineeringData = { tempo: tempoData, deliberation: deliberationData };
+        const cogTempo = cogTempoResp.status === "fulfilled" && cogTempoResp.value.ok
+            ? await cogTempoResp.value.json() : null;
+        engineeringData = { tempo: tempoData, deliberation: deliberationData, cogTempo: cogTempo };
     } catch (err) {
         engineeringData = null;
     } finally {
@@ -340,42 +343,48 @@ function renderTempo() {
     const statusEl = document.getElementById("tempo-status");
     if (!valueEl) return;
 
-    const avgMs = engineeringData?.tempo?.mesh?.mean_duration_sec != null
-        ? Math.round(engineeringData.tempo.mesh.mean_duration_sec * 1000)
-        : engineeringData?.tempo?.avg_cycle_ms ?? null;
+    // Cognitive tempo (Gf) — gain parameter + recommended tier
+    const ct = engineeringData?.cogTempo;
+    const gain = ct?.gain ?? null;
+    const tier = ct?.recommended_tier || "?";
+    const tierColor = tier === "opus" ? "#c47070" : tier === "sonnet" ? "#d4944a" : "#66ccaa";
 
-    if (avgMs == null) {
-        valueEl.innerHTML = `\u2014<span class="tempo-unit">ms avg</span>`;
+    // Queueing tempo (Gc) — OODA cycle from mesh throughput
+    const avgMs = engineeringData?.tempo?.mesh?.mean_duration_sec != null
+        ? Math.round(engineeringData.tempo.mesh.mean_duration_sec * 1000) : null;
+
+    if (gain != null) {
+        valueEl.innerHTML = `${tier.toUpperCase()}<span class="tempo-unit"> gain=${gain.toFixed(2)}</span>`;
+        const pct = Math.min(100, gain * 100);
+        fillEl.style.width = `${pct}%`;
+        fillEl.style.background = tierColor;
+        const yd = ct?.psychometric_state?.yerkes_dodson_zone || "?";
+        statusEl.textContent = `Yerkes-Dodson: ${yd.toUpperCase()}${avgMs ? " · OODA: " + avgMs + "ms" : ""}`;
+    } else if (avgMs != null) {
+        valueEl.innerHTML = `${avgMs}<span class="tempo-unit">ms avg</span>`;
+        const pct = Math.min(100, (avgMs / 2000) * 100);
+        fillEl.style.width = `${pct}%`;
+        statusEl.textContent = `OODA cycle: ${avgMs > 1500 ? "SLOW" : avgMs > 800 ? "MODERATE" : "NOMINAL"}`;
+    } else {
+        valueEl.innerHTML = `\u2014<span class="tempo-unit">awaiting</span>`;
         fillEl.style.width = "0%";
-        statusEl.textContent = "OODA cycle: AWAITING DATA";
+        statusEl.textContent = "Tempo: AWAITING DATA";
         return;
     }
 
-    setTrackedValue("tempo-value", avgMs, { suffix: '<span class="tempo-unit">ms avg</span>', inverted: true });
-    const pct = Math.min(100, (avgMs / 2000) * 100);
-    fillEl.style.width = `${pct}%`;
-
-    let label = "NOMINAL";
-    let tempoColor = "#6aab8e";
-    if (avgMs > 1500) { label = "SLOW"; tempoColor = "#c47070"; }
-    else if (avgMs > 800) { label = "MODERATE"; tempoColor = "#d4944a"; }
-    statusEl.textContent = `OODA cycle: ${label}`;
-
-    // Waveform visualization — frequency inversely proportional to cycle time
+    // Waveform visualization — frequency from gain (higher gain = faster waveform)
     const tempoWaveEl = document.getElementById("tempo-waveform");
     if (tempoWaveEl) {
-        const freq = Math.max(1, 6 - (avgMs / 500));
+        const freq = gain != null ? Math.max(1, gain * 8) : (avgMs ? Math.max(1, 6 - (avgMs / 500)) : 2);
+        const amp = gain != null ? Math.max(0.3, 1 - gain) : Math.min(1, (avgMs || 500) / 1000);
         _waveOpts = {
             width: tempoWaveEl.clientWidth || 200, height: 30,
-            amplitude: Math.min(1, avgMs / 1000),
-            frequency: freq,
-            stroke: tempoColor,
+            amplitude: amp, frequency: freq, stroke: tierColor,
         };
         tempoWaveEl.innerHTML = waveformSVG({ ..._waveOpts, phase: _wavePhase });
     }
 
-    // Tempo introspection — per-deliberation timing breakdown
-    renderTempoIntrospection(tempoColor);
+    renderTempoIntrospection(tierColor);
 }
 
 function renderTempoIntrospection(color) {
