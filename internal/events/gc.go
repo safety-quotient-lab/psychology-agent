@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/safety-quotient-lab/operations-agent/internal/db"
@@ -98,17 +99,44 @@ func handlePollTick(cfg GcConfig) bool {
 	newCommits := strings.TrimSpace(string(logOut))
 
 	if newCommits != "" {
-		// New commits on main — pull and check if transport files changed
+		// New commits on main — pull and check if transport files addressed to us
 		pullCmd := exec.Command("git", "-C", cfg.RepoRoot, "pull", "--rebase", "origin", "main")
 		pullCmd.CombinedOutput()
 
-		// If commits contain transport files, let Gf handle
-		if strings.Contains(newCommits, "transport") || strings.Contains(newCommits, "interagent") {
-			logger.Info("Gc: new transport commits detected — delegating to Gf",
-				"commits", newCommits)
-			return false
+		// Address-aware pre-check (psy-session T5): only escalate to Gf if
+		// new commits contain transport files addressed to this agent.
+		// Eliminates 237/1003 wasted deliberations (24%) on observatory.
+		diffCmd := exec.Command("git", "-C", cfg.RepoRoot, "diff",
+			"--name-only", "HEAD~5..HEAD", "--", "transport/sessions/")
+		diffOut, _ := diffCmd.Output()
+		changedFiles := strings.TrimSpace(string(diffOut))
+
+		if changedFiles != "" {
+			myPrefix := "to-" + cfg.AgentID + "-"
+			addressedToUs := false
+			for _, line := range strings.Split(changedFiles, "\n") {
+				fname := filepath.Base(strings.TrimSpace(line))
+				// Files FROM other agents (addressed to us via repo routing)
+				if strings.HasPrefix(fname, "from-") && !strings.HasPrefix(fname, "from-"+cfg.AgentID) {
+					addressedToUs = true
+					break
+				}
+				// Files explicitly TO this agent
+				if strings.Contains(fname, myPrefix) {
+					addressedToUs = true
+					break
+				}
+			}
+			if addressedToUs {
+				logger.Info("Gc: transport files addressed to us — delegating to Gf",
+					"files", changedFiles, "agent", cfg.AgentID)
+				return false
+			}
+			logger.Info("Gc: transport commits but not addressed to us — handled",
+				"files", changedFiles, "agent", cfg.AgentID)
+		} else {
+			logger.Info("Gc: new commits (no transport changes)", "commits", newCommits)
 		}
-		logger.Info("Gc: pulled new commits (non-transport)", "commits", newCommits)
 	}
 
 	// Check for pending remote branches (replaces gh pr list to avoid API rate limits)
