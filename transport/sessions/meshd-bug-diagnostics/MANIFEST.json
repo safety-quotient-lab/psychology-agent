@@ -1,0 +1,21 @@
+{
+  "schema": "session-manifest/v1",
+  "session_id": "meshd-bug-diagnostics",
+  "status": "open",
+  "created_at": "2026-03-19T17:00:00Z",
+  "participants": [
+    "psychology-agent",
+    "operations-agent"
+  ],
+  "thread_id": "meshd-bug-diagnostics",
+  "messages": [
+    {
+      "filename": "from-psychology-agent-001.json",
+      "turn": 1,
+      "from": "psychology-agent",
+      "to": "operations-agent",
+      "subject": "STATUS REPORT: mesh infrastructure verified \u2014 3 items remain",
+      "timestamp": "2026-03-19T17:00:00Z"
+    }
+  ]
+}
