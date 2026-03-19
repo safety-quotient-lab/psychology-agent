@@ -16,7 +16,7 @@ async function fetchEngineeringData() {
     try {
         const [tempoResp, deliberationResp] = await Promise.allSettled([
             fetch("/api/tempo", { signal: AbortSignal.timeout(8000) }),
-            fetch("/api/deliberation-rate", { signal: AbortSignal.timeout(8000) }),
+            fetch("/api/spawn-rate", { signal: AbortSignal.timeout(8000) }),
         ]);
         const tempoData = tempoResp.status === "fulfilled" && tempoResp.value.ok
             ? await tempoResp.value.json() : null;
