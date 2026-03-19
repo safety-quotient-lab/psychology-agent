@@ -376,7 +376,17 @@ function renderMeshEmergent(data) {
             + medBar("Avg Flow", (ci.avg_flow || 0) * 100, 100, "#66ccaa");
     }
 
-    // Coherence — 5-dimensional breakdown
+    // Working Memory — mesh average context pressure
+    const wmEl = document.getElementById("medical-vitals-memory");
+    if (wmEl) {
+        const avgLoad = ci.avg_load || 0;
+        const zone = avgLoad > 80 ? "OVERWHELMED" : avgLoad > 60 ? "PRESSURED" : avgLoad > 15 ? "OPTIMAL" : "UNDERSTIMULATED";
+        const zoneColor = zone === "OPTIMAL" ? "#6aab8e" : zone === "OVERWHELMED" ? "#c47070" : zone === "UNDERSTIMULATED" ? "#9999ff" : "#d4944a";
+        wmEl.innerHTML = medBar("Avg Load", avgLoad, 100, "#d4944a")
+            + '<div style="margin-top:6px;text-align:center;font-size:0.82em">Mesh Yerkes-Dodson: <strong style="color:' + zoneColor + '">' + zone + '</strong></div>';
+    }
+
+    // Coherence — 5-dimensional breakdown (own panel)
     renderCoherenceDimensions(coherence);
 
     // Resources — collective intelligence
@@ -386,7 +396,7 @@ function renderMeshEmergent(data) {
     }
 
     // Clear other panels
-    ["medical-oscillator-signals", "medical-oscillator-history", "medical-oscillator-refractory", "medical-vitals-tempo", "medical-burnout-dew"].forEach(function(id) {
+    ["medical-oscillator-signals", "medical-oscillator-history", "medical-oscillator-refractory", "medical-vitals-tempo", "medical-burnout-dew", "medical-coherence"].forEach(function(id) {
         var e = document.getElementById(id);
         if (e) e.innerHTML = '';
     });
@@ -397,7 +407,7 @@ function renderMeshEmergent(data) {
 
 // Update mesh emergent to show coherence dimensions
 function renderCoherenceDimensions(coherence) {
-    const wmEl = document.getElementById("medical-vitals-memory");
+    const wmEl = document.getElementById("medical-coherence");
     if (!wmEl || !coherence) return;
     const dims = coherence.dimensions || {};
     const score = coherence.score || 0;
