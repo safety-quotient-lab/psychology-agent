@@ -373,14 +373,14 @@ function renderTempo() {
         });
         if (arrivalRate > 0 || hasRecentActivity) {
             // Active — waveform reflects deliberation rhythm
-            _gfPhaseRate = Math.max(0.01, arrivalRate * 0.02 + (gain || 0) * 0.04);
-            const amp = gain != null ? Math.max(0.3, 1 - gain) : 0.5;
-            const freq = gain != null ? Math.max(1, (1 - gain) * 6 + 1) : 3;
+            _gfPhaseRate = Math.max(0.03, arrivalRate * 0.02 + (gain || 0) * 0.06);
+            const amp = gain != null ? Math.max(0.4, 1 - gain) : 0.6;
+            const freq = gain != null ? Math.max(2, (1 - gain) * 6 + 2) : 3;
             gfWave._opts = { width: gfWave.clientWidth || 200, height: 30, amplitude: amp, frequency: freq, stroke: tierColor };
         } else {
-            // Idle — flatline
-            _gfPhaseRate = 0;
-            gfWave._opts = { width: gfWave.clientWidth || 200, height: 30, amplitude: 0, frequency: 1, stroke: "var(--text-dim)" };
+            // Idle — subtle baseline ripple (not dead flat)
+            _gfPhaseRate = 0.005;
+            gfWave._opts = { width: gfWave.clientWidth || 200, height: 30, amplitude: 0.05, frequency: 1, stroke: "var(--text-dim)" };
         }
     }
 
@@ -417,13 +417,15 @@ function renderTempo() {
 
         if (hasGcActivity) {
             const gcColor = rho != null ? (rho > 0.8 ? "#c47070" : rho > 0.5 ? "#d4944a" : "#6aab8e") : "#6aab8e";
-            _gcPhaseRate = rho != null ? Math.max(0.02, rho * 0.08) : Math.max(0.02, Math.min(0.1, gcHandled * 0.001));
-            const amp = rho != null ? Math.max(0.2, rho) : 0.4;
-            const freq = rho != null ? Math.max(2, rho * 6 + 2) : 4;
+            // Scale phase rate so motion is clearly visible
+            _gcPhaseRate = rho != null ? Math.max(0.03, rho * 0.1 + 0.03) : Math.max(0.03, Math.min(0.1, gcHandled * 0.005 + 0.03));
+            const amp = rho != null ? Math.max(0.3, rho) : Math.max(0.3, Math.min(0.8, eventCount * 0.05));
+            const freq = rho != null ? Math.max(2, rho * 6 + 2) : Math.max(2, Math.min(6, gcHandled + 2));
             gcWave._opts = { width: gcWave.clientWidth || 200, height: 30, amplitude: amp, frequency: freq, stroke: gcColor };
         } else {
-            _gcPhaseRate = 0;
-            gcWave._opts = { width: gcWave.clientWidth || 200, height: 30, amplitude: 0, frequency: 1, stroke: "var(--text-dim)" };
+            // Idle — subtle baseline
+            _gcPhaseRate = 0.005;
+            gcWave._opts = { width: gcWave.clientWidth || 200, height: 30, amplitude: 0.05, frequency: 1, stroke: "var(--text-dim)" };
         }
     }
 
