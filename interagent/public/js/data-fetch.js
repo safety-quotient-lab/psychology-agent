@@ -50,6 +50,13 @@ async function refreshAll() {
     // Fetch local status + mesh pulse in parallel (both same-origin)
     const [localData, pulseData] = await Promise.all([fetchLocalStatus(), fetchMeshPulse()]);
 
+    // Initialize all agents with stub data (prevents undefined access)
+    for (const agent of AGENTS) {
+        if (!agentData[agent.id]) {
+            agentData[agent.id] = { id: agent.id, status: "unreachable", data: { agent_id: agent.id } };
+        }
+    }
+
     // Populate agentData from pulse (covers all agents)
     if (pulseData?.agents) {
         for (const pa of pulseData.agents) {
