@@ -122,11 +122,11 @@ function renderAll() {
     if (_renderPending) return;
     _renderPending = requestAnimationFrame(() => {
         _renderPending = null;
-        try { renderPulse(); } catch(e) {}
-        try { renderOperations(); } catch(e) {}
+        console.time("renderPulse"); try { renderPulse(); } catch(e) {} console.timeEnd("renderPulse");
+        console.time("renderOps"); try { renderOperations(); } catch(e) {} console.timeEnd("renderOps");
         if (document.body.classList.contains("theme-lcars")) {
-            updateLcarsHeaderData();
-            evaluateAlertLevel();
+            console.time("headerUpdate"); updateLcarsHeaderData(); console.timeEnd("headerUpdate");
+            console.time("alertEval"); evaluateAlertLevel(); console.timeEnd("alertEval");
         }
     });
 }

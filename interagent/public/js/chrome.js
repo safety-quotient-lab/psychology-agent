@@ -420,6 +420,7 @@ function switchTab(tabId, updateHash = true) {
     const colorVar = TAB_COLORS[tabId] || "--c-tab-pulse";
     document.documentElement.style.setProperty("--active-tab-color", `var(${colorVar})`);
     updateSpine(tabId);
+    console.time("switchTab:" + tabId);
     if (tabId === "operations") refreshAll();
     if (tabId === "science") fetchScienceData();
     if (tabId === "engineering") { fetchEngineeringData(); startWaveformAnimation(); }
@@ -427,6 +428,7 @@ function switchTab(tabId, updateHash = true) {
     else { stopWaveformAnimation(); }
     if (tabId === "helm") fetchHelmData();
     if (tabId === "tactical") fetchTacticalData();
+    console.timeEnd("switchTab:" + tabId);
     if (updateHash) history.replaceState(null, "", `#${tabId}`);
 }
 
