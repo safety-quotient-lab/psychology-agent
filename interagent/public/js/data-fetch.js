@@ -97,11 +97,7 @@ async function refreshAll() {
     } else if (failRate === 0) {
         _pollInterval = POLL_MIN;
     }
-    // Reschedule with adapted interval
-    if (refreshTimer && !sseActive) {
-        clearInterval(refreshTimer);
-        refreshTimer = setInterval(refreshAll, _pollInterval);
-    }
+    // Note: timer managed by init.js and ws-sse.js — no reschedule here
 
     const intervalSec = Math.round(_pollInterval / 1000);
     const mode = sseActive ? "\u25CF live" : `\u25CB poll ${intervalSec}s`;
