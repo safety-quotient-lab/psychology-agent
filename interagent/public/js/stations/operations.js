@@ -281,7 +281,7 @@ function renderOpsBudget() {
         const health = d?.data?.health || "\u2014";
         const psych = d?.data?.psychometrics || {};
         const es = psych.emotional_state || {};
-        const mood = es.affect_category || (online ? "unknown" : "");
+        const mood = es.affect_category || "";
         const pending = online ? (d.data?.unprocessed_messages || []).length : 0;
         const gc = online ? (d.data?.gc_metrics?.gc_handled_total || 0) : 0;
         // Operation type — from oscillator dominant_band or heuristic
@@ -307,7 +307,7 @@ function renderOpsBudget() {
         const rawHealth = (health || "unknown").toLowerCase();
         const healthStr = rawHealth === "healthy" ? "NOMINAL" : rawHealth.toUpperCase();
         const hColor = online ? healthColor(rawHealth) : "var(--text-dim)";
-        const moodStr = mood ? mood.toUpperCase() : "";
+        const moodStr = mood ? mood.toUpperCase() : "\u2014";
         const flash = online ? "" : " ohniaka-cell-offline";
         return `<div class="${rowClass}">
             <span class="ohniaka-col ohniaka-name${flash}" style="color:var(--lcars-secondary)"><span class="ohniaka-color-pill" style="background:${agent.color}"></span> ${agentName(agent).toUpperCase()}</span>
@@ -422,7 +422,7 @@ function renderMobilePills() {
             const uptime = d?.data?.uptime || "\u2014";
             const schema = d?.data?.schema_version || "\u2014";
             const events = d?.data?.event_count || 0;
-            const moodDetail = mood || "unknown";
+            const moodDetail = mood || "\u2014";
             const lastSync = d?.data?.schedule?.last_sync_time || d?.data?.collected_at || "\u2014";
 
             html += `<div class="agent-pill-detail" style="border-color:${agent.color}">
