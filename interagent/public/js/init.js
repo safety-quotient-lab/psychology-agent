@@ -37,8 +37,6 @@ window.switchOpsSubsystem = switchOpsSubsystem;
     // Fetch agent cards for structural schema (non-blocking)
     fetchAgentCards();
 
-    // Try WebSocket — real-time event-driven updates (beta-band relay)
-    connectWebSocket();
-    // Safety net — polling only until WS connects (WS handler clears timer)
-    refreshTimer = setInterval(refreshAll, _pollInterval);
+    // Poll only — WS disabled temporarily to diagnose freeze
+    refreshTimer = setInterval(refreshAll, 60000); // 60s conservative poll
 })();
