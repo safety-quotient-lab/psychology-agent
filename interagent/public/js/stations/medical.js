@@ -23,11 +23,15 @@ async function fetchMedicalData() {
     const agent = AGENTS.find(function(a) { return a.id === medSelectedAgent; });
     if (!agent) return;
 
-    // Fetch oscillator + tempo + psychometrics in parallel
-    const [oscResp, tempoResp, psychResp] = await Promise.allSettled([
-        fetch("/api/oscillator", { signal: AbortSignal.timeout(8000) }),
-        fetch("/api/cognitive-tempo", { signal: AbortSignal.timeout(8000) }),
-        fetch("/api/psychometrics/mesh", { signal: AbortSignal.timeout(8000) }),
+    // Fetch tempo + psychometrics (oscillator skipped — hangs in shadow mode)
+    const [tempoResp, psychResp] = await Promise.allSettled([
+        fetch("/api/cognitive-tempo", { signal: AbortSignal.timeout(3000) }),
+        fetch("/api/psychometrics/mesh", { signal: AbortSignal.timeout(3000) }),
+    ]);
+    // Oscillator: try with tight timeout — skip gracefully if hung
+    const oscResp = await Promise.race([
+        fetch("/api/oscillator", { signal: AbortSignal.timeout(2000) }).then(r => ({ status: "fulfilled", value: r })),
+        new Promise(r => setTimeout(() => r({ status: "rejected" }), 2000)),
     ]);
 
     // Oscillator
@@ -47,14 +51,18 @@ async function fetchMedicalData() {
         renderMedicalTempo(await tempoResp.value.json());
     }
 
-    // Psychometrics (per-agent from compositor — works for all agents)
+    // Psychometrics — from mesh endpoint or local agent status
     if (psychResp.status === "fulfilled" && psychResp.value.ok) {
         const meshPsych = await psychResp.value.json();
-        const agentPsych = meshPsych.agents?.[medSelectedAgent] || {};
-        medPsychData = agentPsych;
-        renderMedPsychometrics(agentPsych);
-    } else {
-        // Fallback: try to extract from agentData status
+        // meshd returns per_agent array — find selected agent
+        const pa = (meshPsych.per_agent || []).find(function(a) { return a.agent_id === medSelectedAgent; });
+        if (pa) {
+            medPsychData = { emotional_state: pa.emotional_state, cognitive_load: pa.cognitive_load, cognitive_reserve: pa.cognitive_reserve };
+            renderMedPsychometrics(medPsychData);
+        }
+    }
+    // Fallback: extract from agentData status (local agent has full psychometrics)
+    if (!medPsychData || Object.keys(medPsychData).length === 0) {
         const statusData = agentData[medSelectedAgent]?.data?.psychometrics || {};
         if (Object.keys(statusData).length > 0) {
             medPsychData = statusData;
