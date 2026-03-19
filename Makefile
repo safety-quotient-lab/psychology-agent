@@ -74,6 +74,7 @@ sync-dashboard:
 	@cp -r $(STATIC_SRC)/js/*.js $(STATIC_DST)/js/ 2>/dev/null || true
 	@cp -r $(STATIC_SRC)/js/stations/* $(STATIC_DST)/js/stations/ 2>/dev/null || true
 	@cp -r $(STATIC_SRC)/fonts/* $(STATIC_DST)/fonts/ 2>/dev/null || true
+	@cp $(STATIC_SRC)/favicon.svg $(STATIC_DST)/ 2>/dev/null || true
 	@echo "  Done (cache bust: $$V)"
 
 # ── Build ─────────────────────────────────────────────────────
