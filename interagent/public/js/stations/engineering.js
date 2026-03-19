@@ -348,16 +348,21 @@ function renderTempo() {
     const tierColor = tier === "opus" ? "#c47070" : tier === "sonnet" ? "#d4944a" : "#66ccaa";
 
     if (gfVal) {
+        const opsData = agentData["operations-agent"]?.data || {};
+        const delibCount = opsData.deliberation_count || 0;
+        const delibLastHr = opsData.gc_metrics?.deliberations_last_hour || 0;
+        const complexity = ct?.task_complexity || 0;
+
         if (gain != null) {
-            gfVal.innerHTML = `${tier.toUpperCase()}<span class="tempo-unit"> gain=${gain.toFixed(2)}</span>`;
+            gfVal.innerHTML = `${tier.toUpperCase()}<span class="tempo-unit"> g=${gain.toFixed(2)}</span>`;
             gfFill.style.width = `${Math.min(100, gain * 100)}%`;
             gfFill.style.background = tierColor;
             const yd = ct?.psychometric_state?.yerkes_dodson_zone || "?";
-            gfStatus.textContent = `Yerkes-Dodson: ${yd.toUpperCase()} · Complexity: ${(ct?.task_complexity || 0).toFixed(2)}`;
+            gfStatus.textContent = `${yd.toUpperCase()} · ${delibLastHr}/hr · ${delibCount} total · c=${complexity.toFixed(2)}`;
         } else {
-            gfVal.innerHTML = `\u2014<span class="tempo-unit">awaiting</span>`;
+            gfVal.innerHTML = `${delibCount}<span class="tempo-unit"> deliberations</span>`;
             gfFill.style.width = "0%";
-            gfStatus.textContent = "Gf: AWAITING DATA";
+            gfStatus.textContent = `${delibLastHr}/hr · no cognitive tempo data`;
         }
     }
 
@@ -393,16 +398,21 @@ function renderTempo() {
     const rho = mesh.utilization ?? null;
 
     if (gcVal) {
-        if (rho != null) {
-            const pct = Math.min(100, rho * 100);
-            gcVal.innerHTML = `${pct.toFixed(0)}%<span class="tempo-unit"> utilization</span>`;
+        const opsData = agentData["operations-agent"]?.data || {};
+        const gcHandled = opsData.gc_metrics?.gc_handled_total || 0;
+        const eventCount = opsData.event_count || 0;
+        const blocked = opsData.gc_metrics?.deliberation_blocked_total || 0;
+
+        if (eventCount > 0 || gcHandled > 0) {
+            gcVal.innerHTML = `${eventCount}<span class="tempo-unit"> events</span>`;
+            const pct = rho != null ? Math.min(100, rho * 100) : Math.min(100, Math.min(gcHandled, 100));
             gcFill.style.width = `${pct}%`;
             gcFill.style.background = rho > 0.8 ? "#c47070" : rho > 0.5 ? "#d4944a" : "#6aab8e";
-            gcStatus.textContent = `OODA: ${avgMs || "\u2014"}ms · Throughput: ${mesh.stable ? "STABLE" : "UNSTABLE"}`;
+            gcStatus.textContent = `Gc: ${gcHandled} handled · ${blocked} blocked${rho != null ? " · \u03C1=" + (rho * 100).toFixed(0) + "%" : ""}`;
         } else {
-            gcVal.innerHTML = `\u2014<span class="tempo-unit">awaiting</span>`;
+            gcVal.innerHTML = `0<span class="tempo-unit"> events</span>`;
             gcFill.style.width = "0%";
-            gcStatus.textContent = "Gc: AWAITING DATA";
+            gcStatus.textContent = "Gc: no activity";
         }
     }
 
