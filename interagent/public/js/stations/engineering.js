@@ -361,15 +361,27 @@ function renderTempo() {
         }
     }
 
-    // Gf waveform — driven by actual deliberation rate + gain
+    // Gf waveform — driven by actual deliberation activity
+    // Flatline when no deliberations happening (system paused or idle)
     const gfWave = document.getElementById("tempo-gf-waveform");
     if (gfWave) {
-        // Deliberation rate from tempo data (arrivals/hr → phase speed)
         const arrivalRate = engineeringData?.tempo?.mesh?.arrival_rate || 0;
-        _gfPhaseRate = gain != null ? Math.max(0.01, gain * 0.06) : Math.max(0.01, arrivalRate * 0.01);
-        const amp = gain != null ? Math.max(0.3, 1 - gain) : 0.5;
-        const freq = gain != null ? Math.max(1, (1 - gain) * 6 + 1) : 3;
-        gfWave._opts = { width: gfWave.clientWidth || 200, height: 30, amplitude: amp, frequency: freq, stroke: tierColor };
+        const recentDelibs = agentData["operations-agent"]?.data?.recent_deliberations || [];
+        const hasRecentActivity = recentDelibs.some(d => {
+            const ts = d.started_at;
+            return ts && (Date.now() - new Date(ts.replace(" ", "T") + "Z").getTime()) < 300000; // 5min
+        });
+        if (arrivalRate > 0 || hasRecentActivity) {
+            // Active — waveform reflects deliberation rhythm
+            _gfPhaseRate = Math.max(0.01, arrivalRate * 0.02 + (gain || 0) * 0.04);
+            const amp = gain != null ? Math.max(0.3, 1 - gain) : 0.5;
+            const freq = gain != null ? Math.max(1, (1 - gain) * 6 + 1) : 3;
+            gfWave._opts = { width: gfWave.clientWidth || 200, height: 30, amplitude: amp, frequency: freq, stroke: tierColor };
+        } else {
+            // Idle — flatline
+            _gfPhaseRate = 0;
+            gfWave._opts = { width: gfWave.clientWidth || 200, height: 30, amplitude: 0, frequency: 1, stroke: "var(--text-dim)" };
+        }
     }
 
     // ── Gc Tempo: crystallized throughput (OODA cycle, events/hr) ──
