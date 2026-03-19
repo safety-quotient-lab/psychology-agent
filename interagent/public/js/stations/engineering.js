@@ -33,6 +33,7 @@ async function fetchEngineeringData() {
 
 function renderEngineering() {
     renderNumberGrid("eng-zone-a", engZoneAMetrics());
+    renderTimingHierarchy();
     renderDeliberationCascade();
     renderGcCascade();
     renderUtilization();
@@ -42,7 +43,7 @@ function renderEngineering() {
     renderCognitiveLoad();
     renderYerkesDodson();
 
-    // Update status line
+    // Update status line (removed — replaced by zone-c title)
     const statusEl = document.getElementById("eng-status-line");
     if (statusEl && engineeringData) {
         const mesh = engineeringData.tempo?.mesh || {};
@@ -590,6 +591,48 @@ function renderYerkesDodson() {
             <span style="font-size:0.7em;color:${zoneColor};width:80px;text-align:right">${zone.toUpperCase()}</span>
         </div>`;
     }).join("");
+}
+
+// ── Timing Hierarchy (psy-session arch synthesis) ───────────────
+// 5-layer timing status derived from live system state.
+function renderTimingHierarchy() {
+    const ops = agentData["operations-agent"];
+    const osc = ops?.data?.oscillator || {};
+    const health = ops?.data?.health;
+
+    // Layer 1: Circadian — not implemented
+    // Layer 2: Ultradian — deliberation cycle (shadow mode = shadow, active if deliberations recent)
+    const recentDelibs = ops?.data?.recent_deliberations || [];
+    const hasRecentDelib = recentDelibs.length > 0 && recentDelibs[0]?.started_at;
+    const el2 = document.getElementById("eng-timing-ultradian");
+    if (el2) {
+        if (hasRecentDelib) { el2.textContent = "ACTIVE"; el2.style.color = "var(--lcars-medical)"; }
+        else { el2.textContent = "SHADOW"; el2.style.color = "var(--text-dim)"; }
+    }
+
+    // Layer 3: Cardiac — oscillator state
+    const el3 = document.getElementById("eng-timing-cardiac");
+    if (el3) {
+        if (osc.state === "firing") { el3.textContent = "FIRING"; el3.style.color = "var(--lcars-alert)"; }
+        else if (osc.state === "refractory") { el3.textContent = "REFRACT"; el3.style.color = "var(--lcars-accent)"; }
+        else if (osc.state) { el3.textContent = "ACTIVE"; el3.style.color = "var(--lcars-medical)"; }
+        else { el3.textContent = "PARTIAL"; el3.style.color = "var(--lcars-accent)"; }
+    }
+
+    // Layer 4: Respiratory — health monitor
+    const el4 = document.getElementById("eng-timing-respiratory");
+    if (el4) {
+        if (health === "nominal") { el4.textContent = "ACTIVE"; el4.style.color = "var(--lcars-medical)"; }
+        else if (health) { el4.textContent = health.toUpperCase(); el4.style.color = "var(--lcars-accent)"; }
+    }
+
+    // Layer 5: Neural — oscillatory heartbeat
+    const el5 = document.getElementById("eng-timing-neural");
+    if (el5) {
+        const band = osc.dominant_band || "";
+        if (band) { el5.textContent = band.toUpperCase(); el5.style.color = "var(--lcars-tertiary)"; }
+        else { el5.textContent = "PROPOSED"; el5.style.color = "var(--text-dim)"; }
+    }
 }
 
 // ── Tactical Station ─────────────────────────────────────────────

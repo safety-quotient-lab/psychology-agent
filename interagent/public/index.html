@@ -899,15 +899,30 @@
 
         <!-- Engineering Tab -->
         <div class="tab-pane" id="pane-engineering">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                <div class="lcars-status-line" id="eng-status-line" style="flex:1">Engineering Systems: Awaiting Data</div>
-                <span class="lcars-section-badge" style="--badge-color:var(--c-tab-engineering)">04 <span class="lcars-section-badge-text">Engineering</span></span>
+            <!-- Engineering Record — zone-c title -->
+            <div class="lcars-zone-c" style="margin-bottom:var(--gap-xs)">
+                <span class="zc-title">Systems Engineering</span>
+                <span class="zc-id">04</span>
+            </div>
+
+            <!-- Timing Hierarchy — 5-layer status (psy-session arch synthesis) -->
+            <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering); margin-bottom: var(--gap-l)">
+                <div class="lcars-panel-header">Timing Hierarchy <span class="lcars-panel-id">1963</span></div>
+                <div class="lcars-panel-body" id="engineering-timing-hierarchy">
+                    <div style="display:grid;grid-template-columns:auto 1fr auto;gap:var(--gap-xs) var(--gap-m);font-size:0.78em;align-items:center">
+                        <span style="color:var(--lcars-readout)">~24h</span><span>Circadian — maintenance scheduling</span><span class="engineering-timing-status" id="eng-timing-circadian" style="color:var(--text-dim)">NOT IMPL</span>
+                        <span style="color:var(--lcars-readout)">~90m</span><span>Ultradian — deliberation + refractory cycle</span><span class="engineering-timing-status" id="eng-timing-ultradian" style="color:var(--text-dim)">SHADOW</span>
+                        <span style="color:var(--lcars-readout)">~1-30m</span><span>Cardiac — oscillator → fetcher → dispatcher</span><span class="engineering-timing-status" id="eng-timing-cardiac" style="color:var(--lcars-accent)">PARTIAL</span>
+                        <span style="color:var(--lcars-readout)">~15s</span><span>Respiratory — health monitor (continuous)</span><span class="engineering-timing-status" id="eng-timing-respiratory" style="color:var(--lcars-medical)">ACTIVE</span>
+                        <span style="color:var(--lcars-readout)">~1-5s</span><span>Neural — oscillatory heartbeat (5-band)</span><span class="engineering-timing-status" id="eng-timing-neural" style="color:var(--text-dim)">PROPOSED</span>
+                    </div>
+                </div>
             </div>
 
             <div class="engineering-grid">
                 <!-- Panel A: Deliberation Cascade -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
-                    <div class="lcars-panel-header">Deliberation Cascade (Gf)</div>
+                    <div class="lcars-panel-header">Deliberation Cascade (Gf) <span class="lcars-panel-id">4847</span></div>
                     <div class="lcars-zone-a" id="eng-zone-a"></div>
                     <div class="lcars-panel-body" id="deliberation-cascade">
                         <div class="engineering-placeholder" id="deliberation-placeholder">Awaiting engineering data...</div>
@@ -916,7 +931,7 @@
 
                 <!-- Panel A2: Crystallization Cascade (Gc) -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
-                    <div class="lcars-panel-header">Crystallization Cascade (Gc)</div>
+                    <div class="lcars-panel-header">Crystallization Cascade (Gc) <span class="lcars-panel-id">7741</span></div>
                     <div class="lcars-panel-body" id="gc-cascade">
                         <div class="engineering-placeholder" id="gc-placeholder">Awaiting Gc metrics...</div>
                     </div>
@@ -924,7 +939,7 @@
 
                 <!-- Panel B: Utilization Gauge -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
-                    <div class="lcars-panel-header">Utilization</div>
+                    <div class="lcars-panel-header">Utilization <span class="lcars-panel-id">2018</span></div>
                     <div class="lcars-panel-body">
                         <div style="display:flex;gap:16px;align-items:center;">
                             <div class="util-gauge" id="util-gauge" style="flex:1;">
@@ -942,7 +957,7 @@
 
                 <!-- Panel C: Tempo (G9) -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
-                    <div class="lcars-panel-header">Tempo (G9)</div>
+                    <div class="lcars-panel-header">Tempo (G9) <span class="lcars-panel-id">1963</span></div>
                     <div class="lcars-panel-body">
                         <div id="tempo-waveform" style="margin-bottom:6px"></div>
                         <div class="tempo-gauge" id="tempo-gauge">
@@ -958,7 +973,7 @@
 
                 <!-- Panel D: Cost Accumulator -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
-                    <div class="lcars-panel-header">Cost Accumulator</div>
+                    <div class="lcars-panel-header">Cost Accumulator <span class="lcars-panel-id">3847</span></div>
                     <div class="lcars-panel-body">
                         <div class="cost-display" id="cost-display">
                             <div class="cost-total" id="cost-total">$—</div>
@@ -978,7 +993,7 @@
 
                 <!-- Panel F: Yerkes-Dodson Zones (A2A-Psychology) -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
-                    <div class="lcars-panel-header">Yerkes-Dodson Zones</div>
+                    <div class="lcars-panel-header">Yerkes-Dodson Zones <span class="lcars-panel-id">1908</span></div>
                     <div class="lcars-panel-body" id="eng-yd-zones">
                         <div class="engineering-placeholder">Awaiting psychometrics data...</div>
                     </div>
@@ -986,7 +1001,7 @@
 
                 <!-- Panel G: Concurrency Slots (full width) -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering); grid-column: 1 / -1;">
-                    <div class="lcars-panel-header">Concurrency Slots</div>
+                    <div class="lcars-panel-header">Concurrency Slots <span class="lcars-panel-id">5894</span></div>
                     <div class="lcars-panel-body">
                         <div class="concurrency-slots" id="concurrency-slots">
                             <div class="concurrency-slot">
