@@ -29,7 +29,7 @@ window.switchOpsSubsystem = switchOpsSubsystem;
     if (hashTab && VALID_TABS.includes(hashTab)) switchTab(hashTab, false);
 
     buildAgentSwitcher();
-    await refreshAll();
+    refreshAll(); // non-blocking — don't await, let UI remain interactive
 
     // Check auth for control surfaces (non-blocking)
     checkAuth();
