@@ -361,13 +361,15 @@ function renderTempo() {
         }
     }
 
-    // Gf waveform — frequency from gain
+    // Gf waveform — driven by actual deliberation rate + gain
     const gfWave = document.getElementById("tempo-gf-waveform");
-    if (gfWave && gain != null) {
-        const freq = Math.max(1, gain * 8);
-        const amp = Math.max(0.3, 1 - gain);
-        _waveOpts = { width: gfWave.clientWidth || 200, height: 30, amplitude: amp, frequency: freq, stroke: tierColor };
-        gfWave.innerHTML = waveformSVG({ ..._waveOpts, phase: _wavePhase });
+    if (gfWave) {
+        // Deliberation rate from tempo data (arrivals/hr → phase speed)
+        const arrivalRate = engineeringData?.tempo?.mesh?.arrival_rate || 0;
+        _gfPhaseRate = gain != null ? Math.max(0.01, gain * 0.06) : Math.max(0.01, arrivalRate * 0.01);
+        const amp = gain != null ? Math.max(0.3, 1 - gain) : 0.5;
+        const freq = gain != null ? Math.max(1, (1 - gain) * 6 + 1) : 3;
+        gfWave._opts = { width: gfWave.clientWidth || 200, height: 30, amplitude: amp, frequency: freq, stroke: tierColor };
     }
 
     // ── Gc Tempo: crystallized throughput (OODA cycle, events/hr) ──
@@ -392,13 +394,17 @@ function renderTempo() {
         }
     }
 
-    // Gc waveform — frequency from utilization
+    // Gc waveform — driven by actual Gc event rate + utilization
     const gcWave = document.getElementById("tempo-gc-waveform");
-    if (gcWave && rho != null) {
-        const freq = Math.max(1, rho * 6);
-        const amp = Math.max(0.2, rho);
-        const gcColor = rho > 0.8 ? "#c47070" : rho > 0.5 ? "#d4944a" : "#6aab8e";
-        gcWave.innerHTML = waveformSVG({ width: gcWave.clientWidth || 200, height: 30, amplitude: amp, frequency: freq, stroke: gcColor, phase: _wavePhase + 1.5 });
+    if (gcWave) {
+        // Gc event rate from agentData (events handled without deliberation)
+        const opsData = agentData["operations-agent"]?.data || {};
+        const gcHandled = opsData.gc_metrics?.gc_handled_total || 0;
+        const gcColor = rho != null ? (rho > 0.8 ? "#c47070" : rho > 0.5 ? "#d4944a" : "#6aab8e") : "#6aab8e";
+        _gcPhaseRate = rho != null ? Math.max(0.02, rho * 0.08) : Math.max(0.02, Math.min(0.1, gcHandled * 0.001));
+        const amp = rho != null ? Math.max(0.2, rho) : 0.4;
+        const freq = rho != null ? Math.max(2, rho * 6 + 2) : 4;
+        gcWave._opts = { width: gcWave.clientWidth || 200, height: 30, amplitude: amp, frequency: freq, stroke: gcColor };
     }
 
     renderTempoIntrospection(tierColor);
