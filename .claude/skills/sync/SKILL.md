@@ -160,6 +160,34 @@ gh api repos/{repo}/commits \
 ls transport/sessions/local-coordination/
 ```
 
+**1e. Peer API status check (Session 93 — prevents git/state confusion):**
+
+For each agent shown as online in the pulse, query its `/api/status`
+for actual processing state. **MUST NOT infer processing state from git
+commit history** — an agent can deliberate actively without producing
+commits. Git log shows *commit activity*; the API shows *processing state*.
+
+```bash
+# Query each online peer's status endpoint
+for agent_url in $(curl -s http://localhost:8083/api/pulse | \
+  python3 -c "import json,sys; [print(a.get('status_url','')) for a in json.load(sys.stdin).get('agents',[]) if a.get('status') == 'online']"); do
+  curl -s --max-time 5 "$agent_url" 2>/dev/null
+done
+```
+
+Extract from each response:
+- `deliberation_count` — has the agent deliberated since last restart?
+- `event_count` — how many events processed?
+- `gc_metrics.spawn_blocked_total` — blocked spawns indicate infrastructure bugs
+- `uptime` — how long since last restart?
+- `health` — self-reported health status
+
+**Anti-pattern (Session 93 postmortem):** Checking `git log peer/main`
+and concluding "agent stopped deliberating" when the log showed no recent
+commits. Observatory-agent had 10 deliberations on the day we reported it
+idle — the deliberations produced no git-visible output. Fair witness
+violation: observation ("no commits") reported as inference ("no activity").
+
 ### Phase 2: Triage
 
 For each inbound item, classify:
@@ -289,6 +317,49 @@ script (`scripts/pre_sync_check.py`) should surface incomplete items
 so the LLM context includes them. If incomplete work exceeds 3 items,
 the orientation payload should prioritize resolution over new inbound
 processing.
+
+### Phase 2d: Session Drift Detection (Session 93)
+
+Before writing new messages to a session, check whether the session
+has drifted from its original scope. Drifted sessions obscure content,
+complicate search, and produce misleading MANIFEST entries.
+
+**Detection heuristics (any one triggers a drift flag):**
+
+1. **Subject drift** — 3+ consecutive messages share no keywords with
+   the session name (split session name by hyphen, check intersection
+   with message subjects). Example: `context-degradation-threshold`
+   receiving messages about "LCARS dashboard" and "alpha-band heartbeat."
+
+2. **Thread fork** — `thread_id` differs from `session_id` on 3+ messages.
+   The session contains multiple conversations sharing a container.
+   Each distinct `thread_id` should become its own session.
+
+3. **Participant change** — the agent pair shifts within the session
+   (e.g., psychology↔ops becomes psychology↔observatory). Different
+   participant pairs warrant different sessions.
+
+4. **Turn count** — session exceeds 15 turns. Long sessions almost
+   always contain multiple topics. Check whether turns 1-5 and turns
+   10-15 discuss the same subject.
+
+**When drift detected:**
+
+1. Flag in /sync output: `Session drift: {session} — {reason}`
+2. Recommend split: identify the natural topic boundaries and propose
+   new session names for each thread
+3. Do NOT auto-split — surface for user review (T3 substance gate)
+4. For new outbound messages on a drifted topic: create a new session
+   with an accurate name rather than appending to the drifted session
+
+**Output addition:**
+
+```
+  Session drift detected: {count} sessions
+    - {session}: {reason} — recommend split into {proposed sessions}
+```
+
+If no drift: omit this line (don't add noise for clean sessions).
 
 ### Phase 3: Process Each Item
 
