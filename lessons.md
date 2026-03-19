@@ -1175,3 +1175,40 @@ referent as a depleting resource (entity) or an observable process
 project's ontological commitment (neutral process monism) and produces
 better operator cognition — monitoring outperforms anxiety management.
 
+
+---
+pattern_type: inference-chain-error
+domain: operations
+severity: high
+first_seen: 2026-03-18
+last_seen: 2026-03-18
+recurrence: 1
+session: 93
+promotion_status: null
+---
+
+## Git commit history ≠ agent processing state
+
+**Observation:** Reported observatory-agent idle since Mar 15 based on
+`git log observatory/main` showing no commits after that date. Operations-agent
+found observatory had 10 deliberations on Mar 18 alone (budget_spent=999).
+
+**Pattern:** Treated *commit activity* as a proxy for *processing state*.
+An agent can deliberate (run claude -p, update state.db, process messages)
+without producing any git-visible output. The autonomous-sync.sh pattern
+only commits when new content exists to push.
+
+**Root cause:** Fair witness violation — observation ("no recent commits")
+reported as inference ("agent stopped deliberating") without flagging the
+inference step. T2#5 (fair witness check) should have caught this.
+
+**Prevention:** /sync Phase 1e (added Session 93) now queries each online
+peer's /api/status for actual deliberation_count and event_count. Git log
+remains useful for *commit* activity; the API provides *processing* state.
+Never infer one from the other.
+
+**Falsifiable:** If an agent with recent deliberations always produces
+commits, this lesson over-corrects. Check: do observatory's 10 Mar 18
+deliberations correlate with any commits? If yes, the inference held by
+coincidence. If no, the distinction matters.
+
