@@ -69,7 +69,7 @@ function connectWebSocket() {
             sseActive = true;
             _wsBackoff = 2000;
             updateSSEIndicator(true);
-            if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+            // Keep polling — WS supplements but doesn't replace periodic refresh
             // WS connected — close SSE if open (avoid duplicate events)
             if (_sseConnection) { _sseConnection.close(); _sseConnection = null; }
         };
@@ -133,7 +133,7 @@ function connectSSE() {
         if (!wsConnection) {
             sseActive = true;
             updateSSEIndicator(true);
-            if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+            // Keep polling — WS supplements but doesn't replace periodic refresh
         }
     };
 
