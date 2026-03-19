@@ -15,6 +15,7 @@ import (
 	"math"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -22,7 +23,6 @@ import (
 // Fetches per-agent psychometrics, computes mesh-level emergent properties.
 func (s *Server) handlePsychometricsMesh(w http.ResponseWriter, r *http.Request) {
 	agents := s.Registry.Agents()
-	client := &http.Client{Timeout: 4 * time.Second}
 
 	type agentPsych struct {
 		AgentID            string         `json:"agent_id"`
@@ -45,35 +45,94 @@ func (s *Server) handlePsychometricsMesh(w http.ResponseWriter, r *http.Request)
 		AlphaHeartbeat     map[string]any `json:"alpha_heartbeat,omitempty"`
 	}
 
+	// Parallel fetch — all agents concurrently with tight timeouts
+	fastClient := &http.Client{Timeout: 3 * time.Second}
+	type fetchResult struct {
+		ap    agentPsych
+		data  map[string]any
+	}
+
+	results := make([]fetchResult, len(agents))
+	var wg sync.WaitGroup
+
+	for i, agent := range agents {
+		if agent.StatusURL == "" {
+			results[i] = fetchResult{ap: agentPsych{AgentID: agent.ID}}
+			continue
+		}
+		wg.Add(1)
+		go func(idx int, ag AgentInfo) {
+			defer wg.Done()
+			ap := agentPsych{AgentID: ag.ID}
+
+			// Fetch psychometrics
+			baseURL := ""
+			if bidx := strings.Index(ag.StatusURL, "/api/"); bidx > 0 {
+				baseURL = ag.StatusURL[:bidx]
+			}
+			resp, err := fastClient.Get(baseURL + "/api/psychometrics")
+			if err != nil {
+				results[idx] = fetchResult{ap: ap}
+				return
+			}
+			body, _ := io.ReadAll(resp.Body)
+			resp.Body.Close()
+			if resp.StatusCode != 200 {
+				results[idx] = fetchResult{ap: ap}
+				return
+			}
+			var data map[string]any
+			json.Unmarshal(body, &data)
+			ap.Online = true
+
+			// Parallel sub-fetches for oscillator + tempo + status (tight timeout)
+			subClient := &http.Client{Timeout: 2 * time.Second}
+			if baseURL != "" {
+				var swg sync.WaitGroup
+				swg.Add(3)
+				go func() { defer swg.Done()
+					if r, e := subClient.Get(baseURL + "/api/oscillator"); e == nil {
+						defer r.Body.Close()
+						if r.StatusCode == 200 { var d map[string]any; b, _ := io.ReadAll(r.Body); json.Unmarshal(b, &d); ap.Oscillator = d }
+					}
+				}()
+				go func() { defer swg.Done()
+					if r, e := subClient.Get(baseURL + "/api/cognitive-tempo"); e == nil {
+						defer r.Body.Close()
+						if r.StatusCode == 200 { var d map[string]any; b, _ := io.ReadAll(r.Body); json.Unmarshal(b, &d); ap.CognitiveTempo = d }
+					}
+				}()
+				go func() { defer swg.Done()
+					if r, e := subClient.Get(ag.StatusURL); e == nil {
+						defer r.Body.Close()
+						if r.StatusCode == 200 {
+							var d map[string]any; b, _ := io.ReadAll(r.Body); json.Unmarshal(b, &d)
+							if hb, ok := d["alpha_heartbeat"].(map[string]any); ok { ap.AlphaHeartbeat = hb }
+						}
+					}
+				}()
+				swg.Wait()
+			}
+
+			results[idx] = fetchResult{ap: ap, data: data}
+		}(i, agent)
+	}
+	wg.Wait()
+
+	// Aggregate results
 	var agentStates []agentPsych
 	var totalP, totalA, totalD float64
 	var totalLoad, totalReserve, totalFlow float64
 	online := 0
 
-	for _, agent := range agents {
-		if agent.StatusURL == "" {
-			continue
-		}
+	for _, fr := range results {
+		ap := fr.ap
+		data := fr.data
 
-		ap := agentPsych{AgentID: agent.ID}
-
-		resp, err := client.Get(agent.StatusURL + "/../psychometrics")
-		if err != nil {
+		if !ap.Online {
 			agentStates = append(agentStates, ap)
 			continue
 		}
-		body, _ := io.ReadAll(resp.Body)
-		resp.Body.Close()
-
-		if resp.StatusCode != 200 {
-			agentStates = append(agentStates, ap)
-			continue
-		}
-
-		var data map[string]any
-		json.Unmarshal(body, &data)
-
-		ap.Online = true
 		online++
 
 		// Extract PAD
@@ -114,44 +173,6 @@ func (s *Server) handlePsychometricsMesh(w http.ResponseWriter, r *http.Request)
 		if sc, ok := data["supervisory_control"].(map[string]any); ok { ap.SupervisoryControl = sc }
 		if es, ok := data["emotional_state"].(map[string]any); ok {
 			if cat, ok := es["affect_category"].(string); ok { ap.AffectCategory = cat }
-		}
-
-		// Fetch oscillator + cognitive-tempo from same agent base URL
-		baseURL := ""
-		if idx := strings.Index(agent.StatusURL, "/api/"); idx > 0 {
-			baseURL = agent.StatusURL[:idx]
-		}
-		if baseURL != "" {
-			if oscResp, err := client.Get(baseURL + "/api/oscillator"); err == nil {
-				defer oscResp.Body.Close()
-				if oscResp.StatusCode == 200 {
-					var oscData map[string]any
-					if oscBody, _ := io.ReadAll(oscResp.Body); json.Unmarshal(oscBody, &oscData) == nil {
-						ap.Oscillator = oscData
-					}
-				}
-			}
-			if tempoResp, err := client.Get(baseURL + "/api/cognitive-tempo"); err == nil {
-				defer tempoResp.Body.Close()
-				if tempoResp.StatusCode == 200 {
-					var tempoData map[string]any
-					if tempoBody, _ := io.ReadAll(tempoResp.Body); json.Unmarshal(tempoBody, &tempoData) == nil {
-						ap.CognitiveTempo = tempoData
-					}
-				}
-			}
-			// Alpha heartbeat from status response
-			if statusResp, err := client.Get(agent.StatusURL); err == nil {
-				defer statusResp.Body.Close()
-				if statusResp.StatusCode == 200 {
-					var statusData map[string]any
-					if sBody, _ := io.ReadAll(statusResp.Body); json.Unmarshal(sBody, &statusData) == nil {
-						if hb, ok := statusData["alpha_heartbeat"].(map[string]any); ok {
-							ap.AlphaHeartbeat = hb
-						}
-					}
-				}
-			}
 		}
 
 		agentStates = append(agentStates, ap)
