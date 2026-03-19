@@ -615,9 +615,20 @@ func main() {
 		}
 	}()
 
+	// Initialize Gc learning table + load promoted types
+	events.InitGcLearning(cfg.BudgetDBPath)
+	events.LoadPromotedTypes(cfg.BudgetDBPath, logger)
+
+	// Alpha heartbeat — idle vital signs (T22 metabolic cooling model)
+	alphaHB := server.NewAlphaHeartbeat(logger, func() {
+		srv.BroadcastStatus() // thalamic relay — broadcast on each idle tick
+	})
+	alphaHB.Start()
+	srv.AlphaHeartbeat = alphaHB
+
 	logger.Info("meshd ready",
 		"port", cfg.Port,
-		"subsystems", "queue,dispatcher,watcher,monitor,server,poll,fetcher",
+		"subsystems", "queue,dispatcher,watcher,monitor,server,poll,fetcher,alpha-heartbeat",
 	)
 
 	// Delayed startup broadcast — push full status + stand-down to all

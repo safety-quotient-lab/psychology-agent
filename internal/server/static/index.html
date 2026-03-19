@@ -30,7 +30,7 @@
         ]
     }
     </script>
-    <link rel="stylesheet" href="css/inline-legacy.css?v=172eeb3">
+    <link rel="stylesheet" href="css/inline-legacy.css?v=46c2170">
     <!-- TODO: consolidate inline-legacy.css into theme.css + layout.css + components.css -->
 
 </head>
@@ -86,7 +86,7 @@
                 <div class="stardate-tray-pill" style="background:var(--lcars-tertiary)" id="lcars-tray-agents">— Agents</div>
                 <div class="stardate-tray-pill" style="background:var(--lcars-accent)" id="lcars-tray-msgs">— Messages</div>
                 <div class="stardate-tray-pill" style="background:var(--lcars-secondary)" id="lcars-hdr-proto">A2A/1.0.0</div>
-                <div class="stardate-tray-pill" style="background:var(--lcars-highlight)" id="lcars-hdr-psych">A2A-PSYCH/v1</div>
+                <div class="stardate-tray-pill" style="background:var(--lcars-highlight)" id="lcars-hdr-psych">A2A-PSYCH/0.0.2</div>
                 <div class="stardate-tray-pill" style="background:var(--lcars-tertiary)" id="lcars-hdr-health">&#x25CF; —</div>
                 <div class="stardate-tray-pill" id="lcars-version-pill" style="background:var(--lcars-accent);display:none;cursor:pointer" onclick="document.getElementById('lcars-update-bar').classList.toggle('expanded')">&#x25CF; UPDATE</div>
                 <!-- TODO: Theme switcher pill — cycle through V23.01 / lcars-shiny / 2357 / 2369 / 2375 / 2379 palettes. Store selection in localStorage. Each theme overrides --lcars-frame through --lcars-highlight semantic vars. -->
@@ -1284,6 +1284,9 @@
             </div>
             <div id="medical-vitals-matrix" style="margin-bottom:var(--gap-l)"></div>
 
+            <!-- Tonic inhibition indicator (T2 — sleep mode blocks salient events) -->
+            <div id="medical-tonic-inhibition" style="display:none;padding:var(--gap-m);margin-bottom:var(--gap-l);background:var(--lcars-title);color:#000;font-family:'Oswald','Antonio','Arial Narrow',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;font-size:0.78em;text-align:center;border-radius:var(--gap-xs)">TONIC INHIBITION — sleep mode blocking salient events</div>
+
             <!-- Agent selector — subpanel frame -->
             <div class="lcars-subpanel">
                 <div class="lcars-subpanel-bar" style="background:var(--lcars-medical,#66ccaa)">11-4471</div>
@@ -1401,20 +1404,20 @@
     <div class="lcars-narrative-log" id="lcars-narrative-log"></div>
 </div>
 
-<script src="js/colorizer.js?v=172eeb3"></script>
-<script src="js/core.js?v=172eeb3"></script>
-<script src="js/chrome.js?v=172eeb3"></script>
-<script src="js/data-fetch.js?v=172eeb3"></script>
-<script src="js/pulse.js?v=172eeb3"></script>
-<script src="js/knowledge.js?v=172eeb3"></script>
-<script src="js/ws-sse.js?v=172eeb3"></script>
-<script src="js/stations/operations.js?v=172eeb3"></script>
-<script src="js/stations/science.js?v=172eeb3"></script>
-<script src="js/stations/helm.js?v=172eeb3"></script>
-<script src="js/stations/engineering.js?v=172eeb3"></script>
-<script src="js/stations/tactical.js?v=172eeb3"></script>
-<script src="js/stations/medical.js?v=172eeb3"></script>
-<script src="js/init.js?v=172eeb3"></script>
+<script src="js/colorizer.js?v=46c2170"></script>
+<script src="js/core.js?v=46c2170"></script>
+<script src="js/chrome.js?v=46c2170"></script>
+<script src="js/data-fetch.js?v=46c2170"></script>
+<script src="js/pulse.js?v=46c2170"></script>
+<script src="js/knowledge.js?v=46c2170"></script>
+<script src="js/ws-sse.js?v=46c2170"></script>
+<script src="js/stations/operations.js?v=46c2170"></script>
+<script src="js/stations/science.js?v=46c2170"></script>
+<script src="js/stations/helm.js?v=46c2170"></script>
+<script src="js/stations/engineering.js?v=46c2170"></script>
+<script src="js/stations/tactical.js?v=46c2170"></script>
+<script src="js/stations/medical.js?v=46c2170"></script>
+<script src="js/init.js?v=46c2170"></script>
 
 </body>
 </html>

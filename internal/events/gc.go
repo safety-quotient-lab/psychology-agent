@@ -18,6 +18,8 @@ import (
 	"log/slog"
 	"os/exec"
 	"strings"
+
+	"github.com/safety-quotient-lab/operations-agent/internal/db"
 )
 
 // GcConfig holds configuration for crystallized intelligence handlers.
@@ -25,6 +27,7 @@ type GcConfig struct {
 	RepoRoot     string // path to operations-agent repo root
 	TransportDir string // path to transport/sessions/
 	AgentID      string // this agent's identity
+	DBPath       string // path to state.db (for Gc learning)
 	Logger       *slog.Logger
 }
 
@@ -204,6 +207,109 @@ func hasNonACKPRs(prJSON string) bool {
 func GcStats(d *Dispatcher) int64 {
 	_, _, batched := d.Stats()
 	return batched
+}
+
+// ── Gc Reinforcement Learning (basal ganglia analog, Schultz 1997) ──────
+// Tracks deliberation outcomes to learn which message types Gc can absorb.
+// Promotion: 5+ non-substantive deliberations (short, no output) → Gc handles.
+// Demotion: operator/health feedback → removed from Gc.
+
+// InitGcLearning creates the gc_learning table if it doesn't exist.
+func InitGcLearning(dbPath string) {
+	if dbPath == "" {
+		return
+	}
+	db.Exec(dbPath, `CREATE TABLE IF NOT EXISTS gc_learning (
+		message_type TEXT PRIMARY KEY,
+		gc_handled_count INTEGER DEFAULT 0,
+		deliberated_count INTEGER DEFAULT 0,
+		non_substantive_count INTEGER DEFAULT 0,
+		promoted INTEGER DEFAULT 0,
+		last_promoted_at TEXT,
+		last_demoted_at TEXT
+	)`)
+}
+
+// RecordDeliberation updates Gc learning after a deliberation completes.
+// Non-substantive = duration < 30s and exit_code = 0 (no meaningful output).
+func RecordDeliberation(dbPath, msgType string, durationMs int, exitCode int) {
+	if dbPath == "" || msgType == "" {
+		return
+	}
+	nonSubstantive := 0
+	if durationMs < 30000 && exitCode == 0 {
+		nonSubstantive = 1
+	}
+	db.Exec(dbPath, fmt.Sprintf(
+		`INSERT INTO gc_learning (message_type, deliberated_count, non_substantive_count)
+		 VALUES ('%s', 1, %d)
+		 ON CONFLICT(message_type) DO UPDATE SET
+		 deliberated_count = deliberated_count + 1,
+		 non_substantive_count = non_substantive_count + %d`,
+		msgType, nonSubstantive, nonSubstantive))
+}
+
+// CheckPromotions checks if any message types should be promoted to Gc.
+// Returns promoted types (for logging). Threshold: 5+ observations, 80%+ non-substantive.
+func CheckPromotions(dbPath string, logger *slog.Logger) []string {
+	if dbPath == "" {
+		return nil
+	}
+	rows, err := db.QueryJSON(dbPath,
+		`SELECT message_type, non_substantive_count, deliberated_count FROM gc_learning
+		 WHERE promoted = 0 AND deliberated_count >= 5
+		 AND CAST(non_substantive_count AS REAL) / deliberated_count > 0.8`)
+	if err != nil || len(rows) == 0 {
+		return nil
+	}
+	var promoted []string
+	for _, row := range rows {
+		msgType := row["message_type"]
+		gcHandleableTypes[msgType] = true
+		db.Exec(dbPath, fmt.Sprintf(
+			`UPDATE gc_learning SET promoted = 1, last_promoted_at = datetime('now')
+			 WHERE message_type = '%s'`, msgType))
+		logger.Warn("Gc reinforcement: promoted message type",
+			"type", msgType,
+			"non_substantive", row["non_substantive_count"],
+			"deliberated", row["deliberated_count"])
+		promoted = append(promoted, msgType)
+	}
+	return promoted
+}
+
+// LoadPromotedTypes loads previously promoted message types from the database
+// into the runtime gcHandleableTypes map. Called on startup.
+func LoadPromotedTypes(dbPath string, logger *slog.Logger) {
+	if dbPath == "" {
+		return
+	}
+	rows, err := db.QueryJSON(dbPath,
+		`SELECT message_type FROM gc_learning WHERE promoted = 1`)
+	if err != nil {
+		return
+	}
+	for _, row := range rows {
+		gcHandleableTypes[row["message_type"]] = true
+		logger.Info("Gc: loaded promoted type from db", "type", row["message_type"])
+	}
+}
+
+// GcLearningStats returns learning metrics for dashboard display.
+func GcLearningStats(dbPath string) map[string]any {
+	if dbPath == "" {
+		return map[string]any{"types_promoted": 0, "types_tracked": 0}
+	}
+	rows, _ := db.QueryJSON(dbPath,
+		`SELECT COUNT(*) as total, SUM(CASE WHEN promoted=1 THEN 1 ELSE 0 END) as promoted FROM gc_learning`)
+	if len(rows) == 0 {
+		return map[string]any{"types_promoted": 0, "types_tracked": 0}
+	}
+	return map[string]any{
+		"types_promoted": rows[0]["promoted"],
+		"types_tracked":  rows[0]["total"],
+		"static_types":   len(gcHandleableTypes),
+	}
 }
 
 // Ensure fmt import used

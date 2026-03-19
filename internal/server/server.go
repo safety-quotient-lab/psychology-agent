@@ -93,6 +93,10 @@ type Server struct {
 	// Nil when not enabled.
 	Oscillator *Oscillator
 
+	// AlphaHeartbeat emits periodic idle vital signs (T22 metabolic cooling model).
+	// Nil when not started.
+	AlphaHeartbeat *AlphaHeartbeat
+
 	// KVClient writes self-observation to Cloudflare KV.
 	// Nil when CF credentials not configured.
 	KVClient interface {
@@ -606,6 +610,10 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 		},
 		"deliberation_status": budgetpkg.QuickDeliberationStatus(),
 		"tonic_inhibition": deliberationBlockedTotal == 0 && deliberationSucceededTotal == 0 && totalEvents > 3 && meshMode != "paused",
+		"alpha_heartbeat": func() any {
+			if s.AlphaHeartbeat != nil { return s.AlphaHeartbeat.Snapshot() }
+			return nil
+		}(),
 	}
 }
 

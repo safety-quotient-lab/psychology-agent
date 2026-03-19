@@ -637,11 +637,11 @@ function renderOpsAutonomyReadout() {
         const pct = cutoff > 0 ? Math.round((delib / cutoff) * 100) : 0;
         const barColor = pct > 85 ? "var(--lcars-alert)" : pct > 60 ? "var(--lcars-title)" : "var(--lcars-medical)";
         const cutoffStr = cutoff > 0 ? fmtNum(cutoff) : "\u221E";
-        const shadow = isOnline ? (d.data?.shadow_mode ? "SHADOW" : "ACTIVE") : "OFFLINE";
+        const shadow = isOnline ? (d.data?.sleep_mode ? "SLEEP" : "ACTIVE") : "OFFLINE";
         return `<div class="lcars-readout" style="margin-bottom:var(--gap-m);opacity:${isOnline ? 1 : 0.4}">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--gap-xs)">
                 <span style="color:var(--lcars-secondary);font-weight:700;text-transform:uppercase;font-size:0.78em">${agentName(agent)}</span>
-                <span style="color:${shadow === "SHADOW" ? "var(--lcars-title)" : shadow === "ACTIVE" ? "var(--lcars-medical)" : "var(--lcars-alert)"};font-size:0.7em">${shadow}</span>
+                <span style="color:${shadow === "SLEEP" ? "var(--lcars-title)" : shadow === "ACTIVE" ? "var(--lcars-medical)" : "var(--lcars-alert)"};font-size:0.7em">${shadow}</span>
             </div>
             <div style="display:flex;gap:var(--gap-m);font-size:0.82em">
                 <span style="color:var(--lcars-readout)">${fmtNum(delib)} / ${cutoffStr}</span>

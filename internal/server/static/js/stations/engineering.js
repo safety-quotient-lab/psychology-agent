@@ -665,13 +665,13 @@ function renderTimingHierarchy() {
     const health = ops?.data?.health;
 
     // Layer 1: Circadian — not implemented
-    // Layer 2: Ultradian — deliberation cycle (shadow mode = shadow, active if deliberations recent)
+    // Layer 2: Ultradian — deliberation cycle (sleep mode = shadow, active if deliberations recent)
     const recentDelibs = ops?.data?.recent_deliberations || [];
     const hasRecentDelib = recentDelibs.length > 0 && recentDelibs[0]?.started_at;
     const el2 = document.getElementById("eng-timing-ultradian");
     if (el2) {
         if (hasRecentDelib) { el2.textContent = "ACTIVE"; el2.style.color = "var(--lcars-medical)"; }
-        else { el2.textContent = "SHADOW"; el2.style.color = "var(--text-dim)"; }
+        else { el2.textContent = "SLEEP"; el2.style.color = "var(--text-dim)"; }
     }
 
     // Layer 3: Cardiac — oscillator state
