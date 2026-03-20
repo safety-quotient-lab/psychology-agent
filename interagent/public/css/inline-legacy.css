@@ -333,7 +333,8 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 }
 .theme-lcars .lcars-hdr-arm,
 .theme-lcars .lcars-hdr-endcap {
-    background: var(--lcars-frame) !important;
+    background: var(--active-tab-color, var(--lcars-frame)) !important;
+    transition: background 0.3s ease;
 }
 
 /* Top elbow cap — outer corner of the frame rounds off at top-left.

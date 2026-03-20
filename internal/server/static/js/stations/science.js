@@ -128,9 +128,7 @@ function renderLinguistics() {
                 { value: termList.length, label: "TERMS", type: "count" },
                 { value: active, label: "ACTIVE", type: "id" },
                 { value: deprecated, label: "DEPRECATED", type: "val" },
-                { gap: true },
                 { value: version, label: "VERSION", type: "t2" },
-                { value: (window._agentVocabs || []).length, label: "AGENTS", type: "count" },
             ]);
         }
 
@@ -302,11 +300,11 @@ function renderLinguistics() {
             return count;
         })();
         renderNumberGrid("ling-record", [
-            { value: termList.length, label: "SHARED TERMS", type: "count" },
-            { value: agentCount, label: "AGENTS SCANNED", type: "id" },
+            { value: agentCount, label: "AGENTS", type: "id" },
+            { value: divergences, label: "DIVERGE", type: divergences > 0 ? "count" : "val", alert: divergences > 0 },
             { gap: true },
-            { value: eprimeTotal, label: "E-PRIME VIOLATIONS", type: eprimeTotal > 0 ? "count" : "val", alert: eprimeTotal > 10 },
-            { value: divergences, label: "DIVERGENCES", type: divergences > 0 ? "count" : "val", alert: divergences > 0 },
+            { value: eprimeTotal, label: "E-PRIME", type: eprimeTotal > 0 ? "count" : "val", alert: eprimeTotal > 10 },
+            { value: eprimeTotal === 0 ? "CLEAN" : "DIRTY", label: "COMPLIANCE", type: eprimeTotal === 0 ? "id" : "count" },
         ]);
     }
 
