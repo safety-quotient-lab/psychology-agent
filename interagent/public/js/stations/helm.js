@@ -54,9 +54,28 @@ async function fetchHelmData() {
 }
 
 function renderHelm() {
+    renderNumberGrid("helm-zone-a", helmZoneAMetrics());
     renderSessionTimeline();
     renderRoutingTable();
     renderMessageFlow();
+}
+
+function helmZoneAMetrics() {
+    const sessions = helmData?.sessions || [];
+    const messages = helmData?.messages || [];
+    const active = sessions.filter(s => (s.status || "active") === "active").length;
+    const flowPairs = {};
+    messages.forEach(m => {
+        const key = (m.from_agent || "?") + "->" + (m.to_agent || "?");
+        flowPairs[key] = (flowPairs[key] || 0) + 1;
+    });
+    return [
+        { val: sessions.length, label: "SESSIONS" },
+        { val: active, label: "ACTIVE" },
+        { val: messages.length, label: "MESSAGES" },
+        { val: Object.keys(flowPairs).length, label: "ROUTES" },
+        { val: DEFAULT_ROUTING.length, label: "DOMAINS" },
+    ];
 }
 
 function renderSessionTimeline() {

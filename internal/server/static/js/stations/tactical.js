@@ -26,10 +26,31 @@ async function fetchTacticalData() {
 let tacticalAgentCards = null;
 
 function renderTactical() {
+    renderNumberGrid("tactical-zone-a", tacticalZoneAMetrics());
     renderShieldStatus();
     renderAgentCompliance();
     renderTransportIntegrity();
     fetchAndRenderTrustMatrix();
+}
+
+function tacticalZoneAMetrics() {
+    const healthAgents = tacticalData?.agents || [];
+    const online = healthAgents.filter(a => {
+        const s = a.status || a.health;
+        return s === "ok" || s === "online" || s === "healthy" || s === "nominal";
+    }).length;
+    const agents = tacticalAgentCards || [];
+    const compliant = agents.filter(a => {
+        const pv = a.protocolVersion || "";
+        return pv.startsWith("1.") && a.hasSecuritySchemes;
+    }).length;
+    const total = Math.max(healthAgents.length, agents.length, 5);
+    return [
+        { val: online + "/" + total, label: "SHIELDS" },
+        { val: compliant + "/" + total, label: "COMPLIANT" },
+        { val: "3/4", label: "TRANSPORT" },
+        { val: "0", label: "THREATS" },
+    ];
 }
 
 function renderShieldStatus() {

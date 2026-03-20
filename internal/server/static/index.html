@@ -30,7 +30,7 @@
         ]
     }
     </script>
-    <link rel="stylesheet" href="css/inline-legacy.css?v=c89f5a0">
+    <link rel="stylesheet" href="css/inline-legacy.css?v=e8e4c40">
     <!-- TODO: consolidate inline-legacy.css into theme.css + layout.css + components.css -->
 
 </head>
@@ -1086,14 +1086,17 @@
 
         <!-- Helm Tab -->
         <div class="tab-pane" id="pane-helm">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                <div class="lcars-status-line" id="helm-status-line" style="flex:1">Transport Routing: Awaiting Data &middot; Active Sessions: — &middot; Channels: Git, HTTP</div>
-                <span class="lcars-section-badge" style="--badge-color:var(--c-tab-helm)">05 <span class="lcars-section-badge-text">Helm</span></span>
+            <!-- Zone C: title -->
+            <div class="lcars-zone-c" style="margin-bottom:var(--gap-xs)">
+                <span class="zc-title">Transport Navigation</span>
+                <span class="zc-id">05</span>
             </div>
+            <!-- Zone A: number grid -->
+            <div class="lcars-number-grid" id="helm-zone-a" style="margin-bottom:var(--gap-m)"></div>
             <div class="helm-grid">
                 <!-- Panel A: Session Timeline -->
                 <div class="lcars-panel helm-full-width" style="--panel-accent: var(--c-tab-helm)">
-                    <div class="lcars-panel-header">Session Timeline</div>
+                    <div class="lcars-panel-header">Session Timeline <span class="lcars-panel-id">5001</span></div>
                     <div class="lcars-panel-body" id="helm-session-timeline">
                         <div class="helm-placeholder">Awaiting session data...</div>
                     </div>
@@ -1101,7 +1104,7 @@
 
                 <!-- Panel B: Routing Table -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-helm)">
-                    <div class="lcars-panel-header">Routing Table</div>
+                    <div class="lcars-panel-header">Routing Table <span class="lcars-panel-id">5002</span></div>
                     <div class="lcars-panel-body" id="helm-routing-table-body">
                         <table class="helm-routing-table">
                             <thead>
@@ -1129,7 +1132,7 @@
 
                 <!-- Panel C: Message Flow Summary -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-helm)">
-                    <div class="lcars-panel-header">Message Flow Summary</div>
+                    <div class="lcars-panel-header">Message Flow Summary <span class="lcars-panel-id">5003</span></div>
                     <div class="lcars-panel-body" id="helm-message-flow">
                         <div class="helm-placeholder">Awaiting message flow data...</div>
                     </div>
@@ -1137,7 +1140,7 @@
 
                 <!-- Panel D: Engagement (A2A-Psychology) -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-helm)">
-                    <div class="lcars-panel-header">Engagement (UWES)</div>
+                    <div class="lcars-panel-header">Engagement (UWES) <span class="lcars-panel-id">5004</span></div>
                     <div class="lcars-panel-body" id="helm-engagement">
                         <div class="helm-placeholder">Awaiting psychometrics data...</div>
                     </div>
@@ -1145,7 +1148,7 @@
 
                 <!-- Panel E: Flow State (A2A-Psychology) -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-helm)">
-                    <div class="lcars-panel-header">Flow State</div>
+                    <div class="lcars-panel-header">Flow State <span class="lcars-panel-id">5005</span></div>
                     <div class="lcars-panel-body" id="helm-flow">
                         <div class="helm-placeholder">Awaiting psychometrics data...</div>
                     </div>
@@ -1163,15 +1166,18 @@
 
         <!-- Tactical Tab -->
         <div class="tab-pane" id="pane-tactical">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                <div class="lcars-status-line" id="tac-status-line" style="flex:1">Security Status: Awaiting Data &middot; Shields: — &middot; Threat Level: —</div>
-                <span class="lcars-section-badge" style="--badge-color:var(--lcars-alert)">06 <span class="lcars-section-badge-text">Tactical</span></span>
+            <!-- Zone C: title -->
+            <div class="lcars-zone-c" style="margin-bottom:var(--gap-xs)">
+                <span class="zc-title">Security Operations</span>
+                <span class="zc-id">06</span>
             </div>
+            <!-- Zone A: number grid -->
+            <div class="lcars-number-grid" id="tactical-zone-a" style="margin-bottom:var(--gap-m)"></div>
 
             <div class="tactical-grid">
                 <!-- Panel A: Shield Status -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-tactical)">
-                    <div class="lcars-panel-header">Shield Status</div>
+                    <div class="lcars-panel-header">Shield Status <span class="lcars-panel-id">6001</span></div>
                     <div class="lcars-panel-body" id="shield-status">
                         <div class="shield-row">
                             <span class="shield-agent">psych</span>
@@ -1208,7 +1214,7 @@
 
                 <!-- Panel B: Agent Card Compliance -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-tactical)">
-                    <div class="lcars-panel-header">Agent Card Compliance</div>
+                    <div class="lcars-panel-header">Agent Card Compliance <span class="lcars-panel-id">6002</span></div>
                     <div class="lcars-panel-body" id="agent-compliance">
                         <div class="compliance-row">
                             <span class="compliance-agent">psych</span>
@@ -1240,7 +1246,7 @@
 
                 <!-- Panel C: Transport Integrity -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-tactical)">
-                    <div class="lcars-panel-header">Transport Integrity</div>
+                    <div class="lcars-panel-header">Transport Integrity <span class="lcars-panel-id">6003</span></div>
                     <div class="lcars-panel-body" id="transport-integrity">
                         <div class="transport-layer-row">
                             <span class="transport-layer-name">git</span>
@@ -1267,7 +1273,7 @@
 
                 <!-- Panel D: Threat Log -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-tactical)">
-                    <div class="lcars-panel-header">Threat Log</div>
+                    <div class="lcars-panel-header">Threat Log <span class="lcars-panel-id">6004</span></div>
                     <div class="lcars-panel-body" id="threat-log">
                         <div class="threat-entry">
                             <span class="threat-time">19:12</span>
@@ -1283,7 +1289,7 @@
 
                 <!-- Panel E: Trust Matrix Heatmap -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-tactical); grid-column: 1 / -1;">
-                    <div class="lcars-panel-header">Trust Matrix</div>
+                    <div class="lcars-panel-header">Trust Matrix <span class="lcars-panel-id">6005</span></div>
                     <div class="lcars-panel-body" id="trust-heatmap">
                         <div class="trust-matrix-loading">Fetching trust data...</div>
                     </div>
@@ -1436,20 +1442,20 @@
     <div class="lcars-narrative-log" id="lcars-narrative-log"></div>
 </div>
 
-<script src="js/colorizer.js?v=c89f5a0"></script>
-<script src="js/core.js?v=c89f5a0"></script>
-<script src="js/chrome.js?v=c89f5a0"></script>
-<script src="js/data-fetch.js?v=c89f5a0"></script>
-<script src="js/pulse.js?v=c89f5a0"></script>
-<script src="js/knowledge.js?v=c89f5a0"></script>
-<script src="js/ws-sse.js?v=c89f5a0"></script>
-<script src="js/stations/operations.js?v=c89f5a0"></script>
-<script src="js/stations/science.js?v=c89f5a0"></script>
-<script src="js/stations/helm.js?v=c89f5a0"></script>
-<script src="js/stations/engineering.js?v=c89f5a0"></script>
-<script src="js/stations/tactical.js?v=c89f5a0"></script>
-<script src="js/stations/medical.js?v=c89f5a0"></script>
-<script src="js/init.js?v=c89f5a0"></script>
+<script src="js/colorizer.js?v=e8e4c40"></script>
+<script src="js/core.js?v=e8e4c40"></script>
+<script src="js/chrome.js?v=e8e4c40"></script>
+<script src="js/data-fetch.js?v=e8e4c40"></script>
+<script src="js/pulse.js?v=e8e4c40"></script>
+<script src="js/knowledge.js?v=e8e4c40"></script>
+<script src="js/ws-sse.js?v=e8e4c40"></script>
+<script src="js/stations/operations.js?v=e8e4c40"></script>
+<script src="js/stations/science.js?v=e8e4c40"></script>
+<script src="js/stations/helm.js?v=e8e4c40"></script>
+<script src="js/stations/engineering.js?v=e8e4c40"></script>
+<script src="js/stations/tactical.js?v=e8e4c40"></script>
+<script src="js/stations/medical.js?v=e8e4c40"></script>
+<script src="js/init.js?v=e8e4c40"></script>
 
 </body>
 </html>
