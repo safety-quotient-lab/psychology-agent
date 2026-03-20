@@ -88,9 +88,9 @@ function renderKnowledge() {
     mirrorToLcars("ops-triggers-table", "lcars-ops-triggers");
     mirrorToLcars("kb-claims", "lcars-sci-claims");
     mirrorToLcars("epistemic-debt-panel", "lcars-sci-debt");
-    mirrorToLcars("kb-dictionary", "lcars-sci-vocab");
+    // lcars-sci-vocab now rendered directly by Linguistics subsystem (science.js)
     mirrorToLcars("kb-lessons", "lcars-sci-lessons");
-    mirrorToLcars("kb-catalog", "lcars-sci-catalog");
+    // lcars-sci-catalog now rendered directly by Ontology subsystem (science.js)
     mirrorToLcars("messages-table", "lcars-helm-messages");
 }
 
