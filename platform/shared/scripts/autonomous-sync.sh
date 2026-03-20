@@ -284,6 +284,11 @@ ensure_db() {
     sqlite3 "${LOCAL_DB_PATH}" \
         "ALTER TABLE autonomy_budget RENAME COLUMN shadow_mode TO sleep_mode;" 2>/dev/null || true
     sqlite3 "${LOCAL_DB_PATH}" \
+        "ALTER TABLE autonomy_budget ADD COLUMN max_concurrent_spawns INTEGER NOT NULL DEFAULT 3;" 2>/dev/null || true
+    # Also migrate state.db (meshd reads budget from here)
+    sqlite3 "${DB_PATH}" \
+        "ALTER TABLE autonomy_budget ADD COLUMN max_concurrent_spawns INTEGER NOT NULL DEFAULT 3;" 2>/dev/null || true
+    sqlite3 "${LOCAL_DB_PATH}" \
         "ALTER TABLE autonomous_actions ADD COLUMN adversarial_reason TEXT;" 2>/dev/null || true
     sqlite3 "${LOCAL_DB_PATH}" \
         "ALTER TABLE autonomous_actions ADD COLUMN peer_reviewed_by TEXT;" 2>/dev/null || true

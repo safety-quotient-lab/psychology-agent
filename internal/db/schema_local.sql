@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS autonomy_budget (
     last_action          TEXT,
     consecutive_blocks   INTEGER DEFAULT 0,
     sleep_mode           INTEGER NOT NULL DEFAULT 1,
+    max_concurrent_spawns INTEGER NOT NULL DEFAULT 3,
     updated_at           TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S', 'now', 'localtime'))
 );
 
