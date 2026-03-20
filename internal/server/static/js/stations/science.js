@@ -721,9 +721,9 @@ function renderAffectGrid() {
         const es = agentState.emotional_state || {};
         return {
             agent,
-            p: es.hedonic_valence ?? es.valence ?? 0,
+            p: es.hedonic_valence ?? es.valence ?? es.pleasure ?? 0,
             a: es.activation ?? es.arousal ?? 0,
-            d: es.perceived_control ?? es.dominance ?? 0.5,
+            d: es.perceived_control ?? es.dominance ?? 0,
         };
     });
 
@@ -750,7 +750,7 @@ function renderAffectGrid() {
 
         // Project agent dots into the cube (no labels in SVG — listed below)
         padData.forEach(d => {
-            const px = (d.p + 1) / 2, py = (d.a + 1) / 2, pz = d.d;
+            const px = (d.p + 1) / 2, py = (d.a + 1) / 2, pz = (d.d + 1) / 2;
             const pt = isoProject(px, py, pz, w, h);
             svg += `<circle cx="${pt.sx.toFixed(1)}" cy="${pt.sy.toFixed(1)}" r="5" fill="${d.agent.color}" opacity="0.85"/>`;
         });
