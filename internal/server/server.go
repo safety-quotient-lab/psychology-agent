@@ -795,20 +795,16 @@ func (s *Server) deliberationCount() int {
 }
 
 // detectSessionActive checks if a human Claude Code session actively works
-// on this repo. Checks the conversation JSONL mtime in ~/.claude/projects/.
-// A recent write (< 5 min) means the human actively sends messages.
+// on this repo. Checks for recently modified JSONL files in the configured
+// session detection directory (default: ~/.claude/projects/{encoded-path}/).
+// Configurable via SESSION_DETECT_DIR in .dev.vars.
 func (s *Server) detectSessionActive() bool {
-	// Claude Code stores conversation history as JSONL under ~/.claude/projects/
-	// The directory name encodes the project path with dashes replacing slashes.
-	home, err := os.UserHomeDir()
-	if err != nil {
+	dir := s.Config.SessionDetectDir
+	if dir == "" {
 		return false
 	}
-	// Encode project path: /Users/kashif/Projects/operations-agent → -Users-kashif-Projects-operations-agent
-	encoded := strings.ReplaceAll(s.Config.RepoRoot, "/", "-")
-	projectDir := filepath.Join(home, ".claude", "projects", encoded)
 
-	entries, err := os.ReadDir(projectDir)
+	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return false
 	}
@@ -822,7 +818,6 @@ func (s *Server) detectSessionActive() bool {
 		if err != nil {
 			continue
 		}
-		// JSONL modified within last 5 minutes = active session
 		if now.Sub(info.ModTime()) < 5*time.Minute {
 			return true
 		}

@@ -32,6 +32,7 @@ type Config struct {
 	MaxConcurrent  int    // max concurrent claude spawns (normal capacity)
 	ReserveSlots   int    // extra slots unlocked via /tmp/mesh-reserve-unlock
 	DeliberationModel     string // model override for spawns (e.g. "sonnet", "opus", "" = CLI default)
+	SessionDetectDir      string // path to check for active session (e.g. ~/.claude/projects/{encoded})
 
 	// Compositor (ported from CF Worker)
 	AgentCardURLs  []string // bootstrap agent card URLs for discovery
@@ -135,6 +136,15 @@ func Load() (*Config, error) {
 	// Paths that derive from RepoRoot when no explicit value appears
 	cfg.BudgetDBPath = resolve("BUDGET_DB_PATH", filepath.Join(repoRoot, "state.db"))
 	cfg.TransportDir = resolve("TRANSPORT_DIR", filepath.Join(repoRoot, "transport", "sessions"))
+
+	// Session detection: defaults to ~/.claude/projects/{encoded-path}/
+	// Override with SESSION_DETECT_DIR for custom setups
+	defaultSessionDir := ""
+	if home, err := os.UserHomeDir(); err == nil {
+		encoded := strings.ReplaceAll(repoRoot, "/", "-")
+		defaultSessionDir = filepath.Join(home, ".claude", "projects", encoded)
+	}
+	cfg.SessionDetectDir = resolve("SESSION_DETECT_DIR", defaultSessionDir)
 
 	// Notification channel
 	cfg.NotifyChannel = resolve("NOTIFY_CHANNEL", "null")
