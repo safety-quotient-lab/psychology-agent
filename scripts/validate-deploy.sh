@@ -23,7 +23,7 @@ if [ "$EXPECTED_VERSION" = "--expected-version" ]; then
 fi
 
 # Agent endpoints (colon-separated pairs — bash 3.x compatible)
-AGENTS="operations-agent:https://operations-agent.safety-quotient.dev
+AGENTS="mesh:https://mesh.safety-quotient.dev
 psychology-agent:https://psychology-agent.safety-quotient.dev
 safety-quotient-agent:https://psq-agent.safety-quotient.dev
 unratified-agent:https://unratified-agent.unratified.org

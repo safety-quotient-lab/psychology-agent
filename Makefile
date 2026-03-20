@@ -153,11 +153,11 @@ deploy-restart:
 		>/dev/null 2>&1 || true
 	@. ./.dev.vars 2>/dev/null; \
 		echo "  Stopping all units..." && \
-		$(SSH_CMD) 'systemctl --user --no-block stop meshd-psychology meshd-psq meshd-observatory meshd-operations meshd-unratified 2>/dev/null; sleep 2' && \
+		$(SSH_CMD) 'systemctl --user --no-block stop meshd-psychology meshd-psq meshd-observatory meshd-unratified meshd-interagent-mesh 2>/dev/null; sleep 2' && \
 		echo "  Swapping binary..." && \
 		$(SSH_CMD) 'cp $(REMOTE_BIN) $(REMOTE_BACKUP) 2>/dev/null; mv $(REMOTE_BIN).new $(REMOTE_BIN) && chmod +x $(REMOTE_BIN)' && \
 		echo "  Starting all units (parallel)..." && \
-		$(SSH_CMD) 'systemctl --user --no-block start meshd-psychology meshd-psq meshd-observatory meshd-operations meshd-unratified && echo "    Started all 5 units"; sleep 3; echo ""; echo "  Processes:"; pgrep -f "/home/kashif/platform/meshd --port" -la 2>/dev/null | head -5'
+		$(SSH_CMD) 'systemctl --user --no-block start meshd-psychology meshd-psq meshd-observatory meshd-unratified meshd-interagent-mesh && echo "    Started 5 units (4 agents + mesh)"; sleep 3; echo ""; echo "  Processes:"; pgrep -f "/home/kashif/platform/meshd --port" -la 2>/dev/null | head -6'
 	@echo "  Standing down..."
 	@sleep 5
 	@curl -sf -X POST https://operations-agent.safety-quotient.dev/api/trigger \
