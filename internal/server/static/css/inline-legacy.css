@@ -3947,6 +3947,30 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 .ohniaka-mood { color: var(--text-dim); } /* affect state */
 .ohniaka-pend { color: var(--lcars-title); text-align: right; } /* pending count, right-aligned */
 
+/* ── LCARS Data Table — scrollable, aligned, reusable ─────── */
+/* Used by: mobile mesh status, Linguistics vocabulary, Helm sessions, Ontology */
+.lcars-data-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.lcars-data-table {
+    width: 100%; font-size: 0.75em; border-collapse: collapse; min-width: 420px;
+}
+.lcars-data-table th {
+    color: var(--lcars-title); text-align: left; font-size: 0.65em; opacity: 0.8;
+    padding: 3px 6px 6px; border-bottom: 2px solid var(--panel-accent, var(--lcars-frame));
+    white-space: nowrap;
+}
+.lcars-data-table th.num { text-align: right; }
+.lcars-data-table td {
+    padding: 3px 6px; white-space: nowrap;
+}
+.lcars-data-table td.num { text-align: right; }
+.lcars-data-table tr { border-bottom: 1px solid var(--border); }
+.lcars-data-table .chip {
+    display: inline-block; width: 8px; height: 8px; border-radius: 1px; margin-right: 4px;
+}
+.lcars-data-table .dot {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 4px;
+}
+
 /* ── Mobile Pill Strip (portrait) ────────────────────────── */
 /* Mobile: pills replace grid on narrow screens.
    Pills provide tappable detail cards; grid provides desktop capsule overview. */

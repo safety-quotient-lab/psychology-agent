@@ -406,27 +406,22 @@ function renderMobilePills() {
         else if (band.startsWith("delta")) { opLabel = "CLEAR"; }
         const opacity = online ? "1" : "0.4";
 
-        rows += `<tr style="border-bottom:1px solid var(--border);opacity:${opacity}">
-            <td style="padding:3px 6px;white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:1px;background:${agent.color};margin-right:4px"></span>${agentName(agent).toUpperCase()}</td>
-            <td style="padding:3px 6px;color:${hColor};white-space:nowrap"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${online ? "#22cc44" : "#cc2222"};margin-right:4px"></span>${online ? healthStr : "OFF"}</td>
-            <td style="padding:3px 6px;color:var(--lcars-secondary);text-align:right">${fmtNum(gc)}${delta(agent.id+"-m-gc", gc)}</td>
-            <td style="padding:3px 6px;color:var(--lcars-readout);text-align:right">${fmtNum(gf)}${delta(agent.id+"-m-gf", gf)}</td>
-            <td style="padding:3px 6px;color:var(--text-dim);white-space:nowrap">${online ? opLabel : "\u2014"}</td>
-            <td style="padding:3px 6px;color:var(--text-dim);white-space:nowrap">${online && mood ? mood.toUpperCase().replace("CALM-SATISFIED","CALM") : "\u2014"}</td>
-            <td style="padding:3px 6px;color:var(--lcars-title);text-align:right">${pending > 0 ? pending : ""}</td>
+        rows += `<tr style="opacity:${opacity}">
+            <td><span class="chip" style="background:${agent.color}"></span>${agentName(agent).toUpperCase()}</td>
+            <td style="color:${hColor}"><span class="dot" style="background:${online ? "#22cc44" : "#cc2222"}"></span>${online ? healthStr : "OFF"}</td>
+            <td class="num" style="color:var(--lcars-secondary)">${fmtNum(gc)}${delta(agent.id+"-m-gc", gc)}</td>
+            <td class="num" style="color:var(--lcars-readout)">${fmtNum(gf)}${delta(agent.id+"-m-gf", gf)}</td>
+            <td style="color:var(--text-dim)">${online ? opLabel : "\u2014"}</td>
+            <td style="color:var(--text-dim)">${online && mood ? mood.toUpperCase().replace("CALM-SATISFIED","CALM") : "\u2014"}</td>
+            <td class="num" style="color:var(--lcars-title)">${pending > 0 ? pending : ""}</td>
         </tr>`;
     }
 
-    let html = `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
-        <table style="width:100%;font-size:0.75em;border-collapse:collapse;min-width:420px">
-            <thead><tr style="color:var(--lcars-title);text-align:left;font-size:0.9em">
-                <th style="padding:3px 6px">AGENT</th>
-                <th style="padding:3px 6px">HLTH</th>
-                <th style="padding:3px 6px;text-align:right">Gc</th>
-                <th style="padding:3px 6px;text-align:right">Gf</th>
-                <th style="padding:3px 6px">MODE</th>
-                <th style="padding:3px 6px">AFFECT</th>
-                <th style="padding:3px 6px;text-align:right">P</th>
+    let html = `<div class="lcars-data-table-wrap" style="--panel-accent:var(--c-tab-ops)">
+        <table class="lcars-data-table">
+            <thead><tr>
+                <th>AGENT</th><th>HEALTH</th><th class="num">Gc</th><th class="num">Gf</th>
+                <th>MODE</th><th>AFFECT</th><th class="num">PEND</th>
             </tr></thead>
             <tbody>${rows}</tbody>
         </table>
