@@ -1831,6 +1831,23 @@ body {
     overflow-y: auto;
 }
 
+/* ── Three-state panel: collapsed / fixed / expanded ──────── */
+/* Click header to cycle. Add .panel-tristate to the .lcars-panel. */
+.panel-tristate > .lcars-panel-header { cursor: pointer; user-select: none; }
+.panel-tristate > .lcars-panel-header::after {
+    content: "▾"; margin-left: auto; padding-left: 8px; opacity: 0.5; font-size: 0.8em;
+}
+/* State: fixed (default) — capped height, scrollable */
+.panel-tristate > .lcars-panel-body {
+    max-height: 300px; overflow-y: auto; transition: max-height 0.2s ease;
+}
+/* State: collapsed — header only */
+.panel-tristate.panel-collapsed > .lcars-panel-body { max-height: 0; padding: 0 16px; overflow: hidden; }
+.panel-tristate.panel-collapsed > .lcars-panel-header::after { content: "▸"; }
+/* State: expanded — full height, no scroll cap */
+.panel-tristate.panel-expanded > .lcars-panel-body { max-height: none; overflow: visible; }
+.panel-tristate.panel-expanded > .lcars-panel-header::after { content: "▴"; }
+
 /* Table toolbar — filter + pagination */
 .table-toolbar {
     display: flex;

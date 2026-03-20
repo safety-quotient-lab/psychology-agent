@@ -102,6 +102,24 @@ function sparklineSVG(values, opts = {}) {
     return `<svg class="sparkline-svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${fillPath}<polyline points="${polyline}" fill="none" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${points[points.length - 1].split(",")[0]}" cy="${points[points.length - 1].split(",")[1]}" r="2" fill="${stroke}"/></svg>`;
 }
 
+// ── Three-state panel toggle ──────────────────────────────────
+// Cycles: fixed (default) → collapsed → expanded → fixed
+// Add class="panel-tristate" to .lcars-panel to enable.
+document.addEventListener("click", function(e) {
+    const header = e.target.closest(".panel-tristate > .lcars-panel-header");
+    if (!header) return;
+    const panel = header.parentElement;
+    if (panel.classList.contains("panel-collapsed")) {
+        panel.classList.remove("panel-collapsed");
+        panel.classList.add("panel-expanded");
+    } else if (panel.classList.contains("panel-expanded")) {
+        panel.classList.remove("panel-expanded");
+        // back to fixed (default — no class)
+    } else {
+        panel.classList.add("panel-collapsed");
+    }
+});
+
 // ── Reusable Agent Selector Component ─────────────────────────
 // Used by Medical, Engineering, and any station that supports mesh + per-agent views.
 // Usage: renderAgentSelector(containerId, selectedId, onSelect)
