@@ -1,1 +1,0 @@
-{"activation":0.517,"agent_id":"psy-session","signals":{"escalation_present":1,"gate_approaching_timeout":0,"new_commits":1,"peer_heartbeat_stale":0.5,"scheduled_task_due":0,"unprocessed_messages":0.333},"threshold":0.45,"timestamp":"2026-03-20T14:20:14Z","would_fire":true}
