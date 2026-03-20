@@ -442,7 +442,7 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     letter-spacing: 0.08em;
     text-transform: uppercase;
     text-align: left;
-    background: var(--lcars-atomic-tangerine); /* all nav buttons same color — canon */
+    background: var(--lcars-atomic-tangerine); /* default — overridden per station below */
     color: #000;
     cursor: pointer;
     margin-bottom: var(--gap-xs); /* match header band segment gap */
@@ -452,6 +452,13 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .lcars-sidebar-btn.active {
     filter: brightness(1.3); /* brightness = state, not color change (§2.1) */
 }
+/* Per-station button colors — LCARS 2369 palette */
+.lcars-sidebar-btn[data-tab="operations"]  { background: var(--c-tab-ops); }
+.lcars-sidebar-btn[data-tab="science"]     { background: var(--c-tab-science); }
+.lcars-sidebar-btn[data-tab="engineering"] { background: var(--c-tab-engineering); }
+.lcars-sidebar-btn[data-tab="helm"]        { background: var(--c-tab-helm); }
+.lcars-sidebar-btn[data-tab="tactical"]    { background: var(--c-tab-tactical); }
+.lcars-sidebar-btn[data-tab="medical"]     { background: var(--c-tab-medical); }
 /* TODO: Active button connector — needs proper elbow geometry linking
    the active sidebar button to the content panel. Current approach (nub)
    looked wrong. Revisit with SVG elbow sprites or CSS clip-path. */
