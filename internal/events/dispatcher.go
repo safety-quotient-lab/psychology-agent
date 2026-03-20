@@ -169,21 +169,50 @@ func (d *Dispatcher) HandleEvent(ctx context.Context, evt Event) {
 		return
 	}
 
-	// Event requires fluid intelligence (Gf) — queue for oscillator.
-	d.logger.Info("event queued for Gf processing",
-		"event_id", evt.ID,
-		"type", evt.Type,
-		"cost", cost,
-	)
+	// Event requires fluid intelligence (Gf).
 	d.mu.Lock()
 	d.dispatched++
 	tm := d.getTypeMetrics(evt.Type)
 	tm.Total++
 	d.mu.Unlock()
 
-	// Notify the operator — inbound work needs human attention.
-	// On autonomous daemons (chromabook) this logs to file.
-	// On session agents (gray-box) this can trigger a macOS notification.
+	// If the event comes from the oscillator fire, execute the deliberation
+	// immediately — the oscillator already decided "now." Otherwise notify
+	// and let the oscillator decide when to fire.
+	if evt.Source == "oscillator-fire" {
+		prompt := evt.Payload["prompt"]
+		if prompt == "" {
+			prompt = buildPrompt(evt)
+		}
+		d.logger.Info("oscillator-triggered deliberation executing",
+			"event_id", evt.ID,
+			"prompt_preview", prompt[:min(len(prompt), 80)],
+		)
+		req := DeliberationRequest{
+			Event:  evt,
+			Prompt: prompt,
+			Cost:   cost,
+		}
+		if err := d.deliberate(ctx, req); err != nil {
+			d.logger.Warn("deliberation failed", "event_id", evt.ID, "err", err)
+		} else {
+			d.mu.Lock()
+			tm := d.getTypeMetrics(evt.Type)
+			tm.DeliberationSucceeded++
+			d.mu.Unlock()
+		}
+		if err := d.budgetDeduct(cost); err != nil {
+			d.logger.Warn("budget deduction failed", "err", err)
+		}
+		return
+	}
+
+	// Non-oscillator Gf event — queue for later. Notify the operator.
+	d.logger.Info("event queued for Gf processing",
+		"event_id", evt.ID,
+		"type", evt.Type,
+		"cost", cost,
+	)
 	session := evt.Payload["session"]
 	if session == "" {
 		session = evt.Payload["path"]
