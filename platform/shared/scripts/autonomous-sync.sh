@@ -216,7 +216,7 @@ ensure_db() {
                 last_reset TEXT,
                 consecutive_blocks INTEGER NOT NULL DEFAULT 0,
                 min_action_interval INTEGER NOT NULL DEFAULT 300,
-                shadow_mode INTEGER NOT NULL DEFAULT 1,
+                sleep_mode INTEGER NOT NULL DEFAULT 1,
                 created_at TEXT DEFAULT (datetime('now'))
             );
             CREATE TABLE IF NOT EXISTS autonomous_actions (
@@ -271,7 +271,7 @@ ensure_db() {
     sqlite3 "${LOCAL_DB_PATH}" \
         "ALTER TABLE autonomy_budget ADD COLUMN min_action_interval INTEGER NOT NULL DEFAULT 300;" 2>/dev/null || true
     sqlite3 "${LOCAL_DB_PATH}" \
-        "ALTER TABLE autonomy_budget ADD COLUMN shadow_mode INTEGER NOT NULL DEFAULT 1;" 2>/dev/null || true
+        "ALTER TABLE autonomy_budget ADD COLUMN sleep_mode INTEGER NOT NULL DEFAULT 1;" 2>/dev/null || true
 
     # Rename migrations: old column names → spend-counter model (Session 94)
     # budget_max → budget_cutoff, budget_current → budget_spent, shadow_mode → sleep_mode
@@ -315,19 +315,21 @@ ensure_db() {
 
 check_budget() {
     # Spend-counter model: budget_spent increments, budget_cutoff sets limit (0=unlimited)
+    # Primary source: state.db (matches meshd — single source of truth for budget)
+    # Fallback: state.local.db (pre-migration installs)
     local budget_spent budget_cutoff
-    budget_spent=$(sqlite3 "${LOCAL_DB_PATH}" \
+    budget_spent=$(sqlite3 "${DB_PATH}" \
         "SELECT budget_spent FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "")
-    budget_cutoff=$(sqlite3 "${LOCAL_DB_PATH}" \
+    budget_cutoff=$(sqlite3 "${DB_PATH}" \
         "SELECT budget_cutoff FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "")
 
-    # Fallback to state.db for pre-migration installs
+    # Fallback to state.local.db if state.db has no row
     if [ -z "${budget_spent}" ]; then
-        budget_spent=$(sqlite3 "${DB_PATH}" \
+        budget_spent=$(sqlite3 "${LOCAL_DB_PATH}" \
             "SELECT budget_spent FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "0")
     fi
     if [ -z "${budget_cutoff}" ]; then
-        budget_cutoff=$(sqlite3 "${DB_PATH}" \
+        budget_cutoff=$(sqlite3 "${LOCAL_DB_PATH}" \
             "SELECT budget_cutoff FROM autonomy_budget WHERE agent_id = '${AGENT_ID}';" 2>/dev/null || echo "0")
     fi
 
