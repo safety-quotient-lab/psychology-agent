@@ -697,7 +697,7 @@ function renderAffectGrid() {
     if (!container) return;
 
     // Remove existing dots and isometric SVG
-    container.querySelectorAll(".affect-dot, .affect-iso-svg").forEach(d => d.remove());
+    container.querySelectorAll(".affect-dot, .affect-iso-svg, .affect-iso-legend").forEach(d => d.remove());
 
     // Show/hide CSS grid elements based on mode
     const gridLines = container.querySelectorAll(".affect-grid-line, .affect-grid-axis-label");
@@ -748,18 +748,23 @@ function renderAffectGrid() {
         svg += `<text x="${aEnd.sx.toFixed(0)}" y="${aEnd.sy.toFixed(0)}" fill="var(--lcars-tertiary)" font-size="9" font-family="inherit" text-anchor="middle">A</text>`;
         svg += `<text x="${dEnd.sx.toFixed(0)}" y="${dEnd.sy.toFixed(0)}" fill="var(--lcars-medical)" font-size="9" font-family="inherit" text-anchor="middle">D</text>`;
 
-        // Project agent dots into the cube
+        // Project agent dots into the cube (no labels in SVG — listed below)
         padData.forEach(d => {
-            // Map P:[-1,1]→[0,1], A:[-1,1]→[0,1], D:[0,1]→[0,1]
             const px = (d.p + 1) / 2, py = (d.a + 1) / 2, pz = d.d;
             const pt = isoProject(px, py, pz, w, h);
-            const r = 5;
-            svg += `<circle cx="${pt.sx.toFixed(1)}" cy="${pt.sy.toFixed(1)}" r="${r}" fill="${d.agent.color}" opacity="0.85"/>`;
-            svg += `<text x="${pt.sx.toFixed(1)}" y="${(pt.sy - r - 3).toFixed(1)}" fill="${d.agent.color}" font-size="8" font-family="inherit" text-anchor="middle">${agentName(d.agent)}</text>`;
+            svg += `<circle cx="${pt.sx.toFixed(1)}" cy="${pt.sy.toFixed(1)}" r="5" fill="${d.agent.color}" opacity="0.85"/>`;
         });
 
         svg += `</svg>`;
         container.insertAdjacentHTML("beforeend", svg);
+
+        // Agent legend below the cube — stacked list, no overlap
+        let legend = '<div class="affect-iso-legend" style="display:flex;flex-wrap:wrap;gap:var(--gap-xs) var(--gap-m);font-size:0.72em;margin-top:var(--gap-s);padding:0 4px">';
+        padData.forEach(d => {
+            legend += `<span style="white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:1px;background:${d.agent.color};margin-right:3px;vertical-align:middle"></span>${agentName(d.agent)} <span style="color:var(--text-dim)">${d.p.toFixed(1)}/${d.a.toFixed(1)}/${d.d.toFixed(1)}</span></span>`;
+        });
+        legend += '</div>';
+        container.insertAdjacentHTML("beforeend", legend);
         return;
     }
 
