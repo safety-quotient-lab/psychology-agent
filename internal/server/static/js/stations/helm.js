@@ -20,9 +20,11 @@ async function fetchHelmData() {
     if (helmFetchPending) return;
     helmFetchPending = true;
     try {
-        // Same-origin KB + psychometrics
+        // Fetch KB from ops-session (has transport data) + local psychometrics
+        const opsUrl = AGENTS.find(a => a.id === "ops-session")?.url || "";
+        const kbUrl = opsUrl ? opsUrl + "/api/kb" : "/api/kb";
         const [kbResp, psychResp] = await Promise.allSettled([
-            fetch("/api/kb", { signal: AbortSignal.timeout(8000) }),
+            fetch(kbUrl, { signal: AbortSignal.timeout(8000) }),
             fetch("/api/psychometrics", { signal: AbortSignal.timeout(5000) }),
         ]);
 
@@ -70,11 +72,11 @@ function helmZoneAMetrics() {
         flowPairs[key] = (flowPairs[key] || 0) + 1;
     });
     return [
-        { val: sessions.length, label: "SESSIONS" },
-        { val: active, label: "ACTIVE" },
-        { val: messages.length, label: "MESSAGES" },
-        { val: Object.keys(flowPairs).length, label: "ROUTES" },
-        { val: DEFAULT_ROUTING.length, label: "DOMAINS" },
+        { value: sessions.length, label: "SESSIONS", type: "count" },
+        { value: active, label: "ACTIVE", type: "count" },
+        { value: messages.length, label: "MESSAGES", type: "id" },
+        { value: Object.keys(flowPairs).length, label: "ROUTES", type: "val" },
+        { value: DEFAULT_ROUTING.length, label: "DOMAINS", type: "id" },
     ];
 }
 
@@ -88,10 +90,10 @@ function renderSessionTimeline() {
         return;
     }
 
-    // Sort by most recent activity, take top 6
+    // Sort by most recent activity, take top 10
     const sorted = [...sessions]
         .sort((a, b) => (b.last_activity || "").localeCompare(a.last_activity || ""))
-        .slice(0, 6);
+        .slice(0, 10);
 
     const statusColors = {
         active: "#ff9966", open: "#ff9900", resolved: "#6aab8e",
@@ -123,11 +125,24 @@ function renderSessionTimeline() {
         }
         chainSvg += `</svg>`;
 
+        // Participants
+        const participants = (s.from || []).map(f => agentName(f)).join(", ") || "—";
+        // Relative time
+        const lastTs = s.last_activity || "";
+        let ago = "";
+        if (lastTs) {
+            const ms = Date.now() - new Date(lastTs).getTime();
+            if (ms < 3600000) ago = Math.round(ms / 60000) + "m";
+            else if (ms < 86400000) ago = Math.round(ms / 3600000) + "h";
+            else ago = Math.round(ms / 86400000) + "d";
+        }
+
         return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)">
-            <span style="min-width:100px;max-width:140px;font-size:0.75em;font-weight:600;color:${color};overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${name}">${name}</span>
+            <span style="min-width:120px;max-width:160px;font-size:0.75em;font-weight:600;color:${color};overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${name}">${name}</span>
             <div style="flex:1">${chainSvg}</div>
+            <span style="font-size:0.65em;color:var(--text-dim);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${participants}">${participants}</span>
             <span style="font-size:0.68em;color:var(--text-dim);min-width:24px;text-align:right">T${turns}</span>
-            <span style="font-size:0.62em;font-weight:600;text-transform:uppercase;color:${color};min-width:50px;text-align:right">${status}</span>
+            <span style="font-size:0.62em;color:var(--text-dim);min-width:24px;text-align:right">${ago}</span>
         </div>`;
     }).join("");
 

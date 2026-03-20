@@ -46,10 +46,10 @@ function tacticalZoneAMetrics() {
     }).length;
     const total = Math.max(healthAgents.length, agents.length, 5);
     return [
-        { val: online + "/" + total, label: "SHIELDS" },
-        { val: compliant + "/" + total, label: "COMPLIANT" },
-        { val: "3/4", label: "TRANSPORT" },
-        { val: "0", label: "THREATS" },
+        { value: online + "/" + total, label: "SHIELDS", type: "count" },
+        { value: compliant + "/" + total, label: "COMPLIANT", type: "id" },
+        { value: "3/4", label: "TRANSPORT", type: "val" },
+        { value: "0", label: "THREATS", type: "val" },
     ];
 }
 
