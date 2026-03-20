@@ -18,6 +18,7 @@ function switchSciSubsystem(subsys, updateUrl = true) {
         title.textContent = titles[subsys] || "Science";
     }
     if (subsys === "linguistics") fetchLinguisticsData().then(restoreTermFromUrl);
+    if (subsys === "ontology") fetchOntologyData();
     // Persist to URL
     if (updateUrl) {
         const url = new URL(location);
@@ -148,6 +149,103 @@ function renderLinguistics() {
                 </div>
             </div>`
         ).join("");
+    }
+
+    // Mesh Vocabulary panel — full searchable vocab (same data, different display)
+    const meshVocabEl = document.getElementById("lcars-sci-vocab");
+    if (meshVocabEl && _vocabData) {
+        const termList = _vocabData.hasDefinedTerm || [];
+        meshVocabEl.innerHTML = `<div style="max-height:300px;overflow-y:auto">
+            <table style="width:100%;font-size:0.75em;border-collapse:collapse">
+                <thead><tr style="color:var(--lcars-title);text-align:left">
+                    <th style="padding:4px 8px">Term</th><th style="padding:4px 8px">Code</th><th style="padding:4px 8px">Status</th><th style="padding:4px 8px">Definition</th>
+                </tr></thead>
+                <tbody>
+                    ${termList.map(t => {
+                        const statusColor = t.status === "deprecated" ? "var(--text-dim)" : "var(--lcars-medical)";
+                        return `<tr style="border-bottom:1px solid var(--border)">
+                            <td style="padding:3px 8px;color:var(--lcars-secondary);font-weight:600">${t.name || "?"}</td>
+                            <td style="padding:3px 8px;color:var(--text-dim);font-family:monospace;font-size:0.9em">${t.termCode || ""}</td>
+                            <td style="padding:3px 8px;color:${statusColor};text-transform:uppercase">${t.status || "active"}</td>
+                            <td style="padding:3px 8px;color:var(--text-primary);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(t.description || "").replace(/"/g, "&quot;")}">${t.description || "—"}</td>
+                        </tr>`;
+                    }).join("")}
+                </tbody>
+            </table>
+        </div>`;
+    }
+}
+
+// ── Ontology Subsystem ──────────────────────────────────────
+let _ontologyData = null;
+
+async function fetchOntologyData() {
+    // Fetch KB from ops-session for claims + catalog data
+    if (!_ontologyData) {
+        const opsUrl = AGENTS.find(a => a.id === "ops-session")?.url || "";
+        const kbUrl = opsUrl ? opsUrl + "/api/kb" : "/api/kb";
+        try {
+            const resp = await fetch(kbUrl, { signal: AbortSignal.timeout(8000) });
+            if (resp.ok) _ontologyData = await resp.json();
+        } catch {}
+    }
+    renderOntology();
+}
+
+function renderOntology() {
+    // Discipline Catalog
+    const catEl = document.getElementById("lcars-sci-catalog");
+    if (catEl) {
+        const catalog = _ontologyData?.data?.catalog || _ontologyData?.catalog || [];
+        if (catalog.length > 0) {
+            catEl.innerHTML = catalog.map(c =>
+                `<div style="padding:4px 0;border-bottom:1px solid var(--border);font-size:0.78em">
+                    <span style="color:var(--lcars-secondary);font-weight:600">${c.name || c.term || "?"}</span>
+                    <span style="color:var(--text-dim);margin-left:8px">${c.description || ""}</span>
+                </div>`
+            ).join("");
+        } else {
+            catEl.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No catalog entries — KB data from ops-session</div>';
+        }
+    }
+
+    // Claims taxonomy
+    const claimsEl = document.getElementById("onto-claims");
+    if (claimsEl) {
+        const claims = _ontologyData?.data?.claims || _ontologyData?.claims || [];
+        if (claims.length > 0) {
+            const types = {};
+            claims.forEach(c => {
+                const t = c.claim_type || c.type || "general";
+                types[t] = (types[t] || 0) + 1;
+            });
+            claimsEl.innerHTML = Object.entries(types).sort((a, b) => b[1] - a[1]).map(([type, count]) =>
+                `<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:0.78em;border-bottom:1px solid var(--border)">
+                    <span style="color:var(--lcars-secondary)">${type}</span>
+                    <span style="color:var(--lcars-readout)">${count}</span>
+                </div>`
+            ).join("");
+        } else {
+            claimsEl.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No claims in KB</div>';
+        }
+    }
+
+    // Knowledge Graph — show decisions as linked nodes
+    const graphEl = document.getElementById("onto-graph");
+    if (graphEl) {
+        const decisions = _ontologyData?.data?.decisions || _ontologyData?.decisions || [];
+        if (decisions.length > 0) {
+            graphEl.innerHTML = `<div style="font-size:0.78em;max-height:200px;overflow-y:auto">
+                ${decisions.slice(0, 15).map(d =>
+                    `<div style="padding:3px 0;border-bottom:1px solid var(--border)">
+                        <span style="color:var(--lcars-accent);font-weight:600">${d.decision_id || d.id || "?"}</span>
+                        <span style="color:var(--text-primary);margin-left:8px">${d.decision_text || d.text || d.subject || "—"}</span>
+                    </div>`
+                ).join("")}
+            </div>`;
+        } else {
+            graphEl.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No decisions in KB</div>';
+        }
     }
 }
 

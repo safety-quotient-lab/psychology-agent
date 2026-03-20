@@ -1,6 +1,16 @@
 // ═══ RENDER: KNOWLEDGE ══════════════════════════════════════
-// Same-origin KB fetch — local meshd serves aggregated KB data
+// KB fetch — tries ops-session cross-origin first (has transport data),
+// falls back to same-origin (mesh agent, may have empty state.db)
 async function fetchLocalKB() {
+    // Try ops-session first
+    const opsUrl = (AGENTS.find(a => a.id === "ops-session") || {}).url || "";
+    if (opsUrl) {
+        try {
+            const resp = await fetch(opsUrl + "/api/kb", { signal: AbortSignal.timeout(8000) });
+            if (resp.ok) return { status: "ok", data: await resp.json() };
+        } catch {}
+    }
+    // Fallback: same-origin
     try {
         const resp = await fetch("/api/kb", { signal: AbortSignal.timeout(10000) });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -11,6 +21,13 @@ async function fetchLocalKB() {
 }
 
 async function fetchLocalDict() {
+    const opsUrl = (AGENTS.find(a => a.id === "ops-session") || {}).url || "";
+    if (opsUrl) {
+        try {
+            const resp = await fetch(opsUrl + "/api/kb?section=dictionary", { signal: AbortSignal.timeout(8000) });
+            if (resp.ok) return { status: "ok", data: await resp.json() };
+        } catch {}
+    }
     try {
         const resp = await fetch("/api/kb?section=dictionary", { signal: AbortSignal.timeout(10000) });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
