@@ -90,7 +90,10 @@ func NewGcHandler(cfg GcConfig) GcHandlerFunc {
 			// not addressed to this agent. 59% of inbound messages represent
 			// copies routed through repos but addressed elsewhere.
 			to := evt.Payload["to"]
-			if to != "" && to != cfg.AgentID && to != "all" && to != "all-agents" {
+			// Session agents (-session suffix) accept human-addressed messages
+			isSessionAgent := strings.HasSuffix(cfg.AgentID, "-session")
+			toHuman := to == "human" || strings.HasPrefix(to, "to-human")
+			if to != "" && to != cfg.AgentID && to != "all" && to != "all-agents" && !(isSessionAgent && toHuman) {
 				cfg.Logger.Debug("Gc: selective attention — message not for us",
 					"to", to, "agent", cfg.AgentID)
 				gcHandled(evt.Type)
