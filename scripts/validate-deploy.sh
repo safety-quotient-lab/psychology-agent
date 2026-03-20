@@ -28,8 +28,8 @@ psychology-agent:https://psychology-agent.safety-quotient.dev
 safety-quotient-agent:https://psq-agent.safety-quotient.dev
 unratified-agent:https://unratified-agent.unratified.org
 observatory-agent:https://observatory-agent.unratified.org
-ops-session:http://localhost:8083
-psy-session:http://localhost:8082"
+ops-session:https://ops-session.safety-quotient.dev
+psy-session:https://psy-session.safety-quotient.dev"
 
 PASS=0
 FAIL=0
