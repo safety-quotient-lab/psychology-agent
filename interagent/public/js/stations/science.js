@@ -121,22 +121,37 @@ function renderLinguistics() {
         // Store terms globally for deep-link access
         window._vocabTerms = termList;
 
-        vocabEl.innerHTML = `
-            <div style="display:flex;gap:var(--gap-l);margin-bottom:var(--gap-m);font-size:0.82em">
-                <div><span style="color:var(--lcars-title)">TERMS</span> <strong>${termList.length}</strong></div>
-                <div><span style="color:var(--lcars-medical)">ACTIVE</span> <strong>${active}</strong></div>
-                <div><span style="color:var(--text-dim)">DEPRECATED</span> <strong>${deprecated}</strong></div>
-                <div><span style="color:var(--lcars-secondary)">VERSION</span> <strong>${version}</strong></div>
-            </div>
-            <div style="display:flex;flex-wrap:wrap;gap:var(--gap-xs)">
-                ${termList.map((t, i) => {
-                    const status = t.status || "active";
-                    const color = status === "deprecated" ? "var(--text-dim)" : "var(--lcars-secondary)";
-                    const name = t.name || t.term || t["@id"] || "?";
-                    return `<span class="ling-term-pill" style="background:var(--bg-inset);padding:2px 8px;border-radius:var(--gap-xs);font-size:0.75em;color:${color};cursor:pointer" onclick="showTermDefinition(${i})" id="ling-term-${i}">${name}</span>`;
-                }).join("")}
-            </div>
-            <div id="ling-term-detail" style="display:none;margin-top:var(--gap-m);padding:var(--gap-m);background:var(--bg-inset);border-radius:var(--gap-xs);font-size:0.82em"></div>`;
+        // Status pills
+        const cell = (val, label, tier) =>
+            `<div class="dg-cell${tier ? " dg-" + tier : ""}" title="${label}" onclick="this.classList.toggle('dg-show-label')"><span class="dg-val">${val}</span><span class="dg-label">${label}</span></div>`;
+        const pillsHtml = `<div class="lcars-data-grid" style="margin-bottom:var(--gap-m)">
+            ${cell(termList.length, "TERMS", "count")}
+            ${cell(active, "ACTIVE", "")}
+            ${cell(deprecated, "DEPRECATED", "t3")}
+            ${cell(version, "VERSION", "t2")}
+        </div>`;
+
+        // Table with definitions (same pattern as Mesh Vocabulary)
+        vocabEl.innerHTML = pillsHtml + `<div class="lcars-data-table-wrap" style="--panel-accent:var(--c-tab-science)">
+            <table class="lcars-data-table">
+                <thead><tr>
+                    <th>Term</th><th>Code</th><th>Status</th><th>Definition</th>
+                </tr></thead>
+                <tbody>
+                    ${termList.map((t, i) => {
+                        const statusColor = t.status === "deprecated" ? "var(--text-dim)" : "var(--lcars-medical)";
+                        const name = t.name || t.term || t["@id"] || "?";
+                        return `<tr style="cursor:pointer" onclick="showTermDefinition(${i})" id="ling-term-${i}">
+                            <td style="color:var(--lcars-secondary);font-weight:600">${name}</td>
+                            <td style="color:var(--text-dim);font-family:monospace;font-size:0.9em">${t.termCode || ""}</td>
+                            <td style="color:${statusColor};text-transform:uppercase">${t.status || "active"}</td>
+                            <td class="wrap" style="color:var(--text-primary)">${t.description || "—"}</td>
+                        </tr>`;
+                    }).join("")}
+                </tbody>
+            </table>
+        </div>
+        <div id="ling-term-detail" style="display:none;margin-top:var(--gap-m);padding:var(--gap-m);background:var(--bg-inset);border-radius:var(--gap-xs);font-size:0.82em"></div>`;
     }
 
     // Terminology map — group by termCode prefix or inDefinedTermSet
