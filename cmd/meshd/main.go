@@ -206,7 +206,11 @@ func main() {
 				durationMs = result.Duration.Milliseconds()
 			}
 			if deliberateErr != nil {
-				deliberationStatus = "failed"
+				if strings.Contains(deliberateErr.Error(), "refused") {
+					deliberationStatus = "refused"
+				} else {
+					deliberationStatus = "failed"
+				}
 				deliberationError = deliberateErr.Error()
 			} else if result != nil && result.ExitCode != 0 {
 				deliberationStatus = "error"
