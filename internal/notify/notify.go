@@ -2,7 +2,9 @@
 // When the budget gate blocks a spawn (sleep mode, mesh paused, etc.),
 // the notifier alerts the human operator through the configured channel.
 //
-// Channels: null (silent), file (JSONL append), zulip (HTTP API), webhook (generic POST).
+// Channels: null (silent), file (JSONL append), macos (osascript + JSONL),
+// zulip (HTTP API), webhook (generic POST).
+// TODO: add "linux" channel using notify-send (libnotify) for chromabook daemons.
 package notify
 
 import (
@@ -14,6 +16,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"os/exec"
 	"sync"
 	"time"
 )
@@ -62,6 +65,8 @@ func New(cfg Config, logger *slog.Logger) Notifier {
 		}
 	case "webhook":
 		return &WebhookNotifier{URL: cfg.WebhookURL, logger: logger}
+	case "macos":
+		return &MacOSNotifier{FilePath: cfg.FilePath, logger: logger}
 	default:
 		return &NullNotifier{}
 	}
@@ -112,6 +117,49 @@ func (n *FileNotifier) Notify(_ context.Context, msg Message) error {
 		"path", n.Path,
 		"agent", msg.AgentID,
 		"event", msg.EventType,
+	)
+	return nil
+}
+
+// ── MacOSNotifier — native notification + JSONL audit trail ─────────
+
+// MacOSNotifier sends a macOS notification via osascript and writes
+// the JSONL audit trail. Designed for gray-box session agents where
+// the human operator needs a visible alert for inbound mesh work.
+type MacOSNotifier struct {
+	FilePath string // JSONL audit trail
+	mu       sync.Mutex
+	logger   *slog.Logger
+}
+
+func (n *MacOSNotifier) Name() string { return "macos" }
+
+func (n *MacOSNotifier) Notify(_ context.Context, msg Message) error {
+	// macOS notification
+	title := fmt.Sprintf("meshd: %s", msg.AgentID)
+	body := fmt.Sprintf("[%s] %s — %s", msg.Priority, msg.EventType, msg.Reason)
+	cmd := exec.Command("osascript", "-e",
+		fmt.Sprintf(`display notification %q with title %q sound name "Ping"`, body, title))
+	if err := cmd.Run(); err != nil {
+		n.logger.Warn("macOS notification failed", "error", err)
+	}
+
+	// Audit trail (same as FileNotifier)
+	if n.FilePath != "" {
+		n.mu.Lock()
+		defer n.mu.Unlock()
+		f, err := os.OpenFile(n.FilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err == nil {
+			defer f.Close()
+			line, _ := json.Marshal(msg)
+			f.Write(append(line, '\n'))
+		}
+	}
+
+	n.logger.Info("macOS notification sent",
+		"agent", msg.AgentID,
+		"event", msg.EventType,
+		"reason", msg.Reason,
 	)
 	return nil
 }

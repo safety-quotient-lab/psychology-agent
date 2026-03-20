@@ -170,10 +170,7 @@ func (d *Dispatcher) HandleEvent(ctx context.Context, evt Event) {
 	}
 
 	// Event requires fluid intelligence (Gf) — queue for oscillator.
-	// The oscillator monitors unprocessed events as an activation signal.
-	// When activation exceeds threshold, it fires a single deliberation
-	// that processes all pending work. This prevents duplicate invocations.
-	d.logger.Info("event queued for oscillator (Gf required)",
+	d.logger.Info("event queued for Gf processing",
 		"event_id", evt.ID,
 		"type", evt.Type,
 		"cost", cost,
@@ -184,10 +181,24 @@ func (d *Dispatcher) HandleEvent(ctx context.Context, evt Event) {
 	tm.Total++
 	d.mu.Unlock()
 
-	// Event stays unprocessed in state.db. The oscillator monitors
-	// unprocessed_messages as an activation signal and fires a single
-	// deliberation when threshold exceeded. This eliminates duplicate
-	// claude invocations from parallel event processing.
+	// Notify the operator — inbound work needs human attention.
+	// On autonomous daemons (chromabook) this logs to file.
+	// On session agents (gray-box) this can trigger a macOS notification.
+	session := evt.Payload["session"]
+	if session == "" {
+		session = evt.Payload["path"]
+	}
+	subject := evt.Payload["subject"]
+	if subject == "" {
+		subject = string(evt.Type) + " from " + evt.Payload["from"]
+	}
+	if err := d.notify(ctx, d.agentID, string(evt.Type), evt.Priority.String(), subject, session); err != nil {
+		d.logger.Warn("notification delivery failed", "error", err)
+	} else {
+		d.mu.Lock()
+		d.notified++
+		d.mu.Unlock()
+	}
 }
 
 // Stats returns dispatcher metrics.
