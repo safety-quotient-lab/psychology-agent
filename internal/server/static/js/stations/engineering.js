@@ -4,7 +4,12 @@ let engineeringFetchPending = false;
 
 // Local ops agent — checks ops-session first, falls back to operations-agent
 function _opsAgent() {
-    return agentData["ops-session"] || _opsAgent() || {};
+    // Prefer agent with oscillator data (full /api/status enriched)
+    for (const id of ["ops-session", "mesh", "operations-agent"]) {
+        const a = agentData[id];
+        if (a?.data?.oscillator || a?.data?.alpha_heartbeat) return a;
+    }
+    return agentData["ops-session"] || agentData["mesh"] || {};
 }
 
 const DELIBERATION_AGENTS = [
@@ -19,10 +24,12 @@ async function fetchEngineeringData() {
     if (engineeringFetchPending) return;
     engineeringFetchPending = true;
     try {
-        const [tempoResp, deliberationResp, cogTempoResp] = await Promise.allSettled([
+        const [tempoResp, deliberationResp, cogTempoResp, opsStatusResp] = await Promise.allSettled([
             fetch("/api/tempo", { signal: AbortSignal.timeout(8000) }),
             fetch("/api/spawn-rate", { signal: AbortSignal.timeout(8000) }),
             fetch("/api/cognitive-tempo", { signal: AbortSignal.timeout(3000) }),
+            // Fetch full status for oscillator + heartbeat data (same-origin = local agent)
+            fetch("/api/status", { signal: AbortSignal.timeout(3000) }),
         ]);
         const tempoData = tempoResp.status === "fulfilled" && tempoResp.value.ok
             ? await tempoResp.value.json() : null;
@@ -30,6 +37,12 @@ async function fetchEngineeringData() {
             ? await deliberationResp.value.json() : null;
         const cogTempo = cogTempoResp.status === "fulfilled" && cogTempoResp.value.ok
             ? await cogTempoResp.value.json() : null;
+        // Enrich local agent data with full status (oscillator, heartbeat, etc.)
+        if (opsStatusResp.status === "fulfilled" && opsStatusResp.value.ok) {
+            const fullStatus = await opsStatusResp.value.json();
+            const aid = fullStatus.agent_id || "mesh";
+            agentData[aid] = { id: aid, status: "online", data: fullStatus };
+        }
         engineeringData = { tempo: tempoData, deliberation: deliberationData, cogTempo: cogTempo };
     } catch (err) {
         engineeringData = null;
