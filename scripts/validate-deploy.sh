@@ -79,20 +79,22 @@ while IFS=: read -r agent_id base_url; do
     check "Version: ${version}" "PASS"
   fi
 
-  # Check health field
+  # Check health field — TNG 5-level: nominal, advisory, degraded, critical, failed
   health=$(echo "$status_json" | python3 -c "import sys,json; print(json.load(sys.stdin).get('health','unknown'))" 2>/dev/null || echo "unknown")
-  if [ "$health" = "healthy" ] || [ "$health" = "ok" ]; then
-    check "Health: ${health}" "PASS"
-  else
-    check "Health: ${health}" "WARN" "not healthy"
-  fi
+  case "$health" in
+    nominal|healthy|ok) check "Health: ${health}" "PASS" ;;
+    advisory)           check "Health: ${health}" "WARN" "advisory" ;;
+    degraded)           check "Health: ${health}" "WARN" "degraded" ;;
+    critical|failed)    check "Health: ${health}" "FAIL" ;;
+    *)                  check "Health: ${health}" "WARN" "unknown health status" ;;
+  esac
 
-  # Check budget presence
+  # Check budget presence (canonical schema: budget_spent/budget_cutoff)
   has_budget=$(echo "$status_json" | python3 -c "
 import sys, json
 d = json.load(sys.stdin)
 b = d.get('autonomy_budget', {})
-if isinstance(b, dict) and ('budget_spent' in b or 'budget_current' in b):
+if isinstance(b, dict) and 'budget_spent' in b:
     print('yes')
 else:
     print('no')
