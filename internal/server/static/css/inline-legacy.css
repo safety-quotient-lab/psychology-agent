@@ -3981,31 +3981,8 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 }
 .agent-pill-bar-offline { animation: agent-offline-flash 2s ease-in-out infinite; }
 
-/* Mobile agent bars — two rows: name+health on row 1, metrics grid on row 2 */
-.agent-pill-row2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-    gap: 0 var(--gap-xs);
-    font-size: 0.78em;
-    color: var(--text-dim);
-    padding-left: calc(10px + 10px + var(--gap-xs) * 2);
-    margin-top: 1px;
-}
-.agent-pill-row2 span { text-align: center; white-space: nowrap; }
-.agent-pill-header {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-    gap: 0 var(--gap-xs);
-    font-size: 0.6em;
-    color: var(--lcars-title);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding-left: calc(10px + 10px + var(--gap-xs) * 2);
-    margin-bottom: 2px;
-}
-.agent-pill-header span { text-align: center; }
-
-/* Legacy — kept for any remaining flex usage */
+/* Inline metrics on the bar — wrap to second line if needed */
+/* Metrics wrap to second row on narrow screens */
 .agent-pill-metrics {
     display: flex;
     flex-wrap: wrap;
