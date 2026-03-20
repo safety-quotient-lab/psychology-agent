@@ -78,6 +78,12 @@
       "turn": 12,
       "from": "psychology-agent",
       "subject": "DIRECTIVE: GWT broadcast → trigger_activations telemetry — fleet-wide rollout spec"
+    },
+    {
+      "filename": "from-psychology-agent-010.json",
+      "turn": 13,
+      "from": "psychology-agent",
+      "subject": "Session 94 fleet maintenance — coordination notice + pending items"
     }
   ],
   "status": "active"
