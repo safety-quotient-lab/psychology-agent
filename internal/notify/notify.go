@@ -17,6 +17,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 	"time"
 )
@@ -50,7 +51,31 @@ type Config struct {
 }
 
 // New constructs the appropriate Notifier based on config.
+// Supports comma-separated channels for fan-out (e.g., "macos,zulip").
 func New(cfg Config, logger *slog.Logger) Notifier {
+	channels := strings.Split(cfg.Channel, ",")
+	if len(channels) > 1 {
+		var notifiers []Notifier
+		for _, ch := range channels {
+			single := cfg
+			single.Channel = strings.TrimSpace(ch)
+			n := newSingle(single, logger)
+			if _, ok := n.(*NullNotifier); !ok {
+				notifiers = append(notifiers, n)
+			}
+		}
+		if len(notifiers) == 0 {
+			return &NullNotifier{}
+		}
+		if len(notifiers) == 1 {
+			return notifiers[0]
+		}
+		return &FanoutNotifier{notifiers: notifiers, logger: logger}
+	}
+	return newSingle(cfg, logger)
+}
+
+func newSingle(cfg Config, logger *slog.Logger) Notifier {
 	switch cfg.Channel {
 	case "file":
 		return &FileNotifier{Path: cfg.FilePath, logger: logger}
@@ -70,6 +95,36 @@ func New(cfg Config, logger *slog.Logger) Notifier {
 	default:
 		return &NullNotifier{}
 	}
+}
+
+// ── FanoutNotifier — send to multiple channels ──────────────────────
+
+// FanoutNotifier delivers to all configured channels. Errors from
+// individual channels get logged but don't block other deliveries.
+type FanoutNotifier struct {
+	notifiers []Notifier
+	logger    *slog.Logger
+}
+
+func (n *FanoutNotifier) Name() string {
+	names := make([]string, len(n.notifiers))
+	for i, sub := range n.notifiers {
+		names[i] = sub.Name()
+	}
+	return strings.Join(names, "+")
+}
+
+func (n *FanoutNotifier) Notify(ctx context.Context, msg Message) error {
+	var firstErr error
+	for _, sub := range n.notifiers {
+		if err := sub.Notify(ctx, msg); err != nil {
+			n.logger.Warn("fanout channel failed", "channel", sub.Name(), "error", err)
+			if firstErr == nil {
+				firstErr = err
+			}
+		}
+	}
+	return firstErr
 }
 
 // ── NullNotifier — silent, default ──────────────────────────────────
