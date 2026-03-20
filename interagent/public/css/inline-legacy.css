@@ -329,7 +329,8 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .theme-lcars .lcars-sidebar-drop,
 .theme-lcars .lcars-sidebar-exit,
 .theme-lcars .lcars-sidebar-spacer {
-    background: var(--lcars-frame) !important;
+    background: var(--active-tab-color, var(--lcars-frame)) !important;
+    transition: background 0.3s ease;
 }
 .theme-lcars .lcars-hdr-arm,
 .theme-lcars .lcars-hdr-endcap {
@@ -346,11 +347,12 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* Sidebar structural elements — transparent in LCARS mode to show
    parent's seamless gradient. Solid color in non-LCARS as fallback. */
 .lcars-sidebar-cap-top {
-    background: var(--lcars-frame);
+    background: var(--active-tab-color, var(--lcars-frame));
     min-height: var(--band-size);
     flex-shrink: 0;
     border-radius: var(--elbow-outer) 0 0 0;
     margin-bottom: 0;
+    transition: background 0.3s ease;
 }
 
 /* ── Elbow connector — square with circle stamped out of corner ── */
@@ -475,17 +477,17 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 /* Sidebar arm — fills gap between last button and footer cap.
    Matches sidebar cap color (purple/lavender in LCARS 47988). */
 .lcars-sidebar-arm {
-    flex: 1; /* fills remaining sidebar height */
-    background: var(--lcars-frame);
+    flex: 1;
+    background: var(--active-tab-color, var(--lcars-frame));
     margin-bottom: 0;
-    /* No border-radius — arm blends seamlessly into adjacent frame elements */
+    transition: background 0.3s ease;
 }
 
-/* Bottom cap matches top cap — continuous sidebar frame */
 .lcars-sidebar-cap-bottom {
-    background: var(--lcars-frame);
+    background: var(--active-tab-color, var(--lcars-frame));
     min-height: var(--band-size);
     border-radius: 0 0 0 var(--elbow-outer);
+    transition: background 0.3s ease;
 }
 
 /* ── LCARS Header Band (Segmented) ─────────────────────────── */
