@@ -24,12 +24,14 @@ async function fetchEngineeringData() {
     if (engineeringFetchPending) return;
     engineeringFetchPending = true;
     try {
+        // Fetch ops-session full status cross-origin for oscillator + heartbeat
+        const opsUrl = AGENTS.find(a => a.id === "ops-session")?.url || "";
+        const opsStatusUrl = opsUrl ? opsUrl + "/api/status" : "/api/status";
         const [tempoResp, deliberationResp, cogTempoResp, opsStatusResp] = await Promise.allSettled([
             fetch("/api/tempo", { signal: AbortSignal.timeout(8000) }),
             fetch("/api/spawn-rate", { signal: AbortSignal.timeout(8000) }),
             fetch("/api/cognitive-tempo", { signal: AbortSignal.timeout(3000) }),
-            // Fetch full status for oscillator + heartbeat data (same-origin = local agent)
-            fetch("/api/status", { signal: AbortSignal.timeout(3000) }),
+            fetch(opsStatusUrl, { signal: AbortSignal.timeout(3000) }),
         ]);
         const tempoData = tempoResp.status === "fulfilled" && tempoResp.value.ok
             ? await tempoResp.value.json() : null;
@@ -37,10 +39,10 @@ async function fetchEngineeringData() {
             ? await deliberationResp.value.json() : null;
         const cogTempo = cogTempoResp.status === "fulfilled" && cogTempoResp.value.ok
             ? await cogTempoResp.value.json() : null;
-        // Enrich local agent data with full status (oscillator, heartbeat, etc.)
+        // Enrich ops-session agentData with full status (oscillator, heartbeat, etc.)
         if (opsStatusResp.status === "fulfilled" && opsStatusResp.value.ok) {
             const fullStatus = await opsStatusResp.value.json();
-            const aid = fullStatus.agent_id || "mesh";
+            const aid = fullStatus.agent_id || "ops-session";
             agentData[aid] = { id: aid, status: "online", data: fullStatus };
         }
         engineeringData = { tempo: tempoData, deliberation: deliberationData, cogTempo: cogTempo };
