@@ -283,6 +283,33 @@ function renderLinguistics() {
         }
     }
 
+    // Computational Linguistics Record — summary pills at bottom
+    const lingRecord = document.getElementById("ling-record");
+    if (lingRecord && _vocabData) {
+        const termList = _vocabData.hasDefinedTerm || [];
+        const eprimeTotal = _eprimeData?.total || 0;
+        const agentCount = (window._agentVocabs || []).length;
+        const divergences = (() => {
+            const avs = window._agentVocabs || [];
+            if (avs.length < 2) return 0;
+            const union = new Set();
+            const sets = avs.map(av => new Set((av.terms || []).map(t => t.name || "")));
+            sets.forEach(s => s.forEach(t => union.add(t)));
+            let count = 0;
+            for (const t of union) {
+                if (sets.some(s => !s.has(t))) count++;
+            }
+            return count;
+        })();
+        renderNumberGrid("ling-record", [
+            { value: termList.length, label: "SHARED TERMS", type: "count" },
+            { value: agentCount, label: "AGENTS SCANNED", type: "id" },
+            { gap: true },
+            { value: eprimeTotal, label: "E-PRIME VIOLATIONS", type: eprimeTotal > 0 ? "count" : "val", alert: eprimeTotal > 10 },
+            { value: divergences, label: "DIVERGENCES", type: divergences > 0 ? "count" : "val", alert: divergences > 0 },
+        ]);
+    }
+
     // Mesh Vocabulary panel — full searchable vocab (same data, different display)
     const meshVocabEl = document.getElementById("lcars-sci-vocab");
     if (meshVocabEl && _vocabData) {
