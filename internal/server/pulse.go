@@ -44,6 +44,9 @@ func (s *Server) handlePulse(w http.ResponseWriter, r *http.Request) {
 		EpistemicDebt  int     `json:"epistemic_debt"`
 		Uptime         string  `json:"uptime,omitempty"`
 		AffectCategory string  `json:"affect_category,omitempty"`
+		GcHandled      int     `json:"gc_handled"`
+		EventCount     int     `json:"event_count"`
+		DelibCount     int     `json:"deliberation_count"`
 	}
 
 	summaries := make([]agentSummary, 0, len(agents))
@@ -85,6 +88,13 @@ func (s *Server) handlePulse(w http.ResponseWriter, r *http.Request) {
 					summary.AffectCategory = strFromMap(es, "affect_category", "")
 				}
 			}
+
+			// Gc metrics — forwarded for mesh-wide Gc/Gf display
+			if gc, ok := data["gc_metrics"].(map[string]any); ok {
+				summary.GcHandled = intFromMap(gc, "gc_handled_total")
+			}
+			summary.EventCount = intFromMap(data, "event_count")
+			summary.DelibCount = intFromMap(data, "deliberation_count")
 
 			// Active gates
 			if gates, ok := data["active_gates"].([]any); ok {
@@ -298,6 +308,23 @@ func strFromMap(m map[string]any, key, fallback string) string {
 		}
 	}
 	return fallback
+}
+
+func intFromMap(m map[string]any, key string) int {
+	if v, ok := m[key]; ok {
+		switch n := v.(type) {
+		case float64:
+			return int(n)
+		case int:
+			return n
+		case string:
+			f, err := strconv.ParseFloat(n, 64)
+			if err == nil {
+				return int(f)
+			}
+		}
+	}
+	return 0
 }
 
 func floatFromMap(m map[string]any, key string) float64 {

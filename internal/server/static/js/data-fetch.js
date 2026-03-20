@@ -74,6 +74,9 @@ async function refreshAll() {
                     version: pa.version || "", mesh_mode: pulse.mesh_mode || "active",
                     autonomy_budget: { budget_spent: pa.budget_spent || 0, budget_cutoff: pa.budget_cutoff || 0 },
                     unprocessed_messages: pa.unprocessed_messages || [],
+                    gc_metrics: { gc_handled_total: pa.gc_handled || 0 },
+                    event_count: pa.event_count || 0,
+                    deliberation_count: pa.deliberation_count || 0,
                     psychometrics: pa.affect_category ? { emotional_state: { affect_category: pa.affect_category } } : undefined },
             };
             if (pa.status === "online") _failedAgents.delete(aid);

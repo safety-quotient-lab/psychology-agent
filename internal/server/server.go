@@ -528,7 +528,23 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 		"SELECT * FROM autonomy_budget WHERE agent_id='"+db.SanitizeID(s.Config.AgentID)+"'")
 	var budget interface{}
 	if len(budgetRows) > 0 {
-		budget = budgetRows[0]
+		row := budgetRows[0]
+		// Normalize schema: old (budget_current/budget_max) → new (budget_spent/budget_cutoff)
+		if _, ok := row["budget_spent"]; !ok {
+			if v, ok := row["budget_current"]; ok {
+				row["budget_spent"] = v
+			}
+			if v, ok := row["budget_max"]; ok {
+				row["budget_cutoff"] = v
+			}
+		}
+		// Normalize shadow_mode → sleep_mode
+		if _, ok := row["sleep_mode"]; !ok {
+			if v, ok := row["shadow_mode"]; ok {
+				row["sleep_mode"] = v
+			}
+		}
+		budget = row
 	} else {
 		budget = map[string]interface{}{}
 	}
