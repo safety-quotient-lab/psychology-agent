@@ -4,23 +4,24 @@
 
 ## Active Thread (2026-03-19)
 
-**Session 93 (continued).** Largest session in project history (~96h calendar,
-1840 tool calls). Infrastructure diagnostic → architecture design → live mesh
-operations. Alpha heartbeat deployed and confirmed (exponential decay 10→299s).
-Gc selective attention + salience filters verified. 18 bugs found (BUG-1 through
-BUG-18), most fixed. Oscillator sleep mode = final gate to deliberation — ops
-enabled "awake." Hippocampal replay spec sent for backlog drain (135 msgs).
-Cognitive tempo v2 spec sent (Gc/Gf ratio, backlog pressure, meshd-native inputs).
-Neural grounding gaps documented (12 gaps, 8 well-grounded mappings confirmed).
-Session drift detection added to /sync. context-degradation-threshold closed (42
-msgs) → 7 successor sessions. meshd-bug-diagnostics session open (7 turns).
+**Session 93.** Largest session in project history (~20 commits, 48+ files, ~6400 lines).
+Restart detector built → 80% context cliff empirically validated (37x spike, 6 sessions).
+Oscillatory heartbeat spec (5 EEG bands × 8 engineering theories). Volume transmission
+reclassification (biophotonic → VT, Agnati 1986). Cogarch audit: 14 issues (5 fixed,
+7 deferred theoretical). meshd infrastructure diagnostic: 17 bugs found, 7 fixed live.
+Psychometric coherence check (3 cross-model contradiction detectors). Vagal brake
+architecture (Austin 1998, controlled breathing as mesh governance primitive).
+LCARS dashboard design (6 stations, 60+ subpanels). Chromabook SSH operations:
+services enabled, TimeoutStopSec=300, deliberation_log bootstrapped. Transport
+session `context-degradation-threshold` closed (42 msgs, 7 topics → session drift).
+Mesh paused via circuit breaker pending Gc selective attention filter from ops.
 
 **Next session priority order:**
-1. Verify first deliberation fires (ops exited sleep mode — trigger poll tick)
-2. Monitor hippocampal replay backlog drain (if ops deploys T6)
+1. Unpause mesh after ops deploys Gc selective attention filter
+2. Verify first deliberation fires end-to-end on core agents
 3. Confidence score recalibration (carried from Session 92)
 4. 7 deferred theoretical cogarch issues (Orch-OR, generators, etc.)
-5. Global CLAUDE.md migration (epistemic/engineering split)
+5. Global CLAUDE.md migration (epistemic/engineering split for control agent)
 
 ## User Preferences
 
@@ -37,7 +38,6 @@ msgs) → 7 successor sessions. meshd-bug-diagnostics session open (7 turns).
 - **Meshd cron deprecated** — event-driven ZMQ triggers (Session 91)
 - **Human operates as agent in system** — shared-operator confound (M-11)
 - **Naming: safety-quotient-agent** — DNS pending (Session 91)
-- **sleep_mode not shadow_mode** — neural correlate alignment (Session 93)
 
 ## Topic Files
 - `project_autonomy_model_change.md` — autonomy counter replaces budget pool
