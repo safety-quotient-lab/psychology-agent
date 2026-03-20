@@ -3973,11 +3973,11 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 .lcars-data-table th {
     color: var(--lcars-title); text-align: left; font-size: 0.65em; opacity: 0.8;
     padding: 3px 6px 6px; border-bottom: 2px solid var(--panel-accent, var(--lcars-frame));
-    white-space: nowrap;
+    white-space: nowrap; vertical-align: top;
 }
 .lcars-data-table th.num { text-align: right; }
 .lcars-data-table td {
-    padding: 3px 6px; white-space: nowrap;
+    padding: 3px 6px; white-space: nowrap; vertical-align: top;
 }
 .lcars-data-table td.wrap {
     white-space: normal; line-height: 1.4; min-width: 260px; /* ~1.618× base column (160px) */
