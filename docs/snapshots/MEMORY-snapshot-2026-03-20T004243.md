@@ -2,20 +2,22 @@
 
 **Architecture:** index + topic files. MEMORY.md = always-loaded index (~50 lines).
 
-## Active Thread (2026-03-20)
+## Active Thread (2026-03-19)
 
-**Session 93.** First autonomous deliberation on psychology-agent at 04:46:05 UTC.
-Tagged: session-93-first-deliberation. Mesh deliberates across all 4 core agents:
-psychology=11, psq=24, observatory=1033, unratified=28. 22 bugs found (BUG-1
-through BUG-22). Alpha heartbeat confirmed (exponential decay 10→299s). Gc
-selective attention + salience verified. Oscillator awake. Hippocampal replay
-drains backlog. 7-state outcome taxonomy designed (Squire 2004). Prioritization
-architecture reviewed (Posner & Petersen 1990). TimeoutStopSec=15min. 100 ops PRs
-delivered. meshd-bug-diagnostics session at 13 turns (drift threshold).
+**Session 93 (continued).** Largest session in project history (~96h calendar,
+1840 tool calls). Infrastructure diagnostic → architecture design → live mesh
+operations. Alpha heartbeat deployed and confirmed (exponential decay 10→299s).
+Gc selective attention + salience filters verified. 18 bugs found (BUG-1 through
+BUG-18), most fixed. Oscillator sleep mode = final gate to deliberation — ops
+enabled "awake." Hippocampal replay spec sent for backlog drain (135 msgs).
+Cognitive tempo v2 spec sent (Gc/Gf ratio, backlog pressure, meshd-native inputs).
+Neural grounding gaps documented (12 gaps, 8 well-grounded mappings confirmed).
+Session drift detection added to /sync. context-degradation-threshold closed (42
+msgs) → 7 successor sessions. meshd-bug-diagnostics session open (7 turns).
 
 **Next session priority order:**
-1. Level 3 diagnostic (fresh context required)
-2. Monitor deliberation quality — what does /sync --quick actually produce?
+1. Verify first deliberation fires (ops exited sleep mode — trigger poll tick)
+2. Monitor hippocampal replay backlog drain (if ops deploys T6)
 3. Confidence score recalibration (carried from Session 92)
 4. 7 deferred theoretical cogarch issues (Orch-OR, generators, etc.)
 5. Global CLAUDE.md migration (epistemic/engineering split)
@@ -45,5 +47,5 @@ delivered. meshd-bug-diagnostics session at 13 turns (drift threshold).
 - `user_chromabook.md` — autonomous agent host spelled Chromabook, not Chromebook
 - `feedback_meshd_no_split_brain.md` — psy-session and psychology-agent use separate clones, no conflict
 - `project_thoughtfulness_architecture.md` — DMN-analog third cogarch layer
-- `project_properly_restart_metric.md` — "let me do it properly" self-correction signal
-- `project_session93_synthesis.md` — timing hierarchy, VT, LCARS, delivery guarantees, BFT, vagal brake
+- `project_properly_restart_metric.md` — "let me do it properly" self-correction signal; baseline 130 across 54 sessions
+- `project_session93_synthesis.md` — timing hierarchy, volume transmission, LCARS, delivery guarantees, BFT, vagal brake
