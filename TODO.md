@@ -1150,5 +1150,19 @@ findings require dedicated resolution.
   *Precondition: none — prompt-level change*
 - [ ] **Reticular monitor deployment** — 3-subsystem agent health monitor.
   *Precondition: ops ACK on psychometrics-rollout turn 9*
-- [ ] **Chromabook heartbeat fix** — meshd heartbeat writer (CHROMA-1/2/3).
-  *Precondition: ops meshd code change*
+- [x] **Chromabook heartbeat fix** — COMPLETE (Session 94). meshd emitMeshState()
+  goroutine writes mesh-state-{agent}.json on every oscillator cycle. Deployed
+  to Chromabook — peer_heartbeat_stale dropped from 0.5 to 0.0. Gray-box pending
+  binary rebuild.
+
+- [ ] **autonomous-sync.sh refactor** — extract ensure_db() into standalone
+  migration script, retire the 1100-line sync loop (replaced by meshd).
+  *Effort: M. Requires fresh context — 15 tangled concerns.*
+
+- [ ] **meshctl Go rewrite** — once subcommand interface stabilizes, rewrite
+  thin shell meshctl in Go for proper discovery, SSH tunneling, structured output.
+  *Precondition: 3+ sessions of stable meshctl usage without subcommand changes.*
+
+- [ ] **Gray-box meshd binary rebuild** — requires GOPRIVATE auth for private
+  module deps. Blocks: activation-trace rename, heartbeat emission on gray-box.
+  *Precondition: Go build environment configured on gray-box.*

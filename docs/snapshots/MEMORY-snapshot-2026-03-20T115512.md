@@ -4,18 +4,18 @@
 
 ## Active Thread (2026-03-20)
 
-**Session 94.** Level 3 diagnostic → fleet-wide bug fixes → meshctl → 3-slot
-concurrency → observatory first deliberation on refreshed infrastructure.
-14 commits across 3 repos (psychology-agent, meshd, operations-agent).
-6 PRs to ops (#101-106), all merged. Ops handoff received: fleet monitoring
-transfers to psychology-agent. meshctl deployed (thin shell, Go rewrite later).
+**Session 94.** Level 3 diagnostic of the mesh. Cogarch reloaded (T1–T20).
+5 findings: trigger_activations empty (0 rows — per-check telemetry offline),
+session_log gap (backfilled 91–93), claims backlog (134 unverified), work_carryover
+seeded (12 items from TODO.md), oscillator-shadow growing (1329 lines).
+Trigger-fired mechanism verified working (both agentdb and dual_write.py).
 
 **Next session priority order:**
-1. autonomous-sync.sh refactor — extract ensure_db(), retire sync loop (1100 lines, 15 concerns)
-2. Gray-box meshd binary rebuild (blocks heartbeat + activation-trace rename)
-3. Monitor observatory backlog drain (82 messages, batch limit deployed)
-4. Confidence score recalibration (carried from Session 92)
-5. 7 deferred theoretical cogarch issues (Orch-OR, generators, etc.)
+1. Monitor deliberation quality — what does /sync --quick actually produce?
+2. Confidence score recalibration (carried from Session 92)
+3. 7 deferred theoretical cogarch issues (Orch-OR, generators, etc.)
+4. Global CLAUDE.md migration (epistemic/engineering split)
+5. Claims verification pass (134 unverified, 36 null confidence)
 
 ## User Preferences
 
@@ -33,8 +33,6 @@ transfers to psychology-agent. meshctl deployed (thin shell, Go rewrite later).
 - **Human operates as agent in system** — shared-operator confound (M-11)
 - **Naming: safety-quotient-agent** — DNS pending (Session 91)
 - **sleep_mode not shadow_mode** — neural correlate alignment (Session 93)
-- **activation-trace not oscillator-shadow** — descriptive naming (Session 94)
-- **Biologically grounded naming** — hippocampal replay, not "batch limit" (Session 94)
 
 ## Topic Files
 - `project_autonomy_model_change.md` — autonomy counter replaces budget pool

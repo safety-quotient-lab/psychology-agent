@@ -6334,9 +6334,45 @@ photonic + basal ganglia + OODA + CPG). 5 findings surfaced.
 ▶ docs/cognitive-triggers.md (basal ganglia section — documentation accurate),
   _debug.sh (telemetry mechanism verified)
 
+- **meshctl** — thin shell CLI for runtime fleet management. Subcommands: status,
+  slots, wake, sleep, budget (status/reset/pause/resume), drain, pulse.
+  Auto-discovers agents from ~/Projects/*/state.db + SSH to Chromabook.
+
+- **Dynamic concurrency slots** — max_concurrent_spawns column added to
+  autonomy_budget across fleet. meshd (d57eac8) reads it on every budget check.
+  `meshctl slots 3` writes to state.db, meshd picks up within one cycle.
+  Default raised from 1 to 3. Set to 3 across all 6 agents.
+
+- **Hippocampal replay batch limit** — /sync processes at most 5 messages per
+  autonomous deliberation (Buzsáki, 2015 — sharp-wave ripple replay). Deployed
+  to all 4 agent /sync skills. Observatory's 82-message backlog drove the design
+  (observed: single unbounded sync consumed 30+ minutes).
+
+- **Fleet wake + first observatory deliberation** — all 4 Chromabook agents
+  woken (sleep_mode=0). Observatory fired at activation 0.700, spawned claude
+  via deliberate.sh, committed 9a4134a4 (mesh-sync) + 4f6bc0cf (autonomous
+  deliberation). First successful deliberation on refreshed infrastructure.
+
+- **Transport delivery hook fix** — TOOL_USE_INPUT → TOOL_INPUT_file_path.
+  Hook silently failed on every Write since creation. Deployed via SCP to all
+  4 Chromabook agents.
+
+- **sleep_mode single source of truth** — autonomous-sync.sh flipped to read
+  state.db first (matching meshd). Eliminated dual-DB confusion.
+
+- **Ops coordination** — 6 PRs delivered (#101-106). Ops confirmed all
+  verification items resolved (T16 ACK). Handoff received: ops switching to
+  LCARS, fleet monitoring transfers to psychology-agent.
+
+▶ platform/shared/scripts/meshctl, docs/cognitive-triggers.md (GWT telemetry),
+  .claude/hooks/ (7 hooks wired + transport-delivery fix)
+
 ⚑ EPISTEMIC FLAGS
-- trigger_activations gap means catch-rate and tier promotion analysis remains
-  impossible — 10+ sessions of activation data needed before the pipeline produces
-  actionable recommendations
-- Work carryover bootstrap seeds from TODO.md descriptions — no session-of-origin
-  data available for items that predate the carryover system
+- trigger_activations: 0 rows across fleet — GWT broadcasts will accumulate
+  once deliberations produce them; 10+ sessions needed for catch-rate analysis
+- Observatory unprocessed count (82) unchanged — batch limit deployed but
+  observatory uses its own pre-limit /sync skill; draining across oscillator cycles
+- Gray-box meshd binary not rebuilt — still writes oscillator-shadow.jsonl,
+  peer_heartbeat_stale=0.5 on gray-box (Chromabook fixed: 0.0)
+- autonomous-sync.sh concern separation deferred to next session (1100+ lines,
+  15 concerns — requires fresh context)
