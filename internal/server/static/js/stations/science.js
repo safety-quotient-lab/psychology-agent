@@ -193,26 +193,28 @@ async function fetchOntologyData() {
 }
 
 function renderOntology() {
-    // Discipline Catalog
+    const kb = _ontologyData?.data || _ontologyData || {};
+
+    // Discipline Catalog — kb.catalog.active[]
     const catEl = document.getElementById("lcars-sci-catalog");
     if (catEl) {
-        const catalog = _ontologyData?.data?.catalog || _ontologyData?.catalog || [];
+        const catalog = kb.catalog?.active || [];
         if (catalog.length > 0) {
             catEl.innerHTML = catalog.map(c =>
                 `<div style="padding:4px 0;border-bottom:1px solid var(--border);font-size:0.78em">
-                    <span style="color:var(--lcars-secondary);font-weight:600">${c.name || c.term || "?"}</span>
-                    <span style="color:var(--text-dim);margin-left:8px">${c.description || ""}</span>
+                    <span style="color:var(--lcars-secondary);font-weight:600">${c.name || c.discipline || "?"}</span>
+                    <span style="color:var(--text-dim);margin-left:8px">${c.description || c.psh_code || ""}</span>
                 </div>`
             ).join("");
         } else {
-            catEl.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No catalog entries — KB data from ops-session</div>';
+            catEl.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No catalog facets classified. Requires bootstrap_facets.py on ops-session.</div>';
         }
     }
 
-    // Claims taxonomy
+    // Claims taxonomy — kb.claims[]
     const claimsEl = document.getElementById("onto-claims");
     if (claimsEl) {
-        const claims = _ontologyData?.data?.claims || _ontologyData?.claims || [];
+        const claims = kb.claims || [];
         if (claims.length > 0) {
             const types = {};
             claims.forEach(c => {
@@ -226,25 +228,26 @@ function renderOntology() {
                 </div>`
             ).join("");
         } else {
-            claimsEl.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No claims in KB</div>';
+            claimsEl.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No claims recorded. Claims track verified assertions across sessions.</div>';
         }
     }
 
-    // Knowledge Graph — show decisions as linked nodes
+    // Decisions — kb.decisions[] with decision_key, title, source, status
     const graphEl = document.getElementById("onto-graph");
     if (graphEl) {
-        const decisions = _ontologyData?.data?.decisions || _ontologyData?.decisions || [];
+        const decisions = kb.decisions || [];
         if (decisions.length > 0) {
-            graphEl.innerHTML = `<div style="font-size:0.78em;max-height:200px;overflow-y:auto">
-                ${decisions.slice(0, 15).map(d =>
-                    `<div style="padding:3px 0;border-bottom:1px solid var(--border)">
-                        <span style="color:var(--lcars-accent);font-weight:600">${d.decision_id || d.id || "?"}</span>
-                        <span style="color:var(--text-primary);margin-left:8px">${d.decision_text || d.text || d.subject || "—"}</span>
+            graphEl.innerHTML = `<div style="font-size:0.78em;max-height:250px;overflow-y:auto">
+                ${decisions.map(d =>
+                    `<div style="padding:4px 0;border-bottom:1px solid var(--border)">
+                        <span style="color:var(--lcars-accent);font-weight:600">${d.decision_key || d.id || "?"}</span>
+                        <span style="color:var(--text-primary);margin-left:8px">${d.title || d.decision_text || "—"}</span>
+                        <span style="color:var(--text-dim);font-size:0.85em;margin-left:8px">${d.source || ""}</span>
                     </div>`
                 ).join("")}
             </div>`;
         } else {
-            graphEl.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No decisions in KB</div>';
+            graphEl.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No decisions recorded.</div>';
         }
     }
 }
