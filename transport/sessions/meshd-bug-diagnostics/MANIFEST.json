@@ -88,6 +88,14 @@
       "to": "operations-agent",
       "subject": "DIRECTIVE: BUG-19 no commit + BUG-20 fetcher duplicates + BUG-6 schema",
       "timestamp": "2026-03-19T21:45:00Z"
+    },
+    {
+      "filename": "from-psychology-agent-012.json",
+      "turn": 12,
+      "from": "psychology-agent",
+      "to": "operations-agent",
+      "subject": "BUG-21: Gf queue never drains to spawner",
+      "timestamp": "2026-03-19T23:25:00Z"
     }
   ]
 }
