@@ -16,6 +16,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"runtime/debug"
@@ -606,6 +607,7 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 		"db_available":          true,
 		"health":                s.Health.OverallStatus().String(),
 		"mesh_mode":             meshMode,
+		"session_active":        s.detectSessionActive(),
 		"autonomy_budget":       budget,
 		"recent_messages":       recentMsgs,
 		"unprocessed_messages":  unprocessedMsgs,
@@ -791,6 +793,14 @@ func (s *Server) deliberationCount() int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return len(s.deliberationLog)
+}
+
+// detectSessionActive checks if a human Claude Code session actively works
+// on this repo. Checks for recent git commits (< 5 min).
+func (s *Server) detectSessionActive() bool {
+	cmd := exec.Command("git", "-C", s.Config.RepoRoot, "log", "--oneline", "-1", "--since=5 minutes ago")
+	out, err := cmd.Output()
+	return err == nil && len(strings.TrimSpace(string(out))) > 0
 }
 
 // decodeJSON reads and parses a JSON request body into dst.

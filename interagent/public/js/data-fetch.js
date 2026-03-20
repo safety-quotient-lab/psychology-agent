@@ -73,6 +73,7 @@ async function refreshAll() {
                 data: { ...existing, agent_id: aid, health: pa.health || "unknown",
                     version: pa.version || "", mesh_mode: pulse.mesh_mode || "active",
                     autonomy_budget: { budget_spent: pa.budget_spent || 0, budget_cutoff: pa.budget_cutoff || 0, sleep_mode: pa.sleep_mode ? "1" : "0" },
+                    session_active: pa.session_active || false,
                     unprocessed_messages: pa.unprocessed_messages || [],
                     gc_metrics: { gc_handled_total: pa.gc_handled || 0 },
                     event_count: pa.event_count || 0,

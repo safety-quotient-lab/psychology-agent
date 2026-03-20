@@ -48,6 +48,7 @@ func (s *Server) handlePulse(w http.ResponseWriter, r *http.Request) {
 		EventCount     int     `json:"event_count"`
 		DelibCount     int     `json:"deliberation_count"`
 		SleepMode      bool    `json:"sleep_mode"`
+		SessionActive  bool    `json:"session_active"`
 	}
 
 	summaries := make([]agentSummary, 0, len(agents))
@@ -94,6 +95,11 @@ func (s *Server) handlePulse(w http.ResponseWriter, r *http.Request) {
 			if budget, ok := data["autonomy_budget"].(map[string]any); ok {
 				sm := budget["sleep_mode"]
 				summary.SleepMode = sm == "1" || sm == true || sm == 1.0
+			}
+
+			// Session activity
+			if sa, ok := data["session_active"].(bool); ok {
+				summary.SessionActive = sa
 			}
 
 			// Gc metrics — forwarded for mesh-wide Gc/Gf display
