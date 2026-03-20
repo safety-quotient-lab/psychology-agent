@@ -165,9 +165,12 @@ deploy-restart:
 		-d '{"type":"alert","payload":{"level":"5","reason":"Deploy complete — all systems nominal"}}' \
 		>/dev/null 2>&1 || true
 	@echo ""
-	@echo "  Restarting Mac instances..."
+	@echo "  Updating gray-box binary + restarting sessions..."
+	@cp ./meshd-darwin ~/Projects/meshd/meshd && chmod +x ~/Projects/meshd/meshd && \
+		echo "    Binary copied to ~/Projects/meshd/meshd"
 	@launchctl unload ~/Library/LaunchAgents/dev.safety-quotient.meshd-ops-session.plist 2>/dev/null; \
 		launchctl unload ~/Library/LaunchAgents/dev.safety-quotient.meshd-psy-session.plist 2>/dev/null; \
+		sleep 1; \
 		launchctl load ~/Library/LaunchAgents/dev.safety-quotient.meshd-ops-session.plist & \
 		launchctl load ~/Library/LaunchAgents/dev.safety-quotient.meshd-psy-session.plist & \
 		wait; echo "    Restarted ops-session + psy-session"
