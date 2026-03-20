@@ -16,7 +16,6 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"runtime/debug"
@@ -796,28 +795,39 @@ func (s *Server) deliberationCount() int {
 }
 
 // detectSessionActive checks if a human Claude Code session actively works
-// on this repo. Looks for a `claude` process whose cwd matches the project root.
-// Falls back to recent git commits (< 5 min) if lsof unavailable.
+// on this repo. Checks the conversation JSONL mtime in ~/.claude/projects/.
+// A recent write (< 5 min) means the human actively sends messages.
 func (s *Server) detectSessionActive() bool {
-	// Primary: check for claude process with matching cwd
-	pidOut, err := exec.Command("pgrep", "-x", "claude").Output()
-	if err == nil {
-		for _, line := range strings.Split(strings.TrimSpace(string(pidOut)), "\n") {
-			pid := strings.TrimSpace(line)
-			if pid == "" {
-				continue
-			}
-			// macOS: lsof -p PID | grep cwd
-			lsofOut, err := exec.Command("lsof", "-p", pid).Output()
-			if err == nil && strings.Contains(string(lsofOut), s.Config.RepoRoot) {
-				return true
-			}
+	// Claude Code stores conversation history as JSONL under ~/.claude/projects/
+	// The directory name encodes the project path with dashes replacing slashes.
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return false
+	}
+	// Encode project path: /Users/kashif/Projects/operations-agent → -Users-kashif-Projects-operations-agent
+	encoded := strings.ReplaceAll(s.Config.RepoRoot, "/", "-")
+	projectDir := filepath.Join(home, ".claude", "projects", encoded)
+
+	entries, err := os.ReadDir(projectDir)
+	if err != nil {
+		return false
+	}
+
+	now := time.Now()
+	for _, e := range entries {
+		if !strings.HasSuffix(e.Name(), ".jsonl") {
+			continue
+		}
+		info, err := e.Info()
+		if err != nil {
+			continue
+		}
+		// JSONL modified within last 5 minutes = active session
+		if now.Sub(info.ModTime()) < 5*time.Minute {
+			return true
 		}
 	}
-	// Fallback: recent git activity
-	cmd := exec.Command("git", "-C", s.Config.RepoRoot, "log", "--oneline", "-1", "--since=5 minutes ago")
-	out, _ := cmd.Output()
-	return len(strings.TrimSpace(string(out))) > 0
+	return false
 }
 
 // decodeJSON reads and parses a JSON request body into dst.
