@@ -615,6 +615,11 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 			if s.AlphaHeartbeat != nil { return s.AlphaHeartbeat.Snapshot() }
 			return nil
 		}(),
+		"oscillator": func() any {
+			if s.Oscillator != nil { return s.Oscillator.Snapshot() }
+			return nil
+		}(),
+		"gc_learning": events.GcLearningStats(s.Config.BudgetDBPath),
 	}
 }
 

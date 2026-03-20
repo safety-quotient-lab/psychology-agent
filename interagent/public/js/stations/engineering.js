@@ -45,6 +45,8 @@ function renderEngineering() {
     renderConcurrency();
     renderCognitiveLoad();
     renderYerkesDodson();
+    renderAlphaHeartbeat();
+    renderGcLearning();
 
     // Update status line (removed — replaced by zone-c title)
     const statusEl = document.getElementById("eng-status-line");
@@ -674,13 +676,16 @@ function renderTimingHierarchy() {
         else { el2.textContent = "SLEEP"; el2.style.color = "var(--text-dim)"; }
     }
 
-    // Layer 3: Cardiac — oscillator state
+    // Layer 3: Cardiac — oscillator state (from /api/status → oscillator snapshot)
     const el3 = document.getElementById("eng-timing-cardiac");
     if (el3) {
-        if (osc.state === "firing") { el3.textContent = "FIRING"; el3.style.color = "var(--lcars-alert)"; }
-        else if (osc.state === "refractory") { el3.textContent = "REFRACT"; el3.style.color = "var(--lcars-accent)"; }
-        else if (osc.state) { el3.textContent = "ACTIVE"; el3.style.color = "var(--lcars-medical)"; }
-        else { el3.textContent = "PARTIAL"; el3.style.color = "var(--lcars-accent)"; }
+        const oscState = osc.state || ops?.data?.oscillator?.state;
+        const act = osc.activation || ops?.data?.oscillator?.activation || 0;
+        if (oscState === "firing") { el3.textContent = "FIRING " + act.toFixed(2); el3.style.color = "var(--lcars-alert)"; }
+        else if (oscState === "refractory") { el3.textContent = "REFRACT"; el3.style.color = "var(--lcars-accent)"; }
+        else if (oscState === "monitoring") { el3.textContent = "ACTIVE " + act.toFixed(2); el3.style.color = "var(--lcars-medical)"; }
+        else if (oscState) { el3.textContent = oscState.toUpperCase(); el3.style.color = "var(--lcars-accent)"; }
+        else { el3.textContent = "OFFLINE"; el3.style.color = "var(--text-dim)"; }
     }
 
     // Layer 4: Respiratory — health monitor
@@ -690,13 +695,133 @@ function renderTimingHierarchy() {
         else if (health) { el4.textContent = health.toUpperCase(); el4.style.color = "var(--lcars-accent)"; }
     }
 
-    // Layer 5: Neural — oscillatory heartbeat
+    // Layer 5: Neural — alpha heartbeat (T22 metabolic cooling)
     const el5 = document.getElementById("eng-timing-neural");
     if (el5) {
-        const band = osc.dominant_band || "";
-        if (band) { el5.textContent = band.toUpperCase(); el5.style.color = "var(--lcars-tertiary)"; }
-        else { el5.textContent = "PROPOSED"; el5.style.color = "var(--text-dim)"; }
+        const hb = ops?.data?.alpha_heartbeat;
+        const band = hb?.dominant_band || osc.dominant_band || "";
+        if (hb?.running) {
+            el5.textContent = band.toUpperCase() + " " + Math.round(hb.interval_sec || 0) + "s";
+            el5.style.color = "var(--lcars-medical)";
+        } else if (band) {
+            el5.textContent = band.toUpperCase();
+            el5.style.color = "var(--lcars-tertiary)";
+        } else {
+            el5.textContent = "IDLE";
+            el5.style.color = "var(--text-dim)";
+        }
     }
+}
+
+// ── Alpha Heartbeat Panel ────────────────────────────────────────
+function renderAlphaHeartbeat() {
+    const container = document.getElementById("eng-alpha-heartbeat");
+    if (!container) return;
+
+    const ops = agentData["operations-agent"];
+    const hb = ops?.data?.alpha_heartbeat;
+    if (!hb || !hb.running) {
+        container.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Heartbeat not running</div>';
+        return;
+    }
+
+    const interval = hb.interval_sec != null ? Math.round(hb.interval_sec) : "—";
+    const band = (hb.dominant_band || "unknown").toUpperCase();
+    const ticks = hb.tick_count || 0;
+    const cooling = hb.cooling_elapsed || "—";
+    const lastAct = hb.last_activity ? new Date(hb.last_activity).toLocaleTimeString() : "—";
+
+    // Band color mapping (EEG convention)
+    const bandColors = { DELTA: "#9999ff", THETA: "#cc99cc", ALPHA: "#66ccaa", BETA: "#ff9966", GAMMA: "#ff6666" };
+    const bandColor = bandColors[band] || "var(--lcars-readout)";
+
+    // Cooling curve visualization — show where on the exponential decay we sit
+    const maxInterval = 300; // 5min resting
+    const minInterval = 10;  // peak
+    const pct = hb.interval_sec != null
+        ? Math.max(0, Math.min(100, ((hb.interval_sec - minInterval) / (maxInterval - minInterval)) * 100))
+        : 0;
+
+    container.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-s);font-size:0.82em">
+            <div>
+                <div style="color:var(--lcars-title);font-size:0.75em;margin-bottom:2px">BAND</div>
+                <div style="color:${bandColor};font-weight:700;font-size:1.2em">${band}</div>
+            </div>
+            <div>
+                <div style="color:var(--lcars-title);font-size:0.75em;margin-bottom:2px">INTERVAL</div>
+                <div style="color:var(--lcars-readout);font-weight:700;font-size:1.2em">${interval}s</div>
+            </div>
+            <div>
+                <div style="color:var(--lcars-title);font-size:0.75em;margin-bottom:2px">TICKS</div>
+                <div style="color:var(--lcars-secondary)">${ticks}</div>
+            </div>
+            <div>
+                <div style="color:var(--lcars-title);font-size:0.75em;margin-bottom:2px">COOLING</div>
+                <div style="color:var(--text-dim)">${cooling}</div>
+            </div>
+        </div>
+        <div style="margin-top:var(--gap-s)">
+            <div style="display:flex;justify-content:space-between;font-size:0.7em;color:var(--text-dim);margin-bottom:2px">
+                <span>PEAK 10s</span><span>RESTING 300s</span>
+            </div>
+            <div style="height:8px;background:var(--bg-inset);border-radius:var(--gap-xs)">
+                <div style="width:${pct}%;height:100%;background:${bandColor};border-radius:var(--gap-xs);transition:width 1s"></div>
+            </div>
+            <div style="font-size:0.7em;color:var(--text-dim);margin-top:2px">Last activity: ${lastAct}</div>
+        </div>`;
+}
+
+// ── Gc Learning Panel ───────────────────────────────────────────
+function renderGcLearning() {
+    const container = document.getElementById("eng-gc-learning");
+    if (!container) return;
+
+    const ops = agentData["operations-agent"];
+    const gcl = ops?.data?.gc_learning;
+    const gcm = ops?.data?.gc_metrics;
+
+    if (!gcl && !gcm) {
+        container.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">No Gc learning data</div>';
+        return;
+    }
+
+    const staticTypes = gcl?.static_types || 7;
+    const promoted = gcl?.types_promoted || 0;
+    const tracked = gcl?.types_tracked || 0;
+    const gcHandled = gcm?.gc_handled_total || 0;
+    const blocked = gcm?.deliberation_blocked_total || 0;
+    const ratio = gcm?.gc_ratio || "—";
+    const model = (gcm?.deliberation_model || "unknown").toUpperCase();
+
+    container.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--gap-s);font-size:0.82em">
+            <div>
+                <div style="color:var(--lcars-title);font-size:0.75em;margin-bottom:2px">STATIC TYPES</div>
+                <div style="color:var(--lcars-secondary);font-weight:700;font-size:1.2em">${staticTypes}</div>
+            </div>
+            <div>
+                <div style="color:var(--lcars-title);font-size:0.75em;margin-bottom:2px">PROMOTED</div>
+                <div style="color:${promoted > 0 ? "var(--lcars-medical)" : "var(--text-dim)"};font-weight:700;font-size:1.2em">${promoted}</div>
+            </div>
+            <div>
+                <div style="color:var(--lcars-title);font-size:0.75em;margin-bottom:2px">TRACKED</div>
+                <div style="color:var(--lcars-readout);font-weight:700;font-size:1.2em">${tracked}</div>
+            </div>
+        </div>
+        <div style="margin-top:var(--gap-s);display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-s);font-size:0.82em">
+            <div>
+                <div style="color:var(--lcars-title);font-size:0.75em;margin-bottom:2px">GC HANDLED</div>
+                <div style="color:var(--lcars-secondary)">${fmtNum(gcHandled)}</div>
+            </div>
+            <div>
+                <div style="color:var(--lcars-title);font-size:0.75em;margin-bottom:2px">BLOCKED</div>
+                <div style="color:${blocked > 0 ? "var(--lcars-alert)" : "var(--text-dim)"}">${blocked}</div>
+            </div>
+        </div>
+        <div style="margin-top:var(--gap-s);font-size:0.75em;color:var(--text-dim)">
+            Model: <span style="color:var(--lcars-readout)">${model}</span> · ${ratio}
+        </div>`;
 }
 
 // ── Tactical Station ─────────────────────────────────────────────

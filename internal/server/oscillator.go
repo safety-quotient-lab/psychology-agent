@@ -210,8 +210,21 @@ func (o *Oscillator) cycle() {
 		o.state.FireHistory = append(o.state.FireHistory, event)
 	}
 
-	intervalMs := int(o.computeMonitorInterval().Milliseconds())
-	o.state.MonitorIntervalMs = intervalMs
+	// Compute interval inline — calling computeMonitorInterval() here would
+	// deadlock: we already hold o.mu.Lock, and that method takes o.mu.RLock.
+	act := o.state.Activation
+	var interval time.Duration
+	switch {
+	case act > 0.6:
+		interval = 5 * time.Second
+	case act > 0.3:
+		interval = 15 * time.Second
+	case act > 0.1:
+		interval = 30 * time.Second
+	default:
+		interval = 60 * time.Second
+	}
+	o.state.MonitorIntervalMs = int(interval.Milliseconds())
 	o.mu.Unlock()
 
 	// Shadow log (append to JSONL)

@@ -38,6 +38,9 @@ async function fetchMedicalData() {
         if (resp.ok) emergentData = await resp.json();
     } catch {}
 
+    // Alpha heartbeat — works in both mesh and per-agent views
+    renderMedAlphaHeartbeat(emergentData);
+
     if (medSelectedAgent === "mesh") {
         // MESH view — show collective emergent properties
         renderMeshEmergent(emergentData);
@@ -53,9 +56,10 @@ async function fetchMedicalData() {
                a.agent_id.toLowerCase().includes(medSelectedAgent.split("-")[0]);
     }) : null;
 
-    // Oscillator — from emergent per-agent data (all agents, not just local)
-    if (pa && pa.oscillator) {
-        renderMedicalOscillator(pa.oscillator);
+    // Oscillator — from emergent per-agent data, fallback to /api/status for local agent
+    const oscData = (pa && pa.oscillator) || agentData[medSelectedAgent]?.data?.oscillator;
+    if (oscData && oscData.state) {
+        renderMedicalOscillator(oscData);
     } else {
         const el = document.getElementById("medical-oscillator-waveform");
         if (el) el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">No oscillator data for ' + agentName(agent) + '</div>';
@@ -403,6 +407,66 @@ function renderMeshEmergent(data) {
 
     var medFtr = document.getElementById("medical-footer-num");
     if (medFtr) medFtr.textContent = "MESH EMERGENT";
+}
+
+// ── Medical Alpha Heartbeat ──────────────────────────────────────
+// Shows per-agent or mesh-wide heartbeat status (T22 metabolic cooling)
+function renderMedAlphaHeartbeat(emergentData) {
+    const container = document.getElementById("medical-alpha-heartbeat");
+    if (!container) return;
+
+    if (medSelectedAgent === "mesh") {
+        // Mesh view: show all agents' heartbeat summary
+        var agents = (emergentData && emergentData.per_agent) || [];
+        var rows = agents.filter(function(a) { return a.alpha_heartbeat && a.alpha_heartbeat.running; }).map(function(a) {
+            var hb = a.alpha_heartbeat;
+            var interval = Math.round(hb.interval_sec || 0);
+            var band = (hb.dominant_band || "?").toUpperCase();
+            var bandColors = { DELTA: "#9999ff", THETA: "#cc99cc", ALPHA: "#66ccaa", BETA: "#ff9966", GAMMA: "#ff6666" };
+            var color = bandColors[band] || "var(--lcars-readout)";
+            var agent = AGENTS.find(function(ag) { return ag.id === a.agent_id; });
+            var name = agent ? agentName(agent) : a.agent_id;
+            return '<div style="display:flex;align-items:center;gap:var(--gap-s);font-size:0.82em">'
+                + '<span style="width:80px;color:' + (agent ? agent.color : 'inherit') + '">' + name + '</span>'
+                + '<span style="color:' + color + ';font-weight:700;width:50px">' + band + '</span>'
+                + '<span style="color:var(--lcars-readout);width:40px;text-align:right">' + interval + 's</span>'
+                + '<div style="flex:1;height:6px;background:var(--bg-inset);border-radius:3px">'
+                + '<div style="width:' + Math.min(100, (hb.interval_sec / 300) * 100) + '%;height:100%;background:' + color + ';border-radius:3px"></div></div>'
+                + '<span style="color:var(--text-dim);font-size:0.9em;width:30px;text-align:right">' + (hb.tick_count || 0) + '</span>'
+                + '</div>';
+        });
+        if (rows.length === 0) {
+            container.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">No heartbeat data from agents</div>';
+        } else {
+            container.innerHTML = '<div style="display:flex;flex-direction:column;gap:4px">'
+                + '<div style="display:flex;gap:var(--gap-s);font-size:0.7em;color:var(--lcars-title);margin-bottom:2px"><span style="width:80px">AGENT</span><span style="width:50px">BAND</span><span style="width:40px;text-align:right">INT</span><span style="flex:1">COOLING</span><span style="width:30px;text-align:right">TICK</span></div>'
+                + rows.join("") + '</div>';
+        }
+        return;
+    }
+
+    // Per-agent view
+    var d = agentData[medSelectedAgent];
+    var hb = d && d.data ? d.data.alpha_heartbeat : null;
+    if (!hb || !hb.running) {
+        container.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">No heartbeat for ' + medSelectedAgent + '</div>';
+        return;
+    }
+
+    var interval = Math.round(hb.interval_sec || 0);
+    var band = (hb.dominant_band || "?").toUpperCase();
+    var bandColors = { DELTA: "#9999ff", THETA: "#cc99cc", ALPHA: "#66ccaa", BETA: "#ff9966", GAMMA: "#ff6666" };
+    var bColor = bandColors[band] || "var(--lcars-readout)";
+    var pct = Math.min(100, ((hb.interval_sec - 10) / 290) * 100);
+
+    container.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--gap-s);font-size:0.82em">'
+        + '<div><div style="color:var(--lcars-title);font-size:0.75em">BAND</div><div style="color:' + bColor + ';font-weight:700;font-size:1.2em">' + band + '</div></div>'
+        + '<div><div style="color:var(--lcars-title);font-size:0.75em">INTERVAL</div><div style="color:var(--lcars-readout);font-weight:700;font-size:1.2em">' + interval + 's</div></div>'
+        + '<div><div style="color:var(--lcars-title);font-size:0.75em">TICKS</div><div style="color:var(--lcars-secondary)">' + (hb.tick_count || 0) + '</div></div>'
+        + '</div>'
+        + '<div style="margin-top:var(--gap-s);height:8px;background:var(--bg-inset);border-radius:var(--gap-xs)">'
+        + '<div style="width:' + pct + '%;height:100%;background:' + bColor + ';border-radius:var(--gap-xs)"></div></div>'
+        + '<div style="font-size:0.7em;color:var(--text-dim);margin-top:2px">Cooling: ' + (hb.cooling_elapsed || "\u2014") + '</div>';
 }
 
 // Update mesh emergent to show coherence dimensions

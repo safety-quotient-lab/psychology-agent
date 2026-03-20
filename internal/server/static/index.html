@@ -30,7 +30,7 @@
         ]
     }
     </script>
-    <link rel="stylesheet" href="css/inline-legacy.css?v=77d3c15">
+    <link rel="stylesheet" href="css/inline-legacy.css?v=c89f5a0">
     <!-- TODO: consolidate inline-legacy.css into theme.css + layout.css + components.css -->
 
 </head>
@@ -1035,6 +1035,22 @@
                 </div>
             </div>
 
+            <!-- Alpha Heartbeat + Gc Learning (T22 metabolic cooling + basal ganglia) -->
+            <div class="engineering-grid" style="margin-bottom:var(--gap-m)">
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
+                    <div class="lcars-panel-header">Alpha Heartbeat <span class="lcars-panel-id">2244</span></div>
+                    <div class="lcars-panel-body" id="eng-alpha-heartbeat">
+                        <div class="phase-stub"><div class="phase-stub-text">Awaiting heartbeat data...</div></div>
+                    </div>
+                </div>
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
+                    <div class="lcars-panel-header">Gc Reinforcement Learning <span class="lcars-panel-id">2245</span></div>
+                    <div class="lcars-panel-body" id="eng-gc-learning">
+                        <div class="phase-stub"><div class="phase-stub-text">Awaiting Gc learning data...</div></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Diagnostic Levels (TNG Technical Manual) -->
             <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
                 <div class="lcars-panel-header">System Diagnostics</div>
@@ -1369,6 +1385,14 @@
                 </div>
             </div>
 
+            <!-- Alpha Heartbeat (T22 metabolic cooling — per agent or mesh aggregate) -->
+            <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa); margin-top:8px">
+                <div class="lcars-panel-header">Alpha Heartbeat <span class="lcars-panel-id">2246</span></div>
+                <div class="lcars-panel-body" id="medical-alpha-heartbeat">
+                    <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting heartbeat data</div>
+                </div>
+            </div>
+
             <!-- Zone C: Fire History (full width) + footer title -->
             <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa); margin-top:8px">
                 <div class="lcars-panel-header">Fire History (Shadow)</div>
@@ -1412,20 +1436,20 @@
     <div class="lcars-narrative-log" id="lcars-narrative-log"></div>
 </div>
 
-<script src="js/colorizer.js?v=77d3c15"></script>
-<script src="js/core.js?v=77d3c15"></script>
-<script src="js/chrome.js?v=77d3c15"></script>
-<script src="js/data-fetch.js?v=77d3c15"></script>
-<script src="js/pulse.js?v=77d3c15"></script>
-<script src="js/knowledge.js?v=77d3c15"></script>
-<script src="js/ws-sse.js?v=77d3c15"></script>
-<script src="js/stations/operations.js?v=77d3c15"></script>
-<script src="js/stations/science.js?v=77d3c15"></script>
-<script src="js/stations/helm.js?v=77d3c15"></script>
-<script src="js/stations/engineering.js?v=77d3c15"></script>
-<script src="js/stations/tactical.js?v=77d3c15"></script>
-<script src="js/stations/medical.js?v=77d3c15"></script>
-<script src="js/init.js?v=77d3c15"></script>
+<script src="js/colorizer.js?v=c89f5a0"></script>
+<script src="js/core.js?v=c89f5a0"></script>
+<script src="js/chrome.js?v=c89f5a0"></script>
+<script src="js/data-fetch.js?v=c89f5a0"></script>
+<script src="js/pulse.js?v=c89f5a0"></script>
+<script src="js/knowledge.js?v=c89f5a0"></script>
+<script src="js/ws-sse.js?v=c89f5a0"></script>
+<script src="js/stations/operations.js?v=c89f5a0"></script>
+<script src="js/stations/science.js?v=c89f5a0"></script>
+<script src="js/stations/helm.js?v=c89f5a0"></script>
+<script src="js/stations/engineering.js?v=c89f5a0"></script>
+<script src="js/stations/tactical.js?v=c89f5a0"></script>
+<script src="js/stations/medical.js?v=c89f5a0"></script>
+<script src="js/init.js?v=c89f5a0"></script>
 
 </body>
 </html>
