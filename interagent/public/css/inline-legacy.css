@@ -3510,6 +3510,8 @@ a.activity-link:hover {
     .lcars-title { font-size: 1.1em; }
     .lcars-subtitle { display: none; }
     .lcars-content { padding: 12px; overflow-x: hidden; overflow-y: visible; }
+    .theme-lcars .lcars-frame { grid-template-rows: auto var(--elbow-inner, 24px) auto; min-height: auto; }
+    .theme-lcars .lcars-content { overflow-y: visible; }
 
     /* Tab bar: horizontal scroll */
     .lcars-tabs {
