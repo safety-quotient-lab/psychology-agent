@@ -1053,7 +1053,14 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 .lcars-pill-active { box-shadow: 0 0 8px currentColor; opacity: 1; }
 .lcars-pill-sm.lcars-pill-active { background: var(--c-warning, #d4944a); }
 /* LCARS-specific pill overrides — rectangular blocks, TNG saturated palette */
-.theme-lcars .lcars-pill-btn { color: #000; border-radius: var(--gap-xs); }
+.theme-lcars .lcars-pill-btn { color: #000; border-radius: var(--gap-xs); background: var(--lcars-secondary); }
+/* Station pill colors — inherit from parent pane's station */
+.theme-lcars #pane-operations .lcars-pill-btn { background: var(--c-tab-ops); }
+.theme-lcars #pane-science .lcars-pill-btn    { background: var(--c-tab-science); }
+.theme-lcars #pane-engineering .lcars-pill-btn { background: var(--c-tab-engineering); }
+.theme-lcars #pane-helm .lcars-pill-btn       { background: var(--c-tab-helm); }
+.theme-lcars #pane-tactical .lcars-pill-btn   { background: var(--c-tab-tactical); }
+.theme-lcars #pane-medical .lcars-pill-btn    { background: var(--c-tab-medical); }
 .theme-lcars .lcars-pill-red { background: var(--lcars-alert); }
 .theme-lcars .lcars-pill-green { background: #6aab8e; }
 .theme-lcars .lcars-pill-orange { background: #ff9944; }

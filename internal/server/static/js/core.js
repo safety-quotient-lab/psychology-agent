@@ -413,15 +413,15 @@ function opsZoneAMetrics() {
         { label: "UPTIME", value: uptimeHrs + "h", type: "val" },
         { gap: true },
         // Group 2: Intelligence
-        { label: "Gc", value: fmtNum(gcEvents) + delta("za-gc", gcEvents), type: "id" },
-        { label: "Gf", value: fmtNum(totalDelib) + delta("za-gf", totalDelib), type: "count" },
-        { label: "Gf/HR", value: fmtNum(gcLastHr) + delta("za-gfhr", gcLastHr), type: "count" },
+        { label: "Gc", value: delta("za-gc", gcEvents) + fmtNum(gcEvents), type: "id" },
+        { label: "Gf", value: delta("za-gf", totalDelib) + fmtNum(totalDelib), type: "count" },
+        { label: "Gf/HR", value: delta("za-gfhr", gcLastHr) + fmtNum(gcLastHr), type: "count" },
         { gap: true },
         // Group 3: Transport
-        { label: "MSG", value: fmtNum(totalMsgs) + delta("za-msg", totalMsgs), type: "val" },
-        { label: "PEND", value: fmtNum(pending) + delta("za-pend", pending), type: "count", alert: pending > 5 },
-        { label: "GATE", value: fmtNum(gates) + delta("za-gate", gates), type: "id" },
-        { label: "EVT", value: fmtNum(events) + delta("za-evt", events), type: "val" },
+        { label: "MSG", value: delta("za-msg", totalMsgs) + fmtNum(totalMsgs), type: "val" },
+        { label: "PEND", value: delta("za-pend", pending) + fmtNum(pending), type: "count", alert: pending > 5 },
+        { label: "GATE", value: delta("za-gate", gates) + fmtNum(gates), type: "id" },
+        { label: "EVT", value: delta("za-evt", events) + fmtNum(events), type: "val" },
         { gap: true },
         // Group 4: Knowledge
         { label: "SESS", value: fmtNum(sessions), type: "id" },
@@ -515,7 +515,7 @@ function delta(key, value) {
     if (diff === 0) return "";
     const arrow = diff > 0 ? "\u2191" : "\u2193";
     const abs = Math.abs(diff);
-    return ` <span style="font-size:0.8em;color:${deltaColor(diff)}">${arrow}${abs > 999 ? fmtNum(abs) : abs}</span>`;
+    return `<span style="font-size:0.8em;color:${deltaColor(diff)};margin-right:2px">${arrow}${abs > 999 ? fmtNum(abs) : abs}</span> `;
 }
 
 /**

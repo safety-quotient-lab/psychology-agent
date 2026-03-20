@@ -317,8 +317,8 @@ function renderOpsBudget() {
             <span class="ohniaka-col ohniaka-name${flash}" style="color:var(--lcars-secondary)"><span class="ohniaka-color-pill" style="background:${agent.color}"></span> ${agentName(agent).toUpperCase()}</span>
             <span class="ohniaka-col ohniaka-conn${flash}">${connPill} ${online ? "ONLINE" : "OFFLINE"}</span>
             <span class="ohniaka-col ohniaka-health${flash}" style="color:${hColor}">${online ? healthStr : "\u2014"}</span>
-            <span class="ohniaka-col ohniaka-gc${flash}">${online ? fmtNum(gc) + delta(agent.id+"-gc", gc) : "\u2014"}</span>
-            <span class="ohniaka-col ohniaka-gf${flash}">${online ? fmtNum(deliberations) + delta(agent.id+"-gf", deliberations) : "\u2014"}</span>
+            <span class="ohniaka-col ohniaka-gc${flash}">${online ? delta(agent.id+"-gc", gc) + fmtNum(gc) : "\u2014"}</span>
+            <span class="ohniaka-col ohniaka-gf${flash}">${online ? delta(agent.id+"-gf", deliberations) + fmtNum(deliberations) : "\u2014"}</span>
             <span class="ohniaka-col ohniaka-op${flash}">${online ? opType : "\u2014"}</span>
             <span class="ohniaka-col ohniaka-mood${flash}">${online ? moodStr : "\u2014"}</span>
             <span class="ohniaka-col ohniaka-pend${flash}">${online && pending > 0 ? pending + delta(agent.id+"-pend", pending) : "\u2014"}</span>
@@ -409,8 +409,8 @@ function renderMobilePills() {
         rows += `<tr style="opacity:${opacity}">
             <td><span class="chip" style="background:${agent.color}"></span>${agentName(agent).toUpperCase()}</td>
             <td style="color:${hColor}"><span class="dot" style="background:${online ? "#22cc44" : "#cc2222"}"></span>${online ? healthStr : "OFF"}</td>
-            <td class="num" style="color:var(--lcars-secondary)">${fmtNum(gc)}${delta(agent.id+"-m-gc", gc)}</td>
-            <td class="num" style="color:var(--lcars-readout)">${fmtNum(gf)}${delta(agent.id+"-m-gf", gf)}</td>
+            <td class="num" style="color:var(--lcars-secondary)">${delta(agent.id+"-m-gc", gc)}${fmtNum(gc)}</td>
+            <td class="num" style="color:var(--lcars-readout)">${delta(agent.id+"-m-gf", gf)}${fmtNum(gf)}</td>
             <td style="color:var(--text-dim)">${online ? opLabel : "\u2014"}</td>
             <td style="color:var(--text-dim)">${online && mood ? mood.toUpperCase().replace("CALM-SATISFIED","CALM") : "\u2014"}</td>
             <td class="num" style="color:var(--lcars-title)">${pending > 0 ? pending : ""}</td>
