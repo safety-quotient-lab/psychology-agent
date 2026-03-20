@@ -407,8 +407,8 @@ function renderMobilePills() {
         const opacity = online ? "1" : "0.4";
 
         rows += `<tr style="border-bottom:1px solid var(--border);opacity:${opacity}">
-            <td style="padding:3px 6px;white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${agent.color};margin-right:4px"></span><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${online ? "#22cc44" : "#cc2222"};margin-right:4px"></span>${agentName(agent).toUpperCase()}</td>
-            <td style="padding:3px 6px;color:${hColor};white-space:nowrap">${online ? healthStr : "OFF"}</td>
+            <td style="padding:3px 6px;white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${agent.color};margin-right:4px"></span>${agentName(agent).toUpperCase()}</td>
+            <td style="padding:3px 6px;color:${hColor};white-space:nowrap"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${online ? "#22cc44" : "#cc2222"};margin-right:4px"></span>${online ? healthStr : "OFF"}</td>
             <td style="padding:3px 6px;color:var(--lcars-secondary);text-align:right">${fmtNum(gc)}${delta(agent.id+"-m-gc", gc)}</td>
             <td style="padding:3px 6px;color:var(--lcars-readout);text-align:right">${fmtNum(gf)}${delta(agent.id+"-m-gf", gf)}</td>
             <td style="padding:3px 6px;color:var(--text-dim);white-space:nowrap">${online ? opLabel : "\u2014"}</td>
