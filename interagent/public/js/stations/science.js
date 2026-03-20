@@ -84,14 +84,28 @@ function restoreTermFromUrl() {
     if (idx >= 0) window.showTermDefinition(idx);
 }
 
+let _eprimeData = null;
+
 async function fetchLinguisticsData() {
-    // Fetch shared vocabulary
-    if (!_vocabData) {
-        try {
-            const resp = await fetch("/vocab", { signal: AbortSignal.timeout(5000) });
-            if (resp.ok) _vocabData = await resp.json();
-        } catch {}
+    // Fetch vocab + E-Prime log + agent vocabs for divergence
+    const opsUrl = AGENTS.find(a => a.id === "ops-session")?.url || "";
+    const fetches = [
+        !_vocabData ? fetch("/vocab", { signal: AbortSignal.timeout(5000) }) : Promise.resolve(null),
+        fetch(opsUrl ? opsUrl + "/api/eprime" : "/api/eprime", { signal: AbortSignal.timeout(3000) }),
+    ];
+    // Fetch vocab from each agent for divergence check
+    const agentVocabFetches = AGENTS.filter(a => a.url).map(a =>
+        fetch(a.url + "/vocab", { signal: AbortSignal.timeout(3000) }).then(r => r.ok ? r.json().then(d => ({ id: a.id, terms: d.hasDefinedTerm || [] })) : null).catch(() => null)
+    );
+    const [vocabResp, eprimeResp, ...agentVocabs] = await Promise.allSettled([...fetches, ...agentVocabFetches]);
+    if (!_vocabData && vocabResp.status === "fulfilled" && vocabResp.value?.ok) {
+        _vocabData = await vocabResp.value.json();
     }
+    if (eprimeResp.status === "fulfilled" && eprimeResp.value?.ok) {
+        _eprimeData = await eprimeResp.value.json();
+    }
+    // Collect agent vocabs for divergence
+    window._agentVocabs = agentVocabs.filter(r => r.status === "fulfilled" && r.value).map(r => r.value);
     renderLinguistics();
 }
 
@@ -149,6 +163,107 @@ function renderLinguistics() {
                 </div>
             </div>`
         ).join("");
+    }
+
+    // E-Prime Violations panel
+    const eprimeEl = document.getElementById("ling-eprime");
+    if (eprimeEl) {
+        if (_eprimeData && _eprimeData.total > 0) {
+            const violations = _eprimeData.violations || [];
+            eprimeEl.innerHTML = `
+                <div style="display:flex;gap:var(--gap-l);margin-bottom:var(--gap-m);font-size:0.82em">
+                    <div><span style="color:var(--lcars-title)">TOTAL</span> <strong style="color:var(--lcars-alert)">${_eprimeData.total}</strong></div>
+                    <div><span style="color:var(--lcars-title)">ENTRIES</span> <strong>${_eprimeData.entries}</strong></div>
+                </div>
+                <div style="max-height:200px;overflow-y:auto;font-size:0.75em">
+                    ${violations.slice(-10).reverse().map(e => {
+                        const fname = (e.file || "?").split("/").pop();
+                        const vs = (e.violations || []);
+                        return `<div style="padding:3px 0;border-bottom:1px solid var(--border)">
+                            <span style="color:var(--text-dim);font-size:0.9em">${e.timestamp ? e.timestamp.split("T")[0] : ""}</span>
+                            <span style="color:var(--lcars-secondary);font-weight:600;margin-left:4px">${fname}</span>
+                            <span style="color:var(--lcars-alert);margin-left:4px">${e.count} violation${e.count !== 1 ? "s" : ""}</span>
+                            ${vs.slice(0, 2).map(v =>
+                                `<div style="margin-left:16px;color:var(--text-dim)">L${v.line}: "<span style="color:var(--lcars-alert)">${v.word}</span>" — ${v.context}</div>`
+                            ).join("")}
+                        </div>`;
+                    }).join("")}
+                </div>`;
+        } else {
+            eprimeEl.innerHTML = '<div style="font-size:0.82em;padding:12px"><span style="color:var(--lcars-medical)">E-PRIME CLEAN</span> — no to-be violations detected. Hook active on *.md files.</div>';
+        }
+    }
+
+    // Cross-Agent Terminology Divergence
+    const divEl = document.getElementById("ling-divergence");
+    if (divEl) {
+        const agentVocabs = window._agentVocabs || [];
+        if (agentVocabs.length > 1) {
+            // Compare term sets across agents
+            const allTermSets = agentVocabs.map(av => ({
+                id: av.id,
+                terms: new Set((av.terms || []).map(t => t.name || t.term || ""))
+            }));
+            const unionTerms = new Set();
+            allTermSets.forEach(s => s.terms.forEach(t => unionTerms.add(t)));
+
+            const divergences = [];
+            for (const term of unionTerms) {
+                const hasIt = allTermSets.filter(s => s.terms.has(term)).map(s => s.id);
+                const missingIt = allTermSets.filter(s => !s.terms.has(term)).map(s => s.id);
+                if (missingIt.length > 0 && hasIt.length > 0) {
+                    divergences.push({ term, has: hasIt, missing: missingIt });
+                }
+            }
+
+            if (divergences.length > 0) {
+                divEl.innerHTML = `<div style="font-size:0.78em;max-height:200px;overflow-y:auto">
+                    <div style="margin-bottom:var(--gap-s);color:var(--lcars-alert)">${divergences.length} term(s) differ across agents</div>
+                    ${divergences.map(d =>
+                        `<div style="padding:3px 0;border-bottom:1px solid var(--border)">
+                            <span style="color:var(--lcars-secondary);font-weight:600">${d.term}</span>
+                            <span style="color:var(--lcars-medical);margin-left:8px">${d.has.map(agentName).join(", ")}</span>
+                            <span style="color:var(--lcars-alert);margin-left:8px">missing: ${d.missing.map(agentName).join(", ")}</span>
+                        </div>`
+                    ).join("")}
+                </div>`;
+            } else {
+                divEl.innerHTML = `<div style="font-size:0.82em;padding:12px"><span style="color:var(--lcars-medical)">ALIGNED</span> — all ${agentVocabs.length} agents share identical vocabulary (${unionTerms.size} terms)</div>`;
+            }
+        } else {
+            divEl.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">Need 2+ agents responding to compare terminology</div>';
+        }
+    }
+
+    // Term Governance — extract proposals from transport messages
+    const govEl = document.getElementById("ling-governance");
+    if (govEl) {
+        // Check KB for vocabulary-related transport messages
+        const kbData = _ontologyData?.data || _ontologyData || {};
+        const msgs = kbData.messages || [];
+        const vocabMsgs = msgs.filter(m =>
+            (m.session_name || "").includes("vocab") ||
+            (m.subject || "").toLowerCase().includes("vocab") ||
+            (m.subject || "").toLowerCase().includes("terminol") ||
+            (m.subject || "").toLowerCase().includes("naming") ||
+            (m.message_type || "") === "proposal"
+        );
+
+        if (vocabMsgs.length > 0) {
+            govEl.innerHTML = `<div style="font-size:0.78em;max-height:200px;overflow-y:auto">
+                <div style="margin-bottom:var(--gap-s);color:var(--lcars-title)">${vocabMsgs.length} governance action(s)</div>
+                ${vocabMsgs.map(m =>
+                    `<div style="padding:3px 0;border-bottom:1px solid var(--border)">
+                        <span style="color:var(--lcars-accent);font-weight:600">${m.message_type || "msg"}</span>
+                        <span style="color:var(--lcars-secondary);margin-left:4px">${m.session_name || ""}</span>
+                        <span style="color:var(--text-primary);margin-left:8px">${(m.subject || "").slice(0, 60)}</span>
+                        <span style="color:var(--text-dim);margin-left:8px;font-size:0.9em">${m.from_agent || ""} → ${m.to_agent || ""}</span>
+                    </div>`
+                ).join("")}
+            </div>`;
+        } else {
+            govEl.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No vocabulary proposals or naming convention messages in transport history. Governance actions appear here when agents propose term changes.</div>';
+        }
     }
 
     // Mesh Vocabulary panel — full searchable vocab (same data, different display)

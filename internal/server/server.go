@@ -318,6 +318,7 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /{$}", s.handleIndex)
 	mux.HandleFunc("GET /vocab", s.handleVocab)
 	mux.HandleFunc("GET /api/facets", s.handleFacets)
+	mux.HandleFunc("GET /api/eprime", s.handleEPrime)
 	mux.HandleFunc("GET /vocab.json", s.handleVocab)
 	mux.HandleFunc("GET /vocab/schema", s.handleVocabSchema)
 	mux.HandleFunc("GET /vocab/schema.json", s.handleVocabSchema)
@@ -824,6 +825,40 @@ func (s *Server) detectSessionActive() bool {
 		}
 	}
 	return false
+}
+
+// handleEPrime serves GET /api/eprime — E-Prime violation log.
+func (s *Server) handleEPrime(w http.ResponseWriter, r *http.Request) {
+	logPath := filepath.Join(s.Config.RepoRoot, "transport", "sessions", "local-coordination", "eprime-violations.jsonl")
+	data, err := os.ReadFile(logPath)
+	if err != nil {
+		writeJSON(w, http.StatusOK, map[string]any{"violations": []any{}, "total": 0}, s.logger)
+		return
+	}
+	lines := strings.Split(strings.TrimSpace(string(data)), "\n")
+	var violations []map[string]any
+	totalCount := 0
+	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+		var entry map[string]any
+		if json.Unmarshal([]byte(line), &entry) == nil {
+			violations = append(violations, entry)
+			if c, ok := entry["count"].(float64); ok {
+				totalCount += int(c)
+			}
+		}
+	}
+	// Return last 50 entries
+	if len(violations) > 50 {
+		violations = violations[len(violations)-50:]
+	}
+	writeJSON(w, http.StatusOK, map[string]any{
+		"violations": violations,
+		"total":      totalCount,
+		"entries":    len(violations),
+	}, s.logger)
 }
 
 // handleFacets serves GET /api/facets — vocabulary, universal, and entry facets.

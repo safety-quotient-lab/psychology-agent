@@ -62,14 +62,31 @@ for i, line in enumerate(lines, 1):
         word = m.group().lower()
         violations.append((i, word, line.strip()[:80]))
 
-if violations and len(violations) <= 5:
-    print(f'⚠ E-Prime: {len(violations)} to-be form(s) in {\"$FILE_PATH\".split(\"/\")[-1]}:')
+if violations:
+    fname = '$FILE_PATH'.split('/')[-1]
+    n = len(violations)
+    print(f'⚠ E-Prime: {n} to-be form(s) in {fname}:')
     for lineno, word, context in violations[:3]:
         print(f'  L{lineno}: \"{word}\" — {context}')
-elif violations:
-    print(f'⚠ E-Prime: {len(violations)} to-be form(s) in {\"$FILE_PATH\".split(\"/\")[-1]} (showing first 3)')
-    for lineno, word, context in violations[:3]:
-        print(f'  L{lineno}: \"{word}\" — {context}')
+
+    # Persist to JSONL for dashboard telemetry
+    import json, datetime, os
+    log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname('$FILE_PATH' or __file__))), 'transport', 'sessions', 'local-coordination')
+    # Use project root from script location
+    script_dir = os.path.dirname(os.path.abspath('${BASH_SOURCE[0]}' if '${BASH_SOURCE[0]}' != '' else __file__))
+    proj_root = os.path.dirname(os.path.dirname(script_dir))
+    log_path = os.path.join(proj_root, 'transport', 'sessions', 'local-coordination', 'eprime-violations.jsonl')
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    entry = {
+        'timestamp': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+        'file': '$FILE_PATH',
+        'count': n,
+        'violations': [{'line': v[0], 'word': v[1], 'context': v[2]} for v in violations[:10]]
+    }
+    try:
+        with open(log_path, 'a') as f:
+            f.write(json.dumps(entry) + '\n')
+    except: pass
 " 2>/dev/null || true
 
 exit 0
