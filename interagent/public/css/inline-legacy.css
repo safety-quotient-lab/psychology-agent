@@ -3981,37 +3981,29 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 }
 .agent-pill-bar-offline { animation: agent-offline-flash 2s ease-in-out infinite; }
 
-/* Mobile agent bars — grid layout for column alignment */
-.agent-pill-bar, .agent-pill-bar-offline {
-    display: grid !important;
-    grid-template-columns: 10px 10px 1fr 42px 32px 32px 42px 42px 28px;
-    align-items: center;
+/* Mobile agent bars — two rows: name+health on row 1, metrics grid on row 2 */
+.agent-pill-row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     gap: 0 var(--gap-xs);
     font-size: 0.78em;
+    color: var(--text-dim);
+    padding-left: calc(10px + 10px + var(--gap-xs) * 2);
+    margin-top: 1px;
 }
-.agent-pill-name {
-    color: var(--lcars-secondary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.agent-pill-col {
-    text-align: right;
-    white-space: nowrap;
-    font-size: 0.9em;
-}
+.agent-pill-row2 span { text-align: center; white-space: nowrap; }
 .agent-pill-header {
     display: grid;
-    grid-template-columns: 10px 10px 1fr 42px 32px 32px 42px 42px 28px;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     gap: 0 var(--gap-xs);
-    font-size: 0.62em;
+    font-size: 0.6em;
     color: var(--lcars-title);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    padding: 0 var(--gap-s);
+    padding-left: calc(10px + 10px + var(--gap-xs) * 2);
     margin-bottom: 2px;
 }
-.agent-pill-header span:nth-child(n+4) { text-align: right; }
+.agent-pill-header span { text-align: center; }
 
 /* Legacy — kept for any remaining flex usage */
 .agent-pill-metrics {

@@ -204,14 +204,22 @@ func handlePollTick(cfg GcConfig) bool {
 // never fully processed. Prioritizes ack_required, then oldest first.
 // Limit: 3 per cycle to prevent backlog flood.
 
-// InitHippocampalReplay adds replay_count and last_replayed_at columns.
+// InitHippocampalReplay adds outcome taxonomy columns (T10) + replay tracking.
 func InitHippocampalReplay(dbPath string) {
 	if dbPath == "" {
 		return
 	}
+	// T10 outcome taxonomy columns (7-state lifecycle)
+	db.Exec(dbPath, `ALTER TABLE transport_messages ADD COLUMN outcome INTEGER DEFAULT 1`)
+	db.Exec(dbPath, `ALTER TABLE transport_messages ADD COLUMN gc_disposition TEXT`)
+	db.Exec(dbPath, `ALTER TABLE transport_messages ADD COLUMN deliberation_id INTEGER`)
+	db.Exec(dbPath, `ALTER TABLE transport_messages ADD COLUMN response_filename TEXT`)
+	db.Exec(dbPath, `ALTER TABLE transport_messages ADD COLUMN expires_at TEXT`)
+	// Replay tracking (T6)
 	db.Exec(dbPath, `ALTER TABLE transport_messages ADD COLUMN replay_count INTEGER DEFAULT 0`)
 	db.Exec(dbPath, `ALTER TABLE transport_messages ADD COLUMN last_replayed_at TEXT`)
-	db.Exec(dbPath, `CREATE INDEX IF NOT EXISTS idx_unprocessed ON transport_messages (processed, timestamp)`)
+	// Indexes
+	db.Exec(dbPath, `CREATE INDEX IF NOT EXISTS idx_outcome ON transport_messages (outcome, timestamp)`)
 }
 
 // hippocampalReplay queries state.db for unprocessed messages and re-emits
@@ -221,11 +229,12 @@ func hippocampalReplay(cfg GcConfig) int {
 		return 0
 	}
 
-	// Episodic recall — query unprocessed messages addressed to this agent
+	// Episodic recall — query messages in replay-eligible states (T10 taxonomy):
+	// outcome 0=received, 1=indexed, 2=classified (not yet deliberated/acted/absorbed/expired)
 	rows, err := db.QueryJSON(cfg.DBPath,
 		fmt.Sprintf(`SELECT session_name, filename, from_agent, message_type, subject, timestamp
 		 FROM transport_messages
-		 WHERE processed = 0
+		 WHERE outcome IN (0, 1, 2)
 		 ORDER BY
 		   CASE WHEN message_type = 'directive' THEN 0
 		        WHEN message_type = 'request' THEN 1
@@ -285,7 +294,7 @@ func HippocampalReplayStats(dbPath string) map[string]any {
 		`SELECT COUNT(*) as unprocessed,
 		 SUM(CASE WHEN COALESCE(replay_count, 0) > 3 THEN 1 ELSE 0 END) as stuck,
 		 SUM(COALESCE(replay_count, 0)) as replayed_total
-		 FROM transport_messages WHERE processed = 0`)
+		 FROM transport_messages WHERE outcome IN (0, 1, 2)`)
 	if len(rows) == 0 {
 		return map[string]any{"unprocessed": 0, "stuck": 0, "replayed_total": 0}
 	}

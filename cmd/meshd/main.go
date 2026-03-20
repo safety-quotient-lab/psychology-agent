@@ -19,8 +19,9 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"strings"
+	"os/exec"
 	"os/signal"
+	"strings"
 	"path/filepath"
 	"sync"
 	"syscall"
@@ -236,6 +237,22 @@ func main() {
 				"event_id", req.Event.ID,
 				"duration", result.Duration,
 			)
+
+			// BUG-19 fix: hippocampal consolidation — commit deliberation output.
+			// Without this, file changes from claude -p sit uncommitted and
+			// evaporate on restart/deploy. (Wilson & McNaughton 1994 — consolidation)
+			statusCmd := exec.Command("git", "-C", cfg.RepoRoot, "status", "--porcelain")
+			if statusOut, err := statusCmd.Output(); err == nil && len(strings.TrimSpace(string(statusOut))) > 0 {
+				exec.Command("git", "-C", cfg.RepoRoot, "add", "-A").Run()
+				commitMsg := fmt.Sprintf("autonomous: deliberation %s (%s)", req.Event.ID[:12], deliberationStatus)
+				exec.Command("git", "-C", cfg.RepoRoot, "commit", "-m", commitMsg).Run()
+				if pushErr := exec.Command("git", "-C", cfg.RepoRoot, "push").Run(); pushErr != nil {
+					// Conflict — try rebase then push
+					exec.Command("git", "-C", cfg.RepoRoot, "pull", "--rebase", "origin", "main").Run()
+					exec.Command("git", "-C", cfg.RepoRoot, "push").Run()
+				}
+				logger.Info("post-deliberation commit", "event_id", req.Event.ID)
+			}
 
 			// Broadcast deliberation completion to mesh via ZMQ — include result summary
 			if zmqPublishFn != nil {
