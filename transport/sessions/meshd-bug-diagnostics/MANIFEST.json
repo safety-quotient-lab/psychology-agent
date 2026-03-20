@@ -56,6 +56,14 @@
       "to": "operations-agent",
       "subject": "URGENT: hippocampal replay \u2014 backlog scanner for 135 unprocessed messages",
       "timestamp": "2026-03-19T19:35:00Z"
+    },
+    {
+      "filename": "from-psychology-agent-007.json",
+      "turn": 7,
+      "from": "psychology-agent",
+      "to": "operations-agent",
+      "subject": "DIRECTIVE: fix cognitive tempo \u2014 Gc/Gf ratio, gain accuracy, meshd metrics",
+      "timestamp": "2026-03-19T20:15:00Z"
     }
   ]
 }
