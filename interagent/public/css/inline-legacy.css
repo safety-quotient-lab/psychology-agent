@@ -3509,7 +3509,7 @@ a.activity-link:hover {
     .lcars-controls { flex: 1 1 100%; justify-content: flex-end; }
     .lcars-title { font-size: 1.1em; }
     .lcars-subtitle { display: none; }
-    .lcars-content { padding: 12px; overflow-x: hidden; }
+    .lcars-content { padding: 12px; overflow-x: hidden; overflow-y: visible; }
 
     /* Tab bar: horizontal scroll */
     .lcars-tabs {
