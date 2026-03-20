@@ -40,11 +40,13 @@
     --c-tab-meta: #9b8ec4;        /* purple — thought, reflection */
     --c-tab-kb: #c4956a;          /* amber — structured knowledge */
     --c-tab-wisdom: #b8956a;      /* warm bronze — accumulated insight */
-    --c-tab-ops: #6b8aaf;         /* blue — transport, operations */
-    --c-tab-science: #1E565D;  /* science/medical blue (TNG canon) */
-    --c-tab-engineering: #ff9944; /* warm orange — system health, tempo */
-    --c-tab-tactical: var(--v23-red-med);  /* alert red — security, threat display */
-    --c-tab-helm: #66aacc;        /* navigation blue — routing, sessions */
+    /* LCARS 2369 station colors — panel function, not uniform division */
+    --c-tab-ops: #FF9966;         /* orange-peel — command operations */
+    --c-tab-science: #9999FF;     /* melrose — science analysis */
+    --c-tab-engineering: #FF9900; /* atomic-tangerine — engineering systems */
+    --c-tab-tactical: #CC6666;    /* chestnut-rose — security/tactical */
+    --c-tab-helm: #CC99CC;        /* lilac — navigation/routing */
+    --c-tab-medical: #9999CC;     /* blue-bell — medical diagnostics */
 
     /* Agent identity palette — subtle, distinguishable */
     --c-psychology: #6b8aaf;
@@ -242,13 +244,13 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
     --c-tab-meta: var(--lcars-highlight);
     --c-tab-kb: var(--lcars-secondary);
     --c-tab-wisdom: var(--lcars-title);
-    /* TNG division colors — 3 divisions mapped to canonical V23.01 palette */
-    --c-tab-ops: #ED924E;         /* command gold/amber — operations division */
-    --c-tab-science: #1E565D;     /* science blue — science division */
-    --c-tab-engineering: #E0601D; /* engineering orange — ops/eng share warm */
-    --c-tab-tactical: #E53828;    /* security red — tactical/security division */
-    --c-tab-helm: #C1574C;        /* warm red — navigation (same division as tactical) */
-    --c-tab-medical: #1E565D;     /* medical blue — same as science division */
+    /* LCARS 2369 station colors — canonical panel function colors */
+    --c-tab-ops: #FF9966;         /* orange-peel — command operations */
+    --c-tab-science: #9999FF;     /* melrose — science analysis */
+    --c-tab-engineering: #FF9900; /* atomic-tangerine — engineering systems */
+    --c-tab-tactical: #CC6666;    /* chestnut-rose — security/tactical */
+    --c-tab-helm: #CC99CC;        /* lilac — navigation/routing */
+    --c-tab-medical: #9999CC;     /* blue-bell — medical diagnostics */
 
     --c-psychology: var(--lcars-accent);
     --c-psq: var(--lcars-secondary);
