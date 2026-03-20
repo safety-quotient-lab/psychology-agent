@@ -2,15 +2,27 @@
 let engineeringData = null;
 let engineeringFetchPending = false;
 
-// Local ops agent — checks ops-session first, falls back to operations-agent
+let engSelectedAgent = "mesh"; // default to mesh aggregate
+
 function _opsAgent() {
-    // Prefer agent with oscillator data (full /api/status enriched)
+    if (engSelectedAgent !== "mesh") {
+        return agentData[engSelectedAgent] || {};
+    }
     for (const id of ["ops-session", "mesh", "operations-agent"]) {
         const a = agentData[id];
         if (a?.data?.oscillator || a?.data?.alpha_heartbeat) return a;
     }
     return agentData["ops-session"] || agentData["mesh"] || {};
 }
+
+function renderEngAgentSelector() {
+    renderAgentSelector("eng-agent-selector", engSelectedAgent, "selectEngAgent");
+}
+window.selectEngAgent = function(agentId) {
+    engSelectedAgent = agentId;
+    renderEngAgentSelector();
+    fetchEngineeringData();
+};
 
 const DELIBERATION_AGENTS = [
     { id: "psychology-agent",  label: "psychology", color: "var(--c-psychology)" },
@@ -24,14 +36,15 @@ async function fetchEngineeringData() {
     if (engineeringFetchPending) return;
     engineeringFetchPending = true;
     try {
-        // Fetch ops-session full status cross-origin for oscillator + heartbeat
-        const opsUrl = AGENTS.find(a => a.id === "ops-session")?.url || "";
-        const opsStatusUrl = opsUrl ? opsUrl + "/api/status" : "/api/status";
-        const [tempoResp, deliberationResp, cogTempoResp, opsStatusResp] = await Promise.allSettled([
+        // Fetch full status for selected agent (cross-origin for remote agents)
+        const targetId = engSelectedAgent === "mesh" ? "ops-session" : engSelectedAgent;
+        const targetAgent = AGENTS.find(a => a.id === targetId);
+        const statusUrl = targetAgent?.url ? targetAgent.url + "/api/status" : "/api/status";
+        const [tempoResp, deliberationResp, cogTempoResp, agentStatusResp] = await Promise.allSettled([
             fetch("/api/tempo", { signal: AbortSignal.timeout(8000) }),
             fetch("/api/spawn-rate", { signal: AbortSignal.timeout(8000) }),
             fetch("/api/cognitive-tempo", { signal: AbortSignal.timeout(3000) }),
-            fetch(opsStatusUrl, { signal: AbortSignal.timeout(3000) }),
+            fetch(statusUrl, { signal: AbortSignal.timeout(3000) }),
         ]);
         const tempoData = tempoResp.status === "fulfilled" && tempoResp.value.ok
             ? await tempoResp.value.json() : null;
@@ -39,10 +52,10 @@ async function fetchEngineeringData() {
             ? await deliberationResp.value.json() : null;
         const cogTempo = cogTempoResp.status === "fulfilled" && cogTempoResp.value.ok
             ? await cogTempoResp.value.json() : null;
-        // Enrich ops-session agentData with full status (oscillator, heartbeat, etc.)
-        if (opsStatusResp.status === "fulfilled" && opsStatusResp.value.ok) {
-            const fullStatus = await opsStatusResp.value.json();
-            const aid = fullStatus.agent_id || "ops-session";
+        // Enrich selected agent with full status (oscillator, heartbeat, gc_metrics)
+        if (agentStatusResp.status === "fulfilled" && agentStatusResp.value.ok) {
+            const fullStatus = await agentStatusResp.value.json();
+            const aid = fullStatus.agent_id || targetId;
             agentData[aid] = { id: aid, status: "online", data: fullStatus };
         }
         engineeringData = { tempo: tempoData, deliberation: deliberationData, cogTempo: cogTempo };
@@ -55,6 +68,7 @@ async function fetchEngineeringData() {
 }
 
 function renderEngineering() {
+    renderEngAgentSelector();
     renderNumberGrid("eng-zone-a", engZoneAMetrics());
     renderTimingHierarchy();
     renderDeliberationCascade();

@@ -3,16 +3,7 @@ let medSelectedAgent = "mesh"; // default to mesh emergent view
 let medPsychData = {};
 
 function renderMedAgentSelector() {
-    const sel = document.getElementById("medical-vitals-selector");
-    if (!sel) return;
-    // MESH button first — shows emergent collective properties
-    const meshActive = medSelectedAgent === "mesh";
-    let html = '<button class="lcars-pill-btn lcars-pill-sm" style="min-width:100px;min-height:48px;background:var(--lcars-frame);color:#000' + (meshActive ? ";filter:brightness(1.3)" : "") + '" onclick="selectMedAgent(\'mesh\')">MESH</button>';
-    html += AGENTS.map(function(a) {
-        const active = a.id === medSelectedAgent;
-        return '<button class="lcars-pill-btn lcars-pill-sm" style="min-width:100px;min-height:48px;background:' + a.color + ';color:#000' + (active ? ";filter:brightness(1.3)" : "") + '" onclick="selectMedAgent(\'' + a.id + '\')">' + agentName(a).toUpperCase() + '</button>';
-    }).join("");
-    sel.innerHTML = html;
+    renderAgentSelector("medical-vitals-selector", medSelectedAgent, "selectMedAgent");
 }
 window.selectMedAgent = function(agentId) {
     medSelectedAgent = agentId;

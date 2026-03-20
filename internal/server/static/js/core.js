@@ -102,8 +102,22 @@ function sparklineSVG(values, opts = {}) {
     return `<svg class="sparkline-svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${fillPath}<polyline points="${polyline}" fill="none" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${points[points.length - 1].split(",")[0]}" cy="${points[points.length - 1].split(",")[1]}" r="2" fill="${stroke}"/></svg>`;
 }
 
+// ── Reusable Agent Selector Component ─────────────────────────
+// Used by Medical, Engineering, and any station that supports mesh + per-agent views.
+// Usage: renderAgentSelector(containerId, selectedId, onSelect)
+function renderAgentSelector(containerId, selectedId, onSelect) {
+    const sel = document.getElementById(containerId);
+    if (!sel) return;
+    const meshActive = selectedId === "mesh";
+    let html = `<button class="lcars-pill-btn lcars-pill-sm" style="min-width:80px;min-height:40px;background:var(--lcars-frame);color:#000${meshActive ? ";filter:brightness(1.3)" : ""}" onclick="${onSelect}('mesh')">MESH</button>`;
+    html += AGENTS.map(a => {
+        const active = a.id === selectedId;
+        return `<button class="lcars-pill-btn lcars-pill-sm" style="min-width:80px;min-height:40px;background:${a.color};color:#000${active ? ";filter:brightness(1.3)" : ""}" onclick="${onSelect}('${a.id}')">${agentName(a).toUpperCase()}</button>`;
+    }).join("");
+    sel.innerHTML = html;
+}
+
 // Waveform SVG generator — Com Link (J/K) pattern
-// Renders oscillating signal between horizontal framing bars
 // dataWaveformSVG renders a time-series sparkline from actual data points.
 // data: array of numbers (y values, newest last). Autoscales to fit.
 function dataWaveformSVG(opts = {}) {
