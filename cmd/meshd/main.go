@@ -96,6 +96,12 @@ func main() {
 			if os.Getenv("TRANSPORT_DIR") == "" {
 				cfg.TransportDir = filepath.Join(absRoot, "transport", "sessions")
 			}
+			if os.Getenv("SESSION_DETECT_DIR") == "" {
+				if home, err := os.UserHomeDir(); err == nil {
+					encoded := strings.ReplaceAll(absRoot, "/", "-")
+					cfg.SessionDetectDir = filepath.Join(home, ".claude", "projects", encoded)
+				}
+			}
 		}
 	}
 
