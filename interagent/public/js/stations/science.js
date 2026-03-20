@@ -113,7 +113,8 @@ function renderLinguistics() {
     // Vocabulary uses JSON-LD: hasDefinedTerm[] with name, description, status, termCode
     const vocabEl = document.getElementById("ling-vocabulary");
     if (vocabEl && _vocabData) {
-        const termList = _vocabData.hasDefinedTerm || _vocabData.terms || _vocabData["@graph"] || [];
+        const termList = (_vocabData.hasDefinedTerm || _vocabData.terms || _vocabData["@graph"] || [])
+            .slice().sort((a, b) => (a.name || "").localeCompare(b.name || ""));
         const active = termList.filter(t => t.status !== "deprecated").length;
         const deprecated = termList.length - active;
         const version = _vocabData.version || _vocabData.name || "?";
@@ -157,7 +158,8 @@ function renderLinguistics() {
     // Terminology map — group by termCode prefix or inDefinedTermSet
     const termEl = document.getElementById("ling-terminology");
     if (termEl && _vocabData) {
-        const termList = _vocabData.hasDefinedTerm || _vocabData.terms || [];
+        const termList = (_vocabData.hasDefinedTerm || _vocabData.terms || [])
+            .slice().sort((a, b) => (a.name || "").localeCompare(b.name || ""));
         const domains = {};
         termList.forEach(t => {
             // Group by termCode prefix (e.g., "agent" from "agent-001") or "general"
@@ -311,7 +313,8 @@ function renderLinguistics() {
     // Mesh Vocabulary panel — full searchable vocab (same data, different display)
     const meshVocabEl = document.getElementById("lcars-sci-vocab");
     if (meshVocabEl && _vocabData) {
-        const termList = _vocabData.hasDefinedTerm || [];
+        const termList = (_vocabData.hasDefinedTerm || [])
+            .slice().sort((a, b) => (a.name || "").localeCompare(b.name || ""));
         meshVocabEl.innerHTML = `<div class="lcars-data-table-wrap" style="--panel-accent:var(--c-tab-science)">
             <table class="lcars-data-table">
                 <thead><tr>
@@ -369,7 +372,7 @@ function renderOntology() {
     // Discipline Catalog — from /api/facets vocabulary, grouped by facet_type
     const catEl = document.getElementById("lcars-sci-catalog");
     if (catEl) {
-        const vocab = _facetsData?.vocabulary || [];
+        const vocab = (_facetsData?.vocabulary || []).slice().sort((a, b) => (a.facet_value || "").localeCompare(b.facet_value || ""));
         if (vocab.length > 0) {
             const byType = {};
             vocab.forEach(v => {
