@@ -3963,7 +3963,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
     padding: 3px 6px; white-space: nowrap;
 }
 .lcars-data-table td.wrap {
-    white-space: normal; line-height: 1.4;
+    white-space: normal; line-height: 1.4; min-width: 260px; /* ~1.618× base column (160px) */
 }
 .lcars-data-table td.num { text-align: right; }
 .lcars-data-table tr { border-bottom: 1px solid var(--border); }
