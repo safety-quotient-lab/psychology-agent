@@ -1776,7 +1776,7 @@ body {
     overflow-y: auto;
 }
 .tab-pane { display: none; }
-.tab-pane.active { display: block; }
+.tab-pane.active { display: block; padding-bottom: 80px; /* breathing room for last panel on mobile */ }
 
 /* Footer */
 .lcars-footer {
@@ -1837,9 +1837,9 @@ body {
 .panel-tristate > .lcars-panel-header::after {
     content: "▾"; margin-left: auto; padding-left: 8px; opacity: 0.5; font-size: 0.8em;
 }
-/* State: fixed (default) — capped height, scrollable */
+/* State: fixed (default) — capped height, clipped (tap to expand for full content) */
 .panel-tristate > .lcars-panel-body {
-    max-height: 300px; overflow-y: auto; transition: max-height 0.2s ease;
+    max-height: 300px; overflow: hidden; transition: max-height 0.2s ease;
 }
 /* State: collapsed — header only */
 .panel-tristate.panel-collapsed > .lcars-panel-body { max-height: 0; padding: 0 16px; overflow: hidden; }
