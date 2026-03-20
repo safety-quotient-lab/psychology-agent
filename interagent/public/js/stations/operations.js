@@ -290,17 +290,17 @@ function renderOpsBudget() {
         // Sleep/awake state from budget data
         const sleepMode = d.data?.autonomy_budget?.sleep_mode;
         let opType = sleepMode ? "SLEEP" : "AWAKE";
-        let opIcon = "";
+        // Mode label — text only, no icons (session 13 feedback)
         // Check recency — only show DELIB if deliberated within last 5 minutes
         const recentDelibs = d.data?.recent_deliberations || [];
         const latestTs = recentDelibs[0]?.started_at || "";
         const delibRecent = latestTs && (Date.now() - new Date(latestTs.replace(" ", "T") + "Z").getTime()) < 300000;
         if (band.startsWith("beta") || band.startsWith("gamma") || (online && delibRecent)) {
-            opType = "DELIB"; opIcon = "\u26A1"; opColor = "var(--lcars-title)"; // amber + lightning
+            opType = "DELIB"; opColor = "var(--lcars-title)";
         } else if (band.startsWith("theta")) {
-            opType = "CONSOL"; opIcon = "\u{1F4E6}"; opColor = "var(--lcars-science)"; // blue + archive
+            opType = "CONSOL"; opColor = "var(--lcars-science)";
         } else if (band.startsWith("delta")) {
-            opType = "CLEAR"; opIcon = "\u{1F9F9}"; opColor = "var(--v23-plum-dark, #80225E)"; // indigo + broom
+            opType = "CLEAR"; opColor = "var(--v23-plum-dark, #80225E)";
         }
 
         const rowClass = online ? "ohniaka-row" : "ohniaka-row ohniaka-row-offline";
@@ -317,7 +317,7 @@ function renderOpsBudget() {
             <span class="ohniaka-col ohniaka-health${flash}" style="color:${hColor}">${online ? healthStr : "\u2014"}</span>
             <span class="ohniaka-col ohniaka-gc${flash}">${online ? fmtNum(gc) + delta(agent.id+"-gc", gc) : "\u2014"}</span>
             <span class="ohniaka-col ohniaka-gf${flash}">${online ? fmtNum(deliberations) + delta(agent.id+"-gf", deliberations) : "\u2014"}</span>
-            <span class="ohniaka-col ohniaka-op${flash}">${online ? opIcon + " " + opType : "\u2014"}</span>
+            <span class="ohniaka-col ohniaka-op${flash}">${online ? opType : "\u2014"}</span>
             <span class="ohniaka-col ohniaka-mood${flash}">${online ? moodStr : "\u2014"}</span>
             <span class="ohniaka-col ohniaka-pend${flash}">${online && pending > 0 ? pending + delta(agent.id+"-pend", pending) : "\u2014"}</span>
         </div>`;
@@ -399,10 +399,10 @@ function renderMobilePills() {
             const recentDelibs = d.data?.recent_deliberations || [];
             const latestTs = recentDelibs[0]?.started_at || "";
             const delibRecent = latestTs && (Date.now() - new Date(latestTs.replace(" ", "T") + "Z").getTime()) < 300000;
-            let opLabel = "AWAKE", opIcon = "\u23F8";
-            if (band.startsWith("beta") || band.startsWith("gamma") || (online && delibRecent)) { opLabel = "DELIB"; opIcon = "\u26A1"; }
-            else if (band.startsWith("theta")) { opLabel = "CONSOL"; opIcon = "\u{1F4E6}"; }
-            else if (band.startsWith("delta")) { opLabel = "CLEAR"; opIcon = "\u{1F9F9}"; }
+            let opLabel = "AWAKE";
+            if (band.startsWith("beta") || band.startsWith("gamma") || (online && delibRecent)) { opLabel = "DELIB"; }
+            else if (band.startsWith("theta")) { opLabel = "CONSOL"; }
+            else if (band.startsWith("delta")) { opLabel = "CLEAR"; }
 
             // Collapsed bar — shows all key metrics matching desktop columns
             html += `<div class="${barClass}" onclick="this.nextElementSibling.classList.toggle('expanded')">
@@ -413,7 +413,7 @@ function renderMobilePills() {
                     <span style="color:${hColor}">${online ? healthStr : "OFFLINE"}</span>
                     <span style="color:var(--lcars-secondary)">Gc ${fmtNum(gc)}</span>
                     <span style="color:var(--lcars-readout)">Gf ${fmtNum(gf)}</span>
-                    <span style="color:var(--text-dim)">${online ? opIcon + " " + opLabel : "\u2014"}</span>
+                    <span style="color:var(--text-dim)">${online ? opLabel : "\u2014"}</span>
                     <span style="color:var(--text-dim)">${online ? (mood ? mood.toUpperCase() : "\u2014") : ""}</span>
                     ${pending > 0 ? `<span style="color:var(--lcars-title)">PEND ${pending}</span>` : ""}
                 </span>
