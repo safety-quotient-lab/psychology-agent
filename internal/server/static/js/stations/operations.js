@@ -289,8 +289,9 @@ function renderOpsBudget() {
         const band = osc.dominant_band || "";
         // Sleep/awake state from budget data
         const sleepMode = d.data?.autonomy_budget?.sleep_mode;
+        const isSleeping = sleepMode === true || sleepMode === 1 || sleepMode === "1";
         const sessionActive = d.data?.session_active;
-        let opType = sleepMode ? "SLEEP" : sessionActive ? "ACTIVE" : "AWAKE";
+        let opType = isSleeping ? "SLEEP" : sessionActive ? "ACTIVE" : "AWAKE";
         // Mode label — text only, no icons (session 13 feedback)
         // Check recency — only show DELIB if deliberated within last 5 minutes
         const recentDelibs = d.data?.recent_deliberations || [];
@@ -401,8 +402,9 @@ function renderMobilePills() {
             const latestTs = recentDelibs[0]?.started_at || "";
             const delibRecent = latestTs && (Date.now() - new Date(latestTs.replace(" ", "T") + "Z").getTime()) < 300000;
             const mSleepMode = d.data?.autonomy_budget?.sleep_mode;
+            const mIsSleeping = mSleepMode === true || mSleepMode === 1 || mSleepMode === "1";
             const mSessionActive = d.data?.session_active;
-            let opLabel = mSleepMode && mSleepMode !== "0" ? "SLEEP" : mSessionActive ? "ACTIVE" : "AWAKE";
+            let opLabel = mIsSleeping ? "SLEEP" : mSessionActive ? "ACTIVE" : "AWAKE";
             if (band.startsWith("beta") || band.startsWith("gamma") || (online && delibRecent)) { opLabel = "DELIB"; }
             else if (band.startsWith("theta")) { opLabel = "CONSOL"; }
             else if (band.startsWith("delta")) { opLabel = "CLEAR"; }
