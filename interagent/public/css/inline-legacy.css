@@ -3951,7 +3951,7 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 /* Used by: mobile mesh status, Linguistics vocabulary, Helm sessions, Ontology */
 .lcars-data-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .lcars-data-table {
-    width: 100%; font-size: 0.75em; border-collapse: collapse; min-width: 420px;
+    width: 100%; font-size: 0.75em; border-collapse: separate; border-spacing: 4px 0; min-width: 420px;
 }
 .lcars-data-table th {
     color: var(--lcars-title); text-align: left; font-size: 0.65em; opacity: 0.8;
