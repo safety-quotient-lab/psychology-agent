@@ -777,7 +777,7 @@ function renderOpsCapsuleBars() {
         cell(status, "STATUS", "frame"),
         // Spawn throttle (T19 — ops.resources.throttle)
         (() => {
-            const ss = agentData["operations-agent"]?.data?.deliberation_status;
+            const ss = (agentData["ops-session"] || agentData["operations-agent"])?.data?.deliberation_status;
             if (!ss) return "";
             const slotStr = `${ss.active}/${ss.max}`;
             const tier = ss.active > 0 ? "accent" : (ss.reserve_unlocked ? "t3" : "");

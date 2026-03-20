@@ -2,6 +2,11 @@
 let engineeringData = null;
 let engineeringFetchPending = false;
 
+// Local ops agent — checks ops-session first, falls back to operations-agent
+function _opsAgent() {
+    return agentData["ops-session"] || _opsAgent() || {};
+}
+
 const DELIBERATION_AGENTS = [
     { id: "psychology-agent",  label: "psychology", color: "var(--c-psychology)" },
     { id: "psq-agent",        label: "safety-quotient",   color: "var(--c-psq)" },
@@ -350,7 +355,7 @@ function renderTempo() {
     const tierColor = tier === "opus" ? "#c47070" : tier === "sonnet" ? "#d4944a" : "#66ccaa";
 
     if (gfVal) {
-        const opsData = agentData["operations-agent"]?.data || {};
+        const opsData = _opsAgent()?.data || {};
         const delibCount = opsData.deliberation_count || 0;
         const delibLastHr = opsData.gc_metrics?.deliberations_last_hour || 0;
         const complexity = ct?.task_complexity || 0;
@@ -387,7 +392,7 @@ function renderTempo() {
     const rho = mesh.utilization ?? null;
 
     if (gcVal) {
-        const opsData = agentData["operations-agent"]?.data || {};
+        const opsData = _opsAgent()?.data || {};
         const gcHandled = opsData.gc_metrics?.gc_handled_total || 0;
         const eventCount = opsData.event_count || 0;
         const blocked = opsData.gc_metrics?.deliberation_blocked_total || 0;
@@ -633,7 +638,7 @@ function renderYerkesDodson() {
 // ── Timing Hierarchy (psy-session arch synthesis) ───────────────
 // 5-layer timing status derived from live system state.
 function renderTimingHierarchy() {
-    const ops = agentData["operations-agent"];
+    const ops = _opsAgent();
     const osc = ops?.data?.oscillator || {};
     const health = ops?.data?.health;
 
@@ -689,7 +694,7 @@ function renderAlphaHeartbeat() {
     const container = document.getElementById("eng-alpha-heartbeat");
     if (!container) return;
 
-    const ops = agentData["operations-agent"];
+    const ops = _opsAgent();
     const hb = ops?.data?.alpha_heartbeat;
     if (!hb || !hb.running) {
         container.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Heartbeat not running</div>';
@@ -748,7 +753,7 @@ function renderGcLearning() {
     const container = document.getElementById("eng-gc-learning");
     if (!container) return;
 
-    const ops = agentData["operations-agent"];
+    const ops = _opsAgent();
     const gcl = ops?.data?.gc_learning;
     const gcm = ops?.data?.gc_metrics;
 

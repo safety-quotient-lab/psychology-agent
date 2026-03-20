@@ -698,7 +698,7 @@ const ALERT_TRIGGERS = [
     // BLUE (level 4) — advisory: ops-agent actively deliberating (30s window)
     { level: 4, name: "ita-deliberation",
       test: () => {
-          const ops = agentData["operations-agent"];
+          const ops = agentData["ops-session"] || agentData["operations-agent"];
           if (ops?.status !== "online") return false;
           const recent = ops.data?.recent_deliberations || [];
           const latest = recent[0]?.started_at || "";
