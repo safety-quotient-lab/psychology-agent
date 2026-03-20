@@ -33,8 +33,8 @@ func init() {
 // handleIndex serves GET / — routes to compositor or standalone dashboard
 // based on agent identity.
 func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
-	if s.Config.AgentID == "operations-agent" {
-		// Full compositor dashboard
+	if s.Config.AgentID == "operations-agent" || s.Config.AgentID == "mesh" || s.Config.AgentID == "ops-session" {
+		// Full LCARS compositor dashboard
 		s.serveCompositor(w, r)
 		return
 	}
