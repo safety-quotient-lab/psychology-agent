@@ -508,6 +508,21 @@ func main() {
 	// Monitors operational signals, computes activation, fires deliberations.
 	// Sleep mode controlled by DB column sleep_mode in autonomy_budget.
 	osc := server.NewOscillator(cfg.AgentID, cfg.BudgetDBPath, cfg.RepoRoot)
+	// BUG-21 fix: connect oscillator fire → deliberation handler.
+	// When the oscillator fires, inject a deliberation event into the dispatcher.
+	// The dispatcher routes it through budget gate → spawner (on daemons) or
+	// notifier (on session agents where spawner blocks).
+	osc.OnFire = func(tier string) {
+		evt := events.NewEvent(events.EventTransportMessage, events.PriorityNormal,
+			"oscillator-fire",
+			map[string]string{
+				"tier":    tier,
+				"reason":  "oscillator activation exceeded threshold",
+				"prompt":  "/sync --quick",
+			})
+		dispatcher.HandleEvent(context.Background(), evt)
+		logger.Info("oscillator fired → deliberation dispatched", "tier", tier)
+	}
 	srv.Oscillator = osc
 	osc.Start()
 	logger.Info("oscillator started", "agent_id", cfg.AgentID)

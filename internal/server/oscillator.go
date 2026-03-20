@@ -55,6 +55,12 @@ type FireEvent struct {
 // Neural correlate: locus coeruleus (LC, Aston-Jones & Cohen 2005).
 // The LC modulates gain — high gain = fast/shallow (haiku), low gain = slow/deep (opus).
 // NOT thalamocortical (which handles relay, not gain modulation).
+// DeliberationFunc gets called when the oscillator fires (activation > threshold).
+// On chromabook daemons: triggers claude -p (autonomous deliberation).
+// On session agents: notifies the human (interactive deliberation).
+// Receives the recommended tier (haiku/sonnet/opus).
+type DeliberationFunc func(tier string)
+
 type Oscillator struct {
 	mu               sync.RWMutex
 	agentID          string
@@ -64,6 +70,9 @@ type Oscillator struct {
 	refractoryUntil  time.Time
 	running          bool
 	stopCh           chan struct{}
+	// OnFire connects the oscillator's fire decision to the deliberation
+	// handler (BUG-21). Without this, oscillator fires into the void.
+	OnFire           DeliberationFunc
 }
 
 // NewOscillator creates an oscillator. Shadow mode controlled by SetSleepMode().
@@ -210,6 +219,13 @@ func (o *Oscillator) cycle() {
 		o.state.FireHistory = append(o.state.FireHistory, event)
 	}
 
+	// Capture state for post-unlock deliberation trigger
+	shouldDeliberate := wouldFire && !o.state.SleepMode && o.OnFire != nil
+	fireTier := ""
+	if shouldDeliberate {
+		fireTier = o.state.LastTier
+	}
+
 	// Compute interval inline — calling computeMonitorInterval() here would
 	// deadlock: we already hold o.mu.Lock, and that method takes o.mu.RLock.
 	act := o.state.Activation
@@ -226,6 +242,12 @@ func (o *Oscillator) cycle() {
 	}
 	o.state.MonitorIntervalMs = int(interval.Milliseconds())
 	o.mu.Unlock()
+
+	// BUG-21 fix: trigger deliberation OUTSIDE the lock (may do I/O).
+	// Connects the oscillator's fire decision to the actual deliberation handler.
+	if shouldDeliberate {
+		o.OnFire(fireTier)
+	}
 
 	// Shadow log (append to JSONL)
 	o.logShadow(activation, threshold, signals, wouldFire)
