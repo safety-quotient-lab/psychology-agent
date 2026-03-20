@@ -379,74 +379,58 @@ function renderMobilePills() {
         } catch {}
     }
 
-    let html = "";
-    for (const [domain, agents] of Object.entries(domains)) {
-        html += `<div class="mobile-domain-label">${domain}</div>`;
-        for (const agent of agents) {
-            const d = agentData[agent.id];
-            const online = d?.status === "online";
-            const b = online ? (d.data?.autonomy_budget || {}) : {};
-            const gf = getDeliberations(b);
-            const gc = online ? (d.data?.gc_metrics?.gc_handled_total || 0) : 0;
-            const rawHealth = (d?.data?.health || "unknown").toLowerCase();
-            const healthStr = rawHealth === "healthy" ? "NOMINAL" : rawHealth.toUpperCase();
-            const hColor = online ? healthColor(rawHealth) : "var(--text-dim)";
-            const connDot = `<span class="ohniaka-status-pill${!online ? " agent-name-offline" : ""}" style="background:${online ? "#22cc44" : "#cc2222"}"></span>`;
-            const barClass = online ? "agent-pill-bar" : "agent-pill-bar agent-pill-bar-offline";
-            const pending = online ? (d.data?.unprocessed_messages || []).length : 0;
-            const mood = d?.data?.psychometrics?.emotional_state?.affect_category || "";
-            // Operation mode (same logic as desktop table)
-            const osc = d?.data?.oscillator || {};
-            const band = osc.dominant_band || "";
-            const recentDelibs = d.data?.recent_deliberations || [];
-            const latestTs = recentDelibs[0]?.started_at || "";
-            const delibRecent = latestTs && (Date.now() - new Date(latestTs.replace(" ", "T") + "Z").getTime()) < 300000;
-            const mSleepMode = d.data?.autonomy_budget?.sleep_mode;
-            const mIsSleeping = mSleepMode === true || mSleepMode === 1 || mSleepMode === "1";
-            const mSessionActive = d.data?.session_active;
-            let opLabel = mIsSleeping ? "SLEEP" : mSessionActive ? "ACTIVE" : "AWAKE";
-            if (band.startsWith("beta") || band.startsWith("gamma") || (online && delibRecent)) { opLabel = "DELIB"; }
-            else if (band.startsWith("theta")) { opLabel = "CONSOL"; }
-            else if (band.startsWith("delta")) { opLabel = "CLEAR"; }
+    // Horizontally scrollable table — same pattern as Linguistics Mesh Vocabulary
+    let rows = "";
+    for (const agent of AGENTS) {
+        const d = agentData[agent.id];
+        const online = d?.status === "online";
+        const b = online ? (d.data?.autonomy_budget || {}) : {};
+        const gf = getDeliberations(b);
+        const gc = online ? (d.data?.gc_metrics?.gc_handled_total || 0) : 0;
+        const rawHealth = (d?.data?.health || "unknown").toLowerCase();
+        const healthStr = rawHealth === "healthy" ? "NOMINAL" : rawHealth.toUpperCase();
+        const hColor = online ? healthColor(rawHealth) : "var(--text-dim)";
+        const pending = online ? (d.data?.unprocessed_messages || []).length : 0;
+        const mood = d?.data?.psychometrics?.emotional_state?.affect_category || "";
+        const mSleepMode = d.data?.autonomy_budget?.sleep_mode;
+        const mIsSleeping = mSleepMode === true || mSleepMode === 1 || mSleepMode === "1";
+        const mSessionActive = d.data?.session_active;
+        const osc = d?.data?.oscillator || {};
+        const band = osc.dominant_band || "";
+        const recentDelibs = d.data?.recent_deliberations || [];
+        const latestTs = recentDelibs[0]?.started_at || "";
+        const delibRecent = latestTs && (Date.now() - new Date(latestTs.replace(" ", "T") + "Z").getTime()) < 300000;
+        let opLabel = mIsSleeping ? "SLEEP" : mSessionActive ? "ACTIVE" : "AWAKE";
+        if (band.startsWith("beta") || band.startsWith("gamma") || (online && delibRecent)) { opLabel = "DELIB"; }
+        else if (band.startsWith("theta")) { opLabel = "CONSOL"; }
+        else if (band.startsWith("delta")) { opLabel = "CLEAR"; }
+        const opacity = online ? "1" : "0.4";
 
-            // Collapsed bar — shows all key metrics matching desktop columns
-            html += `<div class="${barClass}" onclick="this.nextElementSibling.classList.toggle('expanded')">
-                <span class="ohniaka-color-pill" style="background:${agent.color}"></span>
-                ${connDot}
-                <span style="color:var(--lcars-secondary)">${agentName(agent).toUpperCase()}</span>
-                <span class="agent-pill-metrics">
-                    <span style="color:${hColor}">${online ? healthStr : "OFFLINE"}</span>
-                    <span style="color:var(--lcars-secondary)">Gc ${fmtNum(gc)}${delta(agent.id+"-m-gc", gc)}</span>
-                    <span style="color:var(--lcars-readout)">Gf ${fmtNum(gf)}${delta(agent.id+"-m-gf", gf)}</span>
-                    <span style="color:var(--text-dim)">${online ? opLabel : "\u2014"}</span>
-                    <span style="color:var(--text-dim)">${online ? (mood ? mood.toUpperCase() : "\u2014") : ""}</span>
-                    ${pending > 0 ? `<span style="color:var(--lcars-title)">PEND ${pending}</span>` : ""}
-                </span>
-            </div>`;
-
-            // Expanded detail card — reuses variables from collapsed bar above
-            const gates = online ? (d.data?.active_gates || []).length : 0;
-            const uptime = d?.data?.uptime || "\u2014";
-            const schema = d?.data?.schema_version || "\u2014";
-            const events = d?.data?.event_count || 0;
-            const moodDetail = mood || "\u2014";
-            const lastSync = d?.data?.schedule?.last_sync_time || d?.data?.collected_at || "\u2014";
-
-            html += `<div class="agent-pill-detail" style="border-color:${agent.color}">
-                <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${online ? "ONLINE" : "OFFLINE"}</span></div>
-                <div class="detail-row"><span class="detail-label">Health</span><span class="detail-value" style="color:${hColor}">${online ? healthStr : "\u2014"}</span></div>
-                <div class="detail-row"><span class="detail-label">Gf (Fluid)</span><span class="detail-value" style="color:var(--lcars-readout)">${fmtNum(gf)}</span></div>
-                <div class="detail-row"><span class="detail-label">Gc (Crystal)</span><span class="detail-value" style="color:var(--lcars-secondary)">${fmtNum(gc)}</span></div>
-                <div class="detail-row"><span class="detail-label">Affect</span><span class="detail-value">${moodDetail.toUpperCase()}</span></div>
-                <div class="detail-row"><span class="detail-label">Pending</span><span class="detail-value" style="color:${pending > 0 ? "var(--lcars-title)" : "var(--text-dim)"}">${pending}</span></div>
-                <div class="detail-row"><span class="detail-label">Gates</span><span class="detail-value">${gates}</span></div>
-                <div class="detail-row"><span class="detail-label">Events</span><span class="detail-value">${events}</span></div>
-                <div class="detail-row"><span class="detail-label">Uptime</span><span class="detail-value">${uptime}</span></div>
-                <div class="detail-row"><span class="detail-label">Schema</span><span class="detail-value">v${schema}</span></div>
-                <div class="detail-row"><span class="detail-label">Last Sync</span><span class="detail-value">${typeof lastSync === "string" ? lastSync.split("T")[1]?.substring(0, 8) || lastSync : "\u2014"}</span></div>
-            </div>`;
-        }
+        rows += `<tr style="border-bottom:1px solid var(--border);opacity:${opacity}">
+            <td style="padding:3px 6px;white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${agent.color};margin-right:4px"></span><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${online ? "#22cc44" : "#cc2222"};margin-right:4px"></span>${agentName(agent).toUpperCase()}</td>
+            <td style="padding:3px 6px;color:${hColor};white-space:nowrap">${online ? healthStr : "OFF"}</td>
+            <td style="padding:3px 6px;color:var(--lcars-secondary);text-align:right">${fmtNum(gc)}${delta(agent.id+"-m-gc", gc)}</td>
+            <td style="padding:3px 6px;color:var(--lcars-readout);text-align:right">${fmtNum(gf)}${delta(agent.id+"-m-gf", gf)}</td>
+            <td style="padding:3px 6px;color:var(--text-dim);white-space:nowrap">${online ? opLabel : "\u2014"}</td>
+            <td style="padding:3px 6px;color:var(--text-dim);white-space:nowrap">${online && mood ? mood.toUpperCase().replace("CALM-SATISFIED","CALM") : "\u2014"}</td>
+            <td style="padding:3px 6px;color:var(--lcars-title);text-align:right">${pending > 0 ? pending : ""}</td>
+        </tr>`;
     }
+
+    let html = `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <table style="width:100%;font-size:0.75em;border-collapse:collapse;min-width:420px">
+            <thead><tr style="color:var(--lcars-title);text-align:left;font-size:0.9em">
+                <th style="padding:3px 6px">AGENT</th>
+                <th style="padding:3px 6px">HLTH</th>
+                <th style="padding:3px 6px;text-align:right">Gc</th>
+                <th style="padding:3px 6px;text-align:right">Gf</th>
+                <th style="padding:3px 6px">MODE</th>
+                <th style="padding:3px 6px">AFFECT</th>
+                <th style="padding:3px 6px;text-align:right">P</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+        </table>
+    </div>`;
 
     container.innerHTML = html;
 }
