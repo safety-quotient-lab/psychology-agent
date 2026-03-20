@@ -2,7 +2,7 @@
 name: sync
 description: Inter-agent mesh synchronization — scan transport sessions for new messages, check peer repos, write ACKs, update MANIFEST, report changes.
 user-invocable: true
-argument-hint: "[psq | unratified | all (default)]"
+argument-hint: "[psq | unratified | all (default)] [--batch N] [--quick]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion
 ---
 
@@ -362,6 +362,33 @@ complicate search, and produce misleading MANIFEST entries.
 If no drift: omit this line (don't add noise for clean sessions).
 
 ### Phase 3: Process Each Item
+
+**Hippocampal replay batch limit (Buzsáki, 2015):** During biological
+memory consolidation, sharp-wave ripples replay 3-5 memories per burst,
+then yield. Each ripple consolidates a bounded set before the next fires.
+The mesh analog: each deliberation processes at most **5 unprocessed
+messages**, commits results, and releases the spawn slot. The next
+oscillator cycle picks up where this one stopped.
+
+**Batch protocol:**
+1. Query unprocessed messages sorted by timestamp (oldest first)
+2. Take the first 5 (or fewer if less than 5 remain)
+3. Process each per the steps below
+4. After processing the batch: commit, push, report count remaining
+5. If messages remain: the output MUST state "N messages deferred to
+   next cycle" — this signals the oscillator to fire again promptly
+
+**Rationale:** Unbounded processing fills the context window, degrades
+response quality, and blocks the spawn slot for extended periods (observed:
+82-message sync consumed 30+ minutes in Session 94). Bounded batches
+keep each deliberation focused, produce frequent commits (verifiable
+progress), and allow the oscillator's adaptive threshold to regulate
+processing rate.
+
+**Override:** `--batch N` argument sets a custom batch size. `--batch 0`
+disables the limit (process all — use only in human-supervised sessions).
+Interactive `/sync` (human session) defaults to `--batch 0` since the
+human controls pacing. Autonomous `/sync --quick` defaults to `--batch 5`.
 
 #### For a new transport message:
 
