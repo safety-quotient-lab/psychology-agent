@@ -796,11 +796,28 @@ func (s *Server) deliberationCount() int {
 }
 
 // detectSessionActive checks if a human Claude Code session actively works
-// on this repo. Checks for recent git commits (< 5 min).
+// on this repo. Looks for a `claude` process whose cwd matches the project root.
+// Falls back to recent git commits (< 5 min) if lsof unavailable.
 func (s *Server) detectSessionActive() bool {
+	// Primary: check for claude process with matching cwd
+	pidOut, err := exec.Command("pgrep", "-x", "claude").Output()
+	if err == nil {
+		for _, line := range strings.Split(strings.TrimSpace(string(pidOut)), "\n") {
+			pid := strings.TrimSpace(line)
+			if pid == "" {
+				continue
+			}
+			// macOS: lsof -p PID | grep cwd
+			lsofOut, err := exec.Command("lsof", "-p", pid).Output()
+			if err == nil && strings.Contains(string(lsofOut), s.Config.RepoRoot) {
+				return true
+			}
+		}
+	}
+	// Fallback: recent git activity
 	cmd := exec.Command("git", "-C", s.Config.RepoRoot, "log", "--oneline", "-1", "--since=5 minutes ago")
-	out, err := cmd.Output()
-	return err == nil && len(strings.TrimSpace(string(out))) > 0
+	out, _ := cmd.Output()
+	return len(strings.TrimSpace(string(out))) > 0
 }
 
 // decodeJSON reads and parses a JSON request body into dst.
