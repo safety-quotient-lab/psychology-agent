@@ -3981,8 +3981,39 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 }
 .agent-pill-bar-offline { animation: agent-offline-flash 2s ease-in-out infinite; }
 
-/* Inline metrics on the bar — wrap to second line if needed */
-/* Metrics wrap to second row on narrow screens */
+/* Mobile agent bars — grid layout for column alignment */
+.agent-pill-bar, .agent-pill-bar-offline {
+    display: grid !important;
+    grid-template-columns: 10px 10px 1fr 42px 32px 32px 42px 42px 28px;
+    align-items: center;
+    gap: 0 var(--gap-xs);
+    font-size: 0.78em;
+}
+.agent-pill-name {
+    color: var(--lcars-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.agent-pill-col {
+    text-align: right;
+    white-space: nowrap;
+    font-size: 0.9em;
+}
+.agent-pill-header {
+    display: grid;
+    grid-template-columns: 10px 10px 1fr 42px 32px 32px 42px 42px 28px;
+    gap: 0 var(--gap-xs);
+    font-size: 0.62em;
+    color: var(--lcars-title);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0 var(--gap-s);
+    margin-bottom: 2px;
+}
+.agent-pill-header span:nth-child(n+4) { text-align: right; }
+
+/* Legacy — kept for any remaining flex usage */
 .agent-pill-metrics {
     display: flex;
     flex-wrap: wrap;

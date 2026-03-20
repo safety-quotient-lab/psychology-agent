@@ -577,7 +577,13 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 	totalDeliberations := db.QueryScalar(dbPath, "SELECT COUNT(*) FROM deliberation_log")
 	completedDeliberations := db.QueryScalar(dbPath, "SELECT COUNT(*) FROM deliberation_log WHERE status='completed'")
 	failedDeliberations := db.QueryScalar(dbPath, "SELECT COUNT(*) FROM deliberation_log WHERE status!='completed'")
-	gcHandledTotal := db.QueryScalar(dbPath, "SELECT COALESCE(SUM(count), 0) FROM gc_event_counters")
+	gcHandledDB := db.QueryScalar(dbPath, "SELECT COALESCE(SUM(count), 0) FROM gc_event_counters")
+	// Oscillator cycles represent crystallized processing (signal check + activation compute)
+	oscCycles := 0
+	if s.Oscillator != nil {
+		oscCycles = int(s.Oscillator.Snapshot().CycleCount)
+	}
+	gcHandledTotal := gcHandledDB + oscCycles
 
 	// Mesh mode — "active" or "paused" (sentinel file .mesh-paused)
 	meshMode := "active"

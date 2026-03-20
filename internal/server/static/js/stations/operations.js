@@ -377,7 +377,11 @@ function renderMobilePills() {
         } catch {}
     }
 
-    let html = "";
+    // Column header row — matches the grid layout
+    let html = `<div class="agent-pill-header">
+        <span></span><span></span>
+        <span>AGENT</span><span>HLTH</span><span>Gc</span><span>Gf</span><span>MODE</span><span>MOOD</span><span>P</span>
+    </div>`;
     for (const [domain, agents] of Object.entries(domains)) {
         html += `<div class="mobile-domain-label">${domain}</div>`;
         for (const agent of agents) {
@@ -404,19 +408,17 @@ function renderMobilePills() {
             else if (band.startsWith("theta")) { opLabel = "CONSOL"; }
             else if (band.startsWith("delta")) { opLabel = "CLEAR"; }
 
-            // Collapsed bar — shows all key metrics matching desktop columns
+            // Collapsed bar — grid layout so columns align across all agent rows
             html += `<div class="${barClass}" onclick="this.nextElementSibling.classList.toggle('expanded')">
                 <span class="ohniaka-color-pill" style="background:${agent.color}"></span>
                 ${connDot}
-                <span style="color:var(--lcars-secondary)">${agentName(agent).toUpperCase()}</span>
-                <span class="agent-pill-metrics">
-                    <span style="color:${hColor}">${online ? healthStr : "OFFLINE"}</span>
-                    <span style="color:var(--lcars-secondary)">Gc ${fmtNum(gc)}</span>
-                    <span style="color:var(--lcars-readout)">Gf ${fmtNum(gf)}</span>
-                    <span style="color:var(--text-dim)">${online ? opLabel : "\u2014"}</span>
-                    <span style="color:var(--text-dim)">${online ? (mood ? mood.toUpperCase() : "\u2014") : ""}</span>
-                    ${pending > 0 ? `<span style="color:var(--lcars-title)">PEND ${pending}</span>` : ""}
-                </span>
+                <span class="agent-pill-name">${agentName(agent).toUpperCase()}</span>
+                <span class="agent-pill-col" style="color:${hColor}">${online ? healthStr : "OFF"}</span>
+                <span class="agent-pill-col" style="color:var(--lcars-secondary)">${fmtNum(gc)}</span>
+                <span class="agent-pill-col" style="color:var(--lcars-readout)">${fmtNum(gf)}</span>
+                <span class="agent-pill-col" style="color:var(--text-dim)">${online ? opLabel : "\u2014"}</span>
+                <span class="agent-pill-col" style="color:var(--text-dim)">${online ? (mood ? mood.toUpperCase().replace("CALM-SATISFIED","CALM") : "\u2014") : ""}</span>
+                ${pending > 0 ? `<span class="agent-pill-col" style="color:var(--lcars-title)">${pending}</span>` : `<span class="agent-pill-col"></span>`}
             </div>`;
 
             // Expanded detail card — reuses variables from collapsed bar above
