@@ -26,8 +26,8 @@ fi
 AGENTS="operations-agent:https://operations-agent.safety-quotient.dev
 psychology-agent:https://psychology-agent.safety-quotient.dev
 safety-quotient-agent:https://psq-agent.safety-quotient.dev
-unratified-agent:https://unratified.org
-observatory-agent:https://observatory.unratified.org
+unratified-agent:https://unratified-agent.unratified.org
+observatory-agent:https://observatory-agent.unratified.org
 ops-session:http://localhost:8083
 psy-session:http://localhost:8082"
 
