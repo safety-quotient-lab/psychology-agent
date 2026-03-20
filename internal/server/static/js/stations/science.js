@@ -14,9 +14,10 @@ function switchSciSubsystem(subsys, updateUrl = true) {
     });
     const title = document.getElementById("science-zone-c-title");
     if (title) {
-        title.textContent = subsys === "linguistics" ? "Computational Linguistics" : "Psychometric Analysis";
+        const titles = { psychometrics: "Psychometric Analysis", linguistics: "Computational Linguistics", ontology: "Ontological Classification" };
+        title.textContent = titles[subsys] || "Science";
     }
-    if (subsys === "linguistics") fetchLinguisticsData();
+    if (subsys === "linguistics") fetchLinguisticsData().then(restoreTermFromUrl);
     // Persist to URL
     if (updateUrl) {
         const url = new URL(location);
@@ -25,6 +26,62 @@ function switchSciSubsystem(subsys, updateUrl = true) {
     }
 }
 window.switchSciSubsystem = switchSciSubsystem;
+
+// Show inline definition for a vocab term
+window.showTermDefinition = function(index) {
+    const terms = window._vocabTerms || [];
+    const t = terms[index];
+    if (!t) return;
+    const detail = document.getElementById("ling-term-detail");
+    if (!detail) return;
+
+    const name = t.name || t.term || "?";
+    const desc = t.description || "No definition available.";
+    const code = t.termCode || t["@id"] || "";
+    const status = t.status || "active";
+    const statusColor = status === "deprecated" ? "var(--text-dim)" : "var(--lcars-medical)";
+
+    // Toggle — click same term closes
+    if (detail.style.display !== "none" && detail.dataset.active === String(index)) {
+        detail.style.display = "none";
+        detail.dataset.active = "";
+        // Update URL — remove term param
+        const url = new URL(location);
+        url.searchParams.delete("term");
+        history.replaceState(null, "", url);
+        return;
+    }
+
+    detail.dataset.active = String(index);
+    detail.style.display = "block";
+    detail.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:var(--gap-s)">
+            <span style="color:var(--lcars-secondary);font-weight:700;font-size:1.1em">${name}</span>
+            <span style="color:${statusColor};font-size:0.8em;text-transform:uppercase">${status}</span>
+        </div>
+        <div style="color:var(--text-primary);line-height:1.5;margin-bottom:var(--gap-s)">${desc}</div>
+        ${code ? `<div style="color:var(--text-dim);font-size:0.75em;font-family:monospace">${code}</div>` : ""}
+    `;
+
+    // Scroll into view
+    detail.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+    // Deep-link: persist term in URL
+    const url = new URL(location);
+    url.searchParams.set("term", name.toLowerCase().replace(/\s+/g, "-"));
+    history.replaceState(null, "", url);
+};
+
+// Restore term selection from URL on Linguistics load
+function restoreTermFromUrl() {
+    const termSlug = new URLSearchParams(location.search).get("term");
+    if (!termSlug || !window._vocabTerms) return;
+    const idx = window._vocabTerms.findIndex(t => {
+        const name = (t.name || "").toLowerCase().replace(/\s+/g, "-");
+        return name === termSlug;
+    });
+    if (idx >= 0) window.showTermDefinition(idx);
+}
 
 async function fetchLinguisticsData() {
     // Fetch shared vocabulary
@@ -46,6 +103,9 @@ function renderLinguistics() {
         const deprecated = termList.length - active;
         const version = _vocabData.version || _vocabData.name || "?";
 
+        // Store terms globally for deep-link access
+        window._vocabTerms = termList;
+
         vocabEl.innerHTML = `
             <div style="display:flex;gap:var(--gap-l);margin-bottom:var(--gap-m);font-size:0.82em">
                 <div><span style="color:var(--lcars-title)">TERMS</span> <strong>${termList.length}</strong></div>
@@ -53,15 +113,15 @@ function renderLinguistics() {
                 <div><span style="color:var(--text-dim)">DEPRECATED</span> <strong>${deprecated}</strong></div>
                 <div><span style="color:var(--lcars-secondary)">VERSION</span> <strong>${version}</strong></div>
             </div>
-            <div style="display:flex;flex-wrap:wrap;gap:var(--gap-xs);max-height:200px;overflow-y:auto">
-                ${termList.map(t => {
+            <div style="display:flex;flex-wrap:wrap;gap:var(--gap-xs)">
+                ${termList.map((t, i) => {
                     const status = t.status || "active";
                     const color = status === "deprecated" ? "var(--text-dim)" : "var(--lcars-secondary)";
                     const name = t.name || t.term || t["@id"] || "?";
-                    const desc = (t.description || "").replace(/"/g, "&quot;");
-                    return `<span style="background:var(--bg-inset);padding:2px 8px;border-radius:var(--gap-xs);font-size:0.75em;color:${color}" title="${desc}">${name}</span>`;
+                    return `<span class="ling-term-pill" style="background:var(--bg-inset);padding:2px 8px;border-radius:var(--gap-xs);font-size:0.75em;color:${color};cursor:pointer" onclick="showTermDefinition(${i})" id="ling-term-${i}">${name}</span>`;
                 }).join("")}
-            </div>`;
+            </div>
+            <div id="ling-term-detail" style="display:none;margin-top:var(--gap-m);padding:var(--gap-m);background:var(--bg-inset);border-radius:var(--gap-xs);font-size:0.82em"></div>`;
     }
 
     // Terminology map — group by termCode prefix or inDefinedTermSet

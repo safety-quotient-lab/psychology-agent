@@ -626,6 +626,7 @@
                 <div class="ops-panel-selector">
                     <button class="lcars-pill-btn lcars-pill-sm ops-panel-btn ops-panel-active" data-subsys="psychometrics" onclick="switchSciSubsystem('psychometrics')">PSYCHOMETRICS</button>
                     <button class="lcars-pill-btn lcars-pill-sm ops-panel-btn" data-subsys="linguistics" onclick="switchSciSubsystem('linguistics')">LINGUISTICS</button>
+                    <button class="lcars-pill-btn lcars-pill-sm ops-panel-btn" data-subsys="ontology" onclick="switchSciSubsystem('ontology')">ONTOLOGY</button>
                 </div>
             </div>
 
@@ -885,27 +886,11 @@
                 </div>
             </div>
 
-            <!-- LCARS-only: Vocabulary (from Knowledge) -->
-            <div class="lcars-only" style="display:none">
-                <div class="lcars-panel kb-section" style="--panel-accent: var(--c-catalog)">
-                    <div class="lcars-panel-header">Mesh Vocabulary</div>
-                    <div class="lcars-panel-body scrollable" id="lcars-sci-vocab"></div>
-                </div>
-            </div>
-
-            <!-- LCARS-only: Lessons (from Wisdom) -->
+            <!-- Lessons stays in psychometrics -->
             <div class="lcars-only" style="display:none">
                 <div class="lcars-panel kb-section" style="--panel-accent: var(--c-knowledge)">
                     <div class="lcars-panel-header">Accumulated Lessons</div>
                     <div class="lcars-panel-body scrollable" id="lcars-sci-lessons"></div>
-                </div>
-            </div>
-
-            <!-- LCARS-only: PSH Discipline Catalog (from Knowledge) -->
-            <div class="lcars-only" style="display:none">
-                <div class="lcars-panel kb-section" style="--panel-accent: var(--c-transport)">
-                    <div class="lcars-panel-header">Discipline Catalog (PSH)</div>
-                    <div class="lcars-panel-body scrollable" id="lcars-sci-catalog"></div>
                 </div>
             </div>
             </div><!-- /sci-psychometrics -->
@@ -937,7 +922,40 @@
                         </div>
                     </div>
                 </div>
+                    <!-- Mesh Vocabulary (moved from psychometrics) -->
+                    <div class="lcars-panel kb-section" style="--panel-accent: var(--c-tab-science); grid-column: 1 / -1">
+                        <div class="lcars-panel-header">Mesh Vocabulary <span class="lcars-panel-id">3004</span></div>
+                        <div class="lcars-panel-body scrollable" id="lcars-sci-vocab"></div>
+                    </div>
+                </div>
             </div><!-- /sci-linguistics -->
+
+            <!-- ONTOLOGY subsystem -->
+            <div class="sci-panel" id="sci-ontology" style="display:none">
+                <div class="science-grid">
+                    <!-- Discipline Catalog (PSH) -->
+                    <div class="lcars-panel" style="--panel-accent: var(--c-tab-science); grid-column: 1 / -1">
+                        <div class="lcars-panel-header">Discipline Catalog (PSH) <span class="lcars-panel-id">4001</span></div>
+                        <div class="lcars-panel-body scrollable" id="lcars-sci-catalog"></div>
+                    </div>
+
+                    <!-- Claims Taxonomy -->
+                    <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
+                        <div class="lcars-panel-header">Claims Taxonomy <span class="lcars-panel-id">4002</span></div>
+                        <div class="lcars-panel-body" id="onto-claims">
+                            <div style="color:var(--text-dim);font-size:0.82em;padding:12px">Awaiting claims data...</div>
+                        </div>
+                    </div>
+
+                    <!-- Knowledge Graph -->
+                    <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
+                        <div class="lcars-panel-header">Knowledge Graph <span class="lcars-panel-id">4003</span></div>
+                        <div class="lcars-panel-body" id="onto-graph">
+                            <div style="color:var(--text-dim);font-size:0.82em;padding:12px">Awaiting ontology data...</div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /sci-ontology -->
         </div>
 
         <!-- Engineering Tab -->
