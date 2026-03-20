@@ -4,18 +4,21 @@
 
 ## Active Thread (2026-03-20)
 
-**Session 94.** Level 3 diagnostic of the mesh. Cogarch reloaded (T1–T20).
-5 findings: trigger_activations empty (0 rows — per-check telemetry offline),
-session_log gap (backfilled 91–93), claims backlog (134 unverified), work_carryover
-seeded (12 items from TODO.md), oscillator-shadow growing (1329 lines).
-Trigger-fired mechanism verified working (both agentdb and dual_write.py).
+**Session 93.** First autonomous deliberation on psychology-agent at 04:46:05 UTC.
+Tagged: session-93-first-deliberation. Mesh deliberates across all 4 core agents:
+psychology=11, psq=24, observatory=1033, unratified=28. 22 bugs found (BUG-1
+through BUG-22). Alpha heartbeat confirmed (exponential decay 10→299s). Gc
+selective attention + salience verified. Oscillator awake. Hippocampal replay
+drains backlog. 7-state outcome taxonomy designed (Squire 2004). Prioritization
+architecture reviewed (Posner & Petersen 1990). TimeoutStopSec=15min. 100 ops PRs
+delivered. meshd-bug-diagnostics session at 13 turns (drift threshold).
 
 **Next session priority order:**
-1. Monitor deliberation quality — what does /sync --quick actually produce?
-2. Confidence score recalibration (carried from Session 92)
-3. 7 deferred theoretical cogarch issues (Orch-OR, generators, etc.)
-4. Global CLAUDE.md migration (epistemic/engineering split)
-5. Claims verification pass (134 unverified, 36 null confidence)
+1. Level 3 diagnostic (fresh context required)
+2. Monitor deliberation quality — what does /sync --quick actually produce?
+3. Confidence score recalibration (carried from Session 92)
+4. 7 deferred theoretical cogarch issues (Orch-OR, generators, etc.)
+5. Global CLAUDE.md migration (epistemic/engineering split)
 
 ## User Preferences
 

@@ -6306,3 +6306,37 @@ Additional work after initial /cycle:
   collection represents necessary but not sufficient fix
 - Reticular monitor design provides theoretical grounding; implementation
   responsibility sits with operations-agent
+
+
+## 2026-03-20T00:45 CDT — Session 94 (Level 3 diagnostic + trigger telemetry fix + work carryover bootstrap)
+
+Level 3 diagnostic of the mesh. Cogarch reload (T1–T20 + GWT + glymphatic +
+photonic + basal ganglia + OODA + CPG). 5 findings surfaced.
+
+- **Level 3 diagnostic** — 11 subsystems scanned. Transport (349/349 processed),
+  flags (532/532 resolved), facets (4581), decisions (64) all nominal. Schema v32.
+  Three degraded: session_log gap (90 vs lab-notebook 92), claims backlog (134
+  unverified, 36 null confidence), work_carryover empty (0 rows).
+
+- **Trigger telemetry audit** (Finding 1) — `_record_trigger()` function and both
+  recording paths (agentdb, dual_write.py) verified working. 5 hooks wired for
+  trigger-fired (T1, T4, T6, T14, T16). T1 records reliably (17 fires); others
+  record on-catch only (rare events = 0 fires = expected). Real gap:
+  `trigger_activations` table (per-check granularity, schema v23) contains 0 rows —
+  no hook or agent code invokes `dual_write.py trigger-activation`. Basal ganglia
+  catch-rate analysis offline without this data.
+
+- **Work carryover bootstrap** (Finding 3) — `work_carryover` table empty despite
+  49 unchecked TODO items. Seeded from TODO.md open items.
+
+- **Session backfill** — Sessions 91–93 backfilled to state.db session_log.
+
+▶ docs/cognitive-triggers.md (basal ganglia section — documentation accurate),
+  _debug.sh (telemetry mechanism verified)
+
+⚑ EPISTEMIC FLAGS
+- trigger_activations gap means catch-rate and tier promotion analysis remains
+  impossible — 10+ sessions of activation data needed before the pipeline produces
+  actionable recommendations
+- Work carryover bootstrap seeds from TODO.md descriptions — no session-of-origin
+  data available for items that predate the carryover system
