@@ -15,20 +15,8 @@ source "${BASH_SOURCE[0]%/*}/_debug.sh"
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
 # Only trigger on transport message files written by psychology-agent
-TOOL_INPUT="${TOOL_USE_INPUT:-}"
-FILE_PATH=""
-
-# Extract file path from tool input (Write tool provides file_path)
-if [ -n "$TOOL_INPUT" ]; then
-  FILE_PATH=$(echo "$TOOL_INPUT" | python3 -c "
-import sys, json
-try:
-    d = json.load(sys.stdin)
-    print(d.get('file_path', ''))
-except:
-    pass
-" 2>/dev/null)
-fi
+# Claude Code injects TOOL_INPUT_file_path as a flattened env var
+FILE_PATH="${TOOL_INPUT_file_path:-}"
 
 [ -z "$FILE_PATH" ] && exit 0
 
