@@ -21,13 +21,15 @@ async function fetchAgentCards() {
         }
         const hdrPsych = document.getElementById("lcars-hdr-psych");
         if (hdrPsych) {
-            const psychExt = (firstCard.extensions || []).find(e =>
-                e.uri && e.uri.includes("psychology"));
+            // Extensions live at card.extensions (A2A standard) or card.capabilities.extensions (ops format)
+            const exts = firstCard.extensions || firstCard.capabilities?.extensions || [];
+            const psychExt = exts.find(e => e.uri && e.uri.includes("psychology"));
             if (psychExt) {
-                const psychVer = psychExt.version || "0.0.2";
+                // Extract version from URI (a2a-psychology/v0.0.2) or version field
+                const uriVer = psychExt.uri.match(/v?(\d+\.\d+\.\d+)/)?.[1];
+                const psychVer = psychExt.version || uriVer || "0.0.2";
                 hdrPsych.textContent = `A2A-PSYCH/${psychVer}`;
             }
-            // If no extension found, keep the hardcoded HTML value
         }
     }
 }

@@ -2,6 +2,7 @@
   "name": "operations-agent",
   "description": "Operations agent for the safety-quotient mesh. Owns the interagent compositor (dashboard), shared vocabulary governance, deploy pipeline coordination, and operational telemetry.",
   "version": "1.0.0",
+  "protocolVersion": "1.0.0",
 
   "supported_interfaces": [
     {
