@@ -671,6 +671,21 @@ func main() {
 	// Initialize hippocampal replay schema (T6 — backlog scanner)
 	events.InitHippocampalReplay(cfg.BudgetDBPath)
 
+	// Initialize trigger_activations table (T12 — GWT telemetry)
+	db.Exec(cfg.BudgetDBPath, `CREATE TABLE IF NOT EXISTS trigger_activations (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		session_id INTEGER,
+		trigger_id TEXT NOT NULL,
+		check_number INTEGER,
+		tier TEXT NOT NULL,
+		mode TEXT,
+		fired BOOLEAN DEFAULT 1,
+		result TEXT,
+		action_taken TEXT,
+		timestamp TEXT,
+		created_at TEXT DEFAULT (datetime('now'))
+	)`)
+
 	// Alpha heartbeat — idle vital signs (T22 metabolic cooling model)
 	alphaHB := server.NewAlphaHeartbeat(logger, func() {
 		srv.BroadcastStatus() // thalamic relay — broadcast on each idle tick
