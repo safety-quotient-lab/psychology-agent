@@ -47,6 +47,7 @@ func (s *Server) handlePulse(w http.ResponseWriter, r *http.Request) {
 		GcHandled      int     `json:"gc_handled"`
 		EventCount     int     `json:"event_count"`
 		DelibCount     int     `json:"deliberation_count"`
+		SleepMode      bool    `json:"sleep_mode"`
 	}
 
 	summaries := make([]agentSummary, 0, len(agents))
@@ -87,6 +88,12 @@ func (s *Server) handlePulse(w http.ResponseWriter, r *http.Request) {
 				if es, ok := psych["emotional_state"].(map[string]any); ok {
 					summary.AffectCategory = strFromMap(es, "affect_category", "")
 				}
+			}
+
+			// Sleep mode from budget
+			if budget, ok := data["autonomy_budget"].(map[string]any); ok {
+				sm := budget["sleep_mode"]
+				summary.SleepMode = sm == "1" || sm == true || sm == 1.0
 			}
 
 			// Gc metrics — forwarded for mesh-wide Gc/Gf display

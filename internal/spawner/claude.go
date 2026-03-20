@@ -11,6 +11,7 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -32,6 +33,12 @@ const circuitCooldown = 5 * time.Minute
 // circuitThreshold — after this many consecutive failures the breaker opens.
 const circuitThreshold int32 = 3
 
+// MeshSlotDir — shared filesystem slots for mesh-wide concurrency.
+// All agents on the same machine compete for N slot files.
+// Slot files: /tmp/mesh-deliberation-slot-0 through slot-{N-1}.
+var MeshSlotDir = "/tmp"
+var MeshSlotPrefix = "mesh-deliberation-slot-"
+
 // Spawner manages Claude child-process invocations with observability.
 type Spawner struct {
 	// Command holds the executable path — "claude" or a wrapper script.
@@ -42,6 +49,10 @@ type Spawner struct {
 	MaxConcurrent int
 	// Timeout caps a single deliberation's wall-clock duration.
 	Timeout time.Duration
+	// MeshMaxSlots enables mesh-wide concurrency throttle.
+	// When > 0, acquires a filesystem slot before spawning.
+	// All agents on the same machine share the slot pool.
+	MeshMaxSlots int
 
 	active            int32  // atomic — currently running deliberations
 	consecutive       int32  // atomic — consecutive failure count
@@ -89,12 +100,69 @@ func New(agentID string, logger *slog.Logger) *Spawner {
 }
 
 // CanDeliberate returns true when the deliberator accepts new work — the circuit
-// breaker remains closed and the concurrency cap has room.
+// breaker remains closed, the concurrency cap has room, and the mesh lock
+// remains available (if enabled).
 func (s *Spawner) CanDeliberate() bool {
 	if s.circuitTripped() {
 		return false
 	}
-	return int(atomic.LoadInt32(&s.active)) < s.MaxConcurrent
+	if int(atomic.LoadInt32(&s.active)) >= s.MaxConcurrent {
+		return false
+	}
+	if s.MeshMaxSlots > 0 && meshSlotsAvailable(s.MeshMaxSlots) == 0 {
+		return false
+	}
+	return true
+}
+
+// meshSlotsAvailable returns how many mesh-wide slots remain open.
+func meshSlotsAvailable(maxSlots int) int {
+	held := 0
+	for i := 0; i < maxSlots; i++ {
+		path := filepath.Join(MeshSlotDir, fmt.Sprintf("%s%d", MeshSlotPrefix, i))
+		info, err := os.Stat(path)
+		if err != nil {
+			continue // slot open
+		}
+		// Stale lock: if older than 20 min, remove (abandoned)
+		if time.Since(info.ModTime()) > 20*time.Minute {
+			os.Remove(path)
+			continue
+		}
+		held++
+	}
+	return maxSlots - held
+}
+
+// acquireMeshSlot grabs the first available slot. Returns slot index or -1.
+func acquireMeshSlot(agentID string, maxSlots int) int {
+	for i := 0; i < maxSlots; i++ {
+		path := filepath.Join(MeshSlotDir, fmt.Sprintf("%s%d", MeshSlotPrefix, i))
+		f, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
+		if err != nil {
+			// Check for stale
+			if info, serr := os.Stat(path); serr == nil && time.Since(info.ModTime()) > 20*time.Minute {
+				os.Remove(path)
+				f, err = os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
+			}
+			if err != nil {
+				continue // slot held
+			}
+		}
+		f.WriteString(agentID + "\n")
+		f.Close()
+		return i
+	}
+	return -1 // no slots available
+}
+
+// releaseMeshSlot removes a specific slot file.
+func releaseMeshSlot(slot int) {
+	if slot < 0 {
+		return
+	}
+	path := filepath.Join(MeshSlotDir, fmt.Sprintf("%s%d", MeshSlotPrefix, slot))
+	os.Remove(path)
 }
 
 // ActiveCount reports how many deliberations run right now.
@@ -124,6 +192,8 @@ func (s *Spawner) Deliberate(ctx context.Context, prompt string, flags ...string
 		reason := "concurrency limit reached"
 		if s.circuitTripped() {
 			reason = "circuit breaker open — pausing deliberations"
+		} else if s.MeshMaxSlots > 0 && meshSlotsAvailable(s.MeshMaxSlots) == 0 {
+			reason = "mesh-wide slots full"
 		}
 		return nil, fmt.Errorf("deliberation refused: %s", reason)
 	}
