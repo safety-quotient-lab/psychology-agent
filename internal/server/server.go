@@ -526,6 +526,11 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 	//   Old: budget_spent / budget_cutoff (operations-agent convention)
 	budgetRows, _ := db.QueryJSON(dbPath,
 		"SELECT * FROM autonomy_budget WHERE agent_id='"+db.SanitizeID(s.Config.AgentID)+"'")
+	// Fallback: session agents (ops-session, psy-session) share state.db with
+	// the daemon agent. If no row for session ID, try the first available row.
+	if len(budgetRows) == 0 {
+		budgetRows, _ = db.QueryJSON(dbPath, "SELECT * FROM autonomy_budget LIMIT 1")
+	}
 	var budget interface{}
 	if len(budgetRows) > 0 {
 		row := budgetRows[0]
