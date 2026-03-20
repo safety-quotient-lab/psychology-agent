@@ -3509,9 +3509,13 @@ a.activity-link:hover {
     .lcars-controls { flex: 1 1 100%; justify-content: flex-end; }
     .lcars-title { font-size: 1.1em; }
     .lcars-subtitle { display: none; }
-    .lcars-content { padding: 12px; overflow-x: hidden; overflow-y: visible; }
-    .theme-lcars .lcars-frame { grid-template-rows: auto var(--elbow-inner, 24px) auto; min-height: auto; }
-    .theme-lcars .lcars-content { overflow-y: visible; }
+    .lcars-content { padding: 12px; overflow: visible !important; }
+    .theme-lcars .lcars-frame {
+        display: block !important; min-height: auto !important;
+    }
+    .theme-lcars .lcars-sidebar { display: none; }
+    .theme-lcars .lcars-header-band { display: block; }
+    .theme-lcars .lcars-content { overflow: visible !important; }
 
     /* Tab bar: horizontal scroll */
     .lcars-tabs {
