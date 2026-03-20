@@ -29,12 +29,17 @@ window.switchOpsSubsystem = switchOpsSubsystem;
     if (hashTab && VALID_TABS.includes(hashTab)) switchTab(hashTab, false);
 
     // Restore subsystem from URL ?sub= parameter
+    // Restore subsystem from URL ?sub= parameter
     const urlSub = new URLSearchParams(location.search).get("sub");
     if (urlSub) {
-        // Defer until after first render so the panels exist
         setTimeout(() => {
-            if (typeof switchSciSubsystem === "function") switchSciSubsystem(urlSub, false);
-            if (typeof switchOpsSubsystem === "function") switchOpsSubsystem(urlSub);
+            const sciSubs = ["psychometrics", "linguistics", "ontology"];
+            const opsSubs = ["pulse-status", "resources-autonomy", "transport-overview", "resources-capacity", "deliberations-log", "governance-record"];
+            if (sciSubs.includes(urlSub) && typeof switchSciSubsystem === "function") {
+                switchSciSubsystem(urlSub, false);
+            } else if (opsSubs.includes(urlSub) && typeof switchOpsSubsystem === "function") {
+                switchOpsSubsystem(urlSub);
+            }
         }, 100);
     }
 
