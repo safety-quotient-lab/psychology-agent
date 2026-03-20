@@ -771,20 +771,22 @@ function renderAffectGrid() {
     // ── 2D Projection Views ──
     const dots = agents ? padData.map(d => {
         let leftPct, topPct, size, sizeLabel;
+        // All axes [-1,1] → normalize to [0,1] for positioning
+        const pn = (d.p + 1) / 2, an = (d.a + 1) / 2, dn = (d.d + 1) / 2;
         if (padView === "pa") {
-            leftPct = ((d.p + 1) / 2) * 100;
-            topPct = ((1 - (d.a + 1) / 2)) * 100;
-            size = 8 + d.d * 10;
+            leftPct = pn * 100;        // P → x
+            topPct = (1 - an) * 100;   // A → y (inverted)
+            size = 6 + dn * 12;        // D → dot size
             sizeLabel = "D";
         } else if (padView === "pd") {
-            leftPct = ((d.p + 1) / 2) * 100;
-            topPct = (1 - d.d) * 100;
-            size = 8 + ((d.a + 1) / 2) * 10;
+            leftPct = pn * 100;        // P → x
+            topPct = (1 - dn) * 100;   // D → y (inverted)
+            size = 6 + an * 12;        // A → dot size
             sizeLabel = "A";
         } else {
-            leftPct = ((d.a + 1) / 2) * 100;
-            topPct = (1 - d.d) * 100;
-            size = 8 + ((d.p + 1) / 2) * 10;
+            leftPct = an * 100;        // A → x
+            topPct = (1 - dn) * 100;   // D → y (inverted)
+            size = 6 + pn * 12;        // P → dot size
             sizeLabel = "P";
         }
         return { agent: d.agent, left: leftPct, top: topPct, size, dominance: d.d, valence: d.p, arousal: d.a, sizeLabel };
