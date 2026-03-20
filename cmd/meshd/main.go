@@ -484,8 +484,7 @@ func main() {
 		{AgentID: "unratified-agent", Repo: "safety-quotient-lab/unratified"},
 		{AgentID: "observatory-agent", Repo: "safety-quotient-lab/observatory"},
 	}
-	fetcher := transport.NewFetcher(cfg.AgentID, cfg.TransportDir, fetcherPeers, 5*time.Minute, logger)
-	fetcher.GitHubToken = os.Getenv("GITHUB_TOKEN")
+	fetcher := transport.NewFetcher(cfg.AgentID, cfg.TransportDir, cfg.RepoRoot, fetcherPeers, 5*time.Minute, logger)
 
 	// Trigger function for manual events via POST /api/trigger
 	triggerFunc := func(eventType string, payload map[string]string) error {
