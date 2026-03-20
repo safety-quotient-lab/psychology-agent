@@ -30,7 +30,7 @@
         ]
     }
     </script>
-    <link rel="stylesheet" href="css/inline-legacy.css?v=3a0b05a86">
+    <link rel="stylesheet" href="css/inline-legacy.css?v=c5eb19f87">
     <!-- TODO: consolidate inline-legacy.css into theme.css + layout.css + components.css -->
 
 </head>
@@ -50,7 +50,7 @@
     <!-- SVG L-shape frame — one continuous path, no seams -->
     <svg class="lcars-frame-svg" id="lcars-frame-svg" aria-hidden="true"></svg>
     <!-- Legacy elbow connector (hidden when SVG active) -->
-    <div class="lcars-elbow-connector-top"></div>
+    <div class="lcars-elbow-connector-top lcars-frame-element"></div>
 
     <!-- Left spine — segments map to content categories (standard mode) -->
     <div class="lcars-spine" id="lcars-spine">
@@ -62,23 +62,23 @@
 
     <!-- LCARS Sidebar — Trek bridge stations (semantic colors) -->
     <nav class="lcars-sidebar" id="lcars-sidebar">
-        <div class="lcars-sidebar-cap-top"></div>
-        <div class="lcars-sidebar-drop" style="background:var(--lcars-frame)"></div>
+        <div class="lcars-sidebar-cap-top lcars-frame-element"></div>
+        <div class="lcars-sidebar-drop lcars-frame-element"></div>
         <button class="lcars-sidebar-btn active" data-tab="operations" data-short="OPS" onclick="switchTab('operations')">Operations</button>
         <button class="lcars-sidebar-btn" data-tab="science" data-short="SCI" onclick="switchTab('science')">Science</button>
         <button class="lcars-sidebar-btn" data-tab="engineering" data-short="ENG" onclick="switchTab('engineering')">Engineering</button>
         <button class="lcars-sidebar-btn" data-tab="helm" data-short="HLM" onclick="switchTab('helm')">Helm</button>
         <button class="lcars-sidebar-btn" data-tab="tactical" data-short="TAC" onclick="switchTab('tactical')">Tactical</button>
         <button class="lcars-sidebar-btn" data-tab="medical" data-short="MED" onclick="switchTab('medical')">Medical</button>
-        <div class="lcars-sidebar-arm"></div>
-        <button class="lcars-sidebar-exit" onclick="setTheme('system')" title="Exit LCARS mode">&#x2716;</button>
+        <div class="lcars-sidebar-arm lcars-frame-element"></div>
+        <button class="lcars-sidebar-exit lcars-frame-element" onclick="setTheme('system')" title="Exit LCARS mode">&#x2716;</button>
     </nav>
 
     <!-- LCARS Header Band — stardate tray on mobile portrait -->
     <div class="lcars-header-band" id="lcars-header-band">
-        <div class="lcars-hdr-arm"></div>
+        <div class="lcars-hdr-arm lcars-frame-element"></div>
         <div class="lcars-header-seg lcars-hdr-title" style="background:transparent;color:var(--lcars-title);font-size:0.95em;letter-spacing:0.12em">INTERAGENT MESH</div>
-        <div class="lcars-hdr-arm"></div>
+        <div class="lcars-hdr-arm lcars-frame-element"></div>
         <div class="lcars-header-seg lcars-stardate-cell" style="background:var(--lcars-atomic-tangerine);position:relative" id="lcars-hdr-stardate">
             <input type="checkbox" id="stardate-tray-toggle" class="stardate-tray-input" aria-hidden="true">
             <label for="stardate-tray-toggle" class="stardate-tray-label">SD —</label>
@@ -92,7 +92,7 @@
                 <!-- TODO: Theme switcher pill — cycle through V23.01 / lcars-shiny / 2357 / 2369 / 2375 / 2379 palettes. Store selection in localStorage. Each theme overrides --lcars-frame through --lcars-highlight semantic vars. -->
             </div>
         </div>
-        <div class="lcars-hdr-endcap"></div>
+        <div class="lcars-hdr-endcap lcars-frame-element"></div>
     </div>
     <!-- Update notification bar — slides down when version dot tapped -->
     <div id="lcars-update-bar" class="lcars-update-bar">
@@ -1551,20 +1551,20 @@
     <div class="lcars-narrative-log" id="lcars-narrative-log"></div>
 </div>
 
-<script src="js/colorizer.js?v=3a0b05a86"></script>
-<script src="js/core.js?v=3a0b05a86"></script>
-<script src="js/chrome.js?v=3a0b05a86"></script>
-<script src="js/data-fetch.js?v=3a0b05a86"></script>
-<script src="js/pulse.js?v=3a0b05a86"></script>
-<script src="js/knowledge.js?v=3a0b05a86"></script>
-<script src="js/ws-sse.js?v=3a0b05a86"></script>
-<script src="js/stations/operations.js?v=3a0b05a86"></script>
-<script src="js/stations/science.js?v=3a0b05a86"></script>
-<script src="js/stations/helm.js?v=3a0b05a86"></script>
-<script src="js/stations/engineering.js?v=3a0b05a86"></script>
-<script src="js/stations/tactical.js?v=3a0b05a86"></script>
-<script src="js/stations/medical.js?v=3a0b05a86"></script>
-<script src="js/init.js?v=3a0b05a86"></script>
+<script src="js/colorizer.js?v=c5eb19f87"></script>
+<script src="js/core.js?v=c5eb19f87"></script>
+<script src="js/chrome.js?v=c5eb19f87"></script>
+<script src="js/data-fetch.js?v=c5eb19f87"></script>
+<script src="js/pulse.js?v=c5eb19f87"></script>
+<script src="js/knowledge.js?v=c5eb19f87"></script>
+<script src="js/ws-sse.js?v=c5eb19f87"></script>
+<script src="js/stations/operations.js?v=c5eb19f87"></script>
+<script src="js/stations/science.js?v=c5eb19f87"></script>
+<script src="js/stations/helm.js?v=c5eb19f87"></script>
+<script src="js/stations/engineering.js?v=c5eb19f87"></script>
+<script src="js/stations/tactical.js?v=c5eb19f87"></script>
+<script src="js/stations/medical.js?v=c5eb19f87"></script>
+<script src="js/init.js?v=c5eb19f87"></script>
 
 </body>
 </html>

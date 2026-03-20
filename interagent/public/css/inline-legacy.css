@@ -323,17 +323,8 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 
 /* Flat uniform frame — all structural elements use solid --lcars-frame.
    No gradients, no seams, clean canonical appearance. */
-.theme-lcars .lcars-sidebar-cap-top,
-.theme-lcars .lcars-sidebar-cap-bottom,
-.theme-lcars .lcars-sidebar-arm,
-.theme-lcars .lcars-sidebar-drop,
-.theme-lcars .lcars-sidebar-exit,
-.theme-lcars .lcars-sidebar-spacer {
-    background: var(--active-tab-color, var(--lcars-frame)) !important;
-    transition: background 0.3s ease;
-}
-.theme-lcars .lcars-hdr-arm,
-.theme-lcars .lcars-hdr-endcap {
+/* All LCARS frame structural elements — single class for color control */
+.theme-lcars .lcars-frame-element {
     background: var(--active-tab-color, var(--lcars-frame)) !important;
     transition: background 0.3s ease;
 }
@@ -404,8 +395,9 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
         circle at 100% 100%,
         transparent 0%,
         transparent var(--elbow-inner, 24px),
-        var(--lcars-frame) var(--elbow-inner, 24px)
+        var(--active-tab-color, var(--lcars-frame)) var(--elbow-inner, 24px)
     );
+    transition: background 0.3s ease;
 }
 .theme-lcars .lcars-elbow-connector-bottom {
     display: block;
@@ -419,8 +411,9 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
         circle at 100% 0%,
         transparent 0%,
         transparent var(--elbow-inner, 24px),
-        var(--lcars-frame) var(--elbow-inner, 24px)
+        var(--active-tab-color, var(--lcars-frame)) var(--elbow-inner, 24px)
     );
+    transition: background 0.3s ease;
 }
 
 /* Alert: connectors follow structural chrome */
