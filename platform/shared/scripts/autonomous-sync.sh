@@ -272,6 +272,17 @@ ensure_db() {
         "ALTER TABLE autonomy_budget ADD COLUMN min_action_interval INTEGER NOT NULL DEFAULT 300;" 2>/dev/null || true
     sqlite3 "${LOCAL_DB_PATH}" \
         "ALTER TABLE autonomy_budget ADD COLUMN shadow_mode INTEGER NOT NULL DEFAULT 1;" 2>/dev/null || true
+
+    # Rename migrations: old column names → spend-counter model (Session 94)
+    # budget_max → budget_cutoff, budget_current → budget_spent, shadow_mode → sleep_mode
+    # ALTER RENAME COLUMN is safe (SQLite ≥ 3.25, all fleet agents run ≥ 3.31)
+    # Each rename no-ops if the old column doesn't exist (already migrated)
+    sqlite3 "${LOCAL_DB_PATH}" \
+        "ALTER TABLE autonomy_budget RENAME COLUMN budget_max TO budget_cutoff;" 2>/dev/null || true
+    sqlite3 "${LOCAL_DB_PATH}" \
+        "ALTER TABLE autonomy_budget RENAME COLUMN budget_current TO budget_spent;" 2>/dev/null || true
+    sqlite3 "${LOCAL_DB_PATH}" \
+        "ALTER TABLE autonomy_budget RENAME COLUMN shadow_mode TO sleep_mode;" 2>/dev/null || true
     sqlite3 "${LOCAL_DB_PATH}" \
         "ALTER TABLE autonomous_actions ADD COLUMN adversarial_reason TEXT;" 2>/dev/null || true
     sqlite3 "${LOCAL_DB_PATH}" \
