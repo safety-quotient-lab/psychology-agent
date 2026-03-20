@@ -534,27 +534,6 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 	var budget interface{}
 	if len(budgetRows) > 0 {
 		row := budgetRows[0]
-		// Normalize schema: old (budget_current/budget_max) → new (budget_spent/budget_cutoff)
-		// Old: budget_current = remaining (starts at max, decrements)
-		// New: budget_spent = total used (starts at 0, increments)
-		// Conversion: budget_spent = budget_max - budget_current
-		if _, ok := row["budget_spent"]; !ok {
-			if current, ok := row["budget_current"]; ok {
-				if max, ok2 := row["budget_max"]; ok2 {
-					var c, m float64
-					fmt.Sscanf(current, "%f", &c)
-					fmt.Sscanf(max, "%f", &m)
-					row["budget_spent"] = fmt.Sprintf("%.0f", m-c)
-					row["budget_cutoff"] = "0" // old schema had no cutoff concept — 0 = unlimited
-				}
-			}
-		}
-		// Normalize shadow_mode → sleep_mode
-		if _, ok := row["sleep_mode"]; !ok {
-			if v, ok := row["shadow_mode"]; ok {
-				row["sleep_mode"] = v
-			}
-		}
 		budget = row
 	} else {
 		budget = map[string]interface{}{}

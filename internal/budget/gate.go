@@ -323,24 +323,15 @@ func (g *Gate) EstimateCost(priority Priority) int {
 // BUG-13 fix: agent state.db may use either schema:
 //   Old: budget_spent / budget_cutoff (operations-agent convention)
 //   New: budget_current / budget_max  (psychology-agent convention)
-// Try old schema first, fall back to new if column not found.
+// queryBudget reads budget_spent, budget_cutoff, sleep_mode from state.db.
 func (g *Gate) queryBudget() (spent, cutoff int, shadow bool, err error) {
 	agentID := sanitizeID(g.AgentID)
 
-	// Try new schema first (budget_current/budget_max — more common after refactor)
 	query := fmt.Sprintf(
-		"SELECT budget_current, budget_max, sleep_mode FROM autonomy_budget WHERE agent_id = '%s';",
+		"SELECT budget_spent, budget_cutoff, sleep_mode FROM autonomy_budget WHERE agent_id = '%s';",
 		agentID,
 	)
 	output, err := g.execSQL(query)
-	if err != nil && strings.Contains(output+err.Error(), "no such column") {
-		// Fall back to old schema (budget_spent/budget_cutoff)
-		query = fmt.Sprintf(
-			"SELECT budget_spent, budget_cutoff, sleep_mode FROM autonomy_budget WHERE agent_id = '%s';",
-			agentID,
-		)
-		output, err = g.execSQL(query)
-	}
 	if err != nil {
 		return 0, 0, false, fmt.Errorf("budget query failed: %w (output: %s)", err, output)
 	}
