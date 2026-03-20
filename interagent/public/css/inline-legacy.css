@@ -323,8 +323,9 @@ body:not(.theme-lcars) #pane-tactical { display: none !important; }
 
 /* Flat uniform frame — all structural elements use solid --lcars-frame.
    No gradients, no seams, clean canonical appearance. */
-/* All LCARS frame structural elements — single class for color control */
-.theme-lcars .lcars-frame-element {
+/* All LCARS frame structural elements — single class for color control.
+   Elbow connectors excluded — they use radial-gradient for the curve cutout. */
+.theme-lcars .lcars-frame-element:not(.lcars-elbow-connector-top):not(.lcars-elbow-connector-bottom) {
     background: var(--active-tab-color, var(--lcars-frame)) !important;
     transition: background 0.3s ease;
 }
