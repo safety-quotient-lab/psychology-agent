@@ -109,14 +109,15 @@ document.addEventListener("click", function(e) {
     const header = e.target.closest(".panel-tristate > .lcars-panel-header");
     if (!header) return;
     const panel = header.parentElement;
+    // Cycle: fixed (default) → expanded → collapsed → fixed
     if (panel.classList.contains("panel-collapsed")) {
         panel.classList.remove("panel-collapsed");
-        panel.classList.add("panel-expanded");
+        // back to fixed (default)
     } else if (panel.classList.contains("panel-expanded")) {
         panel.classList.remove("panel-expanded");
-        // back to fixed (default — no class)
-    } else {
         panel.classList.add("panel-collapsed");
+    } else {
+        panel.classList.add("panel-expanded");
     }
 });
 

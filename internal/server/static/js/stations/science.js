@@ -121,18 +121,21 @@ function renderLinguistics() {
         // Store terms globally for deep-link access
         window._vocabTerms = termList;
 
-        // Status pills
-        const cell = (val, label, tier) =>
-            `<div class="dg-cell${tier ? " dg-" + tier : ""}" title="${label}" onclick="this.classList.toggle('dg-show-label')"><span class="dg-val">${val}</span><span class="dg-label">${label}</span></div>`;
-        const pillsHtml = `<div class="lcars-data-grid" style="margin-bottom:var(--gap-m)">
-            ${cell(termList.length, "TERMS", "count")}
-            ${cell(active, "ACTIVE", "")}
-            ${cell(deprecated, "DEPRECATED", "t3")}
-            ${cell(version, "VERSION", "t2")}
-        </div>`;
+        // Zone-A pills (above panel headers)
+        const zoneA = document.getElementById("ling-zone-a");
+        if (zoneA) {
+            renderNumberGrid("ling-zone-a", [
+                { value: termList.length, label: "TERMS", type: "count" },
+                { value: active, label: "ACTIVE", type: "id" },
+                { value: deprecated, label: "DEPRECATED", type: "val" },
+                { gap: true },
+                { value: version, label: "VERSION", type: "t2" },
+                { value: (window._agentVocabs || []).length, label: "AGENTS", type: "count" },
+            ]);
+        }
 
         // Table with definitions (same pattern as Mesh Vocabulary)
-        vocabEl.innerHTML = pillsHtml + `<div class="lcars-data-table-wrap" style="--panel-accent:var(--c-tab-science)">
+        vocabEl.innerHTML = `<div class="lcars-data-table-wrap" style="--panel-accent:var(--c-tab-science)">
             <table class="lcars-data-table">
                 <thead><tr>
                     <th>Term</th><th>Code</th><th>Status</th><th>Definition</th>
@@ -327,6 +330,16 @@ async function fetchOntologyData() {
 
 function renderOntology() {
     const kb = _ontologyData?.data || _ontologyData || {};
+    const facets = _facetsData || {};
+
+    // Zone-A pills
+    renderNumberGrid("onto-zone-a", [
+        { value: facets.stats?.vocabulary_count || 0, label: "FACETS", type: "count" },
+        { value: facets.stats?.universal_count || 0, label: "CLASSIFIED", type: "id" },
+        { gap: true },
+        { value: (kb.decisions || []).length, label: "DECISIONS", type: "count" },
+        { value: (kb.claims || []).length, label: "CLAIMS", type: "val" },
+    ]);
 
     // Discipline Catalog — from /api/facets vocabulary, grouped by facet_type
     const catEl = document.getElementById("lcars-sci-catalog");
