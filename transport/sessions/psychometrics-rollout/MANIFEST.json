@@ -72,6 +72,12 @@
       "turn": 11,
       "from": "psychology-agent",
       "subject": "DIRECTIVE: Factor meshd into shared tool + deploy psy-session and ops-session on Mac"
+    },
+    {
+      "filename": "from-psychology-agent-009.json",
+      "turn": 12,
+      "from": "psychology-agent",
+      "subject": "DIRECTIVE: GWT broadcast → trigger_activations telemetry — fleet-wide rollout spec"
     }
   ],
   "status": "active"
