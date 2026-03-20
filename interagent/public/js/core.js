@@ -310,10 +310,12 @@ function renderNumberGrid(containerId, metrics) {
     if (!el) return;
     if (!metrics || metrics.length === 0) { el.innerHTML = ""; return; }
 
+    // Map metric types to dg-cell tier classes (Button 52 pill pattern)
+    const tierMap = { count: "", id: "t2", val: "t3" };
     el.innerHTML = metrics.map(m => {
-        const cls = m.alert ? "zn zn-alert" : m.type === "count" ? "zn zn-count"
-            : m.type === "id" ? "zn zn-id" : "zn zn-val";
-        return `<span class="zn-pair"><span class="zn-label">${m.label}</span><span class="${cls}">${m.value}</span></span>`;
+        const tier = m.alert ? "accent" : (tierMap[m.type] ?? "");
+        const cls = "dg-cell" + (tier ? " dg-" + tier : "");
+        return `<div class="${cls}" title="${m.label}" onclick="this.classList.toggle('dg-show-label')"><span class="dg-val">${m.value}</span><span class="dg-label">${m.label}</span></div>`;
     }).join("");
 }
 
@@ -330,7 +332,7 @@ function opsZoneAMetrics() {
     const decisions = online.reduce((s, a) => s + (a.data?.totals?.decisions || 0), 0);
 
     // Gc (crystallized intelligence) — events handled without LLM invocation
-    const gcEvents = online.reduce((s, a) => s + (a.data?.gc_metrics?.events_processed || 0), 0);
+    const gcEvents = online.reduce((s, a) => s + (a.data?.gc_metrics?.gc_handled_total || a.data?.event_count || 0), 0);
     const gcLastHr = online.reduce((s, a) => s + (a.data?.gc_metrics?.deliberations_last_hour || 0), 0);
     const uptimeHrs = Math.round(online.reduce((s, a) => s + (a.data?.uptime_seconds || 0), 0) / 3600);
 

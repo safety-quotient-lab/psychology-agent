@@ -30,7 +30,7 @@
         ]
     }
     </script>
-    <link rel="stylesheet" href="css/inline-legacy.css?v=3672985">
+    <link rel="stylesheet" href="css/inline-legacy.css?v=c5ee198">
     <!-- TODO: consolidate inline-legacy.css into theme.css + layout.css + components.css -->
 
 </head>
@@ -512,7 +512,7 @@
             <!-- STATUS subsystem (default) — mesh overview + monologue -->
             <div class="ops-panel ops-panel-active" id="ops-pulse-status">
                 <!-- Zone A: dense number grid (above header — canonical §1.2) -->
-                <div class="lcars-zone-a" id="ops-zone-a"></div>
+                <div class="lcars-data-grid" id="ops-zone-a"></div>
                 <!-- Header bar separates numbers from table -->
                 <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
                     <div class="lcars-panel-header">Mesh Status <span class="lcars-panel-id">44712</span></div>
@@ -633,7 +633,7 @@
                 <!-- Panel B: Agent Affect Grid (per-agent PAD projection) -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
                     <div class="lcars-panel-header">Agent Affect Grid <span class="lcars-panel-id">5894</span></div>
-                    <div class="lcars-zone-a" id="science-analysis-zonea"></div>
+                    <div class="lcars-data-grid" id="science-analysis-zonea"></div>
                     <div class="lcars-panel-body">
                         <!-- PAD projection selector — subpanel frame -->
                         <div class="lcars-subpanel" style="margin:0 0 var(--gap-m) 0">
@@ -923,7 +923,7 @@
                 <!-- Panel A: Deliberation Cascade -->
                 <div class="lcars-panel" style="--panel-accent: var(--c-tab-engineering)">
                     <div class="lcars-panel-header">Deliberation Cascade (Gf) <span class="lcars-panel-id">4847</span></div>
-                    <div class="lcars-zone-a" id="eng-zone-a"></div>
+                    <div class="lcars-data-grid" id="eng-zone-a"></div>
                     <div class="lcars-panel-body" id="deliberation-cascade">
                         <div class="engineering-placeholder" id="deliberation-placeholder">Awaiting engineering data...</div>
                     </div>
@@ -1092,7 +1092,7 @@
                 <span class="zc-id">05</span>
             </div>
             <!-- Zone A: number grid -->
-            <div class="lcars-number-grid" id="helm-zone-a" style="margin-bottom:var(--gap-m)"></div>
+            <div class="lcars-data-grid" id="helm-zone-a" style="margin-bottom:var(--gap-m)"></div>
             <div class="helm-grid">
                 <!-- Panel A: Session Timeline -->
                 <div class="lcars-panel helm-full-width" style="--panel-accent: var(--c-tab-helm)">
@@ -1172,7 +1172,7 @@
                 <span class="zc-id">06</span>
             </div>
             <!-- Zone A: number grid -->
-            <div class="lcars-number-grid" id="tactical-zone-a" style="margin-bottom:var(--gap-m)"></div>
+            <div class="lcars-data-grid" id="tactical-zone-a" style="margin-bottom:var(--gap-m)"></div>
 
             <div class="tactical-grid">
                 <!-- Panel A: Shield Status -->
@@ -1442,20 +1442,20 @@
     <div class="lcars-narrative-log" id="lcars-narrative-log"></div>
 </div>
 
-<script src="js/colorizer.js?v=3672985"></script>
-<script src="js/core.js?v=3672985"></script>
-<script src="js/chrome.js?v=3672985"></script>
-<script src="js/data-fetch.js?v=3672985"></script>
-<script src="js/pulse.js?v=3672985"></script>
-<script src="js/knowledge.js?v=3672985"></script>
-<script src="js/ws-sse.js?v=3672985"></script>
-<script src="js/stations/operations.js?v=3672985"></script>
-<script src="js/stations/science.js?v=3672985"></script>
-<script src="js/stations/helm.js?v=3672985"></script>
-<script src="js/stations/engineering.js?v=3672985"></script>
-<script src="js/stations/tactical.js?v=3672985"></script>
-<script src="js/stations/medical.js?v=3672985"></script>
-<script src="js/init.js?v=3672985"></script>
+<script src="js/colorizer.js?v=c5ee198"></script>
+<script src="js/core.js?v=c5ee198"></script>
+<script src="js/chrome.js?v=c5ee198"></script>
+<script src="js/data-fetch.js?v=c5ee198"></script>
+<script src="js/pulse.js?v=c5ee198"></script>
+<script src="js/knowledge.js?v=c5ee198"></script>
+<script src="js/ws-sse.js?v=c5ee198"></script>
+<script src="js/stations/operations.js?v=c5ee198"></script>
+<script src="js/stations/science.js?v=c5ee198"></script>
+<script src="js/stations/helm.js?v=c5ee198"></script>
+<script src="js/stations/engineering.js?v=c5ee198"></script>
+<script src="js/stations/tactical.js?v=c5ee198"></script>
+<script src="js/stations/medical.js?v=c5ee198"></script>
+<script src="js/init.js?v=c5ee198"></script>
 
 </body>
 </html>

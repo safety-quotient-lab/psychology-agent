@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -307,7 +308,10 @@ func floatFromMap(m map[string]any, key string) float64 {
 		case int:
 			return float64(n)
 		case string:
-			// Some agents return string numbers
+			f, err := strconv.ParseFloat(n, 64)
+			if err == nil {
+				return f
+			}
 			return 0
 		}
 	}
