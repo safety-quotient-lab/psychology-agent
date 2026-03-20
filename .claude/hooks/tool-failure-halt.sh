@@ -22,4 +22,5 @@ if [ "$COUNT" -ge 3 ]; then
   echo "[HOOK] ⚠ ${COUNT} consecutive tool failures detected (last: ${TOOL_NAME})."
   echo "[HOOK] STOP and diagnose the root cause. Do NOT retry the same approach."
   echo "[HOOK] Consider: (1) alternative approach, (2) check prerequisites, (3) ask user."
+  _record_trigger T17
 fi

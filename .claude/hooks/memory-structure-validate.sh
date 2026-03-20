@@ -90,6 +90,7 @@ esac
 if [ -n "$WARNINGS" ]; then
   echo "[HOOK] Memory structure warnings for ${TOPIC}:"
   printf "%b" "$WARNINGS"
+  _record_trigger T9
 fi
 
 exit 0

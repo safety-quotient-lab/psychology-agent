@@ -220,8 +220,11 @@ Triggers that fire mechanically (via hooks) now record each activation to
 accumulated fire_count data → trigger effectiveness scoring → tier
 promotion/demotion candidates.
 
-**Currently recording:** T1 (session start), T4 (credential detection),
-T6 (pushback), T14 (subagent spawn), T16 (external action ×2 hooks).
+**Currently recording:** T1 (session start), T4 (credential detection +
+critical file modified + E-Prime violations), T5 (completion gate),
+T6 (pushback), T9 (memory structure), T11 (config drift), T14 (subagent
+spawn), T16 (external action ×2 hooks), T17 (tool failure halt +
+invariant conflict). Expanded Session 94 from 5 → 10 trigger IDs.
 
 **Tier adjustment convention:** When `/retrospect` or `/diagnose` runs,
 check fire_count against catch_rate (firings that produced actionable

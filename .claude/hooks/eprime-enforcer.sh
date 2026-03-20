@@ -3,6 +3,7 @@
 # Detects forms of "to be" in documentation files.
 # E-Prime enforces processual ontological commitment (Korzybski, 1933).
 # Reports violations as warnings — does not block.
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 set -euo pipefail
 
@@ -24,7 +25,7 @@ esac
 
 # Check for to-be forms (word-boundary matching to avoid false positives)
 # Only report — never block
-python3 -c "
+EPRIME_OUTPUT=$(python3 -c "
 import re, sys
 
 try:
@@ -70,6 +71,11 @@ elif violations:
     print(f'⚠ E-Prime: {len(violations)} to-be form(s) in {\"$FILE_PATH\".split(\"/\")[-1]} (showing first 3)')
     for lineno, word, context in violations[:3]:
         print(f'  L{lineno}: \"{word}\" — {context}')
-" 2>/dev/null || true
+" 2>/dev/null || true)
+
+if [ -n "$EPRIME_OUTPUT" ]; then
+    echo "$EPRIME_OUTPUT"
+    _record_trigger T4
+fi
 
 exit 0

@@ -67,6 +67,7 @@ fi
 
 if [ -n "$WARNINGS" ]; then
   echo "[COMPLETION-GATE] ${WARNINGS}Consider running /cycle or committing before stopping." >&2
+  _record_trigger T5
   # Non-blocking warning (exit 0) — surfaces the reminder but allows stop.
   # Use exit 2 to hard-block if needed in the future.
   exit 0
