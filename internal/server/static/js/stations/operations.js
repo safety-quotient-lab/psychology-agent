@@ -743,18 +743,22 @@ function renderOpsCapsuleBars() {
     const cell = (val, label, tier) =>
         `<div class="dg-cell${tier ? " dg-" + tier : ""}" title="${label}" onclick="this.classList.toggle('dg-show-label')"><span class="dg-val">${val}</span><span class="dg-label">${label}</span></div>`;
 
+    const gap = '<div class="dg-gap"></div>';
+
     grid.innerHTML = [
-        // System identity group
+        // Group 1: System identity
         cell(vStr, "BUILD", "t2"),
         cell(mode, "LINK", ""),
         cell(now, "TIME", "t2"),
         cell(`${online.length}/${total}`, "AGENTS", "accent"),
-        // Mesh metrics group (Gc before Gf — always)
+        gap,
+        // Group 2: Gc/Gf metrics
         cell(fmtNum(totalGc), "Gc", "t2"),
         cell(fmtNum(totalGf), "Gf", ""),
         cell(fmtNum(events), "EVENTS", "t3"),
+        gap,
+        // Group 3: Status + throttle
         cell(status, "STATUS", "frame"),
-        // Spawn throttle (T19 — ops.resources.throttle)
         (() => {
             const ss = (agentData["ops-session"] || agentData["operations-agent"])?.data?.deliberation_status;
             if (!ss) return "";

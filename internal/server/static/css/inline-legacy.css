@@ -4225,18 +4225,22 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
     display: none;
 }
 .theme-lcars .lcars-data-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--gap-m);
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 3px;
     margin-bottom: var(--gap-l);
+}
+/* Group separator — insert .dg-gap between semantic groups */
+.lcars-data-grid .dg-gap {
+    grid-column: span 1;
+    min-width: var(--gap-m);
+    background: transparent;
 }
 .lcars-data-grid .dg-cell {
     background: var(--lcars-secondary);
     color: #000;
-    min-width: 100px;
-    min-height: 52px;
-    padding: 8px var(--gap-m) 5px;
+    min-height: 44px;
+    padding: 6px 10px 4px;
     border-radius: var(--gap-xs);
     font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
     font-weight: 700;
@@ -4244,13 +4248,13 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
     letter-spacing: 0.04em;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-end;
-    flex: 0 0 auto;
 }
 .lcars-data-grid .dg-val {
-    font-size: 0.72em;
+    font-size: 0.78em;
     line-height: 1;
+    text-align: left;
 }
 /* Label: hidden by default, shown on tap via .dg-show-label toggle */
 .lcars-data-grid .dg-label {

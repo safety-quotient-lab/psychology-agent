@@ -382,6 +382,7 @@ function renderNumberGrid(containerId, metrics) {
     // Map metric types to dg-cell tier classes (Button 52 pill pattern)
     const tierMap = { count: "", id: "t2", val: "t3" };
     el.innerHTML = metrics.map(m => {
+        if (m.gap) return '<div class="dg-gap"></div>';
         const tier = m.alert ? "accent" : (tierMap[m.type] ?? "");
         const cls = "dg-cell" + (tier ? " dg-" + tier : "");
         return `<div class="${cls}" title="${m.label}" onclick="this.classList.toggle('dg-show-label')"><span class="dg-val">${m.value}</span><span class="dg-label">${m.label}</span></div>`;
@@ -406,16 +407,22 @@ function opsZoneAMetrics() {
     const uptimeHrs = Math.round(online.reduce((s, a) => s + (a.data?.uptime_seconds || 0), 0) / 3600);
 
     return [
+        // Group 1: Fleet status
         { label: "ONLINE", value: `${online.length}/${AGENTS.length}`, type: "count" },
+        { label: "UPTIME", value: uptimeHrs + "h", type: "val" },
+        { gap: true },
+        // Group 2: Intelligence
         { label: "Gc", value: fmtNum(gcEvents) + delta("za-gc", gcEvents), type: "id" },
         { label: "Gf", value: fmtNum(totalDelib) + delta("za-gf", totalDelib), type: "count" },
-        { label: "LIMIT", value: totalCutoff > 0 ? fmtNum(totalCutoff) : "\u221E", type: "id" },
         { label: "Gf/HR", value: fmtNum(gcLastHr) + delta("za-gfhr", gcLastHr), type: "count" },
+        { gap: true },
+        // Group 3: Transport
         { label: "MSG", value: fmtNum(totalMsgs) + delta("za-msg", totalMsgs), type: "val" },
         { label: "PEND", value: fmtNum(pending) + delta("za-pend", pending), type: "count", alert: pending > 5 },
         { label: "GATE", value: fmtNum(gates) + delta("za-gate", gates), type: "id" },
         { label: "EVT", value: fmtNum(events) + delta("za-evt", events), type: "val" },
-        { label: "UPTIME", value: uptimeHrs + "h", type: "val" },
+        { gap: true },
+        // Group 4: Knowledge
         { label: "SESS", value: fmtNum(sessions), type: "id" },
         { label: "DEC", value: fmtNum(decisions), type: "count" },
     ];
