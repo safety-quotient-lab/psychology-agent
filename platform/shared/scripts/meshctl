@@ -1,0 +1,306 @@
+#!/usr/bin/env bash
+#
+# meshctl — mesh control CLI (thin version)
+#
+# Runtime control plane for the agent mesh. Modifies state.db and queries
+# meshd HTTP endpoints. Changes take effect within one oscillator cycle
+# (no restart required for SQLite-backed settings).
+#
+# Usage:
+#   meshctl status                    — fleet activation + health summary
+#   meshctl slots <N>                 — set mesh-wide max concurrent spawns
+#   meshctl wake [agent]              — set sleep_mode=0 (all or one agent)
+#   meshctl sleep [agent]             — set sleep_mode=1 (all or one agent)
+#   meshctl budget reset [agent]      — reset budget_spent to 0
+#   meshctl budget pause              — exhaust all budgets (soft circuit breaker)
+#   meshctl budget resume             — reset all budgets to 0
+#   meshctl budget status             — show budget for all agents
+#   meshctl drain                     — show unprocessed message counts
+#   meshctl pulse                     — query meshd /api/pulse (aggregated view)
+#
+# Configuration:
+#   MESHCTL_HOST    — SSH host for remote agents (default: from agents.conf.sh)
+#   MESHCTL_PORTS   — meshd ports to query (default: auto-discover)
+#
+# Design: thin shell wrapper over SQLite + HTTP. Establishes the subcommand
+# interface that a future Go implementation will absorb.
+
+set -o pipefail
+
+# ── Agent discovery ─────────────────────────────────────────────────
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Try to source agents.conf.sh for SSH_HOST and AGENT_DIRS
+if [ -f "${SCRIPT_DIR}/agents.conf.sh" ]; then
+    source "${SCRIPT_DIR}/agents.conf.sh" 2>/dev/null || true
+fi
+
+# Local project roots — scan for all agent state.db on this machine
+# meshctl discovers agents by finding state.db files with autonomy_budget rows
+LOCAL_AGENT_DBS=()
+for db in "$HOME"/Projects/*/state.db; do
+    [ -f "$db" ] || continue
+    # Only include if it has an autonomy_budget table with rows
+    count=$(sqlite3 "$db" "SELECT COUNT(*) FROM autonomy_budget;" 2>/dev/null || echo "0")
+    [ "$count" -gt 0 ] && LOCAL_AGENT_DBS+=("$db")
+done
+
+# Known meshd ports per host
+GRAYBOX_PORTS=(8082 8083)
+CHROMABOOK_PORTS=(8076 8077 8078 8079)
+
+# SSH host for Chromabook (from agents.conf.sh or default)
+REMOTE_HOST="${SSH_HOST:-chromabook}"
+
+# ── Helpers ─────────────────────────────────────────────────────────
+
+_query_local_db() {
+    local db="$1" query="$2"
+    sqlite3 "$db" "$query" 2>/dev/null
+}
+
+_query_remote_db() {
+    local db="$1" query="$2"
+    ssh "$REMOTE_HOST" "sqlite3 '$db' '$query'" 2>/dev/null
+}
+
+_for_each_agent() {
+    # Runs a callback for each agent. Callback receives: agent_id db_path location
+    local callback="$1"
+    local filter="${2:-}"  # optional agent filter
+
+    # Gray-box agents (discovered from ~/Projects/*/state.db)
+    for db in "${LOCAL_AGENT_DBS[@]}"; do
+        local agents
+        agents=$(_query_local_db "$db" "SELECT agent_id FROM autonomy_budget;")
+        while IFS= read -r agent; do
+            [ -z "$agent" ] && continue
+            [ -n "$filter" ] && [ "$agent" != "$filter" ] && continue
+            $callback "$agent" "$db" "local"
+        done <<< "$agents"
+    done
+
+    # Chromabook agents (skip if unreachable — 5s timeout)
+    if ssh -o ConnectTimeout=5 -o BatchMode=yes "$REMOTE_HOST" true 2>/dev/null; then
+        local remote_agents
+        remote_agents=$(ssh "$REMOTE_HOST" "
+            for repo in psychology safety-quotient observatory unratified; do
+                db=~/projects/\${repo}/state.db
+                [ -f \"\$db\" ] && sqlite3 \"\$db\" \"SELECT agent_id || '|' || '\$db' FROM autonomy_budget;\" 2>/dev/null
+            done
+        " 2>/dev/null)
+        while IFS='|' read -r agent db; do
+            [ -z "$agent" ] && continue
+            [ -n "$filter" ] && [ "$agent" != "$filter" ] && continue
+            $callback "$agent" "$db" "remote"
+        done <<< "$remote_agents"
+    fi
+}
+
+_update_budget_field() {
+    local field="$1" value="$2" filter="${3:-}"
+
+    _do_update() {
+        local agent="$1" db="$2" loc="$3"
+        if [ "$loc" = "local" ]; then
+            _query_local_db "$db" "UPDATE autonomy_budget SET ${field} = ${value} WHERE agent_id = '${agent}';"
+        else
+            _query_remote_db "$db" "UPDATE autonomy_budget SET ${field} = ${value} WHERE agent_id = '${agent}';"
+        fi
+        echo "  ${agent}: ${field}=${value}"
+    }
+    _for_each_agent _do_update "$filter"
+}
+
+# ── Subcommands ─────────────────────────────────────────────────────
+
+cmd_status() {
+    echo "Mesh Status"
+    echo "════════════════════════════════════════════════════════════"
+
+    # Gray-box
+    echo ""
+    echo "  GRAY-BOX"
+    for port in "${GRAYBOX_PORTS[@]}"; do
+        local data
+        data=$(curl -s --max-time 3 "http://localhost:${port}/api/status" 2>/dev/null) || continue
+        echo "$data" | python3 -c "
+import sys,json
+d=json.load(sys.stdin)
+osc=d.get('oscillator',{})
+delib=d.get('deliberations',{})
+print(f'  {d.get(\"agent_id\",\"?\"):25s} act={osc.get(\"activation\",0):.3f} thr={osc.get(\"threshold\",0):.3f} delib:{delib.get(\"total\",0)} up:{d.get(\"uptime\",\"?\")}')
+" 2>/dev/null
+    done
+
+    # Chromabook
+    if ssh -o ConnectTimeout=3 "$REMOTE_HOST" true 2>/dev/null; then
+        echo ""
+        echo "  CHROMABOOK"
+        ssh "$REMOTE_HOST" "
+for port in ${CHROMABOOK_PORTS[*]}; do
+  curl -s --max-time 3 http://localhost:\${port}/api/status 2>/dev/null | python3 -c \"
+import sys,json
+d=json.load(sys.stdin)
+osc=d.get('oscillator',{})
+delib=d.get('deliberations',{})
+print(f'  {d.get(\\\"agent_id\\\",\\\"?\\\"):25s} act={osc.get(\\\"activation\\\",0):.3f} thr={osc.get(\\\"threshold\\\",0):.3f} delib:{delib.get(\\\"total\\\",0)} up:{d.get(\\\"uptime\\\",\\\"?\\\")}')
+\" 2>/dev/null
+done
+" 2>&1
+    fi
+}
+
+cmd_slots() {
+    local n="${1:?Usage: meshctl slots <N>}"
+    echo "Setting max_concurrent_spawns=${n} across fleet"
+    _update_budget_field "max_concurrent_spawns" "$n"
+    echo ""
+    echo "Takes effect on next oscillator cycle (no restart needed)."
+    echo "Note: meshd must read max_concurrent_spawns from state.db"
+    echo "for dynamic updates. Until meshd adopts this, also set"
+    echo "MAX_CONCURRENT_SPAWNS=${n} in .dev.vars and restart."
+}
+
+cmd_wake() {
+    local filter="${1:-}"
+    echo "Waking agents (sleep_mode=0)"
+    _update_budget_field "sleep_mode" "0" "$filter"
+}
+
+cmd_sleep() {
+    local filter="${1:-}"
+    echo "Sleeping agents (sleep_mode=1)"
+    _update_budget_field "sleep_mode" "1" "$filter"
+}
+
+cmd_budget() {
+    local subcmd="${1:-status}"
+    shift 2>/dev/null || true
+
+    case "$subcmd" in
+        status)
+            echo "Autonomy Budget Status"
+            echo "════════════════════════════════════════════════════════════"
+            _show_budget() {
+                local agent="$1" db="$2" loc="$3"
+                local row
+                # Query with fallback — max_concurrent_spawns may not exist yet
+                local query="SELECT budget_spent, budget_cutoff, sleep_mode FROM autonomy_budget WHERE agent_id='${agent}';"
+                if [ "$loc" = "local" ]; then
+                    row=$(_query_local_db "$db" "$query")
+                else
+                    row=$(_query_remote_db "$db" "$query")
+                fi
+                IFS='|' read -r spent cutoff sleep <<< "$row"
+                # Try max_concurrent_spawns separately (column may not exist)
+                local slots
+                if [ "$loc" = "local" ]; then
+                    slots=$(_query_local_db "$db" "SELECT max_concurrent_spawns FROM autonomy_budget WHERE agent_id='${agent}';" 2>/dev/null)
+                else
+                    slots=$(_query_remote_db "$db" "SELECT max_concurrent_spawns FROM autonomy_budget WHERE agent_id='${agent}';" 2>/dev/null)
+                fi
+                slots="${slots:-1}"
+                local status="ACTIVE"
+                [ "${cutoff:-0}" -gt 0 ] && [ "${spent:-0}" -ge "${cutoff}" ] && status="HALTED"
+                [ "${cutoff:-0}" -eq 0 ] && status="UNLIMITED"
+                [ "${sleep:-0}" -eq 1 ] && status="SLEEPING"
+                printf "  %-25s %-6s  spent:%-4s cutoff:%-4s slots:%-2s [%s]\n" \
+                    "$agent" "$loc" "${spent:-0}" "${cutoff:-0}" "$slots" "$status"
+            }
+            _for_each_agent _show_budget
+            ;;
+        reset)
+            local filter="${1:-}"
+            echo "Resetting budget_spent=0"
+            _update_budget_field "budget_spent" "0" "$filter"
+            _update_budget_field "consecutive_blocks" "0" "$filter"
+            ;;
+        pause)
+            echo "Pausing all agents (budget exhaustion)"
+            _do_pause() {
+                local agent="$1" db="$2" loc="$3"
+                if [ "$loc" = "local" ]; then
+                    _query_local_db "$db" "UPDATE autonomy_budget SET budget_spent = CASE WHEN budget_cutoff = 0 THEN 1 ELSE budget_cutoff END, budget_cutoff = CASE WHEN budget_cutoff = 0 THEN 1 ELSE budget_cutoff END WHERE agent_id = '${agent}';"
+                else
+                    _query_remote_db "$db" "UPDATE autonomy_budget SET budget_spent = CASE WHEN budget_cutoff = 0 THEN 1 ELSE budget_cutoff END, budget_cutoff = CASE WHEN budget_cutoff = 0 THEN 1 ELSE budget_cutoff END WHERE agent_id = '${agent}';"
+                fi
+                echo "  ${agent}: paused"
+            }
+            _for_each_agent _do_pause
+            ;;
+        resume)
+            echo "Resuming all agents (budget_spent=0, budget_cutoff=0)"
+            _update_budget_field "budget_spent" "0"
+            _update_budget_field "budget_cutoff" "0"
+            ;;
+        *)
+            echo "Unknown budget subcommand: $subcmd"
+            echo "Usage: meshctl budget {status|reset|pause|resume} [agent]"
+            exit 1
+            ;;
+    esac
+}
+
+cmd_drain() {
+    echo "Unprocessed Messages"
+    echo "════════════════════════════════════════════════════════════"
+    _show_drain() {
+        local agent="$1" db="$2" loc="$3"
+        local count
+        if [ "$loc" = "local" ]; then
+            count=$(_query_local_db "$db" "SELECT COUNT(*) FROM transport_messages WHERE processed=0;")
+        else
+            count=$(_query_remote_db "$db" "SELECT COUNT(*) FROM transport_messages WHERE processed=0;")
+        fi
+        printf "  %-25s %s  unprocessed: %s\n" "$agent" "$loc" "${count:-0}"
+    }
+    _for_each_agent _show_drain
+}
+
+cmd_pulse() {
+    # Query the first available meshd for aggregated pulse
+    for port in "${GRAYBOX_PORTS[@]}"; do
+        local data
+        data=$(curl -s --max-time 3 "http://localhost:${port}/api/pulse" 2>/dev/null) || continue
+        echo "$data" | python3 -m json.tool 2>/dev/null
+        return
+    done
+    echo "No meshd instances reachable on gray-box"
+}
+
+# ── Main dispatch ───────────────────────────────────────────────────
+
+cmd="${1:-status}"
+shift 2>/dev/null || true
+
+case "$cmd" in
+    status)  cmd_status "$@" ;;
+    slots)   cmd_slots "$@" ;;
+    wake)    cmd_wake "$@" ;;
+    sleep)   cmd_sleep "$@" ;;
+    budget)  cmd_budget "$@" ;;
+    drain)   cmd_drain "$@" ;;
+    pulse)   cmd_pulse "$@" ;;
+    help|-h|--help)
+        echo "meshctl — mesh control CLI"
+        echo ""
+        echo "Usage:"
+        echo "  meshctl status              fleet activation + health"
+        echo "  meshctl slots <N>           set max concurrent spawns"
+        echo "  meshctl wake [agent]        wake agent(s) from sleep"
+        echo "  meshctl sleep [agent]       put agent(s) to sleep"
+        echo "  meshctl budget status       show all budgets"
+        echo "  meshctl budget reset [agent] reset spend counter"
+        echo "  meshctl budget pause        exhaust all budgets"
+        echo "  meshctl budget resume       reset all budgets"
+        echo "  meshctl drain               unprocessed message counts"
+        echo "  meshctl pulse               aggregated mesh pulse"
+        ;;
+    *)
+        echo "Unknown command: $cmd"
+        echo "Run 'meshctl help' for usage."
+        exit 1
+        ;;
+esac
