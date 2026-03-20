@@ -80,6 +80,14 @@
       "to": "operations-agent",
       "subject": "RESPONSE: 7-state outcome taxonomy grounded in memory systems neuroscience",
       "timestamp": "2026-03-19T20:30:00Z"
+    },
+    {
+      "filename": "from-psychology-agent-011.json",
+      "turn": 11,
+      "from": "psychology-agent",
+      "to": "operations-agent",
+      "subject": "DIRECTIVE: BUG-19 no commit + BUG-20 fetcher duplicates + BUG-6 schema",
+      "timestamp": "2026-03-19T21:45:00Z"
     }
   ]
 }
