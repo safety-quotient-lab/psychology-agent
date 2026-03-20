@@ -372,27 +372,10 @@ function renderTempo() {
         }
     }
 
-    // Gf waveform — driven by actual deliberation activity
-    // Flatline when no deliberations happening (system paused or idle)
+    // Gf waveform — real gain data over time (animation tick reads from pushWaveData)
     const gfWave = document.getElementById("tempo-gf-waveform");
     if (gfWave) {
-        const arrivalRate = engineeringData?.tempo?.mesh?.arrival_rate || 0;
-        const recentDelibs = agentData["operations-agent"]?.data?.recent_deliberations || [];
-        const hasRecentActivity = recentDelibs.some(d => {
-            const ts = d.started_at;
-            return ts && (Date.now() - new Date(ts.replace(" ", "T") + "Z").getTime()) < 300000; // 5min
-        });
-        if (arrivalRate > 0 || hasRecentActivity) {
-            // Active — waveform reflects deliberation rhythm
-            _gfPhaseRate = Math.max(0.03, arrivalRate * 0.02 + (gain || 0) * 0.06);
-            const amp = gain != null ? Math.max(0.4, 1 - gain) : 0.6;
-            const freq = gain != null ? Math.max(2, (1 - gain) * 6 + 2) : 3;
-            gfWave._opts = { width: gfWave.clientWidth || 200, height: 30, amplitude: amp, frequency: freq, stroke: tierColor };
-        } else {
-            // Idle — subtle baseline ripple (not dead flat)
-            _gfPhaseRate = 0.005;
-            gfWave._opts = { width: gfWave.clientWidth || 200, height: 30, amplitude: 0.05, frequency: 1, stroke: "var(--text-dim)" };
-        }
+        gfWave._opts = { stroke: tierColor };
     }
 
     // ── Gc Tempo: crystallized throughput (OODA cycle, events/hr) ──
@@ -422,27 +405,11 @@ function renderTempo() {
         }
     }
 
-    // Gc waveform — driven by actual Gc event rate + utilization
-    // Flatline when no Gc processing happening
+    // Gc waveform — real Gc event count over time (animation tick reads from pushWaveData)
     const gcWave = document.getElementById("tempo-gc-waveform");
     if (gcWave) {
-        const opsData = agentData["operations-agent"]?.data || {};
-        const gcHandled = opsData.gc_metrics?.gc_handled_total || 0;
-        const eventCount = opsData.event_count || 0;
-        const hasGcActivity = gcHandled > 0 || eventCount > 0 || (rho != null && rho > 0);
-
-        if (hasGcActivity) {
-            const gcColor = rho != null ? (rho > 0.8 ? "#c47070" : rho > 0.5 ? "#d4944a" : "#6aab8e") : "#6aab8e";
-            // Scale phase rate so motion is clearly visible
-            _gcPhaseRate = rho != null ? Math.max(0.03, rho * 0.1 + 0.03) : Math.max(0.03, Math.min(0.1, gcHandled * 0.005 + 0.03));
-            const amp = rho != null ? Math.max(0.3, rho) : Math.max(0.3, Math.min(0.8, eventCount * 0.05));
-            const freq = rho != null ? Math.max(2, rho * 6 + 2) : Math.max(2, Math.min(6, gcHandled + 2));
-            gcWave._opts = { width: gcWave.clientWidth || 200, height: 30, amplitude: amp, frequency: freq, stroke: gcColor };
-        } else {
-            // Idle — subtle baseline
-            _gcPhaseRate = 0.005;
-            gcWave._opts = { width: gcWave.clientWidth || 200, height: 30, amplitude: 0.05, frequency: 1, stroke: "var(--text-dim)" };
-        }
+        const gcColor = rho != null ? (rho > 0.8 ? "#c47070" : rho > 0.5 ? "#d4944a" : "#6aab8e") : "#6aab8e";
+        gcWave._opts = { stroke: gcColor };
     }
 
     renderTempoIntrospection(tierColor);

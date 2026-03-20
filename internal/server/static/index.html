@@ -30,7 +30,7 @@
         ]
     }
     </script>
-    <link rel="stylesheet" href="css/inline-legacy.css?v=cf47ed3c9">
+    <link rel="stylesheet" href="css/inline-legacy.css?v=d3c579c8b">
     <!-- TODO: consolidate inline-legacy.css into theme.css + layout.css + components.css -->
 
 </head>
@@ -514,7 +514,7 @@
                 <!-- Zone A: dense number grid (above header — canonical §1.2) -->
                 <div class="lcars-data-grid" id="ops-zone-a"></div>
                 <!-- Header bar separates numbers from table -->
-                <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-ops)">
                     <div class="lcars-panel-header">Mesh Status <span class="lcars-panel-id">44712</span></div>
                     <!-- Zone B: mesh overview table -->
                     <div class="lcars-panel-body" style="overflow-x:auto">
@@ -528,7 +528,7 @@
 
             <!-- AUTONOMY subsystem — pause/resume + per-agent budget -->
             <div class="ops-panel" id="ops-resources-autonomy">
-                <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-ops)">
                     <div class="lcars-panel-header">Autonomy Control</div>
                     <div class="lcars-panel-body">
                         <div style="display:flex;gap:var(--gap-m);margin-bottom:var(--gap-l);flex-wrap:wrap">
@@ -542,7 +542,7 @@
 
             <!-- TRANSPORT subsystem — sync + message stats -->
             <div class="ops-panel" id="ops-transport-overview">
-                <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-ops)">
                     <div class="lcars-panel-header">Transport</div>
                     <div class="lcars-panel-body">
                         <div style="margin-bottom:var(--gap-l)">
@@ -555,7 +555,7 @@
 
             <!-- CAPACITY subsystem — model tier + reserve -->
             <div class="ops-panel" id="ops-resources-capacity">
-                <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-ops)">
                     <div class="lcars-panel-header">Capacity</div>
                     <div class="lcars-panel-body">
                         <div style="display:flex;gap:var(--gap-m);margin-bottom:var(--gap-l);flex-wrap:wrap">
@@ -576,7 +576,7 @@
 
             <!-- ACTIVITY subsystem — recent deliberations -->
             <div class="ops-panel" id="ops-deliberations-log">
-                <div class="lcars-panel" style="--panel-accent: var(--lcars-accent)">
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-ops)">
                     <div class="lcars-panel-header">Activity</div>
                     <div class="lcars-panel-body">
                         <div id="ops-deliberations-coordination" style="font-size:0.82em;opacity:0.8;margin-bottom:8px;padding:0 4px"></div>
@@ -1318,7 +1318,7 @@
             <!-- Zone B: Diagnostic panels (2-col grid) -->
             <div class="medical-grid">
                 <!-- Oscillator — waveform + activation (primary diagnostic) -->
-                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa); grid-column: 1 / -1;">
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical); grid-column: 1 / -1;">
                     <div class="lcars-panel-header">Oscillator <span class="lcars-panel-id">8686</span></div>
                     <div class="lcars-panel-body" id="medical-oscillator-waveform">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Select an agent to view oscillator state</div>
@@ -1327,7 +1327,7 @@
                 </div>
 
                 <!-- Signal Breakdown — hatched bars per signal source -->
-                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical)">
                     <div class="lcars-panel-header">Signal Breakdown <span class="lcars-panel-id">6741</span></div>
                     <div class="lcars-panel-body" id="medical-oscillator-signals">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting signal data</div>
@@ -1335,7 +1335,7 @@
                 </div>
 
                 <!-- Cognitive Tempo — waveform + recommended tier -->
-                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical)">
                     <div class="lcars-panel-header">Cognitive Tempo <span class="lcars-panel-id">3847</span></div>
                     <div class="lcars-panel-body" id="medical-vitals-tempo">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting tempo data</div>
@@ -1343,7 +1343,7 @@
                 </div>
 
                 <!-- Cognitive Load (NASA-TLX) — demand/pressure/efficacy bars -->
-                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical)">
                     <div class="lcars-panel-header">Cognitive Load (TLX) <span class="lcars-panel-id">1988</span></div>
                     <div class="lcars-panel-body" id="medical-vitals-tlx">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting psychometrics</div>
@@ -1351,7 +1351,7 @@
                 </div>
 
                 <!-- Working Memory — capacity + Yerkes-Dodson zone -->
-                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical)">
                     <div class="lcars-panel-header">Working Memory <span class="lcars-panel-id">1986</span></div>
                     <div class="lcars-panel-body" id="medical-vitals-memory">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting psychometrics</div>
@@ -1359,7 +1359,7 @@
                 </div>
 
                 <!-- Resources — reserve/self-reg/allostatic bars -->
-                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical)">
                     <div class="lcars-panel-header">Resources <span class="lcars-panel-id">2002</span></div>
                     <div class="lcars-panel-body" id="medical-vitals-resources">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting psychometrics</div>
@@ -1367,7 +1367,7 @@
                 </div>
 
                 <!-- DEW (Degradation Early Warning) -->
-                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical)">
                     <div class="lcars-panel-header">DEW (Degradation) <span class="lcars-panel-id">4471</span></div>
                     <div class="lcars-panel-body" id="medical-burnout-dew">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting psychometrics</div>
@@ -1375,7 +1375,7 @@
                 </div>
 
                 <!-- Mesh Coherence (5-dimensional) -->
-                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical)">
                     <div class="lcars-panel-header">Coherence <span class="lcars-panel-id">2010</span></div>
                     <div class="lcars-panel-body" id="medical-coherence">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Select MESH for coherence data</div>
@@ -1383,7 +1383,7 @@
                 </div>
 
                 <!-- Refractory State -->
-                <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa)">
+                <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical)">
                     <div class="lcars-panel-header">Refractory <span class="lcars-panel-id">7209</span></div>
                     <div class="lcars-panel-body" id="medical-oscillator-refractory">
                         <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">&mdash;</div>
@@ -1392,7 +1392,7 @@
             </div>
 
             <!-- Alpha Heartbeat (T22 metabolic cooling — per agent or mesh aggregate) -->
-            <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa); margin-top:8px">
+            <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical); margin-top:8px">
                 <div class="lcars-panel-header">Alpha Heartbeat <span class="lcars-panel-id">2246</span></div>
                 <div class="lcars-panel-body" id="medical-alpha-heartbeat">
                     <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting heartbeat data</div>
@@ -1400,7 +1400,7 @@
             </div>
 
             <!-- Zone C: Fire History (full width) + footer title -->
-            <div class="lcars-panel" style="--panel-accent: var(--lcars-medical, #66ccaa); margin-top:8px">
+            <div class="lcars-panel" style="--panel-accent: var(--c-tab-medical); margin-top:8px">
                 <div class="lcars-panel-header">Fire History (Shadow)</div>
                 <div class="lcars-panel-body" id="medical-oscillator-history">
                     <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">No fire events recorded</div>
@@ -1442,20 +1442,20 @@
     <div class="lcars-narrative-log" id="lcars-narrative-log"></div>
 </div>
 
-<script src="js/colorizer.js?v=cf47ed3c9"></script>
-<script src="js/core.js?v=cf47ed3c9"></script>
-<script src="js/chrome.js?v=cf47ed3c9"></script>
-<script src="js/data-fetch.js?v=cf47ed3c9"></script>
-<script src="js/pulse.js?v=cf47ed3c9"></script>
-<script src="js/knowledge.js?v=cf47ed3c9"></script>
-<script src="js/ws-sse.js?v=cf47ed3c9"></script>
-<script src="js/stations/operations.js?v=cf47ed3c9"></script>
-<script src="js/stations/science.js?v=cf47ed3c9"></script>
-<script src="js/stations/helm.js?v=cf47ed3c9"></script>
-<script src="js/stations/engineering.js?v=cf47ed3c9"></script>
-<script src="js/stations/tactical.js?v=cf47ed3c9"></script>
-<script src="js/stations/medical.js?v=cf47ed3c9"></script>
-<script src="js/init.js?v=cf47ed3c9"></script>
+<script src="js/colorizer.js?v=d3c579c8b"></script>
+<script src="js/core.js?v=d3c579c8b"></script>
+<script src="js/chrome.js?v=d3c579c8b"></script>
+<script src="js/data-fetch.js?v=d3c579c8b"></script>
+<script src="js/pulse.js?v=d3c579c8b"></script>
+<script src="js/knowledge.js?v=d3c579c8b"></script>
+<script src="js/ws-sse.js?v=d3c579c8b"></script>
+<script src="js/stations/operations.js?v=d3c579c8b"></script>
+<script src="js/stations/science.js?v=d3c579c8b"></script>
+<script src="js/stations/helm.js?v=d3c579c8b"></script>
+<script src="js/stations/engineering.js?v=d3c579c8b"></script>
+<script src="js/stations/tactical.js?v=d3c579c8b"></script>
+<script src="js/stations/medical.js?v=d3c579c8b"></script>
+<script src="js/init.js?v=d3c579c8b"></script>
 
 </body>
 </html>

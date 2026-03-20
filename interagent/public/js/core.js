@@ -104,31 +104,57 @@ function sparklineSVG(values, opts = {}) {
 
 // Waveform SVG generator — Com Link (J/K) pattern
 // Renders oscillating signal between horizontal framing bars
-function waveformSVG(opts = {}) {
+// dataWaveformSVG renders a time-series sparkline from actual data points.
+// data: array of numbers (y values, newest last). Autoscales to fit.
+function dataWaveformSVG(opts = {}) {
     const w = opts.width || 200, h = opts.height || 40;
-    const amplitude = opts.amplitude || 0.5; // 0-1 signal strength
-    const frequency = opts.frequency || 3;   // wave cycles
-    const phase = opts.phase || 0;           // phase offset for animation
+    const data = opts.data || [];
     const stroke = opts.stroke || "#ff9966";
-    const barColor = opts.barColor || "rgba(153,153,255,0.3)";
-    const points = [];
+    const fill = opts.fill || false;
+    const barColor = opts.barColor || "rgba(153,153,255,0.15)";
     const pad = 2;
-    const midY = h / 2;
-    const maxAmp = (h / 2 - pad) * Math.min(1, amplitude);
-    const steps = Math.max(40, w);
-    for (let i = 0; i <= steps; i++) {
-        const x = pad + (i / steps) * (w - 2 * pad);
-        // Composite wave: primary + harmonic + noise, phase-shifted
-        const t = (i / steps) * Math.PI * 2 * frequency + phase;
-        const wave = Math.sin(t) * 0.7 + Math.sin(t * 2.3 + phase * 0.7) * 0.2 + Math.sin(t * 5.1 + phase * 1.3) * 0.1;
-        const y = midY - wave * maxAmp;
-        points.push(x.toFixed(1) + "," + y.toFixed(1));
+
+    if (data.length < 2) {
+        // Flatline
+        const midY = h / 2;
+        return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block">
+            <line x1="${pad}" y1="${midY}" x2="${w - pad}" y2="${midY}" stroke="${stroke}" stroke-width="1" opacity="0.3"/>
+        </svg>`;
     }
+
+    const maxVal = Math.max(0.001, ...data);
+    const minVal = Math.min(0, ...data);
+    const range = maxVal - minVal || 1;
+    const points = data.map((v, i) => {
+        const x = pad + (i / (data.length - 1)) * (w - 2 * pad);
+        const y = h - pad - ((v - minVal) / range) * (h - 2 * pad);
+        return x.toFixed(1) + "," + y.toFixed(1);
+    });
+    const polyline = points.join(" ");
+    const lastPt = points[points.length - 1].split(",");
+
+    let fillSvg = "";
+    if (fill) {
+        const areaPoints = `${pad},${h - pad} ${polyline} ${w - pad},${h - pad}`;
+        fillSvg = `<polygon points="${areaPoints}" fill="${stroke}" opacity="0.1"/>`;
+    }
+
     return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block">
-        <line x1="${pad}" y1="${pad}" x2="${w - pad}" y2="${pad}" stroke="${barColor}" stroke-width="2"/>
-        <line x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" stroke="${barColor}" stroke-width="2"/>
-        <polyline points="${points.join(" ")}" fill="none" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round" opacity="${Math.max(0.3, amplitude)}"/>
+        <line x1="${pad}" y1="${pad}" x2="${w - pad}" y2="${pad}" stroke="${barColor}" stroke-width="1"/>
+        <line x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" stroke="${barColor}" stroke-width="1"/>
+        ${fillSvg}
+        <polyline points="${polyline}" fill="none" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round"/>
+        <circle cx="${lastPt[0]}" cy="${lastPt[1]}" r="2" fill="${stroke}"/>
     </svg>`;
+}
+
+// Waveform data history — stores recent values per waveform ID
+const _waveHistory = {};
+function pushWaveData(id, value, maxLen = 60) {
+    if (!_waveHistory[id]) _waveHistory[id] = [];
+    _waveHistory[id].push(value);
+    if (_waveHistory[id].length > maxLen) _waveHistory[id].shift();
+    return _waveHistory[id];
 }
 
 // ── Waveform Animation Controller ─────────────────────────────
@@ -136,33 +162,44 @@ let _waveAnimFrame = null;
 let _wavePhase = 0;
 let _waveOpts = null; // cached opts from last render
 
-// Separate phase accumulators for each waveform — driven by real data rates
-let _gfPhaseRate = 0.02; // radians/frame — set by renderTempo from deliberation rate
-let _gcPhaseRate = 0.04; // radians/frame — set by renderTempo from Gc event rate
-let _gfPhase = 0;
-let _gcPhase = 0;
+// Legacy phase rates — kept for any remaining references
+let _gfPhaseRate = 0;
+let _gcPhaseRate = 0;
 
 function startWaveformAnimation() {
     if (_waveAnimFrame) return;
+    let _frameCount = 0;
     function tick() {
-        _gfPhase += _gfPhaseRate;
-        _gcPhase += _gcPhaseRate;
-        _wavePhase += 0.05; // legacy — medical oscillator
+        _frameCount++;
+        // Update data every 30 frames (~0.5s at 60fps) to avoid DOM thrash
+        if (_frameCount % 30 !== 0) { _waveAnimFrame = requestAnimationFrame(tick); return; }
 
-        // Gf tempo waveform
+        // Gf tempo waveform — real deliberation activity
         const gfWave = document.getElementById("tempo-gf-waveform");
-        if (gfWave && gfWave._opts) {
-            gfWave.innerHTML = waveformSVG({ ...gfWave._opts, phase: _gfPhase });
+        if (gfWave) {
+            const ops = agentData["ops-session"] || agentData["operations-agent"] || {};
+            const gain = engineeringData?.cogTempo?.gain || 0;
+            const gfData = pushWaveData("gf-tempo", gain);
+            const color = gfWave._opts?.stroke || "var(--lcars-accent)";
+            gfWave.innerHTML = dataWaveformSVG({ width: gfWave.clientWidth || 200, height: 30, data: gfData, stroke: color, fill: true });
         }
-        // Gc tempo waveform
+        // Gc tempo waveform — real Gc event rate
         const gcWave = document.getElementById("tempo-gc-waveform");
-        if (gcWave && gcWave._opts) {
-            gcWave.innerHTML = waveformSVG({ ...gcWave._opts, phase: _gcPhase });
+        if (gcWave) {
+            const ops = agentData["ops-session"] || agentData["operations-agent"] || {};
+            const gcHandled = ops.data?.gc_metrics?.gc_handled_total || 0;
+            const gcData = pushWaveData("gc-tempo", gcHandled);
+            const color = gcWave._opts?.stroke || "#6aab8e";
+            gcWave.innerHTML = dataWaveformSVG({ width: gcWave.clientWidth || 200, height: 30, data: gcData, stroke: color, fill: true });
         }
-        // Medical oscillator (legacy)
+        // Medical oscillator — real activation level
         const medOscEl = document.getElementById("medical-oscillator-wave");
-        if (medOscEl && medOscEl._waveOpts) {
-            medOscEl.innerHTML = waveformSVG({ ...medOscEl._waveOpts, phase: _wavePhase });
+        if (medOscEl) {
+            const osc = agentData[typeof medSelectedAgent !== "undefined" ? medSelectedAgent : "ops-session"]?.data?.oscillator;
+            const act = osc?.activation || 0;
+            const medData = pushWaveData("med-osc", act);
+            const color = medOscEl._waveOpts?.stroke || "#66ccaa";
+            medOscEl.innerHTML = dataWaveformSVG({ width: medOscEl.clientWidth || 200, height: 30, data: medData, stroke: color, fill: true });
         }
         _waveAnimFrame = requestAnimationFrame(tick);
     }
