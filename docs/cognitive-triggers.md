@@ -123,7 +123,8 @@ After each CRITICAL trigger check completes, note the single most important
 finding in a one-line `[BROADCAST]` summary. Subsequent triggers read and
 incorporate these summaries rather than evaluating in isolation.
 
-Format: `[BROADCAST T2#1] context at 45%, no pressure`
+Format: `[BROADCAST T2#1 pass] context at 45%, no pressure`
+Result tag: `pass` or `fail` (optional — defaults to `pass` if omitted)
 
 This costs ~1 line per trigger fired (~3-5 lines per response). The broadcast
 medium already operates within the agent's working context. This convention formalizes
@@ -137,6 +138,13 @@ echo "[BROADCAST T{n}#{check}] {finding}" >> /tmp/psychology-agent-gwt-broadcast
 The `gwt-broadcast.sh` PostToolUse hook reads this file and surfaces active
 broadcasts as context reminders on subsequent tool calls. Stale broadcasts
 (older than 5 minutes) clear automatically between response cycles.
+
+**Telemetry (Session 94):** gwt-broadcast.sh now parses each broadcast line
+and records it to `trigger_activations` in state.db via `dual_write.py
+trigger-activation`. This closes the observability gap for in-context
+trigger evaluation — the agent writes broadcasts as part of CRITICAL check
+execution, and the hook records them mechanically. Deduplication via a
+per-cycle recorded-lines tracker prevents double-counting.
 
 **Read path:** Subsequent triggers read the broadcast file (via hook output)
 and incorporate findings. Example: T3 reads a T2 broadcast about context

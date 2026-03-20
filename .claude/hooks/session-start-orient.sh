@@ -33,6 +33,14 @@ elif [ -f "${PROJECT_ROOT}/scripts/dual_write.py" ] && [ -f "${PROJECT_ROOT}/sta
   python3 "${PROJECT_ROOT}/scripts/dual_write.py" trigger-fired --trigger-id T1 2>/dev/null
 fi
 
+# Persist session ID for inter-hook communication (gwt-broadcast reads this)
+SESSION_ID_FILE="/tmp/${AGENT_ID}-session-id"
+if [ -f "${PROJECT_ROOT}/state.db" ]; then
+  LATEST_SESSION=$(sqlite3 "${PROJECT_ROOT}/state.db" "SELECT MAX(id) FROM session_log;" 2>/dev/null || echo 0)
+  NEXT_SESSION=$((LATEST_SESSION + 1))
+  echo "$NEXT_SESSION" > "$SESSION_ID_FILE"
+fi
+
 # Remind of trigger system
 echo "[SESSION-START] Cognitive triggers T1-T16 active. Read docs/cognitive-triggers.md for full system."
 echo "[SESSION-START] Skills: /doc /hunt /cycle /knock /sync /iterate"
