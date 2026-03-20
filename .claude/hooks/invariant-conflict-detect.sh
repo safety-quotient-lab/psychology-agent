@@ -7,6 +7,7 @@
 #
 # Evaluation dimension 10, extension 4: maqasid invocation mechanism
 # Evaluation dimension 4: invariant mechanical verification
+source "${BASH_SOURCE[0]%/*}/_debug.sh"
 
 # Claude Code injects TOOL_NAME and TOOL_INPUT_* variables at runtime
 # shellcheck disable=SC2154
@@ -41,4 +42,5 @@ if [ "$INVARIANT_COUNT" -ge 2 ]; then
     echo "  If these invariants produce conflicting guidance, apply maqasid priority:"
     echo "  NECESSITY (1,2) > NEED (3,4) > EMBELLISHMENT (5)"
     echo "  See: docs/ef1-governance.md § Priority hierarchy"
+    _record_trigger T17
 fi

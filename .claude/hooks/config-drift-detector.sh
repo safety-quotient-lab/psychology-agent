@@ -18,5 +18,6 @@ if [ -f "$SETTINGS" ]; then
   if [ -n "$DIFF" ]; then
     echo "[HOOK] ⚠ .claude/settings.json modified mid-session. Hook configuration may have changed."
     echo "[HOOK] Review the change before proceeding — hooks enforce cogarch mechanically."
+    _record_trigger T11
   fi
 fi
