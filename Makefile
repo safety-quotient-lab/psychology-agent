@@ -147,7 +147,7 @@ deploy-restart:
 	@echo ""
 	@echo "═══ Restarting meshd processes ═══"
 	@echo "  Broadcasting black alert..."
-	@curl -sf -X POST https://operations-agent.safety-quotient.dev/api/trigger \
+	@curl -sf -X POST https://mesh.safety-quotient.dev/api/trigger \
 		-H "Content-Type: application/json" \
 		-d '{"type":"alert","payload":{"level":"1","reason":"meshd deploy in progress"}}' \
 		>/dev/null 2>&1 || true
@@ -160,7 +160,7 @@ deploy-restart:
 		$(SSH_CMD) 'systemctl --user --no-block start meshd-psychology meshd-psq meshd-observatory meshd-unratified meshd-interagent-mesh && echo "    Started 5 units (4 agents + mesh)"; sleep 3; echo ""; echo "  Processes:"; pgrep -f "/home/kashif/platform/meshd --port" -la 2>/dev/null | head -6'
 	@echo "  Standing down..."
 	@sleep 5
-	@curl -sf -X POST https://operations-agent.safety-quotient.dev/api/trigger \
+	@curl -sf -X POST https://mesh.safety-quotient.dev/api/trigger \
 		-H "Content-Type: application/json" \
 		-d '{"type":"alert","payload":{"level":"5","reason":"Deploy complete — all systems nominal"}}' \
 		>/dev/null 2>&1 || true
