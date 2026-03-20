@@ -317,6 +317,7 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	// Static assets
 	mux.HandleFunc("GET /{$}", s.handleIndex)
 	mux.HandleFunc("GET /vocab", s.handleVocab)
+	mux.HandleFunc("GET /api/facets", s.handleFacets)
 	mux.HandleFunc("GET /vocab.json", s.handleVocab)
 	mux.HandleFunc("GET /vocab/schema", s.handleVocabSchema)
 	mux.HandleFunc("GET /vocab/schema.json", s.handleVocabSchema)
@@ -823,6 +824,37 @@ func (s *Server) detectSessionActive() bool {
 		}
 	}
 	return false
+}
+
+// handleFacets serves GET /api/facets — vocabulary, universal, and entry facets.
+func (s *Server) handleFacets(w http.ResponseWriter, r *http.Request) {
+	dbPath := s.Config.BudgetDBPath
+
+	// facet_vocabulary — discipline classifications
+	vocab, _ := db.QueryJSON(dbPath,
+		"SELECT facet_type, facet_value, code, source, description, active FROM facet_vocabulary ORDER BY facet_type, facet_value")
+
+	// universal_facets — entity classifications
+	universal, _ := db.QueryJSON(dbPath,
+		"SELECT entity_type, entity_id, facet_type, facet_value, confidence FROM universal_facets ORDER BY entity_type, facet_type LIMIT 200")
+
+	// Aggregate stats
+	vocabByType := map[string]int{}
+	for _, v := range vocab {
+		vocabByType[v["facet_type"]]++
+	}
+
+	resp := map[string]any{
+		"vocabulary":       vocab,
+		"universal_facets": universal,
+		"stats": map[string]any{
+			"vocabulary_count": len(vocab),
+			"universal_count":  len(universal),
+			"types":            vocabByType,
+		},
+	}
+
+	writeJSON(w, http.StatusOK, resp, s.logger)
 }
 
 // decodeJSON reads and parses a JSON request body into dst.

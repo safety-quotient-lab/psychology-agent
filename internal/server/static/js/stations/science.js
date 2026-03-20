@@ -178,16 +178,20 @@ function renderLinguistics() {
 
 // ── Ontology Subsystem ──────────────────────────────────────
 let _ontologyData = null;
+let _facetsData = null;
 
 async function fetchOntologyData() {
-    // Fetch KB from ops-session for claims + catalog data
-    if (!_ontologyData) {
-        const opsUrl = AGENTS.find(a => a.id === "ops-session")?.url || "";
-        const kbUrl = opsUrl ? opsUrl + "/api/kb" : "/api/kb";
-        try {
-            const resp = await fetch(kbUrl, { signal: AbortSignal.timeout(8000) });
-            if (resp.ok) _ontologyData = await resp.json();
-        } catch {}
+    const opsUrl = AGENTS.find(a => a.id === "ops-session")?.url || "";
+    // Fetch KB + facets in parallel
+    const [kbResp, facetsResp] = await Promise.allSettled([
+        _ontologyData ? Promise.resolve(null) : fetch(opsUrl ? opsUrl + "/api/kb" : "/api/kb", { signal: AbortSignal.timeout(8000) }),
+        _facetsData ? Promise.resolve(null) : fetch(opsUrl ? opsUrl + "/api/facets" : "/api/facets", { signal: AbortSignal.timeout(5000) }),
+    ]);
+    if (!_ontologyData && kbResp.status === "fulfilled" && kbResp.value?.ok) {
+        _ontologyData = await kbResp.value.json();
+    }
+    if (!_facetsData && facetsResp.status === "fulfilled" && facetsResp.value?.ok) {
+        _facetsData = await facetsResp.value.json();
     }
     renderOntology();
 }
@@ -195,19 +199,36 @@ async function fetchOntologyData() {
 function renderOntology() {
     const kb = _ontologyData?.data || _ontologyData || {};
 
-    // Discipline Catalog — kb.catalog.active[]
+    // Discipline Catalog — from /api/facets vocabulary, grouped by facet_type
     const catEl = document.getElementById("lcars-sci-catalog");
     if (catEl) {
-        const catalog = kb.catalog?.active || [];
-        if (catalog.length > 0) {
-            catEl.innerHTML = catalog.map(c =>
-                `<div style="padding:4px 0;border-bottom:1px solid var(--border);font-size:0.78em">
-                    <span style="color:var(--lcars-secondary);font-weight:600">${c.name || c.discipline || "?"}</span>
-                    <span style="color:var(--text-dim);margin-left:8px">${c.description || c.psh_code || ""}</span>
-                </div>`
-            ).join("");
+        const vocab = _facetsData?.vocabulary || [];
+        if (vocab.length > 0) {
+            const byType = {};
+            vocab.forEach(v => {
+                const t = v.facet_type || "other";
+                if (!byType[t]) byType[t] = [];
+                byType[t].push(v);
+            });
+            const typeLabels = { psh: "PSH Disciplines", acronym: "Acronyms", pje_domain: "PJE Domains", schema_type: "Schema Types" };
+            catEl.innerHTML = `<div class="lcars-data-table-wrap" style="--panel-accent:var(--c-tab-science)">
+                <table class="lcars-data-table">
+                    <thead><tr><th>TYPE</th><th>TERM</th><th>CODE</th><th>DESCRIPTION</th></tr></thead>
+                    <tbody>${Object.entries(byType).sort((a, b) => b[1].length - a[1].length).map(([type, items]) =>
+                        items.slice(0, 20).map((v, i) =>
+                            `<tr>
+                                ${i === 0 ? `<td rowspan="${Math.min(20, items.length)}" style="color:var(--lcars-title);font-weight:600;vertical-align:top">${typeLabels[type] || type.toUpperCase()} (${items.length})</td>` : ""}
+                                <td style="color:var(--lcars-secondary)">${v.facet_value || "?"}</td>
+                                <td style="color:var(--text-dim);font-family:monospace;font-size:0.9em">${v.code || ""}</td>
+                                <td style="color:var(--text-primary);max-width:250px;overflow:hidden;text-overflow:ellipsis" title="${(v.description || "").replace(/"/g, "&quot;")}">${v.description || ""}</td>
+                            </tr>`
+                        ).join("")
+                    ).join("")}</tbody>
+                </table>
+            </div>`;
         } else {
-            catEl.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No catalog facets classified. Requires bootstrap_facets.py on ops-session.</div>';
+            const stats = _facetsData?.stats || {};
+            catEl.innerHTML = `<div style="color:var(--text-dim);font-size:0.82em;padding:12px">${stats.vocabulary_count ? stats.vocabulary_count + " terms in facet_vocabulary" : "No facet vocabulary data. Table may not exist in this agent's state.db."}</div>`;
         }
     }
 
@@ -229,6 +250,33 @@ function renderOntology() {
             ).join("");
         } else {
             claimsEl.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No claims recorded. Claims track verified assertions across sessions.</div>';
+        }
+    }
+
+    // Universal Facets — entity classifications from /api/facets
+    const facetsEl = document.getElementById("onto-facets");
+    if (facetsEl) {
+        const universal = _facetsData?.universal_facets || [];
+        if (universal.length > 0) {
+            const byEntity = {};
+            universal.forEach(f => {
+                const key = f.entity_type + ":" + f.entity_id;
+                if (!byEntity[key]) byEntity[key] = { type: f.entity_type, id: f.entity_id, facets: [] };
+                byEntity[key].facets.push(f);
+            });
+            facetsEl.innerHTML = `<div style="max-height:250px;overflow-y:auto;font-size:0.78em">
+                ${Object.values(byEntity).slice(0, 30).map(e =>
+                    `<div style="padding:3px 0;border-bottom:1px solid var(--border)">
+                        <span style="color:var(--lcars-title);font-size:0.9em">${e.type}</span>
+                        <span style="color:var(--text-dim)">#${e.id}</span>
+                        <span style="margin-left:8px">${e.facets.map(f =>
+                            `<span style="background:var(--bg-inset);padding:1px 6px;border-radius:var(--gap-xs);margin:0 2px;color:var(--lcars-secondary)">${f.facet_value}</span>`
+                        ).join("")}</span>
+                    </div>`
+                ).join("")}
+            </div>`;
+        } else {
+            facetsEl.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No universal facet classifications. Run bootstrap_facets.py to classify entities.</div>';
         }
     }
 
