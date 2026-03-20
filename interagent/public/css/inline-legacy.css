@@ -3962,6 +3962,9 @@ body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dar
 .lcars-data-table td {
     padding: 3px 6px; white-space: nowrap;
 }
+.lcars-data-table td.wrap {
+    white-space: normal; line-height: 1.4;
+}
 .lcars-data-table td.num { text-align: right; }
 .lcars-data-table tr { border-bottom: 1px solid var(--border); }
 .lcars-data-table .chip {

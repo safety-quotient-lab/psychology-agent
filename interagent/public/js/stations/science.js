@@ -270,10 +270,10 @@ function renderLinguistics() {
     const meshVocabEl = document.getElementById("lcars-sci-vocab");
     if (meshVocabEl && _vocabData) {
         const termList = _vocabData.hasDefinedTerm || [];
-        meshVocabEl.innerHTML = `<div style="max-height:300px;overflow-y:auto">
-            <table style="width:100%;font-size:0.75em;border-collapse:collapse">
-                <thead><tr style="color:var(--lcars-title);text-align:left">
-                    <th style="padding:4px 8px">Term</th><th style="padding:4px 8px">Code</th><th style="padding:4px 8px">Status</th><th style="padding:4px 8px">Definition</th>
+        meshVocabEl.innerHTML = `<div class="lcars-data-table-wrap" style="--panel-accent:var(--c-tab-science)">
+            <table class="lcars-data-table">
+                <thead><tr>
+                    <th>Term</th><th>Code</th><th>Status</th><th>Definition</th>
                 </tr></thead>
                 <tbody>
                     ${termList.map(t => {
@@ -282,7 +282,7 @@ function renderLinguistics() {
                             <td style="padding:3px 8px;color:var(--lcars-secondary);font-weight:600">${t.name || "?"}</td>
                             <td style="padding:3px 8px;color:var(--text-dim);font-family:monospace;font-size:0.9em">${t.termCode || ""}</td>
                             <td style="padding:3px 8px;color:${statusColor};text-transform:uppercase">${t.status || "active"}</td>
-                            <td style="padding:3px 8px;color:var(--text-primary);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(t.description || "").replace(/"/g, "&quot;")}">${t.description || "—"}</td>
+                            <td class="wrap" style="color:var(--text-primary)">${t.description || "—"}</td>
                         </tr>`;
                     }).join("")}
                 </tbody>
@@ -335,7 +335,7 @@ function renderOntology() {
                                 ${i === 0 ? `<td rowspan="${Math.min(20, items.length)}" style="color:var(--lcars-title);font-weight:600;vertical-align:top">${typeLabels[type] || type.toUpperCase()} (${items.length})</td>` : ""}
                                 <td style="color:var(--lcars-secondary)">${v.facet_value || "?"}</td>
                                 <td style="color:var(--text-dim);font-family:monospace;font-size:0.9em">${v.code || ""}</td>
-                                <td style="color:var(--text-primary);max-width:250px;overflow:hidden;text-overflow:ellipsis" title="${(v.description || "").replace(/"/g, "&quot;")}">${v.description || ""}</td>
+                                <td class="wrap" style="color:var(--text-primary)">${v.description || ""}</td>
                             </tr>`
                         ).join("")
                     ).join("")}</tbody>
