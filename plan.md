@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 14 complete. T5-T7 directives all implemented + ACKed. Oscillator deadlock fixed. Heartbeat/Gc/oscillator panels live on Engineering + Medical. All zone-a grids use dg-cell pills (Button 52). Cognitive tempo v2: meshd-native metrics, Gc/Gf ratio, backlog pressure. Hippocampal replay (T6) drains backlog. Pulse carries gc/event/budget for all agents. Helm + Tactical LCARS treated. All 8 agents online with data flowing. Next: more LCARS refinement, resource awareness, prioritization architecture (awaiting psy-session T7 response).
+**Current Status:** Session 14 — 70+ commits. First autonomous deliberation (v1.1.0-autonomous). operations-agent retired → ops-session canonical. mesh agent bootstrapped (mesh.safety-quotient.dev). T1-T13 directives implemented. Science: 3 subsystems (Psychometrics/Linguistics/Ontology). Linguistics: 7 panels (vocab, E-Prime, divergence, governance, terminology map, mesh vocab). Ontology: /api/facets endpoint, 125 discipline terms, 83 universal facets, 7 decisions. All waveforms real-data. Agent selector component shared. Mobile: scrollable lcars-data-table. Heartbeat emission fixes peer_heartbeat_stale. deliberate.sh fleet-wide. GitHub Actions removed. Pending: cogarch patch fleet-wide, ZMQ consensus (BUG-22), pulse redesign.
 
 ---
 
