@@ -216,6 +216,9 @@ type TierResult struct {
 	OverrideActive  bool               `json:"override_active"`
 	OverrideReason  string             `json:"override_reason,omitempty"`
 	ComputedAt      string             `json:"computed_at"`
+	GcGfRatio       float64            `json:"gc_gf_ratio"`
+	BacklogPressure float64            `json:"backlog_pressure"`
+	Unprocessed     int                `json:"unprocessed"`
 }
 
 // PsychometricInputs captures the signals fed into tier selection.
@@ -377,15 +380,68 @@ func LoadBudgetRatio(dbPath, agentID string) float64 {
 }
 
 // ComputeTier runs the full cognitive-tempo pipeline for an agent.
+// v2 (psy-session T7): reads meshd event counters, not human session cache.
 func ComputeTier(agentID, dbPath string, msg MessageMeta) TierResult {
 	psych := LoadPsychometrics(agentID)
 	psych.BudgetRatio = LoadBudgetRatio(dbPath, agentID)
 
 	complexity := EstimateTaskComplexity(msg)
-	tier, gain, override, reason := SelectModelTier(
-		complexity, psych.CognitiveLoad, psych.CognitiveReserve,
-		psych.BudgetRatio, msg.GateBlocked, psych.YerkesDodsonZone,
-	)
+
+	// v2: meshd-native metrics override human session defaults
+	gcHandled := float64(db.QueryScalar(dbPath,
+		"SELECT COALESCE(gc_handled_count, 0) FROM gc_event_counters WHERE event_type='total'"))
+	if gcHandled == 0 {
+		// Fallback: read from the Gc handler's runtime counter via deliberation_log
+		gcHandled = float64(db.QueryScalar(dbPath,
+			"SELECT COUNT(*) FROM deliberation_log"))
+	}
+	gfSucceeded := float64(db.QueryScalar(dbPath,
+		"SELECT COUNT(*) FROM deliberation_log WHERE status='completed'"))
+	unprocessed := float64(db.QueryScalar(dbPath,
+		"SELECT COUNT(*) FROM transport_messages WHERE processed=0"))
+
+	// Gc/Gf ratio: 1.0 = pure Gc (exploitation), 0.0 = pure Gf (exploration)
+	gcGfTotal := gcHandled + gfSucceeded
+	gcGfRatio := 0.5 // balanced default
+	if gcGfTotal > 0 {
+		gcGfRatio = gcHandled / gcGfTotal
+	}
+
+	// Backlog pressure: more unprocessed → push toward exploitation/haiku
+	backlogPressure := math.Min(1.0, unprocessed/10.0)
+
+	// Recovery factor from alpha heartbeat (if available)
+	recoveryFactor := 1.0 // fully rested default
+
+	// v2 gain computation (psy-session T7 spec)
+	gain := gcGfRatio*0.30 +
+		backlogPressure*0.25 +
+		(1-recoveryFactor)*0.25 +
+		(1-complexity)*0.20
+
+	// Overrides still apply
+	override := false
+	reason := ""
+	if msg.GateBlocked && gain > 0.65 {
+		gain = 0.65
+		override = true
+		reason = "gate_active — substance decision requires sonnet minimum"
+	}
+	if psych.YerkesDodsonZone == "overwhelmed" {
+		gain = 0.95
+		override = true
+		reason = "overwhelmed — protective downshift to haiku"
+	}
+
+	tier := "opus"
+	if gain > 0.70 {
+		tier = "haiku"
+	} else if gain > 0.35 {
+		tier = "sonnet"
+	}
+
+	// Enrich psychometric inputs with meshd metrics
+	psych.CognitiveLoad = backlogPressure * 100
 
 	return TierResult{
 		RecommendedTier: tier,
@@ -395,6 +451,9 @@ func ComputeTier(agentID, dbPath string, msg MessageMeta) TierResult {
 		OverrideActive:  override,
 		OverrideReason:  reason,
 		ComputedAt:      time.Now().UTC().Format(time.RFC3339),
+		GcGfRatio:       math.Round(gcGfRatio*1000) / 1000,
+		BacklogPressure: math.Round(backlogPressure*1000) / 1000,
+		Unprocessed:     int(unprocessed),
 	}
 }
 

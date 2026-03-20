@@ -389,9 +389,14 @@ function engZoneAMetrics() {
     }
     const avgDur = totalDelibs > 0 ? Math.round(totalDur / totalDelibs / 1000) : 0;
     const rho = engineeringData?.tempo?.mesh?.utilization;
+    const ct = engineeringData?.cogTempo;
+    const gcGf = ct?.gc_gf_ratio;
+    const backlog = ct?.unprocessed ?? 0;
     return [
+        { label: "Gc/Gf", value: gcGf != null ? Math.round(gcGf * 100) + "/" + Math.round((1 - gcGf) * 100) : "\u2014", type: "id" },
         { label: "Gf TOTAL", value: fmtNum(totalDelib), type: "count" },
         { label: "RECENT", value: fmtNum(totalDelibs), type: "count" },
+        { label: "BACKLOG", value: fmtNum(backlog), type: backlog > 5 ? "alert" : "val", alert: backlog > 10 },
         { label: "COST", value: "$" + totalCost.toFixed(1), type: "val" },
         { label: "AVG DUR", value: avgDur + "s", type: "id" },
         { label: "\u03C1", value: rho != null ? (rho * 100).toFixed(0) + "%" : "\u2014", type: "count", alert: rho > 0.8 },

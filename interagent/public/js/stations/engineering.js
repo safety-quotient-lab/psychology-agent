@@ -356,11 +356,15 @@ function renderTempo() {
         const complexity = ct?.task_complexity || 0;
 
         if (gain != null) {
+            const gcGf = ct?.gc_gf_ratio ?? null;
+            const backlog = ct?.backlog_pressure ?? 0;
+            const unproc = ct?.unprocessed ?? 0;
             gfVal.innerHTML = `${tier.toUpperCase()}<span class="tempo-unit"> g=${gain.toFixed(2)}</span>`;
             gfFill.style.width = `${Math.min(100, gain * 100)}%`;
             gfFill.style.background = tierColor;
-            const yd = ct?.psychometric_state?.yerkes_dodson_zone || "?";
-            gfStatus.textContent = `${yd.toUpperCase()} · ${delibLastHr}/hr · ${delibCount} total · c=${complexity.toFixed(2)}`;
+            const gcPct = gcGf != null ? Math.round(gcGf * 100) : "?";
+            const gfPct = gcGf != null ? Math.round((1 - gcGf) * 100) : "?";
+            gfStatus.textContent = `Gc/Gf: ${gcPct}/${gfPct} · backlog: ${unproc} (p=${backlog.toFixed(2)}) · c=${complexity.toFixed(2)}`;
         } else {
             gfVal.innerHTML = `${delibCount}<span class="tempo-unit"> deliberations</span>`;
             gfFill.style.width = "0%";
