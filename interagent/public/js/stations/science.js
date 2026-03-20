@@ -1,6 +1,84 @@
 // ═══ RENDER: SCIENCE ════════════════════════════════════════
 let scienceData = null;
 let scienceFetchPending = false;
+let _vocabData = null;
+
+// ── Science Subsystem Switcher ──────────────────────────────
+function switchSciSubsystem(subsys) {
+    document.querySelectorAll(".sci-panel").forEach(p => {
+        p.style.display = p.id === "sci-" + subsys ? "" : "none";
+        p.classList.toggle("sci-panel-active", p.id === "sci-" + subsys);
+    });
+    document.querySelectorAll("#pane-science .ops-panel-btn").forEach(b => {
+        b.classList.toggle("ops-panel-active", b.dataset.subsys === subsys);
+    });
+    const title = document.getElementById("science-zone-c-title");
+    if (title) {
+        title.textContent = subsys === "linguistics" ? "Computational Linguistics" : "Psychometric Analysis";
+    }
+    if (subsys === "linguistics") fetchLinguisticsData();
+}
+window.switchSciSubsystem = switchSciSubsystem;
+
+async function fetchLinguisticsData() {
+    // Fetch shared vocabulary
+    if (!_vocabData) {
+        try {
+            const resp = await fetch("/vocab", { signal: AbortSignal.timeout(5000) });
+            if (resp.ok) _vocabData = await resp.json();
+        } catch {}
+    }
+    renderLinguistics();
+}
+
+function renderLinguistics() {
+    // Vocabulary panel
+    const vocabEl = document.getElementById("ling-vocabulary");
+    if (vocabEl && _vocabData) {
+        const terms = _vocabData.terms || _vocabData["@graph"] || [];
+        const termList = Array.isArray(terms) ? terms : Object.entries(terms).map(([k, v]) => ({ term: k, ...v }));
+        const active = termList.filter(t => t.status !== "deprecated").length;
+        const deprecated = termList.length - active;
+
+        vocabEl.innerHTML = `
+            <div style="display:flex;gap:var(--gap-l);margin-bottom:var(--gap-m);font-size:0.82em">
+                <div><span style="color:var(--lcars-title)">TERMS</span> <strong>${termList.length}</strong></div>
+                <div><span style="color:var(--lcars-medical)">ACTIVE</span> <strong>${active}</strong></div>
+                <div><span style="color:var(--text-dim)">DEPRECATED</span> <strong>${deprecated}</strong></div>
+                <div><span style="color:var(--lcars-secondary)">VERSION</span> <strong>${_vocabData.version || "?"}</strong></div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:var(--gap-xs);max-height:200px;overflow-y:auto">
+                ${termList.slice(0, 40).map(t => {
+                    const status = t.status || "active";
+                    const color = status === "deprecated" ? "var(--text-dim)" : "var(--lcars-secondary)";
+                    const term = t.term || t["@id"] || t.name || "?";
+                    return `<span style="background:var(--bg-inset);padding:2px 8px;border-radius:var(--gap-xs);font-size:0.75em;color:${color}" title="${t.definition || ''}">${term}</span>`;
+                }).join("")}
+            </div>`;
+    }
+
+    // Terminology map — show term categories/domains
+    const termEl = document.getElementById("ling-terminology");
+    if (termEl && _vocabData) {
+        const terms = _vocabData.terms || _vocabData["@graph"] || [];
+        const termList = Array.isArray(terms) ? terms : Object.entries(terms).map(([k, v]) => ({ term: k, ...v }));
+        const domains = {};
+        termList.forEach(t => {
+            const d = t.domain || t.category || "general";
+            if (!domains[d]) domains[d] = [];
+            domains[d].push(t.term || t["@id"] || t.name || "?");
+        });
+
+        termEl.innerHTML = Object.entries(domains).map(([domain, terms]) =>
+            `<div style="margin-bottom:var(--gap-m)">
+                <div style="color:var(--lcars-title);font-size:0.72em;text-transform:uppercase;margin-bottom:var(--gap-xs)">${domain} (${terms.length})</div>
+                <div style="display:flex;flex-wrap:wrap;gap:var(--gap-xs)">
+                    ${terms.map(t => `<span style="background:var(--bg-inset);padding:2px 6px;border-radius:var(--gap-xs);font-size:0.72em;color:var(--lcars-secondary)">${t}</span>`).join("")}
+                </div>
+            </div>`
+        ).join("");
+    }
+}
 
 const LOA_DESCRIPTIONS = [
     "Human does all",

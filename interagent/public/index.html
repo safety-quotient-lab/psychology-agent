@@ -614,11 +614,24 @@
 
         <!-- Science Tab -->
         <div class="tab-pane" id="pane-science">
-            <!-- Science Record — zone-c title + data grid -->
+            <!-- Science Record — zone-c title -->
             <div class="lcars-zone-c" style="margin-bottom:var(--gap-xs)">
-                <span class="zc-title">Psychometric Analysis</span>
+                <span class="zc-title" id="science-zone-c-title">Psychometric Analysis</span>
                 <span class="zc-id">03</span>
             </div>
+
+            <!-- Subsystem selector -->
+            <div class="lcars-subpanel" style="margin-bottom:var(--gap-m)">
+                <div class="lcars-subpanel-bar lcars-subpanel-bar-accent">03-4710</div>
+                <div class="ops-panel-selector">
+                    <button class="lcars-pill-btn lcars-pill-sm ops-panel-btn ops-panel-active" data-subsys="psychometrics" onclick="switchSciSubsystem('psychometrics')">PSYCHOMETRICS</button>
+                    <button class="lcars-pill-btn lcars-pill-sm ops-panel-btn" data-subsys="linguistics" onclick="switchSciSubsystem('linguistics')">LINGUISTICS</button>
+                </div>
+            </div>
+
+            <!-- PSYCHOMETRICS subsystem (default) -->
+            <div class="sci-panel sci-panel-active" id="sci-psychometrics">
+            <!-- data grid -->
             <div class="lcars-data-grid" id="science-analysis-grid">
                 <div class="dg-cell dg-t2" id="organism-state-label" title="AFFECT" onclick="this.classList.toggle('dg-show-label')"><span class="dg-val">&mdash;</span><span class="dg-label">AFFECT</span></div>
                 <div class="dg-cell" id="organism-valence-cell" title="VALENCE" onclick="this.classList.toggle('dg-show-label')"><span class="dg-val" id="organism-valence">&mdash;</span><span class="dg-label">VALENCE</span></div>
@@ -895,6 +908,36 @@
                     <div class="lcars-panel-body scrollable" id="lcars-sci-catalog"></div>
                 </div>
             </div>
+            </div><!-- /sci-psychometrics -->
+
+            <!-- LINGUISTICS subsystem -->
+            <div class="sci-panel" id="sci-linguistics" style="display:none">
+                <div class="science-grid">
+                    <!-- Vocabulary Governance -->
+                    <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
+                        <div class="lcars-panel-header">Shared Vocabulary <span class="lcars-panel-id">3001</span></div>
+                        <div class="lcars-panel-body" id="ling-vocabulary">
+                            <div style="color:var(--text-dim);font-size:0.82em;padding:12px">Loading vocabulary...</div>
+                        </div>
+                    </div>
+
+                    <!-- E-Prime Compliance -->
+                    <div class="lcars-panel" style="--panel-accent: var(--c-tab-science)">
+                        <div class="lcars-panel-header">E-Prime Compliance <span class="lcars-panel-id">3002</span></div>
+                        <div class="lcars-panel-body" id="ling-eprime">
+                            <div style="color:var(--text-dim);font-size:0.82em;padding:12px">E-Prime enforcer active — eliminates forms of "to be"</div>
+                        </div>
+                    </div>
+
+                    <!-- Terminology Map -->
+                    <div class="lcars-panel" style="--panel-accent: var(--c-tab-science); grid-column: 1 / -1">
+                        <div class="lcars-panel-header">Terminology Map <span class="lcars-panel-id">3003</span></div>
+                        <div class="lcars-panel-body" id="ling-terminology">
+                            <div style="color:var(--text-dim);font-size:0.82em;padding:12px">Loading terminology...</div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /sci-linguistics -->
         </div>
 
         <!-- Engineering Tab -->
