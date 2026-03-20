@@ -421,7 +421,9 @@ function switchTab(tabId, updateHash = true) {
     });
     // Update header band + title color to match active tab
     const colorVar = TAB_COLORS[tabId] || "--c-tab-pulse";
-    document.documentElement.style.setProperty("--active-tab-color", `var(${colorVar})`);
+    // Resolve the actual computed color (theme-lcars overrides live on body, not :root)
+    const computed = getComputedStyle(document.body).getPropertyValue(colorVar).trim();
+    document.documentElement.style.setProperty("--active-tab-color", computed || `var(${colorVar})`);
     updateSpine(tabId);
     if (tabId === "operations") refreshAll();
     if (tabId === "science") fetchScienceData();
