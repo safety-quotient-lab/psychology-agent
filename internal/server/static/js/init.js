@@ -28,6 +28,16 @@ window.switchOpsSubsystem = switchOpsSubsystem;
     const hashTab = location.hash.replace("#", "");
     if (hashTab && VALID_TABS.includes(hashTab)) switchTab(hashTab, false);
 
+    // Restore subsystem from URL ?sub= parameter
+    const urlSub = new URLSearchParams(location.search).get("sub");
+    if (urlSub) {
+        // Defer until after first render so the panels exist
+        setTimeout(() => {
+            if (typeof switchSciSubsystem === "function") switchSciSubsystem(urlSub, false);
+            if (typeof switchOpsSubsystem === "function") switchOpsSubsystem(urlSub);
+        }, 100);
+    }
+
     buildAgentSwitcher();
     await refreshAll();
 

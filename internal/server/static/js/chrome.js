@@ -59,10 +59,14 @@ async function checkAuth() {
 
 // ═══ LCARS CHROME ═══════════════════════════════════════════
 function switchOpsSubsystem(subsys) {
-    document.querySelectorAll(".ops-panel-btn").forEach(b =>
+    document.querySelectorAll("#pane-operations .ops-panel-btn").forEach(b =>
         b.classList.toggle("ops-panel-active", b.dataset.subsys === subsys));
     document.querySelectorAll(".ops-panel").forEach(p =>
         p.classList.toggle("ops-panel-active", p.id === `ops-${subsys}`));
+    // Persist to URL
+    const url = new URL(location);
+    url.searchParams.set("sub", subsys);
+    history.replaceState(null, "", url);
 }
 window.switchOpsSubsystem = switchOpsSubsystem;
 
