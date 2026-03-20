@@ -752,8 +752,9 @@ function renderOpsCapsuleBars() {
     const pending = online.reduce((s, a) => s + (a.data?.unprocessed_messages || []).length, 0);
     const gates = online.reduce((s, a) => s + (a.data?.active_gates || []).length, 0);
     const events = online.reduce((s, a) => s + (a.data?.event_count || 0), 0);
-    // Show local agent's git hash (operations-agent build version)
-    const opsVersion = agentData["operations-agent"]?.data?.version || "";
+    // Show local agent's git hash — find the first agent with a version string
+    const localAgent = agentData["ops-session"] || agentData["operations-agent"] || agentData["mesh"] || Object.values(agentData).find(a => a?.data?.version);
+    const opsVersion = localAgent?.data?.version || "";
     const hashMatch = opsVersion.match(/-g([0-9a-f]{7})/);
     const vStr = hashMatch ? hashMatch[1] : opsVersion.slice(0, 7) || "—";
     const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
