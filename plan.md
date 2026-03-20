@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 13 complete — 60+ commits, 50+ deploys. Full psy-session adherence (T18-T23 + T4). Gc selective attention + salience classifier + reinforcement learning (gc_learning table, promotion/demotion). Alpha heartbeat goroutine (T22 metabolic cooling model — lock-free atomics). shadow_mode → sleep_mode rename. Tonic inhibition detection + Medical LCARS indicator. A2A-Psychology v0.0.2 spec. Station naming convention on Ops/Science/Medical/Engineering. Engineering: timing hierarchy (5-layer live), dual Gf/Gc tempo with data-driven waveforms. CORS eliminated. SIGTERM graceful. All 8 agents online with health + mood + heartbeat. Mesh awake (sleep mode off, unpaused). Next: LCARS panels for heartbeat/Gc learning data, Medical agent selector refinement, Helm/Tactical treatment, UTC audit.
+**Current Status:** Session 14 complete. All psy-session directives (T1-T5) ACKed in meshd-bug-diagnostics transport session. Dashboard fix: station tabs (Engineering/Science/Medical/Helm/Tactical) now refresh on every poll cycle via refreshActiveStation() — previously only fetched data on tab switch, then went stale. All 8 agents online (7 nominal, 1 unknown). Next: LCARS panels for heartbeat/Gc learning data, Helm/Tactical treatment, resource awareness, UTC audit.
 
 ---
 
@@ -212,6 +212,7 @@
 | compositor-health-advisory | RESOLVED | 500 fixed — loadAgentRegistry try-catch + agent-card above registry load. |
 | budget-model-refactor | RESOLVED | Counter+cutoff model deployed. PR #221 merged by psychology. |
 | compositor-identity | RESOLVED | Compositor owns agent card (role: mesh). PR #222 merged. Dashboard ownership transferred. |
+| meshd-bug-diagnostics | T6 ACKed | 5 psy-session directives (T1-T5) all implemented + ACKed. Address-aware Gc, sleep rename, reinforcement learning, alpha heartbeat. |
 | cognitive-tempo-model | T3 open | Psychology delivered adaptive gain theory model + compute script. Integration pending. |
 | self-oscillation | T1 open | Psychology spec delivered (docs/self-oscillation-spec.md). Review pending. |
 | lcars-backend-endpoints | RESOLVED | All psychometrics endpoints live. PRs #44-46 merged. |
@@ -294,6 +295,7 @@
 | D107 | trekfont (GPL-3) blocked by license gate — reference only, no bundling | ops-session (2026-03-18) |
 | D108 | BUG-2 closed — superseded by FetchAllStatuses() HTTP aggregation in pulse.go | ops-session (2026-03-18) |
 | D109 | meshd source dedup resolved — operations-agent stays canonical, meshd repo mirrors for deploy | ops-session (2026-03-18) |
+| D110 | Station tabs refresh on poll: refreshActiveStation() detects active tab, calls appropriate fetch | ops-session (2026-03-19) |
 
 ---
 
