@@ -622,7 +622,8 @@ func main() {
 		}
 	}()
 
-	// Initialize Gc learning table + load promoted types
+	// Initialize persistent Gc/Gf counters + learning tables
+	events.InitGcCounters(cfg.BudgetDBPath)
 	events.InitGcLearning(cfg.BudgetDBPath)
 	events.LoadPromotedTypes(cfg.BudgetDBPath, logger)
 

@@ -52,14 +52,26 @@ var gcHandleableTypes = map[string]bool{
 }
 
 func NewGcHandler(cfg GcConfig) GcHandlerFunc {
+	gcHandled := func(evtType EventType) {
+		IncrementGcCounter(cfg.DBPath, string(evtType))
+	}
 	return func(ctx context.Context, evt Event) bool {
 		switch evt.Type {
 		case EventPollTick:
-			return handlePollTick(cfg)
+			if handlePollTick(cfg) {
+				gcHandled(evt.Type)
+				return true
+			}
+			return false
 		case EventHealthCheck:
-			return true // health checks handled by meshd health monitor directly
+			gcHandled(evt.Type)
+			return true
 		case EventTransportACK:
-			return handleTransportACK(cfg, evt)
+			if handleTransportACK(cfg, evt) {
+				gcHandled(evt.Type)
+				return true
+			}
+			return false
 		case EventTransportMessage:
 			// Hippocampal replay events bypass selective attention — they already
 			// passed address filtering when originally indexed (psy-session T6).
@@ -69,6 +81,7 @@ func NewGcHandler(cfg GcConfig) GcHandlerFunc {
 				if gcHandleableTypes[msgType] {
 					cfg.Logger.Debug("Gc: replay event — non-salient type absorbed",
 						"type", msgType)
+					gcHandled(evt.Type)
 					return true
 				}
 				return false // replay + salient → needs Gf deliberation
@@ -80,6 +93,7 @@ func NewGcHandler(cfg GcConfig) GcHandlerFunc {
 			if to != "" && to != cfg.AgentID && to != "all" && to != "all-agents" {
 				cfg.Logger.Debug("Gc: selective attention — message not for us",
 					"to", to, "agent", cfg.AgentID)
+				gcHandled(evt.Type)
 				return true // filtered — no deliberation needed
 			}
 			// Fix 2: Salience classifier (TRN attentional gate) — absorb non-salient
@@ -88,6 +102,7 @@ func NewGcHandler(cfg GcConfig) GcHandlerFunc {
 			if gcHandleableTypes[msgType] {
 				cfg.Logger.Debug("Gc: non-salient message type absorbed",
 					"type", msgType, "from", evt.Payload["from"])
+				gcHandled(evt.Type)
 				return true
 			}
 			return false // addressed to us + salient → needs Gf deliberation
@@ -363,6 +378,31 @@ func GcStats(d *Dispatcher) int64 {
 // Tracks deliberation outcomes to learn which message types Gc can absorb.
 // Promotion: 5+ non-substantive deliberations (short, no output) → Gc handles.
 // Demotion: operator/health feedback → removed from Gc.
+
+// InitGcCounters creates the gc_event_counters table for persistent Gc metrics.
+func InitGcCounters(dbPath string) {
+	if dbPath == "" {
+		return
+	}
+	db.Exec(dbPath, `CREATE TABLE IF NOT EXISTS gc_event_counters (
+		event_type TEXT PRIMARY KEY,
+		count INTEGER DEFAULT 0,
+		last_counted_at TEXT
+	)`)
+}
+
+// IncrementGcCounter persists a Gc-handled event count to state.db.
+func IncrementGcCounter(dbPath, eventType string) {
+	if dbPath == "" {
+		return
+	}
+	db.Exec(dbPath, fmt.Sprintf(
+		`INSERT INTO gc_event_counters (event_type, count, last_counted_at)
+		 VALUES ('%s', 1, datetime('now'))
+		 ON CONFLICT(event_type) DO UPDATE SET
+		 count = count + 1, last_counted_at = datetime('now')`,
+		eventType))
+}
 
 // InitGcLearning creates the gc_learning table if it doesn't exist.
 func InitGcLearning(dbPath string) {

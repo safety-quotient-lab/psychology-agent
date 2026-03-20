@@ -562,17 +562,22 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 		"SELECT count(*) FROM deliberation_log WHERE started_at > datetime('now', '-1 hour')")
 	totalEvents := s.eventCount()
 
-	// Per-type event counters from the dispatcher
+	// Per-type event counters from the dispatcher (in-memory session metrics)
 	eventsByType := map[string]any{}
-	var gcHandledTotal, deliberationBlockedTotal, deliberationSucceededTotal int
+	var deliberationBlockedTotal, deliberationSucceededTotal int
 	if s.Dispatcher != nil {
 		for et, tm := range s.Dispatcher.TypeStats() {
 			eventsByType[string(et)] = tm
-			gcHandledTotal += tm.GcHandled
 			deliberationBlockedTotal += tm.DeliberationBlocked
 			deliberationSucceededTotal += tm.DeliberationSucceeded
 		}
 	}
+
+	// Persistent metrics from state.db (survive restarts)
+	totalDeliberations := db.QueryScalar(dbPath, "SELECT COUNT(*) FROM deliberation_log")
+	completedDeliberations := db.QueryScalar(dbPath, "SELECT COUNT(*) FROM deliberation_log WHERE status='completed'")
+	failedDeliberations := db.QueryScalar(dbPath, "SELECT COUNT(*) FROM deliberation_log WHERE status!='completed'")
+	gcHandledTotal := db.QueryScalar(dbPath, "SELECT COALESCE(SUM(count), 0) FROM gc_event_counters")
 
 	// Mesh mode — "active" or "paused" (sentinel file .mesh-paused)
 	meshMode := "active"
@@ -604,9 +609,12 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 		"deliberation_count":    s.deliberationCount(),
 		"recent_deliberations":  deliberationHistory,
 		"gc_metrics": map[string]any{
-			"deliberations_last_hour": gcEvents,
-			"gc_handled_total":        gcHandledTotal,
-			"deliberation_blocked_total":   deliberationBlockedTotal,
+			"deliberations_last_hour":      gcEvents,
+			"gc_handled_total":             gcHandledTotal,       // persistent (state.db)
+			"deliberations_total":          totalDeliberations,   // persistent (state.db)
+			"deliberations_completed":      completedDeliberations,
+			"deliberations_failed":         failedDeliberations,
+			"deliberation_blocked_total":   deliberationBlockedTotal, // session only
 			"deliberation_succeeded_total": deliberationSucceededTotal,
 			"gc_ratio":                     "poll ticks handled without deliberation",
 			"deliberation_model":      s.Config.DeliberationModel,
