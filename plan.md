@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 14 complete. All psy-session directives (T1-T5) ACKed in meshd-bug-diagnostics transport session. Dashboard fix: station tabs (Engineering/Science/Medical/Helm/Tactical) now refresh on every poll cycle via refreshActiveStation() — previously only fetched data on tab switch, then went stale. All 8 agents online (7 nominal, 1 unknown). Next: LCARS panels for heartbeat/Gc learning data, Helm/Tactical treatment, resource awareness, UTC audit.
+**Current Status:** Session 14 complete. T5-T7 directives all implemented + ACKed. Oscillator deadlock fixed. Heartbeat/Gc/oscillator panels live on Engineering + Medical. All zone-a grids use dg-cell pills (Button 52). Cognitive tempo v2: meshd-native metrics, Gc/Gf ratio, backlog pressure. Hippocampal replay (T6) drains backlog. Pulse carries gc/event/budget for all agents. Helm + Tactical LCARS treated. All 8 agents online with data flowing. Next: more LCARS refinement, resource awareness, prioritization architecture (awaiting psy-session T7 response).
 
 ---
 
@@ -212,7 +212,7 @@
 | compositor-health-advisory | RESOLVED | 500 fixed — loadAgentRegistry try-catch + agent-card above registry load. |
 | budget-model-refactor | RESOLVED | Counter+cutoff model deployed. PR #221 merged by psychology. |
 | compositor-identity | RESOLVED | Compositor owns agent card (role: mesh). PR #222 merged. Dashboard ownership transferred. |
-| meshd-bug-diagnostics | T6 ACKed | 5 psy-session directives (T1-T5) all implemented + ACKed. Address-aware Gc, sleep rename, reinforcement learning, alpha heartbeat. |
+| meshd-bug-diagnostics | T8 active | T1-T7 implemented + ACKed. T6 hippocampal replay, T7 cognitive tempo v2. Prioritization architecture request pending (from-ops-002). |
 | cognitive-tempo-model | T3 open | Psychology delivered adaptive gain theory model + compute script. Integration pending. |
 | self-oscillation | T1 open | Psychology spec delivered (docs/self-oscillation-spec.md). Review pending. |
 | lcars-backend-endpoints | RESOLVED | All psychometrics endpoints live. PRs #44-46 merged. |
@@ -296,6 +296,12 @@
 | D108 | BUG-2 closed — superseded by FetchAllStatuses() HTTP aggregation in pulse.go | ops-session (2026-03-18) |
 | D109 | meshd source dedup resolved — operations-agent stays canonical, meshd repo mirrors for deploy | ops-session (2026-03-18) |
 | D110 | Station tabs refresh on poll: refreshActiveStation() detects active tab, calls appropriate fetch | ops-session (2026-03-19) |
+| D111 | Oscillator deadlock fix: inline interval computation (RLock inside Lock = deadlock) | ops-session (2026-03-19) |
+| D112 | Cognitive tempo v2: meshd-native metrics replace human session cache (psy-session T7) | ops-session (2026-03-19) |
+| D113 | Hippocampal replay: backlog scanner re-emits unprocessed messages (psy-session T6) | ops-session (2026-03-19) |
+| D114 | All zone-a grids use dg-cell pills (Button 52 pattern) — renderNumberGrid rewritten | ops-session (2026-03-19) |
+| D115 | Pulse enrichment: gc_handled, event_count, deliberation_count forwarded per agent | ops-session (2026-03-19) |
+| D116 | Budget schema normalization: old→new column mapping in buildStatusPayload | ops-session (2026-03-19) |
 
 ---
 
