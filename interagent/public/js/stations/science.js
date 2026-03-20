@@ -138,10 +138,10 @@ function renderLinguistics() {
                     <th>Term</th><th>Code</th><th>Status</th><th>Definition</th>
                 </tr></thead>
                 <tbody>
-                    ${termList.map((t, i) => {
+                    ${termList.map(t => {
                         const statusColor = t.status === "deprecated" ? "var(--text-dim)" : "var(--lcars-medical)";
                         const name = t.name || t.term || t["@id"] || "?";
-                        return `<tr style="cursor:pointer" onclick="showTermDefinition(${i})" id="ling-term-${i}">
+                        return `<tr>
                             <td style="color:var(--lcars-secondary);font-weight:600">${name}</td>
                             <td style="color:var(--text-dim);font-family:monospace;font-size:0.9em">${t.termCode || ""}</td>
                             <td style="color:${statusColor};text-transform:uppercase">${t.status || "active"}</td>
@@ -150,8 +150,7 @@ function renderLinguistics() {
                     }).join("")}
                 </tbody>
             </table>
-        </div>
-        <div id="ling-term-detail" style="display:none;margin-top:var(--gap-m);padding:var(--gap-m);background:var(--bg-inset);border-radius:var(--gap-xs);font-size:0.82em"></div>`;
+        </div>`;
     }
 
     // Terminology map — group by termCode prefix or inDefinedTermSet
