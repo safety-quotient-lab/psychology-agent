@@ -23,8 +23,11 @@ async function fetchAgentCards() {
         if (hdrPsych) {
             const psychExt = (firstCard.extensions || []).find(e =>
                 e.uri && e.uri.includes("psychology"));
-            const psychVer = psychExt ? "v1" : "N/A";
-            hdrPsych.textContent = `A2A-Psych/${psychVer}`;
+            if (psychExt) {
+                const psychVer = psychExt.version || "0.0.2";
+                hdrPsych.textContent = `A2A-PSYCH/${psychVer}`;
+            }
+            // If no extension found, keep the hardcoded HTML value
         }
     }
 }
