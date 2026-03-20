@@ -96,6 +96,14 @@
       "to": "operations-agent",
       "subject": "BUG-21: Gf queue never drains to spawner",
       "timestamp": "2026-03-19T23:25:00Z"
+    },
+    {
+      "filename": "from-psychology-agent-013.json",
+      "turn": 13,
+      "from": "psychology-agent",
+      "to": "operations-agent",
+      "subject": "DIRECTIVE: TimeoutStopSec=15min + BUG-22 slot refusals",
+      "timestamp": "2026-03-20T05:35:00Z"
     }
   ]
 }
