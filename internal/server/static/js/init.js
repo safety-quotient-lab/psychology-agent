@@ -20,9 +20,9 @@ window.switchOpsSubsystem = switchOpsSubsystem;
 
 // ── Init ───────────────────────────────────────────────────────
 (async function init() {
-    // Restore theme first (setTheme may switch to default bridge station)
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme && savedTheme !== "dark") setTheme(savedTheme);
+    // Default to LCARS — the canonical mesh interface
+    const savedTheme = localStorage.getItem("theme") || "lcars";
+    setTheme(savedTheme);
 
     // Restore tab from URL hash — AFTER theme, so it overrides any default
     const hashTab = location.hash.replace("#", "");
