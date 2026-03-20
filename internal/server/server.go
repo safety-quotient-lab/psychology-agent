@@ -620,6 +620,7 @@ func (s *Server) buildStatusPayload() map[string]interface{} {
 			return nil
 		}(),
 		"gc_learning": events.GcLearningStats(s.Config.BudgetDBPath),
+		"hippocampal_replay": events.HippocampalReplayStats(s.Config.BudgetDBPath),
 	}
 }
 

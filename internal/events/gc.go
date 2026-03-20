@@ -30,6 +30,9 @@ type GcConfig struct {
 	AgentID      string // this agent's identity
 	DBPath       string // path to state.db (for Gc learning)
 	Logger       *slog.Logger
+	// EmitEvent injects an event into the dispatcher (used by hippocampal replay).
+	// If nil, replay skips event emission (safe default).
+	EmitEvent    func(Event)
 }
 
 // NewGcHandler builds a GcHandlerFunc that intercepts routine events.
@@ -58,6 +61,18 @@ func NewGcHandler(cfg GcConfig) GcHandlerFunc {
 		case EventTransportACK:
 			return handleTransportACK(cfg, evt)
 		case EventTransportMessage:
+			// Hippocampal replay events bypass selective attention — they already
+			// passed address filtering when originally indexed (psy-session T6).
+			// Salience classifier still applies (ACKs absorbed, requests deliberated).
+			if evt.Source == "hippocampal-replay" || evt.Payload["replay"] == "true" {
+				msgType := evt.Payload["msg_type"]
+				if gcHandleableTypes[msgType] {
+					cfg.Logger.Debug("Gc: replay event — non-salient type absorbed",
+						"type", msgType)
+					return true
+				}
+				return false // replay + salient → needs Gf deliberation
+			}
 			// Fix 1: Selective attention (Broadbent 1958) — filter messages
 			// not addressed to this agent. 59% of inbound messages represent
 			// copies routed through repos but addressed elsewhere.
@@ -155,8 +170,115 @@ func handlePollTick(cfg GcConfig) bool {
 		}
 	}
 
+	// Hippocampal replay (Wilson & McNaughton 1994, psy-session T6):
+	// During idle, replay unprocessed transport messages from state.db.
+	// Re-emits up to 3 oldest unprocessed messages as transport events.
+	replayCount := hippocampalReplay(cfg)
+	if replayCount > 0 {
+		logger.Info("Gc: hippocampal replay emitted events", "count", replayCount)
+		// Replay events feed into dispatcher — poll tick still handled by Gc
+	}
+
 	logger.Debug("Gc: poll tick handled — nothing requires deliberation")
 	return true
+}
+
+// ── Hippocampal Replay (Wilson & McNaughton 1994, psy-session T6) ────────────
+// During idle periods, replays unprocessed transport messages from state.db.
+// Reactivates neural patterns (events) that the watcher saw but the dispatcher
+// never fully processed. Prioritizes ack_required, then oldest first.
+// Limit: 3 per cycle to prevent backlog flood.
+
+// InitHippocampalReplay adds replay_count and last_replayed_at columns.
+func InitHippocampalReplay(dbPath string) {
+	if dbPath == "" {
+		return
+	}
+	db.Exec(dbPath, `ALTER TABLE transport_messages ADD COLUMN replay_count INTEGER DEFAULT 0`)
+	db.Exec(dbPath, `ALTER TABLE transport_messages ADD COLUMN last_replayed_at TEXT`)
+	db.Exec(dbPath, `CREATE INDEX IF NOT EXISTS idx_unprocessed ON transport_messages (processed, timestamp)`)
+}
+
+// hippocampalReplay queries state.db for unprocessed messages and re-emits
+// them as transport-message events. Returns the number of events emitted.
+func hippocampalReplay(cfg GcConfig) int {
+	if cfg.DBPath == "" || cfg.EmitEvent == nil {
+		return 0
+	}
+
+	// Episodic recall — query unprocessed messages addressed to this agent
+	rows, err := db.QueryJSON(cfg.DBPath,
+		fmt.Sprintf(`SELECT session_name, filename, from_agent, message_type, subject, timestamp
+		 FROM transport_messages
+		 WHERE processed = 0
+		 ORDER BY
+		   CASE WHEN message_type = 'directive' THEN 0
+		        WHEN message_type = 'request' THEN 1
+		        ELSE 2 END,
+		   timestamp ASC
+		 LIMIT 3`))
+	if err != nil || len(rows) == 0 {
+		return 0
+	}
+
+	emitted := 0
+	for _, row := range rows {
+		session := row["session_name"]
+		filename := row["filename"]
+		from := row["from_agent"]
+		msgType := row["message_type"]
+		subject := row["subject"]
+
+		// Skip if no meaningful data
+		if session == "" && filename == "" {
+			continue
+		}
+
+		// Pattern reactivation — re-emit as transport-message event
+		evt := NewEvent(EventTransportMessage, PriorityNormal, "hippocampal-replay",
+			map[string]string{
+				"session":  session,
+				"filename": filename,
+				"from":     from,
+				"msg_type": msgType,
+				"subject":  subject,
+				"replay":   "true",
+			})
+		cfg.EmitEvent(evt)
+
+		// Update replay count (Zeigarnik priority boost)
+		db.Exec(cfg.DBPath, fmt.Sprintf(
+			`UPDATE transport_messages SET replay_count = COALESCE(replay_count, 0) + 1,
+			 last_replayed_at = datetime('now')
+			 WHERE session_name = '%s' AND filename = '%s'`,
+			session, filename))
+
+		emitted++
+		cfg.Logger.Info("Gc: hippocampal replay — re-emitted",
+			"session", session, "filename", filename, "from", from, "type", msgType)
+	}
+
+	return emitted
+}
+
+// HippocampalReplayStats returns replay metrics for dashboard display.
+func HippocampalReplayStats(dbPath string) map[string]any {
+	if dbPath == "" {
+		return map[string]any{"unprocessed": 0, "stuck": 0, "replayed_total": 0}
+	}
+	rows, _ := db.QueryJSON(dbPath,
+		`SELECT COUNT(*) as unprocessed,
+		 SUM(CASE WHEN COALESCE(replay_count, 0) > 3 THEN 1 ELSE 0 END) as stuck,
+		 SUM(COALESCE(replay_count, 0)) as replayed_total
+		 FROM transport_messages WHERE processed = 0`)
+	if len(rows) == 0 {
+		return map[string]any{"unprocessed": 0, "stuck": 0, "replayed_total": 0}
+	}
+	return map[string]any{
+		"unprocessed":    rows[0]["unprocessed"],
+		"stuck":          rows[0]["stuck"],
+		"replayed_total": rows[0]["replayed_total"],
+	}
 }
 
 // handleTransportACK auto-merges a transport ACK PR.

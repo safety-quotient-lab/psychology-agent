@@ -304,7 +304,12 @@ func main() {
 		RepoRoot:     cfg.RepoRoot,
 		TransportDir: cfg.TransportDir,
 		AgentID:      cfg.AgentID,
+		DBPath:       cfg.BudgetDBPath,
 		Logger:       logger,
+		EmitEvent: func(evt events.Event) {
+			// Hippocampal replay injects events back into the dispatcher
+			dispatcher.HandleEvent(ctx, evt)
+		},
 	})
 	dispatcher.SetGcHandler(gcHandler)
 
@@ -620,6 +625,9 @@ func main() {
 	// Initialize Gc learning table + load promoted types
 	events.InitGcLearning(cfg.BudgetDBPath)
 	events.LoadPromotedTypes(cfg.BudgetDBPath, logger)
+
+	// Initialize hippocampal replay schema (T6 — backlog scanner)
+	events.InitHippocampalReplay(cfg.BudgetDBPath)
 
 	// Alpha heartbeat — idle vital signs (T22 metabolic cooling model)
 	alphaHB := server.NewAlphaHeartbeat(logger, func() {
