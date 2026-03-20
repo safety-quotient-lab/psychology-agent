@@ -130,19 +130,19 @@ function renderMedVitalsMatrix() {
     const hb = d.data?.alpha_heartbeat;
     const hbInterval = hb ? Math.round(hb.interval_sec) + "s" : "\u2014";
 
-    const metrics = [
-        { val: health.toUpperCase(), key: "HLTH", color: "#6aab8e" },
-        { val: affect.toUpperCase().replace("CALM-SATISFIED","CALM").replace("EXCITED-TRIUMPHANT","EXCITE"), key: "AFFECT", color: "#9999ff" },
-        { val: fmtNum(delib), key: "DELIB", color: "#66ccaa" },
-        { val: cutoff > 0 ? fmtNum(cutoff) : "\u221E", key: "LIMIT", color: "#66ccaa" },
-        { val: String(pending), key: "PEND", color: "#9999ff" },
-        { val: String(gates), key: "GATE", color: "#cc99cc" },
-        { val: hbInterval, key: "\u03B1 HB", color: "#ff9966" },
-    ];
+    var medCell = function(val, label, tier) {
+        return '<div class="dg-cell' + (tier ? ' dg-' + tier : '') + '" title="' + label + '" onclick="this.classList.toggle(\'dg-show-label\')"><span class="dg-val">' + val + '</span><span class="dg-label">' + label + '</span></div>';
+    };
 
-    el.innerHTML = '<div class="lcars-alpha-matrix">' + metrics.map(function(m) {
-        return '<div class="lcars-alpha-cell" style="--cell-color:' + m.color + '"><span class="lcars-alpha-val">' + m.val + '</span><span class="lcars-alpha-key">' + m.key + '</span></div>';
-    }).join("") + '</div>';
+    el.innerHTML = [
+        medCell(health.toUpperCase(), "HEALTH", "frame"),
+        medCell(affect.toUpperCase().replace("CALM-SATISFIED","CALM").replace("EXCITED-TRIUMPHANT","EXCITE"), "AFFECT", "t2"),
+        medCell(fmtNum(delib), "DELIB", ""),
+        medCell(cutoff > 0 ? fmtNum(cutoff) : "\u221E", "LIMIT", "t3"),
+        medCell(String(pending), "PEND", pending > 0 ? "accent" : ""),
+        medCell(String(gates), "GATE", gates > 0 ? "accent" : "t3"),
+        medCell(hbInterval, "\u03B1 HB", "t2"),
+    ].join("");
 }
 
 function renderMedicalOscillator(osc) {
@@ -348,22 +348,22 @@ function renderMeshEmergent(data) {
     const coherence = data.mesh_coherence || {};
     const narrative = data.narrative || "";
 
-    // Vitals matrix — mesh-level metrics
-    const el = document.getElementById("medical-vitals-matrix");
+    // Vitals matrix — mesh-level metrics (Button 52 data grid pills)
+    var el = document.getElementById("medical-vitals-matrix");
     if (el) {
-        const metrics = [
-            { val: (ca.label || "\u2014").toUpperCase(), key: "AFFECT", color: "#9999ff" },
-            { val: typeof ca.pleasure === "number" ? ca.pleasure.toFixed(2) : "\u2014", key: "P", color: "#6aab8e" },
-            { val: typeof ca.arousal === "number" ? ca.arousal.toFixed(2) : "\u2014", key: "A", color: "#d4944a" },
-            { val: typeof ca.dominance === "number" ? ca.dominance.toFixed(2) : "\u2014", key: "D", color: "#cc99cc" },
-            { val: typeof ci.c_factor === "number" ? ci.c_factor.toFixed(2) : "\u2014", key: "c", color: "#ff9966" },
-            { val: typeof ci.avg_load === "number" ? ci.avg_load.toFixed(0) + "%" : "\u2014", key: "LOAD", color: "#9999ff" },
-            { val: typeof ci.avg_reserve === "number" ? ci.avg_reserve.toFixed(2) : "\u2014", key: "RESV", color: "#6aab8e" },
-            { val: typeof coherence.score === "number" ? coherence.score.toFixed(2) : "\u2014", key: "COH", color: "#66ccaa" },
-        ];
-        el.innerHTML = '<div class="lcars-alpha-matrix">' + metrics.map(function(m) {
-            return '<div class="lcars-alpha-cell" style="--cell-color:' + m.color + '"><span class="lcars-alpha-val">' + m.val + '</span><span class="lcars-alpha-key">' + m.key + '</span></div>';
-        }).join("") + '</div>';
+        var mc = function(val, label, tier) {
+            return '<div class="dg-cell' + (tier ? ' dg-' + tier : '') + '" title="' + label + '" onclick="this.classList.toggle(\'dg-show-label\')"><span class="dg-val">' + val + '</span><span class="dg-label">' + label + '</span></div>';
+        };
+        el.innerHTML = [
+            mc((ca.label || "\u2014").toUpperCase(), "AFFECT", "t2"),
+            mc(typeof ca.pleasure === "number" ? ca.pleasure.toFixed(2) : "\u2014", "P", ""),
+            mc(typeof ca.arousal === "number" ? ca.arousal.toFixed(2) : "\u2014", "A", "t3"),
+            mc(typeof ca.dominance === "number" ? ca.dominance.toFixed(2) : "\u2014", "D", "t2"),
+            mc(typeof ci.c_factor === "number" ? ci.c_factor.toFixed(2) : "\u2014", "c-FACTOR", "accent"),
+            mc(typeof ci.avg_load === "number" ? ci.avg_load.toFixed(0) + "%" : "\u2014", "LOAD", ""),
+            mc(typeof ci.avg_reserve === "number" ? ci.avg_reserve.toFixed(2) : "\u2014", "RESERVE", ""),
+            mc(typeof coherence.score === "number" ? coherence.score.toFixed(2) : "\u2014", "COHERENCE", "frame"),
+        ].join("");
     }
 
     // Oscillator panel — show narrative

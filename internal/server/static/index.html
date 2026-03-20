@@ -30,7 +30,7 @@
         ]
     }
     </script>
-    <link rel="stylesheet" href="css/inline-legacy.css?v=e8e4c40">
+    <link rel="stylesheet" href="css/inline-legacy.css?v=3672985">
     <!-- TODO: consolidate inline-legacy.css into theme.css + layout.css + components.css -->
 
 </head>
@@ -496,13 +496,6 @@
         <!-- Operations Tab — Defiant Bridge subsystem switcher pattern -->
         <div class="tab-pane" id="pane-operations">
 
-            <!-- Operations Record — dense data pill grid (Button 52 pattern) -->
-            <div class="lcars-zone-c" style="margin-bottom:var(--gap-xs)">
-                <span class="zc-title">Operations Record</span>
-                <span class="zc-id" id="ops-record-num"></span>
-            </div>
-            <div class="lcars-data-grid" id="ops-data-grid"></div>
-
             <!-- Subsystem mode selector — Defiant Engineering A2 subpanel -->
             <div class="lcars-subpanel">
                 <div class="lcars-subpanel-bar lcars-subpanel-bar-accent">47-0912</div>
@@ -610,6 +603,13 @@
             </div>
 
         </div>
+            <!-- Operations Record — dense data pill grid (Button 52 pattern) -->
+            <div class="lcars-zone-c" style="margin-top:var(--gap-l);margin-bottom:var(--gap-xs)">
+                <span class="zc-title">Operations Record</span>
+                <span class="zc-id" id="ops-record-num"></span>
+            </div>
+            <div class="lcars-data-grid" id="ops-data-grid"></div>
+
         </div><!-- /pane-operations -->
 
         <!-- Science Tab -->
@@ -1304,7 +1304,7 @@
                 <span class="zc-title">Agent Diagnostics</span>
                 <span class="zc-id">11</span>
             </div>
-            <div id="medical-vitals-matrix" style="margin-bottom:var(--gap-l)"></div>
+            <div class="lcars-data-grid" id="medical-vitals-matrix"></div>
 
             <!-- Tonic inhibition indicator (T2 — sleep mode blocks salient events) -->
             <div id="medical-tonic-inhibition" style="display:none;padding:var(--gap-m);margin-bottom:var(--gap-l);background:var(--lcars-title);color:#000;font-family:'Oswald','Antonio','Arial Narrow',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;font-size:0.78em;text-align:center;border-radius:var(--gap-xs)">TONIC INHIBITION — sleep mode blocking salient events</div>
@@ -1442,20 +1442,20 @@
     <div class="lcars-narrative-log" id="lcars-narrative-log"></div>
 </div>
 
-<script src="js/colorizer.js?v=e8e4c40"></script>
-<script src="js/core.js?v=e8e4c40"></script>
-<script src="js/chrome.js?v=e8e4c40"></script>
-<script src="js/data-fetch.js?v=e8e4c40"></script>
-<script src="js/pulse.js?v=e8e4c40"></script>
-<script src="js/knowledge.js?v=e8e4c40"></script>
-<script src="js/ws-sse.js?v=e8e4c40"></script>
-<script src="js/stations/operations.js?v=e8e4c40"></script>
-<script src="js/stations/science.js?v=e8e4c40"></script>
-<script src="js/stations/helm.js?v=e8e4c40"></script>
-<script src="js/stations/engineering.js?v=e8e4c40"></script>
-<script src="js/stations/tactical.js?v=e8e4c40"></script>
-<script src="js/stations/medical.js?v=e8e4c40"></script>
-<script src="js/init.js?v=e8e4c40"></script>
+<script src="js/colorizer.js?v=3672985"></script>
+<script src="js/core.js?v=3672985"></script>
+<script src="js/chrome.js?v=3672985"></script>
+<script src="js/data-fetch.js?v=3672985"></script>
+<script src="js/pulse.js?v=3672985"></script>
+<script src="js/knowledge.js?v=3672985"></script>
+<script src="js/ws-sse.js?v=3672985"></script>
+<script src="js/stations/operations.js?v=3672985"></script>
+<script src="js/stations/science.js?v=3672985"></script>
+<script src="js/stations/helm.js?v=3672985"></script>
+<script src="js/stations/engineering.js?v=3672985"></script>
+<script src="js/stations/tactical.js?v=3672985"></script>
+<script src="js/stations/medical.js?v=3672985"></script>
+<script src="js/init.js?v=3672985"></script>
 
 </body>
 </html>

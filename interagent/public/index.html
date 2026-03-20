@@ -496,13 +496,6 @@
         <!-- Operations Tab — Defiant Bridge subsystem switcher pattern -->
         <div class="tab-pane" id="pane-operations">
 
-            <!-- Operations Record — dense data pill grid (Button 52 pattern) -->
-            <div class="lcars-zone-c" style="margin-bottom:var(--gap-xs)">
-                <span class="zc-title">Operations Record</span>
-                <span class="zc-id" id="ops-record-num"></span>
-            </div>
-            <div class="lcars-data-grid" id="ops-data-grid"></div>
-
             <!-- Subsystem mode selector — Defiant Engineering A2 subpanel -->
             <div class="lcars-subpanel">
                 <div class="lcars-subpanel-bar lcars-subpanel-bar-accent">47-0912</div>
@@ -610,6 +603,13 @@
             </div>
 
         </div>
+            <!-- Operations Record — dense data pill grid (Button 52 pattern) -->
+            <div class="lcars-zone-c" style="margin-top:var(--gap-l);margin-bottom:var(--gap-xs)">
+                <span class="zc-title">Operations Record</span>
+                <span class="zc-id" id="ops-record-num"></span>
+            </div>
+            <div class="lcars-data-grid" id="ops-data-grid"></div>
+
         </div><!-- /pane-operations -->
 
         <!-- Science Tab -->
@@ -1304,7 +1304,7 @@
                 <span class="zc-title">Agent Diagnostics</span>
                 <span class="zc-id">11</span>
             </div>
-            <div id="medical-vitals-matrix" style="margin-bottom:var(--gap-l)"></div>
+            <div class="lcars-data-grid" id="medical-vitals-matrix"></div>
 
             <!-- Tonic inhibition indicator (T2 — sleep mode blocks salient events) -->
             <div id="medical-tonic-inhibition" style="display:none;padding:var(--gap-m);margin-bottom:var(--gap-l);background:var(--lcars-title);color:#000;font-family:'Oswald','Antonio','Arial Narrow',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;font-size:0.78em;text-align:center;border-radius:var(--gap-xs)">TONIC INHIBITION — sleep mode blocking salient events</div>
