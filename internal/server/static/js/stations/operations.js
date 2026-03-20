@@ -411,8 +411,8 @@ function renderMobilePills() {
                 <span style="color:var(--lcars-secondary)">${agentName(agent).toUpperCase()}</span>
                 <span class="agent-pill-metrics">
                     <span style="color:${hColor}">${online ? healthStr : "OFFLINE"}</span>
-                    <span style="color:var(--lcars-secondary)">Gc ${fmtNum(gc)}</span>
-                    <span style="color:var(--lcars-readout)">Gf ${fmtNum(gf)}</span>
+                    <span style="color:var(--lcars-secondary)">Gc ${fmtNum(gc)}${delta(agent.id+"-m-gc", gc)}</span>
+                    <span style="color:var(--lcars-readout)">Gf ${fmtNum(gf)}${delta(agent.id+"-m-gf", gf)}</span>
                     <span style="color:var(--text-dim)">${online ? opLabel : "\u2014"}</span>
                     <span style="color:var(--text-dim)">${online ? (mood ? mood.toUpperCase() : "\u2014") : ""}</span>
                     ${pending > 0 ? `<span style="color:var(--lcars-title)">PEND ${pending}</span>` : ""}
