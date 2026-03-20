@@ -249,8 +249,35 @@ func (o *Oscillator) cycle() {
 		o.OnFire(fireTier)
 	}
 
+	// Heartbeat emission — write mesh-state file so peer_heartbeat_stale stays 0
+	o.emitMeshState(activation, threshold, signals)
+
 	// Shadow log (append to JSONL)
 	o.logShadow(activation, threshold, signals, wouldFire)
+}
+
+// emitMeshState writes mesh-state-{agentID}.json to local-coordination.
+// Other agents read these files to detect stale peers (>20 min = stale).
+func (o *Oscillator) emitMeshState(activation, threshold float64, signals map[string]float64) {
+	localCoord := filepath.Join(o.projectRoot, "transport", "sessions", "local-coordination")
+	os.MkdirAll(localCoord, 0755)
+	statePath := filepath.Join(localCoord, "mesh-state-"+o.agentID+".json")
+
+	state := map[string]any{
+		"agent_id":   o.agentID,
+		"timestamp":  time.Now().UTC().Format(time.RFC3339),
+		"activation": math.Round(activation*1000) / 1000,
+		"threshold":  math.Round(threshold*1000) / 1000,
+		"signals":    signals,
+		"state":      o.state.State,
+		"cycle":      o.state.CycleCount,
+	}
+
+	data, err := json.Marshal(state)
+	if err != nil {
+		return
+	}
+	os.WriteFile(statePath, data, 0644)
 }
 
 // checkSignals reads all 6 activation signals.
