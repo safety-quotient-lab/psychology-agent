@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-oscillator-shadow.py — Self-oscillation shadow mode.
+activation-trace.py — Self-oscillation shadow mode.
 
 Runs alongside cron (Phase 1). Computes activation level from the same
 signals that the meshd oscillator will use. Logs when it WOULD fire a
@@ -11,13 +11,13 @@ Spec: docs/self-oscillation-spec.md §8.1 (Shadow Mode)
 
 Usage:
     # Run once (e.g., from cron, before autonomous-sync.sh):
-    python3 scripts/oscillator-shadow.py
+    python3 scripts/activation-trace.py
 
     # Run continuously (standalone shadow daemon):
-    python3 scripts/oscillator-shadow.py --daemon --interval 15
+    python3 scripts/activation-trace.py --daemon --interval 15
 
     # Analyze shadow log:
-    python3 scripts/oscillator-shadow.py --analyze
+    python3 scripts/activation-trace.py --analyze
 """
 
 import argparse
@@ -34,7 +34,7 @@ PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent)
 DB_PATH = PROJECT_ROOT / "state.db"
 LOCAL_DB_PATH = PROJECT_ROOT / "state.local.db"
 IDENTITY_PATH = PROJECT_ROOT / ".agent-identity.json"
-SHADOW_LOG = PROJECT_ROOT / "transport" / "sessions" / "local-coordination" / "oscillator-shadow.jsonl"
+SHADOW_LOG = PROJECT_ROOT / "transport" / "sessions" / "local-coordination" / "activation-trace.jsonl"
 
 # Activation signal weights (from self-oscillation-spec.md §4.1)
 SIGNAL_WEIGHTS = {
@@ -208,7 +208,7 @@ def log_shadow_event(activation: float, threshold: float, signals: dict, would_f
 def analyze_shadow_log():
     """Analyze shadow log and compare against actual autonomous actions."""
     if not SHADOW_LOG.exists():
-        print("No shadow log found. Run oscillator-shadow.py first.")
+        print("No shadow log found. Run activation-trace.py first.")
         return
 
     events = []
