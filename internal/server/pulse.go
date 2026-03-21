@@ -16,9 +16,7 @@ import (
 
 // ManualModeAgents tracks agents operated by a human (no autonomous cron).
 // Updated when agents transition between manual/autonomous.
-var ManualModeAgents = map[string]bool{
-	"operations-agent": true,
-}
+var ManualModeAgents = map[string]bool{}
 
 // handlePulse serves GET /api/pulse → aggregated mesh heartbeat.
 func (s *Server) handlePulse(w http.ResponseWriter, r *http.Request) {
