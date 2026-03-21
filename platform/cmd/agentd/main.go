@@ -33,6 +33,7 @@ import (
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/handlers"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/migrate"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/oscillator"
+	"github.com/safety-quotient-lab/psychology-agent/platform/internal/syncer"
 )
 
 func main() {
@@ -206,17 +207,32 @@ func serveCmd(args []string) {
 		dashboard(w, r)
 	})
 
+	// Open local DB for budget tracking (optional — may not exist for manual-only installs)
+	localDBPath := filepath.Join(root, "state.local.db")
+	var localDB *db.DB
+	if _, err := os.Stat(localDBPath); err == nil {
+		localDB, err = db.OpenReadWrite(localDBPath)
+		if err != nil {
+			log.Printf("[agentd] WARNING: state.local.db open failed: %v (budget tracking disabled)", err)
+		} else {
+			defer localDB.Close()
+		}
+	}
+
+	// Detect agent ID from .agent-identity.json or directory name
+	agentID := detectAgentID(root)
+
+	// Syncer (sync orchestration — replaces autonomous-sync.sh)
+	syncConfig := syncer.DefaultConfig(agentID, root)
+	sync := syncer.New(syncConfig, database, localDB)
+
 	// Oscillator (self-oscillation activation model)
 	oscConfig := oscillator.DefaultConfig(root)
 	osc := oscillator.New(oscConfig, database)
 
-	// FireFunc: what happens when the oscillator fires.
-	// Phase 2: this invokes the full sync cycle (claude -p /sync).
-	// For now: log the fire event.
+	// FireFunc: oscillator fires → syncer runs a full sync cycle
 	osc.FireFunc = func(ctx context.Context) error {
-		log.Printf("[agentd] oscillator fired — sync cycle would run here (Phase 2)")
-		// TODO Phase 2: syncer.RunSync(ctx, database, root)
-		return nil
+		return sync.RunSync(ctx)
 	}
 
 	// Start oscillator in background
@@ -276,6 +292,22 @@ func serveCmd(args []string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	srv.Shutdown(ctx)
+}
+
+// detectAgentID reads the agent ID from .agent-identity.json or falls back
+// to the project directory name.
+func detectAgentID(projectRoot string) string {
+	identityFile := filepath.Join(projectRoot, ".agent-identity.json")
+	data, err := os.ReadFile(identityFile)
+	if err == nil {
+		var identity map[string]any
+		if json.Unmarshal(data, &identity) == nil {
+			if id, ok := identity["agent_id"].(string); ok && id != "" {
+				return id
+			}
+		}
+	}
+	return filepath.Base(projectRoot)
 }
 
 func parseTemplates() (*template.Template, error) {
