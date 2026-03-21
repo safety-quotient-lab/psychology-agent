@@ -227,10 +227,18 @@ func serveCmd(args []string) {
 	mux.HandleFunc("/replays/remote/", handlers.RemoteReplay(root))
 	mux.HandleFunc("/replays/", handlers.LocalReplay(root))
 
-	// Dashboard (root + /lcars)
+	// Dashboard — Go template version at /lcars (legacy)
 	dashboard := handlers.LCARSDashboard(cache, tmpl)
 	mux.HandleFunc("/lcars", dashboard)
-	mux.HandleFunc("/lcars/", dashboard)
+
+	// Dashboard — client-side fleet LCARS at /lcars/v2/*
+	// Serves the full lcars/ directory so relative paths (css/, js/, fonts/) resolve correctly.
+	lcarsSub, _ := fs.Sub(platform.StaticFS, "static/lcars")
+	mux.Handle("/lcars/v2/", http.StripPrefix("/lcars/v2/", http.FileServer(http.FS(lcarsSub))))
+	// Redirect /lcars/v2 (no trailing slash) to /lcars/v2/
+	mux.HandleFunc("/lcars/v2", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/lcars/v2/", http.StatusMovedPermanently)
+	})
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodHead {
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
