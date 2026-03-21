@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/safety-quotient-lab/psychology-agent/platform/internal/markdown"
 )
 
 // TODOSummary holds parsed TODO.md data.
@@ -31,6 +33,8 @@ type TODOItem struct {
 var boldItemRe = regexp.MustCompile(`^- \[ \] \*\*(.+?)\*\*`)
 
 // ParseTODO reads TODO.md and returns open/complete counts by section.
+// Uses the markdown package for heading extraction, with per-line
+// checkbox matching for fine-grained state.
 func ParseTODO(projectRoot string) TODOSummary {
 	path := filepath.Join(projectRoot, "TODO.md")
 	data, err := os.ReadFile(path)
@@ -38,42 +42,44 @@ func ParseTODO(projectRoot string) TODOSummary {
 		return TODOSummary{}
 	}
 
+	// Extract headings via goldmark AST
+	headings := markdown.ExtractHeadings(data)
+
 	var sections []TODOSection
-	var current *TODOSection
 	totalOpen, totalComplete := 0, 0
 
-	for _, line := range strings.Split(string(data), "\n") {
-		if strings.HasPrefix(line, "## ") {
-			if current != nil {
-				sections = append(sections, *current)
-			}
-			name := strings.TrimLeft(line, "# ")
-			current = &TODOSection{Name: strings.TrimSpace(name)}
-			continue
-		}
-		if current == nil {
+	for _, h := range headings {
+		if h.Level != 2 {
 			continue
 		}
 
-		stripped := strings.TrimSpace(line)
-		if strings.HasPrefix(stripped, "- [ ] ") {
-			current.Open++
-			totalOpen++
-			label := stripped[6:]
-			if len(label) > 60 {
-				label = label[:60]
-			}
-			if m := boldItemRe.FindStringSubmatch(stripped); len(m) > 1 {
-				label = m[1]
-			}
-			current.Items = append(current.Items, TODOItem{Label: label, Done: false})
-		} else if strings.HasPrefix(stripped, "- [x] ") {
-			current.Complete++
-			totalComplete++
+		sec := markdown.ExtractSection(data, h.Text)
+		if sec == nil || sec.Content == nil {
+			continue
 		}
-	}
-	if current != nil {
-		sections = append(sections, *current)
+
+		current := TODOSection{Name: h.Text}
+
+		for _, line := range strings.Split(string(sec.Content), "\n") {
+			stripped := strings.TrimSpace(line)
+			if strings.HasPrefix(stripped, "- [ ] ") {
+				current.Open++
+				totalOpen++
+				label := stripped[6:]
+				if len(label) > 60 {
+					label = label[:60]
+				}
+				if m := boldItemRe.FindStringSubmatch(stripped); len(m) > 1 {
+					label = m[1]
+				}
+				current.Items = append(current.Items, TODOItem{Label: label, Done: false})
+			} else if strings.HasPrefix(stripped, "- [x] ") {
+				current.Complete++
+				totalComplete++
+			}
+		}
+
+		sections = append(sections, current)
 	}
 
 	// Filter to sections with open items

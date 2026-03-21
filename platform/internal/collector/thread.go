@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/safety-quotient-lab/psychology-agent/platform/internal/markdown"
 )
 
 // ActiveThread holds parsed MEMORY.md active thread data.
@@ -51,19 +53,14 @@ func ParseActiveThread(projectRoot string) ActiveThread {
 		return result
 	}
 
-	inThread := false
-	for _, line := range strings.Split(string(data), "\n") {
-		if strings.Contains(line, "## Active Thread") {
-			inThread = true
-			continue
-		}
-		if inThread && strings.HasPrefix(line, "## ") {
-			break
-		}
-		if !inThread {
-			continue
-		}
+	// Use markdown package to extract the Active Thread section
+	sec := markdown.ExtractSection(data, "Active Thread")
+	if sec == nil {
+		return result
+	}
 
+	// Fine-grained extraction within the section content
+	for _, line := range strings.Split(string(sec.Content), "\n") {
 		stripped := strings.TrimSpace(line)
 		if strings.Contains(stripped, "Where we stopped") || strings.Contains(stripped, "where we stopped") {
 			if idx := strings.Index(stripped, ":"); idx >= 0 {
