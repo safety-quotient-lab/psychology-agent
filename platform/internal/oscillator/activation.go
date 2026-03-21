@@ -1,9 +1,13 @@
 package oscillator
 
 import (
+	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/db"
+	"github.com/safety-quotient-lab/psychology-agent/platform/internal/heartbeat"
 )
 
 // ActivationSignals holds the raw sensor readings that feed the activation
@@ -79,9 +83,13 @@ func ReadSignals(database *db.DB, projectRoot string) ActivationSignals {
 		 WHERE status = 'waiting'
 		 AND datetime(timeout_at) < datetime('now', '+5 minutes', 'localtime')`)
 
-	// TODO: new_commits (requires git fetch --dry-run, expensive — defer to Phase 3)
-	// TODO: peer_heartbeat_stale (requires reading heartbeat files — defer to Phase 3)
-	// TODO: escalation_present (requires checking local-coordination directory)
+	// Peer heartbeat staleness
+	signals.PeerHeartbeatStale = heartbeatStaleCount(projectRoot)
+
+	// Escalation check
+	signals.EscalationPresent = escalationExists(projectRoot)
+
+	// TODO: new_commits (requires git fetch --dry-run, expensive — Phase 3 ZMQ handles this)
 	// TODO: scheduled_task_due (requires task scheduler — defer to Phase 5)
 
 	return signals
@@ -150,6 +158,26 @@ func ComputeCoherence(inputs CoherenceInputs) float64 {
 		return 0.0
 	}
 	return c
+}
+
+// heartbeatStaleCount returns how many peers have stale heartbeats.
+func heartbeatStaleCount(projectRoot string) int {
+	return heartbeat.StaleCount(projectRoot)
+}
+
+// escalationExists checks for unprocessed escalation files.
+func escalationExists(projectRoot string) bool {
+	dir := filepath.Join(projectRoot, "transport", "sessions", "local-coordination")
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return false
+	}
+	for _, entry := range entries {
+		if strings.HasPrefix(entry.Name(), "escalation-") && strings.HasSuffix(entry.Name(), ".json") {
+			return true
+		}
+	}
+	return false
 }
 
 // EmissionInterval returns the tonic photonic emission interval for the

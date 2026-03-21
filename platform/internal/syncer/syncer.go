@@ -7,14 +7,14 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/budget"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/db"
+	"github.com/safety-quotient-lab/psychology-agent/platform/internal/heartbeat"
+	"github.com/safety-quotient-lab/psychology-agent/platform/internal/orientation"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/triage"
 )
 
@@ -82,7 +82,12 @@ func (s *Syncer) RunSync(ctx context.Context) error {
 		return nil
 	}
 
-	// 3. Git pull
+	// 3. Emit heartbeat (mesh presence)
+	if err := heartbeat.Emit(s.config.ProjectRoot, s.config.AgentID); err != nil {
+		log.Printf("[syncer] WARNING: heartbeat emit failed: %v", err)
+	}
+
+	// 4. Git pull
 	if err := s.gitPull(ctx); err != nil {
 		log.Printf("[syncer] WARNING: git pull failed: %v", err)
 		// Non-fatal — continue with local state
@@ -104,12 +109,12 @@ func (s *Syncer) RunSync(ctx context.Context) error {
 		return nil
 	}
 
-	// 6. Generate orientation payload
-	orientation := s.generateOrientation(ctx)
+	// 6. Generate orientation payload (native Go — replaces orientation-payload.py)
+	orientationText := orientation.Generate(s.db, s.config.AgentID)
 
 	// 7. Run claude /sync
 	syncStart := time.Now()
-	output, err := s.runClaude(ctx, orientation)
+	output, err := s.runClaude(ctx, orientationText)
 	syncDuration := time.Since(syncStart)
 
 	if err != nil {
@@ -175,25 +180,6 @@ func (s *Syncer) gitPush(ctx context.Context) error {
 		return fmt.Errorf("git push: %w", err)
 	}
 	return nil
-}
-
-// generateOrientation builds the context payload for claude /sync.
-// Calls orientation-payload.py (Python, ported to Go in Phase 3).
-func (s *Syncer) generateOrientation(ctx context.Context) string {
-	script := filepath.Join(s.config.ProjectRoot, "scripts", "orientation-payload.py")
-	if _, err := os.Stat(script); os.IsNotExist(err) {
-		return "" // no orientation script — bare /sync
-	}
-
-	cmd := exec.CommandContext(ctx, "python3", script,
-		"--agent-id", s.config.AgentID, "--no-cache")
-	cmd.Dir = s.config.ProjectRoot
-	output, err := cmd.Output()
-	if err != nil {
-		log.Printf("[syncer] WARNING: orientation-payload.py failed: %v", err)
-		return ""
-	}
-	return string(output)
 }
 
 // runClaude invokes claude -p with the sync prompt.
