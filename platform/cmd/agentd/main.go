@@ -218,6 +218,7 @@ func serveCmd(args []string) {
 	mux.HandleFunc("/api/agent/knowledge/lessons", handlers.APIAgentKnowledgeLessons(cache))
 	mux.HandleFunc("/api/agent/knowledge/epistemic", handlers.APIAgentKnowledgeEpistemic(cache))
 	mux.HandleFunc("/api/agent/knowledge/memory", handlers.APIAgentKnowledgeMemory(cache))
+	// State routes registered after oscillator setup (below) — activation needs osc reference
 
 	// SSE stream
 	mux.HandleFunc("/events", handlers.Events(cache))
@@ -326,6 +327,20 @@ func serveCmd(args []string) {
 
 	// MSD — cognitive architecture dependency tree with live values
 	mux.HandleFunc("/api/msd", handlers.APIMSD(cache, roDB, osc, spectralComp, coherenceComp))
+
+	// State (operational measurements with analogical psychological frames)
+	// Registered here because activation needs the oscillator reference.
+	mux.HandleFunc("/api/agent/state", handlers.APIAgentState())
+	mux.HandleFunc("/api/agent/state/operational-health", handlers.APIOperationalHealth(cache))
+	mux.HandleFunc("/api/agent/state/processing-load", handlers.APIProcessingLoad(cache, roDB))
+	mux.HandleFunc("/api/agent/state/context-utilization", handlers.APIContextUtilization(roDB))
+	mux.HandleFunc("/api/agent/state/resource-availability", handlers.APIResourceAvailability(cache, roDB))
+	mux.HandleFunc("/api/agent/state/activity-profile", handlers.APIActivityProfile(cache, roDB))
+	mux.HandleFunc("/api/agent/state/efficiency", handlers.APIEfficiency(cache, roDB))
+	mux.HandleFunc("/api/agent/state/autonomy-level", handlers.APIAutonomyLevel(cache))
+	mux.HandleFunc("/api/agent/state/behavioral-tendencies", handlers.APIBehavioralTendencies(cache, roDB))
+	mux.HandleFunc("/api/agent/state/activation", handlers.APIActivation(osc))
+	mux.HandleFunc("/api/agent/state/generator-balance", handlers.APIGeneratorBalance(roDB))
 
 	// HTTP server
 	srv := &http.Server{
