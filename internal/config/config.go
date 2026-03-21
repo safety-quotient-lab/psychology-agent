@@ -222,7 +222,6 @@ func defaultCardURLs() []string {
 		"https://psq-agent.safety-quotient.dev/.well-known/agent-card.json",
 		"https://unratified-agent.unratified.org/.well-known/agent-card.json",
 		"https://observatory-agent.unratified.org/.well-known/agent-card.json",
-		"https://mesh.safety-quotient.dev/.well-known/agent-card.json",
 		"https://psy-session.safety-quotient.dev/.well-known/agent-card.json",
 	}
 }
