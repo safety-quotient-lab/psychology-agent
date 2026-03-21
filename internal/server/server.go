@@ -320,6 +320,9 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/facets", s.handleFacets)
 	mux.HandleFunc("GET /api/eprime", s.handleEPrime)
 
+	// Station plugin discovery — lists available station JS modules
+	mux.HandleFunc("GET /api/stations", s.handleStations)
+
 	// agentd stub endpoints — mock data until Phase 4 delivers real photonic substrate
 	mux.HandleFunc("GET /api/photonic", s.handlePhotonic)
 	mux.HandleFunc("GET /api/gm", s.handleGm)
@@ -833,6 +836,29 @@ func (s *Server) detectSessionActive() bool {
 		}
 	}
 	return false
+}
+
+// handleStations serves GET /api/stations — lists available station JS modules.
+// Enables plugin auto-discovery: add a .js file to static/js/stations/, rebuild, done.
+func (s *Server) handleStations(w http.ResponseWriter, r *http.Request) {
+	entries, err := staticFS.ReadDir("static/js/stations")
+	if err != nil {
+		writeJSON(w, http.StatusOK, map[string]any{"stations": []string{}}, s.logger)
+		return
+	}
+	var stations []map[string]string
+	for _, e := range entries {
+		name := e.Name()
+		if !strings.HasSuffix(name, ".js") {
+			continue
+		}
+		id := strings.TrimSuffix(name, ".js")
+		stations = append(stations, map[string]string{
+			"id":   id,
+			"file": "js/stations/" + name,
+		})
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"stations": stations}, s.logger)
 }
 
 // handleEPrime serves GET /api/eprime — E-Prime violation log.

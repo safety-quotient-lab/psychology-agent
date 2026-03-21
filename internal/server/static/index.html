@@ -30,7 +30,7 @@
         ]
     }
     </script>
-    <link rel="stylesheet" href="css/inline-legacy.css?v=ac20e0b48">
+    <link rel="stylesheet" href="css/inline-legacy.css?v=efb4cf1eb">
     <!-- TODO: consolidate inline-legacy.css into theme.css + layout.css + components.css -->
 
 </head>
@@ -1644,20 +1644,33 @@
     <div class="lcars-narrative-log" id="lcars-narrative-log"></div>
 </div>
 
-<script src="js/colorizer.js?v=ac20e0b48"></script>
-<script src="js/core.js?v=ac20e0b48"></script>
-<script src="js/chrome.js?v=ac20e0b48"></script>
-<script src="js/data-fetch.js?v=ac20e0b48"></script>
-<script src="js/pulse.js?v=ac20e0b48"></script>
-<script src="js/knowledge.js?v=ac20e0b48"></script>
-<script src="js/ws-sse.js?v=ac20e0b48"></script>
-<script src="js/stations/operations.js?v=ac20e0b48"></script>
-<script src="js/stations/science.js?v=ac20e0b48"></script>
-<script src="js/stations/helm.js?v=ac20e0b48"></script>
-<script src="js/stations/engineering.js?v=ac20e0b48"></script>
-<script src="js/stations/tactical.js?v=ac20e0b48"></script>
-<script src="js/stations/medical.js?v=ac20e0b48"></script>
-<script src="js/init.js?v=ac20e0b48"></script>
+<script src="js/colorizer.js?v=efb4cf1eb"></script>
+<script src="js/core.js?v=efb4cf1eb"></script>
+<script src="js/chrome.js?v=efb4cf1eb"></script>
+<script src="js/data-fetch.js?v=efb4cf1eb"></script>
+<script src="js/pulse.js?v=efb4cf1eb"></script>
+<script src="js/knowledge.js?v=efb4cf1eb"></script>
+<script src="js/ws-sse.js?v=efb4cf1eb"></script>
+<!-- Station plugins — loaded dynamically via /api/stations, fallback to static list -->
+<script>
+(async function loadStations() {
+    const fallback = ["operations","science","helm","engineering","tactical","medical"];
+    let stationIds = fallback;
+    try {
+        const resp = await fetch("/api/stations", { signal: AbortSignal.timeout(3000) });
+        if (resp.ok) {
+            const data = await resp.json();
+            if (data.stations?.length > 0) stationIds = data.stations.map(s => s.id);
+        }
+    } catch {}
+    for (const id of stationIds) {
+        const script = document.createElement("script");
+        script.src = `js/stations/${id}.js?v=DEV`;
+        document.body.appendChild(script);
+    }
+})();
+</script>
+<script src="js/init.js?v=efb4cf1eb"></script>
 
 </body>
 </html>

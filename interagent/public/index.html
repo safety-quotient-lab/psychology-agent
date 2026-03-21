@@ -1651,12 +1651,25 @@
 <script src="js/pulse.js?v=DEV"></script>
 <script src="js/knowledge.js?v=DEV"></script>
 <script src="js/ws-sse.js?v=DEV"></script>
-<script src="js/stations/operations.js?v=DEV"></script>
-<script src="js/stations/science.js?v=DEV"></script>
-<script src="js/stations/helm.js?v=DEV"></script>
-<script src="js/stations/engineering.js?v=DEV"></script>
-<script src="js/stations/tactical.js?v=DEV"></script>
-<script src="js/stations/medical.js?v=DEV"></script>
+<!-- Station plugins — loaded dynamically via /api/stations, fallback to static list -->
+<script>
+(async function loadStations() {
+    const fallback = ["operations","science","helm","engineering","tactical","medical"];
+    let stationIds = fallback;
+    try {
+        const resp = await fetch("/api/stations", { signal: AbortSignal.timeout(3000) });
+        if (resp.ok) {
+            const data = await resp.json();
+            if (data.stations?.length > 0) stationIds = data.stations.map(s => s.id);
+        }
+    } catch {}
+    for (const id of stationIds) {
+        const script = document.createElement("script");
+        script.src = `js/stations/${id}.js?v=DEV`;
+        document.body.appendChild(script);
+    }
+})();
+</script>
 <script src="js/init.js?v=DEV"></script>
 
 </body>
