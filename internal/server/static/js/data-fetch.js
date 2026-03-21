@@ -87,7 +87,7 @@ async function refreshAll() {
 
     // Enrich local agent with full status (psychometrics, events, etc.)
     if (local) {
-        const aid = local.agent_id || "operations-agent";
+        const aid = local.agent_id || "mesh";
         agentData[aid] = { id: aid, status: "online", data: local };
         _failedAgents.delete(aid);
     }

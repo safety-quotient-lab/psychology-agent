@@ -8,11 +8,7 @@ function _opsAgent() {
     if (engSelectedAgent !== "mesh") {
         return agentData[engSelectedAgent] || {};
     }
-    for (const id of ["ops-session", "mesh", "operations-agent"]) {
-        const a = agentData[id];
-        if (a?.data?.oscillator || a?.data?.alpha_heartbeat) return a;
-    }
-    return agentData["ops-session"] || agentData["mesh"] || {};
+    return agentData["mesh"] || {};
 }
 
 function renderEngAgentSelector() {
@@ -29,7 +25,7 @@ const DELIBERATION_AGENTS = [
     { id: "psq-agent",        label: "safety-quotient",   color: "var(--c-psq)" },
     { id: "unratified-agent",  label: "unratified", color: "var(--c-unratified)" },
     { id: "observatory-agent", label: "observatory",   color: "var(--c-observatory)" },
-    { id: "operations-agent",  label: "operations",   color: "var(--c-tab-ops)" },
+    { id: "mesh",              label: "mesh",          color: "var(--c-tab-ops)" },
 ];
 
 async function fetchEngineeringData() {
@@ -37,7 +33,7 @@ async function fetchEngineeringData() {
     engineeringFetchPending = true;
     try {
         // Fetch full status for selected agent (cross-origin for remote agents)
-        const targetId = engSelectedAgent === "mesh" ? "ops-session" : engSelectedAgent;
+        const targetId = engSelectedAgent;
         const targetAgent = AGENTS.find(a => a.id === targetId);
         const statusUrl = targetAgent?.url ? targetAgent.url + "/api/status" : "/api/status";
         const [tempoResp, deliberationResp, cogTempoResp, agentStatusResp] = await Promise.allSettled([
@@ -196,7 +192,7 @@ function renderDeliberationCascade() {
     tempoAgents.forEach(a => { agentMap[a.agent_id] = a; });
 
     // Also get model tier from gc_metrics
-    const modelTier = agentData[AGENTS.find(a => a.id === "operations-agent")?.id]?.data?.gc_metrics?.deliberation_model || "?";
+    const modelTier = agentData["mesh"]?.data?.gc_metrics?.deliberation_model || "?";
 
     // Clear existing
     container.querySelectorAll(".delib-bar-row, .gf-summary").forEach(r => r.remove());
@@ -531,8 +527,7 @@ function renderCost() {
 let _flowData = null;
 async function fetchFlowData() {
     try {
-        const opsUrl = AGENTS.find(a => a.id === "operations-agent")?.url || "";
-        const r = await fetch(`${opsUrl}/api/flow`, { signal: AbortSignal.timeout(5000) });
+        const r = await fetch("/api/flow", { signal: AbortSignal.timeout(5000) });
         if (r.ok) _flowData = await r.json();
     } catch {}
 }
@@ -645,7 +640,7 @@ function renderYerkesDodson() {
         return;
     }
 
-    const colorMap = { "psychology-agent": "#5b9cf6", "psq-agent": "#4ecdc4", "unratified-agent": "#e5a735", "observatory-agent": "#a78bfa", "operations-agent": "#6b7280" };
+    const colorMap = { "psychology-agent": "#5b9cf6", "psq-agent": "#4ecdc4", "unratified-agent": "#e5a735", "observatory-agent": "#a78bfa", "mesh": "#6b7280" };
     const zoneColors = { understimulated: "#5b9cf6", optimal: "#6aab8e", overwhelmed: "#c47070" };
 
     container.innerHTML = entries.map(([agentId, data]) => {

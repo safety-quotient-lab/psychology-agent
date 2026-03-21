@@ -522,7 +522,7 @@ function renderCoherenceDimensions(coherence) {
 // ── agentd Session 95: Cognitive Display Panels ──────────────
 
 async function fetchCognitivePanels() {
-    const targetId = medSelectedAgent === "mesh" ? "ops-session" : medSelectedAgent;
+    const targetId = medSelectedAgent;
     const agent = AGENTS.find(a => a.id === targetId);
     const base = agent?.url || "";
 
@@ -548,7 +548,7 @@ async function fetchCognitivePanels() {
 function renderNeuralPanel(photonic) {
     var el = document.getElementById("med-neural");
     if (!el) return;
-    var ops = agentData[medSelectedAgent === "mesh" ? "ops-session" : medSelectedAgent] || {};
+    var ops = agentData[medSelectedAgent] || {};
     var osc = ops.data?.oscillator || {};
     var gc = ops.data?.gc_metrics || {};
     var tempo = ops.data?.cognitive_tempo || {};

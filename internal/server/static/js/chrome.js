@@ -5,7 +5,7 @@ async function fetchAgentCards() {
     // Same-origin: local agent card + mesh agents list
     try {
         const resp = await fetch("/.well-known/agent-card.json", { signal: AbortSignal.timeout(5000) });
-        if (resp.ok) { const card = await resp.json(); agentCards[card.name || "operations-agent"] = card; }
+        if (resp.ok) { const card = await resp.json(); agentCards[card.name || "mesh"] = card; }
     } catch {}
     try {
         const resp = await fetch("/.well-known/agents", { signal: AbortSignal.timeout(5000) });
@@ -88,7 +88,6 @@ async function meshControl(action) {
     }
 
     // Auth-gated controls
-    const opsUrl = AGENTS.find(a => a.id === "operations-agent")?.url || "";
     const actions = {
         "pause-all": { note: "Mesh paused — deliberations blocked until resume" },
         "resume-all": { note: "Mesh resumed — deliberations unblocked" },

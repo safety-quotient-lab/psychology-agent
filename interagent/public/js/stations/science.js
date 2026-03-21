@@ -88,10 +88,9 @@ let _eprimeData = null;
 
 async function fetchLinguisticsData() {
     // Fetch vocab + E-Prime log + agent vocabs for divergence
-    const opsUrl = AGENTS.find(a => a.id === "ops-session")?.url || "";
     const fetches = [
         !_vocabData ? fetch("/vocab", { signal: AbortSignal.timeout(5000) }) : Promise.resolve(null),
-        fetch(opsUrl ? opsUrl + "/api/eprime" : "/api/eprime", { signal: AbortSignal.timeout(3000) }),
+        fetch("/api/eprime", { signal: AbortSignal.timeout(3000) }),
     ];
     // Fetch vocab from each agent for divergence check
     const agentVocabFetches = AGENTS.filter(a => a.url).map(a =>
@@ -341,11 +340,10 @@ let _ontologyData = null;
 let _facetsData = null;
 
 async function fetchOntologyData() {
-    const opsUrl = AGENTS.find(a => a.id === "ops-session")?.url || "";
-    // Fetch KB + facets in parallel
+    // Fetch KB + facets in parallel (same-origin)
     const [kbResp, facetsResp] = await Promise.allSettled([
-        _ontologyData ? Promise.resolve(null) : fetch(opsUrl ? opsUrl + "/api/kb" : "/api/kb", { signal: AbortSignal.timeout(8000) }),
-        _facetsData ? Promise.resolve(null) : fetch(opsUrl ? opsUrl + "/api/facets" : "/api/facets", { signal: AbortSignal.timeout(5000) }),
+        _ontologyData ? Promise.resolve(null) : fetch("/api/kb", { signal: AbortSignal.timeout(8000) }),
+        _facetsData ? Promise.resolve(null) : fetch("/api/facets", { signal: AbortSignal.timeout(5000) }),
     ]);
     if (!_ontologyData && kbResp.status === "fulfilled" && kbResp.value?.ok) {
         _ontologyData = await kbResp.value.json();

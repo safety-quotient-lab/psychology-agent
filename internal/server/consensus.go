@@ -134,7 +134,7 @@ func (s *Server) handleConsensus(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Determine who hasn't responded
-		allAgents := []string{"psychology-agent", "psq-agent", "unratified-agent", "observatory-agent", "operations-agent"}
+		allAgents := []string{"psychology-agent", "psq-agent", "unratified-agent", "observatory-agent", "mesh"}
 		sender := originals[0]["from_agent"]
 		pending := make([]string, 0)
 		for _, agent := range allAgents {

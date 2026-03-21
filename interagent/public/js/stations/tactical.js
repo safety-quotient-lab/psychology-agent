@@ -68,7 +68,7 @@ function renderShieldStatus() {
         { id: "psq-agent", label: "safety-quotient" },
         { id: "unratified-agent", label: "unratified" },
         { id: "observatory-agent", label: "observatory" },
-        { id: "operations-agent", label: "operations" },
+        { id: "mesh", label: "mesh" },
     ];
     container.innerHTML = SHIELD_AGENTS.map(sa => {
         const online = statusMap[sa.id] ?? false;
@@ -91,7 +91,7 @@ function renderAgentCompliance() {
     const agents = tacticalAgentCards || [];
     const labelMap = { "psychology-agent": "psych", "psq-agent": "safety-quotient",
         "unratified-agent": "unrat", "observatory-agent": "obs",
-        "operations-agent": "ops" };
+        "mesh": "mesh" };
     const entries = agents
         .filter(a => a.id !== "interagent-mesh")
         .map(a => {
@@ -176,7 +176,7 @@ async function fetchAndRenderTrustMatrix() {
         const dimLabels = { availability: "AVAIL", integrity: "INTEG", compliance: "COMPL", epistemic_honesty: "EPIST" };
         const labelMap = { "psychology-agent": "psych", "psq-agent": "safety-quotient", "safety-quotient-agent": "psq",
             "unratified-agent": "unrat", "unratified": "unrat", "observatory-agent": "obs", "observatory": "obs",
-            "operations-agent": "ops" };
+            "mesh": "mesh" };
 
         let html = '<div class="trust-matrix-grid" style="grid-template-columns: 56px repeat(' + agents.length + ', 1fr)">';
         // Header row

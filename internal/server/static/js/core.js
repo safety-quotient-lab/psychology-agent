@@ -38,7 +38,6 @@ const AGENTS = [
     { id: "unratified-agent", name: "unratified", url: "https://unratified-agent.unratified.org", color: "#e5a735" },
     { id: "observatory-agent", name: "observatory", url: "https://observatory-agent.unratified.org", color: "#a78bfa" },
     // Interactive sessions (Mac meshd via tunnel)
-    { id: "ops-session", name: "ops-session", url: "https://ops-session.safety-quotient.dev", color: "#6b7280" },
     { id: "psy-session", name: "psy-session", url: "https://psy-session.safety-quotient.dev", color: "#7ba4d4" },
 ];
 
@@ -210,17 +209,16 @@ function startWaveformAnimation() {
         // Gf tempo waveform — real deliberation activity
         const gfWave = document.getElementById("tempo-gf-waveform");
         if (gfWave) {
-            const ops = agentData["ops-session"] || agentData["operations-agent"] || {};
             const gain = engineeringData?.cogTempo?.gain || 0;
             const gfData = pushWaveData("gf-tempo", gain);
             const color = gfWave._opts?.stroke || "var(--lcars-accent)";
             gfWave.innerHTML = dataWaveformSVG({ width: gfWave.clientWidth || 200, height: 30, data: gfData, stroke: color, fill: true });
         }
-        // Gc tempo waveform — real Gc event rate
+        // Gc tempo waveform — real Gc event rate (from whichever agent serves this dashboard)
         const gcWave = document.getElementById("tempo-gc-waveform");
         if (gcWave) {
-            const ops = agentData["ops-session"] || agentData["operations-agent"] || {};
-            const gcHandled = ops.data?.gc_metrics?.gc_handled_total || 0;
+            const gcAgent = agentData["mesh"] || {};
+            const gcHandled = gcAgent.data?.gc_metrics?.gc_handled_total || 0;
             const gcData = pushWaveData("gc-tempo", gcHandled);
             const color = gcWave._opts?.stroke || "#6aab8e";
             gcWave.innerHTML = dataWaveformSVG({ width: gcWave.clientWidth || 200, height: 30, data: gcData, stroke: color, fill: true });
@@ -228,7 +226,7 @@ function startWaveformAnimation() {
         // Medical oscillator — real activation level
         const medOscEl = document.getElementById("medical-oscillator-wave");
         if (medOscEl) {
-            const osc = agentData[typeof medSelectedAgent !== "undefined" ? medSelectedAgent : "ops-session"]?.data?.oscillator;
+            const osc = agentData[typeof medSelectedAgent !== "undefined" ? medSelectedAgent : "mesh"]?.data?.oscillator;
             const act = osc?.activation || 0;
             const medData = pushWaveData("med-osc", act);
             const color = medOscEl._waveOpts?.stroke || "#66ccaa";
@@ -735,16 +733,18 @@ const ALERT_TRIGGERS = [
               a.data?.health === "critical" || a.data?.health === "failed");
       },
       description: "Section 42 — mesh-wide critical failure" },
-    // BLUE (level 4) — advisory: ops-agent actively deliberating (30s window)
+    // BLUE (level 4) — advisory: any agent actively deliberating (30s window)
     { level: 4, name: "ita-deliberation",
       test: () => {
-          const ops = agentData["ops-session"] || agentData["operations-agent"];
-          if (ops?.status !== "online") return false;
-          const recent = ops.data?.recent_deliberations || [];
-          const latest = recent[0]?.started_at || "";
-          return latest && (Date.now() - new Date(latest.replace(" ", "T") + "Z").getTime()) < 30000;
+          for (const a of Object.values(agentData)) {
+              if (a?.status !== "online") continue;
+              const recent = a.data?.recent_deliberations || [];
+              const latest = recent[0]?.started_at || "";
+              if (latest && (Date.now() - new Date(latest.replace(" ", "T") + "Z").getTime()) < 30000) return true;
+          }
+          return false;
       },
-      description: "Ita deliberation — operations-agent actively processing" },
+      description: "Ita deliberation — agent actively processing" },
 ];
 
 function evaluateAlertLevel() {

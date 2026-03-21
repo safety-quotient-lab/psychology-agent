@@ -146,7 +146,7 @@ type RoutingRule struct {
 // meshRoutingTable in internal/server/routing.go.
 func DefaultRoutingTable() []RoutingRule {
 	return []RoutingRule{
-		{Domain: "operations", RouteTo: "operations-agent", Keywords: []string{"compositor", "dashboard", "deploy", "budget", "mesh-pause", "spawn", "health", "vocabulary", "vocab", "naming", "convention", "transport", "directive", "compliance", "consistency", "credential", "sanitization", "opsec", "CORS", "secret", "scan", "hardening"}},
+		{Domain: "operations", RouteTo: "mesh", Keywords: []string{"compositor", "dashboard", "deploy", "budget", "mesh-pause", "spawn", "health", "vocabulary", "vocab", "naming", "convention", "transport", "directive", "compliance", "consistency", "credential", "sanitization", "opsec", "CORS", "secret", "scan", "hardening"}},
 		{Domain: "psychometrics", RouteTo: "psychology-agent", Keywords: []string{"PSQ", "scoring", "calibration", "dimension", "bifactor", "psychoemotional", "dignity", "PJE"}},
 		{Domain: "cogarch", RouteTo: "psychology-agent", Keywords: []string{"trigger", "cognitive architecture", "hook", "evaluator", "governance", "invariant", "wu wei"}},
 		{Domain: "content", RouteTo: "unratified-agent", Keywords: []string{"blog", "publication", "ICESCR", "ratification", "campaign", "content-quality"}},

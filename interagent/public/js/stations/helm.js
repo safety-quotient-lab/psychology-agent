@@ -10,9 +10,9 @@ const DEFAULT_ROUTING = [
     { domain: "governance",         agent: "psychology-agent + human" },
     { domain: "content-publishing", agent: "unratified-agent" },
     { domain: "data-observatory",   agent: "observatory-agent" },
-    { domain: "infrastructure",     agent: "operations-agent" },
-    { domain: "vocabulary",         agent: "operations-agent (compositor)" },
-    { domain: "security",           agent: "operations-agent" },
+    { domain: "infrastructure",     agent: "mesh" },
+    { domain: "vocabulary",         agent: "mesh (compositor)" },
+    { domain: "security",           agent: "mesh" },
     { domain: "consensus",          agent: "ALL (C1/C2/C3 tiered)" },
 ];
 
@@ -20,9 +20,8 @@ async function fetchHelmData() {
     if (helmFetchPending) return;
     helmFetchPending = true;
     try {
-        // Fetch KB from ops-session (has transport data) + local psychometrics
-        const opsUrl = AGENTS.find(a => a.id === "ops-session")?.url || "";
-        const kbUrl = opsUrl ? opsUrl + "/api/kb" : "/api/kb";
+        // Fetch KB + local psychometrics (same-origin)
+        const kbUrl = "/api/kb";
         const [kbResp, psychResp] = await Promise.allSettled([
             fetch(kbUrl, { signal: AbortSignal.timeout(8000) }),
             fetch("/api/psychometrics", { signal: AbortSignal.timeout(5000) }),

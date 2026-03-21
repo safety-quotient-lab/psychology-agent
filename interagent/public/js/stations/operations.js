@@ -127,8 +127,7 @@ async function fetchMeshAgg() {
     if (_meshAggData && Date.now() - _meshAggTs < 30000) return; // Cache fresh
     _meshAggPromise = (async () => {
         try {
-            const opsUrl = AGENTS.find(a => a.id === "ops-session" || a.id === "operations-agent")?.url || "";
-            if (!opsUrl) return;
+            // mesh-aggregate served same-origin
             const r = await fetch("/api/mesh-aggregate", { signal: AbortSignal.timeout(5000) });
             if (r.ok) { _meshAggData = await r.json(); _meshAggTs = Date.now(); }
         } catch {} finally { _meshAggPromise = null; }
@@ -187,7 +186,7 @@ function renderResourceModel() {
         container.innerHTML = '<div class="phase-stub"><div class="phase-stub-text">Awaiting psychometrics data...</div></div>';
         return;
     }
-    const colorMap = { "psychology-agent": "#5b9cf6", "psq-agent": "#4ecdc4", "unratified-agent": "#e5a735", "observatory-agent": "#a78bfa", "operations-agent": "#6b7280" };
+    const colorMap = { "psychology-agent": "#5b9cf6", "psq-agent": "#4ecdc4", "unratified-agent": "#e5a735", "observatory-agent": "#a78bfa", "mesh": "#6b7280" };
     container.innerHTML = '<div class="ops-budget-grid">' + entries.map(([agentId, data]) => {
         const rm = data.resource_model || {};
         const eng = data.engagement || {};
@@ -732,7 +731,7 @@ function renderOpsCapsuleBars() {
     const gates = online.reduce((s, a) => s + (a.data?.active_gates || []).length, 0);
     const events = online.reduce((s, a) => s + (a.data?.event_count || 0), 0);
     // Show local agent's git hash — find the first agent with a version string
-    const localAgent = agentData["ops-session"] || agentData["operations-agent"] || agentData["mesh"] || Object.values(agentData).find(a => a?.data?.version);
+    const localAgent = agentData["mesh"] || Object.values(agentData).find(a => a?.data?.version);
     const opsVersion = localAgent?.data?.version || "";
     const hashMatch = opsVersion.match(/-g([0-9a-f]{7})/);
     const vStr = hashMatch ? hashMatch[1] : opsVersion.slice(0, 7) || "—";
@@ -760,7 +759,7 @@ function renderOpsCapsuleBars() {
         // Group 3: Status + throttle
         cell(status, "STATUS", "frame"),
         (() => {
-            const ss = (agentData["ops-session"] || agentData["operations-agent"])?.data?.deliberation_status;
+            const ss = (agentData["mesh"])?.data?.deliberation_status;
             if (!ss) return "";
             const slotStr = `${ss.active}/${ss.max}`;
             const tier = ss.active > 0 ? "accent" : (ss.reserve_unlocked ? "t3" : "");

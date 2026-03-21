@@ -116,9 +116,8 @@ function connectWebSocket() {
 // ── SSE Fallback ────────────────────────────────────────────
 // Used when WS unavailable (e.g., Cloudflare tunnel doesn't proxy WS)
 function connectSSE() {
-    // Only connect to the compositor (operations-agent) — it relays all mesh events
-    const opsAgent = AGENTS.find(a => a.id === "operations-agent") || AGENTS[0];
-    if (!opsAgent) return;
+    // SSE connects same-origin — whichever meshd serves this dashboard relays events
+    if (!AGENTS.length) return;
 
     const es = new EventSource("/events"); // same-origin — no CORS
     _sseConnection = es;
