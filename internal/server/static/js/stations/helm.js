@@ -60,6 +60,7 @@ function renderHelm() {
     renderSessionTimeline();
     renderRoutingTable();
     renderMessageFlow();
+    fetchMeshBreathing();
 }
 
 function helmZoneAMetrics() {
@@ -218,6 +219,51 @@ function renderMessageFlow() {
     container.innerHTML = html;
 }
 
+
+// ── agentd Session 95: Mesh Breathing ────────────────────────────
+async function fetchMeshBreathing() {
+    const fetches = AGENTS.filter(a => a.url).map(a =>
+        fetch(a.url + "/api/vagal", { signal: AbortSignal.timeout(2000) })
+            .then(r => r.ok ? r.json() : null).catch(() => null)
+            .then(d => ({ id: a.id, color: a.color, vagal: d }))
+    );
+    const results = await Promise.all(fetches);
+    renderMeshBreathing(results);
+}
+
+function renderMeshBreathing(agents) {
+    const el = document.getElementById("helm-breathing");
+    if (!el) return;
+    const withData = agents.filter(a => a.vagal);
+    if (withData.length === 0) { el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No vagal data from agents</div>'; return; }
+
+    const avgBreathing = withData.reduce((s, a) => s + (a.vagal.breathing_rate || 0), 0) / withData.length;
+    const anyMeditation = withData.some(a => a.vagal.group_meditation);
+
+    el.innerHTML = '<div style="font-size:0.78em">'
+        + '<div style="margin-bottom:var(--gap-m)">'
+        + '<span style="color:var(--lcars-title)">mesh.global.tempo:</span> '
+        + '<div style="display:inline-block;width:60%;height:8px;background:var(--bg-inset);border-radius:var(--gap-xs);vertical-align:middle;margin:0 8px">'
+        + '<div style="width:' + (avgBreathing * 100) + '%;height:100%;background:var(--c-tab-helm);border-radius:var(--gap-xs)"></div></div>'
+        + '<span style="color:var(--lcars-readout)">' + avgBreathing.toFixed(2) + '</span>'
+        + '</div>'
+        + '<div style="margin-bottom:var(--gap-s);color:var(--lcars-title)">Group meditation: <strong style="color:' + (anyMeditation ? "var(--lcars-medical)" : "var(--text-dim)") + '">' + (anyMeditation ? "ON" : "OFF") + '</strong></div>'
+        + withData.map(a => {
+            const rate = a.vagal.breathing_rate || 0;
+            const diff = Math.abs(rate - avgBreathing);
+            const status = diff < 0.05 ? "entrained" : diff < 0.15 ? "drifting" : "independent";
+            const statusColor = status === "entrained" ? "var(--lcars-medical)" : status === "drifting" ? "var(--lcars-accent)" : "var(--text-dim)";
+            return '<div style="display:flex;align-items:center;gap:var(--gap-s);margin-bottom:2px">'
+                + '<span style="width:70px;color:' + a.color + '">' + agentName(a.id) + '</span>'
+                + '<div style="flex:1;height:6px;background:var(--bg-inset);border-radius:var(--gap-xs)"><div style="width:' + (rate * 100) + '%;height:100%;background:' + a.color + ';border-radius:var(--gap-xs)"></div></div>'
+                + '<span style="color:' + statusColor + ';font-size:0.85em;width:70px;text-align:right">' + status + '</span></div>';
+        }).join("")
+        + '<div style="margin-top:var(--gap-s);color:var(--text-dim)">Mesh RSA: ' + (avgBreathing * 1.3).toFixed(2) + ' (adaptive)</div>'
+        + '</div>';
+}
+
+// Wire into Helm render
+const _origRenderHelm = typeof renderHelm === "function" ? renderHelm : null;
 
 // ── Engineering Station ─────────────────────────────────────────
 

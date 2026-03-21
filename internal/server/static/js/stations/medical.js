@@ -97,7 +97,47 @@ async function fetchMedicalData() {
 
     // agentd Session 95: cognitive panels (photonic, glial, vagal, microbiome)
     fetchCognitivePanels();
+    if (medSelectedAgent === "mesh") fetchFleetMicrobiome();
 }
+
+async function fetchFleetMicrobiome() {
+    const el = document.getElementById("med-fleet-microbiome");
+    if (!el) return;
+    const fetches = AGENTS.filter(function(a) { return a.url; }).map(function(a) {
+        return fetch(a.url + "/api/microbiome", { signal: AbortSignal.timeout(2000) })
+            .then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+            .then(function(d) { return { id: a.id, color: a.color, micro: d }; });
+    });
+    var results = await Promise.all(fetches);
+    var withData = results.filter(function(a) { return a.micro; });
+    if (withData.length === 0) { el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No microbiome data</div>'; return; }
+
+    // Aggregate symbiont health
+    var services = {};
+    var alerts = [];
+    withData.forEach(function(a) {
+        Object.entries(a.micro.symbionts || {}).forEach(function(e) {
+            var svc = e[0], s = e[1];
+            if (!services[svc]) services[svc] = { healthy: 0, total: 0, issues: [] };
+            services[svc].total++;
+            if (s.status === "healthy") services[svc].healthy++;
+            else services[svc].issues.push(agentName(a.id) + ": " + (s.status || "?"));
+        });
+        (a.micro.dysbiosis_alerts || []).forEach(function(alert) { alerts.push(agentName(a.id) + ": " + alert); });
+    });
+
+    el.innerHTML = '<div style="font-size:0.78em">'
+        + Object.entries(services).map(function(e) {
+            var svc = e[0], d = e[1];
+            var color = d.healthy === d.total ? "var(--lcars-medical)" : "var(--lcars-alert)";
+            return '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border)">'
+                + '<span style="color:var(--lcars-secondary)">' + svc.replace("_", "-") + '</span>'
+                + '<span style="color:' + color + '">' + d.healthy + '/' + d.total + ' healthy</span>'
+                + (d.issues.length > 0 ? '<span style="color:var(--lcars-alert);font-size:0.85em">(' + d.issues.join(", ") + ')</span>' : '')
+                + '</div>';
+        }).join("")
+        + (alerts.length > 0 ? '<div style="color:var(--lcars-alert);margin-top:var(--gap-s)">Dysbiosis: ' + alerts.join("; ") + '</div>' : '')
+        + '</div>';
 
 // Zone A: Vitals matrix — Weather Net style dense readout for selected agent
 function renderMedVitalsMatrix() {

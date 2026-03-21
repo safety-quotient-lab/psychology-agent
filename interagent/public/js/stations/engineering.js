@@ -81,6 +81,7 @@ function renderEngineering() {
     renderYerkesDodson();
     renderAlphaHeartbeat();
     renderGcLearning();
+    renderModeTransitions();
 
     // Update status line (removed — replaced by zone-c title)
     const statusEl = document.getElementById("eng-status-line");
@@ -827,6 +828,31 @@ function renderGcLearning() {
         <div style="margin-top:var(--gap-s);font-size:0.75em;color:var(--text-dim)">
             Model: <span style="color:var(--lcars-readout)">${model}</span> · ${ratio}
         </div>`;
+}
+
+// ── agentd Session 95: Mode Transition Speed ────────────────────
+function renderModeTransitions() {
+    const el = document.getElementById("eng-mode-transitions");
+    if (!el) return;
+    // Mock transition data — real data arrives with agentd Phase 4+
+    const transitions = [
+        { from: "active", to: "DMN", ms: 1200 + Math.round(Math.random() * 400) },
+        { from: "DMN", to: "active", ms: 800 + Math.round(Math.random() * 300) },
+        { from: "active", to: "sleep", ms: 4500 + Math.round(Math.random() * 1000) },
+        { from: "task(creative)", to: "task(evaluative)", ms: 2100 + Math.round(Math.random() * 500) },
+    ];
+    const maxMs = Math.max(...transitions.map(t => t.ms));
+    el.innerHTML = '<div style="font-size:0.78em">'
+        + transitions.map(t => {
+            const pct = (t.ms / maxMs) * 100;
+            return '<div style="display:flex;align-items:center;gap:var(--gap-s);margin-bottom:4px">'
+                + '<span style="width:120px;color:var(--lcars-secondary);white-space:nowrap">' + t.from + ' → ' + t.to + '</span>'
+                + '<div style="flex:1;height:8px;background:var(--bg-inset);border-radius:var(--gap-xs)"><div style="width:' + pct + '%;height:100%;background:var(--c-tab-engineering);border-radius:var(--gap-xs)"></div></div>'
+                + '<span style="width:50px;text-align:right;color:var(--lcars-readout)">' + t.ms + 'ms</span>'
+                + '</div>';
+        }).join("")
+        + '<div style="margin-top:var(--gap-s);color:var(--text-dim)">Trend: improving (mock data — real metrics from agentd Phase 4+)</div>'
+        + '</div>';
 }
 
 // ── Tactical Station ─────────────────────────────────────────────

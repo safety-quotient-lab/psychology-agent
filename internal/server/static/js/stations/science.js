@@ -470,6 +470,90 @@ function renderOntology() {
     }
 }
 
+// ── agentd Session 95: Fleet Cognitive Panels ─────────────────
+async function fetchFleetCognitive() {
+    // Fetch photonic + traits from all agents in parallel
+    const fetches = AGENTS.filter(a => a.url).map(a => Promise.allSettled([
+        fetch(a.url + "/api/photonic", { signal: AbortSignal.timeout(2000) }).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch(a.url + "/api/traits", { signal: AbortSignal.timeout(2000) }).then(r => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([p, t]) => ({
+        id: a.id, color: a.color,
+        photonic: p.status === "fulfilled" ? p.value : null,
+        traits: t.status === "fulfilled" ? t.value : null,
+    })));
+    const results = await Promise.all(fetches);
+    renderPhotonicField(results);
+    renderSpectralProfiles(results);
+    renderFleetTraits(results);
+}
+
+function renderPhotonicField(agents) {
+    const el = document.getElementById("sci-photonic-field");
+    if (!el) return;
+    const withData = agents.filter(a => a.photonic);
+    if (withData.length === 0) { el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No photonic data from agents</div>'; return; }
+    const avgCoherence = withData.reduce((s, a) => s + (a.photonic.coherence || 0), 0) / withData.length;
+    const spectralDiv = withData.length > 1 ? Math.abs(withData[0].photonic.spectral_profile?.DA - withData[1].photonic.spectral_profile?.DA || 0).toFixed(2) : "—";
+    el.innerHTML = '<div style="font-size:0.78em">'
+        + '<div style="margin-bottom:var(--gap-m)"><span style="color:var(--lcars-title)">Fleet coherence:</span> <strong style="color:var(--lcars-medical);font-size:1.2em">' + avgCoherence.toFixed(2) + '</strong></div>'
+        + withData.map(a => {
+            const c = a.photonic.coherence || 0;
+            return '<div style="display:flex;align-items:center;gap:var(--gap-s);margin-bottom:2px">'
+                + '<span style="width:70px;color:' + a.color + '">' + agentName(a.id) + '</span>'
+                + '<div style="flex:1;height:8px;background:var(--bg-inset);border-radius:var(--gap-xs)"><div style="width:' + (c * 100) + '%;height:100%;background:' + a.color + ';border-radius:var(--gap-xs)"></div></div>'
+                + '<span style="color:var(--lcars-readout);width:30px;text-align:right">' + c.toFixed(2) + '</span></div>';
+        }).join("")
+        + '<div style="margin-top:var(--gap-s);color:var(--text-dim)">Spectral diversity: ' + spectralDiv + ' · Coupling: complementary</div>'
+        + '</div>';
+}
+
+function renderSpectralProfiles(agents) {
+    const el = document.getElementById("sci-spectral-profiles");
+    if (!el) return;
+    const withData = agents.filter(a => a.photonic?.spectral_profile);
+    if (withData.length === 0) { el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No spectral data</div>'; return; }
+    el.innerHTML = '<div class="lcars-data-table-wrap" style="--panel-accent:var(--c-tab-science)"><table class="lcars-data-table">'
+        + '<thead><tr><th>AGENT</th><th class="num">DA</th><th class="num">NE</th><th class="num">5-HT</th><th class="num">MATURITY</th></tr></thead>'
+        + '<tbody>' + withData.map(a => {
+            const sp = a.photonic.spectral_profile || {};
+            return '<tr>'
+                + '<td style="color:' + a.color + '">' + agentName(a.id) + '</td>'
+                + '<td class="num" style="color:#FF9966">' + (sp.DA || 0).toFixed(2) + '</td>'
+                + '<td class="num" style="color:#FF9900">' + (sp.NE || 0).toFixed(2) + '</td>'
+                + '<td class="num" style="color:#9999FF">' + (sp["5HT"] || 0).toFixed(2) + '</td>'
+                + '<td class="num" style="color:var(--lcars-medical)">' + (a.photonic.maturity || 0).toFixed(2) + '</td>'
+                + '</tr>';
+        }).join("") + '</tbody></table></div>';
+}
+
+function renderFleetTraits(agents) {
+    const el = document.getElementById("sci-traits");
+    if (!el) return;
+    const withData = agents.filter(a => a.traits?.mode_traits);
+    if (withData.length === 0) { el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No trait data</div>'; return; }
+    // Aggregate across agents
+    const allModes = {};
+    withData.forEach(a => {
+        Object.entries(a.traits.mode_traits).forEach(([mode, data]) => {
+            if (!allModes[mode]) allModes[mode] = { usage: 0, agents: 0, totalHitRate: 0, totalTransition: 0 };
+            allModes[mode].usage += data.usage || 0;
+            allModes[mode].agents++;
+            allModes[mode].totalHitRate += data.prompt_hit_rate || 0;
+            allModes[mode].totalTransition += data.transition_ms || 0;
+        });
+    });
+    el.innerHTML = '<div class="lcars-data-table-wrap" style="--panel-accent:var(--c-tab-science)"><table class="lcars-data-table">'
+        + '<thead><tr><th>MODE</th><th class="num">USAGE</th><th class="num">HIT RATE</th><th class="num">TRANSITION</th></tr></thead>'
+        + '<tbody>' + Object.entries(allModes).sort((a, b) => b[1].usage - a[1].usage).map(([mode, d]) => {
+            const avgHit = d.agents > 0 ? (d.totalHitRate / d.agents).toFixed(2) : "—";
+            const avgTrans = d.agents > 0 ? Math.round(d.totalTransition / d.agents) + "ms" : "—";
+            return '<tr><td style="color:var(--lcars-secondary)">' + mode + '</td>'
+                + '<td class="num">' + d.usage + '</td>'
+                + '<td class="num" style="color:var(--lcars-medical)">' + avgHit + '</td>'
+                + '<td class="num" style="color:var(--text-dim)">' + avgTrans + '</td></tr>';
+        }).join("") + '</tbody></table></div>';
+}
+
 const LOA_DESCRIPTIONS = [
     "Human does all",
     "Offer complete set",
@@ -581,6 +665,7 @@ function renderScience() {
     renderWorkingMemory();
     renderResources();
     renderEngagement();
+    fetchFleetCognitive(); // agentd Session 95 fleet panels
     // Update status line
     const statusLine = document.getElementById("science-status-line");
     if (statusLine && scienceData) {

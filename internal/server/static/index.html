@@ -30,7 +30,7 @@
         ]
     }
     </script>
-    <link rel="stylesheet" href="css/inline-legacy.css?v=52cd532f9">
+    <link rel="stylesheet" href="css/inline-legacy.css?v=a94eb6a4d">
     <!-- TODO: consolidate inline-legacy.css into theme.css + layout.css + components.css -->
 
 </head>
@@ -895,6 +895,33 @@
                     <div class="lcars-panel-body scrollable" id="lcars-sci-lessons"></div>
                 </div>
             </div>
+            <!-- agentd Session 95: Fleet-Level Cognitive Panels -->
+            <div class="science-grid" style="margin-top:var(--gap-l)">
+                <!-- Photonic Field Coherence -->
+                <div class="lcars-panel panel-tristate panel-expanded" style="--panel-accent: var(--c-tab-science)" title="CS: Fleet-wide inter-agent message coherence + signaling quality">
+                    <div class="lcars-panel-header">Photonic Field <span class="lcars-panel-id">8001</span></div>
+                    <div class="lcars-panel-body" id="sci-photonic-field">
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px">Loading fleet photonic data...</div>
+                    </div>
+                </div>
+
+                <!-- Spectral Profile Comparison -->
+                <div class="lcars-panel panel-tristate panel-expanded" style="--panel-accent: var(--c-tab-science)" title="CS: Fleet neuromodulator balance — processing style signatures per agent">
+                    <div class="lcars-panel-header">Spectral Profiles <span class="lcars-panel-id">8002</span></div>
+                    <div class="lcars-panel-body" id="sci-spectral-profiles">
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px">Loading spectral data...</div>
+                    </div>
+                </div>
+
+                <!-- Trait Accumulation -->
+                <div class="lcars-panel panel-tristate" style="--panel-accent: var(--c-tab-science); grid-column: 1 / -1" title="CS: Processing mode usage statistics + learning curve metrics">
+                    <div class="lcars-panel-header">Trait Accumulation <span class="lcars-panel-id">8003</span></div>
+                    <div class="lcars-panel-body" id="sci-traits">
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px">Loading trait data...</div>
+                    </div>
+                </div>
+            </div>
+
             </div><!-- /sci-psychometrics -->
 
             <!-- LINGUISTICS subsystem -->
@@ -1160,6 +1187,16 @@
                 </div>
             </div>
 
+            <!-- Mode Transition Speed (agentd Session 95) -->
+            <div class="engineering-grid" style="margin-bottom:var(--gap-m)">
+                <div class="lcars-panel panel-tristate panel-expanded" style="--panel-accent: var(--c-tab-engineering); grid-column: 1 / -1" title="CS: Context switch latency between processing modes">
+                    <div class="lcars-panel-header">Mode Transitions <span class="lcars-panel-id">9001</span></div>
+                    <div class="lcars-panel-body" id="eng-mode-transitions">
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px">Loading transition data...</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Diagnostic Levels (TNG Technical Manual) -->
             <div class="lcars-panel panel-tristate" style="--panel-accent: var(--c-tab-engineering)">
                 <div class="lcars-panel-header">System Diagnostics</div>
@@ -1260,6 +1297,16 @@
                     <div class="lcars-panel-header">Flow State <span class="lcars-panel-id">5005</span></div>
                     <div class="lcars-panel-body" id="helm-flow">
                         <div class="helm-placeholder">Awaiting psychometrics data...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mesh Breathing / Group Meditation (agentd Session 95) -->
+            <div class="helm-grid" style="margin-top:var(--gap-m)">
+                <div class="lcars-panel panel-tristate panel-expanded" style="--panel-accent: var(--c-tab-helm); grid-column: 1 / -1" title="CS: Fleet-wide adaptive rate coordination + synchronized processing mode">
+                    <div class="lcars-panel-header">Mesh Breathing <span class="lcars-panel-id">9501</span></div>
+                    <div class="lcars-panel-body" id="helm-breathing">
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px">Loading mesh breathing data...</div>
                     </div>
                 </div>
             </div>
@@ -1508,6 +1555,14 @@
                 </div>
             </div>
 
+            <!-- Fleet Microbiome (agentd Session 95) -->
+            <div class="lcars-panel panel-tristate" style="--panel-accent: var(--c-tab-medical); margin-top:var(--gap-m)" title="CS: Aggregated external service dependency health across all agents">
+                <div class="lcars-panel-header">Fleet Microbiome <span class="lcars-panel-id">7010</span></div>
+                <div class="lcars-panel-body" id="med-fleet-microbiome">
+                    <div style="color:var(--text-dim);font-size:0.82em;padding:12px">Loading fleet microbiome...</div>
+                </div>
+            </div>
+
             <!-- Three-Panel Cognitive Display (agentd Session 95) -->
             <div class="medical-grid" style="margin-top:var(--gap-m)">
                 <div class="lcars-panel panel-tristate panel-expanded" style="--panel-accent: var(--c-tab-medical)" title="CS: Processing pipeline depth + frequency metrics">
@@ -1589,20 +1644,20 @@
     <div class="lcars-narrative-log" id="lcars-narrative-log"></div>
 </div>
 
-<script src="js/colorizer.js?v=52cd532f9"></script>
-<script src="js/core.js?v=52cd532f9"></script>
-<script src="js/chrome.js?v=52cd532f9"></script>
-<script src="js/data-fetch.js?v=52cd532f9"></script>
-<script src="js/pulse.js?v=52cd532f9"></script>
-<script src="js/knowledge.js?v=52cd532f9"></script>
-<script src="js/ws-sse.js?v=52cd532f9"></script>
-<script src="js/stations/operations.js?v=52cd532f9"></script>
-<script src="js/stations/science.js?v=52cd532f9"></script>
-<script src="js/stations/helm.js?v=52cd532f9"></script>
-<script src="js/stations/engineering.js?v=52cd532f9"></script>
-<script src="js/stations/tactical.js?v=52cd532f9"></script>
-<script src="js/stations/medical.js?v=52cd532f9"></script>
-<script src="js/init.js?v=52cd532f9"></script>
+<script src="js/colorizer.js?v=a94eb6a4d"></script>
+<script src="js/core.js?v=a94eb6a4d"></script>
+<script src="js/chrome.js?v=a94eb6a4d"></script>
+<script src="js/data-fetch.js?v=a94eb6a4d"></script>
+<script src="js/pulse.js?v=a94eb6a4d"></script>
+<script src="js/knowledge.js?v=a94eb6a4d"></script>
+<script src="js/ws-sse.js?v=a94eb6a4d"></script>
+<script src="js/stations/operations.js?v=a94eb6a4d"></script>
+<script src="js/stations/science.js?v=a94eb6a4d"></script>
+<script src="js/stations/helm.js?v=a94eb6a4d"></script>
+<script src="js/stations/engineering.js?v=a94eb6a4d"></script>
+<script src="js/stations/tactical.js?v=a94eb6a4d"></script>
+<script src="js/stations/medical.js?v=a94eb6a4d"></script>
+<script src="js/init.js?v=a94eb6a4d"></script>
 
 </body>
 </html>

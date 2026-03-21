@@ -895,6 +895,33 @@
                     <div class="lcars-panel-body scrollable" id="lcars-sci-lessons"></div>
                 </div>
             </div>
+            <!-- agentd Session 95: Fleet-Level Cognitive Panels -->
+            <div class="science-grid" style="margin-top:var(--gap-l)">
+                <!-- Photonic Field Coherence -->
+                <div class="lcars-panel panel-tristate panel-expanded" style="--panel-accent: var(--c-tab-science)" title="CS: Fleet-wide inter-agent message coherence + signaling quality">
+                    <div class="lcars-panel-header">Photonic Field <span class="lcars-panel-id">8001</span></div>
+                    <div class="lcars-panel-body" id="sci-photonic-field">
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px">Loading fleet photonic data...</div>
+                    </div>
+                </div>
+
+                <!-- Spectral Profile Comparison -->
+                <div class="lcars-panel panel-tristate panel-expanded" style="--panel-accent: var(--c-tab-science)" title="CS: Fleet neuromodulator balance — processing style signatures per agent">
+                    <div class="lcars-panel-header">Spectral Profiles <span class="lcars-panel-id">8002</span></div>
+                    <div class="lcars-panel-body" id="sci-spectral-profiles">
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px">Loading spectral data...</div>
+                    </div>
+                </div>
+
+                <!-- Trait Accumulation -->
+                <div class="lcars-panel panel-tristate" style="--panel-accent: var(--c-tab-science); grid-column: 1 / -1" title="CS: Processing mode usage statistics + learning curve metrics">
+                    <div class="lcars-panel-header">Trait Accumulation <span class="lcars-panel-id">8003</span></div>
+                    <div class="lcars-panel-body" id="sci-traits">
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px">Loading trait data...</div>
+                    </div>
+                </div>
+            </div>
+
             </div><!-- /sci-psychometrics -->
 
             <!-- LINGUISTICS subsystem -->
@@ -1160,6 +1187,16 @@
                 </div>
             </div>
 
+            <!-- Mode Transition Speed (agentd Session 95) -->
+            <div class="engineering-grid" style="margin-bottom:var(--gap-m)">
+                <div class="lcars-panel panel-tristate panel-expanded" style="--panel-accent: var(--c-tab-engineering); grid-column: 1 / -1" title="CS: Context switch latency between processing modes">
+                    <div class="lcars-panel-header">Mode Transitions <span class="lcars-panel-id">9001</span></div>
+                    <div class="lcars-panel-body" id="eng-mode-transitions">
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px">Loading transition data...</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Diagnostic Levels (TNG Technical Manual) -->
             <div class="lcars-panel panel-tristate" style="--panel-accent: var(--c-tab-engineering)">
                 <div class="lcars-panel-header">System Diagnostics</div>
@@ -1260,6 +1297,16 @@
                     <div class="lcars-panel-header">Flow State <span class="lcars-panel-id">5005</span></div>
                     <div class="lcars-panel-body" id="helm-flow">
                         <div class="helm-placeholder">Awaiting psychometrics data...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mesh Breathing / Group Meditation (agentd Session 95) -->
+            <div class="helm-grid" style="margin-top:var(--gap-m)">
+                <div class="lcars-panel panel-tristate panel-expanded" style="--panel-accent: var(--c-tab-helm); grid-column: 1 / -1" title="CS: Fleet-wide adaptive rate coordination + synchronized processing mode">
+                    <div class="lcars-panel-header">Mesh Breathing <span class="lcars-panel-id">9501</span></div>
+                    <div class="lcars-panel-body" id="helm-breathing">
+                        <div style="color:var(--text-dim);font-size:0.82em;padding:12px">Loading mesh breathing data...</div>
                     </div>
                 </div>
             </div>
@@ -1505,6 +1552,14 @@
                 <div class="lcars-panel-header">Alpha Heartbeat <span class="lcars-panel-id">2246</span></div>
                 <div class="lcars-panel-body" id="medical-alpha-heartbeat">
                     <div style="color:var(--text-dim);font-size:0.82em;padding:12px;text-align:center">Awaiting heartbeat data</div>
+                </div>
+            </div>
+
+            <!-- Fleet Microbiome (agentd Session 95) -->
+            <div class="lcars-panel panel-tristate" style="--panel-accent: var(--c-tab-medical); margin-top:var(--gap-m)" title="CS: Aggregated external service dependency health across all agents">
+                <div class="lcars-panel-header">Fleet Microbiome <span class="lcars-panel-id">7010</span></div>
+                <div class="lcars-panel-body" id="med-fleet-microbiome">
+                    <div style="color:var(--text-dim);font-size:0.82em;padding:12px">Loading fleet microbiome...</div>
                 </div>
             </div>
 
