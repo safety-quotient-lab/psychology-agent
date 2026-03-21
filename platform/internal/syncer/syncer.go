@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/budget"
+	"github.com/safety-quotient-lab/psychology-agent/platform/internal/crossrepo"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/db"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/heartbeat"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/orientation"
@@ -93,7 +94,18 @@ func (s *Syncer) RunSync(ctx context.Context) error {
 		// Non-fatal — continue with local state
 	}
 
-	// 4. Triage — auto-process trivial messages
+	// 5. Cross-repo fetch — get messages from peer repositories
+	crConfig := crossrepo.Config{ProjectRoot: s.config.ProjectRoot, AgentID: s.config.AgentID}
+	fetchResults := crossrepo.Fetch(crConfig, s.db)
+	totalNew := 0
+	for _, r := range fetchResults {
+		totalNew += r.NewMessages
+	}
+	if totalNew > 0 {
+		log.Printf("[syncer] cross-repo: %d new messages from %d peers", totalNew, len(fetchResults))
+	}
+
+	// 6. Triage — auto-process trivial messages
 	triageResult, err := triage.Scan(s.db)
 	if err != nil {
 		log.Printf("[syncer] WARNING: triage failed: %v", err)
