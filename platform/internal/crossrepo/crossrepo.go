@@ -130,6 +130,7 @@ func loadPeers(config Config) []PeerConfig {
 }
 
 // classifyPeer determines whether a peer relationship runs active/warm/cold.
+// Uses connectome weights when available (Hebbian-informed routing).
 func classifyPeer(database *db.DB, peerAgentID string) PeerClassification {
 	// Check for unprocessed messages from this peer
 	unprocessed := database.ScalarInt(
@@ -139,15 +140,29 @@ func classifyPeer(database *db.DB, peerAgentID string) PeerClassification {
 		return PeerActive
 	}
 
-	// Check recency of last exchange
+	// Check connectome functional weight (Hebbian-informed)
 	rows, err := database.QueryRows(
+		`SELECT functional_weight, last_exchange FROM connectome
+		 WHERE peer_agent = ?`, peerAgentID)
+	if err == nil && len(rows) > 0 {
+		weight := toFloat(rows[0]["functional_weight"])
+		if weight > 0.7 {
+			return PeerActive // strong connection — always fetch
+		}
+		if weight < 0.15 {
+			return PeerCold // weak connection — skip unless forced
+		}
+	}
+
+	// Fallback: classify by recency of last exchange
+	exchangeRows, err := database.QueryRows(
 		`SELECT MAX(timestamp) as latest FROM transport_messages
 		 WHERE from_agent = ? OR to_agent = ?`, peerAgentID, peerAgentID)
-	if err != nil || len(rows) == 0 {
+	if err != nil || len(exchangeRows) == 0 {
 		return PeerCold
 	}
 
-	latest := toString(rows[0]["latest"])
+	latest := toString(exchangeRows[0]["latest"])
 	if latest == "" {
 		return PeerCold
 	}
@@ -168,6 +183,17 @@ func classifyPeer(database *db.DB, peerAgentID string) PeerClassification {
 		return PeerWarm
 	}
 	return PeerCold
+}
+
+func toFloat(v any) float64 {
+	switch val := v.(type) {
+	case float64:
+		return val
+	case int64:
+		return float64(val)
+	default:
+		return 0
+	}
 }
 
 // fetchPeer fetches new messages from a single peer.
@@ -236,6 +262,18 @@ func fetchPeer(config Config, database *db.DB, peer PeerConfig) FetchResult {
 		log.Printf("[crossrepo] %s: %d new, %d materialized, %d indexed",
 			peer.AgentID, result.NewMessages, result.Materialized, result.Indexed)
 	}
+
+	// Update local MANIFEST for each session that had new messages
+	for _, session := range sessions {
+		sessionMsgCount := database.ScalarInt(
+			`SELECT COUNT(*) FROM transport_messages WHERE session_name = ?`, session)
+		if sessionMsgCount > 0 {
+			updateLocalManifest(config.ProjectRoot, session, sessionMsgCount)
+		}
+	}
+
+	// Connectome learning: successful fetch with content → LTP
+	UpdateConnectomeAfterFetch(database, peer.AgentID, result.NewMessages)
 
 	return result
 }
@@ -342,6 +380,50 @@ func indexMessage(database *db.DB, session, filename string, content []byte) err
 		session, filename, turn, msgType, fromAgent, toAgent,
 		timestamp, subject, urgency)
 	return err
+}
+
+// updateLocalManifest ensures the local session has a MANIFEST.json.
+// Creates one if missing, updates session status if stale.
+func updateLocalManifest(projectRoot, session string, messageCount int) {
+	manifestPath := filepath.Join(projectRoot, "transport", "sessions", session, "MANIFEST.json")
+
+	// Read existing or create new
+	var manifest map[string]any
+	data, err := os.ReadFile(manifestPath)
+	if err == nil {
+		json.Unmarshal(data, &manifest)
+	}
+	if manifest == nil {
+		manifest = map[string]any{
+			"session_id": session,
+			"status":     "active",
+			"created":    time.Now().Format("2006-01-02T15:04:05-0700"),
+		}
+	}
+
+	manifest["message_count"] = messageCount
+	manifest["last_updated"] = time.Now().Format("2006-01-02T15:04:05-0700")
+
+	out, err := json.MarshalIndent(manifest, "", "  ")
+	if err == nil {
+		os.WriteFile(manifestPath, append(out, '\n'), 0644)
+	}
+}
+
+// UpdateConnectomeAfterFetch updates the connectome entry for a peer
+// after a successful fetch (Hebbian learning: successful exchange → LTP).
+func UpdateConnectomeAfterFetch(database *db.DB, peerAgentID string, newMessages int) {
+	if newMessages > 0 {
+		// LTP: successful exchange with new content
+		database.Exec(
+			`INSERT INTO connectome (peer_agent, functional_weight, last_exchange, exchange_count)
+			 VALUES (?, 0.5, datetime('now'), 1)
+			 ON CONFLICT(peer_agent) DO UPDATE SET
+			   functional_weight = MIN(1.0, functional_weight + 0.03),
+			   last_exchange = datetime('now'),
+			   exchange_count = exchange_count + 1`,
+			peerAgentID)
+	}
 }
 
 func toString(v any) string {
