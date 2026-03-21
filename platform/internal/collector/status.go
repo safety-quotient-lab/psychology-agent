@@ -14,6 +14,9 @@ import (
 
 // Status holds the complete mesh status snapshot.
 type Status struct {
+	Context        string                    `json:"@context,omitempty"`
+	Type           string                    `json:"@type,omitempty"`
+	EntityType     string                    `json:"entity_type,omitempty"`
 	Version        string                    `json:"version"`
 	AgentID        string                    `json:"agent_id"`
 	CollectedAt    string                    `json:"collected_at"`
@@ -240,6 +243,9 @@ func Collect(d *db.DB, projectRoot string) *Status {
 	knowledge := CollectKnowledgeBase(d)
 
 	return &Status{
+		Context:        "https://psychology-agent.safety-quotient.dev/vocab/v1.0.0.jsonld",
+		Type:           "Dataset",
+		EntityType:     "agent",
 		Version:        platform.Version,
 		AgentID:        agentID,
 		CollectedAt:    now,
