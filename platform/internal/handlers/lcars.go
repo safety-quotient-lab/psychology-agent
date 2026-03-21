@@ -8,8 +8,8 @@ import (
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/collector"
 )
 
-// ObsDashboard serves GET / and GET /obs — the main observability dashboard.
-func ObsDashboard(cache *collector.Cache, tmpl *template.Template) http.HandlerFunc {
+// LCARSDashboard serves GET / and GET /lcars — the per-agent LCARS dashboard.
+func LCARSDashboard(cache *collector.Cache, tmpl *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		setCORS(w, r)
 		status := cache.Status()
