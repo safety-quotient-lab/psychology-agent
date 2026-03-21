@@ -118,13 +118,17 @@ func (r *AgentRegistry) SetDBPath(path string) {
 }
 
 // Agents returns the current cached agent list (thread-safe).
+// Excludes self — the serving agent should not appear as its own peer.
 func (r *AgentRegistry) Agents() []AgentInfo {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	// Return a copy to prevent mutation
-	out := make([]AgentInfo, len(r.agents))
-	copy(out, r.agents)
+	out := make([]AgentInfo, 0, len(r.agents))
+	for _, a := range r.agents {
+		if a.ID != r.selfID {
+			out = append(out, a)
+		}
+	}
 	return out
 }
 
@@ -166,10 +170,10 @@ func (r *AgentRegistry) Refresh() {
 	}
 	wg.Wait()
 
-	// Persist successfully fetched cards to SQLite
+	// Persist successfully fetched cards to SQLite (skip self)
 	if r.dbPath != "" {
 		for _, a := range agents {
-			if a.Unavailable || a.RawCard == nil {
+			if a.Unavailable || a.RawCard == nil || a.ID == r.selfID {
 				continue
 			}
 			cardJSON, _ := json.Marshal(a.RawCard)
