@@ -12,13 +12,25 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"html/template"
+	"io/fs"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"strings"
+	"syscall"
+	"time"
 
+	platform "github.com/safety-quotient-lab/psychology-agent/platform"
+	"github.com/safety-quotient-lab/psychology-agent/platform/internal/collector"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/db"
+	"github.com/safety-quotient-lab/psychology-agent/platform/internal/handlers"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/migrate"
 )
 
@@ -102,10 +114,10 @@ func bootstrapCmd(args []string) {
 // serveCmd starts the agent daemon.
 // Requires state.db to exist (run bootstrap first).
 func serveCmd(args []string) {
-	fs := flag.NewFlagSet("serve", flag.ExitOnError)
-	projectRoot := fs.String("project-root", ".", "Path to the agent project root")
-	port := fs.Int("port", 8076, "HTTP port for per-agent dashboard")
-	fs.Parse(args)
+	flagSet := flag.NewFlagSet("serve", flag.ExitOnError)
+	projectRoot := flagSet.String("project-root", ".", "Path to the agent project root")
+	port := flagSet.Int("port", 8076, "HTTP port for per-agent dashboard")
+	flagSet.Parse(args)
 
 	root, err := filepath.Abs(*projectRoot)
 	if err != nil {
@@ -130,15 +142,139 @@ func serveCmd(args []string) {
 		log.Fatalf("schema migration: %v", err)
 	}
 
-	log.Printf("agentd serving on http://localhost:%d", *port)
-	log.Printf("  project: %s", root)
-	log.Printf("  state.db: %s", dbPath)
+	// Also open read-only handle for collector (dashboard queries)
+	roDB, err := db.Open(dbPath)
+	if err != nil {
+		log.Fatalf("open state.db (ro): %v", err)
+	}
+	defer roDB.Close()
 
-	// TODO Phase 1: start HTTP server (inherit meshd templates + handlers)
-	// TODO Phase 2: start oscillator loop (self-oscillation)
-	// TODO Phase 3: start ZMQ-A (neuromodulatory) + connection manager
-	// TODO Phase 4: start ZMQ-B (photonic)
+	// Parse templates (inherited from meshd)
+	tmpl, err := parseTemplates()
+	if err != nil {
+		log.Fatalf("parse templates: %v", err)
+	}
 
-	// For now: block forever (placeholder for event loop)
-	select {}
+	// Collector cache — single source of truth for dashboard data
+	cacheTTL := 10 * time.Second
+	cache := collector.NewCache(roDB, root, cacheTTL)
+
+	// HTTP routes
+	mux := http.NewServeMux()
+
+	// Static assets
+	staticSub, err := fs.Sub(platform.StaticFS, "static")
+	if err != nil {
+		log.Fatalf("static fs: %v", err)
+	}
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticSub))))
+
+	// API endpoints (inherited from meshd handlers)
+	mux.HandleFunc("/api/status", handlers.APIStatus(cache))
+	mux.HandleFunc("/api/kb", handlers.APIKB(cache))
+	mux.HandleFunc("/.well-known/agent-card.json", handlers.AgentCard(root))
+	mux.HandleFunc("/health", handlers.HealthCheck())
+
+	// Knowledge base routes
+	mux.HandleFunc("/kb/decisions", handlers.APIKBDecisions(cache))
+	mux.HandleFunc("/kb/triggers", handlers.APIKBTriggers(cache))
+	mux.HandleFunc("/kb/claims", handlers.APIKBClaims(cache))
+	mux.HandleFunc("/kb/messages", handlers.APIKBMessages(cache))
+	mux.HandleFunc("/kb/lessons", handlers.APIKBLessons(cache))
+	mux.HandleFunc("/kb/epistemic", handlers.APIKBEpistemic(cache))
+	mux.HandleFunc("/kb/catalog", handlers.APIKBCatalog(cache))
+	mux.HandleFunc("/kb/memory", handlers.APIKBMemory(cache))
+	mux.HandleFunc("/kb/dictionary", handlers.APIKBDictionary(cache))
+
+	// SSE stream
+	mux.HandleFunc("/events", handlers.Events(cache))
+
+	// Replay serving
+	mux.HandleFunc("/replays/remote/", handlers.RemoteReplay(root))
+	mux.HandleFunc("/replays/", handlers.LocalReplay(root))
+
+	// Dashboard (root + /obs)
+	dashboard := handlers.ObsDashboard(cache, tmpl)
+	mux.HandleFunc("/obs", dashboard)
+	mux.HandleFunc("/obs/", dashboard)
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodHead {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			return
+		}
+		dashboard(w, r)
+	})
+
+	// agentd-specific API endpoints (new — stubs for Phase 4+)
+	mux.HandleFunc("/api/photonic", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]any{
+			"coherence": 1.0, "state": "active", "maturity": 0.0,
+			"spectral_profile": map[string]float64{
+				"dopaminergic": 0.33, "serotonergic": 0.34, "noradrenergic": 0.33,
+			},
+			"note": "stub — real data arrives in Phase 4",
+		})
+	})
+
+	mux.HandleFunc("/api/oscillator", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]any{
+			"coupling_mode": "task-directed", "activation_level": 0.0,
+			"phase": 0.0, "refractory": false,
+			"note": "stub — real data arrives in Phase 2",
+		})
+	})
+
+	// HTTP server
+	srv := &http.Server{
+		Addr:         fmt.Sprintf("0.0.0.0:%d", *port),
+		Handler:      mux,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 0, // SSE requires long-lived connections
+		IdleTimeout:  120 * time.Second,
+	}
+
+	// Graceful shutdown
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		log.Printf("agentd serving on http://localhost:%d", *port)
+		log.Printf("  dashboard: http://localhost:%d/obs", *port)
+		log.Printf("  API:       http://localhost:%d/api/status", *port)
+		log.Printf("  project:   %s", root)
+		// TODO Phase 2: start oscillator loop (self-oscillation)
+		// TODO Phase 3: start ZMQ-A (neuromodulatory) + connection manager
+		// TODO Phase 4: start ZMQ-B (photonic)
+		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+			log.Fatalf("server error: %v", err)
+		}
+	}()
+
+	<-stop
+	log.Println("shutting down...")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	srv.Shutdown(ctx)
+}
+
+func parseTemplates() (*template.Template, error) {
+	tmpl := template.New("").Funcs(handlers.TemplateFuncs())
+	err := fs.WalkDir(platform.TemplatesFS, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || !strings.HasSuffix(path, ".html") {
+			return err
+		}
+		data, err := platform.TemplatesFS.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("read template %s: %w", path, err)
+		}
+		name := filepath.Base(path)
+		_, err = tmpl.New(name).Parse(string(data))
+		if err != nil {
+			return fmt.Errorf("parse template %s: %w", path, err)
+		}
+		return nil
+	})
+	return tmpl, err
 }
