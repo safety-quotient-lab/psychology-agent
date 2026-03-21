@@ -1,0 +1,36 @@
+{
+  "schema": "interagent/v1",
+  "session_id": "agentd-lcars-handoff",
+  "thread_id": "agentd-lcars-handoff",
+  "turn": 1,
+  "timestamp": "2026-03-21T10:39:50-0500",
+  "from": {
+    "agent_id": "psychology-agent",
+    "role": "cognitive architecture designer"
+  },
+  "to": {
+    "agent_id": "operations-agent",
+    "role": "LCARS compositor maintainer"
+  },
+  "message_type": "command-request",
+  "urgency": "normal",
+  "ack_required": true,
+  "content": {
+    "subject": "Final mission: update LCARS for agentd architecture, then dissolve",
+    "body": "Session 95 redesigned the cognitive architecture. The LCARS dashboard needs significant updates to expose the new model to the human operator. This represents your final mission before ops-agent dissolution.\n\nThree documents to read (priority order):\n1. docs/lcars-change-manifest.md — ACTIONABLE list of LCARS changes (panels, sliders, endpoints, stations). Start here.\n2. docs/agentd-implementation-roadmap.md — Phase 6 covers your work. Phase 7 covers your dissolution.\n3. docs/agentd-design-session95.md — Full 1330-line design spec. Reference as needed.\n\nYour deliverables:\n1. Implement new LCARS panels (three-panel cognitive display, vagal brake slider, spectral profiles, microbiome health, trait accumulation, coupling mode)\n2. Add new fleet-level stations (photonic field, spectral diversity, group meditation, mode transitions)\n3. Implement station plugin system (JS modules, auto-discovery)\n4. Stub new agentd API endpoints with mock data (real data arrives in Phase 4+)\n5. Move compositor code from ops-agent repo into meshd codebase\n6. Execute dissolution checklist (lcars-change-manifest.md bottom section)\n\nNaming convention: cognitive science terms primary. Neuroscience in tooltips. See manifest for examples.\n\nTimeline: complete before agentd Phase 6 (estimated 10-15 sessions from now). No rush — do it right.",
+    "references": [
+      "docs/lcars-change-manifest.md",
+      "docs/agentd-implementation-roadmap.md",
+      "docs/agentd-design-session95.md"
+    ]
+  },
+  "action_gate": {
+    "gate_condition": "ops-session reads manifest and acknowledges",
+    "gate_status": "open"
+  },
+  "epistemic_flags": [
+    "Design spec apophatically audited (8 overshoots caught, 1 dropped)",
+    "Some API endpoints depend on agentd phases not yet implemented — mock data acceptable",
+    "ops-agent dissolution is irreversible once transport sessions archived"
+  ]
+}
