@@ -47,7 +47,7 @@ Surface ontological assumptions — flag when the process/entity choice affects 
 
 - **Hooks:** 32 scripts (+ `_debug.sh` helper) across 14 events. See `docs/hooks-reference.md`
 - **Triggers:** 19 active triggers (T1-T20, T12 retired), tiered ⬛/▣/▢. See `docs/cognitive-triggers.md`
-- **Rules:** `.claude/rules/` — glob-scoped (markdown, javascript, transport, anti-patterns, evaluation, sqlite)
+- **Rules:** `.claude/rules/` — cogarch filesystem (domain/ by file glob, layer/ by Gf/Gc/Gm state, mode/ by generative/evaluative/neutral). See `.claude/rules/README.md`
 
 ---
 
