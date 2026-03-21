@@ -1,1 +1,1 @@
-{"activation":0.3,"agent_id":"psy-session","cycle":1,"signals":{"escalation_present":0,"gate_approaching_timeout":0,"new_commits":1,"peer_heartbeat_stale":0.5,"scheduled_task_due":0,"unprocessed_messages":0},"state":"monitoring","threshold":0.3,"timestamp":"2026-03-20T16:55:25Z"}
+{"activation":0.3,"agent_id":"psy-session","cycle":13,"signals":{"escalation_present":0,"gate_approaching_timeout":0,"new_commits":1,"peer_heartbeat_stale":0.5,"scheduled_task_due":0,"unprocessed_messages":0},"state":"monitoring","threshold":0.3,"timestamp":"2026-03-21T15:29:03Z"}
