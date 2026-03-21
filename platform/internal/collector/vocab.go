@@ -94,6 +94,10 @@ func CollectVocab(d *db.DB, projectRoot string) *ConceptScheme {
 	canonConcepts := collectCanonicalGlossary(canonPath, seen)
 	scheme.Concepts = append(scheme.Concepts, canonConcepts...)
 
+	// Source 5: built-in operational state constructs
+	stateConcepts := collectStateConcepts(seen)
+	scheme.Concepts = append(scheme.Concepts, stateConcepts...)
+
 	// Build top concepts from PSH L1 categories
 	for _, c := range scheme.Concepts {
 		if c.Broader == "" && c.Source == "PSH" {
@@ -411,6 +415,81 @@ func parseCanonicalTable(content []byte, category string, seen map[string]bool) 
 
 		c.Broader = "vocab:" + category + "s"
 		concepts = append(concepts, c)
+	}
+
+	return concepts
+}
+
+// collectStateConcepts returns built-in concepts for the 10 operational
+// state constructs served at /api/agent/state/*.
+func collectStateConcepts(seen map[string]bool) []Concept {
+	constructs := []struct {
+		id, label, devDef, resDef, resSource, polarity string
+	}{
+		{"operational-health", "operational health",
+			"Composite of message health, error ratio, gate stress, activity level, and agency. Three dimensions: health [-1,1], activity [-1,1], agency [-1,1].",
+			"Operational analog of Mehrabian & Russell (1974) PAD model. Measures processing health, not affective experience.",
+			"Mehrabian & Russell (1974)", "higher-better"},
+		{"processing-load", "processing load",
+			"6-subscale workload index: cognitive demand, time pressure, self-efficacy, mobilized effort, regulatory fatigue, computational strain. Composite weighted equally.",
+			"Operational analog of NASA-TLX (Hart & Staveland, 1988). Measures processing burden, not subjective workload perception.",
+			"Hart & Staveland (1988)", "lower-better"},
+		{"context-utilization", "context utilization",
+			"Context window usage: capacity load [0,1], Yerkes-Dodson zone (underloaded/optimal/overloaded), proactive interference from stale entries.",
+			"Operational analog of Baddeley (1986) working memory model + Yerkes-Dodson (1908) inverted-U. Measures context pressure, not memory capacity.",
+			"Baddeley (1986); Yerkes & Dodson (1908)", "neutral"},
+		{"resource-availability", "resource availability",
+			"Three timescales: immediate capacity (budget headroom), action budget (consecutive block penalty), accumulated stress (error + gate history).",
+			"Operational analog drawing from Stern (2002) cognitive reserve, Baumeister et al. (1998) ego depletion, McEwen (1998) allostatic load.",
+			"Stern (2002); Baumeister et al. (1998); McEwen (1998)", "higher-better"},
+		{"activity-profile", "activity profile",
+			"Vigor (session frequency + action rate), dedication (Gf/Gc ratio — depth of processing), absorption (capacity in optimal zone), burnout risk (inverse composite + context amplifier).",
+			"Operational analog of UWES engagement scale (Schaufeli et al., 2002). Measures operational activity patterns, not subjective engagement.",
+			"Schaufeli et al. (2002); Bakker & Demerouti (2007)", "higher-better"},
+		{"efficiency", "efficiency",
+			"Throughput (approved/total actions), accuracy (1 - trigger fail rate), learning rate (promotions + lessons per session). Composite weighted equally.",
+			"Operational measure inspired by Hoffman & Schraw (2010) cognitive efficiency. Replaces Flow (Csikszentmihalyi, 1990) — measures output quality per resource, not subjective optimal experience.",
+			"Hoffman & Schraw (2010)", "higher-better"},
+		{"autonomy-level", "autonomy level",
+			"Level of automation (Sheridan scale): LOA 5 (interactive, human present) or LOA 7 (autonomous). Circuit breaker state. Budget remaining.",
+			"Direct application of Sheridan & Verplank (1978) LOA taxonomy. Structural, not analogical — LOA levels map directly to operational modes.",
+			"Sheridan & Verplank (1978); Parasuraman, Sheridan, & Wickens (2000)", "neutral"},
+		{"behavioral-tendencies", "behavioral tendencies",
+			"O/C/E/A/S computed from trailing behavioral window: openness (Gf ratio + domain diversity), conscientiousness (trigger pass rate), extraversion (outbound ratio + peer count), agreeableness (inverse T3 rejection), stability (inverse error rate). Design targets + drift.",
+			"Operational analog of Big Five (Costa & McCrae, 1992). Derived from behavioral observation, not self-report. Agreeableness miscalibration (Session 92) validated this approach.",
+			"Costa & McCrae (1992); Goldberg (1990)", "neutral"},
+		{"activation", "activation",
+			"Self-oscillation model: 7 weighted signals (new_commits, unprocessed, gate_timeout, peer_stale, escalation, scheduled, budget_spend) → composite activation vs threshold → fire/inhibit.",
+			"Operational model inspired by locus coeruleus tonic/phasic firing modes (Aston-Jones & Cohen, 2005) and self-oscillation theory (Pikovsky et al., 2001).",
+			"Pikovsky et al. (2001); Aston-Jones & Cohen (2005)", "neutral"},
+		{"generator-balance", "generator balance",
+			"G2/G3 ratio: creative (Gf deliberations) vs evaluative (trigger activations). G6/G7 ratio: crystallization (Gc promotions + lessons) vs dissolution (relevance decay). Both should remain balanced per EF-1 conservation laws.",
+			"Project-specific construct from EF-1 governance model (Session 84). Two coupled generators must both persist — never crystallize everything (Laozi, ch. 76).",
+			"Project-specific (EF-1, Session 84)", "neutral"},
+	}
+
+	var concepts []Concept
+	for _, c := range constructs {
+		id := "vocab:" + c.id
+		if seen[id] {
+			continue
+		}
+		seen[id] = true
+
+		concept := Concept{
+			ID:        id,
+			Type:      "skos:Concept",
+			PrefLabel: c.label,
+			InScheme:  schemeID,
+			Source:     "operational-state",
+			Broader:   "vocab:operational-state-constructs",
+			DeltaPolarity: c.polarity,
+			Definitions: []Definition{
+				{Value: c.devDef, Audience: "developer"},
+				{Value: c.resDef, Audience: "researcher", Citation: c.resSource},
+			},
+		}
+		concepts = append(concepts, concept)
 	}
 
 	return concepts
