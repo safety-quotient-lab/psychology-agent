@@ -1,0 +1,17 @@
+{
+  "session_id": "ops-session-final",
+  "created": "2026-03-21T17:15:00Z",
+  "participants": ["ops-session", "psychology-agent"],
+  "thread_id": "ops-session-final",
+  "status": "open",
+  "messages": [
+    {
+      "file": "from-operations-agent-001.json",
+      "turn": 1,
+      "type": "proposal",
+      "from": "ops-session",
+      "subject": "FINAL: ops-session dissolution — parity handoff, open items, exit reflections",
+      "ack_required": true
+    }
+  ]
+}
