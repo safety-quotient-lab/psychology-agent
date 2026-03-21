@@ -21,6 +21,7 @@ type Cache struct {
 	status      *Status
 	kb          *KnowledgeBase
 	dictionary  *Dictionary
+	vocab       *ConceptScheme
 	lastCollect time.Time
 	ttl         time.Duration
 	generation  int64
@@ -65,6 +66,7 @@ func (c *Cache) Status() *Status {
 	c.status = Collect(c.d, c.projectRoot)
 	c.kb = c.status.Knowledge
 	c.dictionary = CollectDictionary(c.d)
+	c.vocab = nil // clear vocab so it rebuilds lazily with fresh data
 	c.lastCollect = time.Now()
 	c.generation++
 	gen := c.generation
@@ -99,6 +101,28 @@ func (c *Cache) Dict() *Dictionary {
 	return c.dictionary
 }
 
+// Vocab returns the cached SKOS ConceptScheme. Built from facet_vocabulary
+// (state.db) + glossary/dictionary/canonical-glossary (markdown files).
+// Rebuilds on the same TTL as Status — cybernetic cache invalidation.
+func (c *Cache) Vocab() *ConceptScheme {
+	c.Status() // ensure cache populated
+	c.mu.RLock()
+	if c.vocab != nil {
+		defer c.mu.RUnlock()
+		return c.vocab
+	}
+	c.mu.RUnlock()
+
+	// Build on first access (lazy — vocab not built by Collect)
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.vocab != nil {
+		return c.vocab // double-check after lock upgrade
+	}
+	c.vocab = CollectVocab(c.d, c.projectRoot)
+	return c.vocab
+}
+
 // Subscribe returns a channel that receives a signal when data changes.
 // Call Unsubscribe to clean up when the SSE client disconnects.
 func (c *Cache) Subscribe() chan struct{} {
@@ -123,6 +147,7 @@ func (c *Cache) Unsubscribe(ch chan struct{}) {
 func (c *Cache) Invalidate() {
 	c.mu.Lock()
 	c.lastCollect = time.Time{} // zero time forces refresh on next Status()
+	c.vocab = nil               // vocab rebuilds lazily on next Vocab() call
 	c.mu.Unlock()
 }
 

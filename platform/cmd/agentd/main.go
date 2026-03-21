@@ -187,6 +187,10 @@ func serveCmd(args []string) {
 	mux.HandleFunc("/kb/epistemic", handlers.APIKBEpistemic(cache))
 	mux.HandleFunc("/kb/catalog", handlers.APIKBCatalog(cache))
 	mux.HandleFunc("/kb/memory", handlers.APIKBMemory(cache))
+
+	// Vocabulary concept scheme (SKOS JSON-LD)
+	mux.HandleFunc("/vocab/v1.0.0.jsonld", handlers.VocabScheme(cache))
+	mux.HandleFunc("/vocab/latest.jsonld", handlers.VocabScheme(cache))
 	mux.HandleFunc("/kb/dictionary", handlers.APIKBDictionary(cache))
 
 	// SSE stream
