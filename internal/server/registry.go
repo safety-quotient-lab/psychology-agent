@@ -125,9 +125,10 @@ func (r *AgentRegistry) Agents() []AgentInfo {
 
 	out := make([]AgentInfo, 0, len(r.agents))
 	for _, a := range r.agents {
-		if a.ID != r.selfID {
-			out = append(out, a)
+		if a.ID == "" || a.ID == r.selfID {
+			continue
 		}
+		out = append(out, a)
 	}
 	return out
 }
