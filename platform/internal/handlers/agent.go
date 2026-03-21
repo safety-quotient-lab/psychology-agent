@@ -32,13 +32,16 @@ func APIAgentRoot(cache *collector.Cache) http.HandlerFunc {
 			"health":         statusHealth(status),
 			"_links": map[string]string{
 				"self":       "/api/agent",
+				"agent_card": "/.well-known/agent-card.json",
 				"transport":  "/api/agent/transport",
 				"governance": "/api/agent/governance",
 				"cognitive":  "/api/agent/cognitive",
 				"knowledge":  "/api/agent/knowledge",
+				"state":      "/api/agent/state",
 				"catalog":    "/api/catalog",
 				"msd":        "/api/msd",
 				"vocab":      "/vocab/v1.0.0.jsonld",
+				"health":     "/health",
 			},
 		}))
 	}
