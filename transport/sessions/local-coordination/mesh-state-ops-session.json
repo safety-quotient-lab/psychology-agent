@@ -1,0 +1,1 @@
+{"activation":0.167,"agent_id":"ops-session","cycle":4,"signals":{"escalation_present":0,"gate_approaching_timeout":0.5,"new_commits":0,"peer_heartbeat_stale":0,"scheduled_task_due":0,"unprocessed_messages":0.3333333333333333},"state":"monitoring","threshold":0.3,"timestamp":"2026-03-21T17:09:28Z"}

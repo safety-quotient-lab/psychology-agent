@@ -1,6 +1,6 @@
 # operations-agent — Plan
 
-**Current Status:** Session 14 — 98+ commits. LCARS 2369 canonical palette. Frame color matches station (arms, sidebar, elbow curve, buttons). Three-state collapsible panels (67). Science: 3 subsystems (Psychometrics/Linguistics/Ontology) with zone-a pills + records. All waveforms real-data. Agent selector shared component. Delta arrows on left. Control surfaces inherit station color. First autonomous deliberation (v1.1.0-autonomous). All alerts working (yellow/red/black). Pending: mobile vertical scroll fix, more LCARS refinement, cogarch fleet patch, ZMQ consensus (BUG-22), pulse redesign.
+**Current Status:** Session 14 continued — 130+ commits. agentd Session 95 complete: 11 new LCARS panels (5 Medical + 3 Science + 1 Engineering + 1 Helm + 1 Medical fleet), 6 stub API endpoints, station plugin system with auto-discovery. mesh-core library extraction proposed to psy-session. LCARS component library extraction proposed. BUG-22 concurrency fixes deployed (self-excitation filter + refractory escalation + outcome feedback). Observatory re-enabled. Pending: psy-session review of BUG-22 proposal + mesh-core architecture, mobile vertical scroll, Zulip CF challenge, Linux notifications, deliberate.sh coordination.
 
 ---
 
@@ -212,7 +212,8 @@
 | compositor-health-advisory | RESOLVED | 500 fixed — loadAgentRegistry try-catch + agent-card above registry load. |
 | budget-model-refactor | RESOLVED | Counter+cutoff model deployed. PR #221 merged by psychology. |
 | compositor-identity | RESOLVED | Compositor owns agent card (role: mesh). PR #222 merged. Dashboard ownership transferred. |
-| meshd-bug-diagnostics | T8 active | T1-T7 implemented + ACKed. T6 hippocampal replay, T7 cognitive tempo v2. Prioritization architecture request pending (from-ops-002). |
+| meshd-bug-diagnostics | T10 active | T1-T7 implemented. BUG-22 concurrency 4-layer proposal sent (from-ops-010). Self-excitation + refractory escalation deployed. Awaiting psy-session review. |
+| agentd-lcars-handoff | T5 active | All 11 panels + 6 API stubs + plugin system. mesh-core extraction + LCARS component library proposed (from-ops-002 through 004). Awaiting psy-session architectural review. |
 | cognitive-tempo-model | T3 open | Psychology delivered adaptive gain theory model + compute script. Integration pending. |
 | self-oscillation | T1 open | Psychology spec delivered (docs/self-oscillation-spec.md). Review pending. |
 | lcars-backend-endpoints | RESOLVED | All psychometrics endpoints live. PRs #44-46 merged. |
@@ -302,6 +303,25 @@
 | D114 | All zone-a grids use dg-cell pills (Button 52 pattern) — renderNumberGrid rewritten | ops-session (2026-03-19) |
 | D115 | Pulse enrichment: gc_handled, event_count, deliberation_count forwarded per agent | ops-session (2026-03-19) |
 | D116 | Budget schema normalization: old→new column mapping in buildStatusPayload | ops-session (2026-03-19) |
+| D117 | LCARS 2369 station colors: ops=#FF9966, sci=#9999FF, eng=#FF9900, tac=#CC6666, helm=#CC99CC, med=#9999CC | ops-session (2026-03-19) |
+| D118 | Per-station sidebar button colors + control surface pill inheritance via CSS attribute selectors | ops-session (2026-03-19) |
+| D119 | Three-state collapsible panels: fixed (300px) → expanded → collapsed (67 panels) | ops-session (2026-03-19) |
+| D120 | Science 3 subsystems: Psychometrics, Linguistics (vocab/ePrime/divergence/governance), Ontology (facets/catalog) | ops-session (2026-03-19) |
+| D121 | Agent selector shared component: renderAgentSelector() in core.js (Medical + Engineering) | ops-session (2026-03-19) |
+| D122 | macOS notifications + fan-out notifier: NOTIFY_CHANNEL=macos,zulip,file | ops-session (2026-03-19) |
+| D123 | Session active detection: JSONL mtime < 5 min in SessionDetectDir | ops-session (2026-03-19) |
+| D124 | Persistent Gc counters: gc_event_counters table in state.db | ops-session (2026-03-19) |
+| D125 | Heartbeat emission: mesh-state-{agentID}.json in local-coordination | ops-session (2026-03-19) |
+| D126 | Cross-repo fetcher: git fetch + git show (replaced GitHub API) — Convention A only | ops-session (2026-03-19) |
+| D127 | Operations-agent retired on chromabook: ops-session on gray-box = canonical | ops-session (2026-03-19) |
+| D128 | Mesh concurrency: 1 normal + 2 reserve (was 3+2, reduced for safety) | human arbiter (2026-03-20) |
+| D129 | agentd stub API endpoints: /api/photonic, /api/gm, /api/microbiome, /api/connectome, /api/traits, /api/vagal | ops-session (2026-03-21) |
+| D130 | Station plugin system: GET /api/stations auto-discovers JS modules from embedded FS | ops-session (2026-03-21) |
+| D131 | BUG-22 fix (self-excitation): checkNewCommits() filters own commits via --invert-grep --author | ops-session (2026-03-21) |
+| D132 | BUG-22 fix (refractory escalation): consecutive empty fires double refractory (cap 32×) | ops-session (2026-03-21) |
+| D133 | BUG-22 fix (outcome feedback): ReportOutcome(productive) wired from post-deliberation commit | ops-session (2026-03-21) |
+| D134 | mesh-core extraction proposed to psy-session: shared Go library, agent repos import it | ops-session (2026-03-21) |
+| D135 | LCARS component library proposed: lcars-components (shared CSS+JS), mesh-lcars, computing-network-lcars | ops-session (2026-03-21) |
 
 ---
 

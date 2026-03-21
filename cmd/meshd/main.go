@@ -169,6 +169,9 @@ func main() {
 	deliberator.MaxConcurrent = cfg.MaxConcurrent
 	deliberator.Timeout = time.Duration(cfg.SpawnTimeout) * time.Second
 
+	// BUG-22: outcome feedback closure — set after oscillator creation.
+	var reportOutcome func(productive bool)
+
 	// Dispatcher — routes events from queue → budget check → deliberator
 	dispatcher := events.NewDispatcher(
 		queue,
@@ -251,8 +254,10 @@ func main() {
 			// BUG-19 fix: hippocampal consolidation — commit deliberation output.
 			// Without this, file changes from claude -p sit uncommitted and
 			// evaporate on restart/deploy. (Wilson & McNaughton 1994 — consolidation)
+			productive := false
 			statusCmd := exec.Command("git", "-C", cfg.RepoRoot, "status", "--porcelain")
 			if statusOut, err := statusCmd.Output(); err == nil && len(strings.TrimSpace(string(statusOut))) > 0 {
+				productive = true
 				exec.Command("git", "-C", cfg.RepoRoot, "add", "-A").Run()
 				commitMsg := fmt.Sprintf("autonomous: deliberation %s (%s)", req.Event.ID[:12], deliberationStatus)
 				exec.Command("git", "-C", cfg.RepoRoot, "commit", "-m", commitMsg).Run()
@@ -262,6 +267,12 @@ func main() {
 					exec.Command("git", "-C", cfg.RepoRoot, "push").Run()
 				}
 				logger.Info("post-deliberation commit", "event_id", req.Event.ID)
+			}
+
+			// BUG-22 fix: report outcome to oscillator for refractory escalation.
+			// Non-productive fires escalate refractory period (habituation).
+			if reportOutcome != nil {
+				reportOutcome(productive)
 			}
 
 			// Broadcast deliberation completion to mesh via ZMQ — include result summary
@@ -534,6 +545,8 @@ func main() {
 		logger.Info("oscillator fired → deliberation dispatched", "tier", tier)
 	}
 	srv.Oscillator = osc
+	// BUG-22: wire outcome feedback from deliberation handler to oscillator.
+	reportOutcome = osc.ReportOutcome
 	osc.Start()
 	logger.Info("oscillator started", "agent_id", cfg.AgentID)
 

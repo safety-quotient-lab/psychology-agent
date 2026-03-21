@@ -61,6 +61,10 @@ type FireEvent struct {
 // Receives the recommended tier (haiku/sonnet/opus).
 type DeliberationFunc func(tier string)
 
+// maxRefractoryMultiplier caps refractory escalation (BUG-22).
+// After 5 consecutive empty fires: base × 2^5 = base × 32, capped at 30 min.
+const maxRefractoryMultiplier = 32
+
 type Oscillator struct {
 	mu               sync.RWMutex
 	agentID          string
@@ -73,6 +77,10 @@ type Oscillator struct {
 	// OnFire connects the oscillator's fire decision to the deliberation
 	// handler (BUG-21). Without this, oscillator fires into the void.
 	OnFire           DeliberationFunc
+
+	// BUG-22 fix: refractory escalation for consecutive non-productive fires.
+	// Each empty fire doubles the refractory period. Productive fire resets to 1.
+	consecutiveEmptyFires int
 }
 
 // NewOscillator creates an oscillator. Shadow mode controlled by SetSleepMode().
@@ -98,6 +106,19 @@ func (o *Oscillator) SetSleepMode(enabled bool) {
 	o.mu.Lock()
 	defer o.mu.Unlock()
 	o.state.SleepMode = enabled
+}
+
+// ReportOutcome provides feedback on whether a deliberation produced changes.
+// BUG-22 fix: consecutive non-productive fires escalate refractory period.
+// Neural analog: habituation — repeated non-reinforced stimuli lose salience.
+func (o *Oscillator) ReportOutcome(productive bool) {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	if productive {
+		o.consecutiveEmptyFires = 0
+	} else {
+		o.consecutiveEmptyFires++
+	}
 }
 
 // Start launches the oscillator goroutine. Safe to call once.
@@ -201,8 +222,14 @@ func (o *Oscillator) cycle() {
 		tier := tierResult.RecommendedTier
 		o.state.LastTier = tier
 
-		// Refractory period based on tier
+		// Refractory period based on tier, escalated by consecutive empty fires (BUG-22).
+		// Each empty fire doubles the refractory. Caps at maxRefractoryMultiplier × base.
 		refractorySec := computeRefractory(tier)
+		multiplier := 1 << o.consecutiveEmptyFires // 2^N
+		if multiplier > maxRefractoryMultiplier {
+			multiplier = maxRefractoryMultiplier
+		}
+		refractorySec *= multiplier
 		o.refractoryUntil = time.Now().Add(time.Duration(refractorySec) * time.Second)
 
 		// Record in fire history (keep last 20)
@@ -378,20 +405,41 @@ func (o *Oscillator) dominantSignal(signals map[string]float64) string {
 
 func (o *Oscillator) checkNewCommits() float64 {
 	// BUG-8 fix: timeout prevents SSH stall from blocking the entire oscillator cycle.
-	// Without timeout, git fetch can hang 60-120s when SSH to github.com stalls,
-	// holding the mutex and causing /api/oscillator to return 0 bytes.
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
+	// Fast path: dry-run check for any new commits on remotes.
 	cmd := exec.CommandContext(ctx, "git", "-C", o.projectRoot, "fetch", "--dry-run", "--all")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return 0.0
 	}
 	text := string(out)
-	if strings.Contains(text, "From") && strings.Contains(text, "->") {
-		return 1.0
+	if !strings.Contains(text, "From") || !strings.Contains(text, "->") {
+		return 0.0
 	}
-	return 0.0
+
+	// BUG-22 fix: self-excitation filter.
+	// New commits detected — do a real fetch, then check if any come from
+	// someone other than this agent. Own autonomous commits represent motor
+	// output, not sensory input — they should not re-trigger activation.
+	ctx2, cancel2 := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel2()
+	exec.CommandContext(ctx2, "git", "-C", o.projectRoot, "fetch", "--all", "--prune").Run()
+
+	// Count non-self commits on origin/main since HEAD.
+	ctx3, cancel3 := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel3()
+	cmd2 := exec.CommandContext(ctx3, "git", "-C", o.projectRoot, "log",
+		"--oneline", "--invert-grep", "--author="+o.agentID,
+		"HEAD..origin/main")
+	out2, _ := cmd2.Output()
+	lines := strings.TrimSpace(string(out2))
+	if lines == "" {
+		return 0.0 // all new commits from self — suppress
+	}
+	count := len(strings.Split(lines, "\n"))
+	return math.Min(1.0, float64(count)/3.0)
 }
 
 func (o *Oscillator) checkUnprocessedMessages() float64 {
