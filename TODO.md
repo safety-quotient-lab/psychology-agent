@@ -100,9 +100,10 @@ New items from the full cogarch evaluation (`docs/cogarch-evaluation-session85.m
   modular sub-phases. Each phase independently invocable.
   *Effort: M. Structural refactoring — dedicated session recommended.*
 
-- [ ] **autonomous-sync.sh concern separation** — 1100+ lines orchestrating
-  15 concerns. Extract into composable modules.
-  *Effort: L. Structural — dedicated session.*
+- [x] **autonomous-sync.sh concern separation** — SUPERSEDED (Session 95).
+  agentd replaces autonomous-sync.sh entirely. 20 Go packages, ~4600 lines.
+  Phases 1-5 complete. Phase 6 (dashboard) + Phase 7 (cleanup) remain.
+  Full spec: `docs/agentd-design-session95.md`. Roadmap: `docs/agentd-implementation-roadmap.md`.
 
 - [ ] **Cross-agent RPG** — extend /retrospect to scan peer transport for
   mesh-level patterns invisible to single-agent retrospectives.

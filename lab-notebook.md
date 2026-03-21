@@ -6376,3 +6376,63 @@ photonic + basal ganglia + OODA + CPG). 5 findings surfaced.
   peer_heartbeat_stale=0.5 on gray-box (Chromabook fixed: 0.0)
 - autonomous-sync.sh concern separation deferred to next session (1100+ lines,
   15 concerns — requires fresh context)
+
+
+## 2026-03-21T12:39 CDT — Session 95 (agentd cognitive architecture — design + implementation + ops dissolution)
+
+Largest session in project history. Started: "refactor autonomous-sync.sh."
+Ended: complete cognitive architecture redesign + 20 Go packages implemented.
+
+**Design (1330-line spec: `docs/agentd-design-session95.md`):**
+- meshd retires as per-agent daemon. agentd absorbs everything. meshd survives
+  as fleet-only LCARS aggregator.
+- 11 generators (G1-G11): adversarial, generative, convergent, metacognitive,
+  error monitoring, schema formation, schema revision, interference/decay,
+  shared mental model, cognitive specialization, self-regulation.
+- 3 cognitive layers: Gf (fluid), Gc (crystallized), Gm (autonomic cognition,
+  5 narrow abilities: procedural, regulatory, integrity, waste clearance,
+  connection optimization).
+- 5 agent states: active, DMN, sleep, sedated, dead.
+- 9 coupling modes replace CPG mode system.
+- Photonic spectral coding: neurotransmitter autofluorescence (DA/NE/5-HT).
+  Reception grounded (OPN3 opsins, Guanglan 2022 backpropagation paper).
+  Feedback loop: observe peer coherence change → connectome weight adjustment.
+- Holobiont model: Claude API = cognitive symbiont. Autopoietic boundary defined.
+- Scale invariance: PhotonicEmitter interface at trigger/agent/submesh/fleet.
+- VSM (Beer 1972) mapping: all 5 systems present.
+- Dual grounding: cognitive science primary, neuroscience + cybernetics supporting.
+- Vagal cascade (Austin 1998): master tempo propagates through 7 levels.
+- Austin integration: self-referential/object-centered frames, trait accumulation
+  (Fitts & Posner), remindfulness (automatic Gc recall).
+- Apophatic audit: 8 overshoots caught, 1 dropped (Gm-c predictive completion).
+- Three-register naming (cognitive science primary).
+- Process S sleep onset (Process C tracking-only for v1).
+
+**Implementation (20 Go packages, ~4600 lines):**
+- Phase 1: db/ (write methods), migrate/, connection/ (interface + HTTP), cmd/agentd/
+- Phase 2: oscillator/ (5 states, 9 modes, activation, coherence), syncer/, budget/, triage/
+- Phase 3: heartbeat/, orientation/ (Go native), crossrepo/ (Go native), zmq_neuromod/, git/
+- Phase 4: photonic/ (coherence 7-input, spectral, emitter, feedback loop)
+- Phase 5: sleep/ (Process S, NREM/REM, glymphatic), immune/ (innate: TLR/complement/state), mesh/ (recursive, emergent, Hebbian)
+- 18/18 integration tests pass. Dashboard renders clean (0 template errors).
+
+**ops-session dissolution:**
+- PR #241: Phase 6 LCARS accepted (11/11 deliverables pass).
+- PR #242: Final handoff merged. Exit interview witnessed.
+- Proposals: mesh-core extraction (accepted, deferred post-v1), LCARS component
+  library (accepted, deferred).
+- BUG-22 mitigations applied from exit audit: self-excitation filter, cost
+  awareness, adaptive triage (gc_learning).
+
+**Artifacts:** docs/agentd-design-session95.md, docs/agentd-implementation-roadmap.md,
+docs/lcars-change-manifest.md, 20 Go packages in platform/internal/ + platform/cmd/agentd/,
+7 transport messages across 2 sessions, 4 memory files.
+
+▶ docs/agentd-design-session95.md (full spec), docs/agentd-implementation-roadmap.md (phases)
+
+⚑ EPISTEMIC FLAGS
+- Orch-OR sedation cascade: working framework, not consensus
+- Photonic reception: proposed with candidates, not experimentally closed
+- Gm (autonomic cognition): novel CHC extension coined by this project
+- Scale invariance: validated architecturally, implementation may reveal differences
+- Trait accumulation: partially observed, measurement tables deployed
