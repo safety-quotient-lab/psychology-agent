@@ -22,6 +22,7 @@ type Status struct {
 	SchemaVersion  int                       `json:"schema_version"`
 	AutonomyBudget map[string]any            `json:"autonomy_budget"`
 	PendingHandoffs []map[string]any         `json:"pending_handoffs"`
+	ActiveGates     []map[string]any         `json:"active_gates"` // template alias for PendingHandoffs
 	Unprocessed    []map[string]any          `json:"unprocessed_messages"`
 	RecentMessages []map[string]any          `json:"recent_messages"`
 	RecentActions  []map[string]any          `json:"recent_actions"`
@@ -50,10 +51,11 @@ type RegistryInfo struct {
 
 // Totals holds aggregate counts.
 type Totals struct {
-	Messages           int `json:"messages"`
-	Sessions           int `json:"sessions"`
-	Unprocessed        int `json:"unprocessed"`
-	PendingHandoffs    int `json:"pending_handoffs"`
+	Messages            int `json:"messages"`
+	Sessions            int `json:"sessions"`
+	Unprocessed         int `json:"unprocessed"`
+	PendingHandoffs     int `json:"pending_handoffs"`
+	ActiveGates         int `json:"active_gates"` // template alias for PendingHandoffs
 	EpistemicUnresolved int `json:"epistemic_flags_unresolved"`
 }
 
@@ -246,6 +248,7 @@ func Collect(d *db.DB, projectRoot string) *Status {
 		SchemaVersion:  schemaVer,
 		AutonomyBudget: budgetRow,
 		PendingHandoffs: gates,
+		ActiveGates:     gates,
 		Unprocessed:    unprocessed,
 		RecentMessages: recent,
 		RecentActions:  actions,
@@ -254,10 +257,11 @@ func Collect(d *db.DB, projectRoot string) *Status {
 		RegistryAgents: registryAgents,
 		RemoteStates:   remoteStates,
 		Totals: Totals{
-			Messages:           totalMessages,
-			Sessions:           totalSessions,
-			Unprocessed:        len(unprocessed),
-			PendingHandoffs:    len(gates),
+			Messages:            totalMessages,
+			Sessions:            totalSessions,
+			Unprocessed:         len(unprocessed),
+			PendingHandoffs:     len(gates),
+			ActiveGates:         len(gates),
 			EpistemicUnresolved: epistemicFlags,
 		},
 		Heartbeat:   heartbeat,
