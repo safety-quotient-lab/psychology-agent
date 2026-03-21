@@ -199,6 +199,26 @@ func serveCmd(args []string) {
 	mux.HandleFunc("/api/neural", handlers.APINeural(roDB))
 	mux.HandleFunc("/kb/dictionary", handlers.APIKBDictionary(cache))
 
+	// ── REST API hierarchy (/api/agent/*) ──────────────────────────
+	// Strict REST routes — old /kb/* routes preserved for fleet LCARS
+	mux.HandleFunc("/api/agent", handlers.APIAgentRoot(cache))
+	// Transport
+	mux.HandleFunc("/api/agent/transport", handlers.APIAgentTransport(cache))
+	mux.HandleFunc("/api/agent/transport/messages", handlers.APIAgentTransportMessages(cache))
+	// Governance
+	mux.HandleFunc("/api/agent/governance", handlers.APIAgentGovernance(cache))
+	mux.HandleFunc("/api/agent/governance/decisions", handlers.APIAgentGovernanceDecisions(cache))
+	mux.HandleFunc("/api/agent/governance/triggers", handlers.APIAgentGovernanceTriggers(cache))
+	// Cognitive
+	mux.HandleFunc("/api/agent/cognitive", handlers.APIAgentCognitive(cache, roDB))
+	mux.HandleFunc("/api/agent/cognitive/neural", handlers.APIAgentCognitiveNeural(roDB))
+	// Knowledge
+	mux.HandleFunc("/api/agent/knowledge", handlers.APIAgentKnowledge(cache))
+	mux.HandleFunc("/api/agent/knowledge/claims", handlers.APIAgentKnowledgeClaims(cache))
+	mux.HandleFunc("/api/agent/knowledge/lessons", handlers.APIAgentKnowledgeLessons(cache))
+	mux.HandleFunc("/api/agent/knowledge/epistemic", handlers.APIAgentKnowledgeEpistemic(cache))
+	mux.HandleFunc("/api/agent/knowledge/memory", handlers.APIAgentKnowledgeMemory(cache))
+
 	// SSE stream
 	mux.HandleFunc("/events", handlers.Events(cache))
 
@@ -261,7 +281,7 @@ func serveCmd(args []string) {
 	// Photonic API — live spectral + coherence data
 	spectralComp := photonic.NewSpectralComputer(roDB)
 	coherenceComp := photonic.NewCoherenceComputer(roDB)
-	mux.HandleFunc("/api/photonic", func(w http.ResponseWriter, r *http.Request) {
+	photonicHandler := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/ld+json")
 		handlers.SetCORS(w, r)
 		spectral := spectralComp.Compute()
@@ -282,9 +302,10 @@ func serveCmd(args []string) {
 				"ne_pattern":    spectral.NEPattern,
 			},
 		})
-	})
+	}
+	mux.HandleFunc("/api/photonic", photonicHandler)
 
-	mux.HandleFunc("/api/oscillator", func(w http.ResponseWriter, r *http.Request) {
+	oscillatorHandler := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/ld+json")
 		handlers.SetCORS(w, r)
 		json.NewEncoder(w).Encode(map[string]any{
@@ -296,7 +317,12 @@ func serveCmd(args []string) {
 			"coupling_mode": osc.CouplingMode().String(),
 			"coherence":     osc.Coherence(),
 		})
-	})
+	}
+	mux.HandleFunc("/api/oscillator", oscillatorHandler)
+
+	// REST aliases for cognitive sub-resources
+	mux.HandleFunc("/api/agent/cognitive/photonic", photonicHandler)
+	mux.HandleFunc("/api/agent/cognitive/oscillator", oscillatorHandler)
 
 	// MSD — cognitive architecture dependency tree with live values
 	mux.HandleFunc("/api/msd", handlers.APIMSD(cache, roDB, osc, spectralComp, coherenceComp))
