@@ -32,6 +32,7 @@ import (
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/db"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/handlers"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/migrate"
+	"github.com/safety-quotient-lab/psychology-agent/platform/internal/oscillator"
 )
 
 func main() {
@@ -205,6 +206,24 @@ func serveCmd(args []string) {
 		dashboard(w, r)
 	})
 
+	// Oscillator (self-oscillation activation model)
+	oscConfig := oscillator.DefaultConfig(root)
+	osc := oscillator.New(oscConfig, database)
+
+	// FireFunc: what happens when the oscillator fires.
+	// Phase 2: this invokes the full sync cycle (claude -p /sync).
+	// For now: log the fire event.
+	osc.FireFunc = func(ctx context.Context) error {
+		log.Printf("[agentd] oscillator fired — sync cycle would run here (Phase 2)")
+		// TODO Phase 2: syncer.RunSync(ctx, database, root)
+		return nil
+	}
+
+	// Start oscillator in background
+	oscCtx, oscCancel := context.WithCancel(context.Background())
+	defer oscCancel()
+	go osc.Run(oscCtx)
+
 	// agentd-specific API endpoints (new — stubs for Phase 4+)
 	mux.HandleFunc("/api/photonic", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -220,9 +239,9 @@ func serveCmd(args []string) {
 	mux.HandleFunc("/api/oscillator", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]any{
-			"coupling_mode": "task-directed", "activation_level": 0.0,
-			"phase": 0.0, "refractory": false,
-			"note": "stub — real data arrives in Phase 2",
+			"state":         osc.State().String(),
+			"coupling_mode": osc.CouplingMode().String(),
+			"coherence":     osc.Coherence(),
 		})
 	})
 
