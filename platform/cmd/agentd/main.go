@@ -196,10 +196,10 @@ func serveCmd(args []string) {
 	mux.HandleFunc("/replays/remote/", handlers.RemoteReplay(root))
 	mux.HandleFunc("/replays/", handlers.LocalReplay(root))
 
-	// Dashboard (root + /obs)
-	dashboard := handlers.ObsDashboard(cache, tmpl)
-	mux.HandleFunc("/obs", dashboard)
-	mux.HandleFunc("/obs/", dashboard)
+	// Dashboard (root + /lcars)
+	dashboard := handlers.LCARSDashboard(cache, tmpl)
+	mux.HandleFunc("/lcars", dashboard)
+	mux.HandleFunc("/lcars/", dashboard)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodHead {
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -293,7 +293,7 @@ func serveCmd(args []string) {
 
 	go func() {
 		log.Printf("agentd serving on http://localhost:%d", *port)
-		log.Printf("  dashboard: http://localhost:%d/obs", *port)
+		log.Printf("  dashboard: http://localhost:%d/lcars", *port)
 		log.Printf("  API:       http://localhost:%d/api/status", *port)
 		log.Printf("  project:   %s", root)
 		// TODO Phase 2: start oscillator loop (self-oscillation)
