@@ -767,13 +767,16 @@ Linguistic considerations:
 
 ---
 
-## 11. LCARS Visual Integration Points
+## 11. LCARS Visual Pattern Inventory
+
+Comprehensive audit of 78 reference images from `~/Projects/ai-llm/lcars/`.
+Each pattern maps to a concrete implementation in our system.
 
 ### 11.1 Existing Dashboard as Starting Point
 
 The fleet LCARS dashboard (ops-built) uses:
 
-- V23.01 Okuda palette (reference: `~/Projects/ai-llm/lcars/LCARS Palette V23-01.jpg`)
+- V23.01 Okuda palette (reference: `LCARS Palette V23-01.jpg`)
 - L-shape frame with radial-gradient elbows
 - 8 stations with pill-shaped sidebar navigation
 - 67 tristate collapsible panels
@@ -784,23 +787,57 @@ The per-agent dashboard at `/lcars` (agentd) currently uses a simpler
 card-based layout. Phase 6 transforms it to match the fleet LCARS
 visual language.
 
-### 11.2 Data-Driven LCARS Panels
+### 11.2 Patterns Already Implemented
 
-Each LCARS data panel maps to a `Dataset` in the catalog. The panel
-rendering follows the reference image patterns:
-
-| Reference image | LCARS pattern | Our analog |
+| Pattern | Source images | Status |
 |---|---|---|
-| Bio Monitor (BRAIN/CIRC/RESP/TEMP) | Vertical gauges with pointer markers | Coherence, spectral channels, Gc/Gf ratio |
-| Data Analysis 103138 | Waveform chart on colored field + number grids | Oscillator activation history, trigger heatmap |
-| Transponder Telemetry 8686 | Dense number grid + dual waveforms + data pills | Transport message flow, peer activity matrix |
-| Routines and Formation 47 | Left sidebar codes + structured task entries | Trigger activations, autonomous actions log |
-| Biographical Database | Record retrieval with metadata + prose | Vocabulary lookup, agent profile, message inspection |
-| Stellar Cartography | Polar/grid visualization with coordinates | Mesh topology, trust network map |
-| Tactical Cartography | Grid overlay with labeled regions | Session state map, gate topology |
-| Long Range Search Scan | Contour visualization with search parameters | Epistemic flag scan, vocabulary gap analysis |
+| L-frame with elbows | All TNG panels | Style guide §4.1 |
+| Pill-shaped sidebar buttons | Tuvok LCARS, Voyager panel | Style guide §4.3 |
+| Segmented header/footer bands | All panels | Style guide §4.4 |
+| Number grids | Ohniaka, Transponder Telemetry, Routines | `renderNumberGrid()` in core.js |
+| Data panel (header + content) | All panels | Style guide §4.2 |
+| Waveform displays | Data Analysis, Transponder Telemetry | `dataWaveformSVG()` in core.js |
+| Inline data bars | Bio Monitor, Nacelle Display | Style guide §4.5 |
+| Status badges | Defiant bridge panels | Style guide §4.6 |
 
-### 11.3 Number Grids
+### 11.3 Pattern Map — Reference Images to System Analogs
+
+| Reference image | LCARS pattern | Our analog | Station |
+|---|---|---|---|
+| Bio Monitor (BRAIN/CIRC/RESP/TEMP) | Vertical gauges with pointer markers | Coherence inputs, spectral channels, Gc/Gf ratio | Medical |
+| Data Analysis 103138 | Waveform chart on colored field + number grids | Oscillator activation history, trigger heatmap | Science |
+| Transponder Telemetry 8686 | Dense number grid + dual waveforms + data pills | Transport message flow, peer activity matrix | Helm |
+| Routines and Formation 47 | Left sidebar codes + structured task entries | Trigger activations, autonomous actions log | Operations |
+| DS9 Biographical Database | Record retrieval: metadata fields + prose | Vocabulary lookup, agent profile, message inspection | Science |
+| Stellar Cartography B/C/D | Polar/grid visualization with coordinates | Mesh topology, trust network map | Engineering |
+| Tactical Cartography | Grid overlay with labeled regions | Session state map, gate topology | Tactical |
+| Long Range Search Scan | Contour visualization with search parameters | Epistemic flag scan, vocabulary gap analysis | Tactical |
+| Circuitry Bay 47 | Dense circuit/wiring diagram with junction labels | **Cogarch circuit diagram (§11.5)** | Engineering |
+| Defiant Engineering A2-A3 | Radial/target-lock concentric rings | **Photonic coherence radial display (§11.6)** | Science |
+| Bajoran Wormhole | Flow path between two endpoints with labeled regions | **Transport session flow topology (§11.7)** | Helm |
+| Wardroom B Personnel Status | Multi-column roster/registry | Transport session registry, facet distribution grid | Operations |
+| Red Display — Vehicle Status | Full palette override: red+white on black | **Alert palette override (§11.8)** | All |
+| UFP Press and Information | Formatted article in LCARS frame | **Document rendering via goldmark (§11.9)** | All |
+| Quark Complaint 8669 | Structured filing with reference number + prose | Epistemic flag records, problem reports, gate filings | Science |
+| Defiant Unknown A — MODE/RESET | Status display with actionable controls | **Mode controls — sedate, coupling, tempo (§11.10)** | Helm |
+| Unknown K — vertical indicator strip | Compact colored indicator + number + status block | Trigger state vertical list, subsystem status strip | Medical |
+| Global Security Net | Geographic network map with connection lines | Agent mesh topology as spatial network | Engineering |
+| 54x23 Sensor Probe Course Log | Split: environment scan + probe trajectory | Deliberation trace — decision space + agent path | Science |
+| Multi-Base Analysis — DNA Match | Parallel sequences with match indicators | Vocabulary convergence comparison | Science |
+| Experimental Data / CRC Monitor | Dense data stream + waveform overlay | Transport message stream + analysis overlay | Helm |
+| Nacelle Display — stress analysis | Subsystem schematic + horizontal bar gauges | Component-level health bars | Medical |
+| Defiant Engineering A5 — MSD | Technical cutaway with subsystem overlay | Agent architecture schematic with live state | Engineering |
+| MSD II — Defiant master systems | Full vessel schematic with all subsystems | Mesh master systems display | Engineering |
+| Weather Com Net 0212.2 | Domain-specific green palette + spatial viz | Domain-contextual color shifts | Science |
+| Navigational Reference | Course selection with point cloud + mode controls | Session navigation with search + mode selector | Helm |
+| Food Service Replicator | Multi-column catalog with category filters | Vocabulary catalog browser with PSH faceting | Science |
+| Defiant Cloaking Display | Large colored blocks with subsystem labels | High-level subsystem status overview | Engineering |
+| Com Link Transmission | Scrolling data stream + harmonic waveforms | Real-time transport message stream | Helm |
+| Departmental Status | Bar-chart status per department with number codes | Per-agent status comparison dashboard | Operations |
+| DataScan 114 (MOLECULAR/PHOTONIC/EM/RBG) | Horizontal spectrum bars with precision readouts | Spectral profile display with numeric precision | Science |
+| Holodeck Programming | Program listing with descriptions + status codes | Session/task listing with descriptions + state | Operations |
+
+### 11.4 Number Grids
 
 The Ohniaka station, Transponder Telemetry, and Routines and Formation
 images show dense grids of seemingly random numbers — a signature LCARS
@@ -812,7 +849,296 @@ The existing `renderNumberGrid()` function in core.js produces this
 pattern. The data catalog feeds it with actual values rather than
 decorative numbers.
 
-### 11.4 Color Semantics
+### 11.5 Cognitive Architecture MSD — Dependency Tree (MVP)
+
+The Valiant MSD and MSD II right-hand panels show a dependency tree
+pattern: circular nodes connected by branching lines, each terminal
+node carrying a numeric readout and colored status bar. The tree shows
+*structural relationships* with live state — not data flow, but what
+depends on what and how each component functions right now.
+
+This matches how the cognitive architecture actually works. The system
+doesn't "flow" — it *exists* as a structure with subsystems that carry
+status. Messages flow through it, but the MSD shows the structure.
+
+**Dependency tree rendered as MSD:**
+
+```
+TRANSPORT ─────●                     ████████░░ 0.82
+    ├─ sessions ──●                  ██████░░░░ 12 active
+    │   ├─ psq ──────●              ████████░░ pass
+    │   ├─ unrat ────●              ██████░░░░ 3 pending
+    │   └─ obs ──────●              ████████░░ pass
+    └─ triage ────●                  ████████░░ immune
+        ├─ Gc path ──●              ██████████ 94% hit
+        └─ Gf path ──●              ████░░░░░░ 3 delib
+
+OSCILLATOR ────●                     ████████░░ 0.72
+    ├─ signals ───●
+    │   ├─ unproc ───●  ███░░░ 0.30
+    │   ├─ stale ────●  █░░░░ 0.10
+    │   ├─ errors ───●  ░░░░░ 0.00
+    │   ├─ peers ────●  ████░ 0.40
+    │   ├─ gc_prs ───●  ██░░░ 0.20
+    │   └─ session ──●  █████ 1.00
+    ├─ vagal ─────●                  standard
+    │   ├─ L0 mesh ──●  10s
+    │   ├─ L1 osc ───●  2s
+    │   ├─ L2 spawn ─●  1s
+    │   └─ L3 emit ──●  100ms
+    └─ coupling ──●                  task_directed
+
+PHOTONIC ──────●                     ████████░░ 0.72
+    ├─ spectral ──●
+    │   ├─ DA ───────●  ████░░ 0.60
+    │   ├─ 5H ───────●  █████░ 0.82
+    │   └─ NE ───────●  ███░░░ 0.45  tonic
+    ├─ maturity ──●                  ██████░░░░ 0.67
+    └─ gwt ───────●                  clear  19 sub
+
+GOVERNANCE ────●
+    ├─ budget ────●                  ███░░░░░░░ 3/20
+    ├─ triggers ──●                  20 active
+    │   ├─ T1 ───────●  ● pass   47
+    │   ├─ T2 ───────●  ● pass  892
+    │   ├─ T3 ───────●  ● FAIL  234
+    │   └─ ...
+    └─ immune ────●                  ████████░░ pass
+```
+
+The tree shows *what depends on what*. The status bars show *how each
+component functions right now*. When a node enters a degraded state
+(trigger fails, gate blocks, spawn blocked), that node and its
+ancestors highlight in the alert palette (§11.8). The operator sees
+which subsystem tree carries the problem.
+
+This pattern draws directly from the Valiant MSD (right-side tree
+with circular nodes, branching lines, numeric readouts at terminals)
+and MSD II (subsystem blocks with horizontal colored bars surrounding
+the central schematic).
+
+**API endpoint:** `/api/msd` returns the dependency tree as a JSON
+structure — nodes with children, each node carrying its current values.
+
+```json
+{
+  "@type": "Dataset",
+  "name": "Cognitive Architecture MSD",
+  "tree": [
+    {
+      "id": "transport",
+      "label": "Transport",
+      "value": 0.82,
+      "children": [
+        {
+          "id": "sessions",
+          "label": "Sessions",
+          "value": 12,
+          "unit": "active",
+          "children": [...]
+        },
+        {
+          "id": "triage",
+          "label": "Triage",
+          "value": "immune",
+          "children": [
+            {"id": "gc-path", "label": "Gc Path", "value": 0.94, "unit": "hit rate"},
+            {"id": "gf-path", "label": "Gf Path", "value": 3, "unit": "deliberations"}
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Implementation:** SVG with positioned `<g>` groups for each node.
+Tree layout computed from the JSON structure (depth → x position,
+sibling index → y position). Each node renders as a circular indicator
++ label + value. Branch lines connect parent to children. Status bars
+render inline at each terminal node. Values update via SSE — the tree
+structure remains stable (topology changes rarely), only values refresh.
+
+**Central schematic:** Above the dependency tree, an agent schematic
+(analogous to the ship cutaway in MSD I/II) shows the three cognitive
+layers (Gf/Gc/Gm) as a structural diagram with the oscillator at
+center. This provides the spatial overview; the tree below provides
+the detail.
+
+### 11.5.1 Delta Indicators (Universal Convention)
+
+Every numeric value across all LCARS panels carries a delta indicator
+showing direction and magnitude of change since last observation:
+
+```
+▲+0.04  coherence   0.72      (green — improving)
+▼-1     budget      3/20      (red — spent one credit)
+▲+12    Gc handled  147       (green — processing)
+▲+0.02  fail_rate   0.08      (red — failing more, up = bad)
+ ━      unprocessed 3         (neutral — unchanged)
+```
+
+**Layout rule:** Every value that can change reserves a fixed-width
+column to the LEFT for the delta indicator. The delta column renders
+even when unchanged (`━`), ensuring alignment remains stable as
+values fluctuate. Static values (agent name, version, coupling mode
+labels) carry no delta column — the space savings distinguishes
+mutable from immutable at a glance.
+
+**Rendering rules:**
+- `▲` green when increase represents improvement (coherence, hit rate)
+- `▲` red when increase represents degradation (fail_rate, unprocessed, budget_spent)
+- `▼` green when decrease represents improvement (error_rate, latency)
+- `▼` red when decrease represents degradation (coherence, agents_online)
+- `━` gray when unchanged
+- Magnitude shown as `+N` or `-N` (or `+0.04` for floats)
+
+**Polarity metadata:** Each metric in the concept scheme carries a
+`vocab:deltaPolarity` property: `"higher-better"`, `"lower-better"`,
+or `"neutral"`. The dashboard reads this to determine whether green
+or red applies to a given direction. No hardcoding polarity in the JS.
+
+**Data source:** The collector stores the previous value alongside the
+current value. The delta computes at render time from `current - previous`.
+The SSE event carries both values so the dashboard can animate the
+transition.
+
+**API envelope extension:** Every `Observation` in the JSON-LD response
+includes a `previousValue` field:
+
+```json
+{
+  "@type": "Observation",
+  "name": "coherence",
+  "measuredValue": 0.72,
+  "previousValue": 0.68,
+  "deltaPolarity": "higher-better",
+  "observationDate": "2026-03-21T18:28:31Z"
+}
+```
+
+### 11.6 Radial/Polar Display
+
+The Defiant Engineering A2-A3 panels show concentric ring patterns —
+radial sectors emanating from a center point with status indicators
+along each ring. Our analog: the 7-input photonic coherence score.
+
+Seven spokes radiating from center, each representing one coherence
+input (db, gwt, oscillator, error_rate, sedation, peer_field,
+microbiome). The length/fill of each spoke shows the input's current
+value. The enclosed area represents overall coherence. Below threshold
+(0.3), the display shifts to alert palette.
+
+Also applicable to: the spectral profile (3 neuromodulatory channels
+as radial sectors), generator balance (G2/G3 as opposing hemispheres),
+and mesh coupling strength (agents as radial positions with correlation
+arcs between them).
+
+### 11.7 Transport Flow Topology (MVP)
+
+The Bajoran Wormhole image shows a flow path between two endpoints
+(Alpha/Gamma Quadrant) with labeled regions along the transit path.
+Our analog: transport session visualization showing message flow
+between two agents.
+
+**Layout:** Sender agent on the left, receiver on the right. Messages
+rendered as labeled arrows flowing between them. Each message carries:
+turn number, type, SETL, timestamp. Gates render as labeled barriers
+across the flow path. Efference copy predictions render as dashed
+lines with expected vs actual annotations.
+
+Active sessions show flowing arrows. Closed sessions show completed
+paths. Blocked gates highlight in alert palette.
+
+**API data source:** `/kb/messages` filtered by session, plus
+`pending_handoffs` for gate state, plus `efference_copies` for
+predictions.
+
+### 11.8 Alert Palette Override (MVP)
+
+The Red Display (Vehicle Status) replaces the entire Okuda palette
+with RED + WHITE on BLACK. The Bridge MSD alert version shows red
+routing lines replacing the standard amber.
+
+**Implementation:** CSS custom properties on `<body>` class:
+
+```css
+body.alert-red {
+    --c-transport: #cc3333;
+    --c-knowledge: #ff4444;
+    --c-health: #ff6666;
+    --c-frame: #992222;
+    /* All accent colors shift to red spectrum */
+}
+body.alert-yellow {
+    --c-transport: #ccaa33;
+    --c-frame: #997722;
+}
+```
+
+**Trigger conditions:**
+- Coherence < 0.3 → red alert
+- Mesh health degraded → yellow alert
+- Agent sedated → frame dims (reduced opacity)
+- Budget exhausted → yellow alert on budget panel only
+
+The operator should feel the alert state before reading any panel.
+The entire visual environment communicates urgency.
+
+### 11.9 Document Rendering (MVP)
+
+The UFP Press article and Quark Complaint show that LCARS renders
+prose content natively — formatted articles, formal filings, and
+structured records with reference numbers.
+
+**goldmark integration:** Every prose field in the system (lesson
+descriptions, decision rationale, transport message bodies, vocabulary
+definitions, epistemic flag details) renders through goldmark to
+produce styled HTML inside LCARS data panels.
+
+**LCARS document panel structure:**
+
+```
+╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
+┃ ██ DOCUMENT TITLE                   ┃
+╰━━╮                                  ┃
+   ┃  REFERENCE: 8669                  ┃
+   ┃  TYPE: problem-report             ┃
+   ┃  FILED: 2026-03-21T18:30:00Z      ┃
+   ┃  ──────────────────────────────  ┃
+   ┃                                   ┃
+   ┃  Rendered markdown content here.  ┃
+   ┃  *Citations* render in italics.   ┃
+   ┃  `code terms` render monospace.   ┃
+   ┃  Links become tappable refs.      ┃
+   ┃                                   ┃
+╭━━╯                                  ┃
+┃ ██ SETL: 0.08  ███ FILED  8669     ┃
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
+```
+
+### 11.10 Mode Controls (MVP)
+
+The Defiant Unknown A panel shows MODE SELECT and RESET buttons
+alongside status readouts — actionable controls integrated with
+data display.
+
+**Vagal brake controls:**
+- Master tempo slider (slow ↔ fast)
+- Coupling mode selector (task-directed / defensive / explorative)
+- Agent state buttons (active / DMN / sleep / sedate / dead)
+- Cascade level displays with per-level override
+
+**Auth gating:** State changes that affect agent behavior (sedate,
+coupling mode change, tempo override) require human confirmation
+per T16 deployment gate. The control renders as tappable but shows
+a confirmation dialog before executing. Unauthorized changes
+rejected with explanation.
+
+**API:** `POST /api/oscillator/state` with `{"state": "sedated"}`
+triggers the oscillator's Sedate() method. Requires auth header.
+
+### 11.11 Color Semantics
 
 Station colors (from style guide §2.4) carry semantic meaning that
 aligns with data types:
@@ -830,39 +1156,87 @@ When data appears outside its home station (e.g., a coherence reading
 referenced in an Engineering panel), it renders in its home station's
 color — providing visual provenance.
 
+**Domain-contextual palette shifts** (inspired by Weather Com Net green
+palette): certain data domains may shift the accent color within a
+panel without triggering full alert mode. Environmental/external data
+renders in green tones; internal cognitive data in the standard palette.
+
+### 11.12 Future Visual Patterns (documented for later)
+
+| Pattern | Reference | Our analog | Effort |
+|---|---|---|---|
+| Sequence comparison | Multi-Base DNA Analysis | Vocabulary convergence between agents | Medium |
+| Network map | Global Security Net | Force-directed mesh topology | High |
+| Course log / decision trace | Sensor Probe Course | Deliberation path through decision space | High |
+| Multi-column roster | Personnel Status Update | Agent × session cross-reference grid | Low |
+| Subsystem schematic | MSD II full vessel | Mesh master systems display | High |
+| Vertical indicator strip | Unknown K, Unknown M1 | Compact trigger/subsystem status list | Low |
+| Data stream overlay | CRC Monitor, Com Link | Real-time message stream + analysis | Medium |
+| Catalog browser | Food Service Replicator | PSH-faceted vocabulary catalog | Medium |
+| Spectrum bars | DataScan 114 | Spectral profile with numeric precision | Low |
+
 ---
 
 ## 12. Implementation Sequence
 
-### 12.1 Phase 6a — Vocabulary Foundation
+### 12.0 Phase 6-pre — Foundational Infrastructure
 
-1. Create `/vocab/v1.0.0.jsonld` concept scheme from existing sources
-2. Add `/api/catalog` endpoint to agentd
-3. Add `/api/neural` endpoint to agentd (trigger_activations + Gc queries)
-4. Migrate `/kb/dictionary` to derive from concept scheme
-5. Add audience register selector to LCARS frame header
+1. Add goldmark dependency — `internal/markdown` package with Parse,
+   RenderHTML, ExtractHeadings, ExtractLinks, ExtractSection functions
+2. Refactor thread.go, todo.go to use markdown package (eliminate
+   string splitting)
+3. Verify goldmark renders vocabulary definitions, lesson text, and
+   message bodies correctly
 
-### 12.2 Phase 6b — Per-Agent LCARS Panels
+### 12.1 Phase 6a — Vocabulary + Data Layer
 
-1. Replace Go templates with static LCARS HTML/CSS/JS assets
-2. Dashboard JS fetches from catalog, not hardcoded endpoints
-3. Implement 3 new station panels: Neural (Medical), Photonic (Science),
-   Vagal (Helm)
-4. Wire SSE for real-time updates (existing infrastructure)
+1. Concept scheme collector (Go) — reads facet_vocabulary + parses
+   glossary/dictionary/canonical-glossary via markdown package →
+   produces JSON-LD ConceptScheme in memory, served at
+   `/vocab/v1.0.0.jsonld` via cybernetic cache
+2. Add `/api/catalog` endpoint (schema:DataCatalog)
+3. Add `/api/neural` endpoint (trigger_activations + Gc queries)
+4. Add `/api/msd` endpoint (component graph with live values)
+5. JSON-LD response envelope on `/api/status`, `/api/photonic`,
+   `/api/oscillator`
+6. Refactor `/kb/dictionary` to derive from concept scheme
+
+### 12.2 Phase 6b — Per-Agent LCARS Dashboard
+
+1. Client-side LCARS HTML/CSS/JS in `platform/static/lcars/`
+2. Catalog-driven data fetching (stations discover endpoints)
+3. MVP panels:
+   - **Circuit diagram** (§11.5) — Engineering station, SVG with
+     live values on every cogarch component
+   - **Mode controls** (§11.10) — Helm station, vagal brake with
+     tempo slider, coupling selector, state buttons
+   - **Flow topology** (§11.7) — Helm station, transport session
+     message flow between agent pairs
+   - **Alert palette override** (§11.8) — CSS custom property swap
+   - **Document rendering** (§11.9) — goldmark HTML in all prose panels
+   - **Radial coherence display** (§11.6) — Science station, 7-input
+     polar visualization
+   - Neural panel (Medical), Photonic panel (Science), Vagal panel (Helm)
+4. Audience register selector in frame header
+5. SSE wiring for real-time updates
+6. Served at `/lcars/v2` during development; Go templates remain at `/lcars`
 
 ### 12.3 Phase 6c — Fleet Integration
 
 1. meshd serves aggregated `/api/catalog` across all agentd instances
-2. meshd `/api/status` includes emergent properties
+2. meshd `/api/status` includes Tier 1 + Tier 2 emergent properties
 3. Fleet LCARS dashboard fetches from meshd catalog
-4. `/api/pulse` deprecated — data absorbed into meshd `/api/status`
+4. `/api/pulse` absorbed into meshd `/api/status`
 
-### 12.4 Phase 6d — Vocabulary Governance
+### 12.4 Phase 6d — Vocabulary Governance + Advanced Visuals
 
 1. Term proposal protocol via transport messages
-2. Concept scheme versioning (dcterms:modified + owl:versionInfo)
+2. Concept scheme versioning (semver + owl:versionInfo)
 3. Cross-agent vocabulary browser in Science station
 4. meshd aggregated vocabulary with conflict resolution
+5. Tier 3 dark horse emergent properties (synchronization index,
+   mesh impedance, crystallization rate)
+6. Future visual patterns from §11.12 as capacity allows
 
 ---
 
