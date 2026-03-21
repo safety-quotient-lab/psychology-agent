@@ -32,15 +32,46 @@ type Result struct {
 }
 
 // TrivialTypes are message types that can be auto-processed without LLM.
+// Hardcoded baseline — supplemented by gc_learning (adaptive triage).
 var TrivialTypes = map[string]bool{
 	"ack":          true,
 	"notification": true,
 	"state-update": true,
 }
 
+// LoadLearnedTrivialTypes extends TrivialTypes with patterns promoted
+// from Gf to Gc via gc_learning. When the LLM handles a message type
+// the same way 3+ times, the triage layer learns to handle it automatically.
+// ops-session's gc_learning insight (exit interview, Session 95).
+func LoadLearnedTrivialTypes(database *db.DB) {
+	rows, err := database.QueryRows(
+		`SELECT message_type, COUNT(*) as cnt
+		 FROM transport_messages
+		 WHERE processed = TRUE
+		 AND message_type IS NOT NULL
+		 AND message_type != ''
+		 GROUP BY message_type
+		 HAVING cnt >= 3
+		 AND message_type NOT IN ('request', 'proposal', 'review', 'command-request', 'session-close')`)
+	if err != nil {
+		return
+	}
+	for _, row := range rows {
+		msgType := toString(row["message_type"])
+		if msgType != "" && !TrivialTypes[msgType] {
+			TrivialTypes[msgType] = true
+			log.Printf("[triage] gc_learning: promoted '%s' to auto-process (3+ consistent handlings)", msgType)
+		}
+	}
+}
+
 // Scan classifies all unprocessed messages and auto-processes trivial ones.
+// Loads gc_learning patterns before classification (adaptive triage).
 func Scan(database *db.DB) (Result, error) {
 	var result Result
+
+	// gc_learning: extend TrivialTypes with learned patterns
+	LoadLearnedTrivialTypes(database)
 
 	// Find all unprocessed messages
 	rows, err := database.QueryRows(

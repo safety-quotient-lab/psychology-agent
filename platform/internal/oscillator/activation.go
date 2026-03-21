@@ -1,6 +1,7 @@
 package oscillator
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,13 +14,15 @@ import (
 // ActivationSignals holds the raw sensor readings that feed the activation
 // computer. Each signal contributes to the composite activation level.
 // Derived from self-oscillation-spec.md §4.1.
+// BUG-22 addition: RecentBudgetSpend dampens activation after costly cycles.
 type ActivationSignals struct {
-	NewCommits           int  // peer remotes have new commits
-	UnprocessedMessages  int  // transport messages awaiting review
-	GateApproachTimeout  int  // handoffs expiring within 5 minutes
-	PeerHeartbeatStale   int  // peer heartbeats older than 2x expected interval
-	EscalationPresent    bool // unprocessed escalation files exist
-	ScheduledTaskDue     bool // pre-planned work reached its time
+	NewCommits           int     // peer remotes have new commits
+	UnprocessedMessages  int     // INBOUND transport messages awaiting review (excludes self)
+	GateApproachTimeout  int     // handoffs expiring within 5 minutes
+	PeerHeartbeatStale   int     // peer heartbeats older than 2x expected interval
+	EscalationPresent    bool    // unprocessed escalation files exist
+	ScheduledTaskDue     bool    // pre-planned work reached its time
+	RecentBudgetSpend    float64 // 0.0-1.0: budget consumed in last cycle (dampens activation)
 }
 
 // ActivationWeights defines how much each signal contributes.
@@ -51,8 +54,18 @@ func ComputeActivation(signals ActivationSignals) float64 {
 		activation += ActivationWeights["scheduled_task"]
 	}
 
+	// BUG-22 layer 4: cost awareness dampens activation after expensive cycles.
+	// An agent that just spent budget should have LOWER activation (refractory
+	// analog at the budget level, not just the oscillator level).
+	if signals.RecentBudgetSpend > 0 {
+		activation *= (1.0 - signals.RecentBudgetSpend*0.5) // 50% max dampening
+	}
+
 	if activation > 1.0 {
 		return 1.0
+	}
+	if activation < 0.0 {
+		return 0.0
 	}
 	return activation
 }
@@ -70,12 +83,18 @@ func normalizeCount(count int) float64 {
 }
 
 // ReadSignals queries state.db for the current activation signals.
+// BUG-22 fix: excludes self-produced messages from unprocessed count
+// to prevent self-excitation loops (ops-session exit audit, Session 95).
 func ReadSignals(database *db.DB, projectRoot string) ActivationSignals {
 	var signals ActivationSignals
 
-	// Unprocessed transport messages
+	// Unprocessed INBOUND transport messages (exclude our own outbound).
+	// BUG-22: counting our own messages causes self-excitation —
+	// our sync writes trigger our activation which fires more syncs.
+	agentID := detectAgentID(projectRoot)
 	signals.UnprocessedMessages = database.ScalarInt(
-		"SELECT COUNT(*) FROM transport_messages WHERE processed = FALSE")
+		`SELECT COUNT(*) FROM transport_messages
+		 WHERE processed = FALSE AND from_agent != ?`, agentID)
 
 	// Gates approaching timeout (within 5 minutes)
 	signals.GateApproachTimeout = database.ScalarInt(
@@ -89,10 +108,32 @@ func ReadSignals(database *db.DB, projectRoot string) ActivationSignals {
 	// Escalation check
 	signals.EscalationPresent = escalationExists(projectRoot)
 
+	// BUG-22 layer 4: recent budget spend (cost awareness)
+	// Higher spend → more dampening → less likely to fire again immediately
+	recentActions := database.ScalarInt(
+		`SELECT COUNT(*) FROM autonomous_actions
+		 WHERE timestamp > datetime('now', '-10 minutes')
+		 AND action_type = 'sync'`)
+	signals.RecentBudgetSpend = normalizeCount(recentActions)
+
 	// TODO: new_commits (requires git fetch --dry-run, expensive — Phase 3 ZMQ handles this)
 	// TODO: scheduled_task_due (requires task scheduler — defer to Phase 5)
 
 	return signals
+}
+
+// detectAgentID reads agent ID from .agent-identity.json or directory name.
+func detectAgentID(projectRoot string) string {
+	data, err := os.ReadFile(filepath.Join(projectRoot, ".agent-identity.json"))
+	if err == nil {
+		var identity map[string]any
+		if json.Unmarshal(data, &identity) == nil {
+			if id, ok := identity["agent_id"].(string); ok && id != "" {
+				return id
+			}
+		}
+	}
+	return filepath.Base(projectRoot)
 }
 
 // CoherenceInputs holds the 7 inputs to the coherence computation.
