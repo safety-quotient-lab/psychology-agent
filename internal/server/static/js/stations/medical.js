@@ -94,6 +94,9 @@ async function fetchMedicalData() {
     // Footer number
     const medFtr = document.getElementById("medical-footer-num");
     if (medFtr) medFtr.textContent = agentName(agent);
+
+    // agentd Session 95: cognitive panels (photonic, glial, vagal, microbiome)
+    fetchCognitivePanels();
 }
 
 // Zone A: Vitals matrix — Weather Net style dense readout for selected agent
@@ -473,4 +476,124 @@ function renderCoherenceDimensions(coherence) {
         + medBar("Resource", (dims.resource || 0) * 100, 100, "#6aab8e")
         + medBar("Operational", (dims.operational || 0) * 100, 100, "#cc99cc")
         + medBar("Flow", (dims.flow || 0) * 100, 100, "#66ccaa");
+}
+
+// ── agentd Session 95: Cognitive Display Panels ──────────────
+
+async function fetchCognitivePanels() {
+    const targetId = medSelectedAgent === "mesh" ? "ops-session" : medSelectedAgent;
+    const agent = AGENTS.find(a => a.id === targetId);
+    const base = agent?.url || "";
+
+    const [photonicR, gmR, vagalR, microR] = await Promise.allSettled([
+        fetch(base + "/api/photonic", { signal: AbortSignal.timeout(3000) }),
+        fetch(base + "/api/gm", { signal: AbortSignal.timeout(3000) }),
+        fetch(base + "/api/vagal", { signal: AbortSignal.timeout(3000) }),
+        fetch(base + "/api/microbiome", { signal: AbortSignal.timeout(3000) }),
+    ]);
+
+    var photonic = photonicR.status === "fulfilled" && photonicR.value.ok ? await photonicR.value.json() : null;
+    var gm = gmR.status === "fulfilled" && gmR.value.ok ? await gmR.value.json() : null;
+    var vagal = vagalR.status === "fulfilled" && vagalR.value.ok ? await vagalR.value.json() : null;
+    var micro = microR.status === "fulfilled" && microR.value.ok ? await microR.value.json() : null;
+
+    renderNeuralPanel(photonic);
+    renderGlialPanel(gm);
+    renderPhotonicPanel(photonic);
+    renderVagalPanel(vagal);
+    renderMicrobiomePanel(micro);
+}
+
+function renderNeuralPanel(photonic) {
+    var el = document.getElementById("med-neural");
+    if (!el) return;
+    var ops = agentData[medSelectedAgent === "mesh" ? "ops-session" : medSelectedAgent] || {};
+    var osc = ops.data?.oscillator || {};
+    var gc = ops.data?.gc_metrics || {};
+    var tempo = ops.data?.cognitive_tempo || {};
+
+    el.innerHTML = '<div style="font-size:0.78em">'
+        + medBar("Gf depth", (tempo.gain || 0) * 100, 100, "#9999FF")
+        + medBar("Gf freq", Math.min(100, (gc.deliberations_last_hour || 0) * 10), 100, "#9999CC")
+        + medBar("Gc freq", Math.min(100, (gc.gc_handled_total || 0) / 10), 100, "#CC99CC")
+        + '<div style="margin-top:var(--gap-s);color:var(--lcars-title)">Mode: <span style="color:var(--lcars-secondary)">' + (osc.state || "unknown") + '</span></div>'
+        + '</div>';
+}
+
+function renderGlialPanel(gm) {
+    var el = document.getElementById("med-glial");
+    if (!el) return;
+    if (!gm) { el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No Gm data</div>'; return; }
+
+    var rates = { standard: 50, high: 75, moderate: 40, low: 20 };
+    el.innerHTML = '<div style="font-size:0.78em">'
+        + medBar("reconcile", rates[gm.reconcile?.rate] || 30, 100, "#CC99CC")
+        + medBar("audit", rates[gm.audit?.rate] || 30, 100, "#9999CC")
+        + medBar("drainage", rates[gm.drainage?.rate] || 30, 100, "#9999FF")
+        + medBar("prune", rates[gm.prune?.rate] || 30, 100, "#CC6699")
+        + medBar("optimize", rates[gm.optimize?.rate] || 30, 100, "#FF9966")
+        + '<div style="margin-top:var(--gap-s);color:var(--lcars-title)">Drift: <span style="color:var(--lcars-secondary)">' + (gm.drift || 0).toFixed(3) + '</span></div>'
+        + '</div>';
+}
+
+function renderPhotonicPanel(photonic) {
+    var el = document.getElementById("med-photonic");
+    if (!el) return;
+    if (!photonic) { el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No photonic data</div>'; return; }
+
+    var sp = photonic.spectral_profile || {};
+    el.innerHTML = '<div style="font-size:0.78em">'
+        + '<div style="margin-bottom:var(--gap-s)"><span style="color:var(--lcars-title)">Coherence:</span> <strong style="color:var(--lcars-medical)">' + (photonic.coherence || 0).toFixed(2) + '</strong></div>'
+        + medBar("DA", (sp.DA || 0) * 100, 100, "#FF9966")
+        + medBar("NE", (sp.NE || 0) * 100, 100, "#FF9900")
+        + medBar("5-HT", (sp["5HT"] || 0) * 100, 100, "#9999FF")
+        + '<div style="margin-top:var(--gap-s);display:flex;gap:var(--gap-l);color:var(--text-dim);font-size:0.9em">'
+        + '<span>Maturity: <strong>' + (photonic.maturity || 0).toFixed(2) + '</strong></span>'
+        + '<span>Waveguide: <strong style="color:var(--lcars-medical)">' + (photonic.waveguide || "?") + '</strong></span>'
+        + '</div></div>';
+}
+
+function renderVagalPanel(vagal) {
+    var el = document.getElementById("med-vagal");
+    if (!el) return;
+    if (!vagal) { el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No vagal data</div>'; return; }
+
+    var cascade = vagal.cascade || [];
+    el.innerHTML = '<div style="font-size:0.78em">'
+        + '<div style="margin-bottom:var(--gap-s)"><span style="color:var(--lcars-title)">Breathing:</span> '
+        + medBar("master", (vagal.breathing_rate || 0) * 100, 100, "#CC99CC").replace('style="', 'style="display:inline-block;width:60%;')
+        + '</div>'
+        + cascade.map(function(c) {
+            var modeColor = c.mode === "coupled" ? "var(--lcars-medical)" : c.mode === "override" ? "var(--lcars-accent)" : "var(--text-dim)";
+            return '<div style="display:flex;align-items:center;gap:var(--gap-s);margin-bottom:2px">'
+                + '<span style="width:80px;color:var(--lcars-secondary);font-size:0.9em">' + c.name + '</span>'
+                + '<div style="flex:1;height:8px;background:var(--bg-inset);border-radius:var(--gap-xs)"><div style="width:' + ((c.value || 0) * 100) + '%;height:100%;background:#CC99CC;border-radius:var(--gap-xs)"></div></div>'
+                + '<span style="font-size:0.8em;color:' + modeColor + '">[' + (c.mode || "?") + ']</span>'
+                + '</div>';
+        }).join("")
+        + '<div style="margin-top:var(--gap-s);color:var(--text-dim)">Group meditation: <strong>' + (vagal.group_meditation ? "ON" : "OFF") + '</strong></div>'
+        + '</div>';
+}
+
+function renderMicrobiomePanel(micro) {
+    var el = document.getElementById("med-microbiome");
+    if (!el) return;
+    if (!micro) { el.innerHTML = '<div style="color:var(--text-dim);font-size:0.82em;padding:12px">No microbiome data</div>'; return; }
+
+    var symbionts = micro.symbionts || {};
+    var names = { claude_api: "claude-api", github: "github", sqlite: "sqlite", runtime: "runtime" };
+    el.innerHTML = '<div style="font-size:0.78em">'
+        + Object.entries(symbionts).map(function(e) {
+            var key = e[0], s = e[1];
+            var color = s.status === "healthy" ? "var(--lcars-medical)" : "var(--lcars-alert)";
+            var latency = s.latency_ms ? s.latency_ms + "ms" : (s.uptime_s ? Math.round(s.uptime_s / 3600) + "h" : "");
+            return '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border)">'
+                + '<span style="color:var(--lcars-secondary)">' + (names[key] || key) + '</span>'
+                + '<span style="color:' + color + '">' + (s.status || "?").toUpperCase() + '</span>'
+                + '<span style="color:var(--text-dim)">' + latency + '</span>'
+                + '</div>';
+        }).join("")
+        + '<div style="margin-top:var(--gap-s);color:var(--lcars-title)">Holobiont coherence: <strong style="color:var(--lcars-medical)">' + (micro.holobiont_coherence || 0).toFixed(2) + '</strong></div>'
+        + (micro.dysbiosis_alerts?.length > 0 ? '<div style="color:var(--lcars-alert);margin-top:var(--gap-xs)">' + micro.dysbiosis_alerts.join("; ") + '</div>' : '')
+        + '</div>';
 }
