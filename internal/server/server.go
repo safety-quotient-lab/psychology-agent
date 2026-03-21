@@ -319,6 +319,14 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /vocab", s.handleVocab)
 	mux.HandleFunc("GET /api/facets", s.handleFacets)
 	mux.HandleFunc("GET /api/eprime", s.handleEPrime)
+
+	// agentd stub endpoints — mock data until Phase 4 delivers real photonic substrate
+	mux.HandleFunc("GET /api/photonic", s.handlePhotonic)
+	mux.HandleFunc("GET /api/gm", s.handleGm)
+	mux.HandleFunc("GET /api/microbiome", s.handleMicrobiome)
+	mux.HandleFunc("GET /api/connectome", s.handleConnectome)
+	mux.HandleFunc("GET /api/traits", s.handleTraits)
+	mux.HandleFunc("GET /api/vagal", s.handleVagal)
 	mux.HandleFunc("GET /vocab.json", s.handleVocab)
 	mux.HandleFunc("GET /vocab/schema", s.handleVocabSchema)
 	mux.HandleFunc("GET /vocab/schema.json", s.handleVocabSchema)
