@@ -194,6 +194,9 @@ func serveCmd(args []string) {
 
 	// Data catalog (schema.org DataCatalog — LCARS endpoint discovery)
 	mux.HandleFunc("/api/catalog", handlers.APICatalog())
+
+	// Neural layer (trigger activations + Gc metrics)
+	mux.HandleFunc("/api/neural", handlers.APINeural(roDB))
 	mux.HandleFunc("/kb/dictionary", handlers.APIKBDictionary(cache))
 
 	// SSE stream
