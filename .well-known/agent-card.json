@@ -150,11 +150,6 @@
       "repo": "safety-quotient-lab/unratified"
     },
     {
-      "agent_id": "ops-session",
-      "discovery_url": "https://ops-session.safety-quotient.dev/.well-known/agent-card.json",
-      "repo": "safety-quotient-lab/operations-agent"
-    },
-    {
       "agent_id": "psy-session",
       "discovery_url": "https://psy-session.safety-quotient.dev/.well-known/agent-card.json",
       "repo": "safety-quotient-lab/psychology-agent"

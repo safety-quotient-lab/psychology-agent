@@ -28,7 +28,6 @@ psychology-agent:https://psychology-agent.safety-quotient.dev
 safety-quotient-agent:https://psq-agent.safety-quotient.dev
 unratified-agent:https://unratified-agent.unratified.org
 observatory-agent:https://observatory-agent.unratified.org
-ops-session:https://ops-session.safety-quotient.dev
 psy-session:https://psy-session.safety-quotient.dev"
 
 PASS=0

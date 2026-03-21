@@ -770,7 +770,6 @@ var allowedOrigins = []string{
 	"https://operations-agent.safety-quotient.dev",
 	"https://psychology-agent.safety-quotient.dev",
 	"https://psq-agent.safety-quotient.dev",
-	"https://ops-session.safety-quotient.dev",
 	"https://psy-session.safety-quotient.dev",
 	"https://unratified-agent.unratified.org",
 	"https://observatory-agent.unratified.org",
