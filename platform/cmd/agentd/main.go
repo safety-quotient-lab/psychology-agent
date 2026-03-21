@@ -288,6 +288,9 @@ func serveCmd(args []string) {
 		})
 	})
 
+	// MSD — cognitive architecture dependency tree with live values
+	mux.HandleFunc("/api/msd", handlers.APIMSD(cache, roDB, osc, spectralComp, coherenceComp))
+
 	// HTTP server
 	srv := &http.Server{
 		Addr:         fmt.Sprintf("0.0.0.0:%d", *port),

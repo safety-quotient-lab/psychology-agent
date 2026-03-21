@@ -231,3 +231,25 @@ func (o *Oscillator) Coherence() float64 {
 	defer o.mu.RUnlock()
 	return o.coherence
 }
+
+// SignalValues reads current activation signals and returns them as
+// a name→value map for the MSD dependency tree display.
+func (o *Oscillator) SignalValues() map[string]float64 {
+	signals := ReadSignals(o.database, o.config.ProjectRoot)
+	return map[string]float64{
+		"new_commits":         float64(signals.NewCommits),
+		"unprocessed":         float64(signals.UnprocessedMessages),
+		"gate_timeout":        float64(signals.GateApproachTimeout),
+		"peer_stale":          float64(signals.PeerHeartbeatStale),
+		"escalation":          boolToFloat(signals.EscalationPresent),
+		"scheduled":           boolToFloat(signals.ScheduledTaskDue),
+		"recent_budget_spend": signals.RecentBudgetSpend,
+	}
+}
+
+func boolToFloat(b bool) float64 {
+	if b {
+		return 1.0
+	}
+	return 0.0
+}
