@@ -262,14 +262,19 @@ func serveCmd(args []string) {
 	spectralComp := photonic.NewSpectralComputer(roDB)
 	coherenceComp := photonic.NewCoherenceComputer(roDB)
 	mux.HandleFunc("/api/photonic", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/ld+json")
+		handlers.SetCORS(w, r)
 		spectral := spectralComp.Compute()
 		coherence := coherenceComp.Compute()
 		maturity := photonic.ComputeMaturity(roDB)
 		json.NewEncoder(w).Encode(map[string]any{
-			"coherence": coherence,
-			"state":     osc.State().String(),
-			"maturity":  maturity,
+			"@context":     "https://psychology-agent.safety-quotient.dev/vocab/v1.0.0.jsonld",
+			"@type":        "Dataset",
+			"entity_type":  "agent",
+			"dateModified": time.Now().Format("2006-01-02T15:04:05Z"),
+			"coherence":    coherence,
+			"state":        osc.State().String(),
+			"maturity":     maturity,
 			"spectral_profile": map[string]any{
 				"dopaminergic":  spectral.Dopaminergic,
 				"serotonergic":  spectral.Serotonergic,
@@ -280,8 +285,13 @@ func serveCmd(args []string) {
 	})
 
 	mux.HandleFunc("/api/oscillator", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/ld+json")
+		handlers.SetCORS(w, r)
 		json.NewEncoder(w).Encode(map[string]any{
+			"@context":      "https://psychology-agent.safety-quotient.dev/vocab/v1.0.0.jsonld",
+			"@type":         "Dataset",
+			"entity_type":   "agent",
+			"dateModified":  time.Now().Format("2006-01-02T15:04:05Z"),
 			"state":         osc.State().String(),
 			"coupling_mode": osc.CouplingMode().String(),
 			"coherence":     osc.Coherence(),

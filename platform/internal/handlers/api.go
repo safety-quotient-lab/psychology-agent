@@ -34,6 +34,11 @@ func setCORS(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// SetCORS applies CORS headers (exported for use in main.go inline handlers).
+func SetCORS(w http.ResponseWriter, r *http.Request) {
+	setCORS(w, r)
+}
+
 // setAPIHeaders sets CORS + Cache-Control for JSON API responses.
 // max-age matches the meshd cache TTL so CF edge caching stays coherent.
 func setAPIHeaders(w http.ResponseWriter, r *http.Request) {
