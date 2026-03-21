@@ -33,6 +33,7 @@ import (
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/handlers"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/migrate"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/oscillator"
+	"github.com/safety-quotient-lab/psychology-agent/platform/internal/photonic"
 	"github.com/safety-quotient-lab/psychology-agent/platform/internal/syncer"
 )
 
@@ -226,6 +227,13 @@ func serveCmd(args []string) {
 	syncConfig := syncer.DefaultConfig(agentID, root)
 	sync := syncer.New(syncConfig, database, localDB)
 
+	// Photonic emitter (substrate coordination layer — ZMQ-B)
+	// Optional: only starts if --zmq-photonic flag provided
+	var photonicEmitter *photonic.Emitter
+	// TODO: add --zmq-photonic flag to serve command
+	// For now: photonic emitter created but not started (no ZMQ bind)
+	_ = photonicEmitter
+
 	// Oscillator (self-oscillation activation model)
 	oscConfig := oscillator.DefaultConfig(root)
 	osc := oscillator.New(oscConfig, database)
@@ -240,15 +248,24 @@ func serveCmd(args []string) {
 	defer oscCancel()
 	go osc.Run(oscCtx)
 
-	// agentd-specific API endpoints (new — stubs for Phase 4+)
+	// Photonic API — live spectral + coherence data
+	spectralComp := photonic.NewSpectralComputer(roDB)
+	coherenceComp := photonic.NewCoherenceComputer(roDB)
 	mux.HandleFunc("/api/photonic", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		spectral := spectralComp.Compute()
+		coherence := coherenceComp.Compute()
+		maturity := photonic.ComputeMaturity(roDB)
 		json.NewEncoder(w).Encode(map[string]any{
-			"coherence": 1.0, "state": "active", "maturity": 0.0,
-			"spectral_profile": map[string]float64{
-				"dopaminergic": 0.33, "serotonergic": 0.34, "noradrenergic": 0.33,
+			"coherence": coherence,
+			"state":     osc.State().String(),
+			"maturity":  maturity,
+			"spectral_profile": map[string]any{
+				"dopaminergic":  spectral.Dopaminergic,
+				"serotonergic":  spectral.Serotonergic,
+				"noradrenergic": spectral.Noradrenergic,
+				"ne_pattern":    spectral.NEPattern,
 			},
-			"note": "stub — real data arrives in Phase 4",
 		})
 	})
 
