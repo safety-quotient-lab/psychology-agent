@@ -22,8 +22,10 @@ type PeerSyncInfo struct {
 	LastRan       string `json:"last_ran"`
 	LastRanRaw    string `json:"last_ran_raw"`
 	NextDue       string `json:"next_due"`
-	BudgetSpent  string `json:"budget_spent"`
-	BudgetCutoff string `json:"budget_cutoff"`
+	BudgetSpent   string `json:"budget_spent"`
+	BudgetCutoff  string `json:"budget_cutoff"`
+	BudgetCurrent string `json:"budget_current"` // template alias for BudgetSpent
+	BudgetMax     string `json:"budget_max"`     // template alias for BudgetCutoff
 }
 
 // ParseActiveThread extracts active thread from MEMORY.md.
@@ -116,8 +118,10 @@ func CollectPeerSyncRecency(remoteStates []map[string]any) []PeerSyncInfo {
 			LastRan:       ageStr,
 			LastRanRaw:    snapshotAt,
 			NextDue:       nextDue,
-			BudgetSpent:  budgetSpent,
-			BudgetCutoff: budgetCutoff,
+			BudgetSpent:   budgetSpent,
+			BudgetCutoff:  budgetCutoff,
+			BudgetCurrent: budgetSpent,
+			BudgetMax:     budgetCutoff,
 		})
 	}
 
