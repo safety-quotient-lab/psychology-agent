@@ -138,6 +138,7 @@ async function fetchFleetMicrobiome() {
         }).join("")
         + (alerts.length > 0 ? '<div style="color:var(--lcars-alert);margin-top:var(--gap-s)">Dysbiosis: ' + alerts.join("; ") + '</div>' : '')
         + '</div>';
+}
 
 // Zone A: Vitals matrix — Weather Net style dense readout for selected agent
 function renderMedVitalsMatrix() {
