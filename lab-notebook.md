@@ -6638,3 +6638,48 @@ psychology-agent) received substantial changes.
 
 ▶ MEMORY.md updated, TODO.md updated
 ⚑ EPISTEMIC FLAGS: API tokens exposed in old plist (rotation needed)
+
+---
+
+## 2026-03-22T17:15 CDT — Session 99 (Mesh ontology + RDF triple store)
+
+**Ontology-first data layer for meshd.** Original plan specified Cayley + SPARQL.
+Research revealed Cayley stalled in 2019 with no SPARQL support. Inverted the
+dependency: define ontology first, build engine-agnostic triple store second.
+
+**Design decisions:**
+- Spec drives Go (ontology as `ns/mesh/ontology.jsonld`, runtime-evolvable without recompile)
+- Standards-first: schema.org + PROV-O + SOSA/SSN + AS2 cover 14/19 predicates
+- Only 8 custom `mesh:` predicates where no standard fits
+- All numeric dimensions via `sosa:Observation` pattern (not custom predicates)
+- SHACL shape validation at write time (4 shapes: Agent, Message, Session, Observation)
+- Named graphs = Plan 9 namespaces (composed at query time)
+- Temporal bounds (`valid_until` column) for longitudinal data retention
+- A2A-Psychology 8 constructs mapped to `sosa:Observation` triples
+- PJE/PMBOK/SWEBOK jargon routes through concept scheme, not predicates
+
+**Artifacts created (meshd):**
+- `ns/mesh/ontology.jsonld` — ontology definition (8 properties, 4 SHACL shapes)
+- `internal/triplestore/` — 5 Go files (schema, store, query, ontology, emit)
+- `internal/server/triples.go` — API handlers + emitter wiring
+- LCARS Knowledge Graph panel in Science/Ontology subsystem
+
+**Artifacts created (psychology-agent):**
+- `docs/mesh-ontology.md` — 13-section ontology specification
+- `docs/lcars-data-architecture.md` §13 — triple store layer reference
+
+**Deployment bugs fixed:**
+- sqlite3 dot-commands (.timeout) require stdin pipe, not CLI argument — added `execPiped()`
+- Registry OnRefresh callback registered after initial refresh completed — added catch-up emission
+- `switchSciSubsystem` → `switchAnalysisSubsystem` HTML/JS name mismatch
+- `/api/psychometrics/emergent` missing route — aliased to `/api/psychometrics/mesh`
+
+**Live on Chromabook:** 74 triples (50 agent-registry, 20 agent-status, 4 mesh-state).
+All 5 agents represented. Ontology served at `/ns/mesh/ontology.jsonld`.
+
+▶ docs/mesh-ontology.md, MEMORY.md updated, TODO.md pending
+⚑ EPISTEMIC FLAGS
+- SOSA/SSN mapping confidence HIGH but schema.org Observation vs SOSA Observation
+  type distinction requires care in mixed graphs
+- SHACL validation depth MODERATE (property constraints only, not SPARQL-based)
+- `docs/schema-extensions.md` referenced in lcars-data-architecture.md §8.1 but never created

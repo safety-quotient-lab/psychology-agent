@@ -4,22 +4,18 @@
 
 ## Active Thread (2026-03-22)
 
-**Session 99.** Mesh ontology + RDF triple store + LCARS vertical slice. Cayley
-abandoned (stalled 2019, no SPARQL). Ontology-first DDD approach: spec drives Go
-(ontology.jsonld runtime-evolvable, no recompile). Standards-first: schema.org +
-PROV-O + SOSA + AS2 cover 14/19 predicates, only 8 custom mesh:. SHACL shape
-validation. Named graphs = Plan 9 namespaces. Temporal bounds (valid_until) for
-longitudinal data. A2A-Psychology 8 constructs → sosa:Observation. Deployed to
-Chromabook, 74 triples live. Two deployment bugs fixed (sqlite3 dot-commands
-need stdin pipe, startup race for OnRefresh callback).
+**Session 98.** Full-stack infrastructure + Go modernization session. Connectivity
+fixed (5/5 online). Go binaries modernized: slog, graceful shutdown, SQL injection
+fixed, generics (SeenSet[T]), context propagation, tint, prometheus /metrics, interface{}
+→ any. operations-agent purged from meshd (16 sites). LCARS JS cleaned (overview→msd,
+renderOps→renderGov). Makefiles + goreleaser + launchd plist. psy-session meshd removed.
 
 **Next priority:**
-1. LCARS Knowledge Graph panel polish (graph visualization, P03 topology)
+1. SPARQL triple store for meshd (Cayley) — structured queries over JSON-LD agent data
 2. WebTransport evaluation — W3C mesh networking prototype
 3. MSD column alignment (label | value | visual)
 4. Operational state validation (Option C — correlate composites with outcomes)
 5. Confidence score recalibration (carried from Session 92)
-6. Archival compression for longitudinal triple data
 
 ## User Preferences
 
@@ -70,4 +66,3 @@ need stdin pipe, startup race for OnRefresh callback).
 - `project_golang_maturity_gaps.md` — SIGTERM, cross-compile, schema embed, ZMQ phases, service files
 - `project_psy_session_no_meshd.md` — psy-session runs agentd only, no local meshd (Session 98 decision)
 - `project_api_token_rotation.md` — ROTATE: CF_API_TOKEN + GITHUB_TOKEN exposed in old plist on gray-box
-- `project_session_roadmap.md` — Session 100 (UX/user journey MVP), triple store polish

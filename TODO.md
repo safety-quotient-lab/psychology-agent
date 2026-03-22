@@ -1178,10 +1178,25 @@ findings require dedicated resolution.
 
 ## Session 98 — New Items
 
-- [ ] **SPARQL query layer for meshd** — embeddable triple store (Cayley, Apache 2.0)
-  over JSON-LD agent data. Replaces REST polling with structured queries.
-  Agents already emit @context — RDF conversion straightforward.
-  *Effort: L. Precondition: none — agents already serve JSON-LD.*
+- [x] **RDF triple store for meshd** — COMPLETE (Session 99). Ontology-first approach
+  (Cayley abandoned — stalled 2019, no SPARQL). Standards-first: schema.org + PROV-O +
+  SOSA + AS2 cover 14/19 predicates. `internal/triplestore/` package (5 Go files).
+  Ontology as data (`ns/mesh/ontology.jsonld`). SHACL validation. Named graphs = Plan 9
+  namespaces. Temporal bounds for longitudinal data. 74 triples live on Chromabook.
+  Spec: `docs/mesh-ontology.md`. LCARS Knowledge Graph panel in Science/Ontology.
+
+- [ ] **SPARQL query language for meshd** — the triple store enables future SPARQL.
+  Options: Cayley (Gizmo, stalled), goRDFlib (needs verification), custom SQL-to-SPARQL.
+  *Effort: M. Precondition: triple store operational (✓ Session 99).*
+
+- [ ] **LCARS station migration to triple-backed data** — existing stations keep REST
+  endpoints. Future: derive REST responses FROM triple store, then migrate stations to
+  consume triples via Plan 9 namespace composition.
+  *Effort: L. Precondition: triple store operational (✓ Session 99).*
+
+- [ ] **Archival compression for longitudinal triples** — downsample old observations
+  (1min/day, 5min/week, hourly/month). Currently all history retained unbounded.
+  *Effort: S. Precondition: sufficient observation volume to justify.*
 
 - [ ] **WebTransport evaluation** — W3C + IETF RFC 9220. Multiplexed streams
   over HTTP/3/QUIC for mesh networking. Go library: quic-go (MIT).
