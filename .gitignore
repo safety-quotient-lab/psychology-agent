@@ -57,6 +57,8 @@ interagent/.wrangler/
 # Compiled binaries
 platform/meshd
 platform/meshd-*
+platform/agentd
+platform/agentd-*
 /agentdb
 /agentdb-*
 

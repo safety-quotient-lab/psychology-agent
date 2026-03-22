@@ -1,9 +1,0 @@
-/* Per-agent station CSS — psychology-agent LCARS
-   Imports shared components from ../components/
-   Contains station-specific styles for the per-agent dashboard:
-   Medical, Science, Engineering, Helm, Tactical, Operations
-
-   Unlike the fleet stations.css (mesh-wide panels), these styles
-   serve the individual agent's cognitive architecture view. */
-
-/* Station-specific styles will be added as stations are built. */
