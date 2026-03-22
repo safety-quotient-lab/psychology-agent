@@ -101,13 +101,20 @@ New items from the full cogarch evaluation (`docs/cogarch-evaluation-session85.m
   *Effort: M. Structural refactoring — dedicated session recommended.*
 
 - [x] **autonomous-sync.sh concern separation** — SUPERSEDED (Session 95).
-  agentd replaces autonomous-sync.sh entirely. 20 Go packages, ~4600 lines.
-  Phases 1-5 complete. Phase 6a (API layer) COMPLETE (Session 96). Phase 6b
-  (LCARS dashboard adaptation) IN PROGRESS. Phase 7 (cleanup) remains.
-  Full spec: `docs/agentd-design-session95.md`. Roadmap: `docs/agentd-implementation-roadmap.md`.
-  Data architecture: `docs/lcars-data-architecture.md`. Pattern catalog: `docs/lcars-pattern-catalog.md`.
-  37 REST endpoints live. 163 SKOS concepts. 24 catalog datasets. Fleet LCARS
-  imported + components extracted. Per-agent LCARS adaptation next.
+  agentd extracted to own repo (Session 97). 40 REST endpoints. /api/kb removed.
+  LCARS dashboard deployed (perfected ops-agent baseline). WebSocket added.
+  Phase 6b COMPLETE. Phase 7 (cleanup + polish) IN PROGRESS.
+  Repos: agentd, meshd, lcars, agent-kit. operations-agent archived.
+
+- [ ] **meshd→agent connectivity** — meshd shows 0/4 agents online despite
+  all responding to direct health checks. Root cause: tunnel URL routing
+  from Chromabook. Needs investigation.
+  *Effort: S. Precondition: agentd deployed (✓).*
+
+- [ ] **LCARS dashboard polish** — function naming cleanup (renderGovGovernance
+  etc.), MSD tree rendering, dead code removal, operations-agent references
+  in meshd source. Visual alignment tweaks.
+  *Effort: M. Precondition: station rename complete (✓).*
 
 - [ ] **Cross-agent RPG** — extend /retrospect to scan peer transport for
   mesh-level patterns invisible to single-agent retrospectives.

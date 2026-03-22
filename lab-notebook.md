@@ -6510,3 +6510,75 @@ platform/static/lcars/ (21 files, 13,394 lines), .claude/rules/ (13 files reorga
   trailing window for meaningful drift detection.
 - 34 LCARS patterns cataloged from 78 reference images. Some pattern-to-data
   mappings represent visual analogy, not validated design decisions.
+
+## 2026-03-22T10:56 CDT — Session 97 (Repo extraction + LCARS deployment + station rename)
+
+Largest infrastructure session. Extracted 5 repos from monoliths, deployed
+agentd + meshd to production, renamed all stations to professional names.
+
+**Repo extraction (5 new repos):**
+- agentd: extracted from psychology-agent/platform/ — per-agent runtime daemon
+- meshd: fixed build (import paths pointed to own internal/, not operations-agent)
+- lcars: shared visual library (patterns.js, catalog-resolver.js, CSS, fonts)
+- agent-kit: shared infrastructure (schema.sql, bootstrap scripts, cogarch templates)
+- psychology-agent: platform/ removed — content-only repo
+
+**Phase 6b — per-agent LCARS (agentd):**
+- agent.html: 6 stations (Vitals, Knowledge, Architecture, Transport, Governance, Integrity)
+- 41 panels across stations, each fetching from /api/agent/* via catalog resolver
+- 13 shared pattern render functions (P01–P33)
+- 3 new endpoints: /api/agent/cognitive/tempo, /api/agent/knowledge/facets, /api/agent/history
+
+**meshd fleet LCARS:**
+- /api/mesh/* REST hierarchy (17 new routes parallel to /api/agent/*)
+- Station rename: Operations→Governance, Science→Analysis, Engineering→Architecture,
+  Helm→Transport, Tactical→Integrity, Medical→Vitals, Pulse→MSD (overview merged)
+- Meta tab merged into Analysis (messages, epistemic debt, flags)
+- MSD tab added as landing (dependency tree + topology + agent cards)
+- Complete ID rename across HTML, JS, CSS (data-tab, element IDs, function names, CSS vars)
+- Used perfected ops-agent LCARS as baseline (not from-scratch rebuild)
+
+**Infrastructure changes:**
+- /api/kb removed from agentd (10 legacy routes deleted)
+- WebSocket /ws handler added to both agentd and meshd (Cloudflare Tunnel compat)
+- /api/catalog added to meshd (20 datasets)
+- operations-agent removed from agent registry
+- Agent identity files fixed on Chromabook (psychology-agent, psq-agent)
+
+**Deployment (production):**
+- Chromabook: 4 agentd instances (ports 8076-8079) + 1 meshd (port 8081)
+- Old per-agent meshd units disabled, agentd units enabled
+- gray-box: psy-session agentd running on port 8082
+- All health checks passing through Cloudflare Tunnels
+- Makefiles for both agentd and meshd (build + deploy + validate)
+
+**Key decisions:**
+- Professional naming throughout — no Star Trek references in user-facing code
+- Internal IDs renamed too (ops-→gov-, science-→analysis-, etc.)
+- Baseline LCARS from ops-agent — surgical changes, not rebuild
+- LCARS-only mode (theme-lcars hardcoded, no dark/light toggle)
+- MSD as landing tab (not Governance)
+- psy-session remains in agent registry (interactive session on gray-box)
+
+**Remaining (next session):**
+- meshd 0/4 agents online — connectivity/DNS issue from Chromabook
+- Function naming cleanup (renderGovGovernance etc.)
+- MSD tree rendering needs data from agents
+- Dashboard visual polish
+- Kill dead code (overview→msd file rename)
+- operations-agent references in meshd source code (hardcoded URLs, comments)
+
+**Artifacts:** agentd repo (7 commits), meshd repo (15 commits), lcars repo (1 commit),
+agent-kit repo (1 commit), psychology-agent branch merged (6 commits)
+
+▶ MEMORY.md updated, reference_repo_locations.md created
+
+⚑ EPISTEMIC FLAGS
+- meshd station rename performed via bulk sed — verified zero old references
+  remain, but function-level mismatches required multiple fix iterations.
+  Similar rename of agentd stations deferred (still uses old ops-agent baseline).
+- meshd shows 0/4 agents online despite all responding to direct health checks.
+  Root cause: meshd fetches from tunnel URLs (external roundtrip) rather than
+  localhost. Investigation deferred.
+- WebSocket /ws fails through Cloudflare Tunnel (SSE fallback works).
+  ops-ghost determined WebSocket required for tunnel — configuration gap.
