@@ -18,7 +18,8 @@
             lcars.catalog.fetch("Verified Claims"),
             lcars.catalog.fetch("Lessons"),
             lcars.catalog.fetch("Epistemic Flags"),
-            lcars.catalog.fetch("Concept Scheme")
+            lcars.catalog.fetch("Concept Scheme"),
+            lcars.catalog.fetch("Facet Distribution")
         ]).then(function (results) {
             _pending = false;
             var photonic    = results[0].status === "fulfilled" ? results[0].value : null;
@@ -27,6 +28,7 @@
             var lessons     = results[3].status === "fulfilled" ? results[3].value : null;
             var epistemic   = results[4].status === "fulfilled" ? results[4].value : null;
             var vocab       = results[5].status === "fulfilled" ? results[5].value : null;
+            var facets      = results[6].status === "fulfilled" ? results[6].value : null;
 
             renderPhotonicRadial(photonic);
             renderSpectralProfile(photonic);
@@ -35,27 +37,28 @@
             renderLessons(lessons);
             renderEpistemicFlags(epistemic);
             renderVocab(vocab);
+            renderFacets(facets);
         });
     };
 
     // ── Photonic Radial (P10) ───────────────────────────────
     function renderPhotonicRadial(data) {
         if (!data) return;
-        // Build 7 spokes from coherence inputs
-        var inputs = data.coherence_inputs || data.inputs || {};
-        var spokeNames = ["db", "gwt", "oscillator", "error_rate", "sedation", "peer_field", "microbiome"];
-        var spokes = spokeNames.map(function (name) {
-            return {
-                label: name.replace(/_/g, " "),
-                value: inputs[name] != null ? inputs[name] : 0,
-                max: 1,
-                color: "var(--c-health)"
-            };
-        });
-        var coherence = data.coherence != null ? data.coherence : null;
+
+        // Photonic endpoint gives coherence + spectral_profile.
+        // Build radial from spectral channels + coherence + maturity.
+        var spectral = data.spectral_profile || {};
+        var spokes = [
+            { label: "DA", value: spectral.dopaminergic || 0, max: 1, color: "var(--c-warning)" },
+            { label: "5-HT", value: spectral.serotonergic || 0, max: 1, color: "var(--c-health)" },
+            { label: "NE", value: spectral.noradrenergic || 0, max: 1, color: "var(--c-transport)" },
+            { label: "Maturity", value: data.maturity || 0, max: 1, color: "var(--c-epistemic)" },
+            { label: "Coherence", value: data.coherence || 0, max: 1, color: "var(--c-health)" }
+        ];
+
         lcars.patterns.radialDisplay("knowledge-photonic-radial", spokes, {
             size: 220,
-            centerValue: coherence,
+            centerValue: data.coherence,
             centerLabel: "COHERENCE"
         });
     }
@@ -63,11 +66,11 @@
     // ── Spectral Profile (P27) ──────────────────────────────
     function renderSpectralProfile(data) {
         if (!data) return;
-        var spectral = data.spectral_profile || data.spectral || {};
+        var spectral = data.spectral_profile || {};
         var channels = [
-            { label: "Dopaminergic", value: spectral.dopaminergic || spectral.DA || 0, color: "var(--c-warning)", polarity: "neutral" },
-            { label: "Serotonergic", value: spectral.serotonergic || spectral["5H"] || 0, color: "var(--c-health)", polarity: "neutral" },
-            { label: "Noradrenergic", value: spectral.noradrenergic || spectral.NE || 0, color: "var(--c-transport)", polarity: "neutral" }
+            { label: "Dopaminergic", value: spectral.dopaminergic || 0, color: "var(--c-warning)", polarity: "neutral" },
+            { label: "Serotonergic", value: spectral.serotonergic || 0, color: "var(--c-health)", polarity: "neutral" },
+            { label: "Noradrenergic", value: spectral.noradrenergic || 0, color: "var(--c-transport)", polarity: "neutral" }
         ];
         lcars.patterns.spectrumBars("knowledge-spectral", channels);
     }
@@ -78,7 +81,8 @@
         var traits = ["openness", "conscientiousness", "extraversion", "agreeableness", "stability"];
         var dims = traits.map(function (trait) {
             var observed = data[trait] || (data.observed && data.observed[trait]) || 0;
-            var target = data.design_target && data.design_target[trait];
+            var targets = data.design_targets || data.design_target || {};
+            var target = targets[trait];
             return {
                 label: trait.charAt(0).toUpperCase() + trait.slice(1),
                 value: observed,
@@ -162,6 +166,32 @@
             var num = footerNum.querySelector(".lcars-panel-footer-num");
             if (num) num.textContent = " " + concepts.length;
         }
+    }
+
+    // ── Facet Distribution (P03) ───────────────────────────
+    function renderFacets(data) {
+        if (!data || !data.distribution) {
+            lcars.patterns.placeholder("knowledge-facets", "No facet data available");
+            return;
+        }
+        var cells = [];
+        var dist = data.distribution;
+        for (var facetType in dist) {
+            var entries = dist[facetType];
+            for (var i = 0; i < Math.min(entries.length, 5); i++) {
+                var e = entries[i];
+                cells.push({
+                    value: e.count || 0,
+                    label: String(e.value || "").substring(0, 12),
+                    type: "count"
+                });
+            }
+        }
+        if (cells.length === 0) {
+            lcars.patterns.placeholder("knowledge-facets", "No facets classified");
+            return;
+        }
+        lcars.patterns.numberGrid("knowledge-facets", cells);
     }
 
     function extractDefinition(concept) {

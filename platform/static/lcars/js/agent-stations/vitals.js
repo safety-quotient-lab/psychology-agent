@@ -101,8 +101,8 @@
         var el = document.getElementById("vitals-context-util");
         if (!el) return;
 
-        var utilization = findMeasure(data, "utilization", "context_utilization") || 0;
-        var zone = findField(data, "yerkes_dodson_zone", "zone") || "unknown";
+        var utilization = findMeasure(data, "capacity_load", "utilization") || 0;
+        var zone = findField(data, "yerkes_dodson_zone", "zone") || data.zone || "unknown";
 
         el.innerHTML = '<div id="ctx-bar"></div>' +
             '<div style="text-align:center;margin-top:8px">' +
@@ -214,12 +214,24 @@
     }
 
     // ── Helpers ─────────────────────────────────────────────
-    // Find a measured value from various response shapes
+    // Find a measured value from various response shapes.
+    // API responses nest values in: top-level, components, subscales,
+    // measures, or variableMeasured arrays.
     function findMeasure(data, key, altKey) {
         if (!data) return null;
         // Direct field
         if (data[key] != null) return data[key];
         if (altKey && data[altKey] != null) return data[altKey];
+        // In components object (operational-health, context-utilization)
+        if (data.components) {
+            if (data.components[key] != null) return data.components[key];
+            if (altKey && data.components[altKey] != null) return data.components[altKey];
+        }
+        // In subscales object (processing-load)
+        if (data.subscales) {
+            if (data.subscales[key] != null) return data.subscales[key];
+            if (altKey && data.subscales[altKey] != null) return data.subscales[altKey];
+        }
         // In variableMeasured array (Observation pattern)
         var vars = data.variableMeasured || [];
         for (var i = 0; i < vars.length; i++) {
@@ -229,8 +241,10 @@
             }
         }
         // In measures object
-        if (data.measures && data.measures[key] != null) return data.measures[key];
-        if (altKey && data.measures && data.measures[altKey] != null) return data.measures[altKey];
+        if (data.measures) {
+            if (data.measures[key] != null) return data.measures[key];
+            if (altKey && data.measures[altKey] != null) return data.measures[altKey];
+        }
         return null;
     }
 
@@ -238,6 +252,10 @@
         if (!data) return null;
         if (data[key] != null) return data[key];
         if (altKey && data[altKey] != null) return data[altKey];
+        if (data.components) {
+            if (data.components[key] != null) return data.components[key];
+            if (altKey && data.components[altKey] != null) return data.components[altKey];
+        }
         if (data.measures) return data.measures[key] || (altKey ? data.measures[altKey] : null);
         return null;
     }
