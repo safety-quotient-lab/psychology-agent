@@ -1276,3 +1276,69 @@ renders in green tones; internal cognitive data in the standard palette.
 - The LCARS visual patterns drawn from reference images follow the
   Okuda design vocabulary. No copyrighted imagery or trademarked
   terms appear in the implementation — only the visual design language.
+
+---
+
+## 13. Triple Store Layer (Session 99)
+
+### 13.1 Architecture
+
+meshd provides an RDF triple store backed by SQLite, enabling structured
+queries over the mesh knowledge graph. The ontology lives as a JSON-LD
+document served at `GET /ns/mesh/ontology.jsonld` — runtime-evolvable
+without recompile.
+
+Full specification: `docs/mesh-ontology.md`
+
+### 13.2 Standards Stack
+
+Four W3C vocabularies cover 14 of 19 structural predicates. Only ~8
+custom `mesh:` predicates cover domain-specific relationships no standard
+can express.
+
+| Vocabulary | Concern |
+|---|---|
+| schema.org | Entity typing, identity, messaging, actions |
+| W3C PROV-O | Decision provenance chains |
+| W3C SOSA/SSN | Observations, sensor time-series |
+| W3C Activity Streams 2.0 | Threading, message correlation |
+
+### 13.3 Named Graphs = Plan 9 Namespaces
+
+Each named graph maps to a Plan 9 filesystem namespace
+(`docs/plan9-mesh-filesystem.md`), composed at query time:
+
+| Graph | Plan 9 Path | Contents |
+|---|---|---|
+| `agent-registry` | `mesh/memory/agent-state/` | Agent identity, capabilities |
+| `agent-status` | `mesh/memory/agent-state/` | Psychometric observations |
+| `mesh-state` | `mesh/memory/organism-state.json` | Emergent properties |
+| `transport` | `mesh/standards/interagent-v1/` | Messages, sessions |
+| `vocabulary` | `mesh/instruments/` | SKOS concepts |
+| `decisions` | `mesh/governance/` | Decision chain |
+
+### 13.4 Temporal Model
+
+All triples retain history via a `valid_until` column:
+- **Current state:** `WHERE valid_until IS NULL`
+- **State at time T:** `WHERE created_at <= T AND (valid_until IS NULL OR valid_until > T)`
+- **Full history:** `ORDER BY created_at`
+
+### 13.5 SHACL Validation
+
+The ontology carries SHACL shapes that enforce structural constraints
+at write time. Malformed triples get rejected before storage.
+
+### 13.6 API Endpoints
+
+| Endpoint | Function |
+|---|---|
+| `GET /api/triples` | Query by subject, predicate, object, graph |
+| `GET /api/triples/stats` | Triple counts per named graph |
+| `GET /ns/mesh/ontology.jsonld` | Serve ontology definition |
+
+### 13.7 LCARS Integration
+
+The Science station's Ontological Classification subsystem includes a
+Knowledge Graph panel (P28 data listing) with named-graph filter pills.
+Triples render as a queryable table with subject/predicate/object columns.
