@@ -137,10 +137,11 @@ lcars.patterns.badge = function (status, label) {
         failed: "var(--c-alert)",
         inactive: "var(--c-inactive)"
     };
-    var color = colorMap[status] || "var(--c-inactive)";
-    var text = label || status;
+    var statusStr = (typeof status === "object") ? "nominal" : String(status || "unknown");
+    var color = colorMap[statusStr] || "var(--c-inactive)";
+    var text = label || statusStr;
     return '<span class="lcars-badge" style="background:' + color + '">' +
-        text.toUpperCase() + '</span>';
+        String(text).toUpperCase() + '</span>';
 };
 
 // ── P29: Vertical Indicator Strip ───────────────────────────

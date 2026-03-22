@@ -49,7 +49,10 @@
 
         var id = data.agent_id || "unknown";
         var version = data.version || "—";
-        var health = data.health || "unknown";
+        var rawHealth = data.health;
+        var health = typeof rawHealth === "object"
+            ? (rawHealth.unprocessed === 0 && rawHealth.active_gates === 0 ? "nominal" : "advisory")
+            : String(rawHealth || "unknown");
         var schema = data.schema_version || "—";
 
         el.innerHTML =
