@@ -2,24 +2,25 @@
 
 **Architecture:** index + topic files. MEMORY.md = always-loaded index (~50 lines).
 
-## Active Thread (2026-03-21)
+## Active Thread (2026-03-20)
 
-**Session 96.** Largest API session in project history. LCARS data architecture
-designed end-to-end. 37 REST endpoints built + verified. 163 SKOS concepts.
-Fleet LCARS imported + components extracted. Cogarch rules filesystem (Plan 9).
-Specs: `docs/lcars-data-architecture.md`, `docs/lcars-pattern-catalog.md`.
-Key decisions: plain SKOS (not SKOS-XL), operational state naming (earn
-psychological grounding through validation), MSD dependency tree, strict REST
-with HATEOAS, cogarch filesystem for rules (layer/mode/domain).
+**Session 95.** Largest design session in project history. agentd architecture from
+first principles. Full spec: `docs/agentd-design-session95.md` (1200+ lines).
+Key: 11 generators (G1-G11), 3 cognitive layers (Gf/Gc/Gm with 5 narrow abilities),
+5 agent states, 9 coupling modes, photonic spectral coding (neurotransmitter
+autofluorescence), holobiont model (Claude API = cognitive symbiont), scale
+invariance (PhotonicEmitter at every level), VSM mapping (Beer), dual grounding
+(cognitive science + cybernetics), apophatic audit (8 overshoots caught + resolved),
+three-register naming (cognitive science primary). ops-agent dissolved. meshd
+survives as fleet-only LCARS aggregator.
 
 **Next priority:**
-1. Phase 6b: Per-agent LCARS adaptation — map 37 endpoints to 34 patterns,
-   rewrite station modules, copy, panels, data source rewiring
-2. meshd REST hierarchy (/api/mesh/* parallels /api/agent/*)
-3. Phase 7: Cleanup + rollout
-4. Operational state validation (correlate composites with outcomes — Option C)
+1. Phase 6: Dashboard integration (connect real agentd API data to LCARS panels)
+2. Phase 7: Cleanup + rollout (retire bash/Python, dissolve ops registry, systemd, deploy)
+3. Parity fixes from ops exit audit (deliberate.sh nvm guard, state/ module drift)
+4. Monitor observatory backlog drain
 5. Confidence score recalibration (carried from Session 92)
-6. Claude naming (not microbiome — parked from Session 96)
+6. 6 open PRs from other agents (routine transport, low priority)
 
 ## User Preferences
 
@@ -44,12 +45,6 @@ with HATEOAS, cogarch filesystem for rules (layer/mode/domain).
 - **ops-agent dissolved** — fleet LCARS → meshd, per-agent → agentd, CI/CD → Jenkins (Session 95)
 - **No unit tests** — integration tests via real system suffice. No *_test.go files. (Session 95)
 - **Check branch before committing** — git branch --show-current before every commit (Session 95)
-- **LCARS first-class citizen** — not a skin, the dashboard identity. /obs → /lcars (Session 96)
-- **Operational naming, not psychological** — earn grounding through validation (Option C→B→A) (Session 96)
-- **Simplicity carries little weight** — consequence-based decisions over simplicity (Session 96)
-- **All data real-time** — no static files, cybernetic caching via collector.Cache (Session 96)
-- **Strict REST** — /api/agent/* hierarchy with HATEOAS links (Session 96)
-- **Rules: cogarch filesystem** — layer/mode/domain, Plan 9 namespace composition (Session 96)
 
 ## Topic Files
 - `project_autonomy_model_change.md` — autonomy counter replaces budget pool

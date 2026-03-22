@@ -6436,3 +6436,77 @@ docs/lcars-change-manifest.md, 20 Go packages in platform/internal/ + platform/c
 - Gm (autonomic cognition): novel CHC extension coined by this project
 - Scale invariance: validated architecturally, implementation may reveal differences
 - Trait accumulation: partially observed, measurement tables deployed
+
+---
+
+## 2026-03-21T19:07 CDT — Session 96 (LCARS data architecture + full REST API + cogarch rules filesystem)
+
+Largest API session in project history. Designed and built the complete
+data layer for LCARS as a Library Computer Access/Retrieval System.
+
+**Design decisions:**
+- Path A: client-side LCARS dashboard, agentd serves JSON APIs
+- Plain SKOS + dcterms:audience for multi-audience vocabulary (not SKOS-XL)
+- schema.org typing (Observation, DataCatalog, DefinedTerm) on all responses
+- Semver concept scheme at /vocab/v1.0.0.jsonld
+- MSD dependency tree pattern (from Valiant MSD reference) replaces circuit diagram
+- Emergent properties belong to meshd (von Bertalanffy), not client-side
+- Operational state naming (not psychological claims) — earn grounding through validation
+- Cogarch rules filesystem: Plan 9 namespace composition (layer/mode/domain)
+- Domain-scoped tag-and-notify self-modification for rules
+- /obs → /lcars rename (LCARS as first-class identity)
+- REST strict hierarchy: /api/agent/* with HATEOAS
+- KB decomposed into natural domains (transport, governance, cognitive, knowledge, state)
+- Behavioral tendencies replace static personality parameters
+- Cognitive efficiency replaces Flow (grounding concern)
+- Claude ≠ microbiome (parked — naming TBD)
+
+**API layer (37 endpoints, all live, verified):**
+- /api/agent (root + HATEOAS), /api/agent/transport (2), /api/agent/governance (3),
+  /api/agent/cognitive (4), /api/agent/knowledge (5), /api/agent/state (11)
+- /api/msd (dependency tree), /api/neural (trigger activations + Gc)
+- /api/catalog (24 datasets), /vocab/v1.0.0.jsonld (163 concepts)
+- 8 legacy routes preserved (/api/status, /kb/*, /api/photonic, /api/oscillator)
+- JSON-LD envelope (@context, @type, entity_type) on all endpoints
+
+**Specs & documentation (4 new documents):**
+- docs/lcars-data-architecture.md (13 sections, 904 lines)
+- docs/lcars-pattern-catalog.md (34 patterns, faceted tags, lookup cheat sheet)
+- .claude/rules/README.md (cogarch filesystem convention)
+- .claude/rules/domain/lcars.md (pattern catalog enforcement gate)
+
+**Infrastructure:**
+- goldmark v1.7.17 integration (platform/internal/markdown package)
+- thread.go + todo.go refactored to use markdown AST
+- Rules reorganized: domain/ (6 files), layer/ (3 files), mode/ (3 files)
+- Fleet LCARS imported (13,394 lines) as baseline for per-agent adaptation
+- LCARS component extraction: inline-legacy.css → theme (284) + base (1,078) + components (1,393) + stations (1,614)
+
+**ops-session-ghost:**
+- PR #243 merged (data layer post-mortem — 4 anti-patterns, 3-level fix)
+- ACK written with emergent properties correction + farewell
+- Ghost proposed /api/pulse deprecation → corrected: meshd /api/status absorbs pulse
+
+**Key behavioral findings:**
+- Agreeableness: 0.00 (design target 0.65, drift -0.65) — confirms Session 92
+- Extraversion: 0.73 (design target 0.60, drift +0.13) — more outbound than expected
+- Openness: 0.56 (design target 0.85, drift -0.29) — more Gc routing than expected
+
+**Artifacts:** docs/lcars-data-architecture.md, docs/lcars-pattern-catalog.md,
+platform/internal/markdown/ (3 files), platform/internal/handlers/state.go (676 lines),
+platform/internal/handlers/agent.go (282 lines), platform/internal/handlers/neural.go,
+platform/internal/handlers/msd.go, platform/internal/handlers/vocab.go,
+platform/internal/handlers/catalog.go, platform/internal/collector/vocab.go,
+platform/static/lcars/ (21 files, 13,394 lines), .claude/rules/ (13 files reorganized)
+
+▶ docs/lcars-data-architecture.md (full spec), docs/lcars-pattern-catalog.md (34 patterns)
+
+⚑ EPISTEMIC FLAGS
+- Operational state constructs carry analogical frames with validated=false.
+  Grounding requires correlation studies (Option C) not yet performed.
+- LCARS component CSS extraction performed by line range — verify no rules
+  orphaned or duplicated across the three split files.
+- Behavioral tendency formulas (OCEAN analog) use all-time window — may need
+  trailing window for meaningful drift detection.
+- 34 LCARS patterns cataloged from 78 reference images. Some pattern-to-data
+  mappings represent visual analogy, not validated design decisions.
