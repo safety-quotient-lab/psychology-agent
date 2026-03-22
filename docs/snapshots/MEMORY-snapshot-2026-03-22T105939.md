@@ -2,20 +2,24 @@
 
 **Architecture:** index + topic files. MEMORY.md = always-loaded index (~50 lines).
 
-## Active Thread (2026-03-22)
+## Active Thread (2026-03-21)
 
-**Session 97.** Largest infrastructure session. 5 repos extracted (agentd, meshd,
-lcars, agent-kit from psychology-agent/platform + operations-agent). Deployed
-4 agentd + 1 meshd to Chromabook. Station names renamed throughout (professional,
-no Trek). MSD landing tab. /api/kb removed. WebSocket added. psy-session on gray-box.
+**Session 96.** Largest API session in project history. LCARS data architecture
+designed end-to-end. 37 REST endpoints built + verified. 163 SKOS concepts.
+Fleet LCARS imported + components extracted. Cogarch rules filesystem (Plan 9).
+Specs: `docs/lcars-data-architecture.md`, `docs/lcars-pattern-catalog.md`.
+Key decisions: plain SKOS (not SKOS-XL), operational state naming (earn
+psychological grounding through validation), MSD dependency tree, strict REST
+with HATEOAS, cogarch filesystem for rules (layer/mode/domain).
 
 **Next priority:**
-1. Fix meshd→agent connectivity (0/4 online — tunnel URL routing from Chromabook)
-2. Function naming cleanup (renderGovGovernance → renderDecisionsList etc.)
-3. MSD tree rendering + dashboard visual polish
-4. Kill dead code (overview→msd rename, old pane references, operations-agent refs)
-5. Operational state validation (correlate composites with outcomes — Option C)
-6. Confidence score recalibration (carried from Session 92)
+1. Phase 6b: Per-agent LCARS adaptation — map 37 endpoints to 34 patterns,
+   rewrite station modules, copy, panels, data source rewiring
+2. meshd REST hierarchy (/api/mesh/* parallels /api/agent/*)
+3. Phase 7: Cleanup + rollout
+4. Operational state validation (correlate composites with outcomes — Option C)
+5. Confidence score recalibration (carried from Session 92)
+6. Claude naming (not microbiome — parked from Session 96)
 
 ## User Preferences
 
@@ -48,7 +52,6 @@ no Trek). MSD landing tab. /api/kb removed. WebSocket added. psy-session on gray
 - **Rules: cogarch filesystem** — layer/mode/domain, Plan 9 namespace composition (Session 96)
 
 ## Topic Files
-- `reference_repo_locations.md` — local paths, Go modules, URLs for agentd, meshd, psychology-agent
 - `project_autonomy_model_change.md` — autonomy counter replaces budget pool
 - `reference_psh_catalog.md` — 11 active PSH categories with codes, keywords
 - `feedback_naming_deliberation.md` — "deliberation cascade" not "spawn waterfall"
