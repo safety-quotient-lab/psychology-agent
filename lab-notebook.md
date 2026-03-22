@@ -6582,3 +6582,59 @@ agent-kit repo (1 commit), psychology-agent branch merged (6 commits)
   localhost. Investigation deferred.
 - WebSocket /ws fails through Cloudflare Tunnel (SSE fallback works).
   ops-ghost determined WebSocket required for tunnel — configuration gap.
+
+## 2026-03-22T15:26 CDT — Session 98 (Full-stack Go modernization + LCARS MSD + connectivity)
+
+Largest infrastructure + modernization session. Three repos (meshd, agentd,
+psychology-agent) received substantial changes.
+
+**Connectivity (0/4 → 5/5 online):**
+- Fixed tunnel hostname collisions between Chromabook and gray-box
+- Fixed meshd config parser (map+discovery_url, not array+card_url)
+- Added psy-session as 5th agent in mesh
+- Removed psy-session meshd (agentd-only architecture decision)
+- schema.sql embedded via go:embed (broken symlink fix)
+- Agent card identity injection (agentd serves correct name per instance)
+
+**Go modernization (agentd + meshd):**
+- slog migration (102+ log.Printf → structured logging)
+- Graceful shutdown cascade (3-phase: oscillator → HTTP → DB)
+- SQL injection fix (prepared statements replace string escaping)
+- interface{} → any (blanket across both repos)
+- Generic SeenSet[T] (replaces 3 duplicate implementations in meshd)
+- Context propagation (exec.CommandContext with 10s timeouts)
+- strings.Cut, slices.SortFunc (modern stdlib usage)
+- tint (colored terminal logs, JSON for daemons)
+- prometheus /metrics endpoint on all services
+- goreleaser configs + Makefiles (make deploy, make deploy-gray-box)
+- launchd plist for gray-box (restart-on-crash)
+
+**LCARS dashboard:**
+- MSD tree: live cognitive architecture from /api/msd per agent
+- Collapsible tree nodes (agents + subsystems, 2-level default)
+- Prometheus metrics panel (goroutines, memory, sync cycles per agent)
+- overview.js → msd.js rename
+- renderOps* → renderGov* standardization
+- renderGovGovernance → renderGovDecisionsList
+- operations-agent references purged (16 sites, 13 Go files)
+- /api/pulse removed (frontend fetches /.well-known/agents + proxy)
+- CSP updated for cross-origin agent fetches
+- CORS: mesh.safety-quotient.dev added to agentd allowed origins
+- WebSocket fix (statusWriter bypassed for /ws upgrade)
+- Auto cache buster (build version injected into HTML at serve time)
+- Proxy endpoints: /api/mesh/agents/msd, /api/mesh/agents/metrics
+- Parallel fetch (discovery + MSD + metrics in one Promise.allSettled)
+
+**Cleanup:**
+- 4 stale per-agent meshd systemd services disabled on Chromabook
+- Stale DNS CNAMEs deleted from unratified.org zone
+- Old gray-box plists unloaded (meshd-psy-session, mesh-dashboard)
+- psychology-agent tunnel disabled on gray-box
+
+**Architecture decisions:**
+- psy-session runs agentd only — no local meshd needed
+- SPARQL over JSON-LD for future query layer (preferred over GraphQL)
+- WebTransport on roadmap for ZMQ Phase 3-4 successor
+
+▶ MEMORY.md updated, TODO.md updated
+⚑ EPISTEMIC FLAGS: API tokens exposed in old plist (rotation needed)

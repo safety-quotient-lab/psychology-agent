@@ -4,18 +4,18 @@
 
 ## Active Thread (2026-03-22)
 
-**Session 98.** Full-stack infrastructure + Go modernization session. Connectivity
-fixed (5/5 online). Go binaries modernized: slog, graceful shutdown, SQL injection
-fixed, generics (SeenSet[T]), context propagation, tint, prometheus /metrics, interface{}
-→ any. operations-agent purged from meshd (16 sites). LCARS JS cleaned (overview→msd,
-renderOps→renderGov). Makefiles + goreleaser + launchd plist. psy-session meshd removed.
+**Session 97.** Largest infrastructure session. 5 repos extracted (agentd, meshd,
+lcars, agent-kit from psychology-agent/platform + operations-agent). Deployed
+4 agentd + 1 meshd to Chromabook. Station names renamed throughout (professional,
+no Trek). MSD landing tab. /api/kb removed. WebSocket added. psy-session on gray-box.
 
 **Next priority:**
-1. SPARQL triple store for meshd (Cayley) — structured queries over JSON-LD agent data
-2. WebTransport evaluation — W3C mesh networking prototype
-3. MSD column alignment (label | value | visual)
-4. Operational state validation (Option C — correlate composites with outcomes)
-5. Confidence score recalibration (carried from Session 92)
+1. Fix meshd→agent connectivity (0/4 online — tunnel URL routing from Chromabook)
+2. Function naming cleanup (renderGovGovernance → renderDecisionsList etc.)
+3. MSD tree rendering + dashboard visual polish
+4. Kill dead code (overview→msd rename, old pane references, operations-agent refs)
+5. Operational state validation (correlate composites with outcomes — Option C)
+6. Confidence score recalibration (carried from Session 92)
 
 ## User Preferences
 
@@ -63,6 +63,3 @@ renderOps→renderGov). Makefiles + goreleaser + launchd plist. psy-session mesh
 - `project_thoughtfulness_architecture.md` — DMN-analog third cogarch layer
 - `project_properly_restart_metric.md` — "let me do it properly" self-correction signal
 - `project_session93_synthesis.md` — timing hierarchy, VT, LCARS, delivery guarantees, BFT, vagal brake
-- `project_golang_maturity_gaps.md` — SIGTERM, cross-compile, schema embed, ZMQ phases, service files
-- `project_psy_session_no_meshd.md` — psy-session runs agentd only, no local meshd (Session 98 decision)
-- `project_api_token_rotation.md` — ROTATE: CF_API_TOKEN + GITHUB_TOKEN exposed in old plist on gray-box

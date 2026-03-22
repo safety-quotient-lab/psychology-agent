@@ -106,15 +106,15 @@ New items from the full cogarch evaluation (`docs/cogarch-evaluation-session85.m
   Phase 6b COMPLETE. Phase 7 (cleanup + polish) IN PROGRESS.
   Repos: agentd, meshd, lcars, agent-kit. operations-agent archived.
 
-- [ ] **meshd→agent connectivity** — meshd shows 0/4 agents online despite
-  all responding to direct health checks. Root cause: tunnel URL routing
-  from Chromabook. Needs investigation.
-  *Effort: S. Precondition: agentd deployed (✓).*
+- [x] **meshd→agent connectivity** — COMPLETE (Session 98). Root causes: (1) tunnel
+  hostname collisions between Chromabook and gray-box, (2) meshd config parser
+  expected JSON array but config used object map, (3) `discovery_url` vs `card_url`
+  field name mismatch. All fixed + psy-session added as 5th agent. 5/5 online.
 
-- [ ] **LCARS dashboard polish** — function naming cleanup (renderGovGovernance
-  etc.), MSD tree rendering, dead code removal, operations-agent references
-  in meshd source. Visual alignment tweaks.
-  *Effort: M. Precondition: station rename complete (✓).*
+- [x] **LCARS dashboard polish** — COMPLETE (Session 98). operations-agent refs
+  removed (16 sites across 13 Go files). renderOverview → renderMSD. overview.js →
+  msd.js. renderOps* → renderGov* in governance.js. renderGovGovernance →
+  renderGovDecisionsList. Remaining: MSD tree rendering + visual alignment (deferred).
 
 - [ ] **Cross-agent RPG** — extend /retrospect to scan peer transport for
   mesh-level patterns invisible to single-agent retrospectives.
@@ -762,11 +762,8 @@ The dual-write pipeline (SL-2) populates the index; these items read from it.
   observatory (:8079). Tunnel routes added, DNS CNAMEs created:
   unratified-agent.unratified.org, observatory-agent.unratified.org.
 
-- [ ] **Clean up wrong DNS records** — cloudflared created CNAME
-  `unratified-agent.safety-quotient.dev.unratified.org` and
-  `observatory-agent.safety-quotient.dev.unratified.org` on the unratified.org
-  zone. Harmless but should delete via CF dashboard.
-  *Precondition: none — dashboard access only*
+- [x] **Clean up wrong DNS records** — COMPLETE (Session 98). Stale CNAMEs
+  deleted from unratified.org zone via CF dashboard. Propagation pending.
 
 - [x] **Plan9 directory tree consensus (C2)** — COMPLETE. 3/3 AGREE votes,
   session-close confirms unanimous adoption (2026-03-10). Peer responses existed
@@ -1178,3 +1175,32 @@ findings require dedicated resolution.
 - [ ] **Gray-box meshd binary rebuild** — requires GOPRIVATE auth for private
   module deps. Blocks: activation-trace rename, heartbeat emission on gray-box.
   *Precondition: Go build environment configured on gray-box.*
+
+## Session 98 — New Items
+
+- [ ] **SPARQL query layer for meshd** — embeddable triple store (Cayley, Apache 2.0)
+  over JSON-LD agent data. Replaces REST polling with structured queries.
+  Agents already emit @context — RDF conversion straightforward.
+  *Effort: L. Precondition: none — agents already serve JSON-LD.*
+
+- [ ] **WebTransport evaluation** — W3C + IETF RFC 9220. Multiplexed streams
+  over HTTP/3/QUIC for mesh networking. Go library: quic-go (MIT).
+  Candidate replacement for ZMQ Phase 3-4 browser-side participation.
+  *Effort: M (prototype). Precondition: Cloudflare tunnel HTTP/3 support.*
+
+- [ ] **MSD column alignment** — split tree rows into label | value | visual
+  columns with proper justification. Currently flex with mixed content.
+  *Effort: S. Precondition: none.*
+
+- [ ] **Go binary signal handling hardening** — meshd/agentd SIGTERM cascade
+  verified working but not tested under load. errgroup refactor deferred.
+  *Effort: S. Precondition: none.*
+
+- [ ] **API token rotation** — CF_API_TOKEN + GITHUB_TOKEN exposed in old
+  gray-box meshd launchd plist. Rotate via CF dashboard + GitHub settings.
+  *Effort: XS. Precondition: none — dashboard access only.*
+
+- [ ] **Audit git history for leaked API keys** — report of Anthropic key in
+  git commit history. Scan with `git log -p | grep -i 'sk-ant\|ANTHROPIC_API_KEY'`.
+  If found: rotate key immediately, consider git filter-branch or BFG to purge.
+  *Effort: S. Precondition: none.*
