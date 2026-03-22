@@ -218,6 +218,11 @@ func serveCmd(args []string) {
 	mux.HandleFunc("/api/agent/knowledge/lessons", handlers.APIAgentKnowledgeLessons(cache))
 	mux.HandleFunc("/api/agent/knowledge/epistemic", handlers.APIAgentKnowledgeEpistemic(cache))
 	mux.HandleFunc("/api/agent/knowledge/memory", handlers.APIAgentKnowledgeMemory(cache))
+	mux.HandleFunc("/api/agent/knowledge/facets", handlers.APIAgentKnowledgeFacets(roDB))
+	// Cognitive extra
+	mux.HandleFunc("/api/agent/cognitive/tempo", handlers.APIAgentCognitiveTempo(roDB))
+	// History
+	mux.HandleFunc("/api/agent/history", handlers.APIAgentHistory(roDB))
 	// State routes registered after oscillator setup (below) — activation needs osc reference
 
 	// SSE stream

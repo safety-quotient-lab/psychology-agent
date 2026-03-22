@@ -352,6 +352,37 @@ func APICatalog() http.HandlerFunc {
 				UpdateRate:   "live",
 				Pattern:      "P08,P33",
 			},
+			// ── Cognitive extra ──
+			{
+				Type:        "Dataset",
+				ID:          "/api/agent/cognitive/tempo",
+				Name:        "Cognitive Tempo",
+				Description: "Dispatch timing, action frequency, trigger activation rate (Salthouse, 1996)",
+				Distribution: dist("/api/agent/cognitive/tempo"),
+				Station:      "engineering",
+				UpdateRate:   "live",
+				Pattern:      "P04,P33",
+			},
+			{
+				Type:        "Dataset",
+				ID:          "/api/agent/knowledge/facets",
+				Name:        "Facet Distribution",
+				Description: "Classification metadata — PSH, schema_type, domain facet counts",
+				Distribution: dist("/api/agent/knowledge/facets"),
+				Station:      "science",
+				UpdateRate:   "session",
+				Pattern:      "P03,P16",
+			},
+			{
+				Type:        "Dataset",
+				ID:          "/api/agent/history",
+				Name:        "Session History",
+				Description: "Past session metadata — session numbers, summaries, timestamps",
+				Distribution: dist("/api/agent/history"),
+				Station:      "operations",
+				UpdateRate:   "session",
+				Pattern:      "P28",
+			},
 			// ── Infrastructure ──
 			{
 				Type:        "Dataset",
