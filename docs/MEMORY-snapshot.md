@@ -48,7 +48,12 @@ no Trek). MSD landing tab. /api/kb removed. WebSocket added. psy-session on gray
 - **Rules: cogarch filesystem** — layer/mode/domain, Plan 9 namespace composition (Session 96)
 
 ## Topic Files
+- `project_distributed_architecture.md` — agentd/meshd operate as open-web distributed apps, not local services
 - `reference_repo_locations.md` — local paths, Go modules, URLs for agentd, meshd, psychology-agent
+- `feedback_surgical_not_rebuild.md` — modify working systems surgically, never rebuild from scratch
+- `feedback_deploy_verify_binary.md` — verify /proc/PID/exe after deploy, kill -9 before swap
+- `feedback_js_treat_as_user_facing.md` — JS code represents user-facing surface, rename ALL references
+- `feedback_no_magic_numbers.md` — timeouts/thresholds from config, not hardcoded constants
 - `project_autonomy_model_change.md` — autonomy counter replaces budget pool
 - `reference_psh_catalog.md` — 11 active PSH categories with codes, keywords
 - `feedback_naming_deliberation.md` — "deliberation cascade" not "spawn waterfall"
