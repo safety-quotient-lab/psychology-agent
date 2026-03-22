@@ -231,11 +231,19 @@ func serveCmd(args []string) {
 	dashboard := handlers.LCARSDashboard(cache, tmpl)
 	mux.HandleFunc("/lcars", dashboard)
 
-	// Dashboard — client-side fleet LCARS at /lcars/v2/*
-	// Serves the full lcars/ directory so relative paths (css/, js/, fonts/) resolve correctly.
+	// Dashboard — per-agent LCARS at /lcars/v2/*
+	// Uses shared lcars-components (theme + base + components CSS) with
+	// agent-specific station modules. Fleet LCARS at /lcars/v2/index.html.
 	lcarsSub, _ := fs.Sub(platform.StaticFS, "static/lcars")
-	mux.Handle("/lcars/v2/", http.StripPrefix("/lcars/v2/", http.FileServer(http.FS(lcarsSub))))
-	// Redirect /lcars/v2 (no trailing slash) to /lcars/v2/
+	lcarsFS := http.FileServer(http.FS(lcarsSub))
+	mux.Handle("/lcars/v2/", http.StripPrefix("/lcars/v2/", http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			// Serve agent.html as the default page
+			if r.URL.Path == "" || r.URL.Path == "/" {
+				r.URL.Path = "/agent.html"
+			}
+			lcarsFS.ServeHTTP(w, r)
+		})))
 	mux.HandleFunc("/lcars/v2", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/lcars/v2/", http.StatusMovedPermanently)
 	})

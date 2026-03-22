@@ -1,0 +1,1078 @@
+/* ── LCARS Chrome: Frame Override ──────────────────────────── */
+/* 3 columns × 5 rows. Margin channel creates elbow corner cells.
+   col: sidebar | margin(elbow-inner) | content
+   row: header | top-corner | content (L-shape, no bottom elbow) */
+.theme-lcars .lcars-frame {
+    grid-template-columns: var(--sidebar-width) var(--elbow-inner, 24px) 1fr;
+    grid-template-rows: auto var(--elbow-inner, 24px) 1fr;
+    position: relative;
+    min-height: 100vh;
+}
+/* No footer band in L-shape layout */
+.theme-lcars .lcars-footer-band { display: none; }
+/* Explicit grid placement */
+.theme-lcars .lcars-sidebar     { grid-column: 1;      grid-row: 1 / -1; }
+.theme-lcars .lcars-header-band { grid-column: 2 / -1;  grid-row: 1; }
+.theme-lcars .lcars-content     { grid-column: 3;       grid-row: 3; overflow-y: auto; }
+
+/* Hide standard-mode elements in LCARS */
+.theme-lcars .lcars-spine  { display: none; }
+.theme-lcars .lcars-header { display: none; }
+.theme-lcars .lcars-tabs   { display: none; }
+.theme-lcars .lcars-footer { display: none; }
+
+/* ── LCARS Sidebar ─────────────────────────────────────────── */
+.lcars-sidebar {
+    display: none;  /* hidden in dark/light */
+}
+.theme-lcars .lcars-sidebar {
+    display: flex;
+    flex-direction: column;
+    grid-column: 1;
+    grid-row: 1 / -1;
+    background: #000;
+    padding-top: 0;
+    gap: 0;
+    padding-bottom: 0; /* exit button's margin-bottom handles viewport gap */
+    position: relative;
+}
+/* SVG frame hidden */
+.lcars-frame-svg { display: none !important; }
+
+/* Flat uniform frame — all structural elements use solid --lcars-frame.
+   No gradients, no seams, clean canonical appearance. */
+/* All LCARS frame structural elements — single class for color control.
+   Elbow connectors excluded — they use radial-gradient for the curve cutout.
+   No !important — alert level rules (which use !important) override this. */
+.theme-lcars .lcars-frame-element:not(.lcars-elbow-connector-top):not(.lcars-elbow-connector-bottom) {
+    background: var(--active-tab-color, var(--lcars-frame));
+    transition: background 0.3s ease;
+}
+
+/* Top elbow cap — outer corner of the frame rounds off at top-left.
+   ╭████████████████████
+   │████ HEADER BAND
+   │████╯                 ← inner cutout (via header seg radius)
+   │BTN
+   The cap's top-left corner carries the frame's outer radius. */
+/* Sidebar structural elements — transparent in LCARS mode to show
+   parent's seamless gradient. Solid color in non-LCARS as fallback. */
+.lcars-sidebar-cap-top {
+    background: var(--active-tab-color, var(--lcars-frame));
+    min-height: var(--band-size);
+    flex-shrink: 0;
+    border-radius: var(--elbow-outer) 0 0 0;
+    margin-bottom: 0;
+    transition: background 0.3s ease;
+}
+
+/* ── Elbow connector — square with circle stamped out of corner ── */
+/* Sits between cap and drop. Colored square + radial-gradient
+   creates concave sweep: structural color remains, void curves in. */
+/* Connector: colored square, circle stamped out of inner corner.
+   What remains = concave L-shape bridging header arm ↔ sidebar drop.
+
+   Top: circle at bottom-right (void enters from content area)
+   ████████╮
+   ████████ ╰ ← black quarter-circle
+
+   Bottom: circle at top-right (void enters from content area)
+   ████████ ╭ ← black quarter-circle
+   ████████╯
+*/
+/* ── Elbow inner corner connectors ────────────────────────────
+   Absolutely positioned on .lcars-frame at the junction where
+   sidebar meets content. Square with quarter-circle void cut
+   from the corner facing the content area.
+
+   Top:  structural color in top+left, void sweeps in from bottom-right
+         ████╮
+         ████ ╰── black quarter-circle (content void curves in)
+
+   Bottom: mirror — void sweeps in from top-right
+         ████ ╭── black quarter-circle
+         ████╯
+*/
+.lcars-elbow-connector-top,
+.lcars-elbow-connector-bottom {
+    display: none;
+}
+.theme-lcars .lcars-frame { position: relative; }
+/* Size matches the elbow-inner radius. Position: flush with sidebar
+   right edge, flush with header/footer bottom/top edge. */
+/* Connectors: grid-placed in margin intersection cells */
+.theme-lcars .lcars-elbow-connector-top {
+    display: block;
+    grid-column: 2;
+    grid-row: 2;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+    /* Elbow uses midpoint of the gradient (pure frame color) —
+       at 24px scale the gradient variation is imperceptible */
+    background: radial-gradient(
+        circle at 100% 100%,
+        transparent 0%,
+        transparent var(--elbow-inner, 24px),
+        var(--active-tab-color, var(--lcars-frame)) var(--elbow-inner, 24px)
+    );
+    transition: background 0.3s ease;
+}
+.theme-lcars .lcars-elbow-connector-bottom {
+    display: block;
+    grid-column: 2;
+    grid-row: 4;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+    background: radial-gradient(
+        circle at 100% 0%,
+        transparent 0%,
+        transparent var(--elbow-inner, 24px),
+        var(--active-tab-color, var(--lcars-frame)) var(--elbow-inner, 24px)
+    );
+    transition: background 0.3s ease;
+}
+
+/* Alert: connectors follow structural chrome */
+/* Alert connector colors handled in alert section below */
+
+/* Sidebar navigation buttons — canonical: flat rectangular blocks that
+   blend into the frame structure. Text bottom-right. NO rounding — these
+   are frame elements, not standalone capsules. (Tuvok reference) */
+.lcars-sidebar-btn {
+    display: flex;
+    align-items: flex-end; /* bottom-aligned text — canonical (Tuvok) */
+    justify-content: flex-end; /* right-aligned text — canonical */
+    width: 100%;
+    border: none;
+    border-radius: 0; /* flat rectangles — structural frame blocks */
+    padding: 16px 12px 6px 12px;
+    min-height: 72px;
+    flex-shrink: 0;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-size: 0.85em;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: left;
+    background: var(--lcars-atomic-tangerine); /* default — overridden per station below */
+    color: #000;
+    cursor: pointer;
+    margin-bottom: var(--gap-xs); /* match header band segment gap */
+    transition: filter 0.15s, padding-left 0.15s;
+}
+.lcars-sidebar-btn:hover { filter: brightness(1.15); }
+.lcars-sidebar-btn.active {
+    filter: brightness(1.3); /* brightness = state, not color change (§2.1) */
+}
+/* Per-station button colors — LCARS 2369 palette */
+.lcars-sidebar-btn[data-tab="operations"]  { background: var(--c-tab-ops); }
+.lcars-sidebar-btn[data-tab="science"]     { background: var(--c-tab-science); }
+.lcars-sidebar-btn[data-tab="engineering"] { background: var(--c-tab-engineering); }
+.lcars-sidebar-btn[data-tab="helm"]        { background: var(--c-tab-helm); }
+.lcars-sidebar-btn[data-tab="tactical"]    { background: var(--c-tab-tactical); }
+.lcars-sidebar-btn[data-tab="medical"]     { background: var(--c-tab-medical); }
+/* TODO: Active button connector — needs proper elbow geometry linking
+   the active sidebar button to the content panel. Current approach (nub)
+   looked wrong. Revisit with SVG elbow sprites or CSS clip-path. */
+
+/* Sidebar spacer blocks — visual rhythm, no text.
+   No border-radius — spacers blend seamlessly into the frame. */
+.lcars-sidebar-spacer {
+    min-height: 28px;
+    flex-shrink: 0;
+    margin-bottom: var(--gap-xs); /* match button gap */
+}
+/* Spacers use frame gradient (set in .theme-lcars block above) */
+
+/* Bottom elbow cap — outer corner of the frame rounds off at bottom-left.
+   │BTN
+   │████╮                 ← inner cutout (via footer seg radius)
+   │████ FOOTER BAND
+   ╰████████████████████
+   The cap's bottom-left corner carries the frame's outer radius. */
+/* Sidebar arm — fills gap between last button and footer cap.
+   Matches sidebar cap color (purple/lavender in LCARS 47988). */
+.lcars-sidebar-arm {
+    flex: 1;
+    background: var(--active-tab-color, var(--lcars-frame));
+    margin-bottom: 0;
+    transition: background 0.3s ease;
+}
+
+.lcars-sidebar-cap-bottom {
+    background: var(--active-tab-color, var(--lcars-frame));
+    min-height: var(--band-size);
+    border-radius: 0 0 0 var(--elbow-outer);
+    transition: background 0.3s ease;
+}
+
+/* ── LCARS Header Band (Segmented) ─────────────────────────── */
+.lcars-header-band {
+    display: none; /* hidden in dark/light */
+}
+.theme-lcars .lcars-header-band {
+    display: flex;
+    grid-column: 2 / -1;
+    grid-row: 1;
+    gap: var(--gap-xs);
+    align-items: stretch;
+    min-height: var(--band-size);
+    position: relative;
+    z-index: 300;
+}
+.theme-lcars .lcars-header {
+    display: none; /* hide standard header in LCARS */
+}
+
+.lcars-header-seg {
+    display: flex;
+    align-items: flex-end; /* bottom-aligned text — canonical */
+    justify-content: center; /* centered horizontally */
+    padding: 8px 18px;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-size: 0.85em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #000;
+    white-space: nowrap;
+    overflow: hidden;
+    justify-content: flex-end;
+}
+/* Header structural elements — internal glow (gradient top→bottom for horizontal bars) */
+.lcars-hdr-arm,
+.lcars-hdr-endcap {
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--lcars-frame) 78%, #1a1000) 0%,
+        color-mix(in srgb, var(--lcars-frame) 88%, #2a1800) 8%,
+        var(--lcars-frame) 25%,
+        color-mix(in srgb, var(--lcars-frame) 92%, #ffe8cc) 38%,
+        color-mix(in srgb, var(--lcars-frame) 95%, #fff4e0) 55%,
+        var(--lcars-frame) 72%,
+        color-mix(in srgb, var(--lcars-frame) 85%, #1a1000) 100%
+    );
+}
+
+/* First header segment: title — left pill cap */
+.lcars-header-seg:first-child {
+    justify-content: flex-start;
+    font-size: 0.85em;
+    letter-spacing: 0.1em;
+    border-radius: var(--elbow-inner) 0 0 var(--elbow-inner);
+}
+/* Data pills: flat edges, uniform width, centered text */
+.lcars-header-seg:not(.lcars-hdr-title) {
+    border-radius: 0;
+    flex: 0 0 auto;
+    min-width: 80px;
+    justify-content: center;
+    text-align: center;
+}
+/* Last header data segment */
+.lcars-header-seg:last-child {
+    justify-content: center;
+}
+/* Footer: same flat-edge treatment */
+.lcars-footer-seg:not(:first-child):not(:last-child) {
+    border-radius: 0;
+}
+
+/* ── LCARS Footer Band (Segmented) ─────────────────────────── */
+.lcars-footer-band {
+    display: none;
+}
+.theme-lcars .lcars-footer-band {
+    display: flex;
+    grid-column: 2 / -1;
+    grid-row: 5;
+    gap: var(--gap-s, 5px);
+    align-items: stretch;
+    min-height: var(--band-size);
+}
+.theme-lcars .lcars-footer {
+    display: none; /* hide standard footer in LCARS */
+}
+
+.lcars-footer-seg {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 4px 14px;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #000;
+    white-space: nowrap;
+    overflow: hidden;
+}
+/* First footer segment: left capsule cap — matches inner elbow curve */
+.lcars-footer-seg:first-child {
+    border-radius: var(--elbow-inner) 0 0 var(--elbow-inner);
+}
+/* Middle footer segments: flat both sides (interior capsule — §3.5) */
+.lcars-footer-seg:not(:first-child):not(:last-child) {
+    border-radius: 0;
+}
+/* Last footer segment: right capsule cap (50vh pill end) */
+.lcars-footer-seg:last-child {
+    border-radius: 0 50vh 50vh 0;
+}
+
+/* ── LCARS Content Override ────────────────────────────────── */
+.theme-lcars .lcars-content {
+    grid-column: 3;
+    grid-row: 3;
+    background: #000;
+    padding: var(--gap-xl, 21px);
+    overflow-y: auto;
+}
+
+/* ── LCARS Panel Hybrid Style ──────────────────────────────── */
+.theme-lcars .lcars-panel {
+    background: #000;
+    border: none;
+    border-radius: 0;
+}
+.theme-lcars .lcars-panel::before {
+    display: none;
+}
+.theme-lcars .lcars-panel-header {
+    background: var(--panel-accent, var(--c-transport));
+    color: #000;
+    border-bottom: none;
+    border-radius: 0 var(--gap-m) 0 0;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+/* Panel section ID — right-aligned number in header bar (Ohniaka pattern) */
+.lcars-panel-id {
+    font-size: 0.85em;
+    opacity: 0.7;
+    letter-spacing: 0.04em;
+}
+
+/* ── Three-Zone Panel Layout (§1.2) ───────────────────────── */
+/* Zone A: dense number grid (top). Zone B: visualization (middle).
+   Zone C: title bar + section ID (bottom). Every canonical panel uses this. */
+
+/* Zone A — dense alphanumeric matrix above the visualization */
+.lcars-zone-a {
+    padding: 6px 12px;
+    font-family: 'Menlo', 'Lucida Console', monospace;
+    font-size: 0.65em;
+    line-height: 1.6;
+    letter-spacing: 0.08em;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.2em;
+}
+.theme-lcars .lcars-zone-a {
+    background: #000;
+}
+/* Number grid — labeled key-value pairs, color by data type (§2.3) */
+.lcars-zone-a .zn-pair {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.3em;
+    white-space: nowrap;
+}
+.lcars-zone-a .zn-label {
+    color: var(--text-dim, #666);
+    font-size: 0.85em;
+    text-transform: uppercase;
+}
+.lcars-zone-a .zn-count { color: var(--lcars-accent); }     /* orange: counts */
+.lcars-zone-a .zn-id { color: var(--lcars-secondary); }     /* purple: identifiers */
+.lcars-zone-a .zn-val { color: var(--text-primary, #eee); } /* white: measured */
+.lcars-zone-a .zn-alert { color: var(--lcars-title); font-weight: 700; } /* gold: anomalous */
+
+/* Zone B — main visualization / content (inherits .lcars-panel-body) */
+/* No additional CSS needed — .lcars-panel-body serves as Zone B */
+
+/* Zone C — title bar with section identifier number */
+.lcars-zone-c {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 16px;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim, #888);
+    border-top: 2px solid var(--panel-accent, var(--lcars-frame));
+}
+.theme-lcars .lcars-zone-c {
+    background: #000;
+    border-top-color: var(--panel-accent, var(--lcars-frame));
+}
+.lcars-zone-c .zc-title { color: var(--text-primary, #eee); }
+.lcars-zone-c .zc-id {
+    color: var(--lcars-accent);
+    font-size: 1.2em;
+    min-width: 60px;
+    text-align: right;
+}
+
+/* ── Symmetric Framing (§5.4) ───────────────────────────────── */
+/* Capsule control strips appear above AND below content */
+.lcars-symmetric-controls {
+    display: flex;
+    gap: var(--gap-s, 5px);
+    flex-wrap: wrap;
+    padding: 6px 12px;
+}
+.lcars-symmetric-controls.bottom {
+    border-top: 2px solid var(--panel-accent, var(--lcars-frame));
+}
+.lcars-symmetric-controls.top {
+    border-bottom: 2px solid var(--panel-accent, var(--lcars-frame));
+}
+
+/* ── LCARS Typography Override ─────────────────────────────── */
+.theme-lcars {
+    font-family: 'Arial Narrow', 'Helvetica Neue', system-ui, sans-serif;
+}
+.theme-lcars .vital-value,
+.theme-lcars .agent-metric-value,
+.theme-lcars .kb-vital-value,
+.theme-lcars .dew-score,
+.theme-lcars .util-rho,
+.theme-lcars .tempo-value,
+.theme-lcars .cost-total,
+.theme-lcars .ops-budget-credit {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+/* ── LCARS Responsive: Tablet ─────────────────────────────── */
+@media (max-width: 768px) {
+    .theme-lcars .lcars-frame {
+        grid-template-columns: 60px var(--elbow-inner, 24px) 1fr;
+    }
+    .theme-lcars { --sidebar-width: 60px; --elbow-inner: 16px; }
+
+    /* Sidebar: show short codes only */
+    .lcars-sidebar-btn {
+        font-size: 0 !important;
+        min-height: 36px;
+        padding: 8px;
+        text-align: center;
+    }
+    .lcars-sidebar-btn::after {
+        content: attr(data-short);
+        font-size: 10px !important;
+        display: block;
+    }
+    .lcars-sidebar-btn.active::after {
+        font-size: 11px !important;
+    }
+
+    /* Header band: wrap segments, hide non-essential */
+    .theme-lcars .lcars-header-band {
+        flex-wrap: wrap;
+        min-height: auto;
+    }
+    .lcars-header-seg {
+        font-size: 0.6em;
+        padding: 2px 8px;
+        min-height: 24px;
+    }
+
+    /* Footer band: wrap segments, hide non-essential */
+    .theme-lcars .lcars-footer-band {
+        flex-wrap: wrap;
+        min-height: auto;
+    }
+    .lcars-footer-seg {
+        font-size: 0.6em;
+        padding: 2px 8px;
+        min-height: 24px;
+    }
+
+    /* Sidebar caps: reduce height */
+    .lcars-sidebar-cap-top { min-height: 36px; }
+    .lcars-sidebar-cap-bottom { min-height: 36px; }
+}
+
+/* ── LCARS Responsive: Large Phone Portrait (430-480px, iPhone Pro Max) ── */
+@media (max-width: 480px) {
+    .theme-lcars .lcars-frame {
+        grid-template-columns: 44px var(--elbow-inner, 24px) 1fr;
+    }
+    .theme-lcars { --sidebar-width: 44px; --elbow-inner: 12px; }
+
+    /* Sidebar: minimal shortcodes */
+    .lcars-sidebar-btn {
+        min-height: 28px;
+        padding: 4px;
+    }
+    .lcars-sidebar-btn::after {
+        font-size: 8px !important;
+    }
+    .lcars-sidebar-btn.active::after {
+        font-size: 9px !important;
+    }
+
+    /* Sidebar spacers: minimal */
+    .lcars-sidebar-spacer { min-height: 8px; }
+    .lcars-sidebar-cap-top { min-height: 28px; }
+    .lcars-sidebar-cap-bottom { min-height: 28px; }
+
+    /* Header: compact arms (+1φ for mobile) */
+    .lcars-hdr-arm { flex: 0 0 calc(var(--gap-m, 8px) + var(--gap-xl, 21px)) !important; min-width: calc(var(--gap-m, 8px) + var(--gap-xl, 21px)); }
+    .lcars-hdr-endcap { flex: 1 0 12px; } /* grows to fill remaining space */
+    .lcars-header-seg { font-size: 0.55em; padding: 2px 6px; min-width: 0; }
+    /* SD pill: flat right edge (endcap terminates the band) */
+    .lcars-stardate-cell { border-radius: 0 !important; }
+
+    /* Footer band: compact */
+    .lcars-footer-seg { font-size: 0.55em; padding: 2px 6px; }
+    .lcars-footer-seg:nth-child(n+3) { display: none; }
+
+    /* Elbow cap: smaller to fit 44px sidebar */
+    .lcars-sidebar-cap-top {
+        border-radius: 28px 0 0 0;
+    }
+}
+
+/* ── LCARS Responsive: Landscape (short viewport) ───────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+    /* Sidebar: compact buttons with visible shortcodes */
+    .lcars-sidebar-btn {
+        min-height: 28px;
+        padding: 4px 8px;
+    }
+    .lcars-sidebar-cap-top { min-height: 32px; }
+    .lcars-sidebar-cap-bottom { min-height: 32px; }
+    .lcars-sidebar-arm { min-height: 4px; }
+    .lcars-sidebar-spacer { min-height: 4px; }
+
+    /* Header/footer: compact */
+    .lcars-header-band { min-height: 32px !important; }
+    .lcars-footer-band { min-height: 32px !important; }
+    .lcars-header-seg { font-size: 0.6em; padding: 2px 8px; }
+    .lcars-footer-seg { font-size: 0.6em; padding: 2px 8px; }
+    /* SD pill: flat right in landscape too */
+    .lcars-stardate-cell { border-radius: 0 !important; }
+    /* Endcap: grows to fill */
+    .lcars-hdr-endcap { flex: 1 0 12px !important; }
+
+    /* Content: reduced padding */
+    .lcars-content { padding: 8px 12px; }
+}
+
+
+/* ── Frame (continued) ── */
+/* ── LCARS Frame ─────────────────────────────────────────────── */
+.lcars-frame {
+    display: grid;
+    grid-template-columns: var(--elbow-width) 1fr;
+    grid-template-rows: auto auto 1fr auto;
+    min-height: 100vh;
+    gap: 0;
+}
+
+/* Left spine */
+.lcars-spine {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.lcars-spine-segment {
+    flex: 1;
+    min-height: 30px;
+    transition: flex 0.4s ease, background 0.4s ease;
+    cursor: default;
+    position: relative;
+}
+.lcars-spine-segment:hover::after {
+    content: attr(title);
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--bg-panel);
+    color: var(--text-primary);
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 0.65em;
+    white-space: nowrap;
+    z-index: 10;
+    border: 1px solid var(--border);
+    pointer-events: none;
+}
+.lcars-spine-segment:first-child {
+    border-radius: var(--elbow-radius) 0 0 0;
+}
+.lcars-spine-segment:last-child {
+    border-radius: 0 0 0 var(--elbow-radius);
+}
+
+/* Header band */
+.lcars-header {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: var(--band-height) solid var(--active-tab-color, var(--c-transport));
+}
+
+.lcars-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: var(--active-tab-color, var(--c-transport));
+    letter-spacing: 0.05em;
+}
+.lcars-subtitle {
+    font-size: 0.75em;
+    color: var(--text-secondary);
+    margin-left: 12px;
+}
+
+.lcars-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Toggle switches */
+.toggle-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+.toggle-btn {
+    background: var(--bg-inset);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.7em;
+    transition: all 0.2s;
+}
+.toggle-btn:hover { border-color: var(--text-secondary); }
+.toggle-btn.active {
+    background: var(--c-transport);
+    color: var(--bg-primary);
+    border-color: var(--c-transport);
+}
+/* LCARS mode: rectangular blocks + TNG palette */
+.theme-lcars .toggle-btn {
+    border-radius: var(--gap-xs);
+    border: none;
+    background: var(--lcars-secondary);
+    color: #000;
+    padding: 10px 14px 4px;
+    min-height: 44px;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: inline-flex;
+    align-items: flex-end;
+    justify-content: center;
+    transition: filter 0.15s;
+}
+.theme-lcars .toggle-btn:hover { filter: brightness(1.15); }
+.theme-lcars .toggle-btn.active {
+    filter: brightness(1.3);
+}
+
+/* Tab bar */
+.lcars-tabs {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    gap: 0;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg);
+}
+.lcars-tab {
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--text-secondary);
+    padding: 10px 20px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85em;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+.lcars-tab:hover { color: var(--text-primary); }
+.lcars-tab.active { color: var(--c-tab-pulse); border-bottom-color: var(--c-tab-pulse); }
+.lcars-tab[data-tab="pulse"].active  { color: var(--c-tab-pulse); border-bottom-color: var(--c-tab-pulse); }
+.lcars-tab[data-tab="meta"].active   { color: var(--c-tab-meta);  border-bottom-color: var(--c-tab-meta); }
+.lcars-tab[data-tab="kb"].active     { color: var(--c-tab-kb);    border-bottom-color: var(--c-tab-kb); }
+.lcars-tab[data-tab="wisdom"].active { color: var(--c-tab-wisdom); border-bottom-color: var(--c-tab-wisdom); }
+.lcars-tab[data-tab="operations"].active { color: var(--c-tab-ops); border-bottom-color: var(--c-tab-ops); }
+.lcars-tab[data-tab="science"].active { color: var(--c-tab-science); border-bottom-color: var(--c-tab-science); }
+.lcars-tab[data-tab="engineering"].active { color: var(--c-tab-engineering); border-bottom-color: var(--c-tab-engineering); }
+.lcars-tab[data-tab="helm"].active { color: var(--c-tab-helm); border-bottom-color: var(--c-tab-helm); }
+.lcars-tab[data-tab="tactical"].active { color: var(--c-tab-tactical); border-bottom-color: var(--c-tab-tactical); }
+.tab-badge {
+    background: var(--c-alert);
+    color: var(--bg-primary);
+    border-radius: 8px;
+    padding: 1px 6px;
+    font-size: 0.75em;
+    margin-left: 6px;
+    font-weight: bold;
+}
+
+/* Content area */
+.lcars-content {
+    grid-column: 2;
+    grid-row: 3;
+    padding: 20px;
+    overflow-y: auto;
+}
+.tab-pane { display: none; }
+.tab-pane.active { display: block; padding-bottom: 80px; /* breathing room for last panel on mobile */ }
+
+/* Footer */
+.lcars-footer {
+    grid-column: 2;
+    grid-row: 4;
+    padding: 8px 20px;
+    border-top: var(--band-height) solid var(--c-transport);
+    font-size: 0.7em;
+    color: var(--text-dim);
+    display: flex;
+    justify-content: space-between;
+}
+
+
+/* ── Responsive: Phone ── */
+/* ── Responsive: Phone (inline overrides) ────────────────── */
+@media (max-width: 768px) {
+    .lcars-frame {
+        grid-template-columns: 12px 1fr;
+    }
+    :root { --elbow-width: 12px; }
+
+    /* Header: stack vertically */
+    .lcars-header { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
+    .lcars-header > div:first-child { flex: 1 1 100%; }
+    .lcars-controls { flex: 1 1 100%; justify-content: flex-end; }
+    .lcars-title { font-size: 1.1em; }
+    .lcars-subtitle { display: none; }
+    .lcars-content { padding: 12px; overflow-x: hidden; }
+
+    /* Tab bar: horizontal scroll */
+    .lcars-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .lcars-tab { padding: 8px 12px; font-size: 0.75em; white-space: nowrap; flex-shrink: 0; }
+
+    /* Grids: single column */
+    .agents-grid { grid-template-columns: 1fr; }
+    .vitals-grid { grid-template-columns: repeat(3, 1fr); }
+    .kb-vitals { grid-template-columns: repeat(3, 1fr); }
+    .dict-grid { grid-template-columns: 1fr; }
+    .catalog-bar-label { width: 100px; font-size: 0.75em; }
+    .kb-table { font-size: 0.7em; }
+    .table-toolbar { padding: 6px 12px; }
+    .table-filter { min-width: 120px; }
+    .lcars-panel-body.scrollable { max-height: 300px; }
+
+    /* Footer: wrap */
+    .lcars-footer { flex-wrap: wrap; gap: 4px; }
+}
+
+/* Small landscape (iPhone 8 class: 667×375) — compact LCARS chrome */
+@media (max-height: 414px) and (orientation: landscape) {
+    .lcars-header-band { min-height: 32px; }
+    .lcars-header-seg { padding: 2px 8px; font-size: 0.62em; }
+    .lcars-footer-band { min-height: 32px; }
+    .lcars-footer-seg { padding: 2px 8px; font-size: 0.62em; }
+    .lcars-sidebar-cap-top { min-height: 32px; }
+    .lcars-sidebar-cap-bottom { min-height: 32px; }
+    .lcars-sidebar-btn { min-height: 32px; padding: 4px 8px 4px 12px; font-size: 0.62em; }
+    .lcars-sidebar-arm { min-height: 8px; }
+    .lcars-sidebar-spacer { min-height: 8px; }
+    .lcars-content { padding: 8px 12px; }
+    /* Hide less-critical header segments on very narrow landscape */
+    .lcars-header-seg:nth-child(n+5) { display: none; }
+}
+
+@media (max-width: 480px) {
+    .vitals-grid { grid-template-columns: repeat(2, 1fr); }
+    .toggle-group { display: none; }
+    .lcars-content { padding: 8px; }
+}
+
+/* Loading state */
+.loading-shimmer {
+    background: linear-gradient(90deg, var(--bg-panel) 25%, var(--border) 50%, var(--bg-panel) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+
+/* ── Header/Sidebar structural elements ── */
+/* ── Header change flash ─────────────────────────────────────── */
+.lcars-header-seg.hdr-changed {
+    animation: hdr-flash 2s ease-in-out 1;
+}
+/* Stardate: single flash on data change */
+.lcars-stardate-cell.hdr-changed {
+    animation: hdr-flash 2s ease-in-out 1;
+}
+/* Stardate: slow persistent pulse until tapped (first load) */
+.lcars-stardate-cell.hdr-attract {
+    animation: hdr-attract 3s ease-in-out 5;
+}
+@keyframes hdr-flash {
+    0%   { filter: brightness(1); }
+    25%  { filter: brightness(1.6); }
+    50%  { filter: brightness(1); }
+    75%  { filter: brightness(1.4); }
+    100% { filter: brightness(1); }
+}
+@keyframes hdr-attract {
+    0%, 100% { filter: brightness(1); }
+    50%      { filter: brightness(1.667); } /* 1.03 × φ */
+}
+/* Slow flash for offline agent names (2s period, 1→1/φ≈0.618 opacity) */
+@keyframes agent-offline-flash {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.618; }
+}
+.agent-name-offline {
+    animation: agent-offline-flash 2s ease-in-out infinite;
+    color: var(--lcars-alert, #c47070) !important;
+}
+.ohniaka-row-offline {
+    animation: agent-offline-flash 2s ease-in-out infinite;
+}
+
+/* ── Stardate Tray (mobile portrait) ─────────────────────────── */
+/* Desktop: all pills inline, tray hidden */
+.stardate-tray-input { display: none; }
+.stardate-tray-label {
+    display: flex;
+    align-items: flex-end; /* bottom-aligned */
+    justify-content: center; /* centered */
+    width: 100%;
+    height: 100%;
+    cursor: default;
+}
+/* Stardate accordion tray — applies at ALL screen sizes (desktop included).
+   Agents + Messages live in tray. A2A pills + health stay always visible. */
+.stardate-tray-label { cursor: pointer; }
+.lcars-stardate-cell { overflow: visible; }
+.stardate-tray {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs, 3px);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.2s ease;
+    padding: 0;
+}
+.stardate-tray-pill {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 14px;
+    height: 0;
+    opacity: 0;
+    font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #000;
+    white-space: nowrap;
+    transition: height 0.3s ease, opacity 0.2s ease, padding 0.3s ease;
+}
+.stardate-tray-pill:last-child {
+    border-radius: 0 0 var(--gap-m, 8px) var(--gap-m, 8px);
+}
+.stardate-tray-input:checked ~ .stardate-tray {
+    max-height: 280px;
+    padding-top: var(--gap-xs, 3px);
+}
+.stardate-tray-input:checked ~ .stardate-tray .stardate-tray-pill {
+    height: 42px;
+    padding: 8px 18px;
+    opacity: 1;
+    font-size: 0.82em;
+}
+
+/* Mobile portrait: stardate becomes tray trigger */
+@media (max-width: 480px) {
+    .theme-lcars .lcars-header-band {
+        flex-wrap: nowrap !important; /* title + stardate share one row */
+        min-height: auto;
+    }
+    /* Mobile: tray still works via accordion, A2A + health stay visible */
+    /* Title shrinks, stardate gets fixed width */
+    .lcars-header-seg:first-child {
+        flex: 1 1 0 !important;
+        min-width: 0;
+        overflow: hidden;
+    }
+    .lcars-stardate-cell {
+        flex: 0 0 auto !important;
+        overflow: visible; /* allow tray to extend below */
+    }
+    .stardate-tray-label {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        height: 100%;
+        padding: 0 8px;
+        font-size: 0.68em;
+    }
+    .stardate-tray {
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap-xs, 3px);
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 200;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease, padding 0.2s ease;
+        padding: 0;
+    }
+    .stardate-tray-pill {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0 14px;
+        height: 0;
+        opacity: 0;
+        font-family: 'Oswald', 'Antonio', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+        font-size: 0.72em;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #000;
+        white-space: nowrap;
+        transition: height 0.3s ease, opacity 0.2s ease, padding 0.3s ease;
+    }
+    .stardate-tray-pill:last-child {
+        border-radius: 0 0 var(--gap-m, 8px) var(--gap-m, 8px);
+    }
+
+    /* Expanded state */
+    .stardate-tray-input:checked ~ .stardate-tray {
+        max-height: 200px;
+        padding-top: var(--gap-xs, 3px);
+    }
+    .stardate-tray-input:checked ~ .stardate-tray .stardate-tray-pill {
+        height: 32px;
+        padding: 4px 14px;
+        opacity: 1;
+    }
+}
+
+/* ── Header title pill — tight to text ────────────────────────── */
+.lcars-hdr-title {
+    flex: 0 0 auto !important; /* exact content width */
+    justify-content: center !important;
+    text-align: center;
+    white-space: nowrap;
+    padding: 4px 16px !important;
+}
+
+/* ── Header structural arm — fixed connector, canonical LCARS bar ──── */
+.lcars-hdr-arm {
+    flex: 0 0 var(--gap-3xl, 55px); /* 2φ + 1φ — matches sidebar drop proportion */
+    align-self: stretch;
+}
+
+/* ── Header end cap — rounded terminator, absorbs remaining space ── */
+.lcars-hdr-endcap {
+    flex: 1 0 24px; /* grows to fill remaining header width */
+    align-self: stretch;
+    border-radius: 0 var(--elbow-inner, 24px) var(--elbow-inner, 24px) 0;
+}
+
+/* Mobile: arms +1φ, endcap grows */
+@media (max-width: 480px) {
+    .lcars-hdr-arm { flex: 0 0 calc(var(--gap-m, 8px) + var(--gap-xl, 21px)) !important; min-width: 29px !important; display: flex !important; }
+    .lcars-hdr-endcap { flex: 1 0 12px !important; }
+}
+/* Tablet: arm shrinks but stays visible */
+@media (max-width: 768px) and (min-width: 481px) {
+    .lcars-hdr-arm { min-width: 8px; }
+    .lcars-hdr-endcap { flex: 0 0 16px; }
+}
+
+/* ── Sidebar drop — filled structural spacer between elbow cap and first button.
+   Same role as the header arm between title and stardate: a solid filled
+   frame-color bar that visually connects structural elements. */
+.lcars-sidebar-drop {
+    min-height: var(--gap-3xl, 55px);
+    flex-shrink: 1;
+    margin-bottom: var(--gap-xs);
+    border-radius: 0;
+    /* background set by .theme-lcars rule → var(--lcars-frame) */
+}
+@media (max-width: 768px) {
+    .lcars-sidebar-drop { min-height: var(--gap-2xl, 34px); }
+}
+@media (max-width: 480px) {
+    .lcars-sidebar-drop { min-height: var(--gap-xl, 21px); }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+    .lcars-sidebar-drop { min-height: var(--gap-l, 13px); }
+}
+
+/* Alert: sidebar drop follows structural chrome color (matches main alert block) */
+body[data-alert-level="3"] .lcars-sidebar-drop { background: var(--alert-yellow-med, #CD870E) !important; }
+body[data-alert-level="2"] .lcars-sidebar-drop { background: var(--alert-red-dark, #990000) !important; }
+
+/* Connectors use grid placement — no mobile hide needed */
+
+/* ── Capsule dot — agent identity color swatch ───────────────── */
+.capsule-dot {
+    width: 12px;
+    height: 100%;
+    min-height: 24px;
+    flex-shrink: 0;
+    border-radius: 0;
+}
+
+/* ── Capsule center — horizontally centered text in data pills ── */
+.capsule-center {
+    justify-content: center !important;
+    text-align: center;
