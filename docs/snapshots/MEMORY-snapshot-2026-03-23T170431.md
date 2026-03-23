@@ -4,20 +4,22 @@
 
 ## Active Thread (2026-03-22)
 
-**Session 99.** Largest session ever (94 meshd commits + psychology-agent). Four major
-deliverables: (1) RDF triple store + SPARQL engine + LCARS query console, (2) LCARS
-SVG panel frames (Cargo Bay A reference), (3) gray-box as primary mesh host (6 services,
-all agents distinct identities), (4) agentd repo published to GitHub + cmd/meshd tracked.
-Chromabook went down mid-session — all infrastructure migrated to gray-box under
-~/Projects/sqlab/. Playwright MCP configured for next session CSS debugging.
+**Session 99.** Mesh ontology + RDF triple store + LCARS vertical slice. Cayley
+abandoned (stalled 2019, no SPARQL). Ontology-first DDD approach: spec drives Go
+(ontology.jsonld runtime-evolvable, no recompile). Standards-first: schema.org +
+PROV-O + SOSA + AS2 cover 14/19 predicates, only 8 custom mesh:. SHACL shape
+validation. Named graphs = Plan 9 namespaces. Temporal bounds (valid_until) for
+longitudinal data. A2A-Psychology 8 constructs → sosa:Observation. Deployed to
+Chromabook, 74 triples live. Two deployment bugs fixed (sqlite3 dot-commands
+need stdin pipe, startup race for OnRefresh callback).
 
-**Next priority (Session 100):**
-1. LCARS alert mode debugging (Playwright MCP) — subpanel header flash, table overflow, data pill visibility during yellow/red/black alerts
-2. PSQ agent "offline" display — dashboard health check expects fields PSQ doesn't serve
-3. Transport protocol refactor evaluation — git-PR obsolete for co-located agents
-4. WebTransport evaluation — W3C mesh networking prototype
-5. MSD column alignment (label | value | visual)
-6. Operational state validation (Option C — correlate composites with outcomes)
+**Next priority:**
+1. LCARS Knowledge Graph panel polish (graph visualization, P03 topology)
+2. WebTransport evaluation — W3C mesh networking prototype
+3. MSD column alignment (label | value | visual)
+4. Operational state validation (Option C — correlate composites with outcomes)
+5. Confidence score recalibration (carried from Session 92)
+6. Archival compression for longitudinal triple data
 
 ## User Preferences
 
@@ -69,6 +71,3 @@ Chromabook went down mid-session — all infrastructure migrated to gray-box und
 - `project_psy_session_no_meshd.md` — psy-session runs agentd only, no local meshd (Session 98 decision)
 - `project_api_token_rotation.md` — ROTATE: CF_API_TOKEN + GITHUB_TOKEN exposed in old plist on gray-box
 - `project_session_roadmap.md` — Session 100 (UX/user journey MVP), triple store polish
-- `project_transport_refactor.md` — git-PR transport needs refactoring for co-located architecture
-- `project_graybox_migration.md` — gray-box as primary mesh host, ~/Projects/sqlab/ layout
-- `feedback_dns_caution.md` — never overwrite DNS without verifying current target first

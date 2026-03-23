@@ -6678,8 +6678,66 @@ dependency: define ontology first, build engine-agnostic triple store second.
 All 5 agents represented. Ontology served at `/ns/mesh/ontology.jsonld`.
 
 ▶ docs/mesh-ontology.md, MEMORY.md updated, TODO.md pending
+
+**Session 99 continued (2026-03-22T17:30 → 2026-03-23T17:00 CDT):**
+
+**SPARQL engine:**
+- `internal/triplestore/sparql.go` — SPARQL-to-SQL translator (SELECT, WHERE, FILTER, ORDER BY, LIMIT)
+- `GET /api/sparql` endpoint (query via URL or POST body)
+- LCARS query console in Science/Ontology (example buttons, textarea, results table)
+
+**LCARS panel overhaul (SVG frames):**
+- Pure SVG L-shape frames replacing CSS border approach (no seam artifacts)
+- Outer rounded corners (top-left, bottom-left) via SVG arcs
+- Inner concave curves at header↔body and body↔footer junctions
+- Header: accent bar with black title cutout pill + separate tristate triangle pill
+- Footer: accent bar with colored data pills (stardate convention), off-center
+- Tristate collapse: ▶ fixed → ▼ expanded → ▲ collapsed, all three states functional
+- `renderPanelElbows()` in core.js with ResizeObserver + MutationObserver
+
+**LCARS visual polish:**
+- Thin LCARS pill buttons globally (24px, matching reference images)
+- Number formatting: space-separated thousands, datatype-driven (xsd:decimal → 2dp)
+- Humanized URIs in Knowledge Graph (schema:SoftwareApplication → "Software Application")
+- Observation summary view for blank-node graphs (agent-status)
+- Deep-link flash prevention (inline script in `<head>`)
+- Subsystem URL persistence (?sub= cleared on tab switch)
+- Collapse/expand all buttons auto-injected into zone-C headers
+- Footer pills in footer-row wrapper (flow layout, no overlap)
+
+**Gray-box migration (Chromabook down):**
+- All 6 services deployed on gray-box: meshd (8081) + 5 agentd instances (8070-8076)
+- `~/Projects/sqlab/` — flat layout, fresh clones, repo names match GitHub
+- Cloudflare tunnel `3fffab39` routes all hostnames (two certs: sqlab + unratified)
+- agentd repo created on GitHub (was local-only)
+- cmd/meshd/main.go committed (was gitignored by bare `meshd` pattern)
+- `.agent-identity.json` for each agent (distinct identities)
+- State.db bootstrapped fresh — historical data on Chromabook, rebuilds from files
+
+**Alert mode (yellow/red/black):**
+- SVG path fill overrides for all three alert levels
+- Footer pills switch to black cutout during alerts (visibility)
+- MutationObserver on body[data-alert-level] triggers SVG redraw
+- Flash animation covers structural elements (not data pills)
+- Known issues: subpanel header bar flash not visible, table still overlaps lower arm
+
+**Known issues carried to Session 100:**
+- Alert subpanel header flash — needs Playwright MCP CSS debugging
+- Alert table overflow past footer arm — specificity battle with expanded state
+- PSQ agent shows "offline" — dashboard expects fields PSQ status doesn't serve
+- Deep-link flash (MSD flashes briefly on ?sub=ontology#analysis)
+- observatory.unratified.org DNS accidentally overwritten (needs manual restore)
+
+**Infrastructure decisions:**
+- gray-box as primary mesh host (Chromabook becomes backup)
+- Transport protocol refactor needed (git-PR obsolete for co-located agents)
+- Playwright MCP configured for next session (browser CSS debugging)
+
+▶ MEMORY.md updated, TODO.md updated, docs/mesh-ontology.md, docs/schema-extensions.md
 ⚑ EPISTEMIC FLAGS
 - SOSA/SSN mapping confidence HIGH but schema.org Observation vs SOSA Observation
   type distinction requires care in mixed graphs
 - SHACL validation depth MODERATE (property constraints only, not SPARQL-based)
+- observatory.unratified.org DNS overwritten — original Workers target unknown
+- State.db fresh on gray-box — no historical data until Chromabook recovery or bootstrap
 - `docs/schema-extensions.md` referenced in lcars-data-architecture.md §8.1 but never created
