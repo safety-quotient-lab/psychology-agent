@@ -1,25 +1,22 @@
 ---
 name: gray-box-mesh-migration
-description: Mesh migrated from Chromabook to gray-box (2026-03-23). All services running from ~/Projects/sqlab/. State.db fresh — historical data on Chromabook.
+description: All mesh infrastructure runs on gray-box (this machine) — local deploys only. Chromabook decommissioned as deploy target.
 type: project
 ---
 
-**Mesh relocated to gray-box** (2026-03-23, Session 99).
+**gray-box runs everything locally** (2026-03-23, Session 99+100).
 
-Chromabook went down. All services migrated to gray-box:
-- ~/Projects/sqlab/ — flat layout, repo names match GitHub
+All services run on this machine at ~/Projects/sqlab/:
 - 6 services: meshd (8081) + 5 agentd instances (8070-8076)
 - Cloudflare tunnel 3fffab39 routes all hostnames
 - Two certs: cert.sqlab.pem (safety-quotient.dev), cert.unratified.pem (unratified.org)
-- agentd repo pushed to GitHub (was local-only on Chromabook)
-- cmd/meshd/main.go committed (was gitignored by bare 'meshd' pattern)
 
-**State.db fresh** — bootstrapped empty. Historical data exists only on
-Chromabook's state.db files. When Chromabook recovers:
-1. scp state.db files to gray-box
-2. Or rebuild via bootstrap_state_db.py from transport session files
+**Deploy = local rebuild + restart.** No SSH, no SCP, no remote targets.
+Chromabook decommissioned — not a deploy target, not a backup host.
 
-Triple store repopulates automatically from live data within minutes.
+**Why:** Chromabook went down permanently. gray-box absorbed all services.
+The Makefile `deploy` target (SSH to chromabook:2535) no longer applies.
+Build locally, restart the local process.
 
-**How to apply:** gray-box serves as primary mesh host going forward.
-Chromabook becomes backup/secondary when it recovers.
+**How to apply:** Never use `make deploy`. Build with `make build`, then
+restart the local meshd process directly.

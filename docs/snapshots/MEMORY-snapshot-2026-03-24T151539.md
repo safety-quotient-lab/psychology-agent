@@ -2,19 +2,22 @@
 
 **Architecture:** index + topic files. MEMORY.md = always-loaded index (~50 lines).
 
-## Active Thread (2026-03-24)
+## Active Thread (2026-03-22)
 
-**Session 100.** LCARS alert mode rewrite (CSS custom properties + brightness flash),
-bulkier chrome (32px arms/headers), footer pill architecture (stardate pattern),
-PSQ agent ID fix, Makefile local deploy via launchd. Playwright MCP operational —
-all three alert levels verified visually. Chromabook fully decommissioned.
+**Session 99.** Largest session ever (94 meshd commits + psychology-agent). Four major
+deliverables: (1) RDF triple store + SPARQL engine + LCARS query console, (2) LCARS
+SVG panel frames (Cargo Bay A reference), (3) gray-box as primary mesh host (6 services,
+all agents distinct identities), (4) agentd repo published to GitHub + cmd/meshd tracked.
+Chromabook went down mid-session — all infrastructure migrated to gray-box under
+~/Projects/sqlab/. Playwright MCP configured for next session CSS debugging.
 
-**Next priority (Session 101):**
-1. Transport protocol refactor evaluation — git-PR obsolete for co-located agents
-2. WebTransport evaluation — W3C mesh networking prototype
-3. MSD column alignment (label | value | visual)
-4. Operational state validation (Option C — correlate composites with outcomes)
-5. `interagent.safety-quotient.dev` decommission (stale Workers route)
+**Next priority (Session 100):**
+1. LCARS alert mode debugging (Playwright MCP) — subpanel header flash, table overflow, data pill visibility during yellow/red/black alerts
+2. PSQ agent "offline" display — dashboard health check expects fields PSQ doesn't serve
+3. Transport protocol refactor evaluation — git-PR obsolete for co-located agents
+4. WebTransport evaluation — W3C mesh networking prototype
+5. MSD column alignment (label | value | visual)
+6. Operational state validation (Option C — correlate composites with outcomes)
 
 ## User Preferences
 
