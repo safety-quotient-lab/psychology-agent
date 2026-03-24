@@ -9,6 +9,7 @@ pje-framework/
 CLAUDE.local.md
 .claude/settings.local.json
 .claude/hunt-at-startup
+.mcp.json
 
 # Generated reconstruction output (not source)
 reconstruction/divergence-report.md
@@ -73,3 +74,4 @@ platform/agentd-*
 # Confidential specifications
 docs/biophotonic-measurement-device.md
 .eic-last-run
+.playwright-mcp/
