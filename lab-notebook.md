@@ -6741,3 +6741,68 @@ All 5 agents represented. Ontology served at `/ns/mesh/ontology.jsonld`.
 - observatory.unratified.org DNS overwritten — original Workers target unknown
 - State.db fresh on gray-box — no historical data until Chromabook recovery or bootstrap
 - `docs/schema-extensions.md` referenced in lcars-data-architecture.md §8.1 but never created
+
+
+## 2026-03-24T15:13 CDT — Session 100 (LCARS alert modes, bulkier chrome, local deploy)
+
+**LCARS alert mode rewrite (meshd):**
+- Replaced ~200 lines of per-level CSS with custom property architecture
+  (`--alert-chrome`, `--alert-chrome-text`, `--alert-chrome-bright`)
+- Flash animation: `filter: brightness(0.618)` replaces `opacity` — visible
+  on all three levels (yellow, red, black)
+- Panel headers stay transparent (SVG at z:1 carries alert color) — prevents
+  brightness filter from compositing through to title pills
+- Triangle indicator: `currentColor` inherits alert text color (white on red,
+  cyan on black)
+- Title pill: `align-items: center` + `line-height: 32px` — eliminates underline
+  artifact from flex-end alignment
+- Footer pills: colored segments on SVG bar with 3px black borders (stardate
+  pattern), not black cutouts on colored row
+- Empty footer injection: `renderPanelElbows()` injects `.lcars-panel-footer`
+  for panels lacking one — prevents body/arm overlap
+
+**LCARS chrome scaling:**
+- Arms 20→32px, headers/footers 24→32px, outer radius 18→24px, inner 12→16px
+- Body-to-arm padding 21→13px (×1/φ tighter)
+- Main frame elbow 28→36px, band 8→10px, elbow-radius 20→28px
+
+**Subpanel footer data pills:**
+- Bottom bars added to governance, analysis, architecture, vitals subpanels
+- `updateSubpanelFooters()` populates from live agentData (agent count, alert
+  level, scoring status, version count, uptime)
+- CSS: `.subpanel-pill` class, alert-aware color override
+
+**PSQ agent ID fix:**
+- AGENTS config: `psq-agent` → `safety-quotient-agent` (core.js, components.css,
+  index.html JSON-LD schema)
+- Root cause: naming convention changed Session 91, dashboard config never updated
+
+**Infrastructure:**
+- Makefile rewritten for local launchd deploy (`dev.safety-quotient.meshd` service)
+- No SSH, no Chromabook — `make deploy` builds in place, stops/starts service, validates
+- Cache busting: `BuildTime` via `-ldflags`, appended to version string in
+  `?v=` query params. Every build produces a unique cache buster.
+- `interagent.safety-quotient.dev` identified as stale Workers route — decommission pending
+- Chromabook fully decommissioned as deploy target (memory updated)
+
+**Tooling:**
+- Playwright MCP connected (WebKit + Chromium installed, `.mcp.json` at project root)
+- Go LSP plugin enabled (`gopls-lsp@claude-plugins-official`)
+- Fetch MCP configured (`mcp-fetch-server` via npx)
+- Allow list updated in `.claude/settings.local.json` for all MCP tools
+
+**Playwright-verified across all three alert levels:**
+- Yellow (3): gold chrome, visible brightness pulse, subpanel pills populated
+- Red (2): maroon chrome, white text, cyan-visible triangle
+- Black (1): navy chrome, cyan text, all elements responsive
+
+**Commits:**
+- meshd: `d17e719` — Session 100: LCARS alert mode rewrite, bulkier chrome, local deploy
+- psychology-agent: `4e003899` — Session 100: gitignore .mcp.json and .playwright-mcp/
+
+▶ journal.md, MEMORY.md updated
+⚑ EPISTEMIC FLAGS
+- Cache busting relies on build timestamp — clock skew between machines would
+  produce non-monotonic version strings (low risk, single-machine deploy)
+- `interagent.safety-quotient.dev` still serves the dashboard via stale Workers
+  route — potential confusion with `mesh.safety-quotient.dev` canonical URL
