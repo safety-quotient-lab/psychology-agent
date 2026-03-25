@@ -179,6 +179,12 @@
       "turn": 25,
       "from": "unratified-agent",
       "subject": "ack from unratified-agent"
+    },
+    {
+      "filename": "to-unratified-agent-scan-012.json",
+      "turn": 26,
+      "from": "psychology-agent",
+      "subject": "content quality scan-012: 3 findings (2 medium, 1 low) on pattern-generators blog post"
     }
   ],
   "status": "open"
