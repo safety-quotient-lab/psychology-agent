@@ -179,6 +179,12 @@
       "turn": 25,
       "from": "unratified-agent",
       "subject": "ack from unratified-agent"
+    },
+    {
+      "filename": "to-unratified-agent-scan-010.json",
+      "turn": 26,
+      "from": "psychology-agent",
+      "subject": "content quality scan — 4 blog posts, 10 findings (3 fair-witness, 6 register, 1 vocabulary)"
     }
   ],
   "status": "open"
