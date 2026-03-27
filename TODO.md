@@ -156,6 +156,61 @@ New items from the full cogarch evaluation (`docs/cogarch-evaluation-session85.m
 
 ---
 
+## Transport Backlog Triage (Session 101)
+
+Triaged from 93 transport messages addressed to mesh (Sessions 75-99).
+11 resolved, 7 stale (Chromabook/compositor references), 13 still relevant.
+
+### Blog Posts
+
+- [x] **Jurassic Park development** — IN REPO + LIVE on blog.unratified.org
+- [x] **Pattern Generators (2 posts)** — IN REPO + LIVE
+- [x] **Crystallized Intelligence** — IN REPO + LIVE
+- [x] **Cogarch Adjudication** — IN REPO + LIVE
+- [x] **ICESCR enforcement + voter guide series** — IN REPO + LIVE
+- [ ] **Einstein-Freud rights theory blog** — NOT IN REPO. Transport: blog-einstein-freud session.
+  Taoist integration + two coupled generators + wu wei governance.
+  *Precondition: content needs writing by observatory-agent.*
+- [ ] **A2A-Psychology blog series (3 posts)** — NOT IN REPO. Transport: blog-a2a-psychology session.
+  *Precondition: content needs writing.*
+- [ ] **LLM-Factors Psychology blog** — NOT IN REPO. Transport: blog-llm-factors session.
+  Founding a new discipline.
+  *Precondition: content needs writing.*
+
+### Open Requests (from transport messages)
+
+- [ ] **Agent personality blocks** — spec exists (agent-personality-spec.md), not rolled out.
+  Transport: agent-personality-rollout session.
+- [ ] **Cloudflare Access auth for dashboard** — no auth on admin endpoints.
+  Transport: auth-implementation session.
+- [ ] **SPSS alternatives investigation** — open-source psychometric analysis tools.
+  Transport: operations-spss-investigation session.
+- [ ] **Governance ablation study runner** — self-model ablation for cogarch validation.
+  Transport: governance-ablation-study session.
+- [ ] **Mesh governance recommendations** — not reviewed.
+  Transport: mesh-governance-recommendations session.
+- [ ] **A2A-Psychology sensor deployment** — spec exists, sensors not deployed.
+  Transport: psychometrics-rollout session.
+- [ ] **LCARS widget gap (8 components)** — many added, some gaps remain.
+  Transport: lcars-backend-endpoints session.
+- [ ] **Vocab dateCreated/dateModified** — vocab.json terms may lack temporal metadata.
+  Transport: mesh-diagnostic-request session.
+- [ ] **Tonic inhibition detection spec** — shadow→sleep rename done, spec pending.
+  Transport: meshd-bug-diagnostics session.
+- [ ] **Naming convention DNS migration** — safety-quotient-agent renamed in code,
+  DNS records (psq-agent.safety-quotient.dev) still point to old name.
+  Transport: naming-convention-reform session.
+
+### Stale (Chromabook/compositor era — archived)
+
+Transport sessions referencing Chromabook deploys, compositor ownership, old
+budget model, git-sync fixes — no longer applicable after gray-box migration.
+Sessions: budget-model-refactor, compositor-identity, git-sync-convention,
+git-sync-escalation, infrastructure-verification, operations-deploy-session85,
+v1-release-consultation.
+
+---
+
 ## Architecture
 
 - [ ] **Internal code naming convention reform** — Option C resolved (kebab canonical +
