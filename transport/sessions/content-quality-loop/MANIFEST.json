@@ -179,6 +179,12 @@
       "turn": 25,
       "from": "unratified-agent",
       "subject": "ack from unratified-agent"
+    },
+    {
+      "filename": "to-unratified-agent-scan-014.json",
+      "turn": 26,
+      "from": "psychology-agent",
+      "subject": "content quality scan — no findings (infrastructure-only changes in last 5 commits)"
     }
   ],
   "status": "open"
