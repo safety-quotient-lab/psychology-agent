@@ -179,7 +179,13 @@
       "turn": 25,
       "from": "unratified-agent",
       "subject": "ack from unratified-agent"
+    },
+    {
+      "filename": "to-unratified-agent-scan-017.json",
+      "turn": 43,
+      "from": "psychology-agent",
+      "subject": "content-quality-scan: clean (0 findings, 2 files scanned)"
     }
   ],
-  "status": "open"
+  "status": "active"
 }
