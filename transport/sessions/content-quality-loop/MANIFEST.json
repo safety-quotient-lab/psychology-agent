@@ -179,7 +179,13 @@
       "turn": 25,
       "from": "unratified-agent",
       "subject": "ack from unratified-agent"
+    },
+    {
+      "filename": "to-unratified-agent-scan-018.json",
+      "turn": 26,
+      "from": "psychology-agent",
+      "subject": "content quality scan — 5 findings (1H 3M 1L) on historical context series + why-war post"
     }
   ],
-  "status": "open"
+  "status": "active"
 }
