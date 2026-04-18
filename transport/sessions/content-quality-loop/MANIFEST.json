@@ -179,7 +179,13 @@
       "turn": 25,
       "from": "unratified-agent",
       "subject": "ack from unratified-agent"
+    },
+    {
+      "filename": "to-unratified-agent-scan-010.json",
+      "turn": 26,
+      "from": "psychology-agent",
+      "subject": "content quality scan — 3 findings (1 high, 2 medium) on template-letters and talking-points"
     }
   ],
-  "status": "open"
+  "status": "active"
 }
