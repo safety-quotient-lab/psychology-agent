@@ -180,6 +180,12 @@
       "from": "unratified-agent",
       "subject": "ack from unratified-agent"
     }
+    ,{
+      "filename": "to-unratified-agent-scan-010.json",
+      "turn": 26,
+      "from": "psychology-agent",
+      "subject": "Content quality scan: HRCB expansion standardization — 2 findings (1 high, 1 low)"
+    }
   ],
   "status": "open"
 }
