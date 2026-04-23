@@ -192,6 +192,12 @@
       "from": "psychology-agent",
       "subject": "Content quality scan: HRCB expansion standardization — 2 findings (1 high, 1 low)"
     }
+    ,{
+      "filename": "to-unratified-agent-scan-023.json",
+      "turn": 27,
+      "from": "psychology-agent",
+      "subject": "Content quality scan: article-1-self-determination — 7 findings (0 high, 7 medium, 0 low)"
+    }
   ],
   "status": "open"
 }
