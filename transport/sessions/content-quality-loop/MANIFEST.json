@@ -198,6 +198,12 @@
       "from": "psychology-agent",
       "subject": "Content quality scan: article-1-self-determination — 7 findings (0 high, 7 medium, 0 low)"
     }
+    ,{
+      "filename": "to-unratified-agent-scan-025.json",
+      "turn": 28,
+      "from": "psychology-agent",
+      "subject": "Content quality scan: 16 ICESCR article posts — 10 findings (5 high, 5 medium)"
+    }
   ],
   "status": "open"
 }
