@@ -27,7 +27,7 @@
       "from_commit": "27a3f5a1e4b91140e2581993970b25f021ac1897",
       "to_commit": "6c719ca0bebf3c5192f26e13c9b3ccf31965aabe",
       "files_scanned": 17,
-      "files_with_findings": 8,
+      "files_with_findings": 9,
       "files_filtered": 0,
       "filter_reasons": {
         "empty_diff": 0,
@@ -104,14 +104,14 @@
       },
       {
         "id": "f7",
-        "file": "blog/src/content/posts/2026-04-22-article-6-right-to-work.md",
-        "line": 33,
+        "file": "src/content/action/template-letters.mdx",
+        "line": 91,
         "dimension": "fair-witness",
-        "severity": "medium",
-        "confidence": 0.75,
-        "description": "'American workers facing AI displacement operate without access to the international accountability framework that workers in 173 other countries can invoke' slightly overstates the practical contrast. Workers in ratifying states rarely invoke CESCR mechanisms directly — the mechanism operates through state reporting obligations and civil society shadow reports, not individual worker access.",
-        "suggestion": "Clarify the mechanism: 'American workers facing AI displacement lack the international accountability framework — periodic state reporting and civil society scrutiny — that ratifying states' workers benefit from indirectly.'",
-        "context": "which means American workers facing AI displacement operate without access to the international accountability framework that workers in 173 other countries can invoke."
+        "severity": "high",
+        "confidence": 0.9,
+        "description": "CBO projection framed as accomplished fact: 'cut approximately $990 billion (gross) from Medicaid.' The verb 'cut' (past tense) presents a CBO projection of future spending reductions as a realized outcome. The parenthetical '(CBO projection)' provides partial qualification, but the verb tense overrides it — readers parse 'cut' as accomplished fact before reaching the parenthetical.",
+        "suggestion": "Change 'cut approximately $990 billion' to 'would reduce projected Medicaid spending by approximately $990 billion' or 'projects approximately $990 billion in Medicaid reductions.' Ensure the verb tense matches the projectional status of the CBO estimate.",
+        "context": "The One Big Beautiful Bill Act (P.L. 119-21, signed July 2025) cut approximately $990 billion (gross) from Medicaid, removing coverage for approximately 10 million Americans (CBO projection)"
       },
       {
         "id": "f8",
@@ -126,38 +126,38 @@
       },
       {
         "id": "f9",
-        "file": "blog/src/content/posts/2026-04-21-article-9-social-security.md",
-        "line": 108,
-        "dimension": "register",
-        "severity": "low",
-        "confidence": 0.9,
-        "description": "E-Prime violation: 'have not been verified' uses the passive 'been' form. Other articles in the series use the E-Prime-compliant phrasing 'have not undergone verification.'",
-        "suggestion": "Replace 'have not been verified against official OHCHR text' with 'have not undergone verification against official OHCHR text' — matches the phrasing used in articles 6, 7, 12, and 15.",
-        "context": "CESCR General Comment 19 (2007) interpretations cited from knowledge base; specific paragraph numbers have not been verified against official OHCHR text"
+        "file": "blog/src/content/posts/2026-04-22-article-5-non-derogation.md",
+        "line": 3,
+        "dimension": "structural",
+        "severity": "medium",
+        "confidence": 0.85,
+        "description": "Garbled sentence in summary frontmatter: 'Article 5 ensures that a frequently cited objection to ratification — that it would lower existing labor standards — the treaty itself legally forecloses.' The em-dash structure breaks the grammar — the sentence lacks a complete predicate after the parenthetical. Summaries display independently of body text, so this garbled construction reaches readers directly.",
+        "suggestion": "Rewrite to: 'Article 5 legally forecloses a frequently cited objection to ratification — that it would lower existing labor standards.' Or: '...the treaty itself legally forecloses the possibility that ratification would lower existing labor standards.'",
+        "context": "summary: \"...Article 5 ensures that a frequently cited objection to ratification — that it would lower existing labor standards — the treaty itself legally forecloses.\""
       },
       {
         "id": "f10",
-        "file": "blog/src/content/posts/2026-04-21-article-8-right-to-organize.md",
-        "line": 94,
-        "dimension": "structural",
-        "severity": "low",
-        "confidence": 0.85,
-        "description": "CTA section links to voter guide blog posts instead of /action/ guide — same pattern as articles 6, 7, and 9 (see f3). Flagged separately for file-level tracking.",
-        "suggestion": "Standardize to /action/ guide link, consistent with the rest of the ICESCR series.",
-        "context": "voter guide on this site includes [specific senators who could move on ratification]..."
+        "file": "src/content/action/template-letters.mdx",
+        "line": 146,
+        "dimension": "fair-witness",
+        "severity": "medium",
+        "confidence": 0.8,
+        "description": "'The productivity-pay gap has widened by a factor of 3.5 since 1979' — the EPI link goes to a general page, and the 'factor of 3.5' framing could mislead readers about what the statistic measures. EPI's methodology tracks the ratio of productivity growth to compensation growth, not a simple multiplicative factor applied to the gap itself.",
+        "suggestion": "Restate precisely to match the EPI finding: 'productivity grew 3.5 times faster than typical worker compensation since 1979' or verify the exact figure and adjust the formulation to match the source methodology.",
+        "context": "The productivity-pay gap has widened by a factor of 3.5 since 1979 (Economic Policy Institute)"
       }
     ],
     "summary": {
       "total_findings": 10,
       "by_severity": {
-        "high": 1,
-        "medium": 7,
-        "low": 2
+        "high": 2,
+        "medium": 8,
+        "low": 0
       },
       "by_dimension": {
-        "fair-witness": 4,
+        "fair-witness": 5,
         "vocabulary": 2,
-        "register": 2,
+        "register": 1,
         "structural": 2
       }
     }
@@ -175,7 +175,8 @@
   "ack_required": false,
   "epistemic_flags": [
     "Vocabulary findings (f4, f6) based on glossary snapshot at scan time; terms may have been added since",
-    "CTA inconsistency (f3, f10) may reflect intentional variation by publication date rather than oversight",
-    "Fair witness findings (f5, f7, f8) involve judgment calls about hedging adequacy — reasonable interpreters may disagree on threshold"
+    "CTA inconsistency (f3) may reflect intentional variation by publication date rather than oversight",
+    "Fair witness findings (f5, f7, f8, f10) involve judgment calls about hedging adequacy — reasonable interpreters may disagree on threshold",
+    "Template-letters (f7) CBO figure status depends on whether the OBBBA has taken full effect at time of reading — verify current implementation status"
   ]
 }
